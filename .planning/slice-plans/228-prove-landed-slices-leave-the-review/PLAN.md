@@ -86,3 +86,14 @@ unchanged.
   There, `npm ci` skips dev dependencies, and `tsc` silently resolves from the
   dashboard deployment's `node_modules`. Set `NODE_ENV=development` before
   installing and running the checks.
+
+## Execution complete
+
+Product advice: The correction met its goal with no product change. Story
+example 2 now has an observing page journey, and the merge-base baseline is
+unchanged. No further review correction is needed. Consider one product bug
+story from ProjectFindings DD-220: agent sessions launched by the dashboard
+inherit the deployment's `NODE_ENV=production` and `node_modules/.bin`. Their
+checkout setup then installs no dev dependencies and runs the deployment's
+tools, so the readiness check passes without the checkout's locked tools. Its
+priority against the queue is left to wrap-up.

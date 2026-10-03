@@ -29,14 +29,16 @@ executions, not commands, retries, or repairs.
    the agent found a free route itself (plan 152). The cost was a few developer
    round trips, and some of that friction is intended while paid native runs
    stay manual-only.
-3. **Local checks whose result differs from CI's — low, not queued.** Five
-   executions (plans 140, 146, 147, 157, 165), one finding each. DD-187 (a
+3. **Local checks whose result differs from CI's — low, not queued.** Six
+   executions (plans 140, 146, 147, 157, 165, 228), one finding each. DD-187 (a
    `pipefail` pipeline that git could lose to SIGPIPE) cost one CI repair. DD-168 and DD-178
    (tests that take the repository root from the working directory) had no
    delivery impact and each needs a small fix. DD-162 came from a coordinator-prescribed
    direct run that bypassed the runner's existing guard. DD-171 matches
    published ODF-003 (a consumer check missing non-import consumers); ODF-003's
    plan 104 occurrence failed in the same `dashboard/tests/preparingJourney.ts`.
+   DD-220 (a dashboard-launched session inheriting the deployment's `NODE_ENV`
+   and tools) cost one reinstall, and its fix belongs in the launch environment.
 4. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
    queued.** One execution; plan 121 (`178e0346`) corrected its missed merge,
    and no recurrence is recorded.
@@ -267,6 +269,26 @@ Ubuntu runner did not.
   - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
+
+### DD-220 — A session the dashboard launches inherits its deployment's `NODE_ENV=production` and tools, so checkout preparation installs no dev dependencies and still passes
+
+An agent session the Open Dough dashboard launched inherited
+`NODE_ENV=production`, and its `PATH` reached the dashboard deployment's
+`node_modules/.bin`. In the execution worktree, `npm ci` exited 0 having
+installed nothing ("audited 1 package"). `npm run typecheck:dashboard` then
+passed anyway, using the deployment's `tsc`. The readiness gate's project
+command therefore passed without the checkout's locked dev dependencies.
+
+#### Occurrences
+
+- Execution: `SEED-088#prove-landed-slices-leave-the-review` / plan 228, first related implementation commit `1967ed3f`
+  - Timestamp: 2026-10-03T14:50:00+08:00 (checkout setup after Take `230e6b02` at 14:48:28+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.55 (this repository's installed copy)
+  - Evidence: `echo $NODE_ENV` printed `production`; `npm config get omit` printed `dev`; `which tsc` resolved to `~/.open-dough/dashboard/deployments/28cf3da8bc53-d7306v/node_modules/.bin/tsc`; `node_modules/.bin/tsc` was absent from the worktree. `NODE_ENV=development npm ci --include=dev` installed the locked tools, and the checks passed from them.
+  - Observed effect: the coordinator caught it only by checking for the worktree's own `tsc` after the cheap check passed, at a cost of one reinstall. Every later npm and npx command needed `NODE_ENV=development`.
+  - Inference: Qualified. The dashboard deployment runs under `npm run preview:dashboard` (`dashboard/server/productionDeployment.mjs`), and its terminal spawns appear to pass no `env`, so a launched host inherits the server's environment. Proof run with the deployment's tool versions can differ from CI's. This sits close to ODF-087 (a readiness check passing on a substitute), but here the cause and fix are in the dashboard's launch environment.
 
 ## Native host runs and observations routed through the developer (low priority, not selected)
 
