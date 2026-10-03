@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Dictate additional instructions when starting a session](seeds/SEED-084-session-instruction-voice-input.md#session-instruction-voice-input) — SEED-084#session-instruction-voice-input ([plan](slice-plans/223-session-instruction-voice-input/PLAN.md))
-- [Production nerd avatars](seeds/SEED-090-production-nerd-avatars.md#production-nerd-avatars) — SEED-090#production-nerd-avatars
 
 ## Backlog list
 

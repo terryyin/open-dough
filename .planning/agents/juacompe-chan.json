@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "juacompe-chan",
-  "email": "juacompe-chan@example.org",
-  "identity": "SEED-090#production-nerd-avatars",
-  "mode": "story-branch",
-  "branch": "codex/production-nerd-avatars",
-  "host": "codex"
-}
