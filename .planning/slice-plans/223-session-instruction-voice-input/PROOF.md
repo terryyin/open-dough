@@ -2,6 +2,9 @@
 
 Supporting evidence for [the active plan](PLAN.md); slice status remains there.
 
+[Project-settings CI repair](CI-REPAIR.md) records the later stale-consumer
+failure, diagnosed correction and focused proof without changing slice status.
+
 ## Proof ownership and local gates
 
 | Final promise | Owning slice and observation |

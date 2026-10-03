@@ -53,8 +53,7 @@ for (const viewport of [
     ).toBeInViewport({ ratio: 1 });
     for (const control of [
       project,
-      banner.getByRole("button", { name: "Add project", exact: true }),
-      banner.getByRole("button", { name: "Remove project", exact: true }),
+      banner.getByRole("button", { name: "System settings", exact: true }),
       sourceEvidence,
       refresh,
     ]) {
