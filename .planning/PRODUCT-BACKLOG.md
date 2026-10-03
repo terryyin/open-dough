@@ -15,6 +15,7 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers ([plan](slice-plans/237-prove-slices-through-consumers/PLAN.md))
+- [Type the story into Cursor's empty chat](seeds/SEED-096-cursor-empty-chat-prompt.md#cursor-empty-chat-receives-instruction) — SEED-096#cursor-empty-chat-receives-instruction
 
 ## Backlog list
 

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-096#cursor-empty-chat-receives-instruction",
+  "mode": "story-branch",
+  "branch": "cursor/type-the-story-into-cursors-empty-chat",
+  "host": "cursor",
+  "model": "Grok 4.7"
+}
