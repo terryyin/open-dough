@@ -240,6 +240,12 @@ after a resize, so a layout check with an open terminal waits for
 `.xterm-screen` to fit `.terminal-screen` and passes `.terminal-screen` and
 `.sidebar-title` to `expectNoSidewaysScrollAndWholeText`'s new `cutByDesign`
 list. `tooltipOf` in `frameIconControl.ts` finds a control's tooltip.
+CI repair (run 37111699644, `dashboard (2/9)`):
+`responsive-session-reconciliation.spec.ts` did not wait for the page's one
+fresh read after its stale snapshot was shown, so that read could land after
+the test moved `main` and add a failed compare. The test now waits for exactly
+that one `main` read before moving the origin. A probe forcing the CI order
+failed 4 of 4, also at `aeb9c33d`; the fixed file passed 60 of 60.
 Proof: The terminal and sidebar rows of the proof table.
 
 Behavior: the developer opens the Sessions sidebar and a session terminal →

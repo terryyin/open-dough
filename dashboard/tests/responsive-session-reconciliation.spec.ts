@@ -70,7 +70,13 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 
+  // That snapshot was asked before the Take settled, so once it is shown the
+  // page reads `main` afresh exactly once; the revision is still the one before.
+  const mainReads = () =>
+    published.requests.filter(({ request }) => request.kind === "ref").length;
+  const readsBeforeShown = mainReads();
   releaseRef();
+  await expect.poll(mainReads).toBe(readsBeforeShown + 1);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
   );
