@@ -38,9 +38,14 @@ a completed reply means Ready for review, including ordinary prose questions.
 Failure/interruption need attention. A blank has Awaiting first instruction.
 An unloaded Codex conversation with retained history remains resumable. Confirmed
 absence means Session unavailable; unreadable/unsupported data stays unknown.
-Explicit unrecognized native state keeps its provenance, stays unsettled and
+Explicit unrecognized native state (a Claude Code state, or a Codex thread,
+active-flag or latest-turn status) keeps its provenance, stays unsettled and
 adds no attention, but entering its reading raises an alert. Unreadable metadata,
-missing active flags and failed latest-turn reads stay quiet.
+missing Codex active flags and failed latest-turn reads stay quiet.
+Shared readings use the recorded host's unknown-observation wording and native
+explanation; the alert loop consumes the adapter's meaning rather than checking
+the host name. Startup baseline, deduplication, re-entry and done suppression
+remain shared.
 A done mark suppresses attention, showing Working while working, Done otherwise.
 Native structured waiting must be supplied by the configured tool/policy; a
 never-policy run does not establish approval parity.

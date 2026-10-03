@@ -152,7 +152,9 @@ export function PageFrame({
             )}
             {review && (
               <StoryReviewPanel
-                // Each story's review, and each opening of one, reads anew.
+                // Each story's review, and each opening of one after Close or
+                // replacement, reads anew; asking again for the one shown
+                // focuses it and keeps its snapshot until Refresh.
                 key={`${review.source}\n${review.identity}`}
                 request={review}
                 maximized={maximized}

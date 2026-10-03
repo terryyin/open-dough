@@ -81,12 +81,13 @@ export function usePageSidePanel({
   const openResult = useCallback<OpenSessionPanel>((request) => {
     setPanel({ kind: "result", request });
   }, []);
-  // A story's review already shown stays as it is, its snapshot included;
-  // any other opening reads a fresh one.
+  // Asking again for the story's review already shown keeps that review, its
+  // snapshot included, and takes the new request so the review takes the
+  // keyboard; any other opening reads a fresh one.
   const openReview = useCallback<OpenStoryReview>((request) => {
     setPanel((current) =>
       current?.kind === "review" && sameStory(current.request, request)
-        ? current
+        ? { ...current, request }
         : { kind: "review", request },
     );
   }, []);

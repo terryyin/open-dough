@@ -226,15 +226,6 @@ Machine records, native-state observation, alerts and the Sessions sidebar are
 described in [session history, observation and navigation](AGENT-LAUNCH-HISTORY.md).
 These remain local evidence, independent of published story facts.
 
-Each native adapter distinguishes an explicit unfamiliar status from an
-incomplete observation. Unrecognized Claude Code states and Codex thread,
-active-flag or latest-turn statuses remain unsettled and add no attention;
-entering that reading can raise an alert. Unreadable metadata, missing Codex
-active flags and failed latest-turn reads stay quiet. Shared readings use the
-recorded host's unknown-observation wording and native explanation; the alert
-loop consumes the adapter's meaning rather than checking the host name.
-Startup baseline, deduplication, re-entry and done suppression remain shared.
-
 ## Embedded terminals and local record actions
 
 See [terminal attachment and local record actions](AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions)
@@ -242,40 +233,8 @@ for admission, reconnecting, Mark as done and Delete record.
 
 ## Story review
 
-A card whose story has a kept launch record naming a workspace offers **Review
-changes** beside **Inspect story**: a read-only review of what that workspace
-would add to trunk now. The most recent such record by `launchedAt`, whether
-it names a start or a preparation, picks the workspace (`reviewWorkspaceOf` in
-`src/storyReview.ts`, shared by the card and the boundary). The review
-compares a snapshot of the workspace with the merge-base of its head and
-freshly fetched `<remote>/<target>`, so trunk changes merged into the story
-and the story's already-landed commits stay out. The snapshot covers commits
-plus staged, unstaged and untracked files, and leaves out ignored ones. It is
-written as a tree object through a temporary index, so the workspace's own
-index and status stay as they were.
-
-The list and every file diff come from that one snapshot until Refresh takes
-a new one. A file's diff is Git's unified diff from the baseline to the
-snapshot tree, with renames diffed against their old path. Binary and
-mode-only changes say they have no textual diff. The review explains a
-workspace with no changes, a missing worktree, and a trunk that cannot be
-fetched; it never lists files against an unfetched baseline. Requests name
-only the project, the work identity and, for a file diff, the snapshot's
-object IDs and paths, never a filesystem path
-(`server/storyReviewAdmission.ts`, `server/storyReviewSnapshot.ts`).
-
-The review opens in the page's one side panel, beside a dashboard that stays
-usable, not in a modal dialog (`src/StoryReviewPanel.tsx`). It replaces
-whatever the panel showed: a terminal detaches without ending or marking its
-session done, and opening a session afterwards replaces the review. Each
-opening, including after Close or replacement, reads a fresh snapshot for the
-project and story it names; a read still pending for an earlier story never
-answers a later one. Maximize/Restore and resizing the panel by its edge
-keep the snapshot and selection without reading again. The
-header names the story and offers Refresh, Maximize/Restore and Close as frame
-icon controls shared with the terminal. Close or Command+Shift+Escape returns
-the keyboard to Review changes, or to the story's card when that control is
-no longer shown. A review is not a session: it marks no session entry as shown.
+See [story review](AGENT-LAUNCH-REVIEW.md) for what Review changes compares,
+its snapshot and Refresh, and how it shares the side panel.
 
 ## Retained Codex results without their workspace
 

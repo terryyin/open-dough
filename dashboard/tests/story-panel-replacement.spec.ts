@@ -4,20 +4,17 @@
 // session having ended with a final report. A review still being read when
 // another story's review opens never answers the new one; reading the report
 // neither continues nor marks its session done, and reopening a review reads
-// a fresh snapshot. A review's header shares the terminal's look, the
-// synthetic `claude` (./fixtures/fake-claude) listing Story A's session; the
-// real `claude` is never reached.
+// a fresh snapshot. Asking again for the review shown takes the keyboard to
+// it and keeps its snapshot; the real `claude` is never reached.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
-import { box } from "./pageLayout.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
 import {
   keptSession,
-  listed,
   panelItems,
   storyBLaunchRecord,
   storyBReport,
@@ -28,12 +25,6 @@ import {
   storyALaunchRecord,
   storyWorktree,
 } from "./support/storyReviewWorktree.ts";
-
-const windowRoom = (page: Page) =>
-  page.evaluate(() => ({
-    width: document.documentElement.clientWidth,
-    height: window.innerHeight,
-  }));
 
 test("a review, another story's review, and a final report replace each other in the one side panel", async ({
   page,
@@ -140,59 +131,24 @@ test("a review, another story's review, and a final report replace each other in
       undefined,
     );
   });
-});
 
-test("the review's and the terminal's headers share one look", async ({
-  page,
-  dashboard,
-  origin,
-}, testInfo) => {
-  const { workspace } = storyWorktree(origin);
-  const sessionA = dashboard.claudeListsSession({
-    name: "Story A",
-    cwd: workspace,
-    startedAt: Date.now(),
-  });
-  await keepLaunchRecords(dashboard, [
-    storyALaunchRecord(workspace, listed(sessionA)),
-  ]);
-  const card = await openBacklog(page, origin);
-  const header = (name: string) =>
-    page.getByRole("region", { name }).locator("header");
-  // The header's frame: its edge, room, and type.
-  const look = (shown: Locator) =>
-    shown.evaluate((element) => {
-      const style = getComputedStyle(element);
-      const heading = getComputedStyle(element.querySelector("h2") as Element);
-      return {
-        padding: style.padding,
-        border: style.borderBottom,
-        background: style.backgroundColor,
-        heading: [heading.fontSize, heading.fontWeight, heading.lineHeight],
-      };
+  await test.step("Review changes for the review shown takes the keyboard to it and keeps its snapshot", async () => {
+    await reviewOf(cardA).click();
+    const files = review.getByRole("list", { name: "7 changed files" });
+    const selected = files.getByRole("button", {
+      name: "Modified unstaged.txt",
     });
-  await cardSessions(card)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
-  const terminalHeader = header("Terminal");
-  await expect(terminalHeader).toContainText("Story A");
-  const terminalLook = await look(terminalHeader);
-  await terminalHeader.screenshot({
-    path: testInfo.outputPath("terminal-header.png"),
+    await selected.press("Enter");
+    await expect(selected).toHaveAttribute("aria-pressed", "true");
+    const reads = reviewReads.length;
+    await reviewOf(cardA).focus();
+    await reviewOf(cardA).press("Enter");
+    await expect(review.locator(".story-review-body")).toBeFocused();
+    await expect(selected).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      review.getByRole("region", { name: "Modified unstaged.txt" }),
+    ).toBeVisible();
+    expect(reviewReads.length).toBe(reads);
+    await expect(items).toHaveCount(1);
   });
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const reviewHeader = header("Review changes");
-  await expect(reviewHeader).toContainText("Story A");
-  expect(await look(reviewHeader)).toEqual(terminalLook);
-  await reviewHeader.screenshot({
-    path: testInfo.outputPath("review-header.png"),
-  });
-  await expect(
-    page.getByRole("list", { name: "7 changed files" }),
-  ).toBeVisible();
-  await page.screenshot({
-    path: testInfo.outputPath("review-beside-dashboard.png"),
-  });
-  const { width } = await windowRoom(page);
-  expect((await box(reviewHeader)).width).toBeLessThan(width);
 });

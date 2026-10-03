@@ -62,13 +62,13 @@ adds no feature promise.
 | 1 | Add a step to `story-panel-replacement.spec.ts` (or the review refresh journey): with Story A's review shown and focus moved to the dashboard, activate Review changes on Story A again; the review body receives focus, the same file selection remains, and the review read count is unchanged. Docs/comment state the rule. |
 | 2 | Existing report journeys (`session-workspace-retirement.spec.ts`, report close/keyboard steps) still close the report by Command+Shift+Escape with focus return and dialog suppression, after the report uses the shared definition. |
 | 3 | Remove the header-look test; keep the switching journey's frame-icon-control and maximize-room assertions. Reduce malformed-width rounds to two representative values plus one non-numeric, keeping the "other preferences untouched" and "next choice kept" observations. |
-| 4 | Documentation only: the North Star names the side panel as one multi-purpose region holding a single item at a time (terminal, retained report, or story review), with review details left to `dashboard/AGENT-LAUNCH.md#story-review`. |
+| 4 | Documentation only: the North Star names the side panel as one multi-purpose region holding a single item at a time (terminal, retained report, or story review), with review details left to the story review contract (`dashboard/AGENT-LAUNCH-REVIEW.md`). |
 
 ## Ordered slices
 
 ### 1. Align same-review opening, report close shortcut, and proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: the table above, run with
 `env -u NODE_ENV -u npm_config_local_prefix -u npm_package_json ./node_modules/.bin/playwright test --config dashboard/playwright.config.ts --reporter=line --workers=2`
 over
@@ -83,6 +83,36 @@ definition as other panel content. Maintained docs and comments describe these
 rules, and redundant tests are removed or trimmed.
 
 Safe stopping point: the whole correction delivered.
+
+Delivered 2026-10-04 (execution checkout
+`.worktrees/align-the-side-panel-s-same-review-opening-repor`, base `e6e56dd7`).
+Accepted proof: the slice's focused Playwright command passed, 32 passed, and
+`npm run typecheck:dashboard` passed.
+
+- Finding 1: `story-panel-replacement.spec.ts` step "Review changes for the
+  review shown takes the keyboard to it and keeps its snapshot" checks that
+  `.story-review-body` is focused, the selected file stays `aria-pressed`, its
+  diff stays visible, `reviewReads` is unchanged, and one panel item remains.
+  The step fails when `openReview` keeps the old `current`.
+- Finding 2: `SessionResultPanel` uses `usePanelCloseShortcut` and
+  `closeShortcutLabel` from `PanelControls.tsx`.
+  `session-workspace-retirement.spec.ts` still closes the report by
+  Meta+Shift+Escape and returns the keyboard. No test presses that shortcut
+  inside a dialog while a report is shown; dialog suppression for the report
+  rests on the shared `useCommandShortcut` path, which `agent-terminal-keyboard`
+  observes for the terminal.
+- Finding 3: the header-look test is removed, and the malformed widths are now
+  `wide`, `0` and `Infinity`.
+- Finding 4: the North Star names the side panel as one region that holds a
+  single item at a time.
+
+Learning: re-opening a terminal still keeps its current panel state. Only a
+review takes the new request, so focus moves to it.
+
+Refactor: the story review contract moved to `dashboard/AGENT-LAUNCH-REVIEW.md`,
+and `AGENT-LAUNCH.md#story-review` now points there. The adapters' readings
+paragraph merged into `AGENT-LAUNCH-HISTORY.md`, keeping `AGENT-LAUNCH.md`
+under the file-size limit.
 
 ## Current decisions and remaining concerns
 

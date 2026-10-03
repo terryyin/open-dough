@@ -74,7 +74,7 @@ attachment clears it. Claude retains its immediate admitted-attachment behavior.
 
 One page terminal shows story/workflow/session with Mark as done where
 supported, Maximize/Restore and Close; the panel's frame and these controls are
-shared with the [story review](AGENT-LAUNCH.md#story-review), which occupies
+shared with the [story review](AGENT-LAUNCH-REVIEW.md), which occupies
 the same panel exclusively, as does a final report.
 It uses the terminal theme chosen in System settings and follows a new choice
 without re-attaching; its panel edge takes the theme's background.

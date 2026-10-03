@@ -168,7 +168,7 @@ test("an unusable kept width starts at half the room, leaving the other preferen
   await page.evaluate(() => {
     window.localStorage.setItem("open-dough.sessionSidebar.open", "true");
   });
-  for (const malformed of ["wide", "-300", "0", "Infinity", "{}", ""]) {
+  for (const malformed of ["wide", "0", "Infinity"]) {
     await test.step(`kept as ${JSON.stringify(malformed)}`, async () => {
       await page.evaluate(
         ([key, value]) => {

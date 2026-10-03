@@ -3,13 +3,21 @@
 // (`./StoryReviewPanel.tsx`): Maximize or Restore, and Close, which
 // Command+Shift+Escape also does page-wide, from inside a terminal too, except
 // inside an open dialog or System settings (`useCommandShortcut`). The content
-// leads them with its own operations.
+// leads them with its own operations. The final report
+// (`./SessionResultPanel.tsx`) keeps its own Close button with the same
+// shortcut.
 
 import { Maximize2, Minimize2, X } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 
 const closeShortcut = { key: "Escape", shift: true } as const;
+export const closeShortcutLabel = "⌘⇧Esc";
+
+// Closes whatever the panel shows by Command+Shift+Escape.
+export function usePanelCloseShortcut(onClose: () => void): void {
+  useCommandShortcut(closeShortcut, onClose);
+}
 
 export function PanelControls({
   maximized,
@@ -22,7 +30,7 @@ export function PanelControls({
   readonly onMaximize: (maximized: boolean) => void;
   readonly onClose: () => void;
 }) {
-  useCommandShortcut(closeShortcut, onClose);
+  usePanelCloseShortcut(onClose);
   return (
     <>
       <IconButton
@@ -34,7 +42,7 @@ export function PanelControls({
       />
       <IconButton
         label="Close"
-        shortcut="⌘⇧Esc"
+        shortcut={closeShortcutLabel}
         icon={X}
         align="end"
         onClick={onClose}

@@ -3,11 +3,11 @@
 // names the story and its project's identity, takes its snapshot when it
 // opens and shows it (`./StoryReviewSnapshotView.tsx`) unchanged until the
 // developer uses Refresh, which takes a new one in its place, keeps the
-// keyboard where it is, and announces when it is done. Opening it places the
-// keyboard in its named content without holding it there; the panel's own
-// controls (`./PanelControls.tsx`) maximize or restore it and close it.
-// Each opening is its own read, so a read of the story the panel showed
-// before can never answer this one.
+// keyboard where it is, and announces when it is done. Opening it, or asking
+// again for the review shown, places the keyboard in its named content
+// without holding it there; the panel's own controls (`./PanelControls.tsx`)
+// maximize or restore it and close it. Each opening is its own read, so a
+// read of the story the panel showed before can never answer this one.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -28,7 +28,7 @@ import "./side-panel.css";
 import "./story-review.css";
 
 export function StoryReviewPanel({
-  request: { source, identity, title },
+  request,
   maximized,
   onMaximize,
   onClose,
@@ -38,6 +38,7 @@ export function StoryReviewPanel({
   readonly onMaximize: (maximized: boolean) => void;
   readonly onClose: () => void;
 }) {
+  const { source, identity, title } = request;
   const id = useId();
   const headingId = `${id}-heading`;
   const body = useRef<HTMLDivElement>(null);
@@ -55,7 +56,7 @@ export function StoryReviewPanel({
   );
   useEffect(() => {
     body.current?.focus();
-  }, []);
+  }, [request]);
   return (
     <section
       className="side-panel story-review-panel"

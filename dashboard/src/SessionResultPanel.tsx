@@ -9,7 +9,7 @@ import {
 } from "./sessionResult.ts";
 import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
-import { useCommandShortcut } from "./pageShortcuts.ts";
+import { closeShortcutLabel, usePanelCloseShortcut } from "./PanelControls.tsx";
 import {
   usePageSessions,
   useReportOrDoneMark,
@@ -37,7 +37,7 @@ export function SessionResultPanel({
   const report = useRef<HTMLDivElement>(null);
   const { label, marking, markingSaid, notMarkedSaid, mark } =
     useReportOrDoneMark(record);
-  useCommandShortcut({ key: "Escape", shift: true }, onClose);
+  usePanelCloseShortcut(onClose);
   useEffect(() => {
     if (hasCompletionMessage(record.completion)) {
       setResult({
@@ -123,7 +123,7 @@ export function SessionResultPanel({
             type="button"
             className="frame-button"
             onClick={onClose}
-            title="Close (⌘⇧Esc)"
+            title={`Close (${closeShortcutLabel})`}
           >
             Close
           </button>
