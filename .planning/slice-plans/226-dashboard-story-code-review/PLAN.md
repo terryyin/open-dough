@@ -176,7 +176,7 @@ Learnings for slices 4–5:
 
 ### 4. The review stays fixed until Refresh
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend the slice 2 journey.
 
 Behavior: with the review open on a file, the test commits a further edit to
@@ -184,6 +184,11 @@ that file and adds a new file in the worktree. The file list and the open diff
 stay as they were, including when another file is selected and the first is
 reopened. After Refresh, the list includes the new file and the diff includes
 the edit. Refresh does not move focus, and its completion is announced.
+
+Accepted proof: `dashboard/tests/story-review-refresh.spec.ts` passes. With the
+review, diff, and admission specs, 23 tests pass. Refresh is always offered in
+the dialog header. A failed or `unavailable` Refresh replaces the earlier list
+with its explanation.
 
 ### 5. Explain why there is nothing to review
 Type: Behavior

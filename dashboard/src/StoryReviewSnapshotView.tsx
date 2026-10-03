@@ -2,6 +2,8 @@
 // worktree, its branch and the baseline it compares against, and the story's
 // changed files with their change kinds in a file browser the developer can
 // hide or show. Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`).
+// A refreshed snapshot keeps the browser as it was and the selected file
+// while the new snapshot still lists its path.
 
 import { useState } from "react";
 import type { ReviewedFile, TakenStoryReview } from "./storyReview.ts";
@@ -29,6 +31,10 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
   );
 }
 
+// How many files a snapshot lists, in words.
+export const changedFiles = (count: number) =>
+  `${String(count)} changed ${count === 1 ? "file" : "files"}`;
+
 export function SnapshotView({
   reviewed,
   snapshot,
@@ -38,10 +44,10 @@ export function SnapshotView({
   readonly snapshot: TakenStoryReview;
   readonly headingId: string;
 }) {
-  const [selected, setSelected] = useState<ReviewedFile | undefined>();
+  const [selectedPath, setSelectedPath] = useState<string | undefined>();
   const [browserShown, setBrowserShown] = useState(true);
-  const count = snapshot.files.length;
-  const listName = `${String(count)} changed ${count === 1 ? "file" : "files"}`;
+  const selected = snapshot.files.find((file) => file.path === selectedPath);
+  const listName = changedFiles(snapshot.files.length);
   const browserId = `${headingId}-files`;
   const diffHeadingId = `${headingId}-diff`;
   return (
@@ -98,7 +104,7 @@ export function SnapshotView({
                   type="button"
                   aria-pressed={selected?.path === file.path}
                   onClick={() => {
-                    setSelected(file);
+                    setSelectedPath(file.path);
                   }}
                 >
                   <ReviewedFileName file={file} />
@@ -119,7 +125,8 @@ export function SnapshotView({
             <p className="quiet">Select a file to read its diff.</p>
           ) : (
             <FileDiff
-              key={selected.path}
+              // A new snapshot or file is a new read, never the last one's.
+              key={`${snapshot.tree}:${selected.path}`}
               reviewed={reviewed}
               snapshot={snapshot}
               file={selected}

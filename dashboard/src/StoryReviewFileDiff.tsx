@@ -84,7 +84,7 @@ export function FileDiff({
   readonly snapshot: TakenStoryReview;
   readonly file: ReviewedFile;
 }) {
-  const { answer, problem } = useReviewRead<ReviewedFileDiff>(
+  const { answer, problem, reading } = useReviewRead<ReviewedFileDiff>(
     storyReviewFileEndpoint,
     {
       source: reviewed.sourceId,
@@ -99,9 +99,7 @@ export function FileDiff({
   return (
     <>
       <div role="status">
-        {answer === undefined && problem === undefined && (
-          <p>Reading the file&apos;s diff…</p>
-        )}
+        {reading && <p>Reading the file&apos;s diff…</p>}
         {problem !== undefined && (
           <p>The file&apos;s diff could not be read: {problem}</p>
         )}

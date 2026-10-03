@@ -1,9 +1,9 @@
-/* A story review (./StoryReviewAction.tsx): a modal capped to the viewport whose
-   header and Close stay in view while its body scrolls. The file browser sits
-   beside the selected file's diff, which takes the browser's room while it is
-   hidden, and both wrap below each other on a narrow screen. Paths keep their
-   lines and scroll inside the file browser, and code lines inside the diff,
-   never the page. Its actions share the launch actions' look
+/* A story review (./StoryReviewAction.tsx): a modal capped to the viewport
+   whose header, Refresh, and Close stay in view while its body scrolls. The
+   file browser sits beside the selected file's diff, which takes the
+   browser's room while it is hidden, and both wrap below each other on a
+   narrow screen. Paths keep their lines and scroll inside the file browser,
+   and code lines inside the diff, never the page. Its actions share the launch actions' look
    (./agent-launch.css). */
 
 .story-review-action {
@@ -39,6 +39,11 @@
   gap: 0.5rem 1rem;
   border-bottom: 1px solid var(--line);
   padding: 0.75rem 1rem;
+}
+
+.story-review-header-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .story-review-header h2 {
