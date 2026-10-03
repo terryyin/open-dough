@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-091#review-and-terminal-share-side-panel",
+  "mode": "story-branch",
+  "branch": "claude/show-story-review-and-terminal-in-one-resizable",
+  "host": "claude"
+}
