@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Complete dashboard sessions quietly and retain messages needing attention](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration ([plan](slice-plans/220-quiet-dashboard-session-completion/PLAN.md))
 - [Dictate additional instructions when starting a session](seeds/SEED-084-session-instruction-voice-input.md#session-instruction-voice-input) — SEED-084#session-instruction-voice-input ([plan](slice-plans/223-session-instruction-voice-input/PLAN.md))
-- [Remove installed files that a newer release no longer declares](seeds/SEED-001-install-and-update-open-dough.md#remove-files-a-release-dropped) — SEED-001#remove-files-a-release-dropped ([plan](slice-plans/225-remove-files-a-release-dropped/PLAN.md))
 
 ## Backlog list
 
