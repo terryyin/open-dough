@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-092#remove-manual-refresh",
+  "mode": "story-branch",
+  "branch": "claude/remove-the-dashboard-s-manual-refresh-button-and",
+  "host": "claude"
+}

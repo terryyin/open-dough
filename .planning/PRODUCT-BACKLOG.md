@@ -17,11 +17,11 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
 - [Prove that a story's landed slices leave its review](seeds/SEED-088-dashboard-story-code-review.md#prove-landed-slices-leave-the-review) — SEED-088#prove-landed-slices-leave-the-review ([plan](slice-plans/228-prove-landed-slices-leave-the-review/PLAN.md))
 - [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation ([plan](slice-plans/230-dashboard-frame-renovation/PLAN.md))
+- [Remove the dashboard's manual refresh button and its dead code](seeds/SEED-092-remove-dashboard-manual-refresh.md#remove-manual-refresh) — SEED-092#remove-manual-refresh ([plan](slice-plans/232-remove-manual-refresh/PLAN.md))
 
 ## Backlog list
 
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator
-- [Remove the dashboard's manual refresh button and its dead code](seeds/SEED-092-remove-dashboard-manual-refresh.md#remove-manual-refresh) — SEED-092#remove-manual-refresh
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
