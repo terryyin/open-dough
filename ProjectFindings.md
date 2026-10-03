@@ -18,7 +18,7 @@ executions, not commands, retries, or repairs.
    stopping slices for a stash, diagnosis, repair, and publication cycle, plus
    local full-selection failures that cost a diagnosis without a cause. One
    failure (`agent-launch-start-taken.spec.ts:53`) is still unexplained. Story:
-   [Expose timing races in this repository's tests before CI does](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally)
+   [Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally)
    (DD-186, DD-195, DD-199).
 2. **Checks whose result depends on where or how they are run — second,
    queued.** Six executions (plans 140, 147, 157, 160, 185, 217), the most
@@ -91,7 +91,7 @@ so that half was a product defect; its test and the other findings here are
 this repository's own.
 
 **Follow-up:** queued first:
-[Expose timing races in this repository's tests before CI does](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally).
+[Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally).
 
 ### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
 
@@ -131,6 +131,10 @@ Across one execution, three large parallel Playwright selections each failed one
   - Evidence: CI run 36712853079, job "dashboard (1/2)", on `96838533` failed `agent-launch-card-delete.spec.ts:51` (`cardTop` expected 507.8125, received 586.71875). The run's Playwright trace shows `settled()` in `dashboard/tests/storyStagesPage.ts` passing right after `page.reload()`, before any card rendered, and preparation facts arriving after `before` was measured; a route delay reproduced the exact values. Repair `6a8d3608` makes `settled()` wait for a card first; `--repeat-each=10` and the 18 specs using the helper pass.
   - Observed effect: one failed CI job, one diagnosis, and one repair commit.
   - Inference: A cause is now evidenced for the `agent-launch-card-delete.spec.ts:51` failures above: a test-helper race that load widens, not product behavior. `agent-launch-start-taken.spec.ts:53` is not explained by it.
+- Refinement check: `SEED-093#expose-timing-races-locally`
+  - Timestamp: 2026-10-03
+  - Evidence: a survey of 126 failed CI runs from 2026-09-29 to 2026-10-03 found no "server could not be reached" failure of `agent-launch-start-taken.spec.ts:53`; its one CI failure (run 36750057215) came from its branch's added `host` field.
+  - Inference: The local failure has not recurred and its cause is left to recur here. It is outside that story's scope.
 
 ### DD-199 — Recovery failure setup used a deadline before establishing accepted input
 
