@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "philip-chan",
-  "email": "philip-chan@example.org",
-  "identity": "SEED-091#frame-look-checks-one-rule",
-  "mode": "story-branch",
-  "branch": "claude/give-the-frame-s-look-checks-one-rule-each",
-  "host": "claude"
-}

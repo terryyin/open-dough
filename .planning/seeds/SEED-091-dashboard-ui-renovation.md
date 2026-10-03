@@ -24,7 +24,7 @@ dashboard frame, then improve the story tag/card as an information radiator.
 
 **Identity:** SEED-091#story-card-information-radiator
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/231-story-card-information-radiator/PLAN.md","assessment":"not-ready","reasons":["Slice 1 default-card visibility split remains a proposal pending Terry’s preference.","Slice 1 and final visual alignment depend on the renovated-frame foundation, which is not available at the observed published revision."],"basis":{"document":"167b1624bda4309bd8efe4c208f387b5c971d0644b0475354998914f7e44f0a4","plan":"6b0a7200361f9ccd9d28b51ee62a0ffa9e0316505b65804bdaaea390a00888d4"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/231-story-card-information-radiator/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f4335db9e46251d95788fd3580c12e338f6fb13cd3c67b2a9af557778bf569e5","plan":"068e42f16cd7fc9331b1ede3d3b28071c204f2ada5567da012039d2a79ba30e5"}}
 ```
 
 **Slice plan:** [Compact story-card reading and actions](../slice-plans/231-story-card-information-radiator/PLAN.md).
@@ -43,8 +43,8 @@ secondary metadata dominating the overview.
   ordinary metadata and decoration do not compete with warnings or actions.
 - Make the default view compact by reducing repeated explanatory text and
   moving secondary facts into inspection, rather than shrinking text or
-  concealing meaningful state. The proposed default/detail split is recorded
-  under UI below; its visibility choice remains open for Terry.
+  concealing meaningful state. The default/detail split is recorded under UI
+  below.
 - Keep preparation and readiness distinct, including Planless, Not recorded,
   Not ready, Changed since readiness review, and evidence-conflict or
   unavailable states when present. Keep Preparing an assignment annotation,
@@ -115,12 +115,12 @@ secondary metadata dominating the overview.
 **UI:** Describe two levels of reading within the existing story-card journey;
 no particular layout, component, or technology is selected here.
 
-- **Proposed scan view:** full story title, backlog priority, assigned or
+- **Scan view:** full story title, backlog priority, assigned or
   preparing developer and roster access, preparation/readiness badges,
   dependency summary and evidence warnings, Taken slice count/clock or
   awaiting-wrap-up state, available action groups, and local startup/failure
   feedback. Keep the existing session blocks and attention indications.
-- **Proposed secondary detail:** full identity, host/model, mode and exact
+- **Secondary detail:** full identity, host/model, mode and exact
   branch, credited human assignment detail, purpose, expanded preparation and
   dependency explanations, source revisions and links, slice evidence, and
   product advice. Existing unknown/conflicting states remain explicit; a short
@@ -146,11 +146,10 @@ outcome; these boundaries are not implementation-file restrictions.
 new status or progress facts, new launch/review capabilities, a dark theme,
 and a session-block redesign. These are not product rejection rules.
 
-**Open decision:** Terry's default-card visibility preference is pending. The
-scan-first split above is a proposal; alternatives are keeping mode/branch and
-source links visible, or moving assignment into detail as well. The decision
-changes scan density and how directly assignment/evidence can be reached; the
-progress-source and protected-startup exceptions still apply.
+**Decision:** On 2026-10-03 Terry accepted the scan-first split above for the
+default card, over keeping mode/branch and source links visible or moving
+assignment into detail. The progress-source and protected-startup exceptions
+apply.
 
 **Refinement evidence:** Current card information and interactions were read in
 `dashboard/src/WorkCard.tsx`, `PreparationCard.tsx`, `AgentAssignmentFacts.tsx`,
@@ -191,29 +190,6 @@ covers the dashboard in a dialog and both panels look and behave the same.
 - To be refined: what opening a terminal does to an open review, whether the
   chosen width is remembered, width limits, maximize behavior for the review,
   and keyboard access to resizing.
-
-<a id="frame-look-checks-one-rule"></a>
-
-### Give the frame's look checks one rule each
-
-**Identity:** SEED-091#frame-look-checks-one-rule
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/236-frame-look-checks-one-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bb17a0c35718ecc19d2d45c00d92b84e125caf0f50b518489b18232eb0c866a3","plan":"1983ac246abc032e04a478853ac12f381a78c25fa79f3ec84e19e8f23aa078b7"}}
-```
-
-**Goal:** A maintainer writing the next dashboard look check, such as the story
-cards' renovation, finds one rule for the colour behind an element and one
-check that an area's text reads clearly and its controls are recognisable, so
-look checks stop copying divergent variants.
-
-**Scope:** The dashboard's browser-test support only: the background walk
-repeated in `expectReadableContrast`, `expectControlContrast`, and
-`expectFrameIconControl`, and the two `expectReadableAndRecognisable` copies in
-`system-settings-look.spec.ts` and `frame-launch-look.spec.ts`. No product
-change and no weaker contrast assertion. This is a retrospective correction of
-the frame renovation ([story](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) and [plan](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/slice-plans/230-dashboard-frame-renovation/PLAN.md) at `3c6e5e10`); its
-[plan](../slice-plans/236-frame-look-checks-one-rule/PLAN.md) holds the
-findings, preserved promises, and proof.
 
 ## Breadcrumbs
 

@@ -92,22 +92,40 @@ export function contrastRatio(foreground: string, background: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+// Whether a computed colour paints anything: not `transparent` and not any
+// colour with zero alpha.
+function painted(color: string): boolean {
+  return color !== "transparent" && !/^rgba\(.*,\s*0\)$/.test(color);
+}
+
+// The colour behind an element: the first painted background up its parent
+// chain, starting at the element itself or, for what surrounds it, at its
+// parent.
+export async function colorBehind(
+  locator: Locator,
+  { includingItself }: { includingItself: boolean },
+): Promise<string> {
+  const backgrounds = await locator.evaluate((element, fromItself) => {
+    const found: string[] = [];
+    for (
+      let at = fromItself ? element : element.parentElement;
+      at;
+      at = at.parentElement
+    )
+      found.push(getComputedStyle(at).backgroundColor);
+    return found;
+  }, includingItself);
+  return backgrounds.find(painted) ?? "rgba(0, 0, 0, 0)";
+}
+
 // Normal text needs 4.5:1 against the color behind the badge.
 export async function expectReadableContrast(locator: Locator, minimum = 4.5) {
-  const colors = await locator.evaluate((element) => {
-    const style = getComputedStyle(element);
-    let background = style.backgroundColor;
-    for (
-      let at = element.parentElement;
-      at && (background === "rgba(0, 0, 0, 0)" || background === "transparent");
-      at = at.parentElement
-    ) {
-      background = getComputedStyle(at).backgroundColor;
-    }
-    return { color: style.color, background };
-  });
+  const color = await locator.evaluate(
+    (element) => getComputedStyle(element).color,
+  );
+  const background = await colorBehind(locator, { includingItself: true });
   expect(
-    contrastRatio(colors.color, colors.background),
+    contrastRatio(color, background),
     `contrast of ${await locator.textContent()}`,
   ).toBeGreaterThanOrEqual(minimum);
 }
@@ -115,36 +133,52 @@ export async function expectReadableContrast(locator: Locator, minimum = 4.5) {
 // A control needs 3:1 between what outlines it, its edge or else its fill,
 // and the color behind it, so it is recognised as a control.
 export async function expectControlContrast(locator: Locator, minimum = 3) {
-  const colors = await locator.evaluate((element) => {
+  const own = await locator.evaluate((element) => {
     const style = getComputedStyle(element);
-    const shown = (color: string) =>
-      !/^rgba\(.*,\s*0\)$/.test(color) && color !== "transparent";
-    let behind = "rgba(0, 0, 0, 0)";
-    for (
-      let at = element.parentElement;
-      at && !shown(behind);
-      at = at.parentElement
-    )
-      behind = getComputedStyle(at).backgroundColor;
     return {
-      edges:
-        parseFloat(style.borderTopWidth) > 0
-          ? [style.borderTopColor].filter(shown)
-          : [],
-      fill: [style.backgroundColor].filter(shown),
-      behind,
+      edges: parseFloat(style.borderTopWidth) > 0 ? [style.borderTopColor] : [],
+      fill: style.backgroundColor,
     };
   });
+  const behind = await colorBehind(locator, { includingItself: false });
   const best = Math.max(
     0,
-    ...[...colors.edges, ...colors.fill].map((color) =>
-      contrastRatio(color, colors.behind),
-    ),
+    ...[...own.edges, own.fill]
+      .filter(painted)
+      .map((color) => contrastRatio(color, behind)),
   );
   expect(
     best,
     `control contrast of ${(await locator.getAttribute("aria-label")) ?? (await locator.textContent())}`,
   ).toBeGreaterThanOrEqual(minimum);
+}
+
+// Every piece of text a reader reads in an area, and every control in it, as
+// the caller names them: shown text is readable, and a shown control is
+// readable and, while it can be used, recognisable (WCAG 1.4.11 exempts an
+// inactive control). A password field shows no readable text of its own, so
+// it is exempt from text contrast only. An area the caller says has controls
+// fails when none is shown.
+export async function expectReadableAndRecognisable(
+  area: Locator,
+  {
+    texts,
+    controls,
+    hasControls,
+  }: { texts: string; controls: string; hasControls: boolean },
+) {
+  for (const text of await area.locator(texts).all())
+    if (await text.isVisible()) await expectReadableContrast(text);
+  let checkedControls = 0;
+  for (const control of await area.locator(controls).all()) {
+    if (!(await control.isVisible())) continue;
+    checkedControls += 1;
+    if ((await control.getAttribute("type")) !== "password")
+      await expectReadableContrast(control);
+    if (await control.isEnabled()) await expectControlContrast(control);
+  }
+  if (hasControls)
+    expect(checkedControls, "controls shown in the area").toBeGreaterThan(0);
 }
 
 // Detail and cards must settle immediately under reduced motion: no authored
