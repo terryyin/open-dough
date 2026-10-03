@@ -17,10 +17,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
 - [Prove that a story's landed slices leave its review](seeds/SEED-088-dashboard-story-code-review.md#prove-landed-slices-leave-the-review) — SEED-088#prove-landed-slices-leave-the-review ([plan](slice-plans/228-prove-landed-slices-leave-the-review/PLAN.md))
 - [Choose and persist a theme for all embedded terminals](seeds/SEED-090-dashboard-terminal-theme.md#shared-terminal-theme) — SEED-090#shared-terminal-theme ([plan](slice-plans/229-shared-terminal-theme/PLAN.md))
+- [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation ([plan](slice-plans/230-dashboard-frame-renovation/PLAN.md))
 
 ## Backlog list
 
-- [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator
 - [Remove the dashboard's manual refresh button and its dead code](seeds/SEED-092-remove-dashboard-manual-refresh.md#remove-manual-refresh) — SEED-092#remove-manual-refresh
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
