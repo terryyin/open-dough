@@ -89,15 +89,17 @@ if (attaching) {
   let mode = process.env.FAKE_CURSOR_ATTACH_MODE;
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
-    waiting: [
-      "│ Clarifying Questions",
-      "│ 1. Which do you choose?",
-      "│   › [ ] Red",
-      "│     [ ] Blue",
-      "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
-    ].join("\r\n") + "\r\n",
+    waiting:
+      [
+        "│ Clarifying Questions",
+        "│ 1. Which do you choose?",
+        "│   › [ ] Red",
+        "│     [ ] Blue",
+        "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
+      ].join("\r\n") + "\r\n",
     unrecognized: "Cursor Agent\r\n",
     trust: "Do you trust this workspace?\r\n",
+    composer: "→ Plan, search, build anything\r\n",
   };
   if (dir) fs.mkdirSync(dir, { recursive: true });
   const paint = () => {

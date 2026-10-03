@@ -11,12 +11,13 @@ and `--no-alt-screen`. An instructed Cursor launch starts one kept client,
 opens. `--model` is an argument of that first client only. The stored resume
 command omits it, and a later open does not send it. The launch instruction
 is written into that client when its server-side screen has a visible cursor
-and `Add a follow-up`, and the record then says the first input was accepted.
+and `Add a follow-up` or `Plan, search, build anything`, and the record
+then says the first input was accepted.
 Until that screen, the instruction is not written, the record stays uncertain,
 and the developer can still type. The client exiting does not accept it.
 Opening the terminal joins that same client and shows its output. There is
 no launch-wait notice and no second client. A visible cursor
-and `Add a follow-up` admit that terminal. Cursor supplies no stop or rename,
+and `Add a follow-up` or `Plan, search, build anything` admit that terminal. Cursor supplies no stop or rename,
 so native Mark as done stays absent for unreported sessions and Delete record remains. Unknown project/session, missing project folder and
 unavailable sessions are refused before attachment. Codex checks the saved
 directory at attachment: missing or inconclusive availability opens the same
@@ -30,7 +31,8 @@ Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
 only, retaining native work, history, and daemon. Cursor's attach result
 declares keep: closing its socket, by Close, switching sessions, or a dropped
 connection, leaves that client running. A kept Cursor client with no socket
-is hung up only after its screen has shown `→ Add a follow-up` for 0.203
+is hung up only after its screen has shown `→ Add a follow-up` or
+`→ Plan, search, build anything` for 0.203
 seconds without `ctrl+c to stop`, `Working`, `Running`, or
 `Clarifying Questions`. A working, waiting, or unrecognized screen keeps the
 client. Idle hangup waits until the launch instruction has been entered,
@@ -54,7 +56,8 @@ the chat as a new process. The Sessions sidebar offers **Running Cursor
 sessions** without opening a terminal. That list says whether the Cursor
 runner is running. Each row is one session the runner holds: the project,
 what was started, and one label from that client's current screen. The
-ordinary follow-up prompt (`→ Add a follow-up` with none of `ctrl+c to stop`,
+ordinary follow-up prompt (`→ Add a follow-up` or
+`→ Plan, search, build anything`, with none of `ctrl+c to stop`,
 `Working`, `Running`, or `Clarifying Questions`) is "at the follow-up
 prompt". A screen with `Working`, `Running`, or `ctrl+c to stop` is
 "working". Any other held screen, including a question or a trust prompt, is

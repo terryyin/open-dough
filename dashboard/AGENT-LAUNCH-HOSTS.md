@@ -15,7 +15,7 @@ the established workspace, and stores that id, workspace, and resume command,
 with no alias or endpoint. The launch does not pass `-w`, `--worktree`,
 `--trust`, `--force`, or `--yolo`. The instruction is written into that
 client when its server-side screen has a visible cursor and the text
-`Add a follow-up`. The record then says the first input was accepted. A
+`Add a follow-up` or `Plan, search, build anything`. The record then says the first input was accepted. A
 screen that is not ready does not receive the instruction, the record stays
 uncertain, and the developer can still type. When that same client later
 becomes ready, it receives the instruction. The client exiting does not
@@ -26,12 +26,14 @@ Opening the terminal joins that client and shows its output. There is no
 launch-wait notice and no second `cursor-agent`. A blank ad hoc start still
 creates the session, submits nothing, and starts the client when opened.
 Attach is supplied: a later open with no client already kept runs the stored
-command. A visible cursor and the text `Add a follow-up` admit it. That
+command. A visible cursor and the text `Add a follow-up` or
+`Plan, search, build anything` admit it. That
 attach result declares keep, so a detached terminal leaves the client running
 and a later open joins the same process instead of starting another, while
 the screen is working, waiting for an answer, or unrecognized. Idle hangup
 waits until the launch instruction has been entered, then a detached client
-whose screen stays idle — `→ Add a follow-up` with no `ctrl+c to stop`,
+whose screen stays idle — `→ Add a follow-up` or
+`→ Plan, search, build anything`, with no `ctrl+c to stop`,
 `Working`, `Running`, or `Clarifying Questions` — is hung up after 0.203
 seconds, and the next open starts a new client. Stop is not supplied, so
 Mark as done stays absent.

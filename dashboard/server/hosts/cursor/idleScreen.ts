@@ -1,5 +1,6 @@
 // When a kept Cursor client has no socket, hang up only for the ordinary
-// finished prompt: `→ Add a follow-up` with none of the working-screen
+// finished prompt: `→ Add a follow-up` or `→ Plan, search, build anything`,
+// with none of the working-screen
 // markers and no `Clarifying Questions`. A working screen, a question
 // screen, and any other screen stay.
 import type { CursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
@@ -12,13 +13,25 @@ export const cursorIdleSettleMs = 203;
 // follow-up line with none of them and no clarifying question.
 const workingScreenMarkers = ["Working", "Running", "ctrl+c to stop"] as const;
 
+// Cursor's empty composer. Older builds say "Add a follow-up". The current
+// build says "Plan, search, build anything". Either line, with a visible
+// cursor, is ready for the launch instruction.
+const composerPrompts = [
+  "Add a follow-up",
+  "Plan, search, build anything",
+] as const;
+
+export function showsCursorComposer(screen: string): boolean {
+  return composerPrompts.some((prompt) => screen.includes(prompt));
+}
+
 function showsWorkingScreen(screen: string): boolean {
   return workingScreenMarkers.some((marker) => screen.includes(marker));
 }
 
 export function cursorDetachedIdle(screen: string): boolean {
   return (
-    screen.includes("→ Add a follow-up") &&
+    composerPrompts.some((prompt) => screen.includes(`→ ${prompt}`)) &&
     !showsWorkingScreen(screen) &&
     !screen.includes("Clarifying Questions")
   );
