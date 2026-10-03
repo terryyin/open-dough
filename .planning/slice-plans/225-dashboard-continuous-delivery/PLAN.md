@@ -118,8 +118,9 @@ to disposable tests.
 
 ### 2. Production follows pinned published main commits through its existing lifecycle
 Type: Behavior
-Status: planned
+Status: done
 Proof: revise the production runner/watcher specs at the public npm boundary, observing selected commit, real served markers, URL/PID changes, failure recovery, shared-store bytes, and cleanup. Run all affected `production*.spec.ts` together.
+Accepted proof: `NODE_ENV=development npm run test:dashboard -- dashboard/tests/production*.spec.ts --reporter=line --workers=2` passed 10 tests across `production-deployment`, `production-publication-fixture`, `production-watcher`, `-updates`, `-failures` and `-refusals` specs; `npm run typecheck:dashboard` passed. The runner is now `dashboard/server/productionDeployment.mjs` (`resolvePublishedMain`, `stageDeployment`, `startDeploymentPreview`), the process module `productionProcess.mjs`, and the fixture `tests/support/publishedMainFixture.ts`. The 30-second default interval and default port 4173 remain observed only in code and docs.
 
 Behavior: origin/main is A and local development has different uncommitted
 source → watcher startup builds and serves A → publishing B replaces production
@@ -243,3 +244,4 @@ concern was identified in this preparation review.
 ## Learnings
 
 - Slice 1: the fixture commits only the paths a test passes through `changes`; files a test writes into `development` otherwise stay uncommitted local edits. Origin main starts empty until a test calls `push()` or `publish()`, so main-based startup cases need an explicit first publication. The minimal (non-full-source) fixture copies no workflow; slice 3 copies `.github` policy when it uses that mode.
+- Slice 2: the watcher logs `Checked published main: <sha>.` before deciding; slice 3's qualification belongs between that check and `Preparing`, leaving the baseline unchanged on a skip. `tests/support/productionBuildGate.ts` (`builds.log` ordinals and `hold-build-<n>`) gives exact build counts for negative-deployment proof. The minimal fixture starts from an empty commit and copies nothing. Superseded checkouts are removed after the activation log, so single-entry deployment-directory checks poll.

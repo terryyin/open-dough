@@ -1,25 +1,40 @@
-// Real npm watcher release replacement, with shared machine evidence and
+// Real npm watcher main-commit replacement, with shared machine evidence and
 // external gh/Claude answers supplied only by disposable origin/host fixtures.
 import { expect, test } from "@playwright/test";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
-import { dashboardReleaseFixture } from "./support/dashboardReleaseFixture.ts";
+import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
 import { installFakeClaude } from "./support/fakeClaude.ts";
 import { publishes, startFakeGitHub } from "./support/fakeGitHub.ts";
 import { ownAddress } from "./support/viteAddress.ts";
+import {
+  outputCount,
+  productionActivation,
+  productionDeployments,
+  type ProductionWatcher,
+} from "./support/productionWatcher.ts";
+import {
+  buildGateChanges,
+  holdBuildPath,
+  recordedBuilds,
+} from "./support/productionBuildGate.ts";
+import {
+  expectSharedLaunchRecord,
+  writeSharedLaunchRecord,
+} from "./support/sharedLaunchRecord.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
-import type { LaunchRecord } from "../src/agentLaunch.ts";
+import { productionSeedProjects } from "../server/projectConfigurationSeed.ts";
 
-test("npm watcher replaces a newer numeric release at the same URL, keeps shared records and tagged boundaries, and ignores other publications", async ({
+test("npm watcher replaces production with each newly published main commit at the same URL, pins the building commit, keeps unchanged main running, and preserves shared records and configuration", async ({
   browser,
   request,
 }) => {
-  test.setTimeout(300_000);
-  const fixture = await dashboardReleaseFixture(true);
+  test.setTimeout(360_000);
+  const fixture = await publishedMainFixture(true);
   const github = await startFakeGitHub();
   const gh = installFakeGh(fixture.root);
   const ghEnv = fakeGhEnv(gh, github.url);
@@ -32,13 +47,31 @@ test("npm watcher replaces a newer numeric release at the same URL, keeps shared
   const revision = "a5".repeat(20);
   const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
   github.serve("terryyin/open-dough", publishes({ revision, backlog }));
-  let watcher: ReturnType<typeof dashboardCommand> | undefined;
+  const deployments = productionDeployments(fixture.home);
+  const builds = () => recordedBuilds(fixture.home);
+  const count = (expression: RegExp) => outputCount(watcher, expression);
+  const activation = (commit: string) => productionActivation(watcher, commit);
+  let watcher: ProductionWatcher | undefined;
   let development: ReturnType<typeof dashboardCommand> | undefined;
   const page = await browser.newPage();
   try {
-    await fixture.publish("1.10.0", { marker: "RELEASE A" });
+    const a = await fixture.publish(
+      {
+        ...fixture.markerChanges("MAIN A"),
+        ...(await buildGateChanges(fixture.development)),
+      },
+      "Main A",
+    );
     await fixture.installDevelopment();
     configureDevelopmentProjects(fixture.home);
+    // Production's physical project configuration, with distinctive bytes.
+    const configuration = path.join(
+      fixture.home,
+      ".open-dough/dashboard/projects-production.json",
+    );
+    const configured = `${JSON.stringify(productionSeedProjects, null, 4)}\n`;
+    await writeFile(configuration, configured);
+    const configurationIdentity = (await stat(configuration)).ino;
     development = dashboardCommand(fixture.development, env, "dev:dashboard", [
       "--port",
       "0",
@@ -54,100 +87,83 @@ test("npm watcher replaces a newer numeric release at the same URL, keeps shared
       "--check-interval",
       "500",
     ]);
-    await expect
-      .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
-      .toMatch(/Production dashboard v1\.10\.0 at http:/);
-    const startup =
-      /Production dashboard v1\.10\.0 at (http:\/\/127\.0\.0\.1:\d+) \(preview PID (\d+)\)/.exec(
-        watcher.output(),
-      );
-    if (!startup?.[1] || !startup[2])
-      throw new Error("Missing initial production address/PID");
-    const productionUrl = startup[1];
-    const oldPid = Number(startup[2]);
+    const startup = await activation(a);
+    const productionUrl = startup.url;
     await page.goto(productionUrl);
-    await expect(page).toHaveTitle("RELEASE A");
+    await expect(page).toHaveTitle("MAIN A");
+    expect(await builds()).toEqual([
+      {
+        pid: expect.any(Number),
+        checkout: expect.stringMatching(new RegExp(`^${a.slice(0, 12)}-`)),
+      },
+    ]);
 
     // Supply an existing durable record after startup. Real server reads must
     // discover the same HOME file; the fixture does not answer record HTTP.
-    const record: LaunchRecord = {
-      request: launchRequest as LaunchRecord["request"],
-      session: {
-        host: "claude",
-        sessionId: "shared-before-switch",
-        shortId: "shared",
-        name: "Shared launch",
-      },
-      launchedAt: new Date().toISOString(),
-    };
-    const store = path.join(
+    const { record, store, stored } = await writeSharedLaunchRecord(
       fixture.home,
-      ".open-dough/dashboard/agent-launches.json",
     );
-    await mkdir(path.dirname(store), { recursive: true });
-    const stored = JSON.stringify({ "open-dough": [record] });
-    await writeFile(store, stored);
-    async function expectSharedRecord(url: string) {
-      const response = await request.get(`${url}/__agent-launch`, {
-        headers: { Origin: url },
-      });
-      expect(response.status()).toBe(200);
-      const answer = (await response.json()) as { records: unknown[] };
-      expect(answer.records).toEqual([expect.objectContaining(record)]);
-    }
+    const expectSharedRecord = (url: string) =>
+      expectSharedLaunchRecord(request, url, record);
     await expectSharedRecord(developmentUrl);
     await expectSharedRecord(productionUrl);
+    const storeIdentity = (await stat(store)).ino;
 
-    // All three publications are visible to a subsequent real origin check.
-    await fixture.publish("1.9.9", { marker: "LOWER RELEASE" });
-    await fixture.publish("2.0.0-rc.1", { marker: "PRERELEASE" });
-    await fixture.commit(
-      fixture.releaseChanges("99.0.0", "BRANCH ONLY"),
-      "BRANCH ONLY",
-    );
-    await fixture.push();
-    const checksBefore =
-      watcher.output().match(/Checked production release:/g)?.length ?? 0;
+    // Repeated checks of unchanged main keep the same process and build.
+    const checksBefore = count(/Checked published main: /g);
     await expect
-      .poll(
-        () =>
-          watcher?.output().match(/Checked production release:/g)?.length ?? 0,
-      )
-      .toBeGreaterThan(checksBefore + 1);
-    await page.reload();
-    await expect(page).toHaveTitle("RELEASE A");
-    expect(processRunning(oldPid)).toBe(true);
+      .poll(() => count(new RegExp(`Checked published main: ${a}\\.`, "g")))
+      .toBeGreaterThan(checksBefore + 2);
+    expect(processRunning(startup.pid)).toBe(true);
     expect(watcher.output().match(/preview PID \d+/g)).toEqual([
-      `preview PID ${oldPid}`,
+      `preview PID ${startup.pid}`,
     ]);
-    expect(
-      watcher.output().match(/Preparing production dashboard/g),
-    ).toHaveLength(1);
+    expect(count(/Preparing production dashboard/g)).toBe(1);
+    expect(await builds()).toHaveLength(1);
 
-    const replacement = await fixture.publish("1.11.0", {
-      annotated: true,
-      marker: "RELEASE B",
-    });
+    // B is selected and held in its real build while C reaches main. B is
+    // served exactly; a later check then selects C.
+    await writeFile(holdBuildPath(fixture.home, 2), "");
+    await writeFile(holdBuildPath(fixture.home, 3), "");
+    const b = await fixture.publish(fixture.markerChanges("MAIN B"), "Main B");
     await expect
-      .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
-      .toMatch(/Production dashboard v1\.11\.0 at http:/);
-    expect(watcher.output()).toContain(
-      `Preparing production dashboard v1.11.0 (${replacement}).`,
+      .poll(async () => (await builds()).length, { timeout: 180_000 })
+      .toBe(2);
+    expect((await builds())[1]?.checkout).toMatch(
+      new RegExp(`^${b.slice(0, 12)}-`),
     );
-    const switched =
-      /Production dashboard v1\.11\.0 at (http:\/\/127\.0\.0\.1:\d+) \(preview PID (\d+)\)/.exec(
-        watcher.output(),
-      );
-    expect(switched?.[1]).toBe(productionUrl);
-    const newPid = Number(switched?.[2]);
-    expect(newPid).not.toBe(oldPid);
-    await expect.poll(() => processRunning(oldPid)).toBe(false);
-    expect(processRunning(newPid)).toBe(true);
+    const c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
+    await rm(holdBuildPath(fixture.home, 2));
+    const switched = await activation(b);
+    expect(switched.url).toBe(productionUrl);
+    expect(switched.pid).not.toBe(startup.pid);
+    expect(watcher.output()).toContain(`Preparing production dashboard ${b}.`);
+    await expect.poll(() => processRunning(startup.pid)).toBe(false);
     await page.reload();
-    await expect(page).toHaveTitle("RELEASE B");
+    await expect(page).toHaveTitle("MAIN B");
+    await expectSharedRecord(productionUrl);
+    await expect
+      .poll(() => watcher?.output() ?? "", { timeout: 60_000 })
+      .toContain(`Preparing production dashboard ${c}.`);
+    expect(watcher.output()).not.toMatch(
+      new RegExp(`Production dashboard ${c} at`),
+    );
+    await page.reload();
+    await expect(page).toHaveTitle("MAIN B");
+    await rm(holdBuildPath(fixture.home, 3));
+    const latest = await activation(c);
+    expect(latest.url).toBe(productionUrl);
+    await expect.poll(() => processRunning(switched.pid)).toBe(false);
+    expect(processRunning(latest.pid)).toBe(true);
+    await page.reload();
+    await expect(page).toHaveTitle("MAIN C");
+    expect(
+      (await builds()).map((build) => build.checkout.slice(0, 12)),
+    ).toEqual([a, b, c].map((commit) => commit.slice(0, 12)));
     await expectSharedRecord(productionUrl);
     await expectSharedRecord(developmentUrl);
     expect(await readFile(store, "utf8")).toBe(stored);
+    expect(await readFile(configuration, "utf8")).toBe(configured);
 
     const callsBefore = github.calls.length;
     const read = await request.get(
@@ -188,28 +204,33 @@ test("npm watcher replaces a newer numeric release at the same URL, keeps shared
     expect(await refused.json()).toHaveProperty("error");
     expect(claude.controls.claudeLaunchCalls()).toHaveLength(launchesBefore);
 
-    const checksAfterSwitch =
-      watcher.output().match(/Checked production release:/g)?.length ?? 0;
+    // Superseded checkouts are retired after C serves, not before.
     await expect
-      .poll(
-        () =>
-          watcher?.output().match(/Checked production release:/g)?.length ?? 0,
-      )
-      .toBeGreaterThan(checksAfterSwitch);
-    expect(watcher.output().match(/preview PID \d+/g)).toHaveLength(2);
-    expect(
-      await readdir(path.join(fixture.home, ".open-dough/dashboard/releases")),
-    ).toEqual([expect.stringContaining(`v1.11.0-${replacement.slice(0, 12)}`)]);
+      .poll(() => readdir(deployments))
+      .toEqual([expect.stringMatching(new RegExp(`^${c.slice(0, 12)}-`))]);
+
+    // SIGTERM while D is in its real build ends that build, the served C
+    // preview and every deployment checkout.
+    await writeFile(holdBuildPath(fixture.home, 4), "");
+    await fixture.publish(fixture.markerChanges("MAIN D"), "Main D");
+    await expect
+      .poll(async () => (await builds()).length, { timeout: 180_000 })
+      .toBe(4);
+    const heldBuild = (await builds())[3]?.pid;
+    expect(processRunning(heldBuild)).toBe(true);
     await watcher.stop();
+    expect(watcher.output()).not.toContain("could not run");
     watcher = undefined;
-    await expect.poll(() => processRunning(newPid)).toBe(false);
+    await expect.poll(() => processRunning(heldBuild)).toBe(false);
+    await expect.poll(() => processRunning(latest.pid)).toBe(false);
     await expect(
       request.get(productionUrl, { timeout: 2_000 }),
     ).rejects.toThrow();
-    expect(
-      await readdir(path.join(fixture.home, ".open-dough/dashboard/releases")),
-    ).toEqual([]);
+    expect(await readdir(deployments)).toEqual([]);
     expect(await readFile(store, "utf8")).toBe(stored);
+    expect((await stat(store)).ino).toBe(storeIdentity);
+    expect(await readFile(configuration, "utf8")).toBe(configured);
+    expect((await stat(configuration)).ino).toBe(configurationIdentity);
     expect((await request.get(developmentUrl)).status()).toBe(200);
   } finally {
     await page.close();

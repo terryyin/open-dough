@@ -1,4 +1,4 @@
-// Own the complete process group for dashboard release commands and previews.
+// Own the complete process group for production build commands and previews.
 import { spawn, spawnSync } from "node:child_process";
 
 /**

@@ -132,7 +132,7 @@ or persistent deployment service.
   it as negations.
 - [Product backlog](../PRODUCT-BACKLOG.md).
 - [Current production watcher](../../scripts/watch-dashboard.mjs).
-- [Production release runner](../../dashboard/server/productionReleaseRunner.mjs).
+- [Production deployment runner](../../dashboard/server/productionDeployment.mjs).
 - [CI path exclusions](../../.github/workflows/ci.yml).
 - [Dashboard command guidance](../../dashboard/COMMANDS.md) and
   [dashboard README](../../dashboard/README.md).

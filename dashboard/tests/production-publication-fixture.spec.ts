@@ -4,12 +4,12 @@ import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import { dashboardReleaseFixture } from "./support/dashboardReleaseFixture.ts";
+import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 
 const exec = promisify(execFile);
 
 test("a documentation-only publication pushes only its requested paths to origin main", async () => {
-  const fixture = await dashboardReleaseFixture(true);
+  const fixture = await publishedMainFixture(true);
   const origin = async (...args: string[]) =>
     (await exec("git", ["--git-dir", fixture.origin, ...args])).stdout;
   try {
@@ -47,7 +47,7 @@ test("a documentation-only publication pushes only its requested paths to origin
       "VERSION",
       "package.json",
       "dashboard/index.html",
-      "dashboard/server/productionReleaseRunner.mjs",
+      "dashboard/server/productionDeployment.mjs",
     ])
       expect(await origin("show", `${published}:${file}`)).toBe(
         await readFile(file, "utf8"),

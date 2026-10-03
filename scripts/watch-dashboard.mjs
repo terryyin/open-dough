@@ -1,13 +1,13 @@
-// This owner stays in development; the app and server run from pinned tags.
+// This owner stays in development; the app and server run from pinned
+// origin/main commits built in separate checkouts.
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { setTimeout as wait } from "node:timers/promises";
 import {
-  compareDashboardReleases,
-  resolveDashboardRelease,
-  stageDashboardRelease,
-  startReleasePreview,
-} from "../dashboard/server/productionReleaseRunner.mjs";
+  resolvePublishedMain,
+  stageDeployment,
+  startDeploymentPreview,
+} from "../dashboard/server/productionDeployment.mjs";
 
 const developmentRoot = fileURLToPath(new URL("..", import.meta.url));
 const cancellation = new AbortController();
@@ -18,7 +18,6 @@ process.on("SIGHUP", stop);
 let staged;
 let preview;
 let candidate;
-let pendingRelease;
 let previewExit;
 try {
   const { values } = parseArgs({
@@ -45,26 +44,25 @@ try {
       "Check interval must be a positive number of milliseconds.",
     );
   }
-  let release = await resolveDashboardRelease(
+  // The successfully served commit; replaced only after a candidate activates.
+  let baseline = await resolvePublishedMain(
     developmentRoot,
     process.env,
     cancellation.signal,
   );
-  console.log(
-    `Preparing production dashboard ${release.tag} (${release.commit}).`,
-  );
-  staged = await stageDashboardRelease({
+  console.log(`Preparing production dashboard ${baseline.commit}.`);
+  staged = await stageDeployment({
     developmentRoot,
-    release,
+    published: baseline,
     signal: cancellation.signal,
   });
-  preview = await startReleasePreview({
+  preview = await startDeploymentPreview({
     directory: staged.directory,
     port: Number(values.port),
     signal: cancellation.signal,
   });
   console.log(
-    `Production dashboard ${release.tag} at ${preview.url} (preview PID ${preview.pid}).`,
+    `Production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
   );
   console.log("Development remains available through npm run dev:dashboard.");
   // An ephemeral startup port becomes the fixed production URL for all updates.
@@ -79,49 +77,27 @@ try {
         `Production dashboard exited unexpectedly (${previewExit.signal ?? previewExit.code}).`,
       );
     }
+    let selected;
     try {
-      const latest = await resolveDashboardRelease(
+      const latest = await resolvePublishedMain(
         developmentRoot,
         process.env,
         cancellation.signal,
       );
-      console.log(
-        `Checked production release: ${latest.tag} (${latest.commit}).`,
-      );
-      if (latest.tag === release.tag) {
-        if (latest.commit !== release.commit) {
-          throw new Error(
-            `Published release ${release.tag} changed its commit.`,
-          );
-        }
-        continue;
-      }
-      const relation = await compareDashboardReleases(
+      console.log(`Checked published main: ${latest.commit}.`);
+      if (latest.commit === baseline.commit) continue;
+      // Pin this commit through build and startup even if main moves on.
+      selected = latest;
+      console.log(`Preparing production dashboard ${selected.commit}.`);
+      candidate = await stageDeployment({
         developmentRoot,
-        latest.version,
-        release.version,
-        cancellation.signal,
-      );
-      if (relation !== "newer") continue;
-      if (
-        pendingRelease?.tag === latest.tag &&
-        pendingRelease.commit !== latest.commit
-      ) {
-        throw new Error(`Published release ${latest.tag} changed its commit.`);
-      }
-      pendingRelease = latest;
-      console.log(
-        `Preparing production dashboard ${latest.tag} (${latest.commit}).`,
-      );
-      candidate = await stageDashboardRelease({
-        developmentRoot,
-        release: latest,
+        published: selected,
         signal: cancellation.signal,
       });
       await preview.stop();
       preview = undefined;
       try {
-        preview = await startReleasePreview({
+        preview = await startDeploymentPreview({
           directory: candidate.directory,
           port: productionPort,
           signal: cancellation.signal,
@@ -129,20 +105,20 @@ try {
       } catch (error) {
         cancellation.signal.throwIfAborted();
         try {
-          preview = await startReleasePreview({
+          preview = await startDeploymentPreview({
             directory: staged.directory,
             port: productionPort,
             signal: cancellation.signal,
           });
         } catch (restorationError) {
           throw new Error(
-            `${latest.tag} failed: ${error.message}; restoring ${release.tag} also failed: ${restorationError.message}`,
+            `${selected.commit} failed: ${error.message}; restoring ${baseline.commit} also failed: ${restorationError.message}`,
             { cause: restorationError },
           );
         }
         observePreview(preview);
         console.log(
-          `Restored production dashboard ${release.tag} at ${preview.url} (preview PID ${preview.pid}).`,
+          `Restored production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
         );
         throw error;
       }
@@ -151,11 +127,10 @@ try {
       const retired = staged;
       staged = candidate;
       candidate = undefined;
-      release = latest;
-      pendingRelease = undefined;
+      baseline = selected;
       observePreview(preview);
       console.log(
-        `Production dashboard ${release.tag} at ${preview.url} (preview PID ${preview.pid}).`,
+        `Production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
       );
       try {
         await retired.remove();
@@ -168,7 +143,7 @@ try {
       cancellation.signal.throwIfAborted();
       if (preview === undefined) throw error;
       console.error(
-        `Production release check failed${pendingRelease ? ` for ${pendingRelease.tag}` : ""}: ${error.message}\nKeeping ${release.tag} at ${preview.url}; retrying on a later check.`,
+        `Production update failed${selected ? ` for ${selected.commit}` : ""}: ${error.message}\nKeeping ${baseline.commit} at ${preview.url}; retrying on a later check.`,
       );
     } finally {
       await candidate?.remove();
@@ -189,7 +164,7 @@ try {
   process.off("SIGHUP", stop);
 }
 
-/** @param {Awaited<ReturnType<typeof startReleasePreview>>} running */
+/** @param {Awaited<ReturnType<typeof startDeploymentPreview>>} running */
 function observePreview(running) {
   previewExit = undefined;
   void running.exited.then((exit) => {

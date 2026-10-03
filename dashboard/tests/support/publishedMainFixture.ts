@@ -1,5 +1,6 @@
-// Disposable origin publication with the actual current dashboard/package scripts.
-// Every repository, release directory, and machine HOME belongs to this test.
+// Disposable origin/main publication with the actual current dashboard/package
+// scripts. Every repository, deployment directory, and machine HOME belongs to
+// this test.
 import { execFile } from "node:child_process";
 import {
   cpSync,
@@ -19,12 +20,12 @@ const repoRoot = process.cwd();
 // Path contents to publish; `null` deletes the path. Nothing else changes.
 export type PathChanges = Record<string, string | null>;
 
-export async function dashboardReleaseFixture(fullSource = false) {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-dashboard-release-"));
+export async function publishedMainFixture(fullSource = false) {
+  const root = mkdtempSync(path.join(tmpdir(), "dough-published-main-"));
   const development = path.join(root, "development");
   const origin = path.join(root, "origin.git");
   const home = path.join(root, "home");
-  const releasesRoot = path.join(root, "releases");
+  const deploymentsRoot = path.join(root, "deployments");
   mkdirSync(development);
   mkdirSync(home);
   const env = { ...process.env, HOME: home };
@@ -50,25 +51,27 @@ export async function dashboardReleaseFixture(fullSource = false) {
         mkdirSync(path.dirname(destination), { recursive: true });
         cpSync(path.join(repoRoot, file), destination);
       }
-    } else {
-      cpSync(
-        path.join(repoRoot, "src/install"),
-        path.join(development, "src/install"),
-        { recursive: true },
-      );
     }
     await git("init", "--quiet", "-b", "main");
-    await git("config", "user.name", "Dashboard release fixture");
+    await git("config", "user.name", "Published main fixture");
     await git("config", "user.email", "fixture@example.invalid");
     await git("config", "maintenance.auto", "false");
     await exec("git", ["init", "--quiet", "--bare", "-b", "main", origin], {
       env,
     });
     await git("remote", "add", "origin", origin);
-    const record = (message: string) =>
-      git("-c", "core.hooksPath=/dev/null", "commit", "--quiet", "-m", message);
+    const record = (message: string, ...options: string[]) =>
+      git(
+        "-c",
+        "core.hooksPath=/dev/null",
+        "commit",
+        "--quiet",
+        ...options,
+        "-m",
+        message,
+      );
     await git("add", "--all");
-    await record("Fixture source");
+    await record("Fixture source", "--allow-empty");
     // Commits exactly the requested path changes on local main.
     const commit = async (changes: PathChanges, message: string) => {
       const paths = Object.keys(changes);
@@ -86,6 +89,12 @@ export async function dashboardReleaseFixture(fullSource = false) {
       return git("rev-parse", "HEAD");
     };
     const push = () => git("push", "--quiet", "origin", "main");
+    // Commits and pushes the requested changes as origin's new main commit.
+    const publish = async (changes: PathChanges, message: string) => {
+      const sha = await commit(changes, message);
+      await push();
+      return sha;
+    };
     // A real browser journey's visible marker: the served page title.
     const markerChanges = (marker: string): PathChanges => {
       const changes: PathChanges = { "fixture-marker": marker };
@@ -98,23 +107,18 @@ export async function dashboardReleaseFixture(fullSource = false) {
       }
       return changes;
     };
-    // Temporary tag-era publication; main-based delivery replaces it.
-    const releaseChanges = (version: string, marker = version) => ({
-      VERSION: `${version}\n`,
-      ...markerChanges(marker),
-    });
     return {
       root,
       development,
       origin,
       home,
-      releasesRoot,
+      deploymentsRoot,
       env,
       git,
       commit,
       push,
+      publish,
       markerChanges,
-      releaseChanges,
       async installDevelopment() {
         await exec(
           "npm",
@@ -131,32 +135,6 @@ export async function dashboardReleaseFixture(fullSource = false) {
             timeout: 180_000,
           },
         );
-      },
-      async publish(
-        version: string,
-        options: {
-          annotated?: boolean;
-          changes?: PathChanges;
-          marker?: string;
-          versionFile?: string;
-        } = {},
-      ) {
-        const sha = await commit(
-          {
-            ...releaseChanges(
-              options.versionFile ?? version,
-              options.marker ?? version,
-            ),
-            ...options.changes,
-          },
-          `Release fixture ${options.marker ?? version}`,
-        );
-        if (options.annotated)
-          await git("tag", "-a", `v${version}`, "-m", `Version ${version}`);
-        else await git("tag", `v${version}`);
-        await push();
-        await git("push", "--quiet", "origin", "--tags");
-        return sha;
       },
       cleanup() {
         rmSync(root, { recursive: true, force: true });
