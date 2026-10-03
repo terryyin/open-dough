@@ -180,13 +180,15 @@ test("starting sends the instruction after the execution command in the Open Dou
   await expect(refine(notRefinedStory)).toBeEnabled();
 });
 
-test("starting refinement sends its instruction in the Open Dough folder and lists its session beside both Start actions, and a later launch takes the keyboard to its newest entry", async ({
+test("starting refinement sends its instruction in the Open Dough folder and lists its session beside both Start actions", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  const { card, start, dialog, refine, refinementDialog } =
-    await openTakenBacklog(page, journey);
+  const { card, start, refine, refinementDialog } = await openTakenBacklog(
+    page,
+    journey,
+  );
   const own = "Focus on the empty-state wording";
 
   await refine(notRefinedStory).click();
@@ -221,12 +223,4 @@ test("starting refinement sends its instruction in the Open Dough folder and lis
       cwd: folder,
     },
   ]);
-
-  // The newest entry, listed first, takes the keyboard.
-  await start(notRefinedStory).click();
-  await dialog.getByRole("button", { name: "Start" }).click();
-  await expect(sessions.first()).toHaveAccessibleName(
-    cardSessionName("Execution"),
-  );
-  await expect(sessions.first()).toBeFocused();
 });

@@ -66,11 +66,8 @@ test.describe("deleting a card's session record", () => {
     await expectMembership(page, queued);
     await settled();
     await launch(readyStory, "Execution");
-    await launch(readyStory, "Refinement");
     const execution = cardSessionOf(card(readyStory), "Execution");
-    const refinement = cardSessionOf(card(readyStory), "Refinement");
     const kept = await sessionNamedBy(execution);
-    const deleted = await sessionNamedBy(refinement);
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",
@@ -85,18 +82,16 @@ test.describe("deleting a card's session record", () => {
     const deleteButton = (entry: typeof execution) =>
       entry.getByRole("button", { name: "Delete record…" });
 
-    await test.step("with the listing unreadable, both entries say State unknown and offer Delete record…", async () => {
+    await test.step("with the listing unreadable, the entry says State unknown and offers Delete record…", async () => {
       dashboard.claudeListingFails(true);
       await page.reload();
       await settled();
       await sidebar.button.click();
-      await expect(sidebar.entries).toHaveCount(2);
-      for (const entry of [execution, refinement]) {
-        await expect(sessionStateOf(entry)).toHaveText(
-          "State unknown: Claude Code's session list could not be read",
-        );
-        await expect(deleteButton(entry)).toBeVisible();
-      }
+      await expect(sidebar.entries).toHaveCount(1);
+      await expect(sessionStateOf(execution)).toHaveText(
+        "State unknown: Claude Code's session list could not be read",
+      );
+      await expect(deleteButton(execution)).toBeVisible();
       await expect(cardAttentionOf(card(readyStory))).toHaveCount(0);
     });
 
@@ -122,7 +117,6 @@ test.describe("deleting a card's session record", () => {
         execution.getByRole("button", { name: "Open terminal" }),
       ).toBeVisible();
       expect(await cardTop()).toBe(before);
-      await expect(deleteButton(refinement)).toBeVisible();
     });
 
     await test.step("Keep restores the button with the keyboard on it and deletes nothing", async () => {
@@ -131,7 +125,6 @@ test.describe("deleting a card's session record", () => {
       await expect(deleteButton(execution)).toBeFocused();
       await expect(execution.getByText(question)).toHaveCount(0);
       expect(stored()).toContain(kept);
-      expect(stored()).toContain(deleted);
     });
 
     await test.step("Escape does the same", async () => {
@@ -145,34 +138,9 @@ test.describe("deleting a card's session record", () => {
       await expect(deleteButton(execution)).toBeFocused();
       await expect(execution.getByText(question)).toHaveCount(0);
       expect(stored()).toContain(kept);
-      expect(stored()).toContain(deleted);
     });
 
-    await test.step("Delete record removes the entry from the card, Recent sessions and the sidebar without a success announcement, and moves the keyboard to the next entry", async () => {
-      await deleteButton(refinement).click();
-      await refinement
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
-
-      await expect(refinement).toHaveCount(0);
-      await expect(inRecent("Refinement")).toHaveCount(0);
-      await expect(sidebar.entries).toHaveCount(1);
-      await expect(
-        page.getByText("Session record deleted", { exact: true }),
-      ).toHaveCount(0);
-      await expect(execution).toBeFocused();
-      await expect(cardSessions(card(readyStory))).toHaveCount(1);
-      await expect(inRecent("Execution")).toBeVisible();
-      await expect(cardAttentionOf(card(readyStory))).toHaveCount(0);
-      await expectMembership(page, queued);
-      expect(stored()).toContain(kept);
-      expect(stored()).not.toContain(deleted);
-      expect(
-        dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-      ).toEqual([]);
-    });
-
-    await test.step("deleting the last entry sends the keyboard to the card", async () => {
+    await test.step("Delete record removes the entry from the card, Recent sessions and the sidebar without a success announcement, and moves the keyboard to the card", async () => {
       await deleteButton(execution).click();
       await execution
         .getByRole("button", { name: "Delete record", exact: true })
@@ -188,6 +156,9 @@ test.describe("deleting a card's session record", () => {
       ).toHaveCount(0);
       expect(stored()).not.toContain(kept);
       await expectMembership(page, queued);
+      expect(
+        dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
+      ).toEqual([]);
     });
   });
 
@@ -204,12 +175,9 @@ test.describe("deleting a card's session record", () => {
     const sidebar = sidebarParts(page);
     await settled();
     await launch(readyStory, "Execution");
-    await launch(readyStory, "Refinement");
     const unavailable = cardSessionOf(card(readyStory), "Execution");
-    const kept = cardSessionOf(card(readyStory), "Refinement");
     // A launch is finished once its entry names its session; reloading sooner
     // would lose it.
-    await sessionNamedBy(kept);
     dashboard.claudeSessionBecomes(
       await sessionNamedBy(unavailable),
       "forgotten",
@@ -217,7 +185,7 @@ test.describe("deleting a card's session record", () => {
     await page.reload();
     await settled();
     await sidebar.button.click();
-    await expect(sidebar.entries).toHaveCount(2);
+    await expect(sidebar.entries).toHaveCount(1);
     await expect(sessionStateOf(unavailable)).toHaveText("Session unavailable");
 
     await unavailable.getByRole("button", { name: "Delete record…" }).click();
@@ -237,12 +205,11 @@ test.describe("deleting a card's session record", () => {
         name: recentSessionName("Execution", readyStory),
       }),
     ).toHaveCount(0);
-    await expect(sidebar.entries).toHaveCount(1);
+    await expect(sidebar.entries).toHaveCount(0);
     await expect(
       page.getByText("Session record deleted", { exact: true }),
     ).toHaveCount(0);
-    await expect(cardSessions(card(readyStory))).toHaveCount(1);
-    await expect(kept).toBeVisible();
+    await expect(cardSessions(card(readyStory))).toHaveCount(0);
   });
 
   test("a Working or Needs input entry offers no Delete record…", async ({

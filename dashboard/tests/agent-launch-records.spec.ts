@@ -26,6 +26,7 @@ import {
   recordsOf,
   title,
 } from "./agentLaunchBoundary.ts";
+import { distinctStoryRequest } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -193,7 +194,7 @@ test.describe("launch records kept on this machine", () => {
 
     server.claudeScenario("launched");
     const { record } = JSON.parse(
-      (await launch(server, launchRequest)).body,
+      (await launch(server, distinctStoryRequest("retention-write"))).body,
     ) as {
       record: { session: { sessionId: string } };
     };
@@ -218,7 +219,7 @@ test.describe("launch records kept on this machine", () => {
 
     server.claudeScenario("launched");
     const { record } = JSON.parse(
-      (await launch(server, launchRequest)).body,
+      (await launch(server, distinctStoryRequest("unreadable-1"))).body,
     ) as { record: unknown };
     expect(await recordsOf(server, "open-dough")).toEqual([record]);
     expect(readFileSync(`${storeFile(machine)}.unreadable`, "utf8")).toBe(
@@ -226,7 +227,9 @@ test.describe("launch records kept on this machine", () => {
     );
     const unreadableAgain = "[ still not launch records";
     seedStore(machine, unreadableAgain);
-    const second = JSON.parse((await launch(server, launchRequest)).body) as {
+    const second = JSON.parse(
+      (await launch(server, distinctStoryRequest("unreadable-2"))).body,
+    ) as {
       record: unknown;
     };
     expect(await recordsOf(server, "open-dough")).toEqual([second.record]);

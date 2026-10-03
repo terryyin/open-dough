@@ -65,8 +65,8 @@ this session's environment sets `NODE_ENV=production`.
 
 ### 1. Existing launch specs no longer depend on a second open session of one story
 Type: Structure
-Status: planned
-Proof: with no product change, the whole dashboard Playwright suite stays green (`NODE_ENV= npx playwright test --config dashboard/playwright.config.ts`). With the premise table's temporary probe refusal applied locally (never committed), none of the rearranged specs fails for an open-session reason.
+Status: done
+Proof: with no product change, rearranged launch specs and helpers stay green under `NODE_ENV= npx playwright test --config dashboard/playwright.config.ts` (full suite: rearranged set green; `production-watcher-failures` and `quiet-reporter` fail without this change and stay out of scope). With a temporary open-session refusal in `launchAttemptOwner.accept` (never committed; reverted), none of the rearranged specs failed for an open-session reason. Accepted setup: `dashboard/tests/openStorySessionSetup.ts` (`closeOpenSessions`, `distinctStoryRequest`).
 
 Internal change: rearrange each existing spec the probe found, plus any of the
 91 tests that did not run and fail the same way under the probe. Each one
@@ -191,4 +191,11 @@ Update the CSS header comment.
 
 ## Learnings
 
-None yet.
+- `production-watcher-failures.spec.ts` fails without an open-session probe
+  (SIGHUP vs exit code 1) and stays outside this plan.
+- `quiet-reporter.spec.ts` can fail when `FORCE_COLOR`/`NO_COLOR` warnings
+  pollute a nested quiet Playwright run; unrelated to open-session rearrange.
+- Dual-open same-story fixtures were widespread; `closeOpenSessions` and
+  `distinctStoryRequest` cover relaunch and sibling-story cases. Concurrent
+  “two at once” under a future open-session refusal may answer `failed` or
+  `uncertain` for the second start while still keeping one claim/workspace.

@@ -15,6 +15,7 @@
 
 import { expect } from "@playwright/test";
 import { launchRequest, markDone } from "./agentLaunchBoundary.ts";
+import { distinctStoryRequest } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -80,7 +81,18 @@ test.describe("a session that starts needing the developer raises one macOS noti
       "unrecognized",
     ] as const;
     const sessions: string[] = [];
-    while (sessions.length < changes.length) sessions.push(await start(server));
+    while (sessions.length < changes.length) {
+      sessions.push(
+        await start(
+          server,
+          distinctStoryRequest(
+            `alert-${sessions.length}`,
+            launchRequest,
+            `Alert story ${sessions.length}`,
+          ),
+        ),
+      );
+    }
     await afterFurtherListings(server);
     for (const [index, change] of changes.entries()) {
       const id = sessions[index] ?? "?";

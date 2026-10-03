@@ -113,16 +113,10 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
         shows: "Session unavailable",
       },
       {
-        title: notRefinedStory,
+        title: takenStory,
         workflow: "Refinement",
         change: "stopped",
         shows: "Session stopped",
-      },
-      {
-        title: readyStory,
-        workflow: "Refinement",
-        change: "blocked",
-        shows: "Needs input",
       },
     ];
     const entryOf = (title: string, workflow: Workflow): Locator =>

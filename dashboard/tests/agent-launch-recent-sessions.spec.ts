@@ -12,6 +12,7 @@
 // one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
+import { markDone } from "./agentLaunchBoundary.ts";
 import {
   expectMembership,
   parts,
@@ -96,6 +97,10 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
 
     const before = Date.now();
     await launchListed(readyStory, "Refinement");
+    await markDone(dashboard, {
+      source: "open-dough",
+      session: sessionIds[0] ?? "?",
+    });
     await launchListed(readyStory, "Execution");
     await launchListed(notRefinedStory, "Execution");
     const launched = [

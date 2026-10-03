@@ -15,6 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { deleteRecord, markDone, recordsOf } from "./agentLaunchBoundary.ts";
+import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
   builtDashboardDir,
@@ -61,14 +62,20 @@ test.describe("deleting a recorded session's record", () => {
     rmSync(machine, { recursive: true, force: true });
   });
 
+  test.beforeEach(async () => {
+    await closeOpenSessions(server);
+  });
+
   test("deletes only the record of a session whose listing cannot be read, stopping and renaming nothing", async () => {
     const kept = await launched(server);
     const session = await launched(server, "open-dough", {
+      identity: "SEED-other#delete-target",
       title: "Another story",
     });
     const before = stored();
     server.claudeListingFails(true);
     const callsBefore = server.claudeCalls().length;
+    const stopsBefore = stopCalls().length;
     try {
       const response = await deleteRecord(server, {
         source: "open-dough",
@@ -84,7 +91,7 @@ test.describe("deleting a recorded session's record", () => {
     expect(stored()).toEqual(
       before.filter((each) => each.session.sessionId !== session.sessionId),
     );
-    expect(stopCalls()).toEqual([]);
+    expect(stopCalls()).toHaveLength(stopsBefore);
     expect(
       server
         .claudeCalls()
@@ -99,9 +106,13 @@ test.describe("deleting a recorded session's record", () => {
 
   test("deletes only the record of a session Claude Code no longer lists and that is not marked done, stopping nothing", async () => {
     const kept = await launched(server);
-    const session = await launched(server);
+    const session = await launched(server, "open-dough", {
+      identity: "SEED-other#delete-forgotten",
+      title: "Forgotten story",
+    });
     server.claudeSessionBecomes(session.sessionId, "forgotten");
     const before = stored();
+    const stopsBefore = stopCalls().length;
 
     const response = await deleteRecord(server, {
       source: "open-dough",
@@ -115,7 +126,7 @@ test.describe("deleting a recorded session's record", () => {
     expect(stored()).toEqual(
       before.filter((each) => each.session.sessionId !== session.sessionId),
     );
-    expect(stopCalls()).toEqual([]);
+    expect(stopCalls()).toHaveLength(stopsBefore);
   });
 
   for (const known of ["working", "unlisted and marked done"] as const) {

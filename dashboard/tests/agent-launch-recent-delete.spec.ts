@@ -5,12 +5,11 @@
 // (./agent-launch-card-delete.spec.ts); confirming removes the entry from
 // Recent sessions and the Sessions sidebar without a success announcement,
 // and the keyboard goes to the next Recent sessions entry, else the previous,
-// else the Recent sessions section.
-// A Recent entry reading Session unavailable offers it too, and one that
-// became known since the page read it keeps its record and says its state is
-// now known. The sidebar's entries in State unknown are each one control with
-// no delete, and a Recent entry in Working or Done offers none. Origin alone still places
-// every story. The page's own dashboard server drives the synthetic `claude`
+// else the Recent sessions section. Session unavailable is
+// ./agent-launch-recent-delete-unavailable.spec.ts. The sidebar's entries in
+// State unknown are each one control with no delete, and a Recent entry in
+// Working or Done offers none. Origin alone still places every story. The
+// page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { readFileSync } from "node:fs";
@@ -66,13 +65,11 @@ test.describe("deleting a Recent sessions entry's record", () => {
     await settled();
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
-    await launch(readyStory, "Refinement");
-    // The last launch settles on its own after its click, and its listing
-    // write would overwrite a change made meanwhile: its session is named too
-    // before any session changes.
     const done = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Execution"),
     );
+    await markDone(dashboard, { source: "open-dough", session: done });
+    await launch(readyStory, "Refinement");
     // Every launch finishes, its entry naming its session, before the page
     // reloads; reloading sooner would lose a launch still in flight.
     await sessionNamedBy(cardSessionOf(card(readyStory), "Refinement"));
@@ -87,6 +84,9 @@ test.describe("deleting a Recent sessions entry's record", () => {
       "agent-launches.json",
     );
     const stored = () => readFileSync(recordFile, "utf8");
+    const stopCalls = () =>
+      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
+    const stopsBeforeDeletes = stopCalls().length;
     const entryOf = (workflow: "Execution" | "Refinement", title: string) =>
       recent.getByRole("article", {
         name: recentSessionName(workflow, title),
@@ -100,12 +100,8 @@ test.describe("deleting a Recent sessions entry's record", () => {
       entry.getByRole("button", { name: "Delete record", exact: true });
 
     await test.step("a session marked done and one whose story left every list are Recent sessions entries", async () => {
-      dashboard.claudeSessionBecomes(done, "forgotten");
       await page.reload();
       await settled();
-      await cardSessionOf(card(readyStory), "Execution")
-        .getByRole("button", { name: "Mark as done" })
-        .click();
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
       await show(stagesJourney.completed);
       await expect(entryOf("Refinement", notRefinedStory)).toBeVisible();
@@ -167,9 +163,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       ).toHaveCount(0);
       expect(stored()).not.toContain(noList);
       expect(stored()).toContain(done);
-      expect(
-        dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-      ).toEqual([]);
+      expect(stopCalls()).toHaveLength(stopsBeforeDeletes);
     });
 
     await test.step("deleting the last entry puts the keyboard on the previous one", async () => {
@@ -199,96 +193,6 @@ test.describe("deleting a Recent sessions entry's record", () => {
         taken: [readyStory],
         backlog: [takenStory],
       });
-    });
-  });
-
-  test("a Session unavailable entry offers Delete record…, deletes from Recent sessions and the sidebar, and keeps the record when its state became known", async ({
-    page,
-    dashboard,
-  }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
-      page,
-      stagesJourney,
-    );
-    const { recentSessions: recent } = parts(page);
-    const sidebar = sidebarParts(page);
-    await settled();
-    await launch(readyStory, "Execution");
-    await launch(readyStory, "Refinement");
-    const gone = await sessionNamedBy(
-      cardSessionOf(card(readyStory), "Execution"),
-    );
-    const becameKnown = await sessionNamedBy(
-      cardSessionOf(card(readyStory), "Refinement"),
-    );
-    dashboard.claudeSessionBecomes(gone, "forgotten");
-    dashboard.claudeSessionBecomes(becameKnown, "forgotten");
-    await page.reload();
-    await settled();
-    await sidebar.button.click();
-    const entryOf = (workflow: "Execution" | "Refinement") =>
-      recent.getByRole("article", {
-        name: recentSessionName(workflow, readyStory),
-      });
-    const unavailable = entryOf("Execution");
-    const becomesKnown = entryOf("Refinement");
-    const recordFile = path.join(
-      dashboard.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
-    const stored = () => readFileSync(recordFile, "utf8");
-
-    for (const entry of [unavailable, becomesKnown]) {
-      await expect(sessionStateOf(entry)).toHaveText("Session unavailable");
-      await expect(
-        entry.getByRole("button", { name: "Delete record…" }),
-      ).toBeVisible();
-    }
-    await expect(sidebar.entries).toHaveCount(2);
-    await expect(
-      sidebar.sidebar.getByRole("button", { name: /Delete record/ }),
-    ).toHaveCount(0);
-
-    await test.step("a session whose state became known since the page read it keeps its record and says so", async () => {
-      // Marked done elsewhere, it no longer reads Session unavailable.
-      await markDone(dashboard, { source: "open-dough", session: becameKnown });
-      await becomesKnown
-        .getByRole("button", { name: "Delete record…" })
-        .click();
-      await becomesKnown
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
-
-      await expect(becomesKnown).toContainText(
-        "This session's state is now known",
-      );
-      expect(stored()).toContain(becameKnown);
-      // Read again, it is Done: it offers no delete and leaves the sidebar.
-      await expect(sessionStateOf(becomesKnown)).toHaveText("Done");
-      await expect(
-        becomesKnown.getByRole("button", { name: /^Delete record/ }),
-      ).toHaveCount(0);
-      await expect(sidebar.entries).toHaveCount(1);
-    });
-
-    await test.step("an unavailable session's record is deleted from Recent sessions and the sidebar", async () => {
-      await unavailable.getByRole("button", { name: "Delete record…" }).click();
-      await unavailable
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
-
-      await expect(unavailable).toHaveCount(0);
-      await expect(sidebar.entries).toHaveCount(0);
-      expect(stored()).not.toContain(gone);
-      await expect(
-        page.getByText("Session record deleted", { exact: true }),
-      ).toHaveCount(0);
-      expect(
-        dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-      ).toEqual([]);
     });
   });
 });

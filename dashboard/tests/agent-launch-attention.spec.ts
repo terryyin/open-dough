@@ -38,10 +38,8 @@ import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 const one = "1 session needs attention";
-const two = "2 sessions need attention";
 
-// What a card publishes of its story, once every fact is read: everything it
-// shows but its sessions and how many of them need attention.
+// A card's published story facts once ready, excluding sessions and attention.
 const publishedFactsOf = async (card: Locator) => {
   let facts: string | null = null;
   await expect
@@ -117,9 +115,8 @@ test.describe("a story's card counts the sessions that need attention", () => {
     const sessionOf = new Map<string, string>();
     for (const [title, workflow] of [
       [readyStory, "Execution"],
-      [readyStory, "Refinement"],
       [notRefinedStory, "Execution"],
-      [notRefinedStory, "Refinement"],
+      [takenStory, "Refinement"],
     ] as const) {
       await launch(title, workflow);
       await shows(title, workflow, "Working", false);
@@ -142,21 +139,20 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await markNotReloaded(page);
 
     await test.step("a working session does not hide another's attention, and an unavailable one is not counted", async () => {
-      becomes(readyStory, "Refinement", "blocked", "input needed");
+      becomes(readyStory, "Execution", "blocked", "input needed");
       becomes(notRefinedStory, "Execution", "done-live");
-      becomes(notRefinedStory, "Refinement", "forgotten");
+      becomes(takenStory, "Refinement", "forgotten");
       await passOnePace();
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
-      await shows(readyStory, "Execution", "Working", false);
-      await shows(readyStory, "Refinement", "Needs input: input needed", true);
+      await shows(readyStory, "Execution", "Needs input: input needed", true);
       await shows(notRefinedStory, "Execution", "Ready for review", true);
-      await shows(notRefinedStory, "Refinement", "Session unavailable", false);
+      await shows(takenStory, "Refinement", "Session unavailable", false);
     });
 
-    await test.step("two affected sessions on one card are counted, and none while the listing cannot be read", async () => {
+    await test.step("an affected session stays counted, and none while the listing cannot be read", async () => {
       becomes(readyStory, "Execution", "stopped");
       await passOnePace();
-      await expectCounted({ [readyStory]: two, [notRefinedStory]: one });
+      await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
       await shows(readyStory, "Execution", "Session stopped", true);
 
       dashboard.claudeListingFails(true);
@@ -164,7 +160,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectCounted({});
       dashboard.claudeListingFails(false);
       await passOnePace();
-      await expectCounted({ [readyStory]: two, [notRefinedStory]: one });
+      await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
       await expectNotReloaded(page);
       await expectMembership(page, { taken: [], backlog: queued });
       expect(await publishedFactsOf(card(readyStory))).toBe(facts);
@@ -177,11 +173,11 @@ test.describe("a story's card counts the sessions that need attention", () => {
         card(readyStory).getByText("Preparing", { exact: true }),
       ).toBeVisible();
       const preparingFacts = await publishedFactsOf(card(readyStory));
-      await expectCounted({ [readyStory]: two, [notRefinedStory]: one });
-
-      becomes(readyStory, "Refinement", "working");
-      await passOnePace();
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
+
+      becomes(readyStory, "Execution", "working");
+      await passOnePace();
+      await expectCounted({ [notRefinedStory]: one });
       await expectMembership(page, { taken: [], backlog: queued });
       expect(await publishedFactsOf(card(readyStory))).toBe(preparingFacts);
     });
@@ -191,6 +187,8 @@ test.describe("a story's card counts the sessions that need attention", () => {
       backlog: [takenStory, notRefinedStory],
     };
     await test.step("a Taken card counts the same way, and marking its last affected session done leaves no count", async () => {
+      becomes(readyStory, "Execution", "stopped");
+      await passOnePace();
       await show(stagesJourney.taken);
       await expectMembership(page, takenStages);
       const takenFacts = await publishedFactsOf(card(readyStory));
@@ -217,21 +215,23 @@ test.describe("a story's card counts the sessions that need attention", () => {
         "blocked",
       );
       // Open Dough's session fails while Doughnut is shown.
-      becomes(readyStory, "Refinement", "failed");
+      becomes(notRefinedStory, "Execution", "failed");
       await passOnePace();
       await expectCounted({ [doughnutSharedTitle]: one });
 
       await select("Open Dough");
-      await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
-      await shows(readyStory, "Refinement", "Session failed", true);
+      await expectCounted({ [notRefinedStory]: one });
+      await shows(notRefinedStory, "Execution", "Session failed", true);
 
-      becomes(readyStory, "Refinement", "working");
+      becomes(notRefinedStory, "Execution", "working");
       await page.reload();
       await settled();
-      await expectCounted({ [notRefinedStory]: one });
+      await expectCounted({});
     });
 
     await test.step("a story that leaves every list keeps its affected session, with its reason and Open terminal, in Recent sessions", async () => {
+      becomes(notRefinedStory, "Execution", "done-live");
+      await passOnePace();
       await show(stagesJourney.completed);
       await expectMembership(page, {
         taken: [readyStory],

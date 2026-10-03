@@ -17,6 +17,7 @@ import {
   openDoughFolder,
   refinementRequest,
 } from "./agentLaunchBoundary.ts";
+import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -88,6 +89,7 @@ for (const mode of ["dev", "preview"] as const) {
     });
 
     const argvOf = async (options: string[]) => {
+      await closeOpenSessions(server);
       server.claudeScenario("launched");
       const callsBefore = server.claudeLaunchCalls().length;
       const response = await launch(server, { ...refinementRequest, options });

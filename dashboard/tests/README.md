@@ -101,7 +101,8 @@ card, Recent sessions, and the sidebar, and nothing for Default).
 Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 `agent-launch-card-delete.spec.ts` and `agent-launch-card-delete-problems.spec.ts`
 (a card entry, and what refusals and failures leave), and
-`agent-launch-recent-delete.spec.ts` (a Recent sessions entry).
+`agent-launch-recent-delete.spec.ts` and
+`agent-launch-recent-delete-unavailable.spec.ts` (a Recent sessions entry).
 
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select share `i` of `n` whole
 spec files. `longest-first` orders known files by recorded hosted duration;

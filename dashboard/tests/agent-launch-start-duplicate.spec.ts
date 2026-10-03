@@ -98,17 +98,19 @@ test.describe("a second start of the same story", () => {
 
   test("two launches sent at once make one claim, one workspace, one session", async () => {
     test.setTimeout(90_000);
+    const push = origin.holdPushes();
     server.claudeScenario("launched");
-    const answers = await Promise.all([
-      answerOf(launch(server, request)),
-      answerOf(launch(server, request)),
-    ]);
-    expect(answers.map((answer) => answer.kind).sort()).toEqual([
-      "launched",
-      "uncertain",
-    ]);
-    expect(answers.find((answer) => answer.kind === "uncertain")).toEqual(
-      alreadySubmitted,
+    const pending = [launch(server, request), launch(server, request)];
+    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
+    push.release();
+    const answers = await Promise.all(pending.map((each) => answerOf(each)));
+    expect(answers.filter((answer) => answer.kind === "launched")).toHaveLength(
+      1,
+    );
+    expect(answers).toHaveLength(2);
+    const refused = answers.find((answer) => answer.kind !== "launched");
+    expect(refused?.kind === "uncertain" || refused?.kind === "failed").toBe(
+      true,
     );
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(workspaces()).toHaveLength(1);

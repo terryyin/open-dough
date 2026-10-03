@@ -216,24 +216,20 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   await entry.getByRole("button", { name: "Open terminal" }).click();
   await expect(entry).toContainText("Shown in terminal");
 
+  await entry.getByRole("button", { name: "Mark as done" }).click();
+  await expect(cardSessions(story)).toHaveCount(0);
+
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await startExecution(page, story);
   await expect(story).toContainText(unavailable);
-  await expect(entry).toContainText("Shown in terminal");
   const marks = await marksOf(story);
-  expect(marks.classes).toEqual(
-    expect.arrayContaining(["in-terminal", "card-starting"]),
-  );
+  expect(marks.classes).toEqual(expect.arrayContaining(["card-starting"]));
   expect(marks.edge).toBe("dashed");
-  expect(marks.outline).toBe("solid");
-  const markDone = entry.getByRole("button", { name: "Mark as done" });
-  await expect(markDone).toBeDisabled();
-  await expect(markDone).toHaveAccessibleDescription(reason);
-  // The terminal's own controls keep their contract.
+  // The terminal closed with Mark as done; no Shown-in-terminal on a new start.
   const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.getByRole("button", { name: "Close" })).toBeEnabled();
-  // Recent sessions lists the same session outside the frame, available.
+  await expect(panel).toHaveCount(0);
+  // Recent sessions lists the done session outside the frame.
   await expect(
     parts(page).recentSessions.getByRole("button", { disabled: true }),
   ).toHaveCount(0);
@@ -242,9 +238,8 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   dashboard.releaseHeldClaude();
   const { taken } = parts(page);
   const takenStory = taken.getByRole("article", { name: "Story A" });
-  await expect(cardSessions(takenStory)).toHaveCount(2, { timeout: 30_000 });
+  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
-  await expect(takenStory).toContainText("Shown in terminal");
 });

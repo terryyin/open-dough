@@ -54,7 +54,12 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   let dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
-  native.threadId = String(dashboard.claudeListing()[0]?.["sessionId"]);
+  const claudeSession = String(dashboard.claudeListing()[0]?.["sessionId"]);
+  await markDone(dashboard, {
+    source: "open-dough",
+    session: claudeSession,
+  });
+  native.threadId = claudeSession;
   await refine(notRefinedStory).click();
   dialog = page.getByRole("dialog");
   await showOptions(dialog);
@@ -94,7 +99,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     });
   };
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(2);
+  await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
   const codex = cardSessions(card(notRefinedStory)).filter({
     hasText: "Refinement started in Codex",
   });
@@ -160,9 +165,9 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(2);
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
-  await expect(sidebar.entries).toHaveCount(2);
-  await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(2);
-  // Both hosts share the opaque ID; the later Codex launch is first among working entries.
+  await expect(sidebar.entries).toHaveCount(1);
+  await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(1);
+  // Both hosts share the opaque ID; the open Codex session is the sidebar entry.
   await sidebar.entries.first().getByRole("button").click();
   await expect(page.locator(".terminal-panel")).toHaveCount(1);
   await expect(page.locator(".xterm-rows")).toContainText(
