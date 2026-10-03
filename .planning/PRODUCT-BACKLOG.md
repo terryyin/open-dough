@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
-- [Acknowledge a session report without ending the session's state](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-report-read-keeps-session-state) — SEED-052#mark-report-read-keeps-session-state ([plan](slice-plans/239-mark-report-read-keeps-session-state/PLAN.md))
 
 ## Backlog list
 

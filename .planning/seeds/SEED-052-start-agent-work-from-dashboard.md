@@ -140,81 +140,6 @@ relative to the launch epic was not selected. It stays here as one canonical
 unqueued candidate rather than disappearing from the discussion or being
 silently added to the launch critical path.
 
-<a id="mark-report-read-keeps-session-state"></a>
-
-### Acknowledge a session report without ending the session's state
-
-**Identity:** SEED-052#mark-report-read-keeps-session-state
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-052#mark-report-read-keeps-session-state","dependencies":[{"supplier":{"identity":"SEED-052#unread-report-apart-from-engagement","href":"seeds/SEED-052-start-agent-work-from-dashboard.md#unread-report-apart-from-engagement"},"implementation":"The unread-report reading in sessionShown (unreadReport beside the native reading), its sidebar marker and card count, and the session-unread-report page journey.","rationale":"Mark as read clears the unread-report marker and keeps the native reading; neither exists before the supplier delivers them, so this story's examples cannot be built or observed until then. Shared direction or reconciliation cannot substitute, because this story changes the supplier's unread rule and extends its journey.","condition":"The supplier's unread-report reading and its page journey are on origin's trunk.","state":"satisfied","resolution":{"revision":"5e8d562b4bdeff7971952872ad2cb338fcafb699","path":".planning/seeds/SEED-052-start-agent-work-from-dashboard.md#unread-report-apart-from-engagement","summary":"Origin's main at 15b7ceae holds sessionShown's unreadReport beside the native reading (dashboard/src/sessionShown.ts), the sidebar marker and card \"N unread reports\" line, and dashboard/tests/session-unread-report.spec.ts; the supplier's planned slices were all done with CI green on its branch.\nCondition satisfied: The supplier's unread-report reading and its page journey are on origin's trunk.\nAccepted integration: 15b7ceae39bc52f98932a9437db3b99627db112c on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/239-mark-report-read-keeps-session-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"416d3b72f8f69567d6aeb33760e2dbd80538fcdaceaefbe5f8b12663b3e2e602","plan":"2cf979d06abbeb3ca33206279183fd27b5f23563602f11a18bef9e6a17ac0dc4"}}
-```
-
-**Goal:** A developer who has read a session's completion report can
-acknowledge it while the session keeps working on their next instruction, and
-still sees that session's live state and any later request for input. Today
-acknowledging a report is its Mark as done, which only records local Done
-(`server/doneMarks.ts`), so the entry leaves the card and sidebar and reads Done
-whatever the native session does: a running session reads Done, and a later
-“Needs input” is hidden.
-
-**Scope:**
-
-- A launch whose report is unread offers **Mark as read** where its report's
-  Mark as done is offered today: its card entry and its report panel. Mark as
-  read records, durably and locally, that the report was read. It clears the
-  unread-report marker, its tooltip line, and its share of the card's
-  “N unread reports” line, and does nothing else: it does not stop, rename,
-  detach, or mark the session done.
-- A read session stays an open session: it keeps its card and sidebar entry and
-  the native reading every other open session has, including the attention
-  group, border, badge count, card attention line, and macOS alerts for
-  native readings entered later.
-- The report stays retained and readable after Mark as read
-  (“Read attention message”).
-- Once the report is read, the entry offers **Mark as done**, which does what
-  it does for a session without a report: saves local Done, requests native
-  rename, closes dashboard attachments, and requests native stop unless the
-  session is unavailable. For a host with no native stop (Cursor), it records
-  local Done as a reported session's Mark as done does today. The terminal
-  panel's Mark as done, offered whatever the report state, behaves the same way.
-  Marking a session done also ends any unread report, as today.
-- **Boundary:** Builds on
-  [the unread-report marker](../../dashboard/AGENT-LAUNCH-COMPLETION.md). No change
-  to how reports are delivered or retained; a new instruction to the same
-  session does not mark its report read. Quiet completion still records local
-  Done on arrival. Records already marked done keep that mark.
-
-**Key examples:**
-
-1. A Claude session reported “Completed with attention”, and the developer gave
-   it a new instruction, so it reads Working with the unread-report marker →
-   they choose Mark as read on its card → the marker and “1 unread report” go;
-   the entry still reads Working with the working border, stays on the card and
-   in the sidebar, and the session keeps running.
-2. That read session then waits for input → it shows “Needs input” with the
-   needs-input border, moves into the attention group, is counted by the badge,
-   and raises a macOS “Needs input” alert.
-3. The developer opens the read session's report → the retained message is
-   still there; the panel offers Mark as done instead of Mark as read.
-4. The developer chooses Mark as done on that read Claude session → it is
-   renamed with the done prefix, detached, and stopped, and leaves the card and
-   sidebar for Recent sessions, as an unreported session does.
-5. A Cursor session's report is marked read → its entry stays open with its
-   native reading; Mark as done then records local Done and the entry leaves
-   the card and sidebar.
-6. A reported session that was marked done before this change → it stays in
-   Recent sessions as Done; nothing asks to mark it read.
-
-**UI:** Mark as read is a plain button in the place of today's report
-Mark as done; it then gives way to Mark as done.
-
-**Effort hypothesis:** A durable read mark beside `doneAt`, the unread rule
-reading it, the controls' wording and placement, and Mark as done using the
-unreported path for reported sessions.
-
 ## Ordering and Scope Reduction
 
 Stories 2 and 3 make return and interaction useful; refinement launch and
@@ -262,10 +187,6 @@ implementation; refinement and executable planning are later selections.
   interaction, slight priority for interaction, independent recent sessions and
   recently done stories, and existing local project/tool setup assumed.
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- Terry's follow-up the same day: a report's Mark as done acknowledges the
-  report only, so make it Mark as read and keep the live session state, queued
-  as the next backlog item after the taken unread-report story; work directly
-  on main and sync with origin.
 - [Current dashboard behavior](../../dashboard/README.md).
 - [Project visibility requirements](../../docs/project-visibility-requirements.md).
 - [Dashboard UX/UI direction](../../docs/dashboard-ux-ui-north-star.md).
