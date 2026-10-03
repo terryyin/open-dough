@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-001#remove-files-a-release-dropped",
+  "mode": "story-branch",
+  "branch": "claude/remove-installed-files-that-a-newer-release-no-l",
+  "host": "claude"
+}
