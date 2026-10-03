@@ -81,6 +81,25 @@ export async function expectNoSidewaysScrollAndWholeText(
   ).toEqual([]);
 }
 
+// Neither the page nor anything inside an area, such as a dialog, scrolls
+// sideways.
+export async function expectNoSidewaysScrollIn(page: Page, area: Locator) {
+  expect(
+    await page.evaluate(
+      "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
+    ),
+    "the page does not scroll sideways",
+  ).toBe(true);
+  expect(
+    await area.evaluate((element) =>
+      [element, ...element.querySelectorAll("*")]
+        .filter((inner) => inner.scrollWidth > inner.clientWidth + 1)
+        .map((inner) => inner.tagName),
+    ),
+    "scrolls sideways inside",
+  ).toEqual([]);
+}
+
 export async function box(locator: Locator) {
   const found = await locator.boundingBox();
   if (!found) {
@@ -131,4 +150,51 @@ export async function expectInside(inner: Locator, outer: Locator) {
   expect(inside.y + inside.height).toBeLessThanOrEqual(
     around.y + around.height + 0.5,
   );
+}
+
+// Every control in an area, such as a dialog's scrolling body, can be scrolled
+// whole into the window and out from under every part that clips it, and
+// every part that clips it, but holds more than it shows, lets the reader
+// scroll it, so none is out of reach. Fractions of a pixel left by scrolling
+// do not count.
+function clippedEdges(element: Element) {
+  const box = element.getBoundingClientRect();
+  const clips = [{ left: 0, top: 0, right: innerWidth, bottom: innerHeight }];
+  let unscrollable = 0;
+  const scrolls = (overflow: string) =>
+    overflow === "auto" || overflow === "scroll";
+  for (let at = element.parentElement; at; at = at.parentElement) {
+    const style = getComputedStyle(at);
+    if (style.overflowX === "visible" && style.overflowY === "visible")
+      continue;
+    clips.push(at.getBoundingClientRect());
+    if (
+      (at.scrollHeight > at.clientHeight + 1 && !scrolls(style.overflowY)) ||
+      (at.scrollWidth > at.clientWidth + 1 && !scrolls(style.overflowX))
+    )
+      unscrollable += 1;
+  }
+  return (
+    unscrollable +
+    clips.filter(
+      (clip) =>
+        box.left < clip.left - 1 ||
+        box.top < clip.top - 1 ||
+        box.right > clip.right + 1 ||
+        box.bottom > clip.bottom + 1,
+    ).length
+  );
+}
+
+export async function expectEveryControlReachable(area: Locator) {
+  const controls = area.locator("button, input, select, textarea, summary");
+  expect(await controls.count()).toBeGreaterThan(0);
+  for (const control of await controls.all()) {
+    if (!(await control.isVisible())) continue;
+    await control.scrollIntoViewIfNeeded();
+    expect(
+      await control.evaluate(clippedEdges),
+      `${(await control.textContent()) ?? ""} is cut by what clips it`,
+    ).toBe(0);
+  }
 }

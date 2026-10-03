@@ -251,7 +251,28 @@ terminal contents look the same.
 
 ### 5. Launch dialogs and agent roster chrome
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; full dashboard suite 983
+passed; 145 passed over `agent-launch-dialog`, `agent-roster`, `project-add`,
+`project-remove`, `frame-launch-look`, `system-settings`,
+`session-instruction-voice`, `frame-overview-look`, `agent-launch-ad-hoc`, and
+`agent-launch-boundary`; after the refactor, 11 passed over
+`frame-launch-look`, `agent-launch-dialog-layout`, `frame-overview-look`, and
+`frame-sessions-look`, and 58 passed over `agent-launch-codex-model` repeated
+twice. `agent-launch-dialog-layout.spec.ts` keeps the long-title refinement
+dialog's controls reachable at 320px and 200% zoom through
+`expectEveryControlReachable` in `pageLayout.ts`, which also fails a clipping
+part a reader cannot scroll; `frame-launch-look.spec.ts` checks dialog and
+roster contrast and fit. Final screenshots at 1440px and 420px match the
+accepted look; cards are unchanged.
+Learnings: `.launch-dialog` now holds the dialog look and the project dialogs
+inherit it. `expectNoSidewaysScrollAndWholeText` cannot run with a dialog open
+because the dialog's `overflow: hidden` counts as not read whole; dialog specs
+use `expectNoSidewaysScrollIn` and `expectEveryControlReachable`.
+`narrowWindow` and `twiceZoomedWindow` sit beside `zoomedWindow` in
+`accessibleReading.ts`. Under load average about 89,
+`codexEffortDialogCases.ts:114` and `:166` failed once and then passed 87
+times; this was not reproduced and stays an observation.
 Proof: The launch dialog and roster rows of the proof table, plus final whole-frame screenshots at 1440px and 420px compared with the accepted slice-1 look.
 
 Behavior: the developer opens Start session, Start execution, or Start

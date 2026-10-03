@@ -176,23 +176,10 @@
   }
 }
 
-/* The Add project and Remove project dialogs: a quiet card over the page,
-   its actions on a footer below the body. */
+/* The Add project and Remove project dialogs: the frame's dialog
+   (./launch-dialog.css), narrower, its actions on a footer below the body. */
 .launch-dialog.project-dialog {
   width: min(32rem, calc(100% - 1.5rem));
-  border-color: var(--line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-2);
-}
-
-.project-dialog .launch-dialog-body {
-  gap: var(--space-2);
-  padding: var(--space-5);
-}
-
-.project-dialog h2 {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-strong);
 }
 
 .project-dialog .launch-dialog-body p[role="alert"] {

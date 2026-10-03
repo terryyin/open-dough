@@ -1,7 +1,6 @@
 /* A Backlog card's launch actions, a launch's answer, and a launched
    session's entry on its card and in the project's Recent sessions; the
-   launch dialog's own layout is ./launch-dialog.css, its actions sharing
-   these buttons' look.
+   launch dialog's own layout is ./launch-dialog.css.
    Text carries every meaning. A noted Start stays the accent action; its
    dashed edge only repeats the note beside it. Quiet gray is reserved for a
    disabled Start that cannot be invoked. */
@@ -18,8 +17,7 @@
 }
 
 .start-launch-button,
-.launch-open button,
-.launch-dialog-actions button {
+.launch-open button {
   font: inherit;
   color: var(--accent);
   background: var(--panel);
@@ -34,8 +32,7 @@
 }
 
 .start-launch-button:disabled,
-.launch-open button:disabled,
-.launch-dialog-actions button:disabled {
+.launch-open button:disabled {
   color: var(--quiet);
   border-color: var(--line);
   cursor: default;

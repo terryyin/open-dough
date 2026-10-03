@@ -12,6 +12,7 @@ import { expect, test } from "./dashboardTest.ts";
 import {
   expectControlContrast,
   expectReadableContrast,
+  narrowWindow,
   zoomedWindow,
 } from "./accessibleReading.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -29,8 +30,6 @@ import {
   startDashboardServer,
 } from "./support/dashboardServer.ts";
 import { settings } from "./support/systemSettingsPage.ts";
-
-const narrowWindow = { width: 420, height: 900 };
 
 test("the row below the banner, the stages, and the connector read clearly in the frame's look", async ({
   page,

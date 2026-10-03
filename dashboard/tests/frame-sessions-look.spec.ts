@@ -8,7 +8,11 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { launched } from "./agentTerminalBoundary.ts";
-import { expectReadableContrast, zoomedWindow } from "./accessibleReading.ts";
+import {
+  expectReadableContrast,
+  narrowWindow,
+  zoomedWindow,
+} from "./accessibleReading.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
@@ -20,7 +24,6 @@ import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
-const narrowWindow = { width: 420, height: 900 };
 const work = {
   identity: "SEED-901#frame-look",
   title: `A long story title that the narrow sidebar cuts ${"and goes on ".repeat(4)}to its end`,

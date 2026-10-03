@@ -1,6 +1,8 @@
 /* A launch dialog's layout (./LaunchDialog.tsx): its reading order, its
-   disclosures, and its effects and actions below a scrolling body. Its
-   buttons share the launch actions' look (./agent-launch.css). */
+   disclosures, and its effects and actions below a scrolling body. It is the
+   frame's dialog, which the project dialogs (./project-configuration.css)
+   share: a quiet card over the page, with the frame's buttons, fields, and
+   disclosures (./frame-controls.css). */
 
 /* The dialog is capped to the viewport: its body scrolls, while its effects
    and actions stay in view below it. */
@@ -8,9 +10,10 @@
   box-sizing: border-box;
   width: min(40rem, calc(100% - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
-  border: 1px solid var(--edge);
-  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   padding: 0;
+  box-shadow: var(--shadow-2);
   overflow: hidden;
   color: var(--text);
   background: var(--panel);
@@ -36,15 +39,20 @@
 .launch-dialog-body {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
   min-height: 0;
   overflow-y: auto;
-  padding: 1rem;
+  padding: var(--space-5);
 }
 
 /* The body scrolls rather than squeezing its fields. */
 .launch-dialog-body > * {
   flex-shrink: 0;
+}
+
+.launch-dialog h2 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
 }
 
 .launch-dialog label {
@@ -55,12 +63,17 @@
   font-weight: 600;
 }
 
+.launch-dialog input[type="checkbox"],
+.launch-dialog input[type="radio"] {
+  accent-color: var(--accent);
+}
+
 /* Host and model share a row when it has room, and stack in reading order
    when it does not. */
 .launch-dialog-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
-  gap: 0.5rem 1rem;
+  gap: var(--space-2) var(--space-4);
 }
 
 .launch-dialog-field {
@@ -71,15 +84,15 @@
 }
 
 /* A disclosure's summary names what it holds and, for options, what is
-   selected, so nothing chosen is hidden by closing it. */
+   selected, so nothing chosen is hidden by closing it. It is a frame
+   disclosure, its summary wrapping inside the dialog. */
 .launch-disclosure {
   border-top: 1px solid var(--line);
-  padding-top: 0.35rem;
+  padding-top: var(--space-1);
 }
 
-.launch-disclosure summary {
-  cursor: pointer;
-  padding-block: 0.2rem;
+.launch-disclosure > summary {
+  flex-wrap: wrap;
   font-weight: 600;
 }
 
@@ -90,7 +103,7 @@
 }
 
 .launch-disclosure[open] > summary {
-  margin-bottom: 0.4rem;
+  margin-bottom: var(--space-2);
 }
 
 .launch-disclosure-content {
@@ -107,8 +120,8 @@
   min-width: 0;
   margin: 0;
   border: 1px solid var(--line);
-  border-radius: 0.25rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
 }
 
 .launch-options legend {
@@ -137,25 +150,51 @@
   font-size: 0.9rem;
 }
 
-.launch-dialog select {
-  box-sizing: border-box;
+/* Selects and text areas are frame fields, as wide as their place. A
+   select's value keeps the room its arrow leaves. */
+.launch-dialog select,
+.launch-dialog textarea {
   width: 100%;
-  font: inherit;
+}
+
+.launch-dialog select {
+  padding-inline: var(--space-2) var(--space-1);
 }
 
 .launch-dialog textarea {
-  box-sizing: border-box;
-  width: 100%;
-  font: inherit;
   resize: vertical;
+}
+
+/* The dictation controls and their status sit in one quiet group under the
+   instruction. */
+.launch-dictation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.launch-dictation > p,
+.launch-dictation > div {
+  flex-basis: 100%;
+}
+
+.launch-dictation > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.launch-dictation > div > :is(p, label, textarea) {
+  flex-basis: 100%;
 }
 
 .launch-dialog-footer {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
   border-top: 1px solid var(--line);
-  padding: 0.75rem 1rem;
+  padding: var(--space-3) var(--space-5);
   background: var(--surface);
 }
 
@@ -173,19 +212,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-/* Start is the dialog's one filled action; Cancel keeps the outline. */
-.launch-dialog-actions .launch-dialog-start {
-  color: var(--panel);
-  background: var(--accent);
-}
-
-.launch-dialog-actions .launch-dialog-start:disabled {
-  color: var(--panel);
-  background: var(--quiet);
-  border-color: var(--quiet);
+  gap: var(--space-2);
 }
 
 /* Everything a submitted launch asked for is disabled at once, without

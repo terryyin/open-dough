@@ -7,12 +7,12 @@
 .launch-session {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
   min-width: 0;
   margin: 0;
   border: 1px solid var(--line);
-  border-radius: 0.25rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
 }
 
 .launch-session > legend {

@@ -172,3 +172,11 @@ export async function expectImmediateMotion(locator: Locator) {
 // A 1280 by 1024 window under 400% browser zoom lays the page out in this many
 // CSS pixels, so the narrow journey is also the zoomed one.
 export const zoomedWindow = { width: 320, height: 256 };
+
+// A narrow desktop window the dashboard frame's look is checked at.
+export const narrowWindow = { width: 420, height: 900 };
+
+// A 1280 by 900 window under 200% browser zoom halves its CSS viewport to this
+// and doubles the device pixels per CSS pixel (`deviceScaleFactor: 2`), so it
+// lays the page out as that zoomed window does.
+export const twiceZoomedWindow = { width: 640, height: 450 };

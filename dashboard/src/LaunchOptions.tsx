@@ -12,6 +12,7 @@ import {
   type OfferedOption,
   type OfferedShape,
 } from "./commandOptions.ts";
+import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
 
 type Group = OfferedShape["groups"][number];
 
@@ -101,15 +102,18 @@ export function LaunchOptions({
   );
   const chosen = shape.options.filter(({ flag }) => selected.has(flag));
   return (
-    <details className="launch-disclosure">
-      <summary>
-        {label}{" "}
-        <span className="launch-disclosure-state">
-          {chosen.length === 0
-            ? "None selected"
-            : `${chosen.map((option) => option.label).join(", ")} (${chosen.length})`}
-        </span>
-      </summary>
+    <LaunchDisclosure
+      summary={
+        <>
+          {label}{" "}
+          <span className="launch-disclosure-state">
+            {chosen.length === 0
+              ? "None selected"
+              : `${chosen.map((option) => option.label).join(", ")} (${chosen.length})`}
+          </span>
+        </>
+      }
+    >
       <fieldset className="launch-options">
         <legend>Options</legend>
         {hint !== undefined && <p className="quiet">{hint}</p>}
@@ -164,6 +168,6 @@ export function LaunchOptions({
           ),
         )}
       </fieldset>
-    </details>
+    </LaunchDisclosure>
   );
 }
