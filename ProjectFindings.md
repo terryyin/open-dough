@@ -13,9 +13,9 @@ executions, not commands, retries, or repairs.
 
 ## Priority assessment
 
-1. **Tests whose verdict depends on timing or machine load — first, not
-   queued.** Four executions (plans 160, 186, 187, 189) with four failed CI
-   runs, each stopping slices for a stash, diagnosis, repair, and publication
+1. **Tests whose verdict depends on timing or machine load — first,
+   queued.** Six executions (plans 160, 186, 187, 189, 230, 234) with eight
+   failed CI runs, each stopping slices for a stash, diagnosis, repair, and publication
    cycle, plus local full-selection failures that cost a diagnosis without a
    cause. One failure (`agent-launch-start-taken.spec.ts:53`) is still
    unexplained.
@@ -23,16 +23,15 @@ executions, not commands, retries, or repairs.
    orders the cross-server lock fault after its event, and the ad hoc Cursor
    start spec rereads its kept record until acceptance is saved (`aeb9c33d`;
    DD-195, DD-199).
-2. **Checks whose result depends on where or how they are run — second,
-   queued.** Seven executions (plans 140, 147, 157, 160, 185, 217, 228), the
-   most frequent group. None reached CI: each cost a failed local run, a diagnosis,
-   or a rerun. Four of the six share one cause, a repository root taken from
-   the working directory (DD-168, DD-178, DD-194), and each fix is small.
-   Story:
-   [Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory)
-   (DD-168, DD-178, DD-194). DD-220, a dashboard-launched session inheriting
-   the deployment's `NODE_ENV` and tools, cost one reinstall; its fix belongs
-   in the launch environment.
+   Story: [Launch-card specs give CI's verdict on a loaded machine](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load)
+   (DD-222).
+2. **Checks whose result depends on where or how they are run — second, not
+   queued.** Three executions (plans 140, 217, 228), each costing a failed
+   local run, a diagnosis, or a rerun; none reached CI. Each has its own
+   cause: a direct shell run under macOS Bash 3.2 (DD-162) and a passing run
+   that prints no count (DD-216). DD-220, a dashboard-launched
+   session inheriting the deployment's `NODE_ENV` and tools, cost one
+   reinstall; its fix belongs in the launch environment.
 3. **Local proof that leaves out what another CI job checks — third, not
    queued.** Four executions (plans 146, 165, 190, 191) with five failed CI
    runs. DD-171 recurred in plan 191 with the same error in the same file as
@@ -70,7 +69,17 @@ Resolved and removed on 2026-10-03, each confirmed at `99292557`
 - The lint half of DD-178 and DD-194 (a stray git-ignored `dist` build failed
   `npm run format`): `scripts/lint.mjs` lists files through
   `git ls-files --exclude-standard`, so ignored build output is not linted.
-  Their working-directory half stays open below.
+
+Resolved and removed on 2026-10-03, confirmed at `7fa7e3f7` (recovery:
+`7fa7e3f7:ProjectFindings.md`):
+
+- DD-168, DD-178, and DD-194 (a test took the repository root from the
+  working directory): the CI-mailbox cases use the location-derived
+  `checkoutRoot`, the dashboard suite takes its root from
+  `dashboard/tests/support/repositoryRoot.ts` and builds only into
+  `dashboard/dist`, and lint fails a `process.cwd()` call in test code. The
+  full dashboard suite run from outside the repository with `--config` had no
+  directory-dependent failure.
 
 Earlier removals: DD-114, DD-164, DD-166 (2026-09-29, recovery
 `d68fcde4:ProjectFindings.md`); DD-158 (2026-09-29, recovery
@@ -78,7 +87,7 @@ Earlier removals: DD-114, DD-164, DD-166 (2026-09-29, recovery
 `34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
 DearDough.md on 2026-09-29.
 
-## Tests whose verdict depends on timing or machine load (first priority, not queued)
+## Tests whose verdict depends on timing or machine load (first priority, queued)
 
 A test in this repository should give the same verdict on a loaded developer
 machine, an idle one, and CI's runner. Each finding below is a test that
@@ -94,6 +103,8 @@ unrelated branches each without failing on trunk, about 25 runs. DD-186's
 mailbox race was repaired in the published `ci-mailbox-worker-process.mjs`,
 so that half was a product defect; its test and the other findings here are
 this repository's own.
+
+**Follow-up:** queued first: [Launch-card specs give CI's verdict on a loaded machine](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load) (DD-222).
 
 ### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
 
@@ -194,22 +205,12 @@ Proposal from the review: For a fault injected after a native event, observe tha
   - Observed effect: one failed CI run, a repair stash, diagnosis, and repair commit between slices 2 and 3; the launch-card wait stays unrepaired.
   - Inference: Qualified. The idle race is a third test assuming its own event loop beats the 203 ms detached idle watch. The cursor-model miss matches this finding's launch-card waits under local load.
 
-## Checks whose result depends on where or how they are run (second priority, queued)
+## Checks whose result depends on where or how they are run (second priority, not queued)
 
 This repository's checks should give CI's result however they are run
 locally: directly or through `scripts/test.sh`, from any directory, and under
 an agent's non-interactive shell. Each finding below is a local run whose
 result or output depended on how it was started.
-
-DD-168, DD-178, and DD-194 share one cause: a test takes the repository root
-from `process.cwd()`. It is still present in
-`ci-mailbox-complete-unresolved-cases.mjs`,
-`ci-mailbox-complete-exit-cases.mjs`, `dashboard/tests/support/dashboardServer.ts`,
-and `dashboard/tests/support/fixtureExecutable.ts`.
-
-**Follow-up:** queued second:
-[Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) (DD-168,
-DD-178, DD-194). DD-162 and DD-216 have other causes, so it leaves them open.
 
 ### DD-162 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
 
@@ -228,62 +229,6 @@ and aborted on an empty-array expansion under `set -u`.
   - Evidence: slice 1 return reported `substitute claude one-shot-result exited 1 … stream-status: missing`, identical at claim `5a5087c6`; `native-agent-one-shot.sh` line 35 `named[@]: unbound variable` under `/bin/bash`; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh` passed.
   - Observed effect: one diagnosis agent (about 66k tokens) spent on a failure CI never had.
   - Inference: Qualified. The coordinator's delegation prompt prescribed the direct absolute-Bash run; later prompts named `scripts/test.sh` with Homebrew Bash first on `PATH` and saw no recurrence.
-
-### DD-168 — A CI-mailbox test fails when run from `src/skills`, passing only from the repository root
-
-`ci-mailbox-complete-unresolved-cases.mjs:180` ("unconfirmed shutdown names the
-limitation…") builds its mailbox with `root: process.cwd()`, so running it from
-another directory reports "CI mailbox belongs to another checkout".
-
-#### Occurrences
-
-- Execution: `SEED-008#durable-workspace-creation-fact` / plan 147, first related implementation commit `cb066559`
-  - Timestamp: unknown (slice 1 refactor pass, before `cb066559` at 2026-09-29)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: slice 1 refactor report: fails on every run from `src/skills`, 23/23 from the checkout root; slice 1's delegated proof command was phrased "from `src/skills`".
-  - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
-  - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
-- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
-  - Timestamp: unknown (CI repair refactor pass before `4e0b2420` at 2026-09-29T20:04:43+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: refactor report: `node --test ci-mailbox-complete.test.mjs` from `scripts/` fails an unresolved case with "belongs to another checkout"; the retrospective reviewer saw the same; both passed from the root.
-  - Observed effect: no delivery impact; two agents spent a run confirming the directory dependence.
-
-### DD-178 — The dashboard Playwright suite resolves its repository root from the working directory, and a run elsewhere leaves a build that breaks lint
-
-`dashboard/tests/support/dashboardServer.ts:32` and
-`support/fixtureExecutable.ts:12` take the repository root from
-`process.cwd()`. A run from `dashboard/tests` fails with ENOENT on the fake
-`gh`/`claude`, and its global setup has already built the app into
-`dashboard/tests/dashboard/dist`, which `.gitignore` hides but `npm run format`
-lints (4,779 `no-undef` errors).
-
-#### Occurrences
-
-- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002`
-  - Timestamp: unknown (slice 2 implementation, before `08f217af` at 2026-09-29T17:35:57+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: slice 2 implementer's report ("runs from `dashboard/tests` fail with ENOENT"); the coordinator's formatter failed on `dashboard/tests/dashboard/dist/assets/index-D2jPgcZa.js` and passed after removing that directory.
-  - Observed effect: one failed formatter run and a diagnosis; nothing published.
-  - Inference: Qualified. Same class as DD-168; deriving the root from the file's location would make every directory behave like CI.
-
-### DD-194 — A plan's literal focused proof command failed from its stated directory and left build output that broke the format gate
-
-A plan wrote its focused Playwright command as `cd dashboard && npx playwright test tests/…`, but the dashboard fixtures copy `src/skills/…` relative to the current directory, so the command only works from the workspace root. Its first run also built `dashboard/dashboard/dist`, which the lint step then scanned.
-
-#### Occurrences
-
-- Execution: `SEED-061#select-refinement-options-from-dashboard` / plan 185, first related implementation commit `06c65127`
-  - Timestamp: 2026-09-30T18:19:53+08:00 (slice 1, before commit `06c65127`)
-  - Tool: Claude Code (coordinator and delegated agents)
-  - Model: claude-sonnet-5-5
-  - Open Dough release: unknown; installed guidance VERSION 0.3.49
-  - Evidence: plan 185 "Outside-in proof" focused run and the slice 1 delegation both gave `cd dashboard && npx playwright test tests/agent-launch-start.spec.ts …`; the slice 1 agent's report says it failed in test setup and reran from the workspace root; the coordinator's next `npm run format` then reported 4812 eslint errors, all in `dashboard/dashboard/dist/assets/index-*.js` (git-ignored, but linted), cleared by deleting `dashboard/dashboard`. Plan 185 "Decisive premises" lists nine observed premises and none is the focused command.
-  - Observed effect: one failed proof run, one failed format run, and a diagnosis round before the first commit; later delegations carried the corrected root-based command.
-  - Inference: Qualified. The plan's command was taken from earlier plans' form rather than run once when planned; a premise check of the literal proof command would have caught it. The lint scanning ignored build output is a separate repository quirk and is not attributed to guidance.
 
 ### DD-216 — Literal proof commands printed no pass counts, so agents reran passing suites
 

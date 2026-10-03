@@ -1,7 +1,12 @@
 # Dashboard browser tests
 
-This directory holds the dashboard's one Playwright suite, run from the
-repository root with `npm run test:dashboard`. Every run builds the app once;
+This directory holds the dashboard's one Playwright suite, run with
+`npm run test:dashboard`. Test support takes the repository root from
+`support/repositoryRoot.ts`, not the working directory, so
+`npx playwright test` from `dashboard/`, or with `--config
+<repository>/dashboard/playwright.config.ts` from anywhere, gives the same
+result and builds only into `dashboard/dist`; lint refuses a `process.cwd()`
+call in test code. Every run builds the app once;
 each page journey (`dashboardTest.ts`) then serves that build from its own
 preview server with a synthetic `gh` on its PATH (`fixtures/fake-gh`)
 that answers from the test's own fake GitHub (`support/fakeGitHub.ts`,
