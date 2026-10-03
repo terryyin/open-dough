@@ -315,3 +315,38 @@ at narrow width and 200% zoom keeps every control reachable.
   `aria-hidden`, so the control's accessible name is not announced twice.
   Remove superseded `title` assertions only where the shared check replaces
   them.
+
+## Execution complete
+
+Product advice:
+1. Integrate with main before landing. `origin/main` is 28 commits past this
+   branch's base; a trial merge conflicts in 15 dashboard files. SEED-092
+   removed the Refresh/Retry control this story restyled, so "gear after
+   Refresh", the Retry icon-control check, and the refresh tooltip fall away.
+   SEED-090 added a terminal theme settings section: style it with the frame
+   section rules and add it to `system-settings-look.spec.ts`'s groups, the
+   first real test of "a later setting group drops in as another section".
+2. Story-card renovation (`SEED-091#story-card-information-radiator`, plan 231
+   on main): recheck its "frame foundation not yet available" premise once
+   this lands and reuse the `:root` tokens, `frame-controls.css`,
+   `Icon`/`IconButton`, `expectFrameIconControl`, `expectDecorativeIcon`,
+   `expectControlContrast`, `narrowWindow`/`twiceZoomedWindow`, and
+   `cutByDesign`. Run correction `SEED-091#frame-look-checks-one-rule` (plan
+   235, not ready until rechecked on main) before or alongside it.
+3. `SEED-093#expose-timing-races-locally` should take this branch's two race
+   repairs (`aeb9c33d`, `a25a762f`) as evidence and cover the still-open
+   launch-card 5 s waits under load.
+4. Running Cursor sessions list: SEED-089 and the North Star own it; reuse
+   `session-sidebar.css`'s entry rules.
+5. Banner keyboard order still differs from visual order; after SEED-092's
+   banner change, Terry decides whether a focus-order story is wanted.
+6. This polish was explicitly requested outside the near-future direction; no
+   priority change.
+
+Process findings ready to record at wrap-up after main is integrated (this
+checkout's `DearDough.md` predates main's reorganization): ODF-200 recurrence
+(story-branch `--target-ref` value undocumented; three extra lookups before
+the `fdcc45f6` delivery, accepted first time); a new finding that an
+asynchronous CI repair's repeated reproductions ran beside slice 5's full suite
+and refactor tests, raising load to 83–89 and causing load-only failures; and a
+`ProjectFindings.md` timing-under-load occurrence for the launch-card specs.

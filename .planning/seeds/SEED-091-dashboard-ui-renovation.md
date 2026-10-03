@@ -161,6 +161,29 @@ vertical clutter.
   scanning, which should be hidden initially, and how they remain available.
   Identify related action groups and review representative card states and widths.
 
+<a id="frame-look-checks-one-rule"></a>
+
+### Give the frame's look checks one rule each
+
+**Identity:** SEED-091#frame-look-checks-one-rule
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/235-frame-look-checks-one-rule/PLAN.md","assessment":"not-ready","reasons":["Planned against the unlanded frame-renovation branch; main has since changed OpenAISettings.tsx and added a terminal theme settings section, so recheck the premises on main after the frame lands."],"basis":{"document":"900628544288ea9d5daf65f373088b038d3de04875d1ef9e0b5b861d06b5f3bc","plan":"6475b96010fdf7cecd99afdb106c4122b510073e31d4777ba8fc617d0edbedaa"}}
+```
+
+**Goal:** A maintainer writing the next dashboard look check, such as the story
+cards' renovation, finds one rule for the colour behind an element and one
+check that an area's text reads clearly and its controls are recognisable, so
+look checks stop copying divergent variants.
+
+**Scope:** The dashboard's browser-test support only: the background walk
+repeated in `expectReadableContrast`, `expectControlContrast`, and
+`expectFrameIconControl`, and the two `expectReadableAndRecognisable` copies in
+`system-settings-look.spec.ts` and `frame-launch-look.spec.ts`. No product
+change and no weaker contrast assertion. This is a retrospective correction of
+[the frame renovation](#dashboard-frame-renovation); its
+[plan](../slice-plans/235-frame-look-checks-one-rule/PLAN.md) holds the
+findings, preserved promises, and proof.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
