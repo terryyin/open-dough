@@ -17,6 +17,7 @@ import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import {
   cardSessionOf,
+  cardSessions,
   expectMembership,
   parts,
   recentSessionName,
@@ -30,7 +31,6 @@ import {
   takenStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { markDone } from "./agentLaunchBoundary.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
@@ -68,7 +68,10 @@ test.describe("deleting a Recent sessions entry's record", () => {
     const done = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Execution"),
     );
-    await markDone(dashboard, { source: "open-dough", session: done });
+    await cardSessionOf(card(readyStory), "Execution")
+      .getByRole("button", { name: "Mark as done" })
+      .click();
+    await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launch(readyStory, "Refinement");
     // Every launch finishes, its entry naming its session, before the page
     // reloads; reloading sooner would lose a launch still in flight.

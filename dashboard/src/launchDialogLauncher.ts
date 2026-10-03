@@ -6,7 +6,8 @@
 // unavailable, leaves the keyboard on the startup's status (`handoff`), an
 // enabled place that says what is under way; when that startup ends, the
 // button takes the keyboard back only if it still rests there
-// (`keyboardRestsOn`).
+// (`keyboardRestsOn`) and nothing else still holds the button unavailable
+// (an open session: Mark as done / Delete place the keyboard themselves).
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { keyboardRestsOn } from "./launchHandoff.ts";
@@ -15,6 +16,10 @@ export function useLaunchDialogLauncher(
   starting: boolean,
   // Where the keyboard goes at handoff while the button is unavailable.
   handoff: () => HTMLElement | null | undefined,
+  // Lasting unavailability after startup (open session, unread evidence).
+  // While set when startup ends, a deferred reclaim is dropped rather than
+  // waiting to fire when it clears.
+  heldUnavailable = false,
 ): {
   readonly launcher: RefObject<HTMLButtonElement | null>;
   readonly open: boolean;
@@ -30,16 +35,18 @@ export function useLaunchDialogLauncher(
   useEffect(() => {
     if (open || returnsFocus.current === undefined) return;
     const target = handoff();
+    const blocked = starting || heldUnavailable;
     if (returnsFocus.current === "handoff") {
       returnsFocus.current = "after-startup";
-      if (starting && keyboardRestsOn()) target?.focus();
+      if (blocked && keyboardRestsOn()) target?.focus();
     }
     if (starting) return;
-    const restsOnHandoff = keyboardRestsOn(target);
     const when = returnsFocus.current;
     returnsFocus.current = undefined;
+    if (heldUnavailable) return;
+    const restsOnHandoff = keyboardRestsOn(target);
     if (when === "at-once" || restsOnHandoff) launcher.current?.focus();
-  }, [open, starting, handoff]);
+  }, [open, starting, heldUnavailable, handoff]);
   return {
     launcher,
     open,

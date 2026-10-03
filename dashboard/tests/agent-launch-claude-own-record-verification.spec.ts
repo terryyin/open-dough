@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions } from "./dashboardPage.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   expect,
   test,
@@ -12,6 +13,10 @@ import {
   subject,
   useUncertainLaunch,
 } from "./claudeVerification.ts";
+
+const openSessionDescription = new RegExp(
+  openSessionStartReason.replace(/[.]/g, "\\."),
+);
 
 const uncertainLaunch = useUncertainLaunch();
 
@@ -62,7 +67,8 @@ for (const count of [1, 2]) {
 
     await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
     await expect(cardSessions(card)).toHaveCount(count);
-    await expect(start).toBeEnabled();
+    await expect(start).toBeDisabled();
+    await expect(start).toHaveAccessibleDescription(openSessionDescription);
     await expect(
       card.getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();

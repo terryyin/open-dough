@@ -11,6 +11,7 @@
 
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer, rateLimitedAnswer } from "./originAnswers.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
@@ -20,6 +21,10 @@ import {
   openStories,
   test,
 } from "./responsiveStart.ts";
+
+const openSessionDescription = new RegExp(
+  openSessionStartReason.replace(/[.]/g, "\\."),
+);
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -149,7 +154,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });
 
-test("a refinement's announcement, read before its session settles, keeps the story protected until it does, then returns its Backlog actions while the session works", async ({
+test("a refinement's announcement, read before its session settles, keeps the story protected until it does, then holds Starts for the open session while it works", async ({
   page,
   dashboard,
   origin,
@@ -184,9 +189,22 @@ test("a refinement's announcement, read before its session settles, keeps the st
   await expect(cardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(story).not.toContainText("Local startup in progress");
   await expect(story).not.toContainText(waiting);
-  await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
+  const startRefinement = story.getByRole("button", {
+    name: "Start refinement",
+  });
+  const startExecution = story.getByRole("button", {
+    name: "Start execution",
+  });
+  await expect(startRefinement).toBeDisabled();
+  await expect(startExecution).toBeDisabled();
+  await expect(startRefinement).toHaveAccessibleDescription(
+    openSessionDescription,
+  );
+  await expect(startExecution).toHaveAccessibleDescription(
+    openSessionDescription,
+  );
   await expect(
-    story.getByRole("button", { name: "Start refinement" }),
+    story.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
   expect(published.compares).toEqual([]);
 });

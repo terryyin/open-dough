@@ -85,9 +85,9 @@ export function StartLaunch({
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
-  // Whether the action is unavailable -- while its story starts, or before
-  // this machine's launch evidence was read: the keyboard returns to the
-  // button only once it is available again.
+  // Whether the action is unavailable -- open session, unread evidence, or
+  // dependency gate. Startup handoff focus is timed by the attempt's
+  // starting state; lasting unavailability does not defer reclaiming Start.
   readonly unavailable?: boolean;
   // The id of what says why the action is unavailable, when the story's
   // protected frame does not (`./protectedFrame.ts`).
@@ -112,10 +112,12 @@ export function StartLaunch({
   const id = useId();
   const starting = attempt?.kind === "starting";
   // At handoff the keyboard goes to the story's card, which its startup
-  // status describes.
+  // status describes. Open-session unavailability is held separately so
+  // clearing it (Mark as done / Delete) does not reclaim this button.
   const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
-    starting || unavailable,
+    starting,
     useCallback(() => workCard(work.identity), [work.identity]),
+    unavailable,
   );
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();

@@ -13,6 +13,7 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions } from "./dashboardPage.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   expect,
   test,
@@ -22,6 +23,10 @@ import {
   useUncertainLaunch,
 } from "./claudeVerification.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+
+const openSessionDescription = new RegExp(
+  openSessionStartReason.replace(/[.]/g, "\\."),
+);
 
 const uncertainLaunch = useUncertainLaunch();
 const answerKind = async (response: Promise<{ body: string }>) =>
@@ -89,7 +94,7 @@ async function holdReadsSinceLaunchUntilVerified(page: Page) {
   );
 }
 
-test("Recheck records the one session the uncertain launch started, and the card lists it with its actions back", async ({
+test("Recheck records the one session the uncertain launch started, and the card lists it with Starts held for the open session", async ({
   page,
   dashboard,
 }) => {
@@ -110,7 +115,8 @@ test("Recheck records the one session the uncertain launch started, and the card
   await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
   await expect(cardSessions(card)).toHaveCount(1);
   await expect(card).not.toContainText("Startup needs reconciliation");
-  await expect(start).toBeEnabled();
+  await expect(start).toBeDisabled();
+  await expect(start).toHaveAccessibleDescription(openSessionDescription);
   await expect(
     card.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
