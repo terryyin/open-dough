@@ -20,7 +20,14 @@ selects the commit origin's `main` names, installs that commit's locked
 dependencies and builds it in a separate checkout under
 `~/.open-dough/dashboard/deployments/`, then serves exactly that commit. Local
 commits and edits in the development checkout, and its hot reload, leave that
-production app and server unchanged. Each start establishes current published
+production app and server unchanged. Before each build, the watcher copies local
+WebP cartoons from `dashboard/public/agent-avatars/odd-e-nerds/cartoon/` in the
+development checkout into the isolated checkout. These avatars remain git-ignored;
+raw source photos and other files are excluded. A missing cartoon folder is fine:
+agents without an avatar show their name alone. Changing local cartoons takes
+effect on the next production build, including a watcher restart.
+
+Each start establishes current published
 `main` as the running baseline; an origin without a published `main` stops the
 command with that reason.
 
