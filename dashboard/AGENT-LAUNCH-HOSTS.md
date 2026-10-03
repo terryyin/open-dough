@@ -14,8 +14,9 @@ then one kept terminal client, `cursor-agent --workspace` and `--resume` in
 the established workspace, and stores that id, workspace, and resume command,
 with no alias or endpoint. The launch does not pass `-w`, `--worktree`,
 `--trust`, `--force`, or `--yolo`. The instruction is written into that
-client when its server-side screen has a visible cursor and the text
-`Add a follow-up` or `Plan, search, build anything`. The record then says the first input was accepted. A
+client when its server-side screen shows the text
+`Add a follow-up` or `Plan, search, build anything`, even when the terminal
+cursor is hidden and no synchronized-update frame has arrived. The record then says the first input was accepted. A
 screen that is not ready does not receive the instruction, the record stays
 uncertain, and the developer can still type. When that same client later
 becomes ready, it receives the instruction. The client exiting does not
@@ -26,8 +27,9 @@ Opening the terminal joins that client and shows its output. There is no
 launch-wait notice and no second `cursor-agent`. A blank ad hoc start still
 creates the session, submits nothing, and starts the client when opened.
 Attach is supplied: a later open with no client already kept runs the stored
-command. A visible cursor and the text `Add a follow-up` or
-`Plan, search, build anything` admit it. That
+command. The text `Add a follow-up` or
+`Plan, search, build anything` admits it even when the terminal cursor is
+hidden. That
 attach result declares keep, so a detached terminal leaves the client running
 and a later open joins the same process instead of starting another, while
 the screen is working, waiting for an answer, or unrecognized. Idle hangup

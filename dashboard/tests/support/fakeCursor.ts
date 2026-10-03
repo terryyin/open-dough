@@ -4,7 +4,9 @@
 // and exits on SIGHUP. Working mode paints `ctrl+c to stop`. The default
 // attach screen is the ordinary finished prompt. Waiting mode paints the
 // clarifying question. Trust mode paints a screen that is not ready for an
-// instruction. Unrecognized mode paints neither the prompt nor a question.
+// instruction. Composer mode paints `→ Plan, search, build anything` with
+// the cursor hidden and no synchronized-update frame. Unrecognized mode
+// paints neither the prompt nor a question.
 // Each redraws on SIGWINCH. `showReady()` repaints the ordinary prompt.
 // `models` prints the configured listing in the observed layout, or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

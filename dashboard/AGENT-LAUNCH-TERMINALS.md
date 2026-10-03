@@ -10,14 +10,16 @@ and `--no-alt-screen`. An instructed Cursor launch starts one kept client,
 `cursor-agent --workspace <recorded path> --resume <uuid>`, before the panel
 opens. `--model` is an argument of that first client only. The stored resume
 command omits it, and a later open does not send it. The launch instruction
-is written into that client when its server-side screen has a visible cursor
-and `Add a follow-up` or `Plan, search, build anything`, and the record
+is written into that client when its server-side screen shows
+`Add a follow-up` or `Plan, search, build anything`, even when the terminal
+cursor is hidden and no synchronized-update frame has arrived, and the record
 then says the first input was accepted.
 Until that screen, the instruction is not written, the record stays uncertain,
 and the developer can still type. The client exiting does not accept it.
 Opening the terminal joins that same client and shows its output. There is
-no launch-wait notice and no second client. A visible cursor
-and `Add a follow-up` or `Plan, search, build anything` admit that terminal. Cursor supplies no stop or rename,
+no launch-wait notice and no second client. `Add a follow-up` or
+`Plan, search, build anything` admits that terminal even when the terminal
+cursor is hidden. Cursor supplies no stop or rename,
 so Mark as done is offered only for a reported session, as local Done, and Delete record remains. Unknown project/session, missing project folder and
 unavailable sessions are refused before attachment. Codex checks the saved
 directory at attachment: missing or inconclusive availability opens the same

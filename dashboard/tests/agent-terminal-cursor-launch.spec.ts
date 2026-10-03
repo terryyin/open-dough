@@ -1,15 +1,16 @@
 // An instructed Cursor launch starts one kept terminal client and enters the
 // instruction when that client's screen is ready. Opening the terminal joins
 // that client. A screen that is not ready does not receive the instruction.
-import { test as base, expect } from "./support/pageTest.ts";
+import { test, expect } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { shows } from "./agentTerminalBoundary.ts";
 import { installFakeCursor } from "./support/fakeCursor.ts";
 import { openCursorTerminal } from "./support/cursorTerminal.ts";
 import {
   enteredInstruction,
+  instructedCursorRequest,
   keptCursor,
-  withCursorLaunch,
+  withInstructedCursor,
 } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
 
@@ -19,32 +20,17 @@ const notice =
 const unconfirmed =
   "This launch's recorded conversation has a first input that is not confirmed, so no other conversation was started. Check the recorded conversation for that input.";
 
-const test = base.extend<{
-  mode: "dev" | "preview";
-}>({
-  mode: ["preview", { option: true }],
-});
-
 for (const mode of ["dev", "preview"] as const) {
   test.describe(`Cursor launch turn (${mode})`, () => {
-    test.use({ mode });
+    test.describe.configure({ timeout: 120_000 });
 
-    test("an instructed launch shows that client and accepts typing", async ({
-      mode: launchMode,
-    }) => {
-      test.setTimeout(120_000);
+    test("an instructed launch shows that client and accepts typing", async () => {
       const cursor = installFakeCursor({ screen: "working" });
-      await withCursorLaunch(
-        launchMode,
+      await withInstructedCursor(
+        mode,
         cursor,
+        instruction,
         async (server) => {
-          const launched = await launch(server, {
-            source: "open-dough",
-            workflow: "ad-hoc",
-            host: "cursor",
-            instruction,
-          });
-          expect(launched.status).toBe(200);
           const recorded = keptCursor(server.home);
           const session = recorded.session;
           if (session.host !== "cursor") {
@@ -97,19 +83,9 @@ for (const mode of ["dev", "preview"] as const) {
       );
     });
 
-    test("an empty chat that shows Plan, search, build anything receives the instruction", async ({
-      mode: launchMode,
-    }) => {
-      test.setTimeout(120_000);
+    test("an empty chat that shows Plan, search, build anything receives the instruction", async () => {
       const cursor = installFakeCursor({ screen: "composer" });
-      await withCursorLaunch(launchMode, cursor, async (server) => {
-        const launched = await launch(server, {
-          source: "open-dough",
-          workflow: "ad-hoc",
-          host: "cursor",
-          instruction,
-        });
-        expect(launched.status).toBe(200);
+      await withInstructedCursor(mode, cursor, instruction, (server) => {
         const recorded = keptCursor(server.home);
         expect(recorded.firstInput).toMatchObject({
           state: "confirmed",
@@ -122,19 +98,9 @@ for (const mode of ["dev", "preview"] as const) {
       });
     });
 
-    test("an answer typed while the agent is asking reaches that client", async ({
-      mode: launchMode,
-    }) => {
-      test.setTimeout(120_000);
+    test("an answer typed while the agent is asking reaches that client", async () => {
       const cursor = installFakeCursor({ screen: "waiting" });
-      await withCursorLaunch(launchMode, cursor, async (server) => {
-        const launched = await launch(server, {
-          source: "open-dough",
-          workflow: "ad-hoc",
-          host: "cursor",
-          instruction,
-        });
-        expect(launched.status).toBe(200);
+      await withInstructedCursor(mode, cursor, instruction, async (server) => {
         const recorded = keptCursor(server.home);
         expect(recorded.firstInput).toMatchObject({ state: "uncertain" });
         const pid = cursor.attaches()[0]?.pid ?? 0;
@@ -152,22 +118,24 @@ for (const mode of ["dev", "preview"] as const) {
       });
     });
 
-    test("a screen that is not ready receives the instruction when it becomes ready", async ({
-      mode: launchMode,
-    }) => {
-      test.setTimeout(120_000);
+    test("a trust prompt that never becomes the composer does not receive the instruction", async () => {
+      const cursor = installFakeCursor({ screen: "trust" });
+      await withInstructedCursor(mode, cursor, instruction, (server) => {
+        const recorded = keptCursor(server.home);
+        expect(recorded.firstInput).toMatchObject({ state: "uncertain" });
+        const pid = cursor.attaches()[0]?.pid ?? 0;
+        expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
+        expect(processRunning(pid)).toBe(true);
+        expect(cursor.attaches()).toHaveLength(1);
+      });
+    });
+
+    test("a screen that is not ready receives the instruction when it becomes ready", async () => {
       const cursor = installFakeCursor({
         screen: "trust",
         becomeReady: true,
       });
-      await withCursorLaunch(launchMode, cursor, async (server) => {
-        const launched = await launch(server, {
-          source: "open-dough",
-          workflow: "ad-hoc",
-          host: "cursor",
-          instruction,
-        });
-        expect(launched.status).toBe(200);
+      await withInstructedCursor(mode, cursor, instruction, async (server) => {
         const recorded = keptCursor(server.home);
         expect(recorded.firstInput).toMatchObject({ state: "uncertain" });
         const pid = cursor.attaches()[0]?.pid ?? 0;
@@ -196,19 +164,9 @@ for (const mode of ["dev", "preview"] as const) {
       });
     });
 
-    test("the client exiting does not accept the instruction, and a matching launch starts no other conversation", async ({
-      mode: launchMode,
-    }) => {
-      test.setTimeout(120_000);
+    test("the client exiting does not accept the instruction, and a matching launch starts no other conversation", async () => {
       const cursor = installFakeCursor({ screen: "trust" });
-      await withCursorLaunch(launchMode, cursor, async (server) => {
-        const body = {
-          source: "open-dough" as const,
-          workflow: "ad-hoc" as const,
-          host: "cursor" as const,
-          instruction,
-        };
-        expect((await launch(server, body)).status).toBe(200);
+      await withInstructedCursor(mode, cursor, instruction, async (server) => {
         const pid = cursor.attaches()[0]?.pid ?? 0;
         process.kill(pid, "SIGKILL");
         await expect.poll(() => processRunning(pid)).toBe(false);
@@ -216,7 +174,10 @@ for (const mode of ["dev", "preview"] as const) {
         expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
         expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
 
-        const again = await launch(server, body);
+        const again = await launch(
+          server,
+          instructedCursorRequest(instruction),
+        );
         expect(JSON.parse(again.body)).toEqual({
           kind: "uncertain",
           reason: "unconfirmed",
@@ -229,25 +190,16 @@ for (const mode of ["dev", "preview"] as const) {
       });
     });
 
-    test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async ({
-      mode: launchMode,
-    }) => {
-      test.setTimeout(120_000);
+    test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
       const cursor = installFakeCursor({
         screen: "working",
         paintDelayMs: 3_000,
       });
-      await withCursorLaunch(
-        launchMode,
+      await withInstructedCursor(
+        mode,
         cursor,
+        instruction,
         async (server) => {
-          const launched = await launch(server, {
-            source: "open-dough",
-            workflow: "ad-hoc",
-            host: "cursor",
-            instruction,
-          });
-          expect(launched.status).toBe(200);
           const pid = cursor.attaches()[0]?.pid ?? 0;
           expect(processRunning(pid)).toBe(true);
           expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");

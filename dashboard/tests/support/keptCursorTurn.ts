@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { launch } from "../agentLaunchBoundary.ts";
 import { shows } from "../agentTerminalBoundary.ts";
 import {
   builtDashboardDir,
@@ -44,6 +45,40 @@ export function codexResumeLog(server: DashboardServer): string {
 
 export function enteredInstruction(cursor: FakeCursor, pid: number): string {
   return cursor.input(pid).replace(/\r$/u, "");
+}
+
+// One ad hoc Cursor launch whose text is `instruction`.
+export function instructedCursorRequest(instruction: string) {
+  return {
+    source: "open-dough" as const,
+    workflow: "ad-hoc" as const,
+    host: "cursor" as const,
+    instruction,
+  };
+}
+
+// Starts one dashboard, launches that instructed session, and requires the
+// launch to be answered. The body observes the settled attempt.
+export async function withInstructedCursor(
+  mode: "dev" | "preview",
+  cursor: FakeCursor,
+  instruction: string,
+  observe: (server: DashboardServer) => Promise<void> | void,
+  launchTimeoutMs?: number,
+): Promise<void> {
+  await withCursorLaunch(
+    mode,
+    cursor,
+    async (server) => {
+      const launched = await launch(
+        server,
+        instructedCursorRequest(instruction),
+      );
+      expect(launched.status).toBe(200);
+      await observe(server);
+    },
+    launchTimeoutMs,
+  );
 }
 
 // Starts one dashboard around `cursor` and removes the machine directory

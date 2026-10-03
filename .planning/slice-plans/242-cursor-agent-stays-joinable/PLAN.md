@@ -4,6 +4,8 @@
 **Source:** [refined story](../../seeds/SEED-097-cursor-agent-stays-joinable.md#cursor-agent-stays-joinable).
 **Prepared:** 2026-10-04. Planning only; this request authorizes no implementation or publication.
 
+Execution: Story Branch Mode. Checkout `/Users/terryyin/git/open-dough/.worktrees/a-launched-cursor-agent-receives-its-story`, branch `cursor/a-launched-cursor-agent-receives-its-story`. Claim `f772460815d80bd00f13dedb3632c2bb39b44df6` on `refs/heads/main`. Agent bastiaan-chan. Publisher `2e09a561-17f6-49a0-bec4-3da37206901d`. Remote `origin`, target `main`. Replanning remains allowed.
+
 ## Goal and scope
 
 A developer who starts a story in Cursor from the dashboard gets that story
@@ -110,8 +112,8 @@ probe slice.
 
 ### 1. The real empty composer receives the story
 Type: Behavior
-Status: planned
-Proof: Slice-1 table rows in `agent-terminal-cursor-launch.spec.ts`, both `dev` and `preview`.
+Status: done
+Proof: Slice-1 table rows in `agent-terminal-cursor-launch.spec.ts`, both `dev` and `preview`. Accepted: `env -u NO_COLOR -u NODE_ENV -u npm_config_local_prefix -u npm_package_json npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-terminal-cursor-launch.spec.ts` exited 0. Composer mode paints the prompt with the cursor hidden and no `?2026` frame; `firstInput` is confirmed and the entered text is that instruction. A trust screen that never becomes the composer stays uncertain and does not receive it.
 
 Behavior: a trusted empty chat shows `→ Plan, search, build anything` or
 `→ Add a follow-up`, the terminal cursor is hidden, and the stream has no

@@ -7,7 +7,9 @@
 // `→ Add a follow-up`, and exits on SIGHUP as cursor-agent does. Working
 // mode also prints `ctrl+c to stop`. Waiting mode prints the observed
 // clarifying question. Trust mode prints a non-ready screen. Unrecognized
-// mode prints neither the prompt nor a question. Each mode redraws its
+// mode prints neither the prompt nor a question. Composer mode prints
+// `→ Plan, search, build anything` with the cursor hidden and no
+// synchronized-update frame. Each mode redraws its
 // screen on SIGWINCH. FAKE_CURSOR_BECOME_READY, once that file exists,
 // repaints the ordinary prompt. FAKE_CURSOR_PAINT_DELAY_MS waits that long
 // before the first paint.
@@ -104,6 +106,10 @@ if (attaching) {
   if (dir) fs.mkdirSync(dir, { recursive: true });
   const paint = () => {
     const body = screens[mode] ?? "→ Add a follow-up\r\n";
+    if (mode === "composer") {
+      process.stdout.write(`\x1b[?25l\x1b[2J\x1b[H${body}`);
+      return;
+    }
     process.stdout.write(`\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${body}\x1b[?2026l`);
   };
   process.on("SIGHUP", () => {

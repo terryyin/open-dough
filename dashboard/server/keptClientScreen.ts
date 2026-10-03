@@ -21,8 +21,8 @@ export class KeptClientScreen {
   private readonly terminal: Terminal;
   private readonly csi: { dispose(): void }[];
   private pending: Promise<void> = Promise.resolve();
-  // The page starts hidden and learns `?25` from the stream. A screen that
-  // never shows the cursor is not ready for an instruction.
+  // Starts hidden. `?25` from the stream shows or hides the cursor. The
+  // host's ready rule decides whether a hidden cursor can take an instruction.
   private cursorOn = false;
   private framePending = false;
   private frameDone = false;

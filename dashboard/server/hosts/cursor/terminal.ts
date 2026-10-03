@@ -3,10 +3,11 @@
 // the launch recorded (`cursor-agent --workspace <path> --resume <uuid>`),
 // not another host's attach command. After the conversation loads, the
 // observed prompt is `→ Add a follow-up` or `→ Plan, search, build anything`.
-// A visible cursor and that text admit the terminal. The screen does not include the uuid. The result
-// declares keep: closing the socket leaves this process running, and a later
-// terminal for the session joins it. It also declares the idle end rule: a
-// detached client whose screen stays idle is hung up, and the next open
+// That text admits the terminal even when the cursor is hidden. The screen
+// does not include the uuid. The result declares keep: closing the socket
+// leaves this process running, and a later terminal for the session joins
+// it. It also declares the idle end rule: a detached client whose screen
+// stays idle is hung up, and the next open
 // starts a new client. A launch that already kept a client is joined instead
 // of started again. Closing the dashboard does not hang this process up.
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
@@ -19,13 +20,13 @@ import {
 
 export const cursorTerminalSize = { cols: 80, rows: 24 } as const;
 
-export function cursorReady(screen: string, cursorVisible: boolean): boolean {
-  return cursorVisible && showsCursorComposer(screen);
+export function cursorReady(screen: string): boolean {
+  return showsCursorComposer(screen);
 }
 
-// Attach and an instructed launch share this declaration. A visible cursor
-// and the empty composer admit the terminal. A detached idle screen hangs
-// the client up after the settle period.
+// Attach and an instructed launch share this declaration. The empty composer
+// text admits the terminal. A detached idle screen hangs the client up after
+// the settle period.
 export const cursorKeptTerminal = {
   ready: cursorReady,
   detachedIdle: {
