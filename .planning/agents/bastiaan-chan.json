@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-090#shared-terminal-theme",
+  "mode": "story-branch",
+  "branch": "claude/choose-and-persist-a-theme-for-all-embedded-term",
+  "host": "claude"
+}
