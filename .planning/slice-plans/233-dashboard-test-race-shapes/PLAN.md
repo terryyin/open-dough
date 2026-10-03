@@ -24,8 +24,10 @@ Material exclusions are the story's:
 
 Assumption: the time-bounded absence checks are not fault setups and stay as
 they are. Each one waits out a window to show that nothing else happens:
-`production-watcher-failures.spec.ts:143` (1.1 s after stop) and
-`support/voiceRecovery.ts:89` (200 ms quiet before acting).
+`production-watcher-failures.spec.ts:143` (1.1 s after stop),
+`support/voiceRecovery.ts:89` (200 ms quiet before acting), and, found during
+slice 3, `agent-terminal-cursor-launch.spec.ts:190` (300 ms after the Cursor
+client's exit, to show the exit does not confirm the instruction).
 
 ## Direction and PFE
 
@@ -95,7 +97,7 @@ topic is needed.
 | ESLint lints the dashboard test TypeScript | Slice 1 | `eslint.config.mjs` applies its TS block to `**/*.{ts,mts,tsx}`, and `scripts/lint.mjs` runs ESLint with `--max-warnings=0` | Covered |
 | At least one hand-rolled preparation wait can pass before any card renders | Slice 2 | Read `auto-refresh-detail-recovery.spec.ts:33-37`: after `page.reload()`, `not.toContainText(gap)` and the count-zero wait both pass while the card is absent | Unguarded |
 | A card's preparation read is a page request that a route can hold | Slice 2 proof | DD-195's CI repair evidence: "a route delay reproduced the exact values" for card preparation arriving late | Routable. The endpoint is identified during the slice |
-| `agent-terminal-cursor-launch.spec.ts:190` sleeps 300 ms before reading the kept first-input state | Slice 3 | Read lines 186-191 | Sleep before `keptCursor(...).firstInput?.state`; replace it with a poll |
+| `agent-terminal-cursor-launch.spec.ts:190` sleeps 300 ms before reading the kept first-input state | Slice 3 | Read lines 186-191; during slice 3, `server/hosts/cursor/launch.ts:130-140` and a probe | **Contradicted**: the server records `uncertain` before it spawns the client, so the sleep is an absence window after the exit, not a wait for the state |
 | `agent-launch-cross-server-accept.spec.ts:79` sleeps 250 ms so the accept "reaches the locked write" | Slice 4 | Read lines 76-79 and `server/machineJsonStore.ts:74-90`: the server retries `mkdir` every 25 ms and leaves no observable trace | **Unsettled**: no event is known. Slice 4 opens with a probe |
 
 ## Outside-in proof
@@ -161,7 +163,7 @@ Change:
 ### 3. The Cursor first-input fault reads its kept state once it is recorded
 
 Type: Structure (fault setup ordered after its event)
-Status: planned
+Status: done (no change: the premise did not hold; see Learnings)
 Proof: `agent-terminal-cursor-launch.spec.ts` with `--repeat-each=20
 --workers=8`. The sleep is gone, and an `expect.poll` on the kept first-input
 state reaching `uncertain` precedes the second launch.
@@ -241,3 +243,24 @@ seam would be a scope decision for the developer. Slices 1–3 stand without it.
     about 10–15. `npm run lint` and `npm run typecheck:dashboard` pass.
   - The shared helpers' roughly 70 consumers keep the same two waits in the
     same order. They were covered by the typecheck, not run.
+- Slice 3 closed with no code change:
+  - `dashboard/server/hosts/cursor/launch.ts:130-140` records the first
+    input as `uncertain` before `spawnCursorPty`, and on client exit
+    (`liveTerminalClient.ts:118-123`) nothing writes the record. Only
+    `onEntered` writes `confirmed`, on a ready screen.
+  - A probe that asserted `uncertain` before the kill, with the sleep
+    removed, passed 40 of 40, so a poll would observe nothing. The unchanged
+    spec passed 200 of 200 at `--repeat-each=20 --workers=8`.
+  - The sleep waits out an absence window after the exit, the out-of-scope
+    shape named in the assumption, which now lists it.
+- The ad hoc Cursor CI flake (run 37098217155) failed in
+  `agent-launch-ad-hoc-cursor.spec.ts:173`, not in this slice's spec. It
+  expected `confirmed` and got `uncertain`.
+  - The spec reads `keptRecord(dashboard.home)` once, at line 80, right after
+    the recent-session card appears. The record is still `uncertain` until
+    `onEntered`.
+  - The later `toContainText("First input accepted")` waits for the UI, but
+    line 173 asserts the earlier snapshot.
+  - This is a read of kept state ordered before its event. The page showing
+    the card before the confirmed write is inferred, not observed. It is
+    outside this plan's slices and is surfaced as follow-up.
