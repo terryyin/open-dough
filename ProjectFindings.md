@@ -21,13 +21,15 @@ executions, not commands, retries, or repairs.
    [Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally)
    (DD-186, DD-195, DD-199).
 2. **Checks whose result depends on where or how they are run — second,
-   queued.** Six executions (plans 140, 147, 157, 160, 185, 217), the most
-   frequent group. None reached CI: each cost a failed local run, a diagnosis,
+   queued.** Seven executions (plans 140, 147, 157, 160, 185, 217, 228), the
+   most frequent group. None reached CI: each cost a failed local run, a diagnosis,
    or a rerun. Four of the six share one cause, a repository root taken from
    the working directory (DD-168, DD-178, DD-194), and each fix is small.
    Story:
    [Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory)
-   (DD-168, DD-178, DD-194).
+   (DD-168, DD-178, DD-194). DD-220, a dashboard-launched session inheriting
+   the deployment's `NODE_ENV` and tools, cost one reinstall; its fix belongs
+   in the launch environment.
 3. **Local proof that leaves out what another CI job checks — third, not
    queued.** Four executions (plans 146, 165, 190, 191) with five failed CI
    runs. DD-171 recurred in plan 191 with the same error in the same file as
@@ -257,6 +259,26 @@ The plan's focused Playwright commands used the default reporter. Under the agen
   - Evidence: plan 217 slice 1 proof is `env -u NO_COLOR npm run test:dashboard -- … --workers=2` with no reporter. The slice 1 implementer reported "The run exited 0 but printed no summary, so I'm rerunning with the list reporter" (41 passed). The slice 1 refactor agent reported "The test run exited 0 but printed no pass count, so I'm rerunning it with the line reporter" (30 passed). From slice 2 the coordinator added `--reporter=line` to delegated commands, and there were no further count reruns.
   - Observed effect: two extra Playwright runs of 30–41 tests each.
   - Inference: Qualified. Diagnosed at refinement on 2026-10-03: the dashboard's quiet reporter (`dashboard/playwright.config.ts`) and the Node runner print nothing on a passing run by design; the shell was not the cause.
+
+### DD-220 — A session the dashboard launches inherits its deployment's `NODE_ENV=production` and tools, so checkout preparation installs no dev dependencies and still passes
+
+An agent session the Open Dough dashboard launched inherited
+`NODE_ENV=production`, and its `PATH` reached the dashboard deployment's
+`node_modules/.bin`. In the execution worktree, `npm ci` exited 0 having
+installed nothing ("audited 1 package"). `npm run typecheck:dashboard` then
+passed anyway, using the deployment's `tsc`. The readiness gate's project
+command therefore passed without the checkout's locked dev dependencies.
+
+#### Occurrences
+
+- Execution: `SEED-088#prove-landed-slices-leave-the-review` / plan 228, first related implementation commit `1967ed3f`
+  - Timestamp: 2026-10-03T14:50:00+08:00 (checkout setup after Take `230e6b02` at 14:48:28+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.55 (this repository's installed copy)
+  - Evidence: `echo $NODE_ENV` printed `production`; `npm config get omit` printed `dev`; `which tsc` resolved to `~/.open-dough/dashboard/deployments/28cf3da8bc53-d7306v/node_modules/.bin/tsc`; `node_modules/.bin/tsc` was absent from the worktree. `NODE_ENV=development npm ci --include=dev` installed the locked tools, and the checks passed from them.
+  - Observed effect: the coordinator caught it only by checking for the worktree's own `tsc` after the cheap check passed, at a cost of one reinstall. Every later npm and npx command needed `NODE_ENV=development`.
+  - Inference: Qualified. The dashboard deployment runs under `npm run preview:dashboard` (`dashboard/server/productionDeployment.mjs`), and its terminal spawns appear to pass no `env`, so a launched host inherits the server's environment. Proof run with the deployment's tool versions can differ from CI's. This sits close to ODF-087 (a readiness check passing on a substitute), but here the cause and fix are in the dashboard's launch environment.
 
 ## Local proof that leaves out what another CI job checks (third priority, not queued)
 

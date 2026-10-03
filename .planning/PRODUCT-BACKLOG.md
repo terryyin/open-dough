@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
-- [Prove that a story's landed slices leave its review](seeds/SEED-088-dashboard-story-code-review.md#prove-landed-slices-leave-the-review) — SEED-088#prove-landed-slices-leave-the-review ([plan](slice-plans/228-prove-landed-slices-leave-the-review/PLAN.md))
 - [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation ([plan](slice-plans/230-dashboard-frame-renovation/PLAN.md))
 - [Keep the dashboard tests' recurring race shapes out by construction](seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally) — SEED-093#expose-timing-races-locally ([plan](slice-plans/233-dashboard-test-race-shapes/PLAN.md))
 - [Keep CI observed for Codex and Cursor executions](seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor ([plan](slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md))

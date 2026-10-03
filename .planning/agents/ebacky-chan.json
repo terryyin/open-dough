@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ebacky-chan",
-  "email": "ebacky-chan@example.org",
-  "identity": "SEED-088#prove-landed-slices-leave-the-review",
-  "mode": "story-branch",
-  "branch": "claude/prove-that-a-story-s-landed-slices-leave-its-rev",
-  "host": "claude"
-}
