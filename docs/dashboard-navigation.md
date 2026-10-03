@@ -21,12 +21,28 @@ shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
 terminal with the keyboard there, or opens the read-only final report when a
 Codex saved workspace is missing or cannot be established, and brings its story's card into view once
-that project's stories are read. Command+Shift+Escape closes the terminal
-or final-report
-panel as its Close control does, page-wide and from inside the terminal,
+that project's stories are read. The page's one right-side panel shows one
+item at a time: a session's terminal, a read-only final report, or a story's
+review opened by **Review changes** on its card; opening one replaces the
+other, and the dashboard beside it stays usable. Its left edge is a
+focusable, named separator that says the panel's width in pixels: dragging it,
+or Left (wider) and Right (narrower) while it holds the keyboard, changes one
+preferred width shared by every panel content, kept across closing, the
+Sessions sidebar and Maximize/Restore, and starting at half the room. That
+preference is local to this browser and disposable: a reload recovers it for
+either content, and where the browser keeps none, refuses storage, or keeps an
+unusable value, the panel starts at half the room and still resizes for the
+page's lifetime. A width the room or Maximize imposes never replaces it.
+Neither the panel nor the dashboard becomes narrower than 20rem, measured in
+the room beside the open sidebar; where that room cannot
+hold both, or the window is 800px wide or narrower, the panel stacks above
+the dashboard and offers no edge, as it does while maximized, and more room
+recovers the preferred width. Command+Shift+Escape closes
+the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
-it from the browser, except inside an open modal dialog, and with no panel it
-does nothing. Command+Escape is not used: Chrome and Safari on macOS never
+it from the browser, except inside an open modal dialog or System settings,
+and with no panel it does nothing. Closing returns the keyboard to the control
+that opened the panel, or to its story's card when that control is gone. Command+Escape is not used: Chrome and Safari on macOS never
 deliver it to the page.
 Show the selected project's name as the banner's Source evidence disclosure.
 Show the three project choices as tab-shaped radio controls, with the selected

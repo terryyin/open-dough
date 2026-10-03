@@ -14,10 +14,9 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Show story review and terminal in one resizable side panel](seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel) — SEED-091#review-and-terminal-share-side-panel ([plan](slice-plans/240-review-terminal-side-panel/PLAN.md))
-
 ## Backlog list
 
+- [Align the side panel's same-review opening, report close shortcut, and proof](seeds/SEED-091-dashboard-ui-renovation.md#side-panel-review-reopen-and-close-alignment) — SEED-091#side-panel-review-reopen-and-close-alignment
 - [Align product guidance, shared styles, and tests with the renovated cards](seeds/SEED-091-dashboard-ui-renovation.md#card-renovation-alignment) — SEED-091#card-renovation-alignment
 - [Launch-card specs give CI's verdict on a loaded machine](seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load) — SEED-093#launch-card-waits-hold-under-load
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review

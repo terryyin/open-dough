@@ -12,7 +12,7 @@ export function usePortraitPreview(identity: RefObject<HTMLDivElement | null>) {
       const portrait = target.querySelector<HTMLElement>(
         ".agent-portrait:hover",
       );
-      const panel = target.closest(".terminal-panel");
+      const panel = target.closest(".side-panel");
       if (!portrait || !panel) return;
       const anchor = portrait.getBoundingClientRect();
       const bounds = panel.getBoundingClientRect();

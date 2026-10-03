@@ -1,10 +1,11 @@
 // A story's review explains when there is nothing to review: a worktree
 // straight off trunk has no changes against the named baseline; a worktree
 // whose folder was removed is missing, named by the path the review looked
-// for, and no Git runs; a trunk that cannot be fetched names its remote and
-// target, shows no file list, and Refresh reads the review again once trunk
-// is reachable; and a story whose kept launch record names no workspace
-// offers no review at all, which the launch boundary also refuses.
+// for, still offering Refresh and Close, and no Git runs; a trunk that cannot
+// be fetched names its remote and target, shows no file list, and Refresh
+// reads the review again once trunk is reachable; and a story whose kept
+// launch record names no workspace offers no review at all, which the launch
+// boundary also refuses.
 
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
@@ -33,7 +34,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("dialog", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Review changes" });
   await expect(review.getByRole("definition")).toHaveText([
     shownWorkspace,
     branch,
@@ -61,12 +62,15 @@ test("a removed worktree is missing, named by its path, and no Git runs", async 
   expect(fetchedTrunk()).toBe(merged);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("dialog", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Review changes" });
   await expect(review.getByRole("status")).toHaveText(
     `The worktree is missing. It was removed or retired. Worktree ${shownWorkspace}.`,
   );
   await expect(review.getByRole("list")).toHaveCount(0);
   await expect(review.getByRole("button", { name: "Refresh" })).toBeVisible();
+  await expect(
+    review.getByRole("button", { name: "Close", exact: true }),
+  ).toBeVisible();
   expect(fetchedTrunk()).toBe(merged);
 });
 
@@ -79,7 +83,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("dialog", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Review changes" });
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect(files).toBeVisible();
   const refresh = review.getByRole("button", { name: "Refresh" });

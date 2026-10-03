@@ -72,12 +72,21 @@ hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID
 attachment clears it. Claude retains its immediate admitted-attachment behavior.
 
-One page terminal shows story/workflow/session with Close and Mark as done.
+One page terminal shows story/workflow/session with Mark as done where
+supported, Maximize/Restore and Close; the panel's frame and these controls are
+shared with the [story review](AGENT-LAUNCH.md#story-review), which occupies
+the same panel exclusively, as does a final report.
 It uses the terminal theme chosen in System settings and follows a new choice
 without re-attaching; its panel edge takes the theme's background.
-Switching sessions detaches the prior one; switching projects keeps it attached.
+Switching sessions, or opening a story review, detaches the prior one without
+ending or marking it done; switching projects keeps it attached. Opening
+different panel content returns a maximized panel to the normal split.
+Resizing the panel by its edge
+([navigation](../docs/dashboard-navigation.md)) fits the attached terminal to
+the new width without attaching again.
 Reload has no terminal. Disconnection offers Reconnect; native attach exit offers
-Open again, each for the same session. Close restores the originating control.
+Open again, each for the same session. Close restores the originating control,
+or the session's story card when that control is no longer shown.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
 Mark as done uses one operation from card, report panel or terminal. It saves local done intent,

@@ -15,7 +15,7 @@ import { sessionKey } from "./sessionReference.ts";
 // browser. Toggling leaves the keyboard where it is, except that
 // closing the sidebar with the keyboard inside it returns the keyboard to the
 // Sessions button. Opening an entry (`./SidebarEntry.tsx`) goes to its story
-// and its session through the page frame (`./TerminalSplit.tsx`), and on a
+// and its session through the page frame (`./PageFrame.tsx`), and on a
 // narrow window closes the sidebar lying over the page. Whether it is open is
 // this browser's disposable preference (`sidebarOpenKey`): it survives project
 // switches, views, the terminal, and reloads, and without it, as when storage
@@ -46,6 +46,7 @@ import { IconButton } from "./Icon.tsx";
 import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
+import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import { attentionCount, attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
@@ -54,26 +55,17 @@ import "./session-sidebar.css";
 const sidebarId = "session-sidebar";
 const sidebarOpenKey = "open-dough.sessionSidebar.open";
 
-function readSidebarOpen(): boolean {
-  try {
-    return window.localStorage.getItem(sidebarOpenKey) === "true";
-  } catch {
-    return false;
-  }
-}
+// Unkept, the sidebar starts closed.
+const readSidebarOpen = () => readKept(sidebarOpenKey) === "true";
 
-function keepSidebarOpen(open: boolean): void {
-  try {
-    window.localStorage.setItem(sidebarOpenKey, String(open));
-  } catch {
-    // Unkept, the sidebar only starts closed next time.
-  }
-}
+const keepSidebarOpen = (open: boolean) => {
+  keep(sidebarOpenKey, String(open));
+};
 
 const toggleShortcut = { key: "b" } as const;
 
 // Whether the sidebar is open, and the machine's sessions it lists: held by
-// the page frame (`./TerminalSplit.tsx`), which places the sidebar, and
+// the page frame (`./PageFrame.tsx`), which places the sidebar, and
 // reached by the banner's Sessions button.
 export type SidebarState = {
   readonly open: boolean;
@@ -93,7 +85,7 @@ export const SidebarOnPage = createContext<SidebarState | undefined>(undefined);
 function useSidebar(): SidebarState {
   const sidebar = useContext(SidebarOnPage);
   if (sidebar === undefined) {
-    throw new Error("The Sessions button is outside the page's TerminalSplit.");
+    throw new Error("The Sessions button is outside the page's PageFrame.");
   }
   return sidebar;
 }

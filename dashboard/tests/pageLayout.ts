@@ -27,9 +27,12 @@ const keptFromSight = `(element) => {
   return false;
 }`;
 
-// Elements that reach past either side of the window.
-const pastTheWindow = `(() => {
+// Elements that reach past either side of the window. What a part cut by
+// design holds, such as a code line in an area that scrolls on its own, is
+// not counted; the part itself still is.
+const pastTheWindow = (cutByDesign: readonly string[]) => `(() => {
   const keptFromSight = ${keptFromSight};
+  const cutByDesign = ${JSON.stringify(cutByDesign.join(", "))};
   const limit = document.documentElement.clientWidth;
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
@@ -37,7 +40,8 @@ const pastTheWindow = `(() => {
       return (
         box.width > 0 &&
         (box.left < -0.5 || box.right > limit + 0.5) &&
-        !keptFromSight(element)
+        !keptFromSight(element) &&
+        !(cutByDesign !== "" && element.parentElement?.closest(cutByDesign))
       );
     })
     .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
@@ -86,7 +90,10 @@ export async function expectNoSidewaysScrollAndWholeText(
     ),
     "the page does not scroll sideways",
   ).toBe(true);
-  expect(await page.evaluate(pastTheWindow), "past the window").toEqual([]);
+  expect(
+    await page.evaluate(pastTheWindow(cutByDesign)),
+    "past the window",
+  ).toEqual([]);
   expect(
     await page.evaluate(notReadWhole(cutByDesign)),
     "not read whole",

@@ -64,7 +64,7 @@ export async function expectTerminalPreviewFits(
   // Move the real portrait to the panel's right edge, preserving its hover
   // and preview rendering; the test supplies only the anchor's geometry.
   await portrait.evaluate((element) => {
-    const terminal = element.closest(".terminal-panel");
+    const terminal = element.closest(".side-panel");
     if (!terminal)
       throw new Error("Portrait must belong to the terminal panel");
     const panel = terminal.getBoundingClientRect();

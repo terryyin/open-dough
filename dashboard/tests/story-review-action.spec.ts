@@ -2,7 +2,8 @@
 // (./support/storyReviewWorktree.ts): it joins Inspect story in the card's
 // inspection group, on one line beside it when the card is wide enough and
 // next in reading order when it is not, below the launch group's Starts;
-// closing the review or the detail returns the keyboard usefully.
+// closing the review in the side panel or the detail returns the keyboard
+// usefully.
 
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -11,7 +12,6 @@ import {
   launchGroup,
 } from "./cardControls.ts";
 import {
-  expectEscapeReturnsThenTabMovesOn,
   expectFocusedAndIndicated,
   narrowWindow,
   twiceZoomedWindow,
@@ -38,7 +38,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
   const action = inspectionGroup(card).getByRole("button", {
     name: "Review changes",
   });
-  const review = page.getByRole("dialog", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Review changes" });
   const starts = cardLaunchActions.map((name) =>
     launchGroup(card).getByRole("button", { name }),
   );
@@ -65,11 +65,11 @@ test("the inspection group shares a line below the launch group, wraps in readin
     await expectFocusedAndIndicated(page, action);
     await page.keyboard.press("Enter");
     await expect(review).toBeVisible();
-    await expectEscapeReturnsThenTabMovesOn(page, {
-      opener: action,
-      dialog: review,
-      next: detail.getByRole("link").first(),
-    });
+    await page.keyboard.press("Meta+Shift+Escape");
+    await expect(review).toBeHidden();
+    await expectFocusedAndIndicated(page, action);
+    await page.keyboard.press("Tab");
+    await expectFocusedAndIndicated(page, detail.getByRole("link").first());
     await hide.press("Enter");
     await expectFocusedAndIndicated(page, card);
   }

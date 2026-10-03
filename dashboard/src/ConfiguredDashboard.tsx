@@ -6,7 +6,7 @@ import { WorkStages } from "./WorkStages.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { RecentSessions } from "./RecentSessions.tsx";
-import { TerminalSplit } from "./TerminalSplit.tsx";
+import { PageFrame } from "./PageFrame.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { NearFutureDirection } from "./NearFutureDirection.tsx";
 import { StartSession } from "./StartSession.tsx";
@@ -169,7 +169,7 @@ export function ConfiguredDashboard({
       (entry) => entry.preparation !== undefined,
     );
   return (
-    <TerminalSplit
+    <PageFrame
       sessions={launches}
       stories={{
         selected: source.id,
@@ -239,6 +239,6 @@ export function ConfiguredDashboard({
           />
         </main>
       )}
-    </TerminalSplit>
+    </PageFrame>
   );
 }

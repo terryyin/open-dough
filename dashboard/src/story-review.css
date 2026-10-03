@@ -1,62 +1,14 @@
-/* A story review (./StoryReviewAction.tsx): a modal capped to the viewport
-   whose header, Refresh, and Close stay in view while its body scrolls. The
+/* A story review (./StoryReviewPanel.tsx) in the page's side panel, whose
+   frame, header, Refresh, and panel controls it shares with the terminal
+   (./side-panel.css) and which stay in view while its body scrolls. The
    file browser sits beside the selected file's diff, which takes the
-   browser's room while it is hidden, and both wrap below each other on a
-   narrow screen. Paths keep their lines and scroll inside the file browser,
-   and code lines inside the diff, never the page. Its actions share the launch actions' look
-   (./agent-launch.css). */
-
-.story-review {
-  box-sizing: border-box;
-  width: min(64rem, calc(100% - 1.5rem));
-  max-height: calc(100dvh - 1.5rem);
-  border: 1px solid var(--edge);
-  border-radius: 0.5rem;
-  padding: 0;
-  overflow: hidden;
-  color: var(--text);
-  background: var(--panel);
-}
-
-.story-review[open] {
-  display: flex;
-  flex-direction: column;
-}
-
-.story-review::backdrop {
-  background: rgb(0 0 0 / 45%);
-}
-
-.story-review-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  border-bottom: 1px solid var(--line);
-  padding: 0.75rem 1rem;
-}
-
-.story-review-header-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.story-review-header h2 {
-  margin: 0;
-  font-size: 1.15rem;
-}
-
-.story-review-subject {
-  margin: 0.2rem 0 0;
-  overflow-wrap: anywhere;
-}
-
-.story-review-subject strong {
-  font-weight: 600;
-}
+   browser's room while it is hidden, and both wrap below each other in a
+   narrow panel. Paths keep their lines and scroll inside the file browser,
+   and code lines inside the diff, never the page. The card's action shares
+   the launch actions' look (./agent-launch.css). */
 
 .story-review-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -103,7 +55,7 @@
 }
 
 .story-review-files {
-  flex: 0 1 18rem;
+  flex: 0 1 16rem;
   min-width: 0;
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -157,7 +109,7 @@
 }
 
 .story-review-diff {
-  flex: 1 1 28rem;
+  flex: 1 1 18rem;
   min-width: 0;
 }
 

@@ -6,6 +6,8 @@
 // with added and removed lines marked in text, the rename against its old
 // path, the deletion as all lines removed, and the image as having no textual
 // diff; hiding the file browser leaves the diff in place with more room.
+// The review shows in the page's side panel, and Command+Shift+Escape closes
+// it, returning the keyboard to Review changes.
 // Requests the launch boundary does not admit are refused before any Git
 // runs: trunk is not fetched and no file is written.
 
@@ -109,8 +111,12 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   const card = await openBacklog(page, origin);
   const action = card.getByRole("button", { name: "Review changes" });
   await action.click();
-  const review = page.getByRole("dialog", { name: "Review changes" });
-  await expect(review).toContainText(`Story A ${queuedIdentity}`);
+  const review = page.getByRole("region", { name: "Review changes" });
+  // The panel names the story it reviews, beside the dashboard, and holds
+  // the keyboard in its named content.
+  await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
+  await expect(review).toContainText(`Review changes ${queuedIdentity}`);
+  await expect(review.locator(".story-review-body")).toBeFocused();
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect(files.getByRole("listitem")).toHaveText([
     "Added fresh/new.txt",
@@ -233,7 +239,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   });
   expect(observed(workspace)).toEqual(before);
 
-  await page.keyboard.press("Escape");
+  await page.keyboard.press("Meta+Shift+Escape");
   await expect(review).toBeHidden();
   await expect(action).toBeFocused();
 });

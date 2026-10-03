@@ -11,7 +11,7 @@ import { sessionKey } from "./sessionReference.ts";
 // with any unread report's words, the project and workflow, the model asked
 // for, and the launch time are its tooltip. The entry is one control over its
 // whole area, named by its title; opening it goes to its story and its
-// session (`./TerminalSplit.tsx`). It is current, and outlined, while the
+// session (`./PageFrame.tsx`). It is current, and outlined, while the
 // page's session panel shows its session.
 
 import { useId } from "react";
