@@ -92,6 +92,26 @@ removed_listing() {
   ' | LC_ALL=C sort
 }
 
+# Each root lists A and B as removed, no longer holds them, and holds 0.1.2.
+assert_leftovers_replaced_by_release() {
+  local target=$1 output=$2 platform_root platform root listed installed_version expected_removed
+
+  expected_removed=$(printf '%s\n' "${leftover_a}" "${leftover_b}" | LC_ALL=C sort)
+  for platform_root in "codex:${target}/.agents/skills" "claude:${target}/.claude/skills"; do
+    platform=${platform_root%%:*}
+    root=${platform_root#*:}
+    listed=$(removed_listing "${output}" "${platform}" "${root}")
+    if [[ "${listed}" != "${expected_removed}" ]]; then
+      printf 'FAIL: %s removal listing was:\n%s\nfull output:\n%s\n' "${platform}" "${listed}" "${output}" >&2
+      exit 1
+    fi
+    [[ ! -e "${root}/${leftover_a}" && ! -e "${root}/${leftover_b}" ]]
+    assert_payload_bytes_match "${fixture}/src/skills" "${root}"
+    installed_version=$(cat "${root}/dough-update/VERSION")
+    [[ "${installed_version}" == '0.1.2' ]]
+  done
+}
+
 assert_project_files_kept() {
   local target=$1 root contents
 
@@ -121,21 +141,44 @@ if [[ "${output}" == *'filtering not recognized'* || "${output}" == *'promisor'*
   printf 'FAIL: release-history fetch noise reached the update output:\n%s\n' "${output}" >&2
   exit 1
 fi
-expected_removed=$(printf '%s\n' "${leftover_a}" "${leftover_b}" | LC_ALL=C sort)
-for platform_root in "codex:${target}/.agents/skills" "claude:${target}/.claude/skills"; do
-  platform=${platform_root%%:*}
-  root=${platform_root#*:}
-  listed=$(removed_listing "${output}" "${platform}" "${root}")
-  if [[ "${listed}" != "${expected_removed}" ]]; then
-    printf 'FAIL: %s removal listing was:\n%s\nfull output:\n%s\n' "${platform}" "${listed}" "${output}" >&2
-    exit 1
-  fi
-  [[ ! -e "${root}/${leftover_a}" && ! -e "${root}/${leftover_b}" ]]
-  # Removal leaves no empty directory; one still holding a project file stays.
+assert_leftovers_replaced_by_release "${target}" "${output}"
+# Removal leaves no empty directory; one still holding a project file stays.
+for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
   [[ ! -e "${root}/${leftover_a%%/*}" ]]
   [[ -d "${root}/${leftover_b%/*}" ]]
-  assert_payload_bytes_match "${fixture}/src/skills" "${root}"
-  installed_version=$(cat "${root}/dough-update/VERSION")
-  [[ "${installed_version}" == '0.1.2' ]]
 done
+assert_project_files_kept "${target}"
+
+# Edited leftovers: the ordinary update names them in every root and refuses
+# before any write, pointing to the explicit force replacement.
+target="${temporary_dir}/edited"
+prepare_recorded_target "${target}" "${older}"
+printf '%s\n' 'local edit' >> "${target}/.agents/skills/${leftover_b}"
+printf '%s\n' 'local edit' >> "${target}/.claude/skills/${leftover_b}"
+before=$(snapshot_path_state "${target}")
+if output=$(bash "${helper}" apply --target "${target}" --platform codex 2>&1); then
+  printf 'FAIL: ordinary update accepted an edited leftover:\n%s\n' "${output}" >&2
+  exit 1
+fi
+expected_refusal="codex: edited files at paths 0.1.2 no longer declares in ${target}/.agents/skills:
+  ${leftover_b}
+claude: edited files at paths 0.1.2 no longer declares in ${target}/.claude/skills:
+  ${leftover_b}
+Ordinary update refuses without writes. Use --force to explicitly reinstall and remove them."
+if [[ "${output}" != *"${expected_refusal}"* ||
+  "${output}" != *'Outcome: refused; preserved the selected installation.'* ]]; then
+  printf 'FAIL: edited-leftover refusal was:\n%s\n' "${output}" >&2
+  exit 1
+fi
+after=$(snapshot_path_state "${target}")
+if [[ "${after}" != "${before}" ]]; then
+  echo 'FAIL: refusing an edited leftover changed the target.' >&2
+  exit 1
+fi
+assert_project_files_kept "${target}"
+
+# Explicit force installs 0.1.2 and removes every leftover, edited or not.
+output=$(bash "${helper}" apply --target "${target}" --platform codex --force 2>&1)
+[[ "${output}" == *'Outcome: installed 0.1.2 in the shared Codex/Cursor root and Claude Code by explicit force.'* ]]
+assert_leftovers_replaced_by_release "${target}" "${output}"
 assert_project_files_kept "${target}"

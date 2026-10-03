@@ -125,7 +125,7 @@ the removal.
 
 ### 2. Edited leftovers stop an ordinary update; force removes them
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/update-removes-dropped-files.sh` (edited
 case)
 
@@ -134,6 +134,14 @@ refuses before writes, and points to the explicit force replacement; a path
 snapshot of the target is unchanged. Rerunning with `--force` → 0.1.2 installed
 and A and B removed from both roots and listed. Project-owned files are
 unchanged in both runs.
+
+Accepted proof: `tests/update-removes-dropped-files.sh` edited case (B edited
+in both roots: the refusal names each root's edited files and the `--force`
+pointer, `Outcome: refused`, `snapshot_path_state` unchanged; then `--force`
+lists and removes A and B in both roots, payload and VERSION at 0.1.2, project
+files kept), plus the update/install/payload-update and `apply_release`
+consumer set, all green. `dough-update/SKILL.md` step 6 states the refusal and
+the force removal.
 
 ## Current decisions
 
@@ -152,3 +160,5 @@ unchanged in both runs.
   (`open-dough-release-resolve.sh`).
 - Against the real source, this repository's installed roots report exactly the
   six stranded files as unedited leftovers (example 1).
+- Explicit `--force` stays usable when release history is unavailable: it
+  installs, removes nothing, and warns. No automated test covers that branch.

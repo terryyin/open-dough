@@ -100,14 +100,15 @@ release_leftovers() {
   done < "${history}.dropped"
 }
 
-# Remove each unedited leftover listed in leftovers from root, then every
-# directory that removal left empty below root. Print the removed paths.
-remove_unedited_leftovers() {
-  local root=$1 leftovers=$2
+# Remove each leftover listed in leftovers from root (only unedited ones unless
+# statuses is "all"), then every directory that removal left empty below root.
+# Print the removed paths.
+remove_listed_leftovers() {
+  local root=$1 leftovers=$2 statuses=$3
   local status path directory
 
   while IFS=$'\t' read -r status path; do
-    [[ "${status}" == unedited ]] || continue
+    [[ "${status}" == unedited || "${statuses}" == all ]] || continue
     rm -f -- "${root}/${path}"
     printf '%s\n' "${path}"
     directory=${path%/*}
@@ -132,16 +133,45 @@ find_release_leftovers() {
   done < <(all_destinations_for "${target}")
 }
 
-# After a successful install, remove the recorded unedited leftovers and list
-# them per root.
-remove_found_leftovers() {
+# Explicit force is the recovery path, so an unavailable release history does
+# not block it; the install proceeds and no leftovers are removed.
+find_release_leftovers_for_force() {
+  local url=$2 work_root=$3
+
+  if ! find_release_leftovers "$@"; then
+    rm -f -- "${work_root}/leftovers-"*
+    echo "Release history from ${url} is unavailable; files earlier releases declared were not checked or removed." >&2
+  fi
+}
+
+# Ordinary update refuses before writes when a recorded leftover is edited.
+edited_leftovers_absent() {
   local target=$1 work_root=$2 version=$3
+  local current_platform current_dest edited found=0
+
+  while IFS=$'\t' read -r current_platform current_dest; do
+    [[ -s "${work_root}/leftovers-${current_platform}" ]] || continue
+    edited=$(awk -F'\t' '$1 == "edited" { print "  " $2 }' "${work_root}/leftovers-${current_platform}")
+    [[ -z "${edited}" ]] && continue
+    printf '%s: edited files at paths %s no longer declares in %s:\n%s\n' \
+      "${current_platform}" "${version}" "$(dirname -- "${current_dest}")" "${edited}" >&2
+    found=1
+  done < <(all_destinations_for "${target}")
+  [[ "${found}" -eq 0 ]] && return 0
+  echo "Ordinary update refuses without writes. Use --force to explicitly reinstall and remove them." >&2
+  return 1
+}
+
+# After a successful install, remove the recorded leftovers (unedited ones, or
+# all with statuses "all") and list them per root.
+remove_found_leftovers() {
+  local target=$1 work_root=$2 version=$3 statuses=${4:-unedited}
   local current_platform current_dest root removed
 
   while IFS=$'\t' read -r current_platform current_dest; do
     [[ -s "${work_root}/leftovers-${current_platform}" ]] || continue
     root=$(dirname -- "${current_dest}")
-    removed=$(remove_unedited_leftovers "${root}" "${work_root}/leftovers-${current_platform}")
+    removed=$(remove_listed_leftovers "${root}" "${work_root}/leftovers-${current_platform}" "${statuses}")
     [[ -n "${removed}" ]] || continue
     printf '%s: removed files %s no longer declares from %s:\n' "${current_platform}" "${version}" "${root}"
     printf '%s\n' "${removed}" | sed 's/^/  /'
