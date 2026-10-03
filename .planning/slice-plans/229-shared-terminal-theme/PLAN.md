@@ -182,6 +182,13 @@ Local gates: the new spec, the existing `agent-terminal.spec.ts`,
   `claude/choose-and-persist-a-theme-for-all-embedded-term`, target
   `refs/heads/claude/choose-and-persist-a-theme-for-all-embedded-term`.
 - Claim published on `main` at `fdfb1e0dc30f5fe843e9f7a861d743175fcd744d`.
+- Slice 1 accepted on the story branch at `9579ab893a8eb332ccb4a8d357e4d705f5bb29b0`.
+- CI repair (run 37105448068, during slice 2): `agent-launch-ad-hoc-cursor.spec.ts`
+  flaked with a second Cursor attach. Its default fake Cursor finished the turn
+  at once, so on a slow runner the detached idle rule hung up the launch client
+  before the page opened its terminal. The spec now uses the working-screen
+  fake (`cursorScreen: "working"` on `support/cursorStart.ts`); proof
+  `--repeat-each=10`, 30 passed, plus every `cursorStart` spec.
 
 ## Current decisions
 

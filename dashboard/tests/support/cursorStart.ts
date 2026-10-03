@@ -1,13 +1,20 @@
 // Real Git origin and installed execution-start. Only cursor-agent is a fixture.
+// A spec sets `cursorScreen` to choose the attach screen the fixture paints.
 import { test as base } from "../dashboardTest.ts";
-import { installFakeCursor, type FakeCursor } from "./fakeCursor.ts";
+import {
+  installFakeCursor,
+  type CursorScreen,
+  type FakeCursor,
+} from "./fakeCursor.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
 
 export const test = base.extend<{
   origin: StartOrigin;
+  cursorScreen: CursorScreen | undefined;
   cursor: FakeCursor;
 }>({
+  cursorScreen: [undefined, { option: true }],
   // eslint-disable-next-line no-empty-pattern
   origin: async ({}, use) => {
     const origin = await startOrigin(
@@ -21,9 +28,10 @@ export const test = base.extend<{
   machine: async ({ origin }, use) => {
     await use(origin.machine);
   },
-  // eslint-disable-next-line no-empty-pattern
-  cursor: async ({}, use) => {
-    const cursor = installFakeCursor();
+  cursor: async ({ cursorScreen }, use) => {
+    const cursor = installFakeCursor(
+      cursorScreen === undefined ? {} : { screen: cursorScreen },
+    );
     await use(cursor);
     cursor.cleanup();
   },

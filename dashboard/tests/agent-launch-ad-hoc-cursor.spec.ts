@@ -5,7 +5,10 @@ import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts
 // instruction is the only prompt text. An empty instruction with a chosen
 // model is refused before create-chat. The project still carries the real
 // installed start script, and this launch does not run it. Claude's ad hoc
-// specs and Codex's ad hoc spec stay the proofs of those hosts.
+// specs and Codex's ad hoc spec stay the proofs of those hosts. The fixture
+// paints a working turn, so the client the launch kept is still running when
+// the page opens the terminal, however long that opening takes; an idle
+// screen would be hung up after its settle period and replaced.
 
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -15,6 +18,8 @@ import { startSessionField } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
+
+test.use({ cursorScreen: "working" });
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
