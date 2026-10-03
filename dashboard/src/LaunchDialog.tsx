@@ -13,6 +13,7 @@ import {
   type StartAnswer,
 } from "./LaunchExistingChanges.tsx";
 import { LaunchDialogFooter } from "./LaunchDialogFooter.tsx";
+import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
 import { useLaunchInstruction } from "./LaunchInstruction.tsx";
 import { useLaunchSettings } from "./useLaunchSettings.ts";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
@@ -174,6 +175,7 @@ export function LaunchDialog({
             <textarea
               ref={instruction}
               id={`${id}-instruction`}
+              className="frame-input"
               aria-describedby={command !== undefined ? hintId : undefined}
               maxLength={launchInstructionLimit}
               rows={4}
@@ -212,8 +214,7 @@ export function LaunchDialog({
               <p className="quiet">{selection.changedOfferLine}</p>
             )}
             {(command !== undefined || details !== undefined) && (
-              <details className="launch-disclosure">
-                <summary>Command details</summary>
+              <LaunchDisclosure summary="Command details">
                 <div className="launch-disclosure-content">
                   {command !== undefined && (
                     <p id={hintId}>
@@ -222,7 +223,7 @@ export function LaunchDialog({
                   )}
                   {details}
                 </div>
-              </details>
+              </LaunchDisclosure>
             )}
           </div>
           <LaunchDialogFooter

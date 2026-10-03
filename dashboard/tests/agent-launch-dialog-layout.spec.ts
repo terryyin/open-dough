@@ -1,106 +1,49 @@
 // The launch dialog's reading order and fit, on a committed origin whose
-// queued Story C has a long title (./launchJourney.ts fixtures) and a project
-// that installs the real refinement skill's options (./launchCardPage.ts): the
-// instruction takes the keyboard first, then Record; host/model share a row
+// queued Story C has a long title and a project that installs the real
+// refinement skill's options (./longTitleLaunch.ts): the instruction takes
+// the keyboard first, then Record; host/model share a row
 // screen and stack, host first, on a narrow one; the Session group follows;
 // the refinement options sit in a closed disclosure whose summary names the
 // selection, open or closed; the command line and its flags sit in a closed
 // Command details; the launch's effects and Cancel and Start stay in view
-// under a scrolling body with every option selected, with no horizontal
-// scrolling at 320 CSS pixels or at 200% zoom; Cancel returns the keyboard to
-// Start refinement.
-//
-// 200% zoom is emulated as the browser lays it out: zooming a 1280×900 window
-// to 200% halves its CSS viewport to 640×450 and doubles the device pixels per
-// CSS pixel, so that viewport with `deviceScaleFactor: 2` is the same layout.
+// under a scrolling body with every option selected, every control scrolls
+// into view, with no horizontal scrolling at 320 CSS pixels or at 200% zoom;
+// Cancel returns the keyboard to Start refinement. 200% zoom is emulated as
+// ./accessibleReading.ts's twiceZoomedWindow.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
+import { twiceZoomedWindow } from "./accessibleReading.ts";
 import {
-  backlogFile,
-  createPreparationTrunk,
-  git,
-  lsRemoteSha,
-  seedC,
-} from "../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
-import { box } from "./pageLayout.ts";
+  box,
+  expectEveryControlReachable,
+  expectNoSidewaysScrollIn,
+} from "./pageLayout.ts";
 import { expect, test } from "./dashboardTest.ts";
-import {
-  installRefinementSkill,
-  shippedRefinementDefinition,
-  showOptions,
-} from "./launchCardPage.ts";
+import { shippedRefinementDefinition, showOptions } from "./launchCardPage.ts";
 import { notRefinedIdentity } from "./launchJourney.ts";
+import {
+  longTitle,
+  openRefinement as openLongTitleRefinement,
+  publishLongTitleOrigin,
+  type LongTitleOrigin,
+} from "./longTitleLaunch.ts";
 
-const longTitle =
-  "Let developers read a very long queued story title that wraps across several lines without widening the dialog: Supercalifragilisticexpialidocious-session-options-with-an-unbroken-name";
-
-let published: {
-  readonly origin: string;
-  readonly revision: string;
-  readonly cleanup: () => Promise<void>;
-};
+let published: LongTitleOrigin;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  const trunk = await createPreparationTrunk();
-  const { integration } = trunk;
-  for (const file of [seedC, backlogFile]) {
-    const at = path.join(integration, file);
-    writeFileSync(
-      at,
-      readFileSync(at, "utf8").replaceAll("Story C", longTitle),
-    );
-  }
-  await git(integration, "commit", "--quiet", "-am", "retitle story C");
-  await git(integration, "push", "--quiet", "origin", "main");
-  const revision = await lsRemoteSha(trunk.origin, "refs/heads/main");
-  if (revision === undefined) throw new Error("origin has no main");
-  published = { origin: trunk.origin, revision, cleanup: trunk.cleanup };
+  published = await publishLongTitleOrigin();
 });
-test.afterAll(() => (published as typeof published | undefined)?.cleanup());
+test.afterAll(() => (published as LongTitleOrigin | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
-async function openRefinement(page: Page, home: string) {
-  installRefinementSkill(home);
-  await publishCommittedOrigin(page, {
-    repoDir: published.origin,
-    revision: published.revision,
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
-  const card = parts(page).backlog.getByRole("article", { name: longTitle });
-  const launcher = card.getByRole("button", { name: "Start refinement" });
-  await launcher.click();
-  const dialog = page.getByRole("dialog", {
-    name: "Start refinement in Claude Code",
-  });
-  await expect(dialog).toBeVisible();
-  return { launcher, dialog };
-}
+const openRefinement = (page: Page, home: string) =>
+  openLongTitleRefinement(page, home, published);
 
 const optionsSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Refinement options" });
 const commandSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Command details" });
-
-// Whether anything on the page, or inside the dialog, scrolls sideways.
-async function horizontalOverflow(page: Page, dialog: Locator) {
-  const pageOverflow = await page.evaluate(
-    () =>
-      document.documentElement.scrollWidth >
-      document.documentElement.clientWidth,
-  );
-  const dialogOverflow = await dialog.evaluate((element) =>
-    [element, ...element.querySelectorAll("*")].some(
-      (inner) => inner.scrollWidth > inner.clientWidth + 1,
-    ),
-  );
-  return { pageOverflow, dialogOverflow };
-}
 
 test("the instruction comes first, the summaries name the selection, and the command details hold the flags", async ({
   page,
@@ -196,7 +139,7 @@ for (const { name, viewport, deviceScaleFactor, stacked } of [
   },
   {
     name: "at 200% zoom",
-    viewport: { width: 640, height: 450 },
+    viewport: twiceZoomedWindow,
     deviceScaleFactor: 2,
     stacked: false,
   },
@@ -204,7 +147,7 @@ for (const { name, viewport, deviceScaleFactor, stacked } of [
   test.describe(name, () => {
     test.use({ viewport, deviceScaleFactor });
 
-    test("with every option selected, nothing scrolls sideways and Cancel and Start stay in view", async ({
+    test("with every option selected, nothing scrolls sideways, every control is reachable, and Cancel and Start stay in view", async ({
       page,
       dashboard,
     }) => {
@@ -233,10 +176,8 @@ for (const { name, viewport, deviceScaleFactor, stacked } of [
         options.map(({ flag }) => flag).join(" "),
       );
 
-      expect(await horizontalOverflow(page, dialog)).toEqual({
-        pageOverflow: false,
-        dialogOverflow: false,
-      });
+      await expectNoSidewaysScrollIn(page, dialog);
+      await expectEveryControlReachable(dialog);
       for (const action of ["Cancel", "Start"]) {
         await expect(
           dialog.getByRole("button", { name: action, exact: true }),

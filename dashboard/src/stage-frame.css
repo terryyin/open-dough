@@ -1,0 +1,121 @@
+/* The connected stages' frame: Backlog, the taking of work, and Taken, each
+   stage a headed panel holding its cards (./stages.css). main.tsx loads this
+   after styles.css, so that a rule here decides where both say something
+   equally specific, as a stage's count does. */
+
+/* Backlog, the taking of work, and Taken, left to right in reading order. */
+.stages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 11rem minmax(0, 1fr);
+  gap: var(--space-4) 0;
+  align-items: start;
+}
+
+/* Each stage is a raised panel in the frame's look, headed by its name and
+   a quiet count of what it holds. */
+.stage {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-4) var(--space-4);
+  background: var(--panel);
+  box-shadow: var(--shadow-1);
+}
+
+.stage-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: var(--space-3) 0;
+  background: var(--panel);
+}
+
+.stage-header h2 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
+}
+
+.stage-count {
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1.6;
+  background: var(--hover);
+}
+
+/* A stage with nothing recorded says so in a quiet, dashed space. */
+.stage-empty {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+.connector {
+  margin-top: 3.25rem;
+  text-align: center;
+}
+
+/* Side by side, the connector's column is all that lies between the two
+   stages, and the arrow runs across it from just short of Backlog's edge to
+   just short of Taken's, so that it joins them; the words beneath keep clear
+   of both. The head is drawn up to the arrow's own edge, so it is not clipped
+   there. */
+.connector-arrow {
+  width: calc(100% - 4px);
+  height: 1rem;
+  overflow: visible;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.connector-label,
+.connector-note {
+  padding: 0 var(--space-4);
+}
+
+.connector-label {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+}
+
+.connector-note {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+/* A narrow page column -- a narrow window, a wide one under browser zoom, or
+   one sharing its width with the Sessions sidebar or the terminal
+   (./agent-terminal.css) -- shows the same three parts in the same order, top
+   to bottom, with the arrow pointing down. */
+@container page (max-width: 48rem) {
+  .stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .connector {
+    margin-top: 0;
+  }
+
+  .connector-label,
+  .connector-note {
+    padding: 0;
+  }
+
+  .connector-arrow {
+    width: 3rem;
+    height: 3rem;
+    transform: rotate(90deg);
+  }
+}

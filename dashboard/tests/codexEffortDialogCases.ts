@@ -1,5 +1,6 @@
 import { test, expect } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { twiceZoomedWindow } from "./accessibleReading.ts";
 
 test("model changes preserve compatible effort and retain incompatible selection with linked keyboard feedback", async ({
   page,
@@ -103,8 +104,7 @@ test("unknown configured custom model leaves defaults usable and efforts delegat
   await expect(dialog).toContainText(
     "will be verified there before initial input",
   );
-  // Existing launch-layout convention: 1280×900 at 200% gives 640×450 CSS pixels.
-  await page.setViewportSize({ width: 640, height: 450 });
+  await page.setViewportSize(twiceZoomedWindow);
   await expect(start).toBeInViewport();
   await effort.selectOption("");
   await expect(start).toBeEnabled();

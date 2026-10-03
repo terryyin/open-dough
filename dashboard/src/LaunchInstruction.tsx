@@ -68,6 +68,7 @@ export function useLaunchInstruction(
       <div className="launch-dictation">
         <button
           type="button"
+          className="frame-button"
           disabled={recording.busy || reviewing}
           onClick={() => {
             void recording.record();
@@ -77,6 +78,7 @@ export function useLaunchInstruction(
         </button>{" "}
         <button
           type="button"
+          className="frame-button"
           disabled={recording.phase !== "recording"}
           onClick={recording.stop}
         >
@@ -97,6 +99,7 @@ export function useLaunchInstruction(
         {recording.setupRequired && openSettings && (
           <button
             type="button"
+            className="frame-button"
             onClick={() => {
               suspended.current = true;
               dialog.current?.close();
@@ -120,6 +123,7 @@ export function useLaunchInstruction(
             <label htmlFor={`${id}-transcript`}>Transcript to shorten</label>
             <textarea
               ref={candidate}
+              className="frame-input"
               id={`${id}-transcript`}
               aria-describedby={`${id}-overflow-hint ${id}-overflow-length`}
               rows={4}
@@ -135,6 +139,7 @@ export function useLaunchInstruction(
             </p>
             <button
               type="button"
+              className="frame-button"
               disabled={!canAdd}
               onClick={() => {
                 if (canAdd && append(overflow)) {
@@ -144,7 +149,7 @@ export function useLaunchInstruction(
             >
               Add transcript
             </button>{" "}
-            <button type="button" onClick={discard}>
+            <button type="button" className="frame-button" onClick={discard}>
               Discard transcript
             </button>
           </div>

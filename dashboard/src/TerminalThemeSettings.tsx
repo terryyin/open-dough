@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./frame-controls.css";
 import { useSavedTerminalTheme } from "./savedTerminalTheme.ts";
 import {
   ansiColorNames,
@@ -73,9 +74,14 @@ export function TerminalThemeSettings() {
     }
   }
   return (
-    <section aria-labelledby="settings-terminal-theme-heading">
-      <h2 id="settings-terminal-theme-heading">Terminal theme</h2>
-      <p>
+    <section
+      className="settings-section"
+      aria-labelledby="settings-terminal-theme-heading"
+    >
+      <div className="settings-section-heading">
+        <h2 id="settings-terminal-theme-heading">Terminal theme</h2>
+      </div>
+      <p className="settings-note">
         Choose the colours embedded terminals use on this machine. A choice is
         saved as soon as it is made.
       </p>
@@ -83,6 +89,7 @@ export function TerminalThemeSettings() {
         <label htmlFor="terminal-theme">Terminal theme</label>
         <select
           id="terminal-theme"
+          className="frame-input"
           value={shown}
           disabled={reading || saving !== undefined}
           onChange={(event) => {
@@ -97,14 +104,23 @@ export function TerminalThemeSettings() {
           ))}
         </select>
       </div>
-      {reading && <p role="status">Reading the saved terminal theme…</p>}
-      {saving !== undefined && <p role="status">Saving terminal theme…</p>}
+      {reading && (
+        <p role="status" className="settings-note">
+          Reading the saved terminal theme…
+        </p>
+      )}
+      {saving !== undefined && (
+        <p role="status" className="settings-note">
+          Saving terminal theme…
+        </p>
+      )}
       <TerminalThemeSample theme={shown} />
       {failed && (
-        <div role="alert">
+        <div role="alert" className="settings-problem">
           {failed.message}{" "}
           <button
             type="button"
+            className="frame-button"
             disabled={saving !== undefined}
             onClick={() => {
               void choose(failed.theme);
@@ -115,9 +131,9 @@ export function TerminalThemeSettings() {
         </div>
       )}
       {!failed && readProblem && (
-        <div role="alert">
+        <div role="alert" className="settings-problem">
           {readProblem}{" "}
-          <button type="button" onClick={reread}>
+          <button type="button" className="frame-button" onClick={reread}>
             Retry
           </button>
         </div>

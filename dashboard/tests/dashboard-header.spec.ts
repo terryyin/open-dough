@@ -7,8 +7,15 @@ import {
 } from "./accessibleOverview.ts";
 import { zoomedWindow } from "./accessibleReading.ts";
 import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  box,
+  expectNoSidewaysScrollAndWholeText,
+  expectSideBySideInOrder,
+} from "./pageLayout.ts";
+import { sidebarParts } from "./sessionSidebarPage.ts";
+import { settings } from "./support/systemSettingsPage.ts";
 
 for (const viewport of [
   { width: 1280, height: 800 },
@@ -48,11 +55,7 @@ for (const viewport of [
     await expect(
       banner.getByRole("heading", { level: 1, name: "Open Dough" }),
     ).toBeInViewport({ ratio: 1 });
-    for (const control of [
-      project,
-      banner.getByRole("button", { name: "System settings", exact: true }),
-      sourceEvidence,
-    ]) {
+    for (const control of [project, settings(page), sourceEvidence]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     // The page keeps itself up to date; the banner offers no read control.
@@ -72,6 +75,12 @@ for (const viewport of [
       ),
     ).toEqual([1, 1, 1, 1]);
     await expect(sourceEvidence).toContainText("Open Dough");
+    await expectFrameIconControl(
+      sidebarParts(page).button,
+      "Sessions",
+      "Sessions (⌘B)",
+    );
+    await expectFrameIconControl(settings(page), "System settings");
     await expectNoSidewaysScrollAndWholeText(page);
 
     await sourceEvidence.click();
@@ -98,6 +107,37 @@ for (const viewport of [
         box(focused),
       ]);
       expect(focusBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+    }
+  });
+}
+
+for (const width of [1440, 1280]) {
+  test(`banner is one row at ${String(width)} CSS pixels, ending with System settings`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 800 });
+    const origin = await publishMovingOrigin(page);
+    origin.push(revision, largeBacklog);
+    await page.goto("/");
+    const { banner, project, sourceEvidence } = parts(page);
+    await expect(sourceEvidence).toContainText("Open Dough");
+    const gear = settings(page);
+    const inOrder = [sidebarParts(page).button, sourceEvidence, project, gear];
+    await expectSideBySideInOrder(inOrder);
+    const middles = (await Promise.all(inOrder.map(box))).map(
+      ({ y, height }) => y + height / 2,
+    );
+    for (const middle of middles)
+      expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
+    const controls = banner.locator(
+      "button, input, select, textarea, summary, a[href], [tabindex]",
+    );
+    await expect(controls.last()).toHaveAccessibleName("System settings");
+    const gearBox = await box(gear);
+    for (const right of await controls.evaluateAll((all) =>
+      all.map((element) => element.getBoundingClientRect().right),
+    )) {
+      expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
     }
   });
 }

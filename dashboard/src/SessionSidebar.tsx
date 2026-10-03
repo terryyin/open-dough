@@ -35,6 +35,8 @@ import {
   type Alerts,
   type LaunchWithState,
 } from "./agentLaunch.ts";
+import { PanelLeft } from "lucide-react";
+import { IconButton } from "./Icon.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { useCommandShortcut } from "./pageShortcuts.ts";
@@ -133,28 +135,17 @@ export function SessionsButton() {
   const sessions = openSessionsOf(records) ?? [];
   const count = attentionCount(sessions);
   return (
-    <span className="sessions-toggle-group">
-      <button
-        type="button"
-        className="sessions-toggle"
-        aria-label="Sessions"
-        aria-expanded={open}
-        aria-controls={sidebarId}
-        onClick={toggle}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          aria-hidden="true"
-        >
-          <path d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+    <IconButton
+      label="Sessions"
+      shortcut="⌘B"
+      icon={PanelLeft}
+      align="start"
+      className="sessions-toggle"
+      groupClassName="sessions-toggle-group"
+      aria-expanded={open}
+      aria-controls={sidebarId}
+      onClick={toggle}
+    >
       {count > 0 && (
         <span
           role="img"
@@ -164,7 +155,7 @@ export function SessionsButton() {
           {count}
         </span>
       )}
-    </span>
+    </IconButton>
   );
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import { projectRemoveEndpoint } from "./projectConfiguration.ts";
 import { useProjects, useReplaceProjects } from "./projectList.tsx";
+import "./frame-controls.css";
 
 export function RemoveProject({
   source,
@@ -20,14 +21,16 @@ export function RemoveProject({
     <>
       <button
         type="button"
-        className="remove-project"
+        className="frame-button"
         aria-label={`Remove project ${source.label}`}
         ref={launcher}
         onClick={() => {
           setOpen(true);
         }}
       >
-        Remove<span className="project-action-target"> project</span>
+        <span>
+          Remove<span className="project-action-target"> project</span>
+        </span>
       </button>
       {open && (
         <RemoveProjectDialog
@@ -154,10 +157,19 @@ function RemoveProjectDialog({
             {problem && <p role="alert">{problem}</p>}
           </div>
           <div className="project-dialog-actions">
-            <button ref={cancel} type="button" onClick={dismiss}>
+            <button
+              ref={cancel}
+              type="button"
+              className="frame-button"
+              onClick={dismiss}
+            >
               Cancel
             </button>
-            <button ref={confirm} type="submit">
+            <button
+              ref={confirm}
+              type="submit"
+              className="frame-button frame-button-primary"
+            >
               {submitting ? "Removing…" : "Remove"}
             </button>
           </div>
