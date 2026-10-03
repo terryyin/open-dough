@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-097#cursor-agent-stays-joinable",
+  "mode": "story-branch",
+  "branch": "cursor/a-launched-cursor-agent-receives-its-story",
+  "host": "cursor",
+  "model": "Grok 4.7"
+}
