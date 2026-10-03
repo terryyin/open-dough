@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ebacky-chan",
-  "email": "ebacky-chan@example.org",
-  "identity": "SEED-091#side-panel-review-reopen-and-close-alignment",
-  "mode": "story-branch",
-  "branch": "claude/align-the-side-panel-s-same-review-opening-repor",
-  "host": "claude"
-}

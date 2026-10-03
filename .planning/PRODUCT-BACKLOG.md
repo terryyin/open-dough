@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Align product guidance, shared styles, and tests with the renovated cards](seeds/SEED-091-dashboard-ui-renovation.md#card-renovation-alignment) — SEED-091#card-renovation-alignment ([plan](slice-plans/241-card-renovation-alignment/PLAN.md))
-- [Align the side panel's same-review opening, report close shortcut, and proof](seeds/SEED-091-dashboard-ui-renovation.md#side-panel-review-reopen-and-close-alignment) — SEED-091#side-panel-review-reopen-and-close-alignment ([plan](slice-plans/242-side-panel-alignment-correction/PLAN.md))
 - [A launched Cursor agent receives its story and stays joinable](seeds/SEED-097-cursor-agent-stays-joinable.md#cursor-agent-stays-joinable) — SEED-097#cursor-agent-stays-joinable ([plan](slice-plans/242-cursor-agent-stays-joinable/PLAN.md))
 
 ## Backlog list

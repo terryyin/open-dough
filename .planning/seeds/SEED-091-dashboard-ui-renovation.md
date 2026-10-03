@@ -18,33 +18,6 @@ dashboard frame, then improve the story tag/card as an information radiator.
 
 ## Stories
 
-<a id="side-panel-review-reopen-and-close-alignment"></a>
-
-### Align the side panel's same-review opening, report close shortcut, and proof
-
-**Identity:** SEED-091#side-panel-review-reopen-and-close-alignment
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/242-side-panel-alignment-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f02a4403795e914685b69a9ed2c5a66c2bbd7ef777987af02736e470b0f31583","plan":"58302c3fbd250ab3667fc6a406641488e44aaccb90309a7264c514579620556b"}}
-```
-
-**Slice plan:** [Side panel alignment correction](../slice-plans/242-side-panel-alignment-correction/PLAN.md).
-
-**Goal:** A developer using the shared side panel gets feedback when activating
-Review changes for the review already shown, and maintainers read one accurate
-account of the panel's review opening and Close shortcut, with proof that pays
-for its cost. This bounded correction follows the retrospective of the shared side panel
-(`3775c64d:.planning/seeds/SEED-091-dashboard-ui-renovation.md`).
-
-**Scope:** focus the review already shown when its Review changes control is
-activated again, keeping its fixed snapshot until Refresh; align the
-maintained review contract and the page-frame comment with that behavior;
-state in the UX/UI North Star that the side panel is multi-purpose and holds
-one item at a time, leaving review details to the review contract;
-give the final report's Command+Shift+Escape one shared owner with the review
-and terminal; remove the tautological header-look test and trim repeated
-malformed-width rounds. No new feature promise, report chrome redesign, or
-change to snapshot, width, or session semantics.
-
 <a id="card-renovation-alignment"></a>
 
 ### Align product guidance, shared styles, and tests with the renovated cards
