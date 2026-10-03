@@ -23,6 +23,10 @@ import {
   recordsOf,
 } from "./agentLaunchBoundary.ts";
 import {
+  closeOpenSessions,
+  distinctStoryRequest,
+} from "./openStorySessionSetup.ts";
+import {
   builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
@@ -86,7 +90,12 @@ test.describe("the machine's sessions, each joined with its state", () => {
     const sessions: string[] = [];
     while (sessions.length < changes.length) {
       const { record } = JSON.parse(
-        (await launch(server, launchRequest)).body,
+        (
+          await launch(
+            server,
+            distinctStoryRequest(`listing-${sessions.length}`),
+          )
+        ).body,
       ) as { record: WithState };
       expect(record.sessionState).toEqual({
         kind: "available",
@@ -125,79 +134,85 @@ test.describe("the machine's sessions, each joined with its state", () => {
     expect(readFileSync(storeFile, "utf8")).toBe(stored);
   });
 
-  test("answers a resumed session without the reason it waited for", async () => {
-    const { record } = JSON.parse(
-      (await launch(server, launchRequest)).body,
-    ) as { record: WithState };
-    const id = record.session.sessionId;
-    server.claudeSessionBecomes(id, "blocked", "input needed");
-    expect((await statesOf()).get(id)).toEqual({
-      kind: "available",
-      availability: "loaded",
-      activity: "waiting",
-      waitingFor: "input needed",
+  test.describe("after earlier launches leave open sessions", () => {
+    test.beforeEach(async () => {
+      await closeOpenSessions(server);
     });
 
-    server.claudeSessionBecomes(id, "working");
-    expect((await statesOf()).get(id)).toEqual({
-      kind: "available",
-      availability: "loaded",
-      activity: "working",
+    test("answers a resumed session without the reason it waited for", async () => {
+      const { record } = JSON.parse(
+        (await launch(server, launchRequest)).body,
+      ) as { record: WithState };
+      const id = record.session.sessionId;
+      server.claudeSessionBecomes(id, "blocked", "input needed");
+      expect((await statesOf()).get(id)).toEqual({
+        kind: "available",
+        availability: "loaded",
+        activity: "waiting",
+        waitingFor: "input needed",
+      });
+
+      server.claudeSessionBecomes(id, "working");
+      expect((await statesOf()).get(id)).toEqual({
+        kind: "available",
+        availability: "loaded",
+        activity: "working",
+      });
     });
-  });
 
-  test("answers every session unknown while the listing fails, and as listed once it answers again", async () => {
-    const { record } = JSON.parse(
-      (await launch(server, launchRequest)).body,
-    ) as {
-      record: WithState;
-    };
+    test("answers every session unknown while the listing fails, and as listed once it answers again", async () => {
+      const { record } = JSON.parse(
+        (await launch(server, launchRequest)).body,
+      ) as {
+        record: WithState;
+      };
 
-    server.claudeListingFails(true);
-    const unknown = await statesOf();
-    expect(unknown.has(record.session.sessionId)).toBe(true);
-    for (const state of unknown.values()) {
-      expect(state).toEqual({ kind: "unknown" });
-    }
+      server.claudeListingFails(true);
+      const unknown = await statesOf();
+      expect(unknown.has(record.session.sessionId)).toBe(true);
+      for (const state of unknown.values()) {
+        expect(state).toEqual({ kind: "unknown" });
+      }
 
-    server.claudeListingFails(false);
-    expect((await statesOf()).get(record.session.sessionId)).toEqual({
-      kind: "available",
-      availability: "loaded",
-      activity: "working",
+      server.claudeListingFails(false);
+      expect((await statesOf()).get(record.session.sessionId)).toEqual({
+        kind: "available",
+        availability: "loaded",
+        activity: "working",
+      });
     });
-  });
 
-  test("answers each session as listed while Claude Code also lists an interactive session", async () => {
-    const { record } = JSON.parse(
-      (await launch(server, launchRequest)).body,
-    ) as { record: WithState };
+    test("answers each session as listed while Claude Code also lists an interactive session", async () => {
+      const { record } = JSON.parse(
+        (await launch(server, launchRequest)).body,
+      ) as { record: WithState };
 
-    server.claudeListsInteractiveSession();
+      server.claudeListsInteractiveSession();
 
-    expect((await statesOf()).get(record.session.sessionId)).toEqual({
-      kind: "available",
-      availability: "loaded",
-      activity: "working",
+      expect((await statesOf()).get(record.session.sessionId)).toEqual({
+        kind: "available",
+        availability: "loaded",
+        activity: "working",
+      });
     });
-  });
 
-  test("answers every project's records, each naming its project, from one listing", async () => {
-    server.claudeScenario("launched");
-    const response = await launch(server, {
-      ...launchRequest,
-      source: "pygardon",
+    test("answers every project's records, each naming its project, from one listing", async () => {
+      server.claudeScenario("launched");
+      const response = await launch(server, {
+        ...launchRequest,
+        source: "pygardon",
+      });
+      const { record } = JSON.parse(response.body) as { record: unknown };
+      const callsBefore = server.claudeCalls().length;
+
+      const sessions = await machineSessions(server);
+      expect(projectRecords(sessions, "pygardon")).toEqual([record]);
+      const openDough = projectRecords(sessions, "open-dough");
+      expect(openDough.length).toBeGreaterThan(0);
+      expect(sessions).toHaveLength(openDough.length + 1);
+      expect(server.claudeCalls().slice(callsBefore)).toEqual([
+        { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
+      ]);
     });
-    const { record } = JSON.parse(response.body) as { record: unknown };
-    const callsBefore = server.claudeCalls().length;
-
-    const sessions = await machineSessions(server);
-    expect(projectRecords(sessions, "pygardon")).toEqual([record]);
-    const openDough = projectRecords(sessions, "open-dough");
-    expect(openDough.length).toBeGreaterThan(0);
-    expect(sessions).toHaveLength(openDough.length + 1);
-    expect(server.claudeCalls().slice(callsBefore)).toEqual([
-      { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
-    ]);
   });
 });

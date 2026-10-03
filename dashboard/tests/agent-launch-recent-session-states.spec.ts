@@ -81,20 +81,12 @@ test("each entry shows why its session needs attention, or that it does not, the
   };
 
   // Newest first once launched, each with the two changes its session
-  // undergoes in turn.
+  // undergoes in turn. One open session per story.
   const launches: readonly {
     title: string;
     workflow: "Execution" | "Refinement";
     changes: readonly [Change, Change];
   }[] = [
-    {
-      title: notRefinedStory,
-      workflow: "Refinement",
-      changes: [
-        { change: "blocked", shows: "Needs input", needsAttention: true },
-        { change: "failed", shows: "Session failed", needsAttention: true },
-      ],
-    },
     {
       title: notRefinedStory,
       workflow: "Execution",
@@ -117,18 +109,6 @@ test("each entry shows why its session needs attention, or that it does not, the
           shows: "Ready for review",
           needsAttention: true,
         },
-        {
-          change: "done-exited",
-          shows: "Ready for review",
-          needsAttention: true,
-        },
-      ],
-    },
-    {
-      title: readyStory,
-      workflow: "Execution",
-      changes: [
-        { change: "working-idle", shows: "Working", needsAttention: false },
         {
           change: "forgotten",
           shows: "Session unavailable",
@@ -153,12 +133,11 @@ test("each entry shows why its session needs attention, or that it does not, the
       card(title).getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();
   }
-  // One session's card entry (the second launch: blocked with a reason, then
-  // stopped) is rendered as its Recent sessions entry is, so it alone is
-  // checked on its card too.
+  // One session's card entry is rendered as its Recent sessions entry is, so
+  // it alone is checked on its card too.
   const onCard = cardSessionOf(card(notRefinedStory), "Execution");
   const placed = (index: number): readonly Locator[] =>
-    index === 1 ? [entries.nth(index), onCard] : [entries.nth(index)];
+    index === 0 ? [entries.nth(index), onCard] : [entries.nth(index)];
   const sessionIds: string[] = [];
   for (const [index, { title, workflow }] of launches.entries()) {
     await expect(entries.nth(index)).toHaveAccessibleName(
@@ -194,17 +173,17 @@ test("each entry shows why its session needs attention, or that it does not, the
     await passOnePace();
   };
 
-  await test.step("blocked with or without a reason, done with its process running, or working idle shows within one pace", async () => {
+  await test.step("blocked with a reason, or done with its process running, shows within one pace", async () => {
     await change(0);
     await expectChanged(0);
   });
 
-  await test.step("failed, stopped, done with its process exited, or no longer listed replaces it, with no stale reason", async () => {
+  await test.step("stopped, or no longer listed, replaces it, with no stale reason", async () => {
     await change(1);
     await expectChanged(1);
     // An unavailable session keeps its id, without Open terminal.
-    await expect(entries.nth(3)).toContainText(
-      `Session ${sessionIds[3] ?? "?"}`,
+    await expect(entries.nth(1)).toContainText(
+      `Session ${sessionIds[1] ?? "?"}`,
     );
   });
 

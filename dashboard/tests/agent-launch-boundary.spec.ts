@@ -19,6 +19,7 @@ import {
   refinementRequest,
   title,
 } from "./agentLaunchBoundary.ts";
+import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -47,6 +48,10 @@ for (const mode of ["dev", "preview"] as const) {
 
     test.afterAll(async () => {
       await server.close();
+    });
+
+    test.beforeEach(async () => {
+      await closeOpenSessions(server);
     });
 
     test("launches Claude Code in the project folder and keeps the confirmed record", async () => {

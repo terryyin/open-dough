@@ -18,6 +18,8 @@ export type LaunchedSession = {
   readonly shortId: string;
 };
 
+let launchSerial = 0;
+
 export async function launched(
   server: DashboardServer,
   source = "open-dough",
@@ -26,10 +28,22 @@ export async function launched(
   > = {},
 ): Promise<LaunchedSession> {
   server.claudeScenario("launched");
-  const response = await launch(server, { ...launchRequest, source, ...work });
+  // A fresh identity when the caller does not name one, so a second launch on
+  // a shared server is not refused for an open session of the default story.
+  const serial = ++launchSerial;
+  const response = await launch(server, {
+    ...launchRequest,
+    source,
+    identity: `${launchRequest.identity}#${serial}`,
+    ...work,
+  });
   const answer = JSON.parse(response.body) as {
-    record: { session: LaunchedSession };
+    kind?: string;
+    record?: { session?: LaunchedSession };
   };
+  if (answer.record?.session === undefined) {
+    throw new Error(`Expected a launched session, got ${response.body}`);
+  }
   return answer.record.session;
 }
 

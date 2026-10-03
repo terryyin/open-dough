@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { markDone, recordsOf } from "./agentLaunchBoundary.ts";
+import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import {
   lastAttachEnded,
   launched,
@@ -102,6 +103,7 @@ test.describe("reopening a session marked done through its terminal", () => {
   });
 
   test("keeps a done session Claude Code no longer lists done when its upgrade is refused", async () => {
+    await closeOpenSessions(server);
     const forgotten = await launched(server);
     const doneAt = await markedDone(server, forgotten);
     server.claudeSessionBecomes(forgotten.sessionId, "forgotten");

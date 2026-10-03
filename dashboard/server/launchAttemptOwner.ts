@@ -6,6 +6,9 @@
 // one at a time is accepted; a story whose unresolved attempt
 // (`unresolvedAttempt`) no server runs any more accepts only that attempt's
 // continuation, which runs its kept request again under the same identity. A
+// story that already has an open launch record on this machine is refused
+// until that session is marked done or its record deleted, except a
+// continuation whose open record is that attempt's own launched session. A
 // settled attempt a page found reconciled with published state keeps when it
 // was (`./launchAttemptReconciliation.ts`); a
 // story attempt whose launch is uncertain settles when a recheck finds its
@@ -19,6 +22,7 @@ import type {
   AgentLaunchRequest,
   AttemptObservation,
   LaunchAttemptRecord,
+  LaunchRecord,
   ReconciledAnswer,
   VerifiedAnswer,
 } from "../src/agentLaunch.ts";
@@ -38,7 +42,8 @@ import {
   type LaunchVerifier,
 } from "./launchAttemptVerification.ts";
 import { settleAttempt, type AttemptRun } from "./launchAttemptSettlement.ts";
-import { keepAttempt, keptAttempts } from "./launchAttemptStore.ts";
+import { keepAttemptIf, keptAttempts } from "./launchAttemptStore.ts";
+import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { OwnedAttempts } from "./ownedAttempts.ts";
 
 export class LaunchAttemptOwner {
@@ -71,12 +76,7 @@ export class LaunchAttemptOwner {
     request: AgentLaunchRequest,
     run: AttemptRun,
   ): Promise<Acceptance> {
-    const kept = await keptAttempts();
-    if (kept === undefined) return unreadableEvidence;
-    // Checked and registered in one synchronous step, so of two requests of
-    // one story in this server exactly one is accepted.
-    const conflict = this.conflictWith(request, kept);
-    if (conflict !== undefined) return conflict;
+    if ((await keptAttempts()) === undefined) return unreadableEvidence;
     // The confirmation of existing changes is transient: never kept.
     const keptRequest = { ...request };
     if (keptRequest.workflow !== "ad-hoc") delete keptRequest.existingChanges;
@@ -127,8 +127,6 @@ export class LaunchAttemptOwner {
     if (stillUnneeded !== undefined) return stillUnneeded;
     // A recheck of it may settle it meanwhile.
     if (this.verifying.has(id)) return recheckRunning;
-    const conflict = this.conflictWith(found.request, kept, id);
-    if (conflict !== undefined) return conflict;
     return this.admit(
       found.request,
       {
@@ -138,6 +136,7 @@ export class LaunchAttemptOwner {
         publication: found.publication,
       },
       run,
+      id,
     );
   }
 
@@ -159,31 +158,57 @@ export class LaunchAttemptOwner {
   }
 
   // What the request, or the continuation of the attempt `continued`, would
-  // duplicate among the attempts this machine knows (`conflicting`).
+  // duplicate among the attempts and open launch records this machine knows
+  // (`conflicting`). `excluding` omits that owned attempt during a locked keep.
   private conflictWith(
     request: AgentLaunchRequest,
     kept: readonly LaunchAttemptRecord[],
+    records: ReadonlyMap<string, readonly LaunchRecord[]> | undefined,
     continued?: string,
+    excluding?: string,
   ): Unaccepted | undefined {
-    return conflicting(
-      request,
-      this.owned.unsettledRequests(),
-      this.owned.known(kept),
+    const { unsettled, known } = this.owned.forConflict(
+      kept,
+      excluding,
       continued,
     );
+    return conflicting(request, unsettled, known, records, continued);
   }
 
   // Owns the attempt and keeps it before `run` has any side effect, then
   // runs it whatever happens to the caller; one that cannot be kept is not
-  // accepted and starts nothing.
+  // accepted and starts nothing. Per-server registration is synchronous with
+  // the owned-only conflict check; machine attempts and launch records are
+  // rechecked inside the attempt store's locked write so two servers share
+  // one acceptance.
   private async admit(
     request: AgentLaunchRequest,
     attempt: LaunchAttemptRecord,
     run: AttemptRun,
+    continued?: string,
   ): Promise<Acceptance> {
+    // Checked and registered in one step so one story accepts once per server.
+    // Machine evidence is empty here; the locked keep rechecks it.
+    const local = this.conflictWith(request, [], new Map(), continued);
+    if (local !== undefined) return local;
     const own = this.owned.own(request, attempt);
+    let refusal: Unaccepted | undefined;
     try {
-      await keepAttempt(attempt);
+      const recorded = await keepAttemptIf(attempt, async (machine) => {
+        const records = await readableRecordsByProject();
+        refusal = this.conflictWith(
+          request,
+          machine,
+          records,
+          continued,
+          attempt.id,
+        );
+        return refusal === undefined;
+      });
+      if (!recorded) {
+        this.owned.release(attempt.id);
+        return refusal ?? unrecordedAcceptance;
+      }
     } catch {
       this.owned.release(attempt.id);
       return unrecordedAcceptance;

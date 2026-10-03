@@ -42,7 +42,7 @@ export function projectSessionsOf(
 }
 
 // Whether a session is still open: not marked done.
-const isOpen = (record: LaunchRecord) => record.doneAt === undefined;
+export const isOpen = (record: LaunchRecord) => record.doneAt === undefined;
 
 // The sessions a story's card lists, oldest first, in whatever stage origin
 // shows the story: every launch record of the project's work item that has
@@ -125,6 +125,11 @@ export type RunningStart = z.infer<typeof runningStartSchema>;
 // What a card says beside its Start while this machine keeps the start that
 // took or prepared the story and no session was started from it.
 export const keptStartNote = "Started here, no session yet";
+
+// Why every Start on a story's card is unavailable while that story still has
+// an open session listed there (`cardSessionsOf`).
+export const openSessionStartReason =
+  "This story has an open session. Mark it done or delete its record to start another.";
 
 // The options a project's installed skill offers for one workflow's launch,
 // read from its definition at each read of the machine's sessions, or why the

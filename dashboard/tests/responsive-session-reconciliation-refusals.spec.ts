@@ -10,12 +10,17 @@
 
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer } from "./originAnswers.ts";
 import { removeQueuedStory } from "./responsiveRecovery.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
 import { radio } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
+
+const openSessionDescription = new RegExp(
+  openSessionStartReason.replace(/[.]/g, "\\."),
+);
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -100,7 +105,7 @@ test("a start refused because another writer removed the story publishes nothing
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
 });
 
-test("a one-shot refinement publishes nothing: once its session settles, a fresh read asked afterwards returns the Backlog actions", async ({
+test("a one-shot refinement publishes nothing: once its session settles, a fresh read asked afterwards holds Starts for the open session", async ({
   page,
   dashboard,
   origin,
@@ -129,9 +134,22 @@ test("a one-shot refinement publishes nothing: once its session settles, a fresh
 
   releaseRef();
   await expect(story).not.toContainText(waiting);
-  await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
+  const startRefinement = story.getByRole("button", {
+    name: "Start refinement",
+  });
+  const startExecution = story.getByRole("button", {
+    name: "Start execution",
+  });
+  await expect(startRefinement).toBeDisabled();
+  await expect(startExecution).toBeDisabled();
+  await expect(startRefinement).toHaveAccessibleDescription(
+    openSessionDescription,
+  );
+  await expect(startExecution).toHaveAccessibleDescription(
+    openSessionDescription,
+  );
   await expect(
-    story.getByRole("button", { name: "Start refinement" }),
+    story.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
   expect(published.compares).toEqual([]);
 });

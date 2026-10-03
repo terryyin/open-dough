@@ -28,6 +28,9 @@ export async function expectMixedContinuation(
     const claude = entries.filter({
       hasText: "Refinement started in Claude Code",
     });
+    // A Claude session marked done to allow the Codex launch leaves the card;
+    // Recent still lists it.
+    if ((await claude.count()) === 0) continue;
     await expect(claude.locator("p", { hasText: /^Continue in / })).toHaveCount(
       0,
     );

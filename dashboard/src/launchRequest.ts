@@ -109,8 +109,8 @@ export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 // Retries belong to the same project, host, workflow and subject. New options
 // or story instructions do not replace a retained launch's original intent.
 export function sameLaunch(
-  a: AgentLaunchRequest,
-  b: AgentLaunchRequest,
+  a: AgentLaunchRequest | RecordedLaunchRequest,
+  b: AgentLaunchRequest | RecordedLaunchRequest,
 ): boolean {
   return (
     a.source === b.source &&

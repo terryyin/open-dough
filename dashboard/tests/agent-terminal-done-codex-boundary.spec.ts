@@ -20,7 +20,12 @@ test("done ends every Codex attachment while an equal Claude ID keeps its attach
   const claudeTerminal = await openTerminal(dashboard, claude);
   expect(await shows(claudeTerminal, "attached")).toBe(true);
   native.threadId = claude.sessionId;
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await launch(dashboard, {
+    ...refinementRequest,
+    host: "codex",
+    identity: "SEED-other#codex-equal-id",
+    title: "Codex equal-id story",
+  });
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
     turns: [{ id: "codex-turn", status: "inProgress" }],

@@ -90,13 +90,21 @@ async function acquireWriteLock(lock: string): Promise<void> {
   }
 }
 
+// `change` returns this to leave the document as read, with no write.
+export const leaveMachineJson = Symbol("leaveMachineJson");
+
 // Rewrites the document with `change` applied to what is kept, replacing the
 // file atomically. The authoritative read and change both run under the
-// write lock. An unreadable file is moved aside and `change` starts from the
-// empty document.
+// write lock. `change` may return a promise (for example to read another
+// machine document while the lock is held); a synchronous `change` is
+// unchanged for existing callers. Returning `leaveMachineJson` releases the
+// lock without writing. An unreadable file is moved aside and `change`
+// starts from the empty document.
 export async function replaceMachineJson<T>(
   store: MachineJsonStore<T>,
-  change: (stored: T) => T,
+  change: (
+    stored: T,
+  ) => T | typeof leaveMachineJson | Promise<T | typeof leaveMachineJson>,
 ): Promise<void> {
   const { file } = store;
   await mkdir(path.dirname(file), { recursive: true });
@@ -111,7 +119,9 @@ export async function replaceMachineJson<T>(
     } else {
       stored = read.document;
     }
-    await writeFile(temporary, `${JSON.stringify(change(stored), null, 2)}\n`);
+    const next = await change(stored);
+    if (next === leaveMachineJson) return;
+    await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`);
     await rename(temporary, file);
   } finally {
     try {

@@ -71,6 +71,29 @@ export class OwnedAttempts {
       .map(({ request }) => request);
   }
 
+  // Unsettled requests and known attempts for a conflict check. When
+  // `excluding` is set, that owned attempt is omitted so a keep under the
+  // write lock does not treat itself as a conflict; a continued attempt stays
+  // in `known` so `ownOpenSession` can recognize its own open record.
+  forConflict(
+    kept: readonly LaunchAttemptRecord[],
+    excluding?: string,
+    continued?: string,
+  ): {
+    readonly unsettled: readonly AgentLaunchRequest[];
+    readonly known: readonly AttemptObservation[];
+  } {
+    const excluded = excluding === undefined ? undefined : this.get(excluding);
+    return {
+      unsettled: this.unsettledRequests().filter(
+        (entry) => entry !== excluded?.request,
+      ),
+      known: this.known(kept).filter(
+        (entry) => entry.id !== excluding || entry.id === continued,
+      ),
+    };
+  }
+
   // An attempt as this server knows it: an owned one as held, said to run
   // while it is unsettled and this server open.
   observed(attempt: LaunchAttemptRecord): AttemptObservation {

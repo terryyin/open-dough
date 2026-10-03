@@ -1,10 +1,13 @@
 // A story's card lists the sessions launched on it that have not been marked
 // done, in every stage origin shows it, on a committed origin the production
 // commands publish (./launchJourney.ts): a launch lists its session beside
-// the Start actions, which stay; two launches are two entries, newest first;
-// a refinement launched on a Preparing card is listed at once; the Taken card
-// keeps the listing and offers no Start; and a reload in each keeps it. A
-// story that leaves every list keeps its sessions only in Recent sessions.
+// the Start actions, which stay disabled while that session is open; each
+// story's own open session is listed; a refinement launched on a Preparing
+// card is listed at once; the Taken card keeps the listing and offers no
+// Start; and a reload in each keeps it. A story that leaves every list keeps
+// its sessions only in Recent sessions. That Starts stay unavailable for an
+// open session, return after Mark as done or Delete record, and a dialog
+// opened beforehand is refused, is ./agent-launch-card-open-session.spec.ts.
 // That a restart, a reload, and a project switch keep each entry and its
 // state is ./agent-launch-card-session-states.spec.ts, and that closing or
 // losing a terminal leaves its session listed is ./agent-terminal.spec.ts and
@@ -22,6 +25,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -96,16 +100,25 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
         }
       }
     };
-    const expectStartOffered = async (titles: readonly string[]) => {
+    const openSessionDescription = new RegExp(
+      openSessionStartReason.replace(/[.]/g, "\\."),
+    );
+    const expectStartsBlocked = async (titles: readonly string[]) => {
       for (const title of titles) {
-        await expect(action(title, "Execution")).toBeEnabled();
-        await expect(action(title, "Refinement")).toBeEnabled();
+        await expect(action(title, "Execution")).toBeDisabled();
+        await expect(action(title, "Refinement")).toBeDisabled();
+        await expect(action(title, "Execution")).toHaveAccessibleDescription(
+          openSessionDescription,
+        );
+        await expect(action(title, "Refinement")).toHaveAccessibleDescription(
+          openSessionDescription,
+        );
       }
     };
 
     await launchListed(readyStory, "Execution");
-    await launchListed(readyStory, "Refinement");
     await launchListed(notRefinedStory, "Execution");
+    await launchListed(takenStory, "Refinement");
     const newest = cardSessions(card(readyStory)).first();
     await expect(sessionStateOf(newest)).toHaveText("Working");
     await expect(newest).toContainText(
@@ -113,10 +126,10 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     );
     await expect(newest).not.toContainText(readyStory);
     await expectListed();
-    await expectStartOffered(queued);
+    await expectStartsBlocked(queued);
     expect(launches()).toHaveLength(3);
 
-    await test.step("a Preparing card keeps its sessions and notes Start refinement, and another refinement launched there is a second entry at once", async () => {
+    await test.step("a Preparing card keeps its sessions and notes Start refinement", async () => {
       await show(stagesJourney.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
       await expect(
@@ -125,21 +138,15 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectListed();
       await expect(
         action(readyStory, "Refinement"),
-      ).toHaveAccessibleDescription("Being prepared");
+      ).toHaveAccessibleDescription(
+        new RegExp(`Being prepared.*${openSessionDescription.source}`),
+      );
       for (const title of [takenStory, notRefinedStory]) {
         await expect(action(title, "Refinement")).toHaveAccessibleDescription(
-          "",
+          openSessionDescription,
         );
       }
 
-      await launchListed(readyStory, "Refinement");
-      await expect(
-        cardSessions(card(readyStory)).filter({
-          has: page.getByText("Refinement started in Claude Code"),
-        }),
-      ).toHaveCount(2);
-      await expectListed();
-      await expectStartOffered(queued);
       await page.reload();
       await settled();
       await expectListed();
@@ -150,7 +157,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       const backlog = [takenStory, notRefinedStory];
       await expectMembership(page, { taken: [readyStory], backlog });
       const takenCard = taken.getByRole("article", { name: readyStory });
-      await expect(cardSessions(takenCard)).toHaveCount(3);
+      await expect(cardSessions(takenCard)).toHaveCount(1);
       await expectListed([readyStory, ...backlog]);
       await expect(
         takenCard.getByRole("button", { name: /^Start / }),
@@ -167,7 +174,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectMembership(page, completed);
       await expectListed([readyStory, takenStory]);
       const entries = recentSessions.getByRole("article");
-      await expect(entries).toHaveCount(4);
+      await expect(entries).toHaveCount(3);
       await expect(
         recentSessions.getByRole("article", {
           name: recentSessionName("Execution", notRefinedStory),
@@ -177,10 +184,10 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectMembership(page, completed);
       await settled();
       await expectListed([readyStory, takenStory]);
-      await expect(entries).toHaveCount(4);
+      await expect(entries).toHaveCount(3);
     });
 
     // Nothing was launched again along the way.
-    expect(launches()).toHaveLength(4);
+    expect(launches()).toHaveLength(3);
   });
 });

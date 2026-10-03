@@ -9,6 +9,7 @@
 
 import { expect, test } from "@playwright/test";
 import { markDone, recordsOf } from "./agentLaunchBoundary.ts";
+import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
   builtDashboardDir,
@@ -33,6 +34,10 @@ test.describe("refusing a done request", () => {
 
   test.afterAll(async () => {
     await server.close();
+  });
+
+  test.beforeEach(async () => {
+    await closeOpenSessions(server);
   });
 
   test("refuses a request for a session this dashboard did not record, or another project's, before running claude", async () => {

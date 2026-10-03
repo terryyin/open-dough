@@ -24,6 +24,7 @@ import {
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import {
+  leaveMachineJson,
   readMachineJson,
   replaceMachineJson,
   type MachineJsonStore,
@@ -65,12 +66,19 @@ export function attemptOutcome(result: LaunchResult): AttemptOutcome {
 let writing: Promise<unknown> = Promise.resolve();
 
 // Applies `change` after every earlier write of this server, dropping settled
-// attempts past retention first.
+// attempts past retention first. `change` may be async so a caller can read
+// launch records under the same write lock that keeps a new attempt, and may
+// return `leaveMachineJson` so a refusal writes nothing.
 function replaceAttempts(
-  change: (kept: StoredAttempts) => StoredAttempts,
+  change: (
+    kept: StoredAttempts,
+  ) =>
+    | StoredAttempts
+    | typeof leaveMachineJson
+    | Promise<StoredAttempts | typeof leaveMachineJson>,
 ): Promise<void> {
   const write = writing.then(() =>
-    replaceMachineJson(attemptStore(), (stored) => {
+    replaceMachineJson(attemptStore(), async (stored) => {
       const now = Date.now();
       const kept: StoredAttempts = {};
       for (const [id, attempts] of Object.entries(stored)) {
@@ -87,28 +95,55 @@ function replaceAttempts(
   return write;
 }
 
+// Every kept attempt across projects, oldest first within each project's list.
+function listedAttempts(stored: StoredAttempts): LaunchAttemptRecord[] {
+  return Object.values(stored).flat();
+}
+
 // Every kept attempt, oldest first, or undefined when the file is unreadable.
 export async function keptAttempts(): Promise<
   readonly LaunchAttemptRecord[] | undefined
 > {
   const read = await readMachineJson(attemptStore());
-  return read.kind === "document"
-    ? Object.values(read.document).flat()
-    : undefined;
+  return read.kind === "document" ? listedAttempts(read.document) : undefined;
+}
+
+// Places `attempt` among the kept attempts under the write lock.
+function withAttempt(
+  kept: StoredAttempts,
+  attempt: LaunchAttemptRecord,
+): StoredAttempts {
+  const sourceId = attempt.request.source;
+  const attempts = kept[sourceId] ?? [];
+  return {
+    ...kept,
+    [sourceId]: attempts.some((entry) => entry.id === attempt.id)
+      ? attempts.map((entry) => (entry.id === attempt.id ? attempt : entry))
+      : [...attempts, attempt],
+  };
 }
 
 // Keeps an attempt's latest state in place of what is kept of it, or adds it
 // when none is: a newly accepted attempt, or one whose earlier state was lost
 // when an unreadable file was moved aside. A failed write keeps nothing.
 export function keepAttempt(attempt: LaunchAttemptRecord): Promise<void> {
-  const sourceId = attempt.request.source;
-  return replaceAttempts((kept) => {
-    const attempts = kept[sourceId] ?? [];
-    return {
-      ...kept,
-      [sourceId]: attempts.some((entry) => entry.id === attempt.id)
-        ? attempts.map((entry) => (entry.id === attempt.id ? attempt : entry))
-        : [...attempts, attempt],
-    };
+  return replaceAttempts((kept) => withAttempt(kept, attempt));
+}
+
+// Under the attempt store's write lock, lets `allow` decide from the freshly
+// read attempts whether to keep `attempt`. When `allow` is false, the
+// document is left unchanged (no new attempt). `allow` may await another
+// machine read while the lock is held.
+export async function keepAttemptIf(
+  attempt: LaunchAttemptRecord,
+  allow: (kept: readonly LaunchAttemptRecord[]) => boolean | Promise<boolean>,
+): Promise<boolean> {
+  let recorded = false;
+  await replaceAttempts(async (stored) => {
+    const allowed = await allow(listedAttempts(stored));
+    if (!allowed) return leaveMachineJson;
+    recorded = true;
+    return withAttempt(stored, attempt);
   });
+  return recorded;
 }

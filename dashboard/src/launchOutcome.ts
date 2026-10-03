@@ -15,8 +15,8 @@ import { launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 
-// Why nothing was launched; `not-listed`: a recheck found the host's own
-// session listing names no session the launch started.
+// Why nothing was launched; `not-listed`: host listing names no launched
+// session; `session-open`: an open launch record of the story remains.
 export const launchFailureReasons = [
   "folder-not-found",
   "not-installed",
@@ -25,18 +25,21 @@ export const launchFailureReasons = [
   "unavailable",
   "start-refused",
   "already-starting",
+  "session-open",
   "unrecorded",
   "not-listed",
 ] as const;
 
-// Why a launch may or may not have started a session: the launch wait
-// expired, or the host exited without a session this boundary could confirm.
+export const sessionOpenExplanation =
+  "This story already has an open session on this machine that must be marked done or have its record deleted first. Nothing was started or launched.";
+export const unreadableLaunchRecordsExplanation =
+  "This machine's launch records (~/.open-dough/dashboard/agent-launches.json) could not be read, so an earlier session may still be open. Repair or move that file aside before starting; nothing was started.";
+
+// Why a launch may or may not have started a session: timed-out or unconfirmed.
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
 
-// The uncommitted changes the default checkout holds, observed before a
-// launch selecting it starts anything: the changed paths (at most
-// `existingChangesShown`, never their content), how many there are, and the
-// fingerprint a confirmation names (`existingChangesSchema`).
+// Uncommitted default-checkout changes before a launch selects it: paths (at
+// most `existingChangesShown`), count, and fingerprint (`existingChangesSchema`).
 export const existingChangesShown = 50;
 
 export const existingChangesFoundSchema = z.object({

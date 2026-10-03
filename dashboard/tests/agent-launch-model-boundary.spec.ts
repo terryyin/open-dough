@@ -14,6 +14,7 @@ import {
   openDoughFolder,
   title,
 } from "./agentLaunchBoundary.ts";
+import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -47,6 +48,7 @@ for (const mode of ["dev", "preview"] as const) {
 
     // Launches and returns the answered record and the `--bg` call.
     async function launched(body: unknown) {
+      await closeOpenSessions(server);
       server.claudeScenario("launched");
       const callsBefore = server.claudeLaunchCalls().length;
       const response = await launch(server, body);

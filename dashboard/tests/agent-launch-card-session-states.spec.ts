@@ -1,7 +1,8 @@
 // A card keeps listing its sessions whatever Claude Code lists of them: a
 // session Ready for review, stopped, needing input, or unavailable stays on
-// its card beside the Start actions, which keep their notes; an unavailable
-// one has no Open terminal, and every one is State unknown with Open terminal
+// its card beside the Start actions, which stay disabled for an open session
+// and keep their notes in their accessible description; an unavailable one
+// has no Open terminal, and every one is State unknown with Open terminal
 // while the listing cannot be read. A restarted dashboard server, a reload,
 // and a project switch keep every entry and its state. What each state shows is
 // ./agent-launch-recent-session-states.spec.ts. Origin alone still places
@@ -23,6 +24,7 @@ import {
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -113,33 +115,33 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
         shows: "Session unavailable",
       },
       {
-        title: notRefinedStory,
+        title: takenStory,
         workflow: "Refinement",
         change: "stopped",
         shows: "Session stopped",
-      },
-      {
-        title: readyStory,
-        workflow: "Refinement",
-        change: "blocked",
-        shows: "Needs input",
       },
     ];
     const entryOf = (title: string, workflow: Workflow): Locator =>
       cardSessionOf(card(title), workflow);
     const openIn = (entry: Locator) =>
       entry.getByRole("button", { name: "Open terminal" });
-    // Every card still offers both Start actions with their notes.
-    const expectStartOffered = async () => {
+    // Every card with an open session keeps both Starts unavailable, with
+    // their notes still in the accessible description.
+    const openSessionDescription = new RegExp(
+      openSessionStartReason.replace(/[.]/g, "\\."),
+    );
+    const expectStartsBlocked = async () => {
       for (const title of queued.backlog) {
-        await expect(action(title, "Execution")).toBeEnabled();
-        await expect(action(title, "Refinement")).toBeEnabled();
+        await expect(action(title, "Execution")).toBeDisabled();
+        await expect(action(title, "Refinement")).toBeDisabled();
+        await expect(action(title, "Execution")).toHaveAccessibleDescription(
+          openSessionDescription,
+        );
       }
       await expect(
         action(notRefinedStory, "Execution"),
-      ).toHaveAccessibleDescription(notReadyNote);
-      await expect(action(readyStory, "Execution")).toHaveAccessibleDescription(
-        "",
+      ).toHaveAccessibleDescription(
+        new RegExp(`${notReadyNote}.*${openSessionDescription.source}`),
       );
     };
     const expectShown = async () => {
@@ -153,7 +155,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       await expect(cardSessions(page.locator("body"))).toHaveCount(
         launches.length,
       );
-      await expectStartOffered();
+      await expectStartsBlocked();
     };
 
     const sessionIds: string[] = [];

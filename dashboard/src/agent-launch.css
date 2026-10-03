@@ -2,8 +2,9 @@
    entry on its card and in the project's Recent sessions, and the actions of
    the terminal that opens a launched session; the launch dialog's own layout
    is ./launch-dialog.css, its actions sharing these buttons' look.
-   Text carries every meaning; the dashed edge of a noted action only repeats
-   its note. */
+   Text carries every meaning. A noted Start stays the accent action; its
+   dashed edge only repeats the note beside it. Quiet gray is reserved for a
+   disabled Start that cannot be invoked. */
 
 .start-launch {
   margin-top: 0.45rem;
@@ -31,8 +32,6 @@
 }
 
 .start-launch-noted {
-  color: var(--quiet);
-  border-color: var(--edge);
   border-style: dashed;
 }
 
