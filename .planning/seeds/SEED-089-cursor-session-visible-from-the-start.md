@@ -11,13 +11,11 @@ scope: unestimated
 
 ## Why This Matters
 
-A developer who starts Cursor work from the dashboard cannot see that agent or
-give it further instructions while its opening run is still going. The terminal
-shows that Cursor is still working on the launch prompt and opens when that
-process finishes. Typed input is discarded. On 2026-10-03 this stayed true
-while the agent was already recording finished slices.
+A developer who starts instructed Cursor work from the dashboard can see that
+agent and give it further instructions from the beginning of the run. The run
+is the terminal session.
 
-Restarting the dashboard stops that same agent. Claude Code and Codex do not
+Restarting the dashboard still stops that same agent. Claude Code and Codex do not
 behave this way: closing their terminal, or restarting the dashboard, leaves
 their work running, and the developer can open the terminal again to see it
 and type.
@@ -48,89 +46,6 @@ is Proposed and does not choose a service split; a local process owner would
 not become a second authority for story state.
 
 ## Story Decomposition
-
-<a id="cursor-session-interactable-from-the-start"></a>
-
-### See and instruct a Cursor agent from the start
-
-**Identity:** SEED-089#cursor-session-interactable-from-the-start
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/227-cursor-agent-visible-from-the-start/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"52f4b9a9facd19334cc452516ab4027361b55b6cb1826ea231270b89be895f45","plan":"cfbbfa2f0136fa0a429bad7cdac603b8090fee019b3e76b49ec49bec46b16397"}}
-```
-
-**Goal:** A developer who starts instructed Cursor work from the dashboard can
-see that agent's output and give it further instructions from the beginning of
-the run, while the run is still going. The run is the terminal session, so
-opening it shows the work instead of a launch-wait notice.
-
-**Scope:**
-
-- Every Cursor start that carries an instruction — story execution, refinement,
-  and a prompted ad-hoc session — creates the session without starting work,
-  starts its terminal process, and delivers the launch instruction into that
-  process once the session is ready for an instruction. The terminal panel does
-  not have to be open first. Opening it shows that same run, including output
-  already produced, and accepts typing: a later instruction, and an answer the
-  agent asks for.
-- A chosen model is applied on that first process. A later open uses the stored
-  resume command, which still omits the model, because Cursor saves the chosen
-  model as its setting. Default omits a model. A blank start that also chooses
-  a model stays refused, because no run would apply it.
-- A blank ad-hoc start still creates the session, submits no instruction, and
-  can attach immediately. A story execution or refinement with no instruction
-  still starts nothing.
-- Cursor's own trust or login prompt stays on screen for the developer to
-  answer. The dashboard does not bypass authentication, trust, or approval, and
-  does not type the launch instruction into that prompt
-  ([agent launch](../../dashboard/AGENT-LAUNCH.md)). Until the session is ready
-  for an instruction, the developer can still type, and the first instruction
-  stays unconfirmed.
-- The session record confirms the first instruction when that instruction has
-  been entered into a terminal that was ready for it. The record stays
-  uncertain when the instruction has not been entered. The process exiting does
-  not confirm it. An uncertain record keeps the session and still refuses
-  another conversation for that launch.
-- Closing the terminal does not stop a run that is still working, and opening
-  it again shows that same run. A run that has already finished and is showing
-  the ordinary follow-up prompt still ends after the terminal closes; the next
-  open starts a new resume of the same chat.
-- Do not start a second Cursor agent on a chat that already has one. That
-  remains forbidden, as this seed already decided.
-- Claude Code and Codex stay unchanged.
-- Surviving a dashboard restart is the next story. This story may still stop
-  the agent when the dashboard process stops.
-- The terminal panel does not open by itself. Waiting to deliver the
-  instruction until the developer opens the panel was considered and excluded:
-  Start already begins the work without the panel, and opening the panel is how
-  the developer sees a run that is already going.
-
-**Key examples:**
-
-1. The developer starts a Cursor execution, refinement, or prompted ad-hoc
-   session whose work outlasts the old launch wait. Opening the terminal while
-   the agent is working shows its output and accepts typing. There is no
-   launch-wait notice and no second agent.
-2. The agent asks for a decision in the middle of the run. The developer types
-   the answer in the dashboard terminal and the same agent continues.
-3. The developer closes the terminal while the agent is working, then opens it
-   again and sees the same run.
-4. After the run has finished and is showing the ordinary follow-up prompt, the
-   developer types a follow-up on the same chat. Closing the terminal while
-   that prompt is idle still ends the client; the next open resumes the same
-   chat.
-5. The developer chooses a model with the instruction. The run uses that model.
-   Opening the terminal again does not send the model again. A blank start with
-   a chosen model still starts nothing.
-6. Cursor shows its own trust or login prompt. The developer answers it in the
-   terminal; the launch instruction is not entered as that answer. Once the
-   session is ready, the same session receives the instruction. Until then, the
-   record does not say the instruction was confirmed.
-
-**Depends on:** none. The kept-terminal behavior after a Cursor terminal has
-already opened is already on trunk.
-
-**Safe stopping point:** The developer can see and instruct the run from the
-start. A dashboard restart may still stop the agent.
 
 <a id="cursor-runner-survives-dashboard-restart"></a>
 
@@ -195,7 +110,7 @@ agents it holds. Codex and Claude Code do not go through this runner.
   terminal is in scope. The selected order assumes this story keeps the
   terminal from the first story.
 
-**Depends on:** [See and instruct a Cursor agent from the start](#cursor-session-interactable-from-the-start).
+**Depends on:** the delivered session at `8d4f70b4356becb6289f6429bc593dfd52934855:.planning/seeds/SEED-089-cursor-session-visible-from-the-start.md` (See and instruct a Cursor agent from the start).
 Without that terminal, keeping the process would preserve a run the developer
 still cannot see or instruct.
 
@@ -204,16 +119,15 @@ or replaces it with a second one. Restarting the runner may still stop it.
 
 ## Ordering and Scope Reduction
 
-Deliver the visible, instructable session first. It removes the current
-blocker on its own. Deliver the runner second, aimed at that same terminal.
+The visible, instructable session is delivered. Deliver the runner next, aimed
+at that same terminal.
 If the runner is dropped, the developer can still see and instruct a run for
 as long as the dashboard stays up.
 
 ## Open Decisions
 
 No unresolved choice changes this split or order. Terry selected both stories
-and this order on 2026-10-03. The first story's refinement decisions are in
-its section. The second story's decisions remain for its own refinement.
+and this order on 2026-10-03. The delivered story's decisions are in that same revision. The remaining story's decisions stay for its own refinement.
 
 ## Breadcrumbs
 
@@ -221,7 +135,7 @@ its section. The second story's decisions remain for its own refinement.
   recording finished slices while the terminal showed only the launch-wait
   notice.
 - [Embedded terminals](../../dashboard/AGENT-LAUNCH-TERMINALS.md), including
-  the kept Cursor client and the launch-wait notice.
+  the kept Cursor client.
 - [SEED-052](SEED-052-start-agent-work-from-dashboard.md), the parent launch
   epic. The reconnect behavior this seed builds on was closed in
   `c78b9ba0fd30256d145dfe4eb672f3e8e9d7d927`.
