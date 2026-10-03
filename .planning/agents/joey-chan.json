@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-093#expose-timing-races-locally",
+  "mode": "story-branch",
+  "branch": "claude/keep-the-dashboard-tests-recurring-race-shapes-o",
+  "host": "claude"
+}
