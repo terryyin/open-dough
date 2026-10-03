@@ -61,3 +61,9 @@ recovery, while connection, timeout and unusable-reply failures allow another
 explicit recording or typing. No failed request is retried automatically.
 Cancellation may occur after a paid
 request has already reached OpenAI.
+
+Instructions have a 4,000-character limit, including the blank line between
+existing text and a transcript. If a transcript does not fit, the original
+stays intact and the complete transcript appears for editing. Shorten it until
+Add transcript is available, or choose Discard transcript. Start and Record
+remain unavailable until that review is resolved; neither draft is truncated.

@@ -93,7 +93,8 @@ start; reuse its published claim without a second Take. Identity:
   `fcf43c8802a9a92935e1506683f4edba9e7ec0e6`, this repair's previously published
   base. Its [Codex keyboard inventory repair](CI-REPAIR.md#dictation-keyboard-inventory-repair)
   published as `0f10b8ebda76b66befd890c86825396ac6399d5a`, this increment's
-  previously published base; managed restoration returned slice 5 intact.
+  repair base; managed restoration returned slice 5 intact. Recovery published
+  as `8f4a60bf17980b699cf86eef644c29808d083e75`, the final slice's published base.
 - Node 24.21.0 selected from
   `/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin`.
   Checkout-bound locked setup and applicable command passed:
@@ -164,9 +165,11 @@ coordinator formatting passed; this increment delivers the completed recovery.
 
 ### 6. Shorten an over-length transcript without losing either draft
 Type: Behavior
-Status: planned
+Status: done
 Respect the shared 4,000-character boundary; retain complete overflow for
 shortening/add/discard and prove the reviewed native text handoff.
+[Accepted overflow proof](VOICE-OVERFLOW.md), independent refactoring and
+coordinator formatting passed; this increment delivers the final slice.
 
 ## Current decisions
 

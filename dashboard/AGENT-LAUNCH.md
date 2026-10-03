@@ -44,6 +44,14 @@ session. Review or edit the text before pressing Start; only that final field
 text follows the existing launch path. Cancellation cannot reverse a provider
 charge already incurred.
 
+The combined instruction remains limited to 4,000 characters, including the
+blank line between existing text and each transcript. Exactly fitting text
+appends normally. An over-length result keeps the original instruction and
+shows the complete editable transcript. Shorten it and choose Add transcript,
+or choose Discard transcript to keep only the original. Start and Record wait
+for that choice; Cancel or Escape closes the launch and clears both transient
+drafts. No words are truncated.
+
 Host initially selects Claude Code and offers Claude Code, Codex, or Cursor.
 Model opens on Default. Claude also offers
 Fable, Opus and Sonnet; a selection sends its `--model` alias before the prompt.
