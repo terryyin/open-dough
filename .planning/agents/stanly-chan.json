@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-093#read-kept-state-after-its-event",
-  "host": "claude"
-}
