@@ -245,6 +245,6 @@ No product correction or test consolidation is justified by the inspected proof.
 Process review reused retained records/current history: two repaired consumer
 misses match ODF-150. Its additional occurrence was not recorded: DearDough's
 1,000 physical lines would become 1,002, with no supported retention replacement.
-Applicable CI remains pending on the registered final slice; completion owns
-its verdict. Real voice evidence remains bounded and the extra human usefulness
+Final slice CI passed; an inherited Cursor test race found at completion is
+repaired in [CI evidence](CI-REPAIR.md). Completion owns its final verdict. Real voice evidence and the extra human usefulness
 review was explicitly skipped, as recorded in VOICE-PROBE.md.

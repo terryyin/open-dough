@@ -99,3 +99,47 @@ earlier search. No product code changes. Fresh independent refactoring found
 no candidate, retaining proof without reruns. Coordinator formatting passed;
 changed files remain below 250 lines. Slice 4 stays done and slice 5 planned.
 This increment publishes the repair before managed restoration and resumption.
+
+## Cursor confirmation snapshot repair
+
+The completion boundary found unread failure evidence for registered revision
+`0f10b8ebda76b66befd890c86825396ac6399d5a`,
+[run 37098217155, attempt 1](https://github.com/terryyin/open-dough/actions/runs/37098217155).
+Exact-attempt inspection confirmed its only failed job: 111132389245,
+dashboard (4/9). The instructed ad hoc Cursor test captured a saved `uncertain`
+record before native confirmation, then asserted `confirmed` on that stale object.
+Production paths, this test and fixtures were unchanged from the established
+claim. This inherited test race is a defect; later green CI does not erase it.
+
+All writers were complete. Managed preservation returned `clean`, with no owned
+stash entry; the pre-existing stash was preserved. A fresh repair agent used the
+existing held native-prompt fixture locally to observe the actual saved uncertain
+record, release the child in `finally`, and wait for actual UI confirmation.
+The retained stale snapshot reproduced the exact CI assertion, terminal exit 1:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts --grep 'why is the CI slow' --workers=1
+```
+
+The repair rereads the durable record after confirmation. Exact instruction,
+argv, workspace, omitted flags, absence of invented skill/story/Take, native
+uncertainty before confirmation and Git invariants remain asserted. Root inspected
+the full test and fixture; neighboring Cursor consumers already wait for acceptance
+or intentionally assert uncertainty. Shared fixtures and production are unchanged.
+All three cases and strict typecheck reached terminal exit 0:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts --workers=1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard
+```
+
+Setup uses the real preview dashboard, durable machine document and Git origin;
+only native Cursor transport is substituted. A first reproduction held too long
+and failed at article discovery; its child was released and terminal exit observed.
+That attempt is excluded from accepted red proof. No product review conclusion
+changes; only the saved-record timing proof is corrected.
+
+The Codex stream delivered these events without durable acknowledgement. Root
+inspected exact mailbox sequences 1 and 2, matching the two diagnosed attempts;
+supported delivery-progress acknowledgement retains their event files and repairs.
+Completion at the repair's accepted revision owns the final CI verdict/shutdown.
