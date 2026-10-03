@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { readFile, writeFile, readdir } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";

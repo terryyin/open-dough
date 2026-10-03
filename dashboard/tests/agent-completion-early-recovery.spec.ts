@@ -1,5 +1,5 @@
 // Hold settlement before its lock acquisition, after real native binding.
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./support/pageTest.ts";
 import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../src/completionReport.ts";

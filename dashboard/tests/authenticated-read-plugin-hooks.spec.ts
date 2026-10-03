@@ -4,7 +4,7 @@
 // hook is the only possible cause. End-to-end subprocess lifecycle is covered
 // in ./authenticated-read-subprocess-lifecycle.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { mkdtempSync, rmSync } from "node:fs";
 import http from "node:http";
 import type { AddressInfo } from "node:net";

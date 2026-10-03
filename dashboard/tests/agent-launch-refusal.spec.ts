@@ -8,7 +8,7 @@
 // launch refusals prove neither host was called. What an admitted request answers is
 // ./agent-launch-boundary.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   identity,
   launch,

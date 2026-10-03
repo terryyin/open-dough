@@ -1,6 +1,6 @@
 // The real npm watcher qualifies published main against the last served commit
 // with the selected commit's own CI push exclusions.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";

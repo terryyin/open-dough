@@ -3,7 +3,7 @@
 // record is that attempt's own launched session.
 
 import { randomUUID } from "node:crypto";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { sessionOpen } from "../server/launchAttemptConflicts.ts";
 import { continueAttempt } from "./agentLaunchBoundary.ts";
 import { openStoryRecord, seedStore } from "./machineLaunchRecords.ts";

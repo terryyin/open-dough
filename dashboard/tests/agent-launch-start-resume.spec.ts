@@ -15,7 +15,7 @@
 import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { attempts, continued, launch } from "./agentLaunchBoundary.ts";
 import {
   answerOf,

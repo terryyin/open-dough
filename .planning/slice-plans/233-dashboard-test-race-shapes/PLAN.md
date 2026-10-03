@@ -120,7 +120,7 @@ affected files.
 
 Type: Structure (test-suite correction: per-spec teardown drains, and specs
 able to forget them)
-Status: planned
+Status: done
 Proof: the drain support spec; `startup-host-words.spec.ts` and
 `project-remove.spec.ts` with `--repeat-each=10 --workers=8`; `npm run lint`,
 plus a planted direct import that lint rejects, then reverted; the full
@@ -194,4 +194,32 @@ seam would be a scope decision for the developer. Slices 1–3 stand without it.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted proof:
+  - `dashboard/tests/page-teardown-drain.spec.ts` passes 2 of 2, also with
+    `--repeat-each=3` both across workers and at `--workers=1`. Its second
+    test asserts `["teardown begins", "handler read ok", "context teardown"]`.
+    Its handler is held until teardown begins, an event rather than the
+    premise probe's 300 ms wait. With the drain removed, the read arrived after
+    context teardown.
+  - `startup-host-words.spec.ts` and `project-remove.spec.ts` at
+    `--repeat-each=10 --workers=8` passed 150 of 150 over three runs.
+  - `npm run lint` and `npm run typecheck:dashboard` pass. The lint rule also
+    restricts the `default` import, because it too is `test`. A planted direct
+    import was rejected, then reverted.
+- `project-remove.spec.ts` drained inside the test's `finally`, not in an
+  `afterEach`. The base's `page` drain skips a page the spec already closed.
+- The shared drain covers only the fixture `page`. Pages from `newPage()` and
+  `context.route()` handlers are not drained; the only such route today,
+  `queuedPlanNavigation.ts:68`, answers at once.
+- At load averages of about 70–74, default 5 s waits in test bodies ran out.
+  Neither failure was in teardown:
+  - The full `npm run test:dashboard` ended 966 passed, 6 failed.
+    `agent-completion-binding.spec.ts:30` (4 cases),
+    `agent-completion-attention.spec.ts:20`, and
+    `agent-completion-early-recovery.spec.ts:24` each found
+    `claudeLaunchCalls().length` still 0. These passed on rerun at load
+    about 20. This shape is outside this plan's slices; it is surfaced for a
+    developer decision.
+  - In the first repeat run, `startup-host-words.spec.ts:78` waited for
+    `.launch-answer` text after `page.reload()`. That is slice 2's
+    settled-page shape.

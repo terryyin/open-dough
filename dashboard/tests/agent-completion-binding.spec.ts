@@ -4,7 +4,7 @@ import {
 } from "../src/launchOutcome.ts";
 import { markDoneAnswerSchema } from "../src/doneMark.ts";
 import type { submitCompletion } from "../server/completionReporting.ts";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./support/pageTest.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { existsSync, writeFileSync } from "node:fs";

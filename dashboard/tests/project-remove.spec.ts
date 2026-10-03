@@ -1,7 +1,7 @@
 // Browser mutations go through the real loopback server and atomic machine file.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
@@ -133,7 +133,6 @@ test("removing a configured project retains its checkout and records, hides sess
     await expect.poll(() => readHeld, { timeout: 1_000 }).toBe(true);
   } finally {
     releaseSessions();
-    await page.unrouteAll({ behavior: "wait" });
   }
   expect(readFileSync(marker, "utf8")).toBe("local work stays\n");
   expect(readFileSync(path.join(fixture.checkout, ".git/config"), "utf8")).toBe(

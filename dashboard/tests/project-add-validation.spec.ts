@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { addProject } from "../server/projectAddition.ts";
 import {
   appendConfiguredProject,

@@ -15,7 +15,7 @@
 
 import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import type { AttemptObservation } from "../src/agentLaunch.ts";
 import {
   accept,

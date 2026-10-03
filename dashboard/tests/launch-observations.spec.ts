@@ -1,6 +1,6 @@
 // The shared observation seam receives saved targets and isolates native errors.
 // Browser/HTTP journeys in the session, alert and terminal specs prove meanings.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { claudeHost } from "../server/claudeHost.ts";
 import { codexHost } from "../server/codexHost.ts";

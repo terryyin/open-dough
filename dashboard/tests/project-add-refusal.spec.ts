@@ -1,7 +1,7 @@
 // The form posts to the real server; real Git supplies the mismatching origin.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { settings, back } from "./support/systemSettingsPage.ts";
 import {
   addedLocalPath,

@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./support/pageTest.ts";
 import { savedWorkspaceState } from "../server/sessionWorkspace.ts";
 import type { HostSession } from "../src/agentLaunch.ts";
 

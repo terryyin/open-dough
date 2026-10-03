@@ -1,7 +1,7 @@
 // A retained host not configured at startup is restored only when re-added.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { installFakeCodex } from "./support/fakeCodex.ts";

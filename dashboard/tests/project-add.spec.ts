@@ -11,7 +11,7 @@ import {
 } from "./machineLaunchRecords.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { startSessionDialog, startSessionField } from "./launchCardPage.ts";
 import {
   projectAddMachine,

@@ -14,12 +14,8 @@
 // stopped, so a read still in flight when the journey ends never finds its
 // repository gone.
 
-import {
-  test as base,
-  expect,
-  type BrowserContext,
-  type Page,
-} from "@playwright/test";
+import type { BrowserContext, Page } from "@playwright/test";
+import { test as base, expect } from "./support/pageTest.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
 import {
   builtDashboardDir,

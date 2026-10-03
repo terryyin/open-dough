@@ -7,7 +7,7 @@
 
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import { keptAttempts as keptOfMachine } from "./acceptedAttempts.ts";
 import { accept } from "./agentLaunchBoundary.ts";
