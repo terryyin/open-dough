@@ -3,8 +3,8 @@
 **Identity:** SEED-091#frame-look-checks-one-rule
 **Source:** [correction story](../../seeds/SEED-091-dashboard-ui-renovation.md#frame-look-checks-one-rule),
 a retrospective correction of
-[SEED-091#dashboard-frame-renovation](../../seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation)
-([plan](../230-dashboard-frame-renovation/PLAN.md)).
+SEED-091#dashboard-frame-renovation ([story](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation),
+[plan](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/slice-plans/230-dashboard-frame-renovation/PLAN.md), at `3c6e5e10`).
 **Prepared:** 2026-10-03 by the execution retrospective. Planning only; this
 plan authorizes neither implementation nor publication.
 
