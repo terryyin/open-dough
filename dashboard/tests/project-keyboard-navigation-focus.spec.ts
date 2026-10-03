@@ -37,12 +37,16 @@ test("focus stays useful across switches and held previous reads stay isolated",
 
   await page.goto("/");
   await expectSelectedProject(page, openDoughProject);
-  const { project, refresh, backlog, source } = parts(page);
+  const { banner, project, backlog, source } = parts(page);
+  const settings = banner.getByRole("button", {
+    name: "System settings",
+    exact: true,
+  });
 
-  await test.step("Refresh focus survives a keyboard project switch", async () => {
-    await refresh.focus();
+  await test.step("banner control focus survives a keyboard project switch", async () => {
+    await settings.focus();
     await page.keyboard.press("ArrowRight");
-    await expect(refresh).toBeFocused();
+    await expect(settings).toBeFocused();
     await expectSelectedProject(page, doughnutProject);
   });
 
@@ -85,7 +89,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
 - [Open Dough after held switch](seeds/SEED-303-queued.md#queued) — SEED-303#queued
 `,
     );
-    await refresh.focus();
+    await settings.focus();
     await page.keyboard.press("ArrowLeft");
     await expectMembership(page, {
       taken: [],
@@ -96,7 +100,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
     await expect(page.locator("body")).not.toContainText(
       doughnutProject.queued,
     );
-    await expect(refresh).toBeFocused();
+    await expect(settings).toBeFocused();
     releaseDoughnut();
     await expect(page.locator("body")).not.toContainText(
       doughnutProject.queued,

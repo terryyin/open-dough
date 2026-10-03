@@ -2,8 +2,8 @@
 // check that says when to ask again (`Retry-After`, or `X-RateLimit-Reset`
 // once `X-RateLimit-Remaining` is `0`) keeps the last successful snapshot,
 // says when checks resume, and asks nothing -- not even when the page is seen
-// again -- before that time; a manual Retry still reads at once, and success
-// restores the steady pace. Other failed automatic reads:
+// again -- before that time; the check at that time reads what was published,
+// and success restores the steady pace. Other failed automatic reads:
 // ./auto-refresh-recovery.spec.ts. The page, its local authenticated read
 // boundary, the `gh` invocation, and the shared interpretation are the
 // production ones; the fake GitHub behind the synthetic `gh`
@@ -34,11 +34,11 @@ import {
   titlesOfB,
 } from "./refreshJourney.ts";
 
-test("auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, and a manual Retry that succeeds reads B at once, clears the failure, and restores the steady pace", async ({
+test("auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, problem, retry, refresh } = parts(page);
+  const { source, problem } = parts(page);
   const retrievedAt = source.locator("time");
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   const restoreMain = origin.answerWith(
@@ -54,7 +54,8 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     await expect(problem).toContainText(
       "As GitHub asked, automatic checks wait until",
     );
-    await expect(problem).toContainText("Press Retry to read again sooner.");
+    await expect(problem).not.toContainText("Retry");
+    await expect(page.getByRole("button", { name: "Retry" })).toHaveCount(0);
     const failedAt = await problem
       .locator("time")
       .nth(0)
@@ -105,28 +106,15 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
   });
 
-  await test.step("a manual Retry refused without its own direction still reports, and keeps, GitHub's earlier wait", async () => {
-    const quietFrom = githubFor(page).calls.length;
-    await retry.click();
-    await expect
-      .poll(() => callsSince(page, quietFrom).map(({ argv }) => argv[1]))
-      .toEqual(["repos/terryyin/open-dough/commits/main"]);
-    await expect(problem).toContainText("(HTTP 403) while reading main");
-    await expect(problem).toContainText(
-      "As GitHub asked, automatic checks wait until",
-    );
-    await expect(problem).not.toContainText("Automatic checks continue every");
-    const afterRetry = githubFor(page).calls.length;
-    expect(await checksAskedWhilePassing(page, 30_000)).toBe(0);
-    expect(callsSince(page, afterRetry)).toEqual([]);
-    await expectMembership(page, titlesOfA);
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
-  });
-
-  await test.step("restored access and a manual Retry, before the directed time, read B at once and clear the failure", async () => {
+  await test.step("restored access, the check at the directed time reads B and clears the failure", async () => {
     restoreLimit();
     origin.push(revisionB, backlogB, recordsAt("B"));
-    await retry.click();
+    // GitHub's reset time, in whole seconds, directed a wait of about two
+    // minutes from the limited answer; 45 seconds of it have passed.
+    expect(await checksAskedWhilePassing(page, 30_000)).toBe(0);
+    const passed = await passTimeUntilChecked(page);
+    expect(75_000 + passed).toBeGreaterThanOrEqual(100_000);
+    expect(75_000 + passed).toBeLessThanOrEqual(120_250);
     await expectMembership(page, titlesOfB);
     await expect(page.getByText("Reading preparation…")).toHaveCount(0);
     await expectWholeSnapshot(
@@ -135,7 +123,6 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
       [revisionA],
     );
     await expect(problem).toHaveCount(0);
-    await expect(refresh).toHaveAccessibleName("Refresh");
   });
 
   await test.step("success lifts GitHub's wait: checks resume at the steady pace", async () => {

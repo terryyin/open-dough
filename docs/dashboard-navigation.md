@@ -41,13 +41,10 @@ survive the switch keep focus, and when focused project content disappears,
 focus moves to the selected project radio. Editable fields, other
 arrow-operated controls, already-handled key events, modified shortcuts, and
 an open modal help dialog keep their own keyboard behavior and do not change
-the project. Keep manual refresh in this banner. Keep repository/ref, full
-source revision, and retrieval time available through the Source evidence
-disclosure, so detailed metadata does not fill the viewport at browser zoom.
-Render refresh as an SVG icon with the accessible name Refresh, changing to
-Retry after a failed read; preserve its focus and guarded behavior during
-reads. Keep readable loading and source problems near the source context. Make
-the header wrap without covering focused content or consuming the usable
+the project. Keep repository/ref, full source revision, and retrieval time
+available through the Source evidence disclosure, so detailed metadata does not
+fill the viewport at browser zoom. Keep readable loading and source problems
+near the source context. Make the header wrap without covering focused content or consuming the usable
 reading area at narrow widths or browser zoom.
 
 The global **System settings** control opens a dedicated machine configuration
@@ -66,14 +63,14 @@ widths and browser zoom.
 Below the banner, show **Near-future direction** as an initially collapsed
 disclosure. Activation reveals its full published text or the existing
 no-direction explanation; activation again collapses it. Preserve the choice
-across same-project refreshes and start collapsed on project changes. Replace
+across same-project reads and start collapsed on project changes. Replace
 the expanded **Preparation badges** legend with a compact question-mark help
 control on the same line, opposite the direction disclosure, named Preparation
 badge legend. Open the existing legend in a titled modal above the banner; provide a visible Close
 control and Escape, contain focus inside, and return focus to the launcher.
 Keep the actual story badges and their textual meanings visible on cards.
 Direction and help are transient UI state and cause no source read. Keep
-direction, evidence, refresh, and view controls outside any zooming surface.
+direction, evidence, and view controls outside any zooming surface.
 
 Use one navigable stage containing connected regions for work stages. Initially,
 show **Backlog → Taken**, with work cards placed inside their recorded region.

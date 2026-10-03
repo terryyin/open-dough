@@ -43,8 +43,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, status, problem, refresh, taken, backlog, notice } =
-    parts(page);
+  const { source, status, problem, taken, backlog, notice } = parts(page);
   const retrievedAt = source.locator("time");
   const retrievedA = await retrievedAt.getAttribute("datetime");
   const settledAt = githubFor(page).calls.length;
@@ -68,7 +67,6 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     await expect(source).toContainText(revisionA);
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
-    await expect(refresh).toHaveAccessibleName("Refresh");
     await expect(status).toHaveText(
       /^Published work read at revision a1a1a1a, retrieved /,
     );

@@ -1,7 +1,7 @@
 // The story-stages journey (./launchJourney.ts) as the dashboard page shows it:
 // the page opens on the queued revision of its committed origin, beside a
 // Doughnut origin to switch to, and a journey launches from Backlog cards and
-// shows each later revision through Refresh.
+// shows each later revision by reloading the page.
 
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -30,7 +30,7 @@ export async function openStoryStagesJourney(
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
   doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   await page.goto("/");
-  const { stages, backlog, source, refresh } = parts(page);
+  const { stages, backlog, source } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const action = (title: string, workflow: Workflow) =>
     card(title).getByRole("button", { name: `Start ${workflow}` });
@@ -47,7 +47,7 @@ export async function openStoryStagesJourney(
     // Origin publishes the revision, and the page reads it.
     show: async (revision: string) => {
       origin.advanceTo(revision);
-      await refresh.click();
+      await page.reload();
       await expect(source).toContainText(revision);
       await settled();
     },

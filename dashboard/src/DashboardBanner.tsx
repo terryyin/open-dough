@@ -9,19 +9,13 @@ import type { PublishedWork } from "./publishedWork.ts";
 export function DashboardBanner({
   source,
   work,
-  reading,
-  failed,
   onOpenSettings,
   onSelect,
-  onRefresh,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
-  readonly reading: boolean;
-  readonly failed: boolean;
   readonly onOpenSettings: () => void;
   readonly onSelect: (next: PublishedSource) => void;
-  readonly onRefresh: () => void;
 }) {
   const banner = useRef<HTMLElement>(null);
 
@@ -59,13 +53,7 @@ export function DashboardBanner({
           </button>
         </div>
       </div>
-      <SourceStatus
-        source={source}
-        work={work}
-        reading={reading}
-        failed={failed}
-        onRefresh={onRefresh}
-      />
+      <SourceStatus source={source} work={work} />
     </header>
   );
 }

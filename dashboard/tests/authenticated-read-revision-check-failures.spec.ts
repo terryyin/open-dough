@@ -48,7 +48,7 @@ test.describe("authenticated read boundary revision check failures (dev launch m
     expect(limited.status).toBe(502);
     expect(limited.body).toEqual({
       error:
-        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading main of terryyin/open-dough. Wait before pressing Retry.",
+        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading main of terryyin/open-dough. Wait before reloading the page.",
     });
     // Only the listing: a rate limit is never asked of the ref alone.
     expect(limited.calls).toHaveLength(1);
@@ -61,7 +61,7 @@ test.describe("authenticated read boundary revision check failures (dev launch m
     expect(loggedOut.status).toBe(502);
     expect(loggedOut.body).toEqual({
       error:
-        "The local GitHub CLI is not logged in, so main of terryyin/open-dough could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
+        "The local GitHub CLI is not logged in, so main of terryyin/open-dough could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
     });
   });
 
@@ -116,7 +116,7 @@ test.describe("authenticated read boundary revision check failures (dev launch m
       const undirected = await check("open-dough", revisionB);
       expect(undirected.status).toBe(502);
       expect(undirected.body).toEqual({
-        error: limitedMessage(403, "Wait before pressing Retry."),
+        error: limitedMessage(403, "Wait before reloading the page."),
       });
     }
   });

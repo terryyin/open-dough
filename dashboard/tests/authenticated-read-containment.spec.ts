@@ -108,7 +108,7 @@ test.describe("authenticated read boundary containment (dev launch mode)", () =>
     expect(await contains()).toMatchObject({
       status: 502,
       body: {
-        error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading ${reading}. Wait before pressing Retry.`,
+        error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading ${reading}. Wait before reloading the page.`,
       },
     });
     answer = noConnection;

@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { commitPaths, recordState } from "./storyReadinessCli.ts";
@@ -15,7 +16,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   repo: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
-  const { backlog, refresh, project } = parts(page);
+  const { backlog, project } = parts(page);
   const card = backlog.getByRole("article", { name: plannedBlocked.title });
   const plan = card.getByRole("link", { name: /^Slice plan / });
   await expect(plan).toBeVisible();
@@ -35,11 +36,9 @@ export async function expectQueuedPlanFocusDuringEnrichment(
     );
     repo.advanceTo(fresh);
     origin.advanceTo(fresh);
-    const releaseMain = origin.hold("main");
     const releaseSeed = origin.hold(`.planning/${seedRelative}`);
-    await refresh.click();
     await plan.focus();
-    releaseMain();
+    await passTimeUntilChecked(page);
     await expect(card).toBeFocused();
     await expect(plan).toHaveCount(0);
     await movedTo.focus();
@@ -61,10 +60,8 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   );
   repo.advanceTo(revision);
   origin.advanceTo(revision);
-  const releaseRemoved = origin.hold("main");
-  await refresh.click();
   await plan.focus();
-  releaseRemoved();
+  await passTimeUntilChecked(page);
   await expect(card.getByText("Planless", { exact: true })).toBeVisible();
   await expect(plan).toHaveCount(0);
   await expect(card).toBeFocused();

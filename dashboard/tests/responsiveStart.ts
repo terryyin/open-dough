@@ -111,13 +111,13 @@ export async function expectProtected(card: Locator) {
   await expect(link).toHaveAttribute("href", /.+/);
 }
 
-// The other story, Refresh, and project navigation still work.
+// The other story and project navigation still work.
 export async function expectOthersWork(
   page: Page,
   other: Locator,
   story: Locator,
 ) {
-  const { refresh, project } = parts(page);
+  const { project } = parts(page);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   await other.getByRole("button", { name: "Inspect story" }).click();
   await expect(
@@ -129,8 +129,6 @@ export async function expectOthersWork(
   await expect(otherDialog).toContainText(otherQueuedIdentity);
   await otherDialog.getByRole("button", { name: "Cancel" }).click();
   await expect(otherDialog).toBeHidden();
-  await expect(refresh).toBeEnabled();
-  await refresh.click();
   await project.getByRole("radio", { name: "Doughnut" }).click();
   await expect(story).toBeHidden();
   await project.getByRole("radio", { name: "Open Dough" }).click();

@@ -68,7 +68,7 @@ export function ConfiguredDashboard({
     attempt,
     notice,
     reading,
-    refresh,
+    readAfresh,
     selectSource,
   } = usePublishedObservation(initialSource.current);
   const readFailure = attempt.status === "failed" ? attempt.problem : undefined;
@@ -76,7 +76,7 @@ export function ConfiguredDashboard({
     shown,
     reading,
     failure: readFailure,
-    readAfresh: refresh,
+    readAfresh,
   });
 
   const onReturnToStories = useCallback(() => {
@@ -180,11 +180,8 @@ export function ConfiguredDashboard({
       <DashboardBanner
         source={source}
         work={work}
-        reading={reading}
-        failed={attempt.status === "failed"}
         onOpenSettings={onOpenSettings}
         onSelect={selectProject}
-        onRefresh={refresh}
       />
       <div className="page-header">
         <PublishedReadStatus

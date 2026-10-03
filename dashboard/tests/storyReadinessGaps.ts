@@ -4,6 +4,7 @@
 // gap labels themselves.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
@@ -20,10 +21,10 @@ import {
 } from "./storyReadinessFixture.ts";
 
 export async function expectChangedReviewAfterContentChange(
+  page: Page,
   taken: Locator,
   backlog: Locator,
   source: Locator,
-  refresh: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
   publishAssessedContentChange: (repo: ReadinessRepo) => string,
@@ -33,7 +34,7 @@ export async function expectChangedReviewAfterContentChange(
   origin.advanceTo(nextRevision);
   origin.requests.splice(0, origin.requests.length);
 
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(source).toContainText(nextRevision);
   await expect(source).not.toContainText(priorRevision);
 
@@ -93,7 +94,6 @@ export async function expectPlanAssociationConflict(
   page: Page,
   taken: Locator,
   source: Locator,
-  refresh: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
   publishConflictingPlanAssociation: (repo: ReadinessRepo) => string,
@@ -102,7 +102,7 @@ export async function expectPlanAssociationConflict(
   origin.advanceTo(nextRevision);
   origin.requests.splice(0, origin.requests.length);
 
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(source).toContainText(nextRevision);
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
@@ -154,7 +154,6 @@ export async function expectFailedPlanKeepsSupportedFacts(
   page: Page,
   backlog: Locator,
   source: Locator,
-  refresh: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
@@ -177,7 +176,7 @@ export async function expectFailedPlanKeepsSupportedFacts(
   );
   origin.requests.splice(0, origin.requests.length);
 
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(source).toContainText(next);
 
   const blockedCard = backlog.getByRole("article", {

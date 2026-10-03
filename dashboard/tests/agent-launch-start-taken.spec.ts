@@ -63,7 +63,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
     repository: "terryyin/open-dough",
   });
   await page.goto("/");
-  const { backlog, taken, refresh, source } = parts(page);
+  const { backlog, taken, source } = parts(page);
   const backlogCard = backlog.getByRole("article", { name: "Story A" });
   const takenCard = taken.getByRole("article", { name: "Story A" });
   const otherTakenCard = taken.getByRole("article", { name: "Story B" });
@@ -102,7 +102,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   await expect(backlog.getByRole("article", { name: "Story A" })).toHaveCount(
     0,
   );
-  await refresh.click();
+  await page.reload();
   await expect(takenCard).toContainText("Started here, no session yet");
   await expect(startAction(takenCard)).toBeVisible();
   await expect(startAction(otherTakenCard)).toHaveCount(0);

@@ -1,5 +1,5 @@
 // A Taken card's owner when the revision publishes no agent profiles, and
-// after a refresh to a revision that publishes one. The fake GitHub only
+// after a reload at a revision that publishes one. The fake GitHub only
 // publishes the files; the page decides everything shown.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -17,7 +17,7 @@ const revisionA = "a1".repeat(20);
 const revisionB = "b2".repeat(20);
 const trunkStory = "See who owns Taken work";
 
-test("a project without agent profiles still loads, and a refresh shows a profile published since", async ({
+test("a project without agent profiles still loads, and a reload shows a profile published since", async ({
   page,
 }) => {
   const onlyBacklog = `# Product backlog
@@ -36,7 +36,7 @@ test("a project without agent profiles still loads, and a refresh shows a profil
 
   await page.goto("/");
 
-  const { taken, source, refresh, problem } = parts(page);
+  const { taken, source, problem } = parts(page);
   const card = taken.getByRole("article", { name: trunkStory });
 
   await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
@@ -47,7 +47,7 @@ test("a project without agent profiles still loads, and a refresh shows a profil
     await expect(problem).toHaveCount(0);
   });
 
-  await test.step("after a refresh, the profile published at the new revision is shown", async () => {
+  await test.step("after a reload, the profile published at the new revision is shown", async () => {
     await publishFiles(page, {
       repository,
       revision: revisionB,
@@ -63,7 +63,7 @@ test("a project without agent profiles still loads, and a refresh shows a profil
         }),
       },
     });
-    await refresh.click();
+    await page.reload();
     await expect(source).toContainText(revisionB);
     await expect(card).toContainText(
       "Akiho-chan · Trunk Mode · host not recorded · model not recorded",

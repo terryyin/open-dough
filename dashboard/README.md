@@ -17,14 +17,14 @@ selected project's folder, with no story, listed in Recent sessions and the
 Sessions sidebar.
 
 The pinned banner shows the selected project in a disclosure and keeps the configured
-**Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
+**Project** choices reachable while scrolling. The disclosure opens the repository/ref, full
 source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths
-or high browser zoom. The icon is named **Retry** after a failed read.
+or high browser zoom.
 
 **Near-future direction** starts collapsed below the banner, opposite the **?**
 help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction
-explanation), then activate it again to collapse. Refreshing the same project
+explanation), then activate it again to collapse. A new read of the same project
 preserves this choice, including after a failed read; selecting another project
 starts collapsed. Opening or closing it makes no source request.
 
@@ -72,7 +72,7 @@ same local read boundary from their Vite configuration, so the watcher's
 production preview needs no separate authentication setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
-reads once on opening and again when **Refresh** is pressed. While a snapshot
+reads once on opening, and reloading the page reads it again. While a snapshot
 is shown and the page is visible, it also asks every 15 seconds whether the
 project's configured ref still names the shown revision -- one conditional listing of
 every published branch head, which GitHub answers with `304 Not Modified` when
@@ -103,8 +103,10 @@ A read that fails, finds a backlog the shared reader refuses, or waits more than
 bound the local boundary shares) ends as a read problem, never as an empty or
 partial backlog. The snapshot read earlier stays shown with its own revision and
 retrieval time -- it is the last successful snapshot, not a claim that the configured ref
-still names it -- the problem says what failed and when, and the read control is
-named **Retry** until a read succeeds. A failed revision check, or a failed read
+still names it -- the problem says what failed and when, and how the page
+recovers: with a snapshot shown, automatic checks continue (or, after a rate
+limit, the problem says when they resume); with nothing shown, reloading the
+page reads again. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
 snapshot. While a snapshot is shown the page keeps checking, but only at the
 15-second pace, never at once: a new commit whose backlog could not be read is
@@ -114,11 +116,10 @@ once `X-RateLimit-Remaining` is `0`), the page asks nothing more until that time
 -- even when the page is seen again -- and the problem says when checks resume.
 The boundary passes on only the validated wait, at most one hour. A later check
 or read that succeeds lifts any such wait and clears the problem, unless the
-problem stands with its snapshot as described below. **Retry** reads the
-project's configured ref afresh at once, whenever it is pressed. A record detail that
+problem stands with its snapshot as described below. A record detail that
 could not be read stays labeled on its card rather than borrowing an older one;
-checks that find the configured ref unchanged never read it again, so press **Refresh** to
-retry it at the same revision. When the 30-second bound ends a read after the
+checks that find the configured ref unchanged never read it again, so reload the page to
+read it again at the same revision. When the 30-second bound ends a read after the
 new commit's backlog was shown, each detail still unread is shown as such a gap
 on that snapshot, and the problem stands with it (a slice clock or credited
 human still unread is only its own gap): a check that finds the configured ref unchanged
@@ -136,7 +137,7 @@ in, or GitHub's HTTP status -- never `gh`'s own output, and never that the
 repository does not exist, since an inaccessible read is not proof of that.
 Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
-does, press **Retry** (or, with a snapshot shown, let the next check find it).
+does, reload the page (or, with a snapshot shown, let the next check find it).
 The dashboard never logs in on its own.
 
 Each **Taken** card shows who holds that work, from the agent profile published
@@ -211,7 +212,7 @@ and how journeys step page time.
 
 ## GitHub requests
 
-What each load, Refresh, and revision check asks GitHub, and so what the
+What each load and revision check asks GitHub, and so what the
 dashboard costs the launching person's API allowance, is described in
 [GitHub requests](GITHUB-REQUESTS.md).
 

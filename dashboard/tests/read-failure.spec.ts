@@ -48,7 +48,7 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
     when: "GitHub limits the rate with HTTP 429",
     origin: { ref: rateLimitedAnswer(429) },
     problem:
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. Wait before pressing Retry.",
+      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. Wait before reloading the page.",
   },
   {
     when: "the ref answer names no commit",
@@ -62,7 +62,7 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
       ref: commitAnswer(revision),
       backlog: { revision, answer: notFoundAnswer() },
     },
-    problem: `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revision}. Check that \`gh auth status\` succeeds and that this login can read terryyin/open-dough, then press Retry.`,
+    problem: `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revision}. Check that \`gh auth status\` succeeds and that this login can read terryyin/open-dough, then reload the page.`,
   },
   {
     when: "one entry line among valid ones is malformed",
@@ -120,14 +120,10 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);
-  await expectSnapshotButtons(page, {
-    readControl: "Refresh",
-    backlogCards: 1,
-    cards: 2,
-  });
+  await expectSnapshotButtons(page, { backlogCards: 1, cards: 2 });
 });
 
-test("read failure and retry ends a stalled read as a read problem at the wait bound and reads again only when asked", async ({
+test("read failure and retry ends a stalled read as a read problem at the wait bound and reads again only on reload", async ({
   page,
 }) => {
   const opened = new Date("2026-09-20T08:30:00.000Z");
@@ -136,7 +132,7 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
   origin.push(revisionA, backlogA);
   const releaseRef = origin.hold("main");
   await page.goto("/");
-  const { retry, problem, status } = parts(page);
+  const { problem, status } = parts(page);
   await expect(status).toHaveText("Reading published work…");
   // The held ref request has reached GitHub through the local `gh`.
   await expect.poll(() => pathsRead(origin)).toEqual(["main"]);
@@ -168,8 +164,8 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
     await expect(problem).toBeVisible();
   });
 
-  await test.step("Retry reads once more and publishes the first snapshot", async () => {
-    await retry.click();
+  await test.step("a reload reads once more and publishes the first snapshot", async () => {
+    await page.reload();
     await expectWholeSnapshot(
       page,
       { revision: revisionA, titles: titlesOfA },
@@ -184,7 +180,7 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
   });
 });
 
-test("read failure and retry publishes the first snapshot and withdraws the failure when Retry succeeds after failed openings", async ({
+test("read failure and retry publishes the first snapshot and withdraws the failure when a reload succeeds after failed openings", async ({
   page,
 }) => {
   const firstFailure = new Date("2026-09-20T08:30:00.000Z");
@@ -195,7 +191,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   origin.push(revisionA, backlogA);
   const reconnect = origin.answerWith("main", noConnection);
   await page.goto("/");
-  const { refresh, retry, problem } = parts(page);
+  const { problem } = parts(page);
   const unreachable =
     "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.";
   await expectProblemAndNoSnapshot(page, unreachable);
@@ -204,9 +200,9 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
     firstFailure.toISOString(),
   );
 
-  await test.step("a Retry that fails too reports that attempt, still with no snapshot", async () => {
+  await test.step("a reload that fails too reports that attempt, still with no snapshot", async () => {
     await page.clock.setFixedTime(secondFailure);
-    await retry.click();
+    await page.reload();
     await expect(problem.locator("time")).toHaveAttribute(
       "datetime",
       secondFailure.toISOString(),
@@ -216,7 +212,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
 
   reconnect();
   await page.clock.setFixedTime(retrievedA);
-  await retry.click();
+  await page.reload();
   await expectWholeSnapshot(
     page,
     { revision: revisionA, titles: titlesOfA, retrievedAt: retrievedA },
@@ -224,11 +220,6 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expectSnapshotButtons(page, {
-    readControl: "Refresh",
-    backlogCards: 3,
-    cards: 4,
-  });
-  await expect(refresh).toBeFocused();
+  await expectSnapshotButtons(page, { backlogCards: 3, cards: 4 });
   expect(pathsRead(origin)).toHaveLength(4);
 });
