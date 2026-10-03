@@ -2,7 +2,7 @@
 # Ordinary, supplied-URL, and explicit-force apply: resolve source, pin,
 # compare unless forced, then install.
 # Sourced by open-dough-release.sh after platform, register-hooks, version,
-# resolve, and baseline modules.
+# resolve, baseline, and leftovers modules.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2312,SC2249
 
@@ -167,10 +167,12 @@ EOF
   # Explicit force deliberately replaces every safe managed root.
   if [[ "${force}" -eq 1 ]]; then
     trace_line "apply-force ${dest}"
+    find_release_leftovers_for_force "${target}" "${url}" "${_open_dough_apply_work_root}" "${work}" "${version}"
     if ! run_installer "${work}" "${target}" "${platform}" 1 "${url}"; then
       clear_apply_work_root
       return 1
     fi
+    remove_found_leftovers "${target}" "${_open_dough_apply_work_root}" "${version}" all
     printf 'Outcome: installed %s in the shared Codex/Cursor root and Claude Code by explicit force.\n' "${version}"
     printf 'Start fresh sessions before invoking dough-update again.\n'
     clear_apply_work_root
@@ -224,11 +226,18 @@ EOF
     clear_apply_work_root
     return "${equal_status}"
   fi
+  if ! find_release_leftovers "${target}" "${url}" "${_open_dough_apply_work_root}" "${work}" "${version}" \
+    || ! edited_leftovers_absent "${target}" "${_open_dough_apply_work_root}" "${version}"; then
+    report_unverifiable_installation "${dest}"
+    clear_apply_work_root
+    return 1
+  fi
   trace_line "apply-reconcile ${dest}"
   if ! run_installer "${work}" "${target}" "${platform}" 0 "${url}" 1; then
     clear_apply_work_root
     return 1
   fi
+  remove_found_leftovers "${target}" "${_open_dough_apply_work_root}" "${version}"
   printf 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to %s.\n' "${version}"
   printf 'Start fresh sessions before invoking dough-update again.\n'
   clear_apply_work_root

@@ -14,6 +14,33 @@ git_url() {
   fi
 }
 
+# Print "<version>\t<sha>" for each numeric release tag ref at url, in
+# ls-remote order. A peeled ref follows its tag, so the last sha listed for a
+# version is the tagged commit.
+list_release_tags() {
+  local url=$1
+  local listing sha ref version
+
+  if ! listing=$(git ls-remote --tags -- "${url}" 2> /dev/null); then
+    echo "Failed to fetch tags from ${url}" >&2
+    return 1
+  fi
+  while IFS=$'\t' read -r sha ref; do
+    [[ -n "${sha}" && -n "${ref}" ]] || continue
+    case "${ref}" in
+      refs/tags/v*) ;;
+      *) continue ;;
+    esac
+    version=${ref#refs/tags/v}
+    version=${version%'^{}'}
+    if is_release_version "${version}"; then
+      printf '%s\t%s\n' "${version}" "${sha}"
+    fi
+  done << EOF
+${listing}
+EOF
+}
+
 upsert_tag_commit() {
   local version=$1
   local sha=$2
@@ -37,28 +64,16 @@ EOF
 resolve_url() {
   local url=$1
   local listing
-  local sha ref version
+  local sha version
   local best='' best_sha=''
   local relation
   local line
 
   tag_commits=''
-  if ! listing=$(git ls-remote --tags -- "${url}" 2> /dev/null); then
-    echo "Failed to fetch tags from ${url}" >&2
-    return 1
-  fi
-
-  while IFS=$'\t' read -r sha ref; do
-    [[ -n "${sha}" && -n "${ref}" ]] || continue
-    case "${ref}" in
-      refs/tags/v*)
-        version=${ref#refs/tags/v}
-        version=${version%'^{}'}
-        if is_release_version "${version}"; then
-          upsert_tag_commit "${version}" "${sha}"
-        fi
-        ;;
-    esac
+  listing=$(list_release_tags "${url}") || return 1
+  while IFS=$'\t' read -r version sha; do
+    [[ -n "${version}" ]] || continue
+    upsert_tag_commit "${version}" "${sha}"
   done << EOF
 ${listing}
 EOF
@@ -140,34 +155,17 @@ EOF
 resolve_tagged_release() {
   local url=$1
   local version=$2
-  local listing sha ref found_sha='' peeled=0
+  local listing found_sha
 
   if ! is_release_version "${version}"; then
     echo "Malformed installed record: ${version}" >&2
     return 1
   fi
-  if ! listing=$(git ls-remote --tags -- "${url}" 2> /dev/null); then
-    echo "Failed to fetch tags from ${url}" >&2
-    return 1
-  fi
-
-  while IFS=$'\t' read -r sha ref; do
-    [[ -n "${sha}" && -n "${ref}" ]] || continue
-    case "${ref}" in
-      "refs/tags/v${version}^{}")
-        found_sha=${sha}
-        peeled=1
-        ;;
-      "refs/tags/v${version}")
-        if [[ "${peeled}" -ne 1 ]]; then
-          found_sha=${sha}
-        fi
-        ;;
-    esac
-  done << EOF
-${listing}
-EOF
-
+  listing=$(list_release_tags "${url}") || return 1
+  found_sha=$(printf '%s\n' "${listing}" | awk -F'\t' -v version="${version}" '
+    $1 == version { sha = $2 }
+    END { print sha }
+  ')
   if [[ -z "${found_sha}" ]]; then
     echo "No numeric release tag v${version} in ${url}" >&2
     return 1
