@@ -1,14 +1,14 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { openAISettingsMachine } from "./support/openAISettingsMachine.ts";
+import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
 import { back, settings } from "./support/systemSettingsPage.ts";
 
-let fixture: ReturnType<typeof openAISettingsMachine>;
+let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
-  fixture = openAISettingsMachine();
+  fixture = systemSettingsMachine();
 });
 test.afterEach(async () => fixture.close());
 const original = "sk-synthetic-original-084";
@@ -33,7 +33,7 @@ test("empty-project settings saves private general access, shares it across dev/
     page.getByText("No projects configured. Add a project to get started."),
   ).toBeVisible();
   await expect(status(page)).toHaveText("API key: Not configured");
-  expect(existsSync(fixture.file)).toBe(false);
+  expect(existsSync(fixture.credentialFile)).toBe(false);
   const projects = path.join(
     fixture.home,
     ".open-dough/dashboard/projects-development.json",
@@ -45,12 +45,12 @@ test("empty-project settings saves private general access, shares it across dev/
   await expect(status(page)).toHaveText("API key: Configured");
   await expect(apiKey(page)).toHaveValue("");
   await expect(apiKey(page)).toBeFocused();
-  expect(JSON.parse(readFileSync(fixture.file, "utf8"))).toEqual({
+  expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
     apiKey: original,
   });
-  expect(statSync(fixture.directory).mode & 0o777).toBe(0o700);
-  expect(statSync(fixture.file).mode & 0o777).toBe(0o600);
-  expect(readdirSync(fixture.directory)).toEqual(["openai.json"]);
+  expect(statSync(fixture.credentialDirectory).mode & 0o777).toBe(0o700);
+  expect(statSync(fixture.credentialFile).mode & 0o777).toBe(0o600);
+  expect(readdirSync(fixture.credentialDirectory)).toEqual(["openai.json"]);
   const answer = await rawRequest({
     url: `${server.baseURL}/__openai-configuration`,
     headers: { Origin: server.origin },
@@ -60,7 +60,7 @@ test("empty-project settings saves private general access, shares it across dev/
   expect(JSON.parse(answer.body)).toEqual({ configured: true });
   await save(page).click();
   await expect(page.getByRole("alert")).toContainText("Enter an API key");
-  expect(JSON.parse(readFileSync(fixture.file, "utf8"))).toEqual({
+  expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
     apiKey: original,
   });
   await apiKey(page).fill("unsaved-synthetic-draft");
@@ -80,7 +80,7 @@ test("empty-project settings saves private general access, shares it across dev/
   await apiKey(second).fill(replacement);
   await save(second).click();
   await expect(apiKey(second)).toHaveValue("");
-  expect(JSON.parse(readFileSync(fixture.file, "utf8"))).toEqual({
+  expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
     apiKey: replacement,
   });
   await page.reload();
@@ -94,7 +94,7 @@ test("empty-project settings saves private general access, shares it across dev/
     .getByRole("button", { name: "Remove API key", exact: true })
     .click();
   await expect(status(second)).toHaveText("API key: Not configured");
-  expect(existsSync(fixture.file)).toBe(false);
+  expect(existsSync(fixture.credentialFile)).toBe(false);
   await page.reload();
   await expect(status(page)).toHaveText("API key: Not configured");
   expect(readFileSync(projects, "utf8")).toBe(before);

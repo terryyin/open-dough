@@ -55,7 +55,7 @@ dashboard structure:
 | The panel paints its own black behind the terminal. A light theme would leave a black edge unless that follows the theme. | Slice 2 | Read `dashboard/src/agent-terminal.css`: `.terminal-screen { … background: #000; }`. `TerminalPanel.tsx` line 197 renders that `div` as the xterm host. | Confirmed. Slice 2 makes `.terminal-screen` and the xterm viewport use the theme's background. |
 | The terminal is created inside one attachment effect whose dependencies re-run it, closing the socket and making a new one. Adding the theme to those dependencies would re-attach on every theme change. | Slice 2 | Read `dashboard/src/useAttachedTerminal.ts`: `new Terminal({ cursorBlink: true })` and `new WebSocket(url)` are in the same `useEffect`, and its cleanup calls `socket.close()` and `terminal.dispose()`. | Confirmed. The theme is applied by a separate update to the live terminal, not by re-running the attachment. |
 | `new Terminal` exists only in `useAttachedTerminal.ts` in the browser code, so one change covers every host and project. | Slice 2 | `grep -rln "new Terminal\|@xterm" dashboard/src dashboard/server` lists `src/TerminalPanel.tsx` (CSS import), `src/useAttachedTerminal.ts`, and server `agentTerminals.ts` / `keptClientScreen.ts`, which use `@xterm/headless` and render nothing for the page. | Confirmed. |
-| A test can run real dev and preview servers on one machine directory whose `HOME` holds dashboard settings, restart them on that directory, and make a settings write fail by removing write permission. | Slice 1 | Read `dashboard/tests/support/openAISettingsMachine.ts` (`start("dev" \| "preview")` on a kept `machine` with `home`) and `tests/system-settings-openai-recovery.spec.ts` (`chmodSync(parent, 0o000)` makes Save fail, then restore and retry). | Confirmed. Slice 1's journey uses the same approach. |
+| A test can run real dev and preview servers on one machine directory whose `HOME` holds dashboard settings, restart them on that directory, and make a settings write fail by removing write permission. | Slice 1 | Read `dashboard/tests/support/openAISettingsMachine.ts` (now `systemSettingsMachine.ts`) (`start("dev" \| "preview")` on a kept `machine` with `home`) and `tests/system-settings-openai-recovery.spec.ts` (`chmodSync(parent, 0o000)` makes Save fail, then restore and retry). | Confirmed. Slice 1's journey uses the same approach. |
 | A page journey can open a session in the page's terminal with the synthetic `claude` and read its rows. | Slice 2 | Read `dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts`: `dashboard.claudeScenario("launched")`, Start, then `panel.locator(".xterm-rows")` shows the echoed text. | Confirmed. Slice 2's journey starts there. |
 | No terminal theme setting, endpoint or file exists today. | Slices 1 and 2 | `grep -rn "theme" dashboard/src dashboard/server` finds no terminal theme. `SystemSettings.tsx` has only Projects and OpenAI sections. | Confirmed. |
 
@@ -79,7 +79,7 @@ dashboard structure:
 
 ### 1. Choose a terminal theme in System settings and keep it on this machine
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/system-settings-terminal-theme.spec.ts` on the
 `openAISettingsMachine`-style fixture (generalized or a sibling machine
 fixture), plus focused unit proof for the endpoint's request checks.
@@ -111,6 +111,27 @@ Includes:
 
 Local gates: the new spec on both modes, the endpoint unit proof,
 `npm run typecheck:dashboard`, and `npm run lint`.
+
+Accepted proof (2026-10-03):
+`env -u NODE_ENV npm run test:dashboard -- dashboard/tests/system-settings-terminal-theme.spec.ts dashboard/tests/terminal-theme-boundary.spec.ts dashboard/tests/system-settings.spec.ts …`
+plus the OpenAI and project configuration specs, typecheck and lint.
+`system-settings-terminal-theme.spec.ts` runs the journey on dev and on
+preview, asserting the selected label, caption and the sample's computed
+background, foreground and red; `terminal-theme-boundary.spec.ts` covers the
+endpoint's refusals and the read problem with Retry.
+
+Learnings:
+
+- The refactor generalized the fixture to
+  `dashboard/tests/support/systemSettingsMachine.ts` and extracted
+  `server/localJsonEndpoints.ts`, `server/fileReplacement.ts` and
+  `src/refusalMessage.ts`, now shared with the OpenAI and project settings.
+- A section named "Terminal theme" matches a non-exact
+  `getByRole("region", { name: "Terminal" })`; such locators in specs that
+  open Settings need `exact: true`.
+- `src/savedTerminalTheme.ts` exposes `useSavedTerminalTheme()` (`saved`
+  changes only on a successful read or save). Slice 2 lifts it into one
+  shared provider so Settings and terminals use one value.
 
 ### 2. Every embedded terminal uses the saved theme
 Type: Behavior
@@ -154,6 +175,13 @@ Local gates: the new spec, the existing `agent-terminal.spec.ts`,
 - **Pushing changes to other open browser windows.** Deferred by the story.
 - **A generic settings store for all machine settings.** One small setting does
   not justify it; the OpenAI pattern is reused by shape.
+
+## Execution
+
+- Mode: Story Branch; workspace this worktree, branch
+  `claude/choose-and-persist-a-theme-for-all-embedded-term`, target
+  `refs/heads/claude/choose-and-persist-a-theme-for-all-embedded-term`.
+- Claim published on `main` at `fdfb1e0dc30f5fe843e9f7a861d743175fcd744d`.
 
 ## Current decisions
 

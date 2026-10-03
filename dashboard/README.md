@@ -45,6 +45,10 @@ order, environment-specific storage, removal and retained sessions.
 **System settings → OpenAI** saves, replaces or removes general OpenAI access on
 this machine. [OpenAI access](OPENAI-ACCESS.md) explains private storage, shared
 development/production credentials and configured-versus-verified status.
+**System settings → Terminal theme** chooses the colour theme for embedded terminals
+(Default, Light, Solarized Dark or Solarized Light) and saves the choice at once
+in `~/.open-dough/dashboard/terminal-theme.json`, which development and
+production share on this machine.
 
 The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
 saved repository and ref, resolves that ref to one commit, and reads the backlog

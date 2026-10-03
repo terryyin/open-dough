@@ -7,6 +7,7 @@ import {
 } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import { projectListEndpoint } from "./projectConfiguration.ts";
+import { refusalMessage } from "./refusalMessage.ts";
 
 type ProjectList = {
   readonly projects: readonly PublishedSource[];
@@ -63,16 +64,13 @@ export function useProjectConfiguration() {
     void fetch(projectListEndpoint, { signal: controller.signal })
       .then(async (response) => {
         const answer: unknown = await response.json();
-        if (!response.ok) {
-          const explanation =
-            typeof answer === "object" &&
-            answer !== null &&
-            "error" in answer &&
-            typeof answer.error === "string"
-              ? answer.error
-              : "The dashboard project list could not be read.";
-          throw new Error(explanation);
-        }
+        if (!response.ok)
+          throw new Error(
+            refusalMessage(
+              answer,
+              "The dashboard project list could not be read.",
+            ),
+          );
         return answer as readonly PublishedSource[];
       })
       .then(setProjects, (error: unknown) => {

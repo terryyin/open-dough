@@ -1,11 +1,11 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { openAISettingsMachine } from "./support/openAISettingsMachine.ts";
+import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
-let fixture: ReturnType<typeof openAISettingsMachine>;
+let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
-  fixture = openAISettingsMachine();
+  fixture = systemSettingsMachine();
 });
 test.afterEach(async () => fixture.close());
 
@@ -32,11 +32,11 @@ for (const mode of ["dev", "preview"] as const) {
       });
       expect(saved.status).toBe(200);
       expect(JSON.parse(saved.body)).toEqual({ configured: true });
-      expect(statSync(fixture.file).size).toBe(32 * 1024 + 1);
+      expect(statSync(fixture.credentialFile).size).toBe(32 * 1024 + 1);
       const status = await rawRequest({ url: endpoint, headers });
       expect(status.status).toBe(200);
       expect(JSON.parse(status.body)).toEqual({ configured: true });
-      expect(JSON.parse(readFileSync(fixture.file, "utf8"))).toEqual({
+      expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
         apiKey,
       });
     }
@@ -48,7 +48,7 @@ for (const mode of ["dev", "preview"] as const) {
       body: JSON.stringify({ apiKey: replacement }),
     });
     expect(replaced.status).toBe(200);
-    expect(JSON.parse(readFileSync(fixture.file, "utf8"))).toEqual({
+    expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
       apiKey: replacement,
     });
     expect((await rawRequest({ url: endpoint, headers })).status).toBe(200);
@@ -60,7 +60,7 @@ for (const mode of ["dev", "preview"] as const) {
     });
     expect(removed.status).toBe(200);
     expect(JSON.parse(removed.body)).toEqual({ configured: false });
-    expect(existsSync(fixture.file)).toBe(false);
+    expect(existsSync(fixture.credentialFile)).toBe(false);
     const empty = await rawRequest({ url: endpoint, headers });
     expect(empty.status).toBe(200);
     expect(JSON.parse(empty.body)).toEqual({ configured: false });

@@ -6,12 +6,12 @@ import {
   writeFileSync,
 } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { openAISettingsMachine } from "./support/openAISettingsMachine.ts";
+import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
-let fixture: ReturnType<typeof openAISettingsMachine>;
+let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
-  fixture = openAISettingsMachine();
+  fixture = systemSettingsMachine();
 });
 test.afterEach(async () => fixture.close());
 const key = "sk-synthetic-private-boundary-084";
@@ -34,7 +34,7 @@ for (const mode of ["dev", "preview"] as const) {
     const saved = await save(JSON.stringify({ apiKey: key }));
     expect(saved.status).toBe(200);
     expect(JSON.parse(saved.body)).toEqual({ configured: true });
-    const before = readFileSync(fixture.file, "utf8");
+    const before = readFileSync(fixture.credentialFile, "utf8");
     for (const url of [endpoint, `${endpoint}/save`, `${endpoint}/remove`]) {
       for (const refused of [
         { Origin: "http://other.example" },
@@ -108,7 +108,7 @@ for (const mode of ["dev", "preview"] as const) {
         })
       ).status,
     ).toBe(400);
-    expect(readFileSync(fixture.file, "utf8")).toBe(before);
+    expect(readFileSync(fixture.credentialFile, "utf8")).toBe(before);
     const status = await rawRequest({ url: endpoint, headers });
     expect(status.status).toBe(200);
     expect(JSON.parse(status.body)).toEqual({ configured: true });
@@ -121,7 +121,7 @@ for (const mode of ["dev", "preview"] as const) {
     });
     expect(removed.status).toBe(200);
     expect(JSON.parse(removed.body)).toEqual({ configured: false });
-    expect(existsSync(fixture.file)).toBe(false);
+    expect(existsSync(fixture.credentialFile)).toBe(false);
     expect(fixture.egress()).toBe("");
     expect(server.output()).not.toContain(key);
     expect(server.claudeCalls()).toEqual([]);
@@ -132,9 +132,9 @@ for (const mode of ["dev", "preview"] as const) {
 test("malformed and unreadable saved credentials report configuration problems without reseeding, echoing secrets, or importing an environment key", async ({
   page,
 }) => {
-  mkdirSync(fixture.directory, { recursive: true, mode: 0o700 });
+  mkdirSync(fixture.credentialDirectory, { recursive: true, mode: 0o700 });
   const malformed = `{"apiKey":"${key}"`;
-  writeFileSync(fixture.file, malformed, { mode: 0o600 });
+  writeFileSync(fixture.credentialFile, malformed, { mode: 0o600 });
   const server = await fixture.start("dev");
   const options = {
     url: `${server.baseURL}/__openai-configuration`,
@@ -144,7 +144,7 @@ test("malformed and unreadable saved credentials report configuration problems w
   expect(response.status).toBe(503);
   expect(response.body).toContain("could not be read");
   expect(response.body).not.toContain(key);
-  expect(readFileSync(fixture.file, "utf8")).toBe(malformed);
+  expect(readFileSync(fixture.credentialFile, "utf8")).toBe(malformed);
   await page.goto(`${server.baseURL}/?view=settings`);
   await expect(page.getByRole("alert")).toContainText(
     "replace it, or remove it",
@@ -155,8 +155,8 @@ test("malformed and unreadable saved credentials report configuration problems w
   await expect(
     page.getByRole("status").filter({ hasText: "API key:" }),
   ).toHaveText("API key: Configured");
-  const before = readFileSync(fixture.file, "utf8");
-  chmodSync(fixture.file, 0o000);
+  const before = readFileSync(fixture.credentialFile, "utf8");
+  chmodSync(fixture.credentialFile, 0o000);
   try {
     const unreadable = await rawRequest(options);
     expect(unreadable.status).toBe(503);
@@ -165,9 +165,9 @@ test("malformed and unreadable saved credentials report configuration problems w
     await page.reload();
     await expect(page.getByRole("alert")).toContainText("could not be read");
   } finally {
-    chmodSync(fixture.file, 0o600);
+    chmodSync(fixture.credentialFile, 0o600);
   }
-  expect(readFileSync(fixture.file, "utf8")).toBe(before);
+  expect(readFileSync(fixture.credentialFile, "utf8")).toBe(before);
   await page.getByRole("button", { name: "Retry status", exact: true }).click();
   await expect(
     page.getByRole("status").filter({ hasText: "API key:" }),
@@ -178,7 +178,7 @@ test("malformed and unreadable saved credentials report configuration problems w
   await expect(
     page.getByRole("status").filter({ hasText: "API key:" }),
   ).toHaveText("API key: Not configured");
-  expect(existsSync(fixture.file)).toBe(false);
+  expect(existsSync(fixture.credentialFile)).toBe(false);
   expect(fixture.egress()).toBe("");
   expect(server.output()).not.toContain(key);
 });

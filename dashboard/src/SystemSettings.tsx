@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { OpenAISettings } from "./OpenAISettings.tsx";
+import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
+import { refusalMessage } from "./refusalMessage.ts";
 import { AddProject } from "./AddProject.tsx";
 import { RemoveProject } from "./RemoveProject.tsx";
 import { useProjects } from "./projectList.tsx";
@@ -35,12 +37,7 @@ export function SystemSettings({
         const answer: unknown = await response.json();
         if (!response.ok)
           throw new Error(
-            typeof answer === "object" &&
-              answer !== null &&
-              "error" in answer &&
-              typeof answer.error === "string"
-              ? answer.error
-              : "Project settings could not be read.",
+            refusalMessage(answer, "Project settings could not be read."),
           );
         return answer as readonly ProjectSettings[];
       })
@@ -110,6 +107,7 @@ export function SystemSettings({
         )}
       </section>
       <OpenAISettings />
+      <TerminalThemeSettings />
     </main>
   );
 }

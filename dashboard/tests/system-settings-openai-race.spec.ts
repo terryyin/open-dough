@@ -1,11 +1,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { openAISettingsMachine } from "./support/openAISettingsMachine.ts";
+import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
 
-let fixture: ReturnType<typeof openAISettingsMachine>;
+let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
-  fixture = openAISettingsMachine();
+  fixture = systemSettingsMachine();
 });
 test.afterEach(async () => fixture.close());
 const key = "sk-synthetic-held-status-084";
@@ -15,8 +15,8 @@ for (const operation of ["save", "remove", "save after read error"] as const) {
     page,
   }) => {
     if (operation === "save after read error") {
-      mkdirSync(fixture.directory, { recursive: true, mode: 0o700 });
-      writeFileSync(fixture.file, "{malformed", { mode: 0o600 });
+      mkdirSync(fixture.credentialDirectory, { recursive: true, mode: 0o700 });
+      writeFileSync(fixture.credentialFile, "{malformed", { mode: 0o600 });
     }
     const server = await fixture.start("dev");
     if (operation === "remove") {
@@ -98,9 +98,10 @@ for (const operation of ["save", "remove", "save after read error"] as const) {
     await expect(status(page)).toHaveText(expected);
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(apiKey(page)).toHaveValue("");
-    if (operation === "remove") expect(existsSync(fixture.file)).toBe(false);
+    if (operation === "remove")
+      expect(existsSync(fixture.credentialFile)).toBe(false);
     else
-      expect(JSON.parse(readFileSync(fixture.file, "utf8"))).toEqual({
+      expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
         apiKey: key,
       });
     expect(await page.locator("body").textContent()).not.toContain(key);

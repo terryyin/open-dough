@@ -5,6 +5,7 @@ import {
   openAISaveEndpoint,
   type OpenAIConfigurationStatus,
 } from "./openAIConfiguration.ts";
+import { refusalMessage } from "./refusalMessage.ts";
 
 async function configurationRequest(
   endpoint: string,
@@ -23,12 +24,10 @@ async function configurationRequest(
   const answer: unknown = await response.json();
   if (!response.ok)
     throw new Error(
-      typeof answer === "object" &&
-        answer !== null &&
-        "error" in answer &&
-        typeof answer.error === "string"
-        ? answer.error
-        : "OpenAI configuration could not be updated. Retry the operation.",
+      refusalMessage(
+        answer,
+        "OpenAI configuration could not be updated. Retry the operation.",
+      ),
     );
   if (
     typeof answer !== "object" ||
