@@ -47,7 +47,7 @@ without any test failing.
 
 ### 1. A landed slice leaves the review
 Type: Behavior
-Status: planned
+Status: done
 Proof: a review page journey, either a new `dashboard/tests/story-review-*.spec.ts`
 or a step in an existing one that stays under the project's file-size
 convention. Run it with
@@ -64,8 +64,25 @@ Reuse the existing fixture helpers in
 `dashboard/tests/support/storyReviewWorktree.ts` (such as `keepLaunchRecord`)
 rather than building a second worktree fixture.
 
+Accepted proof: `dashboard/tests/story-review-landed.spec.ts` opens the review
+of `landedWorktree` (`dashboard/tests/support/storyReviewWorktree.ts`), whose
+first story commit is pushed to origin `main`. The review names that commit as
+its baseline. It lists exactly `Modified edited.txt` and `Added later.txt`, and
+`landed.txt` is absent. `npm run typecheck:dashboard` and
+`npx playwright test --config dashboard/playwright.config.ts story-review` both
+passed, 14 of 14, after the refactor gave the three Story A fixtures one shared
+`addStoryWorktree` helper. The behavior matched the story, so the product is
+unchanged.
+
 ## Current decisions
 
 - This correction is proof-only unless the journey shows that the behavior
   differs from the story. If it does, stop and report rather than changing the
   baseline rule.
+
+## Learnings
+
+- A shell inherited from the dashboard server carries `NODE_ENV=production`.
+  There, `npm ci` skips dev dependencies, and `tsc` silently resolves from the
+  dashboard deployment's `node_modules`. Set `NODE_ENV=development` before
+  installing and running the checks.
