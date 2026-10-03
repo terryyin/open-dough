@@ -4,7 +4,7 @@
 // reported local Done needs only the retained session.
 // Launch options follow installed definitions and policy follows installed startup.
 // Reads cover attempts, sessions, reports, host choices and story reviews
-// (`./storyReviewAdmission.ts`); only terminal admission reads native session
+// with their file diffs (`./storyReviewAdmission.ts`); only terminal admission reads native session
 // availability.
 
 import { completionEndpoint } from "./completionReporting.ts";
@@ -12,8 +12,16 @@ import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
-import { reviewRequest, type AdmittedReview } from "./storyReviewAdmission.ts";
+import {
+  storyReviewEndpoint,
+  storyReviewFileEndpoint,
+} from "../src/storyReview.ts";
+import {
+  fileDiffRequest,
+  reviewRequest,
+  type AdmittedFileDiff,
+  type AdmittedReview,
+} from "./storyReviewAdmission.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -58,6 +66,7 @@ export type Admitted =
     }
   | { readonly kind: "result"; readonly record: LaunchRecord }
   | AdmittedReview
+  | AdmittedFileDiff
   | { readonly kind: "changed"; readonly attempt: string }
   | {
       // Answered once the launch is accepted.
@@ -164,6 +173,7 @@ const postRequests = new Map<
 const exactReads = new Map<string, (url: URL) => Promise<Admitted>>([
   [sessionResultEndpoint, resultRequest],
   [storyReviewEndpoint, reviewRequest],
+  [storyReviewFileEndpoint, fileDiffRequest],
 ]);
 
 // Every path whose requests this boundary admits or refuses.

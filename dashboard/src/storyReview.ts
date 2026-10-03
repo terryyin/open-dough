@@ -11,6 +11,10 @@ import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
+// One file's diff within a snapshot: named by the snapshot's `baseline` and
+// `tree` object IDs and the file's path (and old path for a rename), so any
+// file diff the page opens reads the same observation as the file list.
+export const storyReviewFileEndpoint = "/__agent-launch/review/file";
 
 // The kept launch record a story's review reads, with what it established:
 // the most recent by `launchedAt` of the story's records whose start or
@@ -55,7 +59,7 @@ export const reviewedFileSchema = z.discriminatedUnion("kind", [
 ]);
 export type ReviewedFile = z.infer<typeof reviewedFileSchema>;
 
-const objectId = z.string().regex(/^[0-9a-f]{40,64}$/);
+export const objectIdSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
 
 export const storyReviewSchema = z.discriminatedUnion("kind", [
   z.object({
@@ -66,11 +70,11 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     remote: z.string().min(1),
     target: z.string().min(1),
     // The merge-base of `head` and the freshly fetched `<remote>/<target>`.
-    baseline: objectId,
-    head: objectId,
+    baseline: objectIdSchema,
+    head: objectIdSchema,
     // The workspace's files as observed, written as a tree object: every
     // file diff of this snapshot compares `baseline` with it.
-    tree: objectId,
+    tree: objectIdSchema,
     files: z.array(reviewedFileSchema),
   }),
   z.object({
@@ -80,3 +84,13 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 export type StoryReview = z.infer<typeof storyReviewSchema>;
+// A review whose snapshot was taken.
+export type TakenStoryReview = Extract<StoryReview, { kind: "snapshot" }>;
+
+// Git's unified diff of one file of a snapshot, as printed
+// (`./unifiedDiff.ts` reads it), or why it could not be read.
+export const reviewedFileDiffSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("diff"), printed: z.string() }),
+  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
+]);
+export type ReviewedFileDiff = z.infer<typeof reviewedFileDiffSchema>;

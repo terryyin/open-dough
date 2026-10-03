@@ -7,17 +7,26 @@
 // changed from the baseline to that tree. The workspace's own index and
 // status stay as they were; the tree is an ordinary unreachable object of
 // its repository. A step Git cannot take answers why, never a partial list.
+// A file diff of the snapshot is Git's unified diff of that file from the
+// baseline to the tree, detecting a rename against its old path.
 
 import { mkdtemp, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
-import type { ReviewedFile, StoryReview } from "../src/storyReview.ts";
+import type {
+  ReviewedFile,
+  ReviewedFileDiff,
+  StoryReview,
+} from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { GitFailure, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
-import type { AdmittedReview } from "./storyReviewAdmission.ts";
+import type {
+  AdmittedFileDiff,
+  AdmittedReview,
+} from "./storyReviewAdmission.ts";
 
 const outputLimit = 64 * 1024 * 1024;
 
@@ -155,4 +164,45 @@ async function storyReviewSnapshot(
   } finally {
     await rm(index, { recursive: true, force: true });
   }
+}
+
+// The admitted file's diff within its snapshot, bounded and abandoned like
+// the snapshot itself.
+export async function storyReviewFileResponse(
+  { established, baseline, tree, path: file, oldPath }: AdmittedFileDiff,
+  res: ServerResponse,
+): Promise<AgentLaunchAnswer> {
+  return {
+    status: 200,
+    body: await withResponseSignal(
+      res,
+      async (signal): Promise<ReviewedFileDiff> => {
+        try {
+          const { stdout } = await runGit(
+            [
+              "--literal-pathspecs",
+              "diff",
+              "--no-color",
+              "--no-ext-diff",
+              "--no-textconv",
+              "-M",
+              baseline,
+              tree,
+              "--",
+              ...(oldPath === undefined ? [] : [oldPath]),
+              file,
+            ],
+            { cwd: established.workspace, signal, maxBuffer: outputLimit },
+          );
+          return { kind: "diff", printed: stdout };
+        } catch (error) {
+          return {
+            kind: "unavailable",
+            explanation: `The file's diff could not be read: ${gitProblem(error)}`,
+          };
+        }
+      },
+      reviewWaitMs,
+    ),
+  };
 }

@@ -145,15 +145,16 @@ Learnings for slices 3–5:
   currently reads as Node's "spawn git ENOENT", which slice 5 replaces.
 - GET admission is shared through `exactReads` and `requireExactQuery`, and
   `dashboard/server/storyReviewAdmission.ts` holds the review's admission.
-- The view is `dashboard/src/StoryReviewAction.tsx`. It is not named
-  `StoryReview.tsx` because ESLint fails on a case-only clash with
-  `storyReview.ts`.
+- The action and dialog are `dashboard/src/StoryReviewAction.tsx`. It is not
+  named `StoryReview.tsx` because ESLint fails on a case-only clash with
+  `storyReview.ts`. Slice 3 moved the view into `StoryReviewSnapshotView.tsx`,
+  `StoryReviewFileDiff.tsx`, and `useReviewRead.ts`.
 - Not yet tested: a record that names only `preparation`, and the 405
   refusal.
 
 ### 3. Read a selected file's diff and make room for it
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend the slice 2 journey. Add a focused unit proof of the unified diff
 parser (hunks, additions, removals, no-newline marker, binary notice).
 
@@ -163,6 +164,15 @@ diff keeps its place with more room, then show the browser and select the
 rename (diff against its old path), the deleted file (all lines removed), and a
 changed binary file, which states it has no textual diff. A file diff request
 with a malformed object ID is refused.
+
+Accepted proof: `npm run test:dashboard -- story-review.spec.ts
+story-review-diff.spec.ts session-result-admission.spec.ts
+agent-launch-boundary.spec.ts agent-launch-card-sessions.spec.ts` passes, 22
+tests. The journey fixture is `dashboard/tests/support/storyReviewWorktree.ts`.
+Learnings for slices 4–5:
+- `useReviewRead` keeps its last answer when its query changes, so Refresh must
+  reset it or remount the view.
+- A mode-only change is proven only by the parser spec.
 
 ### 4. The review stays fixed until Refresh
 Type: Behavior

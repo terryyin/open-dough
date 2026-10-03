@@ -14,7 +14,8 @@
 // endpoint reads one kept session's final report through its host, bounded
 // and abandoned when the caller leaves. A same-origin GET of the story review
 // endpoint takes a snapshot of one story's launch workspace
-// (`./storyReviewSnapshot.ts`), bounded and abandoned the same way. A
+// (`./storyReviewSnapshot.ts`), bounded and abandoned the same way, and a GET
+// of its file endpoint reads one file's diff within that snapshot. A
 // same-origin GET answers the machine's
 // sessions: every catalog project's launch records, each naming its project,
 // with each session's current state, and the launch attempts accepted with
@@ -37,7 +38,10 @@
 // unavailable is refused before native terminal attachment.
 
 import { sessionResultResponse } from "./sessionResultResponse.ts";
-import { storyReviewResponse } from "./storyReviewSnapshot.ts";
+import {
+  storyReviewFileResponse,
+  storyReviewResponse,
+} from "./storyReviewSnapshot.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -144,6 +148,8 @@ async function answer(
         return await sessionResultResponse(request.record, res);
       case "review":
         return await storyReviewResponse(request, res);
+      case "review-file":
+        return await storyReviewFileResponse(request, res);
       case "sessions": {
         const { attempts, readable } = await launches.attempts();
         return {
