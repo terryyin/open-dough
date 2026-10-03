@@ -1,7 +1,7 @@
-import { completionLabel } from "./completionReport.ts";
+import { completionLabel, reportUnread } from "./completionReport.ts";
 // How a recorded launch's session reads on the page (`./agentLaunch.ts`):
 // the one reading of normalized native activity, with any completion report
-// not yet marked done apart from it, shared by every session entry
+// not yet marked read or done apart from it, shared by every session entry
 // (`./SessionEntry.tsx`) wherever it is listed, and by the card that says
 // how many of its sessions need attention and hold unread reports
 // (`./CardLaunches.tsx`).
@@ -12,11 +12,12 @@ import { hostDescription } from "./hostDescription.ts";
 // What a session entry says of its session, and whether the developer is
 // needed there: the same semantic observation for every entry and card.
 // Native waiting, review, failure and interruption need attention; working
-// and awaiting a first instruction do not. A completion report not yet marked
-// done is the unread report, its completion label: it leaves the native
-// reading as it is without a report. A reported session marked done reads
-// Done, with native Working as its note. Unreported Done retains native
-// Working precedence. Availability and unknown observations never infer activity.
+// and awaiting a first instruction do not. A completion report neither marked
+// read nor marked done is the unread report, its completion label: it leaves
+// the native reading as it is without a report, as a read report does. A
+// reported session marked done reads Done, with native Working as its note.
+// Unreported Done retains native Working precedence. Availability and unknown
+// observations never infer activity.
 export type SessionShown = {
   readonly label: string;
   readonly note?: string;
@@ -26,7 +27,7 @@ export type SessionShown = {
 };
 
 type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
-  Partial<Pick<LaunchWithState, "session" | "completion">>;
+  Partial<Pick<LaunchWithState, "session" | "completion" | "reportRead">>;
 
 // Which of the reading's kinds a session is, for an entry that marks its
 // kind apart from the others: needing input, ready for review, failed or
@@ -61,6 +62,7 @@ export function sessionShown(shown: ReadableSession): SessionShown {
         : {}),
     };
   }
+  if (!reportUnread(shown)) return nativeShown(shown);
   return { ...nativeShown(shown), unreadReport: completionLabel(completion) };
 }
 
@@ -135,7 +137,7 @@ export function unreadReportWording(unreadReport: string): string {
 }
 
 // The unread report that tells the developer when it arrives, in its own
-// words, apart from the native reading: nothing once marked done.
+// words, apart from the native reading: nothing once marked read or done.
 export function alertUnreadReport(
   session: ReadableSession,
 ): string | undefined {

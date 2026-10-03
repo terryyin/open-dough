@@ -89,6 +89,7 @@ test("Cursor installed report offers local Done without a native stop capability
     card.getByRole("button", { name: "Read attention message" }),
   ).toBeVisible();
   const before = cursor.calls().length;
+  await card.getByRole("button", { name: "Mark as read" }).click();
   await card.getByRole("button", { name: "Mark as done" }).click();
   await expect(card.locator(".session-attention-message")).toHaveCount(0);
   expect(cursor.calls()).toHaveLength(before);

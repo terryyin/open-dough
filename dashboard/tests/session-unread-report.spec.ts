@@ -1,9 +1,10 @@
-// A session's completion report not yet marked done is an unread report,
+// A session's completion report not yet marked read or done is an unread report,
 // shown apart from the session's own native reading: the entry's edge, its
 // place in the Sessions sidebar, the banner badge, and the card's attention
 // line follow only the native reading, while the report shows by its own
 // mark and words (“Unread report: <completion label>”) and the card's line of
-// how many unread reports it holds. Real start, launch, installed reporting
+// how many unread reports it holds. Mark as read clears it and leaves the
+// session open with its native reading. Real start, launch, installed reporting
 // command, store and page; only the synthetic `claude` and GitHub are fakes.
 
 import type { Locator, Page } from "@playwright/test";
@@ -15,7 +16,10 @@ import {
   expectSidebarSessionShown,
   expectTooltipLine,
   sidebarParts,
+  sidebarTooltipOf,
 } from "./sessionSidebarPage.ts";
+import { recordsOf } from "./agentLaunchBoundary.ts";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { launchedStory } from "./support/reportedLaunch.ts";
 import {
   otherQueuedIdentity,
@@ -159,14 +163,71 @@ test("an unread report is its own mark beside the session's native reading", asy
     "1 unread report",
   );
 
-  // 4. Mark as done: the mark, the tooltip line and the card's unread line
-  // go; the entry reads as marked done does.
+  // 4. Mark as read on the card, while the session works: the mark, the
+  // tooltip line and the card's unread line go; the entry keeps its native
+  // reading and its place, the session is not stopped, and the record keeps
+  // the report's receipt as read without a done mark.
+  await expectSidebarSessionShown(rowA, "Working", "working");
+  await expect(cardA.getByRole("button", { name: "Mark as done" })).toHaveCount(
+    0,
+  );
+  const stops = () =>
+    dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
+  const stopsBefore = stops().length;
+  await cardA.getByRole("button", { name: "Mark as read" }).click();
+  await expect(cardA.locator(".card-unread-reports")).toHaveCount(0);
+  await expect(cardA.locator(".session-unread-report")).toHaveCount(0);
+  await expect(rowA.getByRole("img")).toHaveCount(0);
+  await expect(sidebarTooltipOf(rowA)).not.toHaveAttribute(
+    "title",
+    new RegExp(unreadWords),
+  );
+  await expectSidebarSessionShown(rowA, "Working", "working");
+  await expect(cardA.locator(".session-state")).toHaveText("Working");
+  await expect(
+    cardA.getByRole("button", { name: "Mark as done" }),
+  ).toBeVisible();
+  await expect(cardA.getByRole("button", { name: "Mark as read" })).toHaveCount(
+    0,
+  );
+  expect(await sidebarTitles(page)).toEqual([titleB, titleA]);
+  await expect(cardB.locator(".card-unread-reports")).toHaveText(
+    "1 unread report",
+  );
+  const [recordA] = (await recordsOf(dashboard, "open-dough")).filter(
+    (record) => (record as LaunchRecord).session.sessionId === sessionA,
+  ) as LaunchRecord[];
+  expect(recordA?.reportRead).toBeDefined();
+  expect(recordA?.reportRead).toBe(recordA?.completion?.receipt);
+  expect(recordA?.doneAt).toBeUndefined();
+  expect(stops()).toHaveLength(stopsBefore);
+
+  // 6. The read session then waits for input: into the attention group,
+  // counted, with no unread mark.
   dashboard.claudeSessionBecomes(sessionA, "blocked");
   await passOnePace();
   await expectSidebarSessionShown(rowA, "Needs input", "needs-input");
-  await cardA.getByRole("button", { name: "Mark as done" }).click();
+  await expect.poll(() => sidebarTitles(page)).toEqual([titleA, titleB]);
+  await expect(rowA.getByRole("img")).toHaveCount(0);
+  await expect(badge).toHaveText("1");
+  await expect(badge).toHaveAccessibleName("1 session needs attention");
+  await expect(cardA.locator(".card-attention")).toHaveText(
+    "1 session needs attention",
+  );
   await expect(cardA.locator(".card-unread-reports")).toHaveCount(0);
-  await expect(cardA.locator(".session-unread-report")).toHaveCount(0);
+
+  // 7. Its report stays readable, and its panel offers Mark as done, not
+  // Mark as read; Mark as done there ends the session's entry on the card.
+  await cardA.getByRole("button", { name: "Read attention message" }).click();
+  const panel = page.getByRole("region", { name: "Final report" });
+  await expect(panel.locator(".session-final-report")).toHaveText(
+    "Published. Reminder: check the migration.",
+  );
+  await expect(panel.getByRole("button", { name: "Mark as read" })).toHaveCount(
+    0,
+  );
+  await panel.getByRole("button", { name: "Mark as done" }).click();
+  await expect(panel).toHaveCount(0);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
   const recentA = parts(page)

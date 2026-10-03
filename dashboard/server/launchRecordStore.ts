@@ -67,18 +67,12 @@ export async function pendingInputOf(
 
 export { keepRecord } from "./launchRecordBinding.ts";
 
-// Sets one kept session's done time to `doneAt`, marking it done, or clears
-// it when `doneAt` is undefined, keeping the session like any unclosed one.
-// Answers the changed record, or undefined when no such record is kept any
-// more.
-export async function setRecordDoneAt(
+// Changes one kept session's record by `change`, answering the record as it
+// now is, or undefined when no such record is kept any more.
+async function changeSessionRecord(
   sourceId: string,
   session: SessionReference,
-  doneAt: string | undefined,
-  options: {
-    readonly doneProblem?: string;
-    readonly expectedDoneAt?: string;
-  } = {},
+  change: (record: LaunchRecord) => LaunchRecord,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
   await replaceRecords((kept) => {
@@ -95,34 +89,64 @@ export async function setRecordDoneAt(
         ) {
           return record;
         }
-        if (
-          options.expectedDoneAt !== undefined &&
-          record.doneAt !== options.expectedDoneAt
-        ) {
-          changed = record;
-          return record;
-        }
-        const next: LaunchRecord = {
-          ...record,
-          dispositionChangedAt: new Date().toISOString(),
-        };
-        delete next.doneAt;
-        delete next.doneProblem;
-        changed =
-          doneAt === undefined
-            ? next
-            : {
-                ...next,
-                doneAt,
-                ...(options.doneProblem === undefined
-                  ? {}
-                  : { doneProblem: options.doneProblem }),
-              };
+        changed = change(record);
         return changed;
       }),
     };
   });
   return changed;
+}
+
+// Sets one kept session's done time to `doneAt`, marking it done, or clears
+// it when `doneAt` is undefined, keeping the session like any unclosed one.
+// Answers the changed record, or undefined when no such record is kept any
+// more.
+export async function setRecordDoneAt(
+  sourceId: string,
+  session: SessionReference,
+  doneAt: string | undefined,
+  options: {
+    readonly doneProblem?: string;
+    readonly expectedDoneAt?: string;
+  } = {},
+): Promise<LaunchRecord | undefined> {
+  return changeSessionRecord(sourceId, session, (record) => {
+    if (
+      options.expectedDoneAt !== undefined &&
+      record.doneAt !== options.expectedDoneAt
+    ) {
+      return record;
+    }
+    const next: LaunchRecord = {
+      ...record,
+      dispositionChangedAt: new Date().toISOString(),
+    };
+    delete next.doneAt;
+    delete next.doneProblem;
+    return doneAt === undefined
+      ? next
+      : {
+          ...next,
+          doneAt,
+          ...(options.doneProblem === undefined
+            ? {}
+            : { doneProblem: options.doneProblem }),
+        };
+  });
+}
+
+// Marks one kept session's report with `receipt` read, changing nothing else:
+// its done mark and disposition stay as they are. Answers the changed record,
+// or undefined when no such record is kept any more.
+export async function setRecordReportRead(
+  sourceId: string,
+  session: SessionReference,
+  receipt: string,
+): Promise<LaunchRecord | undefined> {
+  return changeSessionRecord(sourceId, session, (record) => ({
+    ...record,
+    reportRead: receipt,
+  }));
 }
 
 export { deleteRecord } from "./launchRecordDeletion.ts";
@@ -149,6 +173,7 @@ export async function updateRecord(
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
+        reportRead: entry.reportRead,
       };
     }),
   }));

@@ -110,7 +110,7 @@ test("installed attention report stays open, durable and readable through stage 
     "Unread report: Completed with attention",
   );
   await expect(
-    queued.getByRole("button", { name: "Mark as done" }),
+    queued.getByRole("button", { name: "Mark as read" }),
   ).toBeVisible();
   expect(
     native.calls
@@ -211,6 +211,7 @@ test("installed attention report stays open, durable and readable through stage 
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".session-final-report")).toHaveText(text);
     const nativeBeforeDone = native.calls.length;
+    await panel.getByRole("button", { name: "Mark as read" }).click();
     await panel.getByRole("button", { name: "Mark as done" }).click();
     await expect(panel).toHaveCount(0);
     await expect(claimed.locator(".session-attention-message")).toHaveCount(0);

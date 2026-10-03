@@ -71,7 +71,7 @@ from the repository root, and `npm run typecheck:dashboard` and
 
 ### 1. Mark as read acknowledges a report and leaves the session open
 Type: Behavior
-Status: planned
+Status: done
 Proof: examples 1–3 added to `session-unread-report.spec.ts`; focused
 unit checks of the unread rule (newer receipt, done record); and the consumer
 specs above. `agent-completion-attention.spec.ts:112` now expects
@@ -104,6 +104,23 @@ Changes:
 
 Interim behavior until slice 2: after Mark as read, a reported session's
 Mark as done still records only local Done.
+
+Accepted proof: `unset NODE_ENV; npm run test:dashboard -- --grep "unread" --reporter=line`
+(28 passed: `session-unread-report.spec.ts` steps 4, 6 and 7, and
+`session-unread-rule.spec.ts`), and the consumer grep with `--workers 4`
+(145 passed). Typecheck clean.
+
+Learnings:
+
+- `updateRecord` in `launchRecordStore.ts` rebuilds a record on lifecycle
+  updates as binding does, so it carries `reportRead` over too.
+- The read request names only the session; the server writes the receipt it
+  admitted, so a report arriving in between stays unread.
+- Under heavy machine load (load average 35–44 from other work), the consumer
+  grep at default workers timed out on the 5s wait for the synthetic Claude
+  launch call, before any changed code ran; the same specs passed alone,
+  repeated 8 times, and the full grep passed at `--workers 4`. Run the
+  consumer grep with `--workers 4` while the machine is loaded.
 
 ### 2. Mark as done closes a reported session as it closes any session
 Type: Behavior

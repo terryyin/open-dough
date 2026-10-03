@@ -1,7 +1,8 @@
 // Local launch admission verifies dashboard origin and known projects for
 // launches, continuations, reconciliation, verification and session actions.
 // Delete, terminal attachment and native Done require an existing folder;
-// reported local Done needs only the retained session.
+// reported local Done and Mark as read of an unread report need only the
+// retained session.
 // Launch options follow installed definitions and policy follows installed startup.
 // Reads cover attempts, sessions, reports, host choices, story reviews
 // with their file diffs (`./storyReviewAdmission.ts`), and the Cursor
@@ -42,6 +43,8 @@ import {
 } from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
+import { agentReadEndpoint } from "../src/readMark.ts";
+import type { CompletionReport } from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
@@ -57,6 +60,7 @@ import {
   knownSource,
   namedSession,
   resultRequest,
+  unreadReportSession,
 } from "./sessionAdmission.ts";
 
 export type Admitted =
@@ -95,6 +99,14 @@ export type Admitted =
       readonly kind: "delete";
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
+    }
+  | {
+      // A read mark on a session whose report is unread.
+      readonly kind: "read";
+      readonly source: PublishedSource;
+      readonly record: LaunchRecord & {
+        readonly completion: CompletionReport;
+      };
     };
 
 async function doneRequest(
@@ -109,6 +121,10 @@ async function doneRequest(
     throw new RefusedRequest(400, "This host cannot mark a session done.");
   }
   return { kind: "done", source, record, folder };
+}
+
+async function readRequest(req: IncomingMessage): Promise<Admitted> {
+  return { kind: "read", ...(await unreadReportSession(req)) };
 }
 
 async function deleteRequest(
@@ -165,6 +181,7 @@ const postRequests = new Map<
   (req: IncomingMessage, launches: AgentLaunches) => Promise<Admitted>
 >([
   [agentDoneEndpoint, doneRequest],
+  [agentReadEndpoint, readRequest],
   [agentDeleteEndpoint, deleteRequest],
   [agentAcceptEndpoint, launchRequest],
   [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],

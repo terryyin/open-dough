@@ -27,6 +27,7 @@ export function TerminalSplit({
     alerts,
     hostOperations,
     markDone,
+    markRead,
     deleteRecord,
     readSession,
   },
@@ -41,6 +42,7 @@ export function TerminalSplit({
     | "alerts"
     | "hostOperations"
     | "markDone"
+    | "markRead"
     | "deleteRecord"
     | "readSession"
   >;
@@ -56,7 +58,12 @@ export function TerminalSplit({
 }) {
   const projects = useProjects();
   const sidebar = useSessionSidebar(records, alerts);
-  const panel = usePageSessionPanel({ markDone, deleteRecord, hostOperations });
+  const panel = usePageSessionPanel({
+    markDone,
+    markRead,
+    deleteRecord,
+    hostOperations,
+  });
   const { terminal, result, maximized, markSessionDone } = panel;
   const attached = useCallback<SessionOperation<void>>(
     ({ record }) => {

@@ -11,9 +11,8 @@ import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import {
-  notMarkedDone,
-  useMarking,
   usePageSessions,
+  useReportOrDoneMark,
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
@@ -30,11 +29,12 @@ export function SessionResultPanel({
   readonly onMarkDone: MarkSessionDone;
 }) {
   const { record } = session;
-  const { hostOperations } = usePageSessions();
+  const { hostOperations, markRead } = usePageSessions();
   const [result, setResult] = useState<SessionResult | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
-  const { marking, follow } = useMarking();
+  const { label, marking, markingSaid, notMarkedSaid, mark } =
+    useReportOrDoneMark(record);
   useCommandShortcut({ key: "Escape", shift: true }, onClose);
   useEffect(() => {
     if (hasCompletionMessage(record.completion)) {
@@ -107,10 +107,13 @@ export function SessionResultPanel({
                 className="frame-button"
                 disabled={marking === "marking"}
                 onClick={() => {
-                  follow(onMarkDone(session));
+                  mark(
+                    () => markRead(session),
+                    () => onMarkDone(session),
+                  );
                 }}
               >
-                Mark as done
+                {label}
               </button>
             )}
           <button
@@ -138,8 +141,8 @@ export function SessionResultPanel({
           </code>
         </p>
         <div role="status">
-          {marking === "marking" && <p>Marking as done…</p>}
-          {marking === "not-marked" && <p>{notMarkedDone}</p>}
+          {marking === "marking" && <p>{markingSaid}</p>}
+          {marking === "not-marked" && <p>{notMarkedSaid}</p>}
           {result === undefined && <p>Reading final report…</p>}
           {result?.kind === "unavailable" && (
             <>
