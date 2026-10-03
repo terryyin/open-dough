@@ -198,7 +198,7 @@ covers the dashboard in a dialog and both panels look and behave the same.
 
 **Identity:** SEED-091#frame-look-checks-one-rule
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/236-frame-look-checks-one-rule/PLAN.md","assessment":"not-ready","reasons":["Planned against the unlanded frame-renovation branch; main has since changed OpenAISettings.tsx and added a terminal theme settings section, so recheck the premises on main after the frame lands."],"basis":{"document":"900628544288ea9d5daf65f373088b038d3de04875d1ef9e0b5b861d06b5f3bc","plan":"6475b96010fdf7cecd99afdb106c4122b510073e31d4777ba8fc617d0edbedaa"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/236-frame-look-checks-one-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bb17a0c35718ecc19d2d45c00d92b84e125caf0f50b518489b18232eb0c866a3","plan":"1983ac246abc032e04a478853ac12f381a78c25fa79f3ec84e19e8f23aa078b7"}}
 ```
 
 **Goal:** A maintainer writing the next dashboard look check, such as the story

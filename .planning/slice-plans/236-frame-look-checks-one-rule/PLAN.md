@@ -56,12 +56,10 @@ cards, and any new look assertion.
 
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
-| The three background walks are the only copies | Slice 1 | `grep -n "let at = element.parentElement" dashboard/tests/*.ts` | Three background walks: `accessibleReading.ts:101`, `:124`, `frameIconControl.ts:80`; the fourth hit, `pageLayout.ts:166`, walks clipping ancestors, a different rule |
-| The two area checks are the only copies | Slice 1 | `grep -n "expectReadableAndRecognisable" dashboard/tests/*.ts` | Defined only in `system-settings-look.spec.ts` and `frame-launch-look.spec.ts` |
-| Settings controls are not disabled when the settings look checks run | Slice 1 (disabled exemption) | Read `OpenAISettings.tsx` (`disabled={busy}`), `AddProjectDialog.tsx` and `RemoveProject.tsx` (`fieldset disabled={submitting}`); `system-settings-look.spec.ts` checks after load and on freshly opened dialogs | Confirmed by reading |
-
-Recheck these after this branch lands on `main`: `main` has since changed
-`OpenAISettings.tsx` and added a terminal theme settings section.
+| The three background walks are the only copies | Slice 1 | On `main` at `5f1a0e98`: `grep -n "parentElement" dashboard/tests/*.ts` | Three background walks: `accessibleReading.ts:101`, `:124`, `frameIconControl.ts:80`. The other walks follow other rules: `pageLayout.ts:11` and `:166` (layout and clipping ancestors), `accessibleReading.ts:42` (`politeRegionsOfferedThenMarked`) and `agent-launch-card-delete-problems.spec.ts:151` (whether a region is rendered and not hidden) |
+| The two area checks are the only copies | Slice 1 | On `main`: `grep -rn "expectReadableAndRecognisable" dashboard/tests` | Defined only in `system-settings-look.spec.ts:26` and `frame-launch-look.spec.ts:38` |
+| Settings controls are not disabled when the settings look checks run | Slice 1 (disabled exemption) | On `main`, read `OpenAISettings.tsx` (`disabled={busy}`), `AddProjectDialog.tsx` and `RemoveProject.tsx` (`fieldset disabled={submitting}`), and the new `TerminalThemeSettings.tsx` (theme `select` disabled while reading or saving; Retry exists only after a failed save). `system-settings-look.spec.ts`'s `openSettings` waits for the theme choice to be enabled before checking the "Terminal theme" region with the others | Confirmed by reading: nothing is busy, reading, or saving when the checks run, and no Retry is present. `system-settings-look` and `frame-launch-look` pass on `main` at `5f1a0e98` (6 tests), the settings check applying control contrast to every control with no disabled exemption |
+| The proof list covers every caller of the changed checks | Slice 1 proof | On `main`: `grep -ln "expectReadableContrast\|expectControlContrast\|expectFrameIconControl"` across `dashboard/tests`, following `storyDependencyAccessible.ts` and `storyReadinessAccessible.ts` to their specs | The 12 specs listed in Slice 1's proof; `agent-terminal-keyboard.spec.ts` imports only `tooltipOf`. `read-failure-refresh.spec.ts` was removed in `2387fedc` |
 
 ## Ordered slices
 
@@ -83,8 +81,8 @@ Proof: `npm run typecheck:dashboard`; under the clean environment,
 over `system-settings-look`, `frame-launch-look`, `frame-overview-look`,
 `frame-sessions-look`, `backlog-preparing`, `preparation-legend`,
 `story-readiness-accessible`, `story-dependencies`, `dashboard-header`,
-`agent-terminal-maximize`, `project-configuration`, `read-failure-refresh`,
-and `system-settings` green. One deliberate local probe, reverted before
+`agent-terminal-maximize`, `project-configuration`, and `system-settings`
+green. One deliberate local probe, reverted before
 commit, lowers a frame button's edge colour and shows the shared area check
 still fails in both look specs.
 
