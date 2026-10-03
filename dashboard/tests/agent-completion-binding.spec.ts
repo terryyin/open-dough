@@ -191,13 +191,21 @@ for (const quiet of [false, true])
         expect(
           markDoneAnswerSchema.parse(JSON.parse(done.body)).record.doneAt,
         ).toBeDefined();
+        // Mark as done closes the reported session as any session: stopped,
+        // with no attachment of its own.
+        const shortId = server
+          .claudeListing()
+          .find((listed) => listed["sessionId"] === bound.session.sessionId)?.[
+          "id"
+        ];
         expect(
           server
             .claudeCalls()
             .filter(
               (entry) => entry.argv[0] === "stop" || entry.argv[0] === "attach",
-            ),
-        ).toEqual([]);
+            )
+            .map((entry) => entry.argv),
+        ).toEqual([["stop", shortId]]);
         expect(
           keptAttempts(server).find(
             (attempt) => attempt.id === accepted.attempt.id,

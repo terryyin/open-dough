@@ -2,6 +2,7 @@
 import { randomUUID } from "node:crypto";
 import {
   completedWithoutAttention,
+  doneAutomatically,
   type CompletionReceipt,
 } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
@@ -65,12 +66,7 @@ export async function deliverCompletion(
           // Even an unapplied newer submission prevents an older retry from closing it.
           if (!completionNeedsRecordWrite(attempt, entry.completion, saved))
             return entry;
-          const automaticDone =
-            entry.completion !== undefined &&
-            completedWithoutAttention(entry.completion) &&
-            entry.doneAt === entry.completion.receivedAt &&
-            (entry.dispositionChangedAt === undefined ||
-              entry.dispositionChangedAt < entry.completion.receivedAt);
+          const automaticDone = doneAutomatically(entry);
           const quiet =
             completedWithoutAttention(saved) &&
             (entry.doneAt === undefined || automaticDone) &&

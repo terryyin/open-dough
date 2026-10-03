@@ -41,8 +41,9 @@ Quiet completion offers no attention message or empty explicit report. Passive n
 final-report access remains independent, where the host supplies it.
 Native terminal access remains independently available where the host supports it.
 The reporting command is prepared from the installed files outside the workspace
-so that workspace retirement cannot remove its executable or dependency. Session
-Done remains local disposition; it does not complete the product story.
+so that workspace retirement cannot remove its executable or dependency.
+**Mark as done** closes a reported session as it closes any session; a host
+without native stop records local Done only. Done does not complete the product story.
 
 Reporting never renames, detaches, or stops its sender. Terminal attachment lifecycle
 retains attachment ownership; completion reporting schedules no delayed disposal.

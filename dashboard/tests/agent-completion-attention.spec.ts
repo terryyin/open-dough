@@ -17,7 +17,7 @@ import {
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
 
-test("installed attention report stays open, durable and readable through stage change, retirement, restart and local Done", async ({
+test("installed attention report stays open, durable and readable through stage change, retirement, restart, Mark as read and Mark as done", async ({
   page,
   dashboard,
   origin,
@@ -210,21 +210,31 @@ test("installed attention report stays open, durable and readable through stage 
     await claimed.getByRole("button", { name: "Read final report" }).click();
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".session-final-report")).toHaveText(text);
+    // Read, the session stays open; Mark as done then closes it as any
+    // session: renamed, and its observed in-progress turn interrupted.
+    native.observations.set(native.threadId, {
+      status: { type: "active", activeFlags: [] },
+      turns: [{ id: "observed-turn", status: "inProgress" }],
+    });
     const nativeBeforeDone = native.calls.length;
     await panel.getByRole("button", { name: "Mark as read" }).click();
+    await expect(
+      panel.getByRole("button", { name: "Mark as done" }),
+    ).toBeVisible();
+    expect(stored(restarted.home)[0]?.doneAt).toBeUndefined();
     await panel.getByRole("button", { name: "Mark as done" }).click();
     await expect(panel).toHaveCount(0);
     await expect(claimed.locator(".session-attention-message")).toHaveCount(0);
     expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
+    expect(stored(restarted.home)[0]?.doneProblem).toBeUndefined();
+    const doneName = `done-${stored(restarted.home)[0]?.session.name ?? ""}`;
     await machineSessions(restarted);
     await page.reload();
     const recent = parts(page)
       .recentSessions.getByRole("article")
       .filter({ hasText: native.threadId });
-    await expect(recent).toContainText("Done");
-    await expect(recent.locator(".session-state")).toContainText(
-      "Native session is still working",
-    );
+    await expect(recent.locator(".session-state")).toHaveText("Done");
+    await expect(recent).toContainText(`Named ${doneName}`);
     await expect(recent.locator(".session-attention-message pre")).toHaveText(
       text,
     );
@@ -241,7 +251,16 @@ test("installed attention report stays open, durable and readable through stage 
             "thread/resume",
           ].includes(call.method),
         ),
-    ).toEqual([]);
+    ).toEqual([
+      {
+        method: "thread/name/set",
+        params: { threadId: native.threadId, name: doneName },
+      },
+      {
+        method: "turn/interrupt",
+        params: { threadId: native.threadId, turnId: "observed-turn" },
+      },
+    ]);
   } finally {
     await restarted.close();
   }

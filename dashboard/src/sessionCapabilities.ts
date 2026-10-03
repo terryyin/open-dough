@@ -33,7 +33,7 @@ export function marksDone(
 ): boolean {
   return operations[host]?.stop === true;
 }
-// A retained explicit report can be acknowledged locally without native stop.
+// A reported session is marked done locally where its host has no native stop.
 export function marksRecordDone(
   operations: HostOperations,
   record: LaunchRecord,

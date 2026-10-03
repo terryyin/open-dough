@@ -1,6 +1,10 @@
-import { completionLabel, hasCompletionMessage } from "./completionReport.ts";
+import {
+  completionLabel,
+  doneAutomatically,
+  hasCompletionMessage,
+} from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { hostName } from "./sessionCapabilities.ts";
+import { hostName, marksDone } from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in Recent sessions.
 // Its native observations and supported controls stay distinct from story facts.
 
@@ -50,7 +54,13 @@ export function SessionEntry({
   );
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
-  const { shownSession: shown } = usePageSessions();
+  const { shownSession: shown, hostOperations } = usePageSessions();
+  // A native done mark names the session; a quiet completion's automatic Done
+  // and a local Done on a host without native stop do not.
+  const nativelyNamed =
+    record.completion === undefined ||
+    (marksDone(hostOperations, record.session.host) &&
+      !doneAutomatically(record));
   const current = shown?.key === sessionKey(record.session);
   const inResult = current && shown.kind === "result";
   const inTerminal = current && shown.kind === "terminal";
@@ -98,7 +108,7 @@ export function SessionEntry({
       <p className="launch-local">
         Local: launched from this dashboard on this machine.
       </p>
-      {markedDone && record.completion === undefined && (
+      {markedDone && nativelyNamed && (
         <p>
           {record.doneProblem === undefined ? "Named" : "Intended name"}{" "}
           <code>{doneSessionName(record.session)}</code>

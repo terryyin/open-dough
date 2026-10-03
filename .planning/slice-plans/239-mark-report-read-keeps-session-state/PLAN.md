@@ -124,7 +124,7 @@ Learnings:
 
 ### 2. Mark as done closes a reported session as it closes any session
 Type: Behavior
-Status: planned
+Status: done
 Proof: example 4 in `session-unread-report.spec.ts`, and the terminal-panel
 case in the same journey. Example 5 goes in `agent-completion-cursor.spec.ts`,
 whose `:92` step becomes Mark as read, then Mark as done.
@@ -147,3 +147,24 @@ Changes:
   short paragraph on Mark as read and Mark as done, and the
   “unreported sessions” qualifiers in its Mark as done paragraph go.
 - `AGENT-LAUNCH-COMPLETION.md`: the Done sentence is restated to match.
+
+Accepted proof: `unset NODE_ENV; npm run test:dashboard -- --grep "unread report|Cursor installed report|installed attention report" --workers 4 --reporter=line`
+(5 passed; 3 fail with the `doneMarks.ts` condition reverted): example 4 in
+`session-unread-report.spec.ts` step 7, its terminal-panel test, example 5
+in `agent-completion-cursor.spec.ts`, and the Codex rename and interrupt in
+`agent-completion-attention.spec.ts`. The consumer grep with `--workers 4`
+passed 146 after aligning `agent-completion-binding.spec.ts` (one Claude
+stop) and `agent-completion-recovery.spec.ts` (one Codex rename).
+
+Learnings:
+
+- The Recent entry's "Named `done-…`" line was hidden for every reported
+  record. `SessionEntry` now shows it for a reported record on a host with
+  native done, unless its Done is the quiet completion's automatic Done
+  (`doneAutomatically`, now shared with `completionDelivery.ts`). A record
+  that was reported and locally marked done before this change, on Claude or
+  Codex, now also reads "Named `done-…`" although it was never renamed;
+  accepted as display-only, since the story excludes migration.
+- Claude's rename goes through an open attachment, so the report-panel path
+  shows the rename only by the Recent entry's line; the terminal-panel test
+  proves the native listing name.
