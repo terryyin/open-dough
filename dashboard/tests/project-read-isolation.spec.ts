@@ -116,6 +116,7 @@ test.describe("project read isolation", () => {
     const secondCard = backlog.getByRole("article", {
       name: openDoughSharedTitleSecond,
     });
+    await secondCard.getByRole("button", { name: "Inspect story" }).click();
     const secondLink = secondCard.getByRole("link", {
       name: /^Canonical record/,
     });
@@ -224,6 +225,7 @@ test.describe("project read isolation", () => {
     const thirdCard = backlog.getByRole("article", {
       name: openDoughSharedTitleThird,
     });
+    await thirdCard.getByRole("button", { name: "Inspect story" }).click();
     await thirdCard.getByRole("link", { name: /^Canonical record/ }).focus();
 
     await test.step("Doughnut's stale first-round read answers even later; the third Open Dough read still stands", async () => {

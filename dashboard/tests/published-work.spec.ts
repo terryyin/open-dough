@@ -1,3 +1,4 @@
+import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
   expectMembership,
@@ -87,24 +88,33 @@ test("published overview shows connected Backlog and Taken work read at one revi
   });
 
   await test.step("identities come from the shared backlog reader", async () => {
+    // Each identity is read in its story's detail, opened and closed again.
+    const identityOf = async (card: Locator, identity: string) => {
+      await expect(card).not.toContainText(identity);
+      await card.getByRole("button", { name: "Inspect story" }).click();
+      await expect(card).toContainText(identity);
+      await card.getByRole("button", { name: "Hide detail" }).click();
+    };
     // A bounded correction: a bare plan link, identified by that link.
-    await expect(
+    await identityOf(
       taken.getByRole("article", {
         name: "Repair the installer's update report",
       }),
-    ).toContainText("slice-plans/059-installer-update-report/PLAN.md");
+      "slice-plans/059-installer-update-report/PLAN.md",
+    );
     // The parenthesized plan spelling leaves the recorded identity intact.
     const planned = taken.getByRole("article", {
       name: "See the project's published work in a story dashboard",
     });
-    await expect(planned).toContainText("SEED-021#see-published-work");
+    await identityOf(planned, "SEED-021#see-published-work");
     await expect(planned).not.toContainText("([plan]");
     // The older shorthand is still read against the link's anchor.
-    await expect(
+    await identityOf(
       backlog.getByRole("article", {
         name: "Queue trunk integration for agents on the same machine",
       }),
-    ).toContainText("SEED-008#same-machine-merge-queue");
+      "SEED-008#same-machine-merge-queue",
+    );
   });
 
   await test.step("titles are text, never markup", async () => {

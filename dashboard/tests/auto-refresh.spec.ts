@@ -76,10 +76,12 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   const dashboardCard = page.getByRole("article", { name: dashboardStory });
   await dashboardCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(dashboardCard).toContainText("as published at A");
-  const queueLink = backlog
+  // The still-listed queued work's control holds focus; its links are in its
+  // detail, while the inspected story's detail shows its own.
+  const queueControl = backlog
     .getByRole("article", { name: queueStory })
-    .getByRole("link", canonical);
-  await queueLink.focus();
+    .getByRole("button", { name: "Inspect story" });
+  await queueControl.focus();
   const beforeB = githubFor(page).calls.length;
   origin.push(revisionB, backlogB, recordsAt("B"));
 
@@ -96,8 +98,8 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     await expectOwnersNotRecorded(page);
   });
 
-  await test.step("focus stays on the still-listed work's link", async () => {
-    await expect(queueLink).toBeFocused();
+  await test.step("focus stays on the still-listed work's control", async () => {
+    await expect(queueControl).toBeFocused();
     await expect(notice).toBeEmpty();
   });
 
@@ -108,8 +110,8 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     ).toContainText(`${dashboardStory}, as published at B.`);
     await expect(page.locator("body")).not.toContainText("as published at A");
     await expect(
-      backlog
-        .getByRole("article", { name: queueStory })
+      taken
+        .getByRole("article", { name: dashboardStory })
         .getByRole("link", canonical),
     ).toHaveAttribute("href", new RegExp(`/blob/${revisionB}/`));
   });

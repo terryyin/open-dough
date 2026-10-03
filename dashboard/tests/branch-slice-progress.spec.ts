@@ -59,9 +59,14 @@ test("Taken cards show progress from where each story is published, or the gap t
   const { requests, taken, progress } = await openedAtOpening(page);
 
   await test.step("a Story Branch Mode story shows 6 of 8 from its branch head, named as not in trunk", async () => {
+    // The scan view qualifies the count briefly; the exact branch and
+    // revision are in the story's detail (the last step).
     await expect(progress(onBranch)).toContainText(
-      `From branch story/example at ${branchHead.slice(0, 7)}; not in trunk.`,
+      "From story branch; not in trunk.",
     );
+    await expect(
+      taken.getByRole("article", { name: onBranch }),
+    ).not.toContainText("story/example");
     await expect(
       progress(onBranch).getByRole("img", {
         name: "6 of 8 slices recorded complete",
@@ -121,7 +126,7 @@ test("Taken cards show progress from where each story is published, or the gap t
       `The associated plan ${planPath("plan-missing")} is missing on this branch.`,
     );
     await expect(progress(planMissing)).toContainText(
-      `From branch story/plan-missing at ${branches["story/plan-missing"]?.revision.slice(0, 7) ?? ""}; not in trunk.`,
+      "From story branch; not in trunk.",
     );
     await expect(progress(planMissing).getByRole("img")).toHaveCount(0);
   });
@@ -186,6 +191,20 @@ test("Taken cards show progress from where each story is published, or the gap t
     await expect(detail).toContainText("6 of 8 slices recorded complete");
     await expect(detail).toContainText(
       `From branch story/example at ${branchHead.slice(0, 7)}; not in trunk.`,
+    );
+    // The exact branch of the assignment is detail too, still never trunk.
+    await expect(detail.locator(".owner-branch")).toHaveText(
+      "Branch context: story/example (story branch work; not on trunk)",
+    );
+  });
+
+  await test.step("a plan missing on its branch names that branch and revision in detail", async () => {
+    const card = taken.getByRole("article", { name: planMissing });
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    await expect(
+      card.getByRole("region", { name: `Detail for ${planMissing}` }),
+    ).toContainText(
+      `From branch story/plan-missing at ${branches["story/plan-missing"]?.revision.slice(0, 7) ?? ""}; not in trunk.`,
     );
   });
 });

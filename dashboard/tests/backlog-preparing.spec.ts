@@ -55,7 +55,18 @@ test("a queued card shows Preparing and its developer from published assignments
   };
   const expectNotPreparing = async (title: string) => {
     await expect(card(title)).not.toContainText("Preparing");
-    await expect(card(title).locator(".owner-summary")).toHaveCount(0);
+    await expect(card(title).locator(".owner-agent")).toHaveCount(0);
+  };
+  // The scan view names each preparing developer beside its portrait; what
+  // the assignment records beyond the agent is in the story's detail.
+  const inspected = async (title: string) => {
+    const button = card(title).getByRole("button", { name: "Inspect story" });
+    await button.click();
+    return card(title).getByRole("region", { name: `Detail for ${title}` });
+  };
+  const hideDetail = async (title: string) => {
+    await card(title).getByRole("button", { name: "Hide detail" }).click();
+    await expect(card(title)).toBeFocused();
   };
 
   await expectMembership(page, { taken: [], backlog: order });
@@ -76,24 +87,43 @@ test("a queued card shows Preparing and its developer from published assignments
       );
       await expectReadableContrast(card(title).locator(".preparing-activity"));
     }
-    await expect(card(storyC).locator(".owner-summary")).toHaveText(
+    await expect(card(storyC).locator(".owner-agent")).toHaveText(
+      preparers.refining,
+    );
+    await expect(card(storyB).locator(".owner-agent")).toHaveText(
+      preparers.reconsidering,
+    );
+    // The developer's portrait is decorative beside the name.
+    const portrait = card(storyC).locator(".owner-agent .agent-portrait");
+    await expect(portrait).toBeVisible();
+    await expect(portrait).toHaveAttribute("aria-hidden", "true");
+    // Host, model, and the credited human are secondary: not in the scan
+    // view, and in the detail Inspect story opens.
+    await expect(card(storyC)).not.toContainText("claude-opus-5-5");
+    await expect(card(storyC)).not.toContainText("Human developer");
+    await expect(card(storyC).locator(".owner-summary")).toHaveCount(0);
+    const detailC = await inspected(storyC);
+    await expect(detailC.locator(".owner-summary")).toHaveText(
       `${preparers.refining} · Claude Code · claude-opus-5-5`,
     );
+    await expect(detailC.locator(".owner-human")).toHaveText(
+      "Human developer: Fixture Committer",
+    );
+    // The host mark, in the detail, never covers the card's portrait.
     await expectMark(
       card(storyC),
       "host",
       "Claude Code",
       "tool-avatars/claude.png",
     );
-    // The developer's portrait is decorative beside the name.
-    const portrait = card(storyC).locator(".owner-agent .agent-portrait");
-    await expect(portrait).toBeVisible();
-    await expect(portrait).toHaveAttribute("aria-hidden", "true");
+    await hideDetail(storyC);
     // No tool or model was recorded: each stays a text gap with no mark.
-    await expect(card(storyB).locator(".owner-summary")).toHaveText(
+    const detailB = await inspected(storyB);
+    await expect(detailB.locator(".owner-summary")).toHaveText(
       `${preparers.reconsidering} · host not recorded · model not recorded`,
     );
-    await expect(card(storyB).locator(".owner-host img")).toHaveCount(0);
+    await expect(detailB.locator(".owner-host img")).toHaveCount(0);
+    await hideDetail(storyB);
     await expect(card(storyA)).not.toContainText("Preparing");
     // The same priorities and preparation facts as before preparation began.
     for (const [index, title] of order.entries()) {
@@ -126,7 +156,7 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(
       card(storyC).getByText("Ready for execution", { exact: true }),
     ).toHaveCount(0);
-    await expect(card(storyB).locator(".owner-summary")).toContainText(
+    await expect(card(storyB).locator(".owner-agent")).toHaveText(
       preparers.reconsidering,
     );
   });
@@ -158,7 +188,7 @@ test("a queued card shows Preparing and its developer from published assignments
       );
       await expect(unknown).toBeVisible();
       await expectReadableContrast(unknown);
-      await expect(card(title).locator(".owner-summary")).toHaveCount(0);
+      await expect(card(title).locator(".owner-agent")).toHaveCount(0);
     }
     restore();
   });
@@ -166,13 +196,19 @@ test("a queued card shows Preparing and its developer from published assignments
   await test.step("two preparation assignments for one entry are shown as conflicting records", async () => {
     await page.reload();
     const [first, second] = preparers.conflicting;
-    await expect(card(storyA).locator(".owner-summary")).toHaveText([
-      `${first} · host not recorded · model not recorded`,
-      `${second} · host not recorded · model not recorded`,
+    // The conflict stays in the scan view, naming both developers.
+    await expect(card(storyA).locator(".owner-agent")).toHaveText([
+      first,
+      second,
     ]);
     await expect(card(storyA).locator(".assignment-gap")).toHaveText(
       "Conflicting records: 2 preparation assignments name this entry.",
     );
+    const detailA = await inspected(storyA);
+    await expect(detailA.locator(".owner-summary")).toHaveText([
+      `${first} · host not recorded · model not recorded`,
+      `${second} · host not recorded · model not recorded`,
+    ]);
     await expect(card(storyA)).not.toContainText(
       "Preparation assignment unknown",
     );

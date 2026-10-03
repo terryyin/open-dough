@@ -60,9 +60,9 @@ test.describe("project read isolation of automatic checks", () => {
       backlog: [doughnutSharedTitle],
     });
     await expect(source).toContainText(revisionDoughnut);
-    const link = backlog
-      .getByRole("article", { name: doughnutSharedTitle })
-      .getByRole("link", { name: /^Canonical record/ });
+    const card = backlog.getByRole("article", { name: doughnutSharedTitle });
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    const link = card.getByRole("link", { name: /^Canonical record/ });
     await link.focus();
     return {
       link,
@@ -201,7 +201,10 @@ test.describe("project read isolation of automatic checks", () => {
       const card = parts(page).backlog.getByRole("article", {
         name: doughnutSharedTitle,
       });
-      await card.getByRole("button", { name: "Inspect story" }).click();
+      // Its detail, opened while Doughnut was selected, stays open.
+      await expect(
+        card.getByRole("button", { name: "Hide detail" }),
+      ).toBeVisible();
       await expect(card).toContainText(doughnutSharedGoal);
       await expect(page.locator("body")).not.toContainText("as published at");
     });

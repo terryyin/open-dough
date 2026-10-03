@@ -10,21 +10,50 @@
   gap: 0.6rem;
 }
 
-/* Title first, then what identifies the work, then where it is recorded. */
+/* A card's scan view: the title leads, then a quiet line of priority and
+   developer, then badges, warnings, progress, and actions, each a short
+   step below the last. Secondary facts open in its detail (story-detail.css).
+   Its fill and corners follow the frame's raised panels. */
 .card {
+  display: grid;
+  gap: var(--space-2);
   border: 1px solid var(--line);
   border-left: 4px solid var(--accent);
-  border-radius: 0.35rem;
-  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
   background: var(--surface);
+}
+
+/* Each part of the card is spaced by the card's own gap. */
+.card > .card-frame > * {
+  margin-top: 0;
+}
+
+.card h3 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+}
+
+/* Priority and the assigned or preparing developer, on one wrapping line. */
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.card-meta:empty {
+  display: none;
+}
+
+/* A gap in the assignment reads on its own line, beside what it affects. */
+.card-meta > .assignment-gap {
+  flex-basis: 100%;
 }
 
 .card-priority {
   font-weight: 600;
-}
-
-.card-identity {
-  margin-top: 0.15rem;
 }
 
 .badge-legend ul {
@@ -36,10 +65,6 @@
 
 .badge-legend .quiet {
   margin-top: 0.5rem;
-}
-
-.card-preparation {
-  margin-top: 0.45rem;
 }
 
 .badge-row {
@@ -107,17 +132,6 @@
   border-color: var(--problem);
 }
 
-.preparation-detail {
-  margin-top: 0.4rem;
-  font-size: 0.9rem;
-}
-
-.preparation-detail ul {
-  list-style: disc;
-  padding-left: 1.2rem;
-  margin-top: 0.35rem;
-}
-
 /* A gap in the published records beside the fact it leaves unknown; an
    assignment gap is one the agent profiles leave, or a credited human who
    cannot be named. */
@@ -130,10 +144,9 @@
 .card-links {
   list-style: none;
   display: grid;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
+  gap: var(--space-1);
   border-top: 1px solid var(--line);
-  padding-top: 0.5rem;
+  padding-top: var(--space-2);
 }
 
 .card-links a {

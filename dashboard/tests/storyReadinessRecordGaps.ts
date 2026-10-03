@@ -21,16 +21,30 @@ export async function expectMalformedExternalAndLegacy(
     "not valid JSON",
   );
 
+  await malformedCard.getByRole("button", { name: "Inspect story" }).click();
+  const malformedSources = malformedCard.getByRole("list", {
+    name: "Pinned source links",
+  });
   await expect(
-    malformedCard.getByRole("link", { name: /^Slice plan / }),
+    malformedSources.getByRole("link", { name: /^Canonical record / }),
+  ).toHaveCount(1);
+  await expect(
+    malformedSources.getByRole("link", { name: /^Slice plan / }),
   ).toHaveCount(0);
   const legacyCard = backlog.getByRole("article", { name: legacy.title });
   await expect(
     legacyCard.getByText("Not recorded", { exact: true }),
   ).toBeVisible();
 
+  await legacyCard.getByRole("button", { name: "Inspect story" }).click();
+  const legacySources = legacyCard.getByRole("list", {
+    name: "Pinned source links",
+  });
   await expect(
-    legacyCard.getByRole("link", { name: /^Slice plan / }),
+    legacySources.getByRole("link", { name: /^Canonical record / }),
+  ).toHaveCount(1);
+  await expect(
+    legacySources.getByRole("link", { name: /^Slice plan / }),
   ).toHaveCount(0);
   const externalCard = backlog.getByRole("article", {
     name: externalPlan.title,

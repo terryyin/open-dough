@@ -38,13 +38,30 @@ test("each Taken card shows its published agent profile, or says plainly that no
     backlog: [queued],
   });
   const card = (title: string) => taken.getByRole("article", { name: title });
+  // What an assignment records beyond its agent is in the card's detail,
+  // opened unless already open.
+  const inspected = async (title: string) => {
+    const toggle = card(title).getByRole("button", {
+      name: /^(?:Inspect story|Hide detail)$/,
+    });
+    await expect(toggle).toBeVisible();
+    if ((await toggle.textContent()) === "Inspect story") await toggle.click();
+    return card(title).getByRole("region", { name: `Detail for ${title}` });
+  };
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
 
-  await test.step("a Trunk Mode profile shows its agent, mode, host, and model on one line", async () => {
-    await expect(card(trunkStory)).toContainText(
+  await test.step("a Trunk Mode profile shows its agent on the card, and its mode, host, model, and trunk in detail on one line", async () => {
+    await expect(card(trunkStory).locator(".owner-agent")).toHaveText(
+      "Akiho-chan",
+    );
+    await expect(card(trunkStory)).not.toContainText(
+      /Trunk Mode|Claude Code|claude-opus-5-5|Trunk:/,
+    );
+    const detail = await inspected(trunkStory);
+    await expect(detail).toContainText(
       "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
     );
-    await expect(card(trunkStory)).toContainText("Trunk: origin/main");
+    await expect(detail).toContainText("Trunk: origin/main");
   });
 
   await test.step("each recorded agent has its own approved portrait beside its name, and the owner text is unchanged", async () => {
@@ -64,7 +81,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
       atlas: 5,
       position: "50% 87.5%",
     });
-    await expect(card(lastInRotation)).toContainText(
+    await expect(await inspected(lastInRotation)).toContainText(
       "Rina-chan · Story Branch Mode · Claude Code · claude-opus-5-5",
     );
     // The portrait is decorative: the card's accessible text is the owner
@@ -117,19 +134,20 @@ test("each Taken card shows its published agent profile, or says plainly that no
     for (const width of [1280, 360]) {
       await page.setViewportSize({ width, height: 900 });
       for (const [title, mode, modeFile, host, hostFile] of marked) {
+        await inspected(title);
         await expectMark(card(title), "mode", mode, `mode-icons/${modeFile}`);
         await expectMark(card(title), "host", host, `tool-avatars/${hostFile}`);
         // The model has no mark, and the owner text is unchanged.
         await expect(card(title).locator(".owner-model img")).toHaveCount(0);
       }
     }
-    await expect(card(trunkStory)).toContainText(
+    await expect(await inspected(trunkStory)).toContainText(
       "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
     );
   });
 
   await test.step("a Story Branch Mode profile shows its branch as context, never as work on trunk", async () => {
-    const branch = card(branchStory);
+    const branch = await inspected(branchStory);
     await expect(branch).toContainText(
       "Yuma-chan · Story Branch Mode · Codex · gpt-5-codex",
     );
@@ -141,7 +159,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   });
 
   await test.step("a profile that does not record the model says so", async () => {
-    await expect(card(modelless)).toContainText(
+    await expect(await inspected(modelless)).toContainText(
       "Sola-chan · Trunk Mode · Cursor · model not recorded",
     );
   });
@@ -164,7 +182,15 @@ test("each Taken card shows its published agent profile, or says plainly that no
         taken.getByRole("article").filter({ hasText: agent }),
       ).toHaveCount(0);
     await expect(taken.locator(".agent-portrait")).toHaveCount(4);
-    await expect(taken.locator(".owner-mark")).toHaveCount(8);
+    // Each recorded assignment's mode and host marks, in its detail.
+    let marks = 0;
+    for (const title of [trunkStory, branchStory, modelless, older]) {
+      await inspected(title);
+      marks += await taken.locator(".owner-mark").count();
+    }
+    await inspected(lastInRotation);
+    marks += await taken.locator(".owner-mark").count();
+    expect(marks).toBe(8);
   });
 
   // Its owner summary and host mark belong to backlog-preparing.spec.ts.

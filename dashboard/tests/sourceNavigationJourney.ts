@@ -5,6 +5,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
+import { inspectedDetail } from "./cardControls.ts";
 import { expect, githubFor } from "./dashboardTest.ts";
 import {
   commitAnswer,
@@ -70,6 +71,28 @@ export async function openDashboard(page: Page) {
 
 export function card(stages: Locator, title: string | RegExp): Locator {
   return stages.getByRole("article", { name: title });
+}
+
+// A card's source links are secondary detail: none is on its scan view, and
+// Inspect story reveals them, from the snapshot already read, in its detail.
+export async function inspectedSources(story: Locator): Promise<Locator> {
+  await expect(story.getByRole("link")).toHaveCount(0);
+  return (await inspectedDetail(story)).getByRole("list", {
+    name: "Pinned source links",
+  });
+}
+
+// Each card's source links in turn, each read in its own detail once the
+// card is closed again.
+export async function forEachCardsSources(
+  stages: Locator,
+  read: (sources: Locator) => Promise<void>,
+) {
+  for (const each of await stages.getByRole("article").all()) {
+    const hide = each.getByRole("button", { name: "Hide detail" });
+    if ((await hide.count()) > 0) await hide.click();
+    await read(await inspectedSources(each));
+  }
 }
 
 export async function destination(link: Locator): Promise<URL> {

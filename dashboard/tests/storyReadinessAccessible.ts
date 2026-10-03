@@ -68,8 +68,13 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
     true,
   ]);
 
-  const queuedPlan = backlog
-    .getByRole("article", { name: plannedBlocked.title })
+  // The plan link is in the story's detail, which stays open across snapshots.
+  const blockedCard = backlog.getByRole("article", {
+    name: plannedBlocked.title,
+  });
+  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
+  const queuedPlan = blockedCard
+    .getByRole("region", { name: `Detail for ${plannedBlocked.title}` })
     .getByRole("link", { name: /^Slice plan / });
   const keptRevision = publishDropUnrefined(openDough);
   origin.advanceTo(keptRevision);
@@ -140,14 +145,19 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
       .getByRole("article", { name: plannedBlocked.title })
       .getByText("Not ready", { exact: true }),
   ).toBeVisible();
-  const queuedPlan = backlog
-    .getByRole("article", { name: plannedBlocked.title })
-    .getByRole("link", { name: /^Slice plan / });
+  // Inspecting the blocked story moves the detail to it; its links follow
+  // Hide detail in reading order.
+  const blockedCard = backlog.getByRole("article", {
+    name: plannedBlocked.title,
+  });
+  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
+  await expect(detail).toHaveCount(0);
+  const blockedDetail = blockedCard.getByRole("region", {
+    name: `Detail for ${plannedBlocked.title}`,
+  });
+  const queuedPlan = blockedDetail.getByRole("link", { name: /^Slice plan / });
   await queuedPlan.scrollIntoViewIfNeeded();
-  await backlog
-    .getByRole("article", { name: plannedBlocked.title })
-    .getByRole("link", { name: /^Canonical record / })
-    .focus();
+  await blockedDetail.getByRole("link", { name: /^Canonical record / }).focus();
   await page.keyboard.press("Tab");
   await expect(queuedPlan).toBeInViewport({ ratio: 1 });
   await expectFocusedAndIndicated(page, queuedPlan);

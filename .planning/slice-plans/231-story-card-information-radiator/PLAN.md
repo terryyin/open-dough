@@ -122,8 +122,27 @@ of the future presentation.
 
 ### 1. Compact cards with an understandable scan-to-evidence journey
 Type: Behavior
-Status: planned
+Status: done
 Proof: The slice-1 rows above, with changed journeys and equivalent before/after screenshots; focused browser command described below.
+Accepted proof (execution on `claude/make-story-cards-modern-compact-information-radi-2`):
+the focused command over the fourteen slice-1 specs below passed (27), with
+`profile-addition-latency`, `agent-roster-avatar`, `taken-agent-profile{,-refresh}`,
+`taken-admitted-investigation`, the `responsive-session-*`, `agent-launch-card*`
+and `story-review*` consumers, and `typecheck:dashboard`. Reading boundary is
+observed in `backlog-preparing.spec.ts`, `branch-slice-progress.spec.ts`,
+`source-navigation.spec.ts` (`inspectedSources`), `responsiveStart.ts`
+(`expectProtected` keeps card source links during startup),
+`storyReadinessScan.ts` (420px and 640×450), `accessible-overview-keyboard.spec.ts`
+and `profile-addition-latency.spec.ts` (short "Human developer unknown" scan
+warning, full explanation in detail). Same-fixture settled card heights fell
+21–52% at 1440px and 420px (ordinary Backlog 321.8→225.2px at 1440px; branch
+Taken 470.1→225.4px; card with a session 549.8→404.4px).
+Learnings: card detail is opened in tests through `dashboard/tests/cardControls.ts`
+(`inspectedDetail`); assignment detail and roster facts live in
+`AssignmentRecords.tsx`, scan facts in `AgentAssignmentFacts.tsx`. Concurrent
+Playwright runs in one checkout rebuild the shared `dashboard/dist`; avoid
+overlapping runs. Dependencies stay a native in-place `<details>` on the card,
+so supplier links remain reachable during startup.
 
 Behavior: Backlog and Taken entries have settled published facts → the developer
 scans a card, opens inspection, follows evidence or the agent portrait, and

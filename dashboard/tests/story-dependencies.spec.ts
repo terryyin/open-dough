@@ -113,10 +113,17 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(
     card.getByText("Changed since readiness review", { exact: true }),
   ).toBeVisible();
-  await card.getByText("Preparation facts", { exact: true }).click();
-  await expect(card).toContainText(
+  // The readiness reason is secondary detail, read without another source
+  // read; the Not ready badge stays in the scan view.
+  await expect(card).not.toContainText(
     "Unrelated consumer design decision remains.",
   );
+  const readsBeforeDetail = published.requests.length;
+  await card.getByRole("button", { name: "Inspect story" }).click();
+  await expect(
+    card.getByRole("region", { name: "Detail for Story A" }),
+  ).toContainText("Unrelated consumer design decision remains.");
+  expect(published.requests.length).toBe(readsBeforeDetail);
   // Removing the dependency gate restores the existing noted action. The
   // independent readiness judgment still refuses at the real startup command.
   await execution.click();

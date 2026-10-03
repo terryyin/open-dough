@@ -3,6 +3,11 @@
 // in one place.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import {
+  cardLaunchActions,
+  detailToggle,
+  someInspectedDetail,
+} from "./cardControls.ts";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
@@ -71,22 +76,9 @@ export async function sessionNamedBy(record: Locator): Promise<string> {
   return id ?? "?";
 }
 
-// The launch actions every Backlog card offers, in the order it offers them.
-export const cardLaunchActions = ["Start execution", "Start refinement"];
-
-// Disabled launch actions remain visible but are outside the keyboard order.
-export async function enabledCardLaunchActions(card: Locator) {
-  const enabled: Locator[] = [];
-  for (const name of cardLaunchActions) {
-    const action = card.getByRole("button", { name });
-    if (await action.isEnabled()) enabled.push(action);
-  }
-  return enabled;
-}
-
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, System settings, Start session, the badge legend, each Backlog
-// card's launch actions, and each card's Inspect.
+// card's launch actions, and each card's Inspect story or Hide detail.
 export async function expectSnapshotButtons(
   page: Page,
   shown: {
@@ -105,7 +97,9 @@ export async function expectSnapshotButtons(
   for (const action of cardLaunchActions) {
     await expect(button(action)).toHaveCount(shown.backlogCards);
   }
-  await expect(button("Inspect story")).toHaveCount(shown.cards);
+  await expect(page.getByRole("button", { name: detailToggle })).toHaveCount(
+    shown.cards,
+  );
   await expect(page.getByRole("button")).toHaveCount(
     4 + shown.backlogCards * cardLaunchActions.length + shown.cards,
   );
@@ -196,8 +190,10 @@ export async function expectWholeSnapshot(
       shown.retrievedAt.toISOString(),
     );
   }
+  // Source links are read in an inspected story's detail.
+  const detail = await someInspectedDetail(stages);
   await expect(
-    stages.locator(`a[href*="/blob/${shown.revision}/"]`).first(),
+    detail.locator(`a[href*="/blob/${shown.revision}/"]`).first(),
   ).toBeVisible();
   for (const other of otherRevisions) {
     await expect(page.locator("body")).not.toContainText(other);

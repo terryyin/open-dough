@@ -1,5 +1,4 @@
 .inspect-story {
-  margin-top: 0.45rem;
   font: inherit;
   color: var(--accent);
   background: transparent;
@@ -14,12 +13,17 @@
 }
 
 .story-detail {
-  margin-top: 0.6rem;
   border-top: 1px solid var(--line);
-  padding-top: 0.55rem;
+  padding-top: var(--space-2);
   display: grid;
-  gap: 0.65rem;
-  font-size: 0.9rem;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+/* The recorded preparation facts behind the card's badges. */
+.detail-facts {
+  list-style: disc;
+  padding-left: 1.2rem;
 }
 
 .story-detail h4 {

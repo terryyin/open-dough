@@ -65,14 +65,16 @@ test("a project without agent profiles still loads, and a reload shows a profile
     });
     await page.reload();
     await expect(source).toContainText(revisionB);
-    await expect(card).toContainText(
-      "Akiho-chan · Trunk Mode · host not recorded · model not recorded",
-    );
     await expect(card).not.toContainText("Owner not recorded");
     await expectPortrait(card, "Akiho-chan", {
       atlas: 1,
       position: "50% 12.5%",
     });
+    // What the profile records beyond its agent is in the card's detail.
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    await expect(card).toContainText(
+      "Akiho-chan · Trunk Mode · host not recorded · model not recorded",
+    );
     // The unrecorded host stays a text gap: no tool mark is invented.
     await expect(card.locator(".owner-host")).toHaveText("host not recorded");
     await expect(card.locator(".owner-host img")).toHaveCount(0);

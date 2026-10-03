@@ -13,12 +13,8 @@ import {
   revision,
   unusableTarget,
 } from "./accessibleOverview.ts";
-import {
-  enabledCardLaunchActions,
-  expectMembership,
-  openDirection,
-  parts,
-} from "./dashboardPage.ts";
+import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
+import { enabledCardLaunchActions, inspectedDetail } from "./cardControls.ts";
 import {
   commitAnswer,
   emptyBacklog,
@@ -91,17 +87,25 @@ test("accessible overview reflows long published work for a narrow window and pa
   });
 
   await test.step("long titles, identities, and recorded targets stay inside their card", async () => {
-    for (const text of [longTitle, longIdentity, longPlan]) {
-      await expectInside(longCard.getByText(text), longCard);
-    }
+    await expectInside(longCard.getByText(longTitle), longCard);
     const external = backlog.getByRole("article", {
       name: "Read the hosting provider's note",
     });
-    await expectInside(external.getByText(longAddress), external);
     const unusable = backlog.getByRole("article", {
       name: "Keep a target that is not offered as a link readable",
     });
-    await expectInside(unusable.getByText(unusableTarget), unusable);
+    // Identities and recorded targets are read in each story's detail.
+    for (const [card, texts] of [
+      [longCard, [longIdentity, longPlan]],
+      [external, [longAddress]],
+      [unusable, [unusableTarget]],
+    ] as const) {
+      const detail = await inspectedDetail(card);
+      for (const text of texts) {
+        await expectInside(detail.getByText(text), card);
+      }
+      await expectNoSidewaysScrollAndWholeText(page);
+    }
     await expectInside(longCard, taken);
   });
 
@@ -202,12 +206,12 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   const lastCard = backlog.getByRole("article", {
     name: queuedTitle(queuedCount),
   });
-  const lastLink = lastCard.getByRole("link", { name: /^Canonical record/ });
-  await expect(lastLink).not.toBeInViewport();
+  const lastInspect = lastCard.getByRole("button", { name: "Inspect story" });
+  await expect(lastInspect).not.toBeInViewport();
 
   await test.step("the page itself scrolls to the last queued work", async () => {
     await page.keyboard.press("End");
-    await expect(lastLink).toBeInViewport({ ratio: 1 });
+    await expect(lastInspect).toBeInViewport({ ratio: 1 });
     expect(await page.evaluate("window.scrollY")).toBeGreaterThan(0);
     await expectNoSidewaysScrollAndWholeText(page);
     await expect(lastCard).toContainText(`Priority ${queuedCount}`);
@@ -221,25 +225,25 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   });
 
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
-    await lastLink.focus();
+    await lastInspect.focus();
     for (let place = queuedCount - 1; place >= 1; place -= 1) {
-      // Each queued card offers its enabled launch actions and Inspect before its
-      // Canonical link, so Shift+Tab past them reaches the previous card's
-      // recorded link.
+      // Each queued card offers its enabled launch actions before its Inspect
+      // story, its last control, so Shift+Tab past them reaches the previous
+      // card's Inspect story.
       const card = backlog.getByRole("article", {
         name: queuedTitle(place + 1),
         exact: true,
       });
       const launches = await enabledCardLaunchActions(card);
-      for (let step = 0; step < launches.length + 2; step += 1) {
+      for (let step = 0; step < launches.length + 1; step += 1) {
         await page.keyboard.press("Shift+Tab");
       }
-      const link = backlog
+      const inspect = backlog
         .getByRole("article", { name: queuedTitle(place), exact: true })
-        .getByRole("link", { name: /^Canonical record/ });
-      await expect(link).toBeFocused();
-      await expect(link).toBeInViewport({ ratio: 1 });
-      const [stuck, focused] = await Promise.all([box(heading), box(link)]);
+        .getByRole("button", { name: "Inspect story" });
+      await expect(inspect).toBeFocused();
+      await expect(inspect).toBeInViewport({ ratio: 1 });
+      const [stuck, focused] = await Promise.all([box(heading), box(inspect)]);
       expect(stuck.y + stuck.height).toBeLessThanOrEqual(focused.y);
     }
   });

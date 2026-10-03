@@ -58,9 +58,6 @@ export async function expectChangedReviewAfterContentChange(
     blockedCard.getByText("Changed since readiness review", { exact: true }),
   ).toBeVisible();
   await expect(
-    blockedCard.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveAttribute("href", planHref("terryyin/open-dough", nextRevision));
-  await expect(
     blockedCard.getByText("Not ready", { exact: true }),
   ).toBeVisible();
   for (const [card, title, judgment] of [
@@ -71,17 +68,22 @@ export async function expectChangedReviewAfterContentChange(
       "Not ready (A blocking decision remains in the plan.)",
     ],
   ] as const) {
-    await card.getByText("Preparation facts", { exact: true }).click();
-    await expect(card.getByText("Assessment:")).toContainText(judgment);
-    await expect(card.getByText("Assessment:")).toContainText(
-      "Changed since readiness review",
-    );
+    // The badge is the scan view's warning; the judgment it qualifies is
+    // explained in the detail.
+    await expect(card.getByText("Assessment:")).toHaveCount(0);
     await card.getByRole("button", { name: "Inspect story" }).click();
     const detail = card.getByRole("region", { name: `Detail for ${title}` });
-    await expect(detail).toContainText(judgment);
-    await expect(detail).toContainText("Changed since readiness review");
+    await expect(detail.getByText("Assessment:")).toContainText(judgment);
+    await expect(detail.getByText("Assessment:")).toContainText(
+      "Changed since readiness review",
+    );
+    if (card === blockedCard) {
+      await expect(
+        detail.getByRole("link", { name: /^Slice plan / }),
+      ).toHaveAttribute("href", planHref("terryyin/open-dough", nextRevision));
+    }
     await card.getByRole("button", { name: "Hide detail" }).click();
-    await card.getByText("Preparation facts", { exact: true }).click();
+    await expect(card).toBeFocused();
   }
   await expect(
     backlog
@@ -118,17 +120,12 @@ export async function expectPlanAssociationConflict(
   await expect(
     readyCard.getByText("Changed since readiness review", { exact: true }),
   ).toHaveCount(0);
-  await readyCard.getByText("Preparation facts").click();
-  await expect(readyCard.getByText("Assessment:")).toContainText("disagree");
-  await expect(readyCard.getByText("Assessment:")).toContainText(
-    planBlockedPath,
-  );
-
   await readyCard.getByRole("button", { name: "Inspect story" }).click();
   const detail = readyCard.getByRole("region", {
     name: `Detail for ${plannedReady.title}`,
   });
-  await expect(detail).toContainText("disagree");
+  await expect(detail.getByText("Assessment:")).toContainText("disagree");
+  await expect(detail.getByText("Assessment:")).toContainText(planBlockedPath);
   await expect(
     readyCard.getByRole("link", { name: /^Slice plan / }),
   ).toHaveCount(0);

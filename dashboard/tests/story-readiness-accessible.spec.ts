@@ -13,6 +13,7 @@ import {
   expectNarrowZoomKeepsLabelsEvidenceAndFailure,
   expectNewSnapshotPreservesOrAnnouncesIdentity,
 } from "./storyReadinessAccessible.ts";
+import { expectScanToDetailAt420AndTwiceZoom } from "./storyReadinessScan.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
@@ -84,6 +85,10 @@ test("story readiness reads preparation and progress accessibly", async ({
 
   await test.step("badge text, contrast, and reduced-motion settle immediately", async () => {
     await expectBadgeTextContrastAndReducedMotion(page, taken, backlog);
+  });
+
+  await test.step("at 420px and 200% zoom, the scan view reads whole and the keyboard reaches the detail's links and back", async () => {
+    await expectScanToDetailAt420AndTwiceZoom(page, taken, backlog);
   });
 
   await test.step("at 320px and 400% zoom, labels, evidence, and the read failure stay reachable", async () => {

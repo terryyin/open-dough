@@ -4,6 +4,8 @@ import {
   card,
   destination,
   followLeavingDashboard,
+  forEachCardsSources,
+  inspectedSources,
   openDashboard,
   revision,
   snapshotRoot,
@@ -17,9 +19,12 @@ test("source navigation opens canonical and plan records at the inspected revisi
     stages,
     "See the project's published work in a story dashboard",
   );
-  const storyRecord = story.getByRole("link", { name: /^Canonical record / });
 
   await test.step("a story's seed link and its plan link", async () => {
+    const sources = await inspectedSources(story);
+    const storyRecord = sources.getByRole("link", {
+      name: /^Canonical record /,
+    });
     await expect(storyRecord).toContainText(
       "seeds/SEED-021-observe-published-story-progress.md#see-published-work",
     );
@@ -31,22 +36,22 @@ test("source navigation opens canonical and plan records at the inspected revisi
     expect(canonical.hash).toBe("#see-published-work");
 
     const plan = await destination(
-      story.getByRole("link", { name: /^Slice plan / }),
+      sources.getByRole("link", { name: /^Slice plan / }),
     );
     expect(plan.origin).toBe("https://github.com");
     expect(plan.pathname).toBe(
       `${snapshotRoot}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
     );
     expect(plan.hash).toBe("#ordered-slices");
-    await expect(story.getByRole("link")).toHaveCount(2);
-    await expect(story).toContainText(
+    await expect(sources.getByRole("link")).toHaveCount(2);
+    await expect(sources).toContainText(
       `File in this snapshot, at revision ${revision.slice(0, 7)}.`,
     );
   });
 
   await test.step("a bounded correction's bare plan link, by the same rule", async () => {
     const correction = card(stages, "Repair the installer's update report");
-    const links = correction.getByRole("link");
+    const links = (await inspectedSources(correction)).getByRole("link");
     await expect(links).toHaveCount(1);
     await expect(links).toHaveAccessibleName(
       "Canonical record slice-plans/059-installer-update-report/PLAN.md",
@@ -59,20 +64,17 @@ test("source navigation opens canonical and plan records at the inspected revisi
   });
 
   await test.step("dot segments and a root path resolve inside the repository", async () => {
+    const linkOf = async (title: string) =>
+      (await inspectedSources(card(stages, title))).getByRole("link");
     const outsidePlanning = await destination(
-      card(
-        stages,
-        "Follow a record kept outside the planning directory",
-      ).getByRole("link"),
+      await linkOf("Follow a record kept outside the planning directory"),
     );
     expect(outsidePlanning.pathname).toBe(
       `${snapshotRoot}/docs/adrs/0001-ubiquitous-language-accepted.md`,
     );
     expect(outsidePlanning.hash).toBe("#decision");
     const fromRoot = await destination(
-      card(stages, "Follow a record named from the repository root").getByRole(
-        "link",
-      ),
+      await linkOf("Follow a record named from the repository root"),
     );
     expect(fromRoot.pathname).toBe(
       `${snapshotRoot}/docs/release%20notes/2026.md`,
@@ -104,11 +106,10 @@ test("source navigation opens canonical and plan records at the inspected revisi
   });
 
   await test.step("following a snapshot link opens that GitHub page in a new tab while dashboard stays in place", async () => {
-    await story.getByRole("button", { name: "Inspect story" }).click();
+    await inspectedSources(story);
     const detail = story.getByRole("region", {
       name: "Detail for See the project's published work in a story dashboard",
     });
-    await expect(detail).toBeVisible();
     const dest = await followLeavingDashboard(
       page,
       detail.getByRole("link", { name: /^Canonical record / }),
@@ -123,13 +124,16 @@ test("source navigation opens canonical and plan records at the inspected revisi
     ).toHaveAttribute("aria-expanded", "true");
   });
 
-  await test.step("all rendered outbound anchors open in a new tab with safe opener policy", async () => {
-    const anchors = await page.locator("a[href]").all();
-    expect(anchors.length).toBeGreaterThan(0);
-    for (const anchor of anchors) {
-      await expect(anchor).toHaveAttribute("target", "_blank");
-      await expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
-    }
+  await test.step("every card's outbound anchors open in a new tab with safe opener policy", async () => {
+    let seen = 0;
+    await forEachCardsSources(stages, async (sources) => {
+      for (const anchor of await sources.locator("a[href]").all()) {
+        seen += 1;
+        await expect(anchor).toHaveAttribute("target", "_blank");
+        await expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
+      }
+    });
+    expect(seen).toBeGreaterThan(0);
   });
 });
 
@@ -137,7 +141,9 @@ test("source navigation keeps an external reference apart from files in this sna
   page,
 }) => {
   const { stages } = await openDashboard(page);
-  const note = card(stages, "Read the hosting provider's note");
+  const note = await inspectedSources(
+    card(stages, "Read the hosting provider's note"),
+  );
 
   const canonical = note.getByRole("link", { name: /^Canonical record / });
   await expect(canonical).toHaveAttribute(
@@ -175,7 +181,9 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
   const opened = { title: await page.title(), url: page.url() };
 
   await test.step("script and data schemes stay readable and are not links", async () => {
-    const hostile = card(stages, /Run a script from a link/);
+    const hostile = await inspectedSources(
+      card(stages, /Run a script from a link/),
+    );
     await expect(hostile).toContainText(
       "Canonical record javascript:document.title='canonical-ran'",
     );
@@ -206,7 +214,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
         "This is not a complete web address.",
       ],
     ] as const) {
-      const entry = card(stages, name);
+      const entry = await inspectedSources(card(stages, name));
       await expect(entry).toContainText(`Canonical record ${recorded}`);
       await expect(entry).toContainText(`Not offered as a link. ${reason}`);
       await expect(entry.getByRole("link")).toHaveCount(0);
@@ -224,10 +232,14 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
       `<img src=x onerror="document.title='direction ran'">`,
     );
     await expect(page.locator("img, script:not([src])")).toHaveCount(0);
-    const anchors = await page.locator("a[href]").all();
-    const schemes = await Promise.all(
-      anchors.map(async (anchor) => (await destination(anchor)).protocol),
-    );
+    // Every card's links, each read in its detail.
+    const schemes: string[] = [];
+    await forEachCardsSources(stages, async (sources) => {
+      for (const anchor of await sources.locator("a[href]").all()) {
+        schemes.push((await destination(anchor)).protocol);
+      }
+      await expect(page.locator("img, script:not([src])")).toHaveCount(0);
+    });
     expect(new Set(schemes)).toEqual(new Set(["https:", "http:"]));
     expect(dialogs).toEqual([]);
     expect({ title: await page.title(), url: page.url() }).toEqual(opened);

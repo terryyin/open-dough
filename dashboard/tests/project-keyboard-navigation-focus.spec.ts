@@ -54,6 +54,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
     const card = backlog.getByRole("article", {
       name: doughnutProject.queued,
     });
+    await card.getByRole("button", { name: "Inspect story" }).click();
     await card.getByRole("link", { name: /^Canonical record/ }).focus();
     await page.keyboard.press("ArrowRight");
     await expectFocusedRadio(page, "Pygardon");

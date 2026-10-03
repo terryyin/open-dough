@@ -1,8 +1,14 @@
-// One work item's card in its stage (`./WorkStages.tsx`): its priority in
-// the Backlog, its recorded facts, slice progress on Taken work, its launches
-// (`./CardLaunches.tsx`), and Inspect story with its detail or source links.
+// One work item's card in its stage (`./WorkStages.tsx`), read at two levels.
+// Its scan view leads with the title, then its priority in the Backlog, the
+// assigned or preparing developer, preparation and readiness badges,
+// dependencies, slice progress on Taken work with a brief source
+// qualification, and its launches (`./CardLaunches.tsx`). Inspect story
+// opens the secondary detail (`./StoryDetail.tsx`): identity, assignment
+// records, explanations, evidence, and source links, from facts already read.
 // While its story starts on this machine (`./storyStartup.ts`), none of the
-// card's actions can run; its facts and source links stay readable, and the
+// card's actions can run, Inspect story included; its facts stay readable and
+// its source links are shown on the card, so none waits behind that
+// unavailable action, and the
 // card and each unavailable action are described by its startup status
 // (`./protectedFrame.ts`), which the card holds the keyboard on once a
 // launch dialog hands the startup off (`./launchDialogLauncher.ts`).
@@ -82,16 +88,17 @@ export function WorkCard({
     >
       <fieldset className="card-frame" disabled={starting}>
         <ProtectedFrameReason value={reason}>
-          {priority !== undefined && (
-            <p className="card-priority">Priority {priority}</p>
-          )}
           <h3>{entry.title}</h3>
-          <p className="card-identity">{entry.identity}</p>
-          <TakenOwnerFacts owner={entry.owner} onOpenRoster={onOpenRoster} />
-          <PreparingFacts
-            preparing={entry.preparing}
-            onOpenRoster={onOpenRoster}
-          />
+          <div className="card-meta">
+            {priority !== undefined && (
+              <p className="card-priority">Priority {priority}</p>
+            )}
+            <TakenOwnerFacts owner={entry.owner} onOpenRoster={onOpenRoster} />
+            <PreparingFacts
+              preparing={entry.preparing}
+              onOpenRoster={onOpenRoster}
+            />
+          </div>
           <PreparationFacts preparation={entry.preparation} />
           <DependenciesCard dependencies={entry.dependencies} />
           {showsSliceProgress && (
@@ -131,7 +138,7 @@ export function WorkCard({
             </button>
           </p>
           {selected && <StoryDetail entry={entry} detailId={detailId} />}
-          {!selected && (
+          {!selected && starting && (
             <ul className="card-links" aria-label="Source links">
               <WorkSourceLinks entry={entry} />
             </ul>

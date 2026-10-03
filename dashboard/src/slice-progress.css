@@ -1,7 +1,8 @@
 /* A Taken card's recorded slice progress: the segmented bar and its count. */
 
 .card-progress {
-  margin-top: 0.45rem;
+  display: grid;
+  gap: var(--space-1);
 }
 
 /* One segment per recorded slice; the count beside it carries the meaning. */
@@ -22,25 +23,34 @@
   border-color: var(--accent);
 }
 
-.slice-count {
-  margin: 0.2rem 0 0;
-  font-size: 0.9rem;
+/* The count and the clock or completion read as one sentence-like line that
+   wraps as text, with a silent separator between them; a gap in either reads
+   on a line of its own. */
+.slice-facts {
+  font-size: var(--text-sm);
 }
 
-.slice-clock {
-  margin: 0.1rem 0 0;
-  font-size: 0.9rem;
+.slice-facts > p {
+  display: inline;
 }
 
-/* Where the slices were read, when that is not plainly trunk. */
+.slice-facts > p + p:not(.preparation-problem)::before {
+  content: " · " / "";
+  color: var(--quiet);
+}
+
+.slice-facts > .preparation-problem {
+  display: block;
+}
+
+.slice-count,
+.slice-clock,
 .progress-source {
-  margin: 0 0 0.2rem;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 /* A plan recording its execution as complete, awaiting wrap-up. */
 .execution-complete {
-  margin: 0.1rem 0 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }

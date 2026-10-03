@@ -26,32 +26,29 @@ export async function expectQueuedPlanCardAndDetail(
 ) {
   const card = backlog.getByRole("article", { name: plannedBlocked.title });
   await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
-  const plan = card.getByRole("link", { name: /^Slice plan / });
+  // The scan view offers no link; Inspect story reveals them without a read.
+  await expect(card.getByRole("link")).toHaveCount(0);
+  const reads = readCount();
+  await card.getByRole("button", { name: "Inspect story" }).click();
+  const detail = card.getByRole("region", {
+    name: `Detail for ${plannedBlocked.title}`,
+  });
+  const plan = detail.getByRole("link", { name: /^Slice plan / });
   await expect(plan).toHaveCount(1);
   await expect(plan).toHaveAttribute(
     "href",
     planHref(repository, repo.revision),
   );
   await expect(
-    card.getByRole("link", { name: /^Canonical record / }),
+    detail.getByRole("link", { name: /^Canonical record / }),
   ).toHaveAttribute(
     "href",
     `https://github.com/${repository}/blob/${repo.revision}/.planning/${plannedBlocked.link}`,
   );
-  const reads = readCount();
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  const detail = card.getByRole("region", {
-    name: `Detail for ${plannedBlocked.title}`,
-  });
-  await expect(detail.getByRole("link", { name: /^Slice plan / })).toHaveCount(
-    1,
-  );
-  await expect(plan).toHaveAttribute(
-    "href",
-    planHref(repository, repo.revision),
-  );
   expect(readCount()).toBe(reads);
   await card.getByRole("button", { name: "Hide detail" }).click();
+  await expect(card).toBeFocused();
+  await expect(card.getByRole("link")).toHaveCount(0);
 }
 
 export async function expectPlanKeyboardDestination(
@@ -72,6 +69,7 @@ export async function expectPlanKeyboardDestination(
     }),
   );
   const card = backlog.getByRole("article", { name: plannedBlocked.title });
+  await card.getByRole("button", { name: "Inspect story" }).click();
   await card.getByRole("link", { name: /^Canonical record / }).focus();
   await page.keyboard.press("Tab");
   await expect(card.getByRole("link", { name: /^Slice plan / })).toBeFocused();
@@ -94,6 +92,7 @@ export async function expectAgreeingFragment(
 ) {
   const card = taken.getByRole("article", { name: plannedReady.title });
   const plan = card.getByRole("link", { name: /^Slice plan / });
+  await card.getByRole("button", { name: "Inspect story" }).click();
   await expect(plan).toHaveCount(1);
   await expect(plan).toHaveAttribute(
     "href",
@@ -102,4 +101,6 @@ export async function expectAgreeingFragment(
   await expect(
     card.getByText("Plan association conflict", { exact: true }),
   ).toHaveCount(0);
+  await card.getByRole("button", { name: "Hide detail" }).click();
+  await expect(card).toBeFocused();
 }

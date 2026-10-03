@@ -71,9 +71,9 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     await expect(problem).toHaveCount(0);
   });
 
-  const queueLink = backlog
-    .getByRole("article", { name: queueStory })
-    .getByRole("link", canonical);
+  const queueCard = backlog.getByRole("article", { name: queueStory });
+  await queueCard.getByRole("button", { name: "Inspect story" }).click();
+  const queueLink = queueCard.getByRole("link", canonical);
   await queueLink.focus();
 
   await test.step("hiding the page abandons its outstanding check; nothing it would have said is shown", async () => {

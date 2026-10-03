@@ -26,6 +26,7 @@ import {
   branchHead,
   branches,
   completedPlan,
+  onBranch,
   planPath,
   repository,
   revision,
@@ -57,9 +58,17 @@ test("the automatic check follows each recorded story branch, reading only the p
   page,
 }) => {
   const { origin, progress } = await openedSettled(page);
-  const { source } = parts(page);
+  const { source, taken } = parts(page);
   const published = { ...branches };
-  await expect(progress).toContainText(
+  // The card qualifies its count briefly; the exact branch head is in the
+  // story's detail, which stays open as the branch moves.
+  await expect(progress).toContainText("From story branch; not in trunk.");
+  const branchCard = taken.getByRole("article", { name: onBranch });
+  await branchCard.getByRole("button", { name: "Inspect story" }).click();
+  const branchSource = branchCard
+    .getByRole("region", { name: `Detail for ${onBranch}` })
+    .locator(".progress-source");
+  await expect(branchSource).toContainText(
     `From branch ${example} at ${branchHead.slice(0, 7)}; not in trunk.`,
   );
   await expect(progress).toContainText("Current slice started 7 min ago");
@@ -92,7 +101,7 @@ test("the automatic check follows each recorded story branch, reading only the p
     await expect(
       progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
     ).toBeVisible();
-    await expect(progress).toContainText(
+    await expect(branchSource).toContainText(
       `From branch ${example} at ${movedHead.slice(0, 7)}; not in trunk.`,
     );
     await expect(progress).toContainText("Current slice started 2 min ago");
@@ -155,7 +164,7 @@ test("the automatic check follows each recorded story branch, reading only the p
       "Execution complete, awaiting wrap-up",
     );
     await expect(progress).toContainText("Completed 1 min ago");
-    await expect(progress).toContainText(
+    await expect(branchSource).toContainText(
       `From branch ${example} at ${completedHead.slice(0, 7)}; not in trunk.`,
     );
     await expect(progress).not.toContainText("Current slice started");

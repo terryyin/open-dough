@@ -15,8 +15,9 @@ so.
 
 Progress comes from where the story's work is published. A single Trunk Mode
 profile reads the plan at the shown revision of the configured ref. A single Story Branch
-Mode profile reads the same plan path at the recorded branch's head and labels
-the card "From branch <branch> at <short revision>; not in trunk." Without a
+Mode profile reads the same plan path at the recorded branch's head; the card
+qualifies the count "From story branch; not in trunk." and the detail names it
+"From branch <branch> at <short revision>; not in trunk." Without a
 profile, or when profiles cannot be read, the card shows trunk's plan labelled
 as the trunk copy with the execution branch not recorded or unknown, and reads
 no branch. More than one profile naming the story, a recorded branch that is no
@@ -31,28 +32,30 @@ awaiting wrap-up" and "Completed N min ago", measured from the plan's last
 commit where its progress is read, in place of the current slice clock, or
 shows the record's gap. Queued cards show no progress, complete or not.
 
-Each card and expanded detail offers the canonical record and a **Slice plan**
-link when its association is recorded in the canonical story-state or explicitly
-in the backlog. Story-state paths resolve beside the canonical file; backlog
-links resolve beside the backlog file (a leading `/` starts at the repository
-root). Repository navigation is pinned to the inspected commit and keeps an
-explicit anchor. Agreeing references produce one plan action; conflicting
-references are qualified as disputed evidence without choosing a plan.
-Navigation does not require readiness or successfully read plan contents.
-Readiness retains the last recorded Ready or Not ready judgment and its reasons.
-Cards, preparation facts and story details separately show "Changed since
-readiness review" when the existing reviewed story/plan basis differs. Changed
-Ready keeps its normal Start presentation and can start under existing startup
-safeguards; the installed start hands the indication to the executing agent,
-including a retained-start retry. A new assessment clears it. Take, resume and
-ordinary plan delivery do not automatically renew the judgment or basis.
-Canonical and associated plan contents are read at the same revision for
-preparation and detail; opening detail requires no additional fetch. Following
-a repository file or ordinary external reference opens in a new tab
-(`target="_blank"`, `rel="noopener noreferrer"`), leaving the dashboard tab,
-selected project, and open detail in place. An `http(s)` address stays an
-external reference not tied to the revision. Unsafe schemes, repository escapes,
-and unusable targets stay text with the reason; titles and targets stay text.
+A story's detail (**Inspect story**) offers the canonical record and a **Slice
+plan** link when its association is recorded in the canonical story-state or
+explicitly in the backlog; while the story starts on this machine and Inspect
+story is unavailable, the card itself shows them. Story-state paths resolve
+beside the canonical file; backlog links resolve beside the backlog file (a
+leading `/` starts at the repository root). Repository navigation is pinned to
+the inspected commit and keeps an explicit anchor. Agreeing references produce
+one plan action; conflicting references are qualified as disputed evidence
+without choosing a plan. Navigation does not require readiness or successfully
+read plan contents. Readiness retains the last recorded Ready or Not ready
+judgment and its reasons. Cards and story details separately show "Changed since
+readiness review" when the existing reviewed story/plan basis differs; the
+detail places it beside the recorded judgment. Changed Ready keeps its normal
+Start presentation and can start under existing startup safeguards; the
+installed start hands the indication to the executing agent, including a
+retained-start retry. A new assessment clears it. Take, resume and ordinary plan
+delivery do not automatically renew the judgment or basis. Canonical and
+associated plan contents are read at the same revision for preparation and
+detail; opening detail requires no additional fetch. Following a repository file
+or ordinary external reference opens in a new tab (`target="_blank"`,
+`rel="noopener noreferrer"`), leaving the dashboard tab, selected project, and
+open detail in place. An `http(s)` address stays an external reference not tied
+to the revision. Unsafe schemes, repository escapes, and unusable targets stay
+text with the reason; titles and targets stay text.
 
 Keyboard focus follows a work item across a refresh by its identity. When a
 derived plan link arrives after the backlog, focus returns to that link only if
