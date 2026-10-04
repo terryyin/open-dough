@@ -167,3 +167,13 @@ clean. The collapse, selection-kept, Refresh, and reopen steps are in
 journey. A collapsed folder's accessible name carries its count
 (`dashboard 3 changed files`). The browser's rows moved to
 `dashboard/src/StoryReviewFileTree.tsx`.
+
+## Execution complete
+
+Product advice: no backlog change. The folder tree and its path-keyed
+collapsed state are the review UI that `SEED-088#review-selected-commits` and
+`#review-changes-since-last-review` will reuse, so their order stands. A folder
+collapsed, then absent after one Refresh, comes back collapsed if a later
+Refresh brings it back, as the selection already does. This is no defect
+against the story, but those stories should keep it in mind when snapshots
+change between reviews.
