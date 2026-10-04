@@ -98,6 +98,19 @@ for (const mode of ["dev", "preview"] as const) {
       });
     });
 
+    test("a long multiline instruction is submitted after Cursor shows it as pasted text", async () => {
+      const cursor = installFakeCursor({ screen: "composer" });
+      const story = `${instruction}\n${"line of the launch instruction. ".repeat(40)}`;
+      await withInstructedCursor(mode, cursor, story, async (server) => {
+        const pid = cursor.attaches()[0]?.pid ?? 0;
+        await expect
+          .poll(() => keptCursor(server.home).firstInput?.state)
+          .toBe("confirmed");
+        expect(enteredInstruction(cursor, pid)).toBe(story);
+        expect(keptCursor(server.home).firstInput?.instruction).toBe(story);
+      });
+    });
+
     test("an answer typed while the agent is asking reaches that client", async () => {
       const cursor = installFakeCursor({ screen: "waiting" });
       await withInstructedCursor(mode, cursor, instruction, async (server) => {
