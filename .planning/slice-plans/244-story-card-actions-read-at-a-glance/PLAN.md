@@ -130,3 +130,9 @@ may change if another reads as the same action. Update `README.md` and
 
 - Local gate: the focused Playwright specs named per slice, run with
   `NODE_ENV` unset. Hosted CI runs the full suite after publication.
+
+## Execution complete
+
+Product advice: no new product work. The story's goal and key examples are
+delivered; the scan line names the credited human without the avatar, which
+stays in Inspect story and the roster. Leave the backlog order unchanged.
