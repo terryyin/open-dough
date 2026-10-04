@@ -6,6 +6,7 @@ import {
   type CursorScreen,
   type FakeCursor,
 } from "./fakeCursor.ts";
+import { launchWaitMs } from "./launchWait.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
 
@@ -42,7 +43,7 @@ export const test = base.extend<{
     await use([cursor.binDir]);
   },
 });
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
+test.use({ projectFolders: ["open-dough"], launchTimeoutMs: launchWaitMs });
 
 // Cursor keeps working after its launch instruction, so the launch client is
 // not hung up as idle before the page's terminal joins it.

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "darren-chan",
-  "email": "darren-chan@example.org",
-  "identity": "SEED-093#launch-card-waits-hold-under-load",
-  "mode": "story-branch",
-  "branch": "claude/launch-card-specs-give-ci-s-verdict-on-a-loaded",
-  "host": "claude"
-}

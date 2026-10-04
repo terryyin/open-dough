@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Launch-card specs give CI's verdict on a loaded machine](seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load) — SEED-093#launch-card-waits-hold-under-load
-
 ## Backlog list
 
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review

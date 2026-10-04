@@ -14,6 +14,7 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
@@ -61,8 +62,12 @@ test("a queued story starts Cursor refinement and the published assignment is wh
     name: "Refinement session",
     exact: true,
   });
-  await expect(entry).toContainText("Refinement started in Cursor");
-  await expect(entry).toContainText("First input accepted");
+  await expect(entry).toContainText("Refinement started in Cursor", {
+    timeout: launchWaitMs,
+  });
+  await expect(entry).toContainText("First input accepted", {
+    timeout: launchWaitMs,
+  });
   await expect(entry).toContainText(cursor.sessionId);
   await expect(
     entry.getByRole("button", { name: "Open terminal" }),

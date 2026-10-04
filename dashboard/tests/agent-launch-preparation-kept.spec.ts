@@ -15,6 +15,7 @@ import { keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { parts } from "./dashboardPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
 const workspaceShown = "~/git/open-dough/.worktrees/story-a";
@@ -54,6 +55,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(card.locator(".launch-problem")).toContainText(
     `Launch failed: Claude Code refused to start a session in ${workspaceShown} with model Opus.`,
+    { timeout: launchWaitMs },
   );
   expect(await keptStarts(dashboard)).toMatchObject([
     {
@@ -90,6 +92,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
     `Workspace ${workspaceShown}`,
+    { timeout: launchWaitMs },
   );
   await expect(card).not.toContainText("Started here");
   expect(await keptStarts(dashboard)).toEqual([]);
