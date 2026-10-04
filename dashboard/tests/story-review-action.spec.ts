@@ -4,7 +4,9 @@
 // next in reading order when it is not, below the launch group's Starts, and
 // the keyboard reaches it from Inspect story. Closing the review in the side
 // panel returns the keyboard in ./story-review.spec.ts; closing the detail, in
-// ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts.
+// ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts. Each
+// layout is read once the cards' preparation is read, since that reading
+// changes a card's height.
 
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -22,6 +24,7 @@ import {
   expectOnOneLine,
   expectStackedInOrder,
 } from "./pageLayout.ts";
+import { expectSettledPage } from "./dashboardPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
   keepLaunchRecord,
@@ -49,6 +52,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
   const detail = card.getByRole("region", { name: "Detail for Story A" });
 
   await page.setViewportSize({ width: 1440, height: 900 });
+  await expectSettledPage(page);
   await expectOnOneLine(starts);
   await expectOnOneLine([inspect, action]);
   await expectStackedInOrder([launchGroup(card), inspectionGroup(card)]);
@@ -56,6 +60,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
     await page.setViewportSize(window);
     // Each window starts from a newly read page, with no detail or review open.
     await page.reload();
+    await expectSettledPage(page);
     await expectInReadingOrder(card, [...starts, inspect, action]);
     await inspect.focus();
     await page.keyboard.press("Enter");
