@@ -686,3 +686,17 @@ Follow-up: Open, unqueued.
   - Evidence: the uncommitted diff of `pageSidePanel.ts` had `openTerminal` going from `? current` to `? { ...current, request }`; the return's finding-1 text named `openReview` only. After the revert, the focused 32-test proof passed again.
   - Observed effect: one revert and one rerun of the focused proof. A new terminal request would have handed `TerminalPanel` a new `session` object, which could re-run its attach effects; no test covered that path.
   - Inference: Qualified. Because the return was organized per changed path, a hunk outside the slice's scope sat inside a path the return did report. Only reading the diff hunk by hunk caught it. One sample.
+## DD-231 — Story-branch increment delivery published with no CI observer
+
+Three Story Branch increment deliveries were accepted on the execution branch without a host session identity, so no CI mailbox was created and the completion wait has no observer to close.
+
+### Occurrences
+
+- Execution: `SEED-097#cursor-agent-stays-joinable` / plan 242, first related implementation commit `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Model: Grok 4.7
+  - Open Dough release: modified; revision `2ea2d324f5956dc76c006b0d425fdefda86b9771`; base 0.3.56
+  - Evidence: `execution-increment-delivery.mjs deliver` receipts for `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`, `d8468ccec8024cbab1350afac9ef01d4dc006e59`, and `2ea2d324f5956dc76c006b0d425fdefda86b9771` on `refs/heads/cursor/a-launched-cursor-agent-receives-its-story`, each `observation.state: unobserved`, `reason: host session identity is required to verify the notification bridge`. No `--session-json` was passed.
+  - Observed effect: publication was accepted; CI was not observed; `complete-revision` has no mailbox.
+  - Inference: Qualified. The coordinator omitted the host session identity. One execution.
