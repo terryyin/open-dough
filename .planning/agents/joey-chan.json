@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-098#story-card-actions-read-at-a-glance",
+  "mode": "story-branch",
+  "branch": "claude/story-card-actions-show-their-state-by-style-and",
+  "host": "claude"
+}
