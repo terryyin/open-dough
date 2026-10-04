@@ -5,7 +5,9 @@
 // an image; it merged trunk carrying another story's file, trunk moved on
 // since, and it holds a staged, an unstaged, an untracked, and an ignored
 // file. A worktree straight off trunk has nothing to review, and a story whose
-// first commit landed on trunk has only its later changes to review.
+// first commit landed on trunk has only its later changes to review. A story
+// changing files in nested folders, at the root, and across folders by a
+// rename shows its files under their folders.
 
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -35,6 +37,12 @@ const image = (last: number) =>
 
 // The unstaged edit's added line, too long for the review to show unscrolled.
 export const wideLine = `more ${"wide ".repeat(80)}`;
+
+// A file written at its path under a root, making its folders.
+function writeAt(root: string, file: string, text: string) {
+  mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+  writeFileSync(path.join(root, file), text);
+}
 
 // Story A's worktree on its branch, started from the project's trunk.
 function addStoryWorktree(project: string) {
@@ -127,6 +135,39 @@ export function landedWorktree(origin: StartOrigin) {
   commitAll(workspace, "later slice");
   writeFileSync(path.join(workspace, "edited.txt"), `${lines("edited")}more\n`);
   return { workspace, landed };
+}
+
+// Story A's worktree changing files in nested folders, under a chain of
+// single folders, at the root, and by a rename across folders that leaves
+// its old folder's other file alone.
+export function nestedWorktree(origin: StartOrigin) {
+  const project = origin.project;
+  const trunkFiles = {
+    "dashboard/src/b.ts": lines("b"),
+    "dashboard/server/c.ts": lines("c"),
+    "README.md": lines("readme"),
+    "old/a.ts": lines("a"),
+    "old/kept.ts": lines("kept"),
+  };
+  for (const [file, text] of Object.entries(trunkFiles)) {
+    writeAt(project, file, text);
+  }
+  commitAll(project, "trunk files");
+  git(project, "push", "--quiet", "origin", "main");
+
+  const workspace = addStoryWorktree(project);
+  const write = (file: string, text: string) => {
+    writeAt(workspace, file, text);
+  };
+  write("dashboard/src/a.tsx", "added\n");
+  write("dashboard/src/b.ts", `${lines("b")}more\n`);
+  rmSync(path.join(workspace, "dashboard/server/c.ts"));
+  write("README.md", `${lines("readme")}more\n`);
+  write("docs/adrs/drafts/0009-tree.md", "tree\n");
+  mkdirSync(path.join(workspace, "new"));
+  git(workspace, "mv", "old/a.ts", "new/a.ts");
+  commitAll(workspace, "nested changes");
+  return { workspace };
 }
 
 // Story A's launch record, its start naming the worktree, of the session

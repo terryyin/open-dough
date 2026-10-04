@@ -127,7 +127,11 @@ test("direct settings reload knows the selected project; unselected removal pres
 test("opening settings preserves one running native session and its attached terminal context", async ({
   page,
 }) => {
-  const server = await fixture.start("dev");
+  // The built dashboard mounts the terminal once. The dev server's React
+  // StrictMode mounts it twice, and its first socket may still attach
+  // before that mount's cleanup hangs it up, so counting attaches there
+  // would count StrictMode rather than settings.
+  const server = await fixture.start("preview");
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   await page

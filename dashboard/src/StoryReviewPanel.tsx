@@ -19,7 +19,8 @@ import {
   storyReviewSchema,
   type StoryReview,
 } from "./storyReview.ts";
-import { changedFiles, SnapshotView } from "./StoryReviewSnapshotView.tsx";
+import { changedFiles } from "./StoryReviewFileTree.tsx";
+import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import type { StoryReviewRequest } from "./pageReviews.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { SidePanelEdge } from "./SidePanelEdge.tsx";

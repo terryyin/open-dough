@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "d.kanai-chan",
-  "email": "d.kanai-chan@example.org",
-  "identity": "SEED-088#review-files-as-folder-tree",
-  "mode": "story-branch",
-  "branch": "claude/browse-a-review-s-changed-files-as-a-collapsible",
-  "host": "claude"
-}

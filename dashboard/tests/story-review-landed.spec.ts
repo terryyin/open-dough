@@ -3,6 +3,7 @@
 // and uncommitted edit remain to review.
 
 import { expect, test } from "./support/preparationPage.ts";
+import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
   branch,
@@ -26,9 +27,6 @@ test("a landed slice leaves the review and the unlanded changes remain", async (
     `${landed}, where ${branch} meets origin/main`,
   ]);
   const files = review.getByRole("list", { name: "2 changed files" });
-  await expect(files.getByRole("listitem")).toHaveText([
-    "Modified edited.txt",
-    "Added later.txt",
-  ]);
+  await expect.poll(() => treeRows(files)).toEqual(["edited.txt", "later.txt"]);
   await expect(review).not.toContainText("landed.txt");
 });

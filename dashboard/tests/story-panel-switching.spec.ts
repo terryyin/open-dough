@@ -108,8 +108,10 @@ test("review and terminal take turns in the one side panel beside a usable dashb
     );
     await expect(review).toContainText(`Review changes ${otherQueuedIdentity}`);
     await expect(
-      review.getByRole("list", { name: "1 changed file" }),
-    ).toContainText("Added story-b.txt");
+      review
+        .getByRole("list", { name: "1 changed file" })
+        .getByRole("button", { name: "Added story-b.txt" }),
+    ).toBeVisible();
     await expect(review.locator(".story-review-body")).toBeFocused();
     await expect(items).toHaveCount(1);
     await expect(terminal).toHaveCount(0);

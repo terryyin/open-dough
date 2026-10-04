@@ -89,8 +89,10 @@ test("a review, another story's review, and a final report replace each other in
       "Story B",
     );
     await expect(
-      review.getByRole("list", { name: "1 changed file" }),
-    ).toContainText("Added story-b.txt");
+      review
+        .getByRole("list", { name: "1 changed file" })
+        .getByRole("button", { name: "Added story-b.txt" }),
+    ).toBeVisible();
     release?.();
     await page.unrouteAll({ behavior: "wait" });
     await expect(review.getByRole("heading", { level: 2 })).toHaveText(
