@@ -54,6 +54,49 @@ long-running story take less time.
 a snapshot as reviewed, where that mark is kept on this machine, and how trunk
 integration between the two snapshots is shown.
 
+<a id="review-uncommitted-changes"></a>
+
+### Review only a story's uncommitted changes
+
+**Identity:** SEED-088#review-uncommitted-changes
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer on the machine where a story's agent works can review
+only the changes still uncommitted in its work tree (staged, unstaged and
+untracked), so they can check work in progress before it is committed,
+whether the story runs in Trunk Mode or Story Branch Mode. In Story Branch
+Mode, the full review also offers a check to include or leave out the work
+tree's uncommitted changes.
+
+**Scope:** Builds on the
+[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md), whose snapshot
+already combines commits with uncommitted files. To be refined: how the
+developer chooses the uncommitted-only view, the check's default, and which
+work tree a Trunk Mode story names.
+
+<a id="review-trunk-mode-story-changes"></a>
+
+### Review only a Trunk Mode story's own changes
+
+**Identity:** SEED-088#review-trunk-mode-story-changes
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer reviewing a story executed in Trunk Mode, whose commits
+are continuously merged or rebased onto `origin` trunk, can review only the
+changes that story's agent made, even when its commits are interwoven with
+other people's commits on trunk.
+
+**Scope:** Builds on the
+[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md); the merge-base
+baseline shows nothing once the story's commits are on trunk. To be refined:
+how the story's commits are recognized on trunk, whether only its changes can
+be highlighted when other commits touch the same files, and how this combines
+with reviewing only what changed since the last review.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
@@ -70,3 +113,6 @@ integration between the two snapshots is shown.
   would make a starting-revision baseline show trunk changes as story changes.
 - `dashboard/server/defaultCheckoutChanges.ts` already reads the default
   checkout's changed paths with `git status`.
+- Terry's 2026-10-05 request: queue reviewing a story's uncommitted
+  changes (with a Story Branch Mode check to include them) at priority three,
+  and reviewing only a Trunk Mode story's own changes at priority four.
