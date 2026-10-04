@@ -42,17 +42,73 @@ story's history are handled.
 
 **Identity:** SEED-088#review-changes-since-last-review
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/245-review-changes-since-last-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e063f91b09a80daa9b2f7f375faea769c1c16c63ae91639aff29eb96fbf67527","plan":"f367a441fbe803e69b5226bdc99a7f98a3e3975036e836a458e9af66e9b869f0"}}
 ```
 
 **Goal:** A developer who already reviewed a story while its agent kept working
 can review only the changes made since that review, so repeated reviews of a
-long-running story take less time.
+long-running story take less time. The developer decides when a review counts;
+the review never hides a change they have not marked as seen.
 
 **Scope:** Builds on the
-[story review](../../dashboard/AGENT-LAUNCH.md#story-review). To be refined: what marks
-a snapshot as reviewed, where that mark is kept on this machine, and how trunk
-integration between the two snapshots is shown.
+[story review](../../dashboard/AGENT-LAUNCH.md#story-review).
+
+- **Mark reviewed.** The review offers **Mark reviewed**, which marks the
+  snapshot shown, whether it shows all changes or the changes since an earlier
+  mark. What the agent wrote after that snapshot was taken stays unmarked.
+  Opening, closing, refreshing, or replacing the review marks nothing. A story
+  has one mark; marking again replaces it. The review then says the snapshot
+  is marked and when.
+- **Since the review.** With a mark, Review changes opens on the changes from
+  the marked snapshot to a fresh one, headed by what it compares and when the
+  mark was made, in the same file browser and diff view. The developer can
+  switch to all changes against trunk and back within one snapshot; every
+  opening starts on since-the-review. Refresh keeps the comparison shown.
+  Without a mark, the review opens as it does today.
+- **Nothing since.** When the fresh snapshot equals the marked one, the review
+  says nothing changed since the review and still offers all changes.
+- **Trunk integrated in between.** When trunk was merged into the story after
+  the mark, changes that came only from trunk stay out, as they do in the full
+  review. A file that both trunk and the story changed in a way that cannot be
+  separated is listed and flagged as including trunk's changes; its diff runs
+  from the marked snapshot to the current one, so no story change is hidden.
+  The review says when trunk was integrated since the mark.
+- **Where the mark lives.** The mark belongs to the project and story on this
+  machine, in the dashboard's local records, and outlives a dashboard restart
+  and Git's housekeeping while the story's repository exists. It stays out of
+  the repository's tracked files, the workspace's index and status, and other
+  machines. When the marked snapshot can no longer be read, the review says so
+  and shows all changes.
+
+Deferred: per-file viewed marks; clearing a mark without replacing it; showing
+on the story's card that changes are waiting since the review; a history of
+earlier marks; sharing a mark between developers or machines.
+
+**Key examples:**
+
+- A story's review shows 12 changed files → the developer chooses Mark
+  reviewed → the agent changes 2 of them and adds 1 → Review changes opens on
+  3 files, headed as changes since the review at its time, each diff showing
+  only what changed after the mark.
+- The agent writes a file after the snapshot was taken, and the developer
+  marks that snapshot without Refresh → the next review lists that file.
+- The developer opens the review, reads half, and closes it → the next opening
+  shows what it showed before; nothing was marked.
+- Since-the-review shows 3 files → the developer switches to all changes →
+  the same snapshot lists all 13 → switching back shows the 3 again.
+- A marked story with no later change → Review changes says nothing changed
+  since the review and offers all changes.
+- After the mark, the agent merges trunk, which changed `README.md` and
+  `src/a.ts`; the story then changed `src/b.ts` → since-the-review lists only
+  `src/b.ts` and says trunk was integrated since the mark.
+- After the mark, trunk and the story both changed the same lines of
+  `src/c.ts` → `src/c.ts` is listed, flagged as including trunk's changes, and
+  its diff runs from the marked snapshot to now.
+- The marked snapshot cannot be read, for example the project was cloned anew
+  → the review says the earlier review cannot be compared and shows all
+  changes; Mark reviewed starts again from there.
+- The developer marks in since-the-review → the mark is the whole current
+  snapshot, and the next review compares with it.
 
 <a id="review-uncommitted-changes"></a>
 
@@ -116,3 +172,14 @@ with reviewing only what changed since the last review.
 - Terry's 2026-10-05 request: queue reviewing a story's uncommitted
   changes (with a Story Branch Mode check to include them) at priority three,
   and reviewing only a Trunk Mode story's own changes at priority four.
+- 2026-10-05 refinement of since-the-last-review: Terry chose an explicit Mark
+  reviewed, opening on since-the-review with a switch to all changes, and
+  listing a file that trunk and the story both changed with a flag. Leaving
+  trunk's changes out borrows finance's constant-currency comparison: restate
+  the earlier figure at today's rate, then compare. Here the marked snapshot
+  is restated on today's baseline and compared with the current snapshot.
+  Observed on Git 2.50.1: `git merge-tree --write-tree --merge-base=<marked
+  baseline> <marked tree> <current baseline>` gives that restated tree, exits
+  1 and names the files it could not merge, and a ref can hold a bare tree
+  through `git gc --prune=now`. Unlike a currency rate, a restatement can
+  conflict, which is why an overlapping file is flagged instead of separated.
