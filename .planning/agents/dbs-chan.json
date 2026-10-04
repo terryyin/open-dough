@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "dbs-chan",
+  "email": "dbs-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-098#story-card-actions-read-at-a-glance",
+  "host": "claude"
+}
