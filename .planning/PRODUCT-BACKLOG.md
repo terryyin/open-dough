@@ -14,6 +14,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Show the credited human's avatar on the story card](seeds/SEED-101-story-card-human-avatar.md#story-card-human-avatar) — SEED-101#story-card-human-avatar
+
 ## Backlog list
 
 - [Dashboard specs pass CI on a revision that changes no code](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) — SEED-100#dashboard-specs-pass-unchanged-code
