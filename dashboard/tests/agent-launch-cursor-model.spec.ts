@@ -14,7 +14,7 @@ import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { cursorModels } from "./support/fakeCursor.ts";
-import { processRunning } from "./support/processGroup.ts";
+import { stayedUp } from "./support/keptCursorTurn.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
 const savedNote =
@@ -111,17 +111,18 @@ test("execution on a Cursor-listed model sends it on the prompted run only and d
       ],
     },
   });
-  await expect.poll(() => cursor.signals(client.pid)).toContain("SIGHUP");
-  expect(processRunning(client.pid)).toBe(false);
+  await stayedUp(cursor, client.pid, 500);
   await entry.getByRole("button", { name: "Open terminal" }).click();
-  await expect.poll(() => cursor.attaches()).toHaveLength(2);
-  expect(cursor.attaches()[1]?.args).toEqual([
+  await expect.poll(() => cursor.attaches()).toHaveLength(1);
+  expect(cursor.attaches()[0]?.pid).toBe(client.pid);
+  expect(cursor.attaches()[0]?.args).toEqual([
     "--workspace",
     workspace,
     "--resume",
     cursor.sessionId,
+    "--model",
+    "gpt-5.2",
   ]);
-  expect(cursor.input(cursor.attaches()[1]?.pid ?? 0)).not.toContain("gpt-5.2");
   expect(await origin.takenProfiles()).toEqual([
     expect.objectContaining({ host: "cursor", model: "gpt-5.2" }),
   ]);

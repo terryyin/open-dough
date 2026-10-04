@@ -1,6 +1,7 @@
 // Once a kept client has no socket, hang it up after its declared idle
-// screen has held for the settle period. A screen that stops matching, or a
-// socket returning, leaves the client running.
+// screen has held for the settle period. A screen that stops matching, a
+// socket returning, or no idle rule leaves the client running. With no rule
+// the watch still records the screen.
 import type { DetachedIdle } from "./launchHosts.ts";
 import { KeptClientScreen } from "./keptClientScreen.ts";
 
@@ -10,7 +11,7 @@ export class DetachedIdleWatch {
   private idleTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(
-    private readonly rule: DetachedIdle,
+    private readonly rule: DetachedIdle | undefined,
     size: { readonly cols: number; readonly rows: number },
     private readonly isTracked: () => boolean,
     private readonly detached: () => boolean,
@@ -60,18 +61,20 @@ export class DetachedIdleWatch {
   // The idle marker has to hold for the host's settle period.
   private evaluate(): void {
     const screen = this.screen;
+    const rule = this.rule;
     if (
       screen === undefined ||
+      rule === undefined ||
       !this.isTracked() ||
       !this.detached() ||
-      !this.rule.matches(screen.text())
+      !rule.matches(screen.text())
     ) {
       this.clear();
       return;
     }
     const now = Date.now();
     if (this.idleSince === undefined) this.idleSince = now;
-    const remaining = this.rule.settleMs - (now - this.idleSince);
+    const remaining = rule.settleMs - (now - this.idleSince);
     if (remaining <= 0) {
       this.hangup();
       return;
@@ -92,6 +95,7 @@ export class DetachedIdleWatch {
   }
 }
 
+// `observe` records the screen when a kept client declares no idle rule.
 export function detachedIdleWatch(
   rule: DetachedIdle | undefined,
   size: { readonly cols: number; readonly rows: number },
@@ -100,8 +104,9 @@ export function detachedIdleWatch(
     readonly detached: () => boolean;
     readonly hangup: () => void;
   },
+  observe = false,
 ): DetachedIdleWatch | undefined {
-  if (rule === undefined) return undefined;
+  if (rule === undefined && !observe) return undefined;
   return new DetachedIdleWatch(
     rule,
     size,

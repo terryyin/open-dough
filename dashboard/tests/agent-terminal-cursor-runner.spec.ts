@@ -9,7 +9,7 @@
 import { test } from "./support/pageTest.ts";
 import { serverCloseLeavesCursorAndHangsUpOtherHosts } from "./support/cursorRunnerHosts.ts";
 import {
-  detachedPromptEndsWhileDashboardIsDown,
+  detachedPromptStaysWhileDashboardIsDown,
   stoppingRunnerResumesOnNextOpen,
   twoServersLeaveOneRunner,
   unreachableRunnerRefusesStart,
@@ -34,8 +34,8 @@ test("a trust screen stays unconfirmed across a restart until that client is rea
   await trustScreenSurvivesRestart();
 });
 
-test("the runner ends a detached follow-up prompt while the dashboard is down", async () => {
-  await detachedPromptEndsWhileDashboardIsDown();
+test("the runner keeps a detached follow-up prompt while the dashboard is down", async () => {
+  await detachedPromptStaysWhileDashboardIsDown();
 });
 
 test("two development servers leave one runner in its own process group", async () => {

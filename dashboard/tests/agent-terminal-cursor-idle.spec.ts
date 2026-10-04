@@ -1,7 +1,7 @@
-// A kept Cursor client with no socket. The ordinary finished prompt hangs
-// that client up, and the next open starts another that takes a follow-up.
-// A screen waiting for an answer, or one that matches neither marker, keeps
-// the client.
+// A kept Cursor client with no socket. The follow-up prompt keeps that
+// client, and the next open joins it and can type. A working screen, a
+// screen waiting for an answer, or one that matches neither marker, keeps
+// the client too.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -18,7 +18,6 @@ import {
   startCursorDashboard,
   stayedUp,
 } from "./support/keptCursorTurn.ts";
-import { cursorIdleSettleMs } from "../server/hosts/cursor/idleScreen.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./support/processGroup.ts";
 
@@ -71,7 +70,7 @@ for (const mode of ["dev", "preview"] as const) {
   test.describe(`detached Cursor screen (${mode})`, () => {
     test.use({ mode });
 
-    test("an idle detached Cursor client ends and the next open takes a follow-up", async ({
+    test("a detached follow-up prompt keeps the client and the next open joins it", async ({
       mode: launchMode,
     }) => {
       test.setTimeout(120_000);
@@ -94,37 +93,20 @@ for (const mode of ["dev", "preview"] as const) {
             .poll(() => terminal.controls())
             .toContainEqual({ readiness: "attached" });
 
-          // The hangup waits for the idle screen to hold, so it comes no
-          // sooner than the settle period after this close.
-          const detachedAt = performance.now();
           terminal.socket.close();
           await terminal.closed;
-          await expect
-            .poll(() => cursor.signals(pid), { intervals: [10] })
-            .toContain("SIGHUP");
-          expect(performance.now() - detachedAt).toBeGreaterThanOrEqual(
-            cursorIdleSettleMs,
-          );
-          await expect.poll(() => processRunning(pid)).toBe(false);
+          await stayedUp(cursor, pid, 500);
 
           const next = await openCursorTerminal(server, sessionId);
           await expect
             .poll(() => next.controls())
-            .toEqual([{ readiness: "observe" }]);
-          await expect.poll(() => next.output()).toContain("→ Add a follow-up");
-          expect(cursor.attaches()).toHaveLength(2);
-          const nextPid = cursor.attaches()[1]?.pid ?? 0;
-          expect(nextPid).not.toBe(pid);
-          expect(processRunning(nextPid)).toBe(true);
-          next.send({
-            cursorVisible: true,
-            screen: ["→ Add a follow-up"],
-          });
-          await expect
-            .poll(() => next.controls())
             .toContainEqual({ readiness: "attached" });
+          await expect.poll(() => next.output()).toContain("→ Add a follow-up");
+          expect(cursor.attaches()).toHaveLength(1);
+          expect(cursor.attaches()[0]?.pid).toBe(pid);
+          expect(processRunning(pid)).toBe(true);
           next.send({ input: "follow-up" });
-          await expect.poll(() => cursor.input(nextPid)).toContain("follow-up");
+          await expect.poll(() => cursor.input(pid)).toContain("follow-up");
         },
       );
     });
@@ -157,6 +139,21 @@ for (const mode of ["dev", "preview"] as const) {
         await expect.poll(() => terminal.output()).toContain("Cursor Agent");
         expect(terminal.output()).not.toContain("Add a follow-up");
         expect(terminal.output()).not.toContain("ctrl+c to stop");
+        expect(terminal.output()).not.toContain("Clarifying Questions");
+        terminal.socket.close();
+        await terminal.closed;
+        await stayedUp(cursor, pid, 500);
+      });
+    });
+
+    test("a detached working Cursor screen stays running", async ({
+      mode: launchMode,
+    }) => {
+      test.setTimeout(120_000);
+      const cursor = installFakeCursor({ screen: "working" });
+      await withOpenedCursor(launchMode, cursor, async ({ terminal, pid }) => {
+        await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
+        expect(terminal.output()).toContain("Add a follow-up");
         expect(terminal.output()).not.toContain("Clarifying Questions");
         terminal.socket.close();
         await terminal.closed;

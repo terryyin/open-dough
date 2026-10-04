@@ -1,7 +1,7 @@
 // Whether this accept's Cursor launch should stay out of the idle rule until
 // the page's terminal socket joins. Start session says it will open that
-// terminal. A story launch and a launch asked over HTTP do not, so a detached
-// follow-up still ends after the idle settle. The async launch keeps the flag
+// terminal. A story launch and a launch asked over HTTP do not. The follow-up
+// prompt keeps that process either way. The async launch keeps the flag
 // for the accept that started it.
 import { AsyncLocalStorage } from "node:async_hooks";
 

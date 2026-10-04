@@ -158,10 +158,8 @@ export const launchCursor: LaunchHost["launch"] = async (
     return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   if (aborted(signal)) return timedOut(session);
-  // Start session opens a terminal for this client. Idle waits for that
-  // socket instead of ending the launch's agent and making the open start
-  // another. A launch that does not open one still ends a detached follow-up
-  // after the idle settle.
+  // Start session opens a terminal for this client. The follow-up prompt
+  // keeps that process, including when this launch does not open a terminal.
   const attachTerminal = terminalHandoffRequested();
   const kept = keepCursorClient({
     command: cursorAgent,

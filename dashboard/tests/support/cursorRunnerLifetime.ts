@@ -1,6 +1,6 @@
-// The runner's lifetime on one machine: idle hangup while the dashboard is
-// down, one runner for two servers, refusal when the address is occupied, and
-// a new resume after the runner is stopped.
+// The runner's lifetime on one machine: a detached follow-up prompt stays
+// while the dashboard is down, one runner for two servers, refusal when the
+// address is occupied, and a new resume after the runner is stopped.
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -27,7 +27,7 @@ import {
   readCursorRunnerAddress,
 } from "../../server/hosts/cursor/runnerPaths.ts";
 
-export async function detachedPromptEndsWhileDashboardIsDown(): Promise<void> {
+export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
   test.setTimeout(180_000);
   const cursor = installFakeCursor({ screen: "working", becomeReady: true });
   const machine = path.join(
@@ -52,8 +52,7 @@ export async function detachedPromptEndsWhileDashboardIsDown(): Promise<void> {
     await stayedUp(cursor, pid, 400);
     expect(cursor.signals(pid)).not.toContain("SIGHUP");
     cursor.showReady();
-    await expect.poll(() => cursor.signals(pid)).toContain("SIGHUP");
-    await expect.poll(() => processRunning(pid)).toBe(false);
+    await stayedUp(cursor, pid, 500);
     expect(readCursorRunnerAddress(path.join(machine, "home"))).toBeDefined();
   } finally {
     await stopCursorRunner(path.join(machine, "home"));

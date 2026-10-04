@@ -138,7 +138,7 @@ followUp(
   async ({ page, dashboard, origin, cursor }) => {
     followUp.setTimeout(120_000);
     // Working keeps the client. The ordinary prompt is what that same client
-    // becomes, and the runner holds that screen only until the idle settle.
+    // becomes, and the runner keeps holding that screen.
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
     const terminalPanel = page.getByRole("region", { name: "Terminal" });

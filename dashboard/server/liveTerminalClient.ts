@@ -1,7 +1,8 @@
 // One native terminal client and the sockets joined to it. Output is fanned
 // out; input and resize from any socket reach the process. Keep leaves the
-// process running when its last socket drops, and an idle screen then hangs
-// it up after the settle period. Otherwise the last close hangs it up.
+// process running when its last socket drops. A declared idle screen then
+// hangs it up after the settle period. With no idle screen, that process
+// stays. A client that did not declare keep hangs up on the last close.
 // A launch instruction is entered from the server-side screen and holds that
 // idle rule until the write. The registry decides which clients are still live.
 import type { IPty } from "@lydell/node-pty";
@@ -79,13 +80,18 @@ export class LiveTerminalClient {
         this.socketDropped(remaining);
       },
     });
-    this.idle = detachedIdleWatch(input.detachedIdle, input.size, {
-      isTracked: () => this.isTracked(),
-      detached: () => !this.sockets.hasOpen(),
-      hangup: () => {
-        this.hangup();
+    this.idle = detachedIdleWatch(
+      input.detachedIdle,
+      input.size,
+      {
+        isTracked: () => this.isTracked(),
+        detached: () => !this.sockets.hasOpen(),
+        hangup: () => {
+          this.hangup();
+        },
       },
-    });
+      input.keep,
+    );
     this.launch =
       input.launchInput === undefined
         ? undefined
