@@ -669,3 +669,18 @@ Follow-up: none; repaired in the same execution (`d02ade82`).
   - Evidence: CI received text "resized 71x46resized 74x46 … resized 120x46" with no "echo keep this line" at `side-panel-width.spec.ts:133`; the repair agent reproduced the failure locally with 30 forced resize pairs; the fix `expectStillHolds` scrolls the terminal history.
   - Observed effect: one CI repair cycle (stash, repair and refactor agents, extra publication) before slice 3 could be delivered.
   - Inference: Qualified. Repeating a test locally does not expose a dependence on event coalescing that differs on CI; asserting kept output independent of scroll position avoids it. One sample.
+
+## DD-230 — Story-branch increment delivery published with no CI observer
+
+Three Story Branch increment deliveries were accepted on the execution branch without a host session identity, so no CI mailbox was created and the completion wait has no observer to close.
+
+### Occurrences
+
+- Execution: `SEED-097#cursor-agent-stays-joinable` / plan 242, first related implementation commit `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Model: Grok 4.7
+  - Open Dough release: modified; revision `2ea2d324f5956dc76c006b0d425fdefda86b9771`; base 0.3.56
+  - Evidence: `execution-increment-delivery.mjs deliver` receipts for `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`, `d8468ccec8024cbab1350afac9ef01d4dc006e59`, and `2ea2d324f5956dc76c006b0d425fdefda86b9771` on `refs/heads/cursor/a-launched-cursor-agent-receives-its-story`, each `observation.state: unobserved`, `reason: host session identity is required to verify the notification bridge`. No `--session-json` was passed.
+  - Observed effect: publication was accepted; CI was not observed; `complete-revision` has no mailbox.
+  - Inference: Qualified. The coordinator omitted the host session identity. One execution.

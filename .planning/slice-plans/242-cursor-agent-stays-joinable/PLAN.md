@@ -172,5 +172,15 @@ observation sentence in `AGENT-LAUNCH-HISTORY.md`.
 
 ## Learnings
 
-None yet. The captured composer bytes and the current gates are planning
-observations, not execution learnings.
+The shared idle-hangup match now has no host declaration. Screen recording
+stays so the card can read a held client. Removing that unused match was
+left in place because it crosses the shared terminal client and the runner.
+
+## Execution complete
+
+Product advice: no new backlog story. The delivered behavior is the queued
+story: the real empty composer receives the instruction, that process stays
+joinable after the terminal closes, and the card shows the runner's screen
+label. Passing `--trust`, surviving a runner restart, and `cursor-agent
+persist` stay out, as the story deferred them. The unused shared idle-hangup
+match is leftover machinery, not a missing product outcome.
