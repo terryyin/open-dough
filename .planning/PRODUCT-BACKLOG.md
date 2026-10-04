@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [A launched Cursor agent receives its story and stays joinable](seeds/SEED-097-cursor-agent-stays-joinable.md#cursor-agent-stays-joinable) — SEED-097#cursor-agent-stays-joinable ([plan](slice-plans/242-cursor-agent-stays-joinable/PLAN.md))
 - [Browse a review's changed files as a collapsible folder tree](seeds/SEED-088-dashboard-story-code-review.md#review-files-as-folder-tree) — SEED-088#review-files-as-folder-tree ([plan](slice-plans/243-review-files-as-folder-tree/PLAN.md))
 - [Launch-card specs give CI's verdict on a loaded machine](seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load) — SEED-093#launch-card-waits-hold-under-load
 

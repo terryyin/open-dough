@@ -692,7 +692,7 @@ Three Story Branch increment deliveries were accepted on the execution branch wi
 
 ### Occurrences
 
-- Execution: `SEED-097#cursor-agent-stays-joinable` / plan 242, first related implementation commit `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`
+- Execution: `SEED-097#cursor-agent-stays-joinable` / plan 242, recoverable at `f4650752e5b46ecc8db5302858c6aabccf12b574:.planning/slice-plans/242-cursor-agent-stays-joinable/PLAN.md`; first related implementation commit `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`
   - Timestamp: unknown
   - Tool: Cursor
   - Model: Grok 4.7
