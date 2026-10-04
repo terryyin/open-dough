@@ -20,10 +20,13 @@ hold them, each file by its name, with files at the repository root at the
 top level (`src/reviewFileTree.ts`). A chain of folders that each hold only
 one folder is one row naming the chain (`docs/adrs/drafts`). A renamed file
 sits once, at its new path; its old folder shows nothing for it. Every folder
-shows expanded each time a review opens. Each file's control is named, and
-titled for hover, by its kind and full path (`Deleted gone.txt`, `Renamed
-old/a.ts → new/a.ts`), and the selected file's diff is headed by the same
-words.
+shows expanded each time a review opens. A row shows the file's name alone,
+its kind told by the name's style (`src/story-review.css`): an added name is
+in the ready color, a modified one in plain text, a deleted one struck
+through in the quiet color, and a renamed one italic. The kind's words remain
+where they are read: each file's control is named, and titled for hover, by
+its kind and full path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`),
+and the selected file's diff is headed by the same words.
 
 The list and every file diff come from that one snapshot until Refresh takes
 a new one. A file's diff is Git's unified diff from the baseline to the

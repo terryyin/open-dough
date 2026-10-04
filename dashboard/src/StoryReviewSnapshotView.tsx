@@ -2,8 +2,9 @@
 // worktree, its branch and the baseline it compares against, and the story's
 // changed files with their change kinds in a file browser the developer can
 // hide or show. The browser shows each file by name under its folders
-// (`./reviewFileTree.ts`); a file's control is named, and titled, by its
-// kind and full path. Selecting a file reads its diff
+// (`./reviewFileTree.ts`), its kind told by the style of its name alone; a
+// file's control is named, and titled, by its kind and full path in words.
+// Selecting a file reads its diff
 // (`./StoryReviewFileDiff.tsx`), headed by its kind and full path.
 // A worktree that matches its baseline says so in place of the browser.
 // A refreshed snapshot keeps the browser as it was and the selected file
@@ -77,13 +78,11 @@ function TreeRows({
               aria-label={reviewedFileWords(node.file)}
               title={reviewedFileWords(node.file)}
               aria-pressed={selectedPath === node.file.path}
+              data-kind={node.file.kind}
               onClick={() => {
                 onSelect(node.file.path);
               }}
             >
-              <span className="story-review-kind">
-                {kindWords[node.file.kind]}
-              </span>{" "}
               <code>{node.name}</code>
             </button>
           </li>

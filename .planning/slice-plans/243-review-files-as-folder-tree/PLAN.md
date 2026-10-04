@@ -121,7 +121,7 @@ because their files sit at the root.
 
 ### 2. Change kind by the style of the name
 Type: Behavior
-Status: planned
+Status: done
 Proof: tree journey asserts each row's visible text is the file name alone and
 its computed style per kind (added `--ready` color, modified the plain text
 color, deleted `line-through` in `--quiet`, renamed italic); a keyboard-focused
@@ -137,6 +137,12 @@ italic, and assistive technology and hover still give the kind in words.
 The now-unused kind column styling leaves `story-review.css`; the diff heading
 keeps its kind word. `dashboard/AGENT-LAUNCH-REVIEW.md` states the
 styling and where the words remain.
+
+Accepted proof: the proof command plus `side-panel-width` passed 29; typecheck
+clean. The tree journey compares each name's computed style with tokens the
+page resolves, and reads the keyboard-focused deleted row's accessible name.
+`story-review.spec.ts` now proves each fixture file's kind by its buttons'
+accessible names; its refusal step moved to `story-review-refusal.spec.ts`.
 
 ### 3. Collapse and expand folders
 Type: Behavior

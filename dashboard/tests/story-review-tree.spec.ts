@@ -2,9 +2,9 @@
 // worktree changing nested files, a chain of single folders, a root file, and
 // a rename across folders (./support/storyReviewWorktree.ts). Every folder
 // shows expanded; a chain is one folder row; the rename sits once under its
-// new folder and its old folder is absent. Each file's control is named, and
-// titled, by its kind and full path, and selecting a nested file heads its
-// diff with them.
+// new folder and its old folder is absent. Each file shows by its name alone,
+// its kind told by the name's style; its control is named, and titled, by its
+// kind and full path, and selecting a nested file heads its diff with them.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
@@ -33,16 +33,16 @@ test("a story's changed files show by name under their folders", async ({
       .toEqual([
         "dashboard",
         "  server",
-        "    Deleted c.ts",
+        "    c.ts",
         "  src",
-        "    Added a.tsx",
-        "    Modified b.ts",
+        "    a.tsx",
+        "    b.ts",
         "docs/adrs/drafts",
-        "  Added 0009-tree.md",
+        "  0009-tree.md",
         // The rename's old folder shows nothing for it.
         "new",
-        "  Renamed a.ts",
-        "Modified README.md",
+        "  a.ts",
+        "README.md",
       ]);
     for (const name of [
       "Deleted dashboard/server/c.ts",
@@ -56,6 +56,66 @@ test("a story's changed files show by name under their folders", async ({
       await expect(file).toBeVisible();
       await expect(file).toHaveAttribute("title", name);
     }
+  });
+
+  await test.step("each file's kind shows only in the style of its name", async () => {
+    // The dashboard's own colours, as this page resolves them.
+    const tokens = await files.evaluate((list) => {
+      const probe = document.createElement("span");
+      list.append(probe);
+      const resolve = (token: string) => {
+        probe.style.color = `var(${token})`;
+        return getComputedStyle(probe).color;
+      };
+      const resolved = {
+        text: resolve("--text"),
+        ready: resolve("--ready"),
+        quiet: resolve("--quiet"),
+      };
+      probe.remove();
+      return resolved;
+    });
+    const nameStyle = (name: string) =>
+      files
+        .getByRole("button", { name, exact: true })
+        .locator("code")
+        .evaluate((code) => {
+          const style = getComputedStyle(code);
+          return {
+            color: style.color,
+            line: style.textDecorationLine,
+            fontStyle: style.fontStyle,
+          };
+        });
+    const plain = { color: tokens.text, line: "none", fontStyle: "normal" };
+    for (const [name, style] of [
+      ["Added dashboard/src/a.tsx", { ...plain, color: tokens.ready }],
+      [
+        "Added docs/adrs/drafts/0009-tree.md",
+        { ...plain, color: tokens.ready },
+      ],
+      ["Modified dashboard/src/b.ts", plain],
+      ["Modified README.md", plain],
+      [
+        "Deleted dashboard/server/c.ts",
+        { ...plain, color: tokens.quiet, line: "line-through" },
+      ],
+      ["Renamed old/a.ts → new/a.ts", { ...plain, fontStyle: "italic" }],
+    ] as const) {
+      expect(await nameStyle(name), name).toEqual(style);
+    }
+    // The three kinds' colours differ, so the comparison above can tell them.
+    expect(new Set(Object.values(tokens)).size).toBe(3);
+  });
+
+  await test.step("a keyboard-focused file says its kind and full path in words", async () => {
+    // The browser's first file follows Hide files in the tab order.
+    await review.getByRole("button", { name: "Hide files" }).focus();
+    await page.keyboard.press("Tab");
+    await expect(page.locator(":focus")).toHaveAccessibleName(
+      "Deleted dashboard/server/c.ts",
+    );
+    await expect(page.locator(":focus")).toHaveText("c.ts");
   });
 
   await test.step("selecting a nested file heads its diff with its kind and full path", async () => {

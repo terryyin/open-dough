@@ -8,15 +8,8 @@
 // image as having no textual diff; hiding the file browser leaves the diff
 // in place with more room. The review shows in the page's side panel, and
 // Command+Shift+Escape closes it, returning the keyboard to Review changes.
-// Requests the launch boundary does not admit are refused before any Git
-// runs: trunk is not fetched and no file is written.
+// Requests the launch boundary refuses: ./story-review-refusal.spec.ts.
 
-import { existsSync } from "node:fs";
-import path from "node:path";
-import {
-  storyReviewEndpoint,
-  storyReviewFileEndpoint,
-} from "../src/storyReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
@@ -36,9 +29,6 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   origin,
 }) => {
   const { workspace, merged, later } = storyWorktree(origin);
-  const tree = git(workspace, "rev-parse", "HEAD^{tree}");
-  // Where Git would write a diff it was asked to write.
-  const written = path.join(origin.machine, "written-diff");
   await keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
   const fetchedTrunk = () => git(workspace, "rev-parse", "origin/main");
@@ -50,64 +40,6 @@ test("a story's review names its worktree, branch, and baseline and lists only t
         document.documentElement.scrollWidth <=
         document.documentElement.clientWidth,
     );
-
-  await test.step("requests the boundary does not admit are refused and nothing runs", async () => {
-    const story = { source: "open-dough", identity: queuedIdentity };
-    const fileDiff = { ...story, baseline: merged, tree, path: "unstaged.txt" };
-    const review = storyReviewEndpoint;
-    const diff = storyReviewFileEndpoint;
-    const malformedRequest = "The review request is malformed.";
-    const malformedDiff = "The file diff names a malformed object or path.";
-    for (const [endpoint, query, status, error] of [
-      [
-        review,
-        { ...story, source: "elsewhere" },
-        404,
-        "Unknown catalog source.",
-      ],
-      [
-        review,
-        { ...story, identity: `${queuedIdentity}\nSEED-B#b` },
-        400,
-        "The review identity is malformed.",
-      ],
-      [review, { source: "open-dough" }, 400, malformedRequest],
-      [review, { ...story, path: workspace }, 400, malformedRequest],
-      [review, { ...story, workspace: "/tmp" }, 400, malformedRequest],
-      [
-        diff,
-        { ...fileDiff, baseline: `--output=${written}` },
-        400,
-        malformedDiff,
-      ],
-      [diff, { ...fileDiff, tree: "HEAD" }, 400, malformedDiff],
-      [
-        diff,
-        { ...fileDiff, baseline: merged.toUpperCase() },
-        400,
-        malformedDiff,
-      ],
-      [
-        diff,
-        { ...fileDiff, workspace },
-        400,
-        "The file diff request is malformed.",
-      ],
-    ] as const) {
-      const search = new URLSearchParams(query).toString();
-      const response = await page.request.get(
-        `${dashboard.baseURL}${endpoint}?${search}`,
-        { headers: { Origin: dashboard.origin } },
-      );
-      expect(response.status(), search).toBe(status);
-      expect(await response.json()).toEqual({ error });
-    }
-    // No Git ran: trunk's later commit is still unknown here, and no diff
-    // was written.
-    expect(fetchedTrunk()).toBe(merged);
-    expect(existsSync(written)).toBe(false);
-    expect(observed(workspace)).toEqual(before);
-  });
 
   const card = await openBacklog(page, origin);
   const action = card.getByRole("button", { name: "Review changes" });
@@ -123,14 +55,29 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     .poll(() => treeRows(files))
     .toEqual([
       "fresh",
-      "  Added new.txt",
-      "Deleted gone.txt",
-      "Modified image.png",
-      "Renamed new.txt",
-      "Modified staged.txt",
-      "Added story.txt",
-      "Modified unstaged.txt",
+      "  new.txt",
+      "gone.txt",
+      "image.png",
+      "new.txt",
+      "staged.txt",
+      "story.txt",
+      "unstaged.txt",
     ]);
+  // Each file's control says its kind and full path in words.
+  const fileNames = [
+    "Added fresh/new.txt",
+    "Deleted gone.txt",
+    "Modified image.png",
+    "Renamed old.txt → new.txt",
+    "Modified staged.txt",
+    "Added story.txt",
+    "Modified unstaged.txt",
+  ];
+  const fileControls = files.getByRole("button");
+  await expect(fileControls).toHaveCount(fileNames.length);
+  for (const [index, name] of fileNames.entries()) {
+    await expect(fileControls.nth(index)).toHaveAccessibleName(name);
+  }
   const facts = review.getByRole("definition");
   await expect(facts).toHaveText([
     "~/git/open-dough/.worktrees/story-a",

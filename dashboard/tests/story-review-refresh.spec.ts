@@ -31,13 +31,13 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   const review = page.getByRole("region", { name: "Review changes" });
   const listed = [
     "fresh",
-    "  Added new.txt",
-    "Deleted gone.txt",
-    "Modified image.png",
-    "Renamed new.txt",
-    "Modified staged.txt",
-    "Added story.txt",
-    "Modified unstaged.txt",
+    "  new.txt",
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "staged.txt",
+    "story.txt",
+    "unstaged.txt",
   ];
   const opened = review.getByRole("list", { name: "7 changed files" });
   await expect.poll(() => treeRows(opened)).toEqual(listed);
@@ -85,14 +85,14 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
       .poll(() => treeRows(refreshed))
       .toEqual([
         "fresh",
-        "  Added new.txt",
-        "Deleted gone.txt",
-        "Modified image.png",
-        "Added later.txt",
-        "Renamed new.txt",
-        "Modified staged.txt",
-        "Added story.txt",
-        "Modified unstaged.txt",
+        "  new.txt",
+        "gone.txt",
+        "image.png",
+        "later.txt",
+        "new.txt",
+        "staged.txt",
+        "story.txt",
+        "unstaged.txt",
       ]);
     await expect(review.getByRole("status").first()).toHaveText(
       /^Review refreshed: 8 changed files against baseline [0-9a-f]{7}\.$/,
@@ -118,7 +118,9 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");
     await action.click();
     const reopened = review.getByRole("list", { name: "9 changed files" });
-    await expect(reopened).toContainText("Added while-closed.txt");
+    await expect(
+      reopened.getByRole("button", { name: "Added while-closed.txt" }),
+    ).toBeVisible();
     // A fresh opening: nothing selected and no refresh announced.
     await expect(
       reopened.getByRole("button", { name: "Modified unstaged.txt" }),

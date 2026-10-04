@@ -115,9 +115,22 @@
   overflow-wrap: normal;
 }
 
+/* A file's kind shows only in the style of its name; its control's name and
+   hover text, and its diff's heading, say the kind in words. */
+.story-review-files [data-kind="added"] code {
+  color: var(--ready);
+}
+
+.story-review-files [data-kind="deleted"] code {
+  color: var(--quiet);
+  text-decoration-line: line-through;
+}
+
+.story-review-files [data-kind="renamed"] code {
+  font-style: italic;
+}
+
 .story-review-kind {
-  display: inline-block;
-  min-width: 5.5rem;
   color: var(--quiet);
 }
 
@@ -164,8 +177,4 @@
 
 .story-review-removed {
   background: color-mix(in srgb, var(--problem) 14%, transparent);
-}
-
-.story-review-diff h3 .story-review-kind {
-  min-width: 0;
 }
