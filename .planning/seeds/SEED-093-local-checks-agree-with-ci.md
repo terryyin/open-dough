@@ -27,7 +27,7 @@ cycle, and each false local failure costs a diagnosis and a rerun.
 
 **Identity:** SEED-093#launch-card-waits-hold-under-load
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"9c4a4a5e5c2e15d118717223f6fb5d2e91bf1201f4d3a29fcdfa36e25c9dc9c4"}}
 ```
 
 **For / why:** The agent running the dashboard suite on a developer machine
@@ -49,7 +49,7 @@ a loaded developer machine as they do in CI and on an idle machine.
   Start, whether the session's "First input accepted" or the launch problem,
   waits as long as the start itself may take: the launch wait the spec gives
   its dashboard service. `agent-launch-start-codex` already does this for one
-  wait through `launchWaitMs` in `tests/support/codexStart.ts`; the other
+  wait through `launchWaitMs` in `dashboard/tests/support/codexStart.ts`; the other
   waits follow that precedent.
 - A start that never answers still fails its spec, at the launch wait instead
   of at 5 s, naming the awaited answer.
