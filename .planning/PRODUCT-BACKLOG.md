@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Align product guidance, shared styles, and tests with the renovated cards](seeds/SEED-091-dashboard-ui-renovation.md#card-renovation-alignment) — SEED-091#card-renovation-alignment ([plan](slice-plans/241-card-renovation-alignment/PLAN.md))
 - [A launched Cursor agent receives its story and stays joinable](seeds/SEED-097-cursor-agent-stays-joinable.md#cursor-agent-stays-joinable) — SEED-097#cursor-agent-stays-joinable ([plan](slice-plans/242-cursor-agent-stays-joinable/PLAN.md))
+- [Browse a review's changed files as a collapsible folder tree](seeds/SEED-088-dashboard-story-code-review.md#review-files-as-folder-tree) — SEED-088#review-files-as-folder-tree ([plan](slice-plans/243-review-files-as-folder-tree/PLAN.md))
 
 ## Backlog list
 
-- [Browse a review's changed files as a collapsible folder tree](seeds/SEED-088-dashboard-story-code-review.md#review-files-as-folder-tree) — SEED-088#review-files-as-folder-tree
 - [Launch-card specs give CI's verdict on a loaded machine](seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load) — SEED-093#launch-card-waits-hold-under-load
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
