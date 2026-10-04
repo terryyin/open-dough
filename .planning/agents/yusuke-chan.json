@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-104#confirm-mark-as-done",
+  "host": "claude",
+  "model": "fable"
+}
