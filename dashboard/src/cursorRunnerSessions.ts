@@ -17,6 +17,23 @@ export const cursorRunnerStatusSchema = z.enum([
 
 export type CursorRunnerStatus = z.infer<typeof cursorRunnerStatusSchema>;
 
+// What a read says about the Cursor runner itself. A held client's screen
+// label is that screen's own words.
+export function cursorRunnerSentence(
+  runner: CursorRunnerStatus | "reading",
+): string {
+  switch (runner) {
+    case "reading":
+      return "Reading the Cursor runner…";
+    case "running":
+      return "The Cursor runner is running.";
+    case "not-running":
+      return "The Cursor runner is not running.";
+    case "unreachable":
+      return "The Cursor runner cannot be reached.";
+  }
+}
+
 export const runningCursorSessionsSchema = z.object({
   runner: cursorRunnerStatusSchema,
   sessions: z.array(

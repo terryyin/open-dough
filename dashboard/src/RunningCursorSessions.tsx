@@ -11,7 +11,10 @@ import {
   type LaunchWithState,
 } from "./agentLaunch.ts";
 import { readRunningCursorSessions } from "./agentLaunchClient.ts";
-import type { RunningCursorSessions } from "./cursorRunnerSessions.ts";
+import {
+  cursorRunnerSentence,
+  type RunningCursorSessions,
+} from "./cursorRunnerSessions.ts";
 import { projectLabel, useProjects } from "./projectList.tsx";
 import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
@@ -23,14 +26,9 @@ const refreshMs = 50;
 type Listed = RunningCursorSessions | "unanswered";
 
 function runnerSentence(listed: Listed | undefined): string {
-  if (listed === undefined) return "Reading the Cursor runner…";
-  if (listed === "unanswered" || listed.runner === "unreachable") {
-    return "The Cursor runner cannot be reached.";
-  }
-  if (listed.runner === "not-running") {
-    return "The Cursor runner is not running.";
-  }
-  return "The Cursor runner is running.";
+  if (listed === undefined) return cursorRunnerSentence("reading");
+  if (listed === "unanswered") return cursorRunnerSentence("unreachable");
+  return cursorRunnerSentence(listed.runner);
 }
 
 function openable(

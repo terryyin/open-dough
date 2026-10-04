@@ -173,7 +173,12 @@ export const sessionStateSchema = z.discriminatedUnion("kind", [
     unknownReason: z.enum(["unrecognized", "incomplete"]).optional(),
   }),
   z.object({ kind: z.literal("unavailable") }),
-  z.object({ kind: z.literal("unknown") }),
+  z.object({
+    kind: z.literal("unknown"),
+    // Words this observation shows as written. Absent uses the host's
+    // unknown wording. These words are not a shared activity.
+    label: z.string().min(1).optional(),
+  }),
 ]);
 
 export type SessionState = z.infer<typeof sessionStateSchema>;

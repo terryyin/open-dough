@@ -146,8 +146,8 @@ in `AGENT-LAUNCH-HOSTS.md` and `AGENT-LAUNCH-TERMINALS.md`.
 
 ### 3. The story card shows the held screen
 Type: Behavior
-Status: planned
-Proof: Slice-3 table rows in `agent-session-cursor.spec.ts` and `cursor-runner-sessions.spec.ts`.
+Status: done
+Proof: Slice-3 table rows in `agent-session-cursor.spec.ts` and `cursor-runner-sessions.spec.ts`. Accepted: `env -u NO_COLOR -u NODE_ENV -u npm_config_local_prefix -u npm_package_json npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-session-cursor.spec.ts dashboard/tests/cursor-runner-sessions.spec.ts` exited 0. After the spec's setup moved, `agent-session-cursor.spec.ts` was rerun alone and exited 0. A held client shows "at the follow-up prompt", "working", or "waiting for an answer". A stopped or unreachable runner says so, shows no screen label, and starts no agent. A session the runner does not hold stays "Activity unknown".
 
 Behavior: the runner holds the Cursor client → the story card shows that
 client's screen label, "at the follow-up prompt", "working", or "waiting for

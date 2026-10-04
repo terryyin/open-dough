@@ -17,7 +17,8 @@ import { hostDescription } from "./hostDescription.ts";
 // the native reading as it is without a report, as a read report does. A
 // reported session marked done reads Done, with native Working as its note.
 // Unreported Done retains native Working precedence. Availability and unknown
-// observations never infer activity.
+// observations never infer activity. An unknown observation may carry its own
+// words, and those words are the reading.
 export type SessionShown = {
   readonly label: string;
   readonly note?: string;
@@ -75,6 +76,13 @@ function nativeShown({
   const markedDone = doneAt !== undefined;
   switch (sessionState.kind) {
     case "unknown": {
+      if (sessionState.label !== undefined) {
+        return {
+          label: sessionState.label,
+          needsAttention: false,
+          tone: "unsettled",
+        };
+      }
       const wording =
         session === undefined
           ? undefined
