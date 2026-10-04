@@ -16,7 +16,8 @@ import { projectLabel, useProjects } from "./projectList.tsx";
 import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 
-// Often enough that a screen held only for the idle settle can still be named.
+// Often enough to name the screen the runner still holds. The follow-up
+// prompt keeps that process.
 const refreshMs = 50;
 
 type Listed = RunningCursorSessions | "unanswered";

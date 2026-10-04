@@ -132,8 +132,8 @@ detached follow-up client. Slice 2 removes that ending.
 
 ### 2. The same process stays on the empty composer
 Type: Behavior
-Status: planned
-Proof: Slice-2 table rows in `agent-terminal-cursor-idle.spec.ts`, both `dev` and `preview`.
+Status: done
+Proof: Slice-2 table rows in `agent-terminal-cursor-idle.spec.ts`, both `dev` and `preview`. Accepted: `env -u NO_COLOR -u NODE_ENV -u npm_config_local_prefix -u npm_package_json npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-terminal-cursor-idle.spec.ts` exited 0, 8 passed. Closing the socket on the follow-up prompt does not send SIGHUP; the next open joins that same pid and can type. Working, waiting, and unrecognized screens stay.
 
 Behavior: the launch instruction has been entered and the screen is the
 follow-up prompt → the developer closes the terminal → that process stays,

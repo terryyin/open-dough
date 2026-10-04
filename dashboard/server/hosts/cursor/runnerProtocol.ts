@@ -27,7 +27,8 @@ export const cursorRunnerKeepRequest = z.object({
   sourceId: z.string().min(1),
   session: hostSessionSchema,
   instruction: z.string(),
-  // The page opens a terminal for this launch. Idle waits for that socket.
+  // The page opens a terminal for this launch. The follow-up prompt keeps
+  // that process.
   handoff: z.boolean().optional(),
 });
 

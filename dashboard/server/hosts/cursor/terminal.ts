@@ -5,18 +5,13 @@
 // observed prompt is `→ Add a follow-up` or `→ Plan, search, build anything`.
 // That text admits the terminal even when the cursor is hidden. The screen
 // does not include the uuid. The result declares keep: closing the socket
-// leaves this process running, and a later terminal for the session joins
-// it. It also declares the idle end rule: a detached client whose screen
-// stays idle is hung up, and the next open
-// starts a new client. A launch that already kept a client is joined instead
-// of started again. Closing the dashboard does not hang this process up.
+// leaves this process running, including when the screen is the follow-up
+// prompt, and a later terminal for the session joins it. A launch that
+// already kept a client is joined instead of started again. Closing the
+// dashboard does not hang this process up.
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
-import {
-  cursorDetachedIdle,
-  cursorIdleSettleMs,
-  showsCursorComposer,
-} from "./idleScreen.ts";
+import { showsCursorComposer } from "./idleScreen.ts";
 
 export const cursorTerminalSize = { cols: 80, rows: 24 } as const;
 
@@ -25,14 +20,9 @@ export function cursorReady(screen: string): boolean {
 }
 
 // Attach and an instructed launch share this declaration. The empty composer
-// text admits the terminal. A detached idle screen hangs the client up after
-// the settle period.
+// text admits the terminal. A detached client stays, including on that prompt.
 export const cursorKeptTerminal = {
   ready: cursorReady,
-  detachedIdle: {
-    settleMs: cursorIdleSettleMs,
-    matches: cursorDetachedIdle,
-  },
 };
 
 export function spawnCursorPty(

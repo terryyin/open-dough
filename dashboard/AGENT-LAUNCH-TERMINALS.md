@@ -32,25 +32,21 @@ messages share the existing transport.
 Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
 only, retaining native work, history, and daemon. Cursor's attach result
 declares keep: closing its socket, by Close, switching sessions, or a dropped
-connection, leaves that client running. A kept Cursor client with no socket
-is hung up only after its screen has shown `→ Add a follow-up` or
-`→ Plan, search, build anything` for 0.203
-seconds without `ctrl+c to stop`, `Working`, `Running`, or
-`Clarifying Questions`. A working, waiting, or unrecognized screen keeps the
-client. Idle hangup waits until the launch instruction has been entered,
-then uses that rule. The next socket for a client that is
-still running joins it, receives readiness at once, and sees a redrawn
-screen. After that idle hangup, the next socket starts a new client, which
-shows the ordinary prompt and takes a follow-up. Input from any joined socket
-reaches that same client, and a second open terminal shares it. Closing the
+connection, leaves that client running. The follow-up prompt
+(`→ Add a follow-up` or `→ Plan, search, build anything`) keeps that process
+after the launch instruction has been entered. A working, waiting, or
+unrecognized screen keeps it as well. The next socket joins that running
+client, receives readiness at once, and sees a redrawn screen. Input from
+any joined socket reaches that same client, and a second open terminal shares
+it. Closing the
 server sends SIGHUP to Claude Code and Codex attachment clients. It does not
 send SIGHUP to a Cursor client: one machine-local Cursor runner owns that
 client, in its own process group, outside the dashboard server. The
 development server starts the runner when it is not already accepting
 connections and does not restart a runner that is; two overlapping starts
 still leave one runner. The dashboard attaches through the runner and does
-not spawn `cursor-agent` itself. The runner applies the keep and idle rules
-above, including while the dashboard server is down. Stopping the runner
+not spawn `cursor-agent` itself. The runner applies that keep, including
+while the dashboard server is down. Stopping the runner
 hangs up the processes it holds and leaves none behind. When the runner
 cannot be reached, the dashboard starts no `cursor-agent`. After a new
 runner is up and holds nothing for that chat, opening the terminal resumes

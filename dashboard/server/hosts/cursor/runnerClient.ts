@@ -30,9 +30,9 @@ import { cursorRunnerAttachUrl } from "./runnerAttach.ts";
 export type { CursorRunnerExec };
 export { ensureCursorRunner, stopCursorRunner };
 
-// Drops launch handoffs on this server's way out. A client the page has not
-// joined then follows the idle rule. This does not start a runner, and it
-// does not signal one the runner itself is keeping for another reason.
+// Drops launch handoffs on this server's way out. A detached follow-up
+// prompt keeps that process. This does not start a runner, and it does
+// not signal one the runner itself is keeping for another reason.
 export async function releaseCursorHandoffs(home = homedir()): Promise<void> {
   const port = await acceptingCursorRunnerPort(home);
   if (port === undefined) return;

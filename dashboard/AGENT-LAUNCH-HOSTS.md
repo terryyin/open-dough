@@ -31,13 +31,11 @@ command. The text `Add a follow-up` or
 `Plan, search, build anything` admits it even when the terminal cursor is
 hidden. That
 attach result declares keep, so a detached terminal leaves the client running
-and a later open joins the same process instead of starting another, while
-the screen is working, waiting for an answer, or unrecognized. Idle hangup
-waits until the launch instruction has been entered, then a detached client
-whose screen stays idle — `→ Add a follow-up` or
-`→ Plan, search, build anything`, with no `ctrl+c to stop`,
-`Working`, `Running`, or `Clarifying Questions` — is hung up after 0.203
-seconds, and the next open starts a new client. Stop is not supplied, so
+and a later open joins the same process instead of starting another. The
+follow-up prompt — `→ Add a follow-up` or
+`→ Plan, search, build anything` — keeps that process after the launch
+instruction has been entered, as does a working, waiting, or unrecognized
+screen. Stop is not supplied, so
 Mark as done stays absent.
 Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
 setting)": each `<id> - <name>` line, with no efforts and no configured model.
