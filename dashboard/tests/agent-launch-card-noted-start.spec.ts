@@ -1,10 +1,13 @@
 // A Backlog card's Starts on the committed story-stages origin: they share
-// the card's launch group's line, each note beside the Start it describes,
-// when the card is wide enough, and wrap in reading order, by keyboard, at
-// 420px and the 200% zoom proxy, before Inspect story in the inspection group;
-// a cancelled launch dialog returns the keyboard to its Start, and Tab moves on.
-// A clickable noted Start on a story-stages preparing revision keeps a look
-// distinct from a disabled Start on the same page, in light and dark schemes.
+// the card's launch group's line when the card is wide enough, and wrap in
+// reading order, by keyboard, at 420px and the 200% zoom proxy, before Inspect
+// story in the inspection group; a cancelled launch dialog returns the
+// keyboard to its Start, and Tab moves on. A noted Start shows its note only
+// in the frame's styled tooltip, on hover and on keyboard focus, and as its
+// accessible description, announced once; its dialog says "This story is …".
+// A Start without a note has no tooltip. A clickable noted Start on a
+// story-stages preparing revision keeps a look distinct from a disabled Start
+// on the same page, in light and dark schemes.
 // Backlog-card launch behavior on a committed origin is ./agent-launch-card.spec.ts;
 // the page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
@@ -36,11 +39,39 @@ import {
   expectOnOneLine,
   expectOnOneLineWhenRoom,
 } from "./pageLayout.ts";
+import { tooltipOf } from "./frameIconControl.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 const notReadyNote = "Not marked Ready for execution";
 const beingPreparedNote = "Being prepared";
+
+// A noted Start at rest shows no note on its card; hovered, or reached with
+// the keyboard, it shows the note in the frame's styled tooltip, hidden from
+// assistive technology because the note is already its description.
+async function expectNoteTooltip(start: Locator, name: string, note: string) {
+  const page = start.page();
+  const tip = tooltipOf(start, note);
+  await expect(start).toHaveAccessibleName(name);
+  await expect(start).toHaveAccessibleDescription(note);
+  await page.mouse.move(0, 0);
+  await start.blur();
+  await expect(tip).toBeHidden();
+  await start.hover();
+  await expect(tip).toBeVisible();
+  await expect(tip).toBeInViewport({ ratio: 1 });
+  await expect(tip.locator("xpath=..")).toHaveClass(/\bframe-tooltip\b/);
+  await expect(tip.locator("xpath=..")).toHaveAttribute("aria-hidden", "true");
+  await page.mouse.move(0, 0);
+  await expect(tip).toBeHidden();
+  await start.focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  await expect(start).toBeFocused();
+  await expect(tip).toBeVisible();
+  await start.blur();
+  await expect(tip).toBeHidden();
+}
 
 const launchPaint = (button: Locator) =>
   button.evaluate((node) => {
@@ -75,17 +106,21 @@ test.describe("a Backlog card's Starts", () => {
       inspectionGroup(card(title)).getByRole("button", {
         name: "Inspect story",
       });
-    const note = launchGroup(card(notRefinedStory)).getByText(notReadyNote);
     await page.setViewportSize({ width: 1440, height: 900 });
     await expectOnOneLine(startsOf(readyStory));
-    // The noted card's line holds both Starts and the note only where this
-    // platform's text leaves it room; the note follows the Start it
-    // describes, before the next one, either way.
+    // A Ready story's Starts carry no note, so neither has a tooltip.
+    const readyStart = action(readyStory, "Execution");
+    await readyStart.hover();
+    await expect(readyStart).toHaveAccessibleDescription("");
+    await expect(
+      launchGroup(card(readyStory)).locator(".frame-tooltip"),
+    ).toHaveCount(0);
     const notedLaunches = launchGroup(card(notRefinedStory));
+    await expect(notedLaunches.getByText(notReadyNote)).toBeHidden();
     await expectOnOneLineWhenRoom(notedLaunches, startsOf(notRefinedStory));
     const execution = action(notRefinedStory, "Execution");
     const refinement = action(notRefinedStory, "Refinement");
-    await expectInReadingOrder(notedLaunches, [execution, note, refinement]);
+    await expectInReadingOrder(notedLaunches, [execution, refinement]);
 
     for (const window of [narrowWindow, twiceZoomedWindow]) {
       await page.setViewportSize(window);
@@ -95,11 +130,7 @@ test.describe("a Backlog card's Starts", () => {
           ...startsOf(title),
           inspect(title),
         ]);
-      await expectInReadingOrder(card(notRefinedStory), [
-        execution,
-        note,
-        refinement,
-      ]);
+      await expect(notedLaunches.getByText(notReadyNote)).toBeHidden();
       // The keyboard walks the launch group, then the inspection group, and
       // a cancelled Start returns it to that Start.
       await execution.focus();
@@ -130,16 +161,25 @@ test.describe("a Backlog card's Starts", () => {
 
     const notedRefine = action(readyStory, "Refinement");
     const notedExec = action(notRefinedStory, "Execution");
-    await expect(notedRefine).toBeEnabled();
-    await expect(notedRefine).toHaveAccessibleDescription(beingPreparedNote);
-    await expect(
-      card(readyStory).getByText(beingPreparedNote, { exact: true }),
-    ).toBeVisible();
-    await expect(notedExec).toBeEnabled();
-    await expect(notedExec).toHaveAccessibleDescription(notReadyNote);
-    await expect(
-      card(notRefinedStory).getByText(notReadyNote, { exact: true }),
-    ).toBeVisible();
+    const notes = [
+      [notedRefine, "Start refinement", beingPreparedNote, readyStory],
+      [notedExec, "Start execution", notReadyNote, notRefinedStory],
+    ] as const;
+    for (const [noted, name, note, title] of notes) {
+      await expect(noted).toBeEnabled();
+      await expect(launchGroup(card(title)).getByText(note)).toBeHidden();
+      await expectNoteTooltip(noted, name, note);
+      // The launch dialog still states the note in words.
+      await noted.click();
+      const dialog = page.getByRole("dialog", {
+        name: `${name} in Claude Code`,
+      });
+      await expect(dialog).toContainText(
+        `This story is ${note.charAt(0).toLowerCase()}${note.slice(1)}.`,
+      );
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden();
+    }
 
     await launch(takenStory, "Execution");
     await settled();
@@ -162,11 +202,9 @@ test.describe("a Backlog card's Starts", () => {
       }
     }
 
-    await expect(
-      card(readyStory).getByText(beingPreparedNote, { exact: true }),
-    ).toBeVisible();
-    await expect(
-      card(notRefinedStory).getByText(notReadyNote, { exact: true }),
-    ).toBeVisible();
+    for (const [noted, , note, title] of notes) {
+      await expect(noted).toHaveAccessibleDescription(note);
+      await expect(launchGroup(card(title)).getByText(note)).toBeHidden();
+    }
   });
 });

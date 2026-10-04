@@ -2,22 +2,22 @@ import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
 // order `launchWorkflows` offers them, together in the card's launch group,
-// each with its note and answer beside it; while the card lists an open
-// session (`cardSessionsOf`), every Start is unavailable and described why
-// (`openSessionStartReason`), and the launch boundary refuses a second start
-// the same way; on the card of a story starting on this machine, whichever
-// page asked for it, what its local startup is doing (`StartupStatus`), with
-// the answer of one in need of reconciliation left to Startup recovery; on
-// every card, the story's sessions that have not been marked done
-// (`./CardSessions.tsx`). A Taken card whose story this machine started and
-// holds the start of, with no session yet, also offers Start execution, which
-// opens the session in the kept workspace without a second Take — and that
-// Start is unavailable the same way while an open session remains. A launch
-// from the card lists its session here once it settles and takes the keyboard
-// to it. A launch this page asked for whose answer no Start on the card shows,
-// as when origin moved the story to Taken meanwhile, keeps that answer on the
-// card. Review changes belongs to the card's inspection group
-// (`./WorkCard.tsx`).
+// each with its note in its tooltip and its answer beside it; while the card
+// lists an open session (`cardSessionsOf`), every Start is unavailable and
+// described why (`openSessionStartReason`), and the launch boundary refuses a
+// second start the same way; on the card of a story starting on this machine,
+// whichever page asked for it, what its local startup is doing
+// (`StartupStatus`), with the answer of one in need of reconciliation left to
+// Startup recovery; on every card, the story's sessions that have not been
+// marked done (`./CardSessions.tsx`). A Taken card whose story this machine
+// started and holds the start of, with no session yet, also offers Start
+// execution, which opens the session in the kept workspace without a second
+// Take — and that Start is unavailable the same way while an open session
+// remains. A launch from the card lists its session here once it settles and
+// takes the keyboard to it. A launch this page asked for whose answer no Start
+// on the card shows, as when origin moved the story to Taken meanwhile, keeps
+// that answer on the card. Review changes belongs to the card's inspection
+// group (`./WorkCard.tsx`).
 // Sessions are local evidence: whatever they show, origin places the story.
 
 import { useId, useState } from "react";

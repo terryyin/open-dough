@@ -10,6 +10,7 @@
 
 import { attempts, keptStarts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./cardControls.ts";
 import {
   expectOthersWork,
   expectProtected,
@@ -68,7 +69,11 @@ test("Start execution closes at acceptance while its Take is held, and continuin
     { timeout: 30_000 },
   );
   await expect(claimed).not.toContainText("Local startup in progress");
-  await expect(claimed).toContainText("Started here, no session yet");
+  await expectStartNote(
+    claimed,
+    "Start execution",
+    "Started here, no session yet",
+  );
   await expect(claimed.getByRole("button", { disabled: true })).toHaveCount(0);
   expect(await keptStarts(dashboard)).toHaveLength(1);
 

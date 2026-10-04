@@ -5,7 +5,7 @@
 // which records what it was asked; the real one is never reached. A launch
 // that did not start is ./agent-launch-card-problems.spec.ts; how a card's
 // sessions stay listed, two launches as two entries newest first, is
-// ./agent-launch-card-sessions.spec.ts. A clickable noted Start's look is
+// ./agent-launch-card-sessions.spec.ts. A noted Start's tooltip and look are
 // ./agent-launch-card-noted-start.spec.ts.
 
 import { realpathSync } from "node:fs";
@@ -68,7 +68,7 @@ test("every Backlog card offers Start execution, described as not ready unless R
   );
   await expect(
     card(notRefinedStory).getByText(notReadyNote, { exact: true }),
-  ).toBeVisible();
+  ).toBeHidden();
 
   await expect(takenCard).toBeVisible();
   await expect(takenCard.getByRole("button", { name: /Start/ })).toHaveCount(0);

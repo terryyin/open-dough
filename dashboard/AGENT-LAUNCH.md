@@ -12,9 +12,13 @@ story membership, preparation and completion; a launch record is local evidence.
 
 Backlog cards offer execution then refinement. Execution remains available when
 not marked Ready for execution, with that note; refinement remains available
-while Preparing, with “Being prepared”. While a card lists an open session for
-its story, every Start on that card is disabled and described by why: the story
-has an open session to mark done or delete before another can start. Taken cards
+while Preparing, with “Being prepared”. A noted Start has a dashed edge; its
+note is its accessible description and appears on the card only in the Start's
+tooltip, on hover and on keyboard focus, and its dialog says “This story is …”.
+A failed or uncertain launch answer stays visible beside the Start. While a
+card lists an open session for its story, every Start on that card is disabled
+and described by why: the story has an open session to mark done or delete
+before another can start. Taken cards
 offer only a kept execution start with no session, and that Start is disabled
 the same way while an open session remains. The project row offers Start session
 independently of the published read, including when it failed. Projects use the local checkout folder in their environment's saved configuration

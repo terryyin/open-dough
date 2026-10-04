@@ -15,6 +15,7 @@ import path from "node:path";
 import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test as base } from "./dashboardTest.ts";
+import { expectStartNote } from "./cardControls.ts";
 import { parts } from "./dashboardPage.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import {
@@ -105,7 +106,11 @@ test("a Taken card offers Start with the words while this machine keeps a start 
     0,
   );
   await page.reload();
-  await expect(takenCard).toContainText("Started here, no session yet");
+  await expectStartNote(
+    takenCard,
+    "Start execution",
+    "Started here, no session yet",
+  );
   await expect(startAction(takenCard)).toBeVisible();
   await expect(startAction(otherTakenCard)).toHaveCount(0);
   await expect(otherTakenCard).not.toContainText("Started here");

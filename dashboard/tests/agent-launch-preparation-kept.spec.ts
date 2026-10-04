@@ -15,6 +15,7 @@ import { keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./cardControls.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
@@ -68,7 +69,11 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
 
   // After a reload the card offers the resume; another card does not.
   await page.reload();
-  await expect(card).toContainText("Started here, no session yet");
+  await expectStartNote(
+    card,
+    "Start refinement",
+    "Started here, no session yet",
+  );
   await expect(otherCard).not.toContainText("Started here");
   await dialogOf(card);
   await expect(dialog).toContainText(

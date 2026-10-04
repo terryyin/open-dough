@@ -1,6 +1,8 @@
-/* The frame's icon-only controls (./Icon.tsx): one size, one quiet look, the
-   icon drawn in the control's text colour, and a tooltip below the control
-   while it is hovered or holds keyboard focus. */
+/* The frame's icons, icon-only controls and styled tooltip (./Icon.tsx):
+   icon-only controls share one size, one quiet look, and the icon drawn in
+   the control's text colour. The button of a `tooltip-control` group, icon
+   or labelled, shows the group's tooltip below it while it is hovered or
+   holds keyboard focus. */
 
 .icon {
   flex: none;
@@ -8,7 +10,7 @@
   height: var(--icon-size);
 }
 
-.icon-control {
+.tooltip-control {
   position: relative;
   display: inline-flex;
 }
@@ -90,7 +92,7 @@
   transform: none;
 }
 
-.icon-control:has(> .icon-button:hover, > .icon-button:focus-visible)
+.tooltip-control:has(> button:hover, > button:focus-visible)
   > .frame-tooltip {
   display: block;
 }

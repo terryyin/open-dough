@@ -5,6 +5,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { expectStartNote } from "./cardControls.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { test, expect, stored } from "./support/codexStart.ts";
@@ -110,7 +111,11 @@ test("Codex card start publishes one claim and retries its retained workspace be
   published.advanceTo(revision);
   await page.reload();
   await expect(source).toContainText(revision);
-  await expect(claimed).toContainText("Started here, no session yet");
+  await expectStartNote(
+    claimed,
+    "Start execution",
+    "Started here, no session yet",
+  );
   await claimed.getByRole("button", { name: "Start execution" }).click();
   await expect(dialog).toHaveAccessibleName("Start execution in Codex");
   await expect(dialog).toContainText("Start publishes no second Take");

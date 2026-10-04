@@ -37,3 +37,15 @@ export const launchGroup = (card: Locator) =>
   card.getByRole("group", { name: "Launch actions" });
 export const inspectionGroup = (card: Locator) =>
   card.getByRole("group", { name: "Inspection actions" });
+
+// A Start's note: part of the Start's accessible description; the card shows
+// it only in the Start's tooltip (./agent-launch-card-noted-start.spec.ts).
+export async function expectStartNote(
+  card: Locator,
+  name: string,
+  note: string,
+) {
+  await expect(
+    launchGroup(card).getByRole("button", { name }),
+  ).toHaveAccessibleDescription(new RegExp(note));
+}

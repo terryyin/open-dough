@@ -82,7 +82,7 @@ Update `AGENT-ASSIGNMENTS.md` and the scan-view list in `dashboard/README.md`.
 
 ### 2. Launch notes become hover and focus tooltips
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-card-noted-start.spec.ts`: on the not-ready and
 preparing cards the note is not visible in the launch group; hovering and
 focusing the dashed Start shows the note in the styled tooltip; the button's
@@ -90,6 +90,13 @@ accessible description is the note, announced once; the dialog says “This
 story is …”; a Ready story's Start shows no tooltip; existing layout, reading
 order and noted-vs-disabled look checks stay green. Run the other note-reading
 specs listed above.
+Accepted: `expectNoteTooltip` in `agent-launch-card-noted-start.spec.ts`
+(hidden at rest, shown on hover and keyboard focus in the aria-hidden
+`.frame-tooltip`, exact accessible name and description, dialog wording,
+Ready Start without tooltip); other note-reading specs use `expectStartNote`
+(`tests/cardControls.ts`) on the Start's description. The labelled-button
+tooltip shares `FrameTooltip` and the `.tooltip-control` group with
+`IconButton`.
 
 Behavior: a noted Start → hover or keyboard focus → the note appears as a
 tooltip; at rest the card shows only the dashed Start. Update the note

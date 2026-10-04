@@ -8,6 +8,7 @@ import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./cardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
@@ -110,7 +111,11 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
   await page.keyboard.press("Escape");
   await page.reload();
-  await expect(card).toContainText("Started here, no session yet");
+  await expectStartNote(
+    card,
+    "Start refinement",
+    "Started here, no session yet",
+  );
   await card.getByRole("button", { name: "Start refinement" }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel("Host", { exact: true })).toHaveValue("codex");
@@ -133,7 +138,11 @@ test("Codex refusal retains its published preparation; the page resumes the same
   });
   try {
     await page.reload();
-    await expect(card).toContainText("Started here, no session yet");
+    await expectStartNote(
+      card,
+      "Start refinement",
+      "Started here, no session yet",
+    );
     // Even a forged host change cannot replace the retained start.
     const wrongHost = await launch(restarted, {
       ...launchRequest,

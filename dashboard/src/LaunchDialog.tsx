@@ -69,7 +69,8 @@ export function LaunchDialog({
   readonly effects?: ReactNode;
   // Longer explanations and metadata, read under Command details.
   readonly details?: ReactNode;
-  readonly note?: ReactNode;
+  // What the launch's workflow notes about the work, in a quiet sentence.
+  readonly note?: string | undefined;
   readonly fieldLabel: string;
   // The command line the instruction follows; it includes the selected
   // options' flags, in the order `options` offers them.
@@ -170,7 +171,7 @@ export function LaunchDialog({
               <p className="launch-dialog-subject">{subject}</p>
             )}
             <p>{description}</p>
-            {note}
+            {note !== undefined && <p className="launch-dialog-note">{note}</p>}
             <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
             <textarea
               ref={instruction}

@@ -5,6 +5,7 @@
 // start shows the policy it was started with instead of choices.
 
 import { parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./cardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog, radio } from "./support/sessionDialog.ts";
 
@@ -54,7 +55,11 @@ test("one-shot is offered only for a host whose installation takes the policy, a
   const reloaded = parts(page).backlog.getByRole("article", {
     name: "Story A",
   });
-  await expect(reloaded).toContainText("Started here, no session yet");
+  await expectStartNote(
+    reloaded,
+    "Start refinement",
+    "Started here, no session yet",
+  );
   await reloaded.getByRole("button", { name: "Start refinement" }).click();
   await expect(dialog.getByRole("group", { name: "Session" })).toContainText(
     "Isolated workspace · One-shot · Wait for review, as this kept start was started.",
