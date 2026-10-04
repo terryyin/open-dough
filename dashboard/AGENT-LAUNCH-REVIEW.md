@@ -21,7 +21,8 @@ top level (`src/reviewFileTree.ts`). A chain of folders that each hold only
 one folder is one row naming the chain (`docs/adrs/drafts`). A renamed file
 sits once, at its new path; its old folder shows nothing for it. Each folder
 is a disclosure button (`aria-expanded`) that collapses and expands by
-pointer or keyboard. A collapsed folder hides its files and subfolders, and
+pointer or keyboard; the browser is not an ARIA tree, which would promise
+arrow-key navigation. A collapsed folder hides its files and subfolders, and
 its row shows how many changed files it holds at any depth; its control is
 named by the folder and that count (`dashboard 3 changed files`). An expanded
 folder shows no count, and the heading's total stays the snapshot's. Expanding
@@ -32,7 +33,8 @@ folders new to it expanded, while every folder shows expanded each time a
 review opens. A row shows the file's name alone,
 its kind told by the name's style (`src/story-review.css`): an added name is
 in the ready color, a modified one in plain text, a deleted one struck
-through in the quiet color, and a renamed one italic. The kind's words remain
+through in the quiet color, and a renamed one italic. Modified takes the
+plain style because every listed file is changed. The kind's words remain
 where they are read: each file's control is named, and titled for hover, by
 its kind and full path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`),
 and the selected file's diff is headed by the same words.
