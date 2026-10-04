@@ -33,6 +33,7 @@ import {
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -68,9 +69,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
     const done = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Execution"),
     );
-    await cardSessionOf(card(readyStory), "Execution")
-      .getByRole("button", { name: "Mark as done" })
-      .click();
+    await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launch(readyStory, "Refinement");
     // Every launch finishes, its entry naming its session, before the page

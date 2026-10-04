@@ -30,6 +30,7 @@ import {
 } from "./launchJourney.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
 import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -97,9 +98,7 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
 
     const before = Date.now();
     await launchListed(readyStory, "Refinement");
-    await cardSessions(card(readyStory))
-      .getByRole("button", { name: "Mark as done" })
-      .click();
+    await markDoneAnyway(cardSessions(card(readyStory)));
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launchListed(readyStory, "Execution");
     await launchListed(notRefinedStory, "Execution");

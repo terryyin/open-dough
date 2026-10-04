@@ -15,6 +15,7 @@ import {
   codexLines,
   codexTerminalMode,
 } from "./support/codexTerminal.ts";
+import { markDone, markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -60,12 +61,13 @@ for (const attached of [false, true]) {
       await expect(panel.locator(".xterm-rows")).toContainText(
         "original retained history",
       );
-      await panel.getByRole("button", { name: "Mark as done" }).click();
+      // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
+      await markDone(panel);
       await expect(panel).toHaveCount(0);
       const pid = codexAttaches(native)[0]?.pid ?? 0;
       await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
       expect(codexLines(native, pid)).toEqual([]);
-    } else await listed.getByRole("button", { name: "Mark as done" }).click();
+    } else await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
     await expect(recent.locator(".session-state")).toHaveText("Done");
     await expect(recent).toContainText(
@@ -151,7 +153,8 @@ test("native interrupt refusal remains Working with retained local intent and di
   await expect(panel.locator(".xterm-rows")).toContainText(
     "original retained history",
   );
-  await panel.getByRole("button", { name: "Mark as done" }).click();
+  // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
+  await markDone(panel);
   await expect(panel).toHaveCount(0);
   await expect(listed).toHaveCount(0);
   await expect(recent.locator(".session-state")).toHaveText("Working");

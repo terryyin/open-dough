@@ -5,11 +5,16 @@ import { promisify } from "node:util";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/cursorStart.ts";
-import { launch, recordsOf, markDone } from "./agentLaunchBoundary.ts";
+import {
+  launch,
+  recordsOf,
+  markDone as markDoneAtBoundary,
+} from "./agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { markDone } from "./support/markDone.ts";
 
 const exec = promisify(execFile);
 
@@ -100,7 +105,7 @@ test("Cursor installed report offers local Done without a native stop capability
   const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(read?.doneAt).toBeUndefined();
   expect(read?.reportRead).toBe(receipt.receipt);
-  await card.getByRole("button", { name: "Mark as done" }).click();
+  await markDone(card);
   await expect(listed).toHaveCount(0);
   expect(cursor.calls()).toHaveLength(before);
   const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
@@ -112,7 +117,7 @@ test("Cursor installed report offers local Done without a native stop capability
   expect(done?.completion?.receipt).toBe(receipt.receipt);
   expect(
     (
-      await markDone(dashboard, {
+      await markDoneAtBoundary(dashboard, {
         source: "open-dough",
         host: "cursor",
         session: "unknown-session",

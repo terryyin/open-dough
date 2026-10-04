@@ -28,6 +28,7 @@ import {
   expectResumeCommand,
   disconnectContinuation,
 } from "./support/codexContinuation.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: LaunchJourney | undefined;
@@ -55,9 +56,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
   const claudeSession = String(dashboard.claudeListing()[0]?.["sessionId"]);
-  await cardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Mark as done" })
-    .click();
+  await markDoneAnyway(cardSessions(card(notRefinedStory)));
   await expect(cardSessions(card(notRefinedStory))).toHaveCount(0);
   native.threadId = claudeSession;
   await refine(notRefinedStory).click();

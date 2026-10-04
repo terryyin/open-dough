@@ -27,6 +27,7 @@ import {
 } from "./responsiveAccess.ts";
 import { startExecution } from "./responsiveRecovery.ts";
 import { instruction, openStories, test } from "./responsiveStart.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -216,7 +217,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   await entry.getByRole("button", { name: "Open terminal" }).click();
   await expect(entry).toContainText("Shown in terminal");
 
-  await entry.getByRole("button", { name: "Mark as done" }).click();
+  await markDoneAnyway(entry);
   await expect(cardSessions(story)).toHaveCount(0);
 
   const push = origin.holdPushes();

@@ -104,7 +104,12 @@ lands.
 
 ### 1. Existing journeys mark sessions done through one support step
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: the 30 spec files `grep -rl "Mark as done"` matched at
+`e3196862` plus every changed spec → 61 passed; `npm run lint` and
+`npm run typecheck:dashboard` clean. Only the Cursor card session with a read
+`completed` report uses `markDone` on a card; panel calls the rule will ask
+about stay on `markDone` with a `// Slice 3:` comment.
 Proof: Every spec and support file the `grep` above names still passes,
 unchanged in what it asserts:
 `npx playwright test --config dashboard/playwright.config.ts $(grep -rl "Mark as done" dashboard/tests --include="*.spec.ts" | xargs -n1 basename)`.
@@ -217,4 +222,9 @@ question does when its state becomes known.
 
 ## Learnings
 
-None yet.
+- Slice 1 removed the literal “Mark as done” from specs that now call the
+  support steps, so grepping that text alone no longer selects every journey
+  that marks done. Later slices select specs with
+  `grep -rlE "Mark as done|markDone" dashboard/tests --include="*.spec.ts" | xargs -n1 basename`.
+- `agentLaunchBoundary.ts` also exports an HTTP `markDone(server, …)`; a spec
+  needing both imports the HTTP one as `markDoneAtBoundary`.

@@ -37,6 +37,7 @@ import {
   sidebarParts,
 } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -234,9 +235,7 @@ test.describe("the Sessions sidebar", () => {
     });
 
     await test.step("a session marked done leaves the sidebar, and its count", async () => {
-      await cardSessionOf(card(readyStory), "Execution")
-        .getByRole("button", { name: "Mark as done" })
-        .click();
+      await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
       await expect(entries).toHaveCount(4);
       await expect(badge).toHaveText("2");
       await expect(

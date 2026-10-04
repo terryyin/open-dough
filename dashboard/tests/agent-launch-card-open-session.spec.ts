@@ -30,6 +30,7 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { expectStartNote, launchGroup } from "./cardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -87,9 +88,7 @@ test.describe("a story's card while its session is open", () => {
     });
 
     await test.step("Mark as done returns both Starts without a reload", async () => {
-      await cardSessionOf(card(readyStory), "Execution")
-        .getByRole("button", { name: "Mark as done" })
-        .click();
+      await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
       await expect(cardSessions(card(readyStory))).toHaveCount(0);
       await expectOffered(readyStory);
       await expect(action(readyStory, "Execution")).toHaveAccessibleDescription(

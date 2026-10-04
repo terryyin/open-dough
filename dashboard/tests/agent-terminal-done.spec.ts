@@ -34,6 +34,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { markDone } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -105,7 +106,8 @@ test.describe("marking a session done from its terminal", () => {
     const doneName = `done-${String(session?.["name"])}`;
     const release = await holdDoneRequests(page);
 
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
+    await markDone(panel);
 
     const marking = panel.getByRole("status").getByText("Marking as done…");
     await expect(marking).toBeVisible();
@@ -153,7 +155,8 @@ test.describe("marking a session done from its terminal", () => {
       backlog: [doughnutSharedTitle],
     });
 
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
+    await markDone(panel);
 
     await expect(panel).toHaveCount(0);
   });
@@ -179,7 +182,8 @@ test.describe("marking a session done from its terminal", () => {
     const folder = path.join(dashboard.home, "git", "open-dough");
     renameSync(folder, `${folder}.moved`);
 
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
+    await markDone(panel);
 
     const refused = status.getByText("The session could not be marked done.");
     await expect(refused).toBeVisible();
@@ -218,7 +222,8 @@ test.describe("marking a session done from its terminal", () => {
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const release = await holdDoneRequests(page);
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
+    await markDone(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
     await cardSessionOf(card(notRefinedStory), "Refinement")

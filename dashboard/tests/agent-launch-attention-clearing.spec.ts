@@ -35,6 +35,7 @@ import {
   markNotReloaded,
   watchRecordReads,
 } from "./sessionStatePace.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -110,7 +111,7 @@ test("a session's attention stays through opening and closing its terminal, clea
   });
 
   await test.step("a successful Mark as done clears it at once, and no later host state brings it back", async () => {
-    await onCard.getByRole("button", { name: "Mark as done" }).click();
+    await markDoneAnyway(onCard);
     await expect(onCard).toHaveCount(0);
     await expectSessionShown(inRecent, "Done", false);
 

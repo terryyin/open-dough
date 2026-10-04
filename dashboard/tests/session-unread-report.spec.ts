@@ -29,6 +29,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { markDone } from "./support/markDone.ts";
 
 const test = base.extend<{ origin: StartOrigin }>({
   // eslint-disable-next-line no-empty-pattern
@@ -246,7 +247,8 @@ test("an unread report is its own mark beside the session's native reading", asy
   const stopsBeforeDone = stops().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
-  await panel.getByRole("button", { name: "Mark as done" }).click();
+  // Slice 3: the panel will ask (reported completed, Needs input); use markDoneAnyway then.
+  await markDone(panel);
   await expect(panel).toHaveCount(0);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
@@ -295,7 +297,8 @@ test("Mark as done in the terminal panel closes a session with an unread report 
     dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
   const stopsBefore = stops().length;
 
-  await terminal.getByRole("button", { name: "Mark as done" }).click();
+  // Slice 3: the panel will ask (reported completed, Working); use markDoneAnyway then.
+  await markDone(terminal);
 
   await expect(terminal).toHaveCount(0);
   await expect(card.locator(".session-state")).toHaveCount(0);

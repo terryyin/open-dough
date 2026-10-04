@@ -14,6 +14,7 @@ import {
   startDashboardServer,
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
+import { markDone } from "./support/markDone.ts";
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
@@ -226,7 +227,8 @@ test("installed attention report stays open, durable and readable through stage 
       panel.getByRole("button", { name: "Mark as done" }),
     ).toBeVisible();
     expect(stored(restarted.home)[0]?.doneAt).toBeUndefined();
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    // Slice 3: the panel will ask (reported unfinished, Working); use markDoneAnyway then.
+    await markDone(panel);
     await expect(panel).toHaveCount(0);
     await expect(claimed.locator(".session-attention-message")).toHaveCount(0);
     expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
