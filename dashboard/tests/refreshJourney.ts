@@ -3,8 +3,10 @@
 // files are written here; what the page shows is for each test to observe.
 
 import type { Page } from "@playwright/test";
-import { expectMembership } from "./dashboardPage.ts";
+import { inspectedDetail } from "./cardControls.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
+import { test } from "./support/pageTest.ts";
 
 export const revisionA = "a1".repeat(20);
 export const revisionB = "b2".repeat(20);
@@ -58,4 +60,14 @@ export async function openAtA(page: Page): Promise<MovingOrigin> {
   await page.goto("/");
   await expectMembership(page, titlesOfA);
   return origin;
+}
+
+// The dashboard story's detail, opened so a whole snapshot's source links can
+// be read in it.
+export async function inspectDashboardStory(page: Page): Promise<void> {
+  await test.step("the dashboard story's detail is inspected", async () => {
+    await inspectedDetail(
+      parts(page).stages.getByRole("article", { name: dashboardStory }),
+    );
+  });
 }

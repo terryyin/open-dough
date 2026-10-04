@@ -29,6 +29,7 @@ import {
 import { rateLimitedAnswer } from "./publishedOrigin.ts";
 import {
   backlogB,
+  inspectDashboardStory,
   revisionA,
   revisionB,
   titlesOfA,
@@ -42,6 +43,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   const { source, problem } = parts(page);
   const retrievedAt = source.locator("time");
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
+  await inspectDashboardStory(page);
   const restoreMain = origin.answerWith(
     "main",
     rateLimitedAnswer(429, { "Retry-After": "120" }),

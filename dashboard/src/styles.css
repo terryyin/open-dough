@@ -151,6 +151,10 @@ main {
   font-size: 0.9rem;
 }
 
+.card-identity {
+  margin-top: 0.15rem;
+}
+
 .direction {
   flex: 1;
   min-width: 0;

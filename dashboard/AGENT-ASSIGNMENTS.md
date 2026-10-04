@@ -39,8 +39,9 @@ profile's history at the shown revision (its ten latest changes) and walks it
 back until the change that added the file, so a later modification of the
 profile names nobody, and a removal ends the walk before an older allocation of
 the same rotating name. When no addition is found, the adding commit names no
-usable committer, or the history cannot be read, the detail and roster say the
-human developer is unknown and why, never guessing from another commit.
+usable committer, or the history cannot be read, the card's scan view shows
+the short "Human developer unknown" and the detail and roster say why, never
+guessing from another commit.
 Beside a credited name is the avatar of the GitHub account GitHub matched to
 that committer. The local boundary fetches it from the avatar address GitHub
 named for that account (only https on GitHub's avatar host, bounded in size,

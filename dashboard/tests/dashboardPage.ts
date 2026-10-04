@@ -3,11 +3,7 @@
 // in one place.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import {
-  cardLaunchActions,
-  detailToggle,
-  someInspectedDetail,
-} from "./cardControls.ts";
+import { cardLaunchActions, detailToggle } from "./cardControls.ts";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
@@ -171,7 +167,8 @@ export async function expectOwnersNotRecorded(page: Page) {
   );
 }
 
-// Everything the page shows about one revision, observed together.
+// Everything the page shows about one revision, observed together. Source
+// links are read in the story detail the journey has opened.
 export async function expectWholeSnapshot(
   page: Page,
   shown: {
@@ -190,8 +187,8 @@ export async function expectWholeSnapshot(
       shown.retrievedAt.toISOString(),
     );
   }
-  // Source links are read in an inspected story's detail.
-  const detail = await someInspectedDetail(stages);
+  const detail = stages.getByRole("region", { name: /^Detail for / });
+  await expect(detail).toHaveCount(1);
   await expect(
     detail.locator(`a[href*="/blob/${shown.revision}/"]`).first(),
   ).toBeVisible();

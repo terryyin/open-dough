@@ -102,8 +102,9 @@ function BranchContext({ owner }: { owner: AgentOwner }) {
 // The assignment as inspected detail shows it: for each recorded assignment,
 // the one-line developer summary, for example
 // "Akiho-chan · Trunk Mode · Claude Code · claude-opus", the credited human
-// developer, and, for Taken work, its branch context. Gaps stay on the
-// card's scan view.
+// developer, and, for Taken work, its branch context, with an unrecorded host
+// or model as its text gap. Profile-level gaps and the short warning that the
+// credited human is unknown stay on the card's scan view.
 export function AssignmentDetail({
   owner,
   preparing,

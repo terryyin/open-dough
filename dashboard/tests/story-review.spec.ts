@@ -7,7 +7,7 @@
 // path, the deletion as all lines removed, and the image as having no textual
 // diff; hiding the file browser leaves the diff in place with more room.
 // The review shows in the page's side panel, and Command+Shift+Escape closes
-// it, returning the keyboard to Review changes.
+// it, returning the keyboard to Review changes; Tab then moves on.
 // Requests the launch boundary does not admit are refused before any Git
 // runs: trunk is not fetched and no file is written.
 
@@ -17,6 +17,8 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../src/storyReview.ts";
+import { expectFocusedAndIndicated } from "./accessibleReading.ts";
+import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
@@ -239,7 +241,16 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   });
   expect(observed(workspace)).toEqual(before);
 
+  // Closing the review returns the keyboard to Review changes, and the next
+  // Tab reaches the next card's first Start.
   await page.keyboard.press("Meta+Shift+Escape");
   await expect(review).toBeHidden();
-  await expect(action).toBeFocused();
+  await expectFocusedAndIndicated(page, action);
+  await page.keyboard.press("Tab");
+  await expectFocusedAndIndicated(
+    page,
+    parts(page)
+      .backlog.getByRole("article", { name: "Story B" })
+      .getByRole("button", { name: "Start execution" }),
+  );
 });

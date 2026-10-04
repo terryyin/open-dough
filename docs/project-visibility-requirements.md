@@ -345,20 +345,23 @@ file.
   later allocation of the same name. Silence, age, a missing process, or a
   lost workspace alone never releases a name; an abandoned profile keeps its
   name held until one of these releases.
-- **Dashboard.** Each Taken card shows the agent, mode, branch context, host,
-  and model from the published profile. A queued card whose story has a
-  published preparation profile shows Preparing and its developer. Branch
+- **Dashboard.** Each Taken card's scan view shows the agent's portrait and
+  name from the published profile. A queued card whose story has a published
+  preparation profile shows Preparing and its developer's portrait and name.
+  The story's inspected detail shows the assignment's mode, branch context,
+  host, model, and credited human developer; the agent roster shows mode,
+  host, model, and credited human developer beside each assignment. Branch
   context is labelled as story branch work, never as work on trunk. A missing
-  profile shows "Owner not recorded", a missing field shows as not recorded,
-  and an unreadable profile is listed as unreadable without being matched to
-  any entry. Decorative
-  identity marks sit beside their own text labels: the agent's portrait beside
-  its name, the mode symbol beside the mode, and the host tool's mark beside
-  the host. Hovering the portrait shows it larger in place, over the card,
-  without moving the owner line; each rotation agent's gesture strip plays
-  once in that enlargement on each hover and settles on the still portrait,
-  which reduced motion shows without the gesture. Text alone carries each fact; no mark is
-  drawn for an unrecorded or unreadable fact, and no mark implies that an
+  profile shows "Owner not recorded" on the card, a missing field shows as not
+  recorded in the detail and roster, and an unreadable profile is listed as
+  unreadable without being matched to any entry. Decorative identity marks
+  sit beside their own text labels: the agent's portrait beside its name on
+  the card, and, in the detail and roster, the mode symbol beside the mode and
+  the host tool's mark beside the host. Hovering the portrait shows it larger
+  in place, over the card, without moving the owner line; each rotation
+  agent's gesture strip plays once in that enlargement on each hover and
+  settles on the still portrait, which reduced motion shows without the
+  gesture. Text alone carries each fact; no mark is drawn for an unrecorded or unreadable fact, and no mark implies that an
   agent is present or active.
 
 ### Future messaging and handover

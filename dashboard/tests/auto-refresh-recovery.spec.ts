@@ -33,6 +33,7 @@ import { noConnection, type OriginAnswer } from "./publishedOrigin.ts";
 import {
   backlogB,
   dashboardStory,
+  inspectDashboardStory,
   revisionA,
   revisionB,
   revisionC,
@@ -53,6 +54,7 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
   const { source, stages, problem } = parts(page);
   const retrievedAt = source.locator("time");
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
+  await inspectDashboardStory(page);
   const restoreMain = origin.answerWith("main", unexplainedFailure);
 
   await test.step("a failed check is reported, and A is still named the last successful snapshot", async () => {

@@ -18,7 +18,12 @@ import {
   rawFileAnswer,
   type Origin,
 } from "./publishedOrigin.ts";
-import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
+import {
+  backlogA,
+  inspectDashboardStory,
+  revisionA,
+  titlesOfA,
+} from "./refreshJourney.ts";
 
 const revision = "5e".repeat(20);
 const repairEntry =
@@ -166,6 +171,7 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
 
   await test.step("a reload reads once more and publishes the first snapshot", async () => {
     await page.reload();
+    await inspectDashboardStory(page);
     await expectWholeSnapshot(
       page,
       { revision: revisionA, titles: titlesOfA },
@@ -213,6 +219,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   reconnect();
   await page.clock.setFixedTime(retrievedA);
   await page.reload();
+  await inspectDashboardStory(page);
   await expectWholeSnapshot(
     page,
     { revision: revisionA, titles: titlesOfA, retrievedAt: retrievedA },

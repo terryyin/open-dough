@@ -150,9 +150,11 @@ answer beside it; the inspection group holds **Inspect story** and, when
 offered, **Review changes**. Each group's actions share a line when the card is
 wide enough and wrap in reading order when it is not. **Inspect story** opens
 its detail from facts already read: full identity, purpose, what the
-assignment records, preparation and dependency explanations, the exact
-progress branch and revision, slice evidence, product advice, and source
-links; **Hide detail** returns focus to the card.
+assignment records, preparation explanations, the exact progress branch and
+revision, slice evidence, product advice, and source links; **Hide detail**
+returns focus to the card. The dependency explanation opens in place from the
+card's **Dependencies** summary (see
+[Blocking story dependencies](#blocking-story-dependencies)).
 
 [Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or
 prepares each story, the agent roster, and the credited human developer.

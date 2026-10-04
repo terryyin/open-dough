@@ -31,19 +31,6 @@ export async function inspectedDetail(card: Locator): Promise<Locator> {
   return detail;
 }
 
-// The detail open in these stages, or else the first card's, opened without
-// moving focus and left open.
-export async function someInspectedDetail(stages: Locator): Promise<Locator> {
-  const detail = stages.getByRole("region", { name: /^Detail for / });
-  if ((await detail.count()) === 0) {
-    await stages
-      .getByRole("button", { name: "Inspect story" })
-      .first()
-      .dispatchEvent("click");
-  }
-  return detail;
-}
-
 // A card's launch group (its Starts) and its inspection group (Inspect story,
 // and Review changes when offered).
 export const launchGroup = (card: Locator) =>
