@@ -27,51 +27,82 @@ that hazard.
 
 **Identity:** SEED-103#attention-message-on-story-card
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/248-attention-message-on-story-card/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1fbafc102cff46d761f3d98a77272284d0acc80373254ccd7b72e71f813db622","plan":"653316cbe3bf1d97c5abf2c490c2aa02a9509219c093899eadb0955ad41575e2"}}
 ```
 
 **Goal:** A developer using the dashboard reads a session's attention message
-and marks it read directly on the story card, without a separate panel, and
-reading a message never turns into an offer to mark the session done.
+and marks it read directly on the session's entry, on its story card or in
+Recent sessions, without a separate panel, and reading a message never turns
+into an offer to mark the session done.
 
 **Scope:**
 
-- Remove the attention message (report) panel and its **Read attention
-  message** entry point. Show the message within the story card's session
-  entry.
-- The message part of the entry is collapsed by default. It expands
-  automatically only while the message is unread.
-- Offer **Mark as read** directly on the expanded unread message.
-- After Mark as read, the message collapses; the developer can click to expand
-  it again and reread it.
-- Marking a message read changes only its read state. It never replaces Mark as
-  read with Mark as done, and the entry's ordinary session controls stay as they
-  are for its native reading.
-- Delete the panel and every code path, style, state, test, and documentation
-  passage that only served it, leaving no dead code. Update
-  [explicit completion and retained attention messages](../../dashboard/AGENT-LAUNCH-COMPLETION.md)
-  to describe the card-only behavior.
+- Every shared session entry that holds an attention message, on a story card
+  and in Recent sessions, shows it as a message part of the entry. The part is
+  headed by the report's completion label, and that heading is the control
+  that expands and collapses it, by pointer or keyboard, saying which state it
+  is in.
+- The message part is expanded while the message is unread and stays expanded
+  until it is read. Read, or on a session marked done, it is collapsed until
+  the developer expands it. An expansion the developer chose is not kept across
+  a reload.
+- The expanded part shows the whole message as text in an area of limited
+  height that scrolls on its own, so a long message leaves the rest of the
+  entry and Mark as read in view.
+- An unread message offers **Mark as read** in its message part, on card and
+  Recent sessions entries alike, so a session without a story card can be
+  marked read. Marking read collapses the part and leaves the keyboard on its
+  heading. A mark that fails leaves the part expanded and says so in the
+  entry's status line.
+- Marking a message read changes only its read state. The entry's **Mark as
+  done** is its own control, offered whenever the session can be marked done,
+  an unread message included, and neither control takes the other's place.
+- The unread wording, the card's unread-report line, the Sessions sidebar's
+  mark, alerts, and the rule that a newer report is unread again stay as they
+  are.
+- The side panel no longer shows attention messages: remove **Read attention
+  message** and the panel's Mark as read. The panel stays for Codex's passive
+  native final report, with **Read final report** and its ordinary Mark as
+  done. A session opens in the side panel by its terminal or native final
+  report alone; an attention message opens no panel.
+- Delete every code path, style, state, test, and documentation passage that
+  only served the message in the panel or the swap between Mark as read and
+  Mark as done, leaving no dead code. Update
+  [explicit completion and retained attention messages](../../dashboard/AGENT-LAUNCH-COMPLETION.md),
+  [terminal and record actions](../../dashboard/AGENT-LAUNCH-TERMINALS.md), and
+  the side panel's description in the
+  [dashboard north star](../../docs/dashboard-ux-ui-north-star.md).
 
 **Key examples:**
 
 - A session reports `--outcome unfinished` with a message: its card entry shows
-  the message expanded with Mark as read; no panel is needed to read it.
-- The developer clicks Mark as read: the message collapses, the session stays
-  open with its native reading, and no Mark as done appears in the message's
-  place.
-- The developer clicks the collapsed, read message: it expands and shows the
-  same text, without Mark as read.
+  the message expanded under “Unfinished work”, with Mark as read beside the
+  entry's own Mark as done; no panel is needed to read it.
+- The developer clicks Mark as read: the message collapses to its heading, the
+  session stays open with its native reading, and Mark as done is where it was.
+- The developer activates the heading of a collapsed, read message: it expands
+  and shows the same text, without Mark as read; activating it again collapses
+  it.
 - A newer report arrives for the same session: its message is unread again and
-  expands automatically.
+  expanded.
+- A message of several thousand characters is unread: its text scrolls within
+  the message part, and Mark as read and the entry's other lines stay in view.
+- An ad-hoc session, which has no story card, reports with a message: its
+  Recent sessions entry shows the message expanded with Mark as read.
+- A session with a message is marked done: its Recent sessions entry keeps the
+  message collapsed and expandable, without Mark as read.
+- A Codex session whose workspace is gone holds an attention message: its entry
+  shows the message in its message part, and Read final report opens the native
+  final report in the side panel.
 - A session without an attention message shows no message part.
 
 **Rejection constraint:** No control that appears as a consequence of marking a
 message read may mark the session done or remove it from the dashboard. A test
 guards against reintroducing that swap.
 
-**Refinement input:** Settle how the collapsed message is indicated and
-expanded, how long messages fit the card, and how a retained message stays
-readable for a session in Recent sessions after Done once the panel is gone.
+**Coordination:** With Mark as done offered beside an unread message,
+[confirming Mark as done](SEED-104-confirm-mark-as-done.md#confirm-mark-as-done)
+owns any confirmation for a session that reported unfinished work.
 
 ## Breadcrumbs
 
