@@ -1,6 +1,6 @@
 // Record actions shared by card and Recent sessions entries.
 import { hostName, marksRecordDone } from "./sessionCapabilities.ts";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
   notDeleted,
@@ -8,38 +8,54 @@ import {
   usePageSessions,
   useReportOrDoneMark,
 } from "./pageSessions.ts";
-import { useFrameDescription } from "./protectedFrame.ts";
+import { AskInPlace } from "./AskInPlace.tsx";
 
 // A card entry's Mark as read while its report is unread, else its Mark as
 // done, and its Delete record… while its state is unknown or unavailable,
 // with the one status line that says what any could not do or found. Once
 // read, the entry stays and offers Mark as done in the same place; once
-// marked done or deleted, the entry leaves the card.
+// marked done or deleted, the entry leaves the card. Mark as done on a session
+// whose intended work is not known to be complete asks first, in place, as
+// Delete record… does; a refused mark puts the control back with the keyboard
+// on it, and the next press asks again.
 export function CardActions({ record }: { readonly record: LaunchWithState }) {
   const { markDone, markRead, hostOperations } = usePageSessions();
-  const { label, marking, notMarkedSaid, mark } = useReportOrDoneMark(record);
+  const { label, asksFirst, marking, notMarkedSaid, mark } =
+    useReportOrDoneMark(record);
   const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
-  const described = useFrameDescription();
   return (
     <>
       {marksRecordDone(hostOperations, record) && (
-        <p className="launch-open">
-          <button
-            type="button"
-            aria-describedby={described}
-            disabled={marking === "marking"}
-            onClick={(event) => {
-              setDeleteSaid(undefined);
-              const request = { record, control: event.currentTarget };
+        <AskInPlace
+          label={label}
+          disabled={marking === "marking"}
+          question={
+            asksFirst === undefined
+              ? undefined
+              : `${asksFirst} Mark it done anyway?`
+          }
+          confirm="Mark as done"
+          keep="Keep open"
+          onPress={() => {
+            setDeleteSaid(undefined);
+          }}
+          act={(control) =>
+            new Promise((answered) => {
+              const request = { record, control };
               mark(
-                () => markRead(request),
-                () => markDone(request),
+                () =>
+                  markRead(request).finally(() => {
+                    answered("returned");
+                  }),
+                () =>
+                  markDone(request).then((marked) => {
+                    answered(marked ? "settled" : "returned");
+                    return marked;
+                  }),
               );
-            }}
-          >
-            {label}
-          </button>
-        </p>
+            })
+          }
+        />
       )}
       <DeleteRecord record={record} say={setDeleteSaid} />
       <p role="status" className="launch-problem">
@@ -69,11 +85,10 @@ export function RecentActions({
 
 // An entry's Delete record…, offered only while its state is unknown or
 // unavailable (`recordDeletable`): it asks in place, with the keyboard on
-// Keep, before the record is deleted. Keep and Escape put the button back with
-// the keyboard on it. A deleted record takes the entry off the page. A refused
-// or failed delete says so in the entry's status line and leaves the buttons
-// and the keyboard where they were; a state read as known meanwhile takes the
-// question away and says so.
+// Keep, before the record is deleted. A deleted record takes the entry off
+// the page. A refused or failed delete says so in the entry's status line and
+// leaves the buttons and the keyboard where they were; a state read as known
+// meanwhile takes the question away and says so.
 function DeleteRecord({
   record,
   say,
@@ -83,105 +98,32 @@ function DeleteRecord({
   readonly say: (words: string | undefined) => void;
 }) {
   const { deleteRecord } = usePageSessions();
-  const deletable = recordDeletable(record);
-  const [step, setStep] = useState<"idle" | "asking" | "deleting">("idle");
-  const button = useRef<HTMLButtonElement>(null);
-  const keep = useRef<HTMLButtonElement>(null);
-  const restoring = useRef(false);
-  const retrying = useRef<HTMLElement | null>(null);
-  const described = useFrameDescription();
-
-  useEffect(() => {
-    if (step === "asking") {
-      // After a failed delete the keyboard stays on the button it was on.
-      (retrying.current ?? keep.current)?.focus();
-      retrying.current = null;
-    }
-    if (step === "idle" && restoring.current) {
-      restoring.current = false;
-      button.current?.focus();
-    }
-  }, [step]);
-
-  useEffect(() => {
-    if (!deletable)
-      setStep((current) => (current === "deleting" ? current : "idle"));
-  }, [deletable]);
-
-  const keepRecord = () => {
-    restoring.current = true;
-    setStep("idle");
-  };
-
-  if (!deletable) return null;
-  if (step === "idle") {
-    return (
-      <p className="launch-open">
-        <button
-          ref={button}
-          type="button"
-          aria-describedby={described}
-          onClick={() => {
-            say(undefined);
-            setStep("asking");
-          }}
-        >
-          Delete record…
-        </button>
-      </p>
-    );
-  }
+  if (!recordDeletable(record)) return null;
   return (
-    <div
-      className="launch-open delete-question"
-      onKeyDown={(event) => {
-        if (event.key === "Escape" && step === "asking") {
-          event.stopPropagation();
-          keepRecord();
-        }
+    <AskInPlace
+      label="Delete record…"
+      question={`Delete this session's dashboard record? The conversation stays in ${hostName(record.session.host)}; a running session keeps running.`}
+      confirm="Delete record"
+      keep="Keep"
+      onPress={() => {
+        say(undefined);
       }}
-    >
-      <p>
-        Delete this session&apos;s dashboard record? The conversation stays in{" "}
-        {hostName(record.session.host)}; a running session keeps running.
-      </p>
-      <p className="delete-question-actions">
-        <button
-          type="button"
-          aria-describedby={described}
-          disabled={step === "deleting"}
-          onClick={(event) => {
-            const control = event.currentTarget;
-            say(undefined);
-            setStep("deleting");
-            void deleteRecord({ record, control }).then((outcome) => {
-              if (outcome.kind === "deleted") return;
-              setStep(outcome.kind === "failed" ? "asking" : "idle");
-              if (outcome.kind === "failed") {
-                say(
-                  outcome.reason === undefined
-                    ? notDeleted
-                    : `${notDeleted} ${outcome.reason}`,
-                );
-                retrying.current = control;
-              } else {
-                say(nowKnown);
-              }
-            });
-          }}
-        >
-          Delete record
-        </button>
-        <button
-          ref={keep}
-          type="button"
-          aria-describedby={described}
-          disabled={step === "deleting"}
-          onClick={keepRecord}
-        >
-          Keep
-        </button>
-      </p>
-    </div>
+      act={(control) => {
+        say(undefined);
+        return deleteRecord({ record, control }).then((outcome) => {
+          if (outcome.kind === "deleted") return "settled";
+          if (outcome.kind === "failed") {
+            say(
+              outcome.reason === undefined
+                ? notDeleted
+                : `${notDeleted} ${outcome.reason}`,
+            );
+            return "retry";
+          }
+          say(nowKnown);
+          return "withdrawn";
+        });
+      }}
+    />
   );
 }

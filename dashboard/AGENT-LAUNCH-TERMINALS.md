@@ -97,6 +97,22 @@ history needs no invented interrupt. A race/refusal never retries against a
 newer turn. Claude types `/rename` into an open attachment, if any, and waits
 for listing confirmation. Native history is retained.
 
+On a card, Mark as done marks a session at once only when its intended work is
+complete: its latest report is `completed`, with or without an attention
+message, and its reading is neither working nor waiting for input (Cursor's
+held-screen “working” and “waiting for an answer” count as those). Any other
+session is asked about first, in place where Mark as done was, as Delete
+record… asks: one statement, the most pressing that applies (“This session is
+still working. Marking it done asks it to stop.”, “This session is waiting for
+your input.”, “This session reported unfinished work.”, or “This session has
+not reported its work complete. It reads <reading>.”), then “Mark it done
+anyway?”, as a group labelled by those words. The keyboard starts on **Keep
+open**; Keep open or Escape leaves the session, its attachments, its report's
+read state and its reading untouched and puts the keyboard back on Mark as
+done. The question's **Mark as done** runs the operation above unchanged. The
+decision uses the reading and report the card shows when it is clicked. The
+terminal and report panels still mark done without asking.
+
 Recent keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
 persists when native rename/stop is unconfirmed, while live Working remains
 truthful. Local intent proves neither native stop nor published story completion.

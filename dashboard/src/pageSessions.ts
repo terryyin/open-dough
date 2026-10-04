@@ -13,6 +13,7 @@
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
 import { reportUnread } from "./completionReport.ts";
+import { unfinishedIntention } from "./sessionShown.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
@@ -164,10 +165,14 @@ export function useMarking() {
 }
 
 // One control's Mark as read while its session's report is unread, else its
-// Mark as done: what the control is labeled, and what it says of the mark it
-// asked while marking or once refused.
+// Mark as done: what the control is labeled, what it says of the mark it
+// asked while marking or once refused, and, for a Mark as done on a session
+// whose intended work is not known to be complete, the statement it asks
+// with first (`unfinishedIntention`). A record that carries no reading, as
+// the report panel's, asks nothing.
 export function useReportOrDoneMark(
-  record: Parameters<typeof reportUnread>[0],
+  record: Parameters<typeof reportUnread>[0] &
+    Partial<Parameters<typeof unfinishedIntention>[0]>,
 ) {
   const unread = reportUnread(record);
   const { marking, follow } = useMarking();
@@ -176,8 +181,13 @@ export function useReportOrDoneMark(
     setAskedRead(unread);
     follow(unread ? read() : done());
   };
+  const { sessionState } = record;
   return {
     label: unread ? "Mark as read" : "Mark as done",
+    asksFirst:
+      unread || sessionState === undefined
+        ? undefined
+        : unfinishedIntention({ ...record, sessionState }),
     marking,
     markingSaid: askedRead ? "Marking as read…" : "Marking as done…",
     notMarkedSaid: askedRead ? notMarkedRead : notMarkedDone,

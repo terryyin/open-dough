@@ -14,14 +14,18 @@ import type { StartOrigin } from "./startOrigin.ts";
 
 const exec = promisify(execFile);
 
-// Launches the story and answers its native session id and a completed
-// report, with a message, that the store records.
+// Launches the story and answers its native session id and a report, with a
+// message, that the store records: `completed` unless another outcome is
+// given.
 export async function launchedStory(
   dashboard: DashboardServer,
   origin: StartOrigin,
   identity: string,
   title: string,
-): Promise<{ sessionId: string; report(): Promise<void> }> {
+): Promise<{
+  sessionId: string;
+  report(outcome?: "completed" | "unfinished"): Promise<void>;
+}> {
   dashboard.claudeScenario("launched");
   const before = dashboard.claudeLaunchCalls().length;
   const answer = launchResultSchema.parse(
@@ -45,10 +49,10 @@ export async function launchedStory(
   writeFileSync(message, "Published. Reminder: check the migration.");
   return {
     sessionId: answer.record.session.sessionId,
-    async report() {
+    async report(outcome = "completed") {
       const reported = await exec(
         "bash",
-        ["-c", `${command} --outcome completed --message-file '${message}'`],
+        ["-c", `${command} --outcome ${outcome} --message-file '${message}'`],
         { cwd: origin.machine },
       );
       expect(
@@ -61,3 +65,17 @@ export async function launchedStory(
     },
   };
 }
+
+// The session's listed name and short id, as Claude Code lists them, and the
+// name Mark as done renames it to.
+const listedOf = (dashboard: DashboardServer, sessionId: string) => {
+  const listed = dashboard
+    .claudeListing()
+    .find((session) => session["sessionId"] === sessionId);
+  if (listed === undefined) throw new Error(`${sessionId} is not listed`);
+  return listed;
+};
+export const doneNameOf = (dashboard: DashboardServer, sessionId: string) =>
+  `done-${String(listedOf(dashboard, sessionId)["name"])}`;
+export const shortIdOf = (dashboard: DashboardServer, sessionId: string) =>
+  String(listedOf(dashboard, sessionId)["id"]);

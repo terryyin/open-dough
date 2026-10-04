@@ -126,7 +126,15 @@ the question on then changes one support step instead of thirty specs.
 
 ### 2. Mark as done on a card asks first unless the session's intention is complete
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `agent-launch-done-question agent-completion-cursor
+agent-terminal-delete agent-launch-card-delete agent-launch-recent-delete` →
+16 passed; every spec the Learnings `grep` selects → 116 passed; lint and
+typecheck clean. The fact is `unfinishedIntention` in `src/sessionShown.ts`;
+`useReportOrDoneMark` returns it as `asksFirst`; the shared question is
+`AskInPlace` (`src/AskInPlace.tsx`), used by Delete record and the card's
+Mark as done. Test support: `markDoneAnyway`, `doneQuestion`, and
+`expectAsked` in `dashboard/tests/support/markDone.ts`.
 Proof: New `agent-launch-done-question.spec.ts`, on Claude card sessions:
 (a) reported `completed` with a reminder, read, Ready for review → one click,
 gone from the card, Done in Recent sessions. (b) Working, no report → the
@@ -228,3 +236,12 @@ question does when its state becomes known.
   `grep -rlE "Mark as done|markDone" dashboard/tests --include="*.spec.ts" | xargs -n1 basename`.
 - `agentLaunchBoundary.ts` also exports an HTTP `markDone(server, …)`; a spec
   needing both imports the HTTP one as `markDoneAtBoundary`.
+- `useReportOrDoneMark` takes a record whose reading is optional; a record
+  without `sessionState` (the report panel's `LaunchRecord`) asks nothing.
+  Slice 3 gives panels the page's current record and can make the reading
+  required.
+- An unreachable Cursor runner reads “The Cursor runner cannot be reached.”
+  (`cursorRunnerSentence("unreachable")`), not “Activity unknown”; the
+  story's outcome (local Done at once) holds.
+- No journey yet proves Cursor's held-screen “working” or “waiting for an
+  answer” asks first; the rule reads `cursorHeldLabel` for both.

@@ -15,16 +15,22 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import { markDone } from "./support/markDone.ts";
+import { occupyRunner } from "./support/cursorRunnerJourney.ts";
+import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
+import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 
 const exec = promisify(execFile);
 
-test("Cursor installed report offers local Done without a native stop capability and keeps terminal access", async ({
+type CursorFixtures = Parameters<Parameters<typeof test>[2]>[0];
+
+// A launched Cursor execution that reported `completed` with a reminder
+// through its installed reporting command, shown on its story's card.
+async function reportedCursorCard({
   page,
   dashboard,
   origin,
   cursor,
-}) => {
-  test.setTimeout(120000);
+}: Pick<CursorFixtures, "page" | "dashboard" | "origin" | "cursor">) {
   const answer = launchResultSchema.parse(
     JSON.parse(
       (
@@ -84,6 +90,22 @@ test("Cursor installed report offers local Done without a native stop capability
     name: "Story A",
     exact: true,
   });
+  return { card, message, receipt };
+}
+
+test("Cursor installed report offers local Done without a native stop capability and keeps terminal access", async ({
+  page,
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  test.setTimeout(120000);
+  const { card, message, receipt } = await reportedCursorCard({
+    page,
+    dashboard,
+    origin,
+    cursor,
+  });
   await expect(card.locator(".session-attention-message pre")).toHaveText(
     readFileSync(message, "utf8"),
   );
@@ -124,6 +146,46 @@ test("Cursor installed report offers local Done without a native stop capability
       })
     ).status,
   ).toBe(404);
+});
+
+test("a Cursor session with a read completed report whose runner cannot be reached is marked local Done in one click", async ({
+  page,
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  test.setTimeout(120000);
+  const { card, receipt } = await reportedCursorCard({
+    page,
+    dashboard,
+    origin,
+    cursor,
+  });
+  await card.getByRole("button", { name: "Mark as read" }).click();
+  await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(read?.reportRead).toBe(receipt.receipt);
+  await stopCursorRunner(dashboard.home);
+  const release = await occupyRunner(dashboard.home);
+  try {
+    await page.reload();
+    const listed = cardSessions(card);
+    await expect(listed.locator(".session-state")).toHaveText(
+      cursorRunnerSentence("unreachable"),
+    );
+    const before = cursor.calls().length;
+
+    await markDone(card);
+
+    await expect(listed).toHaveCount(0);
+    const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+    expect(done?.doneAt).toBeDefined();
+    expect(cursor.calls()).toHaveLength(before);
+    const recent = parts(page).recentSessions.getByRole("article");
+    await expect(recent.locator(".session-state")).toContainText("Done");
+  } finally {
+    await release();
+  }
 });
 
 test("Cursor explicit quiet completion is durable local Done without native stop", async ({
