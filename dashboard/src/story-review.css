@@ -3,9 +3,10 @@
    (./side-panel.css) and which stay in view while its body scrolls. The
    file browser sits beside the selected file's diff, which takes the
    browser's room while it is hidden, and both wrap below each other in a
-   narrow panel. Paths keep their lines and scroll inside the file browser,
-   and code lines inside the diff, never the page. The card's action shares
-   the launch actions' look (./agent-launch.css). */
+   narrow panel. Files sit by name under their folders. Paths keep their
+   lines and scroll inside the file browser, and code lines inside the
+   diff, never the page. The card's action shares the launch actions' look
+   (./agent-launch.css). */
 
 .story-review-body {
   flex: 1;
@@ -75,6 +76,18 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* A folder's rows sit indented under its name. */
+.story-review-files ul ul {
+  margin-top: 0.2rem;
+  padding-inline-start: 1rem;
+}
+
+.story-review-folder {
+  display: inline-block;
+  padding: 0.1rem calc(0.3rem + 1px);
+  font-weight: 600;
 }
 
 /* A path keeps its line; the browser scrolls sideways instead. */

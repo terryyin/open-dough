@@ -10,6 +10,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
+import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
   git,
@@ -29,16 +30,17 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   await action.click();
   const review = page.getByRole("region", { name: "Review changes" });
   const listed = [
-    "Added fresh/new.txt",
+    "fresh",
+    "  Added new.txt",
     "Deleted gone.txt",
     "Modified image.png",
-    "Renamed old.txt → new.txt",
+    "Renamed new.txt",
     "Modified staged.txt",
     "Added story.txt",
     "Modified unstaged.txt",
   ];
   const opened = review.getByRole("list", { name: "7 changed files" });
-  await expect(opened.getByRole("listitem")).toHaveText(listed);
+  await expect.poll(() => treeRows(opened)).toEqual(listed);
   const select = (name: string) =>
     review.getByRole("button", { name, exact: true }).press("Enter");
   const diff = review.getByRole("region", { name: "Modified unstaged.txt" });
@@ -58,7 +60,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   writeFileSync(path.join(workspace, "later.txt"), "later\n");
 
   await test.step("the list and the open diff stay as the review took them", async () => {
-    await expect(opened.getByRole("listitem")).toHaveText(listed);
+    await expect.poll(() => treeRows(opened)).toEqual(listed);
     expect(await diffLines()).toEqual(openedLines);
   });
 
@@ -71,7 +73,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(diff.getByRole("listitem")).toHaveCount(12);
     expect(await diffLines()).toEqual(openedLines);
     expect(await diffLines()).not.toContain(edit);
-    await expect(opened.getByRole("listitem")).toHaveText(listed);
+    await expect.poll(() => treeRows(opened)).toEqual(listed);
   });
 
   await test.step("Refresh lists the new file and shows the edit, keeps focus, and announces it", async () => {
@@ -79,16 +81,19 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await refresh.focus();
     await refresh.press("Enter");
     const refreshed = review.getByRole("list", { name: "8 changed files" });
-    await expect(refreshed.getByRole("listitem")).toHaveText([
-      "Added fresh/new.txt",
-      "Deleted gone.txt",
-      "Modified image.png",
-      "Added later.txt",
-      "Renamed old.txt → new.txt",
-      "Modified staged.txt",
-      "Added story.txt",
-      "Modified unstaged.txt",
-    ]);
+    await expect
+      .poll(() => treeRows(refreshed))
+      .toEqual([
+        "fresh",
+        "  Added new.txt",
+        "Deleted gone.txt",
+        "Modified image.png",
+        "Added later.txt",
+        "Renamed new.txt",
+        "Modified staged.txt",
+        "Added story.txt",
+        "Modified unstaged.txt",
+      ]);
     await expect(review.getByRole("status").first()).toHaveText(
       /^Review refreshed: 8 changed files against baseline [0-9a-f]{7}\.$/,
     );

@@ -1,13 +1,13 @@
 // A story's review from its card, of Story A's worktree and kept launch
 // record (./support/storyReviewWorktree.ts). Review changes names the
 // worktree, its branch, and the baseline, and lists the story's files with
-// their kinds, without either trunk file or the ignored one; the worktree's
-// own index and status stay as they were. Selecting a file shows its diff
-// with added and removed lines marked in text, the rename against its old
-// path, the deletion as all lines removed, and the image as having no textual
-// diff; hiding the file browser leaves the diff in place with more room.
-// The review shows in the page's side panel, and Command+Shift+Escape closes
-// it, returning the keyboard to Review changes.
+// their kinds under their folders, without either trunk file or the ignored
+// one; the worktree's own index and status stay as they were. Selecting a
+// file shows its diff with added and removed lines marked in text, the
+// rename against its old path, the deletion as all lines removed, and the
+// image as having no textual diff; hiding the file browser leaves the diff
+// in place with more room. The review shows in the page's side panel, and
+// Command+Shift+Escape closes it, returning the keyboard to Review changes.
 // Requests the launch boundary does not admit are refused before any Git
 // runs: trunk is not fetched and no file is written.
 
@@ -18,6 +18,7 @@ import {
   storyReviewFileEndpoint,
 } from "../src/storyReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
@@ -118,15 +119,18 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await expect(review).toContainText(`Review changes ${queuedIdentity}`);
   await expect(review.locator(".story-review-body")).toBeFocused();
   const files = review.getByRole("list", { name: "7 changed files" });
-  await expect(files.getByRole("listitem")).toHaveText([
-    "Added fresh/new.txt",
-    "Deleted gone.txt",
-    "Modified image.png",
-    "Renamed old.txt → new.txt",
-    "Modified staged.txt",
-    "Added story.txt",
-    "Modified unstaged.txt",
-  ]);
+  await expect
+    .poll(() => treeRows(files))
+    .toEqual([
+      "fresh",
+      "  Added new.txt",
+      "Deleted gone.txt",
+      "Modified image.png",
+      "Renamed new.txt",
+      "Modified staged.txt",
+      "Added story.txt",
+      "Modified unstaged.txt",
+    ]);
   const facts = review.getByRole("definition");
   await expect(facts).toHaveText([
     "~/git/open-dough/.worktrees/story-a",

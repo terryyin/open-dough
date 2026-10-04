@@ -1,13 +1,17 @@
 // A story review's snapshot (`./storyReview.ts`) as its panel shows it: the
 // worktree, its branch and the baseline it compares against, and the story's
 // changed files with their change kinds in a file browser the developer can
-// hide or show. Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`).
+// hide or show. The browser shows each file by name under its folders
+// (`./reviewFileTree.ts`); a file's control is named, and titled, by its
+// kind and full path. Selecting a file reads its diff
+// (`./StoryReviewFileDiff.tsx`), headed by its kind and full path.
 // A worktree that matches its baseline says so in place of the browser.
 // A refreshed snapshot keeps the browser as it was and the selected file
 // while the new snapshot still lists its path.
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
+import { reviewFileTree, type ReviewTreeNode } from "./reviewFileTree.ts";
 import type { ReviewedFile, TakenStoryReview } from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 
@@ -30,6 +34,62 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
         <code>{file.path}</code>
       )}
     </>
+  );
+}
+
+// A file's kind and full path in words, as its control is named.
+const reviewedFileWords = (file: ReviewedFile) =>
+  `${kindWords[file.kind]} ${
+    file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
+  }`;
+
+// The browser's rows under one folder, or the top level: a folder's name
+// above its own rows, or a file's control.
+function TreeRows({
+  nodes,
+  selectedPath,
+  onSelect,
+  label,
+}: {
+  readonly nodes: readonly ReviewTreeNode[];
+  readonly selectedPath: string | undefined;
+  readonly onSelect: (path: string) => void;
+  readonly label?: string;
+}) {
+  return (
+    <ul aria-label={label}>
+      {nodes.map((node) =>
+        node.kind === "folder" ? (
+          <li key={`folder:${node.path}`}>
+            <span className="story-review-folder">
+              <code>{node.name}</code>
+            </span>
+            <TreeRows
+              nodes={node.children}
+              selectedPath={selectedPath}
+              onSelect={onSelect}
+            />
+          </li>
+        ) : (
+          <li key={`file:${node.file.path}`}>
+            <button
+              type="button"
+              aria-label={reviewedFileWords(node.file)}
+              title={reviewedFileWords(node.file)}
+              aria-pressed={selectedPath === node.file.path}
+              onClick={() => {
+                onSelect(node.file.path);
+              }}
+            >
+              <span className="story-review-kind">
+                {kindWords[node.file.kind]}
+              </span>{" "}
+              <code>{node.name}</code>
+            </button>
+          </li>
+        ),
+      )}
+    </ul>
   );
 }
 
@@ -106,21 +166,12 @@ export function SnapshotView({
               hidden={!browserShown}
             >
               <h3 id={`${browserId}-heading`}>{listName}</h3>
-              <ul aria-label={listName}>
-                {snapshot.files.map((file) => (
-                  <li key={file.path}>
-                    <button
-                      type="button"
-                      aria-pressed={selected?.path === file.path}
-                      onClick={() => {
-                        setSelectedPath(file.path);
-                      }}
-                    >
-                      <ReviewedFileName file={file} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <TreeRows
+                label={listName}
+                nodes={reviewFileTree(snapshot.files)}
+                selectedPath={selected?.path}
+                onSelect={setSelectedPath}
+              />
             </section>
             <section
               className="story-review-diff"

@@ -90,7 +90,7 @@ plus `npm run typecheck:dashboard`.
 
 ### 1. Changed files under their folders
 Type: Behavior
-Status: planned
+Status: done
 Proof: new pure spec for the arranging function (nesting, compaction, root
 files, rename placement, folder counts, stable order); new
 `story-review-tree.spec.ts` journey for the seed's first, second, and rename
@@ -106,6 +106,18 @@ path>`, and selecting one heads its diff with the kind word and full path.
 
 Interim: rows still show the kind word before the name. Slice 2 replaces it.
 `dashboard/AGENT-LAUNCH-REVIEW.md` describes the tree.
+
+Accepted proof: the proof command passed 22 (17 baseline, 4 in
+`story-review-folders.spec.ts` for `reviewFileTree`, 1 journey in
+`story-review-tree.spec.ts` on `nestedWorktree`); typecheck clean;
+`side-panel-width` 7 passed for its button-name consumers.
+
+Learnings for slices 2–3: `treeRows` (`dashboard/tests/support/reviewTreeRows.ts`)
+reads a row as its list item's first element, so a folder's toggle must stay
+first in its item. Folder rows are list items, so counts of the list's items or
+buttons include them; `story-review-nothing.spec.ts` now relies on the list's
+name for its count. The three `toContainText("Added …")` checks still pass only
+because their files sit at the root.
 
 ### 2. Change kind by the style of the name
 Type: Behavior

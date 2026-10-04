@@ -15,6 +15,16 @@ plus staged, unstaged and untracked files, and leaves out ignored ones. It is
 written as a tree object through a temporary index, so the workspace's own
 index and status stay as they were.
 
+The file browser shows the snapshot's changed files under the folders that
+hold them, each file by its name, with files at the repository root at the
+top level (`src/reviewFileTree.ts`). A chain of folders that each hold only
+one folder is one row naming the chain (`docs/adrs/drafts`). A renamed file
+sits once, at its new path; its old folder shows nothing for it. Every folder
+shows expanded each time a review opens. Each file's control is named, and
+titled for hover, by its kind and full path (`Deleted gone.txt`, `Renamed
+old/a.ts → new/a.ts`), and the selected file's diff is headed by the same
+words.
+
 The list and every file diff come from that one snapshot until Refresh takes
 a new one. A file's diff is Git's unified diff from the baseline to the
 snapshot tree, with renames diffed against their old path. Binary and
