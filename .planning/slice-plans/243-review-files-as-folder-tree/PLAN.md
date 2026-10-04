@@ -146,7 +146,7 @@ accessible names; its refusal step moved to `story-review-refusal.spec.ts`.
 
 ### 3. Collapse and expand folders
 Type: Behavior
-Status: planned
+Status: done
 Proof: tree journey for the seed's collapse, selection-kept, and refresh
 examples, by Enter and by click, with `aria-expanded` on each folder and the
 count shown only while collapsed; reopening after Close shows every folder
@@ -160,3 +160,10 @@ the new snapshot still has it and shows folders new to the snapshot expanded.
 
 `dashboard/AGENT-LAUNCH-REVIEW.md` states collapse, the count, and what
 Refresh and reopening keep.
+
+Accepted proof: the proof command plus `side-panel-width` passed 31; typecheck
+clean. The collapse, selection-kept, Refresh, and reopen steps are in
+`story-review-tree-collapse.spec.ts`, split by refactoring from the tree
+journey. A collapsed folder's accessible name carries its count
+(`dashboard 3 changed files`). The browser's rows moved to
+`dashboard/src/StoryReviewFileTree.tsx`.

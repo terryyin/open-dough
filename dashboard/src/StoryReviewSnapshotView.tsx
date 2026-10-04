@@ -1,27 +1,19 @@
 // A story review's snapshot (`./storyReview.ts`) as its panel shows it: the
 // worktree, its branch and the baseline it compares against, and the story's
 // changed files with their change kinds in a file browser the developer can
-// hide or show. The browser shows each file by name under its folders
-// (`./reviewFileTree.ts`), its kind told by the style of its name alone; a
-// file's control is named, and titled, by its kind and full path in words.
-// Selecting a file reads its diff
-// (`./StoryReviewFileDiff.tsx`), headed by its kind and full path.
+// hide or show. The browser shows each file by name under folders that
+// collapse and expand (`./StoryReviewFileTree.tsx`). Selecting a file reads
+// its diff (`./StoryReviewFileDiff.tsx`), headed by its kind and full path.
 // A worktree that matches its baseline says so in place of the browser.
-// A refreshed snapshot keeps the browser as it was and the selected file
-// while the new snapshot still lists its path.
+// A refreshed snapshot keeps the browser as it was, its collapsed folders,
+// and the selected file while the new snapshot still lists their paths.
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
-import { reviewFileTree, type ReviewTreeNode } from "./reviewFileTree.ts";
+import { reviewFileTree } from "./reviewFileTree.ts";
 import type { ReviewedFile, TakenStoryReview } from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
-
-const kindWords: Record<ReviewedFile["kind"], string> = {
-  added: "Added",
-  modified: "Modified",
-  deleted: "Deleted",
-  renamed: "Renamed",
-};
+import { changedFiles, FileTree, kindWords } from "./StoryReviewFileTree.tsx";
 
 function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
   return (
@@ -38,64 +30,6 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
   );
 }
 
-// A file's kind and full path in words, as its control is named.
-const reviewedFileWords = (file: ReviewedFile) =>
-  `${kindWords[file.kind]} ${
-    file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
-  }`;
-
-// The browser's rows under one folder, or the top level: a folder's name
-// above its own rows, or a file's control.
-function TreeRows({
-  nodes,
-  selectedPath,
-  onSelect,
-  label,
-}: {
-  readonly nodes: readonly ReviewTreeNode[];
-  readonly selectedPath: string | undefined;
-  readonly onSelect: (path: string) => void;
-  readonly label?: string;
-}) {
-  return (
-    <ul aria-label={label}>
-      {nodes.map((node) =>
-        node.kind === "folder" ? (
-          <li key={`folder:${node.path}`}>
-            <span className="story-review-folder">
-              <code>{node.name}</code>
-            </span>
-            <TreeRows
-              nodes={node.children}
-              selectedPath={selectedPath}
-              onSelect={onSelect}
-            />
-          </li>
-        ) : (
-          <li key={`file:${node.file.path}`}>
-            <button
-              type="button"
-              aria-label={reviewedFileWords(node.file)}
-              title={reviewedFileWords(node.file)}
-              aria-pressed={selectedPath === node.file.path}
-              data-kind={node.file.kind}
-              onClick={() => {
-                onSelect(node.file.path);
-              }}
-            >
-              <code>{node.name}</code>
-            </button>
-          </li>
-        ),
-      )}
-    </ul>
-  );
-}
-
-// How many files a snapshot lists, in words.
-export const changedFiles = (count: number) =>
-  `${String(count)} changed ${count === 1 ? "file" : "files"}`;
-
 export function SnapshotView({
   reviewed,
   snapshot,
@@ -106,6 +40,9 @@ export function SnapshotView({
   readonly headingId: string;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>();
+  // Folders collapsed by path; every folder starts expanded on each opening,
+  // and a refreshed snapshot keeps those it still has collapsed.
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [browserShown, setBrowserShown] = useState(true);
   const selected = snapshot.files.find((file) => file.path === selectedPath);
   const listName = changedFiles(snapshot.files.length);
@@ -165,11 +102,20 @@ export function SnapshotView({
               hidden={!browserShown}
             >
               <h3 id={`${browserId}-heading`}>{listName}</h3>
-              <TreeRows
+              <FileTree
                 label={listName}
                 nodes={reviewFileTree(snapshot.files)}
                 selectedPath={selected?.path}
                 onSelect={setSelectedPath}
+                collapsed={collapsed}
+                onToggle={(folderPath) => {
+                  setCollapsed((was) => {
+                    const next = new Set(was);
+                    if (!next.delete(folderPath)) next.add(folderPath);
+                    return next;
+                  });
+                }}
+                idPrefix={browserId}
               />
             </section>
             <section

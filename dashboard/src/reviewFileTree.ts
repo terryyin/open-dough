@@ -1,6 +1,6 @@
 // A story review's changed files (`./storyReview.ts`) arranged under the
 // folders that hold them, as its file browser shows them
-// (`./StoryReviewSnapshotView.tsx`). Files at the repository root sit at the
+// (`./StoryReviewFileTree.tsx`). Files at the repository root sit at the
 // top level. A chain of folders that each hold only one folder is one folder
 // named by the chain (`docs/adrs/drafts`). A renamed file sits at its new
 // path only. Each folder knows how many changed files it holds at any depth.

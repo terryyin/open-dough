@@ -73,7 +73,8 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     "Added story.txt",
     "Modified unstaged.txt",
   ];
-  const fileControls = files.getByRole("button");
+  // A file's control is pressable; a folder's disclosure is not.
+  const fileControls = files.locator("button[aria-pressed]");
   await expect(fileControls).toHaveCount(fileNames.length);
   for (const [index, name] of fileNames.entries()) {
     await expect(fileControls.nth(index)).toHaveAccessibleName(name);

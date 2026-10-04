@@ -5,9 +5,14 @@
 // new folder and its old folder is absent. Each file shows by its name alone,
 // its kind told by the name's style; its control is named, and titled, by its
 // kind and full path, and selecting a nested file heads its diff with them.
+// Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
-import { treeRows } from "./support/reviewTreeRows.ts";
+import {
+  nestedTreeRows,
+  treeFolder,
+  treeRows,
+} from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
   keepLaunchRecord,
@@ -28,22 +33,7 @@ test("a story's changed files show by name under their folders", async ({
   await expect(files).toBeVisible();
 
   await test.step("files sit under their expanded folders, a chain as one row, the root file at the top level", async () => {
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual([
-        "dashboard",
-        "  server",
-        "    c.ts",
-        "  src",
-        "    a.tsx",
-        "    b.ts",
-        "docs/adrs/drafts",
-        "  0009-tree.md",
-        // The rename's old folder shows nothing for it.
-        "new",
-        "  a.ts",
-        "README.md",
-      ]);
+    await expect.poll(() => treeRows(files)).toEqual(nestedTreeRows);
     for (const name of [
       "Deleted dashboard/server/c.ts",
       "Added dashboard/src/a.tsx",
@@ -55,6 +45,18 @@ test("a story's changed files show by name under their folders", async ({
       const file = files.getByRole("button", { name, exact: true });
       await expect(file).toBeVisible();
       await expect(file).toHaveAttribute("title", name);
+    }
+    for (const name of [
+      "dashboard",
+      "server",
+      "src",
+      "docs/adrs/drafts",
+      "new",
+    ]) {
+      await expect(treeFolder(review, name)).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
     }
   });
 
@@ -109,8 +111,8 @@ test("a story's changed files show by name under their folders", async ({
   });
 
   await test.step("a keyboard-focused file says its kind and full path in words", async () => {
-    // The browser's first file follows Hide files in the tab order.
-    await review.getByRole("button", { name: "Hide files" }).focus();
+    // The browser's first file follows its folder in the tab order.
+    await treeFolder(review, "server").focus();
     await page.keyboard.press("Tab");
     await expect(page.locator(":focus")).toHaveAccessibleName(
       "Deleted dashboard/server/c.ts",

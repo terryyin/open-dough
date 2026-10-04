@@ -84,10 +84,33 @@
   padding-inline-start: 1rem;
 }
 
-.story-review-folder {
-  display: inline-block;
-  padding: 0.1rem calc(0.3rem + 1px);
+/* Author display rules would otherwise show a collapsed folder's rows. */
+.story-review-files ul[hidden] {
+  display: none;
+}
+
+/* A folder's disclosure: its name, marked open or closed, and while
+   collapsed how many changed files it holds. */
+.story-review-files .story-review-folder {
   font-weight: 600;
+}
+
+.story-review-folder::before {
+  display: inline-block;
+  width: 1ch;
+  margin-inline-end: 0.3rem;
+  content: "\25BE";
+  content: "\25BE" / "";
+}
+
+.story-review-folder[aria-expanded="false"]::before {
+  content: "\25B8";
+  content: "\25B8" / "";
+}
+
+.story-review-folder-count {
+  color: var(--quiet);
+  font-weight: 400;
 }
 
 /* A path keeps its line; the browser scrolls sideways instead. */
