@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 230. Removed local codes are never reused.
+- Highest allocated local number: 232. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -566,24 +566,44 @@ Follow-up: Open, unqueued. Proposal: make file-size guidance and the conceptual 
   - Observed effect: an extra coordinator decision and agent follow-up; no refactor edits or repeated tests. No human waiver of the numeric limit was claimed.
   - Inference: Qualified. This is a scope/precedence conflict, distinct from ODF-141's cost of mandatory no-edit refactor passes. The broader value of smaller files was not assessed here.
 
-## DD-220 — The checkout readiness command passed through the parent checkout's installed dependencies
+## DD-169 — A plan handed a read-only `claude attach` probe to the developer, who expected the agent to run it
 
-The session environment set `NODE_ENV=production`, so `npm ci` in the new execution worktree installed no devDependencies and still exited 0. The readiness command `npm run lint` then passed because ESLint resolved from the main checkout's `node_modules`, two directories up. Execution-location guidance excludes parent-directory resolution from the readiness contract, but neither the install nor the command result showed that it had happened.
+Plan 150 slice 3 said to ask Terry to run `claude attach` on a finished
+session. Asked, he replied "why cannot you just do it by yourself?". The
+coordinator then tried it in a pseudo-terminal and auto mode denied it, so
+Terry ran it after all.
+
+Returned from ProjectFindings.md on 2026-10-05: its cause is a planning premise that left a locally observable check to the developer (the ODF-074 class), not this repository's own practice.
 
 Follow-up: Open, unqueued.
 
 ### Occurrences
 
-- Execution: `SEED-093#expose-timing-races-locally` / plan 233, first related implementation commit `7b6ddcce` - Timestamp: 2026-10-03T17:25:25+08:00 (`node_modules/.package-lock.json` write time of the first `npm ci`) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: the first `npm ci` printed "audited 1 package", and the worktree's `node_modules` had 14 empty scope directories and no `.bin`; `npm config get omit` returned `dev` with `NODE_ENV=production`; `../../node_modules/.bin/eslint` exists. `npm ci --include=dev` then installed the locked dev tools, and lint and `npx playwright --version` ran from the worktree. - Observed effect: the readiness gate passed on its first command. The coordinator caught the problem only because the install output looked odd, before delegating; four tool calls. - Inference: Qualified. A nested worktree hides a missing local install whenever the parent checkout has one; a check that the command's tool resolves inside the selected checkout would expose it.
-
-- Execution: `SEED-091#review-and-terminal-share-side-panel` / plan 240, first related implementation commit `2c64ac94`
-  - Timestamp: unknown (readiness check at execution start, before `2c64ac94` committed 2026-10-03T23:09:50+08:00)
+- Execution: `SEED-052#revisit-dashboard-sessions` / plan 150, first related implementation commit `5933bb9178a503409b9574f9b87207cbf5f8fbb5`
+  - Timestamp: unknown (slice 3 start, between `29174888` at 2026-09-29T11:30:06+08:00 and `f332b5dd` at 11:44:42+08:00)
   - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 240 "Decisive premises" recorded `npm ci --include=dev --ignore-scripts` in this workspace for an earlier `codex/` branch name; the coordinator reused it and ran `env -u NODE_ENV npm run typecheck:dashboard`, which exited 0. The slice 1 agent then found the worktree's `node_modules` empty, no `./node_modules/.bin/playwright`, and that the typecheck had used the parent checkout's `tsc`; it ran `npm ci --include=dev --ignore-scripts` itself.
-  - Observed effect: the readiness gate passed without a local install, despite DD-220 already being recorded; the implementation agent absorbed the setup, so the cost was small.
-  - Inference: Qualified. Planning-time install evidence that names the workspace does not prove the install is still there at execution; a gate whose command resolves its tool inside the checkout (for example `./node_modules/.bin/...`) would have failed.
+  - Model: claude-opus-5-5[1m]
+  - Evidence: plan 150 slice 3 ("Ask Terry to run `claude attach <id>`"); two questions to Terry; auto-mode denial of the pty attempt; recorded answer in plan 150 slice 3 Accepted.
+  - Observed effect: two question rounds and one denied command; no delivery impact, since the implementation kept the rule behind one predicate meanwhile.
+  - Inference: Qualified. Planning did not say who may run an interactive native-host observation, or whether this session's permissions allow it.
+
+## DD-173 — A plan left a "paid" probe to the developer that the agent could run at no cost
+
+Plan 152 slice 1 said only Terry could run the PTY attach/rename probe because starting a session costs model usage. The executing agent started a background session with no prompt (`claude --bg -n …`, "idle — send a prompt to start"), which runs no model turn, and ran the whole probe itself.
+
+Returned from ProjectFindings.md on 2026-10-05: its cause is a planning premise that left a locally observable check to the developer (the ODF-074 class), not this repository's own practice.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related commit `e8553f8d`
+  - Timestamp: 2026-09-29T12:49:01+08:00 (probe record `e8553f8d`)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: plan 152 slice 1 as refined in `19c7e82b` versus its recorded observations in `e8553f8d`; the observation also found an unplanned fact (attaching a stopped session wakes it).
+  - Observed effect: no developer wait for the probe; the busy-session rename, which does need a model turn, stayed unobserved and bounded by the plan's fallback.
+  - Inference: Practice. Planning assumed a cost without checking a zero-cost route for the observation.
 
 ## DD-221 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
@@ -619,23 +639,6 @@ Follow-up: none; useful practice.
   - Observed effect: no returned implementation, replanning, or CI repair in a three-slice execution.
   - Inference: Qualified. Contrasts with ODF-110, where a premise was observed by reading the code instead of reproducing it. A single execution does not show how often this pays for the planning cost.
 
-## DD-224 — A delegated rerun overwrote the only output of an unexplained test failure
-
-A refactor agent's rerun of a combined Playwright command replaced the output of an earlier run in which one spec failed, so the failure's assertion and trace were lost. The coordinator could then only try to reproduce it, and the cause stayed unknown.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-052#unread-report-apart-from-engagement` / plan 238, first related implementation commit `f1221461`
-  - Timestamp: unknown (slice 2 refactor pass, before `88357912` committed 2026-10-03T20:03:40+08:00)
-  - Tool: Claude Code (delegated refactor agent and coordinator)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: the slice 2 refactor report says one run of its alert command failed `session-unread-report.spec.ts` (13 passed, 3.1m, load about 40) and that "the rerun overwrote its output"; the coordinator then ran that spec `--repeat-each 6 --workers 6` and the full command `--repeat-each 3` (48 passes at load about 42–44); plan 238 slice 2 records the failure as an open observation.
-  - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
-  - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
-
 ## DD-225 — A plan dropped one observable signal of a story example without saying so
 
 Story example 2 promises that a read session's later "Needs input" also raises a macOS alert. Plan 239's key-example table kept the example's other signals and left out the alert, with no note that it was dropped or why. The slice 1 implementer noticed and reported it as unasserted.
@@ -670,23 +673,6 @@ Follow-up: Open, unqueued.
   - Observed effect: no wrong-checkout edit; one added caution per delegation.
   - Inference: Qualified. A delegated agent that reads the plan without that caution could work in the stale preparation workspace if it still exists. One sample.
 
-## DD-229 — A width proof read terminal output from visible rows whose count depended on host resize timing
-
-The slice 2 journey asserted that earlier terminal output survived resizing by reading xterm's visible rows. The synthetic session prints one line per SIGWINCH. Locally, rapid key resizes merged into a few signals; on CI each keypress produced one, scrolling the line out of view. Local `--repeat-each 4` passed, and CI failed on its first run.
-
-Follow-up: none; repaired in the same execution (`d02ade82`).
-
-### Occurrences
-
-- Execution: `SEED-091#review-and-terminal-share-side-panel` / plan 240, first related implementation commit `2c64ac94`
-  - Timestamp: 2026-10-03T15:37:04Z (CI job failure, run 37133709619, job "dashboard (6/9)")
-  - Tool: Claude Code (delegated implementation agent; coordinator ran the repair)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: CI received text "resized 71x46resized 74x46 … resized 120x46" with no "echo keep this line" at `side-panel-width.spec.ts:133`; the repair agent reproduced the failure locally with 30 forced resize pairs; the fix `expectStillHolds` scrolls the terminal history.
-  - Observed effect: one CI repair cycle (stash, repair and refactor agents, extra publication) before slice 3 could be delivered.
-  - Inference: Qualified. Repeating a test locally does not expose a dependence on event coalescing that differs on CI; asserting kept output independent of scroll position avoids it. One sample.
-
 ## DD-230 — An implementation return omitted an out-of-scope behavior change inside a reported path
 
 The implementation agent changed `openTerminal` in `dashboard/src/pageSidePanel.ts` to take each new request, the same way it changed `openReview`. Terminals were outside the slice's scope. The return listed the file and described only the `openReview` change. The coordinator found the extra hunk while reading the diff for proof acceptance and reverted it before the refactor pass.
@@ -703,6 +689,7 @@ Follow-up: Open, unqueued.
   - Evidence: the uncommitted diff of `pageSidePanel.ts` had `openTerminal` going from `? current` to `? { ...current, request }`; the return's finding-1 text named `openReview` only. After the revert, the focused 32-test proof passed again.
   - Observed effect: one revert and one rerun of the focused proof. A new terminal request would have handed `TerminalPanel` a new `session` object, which could re-run its attach effects; no test covered that path.
   - Inference: Qualified. Because the return was organized per changed path, a hunk outside the slice's scope sat inside a path the return did report. Only reading the diff hunk by hunk caught it. One sample.
+
 ## DD-231 — Story-branch increment delivery published with no CI observer
 
 Three Story Branch increment deliveries were accepted on the execution branch without a host session identity, so no CI mailbox was created and the completion wait has no observer to close.
