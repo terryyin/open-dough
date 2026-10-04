@@ -2,7 +2,7 @@
 // profile's current allocation (`./assignmentAttribution.ts`), or why that is
 // not known, with the matched GitHub account's avatar beside a credited name.
 // Shown in a story's detail and in the agent roster; a card's scan view keeps
-// only the credited name or the short warning that it is unknown
+// the credited name with its avatar, or the short warning that it is unknown
 // (`HumanCreditBrief`).
 
 import { useState } from "react";
@@ -17,18 +17,21 @@ function initialsOf(name: string): string {
 }
 
 // The credited account's avatar, served by the local boundary, or the name's
-// initials when no account was matched or its avatar cannot be shown. Both
-// are decorative: the name beside them carries the meaning, and neither
-// implies the person is present.
+// initials when no account was matched or its avatar cannot be shown, unless
+// `withInitials` is false. Both are decorative: the name beside them carries
+// the meaning, and neither implies the person is present.
 function HumanAvatar({
   name,
   avatar,
+  withInitials = true,
 }: {
   name: string;
   avatar: string | undefined;
+  withInitials?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   if (avatar === undefined || failed) {
+    if (!withInitials) return null;
     return (
       <span className="human-avatar human-avatar-fallback" aria-hidden="true">
         {initialsOf(name)}
@@ -89,8 +92,10 @@ export function HumanCredit({ developer }: { developer: AgentAssignment }) {
 }
 
 // The credited human as a card's scan view names it, for example
-// "Terry Yin", or the short warning that it is unknown; why it is unknown is
-// in the story's detail (`HumanCredit`). Nothing while reading.
+// "Terry Yin" with their avatar (a name without one stands alone, since
+// initials would only repeat it), or the short warning that it is unknown;
+// why it is unknown is in the story's detail (`HumanCredit`). Nothing while
+// reading.
 export function HumanCreditBrief({
   developer,
 }: {
@@ -101,7 +106,17 @@ export function HumanCreditBrief({
     case "loading":
       return null;
     case "credited":
-      return <span className="owner-human-name">{human.name}</span>;
+      return (
+        <span className="owner-human-name">
+          <HumanAvatar
+            key={human.avatar ?? ""}
+            name={human.name}
+            avatar={human.avatar}
+            withInitials={false}
+          />
+          {human.name}
+        </span>
+      );
     case "no-addition":
     case "unnamed":
     case "unavailable":

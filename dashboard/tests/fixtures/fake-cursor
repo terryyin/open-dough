@@ -132,16 +132,18 @@ if (attaching) {
   process.stdout.on("error", () => {});
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
   process.stdin.resume();
-  // A long multiline chunk is an unsent paste chip. A later Enter, in its
-  // own chunk, submits that chip. A return folded into the same chunk does not.
+  // A long multiline chunk is an unsent paste chip. A later Enter submits
+  // that chip, including when the terminal delivers it joined to the paste's
+  // last chunk. A return folded into the first chunk does not.
   let pendingPaste = "";
   process.stdin.on("data", (chunk) => {
     const text = chunk.toString("utf8");
-    if (pendingPaste !== "" && text !== "\r" && text !== "\n") {
-      pendingPaste += text.endsWith("\r") ? text.slice(0, -1) : text;
+    if (pendingPaste !== "" && !/[\r\n]$/.test(text)) {
+      pendingPaste += text;
       return;
     }
-    if ((text === "\r" || text === "\n") && pendingPaste !== "") {
+    if (pendingPaste !== "") {
+      pendingPaste += text.slice(0, -1);
       if (dir) {
         fs.appendFileSync(path.join(dir, `${pid}.input`), `${pendingPaste}\r`);
       }

@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Show the credited human's avatar on the story card](seeds/SEED-101-story-card-human-avatar.md#story-card-human-avatar) — SEED-101#story-card-human-avatar
-
 ## Backlog list
 
 - [Review changes in a full-height panel with compact context and independent file navigation](seeds/SEED-102-review-changes-ui.md#full-height-review-changes) — SEED-102#full-height-review-changes

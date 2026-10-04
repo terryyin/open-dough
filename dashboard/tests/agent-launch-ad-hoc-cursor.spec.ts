@@ -158,6 +158,8 @@ for (const text of ["", "why is the CI slow?"]) {
         intent: "blank",
       });
     } else {
+      // The client records the instruction once its return submits it.
+      await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
       const prompt = cursor.input(client.pid).replace(/\r$/u, "");
       expectAdHocReportingInput(prompt, text, record.request, dashboard);
       expect(prompt.split("\n\n")[0]).toBe(text);
