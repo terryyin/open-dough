@@ -2,7 +2,8 @@
 // profile's current allocation (`./assignmentAttribution.ts`), or why that is
 // not known, with the matched GitHub account's avatar beside a credited name.
 // Shown in a story's detail and in the agent roster; a card's scan view keeps
-// only the short warning that it is unknown (`HumanCreditGap`).
+// only the credited name or the short warning that it is unknown
+// (`HumanCreditBrief`).
 
 import { useState } from "react";
 import type { AgentAssignment } from "./agentAssignments.ts";
@@ -87,14 +88,20 @@ export function HumanCredit({ developer }: { developer: AgentAssignment }) {
   }
 }
 
-// The short warning a card's scan view keeps beside a developer whose credited
-// human is unknown; why it is unknown is in the story's detail
-// (`HumanCredit`). Nothing while reading or once credited.
-export function HumanCreditGap({ developer }: { developer: AgentAssignment }) {
-  switch (developer.human.status) {
+// The credited human as a card's scan view names it, for example
+// "Terry Yin", or the short warning that it is unknown; why it is unknown is
+// in the story's detail (`HumanCredit`). Nothing while reading.
+export function HumanCreditBrief({
+  developer,
+}: {
+  developer: AgentAssignment;
+}) {
+  const { human } = developer;
+  switch (human.status) {
     case "loading":
-    case "credited":
       return null;
+    case "credited":
+      return <span className="owner-human-name">{human.name}</span>;
     case "no-addition":
     case "unnamed":
     case "unavailable":

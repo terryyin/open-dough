@@ -63,12 +63,17 @@ does not prove visibility.
 
 ### 1. Engaged cards show human, tool and model beside the agent
 Type: Behavior
-Status: planned
+Status: done
 Proof: `taken-agent-profile.spec.ts` and `backlog-preparing.spec.ts` assert
 the scan-view line (for example “Akiho-chan · Fixture Committer · Claude Code ·
 claude-opus-5-5” with the host mark) and that mode and branch stay out of it;
 unrecorded host/model show “host not recorded” / “model not recorded”; an
 unknown human keeps its short warning.
+Accepted: `.owner-line` toHaveText scan lines in `taken-agent-profile.spec.ts`
+(trunk, branch, modelless, rotation) and `backlog-preparing.spec.ts` (with
+gaps), `expectMark` on `.card-owner` at 1280/360; `taken-agent-profile-refresh`
+and `profile-addition-latency` keep the gap and warning. The scan line names
+the human without the avatar, which stays in the detail and roster.
 
 Behavior: a Taken or Preparing card with a recorded profile → the developer
 scans it → beside each portrait and name the card shows the credited human,

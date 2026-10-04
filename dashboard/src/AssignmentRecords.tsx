@@ -1,8 +1,10 @@
 // What a published assignment records beyond its agent: mode, host, and
 // model, each beside its mark. A story's inspected detail shows them with the
 // credited human developer (`./HumanCredit.tsx`) and branch context; the
-// agent roster shows them beside each assignment. Branch context is shown as
-// context only; it never says that branch work has reached trunk.
+// agent roster shows them beside each assignment; a card's scan view shows
+// the host and model without the mode (`./AgentAssignmentFacts.tsx`). Branch
+// context is shown as context only; it never says that branch work has
+// reached trunk.
 
 import type {
   AgentAssignment,
@@ -51,15 +53,18 @@ function OwnerMark({ file }: { file: string | undefined }) {
 
 // What an assignment records beyond its agent, for example
 // "Trunk Mode · Claude Code · claude-opus"; a preparation assignment records
-// no mode. Each fact is its own group so a visual mark stays beside the label
-// it belongs to; an unrecorded host keeps its text gap and gets no mark.
+// no mode, and a card's scan view leaves it to the detail (`withMode`). Each
+// fact is its own group so a visual mark stays beside the label it belongs
+// to; an unrecorded host keeps its text gap and gets no mark.
 export function RecordedFacts({
   developer,
+  withMode = true,
 }: {
   developer: AgentAssignment & { readonly mode?: AgentMode };
+  withMode?: boolean;
 }) {
   const facts = [
-    ...(developer.mode === undefined
+    ...(developer.mode === undefined || !withMode
       ? []
       : [{ kind: "mode", ...modes[developer.mode] }]),
     {

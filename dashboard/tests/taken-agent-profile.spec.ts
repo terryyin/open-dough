@@ -50,12 +50,14 @@ test("each Taken card shows its published agent profile, or says plainly that no
   };
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
 
-  await test.step("a Trunk Mode profile shows its agent on the card, and its mode, host, model, and trunk in detail on one line", async () => {
-    await expect(card(trunkStory).locator(".owner-agent")).toHaveText(
-      "Akiho-chan",
+  const scanLine = (title: string) => card(title).locator(".owner-line");
+
+  await test.step("a Trunk Mode profile shows its agent, credited human, tool, and model on the card, and its mode and trunk only in detail", async () => {
+    await expect(scanLine(trunkStory)).toHaveText(
+      "Akiho-chan · Fixture Committer · Claude Code · claude-opus-5-5",
     );
     await expect(card(trunkStory)).not.toContainText(
-      /Trunk Mode|Claude Code|claude-opus-5-5|Trunk:/,
+      /Trunk Mode|Trunk:|Human developer/,
     );
     const detail = await inspected(trunkStory);
     await expect(detail).toContainText(
@@ -112,6 +114,18 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect.poll(async () => (await enlarged()).shown).toBe(false);
   });
 
+  await test.step("every recorded developer's scan line names its human, tool, and model, with gaps as text, and leaves mode and branch to the detail", async () => {
+    await expect(scanLine(branchStory)).toHaveText(
+      "Yuma-chan · Fixture Committer · Codex · gpt-5-codex",
+    );
+    await expect(scanLine(modelless)).toHaveText(
+      "Sola-chan · Fixture Committer · Cursor · model not recorded",
+    );
+    await expect(scanLine(lastInRotation)).toHaveText(
+      "Rina-chan · Fixture Committer · Claude Code · claude-opus-5-5",
+    );
+  });
+
   await test.step("each recorded mode and host has its own mark beside its label, clear of the portrait, at desktop and narrow widths", async () => {
     const marked = [
       [trunkStory, "Trunk Mode", "trunk.svg", "Claude Code", "claude.png"],
@@ -134,9 +148,15 @@ test("each Taken card shows its published agent profile, or says plainly that no
     for (const width of [1280, 360]) {
       await page.setViewportSize({ width, height: 900 });
       for (const [title, mode, modeFile, host, hostFile] of marked) {
+        // The scan view's host mark, before the detail opens.
+        await expectMark(
+          card(title).locator(".card-owner"),
+          "host",
+          host,
+          `tool-avatars/${hostFile}`,
+        );
         await inspected(title);
         await expectMark(card(title), "mode", mode, `mode-icons/${modeFile}`);
-        await expectMark(card(title), "host", host, `tool-avatars/${hostFile}`);
         // The model has no mark, and the owner text is unchanged.
         await expect(card(title).locator(".owner-model img")).toHaveCount(0);
       }
@@ -182,18 +202,18 @@ test("each Taken card shows its published agent profile, or says plainly that no
         taken.getByRole("article").filter({ hasText: agent }),
       ).toHaveCount(0);
     await expect(taken.locator(".agent-portrait")).toHaveCount(4);
-    // Each recorded assignment's mode and host marks, in its detail.
-    let marks = 0;
-    for (const title of [trunkStory, branchStory, modelless, older]) {
+    // Each recorded assignment's host mark on its scan line, and its mode
+    // and host marks in its detail; the entry without a profile has none.
+    await expect(taken.locator(".card-owner .owner-mark")).toHaveCount(4);
+    for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
       await inspected(title);
-      marks += await taken.locator(".owner-mark").count();
+      await expect(card(title).locator(".owner-mark")).toHaveCount(3);
     }
-    await inspected(lastInRotation);
-    marks += await taken.locator(".owner-mark").count();
-    expect(marks).toBe(8);
+    await inspected(older);
+    await expect(card(older).locator(".owner-mark")).toHaveCount(0);
   });
 
-  // Its owner summary and host mark belong to backlog-preparing.spec.ts.
+  // Its scan line and marks belong to backlog-preparing.spec.ts.
   await test.step("a queued entry shows its preparation assignment as Preparing, never as an owner", async () => {
     const preparing = queue.getByRole("article", { name: queued });
     await expect(preparing.locator(".preparing-activity")).toHaveText(

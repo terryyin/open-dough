@@ -70,13 +70,21 @@ test("a project without agent profiles still loads, and a reload shows a profile
       atlas: 1,
       position: "50% 12.5%",
     });
-    // What the profile records beyond its agent is in the card's detail.
+    // The scan view shows the unrecorded host and model as gaps; the mode is
+    // in the card's detail.
+    await expect(card.locator(".owner-line")).toHaveText(
+      "Akiho-chan · Fixture Committer · host not recorded · model not recorded",
+    );
     await card.getByRole("button", { name: "Inspect story" }).click();
     await expect(card).toContainText(
       "Akiho-chan · Trunk Mode · host not recorded · model not recorded",
     );
-    // The unrecorded host stays a text gap: no tool mark is invented.
-    await expect(card.locator(".owner-host")).toHaveText("host not recorded");
+    // The unrecorded host stays a text gap, on the scan line and in the
+    // detail: no tool mark is invented.
+    await expect(card.locator(".owner-host")).toHaveText([
+      "host not recorded",
+      "host not recorded",
+    ]);
     await expect(card.locator(".owner-host img")).toHaveCount(0);
     await expectMark(card, "mode", "Trunk Mode", "mode-icons/trunk.svg");
     await expect(card.locator("img")).toHaveCount(1);

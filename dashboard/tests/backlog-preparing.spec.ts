@@ -57,8 +57,9 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(card(title)).not.toContainText("Preparing");
     await expect(card(title).locator(".owner-agent")).toHaveCount(0);
   };
-  // The scan view names each preparing developer beside its portrait; what
-  // the assignment records beyond the agent is in the story's detail.
+  // The scan view names each preparing developer beside its portrait with
+  // its credited human, tool, and model; the human's explanation is in the
+  // story's detail.
   const inspected = async (title: string) => {
     const button = card(title).getByRole("button", { name: "Inspect story" });
     await button.click();
@@ -97,11 +98,27 @@ test("a queued card shows Preparing and its developer from published assignments
     const portrait = card(storyC).locator(".owner-agent .agent-portrait");
     await expect(portrait).toBeVisible();
     await expect(portrait).toHaveAttribute("aria-hidden", "true");
-    // Host, model, and the credited human are secondary: not in the scan
-    // view, and in the detail Inspect story opens.
-    await expect(card(storyC)).not.toContainText("claude-opus-5-5");
+    // The scan view reads the credited human, tool, and model after
+    // Preparing, without opening Inspect story; the detail repeats them.
+    await expect(card(storyC).locator(".card-preparing")).toHaveText(
+      `Preparing${preparers.refining} · Fixture Committer · Claude Code · claude-opus-5-5`,
+    );
+    await expect(card(storyC).locator(".owner-line")).toHaveText(
+      `${preparers.refining} · Fixture Committer · Claude Code · claude-opus-5-5`,
+    );
+    await expectMark(
+      card(storyC).locator(".card-owner"),
+      "host",
+      "Claude Code",
+      "tool-avatars/claude.png",
+    );
     await expect(card(storyC)).not.toContainText("Human developer");
     await expect(card(storyC).locator(".owner-summary")).toHaveCount(0);
+    // No tool or model was recorded: each stays a text gap with no mark.
+    await expect(card(storyB).locator(".owner-line")).toHaveText(
+      `${preparers.reconsidering} · Fixture Committer · host not recorded · model not recorded`,
+    );
+    await expect(card(storyB).locator(".owner-host img")).toHaveCount(0);
     const detailC = await inspected(storyC);
     await expect(detailC.locator(".owner-summary")).toHaveText(
       `${preparers.refining} · Claude Code · claude-opus-5-5`,
@@ -109,13 +126,9 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(detailC.locator(".owner-human")).toHaveText(
       "Human developer: Fixture Committer",
     );
-    // The host mark, in the detail, never covers the card's portrait.
-    await expectMark(
-      card(storyC),
-      "host",
-      "Claude Code",
-      "tool-avatars/claude.png",
-    );
+    // The detail keeps the host beside its mark.
+    await expect(detailC.locator(".owner-host")).toHaveText("Claude Code");
+    await expect(detailC.locator(".owner-host img.owner-mark")).toHaveCount(1);
     await hideDetail(storyC);
     // No tool or model was recorded: each stays a text gap with no mark.
     const detailB = await inspected(storyB);
@@ -200,6 +213,10 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(card(storyA).locator(".owner-agent")).toHaveText([
       first,
       second,
+    ]);
+    await expect(card(storyA).locator(".owner-line")).toHaveText([
+      `${first} · Fixture Committer · host not recorded · model not recorded`,
+      `${second} · Fixture Committer · host not recorded · model not recorded`,
     ]);
     await expect(card(storyA).locator(".assignment-gap")).toHaveText(
       "Conflicting records: 2 preparation assignments name this entry.",
