@@ -22,6 +22,7 @@ visibility for multiple agents working in worktrees on one machine.
 - [Dashboard specs pass CI on a revision that changes no code](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) — SEED-100#dashboard-specs-pass-unchanged-code
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
+- [Optional process retrospective for Dough Land and Story Wrap Up](seeds/SEED-105-land-and-wrap-up-process-retrospective.md#land-and-wrap-up-process-retrospective) — SEED-105#land-and-wrap-up-process-retrospective
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes
