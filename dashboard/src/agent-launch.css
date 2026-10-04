@@ -33,6 +33,19 @@
   cursor: pointer;
 }
 
+/* A launch action's decorative icons (./Icon.tsx) sit in its own colour at
+   the labelled-button icon size. */
+.start-launch-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.start-launch-button .icon {
+  width: var(--label-icon-size);
+  height: var(--label-icon-size);
+}
+
 .start-launch-noted {
   border-style: dashed;
 }
@@ -183,12 +196,6 @@
   .card-startup-progressing::before {
     animation: none;
   }
-}
-
-.inspect-story:disabled {
-  color: var(--quiet);
-  border-color: var(--line);
-  cursor: default;
 }
 
 .card-startup-note {

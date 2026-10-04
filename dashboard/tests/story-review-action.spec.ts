@@ -2,8 +2,10 @@
 // (./support/storyReviewWorktree.ts): it joins Inspect story in the card's
 // inspection group, on one line beside it when the card is wide enough and
 // next in reading order when it is not, below the launch group's Starts, and
-// the keyboard reaches it from Inspect story. Closing the review in the side
-// panel returns the keyboard in ./story-review.spec.ts; closing the detail, in
+// the keyboard reaches it from Inspect story. It leads with a decorative
+// review glyph and ends with a decorative arrow toward the side panel.
+// Closing the review in the side panel returns the keyboard in
+// ./story-review.spec.ts; closing the detail, in
 // ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts. Each
 // layout is read once the cards' preparation is read, since that reading
 // changes a card's height.
@@ -11,6 +13,7 @@
 import { expect, test } from "./support/preparationPage.ts";
 import {
   cardLaunchActions,
+  expectActionGlyph,
   inspectionGroup,
   launchGroup,
 } from "./cardControls.ts";
@@ -55,6 +58,8 @@ test("the inspection group shares a line below the launch group, wraps in readin
   await expectSettledPage(page);
   await expectOnOneLine(starts);
   await expectOnOneLine([inspect, action]);
+  await expectActionGlyph(action, "Review changes", "git-compare");
+  await expectActionGlyph(action, "Review changes", "arrow-right", "trailing");
   await expectStackedInOrder([launchGroup(card), inspectionGroup(card)]);
   for (const window of [narrowWindow, twiceZoomedWindow]) {
     await page.setViewportSize(window);

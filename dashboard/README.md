@@ -148,7 +148,12 @@ completion and a short source qualification, its launch group, its sessions, and
 **Start execution** and **Start refinement**, each with any launch answer beside
 it and any note in its tooltip; the inspection group holds **Inspect story** and, when
 offered, **Review changes**. Each group's actions share a line when the card is
-wide enough and wrap in reading order when it is not. **Inspect story** opens
+wide enough and wrap in reading order when it is not. Each action leads with a
+decorative icon that says what it does: a play glyph for **Start execution**
+and a pencil for **Start refinement**, noted or disabled alike; a chevron for
+**Inspect story** that points right and turns down while the detail is open;
+and a compare glyph for **Review changes**, which also ends with an arrow
+toward the side panel. **Inspect story** opens
 its detail from facts already read: full identity, purpose, what the
 assignment records with its mode and branch context, preparation
 explanations, the exact progress branch and revision, slice evidence, product advice, and source links; **Hide detail**
@@ -193,7 +198,9 @@ its shortcut where it has one, in a styled tooltip on hover and on keyboard
 focus; the tooltip is hidden from assistive technology so the name is
 announced once. A labelled button can show its accessible description in the
 same tooltip (`FrameTooltip`), as a noted Start shows its note. Labelled
-actions keep their text and may add a leading icon.
+actions keep their text and may add a leading icon; a button that opens and
+closes content in place (`aria-expanded`) leads with the frame disclosure's
+chevron, turned while expanded.
 Text meets 4.5:1 contrast, and controls, icons, and focus outlines meet 3:1.
 `tests/frameIconControl.ts` checks an icon-only control against all of this.
 

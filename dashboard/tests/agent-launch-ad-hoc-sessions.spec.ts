@@ -217,6 +217,8 @@ test("with Open Dough already shown, its sidebar entry brings its Recent session
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
+  // A window short enough that Recent sessions starts below it.
+  await page.setViewportSize({ width: 1280, height: 600 });
   await openTakenBacklog(page, journey);
   const text = "where is this entry?";
   const { button, entry } = sidebarParts(page);

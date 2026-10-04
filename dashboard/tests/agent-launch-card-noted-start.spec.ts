@@ -7,7 +7,9 @@
 // accessible description, announced once; its dialog says "This story is …".
 // A Start without a note has no tooltip. A clickable noted Start on a
 // story-stages preparing revision keeps a look distinct from a disabled Start
-// on the same page, in light and dark schemes.
+// on the same page, in light and dark schemes. Each Start leads with its
+// workflow's decorative glyph, noted or disabled alike, and Inspect story
+// leads with a decorative chevron that turns while its detail is open.
 // Backlog-card launch behavior on a committed origin is ./agent-launch-card.spec.ts;
 // the page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
@@ -24,6 +26,8 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import {
   cardLaunchActions,
+  expectActionGlyph,
+  expectChevronTurns,
   inspectionGroup,
   launchGroup,
 } from "./cardControls.ts";
@@ -45,6 +49,11 @@ test.use({ projectFolders: ["open-dough"] });
 
 const notReadyNote = "Not marked Ready for execution";
 const beingPreparedNote = "Being prepared";
+// The glyph each Start leads with.
+const startGlyphs = {
+  "Start execution": "play",
+  "Start refinement": "pencil-line",
+} as const;
 
 // A noted Start at rest shows no note on its card; hovered, or reached with
 // the keyboard, it shows the note in the frame's styled tooltip, hidden from
@@ -108,6 +117,14 @@ test.describe("a Backlog card's Starts", () => {
       });
     await page.setViewportSize({ width: 1440, height: 900 });
     await expectOnOneLine(startsOf(readyStory));
+    for (const title of [readyStory, notRefinedStory])
+      for (const [name, glyph] of Object.entries(startGlyphs))
+        await expectActionGlyph(
+          launchGroup(card(title)).getByRole("button", { name }),
+          name,
+          glyph,
+        );
+    await expectChevronTurns(card(readyStory));
     // A Ready story's Starts carry no note, so neither has a tooltip.
     const readyStart = action(readyStory, "Execution");
     await readyStart.hover();
@@ -169,6 +186,7 @@ test.describe("a Backlog card's Starts", () => {
       await expect(noted).toBeEnabled();
       await expect(launchGroup(card(title)).getByText(note)).toBeHidden();
       await expectNoteTooltip(noted, name, note);
+      await expectActionGlyph(noted, name, startGlyphs[name]);
       // The launch dialog still states the note in words.
       await noted.click();
       const dialog = page.getByRole("dialog", {
@@ -185,6 +203,7 @@ test.describe("a Backlog card's Starts", () => {
     await settled();
     const disabled = action(takenStory, "Execution");
     await expect(disabled).toBeDisabled();
+    await expectActionGlyph(disabled, "Start execution", "play");
     await expect(notedRefine).toBeEnabled();
     await expect(notedExec).toBeEnabled();
 

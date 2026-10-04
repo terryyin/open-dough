@@ -16,6 +16,8 @@
 // A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
 // workspace and landing; the line beside Start (`StartEffects`) says what
 // follows from them. A kept start shows the policy it was started with.
+// Each Start leads with its workflow's decorative glyph (`startIcons`), noted
+// or disabled alike; its words still name it.
 
 import { hostName } from "./sessionCapabilities.ts";
 import { hostDescription } from "./hostDescription.ts";
@@ -39,7 +41,8 @@ import {
   optionsLine,
   type OptionsOffer,
 } from "./optionsOffer.ts";
-import { FrameTooltip } from "./Icon.tsx";
+import { Play, PencilLine, type LucideIcon } from "lucide-react";
+import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
@@ -47,6 +50,13 @@ import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
 import { workCard } from "./workFocus.ts";
 import "./agent-launch.css";
+
+// The glyph each workflow's Start leads with. It stays beside the card rather
+// than in `launchWorkflows`, which the server reads too.
+const startIcons: Record<LaunchWorkflow, LucideIcon> = {
+  execution: Play,
+  refinement: PencilLine,
+};
 
 export function StartLaunch({
   work,
@@ -155,6 +165,7 @@ export function StartLaunch({
             disabled={unavailable}
             onClick={openDialog}
           >
+            <Icon icon={startIcons[workflow]} />
             Start {named}
           </button>
           {note !== undefined && (

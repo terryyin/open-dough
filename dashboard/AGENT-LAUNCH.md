@@ -12,7 +12,9 @@ story membership, preparation and completion; a launch record is local evidence.
 
 Backlog cards offer execution then refinement. Execution remains available when
 not marked Ready for execution, with that note; refinement remains available
-while Preparing, with “Being prepared”. A noted Start has a dashed edge; its
+while Preparing, with “Being prepared”. Each Start leads with a decorative
+icon, a play glyph for execution and a pencil for refinement, whether noted or
+disabled. A noted Start has a dashed edge; its
 note is its accessible description and appears on the card only in the Start's
 tooltip, on hover and on keyboard focus, and its dialog says “This story is …”.
 A failed or uncertain launch answer stays visible beside the Start. While a

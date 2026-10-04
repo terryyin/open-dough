@@ -3,7 +3,8 @@
 // assigned or preparing developer, preparation and readiness badges,
 // dependencies, slice progress on Taken work with a brief source
 // qualification, its launches (`./CardLaunches.tsx`), and its inspection
-// group: Inspect story, which opens the secondary detail (`./StoryDetail.tsx`)
+// group: Inspect story, led by a chevron that turns while the detail is
+// open, which opens the secondary detail (`./StoryDetail.tsx`)
 // of identity, assignment records, explanations, evidence, and source links,
 // from facts already read, and Review changes (`./StoryReviewAction.tsx`) when
 // offered.
@@ -16,6 +17,9 @@
 // launch dialog hands the startup off (`./launchDialogLauncher.ts`).
 
 import { useId, useRef } from "react";
+import { ChevronRight } from "lucide-react";
+import { Icon } from "./Icon.tsx";
+import "./frame-controls.css";
 import { sessionKey } from "./sessionReference.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { DependenciesCard } from "./DependenciesCard.tsx";
@@ -125,7 +129,7 @@ export function WorkCard({
           >
             <button
               type="button"
-              className="inspect-story"
+              className="inspect-story frame-disclosure-button"
               aria-expanded={selected}
               aria-controls={detailId}
               aria-describedby={reason}
@@ -141,6 +145,7 @@ export function WorkCard({
                 }
               }}
             >
+              <Icon icon={ChevronRight} />
               {selected ? "Hide detail" : "Inspect story"}
             </button>
             <StoryReviewAction

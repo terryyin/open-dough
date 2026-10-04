@@ -3,7 +3,8 @@
    lead with an icon (./Icon.tsx); its text still names it. The primary
    button, filled in the accent, is a page's or dialog's one main action.
    A frame disclosure opens with its heading, led by a chevron that turns
-   while it is open. */
+   while it is open; a disclosure button (one with `aria-expanded`) leads
+   with the same chevron and turns it while expanded. */
 
 .frame-button {
   box-sizing: border-box;
@@ -29,8 +30,8 @@
 }
 
 .frame-button .icon {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: var(--label-icon-size);
+  height: var(--label-icon-size);
 }
 
 .frame-button-primary {
@@ -90,11 +91,13 @@
   background: var(--hover);
 }
 
-.frame-disclosure > summary .icon {
+.frame-disclosure > summary .icon,
+.frame-disclosure-button > .icon {
   color: var(--quiet);
 }
 
-.frame-disclosure[open] > summary .icon {
+.frame-disclosure[open] > summary .icon,
+.frame-disclosure-button[aria-expanded="true"] > .icon {
   transform: rotate(90deg);
 }
 

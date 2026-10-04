@@ -104,13 +104,20 @@ wording in `AGENT-LAUNCH.md` and `dashboard/README.md`.
 
 ### 3. Card actions carry icons that say what they do
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-card-noted-start.spec.ts` checks each Start's leading
 decorative icon with the name unchanged; the Inspect story chevron is
 decorative and turns with `aria-expanded`; `story-review-action.spec.ts`
 checks Review changes' leading icon and trailing arrow, unchanged name, and
 that the review still opens in the right panel. Icons and arrows meet 3:1
 contrast as `README.md#look-and-controls` requires.
+Accepted: `expectActionGlyph` and `expectChevronTurns` (`tests/cardControls.ts`)
+in `agent-launch-card-noted-start.spec.ts` and `story-review-action.spec.ts`;
+full dashboard suite 1036 passed. Start glyphs live in `StartLaunch.tsx`, not
+`launchWorkflow.ts`, which the server imports. This delivery also repairs the
+CI failures on 4ed30458 (`accessible-overview:190` scroll margin for card
+buttons, `agent-launch-attention:79` waiting for the credited human,
+`agent-launch-ad-hoc-sessions:215` window height after shorter cards).
 
 Behavior: any card → the developer scans its actions → Start execution
 (`Play`) and Start refinement (`PencilLine`) lead with icons, Inspect story
