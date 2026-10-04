@@ -146,7 +146,7 @@ Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (story
   - Observed effect: one failed CI attempt and owned pause/repair/refactor cycle; the preserved fault scenario found and fixed a real stale launching-progress defect.
   - Inference: qualified match to changed-operation caller-flow selection, rather than a file-type premise. Select proof from the shared contract's current consumers, including test-support callers; retain independent observations. No guidance change or full-suite mandate is authorized here.
 
-- Execution: `SEED-098#story-card-actions-read-at-a-glance` / plan 244, first related implementation commit `2d9347c1b1fd90372afd9c6a51ac9af734fbbef5`
+- Execution: `SEED-098#story-card-actions-read-at-a-glance` / plan 244, recoverable at `aa7a3eec7d5f48f3ac84d1c3afce18b0e0939ed3:.planning/slice-plans/244-story-card-actions-read-at-a-glance/PLAN.md`; first related implementation commit `2d9347c1b1fd90372afd9c6a51ac9af734fbbef5`
   - Timestamp: 2026-10-04T21:09:46+08:00 (CI run 37204384263 `updatedAt` on `4ed30458`)
   - Tool: Claude Code
   - Model: claude-opus-5-5
