@@ -71,14 +71,17 @@ export async function printedSize(rows: Locator) {
 
 // Earlier output the terminal still holds, however many size lines the session
 // printed after it: read by scrolling up over the terminal's history, which
-// leaves the keyboard where it is.
+// leaves the keyboard where it is. One wheel step scrolls only about five
+// lines, and CI's session prints a size line for each resize, so each try
+// scrolls many steps at a fixed short interval rather than backing off.
 export async function expectStillHolds(terminal: Locator, text: string) {
   const rows = terminal.locator(".xterm-rows");
   await terminal.locator(".xterm-screen").hover();
   await expect(async () => {
-    await terminal.page().mouse.wheel(0, -1000);
+    for (let step = 0; step < 10; step += 1)
+      await terminal.page().mouse.wheel(0, -1000);
     await expect(rows).toContainText(text, { timeout: 100 });
-  }).toPass();
+  }).toPass({ intervals: [100] });
 }
 
 export async function expectWidth(panel: Locator, width: number) {

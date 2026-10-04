@@ -17,7 +17,8 @@ executions, not commands, retries, or repairs.
    queued.** The races recorded through 2026-10-03 were each repaired, and the
    launch-card waits closed on 2026-10-04 (`0123c307`). The class came back
    within hours: six failed CI runs on 2026-10-04, four of them on revisions
-   that changed only Markdown (DD-232). Two of those specs are still
+   that changed only Markdown, and this review's own publication failed the
+   same way on 2026-10-05 (DD-232). Two of those specs are still
    unrepaired, and one is the ad hoc Cursor spec repaired in `aeb9c33d`. Each
    red run on a story's closing commit leaves trunk red for the next story
    and costs a diagnosis that the change itself did not cause.
@@ -139,6 +140,13 @@ uncertain", the race `aeb9c33d` had repaired in another test of that spec.
   - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
   - Evidence: `dashboard (2/9)` failed `agent-launch-ad-hoc-cursor.spec.ts:43` at line 96, waiting the default 5 s for "First input accepted" while the session showed "First input acceptance uncertain". The commit changed four lines of `dashboard/AGENT-LAUNCH-TERMINALS.md`; the next main revision `14e9fc23` passed.
   - Observed effect: main red until the next push; not repaired.
+- Execution: ad hoc findings review `b41cb376` (this file's 2026-10-05 review)
+  - Timestamp: 2026-10-05 (CI run 37239925415)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: `dashboard (8/9)` failed `side-panel-width.spec.ts:36` with the 30 s test timeout on a revision that changed only Markdown and planning records. The trace showed `expectStillHolds` taking 16.6 s: one wheel step scrolls about five lines of the terminal, and CI's session prints a size line (plus a blank line) for every resize, so `toPass` needed about 20 attempts at its backoff of up to 1 s. A probe with 60 separate resizes failed the old helper locally; the repair committed with this row scrolls ten steps per try at a fixed 100 ms interval and read 240 lines in about 3.5 s.
+  - Observed effect: one failed CI run on main and one repair commit.
   - Inference: Qualified. These are the same shapes as the repaired races: a read before a page or record settles, and a 5 s wait on a real start. Repairing each spec after it fails in CI has not stopped new ones. Of 25 CI runs created on 2026-10-04 (UTC), six failed in `dashboard`; four of those were on revisions that changed no code.
 
 ## Checks whose result depends on where or how they are run (second priority, queued)
