@@ -119,6 +119,16 @@ test("each assignment credits the committer who added its profile's current allo
       revision,
     );
     await expectInitials(await inspectedDetail(preparingCard), preparer, "PP");
+    // The card's scan line shows the same avatar beside the credited name;
+    // a name with no matched account stands alone there.
+    const takenScan = takenCard.locator(".owner-line");
+    await expect(takenScan.locator(".owner-human-name")).toHaveText(credited);
+    const scanImage = takenScan.locator("img.human-avatar");
+    await expect(scanImage).toBeVisible();
+    await expect.poll(() => shownWidth(scanImage)).toBe(creditedWidth);
+    await expect(
+      preparingCard.locator(".owner-line .human-avatar"),
+    ).toHaveCount(0);
     for (const card of [takenCard, preparingCard]) {
       await expect(card).not.toContainText(modifier);
       await expect(card).not.toContainText(olderAllocator);

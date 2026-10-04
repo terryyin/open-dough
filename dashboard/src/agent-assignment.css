@@ -1,6 +1,6 @@
 /* Who holds a Taken card's work, or is preparing a queued card's work: on the
    card, each developer's agent portrait opener and name with its credited
-   human, host mark and label, and model; in its detail, the developer summary
+   human and their avatar, host mark and label, and model; in its detail, the developer summary
    with the mode and host marks beside their labels, the credited human
    developer with their avatar, and branch context; and unreadable profiles. */
 
@@ -29,6 +29,7 @@
 }
 
 .owner-agent,
+.owner-human-name,
 .owner-mode,
 .owner-host {
   display: inline-flex;
@@ -75,6 +76,12 @@
   height: 1.5rem;
   border-radius: 50%;
   object-fit: cover;
+}
+
+/* On a card's scan line the avatar matches the host mark beside it. */
+.owner-human-name .human-avatar {
+  width: 1rem;
+  height: 1rem;
 }
 
 .human-avatar-fallback {

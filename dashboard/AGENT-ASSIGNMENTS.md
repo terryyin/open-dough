@@ -53,4 +53,5 @@ time, and image type) and keeps it in the running process by that address, so
 each avatar version is read from GitHub once however often it is shown, and a
 changed one is read afresh; the page names only a profile and revision to the
 local boundary. Without a matched account or a usable, fetched avatar, the
-name keeps its initials. Neither name nor avatar says anyone is working now.
+name keeps its initials in the detail and roster and stands alone on the
+card's scan line. Neither name nor avatar says anyone is working now.
