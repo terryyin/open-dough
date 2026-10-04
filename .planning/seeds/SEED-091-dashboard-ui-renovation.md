@@ -149,37 +149,6 @@ arrangement; and keyboard resizing with visible focus and accessible width.
 inspection for refinement, not a rendered observation or visual acceptance
 review.
 
-<a id="card-renovation-alignment"></a>
-
-### Align product guidance, shared styles, and tests with the renovated cards
-
-**Identity:** SEED-091#card-renovation-alignment
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/241-card-renovation-alignment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"246d5bc0bd3a557e1e4209ed893fac1e772b26696020e1d6c61e17bb184f7761","plan":"18185219a054758c9917db5704729e3b45f0ba970ed39e63377ce6bba1f02d46"}}
-```
-
-**Slice plan:** [Card renovation alignment](../slice-plans/241-card-renovation-alignment/PLAN.md).
-
-**Goal:** A maintainer reading the dashboard's guidance, or changing the
-renovated story cards later, finds documentation that says where each card
-fact is actually shown, roster and session identity lines laid out as before
-the card renovation, and card tests that open detail explicitly and prove each
-focus walk once. This bounded retrospective correction of
-[the story-card renovation](https://github.com/terryyin/open-dough/blob/bf0d9ad52cfbe4c0a01fac4907361016f1f8d7d5/.planning/seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) adds no product
-promise.
-
-**Scope:**
-
-- Correct the dashboard guidance and code comment that misplace the
-  dependency explanation, assignment metadata, and human-developer and field
-  gaps relative to the card's scan view and inspected detail.
-- Restore the shared story-identity spacing outside the card while keeping the
-  inspected detail as delivered.
-- Move story-detail opening out of the whole-snapshot check into explicit
-  steps, and remove duplicated focus-return walks from the action-group tests.
-- Excludes the remaining launch-answer waits under load, which belong to their
-  own recorded finding, and any change to card behavior or presentation.
-
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).

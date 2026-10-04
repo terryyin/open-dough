@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Show story review and terminal in one resizable side panel](seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel) — SEED-091#review-and-terminal-share-side-panel ([plan](slice-plans/240-review-terminal-side-panel/PLAN.md))
-- [Align product guidance, shared styles, and tests with the renovated cards](seeds/SEED-091-dashboard-ui-renovation.md#card-renovation-alignment) — SEED-091#card-renovation-alignment ([plan](slice-plans/241-card-renovation-alignment/PLAN.md))
 
 ## Backlog list
 
