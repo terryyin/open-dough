@@ -18,6 +18,7 @@ export class LaunchInstruction {
   private screen: KeptClientScreen | undefined;
   private chain: Promise<void> = Promise.resolve();
   private entered = false;
+  private pasted = false;
   private holding = true;
   private handoff: boolean;
   private announced = false;
@@ -78,17 +79,12 @@ export class LaunchInstruction {
       return;
     }
     const ready = this.launch.ready(screen.text(), screen.cursorVisible());
-    // The host's ready rule is enough to enter the instruction and settle
-    // the wait. A screen that is not ready still waits until a frame has
-    // finished before that wait settles.
-    if (!screen.completedFrame() && !ready) return;
-    screen.takeFrame();
-    if (!this.entered && ready) {
+    const pastedChip = screen.text().includes("Pasted text");
+    // A paste chip is not the empty composer and has no synchronized frame.
+    // Submit it before the not-ready wait would return.
+    if (!this.entered && this.pasted && pastedChip) {
       this.entered = true;
-      const instruction = this.launch.instruction.endsWith("\r")
-        ? this.launch.instruction
-        : `${this.launch.instruction}\r`;
-      if (!this.client.writeInstruction(instruction)) {
+      if (!this.client.writeInstruction("\r")) {
         this.entered = false;
         this.announce();
         return;
@@ -98,6 +94,43 @@ export class LaunchInstruction {
         await this.launch.onEntered();
       } catch {
         // The instruction was entered. A failed save leaves the uncertain record.
+      }
+      this.announce();
+      return;
+    }
+    // The host's ready rule is enough to enter the instruction and settle
+    // the wait. A screen that is not ready still waits until a frame has
+    // finished before that wait settles.
+    if (!screen.completedFrame() && !ready) return;
+    screen.takeFrame();
+    if (!this.entered && ready && !this.pasted) {
+      const instruction = this.launch.instruction;
+      // Cursor keeps a long or multiline burst as an unsent paste chip and
+      // folds a return in that same burst into the paste. Submit that chip
+      // with a later Enter, once the chip is on screen.
+      if (instruction.includes("\n") || instruction.length > 800) {
+        this.pasted = true;
+        if (!this.client.writeInstruction(instruction)) {
+          this.pasted = false;
+          this.announce();
+          return;
+        }
+      } else {
+        this.entered = true;
+        const typed = instruction.endsWith("\r")
+          ? instruction
+          : `${instruction}\r`;
+        if (!this.client.writeInstruction(typed)) {
+          this.entered = false;
+          this.announce();
+          return;
+        }
+        if (!this.handoff) this.releaseHold();
+        try {
+          await this.launch.onEntered();
+        } catch {
+          // The instruction was entered. A failed save leaves the uncertain record.
+        }
       }
     }
     this.announce();
