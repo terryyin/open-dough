@@ -16,6 +16,7 @@ import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test as base } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -41,7 +42,7 @@ const test = base.extend<{ origin: StartOrigin }>({
       github,
       machine: origin.machine,
       projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
+      launchTimeoutMs: launchWaitMs,
     });
     await use(server);
     await server.close();
@@ -82,6 +83,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
     .click();
   await expect(backlogCard.locator(".launch-problem")).toContainText(
     `Launch failed: Claude Code refused to start a session in ${workspaceShown}.`,
+    { timeout: launchWaitMs },
   );
   const profile = (await origin.takenProfiles()).find(
     (each) => each["identity"] === queuedIdentity,
@@ -122,6 +124,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(takenCard.getByRole("list", { name: "Sessions" })).toContainText(
     `Workspace ${workspaceShown}`,
+    { timeout: launchWaitMs },
   );
   await expect(startAction(takenCard)).toHaveCount(0);
   await expect(takenCard).not.toContainText("Started here");

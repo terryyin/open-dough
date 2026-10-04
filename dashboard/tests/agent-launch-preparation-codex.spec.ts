@@ -10,6 +10,7 @@ import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { showOptions } from "./launchCardPage.ts";
 import {
   builtDashboardDir,
@@ -52,6 +53,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(card.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation",
+    { timeout: launchWaitMs },
   );
   await expect(card.locator(".launch-problem")).toContainText("Preparing as");
   const workspace = path.join(origin.project, ".worktrees", "story-a");
@@ -125,7 +127,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     github,
     machine: origin.machine,
     projectFolders: ["open-dough"],
-    launchTimeoutMs: 30_000,
+    launchTimeoutMs: launchWaitMs,
     port,
     codexProtocol: native,
   });
@@ -178,6 +180,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     await observer.close();
     await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
       "Refinement started in Codex",
+      { timeout: launchWaitMs },
     );
     await expect(card).not.toContainText("Started here, no session yet");
     expect(await keptStarts(restarted)).toEqual([]);

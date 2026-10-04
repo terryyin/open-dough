@@ -3,6 +3,7 @@
 import { test as base } from "../dashboardTest.ts";
 import { builtDashboardDir, startDashboardServer } from "./dashboardServer.ts";
 import { installFakeCodex } from "./fakeCodex.ts";
+import { launchWaitMs } from "./launchWait.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
 export const test = base.extend<{
@@ -38,7 +39,7 @@ export const test = base.extend<{
       github,
       machine: origin.machine,
       projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
+      launchTimeoutMs: launchWaitMs,
       codexProtocol,
     });
     await use(server);

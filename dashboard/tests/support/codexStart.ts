@@ -1,5 +1,6 @@
 // Real Git/start/formatter setup; only native Codex transport is substituted.
 import { test as base } from "./codexLaunch.ts";
+import { launchWaitMs } from "./launchWait.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect, stored } from "./codexLaunch.ts";
 export const test = base.extend<{ origin: StartOrigin }>({
@@ -17,9 +18,4 @@ export const test = base.extend<{ origin: StartOrigin }>({
     await use(origin.machine);
   },
 });
-// The service's bounded launch wait. A start's answer comes after a real
-// Take publication (push, workspace, formatter) and the native exchange, which
-// under machine load can take several seconds, so a page waiting on that
-// answer waits as long as the start itself may.
-export const launchWaitMs = 30_000;
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: launchWaitMs });

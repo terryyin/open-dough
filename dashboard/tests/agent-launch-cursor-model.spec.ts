@@ -14,6 +14,7 @@ import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { cursorModels } from "./support/fakeCursor.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
@@ -79,7 +80,9 @@ test("execution on a Cursor-listed model sends it on the prompted run only and d
     name: "Execution session",
     exact: true,
   });
-  await expect(entry).toContainText("First input accepted");
+  await expect(entry).toContainText("First input accepted", {
+    timeout: launchWaitMs,
+  });
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const workspace = path.join(origin.project, ".worktrees", "story-a");
   const client = cursor.attaches()[0];
@@ -181,6 +184,7 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
 
   await expect(parts(page).recentSessions.getByRole("article")).toContainText(
     "First input accepted",
+    { timeout: launchWaitMs },
   );
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const client = cursor.attaches()[0];

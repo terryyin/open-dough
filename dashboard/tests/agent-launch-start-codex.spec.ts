@@ -7,8 +7,9 @@ import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { test, expect, launchWaitMs, stored } from "./support/codexStart.ts";
+import { test, expect, stored } from "./support/codexStart.ts";
 import { expectExecutionInput } from "./support/codexStartAssertions.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
 test("Codex card start publishes one claim and retries its retained workspace before creating one conversation", async ({
@@ -139,8 +140,12 @@ test("Codex card start publishes one claim and retries its retained workspace be
   native.release();
   await observer.close();
   const sessions = claimed.getByRole("list", { name: "Sessions" });
-  await expect(sessions).toContainText("Execution started in Codex");
-  await expect(sessions).toContainText("First input accepted");
+  await expect(sessions).toContainText("Execution started in Codex", {
+    timeout: launchWaitMs,
+  });
+  await expect(sessions).toContainText("First input accepted", {
+    timeout: launchWaitMs,
+  });
   const [record] = stored(dashboard.home);
   expectExecutionInput(
     record,
