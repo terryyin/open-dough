@@ -16,6 +16,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Story card actions show their state by style and explain it on hover](seeds/SEED-098-story-card-actions-read-at-a-glance.md#story-card-actions-read-at-a-glance) — SEED-098#story-card-actions-read-at-a-glance
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
