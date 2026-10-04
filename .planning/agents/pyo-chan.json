@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "pyo-chan",
+  "email": "pyo-chan@example.org",
+  "identity": "SEED-099#submit-pasted-cursor-instruction",
+  "mode": "story-branch",
+  "branch": "cursor/submit-pasted-cursor-instruction",
+  "host": "cursor",
+  "model": "Grok 4.7"
+}

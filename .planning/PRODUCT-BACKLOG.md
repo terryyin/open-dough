@@ -14,6 +14,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [A pasted Cursor launch instruction is submitted](seeds/SEED-099-submit-pasted-cursor-instruction.md#submit-pasted-cursor-instruction) — SEED-099#submit-pasted-cursor-instruction
+
 ## Backlog list
 
 - [Story card actions show their state by style and explain it on hover](seeds/SEED-098-story-card-actions-read-at-a-glance.md#story-card-actions-read-at-a-glance) — SEED-098#story-card-actions-read-at-a-glance
