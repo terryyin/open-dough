@@ -478,7 +478,7 @@ Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are 
   - Tool: Claude Code (delegated implementation agent)
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 243 premise rows grepped for specs that reach file rows by list name, button name, or visible kind text. Slice 1's proof then failed `story-review-nothing.spec.ts`, whose `toHaveCount(7)` on list items counted the new folder item. Slice 3 failed `story-review.spec.ts:76`, which counted the list's buttons. Neither count was named, and both implementers aligned them (plan 243 slices 1 and 3 learnings).
+  - Evidence: plan 243 (`b0e8cf03:.planning/slice-plans/243-review-files-as-folder-tree/PLAN.md`) premise rows grepped for specs that reach file rows by list name, button name, or visible kind text. Slice 1's proof then failed `story-review-nothing.spec.ts`, whose `toHaveCount(7)` on list items counted the new folder item. Slice 3 failed `story-review.spec.ts:76`, which counted the list's buttons. Neither count was named, and both implementers aligned them (plan 243 slices 1 and 3 learnings).
   - Observed effect: no CI failure or rework; one in-slice failure and fix each in slices 1 and 3.
   - Inference: Qualified. Third occurrence of the class: the sweep looked for the words the change kept. It missed specs that depend on the list's structure, such as element counts, which the tree changed.
 
