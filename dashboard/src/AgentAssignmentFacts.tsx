@@ -1,10 +1,11 @@
 // Card-facing assignments: who holds Taken work and who is preparing queued
 // work, from the recorded agent profile facts, or the explicit gap when none
 // is recorded or readable. A card's scan view shows each developer's portrait
-// (which opens the roster) and name, and every gap; what the assignment
-// records beyond its agent is in the story's inspected detail
-// (`./AssignmentRecords.tsx`). Preparing is an annotation on the queued card,
-// never a stage or a claim that an agent is running.
+// (which opens the roster) and name with its credited human, host and model,
+// and every gap; the mode, branch context and why a human is unknown are in
+// the story's inspected detail (`./AssignmentRecords.tsx`). Preparing is an
+// annotation on the queued card, never a stage or a claim that an agent is
+// running.
 
 import type {
   AgentAssignment,
@@ -13,7 +14,8 @@ import type {
   UnreadableProfile,
 } from "./agentAssignments.ts";
 import { AgentPortrait } from "./AgentPortrait.tsx";
-import { HumanCreditGap } from "./HumanCredit.tsx";
+import { RecordedFacts } from "./AssignmentRecords.tsx";
+import { HumanCreditBrief } from "./HumanCredit.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
 import "./agent-assignment.css";
 
@@ -46,8 +48,10 @@ function PortraitOpener({
   );
 }
 
-// The scan view of a developer: the agent's portrait, which opens the
-// roster, its name, and a short warning when its credited human is unknown.
+// The scan view of a developer, for example
+// "Akiho-chan · Terry Yin · Claude Code · claude-opus": the agent's portrait,
+// which opens the roster, its name, its credited human or the short warning
+// that it is unknown, and its host and model or their gaps.
 function DeveloperName({
   developer,
   onOpenRoster,
@@ -55,19 +59,28 @@ function DeveloperName({
   developer: AgentAssignment;
   onOpenRoster: OpenRoster;
 }) {
+  const human =
+    developer.human.status === "loading" ? null : (
+      <>
+        {" · "}
+        <HumanCreditBrief developer={developer} />
+      </>
+    );
   return (
-    <>
+    <span className="owner-line">
       <span className="owner-fact owner-agent">
         <PortraitOpener developer={developer} onOpenRoster={onOpenRoster} />
         {developer.agent}
       </span>
-      <HumanCreditGap developer={developer} />
-    </>
+      {human}
+      {" · "}
+      <RecordedFacts developer={developer} withMode={false} />
+    </span>
   );
 }
 
 // Who holds Taken work, as the card's scan view shows it: each developer's
-// portrait and name, or the gap that leaves the owner unknown.
+// scan line, or the gap that leaves the owner unknown.
 export function TakenOwnerFacts({
   owner,
   onOpenRoster,

@@ -43,6 +43,9 @@
   --shadow-2: 0 4px 14px rgb(29 29 27 / 18%);
   --control-size: 2.5rem;
   --icon-size: 1.25rem;
+  /* A labelled button's leading icon: a little smaller, so the button keeps
+     its height. */
+  --label-icon-size: 1.125rem;
   font-family: system-ui, sans-serif;
   line-height: 1.45;
   color: var(--text);

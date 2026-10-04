@@ -1,11 +1,11 @@
 /* Who holds a Taken card's work, or is preparing a queued card's work: on the
-   card, each developer's agent portrait opener and name; in its detail, the
-   developer summary with the mode and host marks beside their labels, the
-   credited human developer with their avatar, and branch context; and
-   unreadable profiles. */
+   card, each developer's agent portrait opener and name with its credited
+   human, host mark and label, and model; in its detail, the developer summary
+   with the mode and host marks beside their labels, the credited human
+   developer with their avatar, and branch context; and unreadable profiles. */
 
-/* On a card's scan line: Preparing, then each developer's portrait and
-   name. */
+/* On a card's scan line: Preparing, then each developer's portrait, name,
+   credited human, host and model. */
 .card-owner {
   display: flex;
   flex-wrap: wrap;

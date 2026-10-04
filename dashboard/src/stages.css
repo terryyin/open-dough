@@ -178,7 +178,8 @@
   }
 
   .card,
-  .card a {
+  .card a,
+  .card button {
     scroll-margin-top: 5rem;
   }
 }

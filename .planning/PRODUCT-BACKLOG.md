@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Story card actions show their state by style and explain it on hover](seeds/SEED-098-story-card-actions-read-at-a-glance.md#story-card-actions-read-at-a-glance) — SEED-098#story-card-actions-read-at-a-glance ([plan](slice-plans/244-story-card-actions-read-at-a-glance/PLAN.md))
-
 ## Backlog list
 
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review

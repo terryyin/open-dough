@@ -18,9 +18,10 @@ export type AttemptRun = (
   notePublication: (publication: PublicationReceipt) => Promise<void>,
 ) => Promise<LaunchResult>;
 
-// Changes an owned attempt and keeps it. When the change cannot be written,
-// this server still answers it while the store keeps the earlier, more
-// conservative state; a closed server writes nothing more.
+// Keeps a change to an owned attempt, then answers it: this server never
+// answers a change its store could still be writing. When the change cannot
+// be written, this server still answers it while the store keeps the
+// earlier, more conservative state; a closed server writes nothing more.
 async function note(
   owned: OwnedAttempts,
   id: string,
@@ -28,13 +29,15 @@ async function note(
 ): Promise<void> {
   const own = owned.get(id);
   if (own === undefined) return;
-  own.attempt = { ...own.attempt, ...change };
-  if (owned.closed) return;
-  try {
-    await keepAttempt(own.attempt);
-  } catch {
-    // Answered from memory; see above.
+  const changed = { ...own.attempt, ...change };
+  if (!owned.closed) {
+    try {
+      await keepAttempt(changed);
+    } catch {
+      // Answered from memory; see above.
+    }
   }
+  own.attempt = changed;
   owned.changed(id);
 }
 

@@ -2,12 +2,12 @@
    session's entry on its card and in the project's Recent sessions; the
    launch dialog's own layout is ./launch-dialog.css.
    Text carries every meaning. A noted Start stays the accent action; its
-   dashed edge only repeats the note beside it. Quiet gray is reserved for a
-   disabled Start that cannot be invoked. */
+   dashed edge marks the note its tooltip shows on hover and keyboard focus
+   (./icon-control.css). Quiet gray is reserved for a disabled Start that
+   cannot be invoked. */
 
-/* In the card's launch group (stages.css), each Start keeps its note beside
-   it, and a Start's answer takes a line of its own right below it, before
-   the next Start. */
+/* In the card's launch group (stages.css), a Start's answer takes a line of
+   its own right below it, before the next Start. */
 .card-launch-group > .start-launch {
   display: contents;
 }
@@ -19,9 +19,7 @@
 
 .start-launch-action {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.2rem 0.6rem;
 }
 
 .start-launch-button,
@@ -35,6 +33,19 @@
   cursor: pointer;
 }
 
+/* A launch action's decorative icons (./Icon.tsx) sit in its own colour at
+   the labelled-button icon size. */
+.start-launch-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.start-launch-button .icon {
+  width: var(--label-icon-size);
+  height: var(--label-icon-size);
+}
+
 .start-launch-noted {
   border-style: dashed;
 }
@@ -44,11 +55,6 @@
   color: var(--quiet);
   border-color: var(--line);
   cursor: default;
-}
-
-.start-launch-note {
-  font-size: 0.9rem;
-  color: var(--quiet);
 }
 
 .launch-answer {
@@ -190,12 +196,6 @@
   .card-startup-progressing::before {
     animation: none;
   }
-}
-
-.inspect-story:disabled {
-  color: var(--quiet);
-  border-color: var(--line);
-  cursor: default;
 }
 
 .card-startup-note {

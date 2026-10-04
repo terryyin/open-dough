@@ -1,9 +1,11 @@
-// The frame's icons and icon-only controls. Every icon is a Lucide glyph drawn
-// at the shared icon size and stroke, and hidden from assistive technology:
-// the control around it carries the name. An icon-only control shows that
-// name, and its shortcut where it has one, in a styled tooltip when it is
-// hovered or holds keyboard focus. The tooltip is hidden from assistive
-// technology too, so the name is announced once.
+// The frame's icons, icon-only controls and styled tooltip. Every icon is a
+// Lucide glyph drawn at the shared icon size and stroke, and hidden from
+// assistive technology: the control around it carries the name. An icon-only
+// control shows that name, and its shortcut where it has one, in the styled
+// tooltip when it is hovered or holds keyboard focus; a labelled button can
+// show its description there the same way. The tooltip is hidden from
+// assistive technology too, so its words are announced once, as the control's
+// name or as the description that refers to them.
 
 import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import type { LucideIcon } from "lucide-react";
@@ -17,6 +19,23 @@ export function Icon({ icon: Glyph }: { readonly icon: LucideIcon }) {
       aria-hidden="true"
       focusable="false"
     />
+  );
+}
+
+// The styled tooltip of the button beside it in a `tooltip-control` group,
+// shown below that button while it is hovered or holds keyboard focus. A
+// button the tooltip describes names `id` in its `aria-describedby`.
+export function FrameTooltip({
+  id,
+  children,
+}: {
+  readonly id?: string;
+  readonly children: ReactNode;
+}) {
+  return (
+    <span className="frame-tooltip" aria-hidden="true">
+      <span id={id}>{children}</span>
+    </span>
   );
 }
 
@@ -52,7 +71,7 @@ export function IconButton({
 >) {
   return (
     <span
-      className={`icon-control tooltip-${align}${groupClassName ? ` ${groupClassName}` : ""}`}
+      className={`tooltip-control tooltip-${align}${groupClassName ? ` ${groupClassName}` : ""}`}
     >
       <button
         type="button"
@@ -62,9 +81,7 @@ export function IconButton({
       >
         <Icon icon={icon} />
       </button>
-      <span className="frame-tooltip" aria-hidden="true">
-        <span>{shortcut ? `${label} (${shortcut})` : label}</span>
-      </span>
+      <FrameTooltip>{shortcut ? `${label} (${shortcut})` : label}</FrameTooltip>
       {children}
     </span>
   );

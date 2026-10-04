@@ -5,7 +5,9 @@ story's read-only review of its workspace and how the side panel shows it.
 
 A card whose story has a kept launch record naming a workspace offers **Review
 changes** beside **Inspect story**: a read-only review of what that workspace
-would add to trunk now. The most recent such record by `launchedAt`, whether
+would add to trunk now. It leads with a compare icon and ends with an arrow
+toward the side panel where the review opens; both are decorative, so its name
+stays “Review changes”. The most recent such record by `launchedAt`, whether
 it names a start or a preparation, picks the workspace (`reviewWorkspaceOf` in
 `src/storyReview.ts`, shared by the card and the boundary). The review
 compares a snapshot of the workspace with the merge-base of its head and

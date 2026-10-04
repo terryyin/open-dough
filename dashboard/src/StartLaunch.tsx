@@ -3,7 +3,9 @@
 // workflow on the story, with an optional instruction of their own. Every word
 // comes from the workflow (`launchWorkflows`). A card the workflow notes
 // (execution: not marked Ready for execution; refinement: being prepared)
-// offers the same action, described by that note; the session is asked anyway,
+// offers the same action, dashed and described by that note, which the card
+// shows only in the action's tooltip on hover and keyboard focus and the
+// dialog states; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
 // stays on the card with the action; while the story starts, its card says
 // so (`CardLaunches`) and protects the action (`WorkCard`). The dialog's
@@ -14,6 +16,8 @@
 // A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
 // workspace and landing; the line beside Start (`StartEffects`) says what
 // follows from them. A kept start shows the policy it was started with.
+// Each Start leads with its workflow's decorative glyph (`startIcons`), noted
+// or disabled alike; its words still name it.
 
 import { hostName } from "./sessionCapabilities.ts";
 import { hostDescription } from "./hostDescription.ts";
@@ -37,6 +41,8 @@ import {
   optionsLine,
   type OptionsOffer,
 } from "./optionsOffer.ts";
+import { Play, PencilLine, type LucideIcon } from "lucide-react";
+import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
@@ -44,6 +50,13 @@ import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
 import { workCard } from "./workFocus.ts";
 import "./agent-launch.css";
+
+// The glyph each workflow's Start leads with. It stays beside the card rather
+// than in `launchWorkflows`, which the server reads too.
+const startIcons: Record<LaunchWorkflow, LucideIcon> = {
+  execution: Play,
+  refinement: PencilLine,
+};
 
 export function StartLaunch({
   work,
@@ -138,26 +151,27 @@ export function StartLaunch({
   return (
     <div className="start-launch">
       <p className="start-launch-action">
-        <button
-          ref={launcher}
-          type="button"
-          className={
-            note !== undefined
-              ? "start-launch-button start-launch-noted"
-              : "start-launch-button"
-          }
-          aria-haspopup="dialog"
-          aria-describedby={described}
-          disabled={unavailable}
-          onClick={openDialog}
-        >
-          Start {named}
-        </button>
-        {note !== undefined && (
-          <span id={noteId} className="start-launch-note">
-            {note}
-          </span>
-        )}
+        <span className="tooltip-control tooltip-start">
+          <button
+            ref={launcher}
+            type="button"
+            className={
+              note !== undefined
+                ? "start-launch-button start-launch-noted"
+                : "start-launch-button"
+            }
+            aria-haspopup="dialog"
+            aria-describedby={described}
+            disabled={unavailable}
+            onClick={openDialog}
+          >
+            <Icon icon={startIcons[workflow]} />
+            Start {named}
+          </button>
+          {note !== undefined && (
+            <FrameTooltip id={noteId}>{note}</FrameTooltip>
+          )}
+        </span>
       </p>
       {attempt !== undefined && attempt.kind !== "starting" && (
         <LaunchProblemAnswer id={answerId} problem={attempt} />
@@ -185,12 +199,9 @@ export function StartLaunch({
           effects={<StartEffects {...words} />}
           details={<StartDetails {...words} />}
           note={
-            note !== undefined && (
-              <p className="start-launch-note">
-                This story is {note.charAt(0).toLowerCase()}
-                {note.slice(1)}.
-              </p>
-            )
+            note !== undefined
+              ? `This story is ${note.charAt(0).toLowerCase()}${note.slice(1)}.`
+              : undefined
           }
           fieldLabel="Instruction (optional)"
           command={[

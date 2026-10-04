@@ -44,7 +44,7 @@ test("accessible overview reflows long published work for a narrow window and pa
   await page.goto("/");
   const { stages, backlog, taken, connector, direction, source } = parts(page);
   const connectorMeaning = stages.getByText("not a dependency between entries");
-  const arrow = stages.locator("svg").first();
+  const arrow = stages.locator("svg.connector-arrow");
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
 

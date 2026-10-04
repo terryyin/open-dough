@@ -221,6 +221,11 @@
   display: contents;
 }
 
+.launch-dialog-note {
+  font-size: 0.9rem;
+  color: var(--quiet);
+}
+
 .launch-dialog-cutoff {
   margin: 0;
   font-size: 0.9rem;

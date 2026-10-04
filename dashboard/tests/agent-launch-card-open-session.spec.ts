@@ -28,7 +28,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { launchGroup } from "./cardControls.ts";
+import { expectStartNote, launchGroup } from "./cardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -176,7 +176,9 @@ test.describe("a story's card while its session is open", () => {
         name: "Start execution",
       });
       await expect(cardSessions(takenCard)).toHaveCount(1);
-      await expect(launchGroup(takenCard)).toContainText(
+      await expectStartNote(
+        takenCard,
+        "Start execution",
         "Started here, no session yet",
       );
       await expect(keptStart).toBeDisabled();

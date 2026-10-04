@@ -1,4 +1,9 @@
+/* Inspect story leads with its quiet disclosure chevron
+   (./frame-controls.css) at the labelled-button icon size. */
 .inspect-story {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   font: inherit;
   color: var(--accent);
   background: transparent;
@@ -6,6 +11,17 @@
   border-radius: 0.25rem;
   padding: 0.2rem 0.55rem;
   cursor: pointer;
+}
+
+.inspect-story .icon {
+  width: var(--label-icon-size);
+  height: var(--label-icon-size);
+}
+
+.inspect-story:disabled {
+  color: var(--quiet);
+  border-color: var(--line);
+  cursor: default;
 }
 
 .card-selected {

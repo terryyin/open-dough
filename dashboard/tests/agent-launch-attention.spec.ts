@@ -45,14 +45,14 @@ const publishedFactsOf = async (card: Locator) => {
   await expect
     .poll(async () => {
       facts = await card.evaluate((element) => {
-        // Readiness and capture share one browser turn: a new snapshot may
-        // begin reading after a separate readiness assertion has passed.
+        // Readiness (badges, each credited human) and capture share one
+        // turn: a new snapshot may begin reading after an assertion passed.
         if (
           !element.querySelector(".card-preparation .badge-row") ||
-          /Reading [^…]*…/.test(element.textContent)
-        ) {
+          /Reading [^…]*…/.test(element.textContent) ||
+          element.querySelector(".owner-line:not(:has([class*=owner-human-]))")
+        )
           return null;
-        }
         const copy = element.cloneNode(true) as HTMLElement;
         const counted = copy.querySelectorAll(
           ".card-sessions, .card-attention, .card-session-open-reason",

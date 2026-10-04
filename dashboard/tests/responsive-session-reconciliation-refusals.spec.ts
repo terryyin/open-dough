@@ -10,6 +10,7 @@
 
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./cardControls.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer } from "./originAnswers.ts";
@@ -173,7 +174,11 @@ test("a Take whose session is refused reconciles with that Take: its Taken card 
   await expect(takenStory.locator(".launch-problem")).toContainText(
     "Launch failed: Claude Code refused",
   );
-  await expect(takenStory).toContainText("Started here, no session yet");
+  await expectStartNote(
+    takenStory,
+    "Start execution",
+    "Started here, no session yet",
+  );
   await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
     0,
   );

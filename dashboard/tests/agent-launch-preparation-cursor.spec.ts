@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./cardControls.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
@@ -217,7 +218,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
     parts(page).taken.getByRole("article", { name: "Story A", exact: true }),
   ).toHaveCount(0);
   await expect(prepared.locator(".preparing-activity")).toHaveText("Preparing");
-  await expect(prepared).toContainText("Being prepared");
+  await expectStartNote(prepared, "Start refinement", "Being prepared");
   await expect(
     prepared.getByRole("article", { name: "Refinement session" }),
   ).toContainText(cursor.sessionId);
