@@ -13,7 +13,9 @@ command omits it, and a later open does not send it. The launch instruction
 is written into that client when its server-side screen shows
 `Add a follow-up` or `Plan, search, build anything`, even when the terminal
 cursor is hidden and no synchronized-update frame has arrived, and the record
-then says the first input was accepted.
+then says the first input was accepted. A long or multiline instruction that
+Cursor shows as a paste chip is submitted with a later Enter, and the record
+says the first input was accepted only then.
 Until that screen, the instruction is not written, the record stays uncertain,
 and the developer can still type. The client exiting does not accept it.
 Opening the terminal joins that same client and shows its output. There is
