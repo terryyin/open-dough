@@ -72,7 +72,8 @@ The project's repository owns durable workflow records. The dashboard reads
 those records to construct its view; it is not an independent authority for
 backlog membership, developer assignments, or progress. Any derived cache or
 display model must be rebuildable from its sources rather than becoming the
-only home of project state.
+only home of project state. Completing work leaves a short published done
+record beside the backlog, which the dashboard reads like any other record.
 
 Initially, one observed project is hardcoded in the dashboard project. There
 is no application/server database; optional browser storage is disposable.
@@ -186,9 +187,8 @@ without building their machinery in advance.
 
 ## Open design and related decisions
 
-Record formats, assignment messaging and takeover, recently
-finished story views, North Star placement, and detailed stage
-layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
+Record formats, assignment messaging and takeover, North Star
+placement, and detailed stage layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
 No GUI framework, daemon, database, schema, or distributed scheduler is selected.
 
 This proposal builds on

@@ -98,7 +98,7 @@ PFE findings and choices:
 
 ### 1. Completing work publishes its done record
 Type: Behavior
-Status: planned
+Status: done
 Proof: Focused node tests through the real backlog CLI in a scratch Git
 project (extend `tests/support/product-backlog-complete*.test.mjs`): a Taken
 entry with an execution profile leaves one record with identity, title,
@@ -128,6 +128,14 @@ Deliver together:
   answered;
 - ADR 0008: one sentence under durable project state, and “recently finished
   story views” removed from its open-design list, as the story bounds it.
+
+Accepted proof: `node --test tests/support/product-backlog-complete-profile.test.mjs
+tests/support/product-backlog-complete.test.mjs
+tests/support/product-backlog-complete-done-record.test.mjs` → 18 pass; the
+eight `dough-execute-plan` and `dough-story-refinement` script tests that run
+`complete` → 24 pass; `tests/product-backlog-payload-update.sh` → exit 0.
+Records live in `.planning/done/<identity with # as _>.json`; the module is
+`product-backlog-done-record.mjs`.
 
 ### 2. The column is named Recently done
 Type: Behavior
@@ -199,10 +207,18 @@ README describing the list as built.
   `launchRetentionDays`.
 - SEED-106 may rename or reframe the same column first; execution uses the
   name and layout then on trunk.
+- Work dropped rather than finished is removed with `complete --dropped`,
+  which releases the profile and writes no done record, so Recently done shows
+  finished work only. The wrap-up drop path and backlog guidance use it.
+- `DOUGH_BACKLOG_COMPLETION_TIME` (ISO) stands in for `complete`'s clock in
+  tests; journeys can render records with the shared module directly.
 - Local proof is the focused tests named per slice. The repository pre-commit
   hook and hosted CI run the wider checks.
 
 ## Learnings
 
+- Adding a file to `complete`'s change reaches tests that assert a closure
+  commit's exact paths or a clean status (`dough-execute-plan` one-shot and
+  agent-release tests); they change with the contract.
 - A fresh worktree has no `node_modules`; the journeys fail with `spawn
   .../node_modules/.bin/vite ENOENT` until `env -u NODE_ENV npm ci` runs there.

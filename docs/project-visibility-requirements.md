@@ -240,17 +240,28 @@ and close multi-agent collaboration remain future scope.
 
 ### Recently finished stories
 
-A view of recently finished stories is an open possibility, potentially useful
-for review or testing. A maintained completion list existed previously and was
-removed because the information was already recoverable from Git history and
-was not useful enough to retain separately.
+A recently finished story is a published record of its own, beside the agent
+profiles. Completing a backlog entry through `product-backlog complete` writes
+one JSON done record under `.planning/done/` beside the backlog, in the same
+change that removes the entry and releases its execution profile, so
+committing the closure publishes it. The file name comes from the identity
+alone, with `#` read as `_` (`SEED-107_recently-done.json`), so completing the
+same identity again replaces its record. Work dropped rather than finished is
+removed with `complete --dropped`, which leaves the done records to finished
+work. The record keeps only facts that outlive wrap-up cleanup: the identity and
+title, the UTC completion time, the developer configured in that workspace's
+Git, and, when the work had an execution profile, its agent, host tool, and
+model. It links to no seed or plan, so wrap-up still deletes the spent
+history. The same `complete` run removes records completed more than 30 days
+before; a published record older than that is not recent work. The backlog
+scripts own the format and the window, and the dashboard reads the records at
+the revision it reads the backlog and profiles.
 
-Visualization may create a new reason to show that information. First explore
-recovering it from Git history rather than restoring a maintained completion
-list. Whether the view is needed, what counts as recently finished, and whether
-any additional durable record is justified should be decided by the dashboard
-stories that require it. This document does not restore a completed section in
-the backlog or change the current wrap-up cleanup behavior.
+Git history was explored first and does not identify completions within a
+bounded read: closure commits share no subject convention, profile deletions
+also come from preparation releases, and the backlog sees over a thousand
+commits a month. Separate files, rather than a completion section in the
+backlog, let parallel closures integrate without merge adapters.
 
 ### Taken-item information
 
@@ -485,8 +496,6 @@ decisions:
   unpublished local changes, and unavailable local state does not mean idle.
 - How existing backlog and plan records expose sufficient information without
   introducing a duplicate status representation that can drift.
-- Whether completed-work views should reconstruct deleted plans from Git
-  history or require another durable summary.
 - How the dashboard accesses local evidence, and how later story facts expand
   the connected-stage view without imposing a false linear lifecycle.
 - How story-to-feature and story-to-structure relationships would be recorded
