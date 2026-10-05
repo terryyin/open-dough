@@ -101,7 +101,7 @@ message read may mark the session done or remove it from the dashboard. A test
 guards against reintroducing that swap.
 
 **Coordination:** With Mark as done offered beside an unread message,
-[confirming Mark as done](SEED-104-confirm-mark-as-done.md#confirm-mark-as-done)
+[Mark as done's confirmation](../../dashboard/AGENT-LAUNCH-TERMINALS.md)
 owns any confirmation for a session that reported unfinished work.
 
 ## Breadcrumbs
