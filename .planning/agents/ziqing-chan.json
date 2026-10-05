@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-102#full-height-review-changes",
+  "mode": "story-branch",
+  "branch": "claude/review-changes-in-a-full-height-panel-with-compa",
+  "host": "claude"
+}
