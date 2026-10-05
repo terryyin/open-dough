@@ -51,7 +51,7 @@ plus `npm run lint` and `npm run typecheck:dashboard`.
 
 ### 1. The rule's readings and reports are checked without a page
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/done-question-rule.spec.ts`: `completed` with
 an idle Claude reading and with Cursor `at the follow-up prompt` → none;
 Cursor held `working` with a `completed` report → “still working…”; Cursor
@@ -60,6 +60,12 @@ input.”; Claude waiting with an `unfinished` report → “waiting for your
 input.”; `unfinished` while idle → “reported unfinished work.”; no report
 while idle → “has not reported its work complete. It reads <reading>.”
 Removing either Cursor label from the rule fails a case.
+Accepted: 7 table cases pass, each asserting `unfinishedIntention` directly
+(idle Claude is the `review` reading, “Ready for review”); removing
+`cursorHeldLabel.working` or `.waiting` from the rule fails one case each.
+Expected wording comes from `support/markDone.ts`; reports come from the new
+shared `support/completionReport.ts`, which `session-unread-rule.spec.ts`
+now uses too.
 
 ### 2. Journeys count native stop calls through one support step
 Type: Structure
