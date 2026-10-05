@@ -30,11 +30,12 @@ export async function deliverCompletion(
     // An applied immutable receipt can recover its acknowledgment without a write.
     const previous = await previousCompletion(report, origin, delivery);
     if (previous?.applied) {
-      await withKeptAttempts(async (attempts) => {
-        const attempt = reportingAttempt(attempts, report, origin);
-        if (attempt.completion?.receipt === previous.receipt.receipt)
-          await markReportedSessionDone(report.source, previous.receipt);
-      });
+      if (previous.nativeDonePending)
+        await withKeptAttempts(async (attempts) => {
+          const attempt = reportingAttempt(attempts, report, origin);
+          if (attempt.completion?.receipt === previous.receipt.receipt)
+            await markReportedSessionDone(report.source, previous.receipt);
+        });
       return previous.receipt;
     }
     const saved =

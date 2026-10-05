@@ -135,7 +135,7 @@ test("a session not reported complete asks first with its situation; Keep open a
     );
   });
 
-  await test.step("(d) Needs input: asks that it is waiting for your input; confirming renames and stops it as Mark as done does", async () => {
+  await test.step("(d) Needs input: asks that it is waiting for your input; confirming retains the rename problem and stops it as Mark as done does", async () => {
     dashboard.claudeSessionBecomes(storyA.sessionId, "blocked");
     await page.reload();
     await expect(sessionStateOf(entryA)).toHaveText("Needs input");
@@ -149,11 +149,17 @@ test("a session not reported complete asks first with its situation; Keep open a
       .recentSessions.getByRole("article")
       .filter({ hasText: titleA });
     await expect(sessionStateOf(recentA)).toHaveText("Done");
-    await expect(recentA).toContainText(`Named ${doneName}`);
+    await expect(recentA).toContainText(`Intended name ${doneName}`);
+    await expect(recentA).toContainText(
+      "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
+    );
+    await expect(markAsDone(recentA)).toBeEnabled();
     expect(dashboard.claudeStopCalls().slice(before)).toEqual([
       expect.objectContaining({ argv: ["stop", shortId] }),
     ]);
-    expect((await recordOf(dashboard, storyA.sessionId))?.doneAt).toBeDefined();
+    const done = await recordOf(dashboard, storyA.sessionId);
+    expect(done?.doneAt).toBeDefined();
+    expect(done?.doneProblem).toContain("No terminal attachment is available");
   });
 });
 

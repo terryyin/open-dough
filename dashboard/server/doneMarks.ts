@@ -33,6 +33,20 @@ export function doneSessionRecord(
   };
 }
 
+// A read-only query lets confirmed Done receipts be acknowledged without a
+// write lock. Pending native work still needs the locked recovery below.
+export function reportedNativeDonePending(
+  record: LaunchRecord | undefined,
+  receipt: CompletionReport,
+): record is LaunchRecord {
+  return (
+    record !== undefined &&
+    record.completion?.receipt === receipt.receipt &&
+    doneAutomatically(record) &&
+    record.doneProblem !== undefined
+  );
+}
+
 // Runs only the current automatic intent, under the caller's attempt lock.
 // Native failures are retained for receipt retry or the developer's Done action.
 export async function markReportedSessionDone(
@@ -43,12 +57,7 @@ export async function markReportedSessionDone(
   const current = (await keptRecords(sourceId)).find(
     (entry) => entry.completion?.receipt === receipt.receipt,
   );
-  if (
-    current === undefined ||
-    !doneAutomatically(current) ||
-    current.doneProblem === undefined
-  )
-    return;
+  if (!reportedNativeDonePending(current, receipt)) return;
   await finishNativeDone(sourceId, current, machineFolder(), "reporting");
 }
 

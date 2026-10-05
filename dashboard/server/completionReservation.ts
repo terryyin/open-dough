@@ -14,6 +14,7 @@ import {
   type CompletionSubmission,
 } from "./completionAdmission.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { reportedNativeDonePending } from "./doneMarks.ts";
 
 // Both acknowledgment recovery and the locked disposition write respect
 // the same durable ordering, including newer reservations not yet applied.
@@ -40,7 +41,14 @@ export async function previousCompletion(
   report: CompletionSubmission,
   origin: string,
   delivery: string,
-): Promise<{ receipt: CompletionReceipt; applied: boolean } | undefined> {
+): Promise<
+  | {
+      receipt: CompletionReceipt;
+      applied: boolean;
+      nativeDonePending: boolean;
+    }
+  | undefined
+> {
   const retained = reportingAttempt(await keptAttempts(), report, origin);
   const duplicate = retained.completionReceipts?.find(
     (entry) => entry.delivery === delivery,
@@ -71,7 +79,13 @@ export async function previousCompletion(
       ? !completionNeedsRecordWrite(retained, record.completion, duplicate)
       : retained.outcome === undefined &&
         duplicate.state === "pending-native-session";
-  return { receipt: duplicate, applied };
+  return {
+    receipt: duplicate,
+    applied,
+    nativeDonePending:
+      retained.completion?.receipt === duplicate.receipt &&
+      reportedNativeDonePending(record, duplicate),
+  };
 }
 
 export async function reserveCompletion(
