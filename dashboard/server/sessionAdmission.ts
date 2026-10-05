@@ -16,7 +16,7 @@ import { deleteRecordRequestSchema } from "../src/deleteRecord.ts";
 import { markDoneRequestSchema } from "../src/doneMark.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { launchHost } from "./launchHosts.ts";
+import { launchHost, type LaunchHost } from "./launchHosts.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -120,9 +120,14 @@ export async function unreadReportSession(req: IncomingMessage): Promise<{
   return { source, record: { ...record, completion } };
 }
 
-export async function resultRequest(
-  url: URL,
-): Promise<{ readonly kind: "result"; readonly record: LaunchRecord }> {
+// A kept session whose host can read its native final report, with that reader.
+export type AdmittedResult = {
+  readonly kind: "result";
+  readonly record: LaunchRecord;
+  readonly read: NonNullable<LaunchHost["readResult"]>;
+};
+
+export async function resultRequest(url: URL): Promise<AdmittedResult> {
   requireExactQuery(url, ["source", "host", "session"], "result");
   const source = knownSource(url.searchParams.get("source"));
   const host = sessionHostSchema.safeParse(url.searchParams.get("host"));
@@ -131,7 +136,9 @@ export async function resultRequest(
     throw new RefusedRequest(400, "The result session is malformed.");
   const record = await keptSession(source.id, { host: host.data, sessionId });
   if (record === undefined) throw noSuchSession();
-  if (launchHost(record.session.host)?.readResult === undefined)
+  const boundary = launchHost(record.session.host);
+  const read = boundary?.readResult?.bind(boundary);
+  if (read === undefined)
     throw new RefusedRequest(400, "This host cannot read a final report.");
-  return { kind: "result", record };
+  return { kind: "result", record, read };
 }

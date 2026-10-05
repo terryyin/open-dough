@@ -119,7 +119,7 @@ export async function answer(
         });
       }
       case "result":
-        return await sessionResultResponse(request.record, res);
+        return await sessionResultResponse(request, res);
       case "review":
         return await storyReviewResponse(request, res);
       case "review-file":

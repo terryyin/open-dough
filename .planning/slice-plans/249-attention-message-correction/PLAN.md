@@ -235,7 +235,12 @@ mutation is restored; no failing test or product change is retained.
 
 ### 4. Admit a verified native reader and refuse unsupported results once
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list session-result-admission.spec.ts story-panel-replacement.spec.ts agent-completion-attention.spec.ts` → 3 passed;
+the new kept Claude case passed before and after the move with 400, no message
+in the body, and no added `thread/read`. `resultRequest` returns the bound
+reader as `AdmittedResult`; `rg -n "cannot read a final report" dashboard/server`
+finds only `sessionAdmission.ts`.
 Proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list session-result-admission.spec.ts story-panel-replacement.spec.ts agent-completion-attention.spec.ts` passes. The admission journey preserves malformed/unknown/wrong-host
 refusals and the positive Codex response. A new kept Claude record with an
 attention message is refused with 400 “This host cannot read a final report.”,

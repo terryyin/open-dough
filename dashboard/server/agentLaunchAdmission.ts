@@ -61,6 +61,7 @@ import {
   namedSession,
   resultRequest,
   unreadReportSession,
+  type AdmittedResult,
 } from "./sessionAdmission.ts";
 
 export type Admitted =
@@ -71,7 +72,7 @@ export type Admitted =
       readonly cwd?: string;
       readonly host: NonNullable<ReturnType<typeof launchHost>>;
     }
-  | { readonly kind: "result"; readonly record: LaunchRecord }
+  | AdmittedResult
   | AdmittedReview
   | AdmittedFileDiff
   | { readonly kind: "changed"; readonly attempt: string }
