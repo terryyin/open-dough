@@ -123,7 +123,13 @@ journeys do not typecheck the sources. Each behavior slice updates
 
 ### 1. Keep the review whole when Git cannot restate the mark
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-since-trunk.spec.ts` "a Git that cannot
+restate the mark shows all changes, says why, and marking starts again"
+(`olderGit` wrapper failing only `merge-tree`), the unreadable assertion in
+`story-review-since.spec.ts`, all `story-review` specs (41), three other
+`preparationPage` users (17), and `typecheck:dashboard`. Run under the
+original story's claim on its branch: admission refused this workspace.
 Proof: In `story-review-since-trunk.spec.ts`, a test whose dashboard has a
 `git` wrapper first on its PATH that fails `merge-tree` as Git before 2.45
 does (exit 128, “is not a commit”) and passes every other call to the real

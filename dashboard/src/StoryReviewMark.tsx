@@ -1,7 +1,8 @@
 // What a story's review (`./StoryReviewPanel.tsx`) says of the story's mark
 // (`./storyReview.ts`), and Mark reviewed's request to make it: the snapshot
-// shown is marked, or an earlier one is, and when -- and that the earlier
-// review cannot be compared when its snapshot cannot be read; or, heading
+// shown is marked, or an earlier one is, and when -- and why the earlier
+// review cannot be compared when its snapshot cannot be read or this
+// machine's Git cannot leave trunk's changes out of it; or, heading
 // the changes since the review, the mark they compare with and when it was
 // made, and whether trunk was integrated since: its baseline is not the
 // snapshot's.
@@ -14,6 +15,7 @@ import {
   storyReviewMarkEndpoint,
   type MarkReviewedAnswer,
   type MarkReviewedRequest,
+  type MarkUncomparable,
   type ReviewMark,
 } from "./storyReview.ts";
 
@@ -37,28 +39,39 @@ export async function requestMarkReviewed(
 }
 
 // The mark stated against the snapshot's tree: this snapshot is marked, or an
-// earlier one is, and when, and whether that earlier one can no longer be
-// read; nothing without a mark to state.
+// earlier one is, and when, and why that earlier one cannot be compared;
+// nothing without a mark to state.
 export function MarkStatement({
   mark,
   tree,
-  unreadable,
+  uncomparable,
 }: {
   readonly mark: ReviewMark | undefined;
   readonly tree: string;
-  readonly unreadable: boolean;
+  readonly uncomparable: MarkUncomparable | undefined;
 }) {
   if (mark === undefined) return null;
   const at = <Moment at={new Date(mark.markedAt)} />;
   if (mark.tree === tree) return <p>This snapshot is marked reviewed, {at}.</p>;
-  return unreadable ? (
-    <p>
-      An earlier snapshot is marked reviewed, {at}, but it can no longer be
-      read, so the earlier review cannot be compared: all changes are shown.
-    </p>
-  ) : (
-    <p>An earlier snapshot is marked reviewed, {at}.</p>
-  );
+  switch (uncomparable) {
+    case "unreadable":
+      return (
+        <p>
+          An earlier snapshot is marked reviewed, {at}, but it can no longer be
+          read, so the earlier review cannot be compared: all changes are shown.
+        </p>
+      );
+    case "not-restated":
+      return (
+        <p>
+          An earlier snapshot is marked reviewed, {at}, but this machine&apos;s
+          Git cannot leave out trunk&apos;s changes integrated since, so the
+          earlier review cannot be compared across them: all changes are shown.
+        </p>
+      );
+    case undefined:
+      return <p>An earlier snapshot is marked reviewed, {at}.</p>;
+  }
 }
 
 // The changes since the review of a snapshot from `baseline`, headed by the

@@ -1,21 +1,25 @@
 // A story review's changes since the review (`./storyReviewSnapshot.ts`):
 // the snapshot compared with its story's marked snapshot
 // (`./storyReviewMarks.ts`) restated on the review's current baseline, so
-// what came only from trunk stays out. Git merges what trunk changed from
-// the marked baseline to the current one into the marked tree, writing the
-// result as a tree object and touching no index, worktree, or ref; with an
-// unchanged baseline that is the marked tree itself. A file Git could not
-// merge -- trunk and the story both changed it inseparably -- is listed, its
-// kind and diff from the marked tree, flagged as including trunk's changes,
-// so no story change is hidden. A mark whose tree or baseline the
-// repository no longer holds -- the project was cloned anew, say -- has
-// nothing to restate, so there are no changes since the review to answer;
-// any other Git failure is the caller's.
+// what came only from trunk stays out. With an unchanged baseline that is
+// the marked tree itself, and nothing is restated. Otherwise Git merges what
+// trunk changed from the marked baseline to the current one into the marked
+// tree, writing the result as a tree object and touching no index, worktree,
+// or ref. A file Git could not merge -- trunk and the story both changed it
+// inseparably -- is listed, its kind and diff from the marked tree, flagged
+// as including trunk's changes, so no story change is hidden. The earlier
+// review cannot be compared, and the answer says why, when the repository no
+// longer holds the mark's tree or baseline -- the project was cloned anew,
+// say -- or when this machine's Git cannot restate it (Git before 2.45
+// merges no tree given with `--merge-base`); a restatement the response
+// aborted, and any Git failure outside restating, is the caller's.
 
-import type {
-  ReviewComparison,
-  ReviewedFile,
-  ReviewMark,
+import {
+  objectIdSchema,
+  type MarkUncomparable,
+  type ReviewComparison,
+  type ReviewedFile,
+  type ReviewMark,
 } from "../src/storyReview.ts";
 import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
 import { markObjects } from "./storyReviewMarks.ts";
@@ -42,9 +46,9 @@ async function holdsMark(mark: ReviewMark, call: GitCall) {
 }
 
 // The marked tree restated on the baseline, and the paths Git could not
-// merge.
+// merge; undefined when Git could not restate it at all.
 async function restatedMark(mark: ReviewMark, baseline: string, call: GitCall) {
-  const { stdout } = await runGit(
+  const output = await runGit(
     [
       "merge-tree",
       "--write-tree",
@@ -56,12 +60,17 @@ async function restatedMark(mark: ReviewMark, baseline: string, call: GitCall) {
     ],
     call,
   ).catch((error: unknown) => {
-    if (exitedOne(error)) return error;
-    throw error;
+    // Only a conflicted merge exits 1 having printed its tree first.
+    const [first] = error instanceof GitFailure ? error.stdout.split("\0") : [];
+    if (exitedOne(error) && objectIdSchema.safeParse(first).success)
+      return error;
+    if (call.signal?.aborted === true) throw error;
+    return undefined;
   });
+  if (output === undefined) return undefined;
   // The tree, then the conflicted files' names up to an empty field, then
   // Git's messages.
-  const [tree = "", ...rest] = stdout.split("\0");
+  const [tree = "", ...rest] = output.stdout.split("\0");
   const end = rest.indexOf("");
   return {
     tree,
@@ -72,8 +81,8 @@ async function restatedMark(mark: ReviewMark, baseline: string, call: GitCall) {
 const byPath = (a: ReviewedFile, b: ReviewedFile) =>
   a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
 
-// The changes since the review, or undefined when the repository no longer
-// holds the mark.
+// The changes since the review, or why the earlier review cannot be
+// compared.
 export async function changesSinceReview(
   mark: ReviewMark,
   baseline: string,
@@ -84,9 +93,17 @@ export async function changesSinceReview(
     paths?: readonly string[],
   ) => Promise<ReviewedFile[]>,
   call: GitCall,
-): Promise<ReviewComparison | undefined> {
-  if (!(await holdsMark(mark, call))) return undefined;
-  const { tree, inseparable } = await restatedMark(mark, baseline, call);
+): Promise<
+  | { readonly since: ReviewComparison }
+  | { readonly markUncomparable: MarkUncomparable }
+> {
+  if (!(await holdsMark(mark, call))) return { markUncomparable: "unreadable" };
+  const restatement =
+    mark.baseline === baseline
+      ? { tree: mark.tree, inseparable: new Set<string>() }
+      : await restatedMark(mark, baseline, call);
+  if (restatement === undefined) return { markUncomparable: "not-restated" };
+  const { tree, inseparable } = restatement;
   const restated = await changedFrom(tree);
   // A file renamed from an inseparable one is compared from the marked tree
   // with it, so its content is not hidden.
@@ -104,5 +121,7 @@ export async function changesSinceReview(
           ...file,
           includesTrunkFrom: mark.tree,
         }));
-  return { from: tree, files: [...separated, ...flagged].sort(byPath) };
+  return {
+    since: { from: tree, files: [...separated, ...flagged].sort(byPath) },
+  };
 }

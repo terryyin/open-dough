@@ -108,24 +108,33 @@ keeps the comparison shown, of the new snapshot; every opening starts on the
 changes since the review. When the repository no longer holds the marked
 tree or its baseline (the project was cloned anew, say; checked with
 `git rev-parse --verify --quiet` before restating), the earlier review cannot
-be compared: the answer carries the mark and `markUnreadable` in place of
-`since`, and the review says an earlier snapshot is marked but can no longer
-be read, and shows all changes without the switch. Mark reviewed then starts
-again from the snapshot shown. Any other Git failure still answers that the
-workspace's changes could not be read.
+be compared: the answer carries the mark and `markUncomparable: "unreadable"`
+in place of `since`, and the review says an earlier snapshot is marked but can
+no longer be read, and shows all changes without the switch. Mark reviewed
+then starts again from the snapshot shown.
 
 Trunk merged into the story after the mark stays out of the changes since the
-review, as it does from all changes (`server/storyReviewSince.ts`). The
-marked tree is restated on the current baseline by
+review, as it does from all changes (`server/storyReviewSince.ts`). With an
+unchanged baseline the marked tree is compared directly and nothing is
+restated. Otherwise the marked tree is restated on the current baseline by
 `git merge-tree --write-tree --name-only -z --merge-base=<marked baseline>
 <marked tree> <current baseline>`, which writes a tree object and touches no
-index, worktree, or ref; its first field is the restated tree, and with an
-unchanged baseline it is the marked tree itself. A story slice that landed on
-trunk after the mark is therefore not listed. Each file Git names as
+index, worktree, or ref; its first field is the restated tree. A story slice
+that landed on trunk after the mark is therefore not listed. Each file Git names as
 conflicted, one trunk and the story both changed in a way it cannot separate,
 is listed with its kind and diff from the marked tree to the snapshot tree
 (the file's `includesTrunkFrom`), so no story change is hidden; its control's
 name, its row, and its diff heading say it “includes trunk's changes”. When
 the snapshot's baseline differs from the mark's, the heading says “Trunk was
-integrated since the mark”. Restating needs Git 2.45 or later, which merges
-trees given with `--merge-base`.
+integrated since the mark”. Only an exit of 1 whose first field is an object
+ID is a conflicted restatement. Restating needs Git 2.45 or later, which
+merges trees given with `--merge-base`; when this machine's Git cannot restate
+the mark (an older one says the tree is not a commit), the review is not
+failed: the answer carries the mark and `markUncomparable: "not-restated"` in
+place of `since`, and the review says this machine's Git cannot leave out
+trunk's changes integrated since, so the earlier review cannot be compared
+across them, and shows all changes without the switch. Mark reviewed then
+starts again from the snapshot shown, on whose unchanged baseline the next
+review needs no restating. A restatement the closed response aborted still
+fails, and any Git failure outside restating still answers that the
+workspace's changes could not be read.

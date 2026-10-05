@@ -14,8 +14,9 @@
 // and the same snapshot compared with the marked tree restated on the
 // baseline (`./storyReviewSince.ts`): the changes since the review,
 // leaving out what came only from trunk.
-// A mark whose snapshot the repository no longer holds cannot be compared:
-// the answer says so beside all changes.
+// A mark whose snapshot the repository no longer holds, or that this
+// machine's Git cannot restate on the baseline, cannot be compared: the
+// answer says why beside all changes.
 // A file diff of the snapshot is Git's unified diff of that file from its
 // *from* tree in the comparison shown -- the baseline, the restated, or the
 // marked tree -- to the snapshot's tree, detecting a rename against its old
@@ -149,16 +150,13 @@ async function storyReviewSnapshot(
         ]),
       );
     const files = await changedFrom(baseline);
-    const since =
-      mark === undefined
-        ? undefined
-        : await changesSinceReview(mark, baseline, changedFrom, call);
     const marked =
       mark === undefined
         ? {}
-        : since === undefined
-          ? { mark, markUnreadable: true as const }
-          : { mark, since };
+        : {
+            mark,
+            ...(await changesSinceReview(mark, baseline, changedFrom, call)),
+          };
     return {
       kind: "snapshot",
       workspace: shown,

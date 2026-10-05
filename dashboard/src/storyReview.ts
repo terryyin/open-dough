@@ -120,6 +120,12 @@ export const reviewComparisonSchema = z.object({
 });
 export type ReviewComparison = z.infer<typeof reviewComparisonSchema>;
 
+// Why the earlier review cannot be compared: the repository no longer holds
+// the mark's tree or baseline, or this machine's Git cannot restate the
+// marked tree on trunk's changes since.
+export const markUncomparableSchema = z.enum(["unreadable", "not-restated"]);
+export type MarkUncomparable = z.infer<typeof markUncomparableSchema>;
+
 export const storyReviewSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("snapshot"),
@@ -144,9 +150,8 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     // file's `includesTrunkFrom`, with `tree`. Trunk was integrated since the
     // mark exactly when the mark's baseline differs from `baseline`.
     since: reviewComparisonSchema.optional(),
-    // With a mark whose tree or baseline the repository no longer holds, in
-    // place of `since`: the earlier review cannot be compared.
-    markUnreadable: z.literal(true).optional(),
+    // With a mark that cannot be compared, in place of `since`: why.
+    markUncomparable: markUncomparableSchema.optional(),
   }),
   z.object({
     kind: z.literal("unavailable"),

@@ -157,7 +157,7 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
 
   const gone = await reopenReview(page, card);
   expect(gone.since).toBeUndefined();
-  expect(gone.markUnreadable).toBe(true);
+  expect(gone.markUncomparable).toBe("unreadable");
   await expect(review).toContainText(
     "but it can no longer be read, so the earlier review cannot be compared: all changes are shown.",
   );

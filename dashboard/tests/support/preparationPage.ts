@@ -32,7 +32,7 @@ export const test = base.extend<{
     await use(native);
     await native?.close();
   },
-  dashboard: async ({ github, origin, codexProtocol }, use) => {
+  dashboard: async ({ github, origin, codexProtocol, pathPrefix }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
@@ -41,6 +41,7 @@ export const test = base.extend<{
       projectFolders: ["open-dough"],
       launchTimeoutMs: launchWaitMs,
       codexProtocol,
+      ...(pathPrefix === undefined ? {} : { pathPrefix }),
     });
     await use(server);
     await server.close();

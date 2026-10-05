@@ -5,9 +5,21 @@
 // `src/c.ts`, and changes `src/b.ts`. The review lists `src/b.ts` and
 // `src/c.ts` only and says trunk was integrated since the mark; `src/c.ts`,
 // which Git cannot separate from trunk's change, is flagged as including
-// trunk's changes and diffed from the marked snapshot.
+// trunk's changes and diffed from the marked snapshot. On a Git that cannot
+// restate the mark -- one before 2.45, refusing a tree given with
+// `--merge-base` -- the review still opens on all changes, says why the
+// earlier review cannot be compared, and Mark reviewed starts again from
+// there; with an unchanged baseline nothing is restated.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
@@ -160,3 +172,78 @@ test("a marked story whose baseline is unchanged does not say trunk was integrat
     .poll(() => treeRows(review.getByRole("list", { name: "1 changed file" })))
     .toEqual(["src", "  b.ts"]);
 });
+
+// The dashboard's Git as one before 2.45: `merge-tree` refuses the marked
+// tree as not a commit; every other call reaches the real Git.
+const olderGit = test.extend({
+  // Playwright's fixture API requires the empty destructuring pattern.
+  // eslint-disable-next-line no-empty-pattern
+  pathPrefix: async ({}, use) => {
+    const bin = mkdtempSync(path.join(tmpdir(), "dough-older-git-"));
+    const realGit = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
+    const wrapper = path.join(bin, "git");
+    writeFileSync(
+      wrapper,
+      [
+        "#!/bin/sh",
+        'if [ "$1" = merge-tree ]; then',
+        '  echo "fatal: $6 is not a commit" >&2',
+        "  exit 128",
+        "fi",
+        `exec '${realGit}' "$@"`,
+        "",
+      ].join("\n"),
+    );
+    chmodSync(wrapper, 0o755);
+    await use([bin]);
+    rmSync(bin, { recursive: true, force: true });
+  },
+});
+
+olderGit(
+  "a Git that cannot restate the mark shows all changes, says why, and marking starts again",
+  async ({ page, dashboard, origin }) => {
+    const story = markedWorktree(origin);
+    await keepLaunchRecord(dashboard, story.workspace);
+    const card = await openBacklog(page, origin);
+    await openReview(page, card);
+    const review = reviewRegion(page);
+    await markReviewed(review);
+
+    // (a) All changes, why the earlier review cannot be compared, no switch.
+    integrateTrunk(origin, story);
+    const all = await reopenReview(page, card);
+    expect(all.since).toBeUndefined();
+    expect(all.markUncomparable).toBe("not-restated");
+    expect(all.files.map(({ path: file }) => file)).toEqual([
+      "src/b.ts",
+      "src/c.ts",
+    ]);
+    await expect
+      .poll(() =>
+        treeRows(review.getByRole("list", { name: "2 changed files" })),
+      )
+      .toEqual(["src", "  b.ts", "  c.ts"]);
+    await expect(review).toContainText(
+      "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
+    );
+    await expect(
+      review.getByRole("radiogroup", { name: "Comparison" }),
+    ).toHaveCount(0);
+    await expect(review).not.toContainText("since the review");
+
+    // (b) Marked again, the unchanged baseline needs no restating.
+    await markReviewed(review);
+    expect(keptStoryAMark(dashboard)?.tree).toBe(all.tree);
+    write(story.workspace, "src/b.ts", sixth("b", "b six"));
+    const since = await reopenReview(page, card);
+    expect(since.markUncomparable).toBeUndefined();
+    expect(since.since?.from).toBe(all.tree);
+    await expectSinceTheReview(review, keptStoryAMark(dashboard));
+    await expect
+      .poll(() =>
+        treeRows(review.getByRole("list", { name: "1 changed file" })),
+      )
+      .toEqual(["src", "  b.ts"]);
+  },
+);
