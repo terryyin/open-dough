@@ -27,6 +27,7 @@ for (const closure of [
   }) => {
     test.setTimeout(120000);
     if (native === undefined) throw new Error("Missing native fixture");
+    const nativeSession = native;
     const accepted = await launch(dashboard, {
       source: "open-dough",
       host: "codex",
@@ -114,6 +115,11 @@ for (const closure of [
       async (final) => {
         expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined(); // Even actual retirement is not success reporting.
         const before = native.calls.length;
+        if (closure === "Trunk Wrap Up")
+          nativeSession.renameError = {
+            code: -32000,
+            message: "Native rename refused.",
+          };
         const receipt = JSON.parse(
           (
             await exec(
@@ -139,14 +145,22 @@ for (const closure of [
           native.calls
             .slice(before)
             .filter((call) =>
-              [
-                "turn/interrupt",
-                "thread/name/set",
-                "turn/start",
-                "thread/resume",
-              ].includes(call.method),
+              ["turn/interrupt", "turn/start", "thread/resume"].includes(
+                call.method,
+              ),
             ),
         ).toEqual([]);
+        expect(
+          native.calls
+            .slice(before)
+            .filter((call) => call.method === "thread/name/set")
+            .map((call) => call.params),
+        ).toEqual([
+          {
+            threadId: native.threadId,
+            name: `done-${record.session.name}`,
+          },
+        ]);
         await publishCommittedOrigin(page, {
           repoDir: origin.origin,
           revision: final,
@@ -158,11 +172,54 @@ for (const closure of [
           .filter({ hasText: native.threadId });
         await expect(recent).toContainText("Done");
         await expect(recent).toContainText("Native session is still working");
+        if (closure === "Trunk Wrap Up") {
+          expect(stored(dashboard.home)[0]?.doneProblem).toContain(
+            "Native rename refused.",
+          );
+          await expect(recent).toContainText("Native rename refused.");
+          await expect(
+            recent.getByRole("button", { name: "Mark as done", exact: true }),
+          ).toBeVisible();
+          nativeSession.renameError = undefined;
+          const retry = () =>
+            rawRequest({
+              url: `${dashboard.baseURL}/__agent-launch/completion`,
+              method: "POST",
+              headers: {
+                Origin: dashboard.origin,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                source: "open-dough",
+                host: "codex",
+                reference: context.reference,
+                delivery: receipt.delivery,
+                outcome: "completed",
+                message: "",
+              }),
+            });
+          expect(JSON.parse((await retry()).body)).toEqual(receipt);
+          expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();
+          const afterRetry = native.calls.length;
+          expect(JSON.parse((await retry()).body)).toEqual(receipt);
+          expect(
+            native.calls
+              .slice(afterRetry)
+              .filter((call) => call.method === "thread/name/set"),
+          ).toEqual([]);
+          expect(
+            native.calls
+              .slice(before)
+              .filter((call) => call.method === "turn/interrupt"),
+          ).toEqual([]);
+        }
+        expect(native.names.get(native.threadId)).toBe(
+          `done-${record.session.name}`,
+        );
         await expect(recent.locator(".session-attention-message")).toHaveCount(
           0,
         );
         // Quiet completion has no explicit text; the native final report remains independently readable.
-        const nativeSession = native;
         nativeSession.history = [
           {
             id: "native-final",

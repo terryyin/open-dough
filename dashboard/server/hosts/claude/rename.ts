@@ -4,6 +4,7 @@ import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import type { SessionReference } from "../../../src/sessionReference.ts";
 import { doneSessionName } from "../../../src/doneMark.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
+import { HostOperationFailure } from "../../hostLaunch.ts";
 import { claudeSessions } from "./runtime.ts";
 
 const defaultRenameWaitMs = 5_000;
@@ -36,14 +37,18 @@ export async function renameInClaudeCode(
   const { sessionId } = record.session;
   const name = doneSessionName(record.session);
   if (controlCharacter.test(name)) {
-    return;
+    throw new HostOperationFailure(
+      "The native name contains terminal control characters.",
+    );
   }
   for (const [index, keys] of ["\u0015", `/rename ${name}`, "\r"].entries()) {
     if (index > 0) {
       await delay(keyPauseMs);
     }
     if (!type(record.session, keys)) {
-      return;
+      throw new HostOperationFailure(
+        "No terminal attachment is available to confirm native rename.",
+      );
     }
   }
   const deadline = Date.now() + renameWaitMs();
@@ -61,7 +66,9 @@ export async function renameInClaudeCode(
       return;
     }
     if (Date.now() + listingPollMs >= deadline) {
-      return;
+      throw new HostOperationFailure(
+        "The native rename could not be confirmed.",
+      );
     }
     await delay(listingPollMs);
   }

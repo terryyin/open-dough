@@ -78,8 +78,14 @@ test.describe("marking a card's session done", () => {
       const entry = inRecent("Execution");
       await expect(sessionStateOf(entry)).toHaveText("Done");
       await expect(entry).toContainText(
-        `Named done-Open Dough · Execution · ${readyStory}`,
+        `Intended name done-Open Dough · Execution · ${readyStory}`,
       );
+      await expect(entry).toContainText(
+        "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
+      );
+      await expect(
+        entry.getByRole("button", { name: "Mark as done" }),
+      ).toBeEnabled();
       await expect(
         entry.getByRole("button", { name: "Open terminal" }),
       ).toHaveCount(0);

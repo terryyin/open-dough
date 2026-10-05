@@ -1,4 +1,5 @@
 // Binding takes the attempt lock before the record lock, like completion delivery.
+import { doneSessionRecord, markReportedSessionDone } from "./doneMarks.ts";
 import { completedWithoutAttention } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
@@ -48,6 +49,16 @@ export async function keepRecord(
         existing === undefined
           ? (completion ?? record.completion)
           : (existing.completion ?? record.completion);
+      const bound =
+        existing === undefined
+          ? reported !== undefined && completedWithoutAttention(reported)
+            ? doneSessionRecord(record, reported.receivedAt)
+            : record
+          : {
+              ...record,
+              doneAt: existing.doneAt,
+              doneProblem: existing.doneProblem,
+            };
       return {
         ...kept,
         [sourceId]: [
@@ -57,24 +68,16 @@ export async function keepRecord(
               : sessionKey(entry.session) !== sessionKey(record.session),
           ),
           {
-            ...record,
+            ...bound,
             completion: reported,
             dispositionChangedAt:
               existing?.dispositionChangedAt ?? record.dispositionChangedAt,
             reportRead: existing?.reportRead ?? record.reportRead,
-            doneProblem:
-              existing === undefined
-                ? record.doneProblem
-                : existing.doneProblem,
-            doneAt:
-              existing !== undefined && "session" in existing
-                ? existing.doneAt
-                : reported !== undefined && completedWithoutAttention(reported)
-                  ? reported.receivedAt
-                  : record.doneAt,
           },
         ],
       };
     });
+    if (completion !== undefined)
+      await markReportedSessionDone(sourceId, completion);
   });
 }

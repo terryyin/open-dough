@@ -1,4 +1,5 @@
 // Public launch/creation record operations use one machine document and retention rule.
+import { doneAutomatically } from "../src/completionReport.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
@@ -108,9 +109,11 @@ export async function setRecordDoneAt(
   options: {
     readonly doneProblem?: string;
     readonly expectedDoneAt?: string;
+    readonly automatic?: boolean;
   } = {},
 ): Promise<LaunchRecord | undefined> {
   return changeSessionRecord(sourceId, session, (record) => {
+    if (options.automatic && !doneAutomatically(record)) return record;
     if (
       options.expectedDoneAt !== undefined &&
       record.doneAt !== options.expectedDoneAt
@@ -119,7 +122,9 @@ export async function setRecordDoneAt(
     }
     const next: LaunchRecord = {
       ...record,
-      dispositionChangedAt: new Date().toISOString(),
+      dispositionChangedAt: options.automatic
+        ? record.dispositionChangedAt
+        : new Date().toISOString(),
     };
     delete next.doneAt;
     delete next.doneProblem;

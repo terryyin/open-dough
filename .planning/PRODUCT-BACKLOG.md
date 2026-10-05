@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Automatic and manual completion use one Mark as done action](seeds/SEED-108-cohesive-session-done.md#cohesive-session-done) — SEED-108#cohesive-session-done
 - [Dashboard shows recently done stories with their sessions](seeds/SEED-107-dashboard-recently-done.md#recently-done) — SEED-107#recently-done ([plan](slice-plans/253-dashboard-recently-done/PLAN.md))
 - [Dashboard columns page horizontally instead of wrapping in narrower windows](seeds/SEED-106-dashboard-paged-columns.md#paged-dashboard-columns) — SEED-106#paged-dashboard-columns ([plan](slice-plans/225-paged-dashboard-columns/PLAN.md))
 
