@@ -3,8 +3,8 @@
 **Identity:** SEED-103#attention-message-correction
 **Source:** [correction story](../../seeds/SEED-103-attention-message-on-story-card.md#attention-message-correction),
 a bounded retrospective correction of
-[SEED-103#attention-message-on-story-card](../../seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card)
-([plan 248](../248-attention-message-on-story-card/PLAN.md)), reviewed
+SEED-103#attention-message-on-story-card (`d60da8d0:.planning/seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card`, plan
+`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), reviewed
 commits `0b3d3c78`, `fa0a60f5`, and `58ea4c37` on base `e8a1ef8a`.
 **Prepared:** 2026-10-05. Planning only, in the story's execution worktree.
 

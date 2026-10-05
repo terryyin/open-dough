@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "identity": "SEED-103#attention-message-on-story-card",
-  "mode": "story-branch",
-  "branch": "claude/read-and-mark-attention-messages-read-directly-o",
-  "host": "claude"
-}

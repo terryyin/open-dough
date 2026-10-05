@@ -208,7 +208,7 @@ question does when its state becomes known.
   disabled while the question is open.
 - The question is announced through the group's label or the entry's existing
   status role; no new announcement mechanism is added.
-- If [attention messages on the story card](../../seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card)
+- If attention messages on the story card (`d60da8d0:.planning/seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card`)
   lands first, the report panel is gone and slice 3 covers the terminal panel
   only. Mark as done then stands beside an unread message; the rule is
   unchanged and an unread report alone does not ask.

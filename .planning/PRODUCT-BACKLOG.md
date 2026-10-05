@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Confirm Mark as done when the session's intended work is not complete](seeds/SEED-104-confirm-mark-as-done.md#confirm-mark-as-done) — SEED-104#confirm-mark-as-done ([plan](slice-plans/246-confirm-mark-as-done/PLAN.md))
-- [Read and mark attention messages read directly on the story card](seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card) — SEED-103#attention-message-on-story-card ([plan](slice-plans/248-attention-message-on-story-card/PLAN.md))
 
 ## Backlog list
 

@@ -673,7 +673,7 @@ Follow-up: Open, unqueued.
   - Observed effect: no wrong-checkout edit; one added caution per delegation.
   - Inference: Qualified. A delegated agent that reads the plan without that caution could work in the stale preparation workspace if it still exists. One sample.
 
-- Execution: `SEED-103#attention-message-on-story-card` / plan 248, first related implementation commit `0b3d3c78`
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
   - Timestamp: unknown (slice 3 implementation, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
   - Tool: Claude Code (delegated implementation agent)
   - Model: claude-opus-5-5
@@ -720,7 +720,7 @@ Plan 248 slice 3 removed the side panel's attention-message branch. That branch 
 
 ### Occurrences
 
-- Execution: `SEED-103#attention-message-on-story-card` / plan 248, first related implementation commit `0b3d3c78`
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
   - Timestamp: unknown (slice 3, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -733,7 +733,7 @@ Plan 248 slice 3 removed the side panel's attention-message branch. That branch 
 
 ### Occurrences
 
-- Execution: `SEED-103#attention-message-on-story-card` / plan 248, first related implementation commit `0b3d3c78`
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
   - Timestamp: unknown (slice 2, before `fa0a60f5` committed 2026-10-05T11:15:30+09:00)
   - Tool: Claude Code (delegated implementation and refactor agents)
   - Model: claude-opus-5-5

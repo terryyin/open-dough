@@ -77,7 +77,7 @@ single misplaced click.
   Done on a quiet completion, alerts, Mark as read, or Delete record.
 
 **Boundary assumption:** The rule holds whether or not
-[attention messages on the story card](SEED-103-attention-message-on-story-card.md#attention-message-on-story-card)
+attention messages on the story card (`d60da8d0:.planning/seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card`)
 is delivered first. An unread report does not by itself ask: a session with an
 unread `completed` report that is not working or waiting is marked done at
 once, which also marks the report read as today.
