@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ivan-chan",
-  "email": "ivan-chan@example.org",
-  "identity": "SEED-100#dashboard-specs-deterministic",
-  "mode": "story-branch",
-  "branch": "claude/four-intermittently-failing-dashboard-specs-pass-2",
-  "host": "claude"
-}

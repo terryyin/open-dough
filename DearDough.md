@@ -511,7 +511,7 @@ Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are 
   - Tool: Claude Code (delegated implementation agent)
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 254 premise "no `expectSettledPage` caller holds the sessions read", from a grep of the 17 files naming the helper; extending the helper then failed `session-sidebar-reading.spec.ts:43`, which reaches it through `openStoryStagesJourney().settled` (`storyStagesPage.ts:37`) while holding the read. The slice took its planned fallback (plan 254 slice 1 learning and corrected premise row).
+  - Evidence: plan 254 premise "no `expectSettledPage` caller holds the sessions read", from a grep of the 17 files naming the helper; extending the helper then failed `session-sidebar-reading.spec.ts:43`, which reaches it through `openStoryStagesJourney().settled` (`storyStagesPage.ts:37`) while holding the read. The slice took its planned fallback (slice 1 learning and corrected premise row in `c2b6ffba:.planning/slice-plans/254-dashboard-specs-deterministic/PLAN.md`).
   - Observed effect: no CI failure; one helper edit, a failing consumer run, and a revert inside the slice.
   - Inference: Qualified. Fourth occurrence: the sweep named the helper, while the consumer reached it through a wrapper. The plan's written fallback kept the cost to minutes.
 
