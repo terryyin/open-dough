@@ -1,14 +1,10 @@
-import {
-  completionLabel,
-  doneAutomatically,
-  hasCompletionMessage,
-} from "./completionReport.ts";
+import { doneAutomatically, hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { hostName, marksDone } from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in Recent sessions.
 // Its native observations and supported controls stay distinct from story facts.
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   launchSubject,
   workspaceWords,
@@ -22,8 +18,9 @@ import {
   type SessionTone,
 } from "./sessionShown.ts";
 import { LaunchSession } from "./LaunchSession.tsx";
+import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession, usePageSessions } from "./pageSessions.ts";
-import { CardActions, RecentActions } from "./sessionRecordActions.tsx";
+import { DeleteRecord, MarkDone } from "./sessionRecordActions.tsx";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -64,6 +61,9 @@ export function SessionEntry({
   const current = shown?.key === sessionKey(record.session);
   const inResult = current && shown.kind === "result";
   const inTerminal = current && shown.kind === "terminal";
+  // The entry's status line, which says what its last mark or delete came to;
+  // nothing clears it but the next control asking.
+  const [said, say] = useState<string | undefined>();
 
   useEffect(() => {
     if (takesFocus === true) entry.current?.focus();
@@ -87,10 +87,11 @@ export function SessionEntry({
       )}
       {stateWords}
       {hasCompletionMessage(record.completion) && (
-        <div className="session-attention-message">
-          <p>{completionLabel(record.completion)}</p>
-          <pre>{record.completion.message}</pre>
-        </div>
+        <SessionAttentionMessage
+          record={record}
+          report={record.completion}
+          say={say}
+        />
       )}
       {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
       {inResult && <p className="shown-in-terminal">Shown in final report</p>}
@@ -120,11 +121,11 @@ export function SessionEntry({
         </p>
       )}
       <LaunchSession record={record} />
-      {onCard ? (
-        <CardActions record={record} />
-      ) : (
-        <RecentActions record={record} />
-      )}
+      {onCard && <MarkDone record={record} say={say} />}
+      <DeleteRecord record={record} say={say} />
+      <p role="status" className="launch-problem">
+        {said}
+      </p>
     </article>
   );
 }

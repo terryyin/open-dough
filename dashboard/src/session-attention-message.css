@@ -1,0 +1,40 @@
+/* A session entry's message part: its completion label is the disclosure
+   button that leads with the frame's turning chevron (./frame-controls.css);
+   while the report is unread the part stays expanded and the button does not
+   act. */
+.session-attention-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-1) 0 0;
+  cursor: pointer;
+}
+
+.session-attention-heading:hover:not([aria-disabled="true"]) {
+  background: var(--hover);
+}
+
+.session-attention-heading[aria-disabled="true"] {
+  cursor: default;
+}
+
+.session-attention-heading .icon {
+  width: var(--label-icon-size);
+  height: var(--label-icon-size);
+}
+
+/* A long message stays within the part's height and scrolls inside it, so
+   Mark as read and the rest of the entry stay in view. */
+.session-attention-message pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  max-height: 12em;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

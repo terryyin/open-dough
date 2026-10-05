@@ -18,6 +18,7 @@ import { markDone } from "./support/markDone.ts";
 import { occupyRunner } from "./support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
+import { messagePartOf } from "./support/sessionMessagePart.ts";
 
 const exec = promisify(execFile);
 
@@ -106,18 +107,16 @@ test("Cursor installed report offers local Done without a native stop capability
     origin,
     cursor,
   });
-  await expect(card.locator(".session-attention-message pre")).toHaveText(
-    readFileSync(message, "utf8"),
-  );
+  const part = messagePartOf(card);
+  await expect(part.text).toHaveText(readFileSync(message, "utf8"));
+  // The message is read on the entry; the side panel offers the terminal only.
   await expect(
     card.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
-  await expect(
-    card.getByRole("button", { name: "Read attention message" }),
-  ).toBeVisible();
+  await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
   const before = cursor.calls().length;
   const listed = cardSessions(card);
-  await card.getByRole("button", { name: "Mark as read" }).click();
+  await part.markRead.click();
   // Read, the session stays open on its card, now offering Mark as done.
   await expect(
     card.getByRole("button", { name: "Mark as done" }),
@@ -161,7 +160,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
     origin,
     cursor,
   });
-  await card.getByRole("button", { name: "Mark as read" }).click();
+  await messagePartOf(card).markRead.click();
   await expect(card.locator(".session-unread-report")).toHaveCount(0);
   const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(read?.reportRead).toBe(receipt.receipt);
@@ -233,7 +232,4 @@ test("Cursor explicit quiet completion is durable local Done without native stop
     .filter({ hasText: cursor.sessionId });
   await expect(recent).toContainText("Done");
   await expect(recent.locator(".session-attention-message")).toHaveCount(0);
-  await expect(
-    recent.getByRole("button", { name: "Read attention message" }),
-  ).toHaveCount(0);
 });

@@ -22,6 +22,7 @@ import {
 } from "./support/reportedLaunch.ts";
 import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
+import { markReportRead } from "./support/sessionMessagePart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
@@ -92,7 +93,7 @@ test("in the terminal panel, a session with a read completed report that reads R
   await story.report();
   dashboard.claudeSessionBecomes(story.sessionId, "done-live");
   const entry = cardSessions(await openCard(page, origin));
-  await entry.getByRole("button", { name: "Mark as read" }).click();
+  await markReportRead(entry);
   await expect(sessionStateOf(entry)).toHaveText("Ready for review");
   const shortId = shortIdOf(dashboard, story.sessionId);
   const before = dashboard.claudeStopCalls().length;

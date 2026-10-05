@@ -1,4 +1,3 @@
-import { hasCompletionMessage } from "./completionReport.ts";
 // Passive final report: changing selection cancels the previous identity's read.
 // Mark as done asks first, below the header, as the terminal's does.
 import { useEffect, useRef, useState } from "react";
@@ -14,8 +13,9 @@ import { workspaceLimitation } from "./sessionAccess.ts";
 import { closeShortcutLabel, usePanelCloseShortcut } from "./PanelControls.tsx";
 import {
   doneAnswers,
+  notMarkedDone,
+  useDoneMark,
   usePageSessions,
-  useReportOrDoneMark,
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
@@ -31,34 +31,20 @@ export function SessionResultPanel({
   onMarkDone,
 }: {
   readonly session: SessionRequest;
-  // The session as the page reads it now, which its marks decide by.
+  // The session as the page reads it now, which Mark as done decides by.
   readonly current: LaunchWithState;
   readonly onClose: () => void;
   readonly onMarkDone: MarkSessionDone;
 }) {
   const { record } = session;
-  const { hostOperations, markRead } = usePageSessions();
+  const { hostOperations } = usePageSessions();
   const [result, setResult] = useState<SessionResult | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
-  const { label, asksFirst, marking, markingSaid, notMarkedSaid, mark } =
-    useReportOrDoneMark(current);
-  const asking = useAskInPlace(asksFirst, () =>
-    mark(
-      () => markRead(session),
-      () => onMarkDone(session),
-    ),
-  );
+  const { asksFirst, marking, mark } = useDoneMark(current);
+  const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
   usePanelCloseShortcut(onClose);
   useEffect(() => {
-    if (hasCompletionMessage(record.completion)) {
-      setResult({
-        kind: "available",
-        turnId: record.completion.receipt,
-        text: record.completion.message,
-      });
-      return;
-    }
     const controller = new AbortController();
     let current = true;
     setResult(undefined);
@@ -91,7 +77,6 @@ export function SessionResultPanel({
       controller.abort();
     };
   }, [
-    record.completion,
     record.request.source,
     record.session.host,
     record.session.sessionId,
@@ -126,7 +111,7 @@ export function SessionResultPanel({
                   asking.press(event.currentTarget);
                 }}
               >
-                {label}
+                Mark as done
               </button>
             )}
           <button
@@ -161,8 +146,8 @@ export function SessionResultPanel({
           </code>
         </p>
         <div role="status">
-          {marking === "marking" && <p>{markingSaid}</p>}
-          {marking === "not-marked" && <p>{notMarkedSaid}</p>}
+          {marking === "marking" && <p>Marking as done…</p>}
+          {marking === "not-marked" && <p>{notMarkedDone}</p>}
           {result === undefined && <p>Reading final report…</p>}
           {result?.kind === "unavailable" && (
             <>

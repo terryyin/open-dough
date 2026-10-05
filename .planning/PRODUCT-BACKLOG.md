@@ -14,12 +14,12 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Read and mark attention messages read directly on the story card](seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card) — SEED-103#attention-message-on-story-card ([plan](slice-plans/248-attention-message-on-story-card/PLAN.md))
 - [Review changes in a full-height panel with compact context and independent file navigation](seeds/SEED-102-review-changes-ui.md#full-height-review-changes) — SEED-102#full-height-review-changes ([plan](slice-plans/247-full-height-review-changes/PLAN.md))
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review ([plan](slice-plans/245-review-changes-since-last-review/PLAN.md))
 
 ## Backlog list
 
+- [Correct the attention message story's wording and proof](seeds/SEED-103-attention-message-on-story-card.md#attention-message-correction) — SEED-103#attention-message-correction
 - [Dashboard specs pass CI on a revision that changes no code](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) — SEED-100#dashboard-specs-pass-unchanged-code
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
 - [Optional process retrospective for Dough Land and Story Wrap Up](seeds/SEED-105-land-and-wrap-up-process-retrospective.md#land-and-wrap-up-process-retrospective) — SEED-105#land-and-wrap-up-process-retrospective
