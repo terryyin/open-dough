@@ -203,7 +203,12 @@ native-report fixture; no product code changes or later slices are needed.
 
 ### 3. Prove that a newer report ends the old expansion choice
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list session-unread-report.spec.ts session-unread-report-message.spec.ts` → 4 passed;
+the journey expands read message A by hand before the newer report, which is
+expanded while unread and collapses after Mark as read. With the receipt check
+replaced by `chosen !== undefined`, that collapse assertion failed; the
+production expression was restored unchanged.
 Proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list session-unread-report.spec.ts session-unread-report-message.spec.ts` passes. The same session's read message A is manually expanded before
 report B arrives; B is expanded while unread and collapses after Mark as
 read. The existing message-part journey retains pointer/keyboard disclosure

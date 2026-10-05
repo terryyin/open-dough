@@ -205,8 +205,11 @@ test("an unread report is its own mark beside the session's native reading", asy
   );
   await expect(cardA.locator(".card-unread-reports")).toHaveCount(0);
 
-  // A newer report for the session is unread again: its part expanded under
-  // its own label, with Mark as read.
+  // The read message, expanded by hand, then a newer report for the session:
+  // unread again, its part expanded under its own label, with Mark as read;
+  // once read it collapses, the choice made on the older report ended.
+  await messageA.heading.click();
+  await expectExpanded(messageA, "Completed with attention", reportedMessage);
   await storyA.report({ outcome: "unfinished", message: newerMessage });
   await passOnePace();
   await expect(cardA.locator(".session-unread-report")).toHaveText(
