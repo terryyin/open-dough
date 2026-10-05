@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Read and mark attention messages read directly on the story card](seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card) — SEED-103#attention-message-on-story-card ([plan](slice-plans/248-attention-message-on-story-card/PLAN.md))
 - [Prove the Mark as done rule for every reading it reads](seeds/SEED-104-confirm-mark-as-done.md#prove-mark-as-done-rule) — SEED-104#prove-mark-as-done-rule ([plan](slice-plans/249-prove-mark-as-done-rule/PLAN.md))
-- [Review changes in a full-height panel with compact context and independent file navigation](seeds/SEED-102-review-changes-ui.md#full-height-review-changes) — SEED-102#full-height-review-changes ([plan](slice-plans/247-full-height-review-changes/PLAN.md))
 
 ## Backlog list
 
