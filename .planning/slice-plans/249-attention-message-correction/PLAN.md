@@ -178,7 +178,11 @@ observation are corrected; every later correction can remain undone.
 
 ### 2. Make Story B's fixture observe only the native final report
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list story-panel-replacement.spec.ts story-panel-switching.spec.ts` → 2 passed
+with `storyBLaunchRecord` holding no completion; the replacement journey's panel
+shows `storyBReport` from `keepFinalReport`'s native history, review replaces it,
+and `doneAt` stays undefined. Only the two panel specs consume Story B.
 Proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list story-panel-replacement.spec.ts story-panel-switching.spec.ts` passes with Story B holding no completion. The replacement journey reads
 `storyBReport` through Codex's native-history fixture into the panel, returns
 to review, and leaves the session unmarked done; the switching journey still

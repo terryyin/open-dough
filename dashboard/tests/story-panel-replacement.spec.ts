@@ -1,11 +1,12 @@
 // The page's one side panel replaces one story's review with another's, and a
 // review with a final report, of Story A's and Story B's real worktrees
 // (./support/storyPanels.ts) and kept launch records, Story B's Codex session
-// having ended with a final report and lost its saved workspace. A review still being read when
-// another story's review opens never answers the new one; reading the report
-// neither continues nor marks its session done, and reopening a review reads
-// a fresh snapshot. Asking again for the review shown takes the keyboard to
-// it and keeps its snapshot; the real `claude` is never reached.
+// having lost its saved workspace, so its final report is Codex's native one,
+// not an attention message. A review still being read when another story's
+// review opens never answers the new one; reading the report neither continues
+// nor marks its session done, and reopening a review reads a fresh snapshot.
+// Asking again for the review shown takes the keyboard to it and keeps its
+// snapshot; the real `claude` is never reached.
 
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
