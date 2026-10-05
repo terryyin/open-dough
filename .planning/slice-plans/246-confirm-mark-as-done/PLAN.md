@@ -285,3 +285,27 @@ question does when its state becomes known.
   Not caused by this story; left as a load-sensitivity finding.
 - No journey yet proves Cursor's held-screen “working” or “waiting for an
   answer” asks first; the rule reads `cursorHeldLabel` for both.
+
+## Execution complete
+
+Product advice:
+
+- Queue the bounded correction
+  [prove the Mark as done rule](../../seeds/SEED-104-confirm-mark-as-done.md#prove-mark-as-done-rule)
+  ([plan 249](../249-prove-mark-as-done-rule/PLAN.md)), soon after this
+  story: Cursor's held “working” and “waiting for an answer” labels, and a
+  waiting reading over a report, reach the rule untested. It also consolidates
+  the stop-call filter the new journeys copied.
+- The CI repair in `dashboard/server/launchInstruction.ts` has no lasting
+  regression test; the race was proven with a temporary fake-cursor frame
+  split. A fake-cursor option to split frames on demand would keep it proven.
+  If real Cursor ever drops a paste without a chip, a launch now waits for the
+  30-second abort instead of settling uncertain at once; no such behavior has
+  been observed.
+- Three unrelated journeys failed once locally under load and passed alone
+  (`responsive-session-access:44`, `session-sidebar-reading:35`,
+  `session-workspace-retirement-attach`). By this project's standard that
+  local instability is a defect; consider a story to make them load-stable.
+- [Attention messages on the story card](../../seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card)
+  should keep this story's rule: an unread `completed` report alone does not
+  ask, and Mark as done beside a message decides through `useDoneMark`.

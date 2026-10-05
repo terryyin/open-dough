@@ -133,6 +133,32 @@ shared with Delete record, not a second copy of it.
 - The question is open on a Working session → Escape → the question closes, the
   session is untouched, and the keyboard is on Mark as done.
 
+<a id="prove-mark-as-done-rule"></a>
+
+### Prove the Mark as done rule for every reading it reads
+
+**Identity:** SEED-104#prove-mark-as-done-rule
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/249-prove-mark-as-done-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"08c6edca93fd7fbda5a7e8bd05cb293428c71acb198e08d10ed2079072c0594f","plan":"a82d2ae063479d3617d40fbfb2b367f92c55068f9d29b68b76f533d716644325"}}
+```
+
+**Goal:** A maintainer changing Cursor readings or the Mark as done rule
+learns at once, from a rule-level check, if a busy Cursor session or a waiting
+session with a report would lose its confirmation. This corrects the
+[confirm Mark as done](#confirm-mark-as-done) execution's coverage gap; it adds
+no feature promise.
+
+**Scope:**
+
+- Rule-level checks of `unfinishedIntention` for each reading and report
+  combination the rule distinguishes, including Cursor's held-screen
+  “working” and “waiting for an answer” labels and the precedence between a
+  report and a working or waiting reading.
+- One shared test step for the native stop calls the new Mark as done journeys
+  count, replacing their copies.
+
+**Plan:** [Prove the Mark as done rule](../slice-plans/249-prove-mark-as-done-rule/PLAN.md).
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
