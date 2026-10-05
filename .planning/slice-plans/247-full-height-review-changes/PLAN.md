@@ -282,6 +282,18 @@ The snapshot reads counts with `--numstat -M -z` over the same baseline and
 tree as the file list and joins them by path. A file shows counts only when it
 has at least one added or removed line. Update `AGENT-LAUNCH-REVIEW.md`.
 
+## Execution complete
+
+Product advice: No correction is needed; every slice's promise is observed by
+its journey. Before plan 245 (`SEED-088#review-changes-since-last-review`) is
+executed, place its mark control and comparison switch in the context line's
+fixed area, as Current decisions says. Two presentation choices this story
+left open are worth a quick confirmation at wrap-up: line numbers are hidden
+from assistive technology (code is read alone), and Previous file / Next file
+dim when unavailable while Refresh, using the same `aria-disabled` pattern,
+has no unavailable look; unifying that look in `icon-control.css` would also
+change Refresh.
+
 ## Current decisions
 
 - The context line and status region are fixed in slice 1 while the body
