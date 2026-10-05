@@ -170,7 +170,13 @@ shows the story's version against trunk's.
 
 ### 3. Say nothing changed relative to trunk after trunk was integrated
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-since-trunk.spec.ts` "after trunk was
+integrated with nothing else, nothing changed since the review beyond what
+trunk holds" (failed without the view change), all `story-review` specs
+(43), and `typecheck:dashboard`. The message is "Nothing changed since the
+review beyond what trunk now holds."; `trunkIntegratedSince` in
+`src/storyReview.ts` is the one client rule for a trunk integration.
 Proof: In `story-review-since-trunk.spec.ts`, mark; trunk takes the landed
 slice and changes `README.md` only; the story merges trunk without conflict
 and changes nothing else: since-the-review lists no file (not

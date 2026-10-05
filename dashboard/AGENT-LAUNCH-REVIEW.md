@@ -129,7 +129,9 @@ kind and diff from the current baseline (its `includesTrunkFrom`), showing
 the story's version against trunk's. A conflicted file's control's name, its
 row, and its diff heading say it “includes trunk's changes”. When
 the snapshot's baseline differs from the mark's, the heading says “Trunk was
-integrated since the mark”. Only an exit of 1 whose first field is an object
+integrated since the mark”, and with no file left the review says “Nothing
+changed since the review beyond what trunk now holds.”, since story work that
+reached trunk after the mark counts as trunk's. Only an exit of 1 whose first field is an object
 ID is a conflicted restatement. Restating needs Git 2.45 or later, which
 merges trees given with `--merge-base`; when this machine's Git cannot restate
 the mark (an older one says the tree is not a commit), the review is not

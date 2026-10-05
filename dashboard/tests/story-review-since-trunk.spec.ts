@@ -7,7 +7,9 @@
 // which Git cannot separate from trunk's change, is flagged as including
 // trunk's changes and diffed from the marked snapshot; had the story kept its
 // marked `src/c.ts`, that file is flagged and diffed from the baseline, the
-// story's version against trunk's. On a Git that cannot restate the mark --
+// story's version against trunk's; had it only merged trunk's `README.md`,
+// nothing changed since the review beyond what trunk now holds. On a Git that
+// cannot restate the mark --
 // one before 2.45, refusing a tree given with `--merge-base` -- the review
 // still opens on all changes, says why the earlier review cannot be compared,
 // and Mark reviewed starts again from there; with an unchanged baseline
@@ -19,36 +21,29 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
-import { openBacklog } from "./support/sessionDialog.ts";
 import {
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
-  openReview,
   reopenReview,
-  reviewRegion,
 } from "./support/storyReviewMark.ts";
 import {
   integrateTrunk,
-  markedWorktree,
+  markStoryReview,
   sixth,
 } from "./support/storyReviewTrunk.ts";
-import { keepLaunchRecord, writeAt } from "./support/storyReviewWorktree.ts";
+import { writeAt } from "./support/storyReviewWorktree.ts";
 
 test("after trunk was integrated, the changes since the review leave trunk's out and flag what cannot be separated", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const story = markedWorktree(origin);
-  await keepLaunchRecord(dashboard, story.workspace);
-  const card = await openBacklog(page, origin);
-  const marked = await openReview(page, card);
-  const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "2 changed files" }),
-  ).toBeVisible();
-  await markReviewed(review);
+  const { story, card, review, marked } = await markStoryReview(
+    page,
+    dashboard,
+    origin,
+  );
 
   integrateTrunk(origin, story, "c story and trunk");
   writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
@@ -96,12 +91,11 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   dashboard,
   origin,
 }) => {
-  const story = markedWorktree(origin);
-  await keepLaunchRecord(dashboard, story.workspace);
-  const card = await openBacklog(page, origin);
-  await openReview(page, card);
-  const review = reviewRegion(page);
-  await markReviewed(review);
+  const { story, card, review } = await markStoryReview(
+    page,
+    dashboard,
+    origin,
+  );
 
   integrateTrunk(origin, story, "c story");
   const since = await reopenReview(page, card);
@@ -112,7 +106,7 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
     })),
   ).toEqual([{ file: "src/c.ts", includesTrunkFrom: since.baseline }]);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  await expect(review).not.toContainText("Nothing changed since the review.");
+  await expect(review).not.toContainText("Nothing changed since the review");
   const files = review.getByRole("list", { name: "1 changed file" });
   await expect
     .poll(() => treeRows(files))
@@ -125,17 +119,41 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   await expect(cDiff.locator(".story-review-added")).toHaveText(["+c story"]);
 });
 
+test("after trunk was integrated with nothing else, nothing changed since the review beyond what trunk holds", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { story, card, review } = await markStoryReview(
+    page,
+    dashboard,
+    origin,
+  );
+
+  integrateTrunk(origin, story);
+  const since = await reopenReview(page, card);
+  expect(since.since?.files).toEqual([]);
+  await expectSinceTheReview(review, keptStoryAMark(dashboard));
+  await expect(review.locator(".story-review-since")).toContainText(
+    "Trunk was integrated since the mark",
+  );
+  // (d) No file, not even the landed slice.
+  await expect(review).not.toContainText("landed.txt");
+  await expect(review).toContainText(
+    "Nothing changed since the review beyond what trunk now holds.",
+  );
+});
+
 test("a marked story whose baseline is unchanged does not say trunk was integrated", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const story = markedWorktree(origin);
-  await keepLaunchRecord(dashboard, story.workspace);
-  const card = await openBacklog(page, origin);
-  const marked = await openReview(page, card);
-  const review = reviewRegion(page);
-  await markReviewed(review);
+  const { story, card, review, marked } = await markStoryReview(
+    page,
+    dashboard,
+    origin,
+  );
 
   writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
   const since = await reopenReview(page, card);
@@ -177,12 +195,11 @@ const olderGit = test.extend({
 olderGit(
   "a Git that cannot restate the mark shows all changes, says why, and marking starts again",
   async ({ page, dashboard, origin }) => {
-    const story = markedWorktree(origin);
-    await keepLaunchRecord(dashboard, story.workspace);
-    const card = await openBacklog(page, origin);
-    await openReview(page, card);
-    const review = reviewRegion(page);
-    await markReviewed(review);
+    const { story, card, review } = await markStoryReview(
+      page,
+      dashboard,
+      origin,
+    );
 
     // (a) All changes, why the earlier review cannot be compared, no switch.
     integrateTrunk(origin, story, "c story and trunk");

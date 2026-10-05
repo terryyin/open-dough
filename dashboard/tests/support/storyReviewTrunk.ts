@@ -1,13 +1,19 @@
 // Story A's worktree as the trunk tests (../story-review-since-trunk.spec.ts)
 // mark it and then integrate trunk: trunk's `README.md` and `src/{a,b,c}.ts`,
 // a story slice that lands on trunk after the mark, and the line of
-// `src/c.ts` that trunk and the story both change.
+// `src/c.ts` that trunk and the story both change, or trunk's `README.md`
+// alone.
 
+import type { Page } from "@playwright/test";
+import type { DashboardServer } from "./dashboardServer.ts";
+import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
+import { markReviewed, openReview, reviewRegion } from "./storyReviewMark.ts";
 import {
   addStoryWorktree,
   commitAll,
   git,
+  keepLaunchRecord,
   lines,
   writeAt,
 } from "./storyReviewWorktree.ts";
@@ -36,23 +42,46 @@ export function markedWorktree(origin: StartOrigin) {
   return { workspace, landed };
 }
 
+// Story A's review, opened from its card and marked reviewed: the worktree,
+// the card, the review, and the marked snapshot.
+export async function markStoryReview(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
+  const story = markedWorktree(origin);
+  await keepLaunchRecord(dashboard, story.workspace);
+  const card = await openBacklog(page, origin);
+  const marked = await openReview(page, card);
+  const review = reviewRegion(page);
+  await markReviewed(review);
+  return { story, card, review, marked };
+}
+
 // After the mark: trunk takes the landed slice and changes `README.md`,
 // `src/a.ts`, and `src/c.ts`'s sixth line to `c trunk`; the story merges
-// trunk, settling `src/c.ts`'s conflict with the sixth line given.
+// trunk, settling `src/c.ts`'s conflict with the sixth line given. Without
+// one, trunk changes `README.md` only and the story merges it cleanly.
 export function integrateTrunk(
   origin: StartOrigin,
   { workspace, landed }: { workspace: string; landed: string },
-  settled: string,
+  settled?: string,
 ) {
   const project = origin.project;
   git(project, "merge", "--quiet", "--ff-only", landed);
   writeAt(project, "README.md", sixth("readme", "readme trunk"));
-  writeAt(project, "src/a.ts", sixth("a", "a trunk"));
-  writeAt(project, "src/c.ts", sixth("c", "c trunk"));
+  if (settled !== undefined) {
+    writeAt(project, "src/a.ts", sixth("a", "a trunk"));
+    writeAt(project, "src/c.ts", sixth("c", "c trunk"));
+  }
   commitAll(project, "trunk changes");
   git(project, "push", "--quiet", "origin", "main");
 
   git(workspace, "fetch", "--quiet", "origin", "main");
+  if (settled === undefined) {
+    git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
+    return;
+  }
   try {
     git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
   } catch {

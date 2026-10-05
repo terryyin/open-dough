@@ -16,6 +16,7 @@ import {
   type MarkReviewedAnswer,
   type MarkReviewedRequest,
   type MarkUncomparable,
+  trunkIntegratedSince,
   type ReviewMark,
 } from "./storyReview.ts";
 
@@ -90,7 +91,7 @@ export function SinceTheReviewHeading({
         From the snapshot marked reviewed{" "}
         <Moment at={new Date(mark.markedAt)} /> to this snapshot.
       </p>
-      {mark.baseline !== baseline && (
+      {trunkIntegratedSince(mark, baseline) && (
         <p>
           Trunk was integrated since the mark: changes that came only from trunk
           are left out.

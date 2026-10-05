@@ -9,17 +9,19 @@
 // the changes since the review from the restated marked tree, a flagged
 // file's from the marked tree itself. A worktree that matches its baseline,
 // or a snapshot that matches the marked one, says so in place of the
-// browser.
+// browser; after trunk was integrated since the mark, what the story did
+// that trunk now holds is trunk's, so nothing changed only beyond it.
 // A refreshed snapshot keeps the browser as it was, its collapsed folders,
 // and the selected file while the new snapshot still lists their paths.
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { reviewFileTree } from "./reviewFileTree.ts";
-import type {
-  ReviewComparison,
-  ReviewedFile,
-  TakenStoryReview,
+import {
+  trunkIntegratedSince,
+  type ReviewComparison,
+  type ReviewedFile,
+  type TakenStoryReview,
 } from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import {
@@ -100,7 +102,12 @@ export function SnapshotView({
         </div>
       </dl>
       {files.length === 0 && sinceReview ? (
-        <p>Nothing changed since the review.</p>
+        <p>
+          {snapshot.mark !== undefined &&
+          trunkIntegratedSince(snapshot.mark, snapshot.baseline)
+            ? "Nothing changed since the review beyond what trunk now holds."
+            : "Nothing changed since the review."}
+        </p>
       ) : files.length === 0 ? (
         <p>
           No changes: the worktree matches baseline{" "}

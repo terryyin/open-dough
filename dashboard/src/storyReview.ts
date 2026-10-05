@@ -90,6 +90,11 @@ export const reviewMarkSchema = z.object({
 });
 export type ReviewMark = z.infer<typeof reviewMarkSchema>;
 
+// Whether trunk was integrated since the mark: a snapshot from `baseline` no
+// longer shares the marked snapshot's baseline.
+export const trunkIntegratedSince = (mark: ReviewMark, baseline: string) =>
+  mark.baseline !== baseline;
+
 // Names the snapshot shown to mark: the project, the work identity, and the
 // snapshot's `tree` and `baseline`, never a path.
 export const markReviewedRequestSchema = z.strictObject({
