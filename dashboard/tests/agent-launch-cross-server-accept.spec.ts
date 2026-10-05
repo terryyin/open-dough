@@ -25,6 +25,7 @@ import {
   type PushHold,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { fsPromisesHook } from "./support/serverFsHook.ts";
 
 const request = openSessionRequest;
 const otherRequest = {
@@ -80,30 +81,23 @@ test.describe("cross-server accept of one story", () => {
 
   // Loaded into the server: marks `waited` once a lock acquisition finds the
   // attempts lock held, the only place the store retries `mkdir` of it.
-  function lockWaitLoader(lock: string, waited: string): string {
-    const loader = path.join(origin.machine, "lock-wait.mjs");
-    writeFileSync(
-      loader,
-      `import fs from 'node:fs'; import promises from 'node:fs/promises'; import {syncBuiltinESMExports} from 'node:module';
-const original = promises.mkdir;
-promises.mkdir = async (directory, ...args) => {
+  const lockWait = (lock: string, waited: string) =>
+    fsPromisesHook(
+      path.join(origin.machine, "lock-wait.mjs"),
+      "mkdir",
+      `async (directory, ...args) => {
  try { return await original(directory, ...args); }
  catch (error) {
   if (error?.code === 'EEXIST' && String(directory) === ${JSON.stringify(lock)}) fs.writeFileSync(${JSON.stringify(waited)}, 'waited');
   throw error;
  }
-}; syncBuiltinESMExports();`,
+}`,
     );
-    return loader;
-  }
 
   test("while the attempt lock is held, a second server waits, then refuses after the first attempt is written", async () => {
     test.setTimeout(120_000);
     const waited = path.join(origin.machine, "lock-waited");
-    const loader = lockWaitLoader(attemptsLock(), waited);
-    const preview = await serverOn("preview", {
-      NODE_OPTIONS: `--import=${JSON.stringify(loader)}`,
-    });
+    const preview = await serverOn("preview", lockWait(attemptsLock(), waited));
     preview.claudeScenario("held");
 
     mkdirSync(path.dirname(attemptsFile()), { recursive: true });

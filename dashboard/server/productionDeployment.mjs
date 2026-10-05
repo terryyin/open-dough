@@ -75,6 +75,30 @@ export async function ownedCommitDirectory(developmentRoot, root, commit) {
   await mkdir(resolved, { recursive: true });
   return mkdtemp(path.join(resolved, `${commit.slice(0, 12)}-`));
 }
+/**
+ * Fetches only the named commits, without history, into an owned directory's
+ * repository. No automatic maintenance: it would detach and keep writing into
+ * the directory while its owner removes it.
+ * @param {string} origin @param {string[]} commits
+ * @param {import("./productionProcess.mjs").CommandOptions} options
+ */
+export async function fetchIntoOwnedDirectory(origin, commits, options) {
+  await command(
+    "git",
+    [
+      "-c",
+      "maintenance.auto=false",
+      "fetch",
+      "--quiet",
+      "--depth",
+      "1",
+      "--",
+      origin,
+      ...commits,
+    ],
+    options,
+  );
+}
 /** @param {{developmentRoot: string, published: PublishedCommit, deploymentsRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
 export async function stageDeployment(options) {
   const { published, env } = options;
@@ -93,17 +117,9 @@ export async function stageDeployment(options) {
   try {
     await command("git", ["init", "--quiet"], commandOptions);
     // Fetch the selected commit, never whatever main names later.
-    await command(
-      "git",
-      [
-        "fetch",
-        "--quiet",
-        "--depth",
-        "1",
-        "--",
-        published.origin,
-        published.commit,
-      ],
+    await fetchIntoOwnedDirectory(
+      published.origin,
+      [published.commit],
       commandOptions,
     );
     await command(

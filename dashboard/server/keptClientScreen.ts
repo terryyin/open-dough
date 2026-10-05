@@ -17,6 +17,11 @@ const { Terminal: HeadlessTerminal } = require("@xterm/headless") as {
   ) => Terminal;
 };
 
+export type FrameScreen = {
+  readonly text: string;
+  readonly cursorVisible: boolean;
+};
+
 export class KeptClientScreen {
   private readonly terminal: Terminal;
   private readonly csi: { dispose(): void }[];
@@ -25,7 +30,8 @@ export class KeptClientScreen {
   // host's ready rule decides whether a hidden cursor can take an instruction.
   private cursorOn = false;
   private framePending = false;
-  private frameDone = false;
+  // The screen as the last synchronized update finished, until taken.
+  private frameEnd: FrameScreen | undefined;
 
   constructor(cols: number, rows: number) {
     // The buffer is proposed API on this build. The page reads the same
@@ -38,7 +44,9 @@ export class KeptClientScreen {
     const mode = (enabled: boolean, params: number[]) => {
       if (params.includes(2026)) {
         this.framePending = enabled;
-        if (!enabled) this.frameDone = true;
+        if (!enabled) {
+          this.frameEnd = { text: this.text(), cursorVisible: this.cursorOn };
+        }
       }
       if (params.includes(25)) this.cursorOn = enabled;
       return false;
@@ -64,11 +72,17 @@ export class KeptClientScreen {
   // A synchronized update (`?2026`) has finished and none is open. The page
   // reports readiness on that same boundary.
   completedFrame(): boolean {
-    return this.frameDone && !this.framePending;
+    return this.completedFrameScreen() !== undefined;
+  }
+
+  // The screen that finished frame showed. Later output can already have
+  // changed the screen since.
+  completedFrameScreen(): FrameScreen | undefined {
+    return this.framePending ? undefined : this.frameEnd;
   }
 
   takeFrame(): void {
-    this.frameDone = false;
+    this.frameEnd = undefined;
   }
 
   write(data: string): void {

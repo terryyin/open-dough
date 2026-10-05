@@ -6,6 +6,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+import { fsPromisesHook } from "./serverFsHook.ts";
 
 const exec = promisify(execFile);
 export const quote = (part: string) => `'${part.replaceAll("'", "'\\''")}'`;
@@ -101,23 +102,21 @@ export async function completionProxy(origin: string, receiver: string) {
 
 export function completionWriteFault(machine: string) {
   const marker = path.join(machine, "completion-write-fault");
-  const loader = path.join(machine, "completion-write-fault.mjs");
-  writeFileSync(
-    loader,
-    `import fs from 'node:fs'; import promises from 'node:fs/promises'; import {syncBuiltinESMExports} from 'node:module';
-const original = promises.writeFile;
-promises.writeFile = async (file, ...args) => {
+  const env = fsPromisesHook(
+    path.join(machine, "completion-write-fault.mjs"),
+    "writeFile",
+    `async (file, ...args) => {
  if (String(file).includes('/agent-launches.json.') && String(file).endsWith('.tmp') && fs.existsSync(${JSON.stringify(marker)})) {
   fs.unlinkSync(${JSON.stringify(marker)}); throw Object.assign(new Error('Injected record write EIO'), {code:'EIO'});
  }
  return original(file, ...args);
-}; syncBuiltinESMExports();`,
+}`,
   );
   return {
     arm() {
       writeFileSync(marker, "fault\n");
     },
-    env: { NODE_OPTIONS: `--import=${JSON.stringify(loader)}` },
+    env,
   };
 }
 

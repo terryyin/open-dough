@@ -11,7 +11,10 @@ import {
   isPathIgnored,
   readCiPathIgnorePolicy,
 } from "../../src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs";
-import { ownedCommitDirectory } from "./productionDeployment.mjs";
+import {
+  fetchIntoOwnedDirectory,
+  ownedCommitDirectory,
+} from "./productionDeployment.mjs";
 import { command } from "./productionProcess.mjs";
 
 const exec = promisify(execFile);
@@ -77,18 +80,9 @@ export async function qualifyPublishedRange(options) {
   try {
     await command("git", ["init", "--quiet", "--bare"], commandOptions);
     // Both trees are enough for a path comparison; history is not needed.
-    await command(
-      "git",
-      [
-        "fetch",
-        "--quiet",
-        "--depth",
-        "1",
-        "--",
-        selected.origin,
-        baseline.commit,
-        selected.commit,
-      ],
+    await fetchIntoOwnedDirectory(
+      selected.origin,
+      [baseline.commit, selected.commit],
       commandOptions,
     );
     let workflow;

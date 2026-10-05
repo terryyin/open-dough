@@ -21,6 +21,9 @@ cd -- "${source_dir}"
 # shellcheck disable=SC1091
 # shellcheck source=scripts/time-budget.bash
 source "${source_dir}/scripts/time-budget.bash"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/gh-message.bash
+source "${source_dir}/scripts/gh-message.bash"
 
 budget="${OPEN_DOUGH_TEST_DIR:-tests}/time-budget"
 read_time_budget "${budget}" || exit 1
@@ -30,13 +33,6 @@ readonly per_job_seconds total_job_seconds
 work_dir=$(mktemp -d)
 trap 'rm -rf -- "${work_dir}"' EXIT
 
-# Prints FILE (gh's own message) on one line.
-one_line() {
-  local text
-  text=$(< "$1")
-  printf '%s' "${text//$'\n'/ }"
-}
-
 no_timings() {
   printf 'No recent trunk timings were found: %s\n' "$1" >&2
   exit 1
@@ -45,7 +41,7 @@ no_timings() {
 if ! runs=$(gh run list --workflow ci.yml --branch main --status success --limit 10 \
   --json databaseId,createdAt \
   --jq '.[] | "\(.databaseId)\t\(.createdAt)"' 2> "${work_dir}/gh.err"); then
-  message=$(one_line "${work_dir}/gh.err")
+  message=$(gh_message "${work_dir}/gh.err")
   no_timings "gh run list failed: ${message}"
 fi
 [[ -n ${runs} ]] || no_timings 'gh listed no successful ci.yml runs on main.'
@@ -58,7 +54,7 @@ while IFS=$'\t' read -r run created; do
   if ! gh run download "${run}" -D "${work_dir}/${run}" -p 'test-times-*' \
     > /dev/null 2> "${work_dir}/gh.err"; then
     skipped=$((skipped + 1))
-    last_error=$(one_line "${work_dir}/gh.err")
+    last_error=$(gh_message "${work_dir}/gh.err")
     continue
   fi
   found=0

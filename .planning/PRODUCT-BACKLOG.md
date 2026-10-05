@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review ([plan](slice-plans/245-review-changes-since-last-review/PLAN.md))
 - [Optional process retrospective for Dough Land and Story Wrap Up](seeds/SEED-105-land-and-wrap-up-process-retrospective.md#land-and-wrap-up-process-retrospective) — SEED-105#land-and-wrap-up-process-retrospective ([plan](slice-plans/250-land-and-wrap-up-process-retrospective/PLAN.md))
-- [Dashboard specs pass CI on a revision that changes no code](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) — SEED-100#dashboard-specs-pass-unchanged-code ([plan](slice-plans/251-dashboard-specs-pass-unchanged-code/PLAN.md))
 
 ## Backlog list
 
