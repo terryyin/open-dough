@@ -243,5 +243,13 @@ question does when its state becomes known.
 - An unreachable Cursor runner reads “The Cursor runner cannot be reached.”
   (`cursorRunnerSentence("unreachable")`), not “Activity unknown”; the
   story's outcome (local Done at once) holds.
+- CI run 37245324663 failed `agent-launch-ad-hoc-cursor.spec.ts:96` on
+  `01f7d61f`: a still-ready empty-composer screen arriving after a paste
+  settled the Cursor launch before its chip was submitted, so the page kept
+  “First input acceptance uncertain”. Repaired in
+  `dashboard/server/launchInstruction.ts` (a pending paste waits while the
+  composer is still empty); proven by a temporary fake-cursor frame-split
+  injection, then `agent-launch-ad-hoc-cursor agent-terminal-cursor-launch
+  --repeat-each 10` → 200 passed and every Cursor spec → 60 passed.
 - No journey yet proves Cursor's held-screen “working” or “waiting for an
   answer” asks first; the rule reads `cursorHeldLabel` for both.

@@ -2,7 +2,7 @@
 // screen is ready, and holds idle hangup until that write. A ready screen
 // settles the launch wait even when no synchronized frame arrived, except
 // that a pasted instruction settles it only once its chip is submitted or a
-// later screen shows none. A screen
+// later screen shows neither that chip nor the empty composer. A screen
 // that is not ready still waits for a completed frame. The client exiting
 // also settles the wait. A later screen can still accept the instruction.
 import { KeptClientScreen } from "./keptClientScreen.ts";
@@ -82,30 +82,36 @@ export class LaunchInstruction {
     }
     const ready = this.launch.ready(screen.text(), screen.cursorVisible());
     const pastedChip = screen.text().includes("Pasted text");
-    // A paste chip is not the empty composer and has no synchronized frame.
-    // Submit it before the not-ready wait would return.
-    if (!this.entered && this.pasted && pastedChip) {
-      this.entered = true;
-      if (!this.client.writeInstruction("\r")) {
-        this.entered = false;
+    if (!this.entered && this.pasted) {
+      // A paste chip is not the empty composer and has no synchronized frame.
+      // Submit it before the not-ready wait would return.
+      if (pastedChip) {
+        this.entered = true;
+        if (!this.client.writeInstruction("\r")) {
+          this.entered = false;
+          this.announce();
+          return;
+        }
+        if (!this.handoff) this.releaseHold();
+        try {
+          await this.launch.onEntered();
+        } catch {
+          // The instruction was entered. A failed save leaves the uncertain record.
+        }
         this.announce();
         return;
       }
-      if (!this.handoff) this.releaseHold();
-      try {
-        await this.launch.onEntered();
-      } catch {
-        // The instruction was entered. A failed save leaves the uncertain record.
-      }
-      this.announce();
-      return;
+      // The client has not answered the paste while its screen still shows
+      // the empty composer, as when output written before the paste arrives
+      // late.
+      if (ready) return;
     }
     // The host's ready rule is enough to enter the instruction and settle
     // the wait. A screen that is not ready still waits until a frame has
     // finished before that wait settles.
     if (!screen.completedFrame() && !ready) return;
     screen.takeFrame();
-    if (!this.entered && ready && !this.pasted) {
+    if (!this.entered && ready) {
       const instruction = this.launch.instruction;
       // Cursor keeps a long or multiline burst as an unsent paste chip and
       // folds a return in that same burst into the paste. Submit that chip
@@ -118,7 +124,8 @@ export class LaunchInstruction {
           return;
         }
         // The wait settles once the chip is submitted, or a later screen
-        // shows no chip, so the launch never returns before that answer.
+        // shows neither chip nor empty composer, so the launch never returns
+        // before that answer.
         return;
       } else {
         this.entered = true;
