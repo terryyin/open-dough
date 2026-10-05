@@ -66,3 +66,37 @@ the difference without a paid native run.
 
 **Boundary:** The dashboard's session launch environment. The published
 readiness guidance is out of scope; DearDough.md's ODF-087 keeps that facet.
+
+<a id="dashboard-specs-deterministic"></a>
+
+### Four intermittently failing dashboard specs pass deterministically
+
+**Identity:** SEED-100#dashboard-specs-deterministic
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why:** Every agent that publishes to `main` waits on CI's dashboard
+jobs. A spec that fails intermittently blocks an unrelated publication's
+completion and sends its agent to diagnose someone else's flake.
+
+**Goal:** Each of these specs fails only when the behavior it covers is
+broken. Its timing-dependent wait is replaced by the signal that actually
+establishes its precondition, or a product race is fixed. No retries or sleeps
+are added, and no assertion is weakened.
+
+**Evidence:** one failure each in the last 30 `main` CI runs (2026-10-05):
+
+- `dashboard/tests/side-panel-width.spec.ts:36`, run 37239925415.
+- `dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts:43`, run 37207067477.
+- `dashboard/tests/story-review-action.spec.ts:31`, run 37173254314.
+- `dashboard/tests/agent-launch-acceptance.spec.ts:96`, run 37169060163: a
+  deep-equality mismatch in the attempt's `publication` field.
+
+None has been investigated. The same pattern in
+`agent-launch-duplicate.spec.ts` was a test waiting on the launch record,
+which is kept before the attempt settles and releases the launch gate. It was
+reproduced by widening that window and fixed in `58c93605`.
+
+**Boundary:** These four specs and any product race they expose. Other
+dashboard specs are not surveyed here.

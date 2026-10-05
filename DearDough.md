@@ -201,7 +201,7 @@ Former local code: DD-196.
 
 The delivery references name an "authorized target ref" and say Story Branch Mode pushes to the remote execution branch, but do not say that `deliver --target-ref` then takes `refs/heads/<execution branch>` rather than the trunk the established start names as `target`.
 
-Follow-up: Open, unqueued.
+Follow-up: queued, not resolved: [SEED-008#story-branch-delivery-target](.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target).
 
 ### Occurrences
 

@@ -89,6 +89,39 @@ was never queued. Its outcome was absorbed into the managed execution delivery
 of plan 083, avoiding two stories that each wire the same publication boundary.
 This is a retired navigation reference, not another candidate.
 
+<a id="story-branch-delivery-target"></a>
+
+### Story Branch increments publish only to their execution branch
+
+**Identity:** SEED-008#story-branch-delivery-target
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** a developer whose agent executes a story in Story Branch Mode.
+
+**Goal:** An increment delivered in Story Branch Mode reaches only its remote
+execution branch, never trunk before review and integration, and the
+coordinator does not have to read the delivery script to pass the right target.
+
+**Scope:**
+
+- The delivery guidance and `execution-increment-delivery.mjs deliver` usage
+  name the `--target-ref` form: `refs/heads/<execution branch>` in Story Branch
+  Mode, `refs/heads/<trunk>` in Trunk Mode.
+- `deliver` refuses a Story Branch increment whose target is trunk, so an
+  established start's `target` cannot route the increment there.
+
+**Evidence:** [ODF-200](../../DearDough.md#odf-200--story-branch-deliverys---target-ref-value-had-to-be-read-from-the-script)
+in `DearDough.md` and the
+[catalog entry](../../docs/maintainer/finding-names.md#odf-200). Its latest
+occurrence published an unreviewed Story Branch increment to remote `main`.
+
+**Done when:** a Story Branch `deliver` with a trunk target is refused before
+any push; the guidance and usage name both forms; and ODF-200 is updated at
+`DearDough.md` and `docs/maintainer/finding-names.md` under
+[finding status](../../docs/maintainer/finding-names.md#retained-evidence).
+
 ### Priority rationale and scope reduction
 
 The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.

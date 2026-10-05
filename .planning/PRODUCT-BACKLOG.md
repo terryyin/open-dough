@@ -18,6 +18,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Four intermittently failing dashboard specs pass deterministically](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-deterministic) — SEED-100#dashboard-specs-deterministic
+- [Story Branch increments publish only to their execution branch](seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target) — SEED-008#story-branch-delivery-target
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
