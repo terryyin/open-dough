@@ -24,7 +24,10 @@ newest session for a story. Optional `--session` must match the confirmed native
 
 Every shared session entry, on a story card and in Recent sessions, shows its
 message as text in a message part headed by the report's completion label; the
-heading is a disclosure button that says whether the part is expanded. A
+heading is a disclosure button that says whether the part is expanded. The
+message text has a limited height and scrolls on its own, reachable by
+keyboard, so a long message leaves Mark as read and the rest of the entry in
+view. A
 report is unread until **Mark as read**, or until the session is marked done.
 While unread the part is expanded, does not collapse, and offers Mark as read,
 on card and Recent sessions entries alike, so a session without a story card
