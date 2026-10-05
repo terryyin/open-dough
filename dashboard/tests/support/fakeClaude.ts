@@ -82,6 +82,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   // The `claude --bg` launches alone, without the session listings, attaches,
   // and stops the page also runs.
   claudeLaunchCalls(): ClaudeCall[];
+  // The native `claude stop` calls alone, oldest first, whatever asked for them.
+  claudeStopCalls(): ClaudeCall[];
   claudeScenario(scenario: FakeClaudeScenario): void;
   // Lets a `held` launch go on and launch its session.
   releaseHeldClaude(): void;
@@ -190,6 +192,9 @@ export function installFakeClaude(
       claudeCalls,
       claudeLaunchCalls() {
         return claudeCalls().filter((call) => call.argv[0] === "--bg");
+      },
+      claudeStopCalls() {
+        return claudeCalls().filter((call) => call.argv[0] === "stop");
       },
       claudeScenario(scenario) {
         writeFileSync(state("scenario"), scenario);

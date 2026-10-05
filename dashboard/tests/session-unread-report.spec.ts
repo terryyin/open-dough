@@ -157,9 +157,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(cardA.getByRole("button", { name: "Mark as done" })).toHaveCount(
     0,
   );
-  const stops = () =>
-    dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
-  const stopsBefore = stops().length;
+  const stopsBefore = dashboard.claudeStopCalls().length;
   await cardA.getByRole("button", { name: "Mark as read" }).click();
   await expect(cardA.locator(".card-unread-reports")).toHaveCount(0);
   await expect(cardA.locator(".session-unread-report")).toHaveCount(0);
@@ -186,7 +184,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   expect(recordA?.reportRead).toBeDefined();
   expect(recordA?.reportRead).toBe(recordA?.completion?.receipt);
   expect(recordA?.doneAt).toBeUndefined();
-  expect(stops()).toHaveLength(stopsBefore);
+  expect(dashboard.claudeStopCalls()).toHaveLength(stopsBefore);
 
   // 6. The read session then waits for input: into the attention group,
   // counted, with no unread mark.
@@ -214,7 +212,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(panel.getByRole("button", { name: "Mark as read" })).toHaveCount(
     0,
   );
-  const stopsBeforeDone = stops().length;
+  const stopsBeforeDone = dashboard.claudeStopCalls().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
   await markDoneAnyway(panel);
@@ -228,7 +226,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(recentA.locator(".session-state")).toHaveText("Done");
   await expect(recentA.locator(".session-unread-report")).toHaveCount(0);
   await expect(recentA).toContainText(`Named ${doneNameA}`);
-  expect(stops().slice(stopsBeforeDone)).toEqual([
+  expect(dashboard.claudeStopCalls().slice(stopsBeforeDone)).toEqual([
     expect.objectContaining({ argv: ["stop", shortIdA] }),
   ]);
 });

@@ -3,19 +3,13 @@
 // mark for that report's receipt. A pure reading of one record; the page
 // journey is ./session-unread-report.spec.ts.
 
-import { randomUUID } from "node:crypto";
 import { expect, test } from "./support/pageTest.ts";
+import { completionReport } from "./support/completionReport.ts";
 import type { LaunchWithState } from "../src/agentLaunch.ts";
-import type { CompletionReport } from "../src/completionReport.ts";
 import { sessionShown, unreadReportSummary } from "../src/sessionShown.ts";
 
-const report = (): CompletionReport => ({
-  receipt: randomUUID(),
-  reference: randomUUID(),
-  outcome: "completed",
-  message: "Published. Reminder: check the migration.",
-  receivedAt: "2026-10-01T10:00:00.000Z",
-});
+const report = () =>
+  completionReport({ message: "Published. Reminder: check the migration." });
 
 const working: Pick<LaunchWithState, "sessionState"> = {
   sessionState: {

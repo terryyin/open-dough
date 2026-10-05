@@ -15,8 +15,7 @@ Scope, decisions, and key examples are those of the source story. Material
 exclusions:
 
 - Any confirmation before Mark as done, which
-  [SEED-104](../../seeds/SEED-104-confirm-mark-as-done.md#confirm-mark-as-done)
-  owns.
+  [Mark as done](../../../dashboard/AGENT-LAUNCH-TERMINALS.md) owns.
 - Codex's passive native final report: its panel, **Read final report**, its
   endpoint, and the panel's Mark as done stay.
 - The unread wording, the card's unread-report line, the Sessions sidebar's

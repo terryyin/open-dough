@@ -86,9 +86,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       "agent-launches.json",
     );
     const stored = () => readFileSync(recordFile, "utf8");
-    const stopCalls = () =>
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
-    const stopsBeforeDeletes = stopCalls().length;
+    const stopsBeforeDeletes = dashboard.claudeStopCalls().length;
     const entryOf = (workflow: "Execution" | "Refinement", title: string) =>
       recent.getByRole("article", {
         name: recentSessionName(workflow, title),
@@ -165,7 +163,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       ).toHaveCount(0);
       expect(stored()).not.toContain(noList);
       expect(stored()).toContain(done);
-      expect(stopCalls()).toHaveLength(stopsBeforeDeletes);
+      expect(dashboard.claudeStopCalls()).toHaveLength(stopsBeforeDeletes);
     });
 
     await test.step("deleting the last entry puts the keyboard on the previous one", async () => {

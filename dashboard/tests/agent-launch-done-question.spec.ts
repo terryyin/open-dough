@@ -62,9 +62,6 @@ async function openPage(page: Page, origin: StartOrigin) {
   return { entryOf };
 }
 
-const stops = (dashboard: DashboardServer) =>
-  dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
-
 const recordOf = async (dashboard: DashboardServer, sessionId: string) =>
   ((await recordsOf(dashboard, "open-dough")) as LaunchRecord[]).find(
     (record) => record.session.sessionId === sessionId,
@@ -81,7 +78,7 @@ async function expectAskedThenKept(
   answer: "Keep open" | "Escape" = "Keep open",
 ) {
   const reading = (await sessionStateOf(entry).textContent())?.trim() ?? "";
-  const stopsBefore = stops(dashboard).length;
+  const stopsBefore = dashboard.claudeStopCalls().length;
   const question = await expectAsked(entry, statement);
   if (answer === "Escape") await entry.page().keyboard.press("Escape");
   else await question.getByRole("button", { name: "Keep open" }).click();
@@ -89,7 +86,7 @@ async function expectAskedThenKept(
   await expect(markAsDone(entry)).toBeFocused();
   await expect(entry).toHaveCount(1);
   await expect(sessionStateOf(entry)).toHaveText(reading);
-  expect(stops(dashboard)).toHaveLength(stopsBefore);
+  expect(dashboard.claudeStopCalls()).toHaveLength(stopsBefore);
   const records = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(records.filter((record) => record.doneAt !== undefined)).toEqual([]);
 }
@@ -104,7 +101,7 @@ test("a session not reported complete asks first with its situation; Keep open a
   const { entryOf } = await openPage(page, origin);
   const entryA = entryOf(titleA);
   const entryB = entryOf(titleB);
-  const before = stops(dashboard).length;
+  const before = dashboard.claudeStopCalls().length;
 
   await test.step("(b) Working, no report: asks that it is still working; Keep open leaves it running", async () => {
     await expect(sessionStateOf(entryA)).toHaveText("Working");
@@ -152,7 +149,7 @@ test("a session not reported complete asks first with its situation; Keep open a
       .filter({ hasText: titleA });
     await expect(sessionStateOf(recentA)).toHaveText("Done");
     await expect(recentA).toContainText(`Named ${doneName}`);
-    expect(stops(dashboard).slice(before)).toEqual([
+    expect(dashboard.claudeStopCalls().slice(before)).toEqual([
       expect.objectContaining({ argv: ["stop", shortId] }),
     ]);
     expect((await recordOf(dashboard, storyA.sessionId))?.doneAt).toBeDefined();
@@ -172,7 +169,7 @@ test("a completed report marks done at once only while the session neither works
   const { entryOf } = await openPage(page, origin);
   const entryA = entryOf(titleA);
   const entryB = entryOf(titleB);
-  const before = stops(dashboard).length;
+  const before = dashboard.claudeStopCalls().length;
 
   await test.step("(c) reported completed, read, then Working: asks that it is still working", async () => {
     await entryA.getByRole("button", { name: "Mark as read" }).click();
@@ -209,7 +206,7 @@ test("a completed report marks done at once only while the session neither works
       .recentSessions.getByRole("article")
       .filter({ hasText: titleA });
     await expect(sessionStateOf(recentA)).toHaveText("Done");
-    expect(stops(dashboard).slice(before)).toEqual([
+    expect(dashboard.claudeStopCalls().slice(before)).toEqual([
       expect.objectContaining({ argv: ["stop", shortId] }),
     ]);
   });
