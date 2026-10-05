@@ -150,7 +150,12 @@ with an unchanged baseline, since-the-review needs no restatement.
 
 ### 2. Keep a conflicted file the story kept as marked
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-since-trunk.spec.ts` "a conflicted file the
+story kept as marked is flagged and diffed from the baseline" (failed against
+the previous `storyReviewSince.ts`), all `story-review` specs (42), and
+`typecheck:dashboard`. The trunk fixture lives in
+`tests/support/storyReviewTrunk.ts`.
 Proof: In `story-review-since-trunk.spec.ts`, the story resolves `src/c.ts`'s
 conflict back to its marked content (`c story`) and changes nothing else:
 since-the-review lists `src/c.ts` flagged as including trunk's changes, with

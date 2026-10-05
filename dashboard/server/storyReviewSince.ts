@@ -7,7 +7,9 @@
 // tree, writing the result as a tree object and touching no index, worktree,
 // or ref. A file Git could not merge -- trunk and the story both changed it
 // inseparably -- is listed, its kind and diff from the marked tree, flagged
-// as including trunk's changes, so no story change is hidden. The earlier
+// as including trunk's changes, so no story change is hidden; one the story
+// kept as marked is listed from the baseline, showing that the story's
+// version replaces trunk's. The earlier
 // review cannot be compared, and the answer says why, when the repository no
 // longer holds the mark's tree or baseline -- the project was cloned anew,
 // say -- or when this machine's Git cannot restate it (Git before 2.45
@@ -114,13 +116,24 @@ export async function changesSinceReview(
     }
   }
   const separated = restated.filter((file) => !flaggedPaths.has(file.path));
-  const flagged =
+  const fromMark =
     flaggedPaths.size === 0
       ? []
-      : (await changedFrom(mark.tree, [...flaggedPaths])).map((file) => ({
-          ...file,
-          includesTrunkFrom: mark.tree,
-        }));
+      : await changedFrom(mark.tree, [...flaggedPaths]);
+  // An inseparable file the story kept as marked is compared from the
+  // baseline instead, so its diff shows the story's version against trunk's.
+  const differed = new Set(
+    fromMark.flatMap((file) =>
+      file.kind === "renamed" ? [file.path, file.oldPath] : [file.path],
+    ),
+  );
+  const keptAsMarked = [...inseparable].filter((file) => !differed.has(file));
+  const fromBaseline =
+    keptAsMarked.length === 0 ? [] : await changedFrom(baseline, keptAsMarked);
+  const flagged = [
+    ...fromMark.map((file) => ({ ...file, includesTrunkFrom: mark.tree })),
+    ...fromBaseline.map((file) => ({ ...file, includesTrunkFrom: baseline })),
+  ];
   return {
     since: { from: tree, files: [...separated, ...flagged].sort(byPath) },
   };

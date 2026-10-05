@@ -123,8 +123,11 @@ index, worktree, or ref; its first field is the restated tree. A story slice
 that landed on trunk after the mark is therefore not listed. Each file Git names as
 conflicted, one trunk and the story both changed in a way it cannot separate,
 is listed with its kind and diff from the marked tree to the snapshot tree
-(the file's `includesTrunkFrom`), so no story change is hidden; its control's
-name, its row, and its diff heading say it “includes trunk's changes”. When
+(the file's `includesTrunkFrom`), so no story change is hidden. One the story
+kept as marked, with no diff from the marked tree, is listed instead with its
+kind and diff from the current baseline (its `includesTrunkFrom`), showing
+the story's version against trunk's. A conflicted file's control's name, its
+row, and its diff heading say it “includes trunk's changes”. When
 the snapshot's baseline differs from the mark's, the heading says “Trunk was
 integrated since the mark”. Only an exit of 1 whose first field is an object
 ID is a conflicted restatement. Restating needs Git 2.45 or later, which

@@ -39,7 +39,7 @@ const image = (last: number) =>
 export const wideLine = `more ${"wide ".repeat(80)}`;
 
 // A file written at its path under a root, making its folders.
-function writeAt(root: string, file: string, text: string) {
+export function writeAt(root: string, file: string, text: string) {
   mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
   writeFileSync(path.join(root, file), text);
 }

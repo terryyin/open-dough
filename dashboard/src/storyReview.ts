@@ -59,8 +59,9 @@ export const objectIdSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
 
 // A file of the changes since the review that trunk, integrated since the
 // mark, and the story both changed in a way Git cannot separate: it includes
-// trunk's changes, and its kind and diff run from this tree, the marked one,
-// instead of the comparison's *from* tree.
+// trunk's changes, and its kind and diff run from this tree instead of the
+// comparison's *from* tree: the marked one, or the baseline when the story
+// kept its marked version.
 const includesTrunkFrom = { includesTrunkFrom: objectIdSchema.optional() };
 
 // One changed file of a snapshot, as Git's rename-detecting tree diff names
