@@ -1,5 +1,6 @@
 // The diff of one file a story review lists, read within the review's
-// snapshot (`./storyReview.ts`): lines marked `+` added and `-` removed in
+// snapshot (`./storyReview.ts`) from the *from* tree of the comparison shown:
+// lines marked `+` added and `-` removed in
 // hunks whose long lines scroll within the diff, or that the file has no
 // textual diff.
 
@@ -8,7 +9,6 @@ import {
   storyReviewFileEndpoint,
   type ReviewedFile,
   type ReviewedFileDiff,
-  type TakenStoryReview,
 } from "./storyReview.ts";
 import { parsedUnifiedDiff, type DiffLine } from "./unifiedDiff.ts";
 import { useReviewRead } from "./useReviewRead.ts";
@@ -74,14 +74,17 @@ function DiffLines({ printed }: { readonly printed: string }) {
   );
 }
 
-// The selected file's diff within the snapshot.
+// The selected file's diff from the comparison's *from* tree to the
+// snapshot's tree.
 export function FileDiff({
   reviewed,
-  snapshot,
+  from,
+  tree,
   file,
 }: {
   readonly reviewed: ReviewedStory;
-  readonly snapshot: TakenStoryReview;
+  readonly from: string;
+  readonly tree: string;
   readonly file: ReviewedFile;
 }) {
   const { answer, problem, reading } = useReviewRead<ReviewedFileDiff>(
@@ -89,8 +92,8 @@ export function FileDiff({
     {
       source: reviewed.sourceId,
       identity: reviewed.identity,
-      baseline: snapshot.baseline,
-      tree: snapshot.tree,
+      baseline: from,
+      tree,
       path: file.path,
       ...(file.kind === "renamed" ? { oldPath: file.oldPath } : {}),
     },

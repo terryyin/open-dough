@@ -4,14 +4,21 @@
 // hide or show. The browser shows each file by name under folders that
 // collapse and expand (`./StoryReviewFileTree.tsx`). Selecting a file reads
 // its diff (`./StoryReviewFileDiff.tsx`), headed by its kind and full path.
-// A worktree that matches its baseline says so in place of the browser.
+// The browser lists the comparison shown: all changes from the baseline, or
+// the changes since the review from the marked tree. A worktree that matches
+// its baseline, or a snapshot that matches the marked one, says so in place
+// of the browser.
 // A refreshed snapshot keeps the browser as it was, its collapsed folders,
 // and the selected file while the new snapshot still lists their paths.
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { reviewFileTree } from "./reviewFileTree.ts";
-import type { ReviewedFile, TakenStoryReview } from "./storyReview.ts";
+import type {
+  ReviewComparison,
+  ReviewedFile,
+  TakenStoryReview,
+} from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { changedFiles, FileTree, kindWords } from "./StoryReviewFileTree.tsx";
 
@@ -33,10 +40,15 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
 export function SnapshotView({
   reviewed,
   snapshot,
+  comparison,
+  sinceReview,
   headingId,
 }: {
   readonly reviewed: ReviewedStory;
   readonly snapshot: TakenStoryReview;
+  // The comparison shown, and whether it is the changes since the review.
+  readonly comparison: ReviewComparison;
+  readonly sinceReview: boolean;
   readonly headingId: string;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>();
@@ -44,8 +56,9 @@ export function SnapshotView({
   // and a refreshed snapshot keeps those it still has collapsed.
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [browserShown, setBrowserShown] = useState(true);
-  const selected = snapshot.files.find((file) => file.path === selectedPath);
-  const listName = changedFiles(snapshot.files.length);
+  const { files } = comparison;
+  const selected = files.find((file) => file.path === selectedPath);
+  const listName = changedFiles(files.length);
   const browserId = `${headingId}-files`;
   const diffHeadingId = `${headingId}-diff`;
   return (
@@ -74,7 +87,9 @@ export function SnapshotView({
           </dd>
         </div>
       </dl>
-      {snapshot.files.length === 0 ? (
+      {files.length === 0 && sinceReview ? (
+        <p>Nothing changed since the review.</p>
+      ) : files.length === 0 ? (
         <p>
           No changes: the worktree matches baseline{" "}
           <code>{shortRevision(snapshot.baseline)}</code>.
@@ -104,7 +119,7 @@ export function SnapshotView({
               <h3 id={`${browserId}-heading`}>{listName}</h3>
               <FileTree
                 label={listName}
-                nodes={reviewFileTree(snapshot.files)}
+                nodes={reviewFileTree(files)}
                 selectedPath={selected?.path}
                 onSelect={setSelectedPath}
                 collapsed={collapsed}
@@ -133,10 +148,12 @@ export function SnapshotView({
                 <p className="quiet">Select a file to read its diff.</p>
               ) : (
                 <FileDiff
-                  // A new snapshot or file is a new read, never the last one's.
-                  key={`${snapshot.tree}:${selected.path}`}
+                  // A new comparison or file is a new read, never the last
+                  // one's.
+                  key={`${comparison.from}:${snapshot.tree}:${selected.path}`}
                   reviewed={reviewed}
-                  snapshot={snapshot}
+                  from={comparison.from}
+                  tree={snapshot.tree}
                   file={selected}
                 />
               )}

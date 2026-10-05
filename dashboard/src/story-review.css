@@ -208,3 +208,8 @@
   align-items: center;
   gap: 0.4rem 0.75rem;
 }
+
+.story-review-since h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}

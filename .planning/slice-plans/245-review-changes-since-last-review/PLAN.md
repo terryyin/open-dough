@@ -142,7 +142,15 @@ Interim: a marked story still opens on all changes; slice 2 replaces that.
 
 ### 2. Open a marked story on the changes since the review
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-since.spec.ts` (5 tests, a–e) with
+`story-review-mark.spec.ts` (10 together), `story-review story-panel
+side-panel-width` (41), and `typecheck:dashboard`. The snapshot answer
+carries an optional `since: {from, files}` beside `files`; the *from* tree is
+still the marked tree directly (slice 4 restates it). `FileDiff` takes
+`from`/`tree`, `SnapshotView` takes `comparison`/`sinceReview`, and the mark
+UI lives in `src/StoryReviewMark.tsx`. Until slice 3, a review whose answer
+carries `since` always shows it.
 Proof: New `story-review-since.spec.ts`, baseline unchanged throughout. (a)
 12 changed files, mark, then change 2 and add 1: Review changes lists 3 files
 under a heading that says changes since the review and its time, and a

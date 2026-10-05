@@ -22,13 +22,13 @@ export const branch = "claude/story-a";
 export const git = (cwd: string, ...args: string[]) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 
-function commitAll(cwd: string, message: string) {
+export function commitAll(cwd: string, message: string) {
   git(cwd, "add", "--all");
   git(cwd, "commit", "--quiet", "-m", message);
 }
 
 // Lines enough for a small edit to stay a rename.
-const lines = (word: string, count = 12) =>
+export const lines = (word: string, count = 12) =>
   [...Array(count).keys()].map((line) => `${word} ${String(line)}\n`).join("");
 
 // An image's bytes, which Git reads as binary.
@@ -45,7 +45,7 @@ function writeAt(root: string, file: string, text: string) {
 }
 
 // Story A's worktree on its branch, started from the project's trunk.
-function addStoryWorktree(project: string) {
+export function addStoryWorktree(project: string) {
   const workspace = path.join(project, ".worktrees", "story-a");
   git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
   return workspace;

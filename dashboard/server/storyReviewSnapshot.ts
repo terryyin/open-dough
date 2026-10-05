@@ -10,9 +10,12 @@
 // a worktree no longer on disk is said to be missing before any Git runs,
 // and a trunk that cannot be fetched names the remote and target, since
 // there is no baseline without it.
-// A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it.
+// A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it,
+// and the same snapshot compared with the marked tree: the changes since the
+// review. A marked tree Git cannot read answers why, as any other step.
 // A file diff of the snapshot is Git's unified diff of that file from the
-// baseline to the tree, detecting a rename against its old path.
+// comparison's *from* tree -- the baseline or the marked tree -- to the
+// snapshot's tree, detecting a rename against its old path.
 
 import { mkdtemp, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
@@ -22,6 +25,7 @@ import type { EstablishedContext } from "../src/launchRecord.ts";
 import type {
   ReviewedFile,
   ReviewedFileDiff,
+  ReviewMark,
   StoryReview,
 } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
@@ -72,14 +76,12 @@ export async function storyReviewResponse(
   { sourceId, identity, established, shown }: AdmittedReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
-  const review = await withResponseSignal(
+  const mark = await reviewMark(sourceId, identity);
+  const body = await withResponseSignal(
     res,
-    (signal) => storyReviewSnapshot(established, shown, signal),
+    (signal) => storyReviewSnapshot(established, shown, mark, signal),
     reviewWaitMs,
   );
-  if (review.kind !== "snapshot") return { status: 200, body: review };
-  const mark = await reviewMark(sourceId, identity);
-  const body: StoryReview = mark === undefined ? review : { ...review, mark };
   return { status: 200, body };
 }
 
@@ -87,6 +89,7 @@ async function storyReviewSnapshot(
   established: EstablishedContext,
   // The workspace as the page shows it.
   shown: string,
+  mark: ReviewMark | undefined,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const { workspace, branch, remote, target } = established;
@@ -131,17 +134,19 @@ async function storyReviewSnapshot(
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
-    const files = reviewedFiles(
-      await printed([
-        "diff",
-        "--name-status",
-        "-M",
-        "-z",
-        baseline,
-        tree,
-        "--",
-      ]),
-    );
+    // The files changed from one tree to the snapshot's.
+    const changedFrom = async (from: string) =>
+      reviewedFiles(
+        await printed(["diff", "--name-status", "-M", "-z", from, tree, "--"]),
+      );
+    const files = await changedFrom(baseline);
+    const marked =
+      mark === undefined
+        ? {}
+        : {
+            mark,
+            since: { from: mark.tree, files: await changedFrom(mark.tree) },
+          };
     return {
       kind: "snapshot",
       workspace: shown,
@@ -152,6 +157,7 @@ async function storyReviewSnapshot(
       head,
       tree,
       files,
+      ...marked,
     };
   } catch (error) {
     return unavailable(

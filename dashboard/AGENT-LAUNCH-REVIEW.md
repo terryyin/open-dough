@@ -42,8 +42,10 @@ its kind and full path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`),
 and the selected file's diff is headed by the same words.
 
 The list and every file diff come from that one snapshot until Refresh takes
-a new one. A file's diff is Git's unified diff from the baseline to the
-snapshot tree, with renames diffed against their old path. Binary and
+a new one. A file's diff is Git's unified diff from the _from_ tree of the
+comparison shown, the baseline or the marked tree, to the snapshot tree, with
+renames diffed against their old path; the file diff request names that
+_from_ tree as `baseline`. Binary and
 mode-only changes say they have no textual diff. The review explains a
 workspace with no changes, a missing worktree, and a trunk that cannot be
 fetched; it never lists files against an unfetched baseline. Requests name
@@ -83,5 +85,18 @@ snapshot's `tree` and `baseline`, never a path; the workspace comes from
 tree, replaced with the mark, so Git's housekeeping keeps that otherwise
 unreachable tree; the ref touches no tracked file, index, or status. In the
 ref, each identity character other than a letter, digit, `#`, `_`, or `-` is
-written as `%XX`. A marked
-story's review still lists all its changes against the baseline.
+written as `%XX`.
+
+With a mark, the review opens on **the changes since the review**: the same
+snapshot compared with the marked tree instead of the baseline, in the same
+file browser and diff view. It is headed “Changes since the review” and says
+what it compares, from the snapshot marked reviewed, with the mark's
+`<time>`, to this snapshot. The answer carries both comparisons of the one
+snapshot: `files` from the baseline, and `since` with its _from_ tree (the
+marked tree) and its files. A file the agent wrote after the marked snapshot
+was taken is listed, even one written before the mark was made. When the
+snapshot equals the marked one, the review says “Nothing changed since the
+review.” Mark reviewed there marks the whole current snapshot, which the next
+review compares with. A marked tree Git cannot read answers that the
+workspace's changes could not be read. Trunk integrated into the story since
+the mark is not yet told apart: its changes are listed as the story's.

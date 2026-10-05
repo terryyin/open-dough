@@ -6,7 +6,8 @@
 // (`reviewWorkspaceOf`), so the page offers a review exactly when the
 // boundary can resolve one. The developer may mark the snapshot shown as
 // reviewed (`../server/storyReviewMarks.ts`): the story's one mark on this
-// machine, which only that request makes.
+// machine, which only that request makes. A marked story's snapshot is also
+// compared with its mark: the changes since the review.
 
 import { z } from "zod";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
@@ -14,9 +15,11 @@ import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
-// One file's diff within a snapshot: named by the snapshot's `baseline` and
-// `tree` object IDs and the file's path (and old path for a rename), so any
-// file diff the page opens reads the same observation as the file list.
+// One file's diff within a snapshot: named by the `baseline` and `tree`
+// object IDs it compares -- the *from* tree of the comparison shown, the
+// baseline or the marked tree, and the snapshot's tree -- and the file's path
+// (and old path for a rename), so any file diff the page opens reads the
+// same observation as the file list.
 export const storyReviewFileEndpoint = "/__agent-launch/review/file";
 // Where a same-origin POST marks the snapshot shown as reviewed.
 export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
@@ -99,6 +102,13 @@ export const markUnavailable = (why: string): MarkReviewedAnswer => ({
   explanation: `The snapshot could not be marked reviewed: ${why}`,
 });
 
+// A snapshot's changed files from one *from* tree to the snapshot's tree.
+export const reviewComparisonSchema = z.object({
+  from: objectIdSchema,
+  files: z.array(reviewedFileSchema),
+});
+export type ReviewComparison = z.infer<typeof reviewComparisonSchema>;
+
 export const storyReviewSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("snapshot"),
@@ -116,6 +126,9 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     files: z.array(reviewedFileSchema),
     // The story's mark on this machine, when it has one.
     mark: reviewMarkSchema.optional(),
+    // With a mark, the same snapshot compared with it: the changes since the
+    // review. Its file diffs compare `from`, the marked tree, with `tree`.
+    since: reviewComparisonSchema.optional(),
   }),
   z.object({
     kind: z.literal("unavailable"),

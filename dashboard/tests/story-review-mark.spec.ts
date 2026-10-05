@@ -3,10 +3,10 @@
 // snapshot is marked and when. What the worktree gained after the snapshot
 // stays unmarked, the marked tree survives Git's housekeeping through its
 // ref, and the worktree's index and status stay as they were. The mark
-// outlives a dashboard restart. Opening, closing, refreshing, or replacing a
-// review marks nothing; marking again replaces the story's one mark and its
-// ref. A mark request naming a path, a malformed object, or an object the
-// repository lacks keeps no mark.
+// outlives a dashboard restart: the reopened review compares with it.
+// Opening, closing, refreshing, or replacing a review marks nothing; marking
+// again replaces the story's one mark and its ref. A mark request naming a
+// path, a malformed object, or an object the repository lacks keeps no mark.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -21,7 +21,9 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import { storyBLaunchRecord, storyBWorktree } from "./support/storyPanels.ts";
 import {
+  expectSinceTheReview,
   keptReviewMarks,
+  keptStoryAMark,
   markReviewed,
   nextSnapshot,
   openReview,
@@ -59,7 +61,7 @@ test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping,
   const before = observed(workspace);
   await markReviewed(review);
 
-  const mark = keptReviewMarks(dashboard)?.["open-dough"]?.[queuedIdentity];
+  const mark = keptStoryAMark(dashboard);
   expect(mark).toMatchObject({ tree: shown.tree, baseline: shown.baseline });
   await expect(review).toContainText("This snapshot is marked reviewed,");
   await expect(review.locator("time")).toHaveAttribute(
@@ -82,7 +84,7 @@ test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping,
   expect(marked.split("\n")).not.toContain("after-snapshot.txt");
 });
 
-test("the review still says when it was marked after the dashboard restarts", async ({
+test("the review still compares with the mark, saying when it was made, after the dashboard restarts", async ({
   page,
   dashboard,
   origin,
@@ -93,7 +95,7 @@ test("the review still says when it was marked after the dashboard restarts", as
   await openReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
-  const mark = keptReviewMarks(dashboard)?.["open-dough"]?.[queuedIdentity];
+  const mark = keptStoryAMark(dashboard);
 
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
@@ -112,11 +114,8 @@ test("the review still says when it was marked after the dashboard restarts", as
       parts(page).backlog.getByRole("article", { name: "Story A" }),
     );
     expect(reopened.mark).toEqual(mark);
-    await expect(review).toContainText("This snapshot is marked reviewed,");
-    await expect(review.locator("time")).toHaveAttribute(
-      "datetime",
-      mark?.markedAt ?? "",
-    );
+    await expect(review).toContainText("Nothing changed since the review.");
+    await expectSinceTheReview(review, mark);
   } finally {
     await restarted.close();
   }
@@ -179,18 +178,20 @@ test("marking again replaces the story's one mark and its ref", async ({
   await review.getByRole("button", { name: "Refresh" }).click();
   const second = await refreshed;
   expect(second.tree).not.toBe(first.tree);
+  // The refreshed review compares with the first mark.
   await expect(
-    review.getByRole("list", { name: "8 changed files" }),
+    review.getByRole("list", { name: "1 changed file" }),
   ).toBeVisible();
-  await expect(review).toContainText("An earlier snapshot is marked reviewed,");
+  await expect(review).toContainText("From the snapshot marked reviewed");
 
   await markReviewed(review);
-  await expect(review).toContainText("This snapshot is marked reviewed,");
+  const statement = review.getByText("This snapshot is marked reviewed,");
+  await expect(statement).toBeVisible();
   const marks = keptReviewMarks(dashboard);
   expect(Object.keys(marks?.["open-dough"] ?? {})).toEqual([queuedIdentity]);
   const mark = marks?.["open-dough"]?.[queuedIdentity];
   expect(mark).toMatchObject({ tree: second.tree, baseline: second.baseline });
-  await expect(review.locator("time")).toHaveAttribute(
+  await expect(statement.locator("time")).toHaveAttribute(
     "datetime",
     mark?.markedAt ?? "",
   );
