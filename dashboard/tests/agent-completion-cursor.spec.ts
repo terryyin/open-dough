@@ -14,7 +14,7 @@ import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
-import { markDone } from "./support/markDone.ts";
+import { markAsDone, markDone } from "./support/markDone.ts";
 import { occupyRunner } from "./support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
@@ -116,13 +116,15 @@ test("Cursor installed report offers local Done without a native stop capability
   await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
   const before = cursor.calls().length;
   const listed = cardSessions(card);
+  // Mark as done is offered beside the message, read or not; neither control
+  // takes the other's place.
+  await expect(markAsDone(card)).toBeVisible();
   await part.markRead.click();
-  // Read, the session stays open on its card, now offering Mark as done.
-  await expect(
-    card.getByRole("button", { name: "Mark as done" }),
-  ).toBeVisible();
-  await expect(listed).toHaveCount(1);
+  // Reading leaves the session open on its card with its existing Mark as done.
   await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  await expect(markAsDone(card)).toBeVisible();
+  await expect(listed).toHaveCount(1);
+  expect(cursor.calls()).toHaveLength(before);
   const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(read?.doneAt).toBeUndefined();
   expect(read?.reportRead).toBe(receipt.receipt);

@@ -152,7 +152,11 @@ moves. Hosted CI runs the whole suite after publication.
 
 ### 1. Describe and prove Mark as done's independent availability
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list agent-completion-cursor.spec.ts` → 3 passed;
+the reported Cursor card test asserts `markAsDone(card)` visible before and after
+`part.markRead.click()`, one listed session, and no native call from reading.
+The terminal document already held the corrected wording and was left unchanged.
 Proof: `unset NODE_ENV; npx playwright test --config dashboard/playwright.config.ts --reporter=list agent-completion-cursor.spec.ts` passes. In the reported
 Cursor card journey, Mark as done is visible while the message is unread,
 before Mark as read, and stays visible afterwards; the session stays open
