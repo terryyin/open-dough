@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-105#land-and-wrap-up-process-retrospective",
-  "host": "claude",
-  "model": "fable"
-}
