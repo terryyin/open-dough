@@ -14,12 +14,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Optional process retrospective for Dough Land and Story Wrap Up](seeds/SEED-105-land-and-wrap-up-process-retrospective.md#land-and-wrap-up-process-retrospective) — SEED-105#land-and-wrap-up-process-retrospective ([plan](slice-plans/250-land-and-wrap-up-process-retrospective/PLAN.md))
-- [Dashboard specs pass CI on a revision that changes no code](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) — SEED-100#dashboard-specs-pass-unchanged-code ([plan](slice-plans/251-dashboard-specs-pass-unchanged-code/PLAN.md))
+- [Correct the attention message story's wording and proof](seeds/SEED-103-attention-message-on-story-card.md#attention-message-correction) — SEED-103#attention-message-correction ([plan](slice-plans/249-attention-message-correction/PLAN.md))
 
 ## Backlog list
 
-- [Correct the attention message story's wording and proof](seeds/SEED-103-attention-message-on-story-card.md#attention-message-correction) — SEED-103#attention-message-correction
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes

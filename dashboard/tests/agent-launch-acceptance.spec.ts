@@ -134,6 +134,9 @@ test.describe("an accepted launch", () => {
         timeout: 30_000,
       })
       .toBe("published");
+    await expect
+      .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
+      .toBe(1);
     const revision = (await origin.originGit("rev-parse", "main")).trim();
     expect(await attempts(server)).toEqual([
       { ...keptAttempts()[0], owned: true },

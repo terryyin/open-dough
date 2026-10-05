@@ -2,7 +2,15 @@
 // checkouts; the minimal fixture copies no workflow, so each case publishes
 // the repository's actual CI workflow or a variant of it.
 import { expect, test } from "./support/pageTest.ts";
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import {
+  chmod,
+  mkdir,
+  readFile,
+  readdir,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 import {
   ciWorkflowPath,
@@ -111,6 +119,67 @@ test("qualification spans the whole published range, including deletions and bot
       changed: [`app/${tabbed}`, `docs/${tabbed}`],
       qualifying: [`app/${tabbed}`],
     });
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+// Git's own exec path with `git` replaced: automatic maintenance, which a
+// fetch starts detached, keeps writing pack entries until its repository's
+// pack directory is gone, as CI's Git once left it writing during removal;
+// every other Git command runs unchanged.
+async function backgroundPackWriterGit(root: string) {
+  const real = execFileSync("git", ["--exec-path"], {
+    encoding: "utf8",
+  }).trim();
+  const execPath = path.join(root, "git-exec-path");
+  await mkdir(execPath);
+  for (const entry of await readdir(real)) {
+    if (entry !== "git") {
+      await symlink(path.join(real, entry), path.join(execPath, entry));
+    }
+  }
+  const wrapper = path.join(execPath, "git");
+  await writeFile(
+    wrapper,
+    `#!/bin/sh
+if [ "$1" = maintenance ]; then
+  pack="$("${real}/git" rev-parse --absolute-git-dir)/objects/pack"
+  (
+    n=0
+    while [ -d "$pack" ] && [ "$n" -lt 200000 ]; do
+      : >"$pack/racing-$((n % 20))" 2>/dev/null
+      n=$((n + 1))
+    done
+  ) </dev/null >/dev/null 2>&1 &
+  exit 0
+fi
+exec "${real}/git" "$@"
+`,
+  );
+  await chmod(wrapper, 0o755);
+  return execPath;
+}
+
+test("qualification removes its inspection without racing Git's background maintenance", async () => {
+  const { fixture, workflow, inspectionsRoot } = await qualificationFixture();
+  try {
+    const a = await fixture.publish(
+      { [ciWorkflowPath]: workflow, "app.js": "A" },
+      "Baseline",
+    );
+    const b = await fixture.publish({ "app.js": "B" }, "Application");
+    const GIT_EXEC_PATH = await backgroundPackWriterGit(fixture.root);
+    expect(
+      await qualifyPublishedRange({
+        developmentRoot: fixture.development,
+        baseline: { origin: fixture.origin, commit: a },
+        selected: { origin: fixture.origin, commit: b },
+        inspectionsRoot,
+        env: { ...fixture.env, GIT_EXEC_PATH },
+      }),
+    ).toEqual({ qualifies: true, changed: ["app.js"], qualifying: ["app.js"] });
+    expect(await readdir(inspectionsRoot)).toEqual([]);
   } finally {
     fixture.cleanup();
   }

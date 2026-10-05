@@ -13,18 +13,7 @@ executions, not commands, retries, or repairs.
 
 ## Priority assessment
 
-1. **Dashboard specs whose verdict depends on timing or machine load — first,
-   queued.** The races recorded through 2026-10-03 were each repaired, and the
-   launch-card waits closed on 2026-10-04 (`0123c307`). The class came back
-   within hours: six failed CI runs on 2026-10-04, four of them on revisions
-   that changed only Markdown, and this review's own publication failed the
-   same way on 2026-10-05 (DD-232). Two of those specs are still
-   unrepaired, and one is the ad hoc Cursor spec repaired in `aeb9c33d`. Each
-   red run on a story's closing commit leaves trunk red for the next story
-   and costs a diagnosis that the change itself did not cause.
-   Story: [Dashboard specs pass CI on a revision that changes no code](.planning/seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code)
-   (DD-232).
-2. **Checks whose result depends on where or how they are run — second,
+1. **Checks whose result depends on where or how they are run — first,
    queued.** Eight executions or sessions. The most frequent single cause is
    DD-220: four sessions the dashboard launched (plans 228, 233, 240, and the
    2026-10-05 findings review) inherited `NODE_ENV=production`, installed no
@@ -37,12 +26,12 @@ executions, not commands, retries, or repairs.
    Also open: a direct shell run under macOS Bash 3.2 (DD-162), a passing run that
    prints no count (DD-216), and Playwright runs in one checkout that share
    fixed output directories (DD-224, DD-226).
-3. **Local proof that leaves out what another CI job checks — third, not
+2. **Local proof that leaves out what another CI job checks — second, not
    queued.** Two open findings. DD-171 recurred in plan 191 with the same
    error in the same file as plan 146, and no local gate yet types the
    dashboard's import of a skill test fixture. DD-187 leaves
    `producer | grep -q` pipelines under `pipefail` in two test helpers.
-4. **Native host runs routed through the developer — low, not queued.**
+3. **Native host runs routed through the developer — low, not queued.**
    Two findings in two executions (plans 139, 191), both about starting paid native
    runs that are manual-only in this repository. DD-205 records a practice that
    removed the babysitting once the developer authorized the run.
@@ -52,6 +41,15 @@ DD-220's plan 233 and 240 occurrences, which used the same code for the same
 cause seen from the readiness check, merged into DD-220 below; DD-224; and
 DD-229, removed below as resolved. Returned to DearDough.md: DD-169 and DD-173,
 whose cause is a planning premise left to the developer (the ODF-074 class).
+
+Resolved and removed on 2026-10-05 (recovery: `941cf860:ProjectFindings.md`):
+DD-232 (dashboard specs failing CI on revisions that changed no code). Its
+open causes were repaired in the product with forced-order specs (`3589f469`,
+`759f9134`, `06dfb716`), and 20 repeated CI runs on `06dfb716` all passed.
+`scripts/ci-repeat.sh` repeats that on demand. This answers CI's runners only;
+a loaded developer machine stays with DD-224 and DD-226. Two later occurrences from
+plan 245 (repairs `97728d3f`, `866d5a31`) are recoverable at
+`b40ba186:ProjectFindings.md`.
 
 Resolved and removed on 2026-10-05 (recovery: `a5c0ded1:ProjectFindings.md`,
 and `a5c0ded1:DearDough.md` for DD-229):
@@ -83,88 +81,7 @@ DD-164, DD-166 (2026-09-29, recovery `d68fcde4:ProjectFindings.md`); DD-158
 recovery `34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
 DearDough.md on 2026-09-29.
 
-## Dashboard specs whose verdict depends on timing or machine load (first priority, queued)
-
-A dashboard spec should give the same verdict on a loaded developer machine,
-an idle one, and CI's runner, and should not fail on a revision that changes
-no code. Every race named in earlier reviews was repaired, but new ones keep
-arriving one failed CI run at a time, often on a story's closing commit.
-
-**Follow-up:** queued first: [Dashboard specs pass CI on a revision that changes no code](.planning/seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) (DD-232).
-
-### DD-232 — Dashboard specs failed CI on revisions that changed only Markdown, the day after the launch-card waits closed
-
-On 2026-10-04, after the launch-card wait story closed (`0123c307`), six
-`dashboard` CI runs failed. Four were on revisions whose only changes were
-Markdown, plan, and agent-profile files. Two specs are still unrepaired:
-`agent-launch-acceptance.spec.ts:96` failed twice on different revisions, and
-`agent-launch-ad-hoc-cursor.spec.ts:43` showed "First input acceptance
-uncertain", the race `aeb9c33d` had repaired in another test of that spec.
-
-#### Occurrences
-
-- Execution: `SEED-088#review-files-as-folder-tree` wrap-up `3eda366e`
-  - Timestamp: 2026-10-04T01:39:10Z (failing CI log line, run 37168517683)
-  - Tool: unknown (CI on a published wrap-up)
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (3/9)` failed `system-settings.spec.ts:127` (`toHaveLength` on terminal attaches) on a wrap-up that changed only planning records and DearDough.md. Repair `e4bfade5`: under load the dev server's StrictMode double mount let a first socket attach before cleanup hung it up.
-  - Observed effect: one failed CI run and one repair commit.
-- Execution: `SEED-097#cursor-agent-stays-joinable` wrap-up `8cb57afc`
-  - Timestamp: 2026-10-04T01:49:55Z (failing CI log line, run 37169060163)
-  - Tool: unknown (CI on a published wrap-up)
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (1/9)` on main failed `agent-launch-acceptance.spec.ts:96` ("is kept before publication and settles after its caller is gone"): the kept launch record carried a `reporting` object the expected record lacked. The commit changed only planning records and DearDough.md; the next main revision passed.
-  - Observed effect: main red until the next push; not repaired.
-- Execution: merge `ce89cbdf` of `SEED-093#launch-card-waits-hold-under-load`
-  - Timestamp: 2026-10-04T03:12:22Z (failing CI log line, run 37173254314)
-  - Tool: unknown (CI on main)
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (4/9)` failed `story-review-action.spec.ts:31` (`toBeLessThanOrEqual`): Story A's card still showed Reading preparation, so its height changed between two box reads. Repair `6f0e303c` settles the page before each layout reading.
-  - Observed effect: one failed CI run on main and one repair commit.
-- Execution: `SEED-098#story-card-actions-read-at-a-glance` / plan 244, slice 2 `4ed30458`
-  - Timestamp: 2026-10-04T13:05:30Z (CI run 37204384263)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: among three failures, `agent-launch-attention.spec.ts:79` took its snapshot before the scan line's credited-human fact loaded; repaired in `670e776f` with the next slice. DearDough.md's ODF-150 keeps this run's proof-selection facet.
-  - Observed effect: one failed CI run, absorbed by the next slice.
-- Execution: `SEED-098#story-card-actions-read-at-a-glance` wrap-up `2e9d5a70`
-  - Timestamp: 2026-10-04T13:42:20Z (failing CI log line, run 37206540831)
-  - Tool: unknown (CI on a published wrap-up)
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (1/9)` failed `agent-launch-acceptance.spec.ts:96` again, this time with the launch record missing its `outcome`. The wrap-up removed planning records only; its parent `aa7a3eec` passed.
-  - Observed effect: the story branch's final revision red; not repaired.
-- Execution: ad hoc `0cc8895c` ("Describe when a pasted Cursor instruction counts as accepted.")
-  - Timestamp: 2026-10-04T13:51:27Z (failing CI log line, run 37207067477)
-  - Tool: unknown (CI on main)
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (2/9)` failed `agent-launch-ad-hoc-cursor.spec.ts:43` at line 96, waiting the default 5 s for "First input accepted" while the session showed "First input acceptance uncertain". The commit changed four lines of `dashboard/AGENT-LAUNCH-TERMINALS.md`; the next main revision `14e9fc23` passed.
-  - Observed effect: main red until the next push; not repaired.
-- Execution: ad hoc findings review `b41cb376` (this file's 2026-10-05 review)
-  - Timestamp: 2026-10-05 (CI run 37239925415)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (8/9)` failed `side-panel-width.spec.ts:36` with the 30 s test timeout on a revision that changed only Markdown and planning records. The trace showed `expectStillHolds` taking 16.6 s: one wheel step scrolls about five lines of the terminal, and CI's session prints a size line (plus a blank line) for every resize, so `toPass` needed about 20 attempts at its backoff of up to 1 s. A probe with 60 separate resizes failed the old helper locally; the repair committed with this row scrolls ten steps per try at a fixed 100 ms interval and read 240 lines in about 3.5 s.
-  - Observed effect: one failed CI run on main and one repair commit.
-  - Inference: Qualified. These are the same shapes as the repaired races: a read before a page or record settles, and a 5 s wait on a real start. Repairing each spec after it fails in CI has not stopped new ones. Of 25 CI runs created on 2026-10-04 (UTC), six failed in `dashboard`; four of those were on revisions that changed no code.
-- Execution: `SEED-088#review-changes-since-last-review` / plan 245, slice 1 `d754256c`
-  - Timestamp: 2026-10-05T04:45:36Z (failing CI log line, run 37264804452)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (3/9)` failed `agent-launch-card-noted-start.spec.ts:170` with "viewport ratio 0": the credited-human read answered between the hover and `toBeInViewport`, rewrapped the preparing line, and moved the Start out from under the pointer. Held the read to reproduce (5/5 failed); repair `97728d3f` waits for the credit before hovering. The same test failed on a sibling branch (`eadb18f6`) before the repair landed.
-  - Observed effect: one failed CI run and one repair commit.
-- Execution: `SEED-088#review-changes-since-last-review` / plan 245, slice 4 `0ebcbf0c`
-  - Timestamp: 2026-10-05 (CI run 37266736909)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard (7/9)` failed both hosts of `agent-launch-start-phases.spec.ts:24`: a just-loaded page's published read had not answered within the 5 s default wait, so Story A's card did not exist. Neighbouring tests in the shard took about twice their passing time. Delaying the fake GitHub 2.6 s reproduced it; repair `866d5a31` waits for the stages up to `readWaitLimitMs` after each load.
-  - Observed effect: one failed CI run and one repair commit.
-  - Inference: Qualified. Both are the shapes this finding names: a read before the page settles, and a 5 s wait on a read the product bounds at 30 s.
-
-## Checks whose result depends on where or how they are run (second priority, queued)
+## Checks whose result depends on where or how they are run (first priority, queued)
 
 This repository's checks should give CI's result however they are run
 locally: directly or through `scripts/test.sh`, from any directory, in a session
@@ -286,7 +203,7 @@ A refactor agent's rerun of a combined Playwright command replaced the output of
   - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
   - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
 
-## Local proof that leaves out what another CI job checks (third priority, not queued)
+## Local proof that leaves out what another CI job checks (second priority, not queued)
 
 A change proved locally should not fail a CI job for a reason the local proof
 never exercised. Each finding below passed its focused local proof and failed

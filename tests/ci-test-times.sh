@@ -12,6 +12,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/expect-in-log.bash
 source "${source_dir}/tests/helpers/expect-in-log.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/expect-report.bash
+source "${source_dir}/tests/helpers/expect-report.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 checks="${temporary_dir}/checks"
@@ -72,7 +75,8 @@ printf '%s\t%s\n' 101 2026-09-29T11:00:00Z 102 2026-09-28T11:00:00Z \
   103 2026-09-27T11:00:00Z 104 2026-09-26T11:00:00Z > "${fake}/listing"
 
 # Runs the command with the stand-in and substitute budget, logging to
-# <name>.log and setting command_status.
+# <name>.log and setting command_status for expect_report.
+# shellcheck disable=SC2034
 run_times() {
   local name=$1
   shift
@@ -80,17 +84,6 @@ run_times() {
   PATH="${fake}/bin:${PATH}" FAKE_GH="${fake}" OPEN_DOUGH_TEST_DIR="${checks}" \
     "${BASH}" "${source_dir}/scripts/ci-test-times.sh" "$@" \
     > "${temporary_dir}/${name}.log" 2>&1 || command_status=$?
-}
-
-# Fails unless <name>.log is exactly stdin and the command exited STATUS.
-expect_report() {
-  local log="${temporary_dir}/$1.log"
-  if ((command_status != $2)) || ! diff -u -- - "${log}" > "${temporary_dir}/diff"; then
-    printf 'FAIL: the %s report (exit %s, expected %s) differs:\n' \
-      "$1" "${command_status}" "$2" >&2
-    cat -- "${temporary_dir}/diff" >&2
-    exit 1
-  fi
 }
 
 run_times all

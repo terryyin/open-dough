@@ -70,8 +70,10 @@ export async function attemptRun(
         start.kind === "established" ? start.workspace : folder,
       ));
     if (reporting !== undefined) {
-      owned.attempt = { ...owned.attempt, reporting };
-      await keepAttempt(owned.attempt);
+      // Kept before this server answers it.
+      const withReporting = { ...owned.attempt, reporting };
+      await keepAttempt(withReporting);
+      owned.attempt = withReporting;
     }
     const recording =
       reporting === undefined ? baseRecording : { ...baseRecording, reporting };
