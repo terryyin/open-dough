@@ -2,12 +2,15 @@
 // committed story-stages origin (./launchJourney.ts): while it marks, the panel
 // says so quietly; then the panel closes, the session leaves its card, and
 // Recent sessions shows the entry Done under its `done-` name, still openable.
-// While another project is shown, marking still closes the panel. How the
-// boundary renames and stops the session is ./agent-launch-done.spec.ts, how
+// How the boundary renames and stops the session is ./agent-launch-done.spec.ts, how
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
 // entry's own Mark as done is ./agent-launch-card-done.spec.ts. A refused mark
 // keeps the panel open and says so, and a mark answered after another session
-// replaced the panel leaves the keyboard in the new terminal. Origin alone
+// replaced the panel leaves the keyboard in the new terminal. A session not
+// known to be complete is asked about first within the panel, with the
+// terminal still showing; Keep open or Escape leaves the panel open, attached,
+// and the session running, with the keyboard back on Mark as done. What the
+// question decides by is ./agent-terminal-done-question.spec.ts. Origin alone
 // still places the story. The page's own dashboard server drives the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
@@ -25,7 +28,6 @@ import {
   recentSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -34,6 +36,13 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import {
+  doneQuestion,
+  expectAsked,
+  markAsDone,
+  markDoneAnyway,
+  stillWorking,
+} from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -51,6 +60,10 @@ function tokenColour(page: Page, token: string): Promise<string> {
 
 const colourOf = (element: Locator) =>
   element.evaluate((node) => getComputedStyle(node).color);
+
+// The panel header's own Mark as done, apart from the question's.
+const headerMarkAsDone = (panel: Locator) =>
+  markAsDone(panel.locator("header"));
 
 // Holds the page's done requests until released, then lets each reach the
 // boundary.
@@ -103,9 +116,27 @@ test.describe("marking a session done from its terminal", () => {
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const [session] = dashboard.claudeListing();
     const doneName = `done-${String(session?.["name"])}`;
+    const stops = () =>
+      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
+    const rows = panel.locator(".xterm-rows");
+    for (const answer of ["Keep open", "Escape"] as const) {
+      const question = await expectAsked(panel, stillWorking);
+      await expect(rows).toBeVisible();
+      await expect(rows).toContainText("attached");
+      await expect(headerMarkAsDone(panel)).toBeDisabled();
+      if (answer === "Escape") await page.keyboard.press("Escape");
+      else await question.getByRole("button", { name: answer }).click();
+      await expect(doneQuestion(panel)).toHaveCount(0);
+      await expect(headerMarkAsDone(panel)).toBeFocused();
+      await expect(panel).toBeVisible();
+      await expect(panel.getByRole("status")).toBeEmpty();
+      await expect(rows).toContainText("attached");
+      expect(stops()).toEqual([]);
+      await expect(listed).toHaveCount(1);
+    }
     const release = await holdDoneRequests(page);
 
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    await markDoneAnyway(panel);
 
     const marking = panel.getByRole("status").getByText("Marking as done…");
     await expect(marking).toBeVisible();
@@ -130,34 +161,6 @@ test.describe("marking a session done from its terminal", () => {
     await expectMembership(page, queued);
   });
 
-  test("Mark as done from the panel while another project is shown, where the session has no entry, closes the panel", async ({
-    page,
-    dashboard,
-  }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
-      page,
-      stagesJourney,
-    );
-    const { project } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    await settled();
-    await launch(notRefinedStory, "Execution");
-    await cardSessions(card(notRefinedStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached ");
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
-    await expectMembership(page, {
-      taken: [],
-      backlog: [doughnutSharedTitle],
-    });
-
-    await panel.getByRole("button", { name: "Mark as done" }).click();
-
-    await expect(panel).toHaveCount(0);
-  });
-
   test("a refused mark keeps the panel open and says so as a problem, as an ended terminal does", async ({
     page,
     dashboard,
@@ -179,7 +182,7 @@ test.describe("marking a session done from its terminal", () => {
     const folder = path.join(dashboard.home, "git", "open-dough");
     renameSync(folder, `${folder}.moved`);
 
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    await markDoneAnyway(panel);
 
     const refused = status.getByText("The session could not be marked done.");
     await expect(refused).toBeVisible();
@@ -218,7 +221,7 @@ test.describe("marking a session done from its terminal", () => {
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const release = await holdDoneRequests(page);
-    await panel.getByRole("button", { name: "Mark as done" }).click();
+    await markDoneAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
     await cardSessionOf(card(notRefinedStory), "Refinement")

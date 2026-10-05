@@ -68,10 +68,16 @@ and `agent-launch-done-refusal.spec.ts` for its refusals). The page
 journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
 at a time, Close), `agent-terminal-lifetime.spec.ts` (project switch, lost
 connection and Reconnect, ended terminal), `agent-terminal-done.spec.ts`
-(Mark as done from the panel: closing, status, refusal), and
+(Mark as done from the panel: asking first, closing, status, refusal),
+`agent-terminal-done-question.spec.ts` (its question decided by the session as
+the page reads it now), `agent-terminal-done-report.spec.ts` (on sessions that
+reported), and
 `agent-terminal-done-reopen.spec.ts` (reopening a session marked done from its
 Recent sessions entry);
 `agent-launch-card-done.spec.ts` marks a card's session done from its entry.
+`agent-launch-done-question.spec.ts` covers the question Mark as done asks on a
+card, and `agent-launch-done-question-follows.spec.ts` an open question
+following the session's reading, on a card and in the panel.
 `agent-terminal-delete.spec.ts` deletes the record of the session the terminal
 shows.
 A server that must find no `claude` gets a PATH holding only the fake `gh`

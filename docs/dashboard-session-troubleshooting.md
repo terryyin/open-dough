@@ -20,7 +20,10 @@ and the Sessions sidebar offer **Read final report**. The read-only dashboard
 panel shows that conversation's retained final report and explains why terminal
 continuation is unavailable. Missing does not establish why the directory went
 away or that the associated story is complete. Reading or closing the report
-changes no done mark. **Mark as done** remains a deliberate action.
+changes no done mark. **Mark as done** remains a deliberate action: in the
+report panel, as on a card, a session whose intended work is not known to be
+complete is asked about first, below the panel's header, before anything is
+marked ([Mark as done](../dashboard/AGENT-LAUNCH-TERMINALS.md)).
 
 If the workspace lookup is inconclusive, the dashboard says availability could
 not be established and offers the same passive report access. A failed report

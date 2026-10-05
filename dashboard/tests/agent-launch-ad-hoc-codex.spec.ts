@@ -17,6 +17,7 @@ import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 let journey: LaunchJourney;
@@ -196,7 +197,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
         "aria-current",
         "true",
       );
-      await panel.getByRole("button", { name: "Mark as done" }).click();
+      await markDoneAnyway(panel);
       await expect(panel).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
       await expect(recent.locator(".session-state")).toHaveText("Done");

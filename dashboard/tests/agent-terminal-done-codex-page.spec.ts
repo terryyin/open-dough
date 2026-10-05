@@ -1,4 +1,5 @@
 // Rendered controls, reload, native failure and readiness exercise the same stored record.
+// Mark as done in the panel on a Codex session waiting for input asks first.
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
@@ -15,6 +16,12 @@ import {
   codexLines,
   codexTerminalMode,
 } from "./support/codexTerminal.ts";
+import {
+  expectAsked,
+  markAsDone,
+  markDoneAnyway,
+  waitingForInput,
+} from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -24,7 +31,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
 for (const attached of [false, true]) {
-  test(`mark ${attached ? "active attached" : "completed unattached"} Codex done, reload, fail reopening then reopen original identity`, async ({
+  test(`mark ${attached ? "waiting attached" : "completed unattached"} Codex done, reload, fail reopening then reopen original identity`, async ({
     page,
     dashboard,
     codexProtocol,
@@ -40,7 +47,7 @@ for (const attached of [false, true]) {
     native.observations.set(native.threadId, {
       status: {
         type: attached ? "active" : "notLoaded",
-        ...(attached ? { activeFlags: [] } : {}),
+        ...(attached ? { activeFlags: ["waitingOnUserInput"] } : {}),
       },
       turns: [
         { id: "original-turn", status: attached ? "inProgress" : "completed" },
@@ -53,19 +60,22 @@ for (const attached of [false, true]) {
       .filter({ hasText: native.threadId });
     const panel = page.getByRole("region", { name: "Terminal" });
     await expect(listed.locator(".session-state")).toHaveText(
-      attached ? "Working" : "Ready for review",
+      attached
+        ? "Needs input: Codex is waiting for your input"
+        : "Ready for review",
     );
     if (attached) {
       await listed.getByRole("button", { name: "Open terminal" }).click();
       await expect(panel.locator(".xterm-rows")).toContainText(
         "original retained history",
       );
-      await panel.getByRole("button", { name: "Mark as done" }).click();
+      const question = await expectAsked(panel, waitingForInput);
+      await markAsDone(question).click();
       await expect(panel).toHaveCount(0);
       const pid = codexAttaches(native)[0]?.pid ?? 0;
       await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
       expect(codexLines(native, pid)).toEqual([]);
-    } else await listed.getByRole("button", { name: "Mark as done" }).click();
+    } else await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
     await expect(recent.locator(".session-state")).toHaveText("Done");
     await expect(recent).toContainText(
@@ -151,7 +161,7 @@ test("native interrupt refusal remains Working with retained local intent and di
   await expect(panel.locator(".xterm-rows")).toContainText(
     "original retained history",
   );
-  await panel.getByRole("button", { name: "Mark as done" }).click();
+  await markDoneAnyway(panel);
   await expect(panel).toHaveCount(0);
   await expect(listed).toHaveCount(0);
   await expect(recent.locator(".session-state")).toHaveText("Working");

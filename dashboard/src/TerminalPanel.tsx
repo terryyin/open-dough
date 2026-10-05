@@ -15,7 +15,10 @@
 // the theme saved in System settings.
 // Each attachment reports native readiness; startup decisions remain interactive.
 // Where supported, Mark as done asks the boundary to finish this session;
-// the panel closes once marked and says if it could not be.
+// the panel closes once marked and says if it could not be. A session whose
+// intended work is not known to be complete, as the page reads it now, is
+// asked about first within the panel, below its header, with the terminal
+// still showing and Mark as done disabled until the question is answered.
 
 import {
   useLayoutEffect,
@@ -34,7 +37,8 @@ import "./frame-controls.css";
 import "./side-panel.css";
 import "./agent-terminal.css";
 import { IconButton } from "./Icon.tsx";
-import { launchSubject } from "./agentLaunch.ts";
+import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
+import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { usePortraitPreview } from "./terminalPortraitPreview.ts";
 import { keepHeight } from "./measuredHeight.ts";
@@ -45,8 +49,9 @@ import {
   type TerminalEnding,
 } from "./useAttachedTerminal.ts";
 import {
+  doneAnswers,
   notMarkedDone,
-  useMarking,
+  useDoneMark,
   usePageSessions,
   type MarkSessionDone,
   type SessionOperation,
@@ -79,6 +84,7 @@ const endings = {
 
 export function TerminalPanel({
   session,
+  current,
   onAttached,
   maximized,
   onMaximize,
@@ -89,6 +95,8 @@ export function TerminalPanel({
   // The request that opened the panel, which the panel asks its operations
   // with.
   readonly session: SessionRequest;
+  // The session as the page reads it now, which Mark as done decides by.
+  readonly current: LaunchWithState;
   // Told once each attachment first shows the session's output; it keeps its
   // identity across renders.
   readonly onAttached: SessionOperation<void>;
@@ -112,7 +120,8 @@ export function TerminalPanel({
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<TerminalEnding | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
-  const { marking, follow } = useMarking();
+  const { asksFirst, marking, mark } = useDoneMark(current);
+  const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
   useAttachedTerminal(
     screen,
     session,
@@ -149,11 +158,12 @@ export function TerminalPanel({
         <div className="side-panel-actions">
           {marksDone(hostOperations, record.session.host) && (
             <IconButton
+              ref={asking.control}
               label="Mark as done"
               icon={CircleCheck}
-              disabled={marking === "marking"}
-              onClick={() => {
-                follow(onMarkDone(session));
+              disabled={marking === "marking" || asking.shown}
+              onClick={(event) => {
+                asking.press(event.currentTarget);
               }}
             />
           )}
@@ -164,6 +174,13 @@ export function TerminalPanel({
           />
         </div>
       </header>
+      {asking.shown && (
+        <InPlaceQuestion
+          asking={asking}
+          {...doneAnswers}
+          placed="side-panel-question"
+        />
+      )}
       <div role="status" className="terminal-status">
         {marking === "marking" && <p className="quiet">Marking as done…</p>}
         {marking === "not-marked" && <p>{notMarkedDone}</p>}

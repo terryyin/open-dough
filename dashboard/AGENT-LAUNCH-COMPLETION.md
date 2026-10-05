@@ -43,7 +43,11 @@ Native terminal access remains independently available where the host supports i
 The reporting command is prepared from the installed files outside the workspace
 so that workspace retirement cannot remove its executable or dependency.
 **Mark as done** closes a reported session as it closes any session; a host
-without native stop records local Done only. Done does not complete the product story.
+without native stop records local Done only. Wherever Mark as done is offered,
+a session whose latest report is `completed` and that reads neither working nor
+waiting is marked done at once; a working or waiting session, an `unfinished` report, or no report at
+all is asked about first ([Mark as done](AGENT-LAUNCH-TERMINALS.md)). While its
+report is unread, the card offers Mark as read in that place. Done does not complete the product story.
 
 Reporting never renames, detaches, or stops its sender. Terminal attachment lifecycle
 retains attachment ownership; completion reporting schedules no delayed disposal.

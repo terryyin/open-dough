@@ -7,6 +7,7 @@ import { completionLabel, reportUnread } from "./completionReport.ts";
 // (`./CardLaunches.tsx`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
+import { cursorHeldLabel } from "./cursorHeldLabel.ts";
 import { hostDescription } from "./hostDescription.ts";
 
 // What a session entry says of its session, and whether the developer is
@@ -137,6 +138,30 @@ function nativeShown({
       };
     }
   }
+}
+
+// What Mark as done says first about a session whose intended work is not
+// known to be complete, by the same reading and report its entry shows, or
+// nothing when it is complete: its latest report is `completed`, with or
+// without an attention message, and it reads neither working nor waiting for
+// input. Cursor's held-screen words for those two count as them. Otherwise
+// one statement names the most pressing situation: still working, waiting for
+// input, reported unfinished, or not reported complete, with its reading.
+export function unfinishedIntention(
+  session: ReadableSession,
+): string | undefined {
+  const { sessionState, completion } = session;
+  const held = sessionState.kind === "unknown" ? sessionState.label : undefined;
+  const activity =
+    sessionState.kind === "available" ? sessionState.activity : undefined;
+  if (activity === "working" || held === cursorHeldLabel.working)
+    return "This session is still working. Marking it done asks it to stop.";
+  if (activity === "waiting" || held === cursorHeldLabel.waiting)
+    return "This session is waiting for your input.";
+  if (completion?.outcome === "unfinished")
+    return "This session reported unfinished work.";
+  if (completion?.outcome === "completed") return undefined;
+  return `This session has not reported its work complete. It reads ${nativeShown(session).label}.`;
 }
 
 // The words an unread report shows by, wherever it shows or alerts.

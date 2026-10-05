@@ -11,6 +11,7 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { codexAttaches } from "./support/codexTerminal.ts";
 import { report, save, retained } from "./support/retainedReport.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -57,7 +58,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
       doneAt: "2026-10-01T00:00:00Z",
     },
   ]);
-  await panel.getByRole("button", { name: "Mark as done" }).click();
+  await markDoneAnyway(panel);
   await expect(panel).toHaveCount(0);
   await expect(entry).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;

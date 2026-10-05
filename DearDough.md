@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 232. Removed local codes are never reused.
+- Highest allocated local number: 233. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -29,6 +29,7 @@ Follow-up: Open, unqueued.
 
 - Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2` - Timestamp: unknown (after the CI repair return, before commit `ff33cb8` at 2026-09-24T17:46:32+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: 0.3.37 - Evidence: the CI-repair refactor agent's only notification said it had stopped with its own background work still running and had not reported; `ps` then showed no `node --test`, and `TaskStop` found no task. The coordinator kept waiting until the developer said "it seems to be staying here for quite some time." - Observed effect: repair `ff33cb8` shipped on the coordinator's own reruns without a refactor report (compare the earlier unreviewed ci repairs report); slice 6's refactor, told to run tests only in the foreground with timeouts, reported normally.
 - Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: unknown (2026-09-29, before `809b407d` 13:54:50+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46. - Evidence: the refactor pass on the Story Branch native harness repair left two edits uncommitted and stopped (600 s stream watchdog) while "rerunning the accepted proof"; the coordinator reran that proof and delivered `809b407d`. Slice 3's implementation agent stalled the same way before writing anything and resumed through SendMessage. - Observed effect: two stalls in one execution, each costing a 10-minute wait and a coordinator-side recovery; no work lost.
+- Execution: `SEED-104#confirm-mark-as-done` / plan 246, first related implementation commit `0ae01bd4` - Timestamp: unknown (after slice 2's delivery of `01f7d61f` at 2026-10-05T08:52:16+09:00, before CI repair `4f6d9f89` at 10:07:03+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: slice 3's implementation agent was terminated by the 600 s stream watchdog with 17 files edited and no report; a CI failure arrived at the same boundary, so the coordinator confirmed no Playwright run was live, parked the edits with `ci-repair-stash.mjs` (entry `97bf6485`), published repair `4f6d9f89`, restored them (`resumed`), and resumed the same agent through SendMessage with an instruction to bound long commands; it then returned a full report and slice 3 shipped as `8df2e91b`. - Observed effect: a 10-minute wait and one resume; no work lost. - Inference: Qualified. Third execution with a delegated-agent watchdog stall; the stall during a long broad Playwright run matches the earlier "rerunning the accepted proof" occurrence.
 
 ## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
@@ -229,6 +230,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-091#frame-look-checks-one-rule` / plan 236, first related implementation commit `03c9316c` - Timestamp: unknown (delivery of `03c9316c`, after its commit on 2026-10-03) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref main` from the established start's `target` and was refused with "authorized target must be a branch ref: main"; the coordinator then grepped the script and read its lines 60–110 before retrying with `refs/heads/<execution branch>`, which was accepted with observation attached. `publish-the-candidate.md:12-13` does name `refs/heads/<target-branch>`, but the coordinator had read only `trunk-publication.md`'s delivery sections. - Observed effect: one refused call and two lookup calls; no state change. - Inference: Qualified; the same missing statement in the references the delivery path directs a coordinator to read.
 - Execution: `SEED-052#mark-report-read-keeps-session-state` / plan 239, first related implementation commit `46340f4a` - Timestamp: unknown (before the first delivery, after `46340f4a` committed 2026-10-03T22:05:42+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help` and inferred `refs/heads/<execution branch>` from Story Branch wording; the established start listed `target: main`. - Observed effect: one extra call; delivery accepted first time. - Inference: Qualified; same missing statement, low cost.
 - Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d` - Timestamp: unknown (before the delivery of `c58dc07d`, committed 2026-10-03T21:36:52+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: while slice 1 ran, the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; both deliveries were accepted first time. - Inference: Qualified; same missing statement.
+- Execution: `SEED-104#confirm-mark-as-done` / plan 246, first related implementation commit `0ae01bd4` - Timestamp: unknown (while slice 1's agent ran, before `0ae01bd4` committed 2026-10-05T08:33:04+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; all five deliveries were accepted first time. - Inference: Qualified; same missing statement.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -704,3 +706,22 @@ Three Story Branch increment deliveries were accepted on the execution branch wi
   - Evidence: `execution-increment-delivery.mjs deliver` receipts for `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`, `d8468ccec8024cbab1350afac9ef01d4dc006e59`, and `2ea2d324f5956dc76c006b0d425fdefda86b9771` on `refs/heads/cursor/a-launched-cursor-agent-receives-its-story`, each `observation.state: unobserved`, `reason: host session identity is required to verify the notification bridge`. No `--session-json` was passed.
   - Observed effect: publication was accepted; CI was not observed; `complete-revision` has no mailbox.
   - Inference: Qualified. The coordinator omitted the host session identity. One execution.
+
+## DD-233 — A slice's proof command selected specs by text that the slice itself removed
+
+A plan's slice proof chose its specs with `grep -rl "Mark as done"`, while the
+same slice replaced that literal in many specs with calls to a new support
+step, so the command silently selected fewer specs after the change.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-104#confirm-mark-as-done` / plan 246, first related implementation commit `0ae01bd4`
+  - Timestamp: 2026-10-05T08:33:04+09:00 (commit time of `0ae01bd4`; the implementation return reported it just before)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 246 slice 1 proof `$(grep -rl "Mark as done" dashboard/tests --include="*.spec.ts" …)`; after the slice it matched 22 spec files instead of 30. The implementation agent noticed, ran the 30 files matched at `e3196862` plus every changed spec (61 passed), and the plan's Learnings replaced the selector with `grep -rlE "Mark as done|markDone"` for later slices.
+  - Observed effect: no missed proof and no rework; one learning edit.
+  - Inference: Qualified. A text-based selector read after the change measures the post-change tree; a selector fixed at the starting revision, or one that also matches the replacement, keeps the intended set. Related in shape to ODF-157 (sweeping with the removed words), but here the proof selection, not a premise, depended on them.

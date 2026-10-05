@@ -1,7 +1,9 @@
 import { hasCompletionMessage } from "./completionReport.ts";
 // Passive final report: changing selection cancels the previous identity's read.
+// Mark as done asks first, below the header, as the terminal's does.
 import { useEffect, useRef, useState } from "react";
-import { launchSubject } from "./agentLaunch.ts";
+import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
+import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import {
   sessionResultEndpoint,
   sessionResultSchema,
@@ -11,6 +13,7 @@ import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
 import { closeShortcutLabel, usePanelCloseShortcut } from "./PanelControls.tsx";
 import {
+  doneAnswers,
   usePageSessions,
   useReportOrDoneMark,
   type MarkSessionDone,
@@ -23,10 +26,13 @@ import "./session-result.css";
 
 export function SessionResultPanel({
   session,
+  current,
   onClose,
   onMarkDone,
 }: {
   readonly session: SessionRequest;
+  // The session as the page reads it now, which its marks decide by.
+  readonly current: LaunchWithState;
   readonly onClose: () => void;
   readonly onMarkDone: MarkSessionDone;
 }) {
@@ -35,8 +41,14 @@ export function SessionResultPanel({
   const [result, setResult] = useState<SessionResult | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
-  const { label, marking, markingSaid, notMarkedSaid, mark } =
-    useReportOrDoneMark(record);
+  const { label, asksFirst, marking, markingSaid, notMarkedSaid, mark } =
+    useReportOrDoneMark(current);
+  const asking = useAskInPlace(asksFirst, () =>
+    mark(
+      () => markRead(session),
+      () => onMarkDone(session),
+    ),
+  );
   usePanelCloseShortcut(onClose);
   useEffect(() => {
     if (hasCompletionMessage(record.completion)) {
@@ -106,14 +118,12 @@ export function SessionResultPanel({
           {marksRecordDone(hostOperations, record) &&
             record.doneAt === undefined && (
               <button
+                ref={asking.control}
                 type="button"
                 className="frame-button"
-                disabled={marking === "marking"}
-                onClick={() => {
-                  mark(
-                    () => markRead(session),
-                    () => onMarkDone(session),
-                  );
+                disabled={marking === "marking" || asking.shown}
+                onClick={(event) => {
+                  asking.press(event.currentTarget);
                 }}
               >
                 {label}
@@ -129,6 +139,13 @@ export function SessionResultPanel({
           </button>
         </div>
       </header>
+      {asking.shown && (
+        <InPlaceQuestion
+          asking={asking}
+          {...doneAnswers}
+          placed="side-panel-question"
+        />
+      )}
       <div ref={report} className="session-result-body" tabIndex={-1}>
         <p>
           Read-only final report. Reading it does not continue or mark the

@@ -9,7 +9,6 @@
 
 import { renameSync } from "node:fs";
 import path from "node:path";
-import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
   cardSessionOf,
@@ -27,6 +26,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -56,8 +56,6 @@ test.describe("marking a card's session done", () => {
       recent.getByRole("article", {
         name: recentSessionName(workflow, readyStory),
       });
-    const markDone = (entry: Locator) =>
-      entry.getByRole("button", { name: "Mark as done" }).click();
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -77,7 +75,7 @@ test.describe("marking a card's session done", () => {
         "Session unavailable",
       );
 
-      await markDone(onCard("Execution"));
+      await markDoneAnyway(onCard("Execution"));
 
       await expect(onCard("Execution")).toHaveCount(0);
       const entry = inRecent("Execution");
@@ -110,7 +108,7 @@ test.describe("marking a card's session done", () => {
     const folder = path.join(dashboard.home, "git", "open-dough");
     renameSync(folder, `${folder}.moved`);
 
-    await entry.getByRole("button", { name: "Mark as done" }).click();
+    await markDoneAnyway(entry);
 
     await expect(entry.getByRole("status")).toHaveText(
       "The session could not be marked done.",

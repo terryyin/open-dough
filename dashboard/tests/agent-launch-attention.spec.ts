@@ -34,6 +34,7 @@ import {
 } from "./sessionStatePace.ts";
 import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -194,9 +195,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       const takenFacts = await publishedFactsOf(card(readyStory));
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
 
-      await entryOf(readyStory, "Execution")
-        .getByRole("button", { name: "Mark as done" })
-        .click();
+      await markDoneAnyway(entryOf(readyStory, "Execution"));
       await expect(entryOf(readyStory, "Execution")).toHaveCount(0);
       await expectCounted({ [notRefinedStory]: one });
       await expectMembership(page, takenStages);

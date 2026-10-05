@@ -20,7 +20,7 @@ import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import { StoryReviewPanel } from "./StoryReviewPanel.tsx";
 import { ReviewsOnPage } from "./pageReviews.ts";
-import { usePageSidePanel } from "./pageSidePanel.ts";
+import { shownRecord, usePageSidePanel } from "./pageSidePanel.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
 import { SidePanelEdgeOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
@@ -39,7 +39,7 @@ export function PageFrame({
   stories,
   children,
 }: {
-  // The machine's sessions the sidebar lists and the terminal acts on;
+  // The machine's sessions the sidebar lists and the panel decides by;
   // `readSession` keeps its identity across renders.
   readonly sessions: Pick<
     MachineSessions,
@@ -130,6 +130,7 @@ export function PageFrame({
               <SessionResultPanel
                 key={sessionKey(result.record.session)}
                 session={result}
+                current={shownRecord(records, result)}
                 onClose={() => {
                   panel.close(result);
                 }}
@@ -140,6 +141,7 @@ export function PageFrame({
               <TerminalPanel
                 key={sessionKey(terminal.record.session)}
                 session={terminal}
+                current={shownRecord(records, terminal)}
                 onAttached={attached}
                 maximized={maximized}
                 onMaximize={panel.maximize}

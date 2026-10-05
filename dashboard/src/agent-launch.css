@@ -152,9 +152,10 @@
   color: var(--accent);
 }
 
-/* Delete record's question stays in the entry, beside its own words; the two
-   choices sit on one line and read as the launch controls do. */
-.delete-question-actions {
+/* A question asked in place (Delete record…, Mark as done) stays in the
+   entry, beside its own words; the two choices sit on one line and read as
+   the launch controls do. */
+.in-place-question-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;

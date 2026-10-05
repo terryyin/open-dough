@@ -5,7 +5,11 @@
 // Session operations retain their host-qualified identity across
 // asynchronous answers; a review is not a session and has no session mark.
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { launchSubject } from "./agentLaunch.ts";
+import {
+  launchSubject,
+  type LaunchRecord,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { sessionAccess, type SessionAccess } from "./sessionAccess.ts";
 import { sessionKey } from "./sessionReference.ts";
@@ -41,6 +45,22 @@ type KeyboardReturn = {
 
 const shownSessionOf = (panel: Panel | undefined) =>
   panel === undefined || panel.kind === "review" ? undefined : panel.request;
+
+// The session a panel shows as the page reads it now, from the machine's
+// sessions of every project, since the panel keeps the record it was opened
+// with; until the page has read it, the opened record, with its reading
+// unknown if it was opened without one.
+export function shownRecord(
+  records: readonly LaunchWithState[] | undefined,
+  { record }: SessionRequest,
+): LaunchWithState {
+  const opened: LaunchRecord & Partial<LaunchWithState> = record;
+  return (
+    records?.find(
+      (known) => sessionKey(known.session) === sessionKey(record.session),
+    ) ?? { ...record, sessionState: opened.sessionState ?? { kind: "unknown" } }
+  );
+}
 
 export function usePageSidePanel({
   markDone,

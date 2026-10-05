@@ -26,6 +26,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -88,7 +89,7 @@ test.describe("reopening a session marked done from its Recent sessions entry", 
     await expect(sessionStateOf(entry)).not.toHaveText("Done");
     await expect(entry).not.toContainText("Named done-");
 
-    await listed.getByRole("button", { name: "Mark as done" }).click();
+    await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
