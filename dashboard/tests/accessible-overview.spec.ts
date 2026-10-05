@@ -42,16 +42,22 @@ test("accessible overview reflows long published work for a narrow window and pa
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await page.goto("/");
-  const { backlog, taken, direction, source } = parts(page);
+  const { backlog, taken, recentSessions, direction, source } = parts(page);
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
 
-  await test.step("a wide window reads the long work whole, side by side", async () => {
+  await test.step("a wide window reads the long work whole, three columns side by side", async () => {
     await expectNoSidewaysScrollAndWholeText(page);
-    await expectSideBySideInOrder([backlog, taken]);
-    // Nothing stands between the stages: only the frame's gap separates them.
-    const [from, to] = await Promise.all([box(backlog), box(taken)]);
-    expect(to.x - (from.x + from.width)).toBeLessThanOrEqual(24);
+    const columns = [backlog, taken, recentSessions];
+    await expectSideBySideInOrder(columns);
+    // Nothing stands between the columns: only the frame's gap separates them.
+    const boxes = await Promise.all(columns.map(box));
+    boxes.slice(1).forEach((to, index) => {
+      const from = boxes[index];
+      expect(to.x - ((from?.x ?? 0) + (from?.width ?? 0))).toBeLessThanOrEqual(
+        24,
+      );
+    });
     await page.screenshot({
       path: testInfo.outputPath("long-work-wide.png"),
       fullPage: true,

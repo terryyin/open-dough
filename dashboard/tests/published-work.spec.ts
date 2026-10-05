@@ -55,8 +55,16 @@ test("published overview shows Backlog and Taken work read at one revision", asy
 
   await page.goto("/");
 
-  const { stages, backlog, taken, direction, source, status, reading } =
-    parts(page);
+  const {
+    stages,
+    backlog,
+    taken,
+    recentSessions,
+    direction,
+    source,
+    status,
+    reading,
+  } = parts(page);
   await test.step("reading is shown before any work or count", async () => {
     await expect(status).toHaveText("Reading published work…");
     await expect(stages).toHaveCount(0);
@@ -124,9 +132,16 @@ test("published overview shows Backlog and Taken work read at one revision", asy
     await expect(taken).toContainText("2 entries");
   });
 
-  await test.step("Backlog sits beside Taken", async () => {
+  await test.step("Backlog, Taken, and Recent sessions sit side by side", async () => {
+    // Recent sessions is local evidence beside the stages, not one of them.
     await expect(stages.getByRole("region")).toHaveCount(2);
-    await expectSideBySideInOrder([backlog, taken]);
+    await expect(
+      recentSessions.getByRole("heading", { name: "Recent sessions" }),
+    ).toBeVisible();
+    await expect(recentSessions).toContainText(
+      "Sessions launched from this dashboard for this project, newest first, kept on this machine.",
+    );
+    await expectSideBySideInOrder([backlog, taken, recentSessions]);
   });
 
   await test.step("direction and source evidence sit outside the stage", async () => {

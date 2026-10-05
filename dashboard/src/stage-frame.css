@@ -1,12 +1,23 @@
 /* The stages' frame: Backlog and Taken, each
-   stage a headed panel holding its cards (./stages.css). main.tsx loads this
-   after styles.css, so that a rule here decides where both say something
-   equally specific, as a stage's count does. */
+   stage a headed panel holding its cards (./stages.css), and Recent sessions
+   beside them in the dashboard columns (./DashboardColumns.tsx). main.tsx
+   loads this after styles.css, so that a rule here decides where both say
+   something equally specific, as a stage's count does. */
 
-/* Backlog and Taken, left to right in reading order. */
+/* Backlog, Taken, and Recent sessions, left to right in reading order, a
+   third of the page each. */
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* Backlog and Taken take the row's first two columns. */
 .stages {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-column: span 2;
+  grid-template-columns: subgrid;
   gap: var(--space-4);
   align-items: start;
 }
@@ -57,10 +68,23 @@
   font-size: var(--text-sm);
 }
 
-/* A narrow page column -- a narrow window, a wide one under browser zoom, or
-   one sharing its width with the Sessions sidebar or the side panel
-   (./side-panel.css) -- shows the same stages in the same order, top to
-   bottom. */
+/* A page column too narrow for three columns of 24rem -- a narrow window, a
+   wide one under browser zoom, or one sharing its width with the Sessions
+   sidebar or the side panel (./side-panel.css) -- shows Backlog and Taken
+   side by side, with Recent sessions below them. */
+@container page (width < 72rem) {
+  .dashboard-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stages {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* A page column narrower still shows the same stages in the same order, top
+   to bottom. */
 @container page (max-width: 48rem) {
   .stages {
     grid-template-columns: minmax(0, 1fr);

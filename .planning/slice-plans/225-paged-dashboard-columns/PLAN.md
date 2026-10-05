@@ -110,7 +110,7 @@ nearly every journey renders. A session started from the dashboard inherits
 ### 1. Recent sessions is the third column in a wide page
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `accessible-overview.spec.ts` and `published-work.spec.ts` expect
 Backlog, Taken, and Recent sessions side by side in order in a wide window,
 with only the frame's gap between neighbors and all text read whole; the
@@ -123,6 +123,19 @@ still names only Backlog and Taken.
 
 Interim: a page under 72rem keeps today's arrangement (two columns with
 Recent sessions below, stacked under 48rem). Slice 2 replaces it.
+
+Accepted: `DashboardColumns.tsx` owns the row; `.stages` spans two of its
+tracks as a subgrid. `accessible-overview.spec.ts` “a wide window reads the
+long work whole, three columns side by side” and `published-work.spec.ts`
+“Backlog, Taken, and Recent sessions sit side by side” pass; the whole suite
+passed 1085/1085.
+
+Learnings: `.stages` takes its columns from the row, so slice 2's cut-off,
+moving track keeps it spanning two tracks. The interim `width < 72rem` rule
+and the `max-width: 48rem` rule in `stage-frame.css` are what slice 2
+removes; use `<` breakpoints so exactly 48rem shows two columns. A journey
+needing Recent sessions out of view at 1280px now opens the Sessions sidebar
+first (`agent-launch-ad-hoc-sessions.spec.ts`).
 
 ### 2. A narrower page shows the columns that fit and pages by edge controls
 

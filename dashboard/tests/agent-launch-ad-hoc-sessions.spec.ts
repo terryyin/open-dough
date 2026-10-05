@@ -218,7 +218,8 @@ test("with Open Dough already shown, its sidebar entry brings its Recent session
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  // A window short enough that Recent sessions starts below it.
+  // A window short enough that, beside the open Sessions sidebar, Recent
+  // sessions starts below it.
   await page.setViewportSize({ width: 1280, height: 600 });
   await openTakenBacklog(page, journey);
   const text = "where is this entry?";
@@ -226,8 +227,8 @@ test("with Open Dough already shown, its sidebar entry brings its Recent session
   const recent = recentOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
-  await expect(recent).not.toBeInViewport();
   await button.click();
+  await expect(recent).not.toBeInViewport();
   await entry(text).click();
 
   await expect(recent).toBeInViewport();
