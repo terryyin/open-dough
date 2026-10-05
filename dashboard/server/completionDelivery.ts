@@ -18,6 +18,7 @@ import {
   reportingAttempt,
   type CompletionSubmission,
 } from "./completionAdmission.ts";
+import { doneSessionRecord, markReportedSessionDone } from "./doneMarks.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export async function deliverCompletion(
@@ -28,7 +29,14 @@ export async function deliverCompletion(
   try {
     // An applied immutable receipt can recover its acknowledgment without a write.
     const previous = await previousCompletion(report, origin, delivery);
-    if (previous?.applied) return previous.receipt;
+    if (previous?.applied) {
+      await withKeptAttempts(async (attempts) => {
+        const attempt = reportingAttempt(attempts, report, origin);
+        if (attempt.completion?.receipt === previous.receipt.receipt)
+          await markReportedSessionDone(report.source, previous.receipt);
+      });
+      return previous.receipt;
+    }
     const saved =
       previous?.receipt ?? (await reserveCompletion(report, origin, delivery));
     // No second attempt write follows disposition; failed writes cannot follow
@@ -73,9 +81,8 @@ export async function deliverCompletion(
             (entry.dispositionChangedAt === undefined ||
               entry.dispositionChangedAt < saved.receivedAt);
           const next = {
-            ...entry,
+            ...(quiet ? doneSessionRecord(entry, saved.receivedAt) : entry),
             completion: saved,
-            ...(quiet ? { doneAt: saved.receivedAt } : {}),
           };
           // A newer qualification replaces previous automatic success, while
           // explicit local Done/reopen remains independent of reported outcome.
@@ -88,6 +95,8 @@ export async function deliverCompletion(
       }));
       if (!binding.found)
         throw new RefusedRequest(409, "The reporting session was deleted.");
+      if (attempt.completion?.receipt === saved.receipt)
+        await markReportedSessionDone(report.source, saved);
       return saved;
     });
   } catch (error) {

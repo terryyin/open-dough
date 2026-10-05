@@ -63,8 +63,17 @@ waiting is marked done at once; a working or waiting session, an `unfinished` re
 all is asked about first ([Mark as done](AGENT-LAUNCH-TERMINALS.md)); an unread
 report alone is not asked about. Done does not complete the product story.
 
-Reporting never renames, detaches, or stops its sender. Terminal attachment lifecycle
-retains attachment ownership; completion reporting schedules no delayed disposal.
-A session marked done with a report reads Done, with native Working as its note.
-A receipt claims no native shutdown or cosmetic rename. Direct Land/Wrap Up
+Quiet reporting uses the same Done operation as Mark as done, including native
+naming where the host can rename safely while reporting. Codex uses its native
+out-of-band name operation. Claude requires terminal input to rename; reporting
+retains a native rename problem for the developer to finish with Mark as done
+after reporting. Missing attachment or unconfirmed rename also retains a problem.
+The receipt acknowledges durable completion and Done intent; native failures remain
+visible and the same delivery can retry them. A successful delivery retry does not
+repeat a confirmed rename. Early quiet reporting applies the same operation when
+its native session is bound.
+Reporting keeps its sender's attachments and work running so the sender can receive
+its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
+completion reporting schedules no delayed disposal. A session marked done with a
+report reads Done, with native Working as its note. A receipt claims no native shutdown. Direct Land/Wrap Up
 without supplied context makes no dashboard contact. Other workflows receive the channel without gaining automatic completion.
