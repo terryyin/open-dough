@@ -27,6 +27,17 @@ export const overflows = (pane: Locator) =>
     sideways: element.scrollWidth > element.clientWidth,
   }));
 
+// Whether a row lies wholly within its pane's visible box, inside its
+// borders.
+export async function shownInPane(pane: Locator, row: Locator) {
+  const shown = await pane.evaluate((element) => {
+    const top = element.getBoundingClientRect().top + element.clientTop;
+    return { top, bottom: top + element.clientHeight };
+  });
+  const placed = await box(row);
+  return placed.y >= shown.top && placed.y + placed.height <= shown.bottom;
+}
+
 export const boxes = (parts: readonly Locator[]) =>
   Promise.all(parts.map((part) => box(part)));
 

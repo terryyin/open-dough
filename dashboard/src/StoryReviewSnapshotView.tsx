@@ -11,13 +11,17 @@
 // its baseline says so in place of the browser. A refreshed snapshot keeps
 // the browser as it was, its collapsed folders, and the selected file while
 // the new snapshot still lists their paths; one that no longer lists the
-// selected file selects its first file.
+// selected file selects its first file. Previous file and Next file beside
+// the diff's heading move the selection in the browser's order
+// (`./StoryReviewFileMoves.tsx`), expanding the folders that hold the file
+// moved to and scrolling the browser to bring its row into view.
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import type { ReviewedFile, TakenStoryReview } from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
+import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import { changedFiles, FileTree, kindWords } from "./StoryReviewFileTree.tsx";
 
 function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
@@ -132,13 +136,38 @@ export function SnapshotView({
   // and a refreshed snapshot keeps those it still has collapsed.
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const tree = reviewFileTree(snapshot.files);
+  const order = reviewFileOrder(tree);
   const selected =
-    snapshot.files.find((file) => file.path === selectedPath) ??
-    reviewFileOrder(tree)[0];
+    snapshot.files.find((file) => file.path === selectedPath) ?? order[0];
   // The first file stays selected once shown, so a later snapshot that lists
   // an earlier selection again does not return to it.
   if (selected !== undefined && selected.path !== selectedPath)
     setSelectedPath(selected.path);
+  // A move asks for its file's row to be brought into view once shown.
+  const browserPane = useRef<HTMLElement>(null);
+  const revealing = useRef(false);
+  const shownPath = selected?.path;
+  useLayoutEffect(() => {
+    if (!revealing.current) return;
+    revealing.current = false;
+    const row = browserPane.current?.querySelector(
+      'button[aria-pressed="true"]',
+    );
+    if (browserPane.current && row) revealRow(browserPane.current, row);
+  }, [shownPath]);
+  const moveTo = (file: ReviewedFile) => {
+    setCollapsed((was) => {
+      const holders = [...was].filter((folder) =>
+        file.path.startsWith(`${folder}/`),
+      );
+      if (holders.length === 0) return was;
+      const next = new Set(was);
+      for (const folder of holders) next.delete(folder);
+      return next;
+    });
+    revealing.current = true;
+    setSelectedPath(file.path);
+  };
   const listName = changedFiles(snapshot.files.length);
   const { id: browserId } = browser;
   const diffHeadingId = `${headingId}-diff`;
@@ -151,6 +180,7 @@ export function SnapshotView({
     <div className="story-review-workarea">
       <section
         id={browserId}
+        ref={browserPane}
         className="story-review-files"
         aria-labelledby={`${browserId}-heading`}
         hidden={!browser.shown}
@@ -173,9 +203,16 @@ export function SnapshotView({
         />
       </section>
       <section className="story-review-diff" aria-labelledby={diffHeadingId}>
-        <h3 id={diffHeadingId}>
-          <ReviewedFileName file={selected} />
-        </h3>
+        <div className="story-review-diff-heading">
+          <h3 id={diffHeadingId}>
+            <ReviewedFileName file={selected} />
+          </h3>
+          <FileMoves
+            order={order}
+            selectedPath={selected.path}
+            onMove={moveTo}
+          />
+        </div>
         <FileDiff
           // A new snapshot or file is a new read, never the last one's.
           key={`${snapshot.tree}:${selected.path}`}

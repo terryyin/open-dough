@@ -202,7 +202,16 @@ state, which nothing reaches any more. Update `AGENT-LAUNCH-REVIEW.md`.
 
 ### 4. Move to the previous and next file from the diff
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review story-panel side-panel` (36
+passed) and `npm run typecheck:dashboard` pass. Observed in
+`story-review-file-moves.spec.ts`: over `nestedWorktree`, the ends are
+`aria-disabled` yet focusable, Next walks the browser's order, and moves
+into a collapsed folder (and one nested in another) expand them with the row
+shown in the browser pane; over `largeWorktree`, each move shows the diff
+from the top and Next below the fold scrolls only the browser. `FileMoves`
+is in `StoryReviewFileMoves.tsx`.
 Proof: a journey over `nestedWorktree`: Next from the opening file walks the
 files in the browser's order to the last; Previous is unavailable on the first
 file and Next on the last, each still focusable; with a folder collapsed, Next

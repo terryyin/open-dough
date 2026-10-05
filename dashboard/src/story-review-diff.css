@@ -1,7 +1,8 @@
 /* A reviewed file's diff (./StoryReviewFileDiff.tsx) in the story review
    (./story-review.css). Code lines keep their spacing and scroll sideways
    and down here, beneath the diff's heading; each line's leading +, -, or
-   space says whether it was added, removed, or unchanged. */
+   space says whether it was added, removed, or unchanged. Previous file and
+   Next file sit at the end of the heading. */
 
 /* The diff's heading and status stay above its code, which takes the rest
    of the pane's height and scrolls within it. */
@@ -18,6 +19,32 @@
 .story-review-diff > .story-review-code {
   flex: 0 1 auto;
   min-height: 0;
+}
+
+/* The heading's kind and path take the room beside Previous file and Next
+   file, which keep their place at its end. */
+.story-review-diff-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.story-review-diff-heading h3 {
+  flex: 1;
+  min-width: 0;
+}
+
+.story-review-file-moves {
+  display: flex;
+  flex: none;
+}
+
+/* A move that cannot go further, still focusable. */
+.story-review-file-moves .icon-button[aria-disabled="true"] {
+  opacity: 0.5;
+  color: var(--quiet);
+  background: transparent;
+  cursor: default;
 }
 
 .story-review-code {

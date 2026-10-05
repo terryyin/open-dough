@@ -89,7 +89,13 @@ place. Selecting a file shows its diff from the top and leaves the browser
 where it was scrolled. A review with changes opens on the first file in the
 browser's order, its rows read from top to bottom with every folder expanded
 (`reviewFileOrder` in `src/reviewFileTree.ts`), so a folder that comes first
-opens on its first file. Refresh keeps the browser's place, its collapsed
+opens on its first file. Previous file and Next file, icon controls beside
+the diff's heading (`src/StoryReviewFileMoves.tsx`), move the selection one
+file along that same order. A move into a collapsed folder expands it and any
+collapsed folders holding it, and scrolls the browser, never the page, to
+bring the selected row into view; the diff shows from the top. Previous file
+is unavailable on the first file and Next file on the last, each still
+focusable. Refresh keeps the browser's place, its collapsed
 folders, and the selected file while the new snapshot lists it, and
 otherwise selects the first file. Maximize/Restore and resizing keep both
 panes' places. Where the panel is too narrow for the browser beside the
