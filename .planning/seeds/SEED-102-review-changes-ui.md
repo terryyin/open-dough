@@ -92,9 +92,9 @@ Required behavior:
 
 Deferred promises:
 
-- Marking files as viewed or reviewed.
-  [Review only what changed since the last review](SEED-088-dashboard-story-code-review.md#review-changes-since-last-review)
-  owns what marks a review as done.
+- Marking files as viewed or reviewed. The story review's Mark reviewed
+  marks a whole snapshot, as the
+  [dashboard story review](../../dashboard/AGENT-LAUNCH-REVIEW.md) describes.
 - Filtering or searching the file browser, and resizing its width.
 - Side-by-side diff, all files in one continuous scroll, and syntax
   highlighting.
