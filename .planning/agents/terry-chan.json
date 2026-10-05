@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "identity": "SEED-104#confirm-mark-as-done",
-  "mode": "story-branch",
-  "branch": "claude/confirm-mark-as-done-when-the-session-s-intended",
-  "host": "claude"
-}

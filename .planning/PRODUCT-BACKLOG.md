@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Confirm Mark as done when the session's intended work is not complete](seeds/SEED-104-confirm-mark-as-done.md#confirm-mark-as-done) — SEED-104#confirm-mark-as-done ([plan](slice-plans/246-confirm-mark-as-done/PLAN.md))
-
 ## Backlog list
 
 - [Prove the Mark as done rule for every reading it reads](seeds/SEED-104-confirm-mark-as-done.md#prove-mark-as-done-rule) — SEED-104#prove-mark-as-done-rule

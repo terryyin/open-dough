@@ -3,13 +3,14 @@
 **Identity:** SEED-104#prove-mark-as-done-rule
 **Source:** [correction story](../../seeds/SEED-104-confirm-mark-as-done.md#prove-mark-as-done-rule).
 **Kind:** Bounded retrospective correction of
-[confirm Mark as done](../../seeds/SEED-104-confirm-mark-as-done.md#confirm-mark-as-done).
+confirm Mark as done (story recoverable at
+`662cd7a4:.planning/seeds/SEED-104-confirm-mark-as-done.md#confirm-mark-as-done`).
 **Prepared:** 2026-10-05, by that execution's retrospective.
 
 ## Provenance
 
 Original contract: SEED-104#confirm-mark-as-done and its plan
-`246-confirm-mark-as-done` (recoverable at `04567b76`). Related commits:
+`662cd7a4:.planning/slice-plans/246-confirm-mark-as-done/PLAN.md`. Related commits:
 `0ae01bd4` (slice 1), `01f7d61f` (slice 2), `4f6d9f89` (CI repair),
 `8df2e91b` (slice 3), `04567b76` (slice 4).
 
