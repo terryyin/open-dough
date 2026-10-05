@@ -201,3 +201,15 @@ closure path decides publication, so local-only closure stays pending.
 - Native acceptance of a flagged run is not planned here; under ADR 0005 it is
   a separate, manually run observation, and the plan's proof covers the source
   guidance only.
+
+## Execution complete
+
+Product advice:
+
+- Queue ODF-200's follow-up ahead of routine work: in this execution
+  `deliver --target-ref refs/heads/main` was accepted in Story Branch Mode and
+  published slice 1 (`1be19216`) to trunk before integration.
+- At wrap-up, clarify in `docs/installation-and-updates.md` that
+  `skipProcessRetrospective` governs the execution retrospective only;
+  `--process-retrospective` turns on the review for a landing or wrap-up.
+- The release that ships this adds its `CHANGELOG.md` entry.
