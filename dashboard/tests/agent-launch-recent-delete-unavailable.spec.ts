@@ -122,9 +122,7 @@ test.describe("deleting an unavailable Recent sessions entry's record", () => {
       await expect(
         page.getByText("Session record deleted", { exact: true }),
       ).toHaveCount(0);
-      expect(
-        dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-      ).toEqual([]);
+      expect(dashboard.claudeStopCalls()).toEqual([]);
     });
   });
 });

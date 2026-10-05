@@ -1,0 +1,122 @@
+/* A reviewed file's diff (./StoryReviewFileDiff.tsx) in the story review
+   (./story-review.css). Code lines keep their spacing and scroll sideways
+   and down here, beneath the diff's heading; each line's leading +, -, or
+   space says whether it was added, removed, or unchanged, and its old and
+   new line numbers sit before it. Previous file and Next file sit at the
+   end of the heading. */
+
+/* The diff's heading and status stay above its code, which takes the rest
+   of the pane's height and scrolls within it. */
+.story-review-diff {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.story-review-diff > * {
+  flex: none;
+}
+
+.story-review-diff > .story-review-code {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+/* The heading's kind and path take the room beside Previous file and Next
+   file, which keep their place at its end. */
+.story-review-diff-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.story-review-diff-heading h3 {
+  flex: 1;
+  min-width: 0;
+}
+
+.story-review-file-moves {
+  display: flex;
+  flex: none;
+}
+
+/* A move that cannot go further, still focusable. */
+.story-review-file-moves .icon-button[aria-disabled="true"] {
+  opacity: 0.5;
+  color: var(--quiet);
+  background: transparent;
+  cursor: default;
+}
+
+.story-review-code {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+
+.story-review-hunk {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-review-hunk li {
+  padding: 0 0.5rem;
+  white-space: pre;
+}
+
+/* Each line's old and new numbers, from its data, take two columns before
+   its text: generated, so they are neither the line's text nor copied with
+   it, and assistive technology reads the code without them. A no-newline
+   note leaves both empty, keeping its text under the code. */
+.story-review-line,
+.story-review-note {
+  display: grid;
+  grid-template-areas: "old new code";
+  grid-template-columns:
+    calc(var(--line-number-digits, 1) * 1ch)
+    calc(var(--line-number-digits, 1) * 1ch)
+    auto;
+  column-gap: 1ch;
+}
+
+.story-review-line::before,
+.story-review-note::before {
+  grid-area: old;
+  content: attr(data-old);
+  content: attr(data-old) / "";
+}
+
+.story-review-line::after,
+.story-review-note::after {
+  grid-area: new;
+  content: attr(data-new);
+  content: attr(data-new) / "";
+}
+
+.story-review-line::before,
+.story-review-line::after {
+  color: var(--quiet);
+  text-align: end;
+}
+
+.story-review-hunk-header,
+.story-review-note {
+  color: var(--quiet);
+}
+
+.story-review-hunk-header {
+  background: color-mix(in srgb, var(--quiet) 10%, transparent);
+}
+
+.story-review-added {
+  background: color-mix(in srgb, var(--ready) 14%, transparent);
+}
+
+.story-review-removed {
+  background: color-mix(in srgb, var(--problem) 14%, transparent);
+}

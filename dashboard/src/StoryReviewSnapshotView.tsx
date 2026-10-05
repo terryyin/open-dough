@@ -1,30 +1,39 @@
-// A story review's snapshot (`./storyReview.ts`) as its panel shows it: the
-// worktree, its branch and the baseline it compares against, and the story's
-// changed files with their change kinds in a file browser the developer can
-// hide or show. The browser shows each file by name under folders that
-// collapse and expand (`./StoryReviewFileTree.tsx`). Selecting a file reads
-// its diff (`./StoryReviewFileDiff.tsx`), headed by its kind and full path,
-// and flagged when it includes trunk's changes since the review.
+// A story review's snapshot (`./storyReview.ts`) as its panel's body shows
+// it, beneath the context line (`./StoryReviewContextLine.tsx`): the story's
+// changed files in the comparison shown, with their change kinds, in a file
+// browser the developer can hide or show. The browser shows each file by
+// name under folders that collapse and expand (`./StoryReviewFileTree.tsx`).
 // The browser lists the comparison shown: all changes from the baseline, or
 // the changes since the review from the restated marked tree, a flagged
 // file's from the marked tree, or from the baseline when the story kept it
-// as marked. A worktree that matches its baseline, or a snapshot that
-// matches the marked one, says so in place of the browser; after trunk was
-// integrated since the mark, it says nothing changed beyond what trunk now
-// holds, since story work that reached trunk counts as trunk's.
-// A refreshed snapshot keeps the browser as it was, its collapsed folders,
-// and the selected file while the new snapshot still lists their paths.
+// as marked. The review opens on the first file in the browser's order.
+// Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`) from its
+// *from* tree, headed by its kind and full path and flagged when it includes
+// trunk's changes since the review, shown from the top while the browser
+// keeps its scroll; the two fill the review's body, each scrolling on its
+// own. A worktree that matches its baseline, or a snapshot that matches the
+// marked one, says so in place of the browser; after trunk was integrated
+// since the mark, it says nothing changed beyond what trunk now holds, since
+// story work that reached trunk counts as trunk's. A refreshed snapshot, or
+// the other comparison, keeps the browser as it was, its collapsed folders,
+// and the selected file while the files shown still list their paths;
+// otherwise the first file shown is selected. Previous file and Next file
+// beside the diff's heading move the selection in the browser's order
+// (`./StoryReviewFileMoves.tsx`), expanding the folders that hold the file
+// moved to and scrolling the browser to bring its row into view.
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
-import { reviewFileTree } from "./reviewFileTree.ts";
+import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import {
   trunkIntegratedSince,
   type ReviewComparison,
   type ReviewedFile,
   type TakenStoryReview,
 } from "./storyReview.ts";
+import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
+import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {
   changedFiles,
   FileTree,
@@ -50,12 +59,39 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
   );
 }
 
+// What the review says in place of the browser when the comparison shown
+// lists no files.
+function NoChanges({
+  snapshot,
+  sinceReview,
+}: {
+  readonly snapshot: TakenStoryReview;
+  readonly sinceReview: boolean;
+}) {
+  if (!sinceReview)
+    return (
+      <p>
+        No changes: the worktree matches baseline{" "}
+        <code>{shortRevision(snapshot.baseline)}</code>.
+      </p>
+    );
+  return (
+    <p>
+      {snapshot.mark !== undefined &&
+      trunkIntegratedSince(snapshot.mark, snapshot.baseline)
+        ? "Nothing changed since the review beyond what trunk now holds."
+        : "Nothing changed since the review."}
+    </p>
+  );
+}
+
 export function SnapshotView({
   reviewed,
   snapshot,
   comparison,
   sinceReview,
   headingId,
+  browser,
 }: {
   readonly reviewed: ReviewedStory;
   readonly snapshot: TakenStoryReview;
@@ -63,124 +99,99 @@ export function SnapshotView({
   readonly comparison: ReviewComparison;
   readonly sinceReview: boolean;
   readonly headingId: string;
+  readonly browser: FileBrowserPlace;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>();
   // Folders collapsed by path; every folder starts expanded on each opening,
   // and a refreshed snapshot keeps those it still has collapsed.
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
-  const [browserShown, setBrowserShown] = useState(true);
   const { files } = comparison;
-  const selected = files.find((file) => file.path === selectedPath);
+  const tree = reviewFileTree(files);
+  const order = reviewFileOrder(tree);
+  const selected = files.find((file) => file.path === selectedPath) ?? order[0];
+  // The first file stays selected once shown, so a later snapshot that lists
+  // an earlier selection again does not return to it.
+  if (selected !== undefined && selected.path !== selectedPath)
+    setSelectedPath(selected.path);
   // The selected file's *from* tree.
   const from = selected?.includesTrunkFrom ?? comparison.from;
+  // A move asks for its file's row to be brought into view once shown.
+  const browserPane = useRef<HTMLElement>(null);
+  const revealing = useRef(false);
+  const shownPath = selected?.path;
+  useLayoutEffect(() => {
+    if (!revealing.current) return;
+    revealing.current = false;
+    const row = browserPane.current?.querySelector(
+      'button[aria-pressed="true"]',
+    );
+    if (browserPane.current && row) revealRow(browserPane.current, row);
+  }, [shownPath]);
+  const moveTo = (file: ReviewedFile) => {
+    setCollapsed((was) => {
+      const holders = [...was].filter((folder) =>
+        file.path.startsWith(`${folder}/`),
+      );
+      if (holders.length === 0) return was;
+      const next = new Set(was);
+      for (const folder of holders) next.delete(folder);
+      return next;
+    });
+    revealing.current = true;
+    setSelectedPath(file.path);
+  };
   const listName = changedFiles(files.length);
-  const browserId = `${headingId}-files`;
+  const { id: browserId } = browser;
   const diffHeadingId = `${headingId}-diff`;
-  return (
-    <>
-      <dl className="story-review-facts">
-        <div>
-          <dt>Worktree</dt>
-          <dd>
-            <code>{snapshot.workspace}</code>
-          </dd>
+  return selected === undefined ? (
+    <NoChanges snapshot={snapshot} sinceReview={sinceReview} />
+  ) : (
+    <div className="story-review-workarea">
+      <section
+        id={browserId}
+        ref={browserPane}
+        className="story-review-files"
+        aria-labelledby={`${browserId}-heading`}
+        hidden={!browser.shown}
+      >
+        <h3 id={`${browserId}-heading`}>{listName}</h3>
+        <FileTree
+          label={listName}
+          nodes={tree}
+          selectedPath={selected.path}
+          onSelect={setSelectedPath}
+          collapsed={collapsed}
+          onToggle={(folderPath) => {
+            setCollapsed((was) => {
+              const next = new Set(was);
+              if (!next.delete(folderPath)) next.add(folderPath);
+              return next;
+            });
+          }}
+          idPrefix={browserId}
+        />
+      </section>
+      <section className="story-review-diff" aria-labelledby={diffHeadingId}>
+        <div className="story-review-diff-heading">
+          <h3 id={diffHeadingId}>
+            <ReviewedFileName file={selected} />
+          </h3>
+          <FileMoves
+            order={order}
+            selectedPath={selected.path}
+            onMove={moveTo}
+          />
         </div>
-        <div>
-          <dt>Branch</dt>
-          <dd>
-            <code>{snapshot.branch}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>Baseline</dt>
-          <dd>
-            <code>{snapshot.baseline}</code>, where{" "}
-            <code>{snapshot.branch}</code> meets{" "}
-            <code>
-              {snapshot.remote}/{snapshot.target}
-            </code>
-          </dd>
-        </div>
-      </dl>
-      {files.length === 0 && sinceReview ? (
-        <p>
-          {snapshot.mark !== undefined &&
-          trunkIntegratedSince(snapshot.mark, snapshot.baseline)
-            ? "Nothing changed since the review beyond what trunk now holds."
-            : "Nothing changed since the review."}
-        </p>
-      ) : files.length === 0 ? (
-        <p>
-          No changes: the worktree matches baseline{" "}
-          <code>{shortRevision(snapshot.baseline)}</code>.
-        </p>
-      ) : (
-        <>
-          <div>
-            <button
-              type="button"
-              className="start-launch-button"
-              aria-expanded={browserShown}
-              aria-controls={browserId}
-              onClick={() => {
-                setBrowserShown(!browserShown);
-              }}
-            >
-              {browserShown ? "Hide files" : "Show files"}
-            </button>
-          </div>
-          <div className="story-review-workarea">
-            <section
-              id={browserId}
-              className="story-review-files"
-              aria-labelledby={`${browserId}-heading`}
-              hidden={!browserShown}
-            >
-              <h3 id={`${browserId}-heading`}>{listName}</h3>
-              <FileTree
-                label={listName}
-                nodes={reviewFileTree(files)}
-                selectedPath={selected?.path}
-                onSelect={setSelectedPath}
-                collapsed={collapsed}
-                onToggle={(folderPath) => {
-                  setCollapsed((was) => {
-                    const next = new Set(was);
-                    if (!next.delete(folderPath)) next.add(folderPath);
-                    return next;
-                  });
-                }}
-                idPrefix={browserId}
-              />
-            </section>
-            <section
-              className="story-review-diff"
-              aria-labelledby={diffHeadingId}
-            >
-              <h3 id={diffHeadingId}>
-                {selected === undefined ? (
-                  "Diff"
-                ) : (
-                  <ReviewedFileName file={selected} />
-                )}
-              </h3>
-              {selected === undefined ? (
-                <p className="quiet">Select a file to read its diff.</p>
-              ) : (
-                <FileDiff
-                  // A new comparison or file is a new read, never the last
-                  // one's.
-                  key={`${from}:${snapshot.tree}:${selected.path}`}
-                  reviewed={reviewed}
-                  from={from}
-                  tree={snapshot.tree}
-                  file={selected}
-                />
-              )}
-            </section>
-          </div>
-        </>
-      )}
-    </>
+        <FileDiff
+          // A new comparison, snapshot, or file is a new read, never the
+          // last one's.
+          key={`${from}:${snapshot.tree}:${selected.path}`}
+          reviewed={reviewed}
+          from={from}
+          tree={snapshot.tree}
+          file={selected}
+        />
+      </section>
+    </div>
   );
 }

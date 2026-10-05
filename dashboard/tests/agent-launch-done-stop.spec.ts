@@ -27,9 +27,6 @@ test.describe("marking a session done by what Claude Code lists", () => {
   let machine: string;
   let server: DashboardServer;
 
-  const stopCalls = () =>
-    server.claudeCalls().filter((call) => call.argv[0] === "stop");
-
   test.beforeAll(async () => {
     machine = mkdtempSync(path.join(tmpdir(), "dough-done-stop-"));
     server = await startDashboardServer({
@@ -49,7 +46,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
   test("marks a session Claude Code no longer lists without stopping it", async () => {
     const session = await launched(server);
     server.claudeSessionBecomes(session.sessionId, "forgotten");
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
 
     const response = await markDone(server, {
       source: "open-dough",
@@ -64,12 +61,12 @@ test.describe("marking a session done by what Claude Code lists", () => {
         sessionState: { kind: "unavailable" },
       },
     });
-    expect(stopCalls().slice(stopsBefore)).toEqual([]);
+    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([]);
   });
 
   test("still stops a session whose listing cannot be read", async () => {
     const session = await launched(server);
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
     server.claudeListingFails(true);
     try {
       const response = await markDone(server, {
@@ -88,7 +85,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
     } finally {
       server.claudeListingFails(false);
     }
-    expect(stopCalls().slice(stopsBefore)).toEqual([
+    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
   });
@@ -98,7 +95,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
     const terminal = await openTerminal(server, session);
     expect(await shows(terminal, "attached")).toBe(true);
     server.claudeRenamesIgnored(true);
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
     try {
       const response = await markDone(server, {
         source: "open-dough",
@@ -126,7 +123,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
     expect(
       server.claudeListing().find((each) => each["id"] === session.shortId),
     ).toMatchObject({ name: launchName, state: "stopped" });
-    expect(stopCalls().slice(stopsBefore)).toEqual([
+    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
   });

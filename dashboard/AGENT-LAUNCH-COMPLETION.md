@@ -22,12 +22,25 @@ binds to its native session, with local Done for a quiet completion, when that l
 is confirmed. It never selects the
 newest session for a story. Optional `--session` must match the confirmed native ID.
 
-Messages are rendered as text on every shared session entry. A report is unread
-until **Mark as read**, offered on its card entry and report panel in the place
-of Mark as done, or until the session is marked done. Mark as read keeps the
-report's receipt as read and does nothing else: the session stays open with its
-native reading, and the entry then offers Mark as done. A newer report, with a
-new receipt, is unread again. While unread, an entry keeps its session's
+Every shared session entry, on a story card and in Recent sessions, shows its
+message as text in a message part headed by the report's completion label; the
+heading is a disclosure button that says whether the part is expanded. The
+message text has a limited height and scrolls on its own, reachable by
+keyboard, so a long message leaves Mark as read and the rest of the entry in
+view. A
+report is unread until **Mark as read**, or until the session is marked done.
+While unread the part is expanded, does not collapse, and offers Mark as read,
+on card and Recent sessions entries alike, so a session without a story card
+can be marked read. Mark as read keeps the report's receipt as read and does
+nothing else: the part collapses with the keyboard on its heading, and the
+session stays open with its native reading. A refused mark leaves the part
+expanded and says so in the entry's status line. Read, or on a session marked
+done, the part is collapsed until the developer expands it from its heading,
+without Mark as read; that choice lasts for the report only until a reload. A
+newer report, with a new receipt, is unread again and expanded. The entry's
+**Mark as done** is its own control, offered whenever the session can be marked
+done, an unread report included; marking read never puts Mark as done in its
+place. While unread, an entry keeps its session's
 native reading — its words, its edge, its place in the Sessions sidebar, and
 whether the badge and the card's attention line count it — and shows the report
 apart, as “Unread report: <completion label>” in its state words and sidebar
@@ -36,9 +49,10 @@ sessions hold one (“1 unread report”) in a line of its own. A new instructio
 the session does not mark its report read. Messages survive a story's published
 stage change, dashboard restart, and workspace disappearance, and stay readable
 in Recent sessions after Done.
-**Read attention message** opens the retained text without changing native activity.
-Quiet completion offers no attention message or empty explicit report. Passive native
-final-report access remains independent, where the host supplies it.
+Reading a message, or marking it read, changes no native activity.
+Quiet completion offers no attention message or empty explicit report. The side
+panel holds a session's passive native final report (**Read final report**),
+independently of its message, where the host supplies it.
 Native terminal access remains independently available where the host supports it.
 The reporting command is prepared from the installed files outside the workspace
 so that workspace retirement cannot remove its executable or dependency.
@@ -46,8 +60,8 @@ so that workspace retirement cannot remove its executable or dependency.
 without native stop records local Done only. Wherever Mark as done is offered,
 a session whose latest report is `completed` and that reads neither working nor
 waiting is marked done at once; a working or waiting session, an `unfinished` report, or no report at
-all is asked about first ([Mark as done](AGENT-LAUNCH-TERMINALS.md)). While its
-report is unread, the card offers Mark as read in that place. Done does not complete the product story.
+all is asked about first ([Mark as done](AGENT-LAUNCH-TERMINALS.md)); an unread
+report alone is not asked about. Done does not complete the product story.
 
 Reporting never renames, detaches, or stops its sender. Terminal attachment lifecycle
 retains attachment ownership; completion reporting schedules no delayed disposal.

@@ -8,12 +8,12 @@ import type { Page } from "@playwright/test";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
+import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import { markReviewed, openReview, reviewRegion } from "./storyReviewMark.ts";
 import {
   addStoryWorktree,
   commitAll,
   git,
-  keepLaunchRecord,
   lines,
   writeAt,
 } from "./storyReviewWorktree.ts";

@@ -161,9 +161,6 @@ for (const closure of [
         await expect(recent.locator(".session-attention-message")).toHaveCount(
           0,
         );
-        await expect(
-          recent.getByRole("button", { name: "Read attention message" }),
-        ).toHaveCount(0);
         // Quiet completion has no explicit text; the native final report remains independently readable.
         const nativeSession = native;
         nativeSession.history = [

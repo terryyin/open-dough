@@ -5,10 +5,16 @@
 // machine's Git cannot leave trunk's changes out of it; or, heading
 // the changes since the review, the mark they compare with and when it was
 // made, and whether trunk was integrated since: its baseline is not the
-// snapshot's.
+// snapshot's. The review's marking controls gather these, with its
+// comparison switch (`./StoryReviewComparison.tsx`) and Mark reviewed, in
+// its fixed top beneath the context line.
 
 import { postJson, refusal } from "./agentLaunchClient.ts";
 import { Moment } from "./Moment.tsx";
+import {
+  ComparisonSwitch,
+  type ShownComparison,
+} from "./StoryReviewComparison.tsx";
 import {
   markReviewedAnswerSchema,
   markUnavailable,
@@ -18,6 +24,7 @@ import {
   type MarkUncomparable,
   trunkIntegratedSince,
   type ReviewMark,
+  type TakenStoryReview,
 } from "./storyReview.ts";
 
 // Asks the boundary to mark the snapshot named reviewed: the story's mark,
@@ -97,6 +104,62 @@ export function SinceTheReviewHeading({
           are left out.
         </p>
       )}
+    </div>
+  );
+}
+
+// A snapshot's marking controls: the comparison switch while the changes
+// since the review are offered, their heading while shown, the mark stated,
+// and Mark reviewed, which marks the snapshot shown.
+export function MarkingControls({
+  snapshot,
+  shown,
+  onSwitch,
+  sinceReview,
+  stated,
+  busy,
+  onMark,
+}: {
+  readonly snapshot: TakenStoryReview;
+  readonly shown: ShownComparison;
+  readonly onSwitch: (shown: ShownComparison) => void;
+  // Whether the changes since the review are shown.
+  readonly sinceReview: boolean;
+  readonly stated: ReviewMark | undefined;
+  // Whether the review is being read or marked.
+  readonly busy: boolean;
+  readonly onMark: () => void;
+}) {
+  return (
+    <div className="story-review-marking">
+      {snapshot.since !== undefined && (
+        <ComparisonSwitch shown={shown} onSwitch={onSwitch} />
+      )}
+      {sinceReview && snapshot.mark !== undefined && (
+        <SinceTheReviewHeading
+          mark={snapshot.mark}
+          baseline={snapshot.baseline}
+        />
+      )}
+      <div className="story-review-mark">
+        <MarkStatement
+          mark={stated}
+          tree={snapshot.tree}
+          uncomparable={snapshot.markUncomparable}
+        />
+        {/* Unavailable while reading or marking, yet still focusable, so
+            the keyboard stays on it. */}
+        <button
+          type="button"
+          className="start-launch-button"
+          aria-disabled={busy}
+          onClick={() => {
+            if (!busy) onMark();
+          }}
+        >
+          Mark reviewed
+        </button>
+      </div>
     </div>
   );
 }

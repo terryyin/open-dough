@@ -159,10 +159,7 @@ export async function resultRequest(
     throw new RefusedRequest(400, "The result session is malformed.");
   const record = await keptSession(source.id, { host: host.data, sessionId });
   if (record === undefined) throw noSuchSession();
-  if (
-    record.completion === undefined &&
-    launchHost(record.session.host)?.readResult === undefined
-  )
+  if (launchHost(record.session.host)?.readResult === undefined)
     throw new RefusedRequest(400, "This host cannot read a final report.");
   return { kind: "result", record };
 }

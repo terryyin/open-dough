@@ -33,19 +33,33 @@ folder that holds the selected file keeps the selection and its diff.
 Collapsed folders are kept by path: Refresh keeps each one the new snapshot
 still has collapsed and shows folders new to it expanded, while every folder
 shows expanded each time a review opens. A row shows the file's name alone,
-its kind told by the name's style (`src/story-review.css`): an added name is
+its kind told by the name's style (`src/story-review-files.css`): an added name is
 in the ready color, a modified one in plain text, a deleted one struck
 through in the quiet color, and a renamed one italic. Modified takes the
 plain style because every listed file is changed. The kind's words remain
 where they are read: each file's control is named, and titled for hover, by
 its kind and full path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`),
-and the selected file's diff is headed by the same words.
+and the selected file's diff is headed by the same words. Beside a file's
+name its row shows how many lines its diff adds and removes (`+2 −1`), and
+its control is described by them in words (`2 lines added, 1 line removed`).
+The snapshot reads them with `git diff --numstat -M -z` over the same _from_
+tree and tree as each comparison's file list, joined by path
+(`server/storyReviewFiles.ts`), so no request reads them per file: counts in
+all changes run from the baseline, counts in the changes since the review
+from the restated tree, and a file that includes trunk's changes counts from
+its `includesTrunkFrom`, as its diff does. A file shows counts only when its diff adds or
+removes a line: a binary, mode-only, or empty file shows none. A collapsed
+folder's count stays the changed files it holds.
 
 The list and every file diff come from that one snapshot until Refresh takes
 a new one. A file's diff is Git's unified diff from its _from_ tree in the
 comparison shown, the baseline, the restated or the marked tree, to the
 snapshot tree, with renames diffed against their old path; the file diff
-request names that _from_ tree as `baseline`. Binary and
+request names that _from_ tree as `baseline`. Each line shows its number in
+the old file, the new file, or both, counted from its hunk's header
+(`src/unifiedDiff.ts`); Git's no-newline note takes none. The numbers are
+generated beside the line, outside its text, so copying code leaves them
+behind and assistive technology reads the code alone. Binary and
 mode-only changes say they have no textual diff. The review explains a
 workspace with no changes, a missing worktree, and a trunk that cannot be
 fetched; it never lists files against an unfetched baseline. Requests name
@@ -64,9 +78,55 @@ the keyboard into that review and keeps its snapshot; Refresh is the explicit
 re-read. Maximize/Restore and resizing the panel by its edge keep the snapshot
 and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
-icon controls shared with the terminal. Close or Command+Shift+Escape returns
-the keyboard to Review changes, or to the story's card when that control is
-no longer shown. A review is not a session: it marks no session entry as shown.
+icon controls shared with the terminal. Directly beneath the header, the
+review's fixed top stays in view while the panes beneath it scroll. It holds
+the context line, the review's feedback, and, for a snapshot, its marking
+controls: the Comparison switch, the changes since the review's heading, and
+Mark reviewed with what the review says of the mark
+(`src/StoryReviewContextLine.tsx`, `src/StoryReviewPanel.tsx`,
+`src/StoryReviewMark.tsx`). The context line is one line that never wraps:
+branch, the baseline's short revision with the `<remote>/<target>` it meets,
+worktree, and, while the comparison shown lists files, Hide files / Show
+files for the file browser. Values that do not fit are shortened, the
+worktree first. Activating the line, by pointer or keyboard, shows every value
+in full, the whole baseline revision and where the branch meets trunk
+included, and activating it again returns it to one line; its name reads
+every value in full in either state. That the review is read-only is the
+review's accessible description, not a visible line. The feedback region,
+beneath the context line, announces reading, refreshing, refreshed, and
+problem messages, and an unavailable review's explanation. A review with no
+changes shows its context line above “No changes”, and changes since the
+review with no file above “Nothing changed since the review.”; none of these
+nor an unavailable review shows the file browser or a diff.
+
+Beneath the fixed top, the file browser and the selected file's diff share
+all the panel's remaining height, and the review's body does not scroll as a
+whole (`src/story-review.css`). The browser is a full-height sidebar that
+scrolls down on its own and sideways for long names. The diff's heading, the
+file's kind and path, stays above its code, which scrolls down and sideways
+within the diff; the code region takes the keyboard, so it scrolls by
+keyboard too. Scrolling either pane leaves the other and the fixed top in
+place. Selecting a file shows its diff from the top and leaves the browser
+where it was scrolled. A review with changes opens on the first file in the
+browser's order for the comparison shown, its rows read from top to bottom with every folder expanded
+(`reviewFileOrder` in `src/reviewFileTree.ts`), so a folder that comes first
+opens on its first file. Previous file and Next file, icon controls beside
+the diff's heading (`src/StoryReviewFileMoves.tsx`), move the selection one
+file along that same order. A move into a collapsed folder expands it and any
+collapsed folders holding it, and scrolls the browser, never the page, to
+bring the selected row into view; the diff shows from the top. Previous file
+is unavailable on the first file and Next file on the last, each still
+focusable. The browser and both moves follow the comparison shown, so they
+never reach a file it does not list. Refresh, or switching to the other
+comparison, keeps the browser's place, its collapsed folders, and the
+selected file while the files shown list it, and otherwise selects the first
+file. Maximize/Restore and resizing keep both
+panes' places. Where the panel is too narrow for the browser beside the
+diff, the browser sits above the diff with at most two fifths of the height,
+each still scrolling on its own; Hide files gives the diff the whole work
+area. Close or Command+Shift+Escape returns the keyboard to Review changes,
+or to the story's card when that control is no longer shown. A review is not
+a session: it marks no session entry as shown.
 
 **Mark reviewed** marks the snapshot the review shows: its tree and the
 baseline it was compared with, never a newer state of the workspace, so what

@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 234. Removed local codes are never reused.
+- Highest allocated local number: 236. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -233,6 +233,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-052#mark-report-read-keeps-session-state` / plan 239, first related implementation commit `46340f4a` - Timestamp: unknown (before the first delivery, after `46340f4a` committed 2026-10-03T22:05:42+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help` and inferred `refs/heads/<execution branch>` from Story Branch wording; the established start listed `target: main`. - Observed effect: one extra call; delivery accepted first time. - Inference: Qualified; same missing statement, low cost.
 - Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d` - Timestamp: unknown (before the delivery of `c58dc07d`, committed 2026-10-03T21:36:52+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: while slice 1 ran, the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; both deliveries were accepted first time. - Inference: Qualified; same missing statement.
 - Execution: `SEED-104#confirm-mark-as-done` / plan 246, first related implementation commit `0ae01bd4` - Timestamp: unknown (while slice 1's agent ran, before `0ae01bd4` committed 2026-10-05T08:33:04+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; all five deliveries were accepted first time. - Inference: Qualified; same missing statement.
+- Execution: `SEED-102#full-height-review-changes` / plan 247, first related implementation commit `2b983fd0` - Timestamp: unknown (delivery of `2b983fd0`, after its commit at 2026-10-05T13:51:45+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref origin/claude/review-changes-in-a-full-height-panel-with-compa` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; same missing statement, low cost.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -677,6 +678,15 @@ Follow-up: Open, unqueued.
   - Observed effect: no wrong-checkout edit; one added caution per delegation.
   - Inference: Qualified. A delegated agent that reads the plan without that caution could work in the stale preparation workspace if it still exists. One sample.
 
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
+  - Timestamp: unknown (slice 3 implementation, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
+  - Tool: Claude Code (delegated implementation agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 248 premise "With an attention message, Read final report shows the message" was observed by reading `SessionResultPanel.tsx` and `sessionAccess.ts`; slice 3 found a third message branch in `server/sessionResultResponse.ts` and an admission exception in `server/sessionAdmission.ts`, and `story-panel-replacement.spec.ts`, which slice 3's proof (d) listed to "stay green", used a Claude attention message as its final report (plan 248 slice 3 learnings).
+  - Observed effect: no CI failure or rework; slice 3's implementer removed the server branch and rebuilt the Story B fixture as a Codex record.
+  - Inference: Qualified. Fourth occurrence of the class: the removed concept's consumers were swept on the client by name, missing the server answer and a fixture that relied on the removed behavior.
+
 ## DD-230 — An implementation return omitted an out-of-scope behavior change inside a reported path
 
 The implementation agent changed `openTerminal` in `dashboard/src/pageSidePanel.ts` to take each new request, the same way it changed `openReview`. Terminals were outside the slice's scope. The return listed the file and described only the `openReview` change. The coordinator found the extra hunk while reading the diff for proof acceptance and reverted it before the refactor pass.
@@ -728,7 +738,35 @@ Follow-up: Open, unqueued.
   - Observed effect: no missed proof and no rework; one learning edit.
   - Inference: Qualified. A text-based selector read after the change measures the post-change tree; a selector fixed at the starting revision, or one that also matches the replacement, keeps the intended set. Related in shape to ODF-157 (sweeping with the removed words), but here the proof selection, not a premise, depended on them.
 
-## DD-234 — A retrospective correction of an unlanded story could not be admitted where its code lives
+## DD-234 — Removing a panel path lost the only Mark as done of cardless unavailable reported sessions, unseen until retrospective
+
+Plan 248 slice 3 removed the side panel's attention-message branch. That branch was also how a reported session listed only in Recent sessions, with its conversation unavailable, reached Mark as done; Recent entries offer none, so such a session now ends only by Delete record.
+
+### Occurrences
+
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
+  - Timestamp: unknown (slice 3, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: `e8a1ef8a:dashboard/src/sessionAccess.ts` returned `"result"` for a record with a message when `!attachOpens(record.sessionState)` or no embedded terminal; `58ea4c37` drops it, and `SessionEntry.tsx` renders `MarkDone` only `onCard`. Plan 248 premise "A session that the side panel cannot open is left alone" covered opening only. The destructive later-outcome check compares later slices, and slice 3 was last. Implementation, refactor, and proof acceptance did not name it; the retrospective's outcome review did.
+  - Observed effect: a delivered capability loss awaiting the developer's decision on where Mark as done is offered.
+  - Inference: Qualified. A removal premise listed what the removed path showed, not what it let the developer do; a removal's existing capabilities had no check before delivery. One sample.
+
+## DD-235 — A one-slice flake check with three repeats passed a test the refactor pass's twelve parallel repeats failed
+
+### Occurrences
+
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
+  - Timestamp: unknown (slice 2, before `fa0a60f5` committed 2026-10-05T11:15:30+09:00)
+  - Tool: Claude Code (delegated implementation and refactor agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: slice 2's return reported `--repeat-each 3` → 9 passed, "not flaky locally"; the refactor pass's `--repeat-each 12` with 8 workers failed the long-message test 2–3 times (one End press for keyboard scroll dropped, `scrollTop` 74 of 1100), fixed with `toPass` and then 24 of 24 passed (plan 248 slice 2 learning).
+  - Observed effect: the flake was fixed before publication; no CI failure.
+  - Inference: Qualified practice. A newly written timing-sensitive browser step needed parallel repeats to show its failure rate; three serial-ish repeats did not. One sample.
+
+## DD-236 — A retrospective correction of an unlanded story could not be admitted where its code lives
 
 The admission guidance names a retrospective's accepted follow-up correction
 as a mission to admit, but admission requires a separate owned workspace based

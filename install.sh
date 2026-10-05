@@ -219,6 +219,7 @@ managed_files=(
   dough-execution-retrospective/SKILL.md
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md
+  dough-execution-retrospective/references/process-review-of-a-run.md
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/references/follow-up-disposition.md
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs

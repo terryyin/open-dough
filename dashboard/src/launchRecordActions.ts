@@ -22,11 +22,9 @@ export type LaunchRecordActions = {
   // Marks a recorded session done, and answers whether the boundary marked
   // it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
-  // Marks a recorded session's report read, and answers the record as the
-  // boundary marked it, or undefined when it did not.
-  readonly markRead: (
-    record: LaunchRecord,
-  ) => Promise<LaunchWithState | undefined>;
+  // Marks a recorded session's report read, and answers whether the boundary
+  // marked it.
+  readonly markRead: (record: LaunchRecord) => Promise<boolean>;
   // Deletes a recorded session's record, and answers what came of it. A
   // deleted session is listed nowhere on the page, not even by a read asked
   // before the deletion; a session the boundary finds known keeps its record,
@@ -75,8 +73,9 @@ export function useLaunchRecordActions({
   const markRead = useCallback(
     async (record: LaunchRecord) => {
       const read = await requestMarkRead(record);
-      if (read !== undefined) replaceRecord(read);
-      return read;
+      if (read === undefined) return false;
+      replaceRecord(read);
+      return true;
     },
     [replaceRecord],
   );

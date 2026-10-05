@@ -4,7 +4,8 @@
 // workspace's head and the fetched `<remote>/<target>`, writes the
 // workspace's files -- commits, staged, unstaged, and untracked, never
 // ignored -- into a tree object through a temporary index, and lists what
-// changed from the baseline to that tree. The workspace's own index and
+// changed from the baseline to that tree with each file's line counts
+// (`./storyReviewFiles.ts`). The workspace's own index and
 // status stay as they were; the tree is an ordinary unreachable object of
 // its repository. A step Git cannot take answers why, never a partial list:
 // a worktree no longer on disk is said to be missing before any Git runs,
@@ -13,7 +14,8 @@
 // A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it,
 // and the same snapshot compared with the marked tree restated on the
 // baseline (`./storyReviewSince.ts`): the changes since the review,
-// leaving out what came only from trunk.
+// leaving out what came only from trunk, each file's line counts read from
+// the same *from* tree as its kind and diff.
 // A mark whose snapshot the repository no longer holds, or that this
 // machine's Git cannot restate on the baseline, cannot be compared: the
 // answer says why beside all changes.
@@ -28,7 +30,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type {
-  ReviewedFile,
   ReviewedFileDiff,
   ReviewMark,
   StoryReview,
@@ -37,6 +38,7 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
+import { reviewedFiles } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
 import { changesSinceReview } from "./storyReviewSince.ts";
 import type {
@@ -48,33 +50,6 @@ const outputLimit = 64 * 1024 * 1024;
 
 // How long a story review's snapshot, trunk's fetch included, may take.
 const reviewWaitMs = 60_000;
-
-// The changed files `git diff --name-status -M -z` printed: a status field,
-// then the path, or for a rename the old path and then the new one.
-function reviewedFiles(nameStatus: string): ReviewedFile[] {
-  const fields = nameStatus.split("\0");
-  const files: ReviewedFile[] = [];
-  let index = 0;
-  while (index + 1 < fields.length) {
-    const status = fields[index] ?? "";
-    const first = fields[index + 1] ?? "";
-    if (status.startsWith("R")) {
-      files.push({
-        kind: "renamed",
-        oldPath: first,
-        path: fields[index + 2] ?? "",
-      });
-      index += 3;
-      continue;
-    }
-    files.push({
-      kind: status === "A" ? "added" : status === "D" ? "deleted" : "modified",
-      path: first,
-    });
-    index += 2;
-  }
-  return files;
-}
 
 // The admitted review's snapshot, abandoned when the caller leaves or its
 // bounded wait expires.
@@ -134,21 +109,25 @@ async function storyReviewSnapshot(
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
     // The files changed from one tree to the snapshot's, of the paths given
-    // or of all.
-    const changedFrom = async (from: string, paths: readonly string[] = []) =>
-      reviewedFiles(
-        await printed([
+    // or of all, each with its line counts from the same comparison.
+    const changedFrom = async (from: string, paths: readonly string[] = []) => {
+      const changes = (format: string) =>
+        printed([
           "--literal-pathspecs",
           "diff",
-          "--name-status",
+          format,
           "-M",
           "-z",
           from,
           tree,
           "--",
           ...paths,
-        ]),
+        ]);
+      return reviewedFiles(
+        await changes("--name-status"),
+        await changes("--numstat"),
       );
+    };
     const files = await changedFrom(baseline);
     const marked =
       mark === undefined

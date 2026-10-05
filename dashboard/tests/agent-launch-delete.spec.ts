@@ -39,9 +39,6 @@ test.describe("deleting a recorded session's record", () => {
       >
     )["open-dough"] ?? [];
 
-  const stopCalls = () =>
-    server.claudeCalls().filter((call) => call.argv[0] === "stop");
-
   const sessionIds = async () =>
     (await recordsOf(server, "open-dough")).map(
       (each) => (each as { session: { sessionId: string } }).session.sessionId,
@@ -75,7 +72,7 @@ test.describe("deleting a recorded session's record", () => {
     const before = stored();
     server.claudeListingFails(true);
     const callsBefore = server.claudeCalls().length;
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
     try {
       const response = await deleteRecord(server, {
         source: "open-dough",
@@ -91,7 +88,7 @@ test.describe("deleting a recorded session's record", () => {
     expect(stored()).toEqual(
       before.filter((each) => each.session.sessionId !== session.sessionId),
     );
-    expect(stopCalls()).toHaveLength(stopsBefore);
+    expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
     expect(
       server
         .claudeCalls()
@@ -112,7 +109,7 @@ test.describe("deleting a recorded session's record", () => {
     });
     server.claudeSessionBecomes(session.sessionId, "forgotten");
     const before = stored();
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
 
     const response = await deleteRecord(server, {
       source: "open-dough",
@@ -126,7 +123,7 @@ test.describe("deleting a recorded session's record", () => {
     expect(stored()).toEqual(
       before.filter((each) => each.session.sessionId !== session.sessionId),
     );
-    expect(stopCalls()).toHaveLength(stopsBefore);
+    expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
   });
 
   for (const known of ["working", "unlisted and marked done"] as const) {
@@ -142,7 +139,7 @@ test.describe("deleting a recorded session's record", () => {
         server.claudeSessionBecomes(session.sessionId, "forgotten");
       }
       const before = stored();
-      const stopsBefore = stopCalls().length;
+      const stopsBefore = server.claudeStopCalls().length;
 
       const response = await deleteRecord(server, {
         source: "open-dough",
@@ -166,7 +163,7 @@ test.describe("deleting a recorded session's record", () => {
       });
       expect(await sessionIds()).toContain(session.sessionId);
       expect(stored()).toEqual(before);
-      expect(stopCalls()).toHaveLength(stopsBefore);
+      expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
     });
   }
 

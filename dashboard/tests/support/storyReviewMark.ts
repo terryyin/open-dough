@@ -1,5 +1,5 @@
 // Story A's review as its marking tests (../story-review-mark.spec.ts,
-// ../story-review-since.spec.ts, ../story-review-comparison.spec.ts) drive
+// ../story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
 // it: opening and reopening it from the card, choosing Mark reviewed, and the
 // snapshot each read answers; and what the machine store and the project's
 // repository keep of a story's review mark. Story A's twelve-file worktree is
@@ -16,7 +16,9 @@ import {
 } from "../../src/storyReview.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./preparationPage.ts";
+import { openBacklog } from "./sessionDialog.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import {
   addStoryWorktree,
   commitAll,
@@ -26,6 +28,10 @@ import {
 
 export const reviewRegion = (page: Page) =>
   page.getByRole("region", { name: "Review changes" });
+
+// A marked story's comparison switch.
+export const comparison = (review: Locator) =>
+  review.getByRole("radiogroup", { name: "Comparison" });
 
 // The snapshot the page's next review read answers.
 export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
@@ -158,4 +164,27 @@ export function editLater(workspace: string, number: number) {
       `f${String(number)} five\n`,
     ),
   );
+}
+
+// Story A marked at its twelve files, then two of them changed and one
+// added, and its review reopened on the three changes since the review.
+export async function markedThenChanged(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
+  const { workspace } = twelveFileWorktree(origin);
+  await keepLaunchRecord(dashboard, workspace);
+  const card = await openBacklog(page, origin);
+  await openReview(page, card);
+  const review = reviewRegion(page);
+  await markReviewed(review);
+  editLater(workspace, 2);
+  editLater(workspace, 9);
+  writeFileSync(path.join(workspace, storyFile(13)), "added later\n");
+  await reopenReview(page, card);
+  await expect(
+    review.getByRole("list", { name: "3 changed files" }),
+  ).toBeVisible();
+  return { workspace, card, review };
 }

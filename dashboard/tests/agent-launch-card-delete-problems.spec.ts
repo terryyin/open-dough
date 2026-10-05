@@ -125,9 +125,7 @@ test("a click that finds the state known keeps the record and says so beside the
   await expect(s.deleteButton).toHaveCount(0);
   await expect(s.inRecent).toBeVisible();
   expect(s.stored()).toContain(s.session);
-  expect(
-    dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-  ).toEqual([]);
+  expect(dashboard.claudeStopCalls()).toEqual([]);
 });
 
 for (const location of ["card", "Recent"] as const) {

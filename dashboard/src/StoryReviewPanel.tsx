@@ -3,7 +3,11 @@
 // names the story and its project's identity, takes its snapshot when it
 // opens and shows it (`./StoryReviewSnapshotView.tsx`) unchanged until the
 // developer uses Refresh, which takes a new one in its place, keeps the
-// keyboard where it is, and announces when it is done. Opening it, or asking
+// keyboard where it is, and announces when it is done. Beneath the header,
+// the snapshot's context line (`./StoryReviewContextLine.tsx`), the review's
+// one feedback region, and its marking controls stay in view above the
+// review's body; that the review is read-only is its accessible
+// description, never a visible line. Opening it, or asking
 // again for the review shown, places the keyboard in its named content
 // without holding it there; the panel's own controls (`./PanelControls.tsx`)
 // maximize or restore it and close it. Each opening is its own read, so a
@@ -32,16 +36,10 @@ import {
   type MarkReviewedAnswer,
   type StoryReview,
 } from "./storyReview.ts";
-import {
-  MarkStatement,
-  requestMarkReviewed,
-  SinceTheReviewHeading,
-} from "./StoryReviewMark.tsx";
-import {
-  ComparisonSwitch,
-  type ShownComparison,
-} from "./StoryReviewComparison.tsx";
+import type { ShownComparison } from "./StoryReviewComparison.tsx";
+import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
+import { ContextLine } from "./StoryReviewContextLine.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import type { StoryReviewRequest } from "./pageReviews.ts";
 import { useReviewRead } from "./useReviewRead.ts";
@@ -64,9 +62,12 @@ export function StoryReviewPanel({
   const { source, identity, title } = request;
   const id = useId();
   const headingId = `${id}-heading`;
+  const descriptionId = `${id}-description`;
   const body = useRef<HTMLDivElement>(null);
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
+  const [browserShown, setBrowserShown] = useState(true);
+  const browser = { id: `${id}-files`, shown: browserShown };
   const {
     answer: review,
     problem,
@@ -90,8 +91,11 @@ export function StoryReviewPanel({
   const madeHere =
     made !== undefined && made.of === review ? made.answer : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const offered = snapshot?.since;
-  const since = chosen === "since" ? offered : undefined;
+  const since = chosen === "since" ? snapshot?.since : undefined;
+  const comparison =
+    snapshot === undefined
+      ? undefined
+      : (since ?? { from: snapshot.baseline, files: snapshot.files });
   // The mark the review states: one made on the review shown since it was
   // read, or the one it was read with unless the changes since the review
   // are headed by it.
@@ -108,6 +112,7 @@ export function StoryReviewPanel({
     <section
       className="side-panel story-review-panel"
       aria-label="Review changes"
+      aria-describedby={descriptionId}
     >
       <SidePanelEdge />
       <header className="side-panel-header">
@@ -135,11 +140,18 @@ export function StoryReviewPanel({
           />
         </div>
       </header>
-      <div ref={body} className="story-review-body" tabIndex={-1}>
-        <p className="quiet">
-          Read-only: what this story&apos;s worktree would add to trunk, as it
-          was when the review opened or was last refreshed.
-        </p>
+      <p id={descriptionId} hidden>
+        Read-only: what this story&apos;s worktree would add to trunk, as it was
+        when the review opened or was last refreshed.
+      </p>
+      <div className="story-review-top">
+        {snapshot !== undefined && comparison !== undefined && (
+          <ContextLine
+            snapshot={snapshot}
+            {...(comparison.files.length === 0 ? {} : { browser })}
+            onShowBrowser={setBrowserShown}
+          />
+        )}
         <div role="status">
           {reading && review?.kind !== "snapshot" && (
             <p>Reading the story&apos;s changes…</p>
@@ -177,56 +189,39 @@ export function StoryReviewPanel({
           )}
         </div>
         {snapshot !== undefined && (
-          <>
-            {offered !== undefined && (
-              <ComparisonSwitch shown={chosen} onSwitch={setChosen} />
-            )}
-            {since !== undefined && snapshot.mark !== undefined && (
-              <SinceTheReviewHeading
-                mark={snapshot.mark}
-                baseline={snapshot.baseline}
-              />
-            )}
-            <div className="story-review-mark">
-              <MarkStatement
-                mark={stated}
-                tree={snapshot.tree}
-                uncomparable={snapshot.markUncomparable}
-              />
-              {/* Unavailable while reading or marking, yet still focusable,
-                  so the keyboard stays on it. */}
-              <button
-                type="button"
-                className="start-launch-button"
-                aria-disabled={reading || marking}
-                onClick={() => {
-                  if (reading || marking) return;
-                  const of = snapshot;
-                  setMarking(true);
-                  void requestMarkReviewed({
-                    source,
-                    identity,
-                    tree: of.tree,
-                    baseline: of.baseline,
-                  }).then((answer) => {
-                    setMade({ of, answer });
-                    setMarking(false);
-                  });
-                }}
-              >
-                Mark reviewed
-              </button>
-            </div>
-            <SnapshotView
-              reviewed={{ sourceId: source, identity }}
-              snapshot={snapshot}
-              comparison={
-                since ?? { from: snapshot.baseline, files: snapshot.files }
-              }
-              sinceReview={since !== undefined}
-              headingId={headingId}
-            />
-          </>
+          <MarkingControls
+            snapshot={snapshot}
+            shown={chosen}
+            onSwitch={setChosen}
+            sinceReview={since !== undefined}
+            stated={stated}
+            busy={reading || marking}
+            onMark={() => {
+              const of = snapshot;
+              setMarking(true);
+              void requestMarkReviewed({
+                source,
+                identity,
+                tree: of.tree,
+                baseline: of.baseline,
+              }).then((answer) => {
+                setMade({ of, answer });
+                setMarking(false);
+              });
+            }}
+          />
+        )}
+      </div>
+      <div ref={body} className="story-review-body" tabIndex={-1}>
+        {snapshot !== undefined && comparison !== undefined && (
+          <SnapshotView
+            reviewed={{ sourceId: source, identity }}
+            snapshot={snapshot}
+            comparison={comparison}
+            sinceReview={since !== undefined}
+            headingId={headingId}
+            browser={browser}
+          />
         )}
       </div>
     </section>

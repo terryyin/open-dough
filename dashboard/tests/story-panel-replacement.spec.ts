@@ -1,7 +1,7 @@
 // The page's one side panel replaces one story's review with another's, and a
-// review with a retained final report, of Story A's and Story B's real
-// worktrees (./support/storyPanels.ts) and kept launch records, Story B's
-// session having ended with a final report. A review still being read when
+// review with a final report, of Story A's and Story B's real worktrees
+// (./support/storyPanels.ts) and kept launch records, Story B's Codex session
+// having ended with a final report and lost its saved workspace. A review still being read when
 // another story's review opens never answers the new one; reading the report
 // neither continues nor marks its session done, and reopening a review reads
 // a fresh snapshot. Asking again for the review shown takes the keyboard to
@@ -16,26 +16,30 @@ import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
 import {
   keptSession,
   panelItems,
-  storyBLaunchRecord,
   storyBReport,
+  storyBRetiredCodexRecord,
   storyBWorktree,
 } from "./support/storyPanels.ts";
+import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
   storyALaunchRecord,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+} from "./support/storyLaunchRecord.ts";
+
+test.use({ preparationHost: "codex" });
 
 test("a review, another story's review, and a final report replace each other in the one side panel", async ({
   page,
   dashboard,
   origin,
+  codexProtocol: native,
 }) => {
+  if (native === undefined) throw new Error("Missing native fixture");
   const { workspace: workspaceA } = storyWorktree(origin);
   const workspaceB = storyBWorktree(origin.project);
   await keepLaunchRecords(dashboard, [
     storyALaunchRecord(workspaceA),
-    storyBLaunchRecord(workspaceB),
+    storyBRetiredCodexRecord(workspaceB, native),
   ]);
   // Every review read the page asks, by the story it names.
   const reviewReads: string[] = [];
@@ -129,7 +133,7 @@ test("a review, another story's review, and a final report replace each other in
     await control(review, "Close").click();
     await expect(items).toHaveCount(0);
     await expect(reviewOf(cardB)).toBeFocused();
-    expect((await keptSession(dashboard, "story-b-session")).doneAt).toBe(
+    expect((await keptSession(dashboard, native.threadId)).doneAt).toBe(
       undefined,
     );
   });

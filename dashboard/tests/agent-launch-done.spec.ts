@@ -56,9 +56,6 @@ test.describe("marking a recorded session done", () => {
   const listed = (session: LaunchedSession) =>
     server.claudeListing().find((each) => each["id"] === session.shortId);
 
-  const stopCalls = () =>
-    server.claudeCalls().filter((call) => call.argv[0] === "stop");
-
   test.beforeAll(async () => {
     machine = mkdtempSync(path.join(tmpdir(), "dough-done-"));
     server = await startServer();
@@ -100,7 +97,7 @@ test.describe("marking a recorded session done", () => {
     ]);
     expect(await terminal.closed).toBe(4000);
     expect(await lastAttachEnded(server)).toBe("SIGHUP");
-    expect(stopCalls()).toEqual([
+    expect(server.claudeStopCalls()).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
     expect(listed(session)).toMatchObject({
@@ -135,7 +132,7 @@ test.describe("marking a recorded session done", () => {
     ).record;
     const terminal = await openTerminal(server, session);
     expect(await shows(terminal, "attached")).toBe(true);
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
 
     const response = await markDone(server, {
       source: "open-dough",
@@ -158,7 +155,7 @@ test.describe("marking a recorded session done", () => {
     expect(await lastAttachEnded(server)).toBe("SIGHUP");
     // No line, and so no rename, reached the attached session.
     expect(server.claudeAttaches().at(-1)?.lines).toEqual([]);
-    expect(stopCalls().slice(stopsBefore)).toEqual([
+    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
     expect(listed(session)).toMatchObject({ name: escName, state: "stopped" });
@@ -167,7 +164,7 @@ test.describe("marking a recorded session done", () => {
   test("with no terminal open, keeps the done- name only in the record and still stops the session", async () => {
     const session = await launched(server);
     const attachesBefore = server.claudeAttaches().length;
-    const stopsBefore = stopCalls().length;
+    const stopsBefore = server.claudeStopCalls().length;
 
     const response = await markDone(server, {
       source: "open-dough",
@@ -187,7 +184,7 @@ test.describe("marking a recorded session done", () => {
       },
     });
     expect(server.claudeAttaches()).toHaveLength(attachesBefore);
-    expect(stopCalls().slice(stopsBefore)).toEqual([
+    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
     expect(listed(session)).toMatchObject({

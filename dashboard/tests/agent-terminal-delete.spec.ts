@@ -77,9 +77,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await expect
       .poll(() => attachesOf(dashboard, sessionName).at(-1)?.endedBy)
       .toBeDefined();
-    expect(
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-    ).toEqual([]);
+    expect(dashboard.claudeStopCalls()).toEqual([]);
 
     // Claude Code still lists the conversation once its listing recovers.
     dashboard.claudeListingFails(false);

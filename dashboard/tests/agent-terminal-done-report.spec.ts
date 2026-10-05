@@ -14,7 +14,6 @@ import { recordsOf } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
 import { markDone, markDoneAnyway } from "./support/markDone.ts";
 import {
   doneNameOf,
@@ -23,14 +22,12 @@ import {
 } from "./support/reportedLaunch.ts";
 import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
+import { markReportRead } from "./support/sessionMessagePart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
 const titleA = "Story A";
 const unreadWords = "Unread report: Completed with attention";
-
-const stops = (dashboard: DashboardServer) =>
-  dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
 
 // Opens the page on the origin's stories and answers Story A's Taken card.
 async function openCard(page: Page, origin: StartOrigin) {
@@ -60,7 +57,7 @@ test("Mark as done in the terminal panel closes a session with an unread report 
   await card.getByRole("button", { name: "Open terminal" }).click();
   const terminal = page.getByRole("region", { name: "Terminal" });
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-  const stopsBefore = stops(dashboard).length;
+  const stopsBefore = dashboard.claudeStopCalls().length;
 
   await markDoneAnyway(terminal);
 
@@ -78,7 +75,7 @@ test("Mark as done in the terminal panel closes a session with an unread report 
       .claudeListing()
       .find((listed) => listed["sessionId"] === sessionId)?.["name"],
   ).toBe(doneName);
-  expect(stops(dashboard).slice(stopsBefore)).toEqual([
+  expect(dashboard.claudeStopCalls().slice(stopsBefore)).toEqual([
     expect.objectContaining({ argv: ["stop", shortId] }),
   ]);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
@@ -96,10 +93,10 @@ test("in the terminal panel, a session with a read completed report that reads R
   await story.report();
   dashboard.claudeSessionBecomes(story.sessionId, "done-live");
   const entry = cardSessions(await openCard(page, origin));
-  await entry.getByRole("button", { name: "Mark as read" }).click();
+  await markReportRead(entry);
   await expect(sessionStateOf(entry)).toHaveText("Ready for review");
   const shortId = shortIdOf(dashboard, story.sessionId);
-  const before = stops(dashboard).length;
+  const before = dashboard.claudeStopCalls().length;
   await entry.getByRole("button", { name: "Open terminal" }).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
@@ -112,7 +109,7 @@ test("in the terminal panel, a session with a read completed report that reads R
     .recentSessions.getByRole("article")
     .filter({ hasText: titleA });
   await expect(sessionStateOf(recent)).toHaveText("Done");
-  expect(stops(dashboard).slice(before)).toEqual([
+  expect(dashboard.claudeStopCalls().slice(before)).toEqual([
     expect.objectContaining({ argv: ["stop", shortId] }),
   ]);
 });

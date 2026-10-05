@@ -25,13 +25,11 @@ import {
 import { launchedStory, shortIdOf } from "./support/reportedLaunch.ts";
 import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
+import { markReportRead } from "./support/sessionMessagePart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
 const titleA = "Story A";
-
-const stops = (dashboard: DashboardServer) =>
-  dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
 
 // Story A launched in Claude, reported `completed`, its report read on its
 // card entry while it reads Working.
@@ -47,7 +45,7 @@ async function reportedWorkingEntry(
   const entry = cardSessions(
     parts(page).taken.getByRole("article", { name: titleA, exact: true }),
   );
-  await entry.getByRole("button", { name: "Mark as read" }).click();
+  await markReportRead(entry);
   await expect(sessionStateOf(entry)).toHaveText("Working");
   return { sessionId: story.sessionId, entry };
 }
@@ -107,15 +105,15 @@ test("on a card, the open question follows the session's reading and goes away o
     origin,
   );
   const shortId = shortIdOf(dashboard, sessionId);
-  const before = stops(dashboard).length;
+  const before = dashboard.claudeStopCalls().length;
 
   await questionFollowsReadings(page, dashboard, sessionId, entry, entry);
-  expect(stops(dashboard)).toHaveLength(before);
+  expect(dashboard.claudeStopCalls()).toHaveLength(before);
 
   await markAsDone(entry).click();
 
   await expectDone(page, entry);
-  expect(stops(dashboard).slice(before)).toEqual([
+  expect(dashboard.claudeStopCalls().slice(before)).toEqual([
     expect.objectContaining({ argv: ["stop", shortId] }),
   ]);
 });
@@ -134,11 +132,11 @@ test("in the terminal panel, the open question follows the session's reading and
   await entry.getByRole("button", { name: "Open terminal" }).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  const before = stops(dashboard).length;
+  const before = dashboard.claudeStopCalls().length;
 
   await questionFollowsReadings(page, dashboard, sessionId, entry, panel);
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  expect(stops(dashboard)).toHaveLength(before);
+  expect(dashboard.claudeStopCalls()).toHaveLength(before);
 
   await markAsDone(panel).click();
 

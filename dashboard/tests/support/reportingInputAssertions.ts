@@ -1,8 +1,10 @@
 // Inspect native input against this launch's independently retained channel.
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { repoRoot } from "./repositoryRoot.ts";
 
 export function expectReportingBlock(
   block: string | undefined,
@@ -70,4 +72,12 @@ export function expectAdHocReportingInput(
   expect(developer).toBe(instruction);
   expect(extra).toEqual([]);
   expectReportingBlock(reporting, request, server);
+}
+
+// The workspace's installed reporting script is the one this release ships.
+export function expectInstalledReportingScript(workspace: string) {
+  const script = "dough-execute-plan/scripts/dashboard-completion.mjs";
+  expect(
+    readFileSync(path.join(workspace, ".agents/skills", script), "utf8"),
+  ).toBe(readFileSync(path.join(repoRoot, "src/skills", script), "utf8"));
 }

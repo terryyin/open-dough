@@ -3,34 +3,29 @@
 // worktree (./support/storyReviewMark.ts), reading nothing anew: a named
 // switch says which comparison is shown. Refresh keeps the comparison shown,
 // of a new snapshot; each opening starts on the changes since the review.
-// With no later change the review says nothing changed since the review and
-// offers the same switch; an unmarked story's review opens on all its changes
-// and offers none.
+// Each comparison's files are in ./story-review-comparison-files.spec.ts. With no later change the review says nothing
+// changed since the review, without Hide files, and offers the same switch;
+// an unmarked story's review opens on all its changes and offers none.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import type { StartOrigin } from "./support/startOrigin.ts";
 import {
-  editLater,
+  comparison,
   expectSinceTheReview,
   keptStoryAMark,
+  markedThenChanged,
   markReviewed,
   nextSnapshot,
   openReview,
   reopenReview,
   reviewRegion,
-  storyFile,
   twelveFileWorktree,
 } from "./support/storyReviewMark.ts";
-import { keepLaunchRecord } from "./support/storyReviewWorktree.ts";
-
-const comparison = (review: Locator) =>
-  review.getByRole("radiogroup", { name: "Comparison" });
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 // The comparison switch says the one comparison shown.
 async function expectShown(review: Locator, shown: string) {
@@ -46,29 +41,6 @@ function snapshotReads(page: Page) {
     if (new URL(request.url()).pathname === storyReviewEndpoint) reads += 1;
   });
   return () => reads;
-}
-
-// Story A marked at its twelve files, then two of them changed and one
-// added, and its review reopened on the three changes since the review.
-async function markedThenChanged(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-) {
-  const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await openReview(page, card);
-  const review = reviewRegion(page);
-  await markReviewed(review);
-  editLater(workspace, 2);
-  editLater(workspace, 9);
-  writeFileSync(path.join(workspace, storyFile(13)), "added later\n");
-  await reopenReview(page, card);
-  await expect(
-    review.getByRole("list", { name: "3 changed files" }),
-  ).toBeVisible();
-  return { workspace, card, review };
 }
 
 test("the switch shows the same snapshot against trunk and back without reading it again", async ({
@@ -172,10 +144,16 @@ test("a marked story with no later change says nothing changed since the review 
   await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
     0,
   );
+  await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
+    0,
+  );
   await expectShown(review, "Since the review");
   await comparison(review).getByRole("radio", { name: "All changes" }).check();
   await expect(
     review.getByRole("list", { name: "12 changed files" }),
+  ).toBeVisible();
+  await expect(
+    review.getByRole("button", { name: "Hide files" }),
   ).toBeVisible();
   await expect(review).toContainText("This snapshot is marked reviewed,");
 });

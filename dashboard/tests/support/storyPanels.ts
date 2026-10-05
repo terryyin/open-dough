@@ -1,16 +1,21 @@
 // Story B beside Story A (./storyReviewWorktree.ts) for the page's one side
 // panel (../story-panel-switching.spec.ts, ../story-panel-replacement.spec.ts):
 // Story B's real worktree with one committed file of its own, and its kept
-// launch record, whose session ended with a final report. Also what the page
-// and the machine store say of the panel's items and of a kept session.
+// launch record, whose session ended with a final report, or a Codex record
+// whose saved workspace is gone, so that its final report is Codex's own. Also
+// what the page and the machine store say of the panel's items and of a kept
+// session.
 
 import path from "node:path";
 import { writeFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
+import type { FakeCodex } from "./fakeCodexTypes.ts";
+import { keepFinalReport } from "./retainedReport.ts";
 import { otherQueuedIdentity } from "./startOrigin.ts";
-import { git, storyALaunchRecord } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
+import { storyALaunchRecord } from "./storyLaunchRecord.ts";
 
 const storyBBranch = "claude/story-b";
 export const storyBReport = "Story B's final report: one file of its own.";
@@ -56,6 +61,31 @@ export function storyBLaunchRecord(workspace: string): LaunchRecord {
       receivedAt: new Date().toISOString(),
     },
     launchedAt: new Date().toISOString(),
+  };
+}
+
+// Story B's kept record as a Codex session whose saved workspace is gone: the
+// side panel reads its final report, `storyBReport`, from the native fixture.
+export function storyBRetiredCodexRecord(
+  workspace: string,
+  native: FakeCodex,
+): LaunchRecord {
+  const record = storyBLaunchRecord(workspace);
+  const retired = path.join(workspace, "..", "story-b-retired");
+  keepFinalReport(native, retired, storyBReport);
+  return {
+    ...record,
+    request: { ...record.request, host: "codex" },
+    session: {
+      host: "codex",
+      sessionId: native.threadId,
+      name: "Story B",
+      continuation: {
+        workspace: retired,
+        endpoint: `unix://${native.env["FAKE_CODEX_SOCKET"]}`,
+        args: [],
+      },
+    },
   };
 }
 

@@ -156,9 +156,7 @@ test.describe("deleting a card's session record", () => {
       ).toHaveCount(0);
       expect(stored()).not.toContain(kept);
       await expectMembership(page, queued);
-      expect(
-        dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-      ).toEqual([]);
+      expect(dashboard.claudeStopCalls()).toEqual([]);
     });
   });
 

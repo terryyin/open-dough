@@ -1,12 +1,15 @@
 // A story's review from its card, of Story A's worktree and kept launch
 // record (./support/storyReviewWorktree.ts). Review changes names the
-// worktree, its branch, and the baseline, and lists the story's files with
+// branch, the baseline, and the worktree in its context line
+// (./story-review-context-line.spec.ts), and lists the story's files with
 // their kinds under their folders, without either trunk file or the ignored
-// one; the worktree's own index and status stay as they were. Selecting a
-// file shows its diff with added and removed lines marked in text, the
-// rename against its old path, the deletion as all lines removed, and the
-// image as having no textual diff; hiding the file browser leaves the diff
-// in place with more room. The review shows in the page's side panel, and
+// one; the worktree's own index and status stay as they were. It opens on
+// the first file in the browser's order, inside the folder that comes
+// first, with its diff shown. Selecting a file shows its diff with added
+// and removed lines marked in text beside their old and new line numbers,
+// the rename against its old path, the deletion as all lines removed, and
+// the image as having no textual diff; hiding the file browser leaves the
+// diff in place with more room. The review shows in the page's side panel, and
 // Command+Shift+Escape closes it, returning the keyboard to Review changes;
 // Tab then moves on. Requests the launch boundary refuses:
 // ./story-review-refusal.spec.ts.
@@ -14,17 +17,24 @@
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import {
+  contextLine,
+  contextValues,
+  contextWords,
+  reviewBody,
+} from "./support/reviewContextLine.ts";
+import { shownLineNumbers } from "./support/reviewLineNumbers.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
   branch,
   git,
-  keepLaunchRecord,
   observed,
   storyWorktree,
   wideLine,
 } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a story's review names its worktree, branch, and baseline and lists only the story's changed files", async ({
   page,
@@ -52,7 +62,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
   await expect(review).toContainText(`Review changes ${queuedIdentity}`);
-  await expect(review.locator(".story-review-body")).toBeFocused();
+  await expect(reviewBody(review)).toBeFocused();
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect
     .poll(() => treeRows(files))
@@ -82,12 +92,28 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   for (const [index, name] of fileNames.entries()) {
     await expect(fileControls.nth(index)).toHaveAccessibleName(name);
   }
-  const facts = review.getByRole("definition");
-  await expect(facts).toHaveText([
-    "~/git/open-dough/.worktrees/story-a",
-    branch,
-    `${merged}, where ${branch} meets origin/main`,
-  ]);
+  // The review opens on the first file in the browser's order, inside the
+  // folder that comes first, its diff shown.
+  await expect(fileControls.first()).toHaveAttribute("aria-pressed", "true");
+  await expect(files.locator('button[aria-pressed="true"]')).toHaveCount(1);
+  await expect(
+    review
+      .getByRole("region", { name: "Added fresh/new.txt" })
+      .getByRole("listitem"),
+  ).toHaveText(["+untracked"]);
+  // The context line reads every value in full, the read-only explanation
+  // is the review's description, never a visible line.
+  await expect(contextValues(review)).toHaveAccessibleName(
+    contextWords({
+      branch,
+      baseline: merged,
+      workspace: "~/git/open-dough/.worktrees/story-a",
+    }),
+  );
+  await expect(review).toHaveAccessibleDescription(
+    "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.",
+  );
+  await expect(review.getByText(/^Read-only/)).toBeHidden();
   for (const absent of ["other.txt", "other2.txt", "ignored.log"])
     await expect(review).not.toContainText(absent);
   // The review fetched trunk and left the worktree's index and files alone.
@@ -144,7 +170,10 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await test.step("hiding the file browser leaves the diff in place with more room", async () => {
     const diff = diffOf("Modified unstaged.txt");
     const narrow = (await diff.boundingBox())?.width ?? 0;
-    const hide = review.getByRole("button", { name: "Hide files" });
+    // Hide files is the context line's own control.
+    const hide = contextLine(review).getByRole("button", {
+      name: "Hide files",
+    });
     await expect(hide).toHaveAttribute("aria-expanded", "true");
     await hide.press("Enter");
     const show = review.getByRole("button", { name: "Show files" });
@@ -172,6 +201,18 @@ test("a story's review names its worktree, branch, and baseline and lists only t
       " old 11",
       "+renamed",
     ]);
+    // Each line's old and new numbers sit beside it, outside its text, and
+    // assistive technology reads the code alone.
+    const hunk = diff.getByRole("list", { name: "@@ -10,3 +10,4 @@" });
+    expect(await shownLineNumbers(hunk.getByRole("listitem"))).toEqual([
+      ["10", "10"],
+      ["11", "11"],
+      ["12", "12"],
+      ["", "13"],
+    ]);
+    await expect(hunk).toMatchAriaSnapshot(
+      "- listitem: old 9\n- listitem: old 10\n- listitem: old 11\n- listitem: +renamed",
+    );
   });
 
   await test.step("the deleted file's lines are all removed", async () => {

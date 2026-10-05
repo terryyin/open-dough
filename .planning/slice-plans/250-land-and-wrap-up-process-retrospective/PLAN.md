@@ -114,7 +114,7 @@ host, and the plan claims none.
 
 ### 1. A flagged landing reviews its own process and publishes the findings
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new guidance check asserts the shared rule and Dough Land's review
 point; the four existing checks and the link check stay green; behavior walk of
 the story's three Dough Land examples and the no-findings and
@@ -152,6 +152,13 @@ The occurrence's execution identity follows the existing recording rule: the
 work identity the landing serves when its context names one, otherwise the
 accepted revision on the target. State this in the shared rule only as a
 pointer to that rule, not a second rule.
+
+Accepted proof: `process-retrospective-guidance.test.mjs` (shared rule, Dough
+Land section order and publication path, completion attention, retrospective
+write location) plus the four existing checks, 25/25; link check exit 0.
+Learning: the shared rule's identity fallback (accepted revision) fits a
+landing; a wrap-up normally names its work identity, so slice 2 needs no
+identity wording.
 
 ### 2. A flagged wrap-up records its findings in the final closure commit
 Type: Behavior

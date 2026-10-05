@@ -26,7 +26,7 @@ import {
   storyFile,
   twelveFileWorktree,
 } from "./support/storyReviewMark.ts";
-import { keepLaunchRecord } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a marked story's review lists only the files changed since the review, each diff holding only the later edit", async ({
   page,

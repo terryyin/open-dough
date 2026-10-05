@@ -70,8 +70,14 @@ test("after trunk was integrated, the changes since the review leave trunk's out
     { file: "src/c.ts", includesTrunkFrom: marked.tree },
   ]);
 
-  // (b) The inseparable file is flagged and diffed from the marked snapshot.
+  // (b) The inseparable file is flagged, and diffed and counted from the
+  // marked snapshot.
   const flagged = "Modified src/c.ts, includes trunk's changes";
+  await expect(
+    files
+      .getByRole("button", { name: flagged })
+      .locator(".story-review-line-counts"),
+  ).toHaveText("+1 −1", { useInnerText: true });
   await files.getByRole("button", { name: flagged }).press("Enter");
   const cDiff = review.getByRole("region", { name: flagged });
   await expect(cDiff.locator(".story-review-removed")).toHaveText(["-c story"]);
