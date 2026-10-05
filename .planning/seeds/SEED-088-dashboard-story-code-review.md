@@ -175,7 +175,11 @@ other people's commits on trunk.
 baseline shows nothing once the story's commits are on trunk. To be refined:
 how the story's commits are recognized on trunk, whether only its changes can
 be highlighted when other commits touch the same files, and how this combines
-with reviewing only what changed since the last review.
+with reviewing only what changed since the last review. Today
+since-the-review treats everything between the marked baseline and the
+current one as trunk's, so story work that reaches trunk after the mark is
+left out and an otherwise empty review says nothing changed beyond what trunk
+now holds; recognizing the story's own commits there would let it list them.
 
 ## Breadcrumbs
 
