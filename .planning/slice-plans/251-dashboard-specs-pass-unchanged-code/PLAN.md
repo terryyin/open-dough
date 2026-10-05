@@ -207,6 +207,21 @@ that repetition rerun; it is not this story's repair. If a second full round
 still fails, stop and report the remaining specs and counts. Waiting on CI is
 this slice's external-wait exception.
 
+## Execution complete
+
+Product advice: The story's goal holds on CI's runners: 20 of 20 repetitions
+passed on `06dfb716`, and `scripts/ci-repeat.sh` lets anyone repeat that on
+demand. At wrap-up, record DD-232 as answered for CI's runners only; DD-224
+and DD-226 (a loaded developer machine) stay open as the story deferred.
+Reasoned no-change for the two expected candidates
+(`agent-launch-card-noted-start.spec.ts:170`,
+`agent-launch-start-phases.spec.ts:24`): neither failed in 40 repetitions.
+Reasoned no-change, as a hypothesis only, for the pre-paste path in
+`launchInstruction.ts` that can still settle a launch as uncertain on a
+finished frame that showed the composer: no observed failure reaches it, and
+changing it moves when the instruction is entered. If a later repeated run
+names `First input acceptance uncertain` again, it is the first place to look.
+
 ## Current decisions
 
 - The repeated run dispatches the existing `ci.yml`; the workflow file is not
