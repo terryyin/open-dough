@@ -148,6 +148,21 @@ uncertain", the race `aeb9c33d` had repaired in another test of that spec.
   - Evidence: `dashboard (8/9)` failed `side-panel-width.spec.ts:36` with the 30 s test timeout on a revision that changed only Markdown and planning records. The trace showed `expectStillHolds` taking 16.6 s: one wheel step scrolls about five lines of the terminal, and CI's session prints a size line (plus a blank line) for every resize, so `toPass` needed about 20 attempts at its backoff of up to 1 s. A probe with 60 separate resizes failed the old helper locally; the repair committed with this row scrolls ten steps per try at a fixed 100 ms interval and read 240 lines in about 3.5 s.
   - Observed effect: one failed CI run on main and one repair commit.
   - Inference: Qualified. These are the same shapes as the repaired races: a read before a page or record settles, and a 5 s wait on a real start. Repairing each spec after it fails in CI has not stopped new ones. Of 25 CI runs created on 2026-10-04 (UTC), six failed in `dashboard`; four of those were on revisions that changed no code.
+- Execution: `SEED-088#review-changes-since-last-review` / plan 245, slice 1 `d754256c`
+  - Timestamp: 2026-10-05T04:45:36Z (failing CI log line, run 37264804452)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: `dashboard (3/9)` failed `agent-launch-card-noted-start.spec.ts:170` with "viewport ratio 0": the credited-human read answered between the hover and `toBeInViewport`, rewrapped the preparing line, and moved the Start out from under the pointer. Held the read to reproduce (5/5 failed); repair `97728d3f` waits for the credit before hovering. The same test failed on a sibling branch (`eadb18f6`) before the repair landed.
+  - Observed effect: one failed CI run and one repair commit.
+- Execution: `SEED-088#review-changes-since-last-review` / plan 245, slice 4 `0ebcbf0c`
+  - Timestamp: 2026-10-05 (CI run 37266736909)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: `dashboard (7/9)` failed both hosts of `agent-launch-start-phases.spec.ts:24`: a just-loaded page's published read had not answered within the 5 s default wait, so Story A's card did not exist. Neighbouring tests in the shard took about twice their passing time. Delaying the fake GitHub 2.6 s reproduced it; repair `866d5a31` waits for the stages up to `readWaitLimitMs` after each load.
+  - Observed effect: one failed CI run and one repair commit.
+  - Inference: Qualified. Both are the shapes this finding names: a read before the page settles, and a 5 s wait on a read the product bounds at 30 s.
 
 ## Checks whose result depends on where or how they are run (second priority, queued)
 

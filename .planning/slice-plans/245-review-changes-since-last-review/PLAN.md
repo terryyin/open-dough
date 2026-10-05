@@ -243,3 +243,17 @@ says so, shows all changes, and marking starts again from there.
   presence and `datetime`, not a formatted clock string.
 - A replaced mark's ref is replaced with it. Refs of stories that later land
   are left in the repository; removing them is not in this story.
+
+## Execution complete
+
+Product advice: Since-the-review hides story work that reaches trunk after the
+mark and then says nothing changed; record that case in
+[SEED-088#review-trunk-mode-story-changes](../../seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes),
+which owns recognizing the story's own commits on trunk. The bounded
+correction [SEED-088#review-since-correction](../251-review-since-correction/PLAN.md)
+keeps the review whole on Git older than 2.45, keeps a conflicted file the
+story kept as marked, and qualifies "nothing changed" after trunk was
+integrated. If that correction is not taken, "clearing a mark without
+replacing it" stops being deferrable, since it becomes the only recovery on
+older Git. SEED-102#full-height-review-changes edits the same panel files;
+expect merge friction only.

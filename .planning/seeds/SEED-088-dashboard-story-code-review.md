@@ -110,6 +110,30 @@ earlier marks; sharing a mark between developers or machines.
 - The developer marks in since-the-review → the mark is the whole current
   snapshot, and the next review compares with it.
 
+<a id="review-since-correction"></a>
+
+### Correct the changes since the review across trunk
+
+**Identity:** SEED-088#review-since-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/251-review-since-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e67e31c1fa22f87858bf06ddc3add6853610b370849057517d02bd9d7096ea49","plan":"19ec8ea8c7bffbc417392d59f5bc4794d024097498c8f3e685c41eec31d45f2d"}}
+```
+
+**Goal:** A developer reviewing a marked story whose agent integrated trunk
+can rely on the review: it still opens when this machine's Git cannot restate
+the mark across trunk, it never drops a file whose trunk change the story
+discarded, and it says nothing changed only relative to what trunk now holds.
+Maintainers read comments, documentation, and specs that say what the review
+does.
+
+**Scope:** The bounded correction in its
+[plan](../slice-plans/251-review-since-correction/PLAN.md): a Git that cannot
+restate the mark failing the whole review, a conflicted file the story kept
+as marked disappearing, an overclaiming nothing-changed message after trunk
+was integrated, three stale descriptions of the file diff and file count, and
+two duplicated review journeys. Everything the story above delivered stays,
+including that a story slice landed on trunk after the mark is not listed.
+
 <a id="review-uncommitted-changes"></a>
 
 ### Review only a story's uncommitted changes
