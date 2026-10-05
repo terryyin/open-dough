@@ -6,7 +6,7 @@
 
 import { cpSync, readFileSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
@@ -15,6 +15,7 @@ import {
   takenStory,
   type LaunchJourney,
 } from "./launchJourney.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 // Installs the real refinement skill's references, its options definition
@@ -132,3 +133,16 @@ export const startSessionField = (dialog: Locator) =>
   dialog.getByRole("textbox", {
     name: "What would you like to talk about? (optional)",
   });
+
+// The session a Start session dialog started, as Recent sessions lists it
+// once the start answered. A read during the start may already list the
+// session, still without the start's outcome, so this waits for the answer's
+// announcement, as long as the start itself may (./support/launchWait.ts).
+export async function startedSession(page: Page): Promise<Locator> {
+  await expect(
+    page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
+  ).toBeVisible({ timeout: launchWaitMs });
+  const recent = parts(page).recentSessions.getByRole("article");
+  await expect(recent).toHaveCount(1);
+  return recent;
+}

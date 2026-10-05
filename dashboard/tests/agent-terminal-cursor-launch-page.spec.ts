@@ -3,8 +3,7 @@
 // launch-wait notice and no second agent. Closing and opening again shows
 // that run.
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField, startedSession } from "./launchCardPage.ts";
 import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
 import { keptCursor } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
@@ -36,11 +35,7 @@ test("an instructed Cursor start shows that run and accepts typing", async ({
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(
-    page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
-  ).toBeVisible({ timeout: 20_000 });
-  const recent = parts(page).recentSessions.getByRole("article");
-  await expect(recent).toHaveCount(1);
+  const recent = await startedSession(page);
   await expect(recent).toContainText("First input accepted");
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");

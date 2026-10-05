@@ -14,7 +14,7 @@ import { realpathSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField, startedSession } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
@@ -65,8 +65,7 @@ for (const text of ["", "why is the CI slow?"]) {
     if (!blank) await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-    const recent = parts(page).recentSessions.getByRole("article");
-    await expect(recent).toHaveCount(1);
+    const recent = await startedSession(page);
     const record = keptRecord(dashboard.home);
     if (record.session.host !== "cursor") {
       throw new Error("The recorded session is not Cursor.");

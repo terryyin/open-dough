@@ -102,7 +102,26 @@ the wait in story-review-action's own settled step instead, and record why.
 
 ### 2. A Cursor start's session entry is awaited for as long as the start may take
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: with a temporary `installFakeCursor({ paintDelayMs: 6000 })`
+in `support/cursorStart.ts` (reverted), the ad hoc spec failed at :69 and the
+split-screen spec at :44 (`toHaveCount(1)`, 0 entries after 5 s) before the
+change; after it, `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts agent-launch-ad-hoc-cursor.spec.ts
+agent-launch-ad-hoc-cursor-split-screen.spec.ts
+agent-terminal-cursor-launch-page.spec.ts --repeat-each 3` passed 15/15 with
+the delay and `--repeat-each 2` passed 10/10 without it, at load average
+24–33.
+Learning: a Recent sessions entry can be listed before the start answers
+(the terminal spec then read "First input acceptance uncertain"), so
+`startedSession` in `launchCardPage.ts` waits within `launchWaitMs` for the
+"Ad hoc session started" announcement that `onLaunched` sets
+(`src/askedLaunches.ts:57-69`), then expects one entry. Other callers with
+the same default-timeout wait after a Start, left unchanged here:
+`support/cursorSessionReading.ts:67-89` (`openRecentCursorSession`),
+`agent-terminal-cursor-page.spec.ts:53-55`,
+`agent-launch-ad-hoc-codex.spec.ts:70-75`, and
+`responsive-session-start-codex.spec.ts:147-149` (a literal 30 s).
 Proof: the `paintDelayMs: 6000` reproduction above fails the ad hoc
 ("why is the CI slow?") and split-screen specs before the change and passes
 them after. All three specs pass without the delay.
