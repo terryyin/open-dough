@@ -271,6 +271,13 @@ Safe stopping point: admission and response agree on the resolved reader,
 all refusals and native-report outcomes remain green, and no other caller
 or native operation changes. No later slice is needed to make this coherent.
 
+## Execution complete
+
+Product advice: no new product work. The retrospective found the four findings
+resolved with no residue. Whether Recent sessions entries offer Mark as done for
+reported sessions whose conversation is unavailable remains Terry's open
+decision, still unqueued.
+
 ## Shared verification and sizing
 
 After each slice's changes and local cleanup, run

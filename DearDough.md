@@ -192,6 +192,14 @@ Follow-up: Open, unqueued.
   - Observed effect: no edits; it restated a pre-existing overlap with `dashboard/AGENT-LAUNCH-TERMINALS.md` lines 9–12 that the plan already excluded.
   - Inference: Qualified. Cost only; the citation recheck matches plan 200's counter-evidence but found nothing here.
 - Execution: `SEED-056#state-refinement-decision` / plan 221, first related implementation commit `80043764` - Timestamp: unknown (2026-10-03, before commit `80043764` at 07:40:53+08:00) - Tool: Claude Code (coordinator and delegated agent) - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: the slice reworded two sections of `src/skills/dough-slice-planning/SKILL.md` (+38 words); the refactor pass (about 48k subagent tokens, 4 tool uses) edited nothing but reported that "Stay within the triggering instruction" restated the report contents without the new refinement decision line, so a planning-only report could omit it; the coordinator fixed both bullets in `80043764`. The plan had limited edits to the two sections although its premise search for `remaining concerns` matches those bullets - Observed effect: no rework; one coherence gap closed before commit, outside the plan's section limit - Inference: Qualified counter-evidence, like plan 200: on a tiny guidance change that restates nearby text, the pass can pay off
+- Execution: `SEED-103#attention-message-correction` / plan 249, first related implementation commit `ebb48d6e`
+  - Timestamp: unknown (2026-10-05; slice 2 and 3 passes ran before commits `59ee1e70` and `5ebdef5e`)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: four refactor passes on a test-and-admission correction. Slice 3's pass (a 5-line spec step, about 52k subagent tokens) edited nothing; slice 2's (fixture comments, about 48k) only rewrapped two comment paragraphs. Slice 1's (about 50k) replaced a new local `Mark as done` locator with the existing `markAsDone` helper; slice 4's (about 49k) retitled the admission test to name the new refusal.
+  - Observed effect: two passes changed nothing of substance; two made small useful test edits.
+  - Inference: Qualified. Same mixed pattern as plans 200 and 221: no-edit passes cluster on comment-only or single-step test changes.
 
 ## ODF-200 — Story Branch delivery's `--target-ref` value had to be read from the script
 
