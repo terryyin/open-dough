@@ -52,25 +52,7 @@ export async function retained(
   )
     throw new Error("Missing recorded session");
   record.session.continuation.workspace = workspace;
-  const protocol = native;
-  protocol.cwd = workspace;
-  protocol.history = [
-    {
-      id: "landing-turn",
-      status: "completed",
-      items: [
-        {
-          type: "agentMessage",
-          id: "final",
-          phase: "final_answer",
-          text: report,
-          memoryCitation: null,
-          delivery: null,
-          questions: null,
-        },
-      ],
-    },
-  ];
+  keepFinalReport(native, workspace, report);
   native.observations.set(native.threadId, {
     status: { type: "notLoaded" },
     turns: [{ id: "landing-turn", status: "completed" }],
@@ -92,4 +74,32 @@ export function passive(native: FakeCodex, since: number) {
       ),
   ).toBe(true);
   expect(codexAttaches(native)).toEqual([]);
+}
+
+// The conversation's native history in `workspace`: one completed turn whose
+// final answer is `text`, the final report Codex keeps for it.
+export function keepFinalReport(
+  native: FakeCodex,
+  workspace: string,
+  text: string,
+) {
+  const protocol = native;
+  protocol.cwd = workspace;
+  protocol.history = [
+    {
+      id: "landing-turn",
+      status: "completed",
+      items: [
+        {
+          type: "agentMessage",
+          id: "final",
+          phase: "final_answer",
+          text,
+          memoryCitation: null,
+          delivery: null,
+          questions: null,
+        },
+      ],
+    },
+  ];
 }

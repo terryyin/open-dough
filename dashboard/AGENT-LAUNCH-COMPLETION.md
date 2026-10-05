@@ -37,8 +37,7 @@ without Mark as read; that choice lasts for the report only until a reload. A
 newer report, with a new receipt, is unread again and expanded. The entry's
 **Mark as done** is its own control, offered whenever the session can be marked
 done, an unread report included; marking read never puts Mark as done in its
-place. The report panel that **Read attention message** opens still offers
-Mark as read in the place of its Mark as done. While unread, an entry keeps its session's
+place. While unread, an entry keeps its session's
 native reading — its words, its edge, its place in the Sessions sidebar, and
 whether the badge and the card's attention line count it — and shows the report
 apart, as “Unread report: <completion label>” in its state words and sidebar
@@ -47,9 +46,10 @@ sessions hold one (“1 unread report”) in a line of its own. A new instructio
 the session does not mark its report read. Messages survive a story's published
 stage change, dashboard restart, and workspace disappearance, and stay readable
 in Recent sessions after Done.
-**Read attention message** opens the retained text without changing native activity.
-Quiet completion offers no attention message or empty explicit report. Passive native
-final-report access remains independent, where the host supplies it.
+Reading a message, or marking it read, changes no native activity.
+Quiet completion offers no attention message or empty explicit report. The side
+panel holds a session's passive native final report (**Read final report**),
+independently of its message, where the host supplies it.
 Native terminal access remains independently available where the host supports it.
 The reporting command is prepared from the installed files outside the workspace
 so that workspace retirement cannot remove its executable or dependency.

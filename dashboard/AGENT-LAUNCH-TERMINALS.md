@@ -89,7 +89,7 @@ Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
-Mark as done uses one operation from card, report panel or terminal. It saves local done intent,
+Mark as done uses one operation from card, final report panel or terminal. It saves local done intent,
 requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
 and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
@@ -133,15 +133,18 @@ workspace continuation and Claude Code behavior keep their terminal path.
 
 ## Explicit reports, Mark as read and Mark as done
 
-A session with an unread completion/attention report offers **Mark as read** on
-its card and report panel; it keeps the report read and leaves the session open.
+A session with an unread completion/attention report offers **Mark as read** in
+its entry's message part, on its card or in Recent sessions
+([explicit completion](AGENT-LAUNCH-COMPLETION.md)); it keeps the report read
+and leaves the session open.
 **Mark as done** then closes a reported session as above. Cursor, which has no
 native stop operation, records local Done only, also after its workspace disappears.
 An observed native Working signal remains visible separately beside the attention
 or local Done label.
-Reading an explicit attention message uses machine-local evidence, independently
-of Codex's passive native final-report reader; no native last reply, inactivity,
-minimal marker or process exit counts as a submitted report.
+An explicit attention message is read on the session's entry from machine-local
+evidence; the side panel's **Read final report** shows only Codex's passive
+native final report. No native last reply, inactivity, minimal marker or process
+exit counts as a submitted report.
 
 Completion delivery retains its exact submission beside the surviving reporting
 executable before contacting the receiver. If delivery fails, the operation prints

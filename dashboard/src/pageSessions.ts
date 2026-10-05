@@ -6,13 +6,11 @@
 // and marking without every component between them passing them along. Each
 // session entry names its session, so the page can find where to bring the
 // entry into view.
-// The page also says which session its panel shows. Every Mark as done
-// control follows its mark the same way (`useMarking`), and one that offers
-// Mark as read first chooses between them the same way (`useReportOrDoneMark`).
+// The page also says which session its panel shows. Every Mark as done or
+// Mark as read control follows its mark the same way (`useMarking`).
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
-import { reportUnread } from "./completionReport.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
@@ -44,8 +42,7 @@ export type OpenSessionPanel = SessionOperation<void>;
 export type MarkSessionDone = SessionOperation<Promise<boolean>>;
 
 // Marks the session's unread report read and answers whether it was marked.
-// The session stays open, and a panel showing it stays open with its record
-// as marked.
+// The session stays open.
 export type MarkSessionRead = SessionOperation<Promise<boolean>>;
 
 // Deletes the session's dashboard record and answers what came of it: deleted,
@@ -61,7 +58,6 @@ export type DeleteSessionRecord = SessionOperation<
 export type PageSessions = {
   readonly hostOperations: HostOperations;
   readonly openTerminal: OpenSessionPanel;
-  readonly openResult: OpenSessionPanel;
   readonly openSession: SessionOperation<void, LaunchWithState>;
   readonly shownSession:
     { readonly kind: SessionAccess; readonly key: string } | undefined;
@@ -165,26 +161,4 @@ export function useMarking() {
     });
   };
   return { marking, follow };
-}
-
-// One control's Mark as read while its session's report is unread, else its
-// Mark as done: what the control is labeled, and what it says of the mark it
-// asked while marking or once refused.
-export function useReportOrDoneMark(
-  record: Parameters<typeof reportUnread>[0],
-) {
-  const unread = reportUnread(record);
-  const { marking, follow } = useMarking();
-  const [askedRead, setAskedRead] = useState(false);
-  const mark = (read: () => Promise<boolean>, done: () => Promise<boolean>) => {
-    setAskedRead(unread);
-    follow(unread ? read() : done());
-  };
-  return {
-    label: unread ? "Mark as read" : "Mark as done",
-    marking,
-    markingSaid: askedRead ? "Marking as read…" : "Marking as done…",
-    notMarkedSaid: askedRead ? notMarkedRead : notMarkedDone,
-    mark,
-  };
 }

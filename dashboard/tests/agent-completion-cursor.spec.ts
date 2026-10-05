@@ -10,6 +10,7 @@ import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { messagePartOf } from "./support/sessionMessagePart.ts";
 
 const exec = promisify(execFile);
 
@@ -79,18 +80,16 @@ test("Cursor installed report offers local Done without a native stop capability
     name: "Story A",
     exact: true,
   });
-  await expect(card.locator(".session-attention-message pre")).toHaveText(
-    readFileSync(message, "utf8"),
-  );
+  const part = messagePartOf(card);
+  await expect(part.text).toHaveText(readFileSync(message, "utf8"));
+  // The message is read on the entry; the side panel offers the terminal only.
   await expect(
     card.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
-  await expect(
-    card.getByRole("button", { name: "Read attention message" }),
-  ).toBeVisible();
+  await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
   const before = cursor.calls().length;
   const listed = cardSessions(card);
-  await card.getByRole("button", { name: "Mark as read" }).click();
+  await part.markRead.click();
   // Read, the session stays open on its card, now offering Mark as done.
   await expect(
     card.getByRole("button", { name: "Mark as done" }),
@@ -166,7 +165,4 @@ test("Cursor explicit quiet completion is durable local Done without native stop
     .filter({ hasText: cursor.sessionId });
   await expect(recent).toContainText("Done");
   await expect(recent.locator(".session-attention-message")).toHaveCount(0);
-  await expect(
-    recent.getByRole("button", { name: "Read attention message" }),
-  ).toHaveCount(0);
 });

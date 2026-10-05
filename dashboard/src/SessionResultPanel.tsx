@@ -1,4 +1,3 @@
-import { hasCompletionMessage } from "./completionReport.ts";
 // Passive final report: changing selection cancels the previous identity's read.
 import { useEffect, useRef, useState } from "react";
 import { launchSubject } from "./agentLaunch.ts";
@@ -11,8 +10,9 @@ import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
 import { closeShortcutLabel, usePanelCloseShortcut } from "./PanelControls.tsx";
 import {
+  notMarkedDone,
+  useMarking,
   usePageSessions,
-  useReportOrDoneMark,
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
@@ -31,22 +31,13 @@ export function SessionResultPanel({
   readonly onMarkDone: MarkSessionDone;
 }) {
   const { record } = session;
-  const { hostOperations, markRead } = usePageSessions();
+  const { hostOperations } = usePageSessions();
   const [result, setResult] = useState<SessionResult | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
-  const { label, marking, markingSaid, notMarkedSaid, mark } =
-    useReportOrDoneMark(record);
+  const { marking, follow } = useMarking();
   usePanelCloseShortcut(onClose);
   useEffect(() => {
-    if (hasCompletionMessage(record.completion)) {
-      setResult({
-        kind: "available",
-        turnId: record.completion.receipt,
-        text: record.completion.message,
-      });
-      return;
-    }
     const controller = new AbortController();
     let current = true;
     setResult(undefined);
@@ -79,7 +70,6 @@ export function SessionResultPanel({
       controller.abort();
     };
   }, [
-    record.completion,
     record.request.source,
     record.session.host,
     record.session.sessionId,
@@ -110,13 +100,10 @@ export function SessionResultPanel({
                 className="frame-button"
                 disabled={marking === "marking"}
                 onClick={() => {
-                  mark(
-                    () => markRead(session),
-                    () => onMarkDone(session),
-                  );
+                  follow(onMarkDone(session));
                 }}
               >
-                {label}
+                Mark as done
               </button>
             )}
           <button
@@ -144,8 +131,8 @@ export function SessionResultPanel({
           </code>
         </p>
         <div role="status">
-          {marking === "marking" && <p>{markingSaid}</p>}
-          {marking === "not-marked" && <p>{notMarkedSaid}</p>}
+          {marking === "marking" && <p>Marking as done…</p>}
+          {marking === "not-marked" && <p>{notMarkedDone}</p>}
           {result === undefined && <p>Reading final report…</p>}
           {result?.kind === "unavailable" && (
             <>

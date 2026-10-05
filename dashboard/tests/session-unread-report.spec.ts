@@ -149,6 +149,12 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(cardB.locator(".card-unread-reports")).toHaveText(
     "1 unread report",
   );
+  // Its message is read on its entry only: nothing opens a side panel for it.
+  await expect(
+    cardB.getByRole("button", { name: /^(Read|Open) / }),
+  ).toHaveCount(0);
+  await sidebarTooltipOf(rowB).click();
+  await expect(page.locator(".side-panel")).toHaveCount(0);
 
   // 4. Mark as read on the card, while the session works: the mark, the
   // tooltip line and the card's unread line go; the message part collapses;
@@ -209,22 +215,14 @@ test("an unread report is its own mark beside the session's native reading", asy
   await messageA.markRead.click();
   await expectCollapsed(messageA, "Unfinished work");
 
-  // 7. Its report stays readable, and its panel offers Mark as done, not
-  // Mark as read; Mark as done there closes the session as any session: it is
+  // 7. Mark as done on its entry closes the session as any session: it is
   // named done-, stopped, and leaves the card and the sidebar for Recent
   // sessions, Done, its message collapsed and expandable without Mark as
   // read.
-  await cardA.getByRole("button", { name: "Read attention message" }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".session-final-report")).toHaveText(newerMessage);
-  await expect(panel.getByRole("button", { name: "Mark as read" })).toHaveCount(
-    0,
-  );
   const stopsBeforeDone = stopsOf(dashboard).length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
-  await panel.getByRole("button", { name: "Mark as done" }).click();
-  await expect(panel).toHaveCount(0);
+  await entryA.getByRole("button", { name: "Mark as done" }).click();
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
   await expect(cardA.locator(".session-state")).toHaveCount(0);

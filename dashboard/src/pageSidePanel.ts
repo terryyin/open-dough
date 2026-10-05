@@ -125,18 +125,7 @@ export function usePageSidePanel({
       close(open);
     return true;
   };
-  const markSessionRead: MarkSessionRead = async ({ record }) => {
-    const read = await markRead(record);
-    if (read === undefined) return false;
-    // A report panel showing the session shows it as marked read.
-    setPanel((current) =>
-      current?.kind === "result" &&
-      sessionKey(current.request.record.session) === sessionKey(read.session)
-        ? { ...current, request: { ...current.request, record: read } }
-        : current,
-    );
-    return true;
-  };
+  const markSessionRead: MarkSessionRead = ({ record }) => markRead(record);
   const deleteSessionRecord: DeleteSessionRecord = async ({
     record,
     control,
@@ -162,7 +151,6 @@ export function usePageSidePanel({
   const sessions: PageSessions = {
     hostOperations,
     openTerminal,
-    openResult,
     openSession: (request) => {
       const access = sessionAccess(request.record, hostOperations);
       if (access !== undefined)

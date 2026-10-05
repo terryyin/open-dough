@@ -160,7 +160,7 @@ the part, with Mark as read and the rest of the entry in view.
 
 ### 3. Leave the side panel to the native final report
 Type: Behavior
-Status: planned
+Status: done
 Proof: (a) `agent-completion-cursor.spec.ts` and
 `session-unread-report.spec.ts`: an entry with a message offers no Read
 attention message; a session whose only side-panel content was its message
@@ -235,3 +235,19 @@ terminal or Codex's native final report, with its ordinary Mark as done.
   (`agent-completion-attention.spec.ts`, `agent-completion-cursor.spec.ts`,
   `support/completionRecoveryIntent.ts`); slice 3 touches them and can move
   them to `messagePartOf`.
+- Slice 3 accepted proof (2026-10-05): `unset NODE_ENV; npx playwright test
+  --config dashboard/playwright.config.ts --reporter=list
+  session-unread-report agent-completion session-workspace-retirement
+  story-panel agent-launch-codex-observation-boundary session-result
+  session-alerts-unread-report session-unread-rule side-panel` → 54 passed;
+  after the refactor, the Mark as read journeys → 27 passed; lint and
+  typecheck pass; the grep finds nothing.
+- The server's result endpoint held a third message branch, and its
+  admission let a reported record through on a host without a native
+  reader; both went, so Read final report reads only the native report.
+- `story-panel-replacement` used a Claude attention message as its “final
+  report”; its Story B is now a Codex record whose workspace is gone, with a
+  native final report.
+- A terminal that finds its workspace unavailable on a host without a native
+  reader opens the final report panel, which says it could not be read, as
+  for a session without a message; that path is untested.

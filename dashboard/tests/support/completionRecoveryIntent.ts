@@ -14,6 +14,7 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import { stored } from "./codexStart.ts";
 import { parts } from "../dashboardPage.ts";
 import { rawRequest } from "./rawHttp.ts";
+import { messagePartOf } from "./sessionMessagePart.ts";
 import {
   reportingChild,
   retainedSubmission,
@@ -103,12 +104,12 @@ export async function observeLaterCompletionIntent(options: {
   const recent = parts(page)
     .recentSessions.getByRole("article")
     .filter({ hasText: record.session.sessionId });
-  await expect(recent.locator(".session-attention-message pre")).toHaveText(
-    text,
-  );
+  const part = messagePartOf(recent);
+  await expect(part.text).toHaveText(text);
+  await part.markRead.click();
+  await expect(part.markRead).toHaveCount(0);
   await recent.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
-  await panel.getByRole("button", { name: "Mark as read" }).click();
   await panel.getByRole("button", { name: "Mark as done" }).click();
   await expect.poll(() => stored(receiver.home)[0]?.doneAt).toBeDefined();
   const manualDone = stored(receiver.home)[0]?.doneAt;
@@ -157,9 +158,7 @@ export async function observeLaterCompletionIntent(options: {
   await expect(recent).toContainText("Done");
   // Done, the message is collapsed under its label until expanded.
   await recent.getByRole("button", { name: "Unfinished work" }).click();
-  await expect(recent.locator(".session-attention-message pre")).toHaveText(
-    remaining,
-  );
+  await expect(part.text).toHaveText(remaining);
   const malformedRetry = await rawRequest({
     url: `${context.origin}/__agent-launch/completion`,
     method: "POST",

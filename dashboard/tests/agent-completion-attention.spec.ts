@@ -2,15 +2,20 @@ import type { submitCompletion } from "../server/completionReporting.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import type { Locator } from "@playwright/test";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
-import { repoRoot } from "./support/repositoryRoot.ts";
+import { expectInstalledReportingScript } from "./support/reportingInputAssertions.ts";
+import { keepFinalReport } from "./support/retainedReport.ts";
+import {
+  buttonsAddedSince,
+  messagePartOf,
+  rememberButtons,
+} from "./support/sessionMessagePart.ts";
 import {
   startDashboardServer,
   builtDashboardDir,
@@ -18,8 +23,8 @@ import {
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
-const messageText = (entry: Locator) =>
-  entry.locator(".session-attention-message pre");
+// The saved conversation's own final report, as Codex keeps it.
+const nativeReport = "The saved conversation's final report.";
 
 test("installed attention report stays open, durable and readable through stage change, retirement, restart, Mark as read and Mark as done", async ({
   page,
@@ -29,10 +34,9 @@ test("installed attention report stays open, durable and readable through stage 
 }) => {
   test.setTimeout(120000);
   if (native === undefined) throw new Error("Missing native fixture");
-  const original = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: original,
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
   });
   await page.goto("/");
@@ -66,19 +70,7 @@ test("installed attention report stays open, durable and readable through stage 
   expect(context.origin).toBe(dashboard.origin);
   const workspace = record.start?.workspace;
   if (workspace === undefined) throw new Error("No selected workspace");
-  const candidate = path.join(
-    workspace,
-    ".agents/skills/dough-execute-plan/scripts/dashboard-completion.mjs",
-  );
-  expect(readFileSync(candidate, "utf8")).toBe(
-    readFileSync(
-      path.join(
-        repoRoot,
-        "src/skills/dough-execute-plan/scripts/dashboard-completion.mjs",
-      ),
-      "utf8",
-    ),
-  );
+  expectInstalledReportingScript(workspace);
   const text =
     "Publication finished. Reminder: inspect the migration before release.\n<script>must remain text</script>";
   const message = path.join(origin.machine, "attention.txt");
@@ -116,7 +108,7 @@ test("installed attention report stays open, durable and readable through stage 
     message: text,
   });
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-  await expect(messageText(queued)).toHaveText(text, { timeout: 20000 });
+  await expect(messagePartOf(queued).text).toHaveText(text, { timeout: 20000 });
   await expect(queued.locator(".session-attention-message script")).toHaveCount(
     0,
   );
@@ -168,11 +160,11 @@ test("installed attention report stays open, durable and readable through stage 
     name: "Story A",
     exact: true,
   });
-  await expect(messageText(claimed)).toHaveText(text);
+  await expect(messagePartOf(claimed).text).toHaveText(text);
   rmSync(workspace, { recursive: true, force: true });
   // The prepared installed copy remains callable after workspace removal.
   const retainedReceipt = (await report("unfinished")).receipt;
-  await expect(messageText(claimed)).toHaveText(text);
+  await expect(messagePartOf(claimed).text).toHaveText(text);
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({
@@ -185,25 +177,37 @@ test("installed attention report stays open, durable and readable through stage 
   });
   try {
     await page.reload();
-    await expect(messageText(claimed)).toHaveText(text);
+    await expect(messagePartOf(claimed).text).toHaveText(text);
     expect(stored(restarted.home)[0]?.completion?.receipt).toBe(
       retainedReceipt,
     );
+    keepFinalReport(native, workspace, nativeReport);
+    // The final report is Codex's own; the message stays on the entry.
     await claimed.getByRole("button", { name: "Read final report" }).click();
     const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".session-final-report")).toHaveText(text);
-    // Read, the session stays open; Mark as done then closes it as any
-    // session: renamed, and its observed in-progress turn interrupted.
+    await expect(panel.locator(".session-final-report")).toHaveText(
+      nativeReport,
+    );
+    await expect(panel).not.toContainText("Reminder: inspect the migration");
+    await expect(
+      panel.getByRole("button", { name: "Mark as read" }),
+    ).toHaveCount(0);
+    // Read on the entry, the session stays open and the panel gains no
+    // control; Mark as done then closes it as any session: renamed, and its
+    // observed in-progress turn interrupted.
     native.observations.set(native.threadId, {
       status: { type: "active", activeFlags: [] },
       turns: [{ id: "observed-turn", status: "inProgress" }],
     });
     const nativeBeforeDone = native.calls.length;
-    await panel.getByRole("button", { name: "Mark as read" }).click();
-    await expect(
-      panel.getByRole("button", { name: "Mark as done" }),
-    ).toBeVisible();
+    await rememberButtons(panel);
+    await messagePartOf(claimed).markRead.click();
+    await expect(messagePartOf(claimed).markRead).toHaveCount(0);
+    await expect
+      .poll(() => stored(restarted.home)[0]?.reportRead)
+      .toBe(retainedReceipt);
     expect(stored(restarted.home)[0]?.doneAt).toBeUndefined();
+    expect(await buttonsAddedSince(panel)).toEqual([]);
     await panel.getByRole("button", { name: "Mark as done" }).click();
     await expect(panel).toHaveCount(0);
     await expect(claimed.locator(".session-attention-message")).toHaveCount(0);
@@ -221,9 +225,11 @@ test("installed attention report stays open, durable and readable through stage 
     const heading = recent.getByRole("button", { name: "Unfinished work" });
     await expect(heading).toHaveAttribute("aria-expanded", "false");
     await heading.click();
-    await expect(messageText(recent)).toHaveText(text);
+    await expect(messagePartOf(recent).text).toHaveText(text);
     await recent.getByRole("button", { name: "Read final report" }).click();
-    await expect(panel.locator(".session-final-report")).toHaveText(text);
+    await expect(panel.locator(".session-final-report")).toHaveText(
+      nativeReport,
+    );
     expect(
       nativeSince(nativeBeforeDone, [...steering, "thread/resume"]),
     ).toEqual([

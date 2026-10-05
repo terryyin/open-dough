@@ -1,4 +1,3 @@
-import { hasCompletionMessage } from "./completionReport.ts";
 // A launch record's native session and its host's continuation capabilities.
 // Every session entry (`./SessionEntry.tsx`) uses this presentation; embedded
 // terminal access additionally requires the host capability and `attachOpens`.
@@ -15,7 +14,7 @@ export function LaunchSession({
 }: {
   readonly record: LaunchWithState;
 }) {
-  const { openSession, openResult, hostOperations } = usePageSessions();
+  const { openSession, hostOperations } = usePageSessions();
   const access = sessionAccess(record, hostOperations);
   const limitation = workspaceLimitation(record);
   const described = useFrameDescription();
@@ -58,19 +57,6 @@ export function LaunchSession({
           </>
         )}
       {limitation !== undefined && <p className="quiet">{limitation}</p>}
-      {hasCompletionMessage(record.completion) && access !== "result" && (
-        <p className="launch-open">
-          <button
-            type="button"
-            aria-describedby={described}
-            onClick={(event) => {
-              openResult({ record, control: event.currentTarget });
-            }}
-          >
-            Read attention message
-          </button>
-        </p>
-      )}
       {access !== undefined && (
         <p className="launch-open">
           <button
