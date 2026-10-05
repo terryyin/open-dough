@@ -74,6 +74,33 @@ test("Dough Land reviews after accepted publication and publishes findings befor
   );
 });
 
+test("Story Wrap Up reviews after cleanup and commits findings with final closure", () => {
+  const wrapUp = read("dough-story-wrap-up/SKILL.md");
+  const description = wrapUp.split("\n---\n")[0];
+  const cleanup = wrapUp.indexOf(
+    "## Delete spent history, including shared records",
+  );
+  const review = wrapUp.indexOf("## Review this wrap-up's process");
+  const finalClosure = wrapUp.indexOf("## Commit final closure");
+
+  assert.match(description, /`--process-retrospective`[\s\S]+`DearDough\.md`/);
+  assert.ok(cleanup < review && review < finalClosure);
+  const section = wrapUp.slice(review, finalClosure);
+  assert.match(
+    section,
+    /Only with `--process-retrospective`, after spent history is deleted/,
+  );
+  assert.match(section, sharedLink);
+  assert.match(
+    section,
+    /Recorded findings are owned closure changes for\s+\[Commit final closure\]\(#commit-final-closure\)/,
+  );
+  assert.match(
+    section,
+    /rerun that finds the final closure\s+already committed does not review again/,
+  );
+});
+
 test("completion attention and the retrospective's write location cover the flagged run", () => {
   const attention = read("dough-land/references/completion-attention.md");
   const retrospective = read("dough-execution-retrospective/SKILL.md");

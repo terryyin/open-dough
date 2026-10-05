@@ -34,9 +34,12 @@ of the release-declared managed payload.
 
 A project opts in by creating the file. The installer does not prompt, merge,
 or create a default. When the file or its `skipProcessRetrospective` key is
-absent, process retrospectives are skipped. The JSON contract — including
-defaults, invocation overrides, and invalid-file handling — lives once in
+absent, the execution retrospective skips its process review. The JSON
+contract — including defaults, invocation overrides, and invalid-file
+handling — lives once in
 [Select reviews](../src/skills/dough-execution-retrospective/SKILL.md#select-reviews).
+Dough Land and Story Wrap Up ignore this key; they review their own process
+only when invoked with `--process-retrospective`.
 A project that wants process retrospectives enables them:
 
 ```json
