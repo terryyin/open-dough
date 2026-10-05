@@ -286,3 +286,8 @@ has at least one added or removed line. Update `AGENT-LAUNCH-REVIEW.md`.
   to re-lay it out after `setViewportSize` before measuring.
   `reviewFileOrder` ignores collapsed folders; slice 4 expands the folder a
   move enters through `collapsed` in `SnapshotView`.
+- CI repair during slice 4 (run 37266830648, `eadb18f`):
+  `agent-launch-card-noted-start.spec.ts` hovered Story B's Start before the
+  preparing card's credited human arrived; its arrival moved the Start from
+  under the pointer and hid the tooltip (7/30 and 11/30 local failures). The
+  spec now waits for the credited human first (30/30, then 80/80 passes).

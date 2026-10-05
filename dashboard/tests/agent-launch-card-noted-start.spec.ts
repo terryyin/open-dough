@@ -175,6 +175,12 @@ test.describe("a Backlog card's Starts", () => {
     const { card, action, settled, show, launch } =
       await openStoryStagesJourney(page, stagesJourney);
     await show(stagesJourney.preparing);
+    // The preparing card's credited human arrives after the page settles and
+    // lengthens its Preparing line, moving its Starts; wait for it so a hover
+    // stays on the Start it is aimed at.
+    await expect(
+      card(readyStory).locator(".card-preparing .owner-human-name"),
+    ).toBeVisible();
 
     const notedRefine = action(readyStory, "Refinement");
     const notedExec = action(notRefinedStory, "Execution");
