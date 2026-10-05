@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-088#review-changes-since-last-review",
+  "mode": "story-branch",
+  "branch": "claude/review-only-what-changed-since-the-last-review",
+  "host": "claude"
+}
