@@ -6,9 +6,10 @@
 // one; the worktree's own index and status stay as they were. It opens on
 // the first file in the browser's order, inside the folder that comes
 // first, with its diff shown. Selecting a file shows its diff with added
-// and removed lines marked in text, the rename against its old path, the
-// deletion as all lines removed, and the image as having no textual diff; hiding the file browser leaves the diff
-// in place with more room. The review shows in the page's side panel, and
+// and removed lines marked in text beside their old and new line numbers,
+// the rename against its old path, the deletion as all lines removed, and
+// the image as having no textual diff; hiding the file browser leaves the
+// diff in place with more room. The review shows in the page's side panel, and
 // Command+Shift+Escape closes it, returning the keyboard to Review changes;
 // Tab then moves on. Requests the launch boundary refuses:
 // ./story-review-refusal.spec.ts.
@@ -22,6 +23,7 @@ import {
   contextWords,
   reviewBody,
 } from "./support/reviewContextLine.ts";
+import { shownLineNumbers } from "./support/reviewLineNumbers.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
@@ -199,6 +201,18 @@ test("a story's review names its worktree, branch, and baseline and lists only t
       " old 11",
       "+renamed",
     ]);
+    // Each line's old and new numbers sit beside it, outside its text, and
+    // assistive technology reads the code alone.
+    const hunk = diff.getByRole("list", { name: "@@ -10,3 +10,4 @@" });
+    expect(await shownLineNumbers(hunk.getByRole("listitem"))).toEqual([
+      ["10", "10"],
+      ["11", "11"],
+      ["12", "12"],
+      ["", "13"],
+    ]);
+    await expect(hunk).toMatchAriaSnapshot(
+      "- listitem: old 9\n- listitem: old 10\n- listitem: old 11\n- listitem: +renamed",
+    );
   });
 
   await test.step("the deleted file's lines are all removed", async () => {

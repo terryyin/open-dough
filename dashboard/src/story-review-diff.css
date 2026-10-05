@@ -1,8 +1,9 @@
 /* A reviewed file's diff (./StoryReviewFileDiff.tsx) in the story review
    (./story-review.css). Code lines keep their spacing and scroll sideways
    and down here, beneath the diff's heading; each line's leading +, -, or
-   space says whether it was added, removed, or unchanged. Previous file and
-   Next file sit at the end of the heading. */
+   space says whether it was added, removed, or unchanged, and its old and
+   new line numbers sit before it. Previous file and Next file sit at the
+   end of the heading. */
 
 /* The diff's heading and status stay above its code, which takes the rest
    of the pane's height and scrolls within it. */
@@ -66,6 +67,41 @@
 .story-review-hunk li {
   padding: 0 0.5rem;
   white-space: pre;
+}
+
+/* Each line's old and new numbers, from its data, take two columns before
+   its text: generated, so they are neither the line's text nor copied with
+   it, and assistive technology reads the code without them. A no-newline
+   note leaves both empty, keeping its text under the code. */
+.story-review-line,
+.story-review-note {
+  display: grid;
+  grid-template-areas: "old new code";
+  grid-template-columns:
+    calc(var(--line-number-digits, 1) * 1ch)
+    calc(var(--line-number-digits, 1) * 1ch)
+    auto;
+  column-gap: 1ch;
+}
+
+.story-review-line::before,
+.story-review-note::before {
+  grid-area: old;
+  content: attr(data-old);
+  content: attr(data-old) / "";
+}
+
+.story-review-line::after,
+.story-review-note::after {
+  grid-area: new;
+  content: attr(data-new);
+  content: attr(data-new) / "";
+}
+
+.story-review-line::before,
+.story-review-line::after {
+  color: var(--quiet);
+  text-align: end;
 }
 
 .story-review-hunk-header,

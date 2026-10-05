@@ -1,8 +1,9 @@
 // The diff of one file a story review lists, read within the review's
 // snapshot (`./storyReview.ts`): lines marked `+` added and `-` removed in
-// hunks whose long lines scroll within the diff, or that the file has no
-// textual diff.
+// hunks whose long lines scroll within the diff, each beside its old and new
+// line numbers, or that the file has no textual diff.
 
+import type { CSSProperties } from "react";
 import {
   reviewedFileDiffSchema,
   storyReviewFileEndpoint,
@@ -10,7 +11,11 @@ import {
   type ReviewedFileDiff,
   type TakenStoryReview,
 } from "./storyReview.ts";
-import { parsedUnifiedDiff, type DiffLine } from "./unifiedDiff.ts";
+import {
+  parsedUnifiedDiff,
+  type DiffLine,
+  type UnifiedDiff,
+} from "./unifiedDiff.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import "./story-review-diff.css";
 
@@ -26,7 +31,17 @@ const lineMarkers: Record<DiffLine["kind"], string> = {
   unchanged: " ",
 };
 
-// Git's diff of one file, its lines marked as Git marks them.
+// The widest line number in the diff's hunks, in digits.
+function numberDigits(hunks: UnifiedDiff["hunks"]) {
+  const numbers = hunks.flatMap(({ lines }) =>
+    lines.flatMap((line) => [line.oldNumber ?? 0, line.newNumber ?? 0]),
+  );
+  return String(Math.max(0, ...numbers)).length;
+}
+
+// Git's diff of one file, its lines marked as Git marks them. Line numbers
+// are data the stylesheet shows beside each line, outside its text, so
+// copying code leaves them behind.
 function DiffLines({ printed }: { readonly printed: string }) {
   const { binary, hunks } = parsedUnifiedDiff(printed);
   if (hunks.length === 0)
@@ -42,6 +57,11 @@ function DiffLines({ printed }: { readonly printed: string }) {
       className="story-review-code"
       // Long lines scroll here, never the page; the keyboard can reach it.
       tabIndex={0}
+      style={
+        {
+          "--line-number-digits": String(numberDigits(hunks)),
+        } as CSSProperties
+      }
     >
       {hunks.map((hunk, index) => (
         <ol
@@ -57,6 +77,8 @@ function DiffLines({ printed }: { readonly printed: string }) {
             <li
               key={at}
               className={`story-review-line story-review-${line.kind}`}
+              data-old={line.oldNumber}
+              data-new={line.newNumber}
             >
               {lineMarkers[line.kind]}
               {line.text}

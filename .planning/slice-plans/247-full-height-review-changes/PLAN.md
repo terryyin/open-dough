@@ -230,7 +230,17 @@ panel's others. Update `AGENT-LAUNCH-REVIEW.md`.
 
 ### 5. Number the diff's lines
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review story-panel side-panel` (37
+passed) and `npm run typecheck:dashboard` pass. Observed in
+`story-review-diff.spec.ts` "each line carries its old and new numbers from
+its hunk's header" (counted and count-less headers, restart per hunk, notes
+unnumbered) and `story-review.spec.ts` step "the rename's diff is against its
+old path" (`shownLineNumbers` reads `[10,10] [11,11] [12,12] [-,13]`;
+`expectLines` and the aria snapshot read the code without numbers). Numbers
+are generated content with empty alt text, so copying and assistive
+technology read the code alone.
 Proof: pure contract in `story-review-diff.spec.ts`: for
 `@@ -10,3 +10,4 @@` with one added line, unchanged lines carry old and new
 numbers and the added line only a new one; a removed line only an old one; a

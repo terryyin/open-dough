@@ -43,7 +43,11 @@ and the selected file's diff is headed by the same words.
 
 The list and every file diff come from that one snapshot until Refresh takes
 a new one. A file's diff is Git's unified diff from the baseline to the
-snapshot tree, with renames diffed against their old path. Binary and
+snapshot tree, with renames diffed against their old path. Each line shows
+its number in the old file, the new file, or both, counted from its hunk's
+header (`src/unifiedDiff.ts`); Git's no-newline note takes none. The numbers
+are generated beside the line, outside its text, so copying code leaves them
+behind and assistive technology reads the code alone. Binary and
 mode-only changes say they have no textual diff. The review explains a
 workspace with no changes, a missing worktree, and a trunk that cannot be
 fetched; it never lists files against an unfetched baseline. Requests name
