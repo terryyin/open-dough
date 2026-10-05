@@ -152,8 +152,12 @@ for (const quiet of [false, true])
         });
         expect(bound?.request.reporting?.reference).toBe(accepted.attempt.id);
         expect(bound?.session.host).toBe("claude");
-        if (quiet) expect(bound?.doneAt).toBe(receipt.receivedAt);
-        else expect(bound?.doneAt).toBeUndefined();
+        if (quiet) {
+          expect(bound?.doneAt).toBe(receipt.receivedAt);
+          expect(bound?.doneProblem).toContain(
+            "Native rename requires terminal input",
+          );
+        } else expect(bound?.doneAt).toBeUndefined();
         if (bound === undefined) throw new Error("No bound record");
         const stale = { ...bound, completion: undefined, doneAt: undefined };
         for (const operation of ["updateRecord", "keepRecord"]) {

@@ -158,9 +158,10 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
         ).rejects.toThrow("The reporting session was deleted");
         expect(stored(again.home)).toHaveLength(0);
         expect(readFileSync(git.log, "utf8")).toBe(gitBefore);
-        // Only the developer's own Mark as done renames; no retry repeats
-        // native work.
+        // Automatic and manual Done share native naming; successful receipt retries
+        // do not repeat native work.
         expect(nativeControls().slice(nativeBefore)).toEqual([
+          "thread/name/set",
           "thread/name/set",
         ]);
       } finally {
