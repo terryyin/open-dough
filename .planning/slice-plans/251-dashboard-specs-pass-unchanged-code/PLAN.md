@@ -194,7 +194,7 @@ own story.
 
 ### 6. Twenty consecutive repetitions pass on the repaired revision
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/ci-repeat.sh 20` on the revision that holds every
 repair exits 0; record the revision and run IDs under Learnings.
 
@@ -278,3 +278,9 @@ this slice's external-wait exception.
   directory is gone forces the order in a new test in that spec: red before,
   green after; the 16 `production-` specs pass. No other dashboard server path
   fetches into a repository it later removes.
+- Slice 6: `bash scripts/ci-repeat.sh 20` on `06dfb716` (slices 1 and 3–5)
+  → exit 0, "Passed 20 of 20 repetitions", every job of every run. Runs:
+  37302169047 37302186941 37302730257 37302989206 37303188100 37303453559
+  37303651164 37303856026 37304061139 37304367604 37304511889 37304830472
+  37304978983 37305241365 37305494582 37305637010 37305961102 37306108642
+  37306423567 37306692242. `ci.yml` is unchanged against `main`.
