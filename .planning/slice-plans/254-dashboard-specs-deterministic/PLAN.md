@@ -159,6 +159,14 @@ locally and on CI's runners → no failure of the four specs. A failure here
 is a new finding for that spec: reproduce it as slices 1 and 2 did, and
 replan before changing anything.
 
+## Execution complete
+
+Product advice: no change to priorities. The story deferred other specs, and
+four callers still wait for a Start session's answer with the default 5 s or
+a literal 30 s, as slice 2's learning lists. They are the next likely flakes
+of the same kind. If one fails on `main`, a small follow-up can route them
+through `startedSession`; it is not worth queueing ahead of that evidence.
+
 ## Current decisions
 
 - `side-panel-width.spec.ts` and `agent-launch-acceptance.spec.ts` need no
