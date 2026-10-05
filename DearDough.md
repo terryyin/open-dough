@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 232. Removed local codes are never reused.
+- Highest allocated local number: 234. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -673,6 +673,15 @@ Follow-up: Open, unqueued.
   - Observed effect: no wrong-checkout edit; one added caution per delegation.
   - Inference: Qualified. A delegated agent that reads the plan without that caution could work in the stale preparation workspace if it still exists. One sample.
 
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248, first related implementation commit `0b3d3c78`
+  - Timestamp: unknown (slice 3 implementation, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
+  - Tool: Claude Code (delegated implementation agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 248 premise "With an attention message, Read final report shows the message" was observed by reading `SessionResultPanel.tsx` and `sessionAccess.ts`; slice 3 found a third message branch in `server/sessionResultResponse.ts` and an admission exception in `server/sessionAdmission.ts`, and `story-panel-replacement.spec.ts`, which slice 3's proof (d) listed to "stay green", used a Claude attention message as its final report (plan 248 slice 3 learnings).
+  - Observed effect: no CI failure or rework; slice 3's implementer removed the server branch and rebuilt the Story B fixture as a Codex record.
+  - Inference: Qualified. Fourth occurrence of the class: the removed concept's consumers were swept on the client by name, missing the server answer and a fixture that relied on the removed behavior.
+
 ## DD-230 — An implementation return omitted an out-of-scope behavior change inside a reported path
 
 The implementation agent changed `openTerminal` in `dashboard/src/pageSidePanel.ts` to take each new request, the same way it changed `openReview`. Terminals were outside the slice's scope. The return listed the file and described only the `openReview` change. The coordinator found the extra hunk while reading the diff for proof acceptance and reverted it before the refactor pass.
@@ -704,3 +713,31 @@ Three Story Branch increment deliveries were accepted on the execution branch wi
   - Evidence: `execution-increment-delivery.mjs deliver` receipts for `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`, `d8468ccec8024cbab1350afac9ef01d4dc006e59`, and `2ea2d324f5956dc76c006b0d425fdefda86b9771` on `refs/heads/cursor/a-launched-cursor-agent-receives-its-story`, each `observation.state: unobserved`, `reason: host session identity is required to verify the notification bridge`. No `--session-json` was passed.
   - Observed effect: publication was accepted; CI was not observed; `complete-revision` has no mailbox.
   - Inference: Qualified. The coordinator omitted the host session identity. One execution.
+
+## DD-233 — Removing a panel path lost the only Mark as done of cardless unavailable reported sessions, unseen until retrospective
+
+Plan 248 slice 3 removed the side panel's attention-message branch. That branch was also how a reported session listed only in Recent sessions, with its conversation unavailable, reached Mark as done; Recent entries offer none, so such a session now ends only by Delete record.
+
+### Occurrences
+
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248, first related implementation commit `0b3d3c78`
+  - Timestamp: unknown (slice 3, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: `e8a1ef8a:dashboard/src/sessionAccess.ts` returned `"result"` for a record with a message when `!attachOpens(record.sessionState)` or no embedded terminal; `58ea4c37` drops it, and `SessionEntry.tsx` renders `MarkDone` only `onCard`. Plan 248 premise "A session that the side panel cannot open is left alone" covered opening only. The destructive later-outcome check compares later slices, and slice 3 was last. Implementation, refactor, and proof acceptance did not name it; the retrospective's outcome review did.
+  - Observed effect: a delivered capability loss awaiting the developer's decision on where Mark as done is offered.
+  - Inference: Qualified. A removal premise listed what the removed path showed, not what it let the developer do; a removal's existing capabilities had no check before delivery. One sample.
+
+## DD-234 — A one-slice flake check with three repeats passed a test the refactor pass's twelve parallel repeats failed
+
+### Occurrences
+
+- Execution: `SEED-103#attention-message-on-story-card` / plan 248, first related implementation commit `0b3d3c78`
+  - Timestamp: unknown (slice 2, before `fa0a60f5` committed 2026-10-05T11:15:30+09:00)
+  - Tool: Claude Code (delegated implementation and refactor agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: slice 2's return reported `--repeat-each 3` → 9 passed, "not flaky locally"; the refactor pass's `--repeat-each 12` with 8 workers failed the long-message test 2–3 times (one End press for keyboard scroll dropped, `scrollTop` 74 of 1100), fixed with `toPass` and then 24 of 24 passed (plan 248 slice 2 learning).
+  - Observed effect: the flake was fixed before publication; no CI failure.
+  - Inference: Qualified practice. A newly written timing-sensitive browser step needed parallel repeats to show its failure rate; three serial-ish repeats did not. One sample.

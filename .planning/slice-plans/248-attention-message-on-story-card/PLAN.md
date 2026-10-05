@@ -248,6 +248,19 @@ terminal or Codex's native final report, with its ordinary Mark as done.
 - `story-panel-replacement` used a Claude attention message as its “final
   report”; its Story B is now a Codex record whose workspace is gone, with a
   native final report.
-- A terminal that finds its workspace unavailable on a host without a native
-  reader opens the final report panel, which says it could not be read, as
-  for a session without a message; that path is untested.
+- Only Codex's terminal reports an unavailable workspace
+  (`server/hosts/codex/terminal.ts`), so the panel's unavailable-workspace
+  path reaches only a host with a native reader.
+
+## Execution complete
+
+Product advice: Removing the panel's message branch left a reported session
+listed only in Recent sessions, with its conversation unavailable, without
+Mark as done: Recent entries offer none, so it ends only by Delete record,
+which drops the message Done would keep. Where Mark as done is offered — card
+only, or every entry not yet done — awaits Terry's decision and fits beside
+[confirming Mark as done](../../seeds/SEED-104-confirm-mark-as-done.md#confirm-mark-as-done).
+The bounded correction for wording, Story B's fixture, the expansion-choice
+proof, and the duplicated refusal is
+[plan 249](../249-attention-message-correction/PLAN.md), not queued; keep an
+attention message's text distinct from a native final report's in fixtures.
