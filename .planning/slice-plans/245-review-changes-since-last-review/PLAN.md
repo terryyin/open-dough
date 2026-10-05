@@ -192,7 +192,17 @@ and each opening starts on since-the-review.
 
 ### 4. Leave trunk's changes out after trunk was integrated
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-since-trunk.spec.ts` (a–d, plus an unchanged
+baseline that says nothing about trunk) with the since, comparison, and mark
+specs (17), `story-review story-panel side-panel-width` (48), and
+`typecheck:dashboard`. The restatement is `server/storyReviewSince.ts`; a
+flagged file carries `includesTrunkFrom` (the marked tree, its *from* tree),
+and a file renamed from an inseparable one is flagged with it (untested
+edge). The client says trunk was integrated when the mark's baseline differs
+from the snapshot's.
+Learning: `merge-tree` of bare trees needs Git 2.45 or later; older Git
+answers a marked story's review as could not be read.
 Proof: New `story-review-since-trunk.spec.ts`. After the mark, trunk changes
 `README.md` and `src/a.ts` and the same lines of `src/c.ts` as the story;
 the story merges trunk and changes `src/b.ts`. (a) Since-the-review lists

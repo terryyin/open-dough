@@ -157,6 +157,12 @@
   color: var(--quiet);
 }
 
+/* A file that includes trunk's changes since the review says so in words. */
+.story-review-trunk {
+  color: var(--quiet);
+  font-size: 0.85em;
+}
+
 .story-review-diff {
   flex: 1 1 18rem;
   min-width: 0;

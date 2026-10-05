@@ -12,10 +12,11 @@
 // worktree, and the review then says the snapshot is marked and when
 // (`./StoryReviewMark.tsx`); only that control marks. A marked story's
 // review opens on the changes since the review, headed by what it compares
-// and when the mark was made; marking there marks the whole snapshot. Its
-// comparison switch (`./StoryReviewComparison.tsx`) shows the same snapshot
-// against trunk and back; Refresh keeps the comparison shown, and each
-// opening starts on the changes since the review.
+// and when the mark was made, leaving out what came only from trunk and
+// saying when trunk was integrated since; marking there marks the whole
+// snapshot. Its comparison switch (`./StoryReviewComparison.tsx`) shows the
+// same snapshot against trunk and back; Refresh keeps the comparison shown,
+// and each opening starts on the changes since the review.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -178,7 +179,10 @@ export function StoryReviewPanel({
               <ComparisonSwitch shown={chosen} onSwitch={setChosen} />
             )}
             {since !== undefined && snapshot.mark !== undefined && (
-              <SinceTheReviewHeading mark={snapshot.mark} />
+              <SinceTheReviewHeading
+                mark={snapshot.mark}
+                baseline={snapshot.baseline}
+              />
             )}
             <div className="story-review-mark">
               <MarkStatement mark={stated} tree={snapshot.tree} />

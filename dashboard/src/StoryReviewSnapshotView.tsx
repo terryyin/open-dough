@@ -3,11 +3,13 @@
 // changed files with their change kinds in a file browser the developer can
 // hide or show. The browser shows each file by name under folders that
 // collapse and expand (`./StoryReviewFileTree.tsx`). Selecting a file reads
-// its diff (`./StoryReviewFileDiff.tsx`), headed by its kind and full path.
+// its diff (`./StoryReviewFileDiff.tsx`), headed by its kind and full path,
+// and flagged when it includes trunk's changes since the review.
 // The browser lists the comparison shown: all changes from the baseline, or
-// the changes since the review from the marked tree. A worktree that matches
-// its baseline, or a snapshot that matches the marked one, says so in place
-// of the browser.
+// the changes since the review from the restated marked tree, a flagged
+// file's from the marked tree itself. A worktree that matches its baseline,
+// or a snapshot that matches the marked one, says so in place of the
+// browser.
 // A refreshed snapshot keeps the browser as it was, its collapsed folders,
 // and the selected file while the new snapshot still lists their paths.
 
@@ -20,7 +22,12 @@ import type {
   TakenStoryReview,
 } from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
-import { changedFiles, FileTree, kindWords } from "./StoryReviewFileTree.tsx";
+import {
+  changedFiles,
+  FileTree,
+  includesTrunkWords,
+  kindWords,
+} from "./StoryReviewFileTree.tsx";
 
 function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
   return (
@@ -32,6 +39,9 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
         </>
       ) : (
         <code>{file.path}</code>
+      )}
+      {file.includesTrunkFrom !== undefined && (
+        <span className="story-review-trunk">, {includesTrunkWords}</span>
       )}
     </>
   );
@@ -58,6 +68,8 @@ export function SnapshotView({
   const [browserShown, setBrowserShown] = useState(true);
   const { files } = comparison;
   const selected = files.find((file) => file.path === selectedPath);
+  // The selected file's *from* tree.
+  const from = selected?.includesTrunkFrom ?? comparison.from;
   const listName = changedFiles(files.length);
   const browserId = `${headingId}-files`;
   const diffHeadingId = `${headingId}-diff`;
@@ -150,9 +162,9 @@ export function SnapshotView({
                 <FileDiff
                   // A new comparison or file is a new read, never the last
                   // one's.
-                  key={`${comparison.from}:${snapshot.tree}:${selected.path}`}
+                  key={`${from}:${snapshot.tree}:${selected.path}`}
                   reviewed={reviewed}
-                  from={comparison.from}
+                  from={from}
                   tree={snapshot.tree}
                   file={selected}
                 />

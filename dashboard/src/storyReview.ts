@@ -7,7 +7,8 @@
 // boundary can resolve one. The developer may mark the snapshot shown as
 // reviewed (`../server/storyReviewMarks.ts`): the story's one mark on this
 // machine, which only that request makes. A marked story's snapshot is also
-// compared with its mark: the changes since the review.
+// compared with its mark: the changes since the review, leaving out what
+// came only from trunk.
 
 import { z } from "zod";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
@@ -16,8 +17,9 @@ import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
 // One file's diff within a snapshot: named by the `baseline` and `tree`
-// object IDs it compares -- the *from* tree of the comparison shown, the
-// baseline or the marked tree, and the snapshot's tree -- and the file's path
+// object IDs it compares -- the file's *from* tree in the comparison shown,
+// the baseline, the restated or the marked tree, and the snapshot's tree --
+// and the file's path
 // (and old path for a rename), so any file diff the page opens reads the
 // same observation as the file list.
 export const storyReviewFileEndpoint = "/__agent-launch/review/file";
@@ -52,22 +54,30 @@ export function reviewWorkspaceOf<Kept extends LaunchRecord>(
   return latest;
 }
 
+export const objectIdSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
+
+// A file of the changes since the review that trunk, integrated since the
+// mark, and the story both changed in a way Git cannot separate: it includes
+// trunk's changes, and its kind and diff run from this tree, the marked one,
+// instead of the comparison's *from* tree.
+const includesTrunkFrom = { includesTrunkFrom: objectIdSchema.optional() };
+
 // One changed file of a snapshot, as Git's rename-detecting tree diff names
-// it; a renamed file also names the path it had at the baseline.
+// it; a renamed file also names the path it had at the *from* tree.
 export const reviewedFileSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.enum(["added", "modified", "deleted"]),
     path: z.string().min(1),
+    ...includesTrunkFrom,
   }),
   z.object({
     kind: z.literal("renamed"),
     path: z.string().min(1),
     oldPath: z.string().min(1),
+    ...includesTrunkFrom,
   }),
 ]);
 export type ReviewedFile = z.infer<typeof reviewedFileSchema>;
-
-export const objectIdSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
 
 // A story's mark: the snapshot the developer marked reviewed, by its tree and
 // the baseline it was compared with, and when.
@@ -127,7 +137,11 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     // The story's mark on this machine, when it has one.
     mark: reviewMarkSchema.optional(),
     // With a mark, the same snapshot compared with it: the changes since the
-    // review. Its file diffs compare `from`, the marked tree, with `tree`.
+    // review. Its `from` is the marked tree restated on `baseline`, leaving
+    // out what came only from trunk -- the marked tree itself while
+    // `baseline` is the mark's -- and its file diffs compare `from`, or a
+    // file's `includesTrunkFrom`, with `tree`. Trunk was integrated since the
+    // mark exactly when the mark's baseline differs from `baseline`.
     since: reviewComparisonSchema.optional(),
   }),
   z.object({

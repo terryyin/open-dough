@@ -1,7 +1,8 @@
 // What a story's review (`./StoryReviewPanel.tsx`) says of the story's mark
 // (`./storyReview.ts`), and Mark reviewed's request to make it: the snapshot
 // shown is marked, or an earlier one is, and when; or, heading the changes
-// since the review, the mark they compare with and when it was made.
+// since the review, the mark they compare with and when it was made, and
+// whether trunk was integrated since: its baseline is not the snapshot's.
 
 import { postJson, refusal } from "./agentLaunchClient.ts";
 import { Moment } from "./Moment.tsx";
@@ -51,8 +52,15 @@ export function MarkStatement({
   );
 }
 
-// The changes since the review, headed by the mark they compare with.
-export function SinceTheReviewHeading({ mark }: { readonly mark: ReviewMark }) {
+// The changes since the review of a snapshot from `baseline`, headed by the
+// mark they compare with.
+export function SinceTheReviewHeading({
+  mark,
+  baseline,
+}: {
+  readonly mark: ReviewMark;
+  readonly baseline: string;
+}) {
   return (
     <div className="story-review-since">
       <h3>Changes since the review</h3>
@@ -60,6 +68,12 @@ export function SinceTheReviewHeading({ mark }: { readonly mark: ReviewMark }) {
         From the snapshot marked reviewed{" "}
         <Moment at={new Date(mark.markedAt)} /> to this snapshot.
       </p>
+      {mark.baseline !== baseline && (
+        <p>
+          Trunk was integrated since the mark: changes that came only from trunk
+          are left out.
+        </p>
+      )}
     </div>
   );
 }

@@ -2,7 +2,8 @@
 // shows them (`./StoryReviewSnapshotView.tsx`): each folder a disclosure that
 // collapses and expands, a collapsed folder telling how many changed files it
 // holds, and each file by its name, its kind told by the name's style alone.
-// A file's control is named, and titled, by its kind and full path in words.
+// A file's control is named, and titled, by its kind and full path in words;
+// a file that includes trunk's changes says so in its row and its name.
 
 import type { ReviewTreeNode } from "./reviewFileTree.ts";
 import type { ReviewedFile } from "./storyReview.ts";
@@ -14,11 +15,15 @@ export const kindWords: Record<ReviewedFile["kind"], string> = {
   renamed: "Renamed",
 };
 
-// A file's kind and full path in words, as its control is named.
+// The flag of a file that includes trunk's changes since the review.
+export const includesTrunkWords = "includes trunk's changes";
+
+// A file's kind and full path in words, and its flag, as its control is
+// named.
 const reviewedFileWords = (file: ReviewedFile) =>
   `${kindWords[file.kind]} ${
     file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
-  }`;
+  }${file.includesTrunkFrom === undefined ? "" : `, ${includesTrunkWords}`}`;
 
 const changedFileWords = (count: number) =>
   count === 1 ? "changed file" : "changed files";
@@ -69,6 +74,12 @@ export function FileTree({
                 }}
               >
                 <code>{node.name}</code>
+                {node.file.includesTrunkFrom !== undefined && (
+                  <span className="story-review-trunk">
+                    {" "}
+                    {includesTrunkWords}
+                  </span>
+                )}
               </button>
             </li>
           );

@@ -1,5 +1,5 @@
 // The diff of one file a story review lists, read within the review's
-// snapshot (`./storyReview.ts`) from the *from* tree of the comparison shown:
+// snapshot (`./storyReview.ts`) from its *from* tree in the comparison shown:
 // lines marked `+` added and `-` removed in
 // hunks whose long lines scroll within the diff, or that the file has no
 // textual diff.
@@ -74,8 +74,8 @@ function DiffLines({ printed }: { readonly printed: string }) {
   );
 }
 
-// The selected file's diff from the comparison's *from* tree to the
-// snapshot's tree.
+// The selected file's diff from its *from* tree in the comparison shown to
+// the snapshot's tree.
 export function FileDiff({
   reviewed,
   from,

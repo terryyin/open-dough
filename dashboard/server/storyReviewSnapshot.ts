@@ -11,11 +11,14 @@
 // and a trunk that cannot be fetched names the remote and target, since
 // there is no baseline without it.
 // A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it,
-// and the same snapshot compared with the marked tree: the changes since the
-// review. A marked tree Git cannot read answers why, as any other step.
-// A file diff of the snapshot is Git's unified diff of that file from the
-// comparison's *from* tree -- the baseline or the marked tree -- to the
-// snapshot's tree, detecting a rename against its old path.
+// and the same snapshot compared with the marked tree restated on the
+// baseline (`./storyReviewSince.ts`): the changes since the review,
+// leaving out what came only from trunk.
+// A marked tree Git cannot read answers why, as any other step.
+// A file diff of the snapshot is Git's unified diff of that file from its
+// *from* tree in the comparison shown -- the baseline, the restated, or the
+// marked tree -- to the snapshot's tree, detecting a rename against its old
+// path.
 
 import { mkdtemp, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
@@ -29,10 +32,11 @@ import type {
   StoryReview,
 } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
-import { gitProblem, runGit } from "./gitRunner.ts";
+import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
+import { changesSinceReview } from "./storyReviewSince.ts";
 import type {
   AdmittedFileDiff,
   AdmittedReview,
@@ -93,19 +97,12 @@ async function storyReviewSnapshot(
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const { workspace, branch, remote, target } = established;
+  const call: GitCall = { cwd: workspace, signal, maxBuffer: outputLimit };
   // What Git printed, as printed.
   const printed = async (
     args: readonly string[],
     env?: Readonly<Record<string, string>>,
-  ) =>
-    (
-      await runGit(args, {
-        cwd: workspace,
-        signal,
-        maxBuffer: outputLimit,
-        ...(env === undefined ? {} : { env }),
-      })
-    ).stdout;
+  ) => (await runGit(args, env === undefined ? call : { ...call, env })).stdout;
   const git = async (
     args: readonly string[],
     env?: Readonly<Record<string, string>>,
@@ -134,10 +131,21 @@ async function storyReviewSnapshot(
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
-    // The files changed from one tree to the snapshot's.
-    const changedFrom = async (from: string) =>
+    // The files changed from one tree to the snapshot's, of the paths given
+    // or of all.
+    const changedFrom = async (from: string, paths: readonly string[] = []) =>
       reviewedFiles(
-        await printed(["diff", "--name-status", "-M", "-z", from, tree, "--"]),
+        await printed([
+          "--literal-pathspecs",
+          "diff",
+          "--name-status",
+          "-M",
+          "-z",
+          from,
+          tree,
+          "--",
+          ...paths,
+        ]),
       );
     const files = await changedFrom(baseline);
     const marked =
@@ -145,7 +153,7 @@ async function storyReviewSnapshot(
         ? {}
         : {
             mark,
-            since: { from: mark.tree, files: await changedFrom(mark.tree) },
+            since: await changesSinceReview(mark, baseline, changedFrom, call),
           };
     return {
       kind: "snapshot",
