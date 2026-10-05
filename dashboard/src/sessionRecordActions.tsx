@@ -1,85 +1,66 @@
-// Record actions shared by card and Recent sessions entries.
+// Record actions shared by card and Recent sessions entries. Each says what
+// it came to through the entry's one status line (`say`), which nothing clears
+// but the next control asking.
 import { hostName, marksRecordDone } from "./sessionCapabilities.ts";
 import { useEffect, useRef, useState } from "react";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
   notDeleted,
+  notMarkedDone,
   nowKnown,
+  useMarking,
   usePageSessions,
-  useReportOrDoneMark,
 } from "./pageSessions.ts";
 import { useFrameDescription } from "./protectedFrame.ts";
 
-// A card entry's Mark as read while its report is unread, else its Mark as
-// done, and its Delete record… while its state is unknown or unavailable,
-// with the one status line that says what any could not do or found. Once
-// read, the entry stays and offers Mark as done in the same place; once
-// marked done or deleted, the entry leaves the card.
-export function CardActions({ record }: { readonly record: LaunchWithState }) {
-  const { markDone, markRead, hostOperations } = usePageSessions();
-  const { label, marking, notMarkedSaid, mark } = useReportOrDoneMark(record);
-  const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
-  const described = useFrameDescription();
-  return (
-    <>
-      {marksRecordDone(hostOperations, record) && (
-        <p className="launch-open">
-          <button
-            type="button"
-            aria-describedby={described}
-            disabled={marking === "marking"}
-            onClick={(event) => {
-              setDeleteSaid(undefined);
-              const request = { record, control: event.currentTarget };
-              mark(
-                () => markRead(request),
-                () => markDone(request),
-              );
-            }}
-          >
-            {label}
-          </button>
-        </p>
-      )}
-      <DeleteRecord record={record} say={setDeleteSaid} />
-      <p role="status" className="launch-problem">
-        {deleteSaid ?? (marking === "not-marked" && notMarkedSaid)}
-      </p>
-    </>
-  );
-}
-
-// A Recent sessions entry's Delete record… while its state is unknown or
-// unavailable, with its status line; the Sessions sidebar's entries offer none.
-export function RecentActions({
-  record,
-}: {
-  readonly record: LaunchWithState;
-}) {
-  const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
-  return (
-    <>
-      <DeleteRecord record={record} say={setDeleteSaid} />
-      <p role="status" className="launch-problem">
-        {deleteSaid}
-      </p>
-    </>
-  );
-}
-
-// An entry's Delete record…, offered only while its state is unknown or
-// unavailable (`recordDeletable`): it asks in place, with the keyboard on
-// Keep, before the record is deleted. Keep and Escape put the button back with
-// the keyboard on it. A deleted record takes the entry off the page. A refused
-// or failed delete says so in the entry's status line and leaves the buttons
-// and the keyboard where they were; a state read as known meanwhile takes the
-// question away and says so.
-function DeleteRecord({
+// A card entry's Mark as done, whenever its session can be marked done, an
+// unread report included. Once marked done, the entry leaves the card.
+export function MarkDone({
   record,
   say,
 }: {
   readonly record: LaunchWithState;
-  // Says in the entry's status line what the delete came to; nothing clears it.
+  readonly say: (words: string | undefined) => void;
+}) {
+  const { markDone, hostOperations } = usePageSessions();
+  const { marking, follow } = useMarking();
+  const described = useFrameDescription();
+  if (!marksRecordDone(hostOperations, record)) return null;
+  return (
+    <p className="launch-open">
+      <button
+        type="button"
+        aria-describedby={described}
+        disabled={marking === "marking"}
+        onClick={(event) => {
+          say(undefined);
+          follow(
+            markDone({ record, control: event.currentTarget }),
+            (marked) => {
+              if (!marked) say(notMarkedDone);
+            },
+          );
+        }}
+      >
+        Mark as done
+      </button>
+    </p>
+  );
+}
+
+// A card or Recent sessions entry's Delete record…, offered only while its
+// state is unknown or unavailable (`recordDeletable`); the Sessions sidebar's
+// entries offer none. It asks in place, with the keyboard on Keep, before the
+// record is deleted. Keep and Escape put the button back with the keyboard on
+// it. A deleted record takes the entry off the page. A refused or failed
+// delete says so in the entry's status line and leaves the buttons and the
+// keyboard where they were; a state read as known meanwhile takes the
+// question away and says so.
+export function DeleteRecord({
+  record,
+  say,
+}: {
+  readonly record: LaunchWithState;
   readonly say: (words: string | undefined) => void;
 }) {
   const { deleteRecord } = usePageSessions();

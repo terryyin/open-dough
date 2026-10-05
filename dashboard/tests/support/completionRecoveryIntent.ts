@@ -155,6 +155,8 @@ export async function observeLaterCompletionIntent(options: {
   expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
   await page.reload();
   await expect(recent).toContainText("Done");
+  // Done, the message is collapsed under its label until expanded.
+  await recent.getByRole("button", { name: "Unfinished work" }).click();
   await expect(recent.locator(".session-attention-message pre")).toHaveText(
     remaining,
   );

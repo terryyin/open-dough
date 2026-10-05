@@ -151,13 +151,17 @@ export const notDeleted = "The session record could not be deleted.";
 export const nowKnown = "This session's state is now known";
 
 // Follows one control's Mark as done or Mark as read from its asking to the
-// answer.
+// answer, which `answered`, when given, is then told.
 export function useMarking() {
   const [marking, setMarking] = useState<Marking | undefined>();
-  const follow = (asked: Promise<boolean>) => {
+  const follow = (
+    asked: Promise<boolean>,
+    answered?: (marked: boolean) => void,
+  ) => {
     setMarking("marking");
     void asked.then((marked) => {
       setMarking(marked ? undefined : "not-marked");
+      answered?.(marked);
     });
   };
   return { marking, follow };

@@ -101,7 +101,7 @@ exports left by the removal. Hosted CI runs the whole suite after publication.
 
 ### 1. Read and mark read in the entry's message part
 Type: Behavior
-Status: planned
+Status: done
 Proof: `session-unread-report.spec.ts`, its first journey reworked and one test
 added. (a) A reported session's card entry shows the message expanded under
 its completion label, with Mark as read in the message part and Mark as done
@@ -144,7 +144,7 @@ done stays the entry's own control throughout.
 ### 2. Keep a long message inside its message part
 Type: Behavior
 Status: planned
-Proof: New test in `session-unread-report.spec.ts`: a report of several
+Proof: New test in `session-unread-report-message.spec.ts`: a report of several
 thousand characters is unread on a card. The message text's box is shorter
 than its content and scrolls; Mark as read and the entry's Mark as done are
 in the viewport without scrolling the text; the text's last line is reachable
@@ -207,4 +207,19 @@ terminal or Codex's native final report, with its ordinary Mark as done.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted proof (2026-10-05): `unset NODE_ENV; npx playwright test
+  --config dashboard/playwright.config.ts --reporter=list session-unread-report
+  agent-completion-attention agent-completion-cursor agent-completion-quiet`
+  → 10 passed; `npm run typecheck:dashboard` clean. The message part is
+  `SessionAttentionMessage.tsx` (styles in `session-attention-message.css`).
+  Its card and ad-hoc Recent behaviors are in
+  `session-unread-report-message.spec.ts`, with helpers in
+  `support/sessionMessagePart.ts` and `support/unreadReportPage.ts`; the
+  journey in `session-unread-report.spec.ts` keeps the read effects, the
+  newer report, and the done Recent entry; the terminal-panel Mark as done
+  test moved to `session-unread-report-terminal.spec.ts`.
+- `CardActions` and `RecentActions` no longer exist: the card's Mark as done
+  is `MarkDone`, `DeleteRecord` is exported, and `SessionEntry` renders the
+  entry's one status line. Read the slices below with those names.
+- The entry's status line shows what its latest mark or delete said; a
+  delete's words no longer take precedence over a refused Mark as done.

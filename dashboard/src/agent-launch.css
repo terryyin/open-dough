@@ -231,5 +231,3 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
-
-.session-attention-message pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }

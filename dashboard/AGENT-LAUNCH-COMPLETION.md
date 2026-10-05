@@ -22,12 +22,23 @@ binds to its native session, with local Done for a quiet completion, when that l
 is confirmed. It never selects the
 newest session for a story. Optional `--session` must match the confirmed native ID.
 
-Messages are rendered as text on every shared session entry. A report is unread
-until **Mark as read**, offered on its card entry and report panel in the place
-of Mark as done, or until the session is marked done. Mark as read keeps the
-report's receipt as read and does nothing else: the session stays open with its
-native reading, and the entry then offers Mark as done. A newer report, with a
-new receipt, is unread again. While unread, an entry keeps its session's
+Every shared session entry, on a story card and in Recent sessions, shows its
+message as text in a message part headed by the report's completion label; the
+heading is a disclosure button that says whether the part is expanded. A
+report is unread until **Mark as read**, or until the session is marked done.
+While unread the part is expanded, does not collapse, and offers Mark as read,
+on card and Recent sessions entries alike, so a session without a story card
+can be marked read. Mark as read keeps the report's receipt as read and does
+nothing else: the part collapses with the keyboard on its heading, and the
+session stays open with its native reading. A refused mark leaves the part
+expanded and says so in the entry's status line. Read, or on a session marked
+done, the part is collapsed until the developer expands it from its heading,
+without Mark as read; that choice lasts for the report only until a reload. A
+newer report, with a new receipt, is unread again and expanded. The entry's
+**Mark as done** is its own control, offered whenever the session can be marked
+done, an unread report included; marking read never puts Mark as done in its
+place. The report panel that **Read attention message** opens still offers
+Mark as read in the place of its Mark as done. While unread, an entry keeps its session's
 native reading — its words, its edge, its place in the Sessions sidebar, and
 whether the badge and the card's attention line count it — and shows the report
 apart, as “Unread report: <completion label>” in its state words and sidebar
