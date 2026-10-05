@@ -12,7 +12,10 @@
 // synchronized-update frame. Each mode redraws its
 // screen on SIGWINCH. FAKE_CURSOR_BECOME_READY, once that file exists,
 // repaints the ordinary prompt. FAKE_CURSOR_PAINT_DELAY_MS waits that long
-// before the first paint.
+// before the first paint. FAKE_CURSOR_SPLIT_PAINT_MS delivers each screen in
+// two writes that far apart, as a terminal can deliver one screen in separate
+// reads: a synchronized frame's end follows its content, and a paste chip's
+// text follows its cleared screen. Input is answered after earlier writes.
 // It does not write a launch record or a workspace. `models` is logged apart
 // from launch argv and prints FAKE_CURSOR_MODELS; without that file it fails.
 const fs = require("node:fs");
@@ -104,13 +107,36 @@ if (attaching) {
     composer: "→ Plan, search, build anything\r\n",
   };
   if (dir) fs.mkdirSync(dir, { recursive: true });
+  const splitMs = Number(process.env.FAKE_CURSOR_SPLIT_PAINT_MS || 0);
+  let writes = Promise.resolve();
+  // Writes one screen's parts in order, apart only in split mode.
+  const emit = (...parts) => {
+    if (splitMs <= 0) {
+      process.stdout.write(parts.join(""));
+      return;
+    }
+    parts.forEach((part, index) => {
+      writes = writes.then(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(
+              () => {
+                process.stdout.write(part);
+                resolve();
+              },
+              index === 0 ? 0 : splitMs,
+            );
+          }),
+      );
+    });
+  };
   const paint = () => {
     const body = screens[mode] ?? "→ Add a follow-up\r\n";
     if (mode === "composer") {
-      process.stdout.write(`\x1b[?25l\x1b[2J\x1b[H${body}`);
+      emit(`\x1b[?25l\x1b[2J\x1b[H${body}`);
       return;
     }
-    process.stdout.write(`\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${body}\x1b[?2026l`);
+    emit(`\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${body}`, "\x1b[?2026l");
   };
   process.on("SIGHUP", () => {
     if (dir) fs.appendFileSync(path.join(dir, `${pid}.signals`), "SIGHUP\n");
@@ -155,8 +181,9 @@ if (attaching) {
     if (stripped.includes("\n") && stripped.length > 800) {
       pendingPaste = stripped;
       const lines = (stripped.match(/\n/g) ?? []).length + 1;
-      process.stdout.write(
-        `\x1b[?25l\x1b[2J\x1b[H→ [Pasted text #1 +${lines} lines]\r\n`,
+      emit(
+        "\x1b[?25l\x1b[2J\x1b[H",
+        `→ [Pasted text #1 +${lines} lines]\r\n`,
       );
       return;
     }

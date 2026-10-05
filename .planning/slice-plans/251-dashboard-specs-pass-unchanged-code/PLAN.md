@@ -153,7 +153,7 @@ the cause names) and see the spec fail the way CI did.
 
 ### 4. A pasted Cursor instruction is shown as accepted on a slow runner
 Type: Behavior
-Status: planned
+Status: done
 Proof: a forced-order check that fails before the repair and passes after;
 `npm run test:dashboard -- agent-launch-ad-hoc-cursor.spec.ts`.
 
@@ -238,3 +238,19 @@ this slice's external-wait exception.
   waits for the held Claude launch after `published`. Server fs loaders now
   share `tests/support/serverFsHook.ts`. Committed before slice 2 finished but
   published only after it, so slice 2's repetitions all ran on `3a0ff700`.
+- Slice 4: run 37245324663's trace shows the launch returning `launched`
+  295 ms after accept with `firstInput: uncertain` kept, and the page not
+  rereading for 15 s, so a longer wait could not repair it. Of the paths by
+  which a paste settles the launch wait while acceptance is unknown, the one
+  that best fits the trace (a late empty-composer screen) was already closed by
+  `4f6d9f89`, after the failing revision. The remaining one was open: a screen
+  with neither chip nor composer settled the wait on any finished frame, even
+  one that had shown the composer. `KeptClientScreen` now records the screen
+  each finished frame showed, and the paste wait settles only on a frame that
+  itself showed neither. The fake Cursor's split-paint mode
+  (`cursorSplitPaintMs`) forces it in
+  `agent-launch-ad-hoc-cursor-split-screen.spec.ts`: red before (also red with
+  the pre-`4f6d9f89` file), green after; 133 cursor/terminal tests pass. Not
+  repaired: before any instruction is entered, a not-ready screen plus a
+  finished frame still settles the wait as uncertain; the fake does not reach
+  it and changing it changes when the instruction is entered.

@@ -10,14 +10,18 @@ import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts
 // the page opens the terminal, however long that opening takes; an idle
 // screen would be hung up after its settle period and replaced.
 
-import { readFileSync, realpathSync } from "node:fs";
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
+import {
+  expect,
+  keptRecord,
+  workingCursorTest as test,
+} from "./support/cursorStart.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -25,18 +29,6 @@ function recordsIn(stored: string | null): LaunchRecord[] {
   if (stored === null) return [];
   const document = JSON.parse(stored) as Record<string, LaunchRecord[]>;
   return document["open-dough"] ?? [];
-}
-
-function keptRecord(home: string): LaunchRecord {
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-      "utf8",
-    ),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
-  if (record === undefined) throw new Error("No Cursor session was recorded.");
-  return record;
 }
 
 for (const text of ["", "why is the CI slow?"]) {

@@ -8,6 +8,7 @@
 // the cursor hidden and no synchronized-update frame. Unrecognized mode
 // paints neither the prompt nor a question.
 // Each redraws on SIGWINCH. `showReady()` repaints the ordinary prompt.
+// `splitPaintMs` delivers each screen in two writes that far apart.
 // `models` prints the configured listing in the observed layout, or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -84,6 +85,7 @@ export function installFakeCursor(options?: {
   readonly screen?: CursorScreen;
   readonly becomeReady?: boolean;
   readonly paintDelayMs?: number;
+  readonly splitPaintMs?: number;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, "bin");
@@ -131,6 +133,9 @@ export function installFakeCursor(options?: {
       ...(options?.paintDelayMs === undefined
         ? {}
         : { FAKE_CURSOR_PAINT_DELAY_MS: String(options.paintDelayMs) }),
+      ...(options?.splitPaintMs === undefined
+        ? {}
+        : { FAKE_CURSOR_SPLIT_PAINT_MS: String(options.splitPaintMs) }),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);

@@ -5,14 +5,12 @@
 // Cursor start, preparation, and ad hoc specs stay the proofs that Default
 // sends no `--model`.
 
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { startSessionField } from "./launchCardPage.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
-import { expect, test } from "./support/cursorStart.ts";
+import { expect, keptRecord, test } from "./support/cursorStart.ts";
 import { cursorModels } from "./support/fakeCursor.ts";
 import { stayedUp } from "./support/keptCursorTurn.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
@@ -20,18 +18,6 @@ import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts
 
 const savedNote =
   "Cursor also saves a chosen model as your Cursor setting for later sessions.";
-
-function keptRecord(home: string): LaunchRecord {
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-      "utf8",
-    ),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
-  if (record === undefined) throw new Error("No Cursor session was recorded.");
-  return record;
-}
 
 test("execution on a Cursor-listed model sends it on the prompted run only and discloses Cursor's saved setting", async ({
   page,
