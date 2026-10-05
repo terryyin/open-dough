@@ -55,7 +55,7 @@ All four CI failures ran on revisions from 2026-10-04. No `main` CI run since
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
 | story-review-action still fails at HEAD, through the sessions read | Slice 1 | Baseline: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts side-panel-width.spec.ts agent-launch-ad-hoc-cursor.spec.ts story-review-action.spec.ts agent-launch-acceptance.spec.ts` on a loaded machine. Then a temporary `page.route("**/__agent-launch", …1500 ms…)` before `openBacklog` in the spec, reverted afterwards. | Baseline: only story-review-action failed (`expectOnOneLine`, `partArrangement.ts:44`). The trace frames show "Reading sessions…" before Review changes and a "Session unavailable" panel above the group after it. With the delay: fails every time at spec line 59, offset 200 px. |
-| "Reading sessions…" is the page's only sessions-unread signal, and no `expectSettledPage` caller holds the sessions read | Slice 1 | `grep -rn "Reading sessions" dashboard/src`; grepped the 17 files that use `expectSettledPage` for `__agent-launch`, held sessions, or "Reading sessions". | One source, `src/SessionEntry.tsx:185`. No caller holds the read; the two specs that hold it (`agent-launch-recent-sessions`, `session-sidebar-reading`) do not use the helper. |
+| "Reading sessions…" is the page's only sessions-unread signal, and no `expectSettledPage` caller holds the sessions read | Slice 1 | `grep -rn "Reading sessions" dashboard/src`; grepped the 17 files that use `expectSettledPage` for `__agent-launch`, held sessions, or "Reading sessions". | One source, `src/SessionEntry.tsx:185`. Corrected in slice 1: `session-sidebar-reading` holds the read and settles through `openStoryStagesJourney().settled` (`storyStagesPage.ts:37`), which the direct grep missed. |
 | The ad hoc Cursor spec gives the start's answer only the default 5 s | Slice 2 | Temporary `FAKE_CURSOR_PAINT_DELAY_MS: "6000"` in `cursorStart.ts` `extraEnv`, then ran `-g "why is the CI slow"`, reverted. | Fails at spec line 69 (`toHaveCount(1)`, 0 entries after 5 s). The page lists the session only after the start answers. Since `759f9134` that answer follows the kept confirmation. |
 | The two other Cursor "Start session" specs wait on the same answer the same way | Slice 2 | Read `agent-launch-ad-hoc-cursor-split-screen.spec.ts:42-45` and `agent-terminal-cursor-launch-page.spec.ts:37-44`. | Split-screen: default `toHaveCount(1)` then "First input accepted". Terminal page: a 20 s wait on the "Ad hoc session started" log, then the same checks. |
 
@@ -73,7 +73,18 @@ All four CI failures ran on revisions from 2026-10-04. No `main` CI run since
 
 ### 1. A story card's layout is read once its sessions are read too
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: with a temporary 1500 ms `**/__agent-launch` delay before
+`openBacklog` (reverted), `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review-action.spec.ts` failed in
+`expectOnOneLine([inspect, action])` (`partArrangement.ts:44`, 200 px) before
+the change and passed 3/3 after. Without the delay it passes, and the 13 specs
+naming `expectSettledPage` plus `session-sidebar-reading.spec.ts` pass (28
+tests).
+Learning: the slice took its fallback. Waiting for sessions in
+`expectSettledPage` broke `session-sidebar-reading.spec.ts:43`, which settles
+while holding the sessions read. The wait lives in story-review-action's own
+`expectSettledLayout`, whose comment records why.
 Proof: the 1500 ms reproduction above fails at spec line 59 before the
 change and passes after. `story-review-action.spec.ts` passes without the
 delay, and every spec using `expectSettledPage` passes.

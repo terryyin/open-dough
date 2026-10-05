@@ -7,9 +7,10 @@
 // Closing the review in the side panel returns the keyboard in
 // ./story-review.spec.ts; closing the detail, in
 // ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts. Each
-// layout is read once the cards' preparation is read, since that reading
-// changes a card's height.
+// layout is read once the cards' preparation and the machine's sessions are
+// read, since each reading changes a card's height.
 
+import type { Page } from "@playwright/test";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   cardLaunchActions,
@@ -32,6 +33,14 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import { unchangedWorktree } from "./support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
+// The page once the cards' preparation and the machine's sessions are read.
+// Other journeys settle while they hold the sessions read, so this wait stays
+// with the layouts it guards.
+async function expectSettledLayout(page: Page) {
+  await expectSettledPage(page);
+  await expect(page.getByText("Reading sessions…")).toHaveCount(0);
+}
+
 test("the inspection group shares a line below the launch group, wraps in reading order, and the keyboard reaches Review changes from Inspect story", async ({
   page,
   dashboard,
@@ -53,7 +62,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
   const detail = card.getByRole("region", { name: "Detail for Story A" });
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expectSettledPage(page);
+  await expectSettledLayout(page);
   await expectOnOneLine(starts);
   await expectOnOneLine([inspect, action]);
   await expectActionGlyph(action, "Review changes", "git-compare");
@@ -63,7 +72,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
     await page.setViewportSize(window);
     // Each window starts from a newly read page, with no detail or review open.
     await page.reload();
-    await expectSettledPage(page);
+    await expectSettledLayout(page);
     await expectInReadingOrder(card, [...starts, inspect, action]);
     await inspect.focus();
     await page.keyboard.press("Enter");
