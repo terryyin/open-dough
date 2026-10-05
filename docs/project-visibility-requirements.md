@@ -90,10 +90,8 @@ required. Terry explicitly clarified that this UX ambition must follow the
 just-in-time principle: build interactions to support the current story's goal,
 not to complete the visual concept ahead of a need.
 
-Initially, existing backlog evidence supports connected **Backlog → Taken**
-regions, containing work cards in their recorded order. The connection shows
-the taking-work relationship; it does not establish dependencies between stories
-or a mandatory full lifecycle. Zoom exposes the title, identity, membership,
+Initially, existing backlog evidence supports **Backlog** and **Taken**
+regions, containing work cards in their recorded order. Zoom exposes the title, identity, membership,
 priority where recorded, and source links already in the snapshot. It does not
 require adding metadata or interpreting story/plan contents in the first story.
 Richer stages and detail follow when their evidence and semantics are selected.

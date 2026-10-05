@@ -108,21 +108,6 @@ export function WorkStages({
           onSelect={select}
           onOpenRoster={onOpenRoster}
         />
-        <div className="connector">
-          {/* No viewBox: the line is as long as the arrow is given room, and
-              the head keeps its own size at the line's end. */}
-          <svg className="connector-arrow" aria-hidden="true" focusable="false">
-            <line x1="0" y1="50%" x2="100%" y2="50%" />
-            <svg x="100%" y="50%" overflow="visible">
-              <path d="M-8 -6 L0 0 L-8 6" />
-            </svg>
-          </svg>
-          <p className="connector-label">Taking work</p>
-          <p className="connector-note">
-            Work is taken from the Backlog. This is not a dependency between
-            entries.
-          </p>
-        </div>
         <Stage
           sourceId={work.source.id}
           name="Taken"

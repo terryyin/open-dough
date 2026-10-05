@@ -1,13 +1,13 @@
-/* The connected stages' frame: Backlog, the taking of work, and Taken, each
+/* The stages' frame: Backlog and Taken, each
    stage a headed panel holding its cards (./stages.css). main.tsx loads this
    after styles.css, so that a rule here decides where both say something
    equally specific, as a stage's count does. */
 
-/* Backlog, the taking of work, and Taken, left to right in reading order. */
+/* Backlog and Taken, left to right in reading order. */
 .stages {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 11rem minmax(0, 1fr);
-  gap: var(--space-4) 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
   align-items: start;
 }
 
@@ -57,65 +57,12 @@
   font-size: var(--text-sm);
 }
 
-.connector {
-  margin-top: 3.25rem;
-  text-align: center;
-}
-
-/* Side by side, the connector's column is all that lies between the two
-   stages, and the arrow runs across it from just short of Backlog's edge to
-   just short of Taken's, so that it joins them; the words beneath keep clear
-   of both. The head is drawn up to the arrow's own edge, so it is not clipped
-   there. */
-.connector-arrow {
-  width: calc(100% - 4px);
-  height: 1rem;
-  overflow: visible;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.connector-label,
-.connector-note {
-  padding: 0 var(--space-4);
-}
-
-.connector-label {
-  margin-top: var(--space-1);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-strong);
-}
-
-.connector-note {
-  margin-top: var(--space-1);
-  font-size: var(--text-xs);
-  line-height: 1.5;
-}
-
 /* A narrow page column -- a narrow window, a wide one under browser zoom, or
    one sharing its width with the Sessions sidebar or the side panel
-   (./side-panel.css) -- shows the same three parts in the same order, top
-   to bottom, with the arrow pointing down. */
+   (./side-panel.css) -- shows the same stages in the same order, top to
+   bottom. */
 @container page (max-width: 48rem) {
   .stages {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .connector {
-    margin-top: 0;
-  }
-
-  .connector-label,
-  .connector-note {
-    padding: 0;
-  }
-
-  .connector-arrow {
-    width: 3rem;
-    height: 3rem;
-    transform: rotate(90deg);
   }
 }

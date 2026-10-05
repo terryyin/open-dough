@@ -148,7 +148,6 @@ main {
 .stage-count,
 .card-priority,
 .card-identity,
-.connector-note,
 .link-note {
   color: var(--quiet);
   font-size: 0.9rem;

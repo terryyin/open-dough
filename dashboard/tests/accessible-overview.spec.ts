@@ -42,27 +42,16 @@ test("accessible overview reflows long published work for a narrow window and pa
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await page.goto("/");
-  const { stages, backlog, taken, connector, direction, source } = parts(page);
-  const connectorMeaning = stages.getByText("not a dependency between entries");
-  const arrow = stages.locator("svg.connector-arrow");
+  const { backlog, taken, direction, source } = parts(page);
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
 
   await test.step("a wide window reads the long work whole, side by side", async () => {
     await expectNoSidewaysScrollAndWholeText(page);
-    await expectSideBySideInOrder([backlog, connector, taken]);
-    // The arrow joins the stages: it lies between them, and the line it draws
-    // crosses most of what separates them.
-    await expectSideBySideInOrder([backlog, arrow, taken]);
-    const [from, drawn, to] = await Promise.all([
-      box(backlog),
-      box(arrow.locator("line")),
-      box(taken),
-    ]);
-    const between = to.x - (from.x + from.width);
-    expect(between).toBeGreaterThan(100);
-    expect(drawn.width).toBeGreaterThanOrEqual(0.7 * between);
-    expect(drawn.width).toBeLessThanOrEqual(between);
+    await expectSideBySideInOrder([backlog, taken]);
+    // Nothing stands between the stages: only the frame's gap separates them.
+    const [from, to] = await Promise.all([box(backlog), box(taken)]);
+    expect(to.x - (from.x + from.width)).toBeLessThanOrEqual(24);
     await page.screenshot({
       path: testInfo.outputPath("long-work-wide.png"),
       fullPage: true,
@@ -75,15 +64,8 @@ test("accessible overview reflows long published work for a narrow window and pa
     await expectNoSidewaysScrollAndWholeText(page);
   });
 
-  await test.step("the page reads top to bottom: direction, Backlog, taking work, Taken", async () => {
-    await expectStackedInOrder([
-      direction,
-      backlog,
-      arrow,
-      connector,
-      connectorMeaning,
-      taken,
-    ]);
+  await test.step("the page reads top to bottom: direction, Backlog, Taken", async () => {
+    await expectStackedInOrder([direction, backlog, taken]);
   });
 
   await test.step("long titles, identities, and recorded targets stay inside their card", async () => {
@@ -133,7 +115,7 @@ test("accessible overview reflows long published work for a narrow window and pa
   });
 });
 
-test("accessible overview keeps empty groups and their connection readable in a narrow window", async ({
+test("accessible overview keeps empty groups readable in a narrow window", async ({
   page,
 }) => {
   await page.setViewportSize(narrowWindow);
@@ -142,7 +124,7 @@ test("accessible overview keeps empty groups and their connection readable in a 
     backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
   });
   await page.goto("/");
-  const { backlog, taken, connector, direction, source } = parts(page);
+  const { backlog, taken, direction, source } = parts(page);
 
   await expect(
     backlog.getByText("No Backlog entries are recorded."),
@@ -156,7 +138,7 @@ test("accessible overview keeps empty groups and their connection readable in a 
   await expectInside(source.getByText(revision), source);
   await parts(page).sourceEvidence.click();
   await expectNoSidewaysScrollAndWholeText(page);
-  await expectStackedInOrder([direction, backlog, connector, taken]);
+  await expectStackedInOrder([direction, backlog, taken]);
 });
 
 test("accessible overview keeps a read problem and the retained work reachable in a narrow window", async ({

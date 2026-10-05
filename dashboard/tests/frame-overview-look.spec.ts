@@ -1,5 +1,5 @@
 // The overview's frame in the frame's look: the row below the banner, the
-// stages' headings and counts, the Taking work connector, and what the frame
+// stages' headings and counts, and what the frame
 // says in place of work -- an empty stage, a failed read, no projects -- read
 // clearly, keep their names, and fit a narrow window without sideways
 // scrolling. The cards inside the stages are not this look's to change.
@@ -32,7 +32,7 @@ import {
 } from "./support/dashboardServer.ts";
 import { settings } from "./support/systemSettingsPage.ts";
 
-test("the row below the banner, the stages, and the connector read clearly in the frame's look", async ({
+test("the row below the banner and the stages read clearly in the frame's look", async ({
   page,
   afterGitHubStops,
 }) => {
@@ -44,7 +44,7 @@ test("the row below the banner, the stages, and the connector read clearly in th
   });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  const { stages, backlog, taken, connector, directionToggle } = parts(page);
+  const { backlog, taken, directionToggle } = parts(page);
   await expect(backlog.getByRole("article").first()).toBeVisible();
 
   const start = page.getByRole("button", {
@@ -69,10 +69,6 @@ test("the row below the banner, the stages, and the connector read clearly in th
     );
     await expectReadableContrast(stage.getByText(/^\d+ entr(y|ies)$/));
   }
-  await expectReadableContrast(connector);
-  await expectReadableContrast(
-    stages.getByText("not a dependency between entries", { exact: false }),
-  );
 
   for (const size of [narrowWindow, zoomedWindow]) {
     await page.setViewportSize(size);

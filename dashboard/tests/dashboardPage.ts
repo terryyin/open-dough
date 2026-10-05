@@ -15,8 +15,6 @@ export function parts(page: Page) {
     stages,
     backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
     taken: stages.getByRole("region", { name: "Taken", exact: true }),
-    // What joins Backlog to Taken, found by the words that name it.
-    connector: stages.getByText("Taking work", { exact: true }),
     direction: page.getByRole("region", { name: "Near-future direction" }),
     directionToggle: page.locator(".direction summary"),
     preparationHelp: page.getByRole("button", {

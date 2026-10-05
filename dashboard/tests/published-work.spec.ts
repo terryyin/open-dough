@@ -39,7 +39,7 @@ Derive it solely from Git state published to origin.
 const claimsBeyondMembership =
   /\b(live|running|online|active|in progress|started|completed?|done|finished|owner(?! not recorded)|mode)\b/i;
 
-test("published overview shows connected Backlog and Taken work read at one revision", async ({
+test("published overview shows Backlog and Taken work read at one revision", async ({
   page,
 }) => {
   const retrievedAt = new Date("2026-09-20T08:30:00.000Z");
@@ -55,16 +55,8 @@ test("published overview shows connected Backlog and Taken work read at one revi
 
   await page.goto("/");
 
-  const {
-    stages,
-    backlog,
-    taken,
-    connector,
-    direction,
-    source,
-    status,
-    reading,
-  } = parts(page);
+  const { stages, backlog, taken, direction, source, status, reading } =
+    parts(page);
   await test.step("reading is shown before any work or count", async () => {
     await expect(status).toHaveText("Reading published work…");
     await expect(stages).toHaveCount(0);
@@ -132,11 +124,9 @@ test("published overview shows connected Backlog and Taken work read at one revi
     await expect(taken).toContainText("2 entries");
   });
 
-  await test.step("Backlog connects to Taken through taking work", async () => {
-    await expect(connector).toBeVisible();
+  await test.step("Backlog sits beside Taken", async () => {
     await expect(stages.getByRole("region")).toHaveCount(2);
-    await expectSideBySideInOrder([backlog, connector, taken]);
-    await expect(stages).toContainText("not a dependency between entries");
+    await expectSideBySideInOrder([backlog, taken]);
   });
 
   await test.step("direction and source evidence sit outside the stage", async () => {
@@ -189,12 +179,11 @@ test("published overview accepts successfully empty groups and no recorded direc
 
   await page.goto("/");
 
-  const { stages, backlog, taken, connector, direction, source } = parts(page);
+  const { stages, backlog, taken, direction, source } = parts(page);
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");
   await expect(backlog).toContainText("No Backlog entries are recorded.");
   await expect(backlog).toContainText("0 entries");
-  await expect(connector).toBeVisible();
   await expect(stages.getByRole("article")).toHaveCount(0);
   await openDirection(page);
   await expect(direction).toContainText(
