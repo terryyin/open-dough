@@ -64,7 +64,15 @@ export function SessionAttentionMessage({
       </p>
       {expanded && (
         <div id={textId}>
-          <pre>{report.message}</pre>
+          <pre
+            // A long message scrolls here, never the entry; the keyboard can
+            // reach it.
+            role="region"
+            aria-label="Attention message"
+            tabIndex={0}
+          >
+            {report.message}
+          </pre>
           {unread && (
             <p className="launch-open">
               <button

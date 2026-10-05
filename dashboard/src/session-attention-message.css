@@ -28,8 +28,13 @@
   height: var(--label-icon-size);
 }
 
+/* A long message stays within the part's height and scrolls inside it, so
+   Mark as read and the rest of the entry stay in view. */
 .session-attention-message pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font: inherit;
+  max-height: 12em;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }

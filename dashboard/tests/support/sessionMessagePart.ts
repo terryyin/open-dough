@@ -9,7 +9,7 @@ export function messagePartOf(entry: Locator) {
   return {
     part,
     heading: part.locator(".session-attention-heading"),
-    text: part.locator("pre"),
+    text: part.getByRole("region", { name: "Attention message" }),
     markRead: part.getByRole("button", { name: "Mark as read" }),
   };
 }
@@ -61,4 +61,14 @@ export async function buttonsAddedSince(entry: Locator): Promise<string[]> {
       .filter((button) => seen.get(button) !== name(button))
       .map(name);
   });
+}
+
+// How far the message text's box scrolls: its visible and whole heights, and
+// how far down it is scrolled.
+export function scrollOf(message: MessagePart) {
+  return message.text.evaluate((text) => ({
+    shown: text.clientHeight,
+    whole: text.scrollHeight,
+    top: text.scrollTop,
+  }));
 }

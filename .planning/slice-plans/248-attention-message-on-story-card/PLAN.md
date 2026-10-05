@@ -143,7 +143,7 @@ done stays the entry's own control throughout.
 
 ### 2. Keep a long message inside its message part
 Type: Behavior
-Status: planned
+Status: done
 Proof: New test in `session-unread-report-message.spec.ts`: a report of several
 thousand characters is unread on a card. The message text's box is shorter
 than its content and scrolls; Mark as read and the entry's Mark as done are
@@ -223,3 +223,15 @@ terminal or Codex's native final report, with its ordinary Mark as done.
   entry's one status line. Read the slices below with those names.
 - The entry's status line shows what its latest mark or delete said; a
   delete's words no longer take precedence over a refused Mark as done.
+- Slice 2 accepted proof (2026-10-05): the same focused command without
+  `agent-completion-quiet` → 8 passed; the long-message test passed 24 of 24
+  under `--repeat-each 24`. The text is a focusable region named “Attention
+  message”, height-limited to 12em in `session-attention-message.css`. One
+  keyboard scroll press can be dropped under parallel load, so the test
+  repeats it inside `toPass`. Mark as done sits below the fold at first load
+  on a 1280×720 viewport; brought into view, the entry shows the text,
+  Mark as read, and Mark as done together.
+- Older specs still find the text by `.session-attention-message pre`
+  (`agent-completion-attention.spec.ts`, `agent-completion-cursor.spec.ts`,
+  `support/completionRecoveryIntent.ts`); slice 3 touches them and can move
+  them to `messagePartOf`.

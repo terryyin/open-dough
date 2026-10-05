@@ -3,10 +3,11 @@
 // done; a refused mark says so in the entry's status line; marked read, the
 // part collapses with the keyboard on its heading and expands again from it.
 // A session without a story card, here an ad-hoc session, is read on its
-// Recent sessions entry. ./session-unread-report.spec.ts is the unread
-// report's journey beside the native reading. Real start, launch, installed
-// reporting command, store and page; only the synthetic `claude` and GitHub
-// are fakes.
+// Recent sessions entry. A long message scrolls inside the part, with Mark as
+// read and the entry's Mark as done in view. ./session-unread-report.spec.ts
+// is the unread report's journey beside the native reading. Real start,
+// launch, installed reporting command, store and page; only the synthetic
+// `claude` and GitHub are fakes.
 
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
@@ -22,6 +23,7 @@ import {
   expectExpanded,
   messagePartOf,
   rememberButtons,
+  scrollOf,
 } from "./support/sessionMessagePart.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
@@ -133,4 +135,73 @@ test("an ad-hoc session's message is read and marked read on its Recent sessions
   const record = await recordOf(dashboard, adHoc.sessionId);
   expect(record?.reportRead).toBe(record?.completion?.receipt);
   expect(record?.doneAt).toBeUndefined();
+});
+
+test("a long unread message scrolls inside its message part, with Mark as read and the entry's Mark as done in view", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  test.setTimeout(120_000);
+  const lastLine = "Last: confirm the rollback before continuing.";
+  const longMessage = [
+    ...[...Array(60).keys()].map(
+      (at) =>
+        `Finding ${at + 1}: the migration left a table the next step reads.`,
+    ),
+    lastLine,
+  ].join("\n");
+  expect(longMessage.length).toBeGreaterThan(3_000);
+  const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
+  await story.report({ message: longMessage });
+  await publishOrigin(page, origin);
+  await page.goto("/");
+  const entry = takenCard(page, titleA).getByRole("article");
+  const message = messagePartOf(entry);
+  const done = entry.getByRole("button", { name: "Mark as done" });
+  await expectExpanded(message, label, longMessage);
+
+  // The text's box is shorter than the message and scrolls; with the entry
+  // brought into view, Mark as read and the entry's Mark as done are in view
+  // together without scrolling the text.
+  await done.scrollIntoViewIfNeeded();
+  const before = await scrollOf(message);
+  expect(before.whole).toBeGreaterThan(before.shown);
+  expect(before.top).toBe(0);
+  await expect(message.text).toHaveCSS("overflow-y", "auto");
+  await expect(message.markRead).toBeInViewport({ ratio: 1 });
+  await expect(done).toBeInViewport({ ratio: 1 });
+
+  // The keyboard reaches the named text and scrolls it to its last line;
+  // the controls stay in view.
+  await message.text.focus();
+  await expect(message.text).toBeFocused();
+  // Chromium animates a keyboard scroll and may drop it under load; pressing
+  // End again resumes it.
+  await expect(async () => {
+    await page.keyboard.press("End");
+    const after = await scrollOf(message);
+    expect(after.top + after.shown).toBeGreaterThanOrEqual(after.whole - 1);
+  }).toPass();
+  expect(
+    await message.text.evaluate((text, last) => {
+      const box = text.getBoundingClientRect();
+      const range = document.createRange();
+      const node = text.lastChild;
+      if (node === null) return false;
+      range.setStart(node, (node.textContent ?? "").lastIndexOf(last));
+      range.setEnd(node, (node.textContent ?? "").length);
+      const line = range.getBoundingClientRect();
+      return line.top >= box.top && line.bottom <= box.bottom + 1;
+    }, lastLine),
+  ).toBe(true);
+  await expect(message.markRead).toBeInViewport({ ratio: 1 });
+  await expect(done).toBeInViewport({ ratio: 1 });
+
+  // A short message, the session's newer report, does not scroll.
+  await story.report();
+  await page.reload();
+  await expectExpanded(message, label, reportedMessage);
+  const short = await scrollOf(message);
+  expect(short.whole).toBeLessThanOrEqual(short.shown);
 });
