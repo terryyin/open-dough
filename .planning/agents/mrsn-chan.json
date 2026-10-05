@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-108#cohesive-session-done",
-  "mode": "story-branch",
-  "branch": "codex/cohesive-session-done",
-  "host": "codex"
-}
