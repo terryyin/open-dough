@@ -13,6 +13,9 @@ const anyway = "Mark it done anyway?";
 export const stillWorking =
   "This session is still working. Marking it done asks it to stop.";
 
+// What the question says of a session that reads waiting for input.
+export const waitingForInput = "This session is waiting for your input.";
+
 // The Mark as done button in this scope.
 export const markAsDone = (scope: Locator) =>
   scope.getByRole("button", { name: "Mark as done" });
@@ -23,11 +26,16 @@ export const doneQuestion = (scope: Locator) =>
   scope.getByRole("group", { name: anyway });
 
 // Presses Mark as done and expects the question that opens with this
-// statement, announced as a group labelled by its whole words, with the
-// keyboard on Keep open.
+// statement (`expectQuestion`).
 export async function expectAsked(scope: Locator, statement: string) {
-  const words = `${statement} ${anyway}`;
   await markAsDone(scope).click();
+  return expectQuestion(scope, statement);
+}
+
+// Expects the open question in this scope to say this statement, announced as
+// a group labelled by its whole words, with the keyboard on Keep open.
+export async function expectQuestion(scope: Locator, statement: string) {
+  const words = `${statement} ${anyway}`;
   const question = scope.getByRole("group", { name: words, exact: true });
   await expect(question).toBeVisible();
   await expect(question.getByRole("paragraph").first()).toHaveText(words);

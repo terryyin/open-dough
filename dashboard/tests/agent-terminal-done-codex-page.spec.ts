@@ -16,7 +16,12 @@ import {
   codexLines,
   codexTerminalMode,
 } from "./support/codexTerminal.ts";
-import { expectAsked, markAsDone, markDoneAnyway } from "./support/markDone.ts";
+import {
+  expectAsked,
+  markAsDone,
+  markDoneAnyway,
+  waitingForInput,
+} from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -64,10 +69,7 @@ for (const attached of [false, true]) {
       await expect(panel.locator(".xterm-rows")).toContainText(
         "original retained history",
       );
-      const question = await expectAsked(
-        panel,
-        "This session is waiting for your input.",
-      );
+      const question = await expectAsked(panel, waitingForInput);
       await markAsDone(question).click();
       await expect(panel).toHaveCount(0);
       const pid = codexAttaches(native)[0]?.pid ?? 0;

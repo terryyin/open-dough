@@ -116,7 +116,10 @@ done; a panel stays open with its terminal attached. The question's **Mark as
 done** runs the operation above unchanged, and a panel then closes.
 The decision uses the reading and report the page shows when it is clicked; a
 panel takes the session as the page reads it now, in any project, not as it
-was when the panel opened.
+was when the panel opened. While the question is open, its statement follows
+the session as the page reads it again; a session that becomes complete loses
+the question and gets Mark as done back, as the Delete record question goes when
+its state becomes known.
 
 Recent keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
 persists when native rename/stop is unconfirmed, while live Working remains

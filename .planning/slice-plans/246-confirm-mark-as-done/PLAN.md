@@ -209,7 +209,16 @@ Includes the panel passage of `dashboard/AGENT-LAUNCH-TERMINALS.md` and
 
 ### 4. An open question follows the session's current reading
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: new `agent-launch-done-question-follows.spec.ts` runs the
+pair on a card and in the terminal panel (the panel case lives there, since
+`agent-terminal-done.spec.ts`'s origin cannot send reports):
+`agent-launch-done-question agent-terminal-done` → 16 passed, then after
+refactoring `agent-launch-done-question agent-terminal-done-codex-page
+agent-terminal-done-question` → 9 passed; every spec the Learnings `grep`
+selects → 120 passed; lint and typecheck clean. No product change was needed:
+the question is recomputed on every reading and withdraws when the session
+becomes complete.
 Proof: Added to `agent-launch-done-question.spec.ts`: (a) the question is open
 on a Working session; the session becomes blocked and the page reads again →
 the statement reads “waiting for your input” with the question still open.

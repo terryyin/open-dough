@@ -22,6 +22,7 @@ import {
   markAsDone,
   markDone,
   stillWorking,
+  waitingForInput,
 } from "./support/markDone.ts";
 import {
   doneNameOf,
@@ -142,10 +143,7 @@ test("a session not reported complete asks first with its situation; Keep open a
     await expect(sessionStateOf(entryA)).toHaveText("Needs input");
     const doneName = doneNameOf(dashboard, storyA.sessionId);
     const shortId = shortIdOf(dashboard, storyA.sessionId);
-    const question = await expectAsked(
-      entryA,
-      "This session is waiting for your input.",
-    );
+    const question = await expectAsked(entryA, waitingForInput);
     await markAsDone(question).click();
 
     await expect(entryA).toHaveCount(0);
