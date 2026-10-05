@@ -142,7 +142,11 @@ spec keeps it.
 
 ### 3. The four specs hold under repetition, locally and on CI
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: at `849994d8`, the local `--repeat-each 5` command below
+passed 40 of 40 (load average 27.19 before, 30.75 after), and `bash
+scripts/ci-repeat.sh 5` passed 5 of 5 (runs 37382831633, 37382848039,
+37383337044, 37383593335, 37383781649). No change was needed.
 Proof: `env -u NODE_ENV npx playwright test --config
 dashboard/playwright.config.ts side-panel-width.spec.ts
 agent-launch-ad-hoc-cursor.spec.ts story-review-action.spec.ts
