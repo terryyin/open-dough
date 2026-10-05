@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-105#land-and-wrap-up-process-retrospective",
+  "mode": "story-branch",
+  "branch": "claude/optional-process-retrospective-for-dough-land-an",
+  "host": "claude",
+  "model": "opus"
+}
