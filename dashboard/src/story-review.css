@@ -1,123 +1,54 @@
 /* A story review (./StoryReviewPanel.tsx) in the page's side panel, whose
    frame, header, Refresh, and panel controls it shares with the terminal
-   (./side-panel.css) and which stay in view while its body scrolls. The
-   file browser sits beside the selected file's diff, which takes the
-   browser's room while it is hidden, and both wrap below each other in a
-   narrow panel. Files sit by name under their folders. Paths keep their
-   lines and scroll inside the file browser, and code lines inside the
-   diff, never the page. The card's action shares the launch actions' look
+   (./side-panel.css). Beneath the header, the review's fixed top holds the
+   context line and the review's feedback. The rest of the panel's height is
+   the work area: the file browser beside the selected file's diff, each
+   scrolling on its own while the top stays in view and the body beneath it
+   never scrolls as a whole. The diff's heading stays above its code, which
+   scrolls within the diff (./story-review-diff.css); while the browser is
+   hidden the diff takes its room. Where the panel is too narrow for both
+   side by side, the browser sits above the diff with a bounded share of the
+   height. Files sit by name under their folders (./story-review-files.css).
+   Paths keep their lines and scroll sideways inside the file browser, and
+   code lines inside the diff, never the page. The card's action shares the launch actions' look
    (./agent-launch.css). */
 
-.story-review-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 0.75rem 1rem 1rem;
+.story-review-top {
+  flex: none;
 }
 
-.story-review-body p {
+.story-review-top p {
   margin: 0;
 }
 
-.story-review-body code {
-  overflow-wrap: anywhere;
-}
-
-.story-review-facts {
-  display: grid;
-  gap: 0.2rem;
-  margin: 0;
-}
-
-.story-review-facts > div {
+/* The context line keeps to one line, each value shortened where it does
+   not fit, the worktree first; shown in full, each value takes its own
+   lines. */
+.story-review-context-line {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 0.5rem;
-  min-width: 0;
-}
-
-.story-review-facts dt {
-  font-weight: 600;
-}
-
-.story-review-facts dd {
-  margin: 0;
-  min-width: 0;
-}
-
-.story-review-workarea {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
 }
 
-.story-review-files {
-  flex: 0 1 16rem;
+.story-review-context-line .start-launch-button {
+  flex: none;
+}
+
+.story-review-context-values {
+  display: flex;
+  flex: 1;
+  gap: 0.75rem;
   min-width: 0;
-  overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: 0.25rem;
-  padding: 0.5rem 0.75rem;
-}
-
-.story-review-files h3,
-.story-review-diff h3 {
-  margin: 0 0 0.35rem;
-  font-size: 1rem;
-}
-
-.story-review-files ul {
-  display: grid;
-  gap: 0.2rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* A folder's rows sit indented under its name. */
-.story-review-files ul ul {
-  margin-top: 0.2rem;
-  padding-inline-start: 1rem;
-}
-
-/* Author display rules would otherwise show a collapsed folder's rows. */
-.story-review-files ul[hidden] {
-  display: none;
-}
-
-/* A folder's disclosure: its name, marked open or closed, and while
-   collapsed how many changed files it holds. */
-.story-review-files .story-review-folder {
-  font-weight: 600;
-}
-
-.story-review-folder::before {
-  display: inline-block;
-  width: 1ch;
-  margin-inline-end: 0.3rem;
-  content: "\25BE";
-  content: "\25BE" / "";
-}
-
-.story-review-folder[aria-expanded="false"]::before {
-  content: "\25B8";
-  content: "\25B8" / "";
-}
-
-.story-review-folder-count {
-  color: var(--quiet);
-  font-weight: 400;
-}
-
-/* A path keeps its line; the browser scrolls sideways instead. */
-.story-review-files li {
+  overflow: hidden;
   white-space: nowrap;
 }
 
+/* The review's plain buttons: the context line's values and the file
+   browser's rows. */
+.story-review-context-values,
 .story-review-files button {
   border: 1px solid transparent;
   border-radius: 0.25rem;
@@ -129,28 +60,106 @@
   cursor: pointer;
 }
 
-.story-review-files button[aria-pressed="true"] {
-  border-color: var(--edge);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+.story-review-context-values:hover {
+  border-color: var(--line);
 }
 
-.story-review-files li code {
-  overflow-wrap: normal;
+/* Branch and worktree keep their labels whole and shorten their values,
+   the worktree first. */
+.story-review-context-value {
+  display: flex;
+  flex: 0 1 auto;
+  gap: 0.3em;
+  min-width: 0;
 }
 
-/* A file's kind shows only in the style of its name; its control's name and
-   hover text, and its diff's heading, say the kind in words. */
-.story-review-files [data-kind="added"] code {
-  color: var(--ready);
+.story-review-context-value > code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.story-review-files [data-kind="deleted"] code {
+.story-review-context-baseline {
+  display: block;
+  flex: none;
+}
+
+.story-review-context-worktree {
+  flex-shrink: 100;
+}
+
+.story-review-context-worktree > code {
+  min-width: 8ch;
+}
+
+.story-review-context-label {
+  flex: none;
   color: var(--quiet);
-  text-decoration-line: line-through;
 }
 
-.story-review-files [data-kind="renamed"] code {
-  font-style: italic;
+.story-review-context-values[aria-expanded="true"] {
+  flex-direction: column;
+  gap: 0.15rem;
+  white-space: normal;
+}
+
+.story-review-context-values[aria-expanded="true"] .story-review-context-value {
+  flex-wrap: wrap;
+}
+
+.story-review-context-values[aria-expanded="true"] code {
+  overflow-wrap: anywhere;
+}
+
+/* Feedback sits beneath the context line, taking no room while silent. */
+.story-review-top [role="status"]:not(:empty) {
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+/* The body gives its height to the work area; only an explanation taller
+   than a very short panel scrolls it. Its width decides whether the panes
+   sit side by side. */
+.story-review-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.75rem 1rem 1rem;
+  container: story-review-body / inline-size;
+}
+
+.story-review-body p {
+  margin: 0;
+}
+
+.story-review-body code {
+  overflow-wrap: anywhere;
+}
+
+.story-review-workarea {
+  display: flex;
+  flex: 1;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.story-review-files {
+  flex: 0 1 16rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.story-review-files h3,
+.story-review-diff h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
 }
 
 .story-review-kind {
@@ -162,42 +171,20 @@
   min-width: 0;
 }
 
-/* Code lines keep their spacing and scroll sideways here; each line's
-   leading +, -, or space says whether it was added, removed, or kept. */
-.story-review-code {
-  overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: 0.25rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.85rem;
-}
+/* The browser and the diff side by side need their two bases and the gap
+   between them; narrower, the browser sits above the diff. */
+@container story-review-body (width < 34.75rem) {
+  .story-review-workarea {
+    flex-direction: column;
+  }
 
-.story-review-hunk {
-  width: max-content;
-  min-width: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  .story-review-files {
+    flex: none;
+    box-sizing: border-box;
+    max-height: 40%;
+  }
 
-.story-review-hunk li {
-  padding: 0 0.5rem;
-  white-space: pre;
-}
-
-.story-review-hunk-header,
-.story-review-note {
-  color: var(--quiet);
-}
-
-.story-review-hunk-header {
-  background: color-mix(in srgb, var(--quiet) 10%, transparent);
-}
-
-.story-review-added {
-  background: color-mix(in srgb, var(--ready) 14%, transparent);
-}
-
-.story-review-removed {
-  background: color-mix(in srgb, var(--problem) 14%, transparent);
+  .story-review-diff {
+    flex: 1 1 0;
+  }
 }

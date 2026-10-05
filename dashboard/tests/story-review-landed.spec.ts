@@ -3,13 +3,11 @@
 // and uncommitted edit remain to review.
 
 import { expect, test } from "./support/preparationPage.ts";
+import { contextValues, contextWords } from "./support/reviewContextLine.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import {
-  branch,
-  keepLaunchRecord,
-  landedWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { branch, landedWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a landed slice leaves the review and the unlanded changes remain", async ({
   page,
@@ -21,11 +19,13 @@ test("a landed slice leaves the review and the unlanded changes remain", async (
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Review changes" });
-  await expect(review.getByRole("definition")).toHaveText([
-    "~/git/open-dough/.worktrees/story-a",
-    branch,
-    `${landed}, where ${branch} meets origin/main`,
-  ]);
+  await expect(contextValues(review)).toHaveAccessibleName(
+    contextWords({
+      branch,
+      baseline: landed,
+      workspace: "~/git/open-dough/.worktrees/story-a",
+    }),
+  );
   const files = review.getByRole("list", { name: "2 changed files" });
   await expect.poll(() => treeRows(files)).toEqual(["edited.txt", "later.txt"]);
   await expect(review).not.toContainText("landed.txt");

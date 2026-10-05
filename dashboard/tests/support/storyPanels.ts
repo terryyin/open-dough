@@ -14,7 +14,8 @@ import { recordsOf } from "../agentLaunchBoundary.ts";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
 import { keepFinalReport } from "./retainedReport.ts";
 import { otherQueuedIdentity } from "./startOrigin.ts";
-import { git, storyALaunchRecord } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
+import { storyALaunchRecord } from "./storyLaunchRecord.ts";
 
 const storyBBranch = "claude/story-b";
 export const storyBReport = "Story B's final report: one file of its own.";

@@ -3,7 +3,10 @@
 // names the story and its project's identity, takes its snapshot when it
 // opens and shows it (`./StoryReviewSnapshotView.tsx`) unchanged until the
 // developer uses Refresh, which takes a new one in its place, keeps the
-// keyboard where it is, and announces when it is done. Opening it, or asking
+// keyboard where it is, and announces when it is done. Beneath the header,
+// the snapshot's context line and the review's one feedback region stay in
+// view above the review's body; that the review is read-only is its
+// accessible description, never a visible line. Opening it, or asking
 // again for the review shown, places the keyboard in its named content
 // without holding it there; the panel's own controls (`./PanelControls.tsx`)
 // maximize or restore it and close it. Each opening is its own read, so a
@@ -20,7 +23,7 @@ import {
   type StoryReview,
 } from "./storyReview.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
-import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
+import { ContextLine, SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import type { StoryReviewRequest } from "./pageReviews.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { SidePanelEdge } from "./SidePanelEdge.tsx";
@@ -42,9 +45,12 @@ export function StoryReviewPanel({
   const { source, identity, title } = request;
   const id = useId();
   const headingId = `${id}-heading`;
+  const descriptionId = `${id}-description`;
   const body = useRef<HTMLDivElement>(null);
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
+  const [browserShown, setBrowserShown] = useState(true);
+  const browser = { id: `${id}-files`, shown: browserShown };
   const {
     answer: review,
     problem,
@@ -62,6 +68,7 @@ export function StoryReviewPanel({
     <section
       className="side-panel story-review-panel"
       aria-label="Review changes"
+      aria-describedby={descriptionId}
     >
       <SidePanelEdge />
       <header className="side-panel-header">
@@ -89,11 +96,18 @@ export function StoryReviewPanel({
           />
         </div>
       </header>
-      <div ref={body} className="story-review-body" tabIndex={-1}>
-        <p className="quiet">
-          Read-only: what this story&apos;s worktree would add to trunk, as it
-          was when the review opened or was last refreshed.
-        </p>
+      <p id={descriptionId} hidden>
+        Read-only: what this story&apos;s worktree would add to trunk, as it was
+        when the review opened or was last refreshed.
+      </p>
+      <div className="story-review-top">
+        {review?.kind === "snapshot" && (
+          <ContextLine
+            snapshot={review}
+            {...(review.files.length === 0 ? {} : { browser })}
+            onShowBrowser={setBrowserShown}
+          />
+        )}
         <div role="status">
           {reading && review?.kind !== "snapshot" && (
             <p>Reading the story&apos;s changes…</p>
@@ -119,11 +133,14 @@ export function StoryReviewPanel({
             </p>
           )}
         </div>
+      </div>
+      <div ref={body} className="story-review-body" tabIndex={-1}>
         {review?.kind === "snapshot" && (
           <SnapshotView
             reviewed={{ sourceId: source, identity }}
             snapshot={review}
             headingId={headingId}
+            browser={browser}
           />
         )}
       </div>

@@ -11,12 +11,8 @@ import {
 } from "../src/storyReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
-import {
-  git,
-  keepLaunchRecord,
-  observed,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { git, observed, storyWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("review requests the boundary does not admit are refused and nothing runs", async ({
   page,

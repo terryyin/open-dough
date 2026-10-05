@@ -3,9 +3,13 @@
 // collapses and expands, a collapsed folder telling how many changed files it
 // holds, and each file by its name, its kind told by the name's style alone.
 // A file's control is named, and titled, by its kind and full path in words.
+// A file whose diff adds or removes lines shows how many beside its name,
+// and its control is described by them in words.
 
+import { useId } from "react";
 import type { ReviewTreeNode } from "./reviewFileTree.ts";
 import type { ReviewedFile } from "./storyReview.ts";
+import "./story-review-files.css";
 
 export const kindWords: Record<ReviewedFile["kind"], string> = {
   added: "Added",
@@ -27,6 +31,58 @@ const changedFileWords = (count: number) =>
 export const changedFiles = (count: number) =>
   `${String(count)} ${changedFileWords(count)}`;
 
+const lineWords = (count: number, change: string) =>
+  `${String(count)} ${count === 1 ? "line" : "lines"} ${change}`;
+
+// A file's control: its name, and its line counts when its diff adds or
+// removes any, which describe the control in words.
+function FileRow({
+  file,
+  name,
+  selected,
+  onSelect,
+}: {
+  readonly file: ReviewedFile;
+  readonly name: string;
+  readonly selected: boolean;
+  readonly onSelect: (path: string) => void;
+}) {
+  const countsId = useId();
+  const counted =
+    file.lines !== undefined && file.lines.added + file.lines.removed > 0
+      ? file.lines
+      : undefined;
+  return (
+    <button
+      type="button"
+      aria-label={reviewedFileWords(file)}
+      aria-describedby={counted === undefined ? undefined : countsId}
+      title={reviewedFileWords(file)}
+      aria-pressed={selected}
+      data-kind={file.kind}
+      onClick={() => {
+        onSelect(file.path);
+      }}
+    >
+      <code>{name}</code>
+      {counted === undefined ? null : (
+        <>
+          {" "}
+          <span className="story-review-line-counts">
+            <span className="story-review-lines-added">+{counted.added}</span>{" "}
+            <span className="story-review-lines-removed">
+              −{counted.removed}
+            </span>
+            <span id={countsId} hidden>
+              {`${lineWords(counted.added, "added")}, ${lineWords(counted.removed, "removed")}`}
+            </span>
+          </span>
+        </>
+      )}
+    </button>
+  );
+}
+
 // The browser's rows under one folder, or the top level: a folder's
 // disclosure above its own rows, hidden while it is collapsed, or a file's
 // control. A collapsed folder's row shows its count; the words after the
@@ -43,7 +99,7 @@ export function FileTree({
   hidden,
 }: {
   readonly nodes: readonly ReviewTreeNode[];
-  readonly selectedPath: string | undefined;
+  readonly selectedPath: string;
   readonly onSelect: (path: string) => void;
   readonly collapsed: ReadonlySet<string>;
   readonly onToggle: (folderPath: string) => void;
@@ -58,18 +114,12 @@ export function FileTree({
         if (node.kind === "file")
           return (
             <li key={`file:${node.file.path}`}>
-              <button
-                type="button"
-                aria-label={reviewedFileWords(node.file)}
-                title={reviewedFileWords(node.file)}
-                aria-pressed={selectedPath === node.file.path}
-                data-kind={node.file.kind}
-                onClick={() => {
-                  onSelect(node.file.path);
-                }}
-              >
-                <code>{node.name}</code>
-              </button>
+              <FileRow
+                file={node.file}
+                name={node.name}
+                selected={selectedPath === node.file.path}
+                onSelect={onSelect}
+              />
             </li>
           );
         const folderCollapsed = collapsed.has(node.path);

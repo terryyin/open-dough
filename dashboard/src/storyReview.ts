@@ -44,17 +44,28 @@ export function reviewWorkspaceOf<Kept extends LaunchRecord>(
   return latest;
 }
 
+// How many lines a file's diff adds and removes, as Git counts them for the
+// same comparison; a binary file has none.
+const lineCountsSchema = z.object({
+  added: z.number().int().nonnegative(),
+  removed: z.number().int().nonnegative(),
+});
+export type LineCounts = z.infer<typeof lineCountsSchema>;
+
 // One changed file of a snapshot, as Git's rename-detecting tree diff names
-// it; a renamed file also names the path it had at the baseline.
+// it, with its line counts when Git counted them; a renamed file also names
+// the path it had at the baseline.
 export const reviewedFileSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.enum(["added", "modified", "deleted"]),
     path: z.string().min(1),
+    lines: lineCountsSchema.optional(),
   }),
   z.object({
     kind: z.literal("renamed"),
     path: z.string().min(1),
     oldPath: z.string().min(1),
+    lines: lineCountsSchema.optional(),
   }),
 ]);
 export type ReviewedFile = z.infer<typeof reviewedFileSchema>;

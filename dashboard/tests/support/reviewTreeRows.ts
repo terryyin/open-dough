@@ -2,7 +2,8 @@
 // file's visible text, indented two spaces per folder that holds it, in the
 // order shown. A row is its list item's first element, a folder's disclosure
 // or a file's control; a folder's own rows follow in its nested list unless
-// the folder is collapsed and the list hidden.
+// the folder is collapsed and the list hidden. A file's line counts are left
+// out (../story-review-line-counts.spec.ts reads them).
 
 import type { Locator } from "@playwright/test";
 
@@ -11,7 +12,10 @@ export const treeRows = (list: Locator) =>
     const rows: string[] = [];
     const walk = (folder: Element, depth: number) => {
       for (const item of folder.children) {
-        const text = item.firstElementChild?.textContent ?? "";
+        const row = item.firstElementChild?.cloneNode(true);
+        if (!(row instanceof Element)) continue;
+        row.querySelector(".story-review-line-counts")?.remove();
+        const text = row.textContent;
         rows.push(`${"  ".repeat(depth)}${text.replace(/\s+/g, " ").trim()}`);
         const nested = item.querySelector(":scope > ul");
         if (nested && !nested.hasAttribute("hidden")) walk(nested, depth + 1);

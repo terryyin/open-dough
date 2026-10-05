@@ -29,10 +29,8 @@ import {
 } from "./pageLayout.ts";
 import { expectSettledPage } from "./dashboardPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import {
-  keepLaunchRecord,
-  unchangedWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { unchangedWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("the inspection group shares a line below the launch group, wraps in reading order, and the keyboard reaches Review changes from Inspect story", async ({
   page,

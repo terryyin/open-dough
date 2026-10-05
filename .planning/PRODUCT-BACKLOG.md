@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Review changes in a full-height panel with compact context and independent file navigation](seeds/SEED-102-review-changes-ui.md#full-height-review-changes) — SEED-102#full-height-review-changes ([plan](slice-plans/247-full-height-review-changes/PLAN.md))
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review ([plan](slice-plans/245-review-changes-since-last-review/PLAN.md))
 - [Optional process retrospective for Dough Land and Story Wrap Up](seeds/SEED-105-land-and-wrap-up-process-retrospective.md#land-and-wrap-up-process-retrospective) — SEED-105#land-and-wrap-up-process-retrospective ([plan](slice-plans/250-land-and-wrap-up-process-retrospective/PLAN.md))
 

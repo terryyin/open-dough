@@ -4,7 +4,8 @@
 // workspace's head and the fetched `<remote>/<target>`, writes the
 // workspace's files -- commits, staged, unstaged, and untracked, never
 // ignored -- into a tree object through a temporary index, and lists what
-// changed from the baseline to that tree. The workspace's own index and
+// changed from the baseline to that tree with each file's line counts
+// (`./storyReviewFiles.ts`). The workspace's own index and
 // status stay as they were; the tree is an ordinary unreachable object of
 // its repository. A step Git cannot take answers why, never a partial list:
 // a worktree no longer on disk is said to be missing before any Git runs,
@@ -18,15 +19,12 @@ import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
-import type {
-  ReviewedFile,
-  ReviewedFileDiff,
-  StoryReview,
-} from "../src/storyReview.ts";
+import type { ReviewedFileDiff, StoryReview } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { GitFailure, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
+import { reviewedFiles } from "./storyReviewFiles.ts";
 import type {
   AdmittedFileDiff,
   AdmittedReview,
@@ -36,33 +34,6 @@ const outputLimit = 64 * 1024 * 1024;
 
 // How long a story review's snapshot, trunk's fetch included, may take.
 const reviewWaitMs = 60_000;
-
-// The changed files `git diff --name-status -M -z` printed: a status field,
-// then the path, or for a rename the old path and then the new one.
-function reviewedFiles(nameStatus: string): ReviewedFile[] {
-  const fields = nameStatus.split("\0");
-  const files: ReviewedFile[] = [];
-  let index = 0;
-  while (index + 1 < fields.length) {
-    const status = fields[index] ?? "";
-    const first = fields[index + 1] ?? "";
-    if (status.startsWith("R")) {
-      files.push({
-        kind: "renamed",
-        oldPath: first,
-        path: fields[index + 2] ?? "",
-      });
-      index += 3;
-      continue;
-    }
-    files.push({
-      kind: status === "A" ? "added" : status === "D" ? "deleted" : "modified",
-      path: first,
-    });
-    index += 2;
-  }
-  return files;
-}
 
 // The last line Git printed about a failure, or its own message.
 function gitProblem(error: unknown): string {
@@ -141,16 +112,12 @@ async function storyReviewSnapshot(
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
+    // What changed from the baseline to the tree, as Git prints it.
+    const changes = (format: string) =>
+      printed(["diff", format, "-M", "-z", baseline, tree, "--"]);
     const files = reviewedFiles(
-      await printed([
-        "diff",
-        "--name-status",
-        "-M",
-        "-z",
-        baseline,
-        tree,
-        "--",
-      ]),
+      await changes("--name-status"),
+      await changes("--numstat"),
     );
     return {
       kind: "snapshot",

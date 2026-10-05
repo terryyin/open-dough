@@ -1,21 +1,26 @@
 // Story A's worktree for its review (../story-review.spec.ts), off a real bare
-// origin (./startOrigin.ts), and its kept launch record naming that worktree,
-// written into the machine store as a launch would keep it. The worktree's
-// story commits rename a trunk file and add one, delete another, and change
-// an image; it merged trunk carrying another story's file, trunk moved on
-// since, and it holds a staged, an unstaged, an untracked, and an ignored
-// file. A worktree straight off trunk has nothing to review, and a story whose
-// first commit landed on trunk has only its later changes to review. A story
-// changing files in nested folders, at the root, and across folders by a
-// rename shows its files under their folders.
+// origin (./startOrigin.ts); its kept launch record names that worktree
+// (./storyLaunchRecord.ts). The worktree's story commits rename a trunk file
+// and add one, delete another, and change an image; it merged trunk carrying
+// another story's file, trunk moved on since, and it holds a staged, an
+// unstaged, an untracked, and an ignored file; it can also change the merged
+// trunk file's mode alone. A worktree straight off trunk
+// has nothing to review, and a story whose first commit landed on trunk has
+// only its later changes to review. A story changing files in nested folders,
+// at the root, and across folders by a rename shows its files under their
+// folders. A large story changes more files than the file browser holds and
+// files longer than the diff shows.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import type { DashboardServer } from "./dashboardServer.ts";
-import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+import type { StartOrigin } from "./startOrigin.ts";
 
 export const branch = "claude/story-a";
 
@@ -112,6 +117,12 @@ export function storyWorktree(origin: StartOrigin) {
   return { workspace, merged, later };
 }
 
+// Makes the file another story landed, which Story A's worktree merged,
+// executable there: a change of mode alone against the baseline.
+export function changeModeOnly(workspace: string) {
+  chmodSync(path.join(workspace, "other.txt"), 0o755);
+}
+
 // Story A's worktree straight off trunk, with nothing the story changed.
 export function unchangedWorktree(origin: StartOrigin) {
   const workspace = addStoryWorktree(origin.project);
@@ -170,58 +181,33 @@ export function nestedWorktree(origin: StartOrigin) {
   return { workspace };
 }
 
-// Story A's launch record, its start naming the worktree, of the session
-// given, as one the synthetic `claude` lists.
-export function storyALaunchRecord(
-  workspace: string,
-  { sessionId, shortId } = { sessionId: "story-a-session", shortId: "story-a" },
-): LaunchRecord {
-  return {
-    request: {
-      source: "open-dough",
-      identity: queuedIdentity,
-      title: "Story A",
-      workflow: "execution",
-      host: "claude",
-    },
-    session: {
-      host: "claude",
-      sessionId,
-      shortId,
-      name: "Story A",
-    },
-    start: {
-      identity: queuedIdentity,
-      publisherId: "a1b2c3",
-      workspace,
-      branch,
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: "b2".repeat(20),
-    },
-    launchedAt: new Date().toISOString(),
-  };
-}
+// The large story's two long files, the first with a line wider than the
+// diff.
+export const longA = "long-a.txt";
+export const longB = "long-b.txt";
 
-// The project's kept launch records, written into the machine store.
-export async function keepLaunchRecords(
-  dashboard: DashboardServer,
-  records: readonly LaunchRecord[],
-) {
-  const store = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/agent-launches.json",
+// Story A's worktree adding the large story's files: two folders of many
+// small files, a file whose name is wider than the file browser, and the
+// long files.
+export function largeWorktree(origin: StartOrigin) {
+  const workspace = addStoryWorktree(origin.project);
+  for (const folder of ["many", "more"])
+    for (const at of [...Array(30).keys()])
+      writeAt(
+        workspace,
+        `${folder}/file-${String(at).padStart(2, "0")}.txt`,
+        `${folder} ${String(at)}\n`,
+      );
+  writeAt(
+    workspace,
+    `a-file-named-${"at-length-".repeat(6)}.txt`,
+    "long name\n",
   );
-  await mkdir(path.dirname(store), { recursive: true });
-  await writeFile(store, JSON.stringify({ "open-dough": records }));
+  writeAt(workspace, longA, `${lines("first", 200)}${wideLine}\n`);
+  writeAt(workspace, longB, lines("second", 200));
+  commitAll(workspace, "large changes");
+  return { workspace };
 }
-
-// Story A's kept launch record, its start naming the worktree.
-export const keepLaunchRecord = (
-  dashboard: DashboardServer,
-  workspace: string,
-) => keepLaunchRecords(dashboard, [storyALaunchRecord(workspace)]);
 
 // What Git says of the worktree's own index and files.
 export const observed = (workspace: string) => ({
