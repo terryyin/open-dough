@@ -35,6 +35,7 @@ import {
   type StartOrigin,
 } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
+import { markReportRead } from "./support/sessionMessagePart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
@@ -164,7 +165,7 @@ test("a completed report marks done at once only while the session neither works
   test.setTimeout(180_000);
   const { storyA, storyB } = await launchedStories(dashboard, origin);
   await storyA.report();
-  await storyB.report("unfinished");
+  await storyB.report({ outcome: "unfinished" });
   dashboard.claudeSessionBecomes(storyB.sessionId, "done-live");
   const { entryOf } = await openPage(page, origin);
   const entryA = entryOf(titleA);
@@ -172,7 +173,7 @@ test("a completed report marks done at once only while the session neither works
   const before = dashboard.claudeStopCalls().length;
 
   await test.step("(c) reported completed, read, then Working: asks that it is still working", async () => {
-    await entryA.getByRole("button", { name: "Mark as read" }).click();
+    await markReportRead(entryA);
     await expect(sessionStateOf(entryA)).toHaveText("Working");
     await expectAskedThenKept(dashboard, entryA, stillWorking);
   });
@@ -181,7 +182,7 @@ test("a completed report marks done at once only while the session neither works
     await expect(entryB.locator(".session-unread-report")).toHaveText(
       "Unread report: Unfinished work",
     );
-    await entryB.getByRole("button", { name: "Mark as read" }).click();
+    await markReportRead(entryB);
     await expect(sessionStateOf(entryB)).toHaveText("Ready for review");
     await expectAskedThenKept(
       dashboard,

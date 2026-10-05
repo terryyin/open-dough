@@ -6,14 +6,13 @@
 // and marking without every component between them passing them along. Each
 // session entry names its session, so the page can find where to bring the
 // entry into view.
-// The page also says which session its panel shows. Every Mark as done
-// control follows its mark and decides whether to ask first the same way
-// (`useDoneMark`), and one that offers Mark as read first chooses between them
-// the same way (`useReportOrDoneMark`).
+// The page also says which session its panel shows. Every Mark as done or
+// Mark as read control follows its mark the same way (`useMarking`), and
+// every Mark as done decides whether to ask first the same way
+// (`useDoneMark`).
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
-import { reportUnread } from "./completionReport.ts";
 import { unfinishedIntention } from "./sessionShown.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
@@ -46,8 +45,7 @@ export type OpenSessionPanel = SessionOperation<void>;
 export type MarkSessionDone = SessionOperation<Promise<boolean>>;
 
 // Marks the session's unread report read and answers whether it was marked.
-// The session stays open, and a panel showing it stays open with its record
-// as marked.
+// The session stays open.
 export type MarkSessionRead = SessionOperation<Promise<boolean>>;
 
 // Deletes the session's dashboard record and answers what came of it: deleted,
@@ -63,7 +61,6 @@ export type DeleteSessionRecord = SessionOperation<
 export type PageSessions = {
   readonly hostOperations: HostOperations;
   readonly openTerminal: OpenSessionPanel;
-  readonly openResult: OpenSessionPanel;
   readonly openSession: SessionOperation<void, LaunchWithState>;
   readonly shownSession:
     { readonly kind: SessionAccess; readonly key: string } | undefined;
@@ -156,13 +153,17 @@ export const nowKnown = "This session's state is now known";
 export const doneAnswers = { confirm: "Mark as done", keep: "Keep open" };
 
 // Follows one control's Mark as done or Mark as read from its asking to the
-// answer.
-function useMarking() {
+// answer, which `answered`, when given, is then told.
+export function useMarking() {
   const [marking, setMarking] = useState<Marking | undefined>();
-  const follow = (asked: Promise<boolean>) => {
+  const follow = (
+    asked: Promise<boolean>,
+    answered?: (marked: boolean) => void,
+  ) => {
     setMarking("marking");
     void asked.then((marked) => {
       setMarking(marked ? undefined : "not-marked");
+      answered?.(marked);
     });
   };
   return { marking, follow };
@@ -170,14 +171,18 @@ function useMarking() {
 
 // One control's Mark as done: where its mark stands, and, for a session
 // whose intended work is not known to be complete, the question it asks
-// first (`unfinishedIntention`), decided from the record the page shows now.
-// Its mark answers the control that asked it: a session marked done takes
-// the control off the page; otherwise the keyboard returns to the control.
+// first (`unfinishedIntention`), decided from the record the page shows now;
+// an unread report alone does not ask. Its mark answers the control that
+// asked it: a session marked done takes the control off the page; otherwise
+// the keyboard returns to the control. `answered`, when given, is told too.
 export function useDoneMark(record: LaunchWithState) {
   const { marking, follow } = useMarking();
   const statement = unfinishedIntention(record);
-  const mark = (done: Promise<boolean>) => {
-    follow(done);
+  const mark = (
+    done: Promise<boolean>,
+    answered?: (marked: boolean) => void,
+  ) => {
+    follow(done, answered);
     return done.then((marked) =>
       marked ? ("settled" as const) : ("returned" as const),
     );
@@ -186,34 +191,6 @@ export function useDoneMark(record: LaunchWithState) {
     asksFirst:
       statement === undefined ? undefined : `${statement} Mark it done anyway?`,
     marking,
-    follow,
-    mark,
-  };
-}
-
-// One control's Mark as read while its session's report is unread, else its
-// Mark as done (`useDoneMark`): what the control is labeled, what it says of
-// the mark it asked while marking or once refused, the question a Mark as
-// done asks first, and its mark, which answers the control that asked it; a
-// Mark as read always returns the keyboard to the control.
-export function useReportOrDoneMark(record: LaunchWithState) {
-  const unread = reportUnread(record);
-  const { asksFirst, marking, follow, mark: markDone } = useDoneMark(record);
-  const [askedRead, setAskedRead] = useState(false);
-  const mark = (read: () => Promise<boolean>, done: () => Promise<boolean>) => {
-    setAskedRead(unread);
-    if (!unread) return markDone(done());
-    const asked = read();
-    follow(asked);
-    const returned = () => "returned" as const;
-    return asked.then(returned, returned);
-  };
-  return {
-    label: unread ? "Mark as read" : "Mark as done",
-    asksFirst: unread ? undefined : asksFirst,
-    marking,
-    markingSaid: askedRead ? "Marking as read…" : "Marking as done…",
-    notMarkedSaid: askedRead ? notMarkedRead : notMarkedDone,
     mark,
   };
 }

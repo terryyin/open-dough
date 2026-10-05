@@ -25,6 +25,7 @@ import {
 import { launchedStory, shortIdOf } from "./support/reportedLaunch.ts";
 import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
+import { markReportRead } from "./support/sessionMessagePart.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
@@ -44,7 +45,7 @@ async function reportedWorkingEntry(
   const entry = cardSessions(
     parts(page).taken.getByRole("article", { name: titleA, exact: true }),
   );
-  await entry.getByRole("button", { name: "Mark as read" }).click();
+  await markReportRead(entry);
   await expect(sessionStateOf(entry)).toHaveText("Working");
   return { sessionId: story.sessionId, entry };
 }
