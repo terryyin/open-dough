@@ -9,8 +9,7 @@
 // unread report and leaves the session open with its native reading and its
 // own Mark as done; Mark as done, read or not, closes the session as any
 // session, asked about first while its work is not known complete (from the
-// terminal panel, ./agent-terminal-done-report.spec.ts and
-// ./session-unread-report-terminal.spec.ts).
+// terminal panel, ./agent-terminal-done-report.spec.ts).
 // The message part's own controls are ./session-unread-report-message.spec.ts.
 // Real start, launch, installed reporting command, store and page; only the
 // synthetic `claude` and GitHub are fakes.
