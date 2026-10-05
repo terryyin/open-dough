@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jackson-chan",
-  "email": "jackson-chan@example.org",
-  "identity": "SEED-100#dashboard-specs-pass-unchanged-code",
-  "mode": "story-branch",
-  "branch": "claude/dashboard-specs-pass-ci-on-a-revision-that-chang",
-  "host": "claude"
-}
