@@ -3,10 +3,11 @@
 // branch, the baseline, and the worktree in its context line
 // (./story-review-context-line.spec.ts), and lists the story's files with
 // their kinds under their folders, without either trunk file or the ignored
-// one; the worktree's own index and status stay as they were. Selecting a
-// file shows its diff with added and removed lines marked in text, the
-// rename against its old path, the deletion as all lines removed, and the
-// image as having no textual diff; hiding the file browser leaves the diff
+// one; the worktree's own index and status stay as they were. It opens on
+// the first file in the browser's order, inside the folder that comes
+// first, with its diff shown. Selecting a file shows its diff with added
+// and removed lines marked in text, the rename against its old path, the
+// deletion as all lines removed, and the image as having no textual diff; hiding the file browser leaves the diff
 // in place with more room. The review shows in the page's side panel, and
 // Command+Shift+Escape closes it, returning the keyboard to Review changes;
 // Tab then moves on. Requests the launch boundary refuses:
@@ -89,6 +90,15 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   for (const [index, name] of fileNames.entries()) {
     await expect(fileControls.nth(index)).toHaveAccessibleName(name);
   }
+  // The review opens on the first file in the browser's order, inside the
+  // folder that comes first, its diff shown.
+  await expect(fileControls.first()).toHaveAttribute("aria-pressed", "true");
+  await expect(files.locator('button[aria-pressed="true"]')).toHaveCount(1);
+  await expect(
+    review
+      .getByRole("region", { name: "Added fresh/new.txt" })
+      .getByRole("listitem"),
+  ).toHaveText(["+untracked"]);
   // The context line reads every value in full, the read-only explanation
   // is the review's description, never a visible line.
   await expect(contextValues(review)).toHaveAccessibleName(

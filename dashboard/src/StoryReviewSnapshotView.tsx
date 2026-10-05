@@ -4,17 +4,18 @@
 // shows the file browser; the review's body lists the story's changed files
 // with their change kinds in that browser. The browser shows each file by
 // name under folders that collapse and expand (`./StoryReviewFileTree.tsx`).
-// Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`), headed by
-// its kind and full path, shown from the top while the browser keeps its
-// scroll; the two fill the review's body, each scrolling on its own. A
-// worktree that matches its baseline says so in
-// place of the browser. A refreshed snapshot keeps the browser as it was,
-// its collapsed folders, and the selected file while the new snapshot still
-// lists their paths.
+// The review opens on the first file in the browser's order. Selecting a
+// file reads its diff (`./StoryReviewFileDiff.tsx`), headed by its kind and
+// full path, shown from the top while the browser keeps its scroll; the two
+// fill the review's body, each scrolling on its own. A worktree that matches
+// its baseline says so in place of the browser. A refreshed snapshot keeps
+// the browser as it was, its collapsed folders, and the selected file while
+// the new snapshot still lists their paths; one that no longer lists the
+// selected file selects its first file.
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
-import { reviewFileTree } from "./reviewFileTree.ts";
+import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import type { ReviewedFile, TakenStoryReview } from "./storyReview.ts";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { changedFiles, FileTree, kindWords } from "./StoryReviewFileTree.tsx";
@@ -130,11 +131,18 @@ export function SnapshotView({
   // Folders collapsed by path; every folder starts expanded on each opening,
   // and a refreshed snapshot keeps those it still has collapsed.
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
-  const selected = snapshot.files.find((file) => file.path === selectedPath);
+  const tree = reviewFileTree(snapshot.files);
+  const selected =
+    snapshot.files.find((file) => file.path === selectedPath) ??
+    reviewFileOrder(tree)[0];
+  // The first file stays selected once shown, so a later snapshot that lists
+  // an earlier selection again does not return to it.
+  if (selected !== undefined && selected.path !== selectedPath)
+    setSelectedPath(selected.path);
   const listName = changedFiles(snapshot.files.length);
   const { id: browserId } = browser;
   const diffHeadingId = `${headingId}-diff`;
-  return snapshot.files.length === 0 ? (
+  return selected === undefined ? (
     <p>
       No changes: the worktree matches baseline{" "}
       <code>{shortRevision(snapshot.baseline)}</code>.
@@ -150,8 +158,8 @@ export function SnapshotView({
         <h3 id={`${browserId}-heading`}>{listName}</h3>
         <FileTree
           label={listName}
-          nodes={reviewFileTree(snapshot.files)}
-          selectedPath={selected?.path}
+          nodes={tree}
+          selectedPath={selected.path}
           onSelect={setSelectedPath}
           collapsed={collapsed}
           onToggle={(folderPath) => {
@@ -166,23 +174,15 @@ export function SnapshotView({
       </section>
       <section className="story-review-diff" aria-labelledby={diffHeadingId}>
         <h3 id={diffHeadingId}>
-          {selected === undefined ? (
-            "Diff"
-          ) : (
-            <ReviewedFileName file={selected} />
-          )}
+          <ReviewedFileName file={selected} />
         </h3>
-        {selected === undefined ? (
-          <p className="quiet">Select a file to read its diff.</p>
-        ) : (
-          <FileDiff
-            // A new snapshot or file is a new read, never the last one's.
-            key={`${snapshot.tree}:${selected.path}`}
-            reviewed={reviewed}
-            snapshot={snapshot}
-            file={selected}
-          />
-        )}
+        <FileDiff
+          // A new snapshot or file is a new read, never the last one's.
+          key={`${snapshot.tree}:${selected.path}`}
+          reviewed={reviewed}
+          snapshot={snapshot}
+          file={selected}
+        />
       </section>
     </div>
   );

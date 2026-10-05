@@ -171,14 +171,20 @@ test("in a narrow panel the browser sits above the diff, each scrolling, and Hid
   const code = codeOf(nameA);
 
   await test.step("the browser sits above the diff with a bounded share of the height", async () => {
+    // The panel lays itself out anew once it observes the narrower window.
+    const stacked = async () => {
+      const [shownBrowser, shownDiff] = await Promise.all([
+        box(browser),
+        box(diff),
+      ]);
+      return shownBrowser.y + shownBrowser.height <= shownDiff.y;
+    };
+    await expect.poll(stacked).toBe(true);
     const [area, shownBrowser, shownDiff] = await Promise.all([
       box(workarea),
       box(browser),
       box(diff),
     ]);
-    expect(shownBrowser.y + shownBrowser.height).toBeLessThanOrEqual(
-      shownDiff.y,
-    );
     expect(shownBrowser.height).toBeLessThanOrEqual(area.height * 0.4 + 1);
     expect(shownDiff.y + shownDiff.height).toBeCloseTo(area.y + area.height, 0);
     expect((await overflows(body)).down).toBe(false);

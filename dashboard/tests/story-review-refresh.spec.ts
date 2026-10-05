@@ -7,7 +7,9 @@
 // and announces that it is done in the review's fixed top, beneath the
 // context line, where it stays while the file browser scrolls. Closing the
 // review and editing the worktree meanwhile, reopening it reads a fresh
-// snapshot with that edit.
+// snapshot with that edit, opened on the first file in the browser's order.
+// Once the selected file is reverted in the worktree, Refresh selects the
+// first file.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -29,7 +31,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   dashboard,
   origin,
 }) => {
-  const { workspace } = storyWorktree(origin);
+  const { workspace, merged } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const action = card.getByRole("button", { name: "Review changes" });
@@ -143,10 +145,34 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(
       reopened.getByRole("button", { name: "Added while-closed.txt" }),
     ).toBeVisible();
-    // A fresh opening: nothing selected and no refresh announced.
+    // A fresh opening: the first file selected, not the one selected before
+    // Close, and no refresh announced.
+    await expect(
+      reopened.getByRole("button", { name: "Added fresh/new.txt" }),
+    ).toHaveAttribute("aria-pressed", "true");
     await expect(
       reopened.getByRole("button", { name: "Modified unstaged.txt" }),
     ).toHaveAttribute("aria-pressed", "false");
+    await expect(
+      review.getByRole("region", { name: "Added fresh/new.txt" }),
+    ).toContainText("+untracked");
     await expect(reviewFeedback(review)).toHaveText("");
+  });
+
+  await test.step("Refresh selects the first file once the selected file is reverted", async () => {
+    await select("Modified unstaged.txt");
+    await expect(diff.getByText(edit, { exact: true })).toBeVisible();
+    git(workspace, "checkout", merged, "--", "unstaged.txt");
+    await review.getByRole("button", { name: "Refresh" }).press("Enter");
+    const refreshed = review.getByRole("list", { name: "8 changed files" });
+    await expect(
+      refreshed.getByRole("button", { name: "Added fresh/new.txt" }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      refreshed.getByRole("button", { name: "Modified unstaged.txt" }),
+    ).toHaveCount(0);
+    await expect(
+      review.getByRole("region", { name: "Added fresh/new.txt" }),
+    ).toContainText("+untracked");
   });
 });

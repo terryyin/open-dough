@@ -86,10 +86,15 @@ file's kind and path, stays above its code, which scrolls down and sideways
 within the diff; the code region takes the keyboard, so it scrolls by
 keyboard too. Scrolling either pane leaves the other and the fixed top in
 place. Selecting a file shows its diff from the top and leaves the browser
-where it was scrolled. Refresh keeps the browser's place and its collapsed
-folders, and Maximize/Restore and resizing keep both panes' places. Where the
-panel is too narrow for the browser beside the diff, the browser sits above
-the diff with at most two fifths of the height, each still scrolling on its
-own; Hide files gives the diff the whole work area. Close or Command+Shift+Escape returns
-the keyboard to Review changes, or to the story's card when that control is
-no longer shown. A review is not a session: it marks no session entry as shown.
+where it was scrolled. A review with changes opens on the first file in the
+browser's order, its rows read from top to bottom with every folder expanded
+(`reviewFileOrder` in `src/reviewFileTree.ts`), so a folder that comes first
+opens on its first file. Refresh keeps the browser's place, its collapsed
+folders, and the selected file while the new snapshot lists it, and
+otherwise selects the first file. Maximize/Restore and resizing keep both
+panes' places. Where the panel is too narrow for the browser beside the
+diff, the browser sits above the diff with at most two fifths of the height,
+each still scrolling on its own; Hide files gives the diff the whole work
+area. Close or Command+Shift+Escape returns the keyboard to Review changes,
+or to the story's card when that control is no longer shown. A review is not
+a session: it marks no session entry as shown.

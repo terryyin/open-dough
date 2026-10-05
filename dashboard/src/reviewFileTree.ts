@@ -5,7 +5,8 @@
 // named by the chain (`docs/adrs/drafts`). A renamed file sits at its new
 // path only. Each folder knows how many changed files it holds at any depth.
 // Folders come before files, each in code-point order of their names, so the
-// same snapshot always arranges the same way.
+// same snapshot always arranges the same way. The browser's order reads the
+// files from top to bottom with every folder expanded.
 
 import type { ReviewedFile } from "./storyReview.ts";
 
@@ -78,4 +79,14 @@ export function reviewFileTree(
     folder.files.push({ kind: "file", name, file });
   }
   return arranged(root, "");
+}
+
+// The files as the browser's rows read them, each folder's files in its
+// place, whether or not the browser shows it collapsed.
+export function reviewFileOrder(
+  nodes: readonly ReviewTreeNode[],
+): readonly ReviewedFile[] {
+  return nodes.flatMap((node) =>
+    node.kind === "file" ? [node.file] : reviewFileOrder(node.children),
+  );
 }

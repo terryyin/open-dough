@@ -44,7 +44,7 @@ export function FileTree({
   hidden,
 }: {
   readonly nodes: readonly ReviewTreeNode[];
-  readonly selectedPath: string | undefined;
+  readonly selectedPath: string;
   readonly onSelect: (path: string) => void;
   readonly collapsed: ReadonlySet<string>;
   readonly onToggle: (folderPath: string) => void;

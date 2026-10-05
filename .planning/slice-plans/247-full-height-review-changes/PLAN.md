@@ -177,7 +177,15 @@ comment for the layout.
 
 ### 3. Open the review on its first file
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review story-panel side-panel` and
+`npm run typecheck:dashboard` pass. Observed in `story-review.spec.ts` (first
+file inside `fresh/` pressed, its diff shown), `story-review-tree.spec.ts`
+step "the review opens on the first file in the browser's order", and
+`story-review-refresh.spec.ts` (fresh opening; Refresh after the selected
+file is reverted selects the first file). The browser's order is
+`reviewFileOrder` in `reviewFileTree.ts`.
 Proof: `story-review.spec.ts` and `story-review-tree.spec.ts`: on opening, the
 first file in the browser's order (inside the first folder when a folder comes
 first) is pressed and its diff shown. `story-review-refresh.spec.ts`: a fresh
@@ -274,3 +282,7 @@ has at least one added or removed line. Update `AGENT-LAUNCH-REVIEW.md`.
   bound needs `box-sizing: border-box`. The browser's row styles now live in
   `story-review-files.css` and the diff pane's column in
   `story-review-diff.css`.
+- Slice 3: the narrow-panel step must wait for the panel's ResizeObserver
+  to re-lay it out after `setViewportSize` before measuring.
+  `reviewFileOrder` ignores collapsed folders; slice 4 expands the folder a
+  move enters through `collapsed` in `SnapshotView`.

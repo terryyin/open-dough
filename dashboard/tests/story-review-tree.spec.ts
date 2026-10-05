@@ -5,6 +5,8 @@
 // new folder and its old folder is absent. Each file shows by its name alone,
 // its kind told by the name's style; its control is named, and titled, by its
 // kind and full path, and selecting a nested file heads its diff with them.
+// The review opens on the first file in the browser's order, inside the
+// folders that come first.
 // Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
@@ -56,6 +58,22 @@ test("a story's changed files show by name under their folders", async ({
         "true",
       );
     }
+  });
+
+  await test.step("the review opens on the first file in the browser's order", async () => {
+    const first = files.getByRole("button", {
+      name: "Deleted dashboard/server/c.ts",
+      exact: true,
+    });
+    await expect(first).toHaveAttribute("aria-pressed", "true");
+    await expect(files.locator('button[aria-pressed="true"]')).toHaveCount(1);
+    const diff = review.getByRole("region", {
+      name: "Deleted dashboard/server/c.ts",
+    });
+    await expect(diff.getByRole("heading", { level: 3 })).toHaveText(
+      "Deleted dashboard/server/c.ts",
+    );
+    await expect(diff.getByRole("listitem").first()).toHaveText("-c 0");
   });
 
   await test.step("each file's kind shows only in the style of its name", async () => {
