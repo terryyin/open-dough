@@ -133,7 +133,8 @@ test("a story's changed files show by name under their folders", async ({
     await expect(page.locator(":focus")).toHaveAccessibleName(
       "Deleted dashboard/server/c.ts",
     );
-    await expect(page.locator(":focus")).toHaveText("c.ts");
+    // Its row shows its name, with its line counts beside it.
+    await expect(page.locator(":focus > code")).toHaveText("c.ts");
   });
 
   await test.step("selecting a nested file heads its diff with its kind and full path", async () => {

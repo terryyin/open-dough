@@ -257,7 +257,16 @@ code does not take them. Update `AGENT-LAUNCH-REVIEW.md`.
 
 ### 6. Show each file's added and removed line counts
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review story-panel side-panel` (38
+passed) and `npm run typecheck:dashboard` pass. Observed in
+`story-review-line-counts.spec.ts` over `storyWorktree` plus
+`changeModeOnly`: `unstaged.txt` shows `+2 −1` described as "2 lines added,
+1 line removed", the deleted file `+0 −3`, the rename `+1 −0`; `image.png`
+and the mode-only `other.txt` show none; a collapsed folder still names its
+changed files. Tree-collapse and refusal journeys stay green. Counts are the
+row control's description; its name stays kind and path.
 Proof: `story-review.spec.ts` over `storyWorktree`: `unstaged.txt`'s row shows
 2 added and 1 removed and its control says so in words; the deleted file shows
 3 removed; the renamed file 1 added; `image.png` shows no counts. A mode-only

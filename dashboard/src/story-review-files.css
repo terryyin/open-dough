@@ -1,7 +1,8 @@
 /* The file browser's rows (./StoryReviewFileTree.tsx) in the story review
    (./story-review.css): folders as disclosures with their rows indented
    beneath, and files by name, each path keeping its line while the browser
-   scrolls sideways. A file's kind shows in the style of its name. */
+   scrolls sideways. A file's kind shows in the style of its name, and the
+   lines its diff adds and removes beside it. */
 
 .story-review-files ul {
   display: grid;
@@ -73,4 +74,18 @@
 
 .story-review-files [data-kind="renamed"] code {
   font-style: italic;
+}
+
+/* The lines a file's diff adds and removes, quieter than its name. */
+.story-review-line-counts {
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+}
+
+.story-review-lines-added {
+  color: var(--ready);
+}
+
+.story-review-lines-removed {
+  color: var(--problem);
 }

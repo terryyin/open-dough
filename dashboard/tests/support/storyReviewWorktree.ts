@@ -3,7 +3,8 @@
 // (./storyLaunchRecord.ts). The worktree's story commits rename a trunk file
 // and add one, delete another, and change an image; it merged trunk carrying
 // another story's file, trunk moved on since, and it holds a staged, an
-// unstaged, an untracked, and an ignored file. A worktree straight off trunk
+// unstaged, an untracked, and an ignored file; it can also change the merged
+// trunk file's mode alone. A worktree straight off trunk
 // has nothing to review, and a story whose first commit landed on trunk has
 // only its later changes to review. A story changing files in nested folders,
 // at the root, and across folders by a rename shows its files under their
@@ -11,7 +12,13 @@
 // files longer than the diff shows.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import type { StartOrigin } from "./startOrigin.ts";
 
@@ -108,6 +115,12 @@ export function storyWorktree(origin: StartOrigin) {
   writeFileSync(exclude, "ignored.log\n", { flag: "a" });
   writeFileSync(path.join(workspace, "ignored.log"), "ignored\n");
   return { workspace, merged, later };
+}
+
+// Makes the file another story landed, which Story A's worktree merged,
+// executable there: a change of mode alone against the baseline.
+export function changeModeOnly(workspace: string) {
+  chmodSync(path.join(workspace, "other.txt"), 0o755);
 }
 
 // Story A's worktree straight off trunk, with nothing the story changed.

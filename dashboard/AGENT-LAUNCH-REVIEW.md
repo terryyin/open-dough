@@ -39,7 +39,14 @@ through in the quiet color, and a renamed one italic. Modified takes the
 plain style because every listed file is changed. The kind's words remain
 where they are read: each file's control is named, and titled for hover, by
 its kind and full path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`),
-and the selected file's diff is headed by the same words.
+and the selected file's diff is headed by the same words. Beside a file's
+name its row shows how many lines its diff adds and removes (`+2 −1`), and
+its control is described by them in words (`2 lines added, 1 line removed`).
+The snapshot reads them with `git diff --numstat -M -z` over the same baseline
+and tree as its file list, joined by path (`server/storyReviewFiles.ts`), so
+no request reads them per file. A file shows counts only when its diff adds or
+removes a line: a binary, mode-only, or empty file shows none. A collapsed
+folder's count stays the changed files it holds.
 
 The list and every file diff come from that one snapshot until Refresh takes
 a new one. A file's diff is Git's unified diff from the baseline to the
