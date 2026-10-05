@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "identity": "SEED-107#recently-done",
+  "mode": "story-branch",
+  "branch": "claude/dashboard-shows-recently-done-stories-with-their",
+  "host": "claude"
+}
