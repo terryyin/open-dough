@@ -19,6 +19,7 @@ import {
   reportingChild,
   recordOperation,
 } from "./support/completionRecovery.ts";
+import { fsPromisesHook } from "./support/serverFsHook.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
@@ -26,23 +27,20 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
   const origin = await startOrigin();
   const hold = path.join(origin.machine, "hold-settlement");
   const reached = path.join(origin.machine, "settlement-held");
-  const loader = path.join(origin.machine, "hold-settlement.mjs");
   const recordsFile = path.join(
     origin.machine,
     "home/.open-dough/dashboard/agent-launches.json",
   );
-  writeFileSync(
-    loader,
-    `import fs from 'node:fs'; import promises from 'node:fs/promises'; import {syncBuiltinESMExports} from 'node:module';
-const original = promises.mkdir;
-promises.mkdir = async (directory, ...args) => {
+  const holdSettlement = fsPromisesHook(
+    path.join(origin.machine, "hold-settlement.mjs"),
+    "mkdir",
+    `async (directory, ...args) => {
  if (String(directory).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)}) && fs.existsSync(${JSON.stringify(recordsFile)})) {
   fs.writeFileSync(${JSON.stringify(reached)}, 'held');
-  const deadline = Date.now() + 15000;
-  while(fs.existsSync(${JSON.stringify(hold)}) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve,25));
+  await heldWhile(${JSON.stringify(hold)}, 15000);
  }
  return original(directory, ...args);
-}; syncBuiltinESMExports();`,
+}`,
   );
   const server = await startDashboardServer({
     mode: "preview",
@@ -50,7 +48,7 @@ promises.mkdir = async (directory, ...args) => {
     machine: origin.machine,
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30000,
-    extraEnv: { NODE_OPTIONS: `--import=${JSON.stringify(loader)}` },
+    extraEnv: holdSettlement,
   });
   try {
     server.claudeScenario("held");

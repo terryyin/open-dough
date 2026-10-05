@@ -133,7 +133,7 @@ external-wait exception.
 
 ### 3. The kept launch record is settled when the acceptance spec reads it
 Type: Behavior
-Status: planned
+Status: done
 Proof: a forced-order check that fails before the repair and passes after;
 `npm run test:dashboard -- agent-launch-acceptance.spec.ts`.
 
@@ -225,3 +225,16 @@ this slice's external-wait exception.
   dispatch, rather than by creation time. The stand-in ignores `--jq`, so the
   real `gh api`, `run list`, and `run view --json` shapes are first exercised
   in slice 2. Shell checks need Bash 5 first on `PATH` on this machine.
+- Slice 3: the `:138` failure (runs 37169060163, 8cb57afc) was a product
+  race. `launchRun.ts` put `reporting` on the owned in-memory attempt before
+  keeping it, and `attempts()` answers memory for owned attempts. It now keeps
+  first, as `note()` already did. The `:157` failure (run 37206540831,
+  2e9d5a70) was the same race in `note()`, already repaired by `9e3aff60`
+  without a forced-order check; run 37245324663 failed only on the Cursor
+  spec. `agent-launch-acceptance-kept-first.spec.ts` holds the attempts-file
+  replacement that first carries `reporting`, then `outcome`, and asserts the
+  answer equals the kept file: red before the repair (and for `outcome` with
+  the pre-`9e3aff60` `note()` restored), green after. The acceptance spec also
+  waits for the held Claude launch after `published`. Server fs loaders now
+  share `tests/support/serverFsHook.ts`. Committed before slice 2 finished but
+  published only after it, so slice 2's repetitions all ran on `3a0ff700`.
