@@ -4,12 +4,19 @@
 // list nor the open diff, even when another file is selected and the first
 // reopened. Refresh takes a new snapshot that lists the new file and shows
 // the edit in the still selected file's diff, leaves the keyboard on Refresh,
-// and announces that it is done. Closing the review and editing the worktree
+// and announces that it is done in the review's fixed top, beneath the
+// context line, where it stays while the body scrolls. Closing the review and editing the worktree
 // meanwhile, reopening it reads a fresh snapshot with that edit.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
+import {
+  contextLine,
+  expectFixedWhileBodyScrolls,
+  reviewBody,
+  reviewFeedback,
+} from "./support/reviewContextLine.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
@@ -94,7 +101,8 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
         "story.txt",
         "unstaged.txt",
       ]);
-    await expect(review.getByRole("status").first()).toHaveText(
+    const status = reviewFeedback(review);
+    await expect(status).toHaveText(
       /^Review refreshed: 8 changed files against baseline [0-9a-f]{7}\.$/,
     );
     // The open file stays selected, its diff read from the new snapshot.
@@ -107,8 +115,23 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     );
     await expect(refresh).toBeFocused();
     await expect(
-      review.getByRole("button", { name: "Hide files" }),
+      contextLine(review).getByRole("button", { name: "Hide files" }),
     ).toBeVisible();
+    // The message sits beneath the context line, above the body, and both
+    // stay in place while the body scrolls.
+    const statusBox = await status.boundingBox();
+    const lineBox = await contextLine(review).boundingBox();
+    const bodyBox = await reviewBody(review).boundingBox();
+    expect(statusBox?.y).toBeGreaterThanOrEqual(
+      (lineBox?.y ?? 0) + (lineBox?.height ?? 0),
+    );
+    expect(bodyBox?.y).toBeGreaterThanOrEqual(
+      (statusBox?.y ?? 0) + (statusBox?.height ?? 0),
+    );
+    await expectFixedWhileBodyScrolls(page, review, [
+      contextLine(review),
+      status,
+    ]);
   });
 
   await test.step("an edit made while the review is closed is in the snapshot the reopened review reads", async () => {
@@ -125,6 +148,6 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(
       reopened.getByRole("button", { name: "Modified unstaged.txt" }),
     ).toHaveAttribute("aria-pressed", "false");
-    await expect(review.getByRole("status").first()).toHaveText("");
+    await expect(reviewFeedback(review)).toHaveText("");
   });
 });

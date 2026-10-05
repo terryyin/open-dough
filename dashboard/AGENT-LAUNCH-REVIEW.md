@@ -62,6 +62,20 @@ the keyboard into that review and keeps its snapshot; Refresh is the explicit
 re-read. Maximize/Restore and resizing the panel by its edge keep the snapshot
 and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
-icon controls shared with the terminal. Close or Command+Shift+Escape returns
+icon controls shared with the terminal. Directly beneath the header, the review's fixed top stays in view while
+the body beneath it scrolls. It holds the context line and the review's
+feedback (`src/StoryReviewSnapshotView.tsx`, `src/StoryReviewPanel.tsx`). The
+context line is one line that never wraps: branch, the baseline's short
+revision with the `<remote>/<target>` it meets, worktree, and Hide files /
+Show files for the file browser. Values that do not fit are shortened, the
+worktree first. Activating the line, by pointer or keyboard, shows every value
+in full, the whole baseline revision and where the branch meets trunk
+included, and activating it again returns it to one line; its name reads
+every value in full in either state. That the review is read-only is the
+review's accessible description, not a visible line. The feedback region,
+beneath the context line, announces reading, refreshing, refreshed, and
+problem messages, and an unavailable review's explanation. A review with no
+changes shows its context line above “No changes”; neither it nor an
+unavailable review shows the file browser or a diff. Close or Command+Shift+Escape returns
 the keyboard to Review changes, or to the story's card when that control is
 no longer shown. A review is not a session: it marks no session entry as shown.

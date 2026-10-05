@@ -6,7 +6,7 @@
 import { expect, test } from "./support/pageTest.ts";
 import { parsedUnifiedDiff } from "../src/unifiedDiff.ts";
 
-test("hunks keep their headers and lines with additions, removals, and context", () => {
+test("hunks keep their headers and lines with additions, removals, and unchanged lines", () => {
   const printed = [
     "diff --git a/notes.txt b/notes.txt",
     "index 1111111..2222222 100644",
@@ -29,7 +29,7 @@ test("hunks keep their headers and lines with additions, removals, and context",
       {
         header: "@@ -1,3 +1,3 @@ heading",
         lines: [
-          { kind: "context", text: "kept" },
+          { kind: "unchanged", text: "kept" },
           { kind: "removed", text: "gone" },
           { kind: "added", text: "came" },
         ],
@@ -37,7 +37,7 @@ test("hunks keep their headers and lines with additions, removals, and context",
       {
         header: "@@ -10,2 +10,3 @@",
         lines: [
-          { kind: "context", text: "" },
+          { kind: "unchanged", text: "" },
           { kind: "removed", text: "-- looks like a header" },
           { kind: "added", text: "++ looks like a header" },
           { kind: "added", text: "last" },

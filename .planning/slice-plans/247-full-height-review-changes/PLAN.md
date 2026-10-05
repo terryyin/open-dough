@@ -107,7 +107,16 @@ dashboard suite runs in hosted CI after publication.
 
 ### 1. Keep the review's context in one fixed line
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review story-panel side-panel-width` and
+`npm run typecheck:dashboard` pass. Observed in
+`story-review-context-line.spec.ts` (one line, keyboard expand/collapse,
+fixed while the body scrolls), `story-review.spec.ts` (accessible full
+values and description, Hide files in the line), `story-review-refresh.spec.ts`
+(feedback in `.story-review-top`), and `story-review-nothing.spec.ts`.
+An unavailable review's explanation stays in the announced status region at
+the top, so a Refresh still announces it; the body beneath is empty.
 Proof: `story-review.spec.ts` (context line values, shortened and expanded by
 keyboard, accessible full values and description, Hide files in the line),
 `story-review-refresh.spec.ts` (messages in the fixed top), and
@@ -196,7 +205,7 @@ panel's others. Update `AGENT-LAUNCH-REVIEW.md`.
 Type: Behavior
 Status: planned
 Proof: pure contract in `story-review-diff.spec.ts`: for
-`@@ -10,3 +10,4 @@` with one added line, context lines carry old and new
+`@@ -10,3 +10,4 @@` with one added line, unchanged lines carry old and new
 numbers and the added line only a new one; a removed line only an old one; a
 second hunk restarts from its own header; a no-newline note takes no number.
 Journey in `story-review.spec.ts`: the rename's hunk shows those numbers, and
@@ -242,4 +251,11 @@ has at least one added or removed line. Update `AGENT-LAUNCH-REVIEW.md`.
 
 ## Learnings
 
-None yet.
+- Slice 1: unchanged diff lines were kind `"context"` (class
+  `story-review-context`), clashing with the context line under ADR 0001.
+  They are now kind `"unchanged"` (`story-review-unchanged`); slice 5 uses
+  that word.
+- Slice 1: each file diff has its own `role="status"`; tests read the
+  review's feedback through `reviewFeedback`, scoped to `.story-review-top`.
+- Slice 1: shortening the worktree from its start with `direction: rtl`
+  rendered badly in Chromium; the line uses a plain end ellipsis.

@@ -1,0 +1,41 @@
+/* A reviewed file's diff (./StoryReviewFileDiff.tsx) in the story review
+   (./story-review.css). Code lines keep their spacing and scroll sideways
+   here; each line's leading +, -, or space says whether it was added,
+   removed, or unchanged. */
+.story-review-code {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+
+.story-review-hunk {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-review-hunk li {
+  padding: 0 0.5rem;
+  white-space: pre;
+}
+
+.story-review-hunk-header,
+.story-review-note {
+  color: var(--quiet);
+}
+
+.story-review-hunk-header {
+  background: color-mix(in srgb, var(--quiet) 10%, transparent);
+}
+
+.story-review-added {
+  background: color-mix(in srgb, var(--ready) 14%, transparent);
+}
+
+.story-review-removed {
+  background: color-mix(in srgb, var(--problem) 14%, transparent);
+}

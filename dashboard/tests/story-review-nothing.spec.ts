@@ -1,5 +1,7 @@
-// A story's review explains when there is nothing to review: a worktree
-// straight off trunk has no changes against the named baseline; a worktree
+// A story's review explains when there is nothing to review, beneath its
+// fixed top and without the file browser or diff: a worktree straight off
+// trunk shows its context line and no changes against the named baseline,
+// the line staying in place while the body scrolls; a worktree
 // whose folder was removed is missing, named by the path the review looked
 // for, still offering Refresh and Close, and no Git runs; a trunk that cannot
 // be fetched names its remote and target, shows no file list, and Refresh
@@ -11,6 +13,14 @@ import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import {
+  contextLine,
+  contextValues,
+  contextWords,
+  expectFixedWhileBodyScrolls,
+  reviewBody,
+  reviewFeedback,
+} from "./support/reviewContextLine.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
@@ -35,18 +45,19 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Review changes" });
-  await expect(review.getByRole("definition")).toHaveText([
-    shownWorkspace,
-    branch,
-    `${trunk}, where ${branch} meets origin/main`,
-  ]);
-  await expect(review).toContainText(
+  await expect(contextValues(review)).toHaveAccessibleName(
+    contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
+  );
+  const body = reviewBody(review);
+  await expect(body).toHaveText(
     `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
   );
   await expect(review.getByRole("list")).toHaveCount(0);
+  await expect(review.getByRole("region")).toHaveCount(0);
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
+  await expectFixedWhileBodyScrolls(page, review, [contextLine(review)]);
 });
 
 test("a removed worktree is missing, named by its path, and no Git runs", async ({
@@ -63,10 +74,20 @@ test("a removed worktree is missing, named by its path, and no Git runs", async 
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Review changes" });
-  await expect(review.getByRole("status")).toHaveText(
+  const status = reviewFeedback(review);
+  await expect(status).toHaveText(
     `The worktree is missing. It was removed or retired. Worktree ${shownWorkspace}.`,
   );
+  // The explanation is the fixed top's; the body beneath it shows nothing,
+  // and there is no context line.
+  const body = reviewBody(review);
+  await expect(body).toBeEmpty();
+  expect((await body.boundingBox())?.y).toBeGreaterThanOrEqual(
+    await status.evaluate((shown) => shown.getBoundingClientRect().bottom),
+  );
+  await expect(contextLine(review)).toHaveCount(0);
   await expect(review.getByRole("list")).toHaveCount(0);
+  await expect(review.getByRole("region")).toHaveCount(0);
   await expect(review.getByRole("button", { name: "Refresh" })).toBeVisible();
   await expect(
     review.getByRole("button", { name: "Close", exact: true }),
@@ -93,13 +114,13 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   const unreachable = `${origin.machine}/unreachable.git`;
   git(workspace, "config", "remote.origin.url", unreachable);
   await refresh.press("Enter");
-  const status = review.getByRole("status");
+  const status = reviewFeedback(review);
   await expect(status).toContainText(
     "Trunk could not be fetched (target main from remote origin), so there is no baseline to compare with:",
   );
   await expect(status).toContainText(`Worktree ${shownWorkspace}.`);
   await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(review.getByRole("definition")).toHaveCount(0);
+  await expect(contextLine(review)).toHaveCount(0);
   await expect(refresh).toBeFocused();
 
   git(workspace, "config", "remote.origin.url", reachable);

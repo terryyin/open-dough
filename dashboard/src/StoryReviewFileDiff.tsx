@@ -12,6 +12,7 @@ import {
 } from "./storyReview.ts";
 import { parsedUnifiedDiff, type DiffLine } from "./unifiedDiff.ts";
 import { useReviewRead } from "./useReviewRead.ts";
+import "./story-review-diff.css";
 
 // The story whose review is open.
 export type ReviewedStory = {
@@ -22,7 +23,7 @@ export type ReviewedStory = {
 const lineMarkers: Record<DiffLine["kind"], string> = {
   added: "+",
   removed: "-",
-  context: " ",
+  unchanged: " ",
 };
 
 // Git's diff of one file, its lines marked as Git marks them.

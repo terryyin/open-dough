@@ -80,6 +80,9 @@ for (const { name, viewport } of [
         ...scrollsOnItsOwn,
         // The sidebar's entries are cut by design, read whole by their tooltip.
         ".sidebar-title",
+        // The review's context line is shortened by design, read whole by
+        // its name and once activated.
+        ".story-review-context-values",
       ]);
       await expectEveryControlReachable(panel);
       await expect(panel.getByRole("heading", { level: 2 })).toBeInViewport();

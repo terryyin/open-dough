@@ -1,6 +1,7 @@
 // A story's review from its card, of Story A's worktree and kept launch
 // record (./support/storyReviewWorktree.ts). Review changes names the
-// worktree, its branch, and the baseline, and lists the story's files with
+// branch, the baseline, and the worktree in its context line
+// (./story-review-context-line.spec.ts), and lists the story's files with
 // their kinds under their folders, without either trunk file or the ignored
 // one; the worktree's own index and status stay as they were. Selecting a
 // file shows its diff with added and removed lines marked in text, the
@@ -14,6 +15,12 @@
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import {
+  contextLine,
+  contextValues,
+  contextWords,
+  reviewBody,
+} from "./support/reviewContextLine.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
@@ -52,7 +59,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
   await expect(review).toContainText(`Review changes ${queuedIdentity}`);
-  await expect(review.locator(".story-review-body")).toBeFocused();
+  await expect(reviewBody(review)).toBeFocused();
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect
     .poll(() => treeRows(files))
@@ -82,12 +89,19 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   for (const [index, name] of fileNames.entries()) {
     await expect(fileControls.nth(index)).toHaveAccessibleName(name);
   }
-  const facts = review.getByRole("definition");
-  await expect(facts).toHaveText([
-    "~/git/open-dough/.worktrees/story-a",
-    branch,
-    `${merged}, where ${branch} meets origin/main`,
-  ]);
+  // The context line reads every value in full, the read-only explanation
+  // is the review's description, never a visible line.
+  await expect(contextValues(review)).toHaveAccessibleName(
+    contextWords({
+      branch,
+      baseline: merged,
+      workspace: "~/git/open-dough/.worktrees/story-a",
+    }),
+  );
+  await expect(review).toHaveAccessibleDescription(
+    "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.",
+  );
+  await expect(review.getByText(/^Read-only/)).toBeHidden();
   for (const absent of ["other.txt", "other2.txt", "ignored.log"])
     await expect(review).not.toContainText(absent);
   // The review fetched trunk and left the worktree's index and files alone.
@@ -144,7 +158,10 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await test.step("hiding the file browser leaves the diff in place with more room", async () => {
     const diff = diffOf("Modified unstaged.txt");
     const narrow = (await diff.boundingBox())?.width ?? 0;
-    const hide = review.getByRole("button", { name: "Hide files" });
+    // Hide files is the context line's own control.
+    const hide = contextLine(review).getByRole("button", {
+      name: "Hide files",
+    });
     await expect(hide).toHaveAttribute("aria-expanded", "true");
     await hide.press("Enter");
     const show = review.getByRole("button", { name: "Show files" });

@@ -4,7 +4,7 @@
 // IDs) are not shown; a diff without hunks has no textual diff to show.
 
 export type DiffLine = {
-  readonly kind: "added" | "removed" | "context";
+  readonly kind: "added" | "removed" | "unchanged";
   // The line without Git's leading marker.
   readonly text: string;
   // Git noted that this line ends its side of the file without a newline.
@@ -25,7 +25,7 @@ export type UnifiedDiff = {
 const lineKinds: Partial<Record<string, DiffLine["kind"]>> = {
   "+": "added",
   "-": "removed",
-  " ": "context",
+  " ": "unchanged",
 };
 
 // Within a hunk every line starts with its marker, so a removed line that
