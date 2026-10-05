@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review ([plan](slice-plans/245-review-changes-since-last-review/PLAN.md))
 - [Optional process retrospective for Dough Land and Story Wrap Up](seeds/SEED-105-land-and-wrap-up-process-retrospective.md#land-and-wrap-up-process-retrospective) — SEED-105#land-and-wrap-up-process-retrospective ([plan](slice-plans/250-land-and-wrap-up-process-retrospective/PLAN.md))
-- [Correct the attention message story's wording and proof](seeds/SEED-103-attention-message-on-story-card.md#attention-message-correction) — SEED-103#attention-message-correction ([plan](slice-plans/249-attention-message-correction/PLAN.md))
 
 ## Backlog list
 

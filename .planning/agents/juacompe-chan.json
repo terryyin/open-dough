@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "juacompe-chan",
-  "email": "juacompe-chan@example.org",
-  "identity": "SEED-103#attention-message-correction",
-  "mode": "story-branch",
-  "branch": "claude/correct-the-attention-message-story-s-wording-an",
-  "host": "claude"
-}
