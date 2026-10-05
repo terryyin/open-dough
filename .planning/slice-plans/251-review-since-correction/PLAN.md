@@ -191,7 +191,12 @@ what trunk now holds.
 
 ### 4. Bring the review's descriptions and journeys in line
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `story-review-since`, `-since-trunk`, and `-comparison`
+went from 16 to 14 tests, all passing; all `story-review` specs (41) and
+`typecheck:dashboard` green. Both merged journeys live in
+`story-review-comparison.spec.ts`. The file-diff query keeps the name
+`baseline` for the *from* tree, documented rather than renamed.
 Proof: The four `story-review-since*`/`story-review-comparison` specs pass
 with two fewer tests; the merged nothing-changed test still asserts empty
 `since.files`, the since-the-review heading, the nothing-changed text, no

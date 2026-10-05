@@ -3,11 +3,11 @@
 // unchanged throughout: the files changed from the marked snapshot to a fresh
 // one, headed by what it compares and when the mark was made, each diff
 // holding only what changed after the mark. A file written after the
-// snapshot and before the mark is listed; with no later change the review
-// says nothing changed since the review; marking there marks the whole
-// snapshot. A mark whose tree the repository does not hold cannot be
-// compared: the review says so and shows all changes until marking starts
-// again. An unmarked story opens on all its changes.
+// snapshot and before the mark is listed; marking while the changes since
+// the review are shown marks the whole snapshot. A mark whose tree the
+// repository does not hold cannot be compared: the review says so and shows
+// all changes until marking starts again. The review with no later change
+// and an unmarked story's review are in ./story-review-comparison.spec.ts.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -88,27 +88,6 @@ test("a file written after the snapshot and before the mark is listed since the 
   await expect.poll(() => treeRows(files)).toEqual(["after-snapshot.txt"]);
 });
 
-test("a marked story with no later change says nothing changed since the review", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await openReview(page, card);
-  const review = reviewRegion(page);
-  await markReviewed(review);
-
-  const since = await reopenReview(page, card);
-  expect(since.since?.files).toEqual([]);
-  await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  await expect(review).toContainText("Nothing changed since the review.");
-  await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
-    0,
-  );
-});
-
 test("marking while the changes since the review are shown marks the whole snapshot", async ({
   page,
   dashboard,
@@ -177,22 +156,4 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "1 changed file" });
   await expect.poll(() => treeRows(files)).toEqual([storyFile(5)]);
-});
-
-test("an unmarked story's review opens on all its changes", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  const shown = await openReview(page, card);
-  const review = reviewRegion(page);
-  expect(shown.since).toBeUndefined();
-  await expect(
-    review.getByRole("list", { name: "12 changed files" }),
-  ).toBeVisible();
-  await expect(review).not.toContainText("since the review");
-  await expect(review.locator("time")).toHaveCount(0);
 });

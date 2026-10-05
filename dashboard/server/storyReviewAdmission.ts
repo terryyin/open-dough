@@ -1,9 +1,11 @@
 // A story review names a known project and a work identity, exactly, never a
 // path: its workspace comes from the project's kept launch records by the
 // rule the card offers Review changes with (`reviewWorkspaceOf`). A file diff
-// of the review also names the snapshot's baseline and tree object IDs, which
-// must be hexadecimal, and the file's path within them (and its old path for
-// a rename), which Git receives only as literal paths after `--`. Marking a
+// of the review also names the object IDs of the tree it compares from (as
+// `baseline`: the snapshot's baseline, or the *from* tree of the changes
+// since the review shown) and of the snapshot's tree, which must be
+// hexadecimal, and the file's path within them (and its old path for a
+// rename), which Git receives only as literal paths after `--`. Marking a
 // snapshot reviewed is a same-origin POST naming the project, the work
 // identity, and the snapshot's tree and baseline object IDs, its workspace
 // resolved by the same rule.
@@ -37,6 +39,7 @@ export interface AdmittedReview {
 export interface AdmittedFileDiff {
   readonly kind: "review-file";
   readonly established: EstablishedContext;
+  // The tree the file diff compares from.
   readonly baseline: string;
   readonly tree: string;
   readonly path: string;

@@ -7,10 +7,11 @@
 // and flagged when it includes trunk's changes since the review.
 // The browser lists the comparison shown: all changes from the baseline, or
 // the changes since the review from the restated marked tree, a flagged
-// file's from the marked tree itself. A worktree that matches its baseline,
-// or a snapshot that matches the marked one, says so in place of the
-// browser; after trunk was integrated since the mark, what the story did
-// that trunk now holds is trunk's, so nothing changed only beyond it.
+// file's from the marked tree, or from the baseline when the story kept it
+// as marked. A worktree that matches its baseline, or a snapshot that
+// matches the marked one, says so in place of the browser; after trunk was
+// integrated since the mark, it says nothing changed beyond what trunk now
+// holds, since story work that reached trunk counts as trunk's.
 // A refreshed snapshot keeps the browser as it was, its collapsed folders,
 // and the selected file while the new snapshot still lists their paths.
 

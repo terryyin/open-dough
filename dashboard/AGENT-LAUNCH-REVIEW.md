@@ -27,12 +27,12 @@ pointer or keyboard; the browser is not an ARIA tree, which would promise
 arrow-key navigation. A collapsed folder hides its files and subfolders, and
 its row shows how many changed files it holds at any depth; its control is
 named by the folder and that count (`dashboard 3 changed files`). An expanded
-folder shows no count, and the heading's total stays the snapshot's. Expanding
-a folder restores its rows as they were, and collapsing the folder that holds
-the selected file keeps the selection and its diff. Collapsed folders are kept
-by path: Refresh keeps each one the new snapshot still has collapsed and shows
-folders new to it expanded, while every folder shows expanded each time a
-review opens. A row shows the file's name alone,
+folder shows no count, and the heading's total stays that of the comparison
+shown. Expanding a folder restores its rows as they were, and collapsing the
+folder that holds the selected file keeps the selection and its diff.
+Collapsed folders are kept by path: Refresh keeps each one the new snapshot
+still has collapsed and shows folders new to it expanded, while every folder
+shows expanded each time a review opens. A row shows the file's name alone,
 its kind told by the name's style (`src/story-review.css`): an added name is
 in the ready color, a modified one in plain text, a deleted one struck
 through in the quiet color, and a renamed one italic. Modified takes the
@@ -120,26 +120,27 @@ restated. Otherwise the marked tree is restated on the current baseline by
 `git merge-tree --write-tree --name-only -z --merge-base=<marked baseline>
 <marked tree> <current baseline>`, which writes a tree object and touches no
 index, worktree, or ref; its first field is the restated tree. A story slice
-that landed on trunk after the mark is therefore not listed. Each file Git names as
-conflicted, one trunk and the story both changed in a way it cannot separate,
-is listed with its kind and diff from the marked tree to the snapshot tree
-(the file's `includesTrunkFrom`), so no story change is hidden. One the story
-kept as marked, with no diff from the marked tree, is listed instead with its
-kind and diff from the current baseline (its `includesTrunkFrom`), showing
-the story's version against trunk's. A conflicted file's control's name, its
-row, and its diff heading say it “includes trunk's changes”. When
-the snapshot's baseline differs from the mark's, the heading says “Trunk was
-integrated since the mark”, and with no file left the review says “Nothing
-changed since the review beyond what trunk now holds.”, since story work that
-reached trunk after the mark counts as trunk's. Only an exit of 1 whose first field is an object
-ID is a conflicted restatement. Restating needs Git 2.45 or later, which
-merges trees given with `--merge-base`; when this machine's Git cannot restate
-the mark (an older one says the tree is not a commit), the review is not
-failed: the answer carries the mark and `markUncomparable: "not-restated"` in
-place of `since`, and the review says this machine's Git cannot leave out
-trunk's changes integrated since, so the earlier review cannot be compared
-across them, and shows all changes without the switch. Mark reviewed then
-starts again from the snapshot shown, on whose unchanged baseline the next
-review needs no restating. A restatement the closed response aborted still
-fails, and any Git failure outside restating still answers that the
-workspace's changes could not be read.
+that landed on trunk after the mark is therefore not listed. Each file Git
+names as conflicted, one trunk and the story both changed in a way it cannot
+separate, is listed with its kind and diff from the marked tree to the
+snapshot tree (the file's `includesTrunkFrom`), so no story change is hidden.
+One the story kept as marked, with no diff from the marked tree, is listed
+instead with its kind and diff from the current baseline (its
+`includesTrunkFrom`), showing the story's version against trunk's. A
+conflicted file's control's name, its row, and its diff heading say it
+“includes trunk's changes”. When the snapshot's baseline differs from the
+mark's, the heading says “Trunk was integrated since the mark”, and with no
+file left the review says “Nothing changed since the review beyond what trunk
+now holds.”, since story work that reached trunk after the mark counts as
+trunk's. Only an exit of 1 whose first field is an object ID is a conflicted
+restatement. Restating needs Git 2.45 or later, which merges trees given with
+`--merge-base`; when this machine's Git cannot restate the mark (an older one
+says the tree is not a commit), the review is not failed: the answer carries
+the mark and `markUncomparable: "not-restated"` in place of `since`, and the
+review says this machine's Git cannot leave out trunk's changes integrated
+since, so the earlier review cannot be compared across them, and shows all
+changes without the switch. Mark reviewed then starts again from the snapshot
+shown, on whose unchanged baseline the next review needs no restating. A
+restatement the closed response aborted still fails, and any Git failure
+outside restating still answers that the workspace's changes could not be
+read.

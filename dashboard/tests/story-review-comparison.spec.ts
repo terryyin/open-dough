@@ -3,8 +3,9 @@
 // worktree (./support/storyReviewMark.ts), reading nothing anew: a named
 // switch says which comparison is shown. Refresh keeps the comparison shown,
 // of a new snapshot; each opening starts on the changes since the review.
-// The nothing-changed review offers the same switch; an unmarked story's
-// review offers none.
+// With no later change the review says nothing changed since the review and
+// offers the same switch; an unmarked story's review opens on all its changes
+// and offers none.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -152,7 +153,7 @@ test("each opening starts on the changes since the review", async ({
   ).toBeVisible();
 });
 
-test("a review with nothing changed since the review offers all changes", async ({
+test("a marked story with no later change says nothing changed since the review and offers all changes", async ({
   page,
   dashboard,
   origin,
@@ -164,8 +165,13 @@ test("a review with nothing changed since the review offers all changes", async 
   const review = reviewRegion(page);
   await markReviewed(review);
 
-  await reopenReview(page, card);
+  const since = await reopenReview(page, card);
+  expect(since.since?.files).toEqual([]);
+  await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).toContainText("Nothing changed since the review.");
+  await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
+    0,
+  );
   await expectShown(review, "Since the review");
   await comparison(review).getByRole("radio", { name: "All changes" }).check();
   await expect(
@@ -174,7 +180,7 @@ test("a review with nothing changed since the review offers all changes", async 
   await expect(review).toContainText("This snapshot is marked reviewed,");
 });
 
-test("an unmarked story's review offers no comparison switch", async ({
+test("an unmarked story's review opens on all its changes and offers no comparison switch", async ({
   page,
   dashboard,
   origin,
@@ -182,11 +188,14 @@ test("an unmarked story's review offers no comparison switch", async ({
   const { workspace } = twelveFileWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  const shown = await openReview(page, card);
   const review = reviewRegion(page);
+  expect(shown.since).toBeUndefined();
   await expect(
     review.getByRole("list", { name: "12 changed files" }),
   ).toBeVisible();
+  await expect(review).not.toContainText("since the review");
+  await expect(review.locator("time")).toHaveCount(0);
   await expect(comparison(review)).toHaveCount(0);
   await expect(review.getByRole("radio")).toHaveCount(0);
 });

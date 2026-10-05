@@ -144,7 +144,9 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     baseline: objectIdSchema,
     head: objectIdSchema,
     // The workspace's files as observed, written as a tree object: every
-    // file diff of this snapshot compares `baseline` with it.
+    // file diff of this snapshot compares the *from* tree of the comparison
+    // shown with it: `baseline` for `files`; for `since`, its `from` or the
+    // file's `includesTrunkFrom`.
     tree: objectIdSchema,
     files: z.array(reviewedFileSchema),
     // The story's mark on this machine, when it has one.

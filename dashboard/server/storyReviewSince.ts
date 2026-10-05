@@ -9,12 +9,12 @@
 // inseparably -- is listed, its kind and diff from the marked tree, flagged
 // as including trunk's changes, so no story change is hidden; one the story
 // kept as marked is listed from the baseline, showing that the story's
-// version replaces trunk's. The earlier
-// review cannot be compared, and the answer says why, when the repository no
-// longer holds the mark's tree or baseline -- the project was cloned anew,
-// say -- or when this machine's Git cannot restate it (Git before 2.45
-// merges no tree given with `--merge-base`); a restatement the response
-// aborted, and any Git failure outside restating, is the caller's.
+// version replaces trunk's. The earlier review cannot be compared, and the
+// answer says why, when the repository no longer holds the mark's tree or
+// baseline -- the project was cloned anew, say -- or when this machine's Git
+// cannot restate it (Git before 2.45 merges no tree given with
+// `--merge-base`); a restatement the response aborted, and any Git failure
+// outside restating, is the caller's.
 
 import {
   objectIdSchema,
