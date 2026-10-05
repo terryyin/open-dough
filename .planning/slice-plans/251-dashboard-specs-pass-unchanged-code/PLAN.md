@@ -174,7 +174,7 @@ change.
 
 ### 5. Every other spec the repeated run showed failing is repaired
 Type: Behavior
-Status: planned
+Status: done
 Proof: per cause, a forced-order check red before and green after, or, where
 no seam can force it, the spec's count in a 20-repetition run before and
 after; then the spec's own file through `npm run test:dashboard`.
@@ -268,3 +268,13 @@ this slice's external-wait exception.
   `production-qualification.spec.ts:36`; the expected candidates
   (`agent-launch-card-noted-start.spec.ts:170`,
   `agent-launch-start-phases.spec.ts:24`) did not fail and are not repaired.
+- Slice 5: `production-qualification.spec.ts:36` failed with `ENOTEMPTY …
+  inspections/…/objects/pack` from the product's own cleanup, not an
+  assertion. After `git fetch`, Git detaches `git maintenance run --auto`,
+  which kept writing into the owned inspection repository while
+  `qualifyPublishedRange` removed it; `stageDeployment` had the same race.
+  Both fetch through `fetchIntoOwnedDirectory` with `maintenance.auto=false`.
+  A `GIT_EXEC_PATH` wrapper whose `git maintenance` keeps writing until the
+  directory is gone forces the order in a new test in that spec: red before,
+  green after; the 16 `production-` specs pass. No other dashboard server path
+  fetches into a repository it later removes.
