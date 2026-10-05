@@ -91,7 +91,7 @@ dashboard launched, prepare with `env -u NODE_ENV npm ci` first (DD-220).
 
 ### 1. A repeated CI run names each failing spec and how often it failed
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm test -- tests/ci-repeat.sh`, a new shell check with a `gh` stand-in.
 
 Behavior: given a ref and a number of repetitions →
@@ -218,4 +218,10 @@ this slice's external-wait exception.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted proof: `PATH=/opt/homebrew/bin:$PATH env -u NODE_ENV npm test -- tests/ci-repeat.sh tests/ci-test-times.sh`
+  → pass (stand-in cases in `tests/ci-repeat.sh`, fixture in
+  `tests/helpers/ci-repeat-fixture.bash`). The script claims its own run as the
+  oldest matching dispatch run absent from the listing taken just before its
+  dispatch, rather than by creation time. The stand-in ignores `--jq`, so the
+  real `gh api`, `run list`, and `run view --json` shapes are first exercised
+  in slice 2. Shell checks need Bash 5 first on `PATH` on this machine.

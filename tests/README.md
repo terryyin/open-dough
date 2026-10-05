@@ -58,6 +58,22 @@ function called from a trap takes the interrupted command's status).
 Use the [container diagnostic helper](ci-container.md) when a check fails only
 on CI or needs CI's Bash and Git. Ordinary checks stay native.
 
+### Repeating CI on one revision
+
+When a check passes and fails on CI without a code change, run CI itself on
+that revision repeatedly and count what failed:
+
+```sh
+bash scripts/ci-repeat.sh 20            # the current branch, 20 times
+bash scripts/ci-repeat.sh 5 some-branch # another pushed ref
+```
+
+It dispatches `ci.yml` unchanged on the ref's revision through `gh`, at most
+two at a time, and counts only its own runs, naming each failing dashboard spec
+location and other failed job with its failed-repetition count; it exits 0 only
+when every repetition passed. Each also runs `lint` and `test`, so run it on
+demand only. Its header lists its settings; `tests/ci-repeat.sh` proves it.
+
 ## Runner
 
 The runner is the suite's one scheduler. Its jobs are each `tests/*.sh`
