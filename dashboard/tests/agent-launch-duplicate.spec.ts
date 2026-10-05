@@ -7,6 +7,8 @@ import {
   refinementRequest,
 } from "./agentLaunchBoundary.ts";
 import { installRefinementSkill } from "./launchCardPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+import type { AttemptObservation } from "../src/agentLaunch.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
@@ -147,8 +149,11 @@ for (const host of ["claude", "codex"] as const) {
     dashboard.claudeScenario("held");
     native.hold = true;
     // The caller is gone once acceptance answered; the launch goes on.
-    const first = await accept(dashboard, request);
-    expect(JSON.parse(first.body)).toMatchObject({ kind: "accepted" });
+    const first = JSON.parse((await accept(dashboard, request)).body) as {
+      kind: string;
+      attempt: AttemptObservation;
+    };
+    expect(first).toMatchObject({ kind: "accepted" });
     await expect
       .poll(() =>
         host === "claude"
@@ -159,13 +164,17 @@ for (const host of ["claude", "codex"] as const) {
     expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
     dashboard.releaseHeldClaude();
     native.release();
-    await expect
-      .poll(async () => (await recordsOf(dashboard, "open-dough"))[0])
-      .toMatchObject(
-        host === "codex"
-          ? { firstInput: { state: "confirmed" } }
-          : { session: { host } },
-      );
+    // Startup completion is the attempt's settlement, which releases the
+    // gate; its record is kept before then.
+    expect(await settledOutcome(dashboard, first.attempt.id)).toMatchObject({
+      kind: "launched",
+      session: { host },
+    });
+    expect((await recordsOf(dashboard, "open-dough"))[0]).toMatchObject(
+      host === "codex"
+        ? { firstInput: { state: "confirmed" } }
+        : { session: { host } },
+    );
     // Native work remains active; only the startup lifetime has settled.
     if (host === "claude")
       expect(dashboard.claudeListing()[0]).toMatchObject({ state: "working" });
