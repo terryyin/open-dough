@@ -201,3 +201,10 @@
 .story-review-removed {
   background: color-mix(in srgb, var(--problem) 14%, transparent);
 }
+
+.story-review-mark {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+}

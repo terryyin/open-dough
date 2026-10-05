@@ -8,16 +8,27 @@
 // without holding it there; the panel's own controls (`./PanelControls.tsx`)
 // maximize or restore it and close it. Each opening is its own read, so a
 // read of the story the panel showed before can never answer this one.
+// Mark reviewed marks the snapshot shown, never a newer state of the
+// worktree, and the review then says the snapshot is marked and when; only
+// that control marks.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import { postJson, refusal } from "./agentLaunchClient.ts";
 import { IconButton } from "./Icon.tsx";
+import { Moment } from "./Moment.tsx";
 import { PanelControls } from "./PanelControls.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import {
+  markReviewedAnswerSchema,
+  markUnavailable,
   storyReviewEndpoint,
+  storyReviewMarkEndpoint,
   storyReviewSchema,
+  type MarkReviewedAnswer,
+  type MarkReviewedRequest,
   type StoryReview,
+  type TakenStoryReview,
 } from "./storyReview.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
@@ -27,6 +38,38 @@ import { SidePanelEdge } from "./SidePanelEdge.tsx";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
+
+// Asks the boundary to mark the snapshot named reviewed: the story's mark,
+// or why it could not be marked.
+async function requestMarkReviewed(
+  request: MarkReviewedRequest,
+): Promise<MarkReviewedAnswer> {
+  try {
+    const response = await postJson(storyReviewMarkEndpoint, request);
+    const body: unknown = await response.json().catch(() => undefined);
+    const answer = markReviewedAnswerSchema.safeParse(body);
+    if (response.ok && answer.success) return answer.data;
+    const refused = refusal.safeParse(body);
+    return markUnavailable(
+      refused.success ? refused.data.error : "no trustworthy answer came.",
+    );
+  } catch {
+    return markUnavailable("the dashboard could not be reached.");
+  }
+}
+
+// What the review says of the story's mark: the snapshot shown is marked, or
+// an earlier one is, and when; nothing without a mark.
+function MarkStatement({ snapshot }: { readonly snapshot: TakenStoryReview }) {
+  const { mark } = snapshot;
+  if (mark === undefined) return null;
+  const at = <Moment at={new Date(mark.markedAt)} />;
+  return mark.tree === snapshot.tree ? (
+    <p>This snapshot is marked reviewed, {at}.</p>
+  ) : (
+    <p>An earlier snapshot is marked reviewed, {at}.</p>
+  );
+}
 
 export function StoryReviewPanel({
   request,
@@ -55,6 +98,20 @@ export function StoryReviewPanel({
     storyReviewSchema,
     round,
   );
+  // Mark reviewed's answer for the review it marked, and whether a mark is
+  // still being made.
+  const [made, setMade] = useState<{
+    readonly of: StoryReview;
+    readonly answer: MarkReviewedAnswer;
+  }>();
+  const [marking, setMarking] = useState(false);
+  const madeHere =
+    made !== undefined && made.of === review ? made.answer : undefined;
+  // The review shown, with the mark made on it since it was read.
+  const shown: StoryReview | undefined =
+    review?.kind === "snapshot" && madeHere?.kind === "marked"
+      ? { ...review, mark: madeHere.mark }
+      : review;
   useEffect(() => {
     body.current?.focus();
   }, [request]);
@@ -104,12 +161,17 @@ export function StoryReviewPanel({
               earlier.
             </p>
           )}
-          {!reading && round > 0 && review?.kind === "snapshot" && (
-            <p>
-              Review refreshed: {changedFiles(review.files.length)} against
-              baseline <code>{shortRevision(review.baseline)}</code>.
-            </p>
-          )}
+          {!reading &&
+            round > 0 &&
+            madeHere === undefined &&
+            review?.kind === "snapshot" && (
+              <p>
+                Review refreshed: {changedFiles(review.files.length)} against
+                baseline <code>{shortRevision(review.baseline)}</code>.
+              </p>
+            )}
+          {madeHere?.kind === "marked" && <p>Marked reviewed.</p>}
+          {madeHere?.kind === "unavailable" && <p>{madeHere.explanation}</p>}
           {problem !== undefined && (
             <p>The review could not be read: {problem}</p>
           )}
@@ -119,12 +181,41 @@ export function StoryReviewPanel({
             </p>
           )}
         </div>
-        {review?.kind === "snapshot" && (
-          <SnapshotView
-            reviewed={{ sourceId: source, identity }}
-            snapshot={review}
-            headingId={headingId}
-          />
+        {shown?.kind === "snapshot" && (
+          <>
+            <div className="story-review-mark">
+              <MarkStatement snapshot={shown} />
+              {/* Unavailable while reading or marking, yet still focusable,
+                  so the keyboard stays on it. */}
+              <button
+                type="button"
+                className="start-launch-button"
+                aria-disabled={reading || marking}
+                onClick={() => {
+                  if (reading || marking) return;
+                  if (review?.kind !== "snapshot") return;
+                  const of = review;
+                  setMarking(true);
+                  void requestMarkReviewed({
+                    source,
+                    identity,
+                    tree: of.tree,
+                    baseline: of.baseline,
+                  }).then((answer) => {
+                    setMade({ of, answer });
+                    setMarking(false);
+                  });
+                }}
+              >
+                Mark reviewed
+              </button>
+            </div>
+            <SnapshotView
+              reviewed={{ sourceId: source, identity }}
+              snapshot={shown}
+              headingId={headingId}
+            />
+          </>
         )}
       </div>
     </section>

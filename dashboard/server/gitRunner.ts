@@ -29,6 +29,19 @@ export class GitFailure extends Error {
   }
 }
 
+// The last line Git printed about a failure, or its own message.
+export function gitProblem(error: unknown): string {
+  const said =
+    error instanceof GitFailure
+      ? error.stderr.trim().split("\n").at(-1)
+      : undefined;
+  return said !== undefined && said !== ""
+    ? said
+    : error instanceof Error
+      ? error.message
+      : String(error);
+}
+
 // `execFile`'s own default output limit.
 export const defaultGitOutputLimit = 1024 * 1024;
 

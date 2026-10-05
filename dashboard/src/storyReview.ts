@@ -4,9 +4,12 @@
 // a path; the page shows it from the story's card (`./StoryReviewAction.tsx`).
 // The review workspace is chosen by one rule on both sides
 // (`reviewWorkspaceOf`), so the page offers a review exactly when the
-// boundary can resolve one.
+// boundary can resolve one. The developer may mark the snapshot shown as
+// reviewed (`../server/storyReviewMarks.ts`): the story's one mark on this
+// machine, which only that request makes.
 
 import { z } from "zod";
+import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
 
@@ -15,6 +18,8 @@ export const storyReviewEndpoint = "/__agent-launch/review";
 // `tree` object IDs and the file's path (and old path for a rename), so any
 // file diff the page opens reads the same observation as the file list.
 export const storyReviewFileEndpoint = "/__agent-launch/review/file";
+// Where a same-origin POST marks the snapshot shown as reviewed.
+export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
 
 // The kept launch record a story's review reads, with what it established:
 // the most recent by `launchedAt` of the story's records whose start or
@@ -61,6 +66,39 @@ export type ReviewedFile = z.infer<typeof reviewedFileSchema>;
 
 export const objectIdSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
 
+// A story's mark: the snapshot the developer marked reviewed, by its tree and
+// the baseline it was compared with, and when.
+export const reviewMarkSchema = z.object({
+  tree: objectIdSchema,
+  baseline: objectIdSchema,
+  markedAt: z.iso.datetime(),
+});
+export type ReviewMark = z.infer<typeof reviewMarkSchema>;
+
+// Names the snapshot shown to mark: the project, the work identity, and the
+// snapshot's `tree` and `baseline`, never a path.
+export const markReviewedRequestSchema = z.strictObject({
+  source: z.string().min(1).max(launchTextLimit),
+  identity: workIdentitySchema,
+  tree: objectIdSchema,
+  baseline: objectIdSchema,
+});
+export type MarkReviewedRequest = z.infer<typeof markReviewedRequestSchema>;
+
+// The answer to Mark reviewed: the story's mark now, or why the snapshot
+// could not be marked.
+export const markReviewedAnswerSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("marked"), mark: reviewMarkSchema }),
+  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
+]);
+export type MarkReviewedAnswer = z.infer<typeof markReviewedAnswerSchema>;
+
+// The answer that the snapshot could not be marked reviewed, and why.
+export const markUnavailable = (why: string): MarkReviewedAnswer => ({
+  kind: "unavailable",
+  explanation: `The snapshot could not be marked reviewed: ${why}`,
+});
+
 export const storyReviewSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("snapshot"),
@@ -76,6 +114,8 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     // file diff of this snapshot compares `baseline` with it.
     tree: objectIdSchema,
     files: z.array(reviewedFileSchema),
+    // The story's mark on this machine, when it has one.
+    mark: reviewMarkSchema.optional(),
   }),
   z.object({
     kind: z.literal("unavailable"),

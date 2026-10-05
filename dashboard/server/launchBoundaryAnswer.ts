@@ -20,6 +20,7 @@ import {
   storyReviewFileResponse,
   storyReviewResponse,
 } from "./storyReviewSnapshot.ts";
+import { markReviewedResponse } from "./storyReviewMarks.ts";
 import { withTerminalHandoff } from "./terminalHandoff.ts";
 import {
   terminalHandoffAttach,
@@ -124,6 +125,8 @@ export async function answer(
         return await storyReviewResponse(request, res);
       case "review-file":
         return await storyReviewFileResponse(request, res);
+      case "review-mark":
+        return await markReviewedResponse(request);
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };
       case "sessions": {

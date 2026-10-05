@@ -65,3 +65,23 @@ header names the story and offers Refresh, Maximize/Restore and Close as frame
 icon controls shared with the terminal. Close or Command+Shift+Escape returns
 the keyboard to Review changes, or to the story's card when that control is
 no longer shown. A review is not a session: it marks no session entry as shown.
+
+**Mark reviewed** marks the snapshot the review shows: its tree and the
+baseline it was compared with, never a newer state of the workspace, so what
+the agent wrote after the snapshot was taken stays unmarked. A story has one
+mark on this machine; marking again replaces it. The review then says the
+snapshot shown is marked, or that an earlier snapshot is, and when, through a
+`<time>` element. Opening, closing, refreshing, or replacing the review marks
+nothing. The mark is kept by project and work identity in
+`~/.open-dough/dashboard/review-marks.json`, so it outlives a dashboard
+restart, and belongs to the story, whichever launch's workspace the review
+reads (`server/storyReviewMarks.ts`). Its request is a same-origin POST to
+`/__agent-launch/review/mark` naming the project, the work identity, and the
+snapshot's `tree` and `baseline`, never a path; the workspace comes from
+`reviewWorkspaceOf` as for the review. Marking points
+`refs/open-dough/reviewed/<identity>` of the story's repository at the marked
+tree, replaced with the mark, so Git's housekeeping keeps that otherwise
+unreachable tree; the ref touches no tracked file, index, or status. In the
+ref, each identity character other than a letter, digit, `#`, `_`, or `-` is
+written as `%XX`. A marked
+story's review still lists all its changes against the baseline.

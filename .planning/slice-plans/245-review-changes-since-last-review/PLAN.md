@@ -113,7 +113,16 @@ for the behavior it lands.
 
 ### 1. Mark the snapshot shown as reviewed
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-mark.spec.ts` (5 tests: a–f plus refusal of a
+path, malformed object, or absent tree), `story-review story-panel
+side-panel-width` (35), session admission specs after the refactor moved
+done/read/delete admission into `sessionAdmission.ts`, and
+`typecheck:dashboard`. The mark lives in `server/storyReviewMarks.ts`
+(`review-marks.json`, `refs/open-dough/reviewed/<identity>`, identity
+characters outside `[A-Za-z0-9#_-]` written as `%XX`); the snapshot answer
+carries an optional `mark`; test helpers are in
+`tests/support/storyReviewMark.ts`.
 Proof: New `story-review-mark.spec.ts`. (a) Open a review, choose Mark
 reviewed: the review says the snapshot is marked, with a `<time>` for when.
 (b) Change the worktree after the snapshot, mark without Refresh, then

@@ -120,6 +120,34 @@ export async function unreadReportSession(req: IncomingMessage): Promise<{
   return { source, record: { ...record, completion } };
 }
 
+// A done mark on a recorded session, which its host can stop or which has
+// reported.
+export async function doneRequest(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+) {
+  const { source, record, folder } = await namedSession(req, launches, "done");
+  if (
+    record.completion === undefined &&
+    launchHost(record.session.host)?.stop === undefined
+  ) {
+    throw new RefusedRequest(400, "This host cannot mark a session done.");
+  }
+  return { kind: "done" as const, source, record, folder };
+}
+
+export async function readRequest(req: IncomingMessage) {
+  return { kind: "read" as const, ...(await unreadReportSession(req)) };
+}
+
+export async function deleteRequest(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+) {
+  const { source, record } = await namedSession(req, launches, "delete");
+  return { kind: "delete" as const, source, record };
+}
+
 export async function resultRequest(
   url: URL,
 ): Promise<{ readonly kind: "result"; readonly record: LaunchRecord }> {

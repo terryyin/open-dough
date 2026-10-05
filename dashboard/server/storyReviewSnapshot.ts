@@ -10,6 +10,7 @@
 // a worktree no longer on disk is said to be missing before any Git runs,
 // and a trunk that cannot be fetched names the remote and target, since
 // there is no baseline without it.
+// A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it.
 // A file diff of the snapshot is Git's unified diff of that file from the
 // baseline to the tree, detecting a rename against its old path.
 
@@ -24,9 +25,10 @@ import type {
   StoryReview,
 } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
-import { GitFailure, runGit } from "./gitRunner.ts";
+import { gitProblem, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
+import { reviewMark } from "./storyReviewMarks.ts";
 import type {
   AdmittedFileDiff,
   AdmittedReview,
@@ -64,33 +66,21 @@ function reviewedFiles(nameStatus: string): ReviewedFile[] {
   return files;
 }
 
-// The last line Git printed about a failure, or its own message.
-function gitProblem(error: unknown): string {
-  const said =
-    error instanceof GitFailure
-      ? error.stderr.trim().split("\n").at(-1)
-      : undefined;
-  return said !== undefined && said !== ""
-    ? said
-    : error instanceof Error
-      ? error.message
-      : String(error);
-}
-
 // The admitted review's snapshot, abandoned when the caller leaves or its
 // bounded wait expires.
 export async function storyReviewResponse(
-  { established, shown }: AdmittedReview,
+  { sourceId, identity, established, shown }: AdmittedReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
-  return {
-    status: 200,
-    body: await withResponseSignal(
-      res,
-      (signal) => storyReviewSnapshot(established, shown, signal),
-      reviewWaitMs,
-    ),
-  };
+  const review = await withResponseSignal(
+    res,
+    (signal) => storyReviewSnapshot(established, shown, signal),
+    reviewWaitMs,
+  );
+  if (review.kind !== "snapshot") return { status: 200, body: review };
+  const mark = await reviewMark(sourceId, identity);
+  const body: StoryReview = mark === undefined ? review : { ...review, mark };
+  return { status: 200, body };
 }
 
 async function storyReviewSnapshot(

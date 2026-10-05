@@ -3,20 +3,32 @@
 // rule the card offers Review changes with (`reviewWorkspaceOf`). A file diff
 // of the review also names the snapshot's baseline and tree object IDs, which
 // must be hexadecimal, and the file's path within them (and its old path for
-// a rename), which Git receives only as literal paths after `--`.
+// a rename), which Git receives only as literal paths after `--`. Marking a
+// snapshot reviewed is a same-origin POST naming the project, the work
+// identity, and the snapshot's tree and baseline object IDs, its workspace
+// resolved by the same rule.
 
+import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import { workIdentitySchema } from "../src/launchRequest.ts";
 import type { EstablishedContext } from "../src/launchRecord.ts";
-import { objectIdSchema, reviewWorkspaceOf } from "../src/storyReview.ts";
+import {
+  markReviewedRequestSchema,
+  objectIdSchema,
+  reviewWorkspaceOf,
+} from "../src/storyReview.ts";
+import { jsonBody } from "./jsonRequestBody.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { knownSource, requireExactQuery } from "./sessionAdmission.ts";
+import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
 
 export interface AdmittedReview {
   readonly kind: "review";
+  readonly sourceId: string;
+  readonly identity: string;
   readonly established: EstablishedContext;
   // The workspace as the page shows it.
   readonly shown: string;
@@ -33,11 +45,12 @@ export interface AdmittedFileDiff {
 }
 
 // The workspace the named story's review reads.
-async function reviewedWorkspace(url: URL) {
-  const source = knownSource(url.searchParams.get("source"));
-  const identity = workIdentitySchema.safeParse(
-    url.searchParams.get("identity"),
-  );
+async function reviewedWorkspace(
+  sourceId: string | null,
+  identityNamed: string | null,
+) {
+  const source = knownSource(sourceId);
+  const identity = workIdentitySchema.safeParse(identityNamed);
   if (!identity.success)
     throw new RefusedRequest(400, "The review identity is malformed.");
   const found = reviewWorkspaceOf(
@@ -50,14 +63,23 @@ async function reviewedWorkspace(url: URL) {
       404,
       "This story has no launch workspace to review.",
     );
-  return { source, established: found.established };
+  return { source, identity: identity.data, established: found.established };
 }
+
+// The workspace the story named in the query reviews.
+const queriedWorkspace = (url: URL) =>
+  reviewedWorkspace(
+    url.searchParams.get("source"),
+    url.searchParams.get("identity"),
+  );
 
 export async function reviewRequest(url: URL): Promise<AdmittedReview> {
   requireExactQuery(url, ["source", "identity"], "review");
-  const { source, established } = await reviewedWorkspace(url);
+  const { source, identity, established } = await queriedWorkspace(url);
   return {
     kind: "review",
+    sourceId: source.id,
+    identity,
     established,
     shown: shownStartWorkspace(projectFolder(source), established.workspace),
   };
@@ -96,7 +118,7 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       400,
       "The file diff names a malformed object or path.",
     );
-  const { established } = await reviewedWorkspace(url);
+  const { established } = await queriedWorkspace(url);
   const { baseline, tree, path, oldPath } = query.data;
   return {
     kind: "review-file",
@@ -105,5 +127,25 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
     tree,
     path,
     ...(oldPath === undefined ? {} : { oldPath }),
+  };
+}
+
+export async function markReviewedRequest(
+  req: IncomingMessage,
+): Promise<AdmittedReviewMark> {
+  const parsed = markReviewedRequestSchema.safeParse(await jsonBody(req));
+  if (!parsed.success)
+    throw new RefusedRequest(400, "The review mark request is malformed.");
+  const { source, identity, established } = await reviewedWorkspace(
+    parsed.data.source,
+    parsed.data.identity,
+  );
+  return {
+    kind: "review-mark",
+    sourceId: source.id,
+    identity,
+    established,
+    tree: parsed.data.tree,
+    baseline: parsed.data.baseline,
   };
 }

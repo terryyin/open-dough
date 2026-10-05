@@ -2,7 +2,7 @@
 // launches, continuations, reconciliation, verification and session actions.
 // Delete, terminal attachment and native Done require an existing folder;
 // reported local Done and Mark as read of an unread report need only the
-// retained session.
+// retained session. Mark reviewed needs the story's review workspace.
 // Launch options follow installed definitions and policy follows installed startup.
 // Reads cover attempts, sessions, reports, host choices, story reviews
 // with their file diffs (`./storyReviewAdmission.ts`), and the Cursor
@@ -18,13 +18,16 @@ import { sessionResultEndpoint } from "../src/sessionResult.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
+  storyReviewMarkEndpoint,
 } from "../src/storyReview.ts";
 import {
   fileDiffRequest,
+  markReviewedRequest,
   reviewRequest,
   type AdmittedFileDiff,
   type AdmittedReview,
 } from "./storyReviewAdmission.ts";
+import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -57,10 +60,11 @@ import {
 } from "./projectFolders.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
+  deleteRequest,
+  doneRequest,
   knownSource,
-  namedSession,
+  readRequest,
   resultRequest,
-  unreadReportSession,
 } from "./sessionAdmission.ts";
 
 export type Admitted =
@@ -74,6 +78,7 @@ export type Admitted =
   | { readonly kind: "result"; readonly record: LaunchRecord }
   | AdmittedReview
   | AdmittedFileDiff
+  | AdmittedReviewMark
   | { readonly kind: "changed"; readonly attempt: string }
   | {
       // Answered once the launch is accepted.
@@ -108,32 +113,6 @@ export type Admitted =
         readonly completion: CompletionReport;
       };
     };
-
-async function doneRequest(
-  req: IncomingMessage,
-  launches: AgentLaunches,
-): Promise<Admitted> {
-  const { source, record, folder } = await namedSession(req, launches, "done");
-  if (
-    record.completion === undefined &&
-    launchHost(record.session.host)?.stop === undefined
-  ) {
-    throw new RefusedRequest(400, "This host cannot mark a session done.");
-  }
-  return { kind: "done", source, record, folder };
-}
-
-async function readRequest(req: IncomingMessage): Promise<Admitted> {
-  return { kind: "read", ...(await unreadReportSession(req)) };
-}
-
-async function deleteRequest(
-  req: IncomingMessage,
-  launches: AgentLaunches,
-): Promise<Admitted> {
-  const { source, record } = await namedSession(req, launches, "delete");
-  return { kind: "delete", source, record };
-}
 
 // A request about one of the project's kept attempts.
 async function attemptRequest(
@@ -183,6 +162,7 @@ const postRequests = new Map<
   [agentDoneEndpoint, doneRequest],
   [agentReadEndpoint, readRequest],
   [agentDeleteEndpoint, deleteRequest],
+  [storyReviewMarkEndpoint, markReviewedRequest],
   [agentAcceptEndpoint, launchRequest],
   [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],
   [agentReconciledEndpoint, (req) => attemptRequest(req, "reconciled")],
