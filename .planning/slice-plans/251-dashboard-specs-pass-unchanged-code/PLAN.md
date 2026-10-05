@@ -115,7 +115,7 @@ counted. Document the command beside the container helper in
 
 ### 2. The unrepaired revision's failing specs are known
 Type: Behavior (probe)
-Status: planned
+Status: done
 Proof: the result of `bash scripts/ci-repeat.sh 20` on this branch's published
 revision after slice 1, recorded under Learnings with its run IDs.
 
@@ -254,3 +254,17 @@ this slice's external-wait exception.
   repaired: before any instruction is entered, a not-ready screen plus a
   finished frame still settles the wait as uncertain; the fake does not reach
   it and changing it changes when the instruction is entered.
+- Slice 2: `bash scripts/ci-repeat.sh 20` on `3a0ff700` (slice 1, no repair)
+  → exit 1, "Passed 19 of 20 repetitions, 1 failed". Only failure:
+  `production-qualification.spec.ts:36` › qualification spans the whole
+  published range, including deletions and both rename endpoints, 1 of 20, in
+  `dashboard (9/9)` of run 37299517796. Checked by hand: 37299517796's failed
+  job and `FAIL:` line, and 37295878138 (dispatch, `3a0ff700`, every job
+  success). Runs: 37295878138 37295893357 37296437524 37296638373 37296886962
+  37297088628 37297344675 37297482447 37297790709 37297983335 37298180085
+  37298430500 37298572951 37298882373 37299018715 37299324340 37299517796
+  37299718000 37299983254 37300243191. Neither named spec failed in these 20;
+  slices 3 and 4 rest on their logged evidence. Slice 5's list is
+  `production-qualification.spec.ts:36`; the expected candidates
+  (`agent-launch-card-noted-start.spec.ts:170`,
+  `agent-launch-start-phases.spec.ts:24`) did not fail and are not repaired.
