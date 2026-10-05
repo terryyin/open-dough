@@ -105,7 +105,13 @@ Switching shows the other comparison of the same snapshot and reads nothing
 anew (`src/StoryReviewComparison.tsx`); while all changes are shown, the
 review says an earlier snapshot, or this one, is marked and when. Refresh
 keeps the comparison shown, of the new snapshot; every opening starts on the
-changes since the review. A marked tree Git cannot read answers that the
+changes since the review. When the repository no longer holds the marked
+tree or its baseline (the project was cloned anew, say; checked with
+`git rev-parse --verify --quiet` before restating), the earlier review cannot
+be compared: the answer carries the mark and `markUnreadable` in place of
+`since`, and the review says an earlier snapshot is marked but can no longer
+be read, and shows all changes without the switch. Mark reviewed then starts
+again from the snapshot shown. Any other Git failure still answers that the
 workspace's changes could not be read.
 
 Trunk merged into the story after the mark stays out of the changes since the

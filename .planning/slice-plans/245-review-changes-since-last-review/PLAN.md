@@ -218,7 +218,15 @@ flagged and shown from the marked snapshot.
 
 ### 5. Say when the marked snapshot cannot be read
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-since.spec.ts` "a mark whose tree the
+repository does not hold is said, all changes are shown, and marking starts
+again" with the since, comparison, and mark specs (18), `story-review
+story-panel side-panel-width` (49), and `typecheck:dashboard`. The snapshot
+answer carries `markUnreadable: true` in place of `since` when `rev-parse
+--verify --quiet` finds the mark's tree or baseline missing (`markObjects` in
+`server/storyReviewMarks.ts`); other Git failures keep "could not be read".
+A missing baseline with a present tree is treated the same (untested).
 Proof: Added to `story-review-since.spec.ts`. A mark whose tree the
 repository does not hold (the store names an absent object): the review says
 the earlier review cannot be compared, shows all changes with no switch, and

@@ -16,7 +16,9 @@
 // saying when trunk was integrated since; marking there marks the whole
 // snapshot. Its comparison switch (`./StoryReviewComparison.tsx`) shows the
 // same snapshot against trunk and back; Refresh keeps the comparison shown,
-// and each opening starts on the changes since the review.
+// and each opening starts on the changes since the review. A mark whose
+// snapshot can no longer be read is said beside all changes, without the
+// switch, until Mark reviewed starts again.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -185,7 +187,11 @@ export function StoryReviewPanel({
               />
             )}
             <div className="story-review-mark">
-              <MarkStatement mark={stated} tree={snapshot.tree} />
+              <MarkStatement
+                mark={stated}
+                tree={snapshot.tree}
+                unreadable={snapshot.markUnreadable === true}
+              />
               {/* Unavailable while reading or marking, yet still focusable,
                   so the keyboard stays on it. */}
               <button

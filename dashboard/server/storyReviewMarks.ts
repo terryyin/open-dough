@@ -77,8 +77,17 @@ export interface AdmittedReviewMark {
   readonly baseline: string;
 }
 
-// Marks the named snapshot reviewed: its tree must be a tree and its
-// baseline a commit of the story's repository. The ref is set before the
+// The objects a mark names, as Git must find them in the story's
+// repository: its tree a tree and its baseline a commit.
+export const markObjects = ({
+  tree,
+  baseline,
+}: Pick<ReviewMark, "tree" | "baseline">) => [
+  `${tree}^{tree}`,
+  `${baseline}^{commit}`,
+];
+
+// Marks the named snapshot reviewed: the repository must hold its objects. The ref is set before the
 // mark is kept, so a kept mark's tree is always held. A write, so it runs to
 // its end even when the page leaves, within its bounded wait.
 export async function markReviewedResponse({
@@ -96,8 +105,9 @@ export async function markReviewedResponse({
       maxBuffer: defaultGitOutputLimit,
     });
   try {
-    await git(["cat-file", "-e", `${tree}^{tree}`]);
-    await git(["cat-file", "-e", `${baseline}^{commit}`]);
+    for (const object of markObjects({ tree, baseline })) {
+      await git(["cat-file", "-e", object]);
+    }
     await git(["update-ref", reviewedRef(identity), tree]);
   } catch (error) {
     return { status: 200, body: markUnavailable(gitProblem(error)) };

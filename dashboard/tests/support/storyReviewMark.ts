@@ -64,13 +64,13 @@ export async function markReviewed(review: Locator) {
 
 // The review marks the machine store keeps, by project id and work identity,
 // or undefined when it keeps none at all.
+const markStore = (dashboard: DashboardServer) =>
+  path.join(dashboard.home, ".open-dough/dashboard/review-marks.json");
+
 export function keptReviewMarks(
   dashboard: DashboardServer,
 ): Record<string, Record<string, ReviewMark>> | undefined {
-  const store = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/review-marks.json",
-  );
+  const store = markStore(dashboard);
   return existsSync(store)
     ? (JSON.parse(readFileSync(store, "utf8")) as Record<
         string,
@@ -82,6 +82,26 @@ export function keptReviewMarks(
 // Story A's mark the machine store keeps.
 export const keptStoryAMark = (dashboard: DashboardServer) =>
   keptReviewMarks(dashboard)?.["open-dough"]?.[queuedIdentity];
+
+// Rewrites Story A's kept mark as the machine store holds it.
+export function rewriteStoryAMark(
+  dashboard: DashboardServer,
+  changed: Partial<ReviewMark>,
+) {
+  const marks = keptReviewMarks(dashboard) ?? {};
+  const mark = marks["open-dough"]?.[queuedIdentity];
+  if (mark === undefined) throw new Error("Story A has no mark to rewrite.");
+  writeFileSync(
+    markStore(dashboard),
+    JSON.stringify({
+      ...marks,
+      "open-dough": {
+        ...marks["open-dough"],
+        [queuedIdentity]: { ...mark, ...changed },
+      },
+    }),
+  );
+}
 
 // The review is headed as the changes since the review, made when the mark
 // says.

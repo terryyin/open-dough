@@ -8,7 +8,8 @@
 // reviewed (`../server/storyReviewMarks.ts`): the story's one mark on this
 // machine, which only that request makes. A marked story's snapshot is also
 // compared with its mark: the changes since the review, leaving out what
-// came only from trunk.
+// came only from trunk -- unless the repository no longer holds the marked
+// snapshot, and marking starts again.
 
 import { z } from "zod";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
@@ -136,13 +137,16 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     files: z.array(reviewedFileSchema),
     // The story's mark on this machine, when it has one.
     mark: reviewMarkSchema.optional(),
-    // With a mark, the same snapshot compared with it: the changes since the
-    // review. Its `from` is the marked tree restated on `baseline`, leaving
+    // With a mark the repository holds, the same snapshot compared with it:
+    // the changes since the review. Its `from` is the marked tree restated on `baseline`, leaving
     // out what came only from trunk -- the marked tree itself while
     // `baseline` is the mark's -- and its file diffs compare `from`, or a
     // file's `includesTrunkFrom`, with `tree`. Trunk was integrated since the
     // mark exactly when the mark's baseline differs from `baseline`.
     since: reviewComparisonSchema.optional(),
+    // With a mark whose tree or baseline the repository no longer holds, in
+    // place of `since`: the earlier review cannot be compared.
+    markUnreadable: z.literal(true).optional(),
   }),
   z.object({
     kind: z.literal("unavailable"),
