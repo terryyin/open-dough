@@ -14,11 +14,11 @@ import { expect } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { listed } from "./support/storyPanels.ts";
+import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
   storyALaunchRecord,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+} from "./support/storyLaunchRecord.ts";
 
 export const wideWindow = { width: 1440, height: 900 };
 // Neither side is narrower than this, in CSS px (20rem).

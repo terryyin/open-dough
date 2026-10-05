@@ -33,7 +33,7 @@ the selected file keeps the selection and its diff. Collapsed folders are kept
 by path: Refresh keeps each one the new snapshot still has collapsed and shows
 folders new to it expanded, while every folder shows expanded each time a
 review opens. A row shows the file's name alone,
-its kind told by the name's style (`src/story-review.css`): an added name is
+its kind told by the name's style (`src/story-review-files.css`): an added name is
 in the ready color, a modified one in plain text, a deleted one struck
 through in the quiet color, and a renamed one italic. Modified takes the
 plain style because every listed file is changed. The kind's words remain
@@ -63,7 +63,7 @@ re-read. Maximize/Restore and resizing the panel by its edge keep the snapshot
 and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
 icon controls shared with the terminal. Directly beneath the header, the review's fixed top stays in view while
-the body beneath it scrolls. It holds the context line and the review's
+the panes beneath it scroll. It holds the context line and the review's
 feedback (`src/StoryReviewSnapshotView.tsx`, `src/StoryReviewPanel.tsx`). The
 context line is one line that never wraps: branch, the baseline's short
 revision with the `<remote>/<target>` it meets, worktree, and Hide files /
@@ -76,6 +76,20 @@ review's accessible description, not a visible line. The feedback region,
 beneath the context line, announces reading, refreshing, refreshed, and
 problem messages, and an unavailable review's explanation. A review with no
 changes shows its context line above “No changes”; neither it nor an
-unavailable review shows the file browser or a diff. Close or Command+Shift+Escape returns
+unavailable review shows the file browser or a diff.
+
+Beneath the fixed top, the file browser and the selected file's diff share
+all the panel's remaining height, and the review's body does not scroll as a
+whole (`src/story-review.css`). The browser is a full-height sidebar that
+scrolls down on its own and sideways for long names. The diff's heading, the
+file's kind and path, stays above its code, which scrolls down and sideways
+within the diff; the code region takes the keyboard, so it scrolls by
+keyboard too. Scrolling either pane leaves the other and the fixed top in
+place. Selecting a file shows its diff from the top and leaves the browser
+where it was scrolled. Refresh keeps the browser's place and its collapsed
+folders, and Maximize/Restore and resizing keep both panes' places. Where the
+panel is too narrow for the browser beside the diff, the browser sits above
+the diff with at most two fifths of the height, each still scrolling on its
+own; Hide files gives the diff the whole work area. Close or Command+Shift+Escape returns
 the keyboard to Review changes, or to the story's card when that control is
 no longer shown. A review is not a session: it marks no session entry as shown.

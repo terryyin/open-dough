@@ -20,11 +20,11 @@ import {
   storyBReport,
   storyBWorktree,
 } from "./support/storyPanels.ts";
+import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
   storyALaunchRecord,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+} from "./support/storyLaunchRecord.ts";
 
 test("a review, another story's review, and a final report replace each other in the one side panel", async ({
   page,

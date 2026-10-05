@@ -5,25 +5,24 @@
 // reopened. Refresh takes a new snapshot that lists the new file and shows
 // the edit in the still selected file's diff, leaves the keyboard on Refresh,
 // and announces that it is done in the review's fixed top, beneath the
-// context line, where it stays while the body scrolls. Closing the review and editing the worktree
-// meanwhile, reopening it reads a fresh snapshot with that edit.
+// context line, where it stays while the file browser scrolls. Closing the
+// review and editing the worktree meanwhile, reopening it reads a fresh
+// snapshot with that edit.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   contextLine,
-  expectFixedWhileBodyScrolls,
+  expectFixedWhileScrolled,
+  fileBrowser,
   reviewBody,
   reviewFeedback,
 } from "./support/reviewContextLine.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import {
-  git,
-  keepLaunchRecord,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { git, storyWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a story's review stays fixed while its worktree changes until Refresh", async ({
   page,
@@ -118,7 +117,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
       contextLine(review).getByRole("button", { name: "Hide files" }),
     ).toBeVisible();
     // The message sits beneath the context line, above the body, and both
-    // stay in place while the body scrolls.
+    // stay in place while the file browser scrolls.
     const statusBox = await status.boundingBox();
     const lineBox = await contextLine(review).boundingBox();
     const bodyBox = await reviewBody(review).boundingBox();
@@ -128,7 +127,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     expect(bodyBox?.y).toBeGreaterThanOrEqual(
       (statusBox?.y ?? 0) + (statusBox?.height ?? 0),
     );
-    await expectFixedWhileBodyScrolls(page, review, [
+    await expectFixedWhileScrolled(page, fileBrowser(review), [
       contextLine(review),
       status,
     ]);

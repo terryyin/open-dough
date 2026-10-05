@@ -10,7 +10,8 @@ import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { otherQueuedIdentity } from "./startOrigin.ts";
-import { git, storyALaunchRecord } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
+import { storyALaunchRecord } from "./storyLaunchRecord.ts";
 
 const storyBBranch = "claude/story-b";
 export const storyBReport = "Story B's final report: one file of its own.";

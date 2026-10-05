@@ -3,21 +3,19 @@
 // it meets, shortened worktree, and Hide files side by side on one line.
 // Activating it by keyboard shows every value in full and activating it again
 // returns it to one line, its name reading every value in full throughout;
-// the line stays in place while the review's body scrolls beneath it.
+// the line stays in place while the file browser scrolls beneath it.
 
 import { expect, test } from "./support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
-  expectFixedWhileBodyScrolls,
+  expectFixedWhileScrolled,
+  fileBrowser,
 } from "./support/reviewContextLine.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import {
-  branch,
-  keepLaunchRecord,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { branch, storyWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a story review's context line keeps to one line until activated and stays in place", async ({
   page,
@@ -86,7 +84,9 @@ test("a story review's context line keeps to one line until activated and stays 
     await expect(values).toHaveAccessibleName(words);
   });
 
-  await test.step("the context line stays in place while the body scrolls beneath it", async () => {
-    await expectFixedWhileBodyScrolls(page, review, [contextLine(review)]);
+  await test.step("the context line stays in place while the file browser scrolls beneath it", async () => {
+    await expectFixedWhileScrolled(page, fileBrowser(review), [
+      contextLine(review),
+    ]);
   });
 });

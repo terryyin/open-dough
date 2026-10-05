@@ -14,10 +14,8 @@ import {
   treeRows,
 } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import {
-  keepLaunchRecord,
-  nestedWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { nestedWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a story's changed files show by name under their folders", async ({
   page,

@@ -1,0 +1,76 @@
+/* The file browser's rows (./StoryReviewFileTree.tsx) in the story review
+   (./story-review.css): folders as disclosures with their rows indented
+   beneath, and files by name, each path keeping its line while the browser
+   scrolls sideways. A file's kind shows in the style of its name. */
+
+.story-review-files ul {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A folder's rows sit indented under its name. */
+.story-review-files ul ul {
+  margin-top: 0.2rem;
+  padding-inline-start: 1rem;
+}
+
+/* Author display rules would otherwise show a collapsed folder's rows. */
+.story-review-files ul[hidden] {
+  display: none;
+}
+
+/* A folder's disclosure: its name, marked open or closed, and while
+   collapsed how many changed files it holds. */
+.story-review-files .story-review-folder {
+  font-weight: 600;
+}
+
+.story-review-folder::before {
+  display: inline-block;
+  width: 1ch;
+  margin-inline-end: 0.3rem;
+  content: "\25BE";
+  content: "\25BE" / "";
+}
+
+.story-review-folder[aria-expanded="false"]::before {
+  content: "\25B8";
+  content: "\25B8" / "";
+}
+
+.story-review-folder-count {
+  color: var(--quiet);
+  font-weight: 400;
+}
+
+/* A path keeps its line; the browser scrolls sideways instead. */
+.story-review-files li {
+  white-space: nowrap;
+}
+
+.story-review-files button[aria-pressed="true"] {
+  border-color: var(--edge);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.story-review-files li code {
+  overflow-wrap: normal;
+}
+
+/* A file's kind shows only in the style of its name; its control's name and
+   hover text, and its diff's heading, say the kind in words. */
+.story-review-files [data-kind="added"] code {
+  color: var(--ready);
+}
+
+.story-review-files [data-kind="deleted"] code {
+  color: var(--quiet);
+  text-decoration-line: line-through;
+}
+
+.story-review-files [data-kind="renamed"] code {
+  font-style: italic;
+}

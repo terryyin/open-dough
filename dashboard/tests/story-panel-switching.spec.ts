@@ -26,11 +26,11 @@ import {
   storyBLaunchRecord,
   storyBWorktree,
 } from "./support/storyPanels.ts";
+import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
   storyALaunchRecord,
-  storyWorktree,
-} from "./support/storyReviewWorktree.ts";
+} from "./support/storyLaunchRecord.ts";
 
 function expectCovers(
   found: { x: number; y: number; width: number; height: number },

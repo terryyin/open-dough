@@ -1,6 +1,6 @@
 // A story review's fixed top as the developer meets it: the context line,
 // activated by its values and read by its name, and the review's feedback,
-// both kept in place while the review's body scrolls beneath them.
+// both kept in place while what is beneath them scrolls.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 
@@ -13,7 +13,8 @@ export const contextValues = (review: Locator) =>
 export const contextLine = (review: Locator) =>
   review.locator(".story-review-context-line");
 
-// The review's body, which scrolls beneath its fixed top.
+// The review's body beneath its fixed top, which holds the file browser and
+// the diff, or the review's explanation.
 export const reviewBody = (review: Locator) =>
   review.locator(".story-review-body");
 
@@ -35,29 +36,33 @@ export const contextWords = ({
 }) =>
   `Branch ${branch} Baseline ${baseline} where ${branch} meets origin/main Worktree ${workspace}`;
 
-// Shortens the window until the review's body holds less than its content,
-// scrolls the body to its end, and expects each fixed element to keep its
-// box; the window then takes its earlier size again.
-export async function expectFixedWhileBodyScrolls(
+// The review's file browser, which scrolls on its own.
+export const fileBrowser = (review: Locator) =>
+  review.locator(".story-review-files");
+
+// Shortens the window until a part beneath the review's fixed top holds less
+// than its content, scrolls that part to its end, and expects each fixed
+// element to keep its box; the window then takes its earlier size again.
+export async function expectFixedWhileScrolled(
   page: Page,
-  review: Locator,
+  scrolled: Locator,
   fixed: readonly Locator[],
 ) {
   const size = page.viewportSize();
   if (size === null) throw new Error("The page has no viewport size.");
-  const body = reviewBody(review);
-  const bodyTop = (await body.boundingBox())?.y ?? 0;
+  // The part keeps a few lines' height, less than its content.
+  const height = (await scrolled.boundingBox())?.height ?? 0;
   await page.setViewportSize({
     width: size.width,
-    height: Math.ceil(bodyTop) + 24,
+    height: size.height - Math.floor(height) + 32,
   });
   try {
     const before = await Promise.all(fixed.map((each) => each.boundingBox()));
-    const scrolled = await body.evaluate((element) => {
+    const scrollTop = await scrolled.evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
       return element.scrollTop;
     });
-    expect(scrolled).toBeGreaterThan(0);
+    expect(scrollTop).toBeGreaterThan(0);
     expect(await Promise.all(fixed.map((each) => each.boundingBox()))).toEqual(
       before,
     );

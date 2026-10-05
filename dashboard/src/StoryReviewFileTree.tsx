@@ -6,6 +6,7 @@
 
 import type { ReviewTreeNode } from "./reviewFileTree.ts";
 import type { ReviewedFile } from "./storyReview.ts";
+import "./story-review-files.css";
 
 export const kindWords: Record<ReviewedFile["kind"], string> = {
   added: "Added",

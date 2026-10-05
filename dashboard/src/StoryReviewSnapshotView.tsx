@@ -5,7 +5,9 @@
 // with their change kinds in that browser. The browser shows each file by
 // name under folders that collapse and expand (`./StoryReviewFileTree.tsx`).
 // Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`), headed by
-// its kind and full path. A worktree that matches its baseline says so in
+// its kind and full path, shown from the top while the browser keeps its
+// scroll; the two fill the review's body, each scrolling on its own. A
+// worktree that matches its baseline says so in
 // place of the browser. A refreshed snapshot keeps the browser as it was,
 // its collapsed folders, and the selected file while the new snapshot still
 // lists their paths.

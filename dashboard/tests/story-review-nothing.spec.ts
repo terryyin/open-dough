@@ -1,8 +1,8 @@
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
-// the line staying in place while the body scrolls; a worktree
-// whose folder was removed is missing, named by the path the review looked
+// the line staying in place while a short panel scrolls that explanation; a
+// worktree whose folder was removed is missing, named by the path the review looked
 // for, still offering Refresh and Close, and no Git runs; a trunk that cannot
 // be fetched names its remote and target, shows no file list, and Refresh
 // reads the review again once trunk is reachable; and a story whose kept
@@ -17,7 +17,7 @@ import {
   contextLine,
   contextValues,
   contextWords,
-  expectFixedWhileBodyScrolls,
+  expectFixedWhileScrolled,
   reviewBody,
   reviewFeedback,
 } from "./support/reviewContextLine.ts";
@@ -26,12 +26,14 @@ import { queuedIdentity } from "./support/startOrigin.ts";
 import {
   branch,
   git,
-  keepLaunchRecord,
-  keepLaunchRecords,
-  storyALaunchRecord,
   storyWorktree,
   unchangedWorktree,
 } from "./support/storyReviewWorktree.ts";
+import {
+  keepLaunchRecord,
+  keepLaunchRecords,
+  storyALaunchRecord,
+} from "./support/storyLaunchRecord.ts";
 
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 
@@ -57,7 +59,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
-  await expectFixedWhileBodyScrolls(page, review, [contextLine(review)]);
+  await expectFixedWhileScrolled(page, body, [contextLine(review)]);
 });
 
 test("a removed worktree is missing, named by its path, and no Git runs", async ({

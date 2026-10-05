@@ -6,11 +6,8 @@ import { expect, test } from "./support/preparationPage.ts";
 import { contextValues, contextWords } from "./support/reviewContextLine.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import {
-  branch,
-  keepLaunchRecord,
-  landedWorktree,
-} from "./support/storyReviewWorktree.ts";
+import { branch, landedWorktree } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a landed slice leaves the review and the unlanded changes remain", async ({
   page,

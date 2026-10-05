@@ -27,11 +27,11 @@ import { queuedIdentity } from "./support/startOrigin.ts";
 import {
   branch,
   git,
-  keepLaunchRecord,
   observed,
   storyWorktree,
   wideLine,
 } from "./support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
 test("a story's review names its worktree, branch, and baseline and lists only the story's changed files", async ({
   page,

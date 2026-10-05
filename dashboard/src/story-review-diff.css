@@ -1,9 +1,27 @@
 /* A reviewed file's diff (./StoryReviewFileDiff.tsx) in the story review
    (./story-review.css). Code lines keep their spacing and scroll sideways
-   here; each line's leading +, -, or space says whether it was added,
-   removed, or unchanged. */
+   and down here, beneath the diff's heading; each line's leading +, -, or
+   space says whether it was added, removed, or unchanged. */
+
+/* The diff's heading and status stay above its code, which takes the rest
+   of the pane's height and scrolls within it. */
+.story-review-diff {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.story-review-diff > * {
+  flex: none;
+}
+
+.story-review-diff > .story-review-code {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
 .story-review-code {
-  overflow-x: auto;
+  overflow: auto;
   border: 1px solid var(--line);
   border-radius: 0.25rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

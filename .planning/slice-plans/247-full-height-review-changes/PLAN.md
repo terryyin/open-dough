@@ -141,7 +141,17 @@ Update `dashboard/AGENT-LAUNCH-REVIEW.md` for the context line and feedback.
 
 ### 2. Fill the height with a browser and a diff that scroll on their own
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config
+dashboard/playwright.config.ts story-review story-panel side-panel` and
+`npm run typecheck:dashboard` pass. Observed in `story-review-panes.spec.ts`
+over `largeWorktree` (opened by `openLargeReview` in
+`tests/support/reviewPanes.ts`): each pane's `scrollTop` and the fixed boxes
+across browser scroll, code scroll by keyboard, selection, Refresh,
+Maximize/Restore, and edge resize; the body never overflows; the narrow
+window stacks the browser (at most 40%) above the diff and Hide files gives
+the diff the work area. Fixed-top checks now scroll a pane
+(`expectFixedWhileScrolled`).
 Proof: a new journey over a worktree with more files than the browser holds
 and a diff longer than the pane (fixture added to `storyReviewWorktree.ts`).
 It observes each pane's `scrollTop` and the fixed elements' boxes: scrolling
@@ -259,3 +269,8 @@ has at least one added or removed line. Update `AGENT-LAUNCH-REVIEW.md`.
   review's feedback through `reviewFeedback`, scoped to `.story-review-top`.
 - Slice 1: shortening the worktree from its start with `direction: rtl`
   rendered badly in Chromium; the line uses a plain end ellipsis.
+- Slice 2: the review body is an inline-size container; below 34.75rem
+  (both pane bases plus the gap) the browser stacks above the diff. Its 40%
+  bound needs `box-sizing: border-box`. The browser's row styles now live in
+  `story-review-files.css` and the diff pane's column in
+  `story-review-diff.css`.
