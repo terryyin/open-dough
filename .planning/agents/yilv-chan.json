@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yilv-chan",
-  "email": "yilv-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-100#dashboard-specs-deterministic",
-  "host": "claude"
-}

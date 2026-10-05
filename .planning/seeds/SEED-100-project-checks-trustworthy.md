@@ -73,7 +73,7 @@ readiness guidance is out of scope; DearDough.md's ODF-087 keeps that facet.
 
 **Identity:** SEED-100#dashboard-specs-deterministic
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/254-dashboard-specs-deterministic/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"011642d3ff137131deb2ad22e7950143de907295faa04fea11cb464e28a44189","plan":"9ecfabb8b3ee74fd6364a43c7f5b6023c1484571c7396d85036f52d03488c4e7"}}
 ```
 
 **For / why:** Every agent that publishes to `main` waits on CI's dashboard
@@ -81,22 +81,56 @@ jobs. A spec that fails intermittently blocks an unrelated publication's
 completion and sends its agent to diagnose someone else's flake.
 
 **Goal:** Each of these specs fails only when the behavior it covers is
-broken. Its timing-dependent wait is replaced by the signal that actually
-establishes its precondition, or a product race is fixed. No retries or sleeps
-are added, and no assertion is weakened.
+broken, so a red dashboard job on `main` points at the publication that broke
+it, not at someone else's flake.
+
+**Scope:**
+
+- For each spec, find what its failing assertion actually raced against and
+  replace the timing-dependent wait with the signal that establishes the
+  precondition, or fix the product race when the product, not the test, is
+  wrong. A product race is in scope wherever its fix lives.
+- Each cause is shown before it is fixed: the failure is reproduced
+  locally, for example by widening the suspected window as `58c93605` did,
+  and the same reproduction passes after the fix.
+- Rejection constraints (the goal is a trustworthy verdict, which these would
+  defeat): no retries, no added sleeps, no wait longer than the awaited
+  operation's own bound (for a start's answer, the launch wait the dashboard
+  allows it), no weakened or removed assertion, and no skipped or quarantined
+  spec.
+- Boundary assumption: the four specs have independent causes until a
+  reproduction shows otherwise. A spec whose failure cannot be reproduced
+  stops with its evidence reported; the others continue.
+- Deferred: surveying or fixing other dashboard specs, and CI-wide flake
+  detection or retry tooling.
+
+**Key examples** (CI failure → deterministic result):
+
+- `side-panel-width.spec.ts:36`: the test timed out at 30 s inside
+  `expectWidth` (`sidePanelWidthPage.ts:87`). After the fix, the width the
+  mouse or keyboard chose is asserted once the panel reports it has settled,
+  and the spec passes with the suspected window widened.
+- `agent-launch-ad-hoc-cursor.spec.ts:43`: the recent-sessions entry showed
+  "First input acceptance uncertain — Cursor has not confirmed the first
+  prompt" where the spec expected "First input accepted". After the fix,
+  either the spec waits for Cursor's confirmation through the signal the
+  dashboard uses, or, if the dashboard declares uncertainty before a
+  confirmation that does arrive, that product race is fixed. A truly
+  unconfirmed first prompt still shows uncertain.
+- `story-review-action.spec.ts:31`: `expectOnOneLine`
+  (`partArrangement.ts:44`) measured one inspection control 29 px below the
+  others. After the fix, the arrangement is measured only once the layout it
+  covers has settled; a control that genuinely wraps still fails.
+- `agent-launch-acceptance.spec.ts:96`: at line 138 the served attempt carried
+  a `reporting` object (command, origin, reference) that the kept attempt read
+  for comparison did not. After the fix, the spec compares the two only once
+  the attempt record they both describe has reached the state under test, or
+  the dashboard keeps and serves the same attempt, whichever reproduction
+  shows is wrong.
 
 **Evidence:** one failure each in the last 30 `main` CI runs (2026-10-05):
-
-- `dashboard/tests/side-panel-width.spec.ts:36`, run 37239925415.
-- `dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts:43`, run 37207067477.
-- `dashboard/tests/story-review-action.spec.ts:31`, run 37173254314.
-- `dashboard/tests/agent-launch-acceptance.spec.ts:96`, run 37169060163: a
-  deep-equality mismatch in the attempt's `publication` field.
-
-None has been investigated. The same pattern in
-`agent-launch-duplicate.spec.ts` was a test waiting on the launch record,
-which is kept before the attempt settles and releases the launch gate. It was
-reproduced by widening that window and fixed in `58c93605`.
-
-**Boundary:** These four specs and any product race they expose. Other
-dashboard specs are not surveyed here.
+runs 37239925415, 37207067477, 37173254314, and 37169060163, in the order
+above. The same pattern in `agent-launch-duplicate.spec.ts` was a test waiting
+on the launch record, which is kept before the attempt settles and releases
+the launch gate. It was reproduced by widening that window and fixed in
+`58c93605`.
