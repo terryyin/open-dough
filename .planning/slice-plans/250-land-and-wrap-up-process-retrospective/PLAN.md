@@ -162,7 +162,7 @@ identity wording.
 
 ### 2. A flagged wrap-up records its findings in the final closure commit
 Type: Behavior
-Status: planned
+Status: done
 Proof: the guidance check gains the Story Wrap Up assertions; the four existing
 checks and the link check stay green; behavior walk of the story's wrap-up
 example in Trunk Mode and Story Branch Mode, plus the no-findings and
@@ -186,6 +186,12 @@ Changes:
   closure” giving the review point and the link to the shared rule; evidence
   locators in a finding use the before-cleanup commit for deleted sources, as
   that skill already requires for follow-ups.
+
+Accepted proof: the guidance check's Story Wrap Up test (description, section
+order delete < review < final closure, shared link, findings in final closure,
+no second review on rerun) plus the four existing checks, 26/26; link check
+exit 0. Findings travel with the final closure commit; each mode's existing
+closure path decides publication, so local-only closure stays pending.
 
 ## Current decisions
 
