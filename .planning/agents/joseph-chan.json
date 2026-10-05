@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-106#paged-dashboard-columns",
+  "host": "claude",
+  "model": "fable"
+}
