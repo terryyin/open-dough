@@ -218,3 +218,13 @@ of their assertions and update both spec headers. No behavior changes.
   tree, or the baseline when the story kept its marked content.
 - Final user-facing wording for slices 1 and 3 is the executor's within the
   ADR 0001 vocabulary; the proofs assert it exactly once chosen.
+
+## Execution complete
+
+Product advice: No new product advice. The correction delivered findings 1–3
+of the plan 245 review as bounded here; recognizing the story's own commits
+that reached trunk after the mark stays with
+[SEED-088#review-trunk-mode-story-changes](../../seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes),
+as plan 245's product advice records. The correction ran under
+SEED-088#review-changes-since-last-review's claim on its branch, so wrap-up
+closes both together.

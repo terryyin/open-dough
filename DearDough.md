@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 233. Removed local codes are never reused.
+- Highest allocated local number: 234. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -727,3 +727,23 @@ Follow-up: Open, unqueued.
   - Evidence: plan 246 slice 1 proof `$(grep -rl "Mark as done" dashboard/tests --include="*.spec.ts" …)`; after the slice it matched 22 spec files instead of 30. The implementation agent noticed, ran the 30 files matched at `e3196862` plus every changed spec (61 passed), and the plan's Learnings replaced the selector with `grep -rlE "Mark as done|markDone"` for later slices.
   - Observed effect: no missed proof and no rework; one learning edit.
   - Inference: Qualified. A text-based selector read after the change measures the post-change tree; a selector fixed at the starting revision, or one that also matches the replacement, keeps the intended set. Related in shape to ODF-157 (sweeping with the removed words), but here the proof selection, not a premise, depended on them.
+
+## DD-234 — A retrospective correction of an unlanded story could not be admitted where its code lives
+
+The admission guidance names a retrospective's accepted follow-up correction
+as a mission to admit, but admission requires a separate owned workspace based
+on remote trunk. A correction to a story still on its execution branch needs
+that branch's code, which trunk does not hold yet.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-088#review-since-correction` / plan 251, first related implementation commit `440ad871`
+  - Timestamp: unknown (between the plan 245 completion record `94ab0b57` committed 2026-10-05T15:04:40+09:00 and `440ad871` committed 2026-10-05T17:07:41+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: after the developer said "do it before wrap up", `execution-start.mjs start --admit` with the story's own workspace and branch answered `{"ok":false,"status":"invalid-request","error":"queued work requires a separate owned workspace"}`. `admit-accepted-work.md` lists "a retrospective's follow-up correction accepted for execution" as a mission, and also exempts "a supporting step of an active story". The coordinator ran the correction under the story's existing claim on its branch.
+  - Observed effect: one refused call; the correction was delivered on the story branch with no Taken entry of its own.
+  - Inference: Qualified. A correction that must land with its unlanded story fits the "supporting step of an active story" exemption better than admission, but the guidance does not say which applies, so the coordinator had to try admission first to find out.
