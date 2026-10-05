@@ -9,7 +9,6 @@
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./support/preparationPage.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
@@ -19,20 +18,12 @@ import {
   keptStoryAMark,
   markReviewed,
   openReview,
+  reopenReview,
   reviewRegion,
   storyFile,
   twelveFileWorktree,
 } from "./support/storyReviewMark.ts";
 import { keepLaunchRecord } from "./support/storyReviewWorktree.ts";
-
-// Closes the review and opens it again from the card: a fresh snapshot.
-async function reopen(page: Page, card: Locator) {
-  await reviewRegion(page)
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
-  await expect(reviewRegion(page)).toHaveCount(0);
-  return openReview(page, card);
-}
 
 test("a marked story's review lists only the files changed since the review, each diff holding only the later edit", async ({
   page,
@@ -52,7 +43,7 @@ test("a marked story's review lists only the files changed since the review, eac
   editLater(workspace, 2);
   editLater(workspace, 9);
   writeFileSync(path.join(workspace, storyFile(13)), "added later\n");
-  const since = await reopen(page, card);
+  const since = await reopenReview(page, card);
   expect(since.since?.from).toBe(marked.tree);
   expect(since.files).toHaveLength(13);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
@@ -88,7 +79,7 @@ test("a file written after the snapshot and before the mark is listed since the 
   // The agent writes after the snapshot; the developer marks it unrefreshed.
   writeFileSync(path.join(workspace, "after-snapshot.txt"), "later\n");
   await markReviewed(review);
-  await reopen(page, card);
+  await reopenReview(page, card);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "1 changed file" });
   await expect.poll(() => treeRows(files)).toEqual(["after-snapshot.txt"]);
@@ -106,7 +97,7 @@ test("a marked story with no later change says nothing changed since the review"
   const review = reviewRegion(page);
   await markReviewed(review);
 
-  const since = await reopen(page, card);
+  const since = await reopenReview(page, card);
   expect(since.since?.files).toEqual([]);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).toContainText("Nothing changed since the review.");
@@ -128,7 +119,7 @@ test("marking while the changes since the review are shown marks the whole snaps
   await markReviewed(review);
 
   editLater(workspace, 3);
-  const first = await reopen(page, card);
+  const first = await reopenReview(page, card);
   await expect(
     review.getByRole("list", { name: "1 changed file" }),
   ).toBeVisible();
@@ -140,7 +131,7 @@ test("marking while the changes since the review are shown marks the whole snaps
   await expect(review).toContainText("This snapshot is marked reviewed,");
 
   editLater(workspace, 4);
-  const second = await reopen(page, card);
+  const second = await reopenReview(page, card);
   expect(second.since?.from).toBe(first.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "1 changed file" });

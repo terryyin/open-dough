@@ -1,8 +1,9 @@
-// Story A's review as Mark reviewed's tests (../story-review-mark.spec.ts)
-// drive it: opening it from the card, choosing Mark reviewed, and the snapshot
-// each read answers; and what the machine store and the project's repository
-// keep of a story's review mark. Story A's twelve-file worktree is the one
-// its since-the-review tests (../story-review-since.spec.ts) mark and change.
+// Story A's review as its marking tests (../story-review-mark.spec.ts,
+// ../story-review-since.spec.ts, ../story-review-comparison.spec.ts) drive
+// it: opening and reopening it from the card, choosing Mark reviewed, and the
+// snapshot each read answers; and what the machine store and the project's
+// repository keep of a story's review mark. Story A's twelve-file worktree is
+// the one the since-the-review tests mark and change.
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -41,6 +42,16 @@ export async function openReview(page: Page, card: Locator) {
   const snapshot = nextSnapshot(page);
   await card.getByRole("button", { name: "Review changes" }).click();
   return snapshot;
+}
+
+// Closes the review and opens it again from the card, answering the fresh
+// snapshot it shows.
+export async function reopenReview(page: Page, card: Locator) {
+  await reviewRegion(page)
+    .getByRole("button", { name: "Close", exact: true })
+    .click();
+  await expect(reviewRegion(page)).toHaveCount(0);
+  return openReview(page, card);
 }
 
 // Chooses Mark reviewed and waits until the review says it marked.

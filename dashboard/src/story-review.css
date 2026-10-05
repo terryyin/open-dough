@@ -213,3 +213,14 @@
   margin: 0 0 0.2rem;
   font-size: 1rem;
 }
+
+/* A marked story's comparison switch: its choices side by side. */
+.story-review-comparison {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+}
+
+.story-review-comparison label {
+  cursor: pointer;
+}

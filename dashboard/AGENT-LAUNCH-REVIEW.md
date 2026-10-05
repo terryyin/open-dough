@@ -97,6 +97,13 @@ marked tree) and its files. A file the agent wrote after the marked snapshot
 was taken is listed, even one written before the mark was made. When the
 snapshot equals the marked one, the review says “Nothing changed since the
 review.” Mark reviewed there marks the whole current snapshot, which the next
-review compares with. A marked tree Git cannot read answers that the
+review compares with. A marked story's review offers a **Comparison** switch,
+radios saying which is shown, “Since the review” or “All changes”, including
+when nothing changed since the review; an unmarked story's review offers none.
+Switching shows the other comparison of the same snapshot and reads nothing
+anew (`src/StoryReviewComparison.tsx`); while all changes are shown, the
+review says an earlier snapshot, or this one, is marked and when. Refresh
+keeps the comparison shown, of the new snapshot; every opening starts on the
+changes since the review. A marked tree Git cannot read answers that the
 workspace's changes could not be read. Trunk integrated into the story since
 the mark is not yet told apart: its changes are listed as the story's.

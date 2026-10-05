@@ -10,9 +10,12 @@
 // read of the story the panel showed before can never answer this one.
 // Mark reviewed marks the snapshot shown, never a newer state of the
 // worktree, and the review then says the snapshot is marked and when
-// (`./StoryReviewMark.tsx`); only that control marks. A marked story's review shows the changes since the
-// review, headed by what it compares and when the mark was made; marking
-// there marks the whole snapshot.
+// (`./StoryReviewMark.tsx`); only that control marks. A marked story's
+// review opens on the changes since the review, headed by what it compares
+// and when the mark was made; marking there marks the whole snapshot. Its
+// comparison switch (`./StoryReviewComparison.tsx`) shows the same snapshot
+// against trunk and back; Refresh keeps the comparison shown, and each
+// opening starts on the changes since the review.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -30,6 +33,10 @@ import {
   requestMarkReviewed,
   SinceTheReviewHeading,
 } from "./StoryReviewMark.tsx";
+import {
+  ComparisonSwitch,
+  type ShownComparison,
+} from "./StoryReviewComparison.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import type { StoryReviewRequest } from "./pageReviews.ts";
@@ -73,10 +80,14 @@ export function StoryReviewPanel({
     readonly answer: MarkReviewedAnswer;
   }>();
   const [marking, setMarking] = useState(false);
+  // The comparison chosen; a review without changes since the review shows
+  // all changes whatever was chosen.
+  const [chosen, setChosen] = useState<ShownComparison>("since");
   const madeHere =
     made !== undefined && made.of === review ? made.answer : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const since = snapshot?.since;
+  const offered = snapshot?.since;
+  const since = chosen === "since" ? offered : undefined;
   // The mark the review states: one made on the review shown since it was
   // read, or the one it was read with unless the changes since the review
   // are headed by it.
@@ -163,6 +174,9 @@ export function StoryReviewPanel({
         </div>
         {snapshot !== undefined && (
           <>
+            {offered !== undefined && (
+              <ComparisonSwitch shown={chosen} onSwitch={setChosen} />
+            )}
             {since !== undefined && snapshot.mark !== undefined && (
               <SinceTheReviewHeading mark={snapshot.mark} />
             )}

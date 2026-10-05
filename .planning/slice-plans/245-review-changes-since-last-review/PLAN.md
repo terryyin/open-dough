@@ -171,7 +171,13 @@ replaces that.
 
 ### 3. Switch between since-the-review and all changes
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `story-review-comparison.spec.ts` (5 tests, a–e; a snapshot
+request counter stays 0 while switching) with the since and mark specs (15),
+`story-review story-panel side-panel-width` (46), and `typecheck:dashboard`.
+The switch is the "Comparison" radiogroup in `src/StoryReviewComparison.tsx`;
+the panel's choice resets on each opening, and an answer without `since`
+shows all changes whatever was chosen.
 Proof: New `story-review-comparison.spec.ts`. (a) Since-the-review shows 3
 files; switch to all changes: 13 files against the baseline, with no new
 snapshot read (the worktree changed meanwhile and the list does not); switch
