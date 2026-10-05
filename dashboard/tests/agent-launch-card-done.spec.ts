@@ -64,9 +64,6 @@ test.describe("marking a card's session done", () => {
     await settled();
     await launch(readyStory, "Execution");
     const unavailable = await sessionNamedBy(onCard("Execution"));
-    const stops = () =>
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
-
     await test.step("an unavailable session leaves its card without being stopped, and Recent sessions shows it Done", async () => {
       dashboard.claudeSessionBecomes(unavailable, "forgotten");
       await page.reload();
@@ -86,7 +83,7 @@ test.describe("marking a card's session done", () => {
       await expect(
         entry.getByRole("button", { name: "Open terminal" }),
       ).toHaveCount(0);
-      expect(stops()).toEqual([]);
+      expect(dashboard.claudeStopCalls()).toEqual([]);
     });
     await expectMembership(page, queued);
   });
@@ -117,8 +114,6 @@ test.describe("marking a card's session done", () => {
     await expect(
       entry.getByRole("button", { name: "Mark as done" }),
     ).toBeEnabled();
-    expect(
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-    ).toEqual([]);
+    expect(dashboard.claudeStopCalls()).toEqual([]);
   });
 });

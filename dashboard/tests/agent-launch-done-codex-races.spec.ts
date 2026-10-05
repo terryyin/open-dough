@@ -196,7 +196,5 @@ require(${JSON.stringify(fixturePath)});
   });
   expect(response.body).not.toContain("private-native-subprocess-detail");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-  expect(
-    dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-  ).toHaveLength(1);
+  expect(dashboard.claudeStopCalls()).toHaveLength(1);
 });

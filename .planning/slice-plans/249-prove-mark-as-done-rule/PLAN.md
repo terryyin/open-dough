@@ -69,11 +69,17 @@ now uses too.
 
 ### 2. Journeys count native stop calls through one support step
 Type: Structure
-Status: planned
+Status: done
 Proof: The five specs named above use one exported step from
 `dashboard/tests/support/markDone.ts` and still pass unchanged in what they
 assert:
 `npx playwright test --config dashboard/playwright.config.ts --reporter=line agent-launch-done-question agent-terminal-done session-unread-report`.
+Accepted: the refactor pass placed the step on the fake itself,
+`claudeStopCalls()` in `dashboard/tests/support/fakeClaude.ts` beside
+`claudeLaunchCalls()`, since delete journeys count the same native call; the
+five specs and ten more done and delete specs use it, leaving it the only
+`stop` filter. `npx playwright test --config dashboard/playwright.config.ts --reporter=line agent-launch-done agent-terminal-done session-unread-report agent-launch-card-done agent-launch-delete agent-launch-card-delete agent-launch-recent-delete agent-terminal-delete`
+→ 64 passed, assertions unchanged.
 
 ## Current decisions
 

@@ -116,8 +116,6 @@ test.describe("marking a session done from its terminal", () => {
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const [session] = dashboard.claudeListing();
     const doneName = `done-${String(session?.["name"])}`;
-    const stops = () =>
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
     const rows = panel.locator(".xterm-rows");
     for (const answer of ["Keep open", "Escape"] as const) {
       const question = await expectAsked(panel, stillWorking);
@@ -131,7 +129,7 @@ test.describe("marking a session done from its terminal", () => {
       await expect(panel).toBeVisible();
       await expect(panel.getByRole("status")).toBeEmpty();
       await expect(rows).toContainText("attached");
-      expect(stops()).toEqual([]);
+      expect(dashboard.claudeStopCalls()).toEqual([]);
       await expect(listed).toHaveCount(1);
     }
     const release = await holdDoneRequests(page);
@@ -191,9 +189,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(
       panel.getByRole("button", { name: "Mark as done" }),
     ).toBeEnabled();
-    expect(
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
-    ).toEqual([]);
+    expect(dashboard.claudeStopCalls()).toEqual([]);
 
     // The attached CLI ending on its own still shows as a problem.
     await panel.locator(".xterm-helper-textarea").focus();
