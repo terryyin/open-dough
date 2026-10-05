@@ -1,10 +1,10 @@
 // Story B beside Story A (./storyReviewWorktree.ts) for the page's one side
 // panel (../story-panel-switching.spec.ts, ../story-panel-replacement.spec.ts):
 // Story B's real worktree with one committed file of its own, and its kept
-// launch record, whose session ended with a final report, or a Codex record
-// whose saved workspace is gone, so that its final report is Codex's own. Also
-// what the page and the machine store say of the panel's items and of a kept
-// session.
+// launch record, a kept session without an attention message, or a Codex
+// record whose saved workspace is gone, so that its final report is Codex's
+// native final report alone. Also what the page and the machine store say of
+// the panel's items and of a kept session.
 
 import path from "node:path";
 import { writeFileSync } from "node:fs";
@@ -18,6 +18,7 @@ import { git } from "./storyReviewWorktree.ts";
 import { storyALaunchRecord } from "./storyLaunchRecord.ts";
 
 const storyBBranch = "claude/story-b";
+// Story B's Codex native final report, kept in the native fixture's history.
 export const storyBReport = "Story B's final report: one file of its own.";
 
 // Story B's worktree off trunk, with one committed file of its own.
@@ -30,7 +31,7 @@ export function storyBWorktree(project: string) {
   return workspace;
 }
 
-// Story B's kept launch record: its session ended with a final report.
+// Story B's kept launch record: a kept session holding no attention message.
 export function storyBLaunchRecord(workspace: string): LaunchRecord {
   const { start } = storyALaunchRecord(workspace);
   if (start === undefined) throw new Error("Story A's record has a start.");
@@ -53,19 +54,13 @@ export function storyBLaunchRecord(workspace: string): LaunchRecord {
       identity: otherQueuedIdentity,
       branch: storyBBranch,
     },
-    completion: {
-      receipt: "6f1f8e0e-3c1d-4a51-9a43-7b0c8c3f2a10",
-      reference: "0b7f5f0c-5f8e-4c1c-8b8e-3d6f1a2b9c40",
-      outcome: "completed",
-      message: storyBReport,
-      receivedAt: new Date().toISOString(),
-    },
     launchedAt: new Date().toISOString(),
   };
 }
 
 // Story B's kept record as a Codex session whose saved workspace is gone: the
-// side panel reads its final report, `storyBReport`, from the native fixture.
+// side panel reads Codex's native final report, `storyBReport`, from the
+// native fixture's history.
 export function storyBRetiredCodexRecord(
   workspace: string,
   native: FakeCodex,

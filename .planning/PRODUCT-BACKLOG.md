@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Correct the attention message story's wording and proof](seeds/SEED-103-attention-message-on-story-card.md#attention-message-correction) — SEED-103#attention-message-correction ([plan](slice-plans/249-attention-message-correction/PLAN.md))
-
 ## Backlog list
 
 - [Four intermittently failing dashboard specs pass deterministically](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-deterministic) — SEED-100#dashboard-specs-deterministic
