@@ -45,7 +45,7 @@ import {
   expectTooltipLine,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
-import { markDone } from "./support/markDone.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -123,8 +123,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
   });
 
   await test.step("Mark as done in the terminal takes it out of the sidebar and Recent sessions reads Done", async () => {
-    // Slice 3: the panel will ask (no report, Working); use markDoneAnyway then.
-    await markDone(panel);
+    await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(entries).toHaveCount(0);
     await expect(sessionStateOf(recent)).toHaveText("Done");

@@ -97,21 +97,26 @@ history needs no invented interrupt. A race/refusal never retries against a
 newer turn. Claude types `/rename` into an open attachment, if any, and waits
 for listing confirmation. Native history is retained.
 
-On a card, Mark as done marks a session at once only when its intended work is
-complete: its latest report is `completed`, with or without an attention
-message, and its reading is neither working nor waiting for input (Cursor's
-held-screen “working” and “waiting for an answer” count as those). Any other
-session is asked about first, in place where Mark as done was, as Delete
-record… asks: one statement, the most pressing that applies (“This session is
+Wherever it is offered, on a card or in the terminal or report panel, Mark as
+done marks a session at once only when its intended work is complete: its
+latest report is `completed`, with or without an attention message, and its
+reading is neither working nor waiting for input (Cursor's held-screen
+“working” and “waiting for an answer” count as those). Any other session is
+asked about first, in place, as Delete record… asks: on a card where Mark as
+done was, and in a panel below its header, with the terminal or report still
+showing and the header's Mark as done disabled until answered. The question
+gives one statement, the most pressing that applies (“This session is
 still working. Marking it done asks it to stop.”, “This session is waiting for
 your input.”, “This session reported unfinished work.”, or “This session has
 not reported its work complete. It reads <reading>.”), then “Mark it done
 anyway?”, as a group labelled by those words. The keyboard starts on **Keep
 open**; Keep open or Escape leaves the session, its attachments, its report's
 read state and its reading untouched and puts the keyboard back on Mark as
-done. The question's **Mark as done** runs the operation above unchanged. The
-decision uses the reading and report the card shows when it is clicked. The
-terminal and report panels still mark done without asking.
+done; a panel stays open with its terminal attached. The question's **Mark as
+done** runs the operation above unchanged, and a panel then closes.
+The decision uses the reading and report the page shows when it is clicked; a
+panel takes the session as the page reads it now, in any project, not as it
+was when the panel opened.
 
 Recent keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
 persists when native rename/stop is unconfirmed, while live Working remains

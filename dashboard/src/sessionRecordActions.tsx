@@ -3,6 +3,7 @@ import { hostName, marksRecordDone } from "./sessionCapabilities.ts";
 import { useState } from "react";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
+  doneAnswers,
   notDeleted,
   nowKnown,
   usePageSessions,
@@ -29,32 +30,18 @@ export function CardActions({ record }: { readonly record: LaunchWithState }) {
         <AskInPlace
           label={label}
           disabled={marking === "marking"}
-          question={
-            asksFirst === undefined
-              ? undefined
-              : `${asksFirst} Mark it done anyway?`
-          }
-          confirm="Mark as done"
-          keep="Keep open"
+          question={asksFirst}
+          {...doneAnswers}
           onPress={() => {
             setDeleteSaid(undefined);
           }}
-          act={(control) =>
-            new Promise((answered) => {
-              const request = { record, control };
-              mark(
-                () =>
-                  markRead(request).finally(() => {
-                    answered("returned");
-                  }),
-                () =>
-                  markDone(request).then((marked) => {
-                    answered(marked ? "settled" : "returned");
-                    return marked;
-                  }),
-              );
-            })
-          }
+          act={(control) => {
+            const request = { record, control };
+            return mark(
+              () => markRead(request),
+              () => markDone(request),
+            );
+          }}
         />
       )}
       <DeleteRecord record={record} say={setDeleteSaid} />

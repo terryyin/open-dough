@@ -7,8 +7,9 @@
 // session entry names its session, so the page can find where to bring the
 // entry into view.
 // The page also says which session its panel shows. Every Mark as done
-// control follows its mark the same way (`useMarking`), and one that offers
-// Mark as read first chooses between them the same way (`useReportOrDoneMark`).
+// control follows its mark and decides whether to ask first the same way
+// (`useDoneMark`), and one that offers Mark as read first chooses between them
+// the same way (`useReportOrDoneMark`).
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
@@ -151,9 +152,12 @@ export const notMarkedRead = "The report could not be marked read.";
 export const notDeleted = "The session record could not be deleted.";
 export const nowKnown = "This session's state is now known";
 
+// The answers of the question Mark as done asks first.
+export const doneAnswers = { confirm: "Mark as done", keep: "Keep open" };
+
 // Follows one control's Mark as done or Mark as read from its asking to the
 // answer.
-export function useMarking() {
+function useMarking() {
   const [marking, setMarking] = useState<Marking | undefined>();
   const follow = (asked: Promise<boolean>) => {
     setMarking("marking");
@@ -164,30 +168,49 @@ export function useMarking() {
   return { marking, follow };
 }
 
-// One control's Mark as read while its session's report is unread, else its
-// Mark as done: what the control is labeled, what it says of the mark it
-// asked while marking or once refused, and, for a Mark as done on a session
-// whose intended work is not known to be complete, the statement it asks
-// with first (`unfinishedIntention`). A record that carries no reading, as
-// the report panel's, asks nothing.
-export function useReportOrDoneMark(
-  record: Parameters<typeof reportUnread>[0] &
-    Partial<Parameters<typeof unfinishedIntention>[0]>,
-) {
-  const unread = reportUnread(record);
+// One control's Mark as done: where its mark stands, and, for a session
+// whose intended work is not known to be complete, the question it asks
+// first (`unfinishedIntention`), decided from the record the page shows now.
+// Its mark answers the control that asked it: a session marked done takes
+// the control off the page; otherwise the keyboard returns to the control.
+export function useDoneMark(record: LaunchWithState) {
   const { marking, follow } = useMarking();
+  const statement = unfinishedIntention(record);
+  const mark = (done: Promise<boolean>) => {
+    follow(done);
+    return done.then((marked) =>
+      marked ? ("settled" as const) : ("returned" as const),
+    );
+  };
+  return {
+    asksFirst:
+      statement === undefined ? undefined : `${statement} Mark it done anyway?`,
+    marking,
+    follow,
+    mark,
+  };
+}
+
+// One control's Mark as read while its session's report is unread, else its
+// Mark as done (`useDoneMark`): what the control is labeled, what it says of
+// the mark it asked while marking or once refused, the question a Mark as
+// done asks first, and its mark, which answers the control that asked it; a
+// Mark as read always returns the keyboard to the control.
+export function useReportOrDoneMark(record: LaunchWithState) {
+  const unread = reportUnread(record);
+  const { asksFirst, marking, follow, mark: markDone } = useDoneMark(record);
   const [askedRead, setAskedRead] = useState(false);
   const mark = (read: () => Promise<boolean>, done: () => Promise<boolean>) => {
     setAskedRead(unread);
-    follow(unread ? read() : done());
+    if (!unread) return markDone(done());
+    const asked = read();
+    follow(asked);
+    const returned = () => "returned" as const;
+    return asked.then(returned, returned);
   };
-  const { sessionState } = record;
   return {
     label: unread ? "Mark as read" : "Mark as done",
-    asksFirst:
-      unread || sessionState === undefined
-        ? undefined
-        : unfinishedIntention({ ...record, sessionState }),
+    asksFirst: unread ? undefined : asksFirst,
     marking,
     markingSaid: askedRead ? "Marking as read…" : "Marking as done…",
     notMarkedSaid: askedRead ? notMarkedRead : notMarkedDone,

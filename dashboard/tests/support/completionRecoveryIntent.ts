@@ -20,7 +20,7 @@ import {
   completionProxy,
   quote,
 } from "./completionRecovery.ts";
-import { markDone } from "./markDone.ts";
+import { markDoneAnyway } from "./markDone.ts";
 
 export async function observeLaterCompletionIntent(options: {
   page: Page;
@@ -110,8 +110,7 @@ export async function observeLaterCompletionIntent(options: {
   await recent.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await panel.getByRole("button", { name: "Mark as read" }).click();
-  // Slice 3: the panel will ask (reported completed, Working); use markDoneAnyway then.
-  await markDone(panel);
+  await markDoneAnyway(panel);
   await expect.poll(() => stored(receiver.home)[0]?.doneAt).toBeDefined();
   const manualDone = stored(receiver.home)[0]?.doneAt;
   expect((await reportingChild(retry, cwd, env)).ok).toBe(true);

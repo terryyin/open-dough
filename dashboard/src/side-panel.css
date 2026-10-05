@@ -169,3 +169,16 @@
   position: sticky;
   height: 100dvh;
 }
+
+/* Mark as done's question, between the header and what the panel keeps
+   showing. */
+.side-panel-question {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+.side-panel-question > p:first-child {
+  margin: 0;
+}

@@ -3,11 +3,15 @@
 // whose intention is complete (its latest report is `completed`, and it reads
 // neither working nor waiting) is marked done with `markDone`; any other
 // session is marked done with `markDoneAnyway`, which answers the question
-// Mark as done asks about it in place on a card entry.
+// Mark as done asks about it in place, on an entry or within a panel.
 
 import { expect, type Locator } from "@playwright/test";
 
 const anyway = "Mark it done anyway?";
+
+// What the question says of a session that reads working.
+export const stillWorking =
+  "This session is still working. Marking it done asks it to stop.";
 
 // The Mark as done button in this scope.
 export const markAsDone = (scope: Locator) =>

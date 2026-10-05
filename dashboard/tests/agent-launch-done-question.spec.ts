@@ -6,21 +6,22 @@
 // open, and is a group labelled by its words. Keep open or Escape leaves the
 // session, its record and its report's read state as they were and puts the
 // keyboard back on Mark as done; the question's Mark as done marks the session
-// done as the one-click mark does. Real start, launch, installed reporting
+// done as the one-click mark does. The terminal panel's own Mark as done on a
+// reported session is ./agent-terminal-done-report.spec.ts. Real start, launch, installed reporting
 // command, store and page; only the synthetic `claude` and GitHub are fakes.
 
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
-import { test as base, expect } from "./dashboardTest.ts";
+import { expect } from "./dashboardTest.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
   doneQuestion,
   expectAsked,
   markAsDone,
   markDone,
+  stillWorking,
 } from "./support/markDone.ts";
 import {
   doneNameOf,
@@ -30,27 +31,14 @@ import {
 import {
   otherQueuedIdentity,
   queuedIdentity,
-  startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { publishOrigin, test } from "./support/startOriginTest.ts";
 
-const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
-    await use(origin);
-    origin.cleanup();
-  },
-  machine: async ({ origin }, use) => {
-    await use(origin.machine);
-  },
-});
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
 const titleA = "Story A";
 const titleB = "Story B";
-const stillWorking =
-  "This session is still working. Marking it done asks it to stop.";
 
 // Story A and Story B, each launched in its own Claude session.
 async function launchedStories(
@@ -64,12 +52,7 @@ async function launchedStories(
 }
 
 async function openPage(page: Page, origin: StartOrigin) {
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
+  await publishOrigin(page, origin);
   await page.goto("/");
   const entryOf = (title: string) =>
     cardSessions(

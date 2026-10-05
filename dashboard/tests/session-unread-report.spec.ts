@@ -4,14 +4,15 @@
 // line follow only the native reading, while the report shows by its own
 // mark and words (“Unread report: <completion label>”) and the card's line of
 // how many unread reports it holds. Mark as read clears it and leaves the
-// session open with its native reading; Mark as done, from the report panel or
-// the terminal panel, read or not, closes the session as any session. Real start, launch, installed reporting
-// command, store and page; only the synthetic `claude` and GitHub are fakes.
+// session open with its native reading; Mark as done from the report panel,
+// read or not, closes the session as any session (from the terminal panel,
+// ./agent-terminal-done-report.spec.ts). Real start, launch, installed
+// reporting command, store and page; only the synthetic `claude` and GitHub
+// are fakes.
 
 import type { Locator, Page } from "@playwright/test";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { test as base, expect, pausePageClockAt } from "./dashboardTest.ts";
+import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {
   expectSidebarSessionShown,
@@ -21,27 +22,14 @@ import {
 } from "./sessionSidebarPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
-import { launchedStory } from "./support/reportedLaunch.ts";
 import {
-  otherQueuedIdentity,
-  queuedIdentity,
-  startOrigin,
-  type StartOrigin,
-} from "./support/startOrigin.ts";
-import { markDone } from "./support/markDone.ts";
-
-const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
-    await use(origin);
-    origin.cleanup();
-  },
-  machine: async ({ origin }, use) => {
-    await use(origin.machine);
-  },
-});
+  doneNameOf,
+  launchedStory,
+  shortIdOf,
+} from "./support/reportedLaunch.ts";
+import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
+import { publishOrigin, test } from "./support/startOriginTest.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
 const titleA = "Story A";
@@ -61,19 +49,6 @@ async function expectMarked(row: Locator, unmarked: Locator): Promise<void> {
     entry.evaluate((element) => getComputedStyle(element).backgroundColor);
   expect(await background(row)).not.toBe(await background(unmarked));
 }
-
-// The session's listed name and short id, as Claude Code lists them.
-const listedOf = (dashboard: DashboardServer, sessionId: string) => {
-  const listed = dashboard
-    .claudeListing()
-    .find((session) => session["sessionId"] === sessionId);
-  if (listed === undefined) throw new Error(`${sessionId} is not listed`);
-  return listed;
-};
-const doneNameOf = (dashboard: DashboardServer, sessionId: string) =>
-  `done-${String(listedOf(dashboard, sessionId)["name"])}`;
-const shortIdOf = (dashboard: DashboardServer, sessionId: string) =>
-  String(listedOf(dashboard, sessionId)["id"]);
 
 const sidebarTitles = (page: Page) =>
   sidebarParts(page).entries.locator("h3").allTextContents();
@@ -95,12 +70,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   const sessionB = storyB.sessionId;
   await storyA.report();
   dashboard.claudeSessionBecomes(sessionA, "done-live");
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
+  await publishOrigin(page, origin);
   await pausePageClockAt(page, new Date());
   const { passOnePace } = watchRecordReads(page);
   await page.goto("/");
@@ -247,8 +217,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   const stopsBeforeDone = stops().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
-  // Slice 3: the panel will ask (reported completed, Needs input); use markDoneAnyway then.
-  await markDone(panel);
+  await markDoneAnyway(panel);
   await expect(panel).toHaveCount(0);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
@@ -262,62 +231,4 @@ test("an unread report is its own mark beside the session's native reading", asy
   expect(stops().slice(stopsBeforeDone)).toEqual([
     expect.objectContaining({ argv: ["stop", shortIdA] }),
   ]);
-});
-
-test("Mark as done in the terminal panel closes a session with an unread report as any session", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  test.setTimeout(120_000);
-  const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
-  const { sessionId } = story;
-  await story.report();
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  await page.goto("/");
-  const card = parts(page).taken.getByRole("article", {
-    name: titleA,
-    exact: true,
-  });
-  await sidebarParts(page).button.click();
-  const row = sidebarRow(page, titleA);
-  await expect(card.locator(".session-unread-report")).toHaveText(unreadWords);
-  await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
-  const doneName = doneNameOf(dashboard, sessionId);
-  const shortId = shortIdOf(dashboard, sessionId);
-  await card.getByRole("button", { name: "Open terminal" }).click();
-  const terminal = page.getByRole("region", { name: "Terminal" });
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-  const stops = () =>
-    dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
-  const stopsBefore = stops().length;
-
-  // Slice 3: the panel will ask (reported completed, Working); use markDoneAnyway then.
-  await markDone(terminal);
-
-  await expect(terminal).toHaveCount(0);
-  await expect(card.locator(".session-state")).toHaveCount(0);
-  await expect(row).toHaveCount(0);
-  const recent = parts(page)
-    .recentSessions.getByRole("article")
-    .filter({ hasText: titleA });
-  await expect(recent.locator(".session-state")).toHaveText("Done");
-  await expect(recent.locator(".session-unread-report")).toHaveCount(0);
-  await expect(recent).toContainText(`Named ${doneName}`);
-  expect(
-    dashboard
-      .claudeListing()
-      .find((listed) => listed["sessionId"] === sessionId)?.["name"],
-  ).toBe(doneName);
-  expect(stops().slice(stopsBefore)).toEqual([
-    expect.objectContaining({ argv: ["stop", shortId] }),
-  ]);
-  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  expect(record?.doneAt).toBeDefined();
-  expect(record?.doneProblem).toBeUndefined();
 });

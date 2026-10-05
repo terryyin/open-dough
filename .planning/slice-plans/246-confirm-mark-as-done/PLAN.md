@@ -172,7 +172,19 @@ slice 3.
 
 ### 3. Mark as done in a panel asks by the same rule
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `agent-terminal-done agent-launch-done-question
+session-unread-report agent-completion-attention agent-launch-card-done` →
+18 passed; every spec the Learnings `grep` selects → 118 passed; lint and
+typecheck clean. Observations: `agent-terminal-done.spec.ts` (panel asks,
+Keep open and Escape keep it attached with no stop),
+`agent-terminal-done-question.spec.ts` (other project; opened Ready for
+review then Working asks about working), `agent-terminal-done-codex-page.spec.ts`
+(waiting Codex asks “waiting for your input”), and
+`agent-terminal-done-report.spec.ts` (read `completed`, Ready for review →
+one click from the panel). Panels decide by `shownRecord` (`src/pageSidePanel.ts`)
+through `useDoneMark` (`src/pageSessions.ts`) and ask with `useAskInPlace` and
+`InPlaceQuestion` (`src/AskInPlace.tsx`).
 Proof: Added to `agent-terminal-done.spec.ts`: a Working Claude session's
 terminal panel → Mark as done → the panel shows the question with focus on
 Keep open while the terminal rows stay visible; Keep open → panel open, still
@@ -251,5 +263,16 @@ question does when its state becomes known.
   composer is still empty); proven by a temporary fake-cursor frame-split
   injection, then `agent-launch-ad-hoc-cursor agent-terminal-cursor-launch
   --repeat-each 10` → 200 passed and every Cursor spec → 60 passed.
+- A panel opened before the page has read its session (an ad hoc start not
+  yet in `records`) decides with its reading unknown; untested.
+- Toggling page visibility (`setPageVisibility`, `autoRefreshJourney.ts`)
+  makes the page read again without a reload, so an open panel stays.
+- With a question open a panel has two Mark as done buttons; tests target the
+  header's own.
+- Under load (about 6), one broad run failed `responsive-session-access:44`,
+  `session-sidebar-reading:35` (socket hang up after 8.5 minutes), and
+  `session-workspace-retirement-attach` (“Vite did not report its address
+  within 20000ms”); each passed alone and the next broad run passed 118/118.
+  Not caused by this story; left as a load-sensitivity finding.
 - No journey yet proves Cursor's held-screen “working” or “waiting for an
   answer” asks first; the rule reads `cursorHeldLabel` for both.

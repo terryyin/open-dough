@@ -14,7 +14,7 @@ import {
   startDashboardServer,
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
-import { markDone } from "./support/markDone.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
@@ -81,16 +81,17 @@ test("installed attention report stays open, durable and readable through stage 
     "Publication finished. Reminder: inspect the migration before release.\n<script>must remain text</script>";
   const message = path.join(origin.machine, "attention.txt");
   writeFileSync(message, text);
+  // Reports through the installed command, from outside the workspace.
+  const report = async (outcome: "completed" | "unfinished") => {
+    const command = `${context.command} --outcome ${outcome} --message-file '${message}'`;
+    const child = await exec("bash", ["-c", command], { cwd: origin.machine });
+    return JSON.parse(child.stdout) as CompletionReceipt;
+  };
+  // The native calls since `from` with these methods.
+  const nativeSince = (from: number, methods: readonly string[]) =>
+    native.calls.slice(from).filter((call) => methods.includes(call.method));
   const before = native.calls.length;
-  const child = await exec(
-    "bash",
-    [
-      "-c",
-      `${context.command} --outcome completed --message-file '${message}'`,
-    ],
-    { cwd: origin.machine },
-  );
-  const receipt = JSON.parse(child.stdout) as CompletionReceipt;
+  const receipt = await report("completed");
   expect(receipt).toMatchObject({
     reference: context.reference,
     outcome: "completed",
@@ -118,13 +119,7 @@ test("installed attention report stays open, durable and readable through stage 
     queued.getByRole("button", { name: "Mark as read" }),
   ).toBeVisible();
   expect(
-    native.calls
-      .slice(before)
-      .filter((call) =>
-        ["turn/interrupt", "thread/name/set", "turn/start"].includes(
-          call.method,
-        ),
-      ),
+    nativeSince(before, ["turn/interrupt", "thread/name/set", "turn/start"]),
   ).toEqual([]);
   const post = (body: unknown, headers = { Origin: dashboard.origin }) =>
     rawRequest({
@@ -156,17 +151,7 @@ test("installed attention report stays open, durable and readable through stage 
     403,
   );
   expect(stored(dashboard.home)[0]?.completion?.message).toBe(text);
-  const unfinished = await exec(
-    "bash",
-    [
-      "-c",
-      `${context.command} --outcome unfinished --message-file '${message}'`,
-    ],
-    { cwd: origin.machine },
-  );
-  expect((JSON.parse(unfinished.stdout) as CompletionReceipt).outcome).toBe(
-    "unfinished",
-  );
+  expect((await report("unfinished")).outcome).toBe("unfinished");
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   await expect(queued).toContainText("Unfinished work", { timeout: 20000 });
   const revision = (await origin.originGit("rev-parse", "main")).trim();
@@ -181,16 +166,7 @@ test("installed attention report stays open, durable and readable through stage 
   );
   rmSync(workspace, { recursive: true, force: true });
   // The prepared installed copy remains callable after workspace removal.
-  const retired = await exec(
-    "bash",
-    [
-      "-c",
-      `${context.command} --outcome unfinished --message-file '${message}'`,
-    ],
-    { cwd: origin.machine },
-  );
-  const retainedReceipt = (JSON.parse(retired.stdout) as CompletionReceipt)
-    .receipt;
+  const retainedReceipt = (await report("unfinished")).receipt;
   await expect(claimed.locator(".session-attention-message pre")).toHaveText(
     text,
   );
@@ -227,8 +203,7 @@ test("installed attention report stays open, durable and readable through stage 
       panel.getByRole("button", { name: "Mark as done" }),
     ).toBeVisible();
     expect(stored(restarted.home)[0]?.doneAt).toBeUndefined();
-    // Slice 3: the panel will ask (reported unfinished, Working); use markDoneAnyway then.
-    await markDone(panel);
+    await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(claimed.locator(".session-attention-message")).toHaveCount(0);
     expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
@@ -247,16 +222,12 @@ test("installed attention report stays open, durable and readable through stage 
     await recent.getByRole("button", { name: "Read final report" }).click();
     await expect(panel.locator(".session-final-report")).toHaveText(text);
     expect(
-      native.calls
-        .slice(nativeBeforeDone)
-        .filter((call) =>
-          [
-            "turn/interrupt",
-            "thread/name/set",
-            "turn/start",
-            "thread/resume",
-          ].includes(call.method),
-        ),
+      nativeSince(nativeBeforeDone, [
+        "turn/interrupt",
+        "thread/name/set",
+        "turn/start",
+        "thread/resume",
+      ]),
     ).toEqual([
       {
         method: "thread/name/set",
