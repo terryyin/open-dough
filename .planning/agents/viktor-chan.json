@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-104#prove-mark-as-done-rule",
+  "mode": "story-branch",
+  "branch": "claude/prove-the-mark-as-done-rule-for-every-reading-it",
+  "host": "claude"
+}

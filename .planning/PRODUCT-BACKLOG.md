@@ -15,10 +15,10 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Read and mark attention messages read directly on the story card](seeds/SEED-103-attention-message-on-story-card.md#attention-message-on-story-card) — SEED-103#attention-message-on-story-card ([plan](slice-plans/248-attention-message-on-story-card/PLAN.md))
+- [Prove the Mark as done rule for every reading it reads](seeds/SEED-104-confirm-mark-as-done.md#prove-mark-as-done-rule) — SEED-104#prove-mark-as-done-rule ([plan](slice-plans/249-prove-mark-as-done-rule/PLAN.md))
 
 ## Backlog list
 
-- [Prove the Mark as done rule for every reading it reads](seeds/SEED-104-confirm-mark-as-done.md#prove-mark-as-done-rule) — SEED-104#prove-mark-as-done-rule
 - [Review changes in a full-height panel with compact context and independent file navigation](seeds/SEED-102-review-changes-ui.md#full-height-review-changes) — SEED-102#full-height-review-changes
 - [Dashboard specs pass CI on a revision that changes no code](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-pass-unchanged-code) — SEED-100#dashboard-specs-pass-unchanged-code
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
