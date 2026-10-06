@@ -54,6 +54,7 @@ test.describe("authenticated read boundary backlog (dev launch mode)", () => {
     expect(server.ghCalls()).toEqual([
       [
         "api",
+        "--include",
         "-H",
         "Accept: application/vnd.github.raw",
         `repos/terryyin/pygardon/contents/.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`,
@@ -78,12 +79,14 @@ test.describe("authenticated read boundary backlog (dev launch mode)", () => {
       "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [Next](seeds/SEED-next.md#next) — SEED-next#next\n";
     const refCall = [
       "api",
+      "--include",
       `repos/${knownRepository}/commits/main`,
       "--jq",
       ".sha",
     ];
     const backlogCall = (at: string) => [
       "api",
+      "--include",
       "-H",
       "Accept: application/vnd.github.raw",
       `repos/${knownRepository}/contents/.planning/PRODUCT-BACKLOG.md?ref=${at}`,

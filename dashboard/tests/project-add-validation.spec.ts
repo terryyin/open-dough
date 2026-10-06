@@ -56,7 +56,13 @@ test("an unreadable GitHub repository is refused at its URL field", async () => 
     `The repository ${validationRepository} could not be read through the local GitHub CLI. Check gh access and try again.`,
   );
   expect(fixture.github.calls.map((call) => call.argv)).toEqual([
-    ["api", `repos/${validationRepository}`, "--jq", ".default_branch"],
+    [
+      "api",
+      "--include",
+      `repos/${validationRepository}`,
+      "--jq",
+      ".default_branch",
+    ],
   ]);
 });
 

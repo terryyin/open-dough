@@ -1,7 +1,7 @@
 // When GitHub asked the local `gh` login to wait before asking again, read
-// from the headers of a refused answer (`./ghRevision.ts`), so the page's
-// automatic revision checks (`../src/revisionCheckSchedule.ts`) never ask
-// sooner. GitHub directs a wait in one of two ways: `Retry-After` (seconds, or
+// from the headers of any refused read's answer (`./ghAnswer.ts`), so the
+// page's automatic revision checks (`../src/revisionCheckSchedule.ts`) never
+// ask sooner. GitHub directs a wait in one of two ways: `Retry-After` (seconds, or
 // an HTTP date), or `X-RateLimit-Reset` (epoch seconds) once
 // `X-RateLimit-Remaining` has reached zero.
 

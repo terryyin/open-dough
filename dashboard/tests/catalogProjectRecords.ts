@@ -99,6 +99,7 @@ export function expectPinnedGhCalls(
 ): void {
   const refResolution = [
     "api",
+    "--include",
     `repos/${published.repository}/commits/${published.ref}`,
     "--jq",
     ".sha",
@@ -117,14 +118,15 @@ export function expectPinnedGhCalls(
       : calls.slice(1);
   // Files are read raw; the agent profile directory is read as a listing.
   const contents = reads.map(({ argv, request }) => {
-    expect(argv.slice(0, 3)).toEqual([
+    expect(argv.slice(0, 4)).toEqual([
       "api",
+      "--include",
       "-H",
       request.kind === "listing"
         ? "Accept: application/vnd.github+json"
         : "Accept: application/vnd.github.raw",
     ]);
-    expect(argv[3]).toMatch(
+    expect(argv[4]).toMatch(
       new RegExp(
         `^repos/${published.repository}/contents/[^?]+\\?ref=${published.revision}$`,
       ),

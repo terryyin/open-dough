@@ -183,6 +183,7 @@ test("npm watcher replaces production with each newly published main commit at t
       github.calls.slice(callsBefore).map((call) => call.argv),
     ).toContainEqual([
       "api",
+      "--include",
       "repos/terryyin/open-dough/commits/main",
       "--jq",
       ".sha",

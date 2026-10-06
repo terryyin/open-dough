@@ -206,7 +206,7 @@ usable proof route, not the remedy.
 ### 1. Every refused read reports the wait GitHub directed
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/authenticated-read-directed-wait.spec.ts` at the
 boundary, the literal `gh` arguments in the test files O5 lists, and the
 existing `authenticated-read-revision-check-failures.spec.ts`,
@@ -240,6 +240,20 @@ Interim: a directed wait is reported but holds back nothing until slice 2.
 
 Safe stop: Whichever read is refused, the page and the developer learn how
 long GitHub asked to wait.
+
+Done: `execGh` (`server/ghRead.ts`) adds `--include` after `api` on every
+call, so the shared-read key is the included argument list; `readAnswer` in
+the new `server/ghAnswer.ts` (formerly `includedAnswer.ts`) reads status,
+headers, and body once and owns `limitedAsDirected` and `classify`. Accepted
+proof: the three cases of `authenticated-read-directed-wait.spec.ts` with the
+named regressions and every argument-literal file, and the typecheck. Learnings:
+that spec's cases share one server and limit reads for 120 seconds, so slice 2
+must separate them; slice 2's cooldown can start from `GhAnswer.failure` in
+`spawnedGh`. The whole suite also failed `shared-observer-reads.spec.ts:199`
+and `story-readiness.spec.ts:40` (the agent-settings read reaches GitHub after
+the page counts as settled; also fails on the base) and once
+`production-watcher-updates.spec.ts:33` under load; they are fixed before
+slice 2, since slices 6–7 rely on "settled".
 
 ### 2. One cooldown holds back every read of the process
 

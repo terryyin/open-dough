@@ -10,9 +10,7 @@
 // failure, worded and rate-limited as every read's (`./performedRead.ts`,
 // `./readFailureMessage.ts`), never a guess.
 
-import { classify, execGh, GhFailure } from "./ghRead.ts";
-import { limitedAsDirected } from "./ghRevision.ts";
-import { parseIncluded } from "./includedAnswer.ts";
+import { execGh, GhFailure } from "./ghRead.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
@@ -58,24 +56,19 @@ async function containsViaGh(
   { accepted, revision }: ContainmentRead,
   signal: AbortSignal,
 ): Promise<boolean> {
-  const { error, stdout, stderr } = await execGh(
+  const answer = await execGh(
     [
       "api",
-      "--include",
       `repos/${repository}/compare/${accepted}...${revision}?per_page=1`,
       "--jq",
       ".status",
     ],
     signal,
   );
-  const answer = signal.aborted ? undefined : parseIncluded(stdout);
   // GitHub knows no such accepted commit: nothing shown contains it.
-  if (answer?.status === 404) return false;
-  if (error || answer?.status !== 200) {
-    throw new GhFailure(
-      limitedAsDirected(answer) ??
-        (error ? classify(error, stderr) : { kind: "failed" }),
-    );
+  if (!signal.aborted && answer.status === 404) return false;
+  if (signal.aborted || answer.failure || answer.status !== 200) {
+    throw new GhFailure(answer.failure ?? { kind: "failed" });
   }
   const status = answer.body.trim();
   if (containing.has(status)) return true;

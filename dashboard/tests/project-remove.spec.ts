@@ -232,6 +232,7 @@ test("removing the first project selects its next neighbor and reads that projec
     .poll(() => server.ghCalls(), { timeout: 5_000 })
     .toContainEqual([
       "api",
+      "--include",
       "repos/nerds-odd-e/doughnut/commits/main",
       "--jq",
       ".sha",

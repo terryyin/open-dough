@@ -97,16 +97,18 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
     expect(server.ghCalls().slice(callsBefore)).toEqual([
       [
         "api",
+        "--include",
         "-H",
         "Accept: application/vnd.github+json",
         `repos/${knownRepository}/contents/${agents}?ref=${revision}`,
       ],
       [
         "api",
+        "--include",
         `repos/${knownRepository}/commits?sha=${revision}&path=${encodeURIComponent(yuiPath)}&per_page=10`,
       ],
-      ["api", `repos/${knownRepository}/commits/${commit("e1")}`],
-      ["api", `repos/${knownRepository}/commits/${commit("e2")}`],
+      ["api", "--include", `repos/${knownRepository}/commits/${commit("e1")}`],
+      ["api", "--include", `repos/${knownRepository}/commits/${commit("e2")}`],
     ]);
 
     callsBefore = server.ghCalls().length;

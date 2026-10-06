@@ -114,6 +114,7 @@ test("a held group has reached its raw handlers only after every listed profile 
   const appendRead = (path: string) => {
     const argv = [
       "api",
+      "--include",
       "-H",
       "Accept: application/vnd.github.raw",
       `repos/${repository}/contents/${path}?ref=${revisionA}`,

@@ -146,6 +146,7 @@ for (const mode of ["dev", "preview"] as const) {
           await expect.poll(() => calls.length).toBeGreaterThan(before);
           expect(calls[before]?.argv).toEqual([
             "api",
+            "--include",
             `repos/${published.repository}/commits/${published.ref}`,
             "--jq",
             ".sha",

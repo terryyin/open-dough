@@ -1,7 +1,9 @@
 // The `gh`-invocation concern for the local authenticated read boundary
-// (`./authenticatedRead.ts`): running one `gh` call and classifying how it
-// failed, one call shared by every request asking it while it is
-// outstanding, and when one path was last committed as of a resolved commit.
+// (`./authenticatedRead.ts`): running one `gh api` call with GitHub's status
+// line and headers included, read once (`./ghAnswer.ts`) -- a rate limit and
+// the wait GitHub directed, whichever read met it -- one call shared by every
+// request asking it while it is outstanding, and when one path was last
+// committed as of a resolved commit.
 // Which commit a ref or published branch names is asked in `./ghRevision.ts`;
 // content pinned to a resolved commit is read in `./ghContents.ts`. Each call
 // has a fixed argument array -- never a shell string, and never a
@@ -11,6 +13,7 @@
 
 import { execFile, type ExecException } from "node:child_process";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
+import { readAnswer, type GhAnswer } from "./ghAnswer.ts";
 import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
 
 // How long one boundary request may wait for its `gh` answers before it is
@@ -56,42 +59,12 @@ export class GhFailure extends Error {
   }
 }
 
-// `gh` exits 4 when it has no usable login, and says so by pointing at
-// `gh auth login`; an HTTP error ends its stderr with "(HTTP <status>)", and a
-// rate limit or a failed connection names itself.
-// Timing out is the request bound's own finding (`./authenticatedRead.ts`),
-// never inferred here.
-export function classify(
-  error: { readonly code?: string | number | undefined },
-  stderr: string,
-): GhFailureReason {
-  if (error.code === "ENOENT") {
-    return { kind: "not-installed" };
-  }
-  if (Number(error.code) === 4 || /\bgh auth login\b/.test(stderr)) {
-    return { kind: "not-logged-in" };
-  }
-  const http = /\(HTTP (\d{3})\)/.exec(stderr);
-  if (http?.[1] !== undefined) {
-    const status = Number(http[1]);
-    return /rate limit/i.test(stderr)
-      ? { kind: "rate-limited", status }
-      : { kind: "http", status };
-  }
-  if (/\berror connecting to\b/.test(stderr)) {
-    return { kind: "unreachable" };
-  }
-  return { kind: "failed" };
+// Every call asks for GitHub's status line and headers (`--include`), right
+// after `api`, so a refusal's status and direction are read here whatever
+// was asked.
+function includedArgs(args: readonly string[]): readonly string[] {
+  return args[0] === "api" ? ["api", "--include", ...args.slice(1)] : args;
 }
-
-type GhRun = {
-  readonly error: ExecException | null;
-  readonly stdout: string;
-  readonly stderr: string;
-  // When this answer was asked of GitHub, by this server's clock: the start
-  // of the one `gh` call it shares.
-  readonly askedAt: string;
-};
 
 // Every `gh` call still outstanding in this server process, keyed by its
 // argument array: the question asked of GitHub, any conditional hint
@@ -99,12 +72,12 @@ type GhRun = {
 // call, which ends once none of them waits, at its own bound, or -- by
 // ending every request waiting on it -- when the boundary closes. No settled
 // answer is kept here.
-const outstandingGh = new OutstandingReads<GhRun>(readTimeoutMs());
+const outstandingGh = new OutstandingReads<GhAnswer>(readTimeoutMs());
 
 function spawnedGh(
   args: readonly string[],
   signal: AbortSignal,
-): Promise<GhRun> {
+): Promise<GhAnswer> {
   const askedAt = new Date().toISOString();
   return new Promise((resolve, reject) => {
     execFile(
@@ -121,7 +94,7 @@ function spawnedGh(
           reject(new GhFailure({ kind: "timed-out" }));
           return;
         }
-        resolve({ error, stdout, stderr, askedAt });
+        resolve(readAnswer(error, stdout, stderr, askedAt));
       },
     );
   });
@@ -129,45 +102,48 @@ function spawnedGh(
 
 // What a request that stopped waiting is answered, as `execFile` answers a
 // call aborted by its signal.
-function abandoned(args: readonly string[]): GhRun {
+function abandoned(args: readonly string[]): GhAnswer {
   const error: ExecException = Object.assign(
     new Error("The operation was aborted"),
     { name: "AbortError", code: "ABORT_ERR", cmd: ["gh", ...args].join(" ") },
   );
-  return { error, stdout: "", stderr: "", askedAt: new Date().toISOString() };
+  return readAnswer(error, "", "", new Date().toISOString());
 }
 
-// One `gh` answer, settled whatever its exit: `gh api --include` prints
-// GitHub's status line on stdout even when it exits non-zero, so a caller
-// that asked for it decides from that status before classifying the exit.
+// One `gh api` answer, settled whatever its exit: `--include` makes `gh`
+// print GitHub's status line on stdout even when it exits non-zero, so a
+// caller can decide from that status before treating the exit as a failure.
 // `signal` ends this request's wait, not a call another request still waits
 // for; a call that reached its own bound is a timed-out failure.
 export async function execGh(
   args: readonly string[],
   signal: AbortSignal,
-): Promise<GhRun> {
+): Promise<GhAnswer> {
+  const asked = includedArgs(args);
   try {
-    return await outstandingGh.waitFor(JSON.stringify(args), signal, (shared) =>
-      spawnedGh(args, shared),
+    return await outstandingGh.waitFor(
+      JSON.stringify(asked),
+      signal,
+      (shared) => spawnedGh(asked, shared),
     );
   } catch (error) {
     if (signal.aborted) {
-      return abandoned(args);
+      return abandoned(asked);
     }
     throw error;
   }
 }
 
-// One `gh` answer's output, and when it was asked of GitHub.
+// One `gh` answer's body, and when it was asked of GitHub.
 export async function askGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<{ readonly stdout: string; readonly askedAt: string }> {
-  const { error, stdout, stderr, askedAt } = await execGh(args, signal);
-  if (error) {
-    throw new GhFailure(classify(error, stderr));
+  const { failure, body, askedAt } = await execGh(args, signal);
+  if (failure) {
+    throw new GhFailure(failure);
   }
-  return { stdout, askedAt };
+  return { stdout: body, askedAt };
 }
 
 export async function runGh(

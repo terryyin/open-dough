@@ -27,7 +27,13 @@ test.describe.configure({ mode: "serial" });
 // The argv that asks which commit a repository's `main` names, and nothing
 // about other branches.
 function refArgv(repository: string): string[] {
-  return ["api", `repos/${repository}/commits/main`, "--jq", ".sha"];
+  return [
+    "api",
+    "--include",
+    `repos/${repository}/commits/main`,
+    "--jq",
+    ".sha",
+  ];
 }
 
 // GitHub giving up on an answer, as it does on a large repository's listing.
