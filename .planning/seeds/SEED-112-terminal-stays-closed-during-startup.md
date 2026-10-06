@@ -1,5 +1,5 @@
 ---
-id: SEED-111
+id: SEED-112
 status: active
 planted: 2026-10-06
 planted_during: SEED-106#paged-dashboard-columns CI repair, which found a started session reopening a terminal the developer had closed
@@ -7,7 +7,7 @@ trigger_when: A developer closes a session's terminal while its start is still u
 scope: story
 ---
 
-# SEED-111: Terminal stays closed during startup
+# SEED-112: Terminal stays closed during startup
 
 ## Why This Matters
 
@@ -22,7 +22,7 @@ the close were ignored.
 
 ### A terminal the developer closed while its session starts stays closed
 
-**Identity:** SEED-111#closed-terminal-stays-closed
+**Identity:** SEED-112#closed-terminal-stays-closed
 
 **Beneficiary:** A developer who starts a session from the dashboard, opens
 its terminal, and closes it before the launch has finished.
