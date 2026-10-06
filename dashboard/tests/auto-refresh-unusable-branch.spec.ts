@@ -18,11 +18,8 @@ import {
   profilePath,
   trunk,
 } from "./branchProgressRecords.ts";
-import {
-  openedSettled,
-  readsBesideChecks,
-  trunkMoved,
-} from "./branchRefreshJourney.ts";
+import { openedSettled, trunkMoved } from "./branchRefreshJourney.ts";
+import { readsBesideChecks } from "./originObservation.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 
 // A name Git allows but the local read boundary does not use.

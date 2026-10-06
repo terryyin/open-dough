@@ -5,6 +5,7 @@
 
 import { crc32, deflateSync } from "node:zlib";
 import type { AvatarAnswer, AvatarAnswerer } from "./support/fakeGitHub.ts";
+import { holding } from "./support/heldGitHubAnswer.ts";
 
 function chunk(type: string, data: Buffer): Buffer {
   const length = Buffer.alloc(4);
@@ -47,7 +48,7 @@ export function avatarsAt(
   images: Readonly<Record<string, AvatarAnswer>>,
 ): AvatarAnswerer {
   return (requested) => {
-    const path = requested.split("?")[0] ?? "";
+    const path = avatarPathOf(requested);
     return (
       (Object.hasOwn(images, path) ? images[path] : undefined) ?? {
         status: 404,
@@ -66,5 +67,19 @@ export function onAvatarHost(path: string, version = 4): string {
 
 // Only the avatar paths among `reads`, their queries left out.
 export function avatarPathsRead(reads: readonly string[]): string[] {
-  return reads.map((read) => read.split("?")[0] ?? "");
+  return reads.map(avatarPathOf);
+}
+
+// The avatar path an avatar read asked for, its query ignored.
+function avatarPathOf(requested: string): string {
+  return requested.split("?")[0] ?? "";
+}
+
+// Answers as `answerer` does, except that the image at `path` (its query
+// ignored) is answered only once `release` is called.
+export function holdingAvatar(
+  answerer: AvatarAnswerer,
+  path: string,
+): { readonly answer: AvatarAnswerer; readonly release: () => void } {
+  return holding(answerer, (requested) => avatarPathOf(requested) === path);
 }

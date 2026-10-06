@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "identity": "SEED-113#share-repeated-observer-reads",
-  "mode": "story-branch",
-  "branch": "claude/share-repeated-reads-across-dashboard-observers",
-  "host": "claude"
-}

@@ -12,7 +12,6 @@ import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
 import type { BranchHeads } from "./branchHeads.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
-import { readRepositoryFileViaGh } from "./ghContents.ts";
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import {
   performBranchHeadRead,
@@ -108,6 +107,11 @@ export async function perform(
   let reading = readingOf(source, read);
   try {
     return await withTrackedGh(req, tracked, async (signal) => {
+      // The backlog at a resolved commit: one this process already read there
+      // is answered from the memo, which keeps it for the reachability checks
+      // of that revision's later detail reads.
+      const backlogAt = (revision: string) =>
+        pinned.reader(source, revision, signal)(source.backlogPath);
       switch (read.kind) {
         case "revision-check":
           return await performRevisionCheck(
@@ -119,11 +123,7 @@ export async function perform(
         case "backlog-at":
           return answered({
             revision: read.revision,
-            backlog: await pinned.reader(
-              source,
-              read.revision,
-              signal,
-            )(source.backlogPath),
+            backlog: await backlogAt(read.revision),
           });
         case "agent-profiles-at":
         case "done-records-at":
@@ -205,25 +205,20 @@ export async function perform(
         }
         case "ref": {
           // When the ref was asked, by this server's clock, as launch
-          // attempts settle by it.
-          const askedAt = new Date().toISOString();
-          const revision = await resolveRevisionViaGh(
+          // attempts settle by it: a resolution this request joined answers
+          // when it was asked, never when this request arrived.
+          const { revision, askedAt } = await resolveRevisionViaGh(
             source.repository,
             source.ref,
             signal,
           );
           reading = readingPathAt(source.backlogPath, revision);
-          // The membership read always asks for the backlog afresh, and
-          // leaves it for the reachability checks of this revision's later
-          // detail reads.
-          const backlog = await readRepositoryFileViaGh(
-            source.repository,
-            source.backlogPath,
+          // Only which commit the ref names can have changed.
+          return answered({
             revision,
-            signal,
-          );
-          pinned.remember(source, revision, source.backlogPath, backlog);
-          return answered({ revision, backlog, askedAt });
+            backlog: await backlogAt(revision),
+            askedAt,
+          });
         }
       }
     });

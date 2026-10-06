@@ -1,7 +1,8 @@
 // Opening the branch slice progress journeys' records
-// (./branchProgressRecords.ts) with heads that move, and observing what the
-// page then asks GitHub, for the automatic check's branch journeys
-// (./auto-refresh-branches.spec.ts, ./auto-refresh-unusable-branch.spec.ts).
+// (./branchProgressRecords.ts) with heads that move, for the automatic
+// check's branch journeys (./auto-refresh-branches.spec.ts,
+// ./auto-refresh-unusable-branch.spec.ts), which observe what the page then
+// asks GitHub through ./originObservation.ts's `readsBesideChecks`.
 
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
@@ -14,36 +15,13 @@ import {
   stories,
   trunk,
 } from "./branchProgressRecords.ts";
-import { isHeadsCheck } from "./originObservation.ts";
 import {
   publishMovingFiles,
   type PublishedRevision,
 } from "./publishedFiles.ts";
-import type { GhCall } from "./support/fakeGitHub.ts";
 
 // Where trunk moves to.
 export const trunkMoved = "d5".repeat(20);
-
-// What GitHub was asked besides the checks, as `<kind> <path>@<revision>` or
-// `branch <name>`.
-export function readsBesideChecks(calls: readonly GhCall[]): string[] {
-  return calls
-    .filter((call) => !isHeadsCheck(call))
-    .map(({ request }) => {
-      switch (request.kind) {
-        case "content":
-        case "listing":
-        case "commit-list":
-          return `${request.kind} ${request.path}@${request.revision}`;
-        case "branch":
-          return `branch ${request.branch}`;
-        case "ref":
-          return `ref ${request.ref}`;
-        default:
-          return request.kind;
-      }
-    });
-}
 
 // Opens the page on `published` -- by default the records' trunk and
 // branches -- with the clock paused at the opening time, once every read has

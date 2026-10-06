@@ -3,9 +3,10 @@
 // other published branch head, names now, asked of GitHub in one conditional
 // listing (`./ghRevision.ts`) so unchanged heads cost a `304 Not Modified`
 // rather than a fresh answer. When that listing fails for any reason but a
-// rate limit -- it is one unpaginated answer, which a repository with
-// thousands of branches may exceed or GitHub may give up on -- that check
-// asks only which commit the ref names, and says nothing of branch heads.
+// rate limit or a timeout -- it is one unpaginated answer, which a
+// repository with thousands of branches may exceed or GitHub may give up on
+// -- that check asks only which commit the ref names, and says nothing of
+// branch heads.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -45,18 +46,19 @@ export class RevisionChecks {
       if (
         signal.aborted ||
         !(error instanceof GhFailure) ||
-        error.reason.kind === "rate-limited"
+        error.reason.kind === "rate-limited" ||
+        // A listing shared with an earlier request may reach its own bound
+        // first: this request is answered as timed out too.
+        error.reason.kind === "timed-out"
       ) {
         throw error;
       }
       // The earlier answer stays the hint, so watching branch heads resumes
       // with the next listing that succeeds.
       return {
-        revision: await resolveRevisionViaGh(
-          source.repository,
-          source.ref,
-          signal,
-        ),
+        revision: (
+          await resolveRevisionViaGh(source.repository, source.ref, signal)
+        ).revision,
         heads: undefined,
       };
     }

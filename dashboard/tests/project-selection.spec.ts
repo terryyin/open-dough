@@ -71,7 +71,7 @@ const titlesOfDoughnut = {
   backlog: [doughnutSharedTitle, doughnutQueuedTitle],
 };
 
-test("project selection shows each project's own overview, and returning to a project reads it again", async ({
+test("project selection shows each project's own overview, and returning to a project asks its ref again", async ({
   page,
 }) => {
   const openDoughRequests = await publishOrigin(
@@ -144,7 +144,7 @@ test("project selection shows each project's own overview, and returning to a pr
     );
   });
 
-  await test.step("returning to Open Dough shows its overview again, read afresh", async () => {
+  await test.step("returning to Open Dough shows its overview again, its ref asked again", async () => {
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
       .check();
@@ -156,8 +156,13 @@ test("project selection shows each project's own overview, and returning to a pr
     await expect(source).toContainText(revisionOpenDough);
     await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
     await expect(page.locator("body")).not.toContainText(doughnutTakenTitle);
-    // A fresh read, not a cached replay: ref and file are asked again.
-    expect(openDoughRequests).toHaveLength(4);
+    // A fresh observation, not a replay: the ref is asked again, and the
+    // backlog already read at the revision it still names is not.
+    expect(openDoughRequests.map(({ request }) => request.kind)).toEqual([
+      "ref",
+      "content",
+      "ref",
+    ]);
     expect(doughnutRequests).toHaveLength(2);
   });
 

@@ -102,36 +102,6 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
-## One GitHub read serves every observer that needs it
-
-For [sharing repeated reads across dashboard observers](seeds/SEED-113-dashboard-github-responsiveness.md#share-repeated-observer-reads),
-the local read boundary of one launched dashboard server owns sharing. It is
-the only place that serves every tab, and it already owns the pinned memo, the
-revision-check hint, and the resolved branch heads. Tabs do not coordinate with
-one another, nothing is stored outside that process's memory, and development
-and built preview share nothing.
-
-- **A read is a question asked of GitHub**: a repository and what is asked of
-  it. Admission, reachability, and interpreting the answer for one page's shown
-  revision and watched branches stay with each dashboard request. Requests that
-  then need the same GitHub answer wait on one outstanding read.
-- **Two lifetimes.** An answer at a resolved commit or blob outlives its read in
-  the existing bounded memo, which the membership read's backlog joins. An
-  answer about which commit a ref or branch names is shared only while its read
-  is outstanding, and carries the time GitHub was asked.
-- **Waiters own the read.** Today one request owns its `gh` work, so its
-  disconnect and its 30-second bound end that work. A shared read ends when no
-  request waits for it, when it has itself run for the bound, or when the
-  server closes. A request leaves, or reaches its own bound, without ending a
-  read others wait for. A request that joins late can therefore be told the
-  read timed out sooner than 30 seconds after it asked; GitHub had already
-  left that read unanswered for the whole bound.
-- **Failure belongs to the read's waiters** and is never kept.
-
-Aggregate concurrency and rate-limit cooldown, and reuse of unchanged content at
-a new revision, belong to the seed's later stories; this rule is not built
-ahead for them. Retire this topic when the story is delivered.
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard

@@ -158,6 +158,10 @@ test("npm watcher replaces production with each newly published main commit at t
     expect(processRunning(latest.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("MAIN C");
+    // C's own page has read the backlog at the revision main names.
+    await expect(
+      page.getByRole("region", { name: "Published Git state" }),
+    ).toContainText(revision);
     expect(await builtCommitPrefixes(fixture.home)).toEqual(
       [a, b, c].map((commit) => commit.slice(0, 12)),
     );
@@ -183,6 +187,7 @@ test("npm watcher replaces production with each newly published main commit at t
       "--jq",
       ".sha",
     ]);
+    // C's boundary keeps the backlog its page read at this revision.
     expect(
       github.calls
         .slice(callsBefore)
@@ -192,7 +197,7 @@ test("npm watcher replaces production with each newly published main commit at t
             call.request.revision === revision &&
             call.request.path === ".planning/PRODUCT-BACKLOG.md",
         ),
-    ).toBe(true);
+    ).toBe(false);
     const launchesBefore = claude.controls.claudeLaunchCalls().length;
     const refused = await request.post(
       `${productionUrl}/__agent-launch/accept`,

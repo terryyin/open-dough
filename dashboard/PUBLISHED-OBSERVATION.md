@@ -21,7 +21,11 @@ same local read boundary from their Vite configuration, so the watcher's
 production preview needs no separate authentication setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
-reads once on opening, and reloading the page reads it again. While a snapshot
+reads once on opening, and reloading the page or returning to the project reads
+it again: GitHub is asked anew which commit the configured ref names and which
+head each recorded story branch names, while backlog and record text this
+dashboard process already read at those commits is not asked again. A record
+GitHub answered as missing, or that could not be read, is asked for again. While a snapshot
 is shown and the page is visible, it also asks every 15 seconds whether the
 project's configured ref still names the shown revision -- one conditional listing of
 every published branch head, which GitHub answers with `304 Not Modified` when
@@ -37,6 +41,22 @@ seen again it checks once at once, then resumes the 15-second pace. Each read
 replaces the whole view with one revision. No local
 checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
+
+Pages served by one dashboard process share what they ask GitHub: a request
+that needs an answer another request already waits for waits on that same
+`gh` request instead of asking again. Two tabs opening one project together
+resolve its ref once and read each record once, and revision checks from pages
+showing different revisions or watching different branches share one
+branch-head listing, each learning its own answer. Each page still shows what
+it would have read alone, under its own observation, and a shared resolution
+of the ref answers when GitHub was asked. A page that closes, is hidden, or
+switches project stops waiting without ending a read another page still waits
+for; the last one leaving ends it, as closing the dashboard does. A finished
+ref or branch-head answer is never reused: a later open or check asks again.
+A shared request that GitHub refuses, or leaves unanswered for the 30-second
+bound counted from when it was first asked, fails every page waiting on it
+alike, so a page that joined it late can be told so sooner than 30 seconds
+after it asked; the failure is not kept, and the next request asks again.
 
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done

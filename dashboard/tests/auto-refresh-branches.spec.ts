@@ -33,11 +33,8 @@ import {
   slicePlan,
   trunk,
 } from "./branchProgressRecords.ts";
-import {
-  openedSettled,
-  readsBesideChecks,
-  trunkMoved,
-} from "./branchRefreshJourney.ts";
+import { openedSettled, trunkMoved } from "./branchRefreshJourney.ts";
+import { readsBesideChecks } from "./originObservation.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 
 const example = "story/example";

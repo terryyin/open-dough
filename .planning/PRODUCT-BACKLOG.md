@@ -14,11 +14,11 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Share repeated reads across dashboard observers](seeds/SEED-113-dashboard-github-responsiveness.md#share-repeated-observer-reads) — SEED-113#share-repeated-observer-reads ([plan](slice-plans/261-shared-observer-reads/PLAN.md))
 - [Determine whether cancelled dashboard CI failures need repair](seeds/SEED-115-cancelled-dashboard-ci-failures.md#explain-cancelled-ci-failures) — SEED-115#explain-cancelled-ci-failures
 
 ## Backlog list
 
+- [Shared GitHub reads say and signal only what their waiters own](seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction) — SEED-113#shared-read-waiter-residue-correction
 - [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits
 - [Refresh published work without rereading unchanged files](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication) — SEED-113#reuse-unchanged-records-after-publication
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown

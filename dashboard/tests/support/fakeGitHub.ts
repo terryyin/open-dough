@@ -52,8 +52,11 @@ export type AvatarAnswer = {
   readonly body: Buffer;
 };
 
-// Decides the avatar host's answer for one requested path and query.
-export type AvatarAnswerer = (path: string) => AvatarAnswer;
+// Decides the avatar host's answer for one requested path and query, and may
+// wait (to hold an image back) before answering.
+export type AvatarAnswerer = (
+  path: string,
+) => AvatarAnswer | Promise<AvatarAnswer>;
 
 export type FakeGitHub = {
   // Where the synthetic `gh` hands its argv (`FAKE_GH_ORIGIN`), and where
@@ -183,9 +186,13 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
     if (req.method === "GET") {
       const path = req.url ?? "";
       avatarReads.push(path);
-      const answer = avatars(path);
-      res.writeHead(answer.status, { "content-type": answer.contentType });
-      res.end(answer.body);
+      void Promise.resolve(avatars(path)).then((answer) => {
+        if (res.destroyed) {
+          return;
+        }
+        res.writeHead(answer.status, { "content-type": answer.contentType });
+        res.end(answer.body);
+      });
       return;
     }
     const chunks: Buffer[] = [];
