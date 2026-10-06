@@ -1,6 +1,6 @@
 # DearDough Process Findings
 
-Retained material shared-process findings, reviewed 2026-10-03. Only an explicit
+Retained material shared-process findings, reviewed 2026-10-06. Only an explicit
 queued follow-up is planned work; other entries are open and unqueued. A retained
 released response is not proof of effectiveness. Unknown provenance stays unknown.
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
@@ -30,7 +30,6 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2` - Timestamp: unknown (after the CI repair return, before commit `ff33cb8` at 2026-09-24T17:46:32+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: 0.3.37 - Evidence: the CI-repair refactor agent's only notification said it had stopped with its own background work still running and had not reported; `ps` then showed no `node --test`, and `TaskStop` found no task. The coordinator kept waiting until the developer said "it seems to be staying here for quite some time." - Observed effect: repair `ff33cb8` shipped on the coordinator's own reruns without a refactor report (compare the earlier unreviewed ci repairs report); slice 6's refactor, told to run tests only in the foreground with timeouts, reported normally.
 - Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: unknown (2026-09-29, before `809b407d` 13:54:50+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46. - Evidence: the refactor pass on the Story Branch native harness repair left two edits uncommitted and stopped (600 s stream watchdog) while "rerunning the accepted proof"; the coordinator reran that proof and delivered `809b407d`. Slice 3's implementation agent stalled the same way before writing anything and resumed through SendMessage. - Observed effect: two stalls in one execution, each costing a 10-minute wait and a coordinator-side recovery; no work lost.
 - Execution: `SEED-104#confirm-mark-as-done` / plan 246, first related implementation commit `0ae01bd4` - Timestamp: unknown (after slice 2's delivery of `01f7d61f` at 2026-10-05T08:52:16+09:00, before CI repair `4f6d9f89` at 10:07:03+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: slice 3's implementation agent was terminated by the 600 s stream watchdog with 17 files edited and no report; a CI failure arrived at the same boundary, so the coordinator confirmed no Playwright run was live, parked the edits with `ci-repair-stash.mjs` (entry `97bf6485`), published repair `4f6d9f89`, restored them (`resumed`), and resumed the same agent through SendMessage with an instruction to bound long commands; it then returned a full report and slice 3 shipped as `8df2e91b`. - Observed effect: a 10-minute wait and one resume; no work lost. - Inference: Qualified. Third execution with a delegated-agent watchdog stall; the stall during a long broad Playwright run matches the earlier "rerunning the accepted proof" occurrence.
-- Execution: `SEED-088#review-changes-since-last-review` / plan 245, first related implementation commit `d754256c` - Timestamp: unknown (while slice 1's agent ran, before `d754256c` committed 2026-10-05T13:43:51+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator printed the `deliver` usage in `execution-increment-delivery.mjs`, grepped `targetRef` across the scripts, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; all six deliveries were accepted first time. - Inference: Qualified; same missing statement.
 
 ## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
@@ -47,13 +46,30 @@ Follow-up: delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story
 - Execution: `SEED-052#cursor-host-guide-attach` / plan 214, first related implementation commit `f84a7a56` - Timestamp: unknown (delivery of `f84a7a56`, between its commit at 2026-10-02T14:13:42+08:00 and a clock read at 14:15:13+08:00) - Tool: Cursor - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: `deliver` from the coordinator's own Shell accepted `f84a7a56` on `refs/heads/cursor/state-that-cursor-supplies-embedded-attach` with `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); an immediate `ci-mailbox.mjs probe` from the same Shell got `CI_MONITOR_READY` from the Cursor hook; `ci-host-bridge.mjs` `resolveHostSession` falls back only to `CLAUDE_CODE_SESSION_ID`, and the coordinator cannot read its Cursor `conversation_id`/`generation_id` for `--session-json`. - Observed effect: the only increment's CI stayed unobserved; no manual observer was started because managed delivery forbids it. - Inference: Same gap; the hook proves Cursor's bridge works, so the missing piece is only identity transfer into `deliver`.
 - Execution: `SEED-052#cursor-native-activity-and-controls` / plan 217, first related implementation commit `7053bc62` - Timestamp: unknown (first delivery of `7053bc62`, committed 2026-10-02T16:42:11+08:00; the third at `69634abd` came later) - Tool: Cursor - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: `deliver` for `7053bc62` returned `observation.state: unobserved` ("host session identity is required…"). A probe from the coordinator's Shell got `CI_MONITOR_READY`. The coordinator read `ci-host-bridge.mjs` and `execution-increment-observation.mjs` and found that a live matching observer is reused before the bridge check. It then ran `ci-mailbox.mjs start` (`watch-qYGHLT`) and `register-push`, and `10d7967e`'s delivery reported `reused`. That observer later emitted `CI_MONITOR_UNAVAILABLE` (GitHub TLS handshake timeout), so `69634abd`'s delivery was `unobserved` again and needed a second manual start (`watch-ssxsmf`). - Observed effect: two of four increments needed a manual observer start and registration, plus a code read to find the reuse path. - Inference: Same gap. A lost observer brings it back mid-execution, not only at the first delivery.
 
+### Additional Cursor occurrence
+
+Former local code: DD-231.
+
+Three Story Branch increment deliveries were accepted on the execution branch without a host session identity, so no CI mailbox was created and the completion wait has no observer to close.
+
+### Occurrences
+
+- Execution: `SEED-097#cursor-agent-stays-joinable` / plan 242, recoverable at `f4650752e5b46ecc8db5302858c6aabccf12b574:.planning/slice-plans/242-cursor-agent-stays-joinable/PLAN.md`; first related implementation commit `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Model: Grok 4.7
+  - Open Dough release: modified; revision `2ea2d324f5956dc76c006b0d425fdefda86b9771`; base 0.3.56
+  - Evidence: `execution-increment-delivery.mjs deliver` receipts for `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`, `d8468ccec8024cbab1350afac9ef01d4dc006e59`, and `2ea2d324f5956dc76c006b0d425fdefda86b9771` on `refs/heads/cursor/a-launched-cursor-agent-receives-its-story`, each `observation.state: unobserved`, `reason: host session identity is required to verify the notification bridge`. No `--session-json` was passed.
+  - Observed effect: publication was accepted; CI was not observed; `complete-revision` has no mailbox.
+  - Inference: Qualified. The coordinator omitted the host session identity. One execution.
+
 ## ODF-074 — A ready plan named a validation command the backlog tool does not have
 
 Former local code: DD-121.
 
 Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked.
 
-Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51 and 0.3.52, so neither is shown to resolve it.
+Follow-up: queued, not resolved: [Observe decisive planning premises through the full promised journey](.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51–0.3.56, so neither is shown to resolve it.
 
 - Execution: SEED-044#verify-planning-premises (plan 115; first implementation commit `2c5ff71f`) - Timestamp: 2026-09-27T14:17:23+08:00 - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `6882aeb3` guidance at planning time - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
 - Execution: `SEED-093#expose-timing-races-locally` / plan 233, first related implementation commit `7b6ddcce` - Timestamp: 2026-10-03T18:08:39+08:00 (commit `0b5253cf` recording the contradicted premise; the slice 4 premise was settled before `14745390` at 18:18:30+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: plan 233 premise rows. The slice 3 row was observed by reading spec lines 186-191 only, but `dashboard/server/hosts/cursor/launch.ts:130-140` writes `uncertain` before the client spawns, so the sleep was an absence window. The slice 4 row said "no event is known", but `agent-completion-early-recovery.spec.ts:30-53` already injects a `promises.mkdir` loader for the same lock. - Observed effect: slice 3's implementation agent stopped on the contradiction (about 77k subagent tokens, no code kept), and the slice closed as a plan record; slice 4's probe found the existing pattern quickly. No rework. - Inference: Qualified. Both premises described a sleep's purpose from the spec alone, without reading the state's write site or searching the suite for an existing observation of the same seam.
@@ -65,7 +81,7 @@ Former local code: DD-124.
 
 A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop.
 
-Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51 and 0.3.52, so neither is shown to resolve it.
+Follow-up: queued, not resolved: [Observe decisive planning premises through the full promised journey](.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51–0.3.56, so neither is shown to resolve it.
 
 - Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737` - Timestamp: unknown; between re-bind `e8ce93b9` (2026-09-27T15:50:01+08:00) and slice 2 commit `6f350f28` (2026-09-27T16:40:20+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42) - Evidence: plan 112 premise table at `e8ce93b9` cites `execution-increment-publication.mjs:143-197`; slice 2 first return reported the merge-driver conflict; corrected premise row and North Star wording in `6f350f28` - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
 - Execution: `SEED-052#script-execution-preparation` / plan 178, first related implementation commit `821cd555` - Timestamp: 2026-09-30T14:50:39+08:00 (CI repair `f77110df`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: plan 178's premise table row "New script files ship with the skill directory (no manifest to edit)", observed by `grep -rln execution-start-receipt` outside skill copies, marked yes for slice 1; CI failed on `tests/payload-declaration-links.sh` because `install.sh` `managed_files` declares each shipped script and reference; slice 1's own files were declared in `f77110df`, and the plan row now records the premise as wrong. - Observed effect: one failed CI run and one repair commit early in the execution. - Inference: Qualified. The premise was observed by searching for a name, not by the consuming operation (adding a shipped file and running the payload-declaration check), which is the same shape as this finding.
@@ -120,7 +136,7 @@ Former local code: DD-177.
 
 Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario.
 
-Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (story and plan recoverable at `56ed987b:.planning/seeds/SEED-095-slice-proof-through-consumers.md` and `56ed987b:.planning/slice-plans/237-prove-slices-through-consumers/PLAN.md`). Proof selection, delegation and acceptance now choose a slice's proof from every consumer of what it changes: retired literals and values found by search, callers relying on a changed default, every stand-in of a changed contract, page-wide specs, and the changed surface's suite when it fits the focused-check time; a plan's named proof is a minimum, and the coordinator neither accepts nor publishes while a known consumer, including one left for CI, is unrun.
+Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (recoverable at `56ed987b:.planning/seeds/SEED-095-slice-proof-through-consumers.md`). Response `cca9bff4` is on main; no release tag contains the complete response as of 2026-10-06.
 
 - Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002` - Timestamp: 2026-09-29T17:36:06+08:00 (CI run 36550218994 on `08f217af`) - Tool: Claude Code; Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd` - Evidence: slice 2 delegation's spec list; the failure at `accessible-overview-keyboard.spec.ts:72` (expected 5, received 6); repair `76e6dce3`. Slice 1's list had included that spec. - Evidence (recurrence in the same execution): slice 3's retention sentence put "done" in Recent sessions' always-shown intro; `published-work.spec.ts:151` forbids completion words anywhere on a page without sessions and failed only in CI run 36551022132 on `32e554d5`; the full dashboard suite (286 tests, 46 s) then passed locally with the repair. - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents. - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
 - Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7` - Timestamp: 2026-09-30T10:29:14+08:00 (slice 5, commit `5c09cc85`; CI run 36660072699) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: slice 5 added an always-rendered `role="status"` line in `StartSession.tsx`; its delegated proof ran only the ad hoc, terminal, sidebar and card specs; CI failed on `getByRole('status')` matching two elements in six page-wide specs (`accessible-overview-keyboard`, `auto-refresh`, `auto-refresh-recovery`, `published-work`, `read-failure`, `refresh`). `aria-live="polite"` also collided with `dashboardPage.ts`'s `notice` locator, so the repair `ed7e1aa1` uses `role="log"`. From slice 6 the whole suite (351 tests, about 1 min) ran before delivery. - Observed effect: one failed CI run, one repair commit, one repair agent, and a stash and restore of slice 6's unfinished work. - Inference: Qualified. The cause recurred in a new execution; slice 4's implementer had run the whole suite once, slice 5's delegation named a spec list instead.
@@ -254,6 +270,7 @@ Follow-up: queued, not resolved: [SEED-008#story-branch-delivery-target](.planni
 - Execution: `SEED-102#full-height-review-changes` / plan 247, first related implementation commit `2b983fd0` - Timestamp: unknown (delivery of `2b983fd0`, after its commit at 2026-10-05T13:51:45+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref origin/claude/review-changes-in-a-full-height-panel-with-compa` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; same missing statement, low cost.
 - Execution: `SEED-105#land-and-wrap-up-process-retrospective` / plan 250, first related implementation commit `1be19216` - Timestamp: 2026-10-05T14:48:39+09:00 (commit time of `1be19216`; its delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator read `trunk-publication.md` ("Story Branch Mode pushes that candidate to the recorded remote execution branch") and `deliver --help`, then passed `--target-ref refs/heads/main` from the established start's `target: main`; `deliver` accepted it with receipt target `refs/heads/main`, and `git ls-remote` then showed `main` at `1be19216` with the execution branch still at the claim `4aea12b4`. Slice 2 used `refs/heads/<execution branch>`. - Observed effect: a Story Branch increment was fast-forwarded onto remote trunk before review or integration; not reverted (no force push), and a second CI observer was attached for trunk. - Inference: Qualified. This answers the first row's open question: `deliver` takes no mode and does not refuse a trunk target, so the missing statement can publish to trunk rather than costing only lookups.
 - Execution: `SEED-100#dashboard-specs-pass-unchanged-code` / plan 251, first related implementation commit `3a0ff700` - Timestamp: 2026-10-05T19:19:01+09:00 (commit time of `3a0ff700`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref claude/dashboard-specs-pass-ci-on-a-revision-that-chang` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; same missing statement.
+- Execution: `SEED-088#review-changes-since-last-review` / plan 245, first related implementation commit `d754256c` - Timestamp: unknown (while slice 1's agent ran, before `d754256c` committed 2026-10-05T13:43:51+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator printed the `deliver` usage in `execution-increment-delivery.mjs`, grepped `targetRef` across the scripts, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; all six deliveries were accepted first time. - Inference: Qualified; same missing statement.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -338,7 +355,7 @@ Former local code: DD-201.
 
 Managed increment delivery can create a detached observer and say Codex binding is retained by the caller. The documented yielded-cell stream command instead creates its own mailbox; it accepts no existing directory. The coordinator could not establish that those two paths deliver notifications from the same observer without starting another observer or inventing an adapter.
 
-Follow-up: delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). A Codex execution arms its yielded stream at execution start and `deliver --host codex` reuses it; without one the receipt names that step. `--codex-bridge-available` is removed. Native Codex evaluation not yet run.
+Follow-up: delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md`). Response `abeb79f9` arms and reuses the Codex stream; no release tag contains it as of 2026-10-06. Native evaluation remains pending.
 
 ### Occurrences
 
@@ -450,7 +467,7 @@ Former local code: DD-206.
 
 The plan's decisive premise "real browsers deliver ⌘Esc to the page" was marked open and assigned to a first probe slice in which the developer would press keys, because Playwright's CDP input bypasses OS and browser reservations. Execution settled it in minutes without the developer: real keystrokes sent through macOS System Events (`osascript … key code 53 using {command down}`) to a scratch page logging capture-phase keydowns. Both Chrome and Safari withheld ⌘Esc. The story's chosen shortcut was already refined and planned around it, so execution had to stop for a shortcut decision.
 
-Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51 and 0.3.52, so neither is shown to resolve it.
+Follow-up: queued, not resolved: [Observe decisive planning premises through the full promised journey](.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51–0.3.56, so neither is shown to resolve it.
 
 ### Occurrences
 
@@ -469,7 +486,7 @@ Former local code: DD-212.
 
 Changing the shared readiness reader aligned its normal startup consumers but left a queued one-shot escalation test asserting refusal on historical digest mismatch. The implementation report excluded one-shot starts as lacking the assessment fact; that exclusion did not account for the normal continuation invoked after escalation. The focused proof selected startup publication cases, not this reached continuation caller, and the coordinator accepted the exclusion.
 
-Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (story and plan recoverable at `56ed987b:.planning/seeds/SEED-095-slice-proof-through-consumers.md` and `56ed987b:.planning/slice-plans/237-prove-slices-through-consumers/PLAN.md`). Proof selection, delegation and acceptance now choose a slice's proof from every consumer of what it changes: retired literals and values found by search, callers relying on a changed default, every stand-in of a changed contract, page-wide specs, and the changed surface's suite when it fits the focused-check time; a plan's named proof is a minimum, and the coordinator neither accepts nor publishes while a known consumer, including one left for CI, is unrun.
+Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (recoverable at `56ed987b:.planning/seeds/SEED-095-slice-proof-through-consumers.md`). Response `cca9bff4` is on main; no release tag contains the complete response as of 2026-10-06.
 
 ### Occurrences
 
@@ -487,7 +504,7 @@ Former local code: DD-213.
 
 Plan 206 recorded that callers of the rules slice 2 changed were "only dashboard code and specs … Specs reach them only through the HTTP boundary and pages", from a grep of function names. The new rule refused a fresh start after an uncertain outcome, and 13 tests in 7 specs relaunched the same story over raw HTTP to resume it; the plan treated two of those specs as wording-only consumers for slice 3.
 
-Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51 and 0.3.52, so neither is shown to resolve it.
+Follow-up: queued, not resolved: [Observe decisive planning premises through the full promised journey](.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are released; the same class of unobserved premise is reported again on 0.3.51–0.3.56, so neither is shown to resolve it.
 
 ### Occurrences
 
@@ -599,46 +616,9 @@ Follow-up: Open, unqueued. Proposal: make file-size guidance and the conceptual 
   - Observed effect: an extra coordinator decision and agent follow-up; no refactor edits or repeated tests. No human waiver of the numeric limit was claimed.
   - Inference: Qualified. This is a scope/precedence conflict, distinct from ODF-141's cost of mandatory no-edit refactor passes. The broader value of smaller files was not assessed here.
 
-## DD-169 — A plan handed a read-only `claude attach` probe to the developer, who expected the agent to run it
+## ODF-209 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
-Plan 150 slice 3 said to ask Terry to run `claude attach` on a finished
-session. Asked, he replied "why cannot you just do it by yourself?". The
-coordinator then tried it in a pseudo-terminal and auto mode denied it, so
-Terry ran it after all.
-
-Returned from ProjectFindings.md on 2026-10-05: its cause is a planning premise that left a locally observable check to the developer (the ODF-074 class), not this repository's own practice.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-052#revisit-dashboard-sessions` / plan 150, first related implementation commit `5933bb9178a503409b9574f9b87207cbf5f8fbb5`
-  - Timestamp: unknown (slice 3 start, between `29174888` at 2026-09-29T11:30:06+08:00 and `f332b5dd` at 11:44:42+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: plan 150 slice 3 ("Ask Terry to run `claude attach <id>`"); two questions to Terry; auto-mode denial of the pty attempt; recorded answer in plan 150 slice 3 Accepted.
-  - Observed effect: two question rounds and one denied command; no delivery impact, since the implementation kept the rule behind one predicate meanwhile.
-  - Inference: Qualified. Planning did not say who may run an interactive native-host observation, or whether this session's permissions allow it.
-
-## DD-173 — A plan left a "paid" probe to the developer that the agent could run at no cost
-
-Plan 152 slice 1 said only Terry could run the PTY attach/rename probe because starting a session costs model usage. The executing agent started a background session with no prompt (`claude --bg -n …`, "idle — send a prompt to start"), which runs no model turn, and ran the whole probe itself.
-
-Returned from ProjectFindings.md on 2026-10-05: its cause is a planning premise that left a locally observable check to the developer (the ODF-074 class), not this repository's own practice.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related commit `e8553f8d`
-  - Timestamp: 2026-09-29T12:49:01+08:00 (probe record `e8553f8d`)
-  - Tool: Claude Code; Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
-  - Evidence: plan 152 slice 1 as refined in `19c7e82b` versus its recorded observations in `e8553f8d`; the observation also found an unplanned fact (attaching a stopped session wakes it).
-  - Observed effect: no developer wait for the probe; the busy-session rename, which does need a model turn, stayed unobserved and bounded by the plan's fallback.
-  - Inference: Practice. Planning assumed a cost without checking a zero-cost route for the observation.
-
-## DD-221 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
+Former local code: DD-221.
 
 While slice 5's full suite and refactor tests ran in the execution checkout, a CI repair reproduced its failure with many repeated, many-worker runs in a separate checkout on the same machine. The combined load produced failures caused by load alone in both, and longer proof.
 
@@ -655,56 +635,15 @@ Follow-up: Open, unqueued.
   - Observed effect: extra reruns and diagnosis of load-only failures; no wrong verdict was accepted.
   - Inference: Qualified. The published guidance runs CI repair concurrently with slice work and says nothing about shared machine load; one sample.
 
-## DD-223 — A planning premise reproduced as a failing test caught a second required fix before implementation
+## ODF-110 — A removal premise swept client names but missed server and fixture consumers
 
-Planning observed decisive premise 3 with a disposable local test, which showed that correct Cursor identity alone still left the coordinator's hook returning nothing. The plan therefore owned the generation fix in slice 1 and named the red outcome as proof.
+Former local code: DD-228.
 
-Follow-up: none; useful practice.
+A consumer premise for removing an attention-message path checked the client by name, missing the server response and a fixture that depended on that behavior.
 
-### Occurrences
-
-- Execution: `SEED-094#observe-ci-on-codex-and-cursor` / plan 235, first related implementation commit `c02158fc`
-  - Timestamp: unknown (slice 1 hand-back, before `c02158fc` committed 2026-10-03T18:33:40+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 235 "Decisive premises" row 3; slice 1 hand-back reported the identity-only change still failing the hook assertion with `''` before the generation fix; each of the three slices was accepted on its first return.
-  - Observed effect: no returned implementation, replanning, or CI repair in a three-slice execution.
-  - Inference: Qualified. Contrasts with ODF-110, where a premise was observed by reading the code instead of reproducing it. A single execution does not show how often this pays for the planning cost.
-
-## DD-225 — A plan dropped one observable signal of a story example without saying so
-
-Story example 2 promises that a read session's later "Needs input" also raises a macOS alert. Plan 239's key-example table kept the example's other signals and left out the alert, with no note that it was dropped or why. The slice 1 implementer noticed and reported it as unasserted.
-
-Follow-up: Open, unqueued.
+Follow-up: queued, not resolved: [Observe decisive planning premises through the full promised journey](.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey.
 
 ### Occurrences
-
-- Execution: `SEED-052#mark-report-read-keeps-session-state` / plan 239, first related implementation commit `46340f4a`
-  - Timestamp: unknown (slice 1 hand-back, before `46340f4a` committed 2026-10-03T22:05:42+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: SEED-052 `#mark-report-read-keeps-session-state` key example 2 ("raises a macOS “Needs input” alert"); plan 239 key-example row 2 lists only the label, edge, attention group and badge; slice 1 hand-back "Untested or open points" names the alert as not asserted; the retrospective read `alertReading` in `dashboard/src/sessionShown.ts`, which depends on `doneAt` and the native state only.
-  - Observed effect: the promise holds by construction but has no observation of its own for a read session; acceptance relied on reading the code.
-  - Inference: Qualified. Low cost here because Mark as read cannot change the alert input. A plan narrowing a story example's signals is the kind of change the proof-mapping step should state with a reason. One sample.
-
-## DD-228 — A plan's preparation context named a workspace and branch that the execution's established start had replaced
-
-Plan 231's "Preparation context" records the workspace and branch where it was prepared. A later Take created a different workspace and branch for execution. The plan still names the old ones, and nothing in the plan marks them as superseded by the established start.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d`
-  - Timestamp: unknown (slice 1 delegation, before `c58dc07d` committed 2026-10-03T21:36:52+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 231 "Preparation context" names `.worktrees/make-story-cards-modern-compact-information-radi` and branch `codex/make-story-cards-modern-compact-information-radi`; the established start named `.worktrees/make-story-cards-modern-compact-information-radi-2` and `claude/make-story-cards-modern-compact-information-radi-2`. Both slice delegations had to tell the implementation agent to ignore the plan's names.
-  - Observed effect: no wrong-checkout edit; one added caution per delegation.
-  - Inference: Qualified. A delegated agent that reads the plan without that caution could work in the stale preparation workspace if it still exists. One sample.
 
 - Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
   - Timestamp: unknown (slice 3 implementation, before `58ea4c37` committed 2026-10-05T11:31:23+09:00)
@@ -715,58 +654,9 @@ Follow-up: Open, unqueued.
   - Observed effect: no CI failure or rework; slice 3's implementer removed the server branch and rebuilt the Story B fixture as a Codex record.
   - Inference: Qualified. Fourth occurrence of the class: the removed concept's consumers were swept on the client by name, missing the server answer and a fixture that relied on the removed behavior.
 
-## DD-230 — An implementation return omitted an out-of-scope behavior change inside a reported path
+## ODF-210 — Removing a panel path lost the only Mark as done of cardless unavailable reported sessions, unseen until retrospective
 
-The implementation agent changed `openTerminal` in `dashboard/src/pageSidePanel.ts` to take each new request, the same way it changed `openReview`. Terminals were outside the slice's scope. The return listed the file and described only the `openReview` change. The coordinator found the extra hunk while reading the diff for proof acceptance and reverted it before the refactor pass.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-091#side-panel-review-reopen-and-close-alignment` / plan 242 (side-panel-alignment-correction), first related implementation commit `6b48c315`
-  - Timestamp: unknown (slice 1 return, before `1b59f06a` committed 2026-10-04 07:18 +0800)
-  - Tool: Claude Code (delegated implementation agent; the coordinator inspected and reverted)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: the uncommitted diff of `pageSidePanel.ts` had `openTerminal` going from `? current` to `? { ...current, request }`; the return's finding-1 text named `openReview` only. After the revert, the focused 32-test proof passed again.
-  - Observed effect: one revert and one rerun of the focused proof. A new terminal request would have handed `TerminalPanel` a new `session` object, which could re-run its attach effects; no test covered that path.
-  - Inference: Qualified. Because the return was organized per changed path, a hunk outside the slice's scope sat inside a path the return did report. Only reading the diff hunk by hunk caught it. One sample.
-
-## DD-231 — Story-branch increment delivery published with no CI observer
-
-Three Story Branch increment deliveries were accepted on the execution branch without a host session identity, so no CI mailbox was created and the completion wait has no observer to close.
-
-### Occurrences
-
-- Execution: `SEED-097#cursor-agent-stays-joinable` / plan 242, recoverable at `f4650752e5b46ecc8db5302858c6aabccf12b574:.planning/slice-plans/242-cursor-agent-stays-joinable/PLAN.md`; first related implementation commit `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`
-  - Timestamp: unknown
-  - Tool: Cursor
-  - Model: Grok 4.7
-  - Open Dough release: modified; revision `2ea2d324f5956dc76c006b0d425fdefda86b9771`; base 0.3.56
-  - Evidence: `execution-increment-delivery.mjs deliver` receipts for `e7fbca2a1ef98d777ffa29c31e3c6f882ce38be2`, `d8468ccec8024cbab1350afac9ef01d4dc006e59`, and `2ea2d324f5956dc76c006b0d425fdefda86b9771` on `refs/heads/cursor/a-launched-cursor-agent-receives-its-story`, each `observation.state: unobserved`, `reason: host session identity is required to verify the notification bridge`. No `--session-json` was passed.
-  - Observed effect: publication was accepted; CI was not observed; `complete-revision` has no mailbox.
-  - Inference: Qualified. The coordinator omitted the host session identity. One execution.
-
-## DD-233 — A slice's proof command selected specs by text that the slice itself removed
-
-A plan's slice proof chose its specs with `grep -rl "Mark as done"`, while the
-same slice replaced that literal in many specs with calls to a new support
-step, so the command silently selected fewer specs after the change.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-104#confirm-mark-as-done` / plan 246, first related implementation commit `0ae01bd4`
-  - Timestamp: 2026-10-05T08:33:04+09:00 (commit time of `0ae01bd4`; the implementation return reported it just before)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 246 slice 1 proof `$(grep -rl "Mark as done" dashboard/tests --include="*.spec.ts" …)`; after the slice it matched 22 spec files instead of 30. The implementation agent noticed, ran the 30 files matched at `e3196862` plus every changed spec (61 passed), and the plan's Learnings replaced the selector with `grep -rlE "Mark as done|markDone"` for later slices.
-  - Observed effect: no missed proof and no rework; one learning edit.
-  - Inference: Qualified. A text-based selector read after the change measures the post-change tree; a selector fixed at the starting revision, or one that also matches the replacement, keeps the intended set. Related in shape to ODF-157 (sweeping with the removed words), but here the proof selection, not a premise, depended on them.
-
-## DD-234 — Removing a panel path lost the only Mark as done of cardless unavailable reported sessions, unseen until retrospective
+Former local code: DD-234.
 
 Plan 248 slice 3 removed the side panel's attention-message branch. That branch was also how a reported session listed only in Recent sessions, with its conversation unavailable, reached Mark as done; Recent entries offer none, so such a session now ends only by Delete record.
 
@@ -781,35 +671,9 @@ Plan 248 slice 3 removed the side panel's attention-message branch. That branch 
   - Observed effect: a delivered capability loss awaiting the developer's decision on where Mark as done is offered.
   - Inference: Qualified. A removal premise listed what the removed path showed, not what it let the developer do; a removal's existing capabilities had no check before delivery. One sample.
 
-## DD-235 — A one-slice flake check with three repeats passed a test the refactor pass's twelve parallel repeats failed
+## ODF-211 — A retrospective correction of an unlanded story could not be admitted where its code lives
 
-### Occurrences
-
-- Execution: `SEED-103#attention-message-on-story-card` / plan 248 (`d60da8d0:.planning/slice-plans/248-attention-message-on-story-card/PLAN.md`), first related implementation commit `0b3d3c78`
-  - Timestamp: unknown (slice 2, before `fa0a60f5` committed 2026-10-05T11:15:30+09:00)
-  - Tool: Claude Code (delegated implementation and refactor agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: slice 2's return reported `--repeat-each 3` → 9 passed, "not flaky locally"; the refactor pass's `--repeat-each 12` with 8 workers failed the long-message test 2–3 times (one End press for keyboard scroll dropped, `scrollTop` 74 of 1100), fixed with `toPass` and then 24 of 24 passed (plan 248 slice 2 learning).
-  - Observed effect: the flake was fixed before publication; no CI failure.
-  - Inference: Qualified practice. A newly written timing-sensitive browser step needed parallel repeats to show its failure rate; three serial-ish repeats did not. One sample.
-
-## DD-236 — Repairs were implemented locally while a CI probe ran on the published revision, and published only after it
-
-Overlapping local implementation with a long CI observation, while holding publication so the observed revision stays fixed, kept the probe's before-counts valid and removed most of its wait.
-
-### Occurrences
-
-- Execution: `SEED-100#dashboard-specs-pass-unchanged-code` / plan 251, first related implementation commit `3a0ff700`
-  - Timestamp: 2026-10-05T19:19:01+09:00 to 2026-10-05T20:05:37+09:00 (`3a0ff700` published; slice 2 record `297e4a2c` published with slices 3 and 4)
-  - Tool: Claude Code (coordinator and delegated agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 251 Learnings (slice 3 entry: "Committed before slice 2 finished but published only after it"); `scripts/ci-repeat.sh` dispatches on the branch head, so a push mid-probe would have moved later repetitions; all 20 slice 2 runs ran on `3a0ff700`.
-  - Observed effect: slices 3 and 4 were implemented, refactored, and committed during slice 2's roughly 45-minute CI wait; publication followed the probe's result.
-  - Inference: Qualified practice. It depends on the probe dispatching on a moving branch; one sample.
-
-## DD-237 — A retrospective correction of an unlanded story could not be admitted where its code lives
+Former local code: DD-237.
 
 The admission guidance names a retrospective's accepted follow-up correction
 as a mission to admit, but admission requires a separate owned workspace based

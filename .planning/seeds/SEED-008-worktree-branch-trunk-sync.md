@@ -188,7 +188,8 @@ occurrence published an unreviewed Story Branch increment to remote `main`.
 
 **Done when:** a Story Branch `deliver` with a trunk target is refused before
 any push; the usage and the delivery steps name both forms; one-shot landing
-and closure publications are still accepted; and ODF-200 is updated at
+and closure publications are still accepted; and ODF-200 records the actual
+response commit and first containing release (or release pending) at
 `DearDough.md` and `docs/maintainer/finding-names.md` under
 [retained evidence](../../docs/maintainer/finding-names.md#retained-evidence).
 
@@ -231,8 +232,7 @@ and the managed execution delivery of plan 083, released in 0.3.33.
 Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
 transcription, early provisional coverage notifications, and a separate closure
 observer cycle. No raw transcript established the repeated-setup cause. The
-full investigation is retained in Git at `1352844` and linked findings
-[ODF-069](../../docs/maintainer/near-term-watch-list.md#odf-069).
+full investigation is retained in Git at `1352844`.
 Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.

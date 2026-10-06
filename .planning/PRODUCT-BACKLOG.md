@@ -17,11 +17,12 @@ visibility for multiple agents working in worktrees on one machine.
 - [Dashboard columns page horizontally instead of wrapping in narrower windows](seeds/SEED-106-dashboard-paged-columns.md#paged-dashboard-columns) — SEED-106#paged-dashboard-columns ([plan](slice-plans/225-paged-dashboard-columns/PLAN.md))
 - [Retained sessions show who was assigned when they launched](seeds/SEED-109-retained-session-attribution.md#retained-session-attribution) — SEED-109#retained-session-attribution
 - [Completed Claude sessions remain readable after their workspace is retired](seeds/SEED-110-retired-claude-session-access.md#retired-claude-session-access) — SEED-110#retired-claude-session-access
+- [Story Branch increments publish only to their execution branch](seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target) — SEED-008#story-branch-delivery-target ([plan](slice-plans/256-story-branch-delivery-target/PLAN.md))
 
 ## Backlog list
 
 - [Recently done reads beside owners, keeps the session look, and closes completely](seeds/SEED-107-dashboard-recently-done.md#recently-done-correction) — SEED-107#recently-done-correction
-- [Story Branch increments publish only to their execution branch](seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target) — SEED-008#story-branch-delivery-target
+- [Observe decisive planning premises through the full promised journey](seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
