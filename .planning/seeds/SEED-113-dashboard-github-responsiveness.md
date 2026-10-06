@@ -164,34 +164,138 @@ if request sharing and caching across commits are never implemented.
 
 **Identity:** SEED-113#share-repeated-observer-reads
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/261-shared-observer-reads/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5bb601b3d586242220e2038f04230302d8071fa8269eea08ff8e6de7aec87f0d","plan":"e5166ea19c69a7c8447dd68d517cd6c9e5b315150d739de784d62141751cb108"}}
 ```
 
 **Beneficiary:** A developer reopening a dashboard or observing the same project
 in multiple tabs served by one dashboard process.
 
-**Goal:** Identical outstanding reads share one upstream request, and completed
-immutable content at the same revision is reused on subsequent reads. Reopening
-the same revision does not unnecessarily fetch its backlog content again.
+**Goal:** Observers served by one dashboard process stop paying GitHub twice for
+the same answer. Reads that need the same GitHub answer while it is outstanding
+share one request, and content already read at a resolved revision is reused,
+so reopening a project asks only what could have changed. Each observer still
+sees the published facts it would have read alone.
 
-**Evaluation:** Two observers request the same uncached pinned file while its
-answer is held: both receive it from one GitHub read. The same applies to
-equivalent simultaneous revision checks. Reopening a previously read revision
-reuses its content while still establishing the required freshness of moving refs.
+**Current baseline:** The process already keeps completed file text, directory
+listings, commit times, and profile additions by resolved commit, so a detail
+read once is not asked of GitHub again at that revision. Three costs remain.
+Requests arriving while a read is outstanding each start their own, as the
+[replay above](#why-this-matters) recorded for file reads and revision checks.
+Opening a project always reads its backlog again, even at a revision whose
+backlog this process holds. Each request owns its GitHub work, so a requester
+that leaves ends that work.
 
-**Scope and safety:** Different repositories, revisions, paths, and materially
-different reads stay distinct. One observer leaving cannot cancel a read another
-still needs. Failures leave a useful recovery path. Preserve current visibility
-and publication-observation behavior, including checks when a page is seen again.
+**Scope — required behavior:**
+
+- While a GitHub read is outstanding, every dashboard request that needs the
+  same answer waits for that one read. What is shared is the question asked of
+  GitHub, not the dashboard request: revision checks from pages showing
+  different revisions or watching different story branches share one
+  branch-head listing, and each receives the answer to its own question. This
+  covers pinned content and history, the resolution of a project's configured
+  ref and of a recorded story branch, and revision checks.
+- Completed content at a resolved revision is reused by every later read in
+  that process, now including the backlog a membership read needs. Opening or
+  reloading a project still asks GitHub which commit its configured ref names,
+  and which head each recorded story branch names; it reads the backlog only
+  when this process has not read it at that commit. A record GitHub answered
+  as missing at that revision is asked for again, like a failed read.
+- A shared read belongs to the requests waiting for it. One observer closing
+  its tab, hiding its page, switching projects, or reaching its wait bound
+  leaves the read running for the others. When no request waits for it any
+  longer the read ends, as an abandoned read does today. Closing the dashboard
+  server ends every outstanding read.
+- A failed shared read gives each waiting request that failure, including any
+  wait GitHub directed. A failure is never kept: the next request asks GitHub
+  again and can succeed.
+
+**Scope — evidence and failure constraints:** Follow the
+[existing published reading contract](../../dashboard/README.md) and
+[visibility requirements](../../docs/project-visibility-requirements.md).
+
+- Published facts are pinned to a resolved revision. A read for another
+  repository, revision, path, or kind of fact is a different read and never
+  answers this one.
+- Which commit a ref or branch names can change at any time, and the contract
+  promises newly published work within about 30 seconds and a fresh reading of
+  the ref on reload. A completed answer to such a question is therefore never
+  reused: sharing lasts only while the request is outstanding, and the shared
+  answer carries the time GitHub was actually asked, which launch
+  reconciliation judges by.
+- Sharing begins after a request is admitted on its own terms: local origin,
+  configured project, a path reachable from the pinned revision's records, and
+  a branch head this boundary resolved. No request receives through sharing an
+  answer it could not have read alone.
+- Only a successful read establishes content or absence. The 30-second bound
+  stays: no request waits longer for a shared read than it would alone, and
+  later arrivals cannot keep one GitHub read outstanding beyond that bound.
+- Visibility and publication observation are unchanged: the 15-second check
+  pace per visible page, silence while hidden, one check at once when a page is
+  seen again, and exactly the newly named commit read after a change.
+- What the process keeps stays in memory and bounded, as today.
+- The [request accounting](../../dashboard/GITHUB-REQUESTS.md) and the reading
+  contract describe the resulting costs.
+
+**Scope — deferred promises:** [Recovering from rate limits](#recover-consistently-from-rate-limits)
+owns cooldowns and aggregate request concurrency; a burst of different reads
+is as concurrent as today. [Reuse after publication](#reuse-unchanged-records-after-publication)
+owns unchanged content at a new revision. This delivery adds no coordination
+of polling between tabs, no reuse of a completed ref or branch-head answer, no
+sharing between separately launched dashboard processes or across a restart,
+and no request-count or latency budget. It does not keep that a record was
+missing at a revision: GitHub answers a missing record and one it will not show
+alike, and asking again is how a reload recovers today. Avatar images, which use no `gh`
+allowance, carry no new commitment.
+
+**Key examples:**
+
+| Pre-condition and trigger | Result |
+| --- | --- |
+| No observer has read a seed at the shown revision. Two tabs ask for it while GitHub's answer is held. | GitHub is asked once. On release both tabs show the seed's facts at that revision. A third request afterwards asks GitHub nothing. |
+| Two tabs open the same project at the same moment. | The ref is resolved once and its backlog read once. Both show the same revision with the same asked time. |
+| Tab A shows an earlier revision and watches no branch; tab B shows the current one and watches a story branch. Their revision checks are outstanding together. | One branch-head listing is asked. A learns the ref names another commit and reads it; B learns its revision is current and the head of its branch. |
+| A project was read at the revision its ref still names. The developer reloads the page, or returns to the project. | GitHub is asked which commit the ref names, and the head of each recorded story branch. Backlog and record content are not read again; the page shows the same facts under its own new observation. A record that was missing or unreadable there is asked for again. |
+| The same reload, after a new commit was published. | The ref names the new commit, whose backlog and records are read as today. Nothing kept for the earlier revision answers for the new one. |
+| A revision check has just been answered. Another page is seen again a moment later and checks at once. | GitHub is asked again; the earlier answer is not replayed. |
+| Two tabs wait on one held read. One tab is closed, hidden, or switched to another project. | The read continues and the remaining tab receives its answer. The departed observer's view is unaffected by it. |
+| The only tab waiting on a held read leaves. | The read ends. A later request for the same answer asks GitHub anew. |
+| Two tabs wait on one read that GitHub refuses, with or without a directed wait. | Both report that failure and the same resume time, each keeping its earlier snapshot. The next read asks GitHub again and, when it succeeds, clears the problem as today. |
+| GitHub leaves a shared read unanswered, and further requests keep joining it. | Each request stops waiting within 30 seconds of asking and shows its gap or read problem. The read ends within 30 seconds of starting, however many joined, and a later request starts a new one. |
+| Two tabs show different projects, or one project at two revisions, and ask for the same path together. | Two GitHub reads; neither answers the other. |
+
+**Architecture:** The story moves the ownership of outstanding GitHub work from
+one dashboard request to the requests waiting for one question, and makes that
+a single rule of the local read boundary rather than a property of each read
+kind. The [Architectural North Star](../NORTH-STAR.md#one-github-read-serves-every-observer-that-needs-it)
+records this design until the code explains it. Accepted
+[ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md) keeps this feature-local
+design with the feature, so no ADR is proposed.
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)'s
+high cohesion asks for one representation of the sharing rule, extending the
+boundary's existing memo, revision-check, and branch-head owners. No Accepted
+decision conflicts.
+
+**Evaluation:** Hold GitHub's answers through the existing local read boundary
+and count what reaches GitHub. Two observers asking for the same uncached
+pinned file are answered from one read, as are simultaneous revision checks.
+Reopening a read revision asks only its moving refs. The departure, failure,
+bound, and distinct-read examples qualify that result. Request counts are
+observed for these examples, not adopted as budgets.
 
 **Value / learning:** Reduce duplicated work and request bursts without changing
 which published facts the developer observes.
 
-**Effort hypothesis:** Band pending project definitions; cancellation ownership
-and equivalent checks across observers are the main sizing uncertainties.
+**Effort hypothesis:** Band pending project definitions; the main uncertainty is
+moving the lifetime of GitHub work from one request to its waiters consistently
+across every read kind, including the existing disconnect and shutdown proof.
 
 **Depends on:** No blocking story prerequisite; this story does not require
 independent rendering or caching across different commits.
+
+**Open decisions:** None about the goal, scope, or examples. This story selects
+the request-sharing lifetimes and cancellation behavior that the seed left for
+refinement. The selected execution approach and proof design are in the
+[slice plan](../slice-plans/261-shared-observer-reads/PLAN.md).
 
 **Safe stopping point:** Simultaneous and repeated reads cost less even if every
 new trunk revision still needs a fresh set of record reads.
