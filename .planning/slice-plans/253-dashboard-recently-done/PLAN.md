@@ -246,6 +246,9 @@ and one frame. A done card counts as an entry for delete focus.
 
 ## Learnings
 
+- `taken-agent-profile.spec.ts:24` read a just-added mark's `currentSrc`
+  before it loaded; Chromium reports `""`, which requested the page itself as
+  text/html. Image checks wait on `loadedWidth` in `agentPortrait.ts` first.
 - `publishStoryStagesJourney` runs the real `complete`, so completed-state
   specs see a done card; slice 4 changes their counts again.
 - `session-sidebar-navigation-cases.spec.ts:116` (narrow window, reduced

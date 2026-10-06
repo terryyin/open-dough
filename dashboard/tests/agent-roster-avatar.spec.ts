@@ -18,6 +18,7 @@ import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
+import { loadedWidth } from "./agentPortrait.ts";
 import {
   avatarHost,
   credited,
@@ -55,13 +56,6 @@ function creditOf(holder: Locator) {
   };
 }
 
-// The width of the avatar image shown, once it has loaded.
-function shownWidth(image: Locator): Promise<number> {
-  return image.evaluate((element: HTMLImageElement) =>
-    element.complete ? element.naturalWidth : 0,
-  );
-}
-
 async function expectAvatar(
   page: Page,
   holder: Locator,
@@ -72,7 +66,7 @@ async function expectAvatar(
   const { name: named, image, initials } = creditOf(holder);
   await expect(named).toHaveText(`Human developer: ${name}`);
   await expect(image).toBeVisible();
-  await expect.poll(() => shownWidth(image)).toBe(width);
+  await expect.poll(() => loadedWidth(image)).toBe(width);
   await expect(initials).toHaveCount(0);
   const src = new URL(
     await image.evaluate((element: HTMLImageElement) => element.currentSrc),
@@ -125,7 +119,7 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(takenScan.locator(".owner-human-name")).toHaveText(credited);
     const scanImage = takenScan.locator("img.human-avatar");
     await expect(scanImage).toBeVisible();
-    await expect.poll(() => shownWidth(scanImage)).toBe(creditedWidth);
+    await expect.poll(() => loadedWidth(scanImage)).toBe(creditedWidth);
     await expect(
       preparingCard.locator(".owner-line .human-avatar"),
     ).toHaveCount(0);
