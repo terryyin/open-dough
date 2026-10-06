@@ -380,3 +380,29 @@ reaches every read kind at once, so splitting it by read kind would add
 per-kind gates that the next slice removes. If execution disproves an observed
 premise or the boundedness of a slice, stop safely and revise the remaining
 plan within the same outcome; story-boundary changes stay with Terry.
+
+## Execution complete
+
+Product advice:
+- The North Star topic `#one-github-read-serves-every-observer-that-needs-it`
+  is fully built: `outstandingReads.ts`, `ghRead.ts`, `PUBLISHED-OBSERVATION.md`,
+  and `GITHUB-REQUESTS.md` explain it. Retire it at wrap-up; if the late-joiner
+  consequence should outlive it, add one sentence to the `ghRead.ts` header.
+- SEED-113's first open decision (request-sharing lifetimes and cancellation)
+  is settled by this story and can be removed at wrap-up.
+- For "Recover consistently from GitHub rate limits": `execGh` with its
+  process-wide `OutstandingReads` is now the one point every `gh` request
+  passes, so a cooldown and aggregate concurrency belong there, in an owner of
+  their own (`OutstandingReads` keeps no failure), with per-waiter waits ending
+  on the request's signal, and any fallback rethrowing `timed-out` and
+  `rate-limited` as `RevisionChecks` does.
+- For "Refresh published work without rereading unchanged files": the
+  membership backlog now goes through `PinnedTexts`, so blob-keyed reuse covers
+  it too; records GitHub answered as missing (such as an unpublished
+  `.planning/open-dough.json`) are still asked on every reload, the deferred
+  cost of keeping absence.
+- A bounded correction is planned, not queued:
+  [SEED-113#shared-read-waiter-residue-correction](../../seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction)
+  ([plan 263](../263-shared-read-waiter-residue-correction/PLAN.md)) rewords four
+  comments that still describe per-request `gh` ownership and removes the
+  imitated abort in `execGh`.
