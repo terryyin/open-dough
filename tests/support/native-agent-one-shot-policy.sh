@@ -43,7 +43,8 @@ native_one_shot_policy_substitute() {
       native_one_shot_policy_commit_story "${execution}" "${skills}"
       admission_run_in "${execution}" node \
         "${execution}/${skills#"${workspace}"/}/dough-execute-plan/scripts/execution-increment-delivery.mjs" \
-        deliver --workspace "${execution}" --branch "${branch}" \
+        deliver --mode story-branch --tracking one-shot \
+        --workspace "${execution}" --branch "${branch}" \
         --previously-published-base "${starting}" --target-ref refs/heads/main \
         --repo owner/project --host "${host}" --default-checkout "${workspace}" \
         --one-shot-identity "${identity}"

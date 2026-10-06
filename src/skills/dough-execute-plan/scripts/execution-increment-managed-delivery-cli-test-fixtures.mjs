@@ -8,8 +8,9 @@ import { invokeHostHook } from "./ci-host-bridge.mjs";
 
 // Runs the taught `deliver` for one increment of the fixture's execution
 // branch, or of the supplied `workspace` and `branch`, with only the supplied
-// environment; `extra` adds flags such as `--session-json` or `--authority`.
-// The reported observer stops at teardown.
+// environment under the supplied `mode` and optional `tracking`; `extra` adds
+// flags such as `--session-json` or `--authority`. `mode: null` omits
+// `--mode`. The reported observer stops at teardown.
 export async function deliverThroughCli(
   fixture,
   {
@@ -19,6 +20,9 @@ export async function deliverThroughCli(
     env = fixture.env,
     workspace = fixture.execution,
     branch = "exec/story",
+    mode = "trunk",
+    tracking,
+    targetRef = "refs/heads/main",
   },
 ) {
   const args = [
@@ -29,7 +33,9 @@ export async function deliverThroughCli(
     "--previously-published-base",
     base,
     "--target-ref",
-    "refs/heads/main",
+    targetRef,
+    ...(mode ? ["--mode", mode] : []),
+    ...(tracking ? ["--tracking", tracking] : []),
     "--repo",
     "owner/project",
     "--host",

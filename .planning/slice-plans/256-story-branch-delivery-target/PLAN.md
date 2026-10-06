@@ -98,7 +98,7 @@ enforces. Reuse:
 
 ### 1. `deliver` refuses a Story Branch increment aimed anywhere but its execution branch
 Type: Behavior
-Status: planned
+Status: done
 Proof: `env -u NODE_ENV node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-gaps.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/*.test.mjs` plus the new CLI refusal test file beside the gaps tests. The refusal test fails before the change.
 
 Behavior: an established start names `mode: story-branch`, `branch:
@@ -119,6 +119,16 @@ the guard above, before runtime resolution. Make `--mode` required in
 `requestBase` and `--mode trunk` as `deliverThroughCli`'s default, overridable
 through `extra`. Realign the Story Branch test to its execution branch and
 give the one-shot landing test its declaration.
+
+Accepted proof: the focused command above with
+`execution-increment-delivery-target.test.mjs` and `one-shot-queued*.test.mjs`
+(48 pass after refactor). The refusal and usage tests failed before the change
+(trunk target accepted, missing `--mode` exit 0). Consumers also swept:
+`workspace-publication.test.mjs`, `lightweight-auto-land*`,
+`symlinked-skill-entry`, and `tests/git-publication-native-one-shot.sh`, whose
+substitute hosts now pass `--mode story-branch --tracking one-shot`.
+Learning: native evidence keyed to `execution-increment-delivery.mjs` and the
+one-shot substitute scripts is now stale; refreshing it is a manual paid run.
 
 ### 2. The delivery guidance names the target for each mode
 Type: Behavior
