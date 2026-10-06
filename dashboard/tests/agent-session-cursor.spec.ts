@@ -12,7 +12,7 @@ import {
   cursorRunnerSessionsEndpoint,
 } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { cursorHost } from "../server/cursorHost.ts";
+import { launchHost } from "../server/launchHosts.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
@@ -46,6 +46,8 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
   cursor,
 }) => {
   test.setTimeout(120_000);
+  const cursorHost = launchHost("cursor");
+  expect(cursorHost).toBeDefined();
   expect(cursorHost).not.toHaveProperty("stop");
   expect(cursorHost).not.toHaveProperty("rename");
   expectCursorUnknownWording();

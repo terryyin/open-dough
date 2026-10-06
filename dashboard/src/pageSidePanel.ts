@@ -140,7 +140,10 @@ export function usePageSidePanel({
     });
   };
   const markSessionDone: MarkSessionDone = async ({ record, control }) => {
+    const askedFrom = latest.current?.request;
     if (!(await markDone(record))) return false;
+    // A later panel owns the keyboard after the developer changes content.
+    if (latest.current?.request !== askedFrom) return true;
     const open = shownSessionOf(latest.current);
     if (
       open !== undefined &&

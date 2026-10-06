@@ -1,6 +1,6 @@
 // A session entry says which model was requested, on the committed origin of
 // ./agent-launch-card.spec.ts (./launchJourney.ts): wherever the page lists a
-// session -- its story's card, Recently done, the Sessions sidebar -- the
+// session -- its story's card, Taken, the Sessions sidebar -- the
 // entry reads "Model: <Name> (requested)" for a chosen model and says nothing
 // for Default, and a reload keeps the line, which is read from the launch
 // record. How a dialog sends the choice is ./agent-launch-model.spec.ts. The
@@ -108,13 +108,13 @@ for (const [model, words] of [
   });
 }
 
-test("an ad hoc session launched on Sonnet says so in Recently done and in the sidebar, through a reload", async ({
+test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, through a reload", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, journey);
-  const { recentlyDone } = parts(page);
+  const { taken, recentlyDone } = parts(page);
   const { button, sidebar } = sidebarParts(page);
 
   await startSession(page, "Open Dough").click();
@@ -126,8 +126,9 @@ test("an ad hoc session launched on Sonnet says so in Recently done and in the s
     if ((await button.getAttribute("aria-expanded")) !== "true") {
       await button.click();
     }
-    const entry = recentlyDone.getByRole("article");
+    const entry = taken.locator(".session-entry");
     await expect(entry).toHaveCount(1);
+    await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
     await expect(entry).toContainText("Ad hoc");
     await expect(entry).toContainText(requested("Sonnet"));
     const tooltip = sidebarTooltipOf(sidebar.getByRole("listitem"));
@@ -138,6 +139,6 @@ test("an ad hoc session launched on Sonnet says so in Recently done and in the s
 
   await expectWords();
   await page.reload();
-  await expect(recentlyDone.getByRole("article")).toHaveCount(1);
+  await expect(taken.locator(".session-entry")).toHaveCount(1);
   await expectWords();
 });

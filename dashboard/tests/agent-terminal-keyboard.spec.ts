@@ -5,7 +5,7 @@
 // terminal still reaches the session. An open dialog, as the launch dialog,
 // keeps the key, and with no panel the key changes nothing. When the control
 // that opened the panel is gone, as a Sessions sidebar entry once the sidebar
-// is hidden, closing returns the keyboard to the session's story card instead.
+// is hidden, closing returns the keyboard to the session in its current story card.
 // The page's own dashboard server launches and attaches the synthetic
 // `claude` (./fixtures/fake-claude), which records each line entered in its
 // terminal; the real one is never reached.
@@ -200,7 +200,7 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
       await expect(banner).toBeVisible();
     });
 
-    await test.step("with its opener gone, Command+Shift+Escape returns the keyboard to the session's story card", async () => {
+    await test.step("with its opener gone, Command+Shift+Escape returns the keyboard to the session in its current story card", async () => {
       const sidebar = sidebarParts(page);
       await control("Close").click();
       await expect(panel).toHaveCount(0);
@@ -213,7 +213,10 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
       await expect(sidebar.sidebar).toBeHidden();
       await page.keyboard.press(closeKey);
       await expect(panel).toHaveCount(0);
-      await expect(card(readyStory)).toBeFocused();
+      const home = cardSessionOf(card(readyStory), "Execution");
+      await expect(home).toBeFocused();
+      await expect(home).toBeInViewport();
+      expect(await sessionNamedBy(home)).toBe(session);
     });
   });
 });

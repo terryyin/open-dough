@@ -1,17 +1,9 @@
-// The Sessions sidebar lists every session this dashboard launched and has
-// not marked done, from every catalog project whichever is selected, those
-// that need the developer first, earliest launch first, then the others
-// newest launch first, each a line with its story's title and the state's edge
-// (its project, workflow, launch time, and state words are its tooltip), with a
-// badge on the banner's Sessions icon button counting those that need the
-// developer, open or closed. A state change moves an entry between the two
-// groups, and a session marked done leaves. It sits left of the page, beside
-// the terminal on the right, or over the page on a narrow window; the page
-// column beside them shows the dashboard columns that fit its width, as a
-// window that narrow would. Doughnut's and Pygardon's sessions are launched
-// through the boundary, Open Dough's from their cards; the page's own
-// dashboard server launches the synthetic `claude` (./fixtures/fake-claude).
-// The page clock stands still unless the journey lets it pass.
+// The Sessions sidebar lists every project's open sessions, attention first:
+// oldest attention, then newest others. Rows show title and elapsed time;
+// tooltips give project, workflow, time and state. The badge counts attention,
+// and saved Done removes a row. Wide, it sits left of the page and terminal;
+// narrow, it overlays the page. Columns fit their own room. Real launches use
+// synthetic Claude; other projects start through the boundary. Time is paused.
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
@@ -28,16 +20,16 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { launched } from "./agentTerminalBoundary.ts";
-import { box, expectSideBySideInOrder } from "./pageLayout.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {
   expectEntries,
   expectSidebarSessionShown,
-  expectOneColumnShown,
+  expectSidebarLayout,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -245,43 +237,13 @@ test.describe("the Sessions sidebar", () => {
 
     await test.step("wide, the sidebar is a column left of the page and the terminal right of it; narrow, it lies over the page", async () => {
       const panel = page.getByRole("region", { name: "Terminal" });
+      // Mark as done returned focus to the moved entry in Recently done.
+      await showColumn(page, "Backlog");
       await cardSessionOf(card(notRefinedStory), "Refinement")
         .getByRole("button", { name: "Open terminal" })
         .click();
       await expect(panel).toBeVisible();
-      const main = page.getByRole("main");
-      await expectSideBySideInOrder([sidebar, main, panel]);
-      const view = page.viewportSize() ?? { width: 0, height: 0 };
-      const column = await box(sidebar);
-      expect(column.x).toBe(0);
-      expect(column.y).toBe(0);
-      expect(column.height).toBe(view.height);
-      await expect(sidebar).toHaveCSS("overflow-y", "auto");
-      // The page column, sharing the window with both, lays out as narrow,
-      // as it does beside the terminal alone.
-      await expectOneColumnShown(page);
-      await button.click();
-      await expect(sidebar).toBeHidden();
-      await expectOneColumnShown(page);
-      await button.click();
-      await expect(sidebar).toBeVisible();
-
-      await page.setViewportSize({ width: 700, height: view.height });
-      const overlay = await box(sidebar);
-      const beside = await box(main);
-      expect(overlay.x).toBe(0);
-      expect(beside.x).toBeLessThan(overlay.x + overlay.width);
-      const center = {
-        x: overlay.x + overlay.width / 2,
-        y: overlay.y + overlay.height / 2,
-      };
-      expect(
-        await page.evaluate(
-          ({ x, y }) =>
-            document.elementFromPoint(x, y)?.closest("aside")?.id ?? "",
-          center,
-        ),
-      ).toBe(await sidebar.evaluate((element) => element.id));
+      await expectSidebarLayout(page, panel);
     });
   });
 });

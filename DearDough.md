@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 241. Removed local codes are never reused.
+- Highest allocated local number: 242. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -761,3 +761,19 @@ Follow-up: Open, unqueued. Proposal: assess the file-size limit on formatted out
   - Evidence: slice 2's independent `refactor_two` hand-back checked every changed file at no more than 250 lines. The coordinator's first `npm run format` expanded `agent-launch-ad-hoc-sessions.spec.ts` to 254 lines; the resumed refactor shortened its header, preserved executable proof and returned it at 246 lines. The necessary formatter repeat exited 0 and the post-format cap check passed. Accepted execution proof records this sequence at the recovery reference above.
   - Observed effect: one extra refactor hand-back and a second project-wide formatter invocation; no behavioral changes or repeated tests for the prose-only repair.
   - Inference: Qualified. This is a sequencing mismatch between the cap check and formatting, distinct from ODF-152's conflict between conceptual scope and an already oversized file. The first formatter also reported a remaining style issue in a different spec; its cause was not established and is not attributed to this mismatch.
+
+## DD-242 — The Codex observer binding has no durable failure acknowledgment step
+
+The prescribed yielded-stream binding forwards events with `notify` but never updates the mailbox's delivery progress. Completion separately treats unacknowledged failure events as actionable, even after a coordinator has classified and repaired them.
+
+Follow-up: Open, unqueued. Proposal: give the Codex binding an explicit supported acknowledgment boundary consistent with completion's unread-failure gate.
+
+### Occurrences
+
+- Execution: `SEED-114#session-column-membership` / plan 262, first related implementation commit `1f06b04d256536d55aa99670b8033b4fa1c09613`
+  - Timestamp: unknown (after completion's failed receipt for `70b6f62a`, before its CI repair)
+  - Tool: Codex
+  - Open Dough release: unknown (execution-time installed guidance provenance not retained)
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-XLyt1z` had seven CI_FAILURE events for attempts `37427204231/1`, `37431359551/1`, `37432066761/1` and no `delivery.json`. The installed `ci-notify-codex.md` binding calls `notify` without `recordDeliveryProgress`; `ci-mailbox-complete.mjs` gates shutdown on `unreadActionableFailures`. After bounded log classification of all attempts, the coordinator used the installed exported store API to acknowledge exactly those seven events, preserving later events and the live repair observer.
+  - Observed effect: one additional mailbox/source inspection and explicit acknowledgment outside the prescribed Codex binding. The first completion receipt itself correctly retained the observer for the failed revision.
+  - Inference: Qualified. Source inspection shows that a later green completion would still retain this mailbox for unread failures without acknowledgment. That later refusal was prevented, not observed; absence of progress does not by itself establish that a notification was delivered to the model.

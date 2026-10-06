@@ -171,3 +171,38 @@ unchanged; typecheck proves imports. Every command reached a terminal result.
 - Independent refactor replacement for shared stage projection/count/completeness and navigation: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-column-membership.spec.ts session-sidebar-reading.spec.ts recently-done-read-latency.spec.ts dashboard-columns-paging.spec.ts session-sidebar-navigation-cases.spec.ts agent-launch-ad-hoc-sessions.spec.ts agent-launch-card-sessions.spec.ts --workers=2` — exit 0.
 - `env PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard` and `git diff --check` — exit 0 after implementation/refactoring.
 - Project `npm run format` first found one remaining style issue and expanded one spec past 250 lines. Prose-only cap repair preserved proof; the necessary formatter repeat exited 0. All changed files are within the cap after formatting.
+
+## Accepted CI repair
+
+Registered completion `70b6f62a51c0cec572047e16c3c1ac10fb225911` failed
+run [37432066761](https://github.com/terryyin/open-dough/actions/runs/37432066761),
+attempt 1. Its fourteen observations exposed unreplaced open-session column and
+published-card assertions, a direct Cursor test-entry import cycle, and an
+actual late-Done response stealing the replacement terminal's keyboard. The
+repair captures the panel request before awaiting Done and leaves a later
+panel's focus alone; no native completion or placement policy changed. The
+Cursor spec reads the existing public host lookup, preserving capabilities.
+Recovery now observes the same saved native id once in Taken before/after
+continuation, no Recently done duplicate or invented published card, alongside
+one thread, zero turns and startup reconciliation.
+
+The independent refactor relocated the complete sidebar layout observation to
+its existing page support, preserving toggles, viewport and hit-target proof.
+Coordinator inspection accepted the guard and every changed assertion. All
+verification ended; commands ran in this execution checkout with authorized
+loopback access, with no reruns-until-green or relaxed timeouts.
+
+- Minimal reproduced red focus/model observations: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/agent-terminal-done.spec.ts:188 dashboard/tests/agent-launch-model-entries.spec.ts:111 --workers=2` — exit 1 at the reported assertions. Direct Cursor entry separately reproduced its collection ReferenceError.
+- All failed observations' owning specs and established Cursor companions: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/agent-launch-model-entries.spec.ts dashboard/tests/agent-session-cursor.spec.ts dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts dashboard/tests/agent-terminal-cursor-page.spec.ts dashboard/tests/agent-terminal-keyboard.spec.ts dashboard/tests/responsive-session-recovery-ad-hoc.spec.ts dashboard/tests/session-sidebar.spec.ts dashboard/tests/accessible-overview-keyboard.spec.ts dashboard/tests/project-configuration.spec.ts dashboard/tests/responsive-session-reconciliation-kept.spec.ts dashboard/tests/agent-terminal-done.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/project-add.spec.ts --workers=2` — exit 0.
+- Strengthened recovery and affected placement/navigation/direct-Done regression: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/responsive-session-recovery-ad-hoc.spec.ts dashboard/tests/session-column-membership.spec.ts dashboard/tests/session-sidebar-navigation.spec.ts dashboard/tests/agent-launch-card-done.spec.ts --workers=2` — exit 0.
+- Refactor replacement for the same actual sidebar layout journey: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-sidebar.spec.ts --grep "lists every project's open sessions" --workers=2` — exit 0.
+- `env PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard` and `git diff --check` — exit 0 after implementation and refactoring.
+
+Earlier attempts were classified separately. Slice-one run 37427204231/1's
+recovery lookup was already fixed in slice two, with local and later hosted
+proof. Slice-two run 37431359551/1 has the same fourteen observation failures as
+the completion run. Seven retained failure events were acknowledged only after
+this bounded classification; the same observer and repair ownership remain.
+The resumed retrospective accepts this bounded repair under the original
+contract; its queue advice remains unchanged. DD-242 records the Codex binding's
+missing acknowledgment boundary, with inferred and observed effects separated.
