@@ -93,7 +93,7 @@ Rejected alternatives:
 
 **Identity:** SEED-117#finished-after-retirement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"6d1f241db0cf395ec39f595fbd752c584ff7217b616716b783d68925334c3067"}}
 ```
 
 **For / why:** A developer reading Claude Code's agents view, or a dashboard
@@ -143,6 +143,17 @@ Deferred promises, not commitments of this delivery:
 
 - Teaching the dashboard to show a retired session as unresumable in its own
   session access text (it already says the saved workspace is missing).
+
+Boundary assumption:
+
+- Claude Code decides done or blocked by its own reading of the closing text;
+  the rule controls the text, not that reading. Observed on 2026-10-07 in
+  `claude agents --json --all`: three exited jobs whose closing text stated
+  next steps as facts (`b8d8c060` "next step is `dough-execute-plan` on
+  …", `cb9ae713` "plan 135 is committed locally, not yet executed",
+  `dbe42541` "opening the web side to attachment changes is your decision")
+  are listed done, while the four blocked jobs above asked a question or gave
+  an order. The job's `state.json` keeps the closing text as `detail`.
 
 **Key examples:**
 
@@ -275,6 +286,9 @@ Now: every wrap-up with an attention message produces a blocked job.
 - Closing text rule: `src/skills/dough-land/references/completion-attention.md`
   and `src/skills/dough-land/references/dashboard-completion.md` ("with
   attention, give exactly the response submitted").
+- Guidance tests that read the closing text rule and must keep passing:
+  `src/skills/dough-land/scripts/process-retrospective-guidance.test.mjs` and
+  `src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs`.
 - Retirement from inside the session: `src/skills/dough-story-wrap-up/SKILL.md`
   (Story Branch retirement), `src/skills/dough-land/SKILL.md` ("Retire the
   worktree"), `src/skills/dough-land/scripts/worktree-retirement.mjs`.
