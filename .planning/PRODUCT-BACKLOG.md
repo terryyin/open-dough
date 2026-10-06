@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Sessions appear with active work until marked done](seeds/SEED-114-dashboard-session-column-membership.md#session-column-membership) — SEED-114#session-column-membership
 - [Share repeated reads across dashboard observers](seeds/SEED-113-dashboard-github-responsiveness.md#share-repeated-observer-reads) — SEED-113#share-repeated-observer-reads
 - [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits
 - [Refresh published work without rereading unchanged files](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication) — SEED-113#reuse-unchanged-records-after-publication
