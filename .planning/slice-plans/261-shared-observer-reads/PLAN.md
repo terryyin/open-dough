@@ -320,7 +320,7 @@ Decisions and learnings:
 ### 4. A refused or stalled shared read ends for every waiter
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/authenticated-read-shared-failures.spec.ts` at the
 boundary, with `authenticated-read-revision-check-failures.spec.ts`,
 `auto-refresh-rate-limit.spec.ts`, `auto-refresh-detail-recovery.spec.ts`, and
@@ -342,6 +342,15 @@ no retry or cooldown policy.
 
 Safe stop: Sharing is honest when GitHub refuses or stalls, with today's
 recovery for every waiting observer.
+
+Accepted proof: no product change was needed. New
+`authenticated-read-shared-failures.spec.ts` with
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-read-shared-failures.spec.ts --workers=2 --repeat-each=10`
+(and `--workers=6` under load), the slice-3 specs, the named regressions (31
+passed), the whole suite (1156 passed), and typecheck. The stall cases use a
+3-second bound and compare every answer and the `gh` exit with the joiner's own
+deadline, half a bound after the read's; disabling the read's bound or sharing
+fails them.
 
 ## Verification, sizing, and delivery
 

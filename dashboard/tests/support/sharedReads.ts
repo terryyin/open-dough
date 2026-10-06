@@ -1,5 +1,6 @@
-// Shared support for ../authenticated-read-shared.spec.ts and
-// ../authenticated-read-shared-waiters.spec.ts: a published
+// Shared support for ../authenticated-read-shared.spec.ts,
+// ../authenticated-read-shared-waiters.spec.ts, and
+// ../authenticated-read-shared-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.
@@ -14,7 +15,7 @@ import {
 import type { GhRequest } from "./ghRequest.ts";
 import { holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
-import { headsAnswer } from "../originAnswers.ts";
+import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export const sharedSeedPath = ".planning/seeds/SEED-shared.md";
@@ -83,18 +84,29 @@ export function sharedReadsPublished(revision: string): RepositoryAnswerer {
 
 // Serves `revision`, answering the reads in `warm` unheld, then holding
 // every answer `isHeld` picks; `before` counts the calls made until then.
+// Once released, the first held answer is `firstHeld` when given, and every
+// other one as published.
 export async function servedHolding(
   server: DashboardServer,
   revision: string,
   isHeld: (request: GhRequest) => boolean,
   warm: readonly string[] = [],
+  firstHeld?: OriginAnswer,
 ): Promise<{ readonly release: () => void; readonly before: number }> {
   const published = sharedReadsPublished(revision);
   server.github.serve(everyRepository, published);
   for (const query of warm) {
     expect((await readAt(server, query)).status).toBe(200);
   }
-  const held = holdingAnswer(published, isHeld);
+  let unanswered = firstHeld;
+  const held = holdingAnswer((call) => {
+    const first = isHeld(call.request) ? unanswered : undefined;
+    if (first === undefined) {
+      return published(call);
+    }
+    unanswered = undefined;
+    return Promise.resolve(first);
+  }, isHeld);
   server.github.serve(everyRepository, held.answer);
   return { release: held.release, before: server.github.calls.length };
 }
