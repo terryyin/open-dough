@@ -46,6 +46,9 @@ waits for preparation and profiles to establish its source; clocks also need
 their plan and allocation evidence. Credited humans and clocks fill independently
 without holding back unrelated facts. Partial display does not complete the
 observation: startup reconciliation still waits for the whole read to settle.
+Arriving groups, including a group's read gap, retain the selected columns and
+open story inspection. When the story and focused control remain present, the
+keyboard and visible reading context stay there as the facts enrich the page.
 
 The branch-head listing (`matching-refs/heads/`) is one unpaginated answer, and
 the local boundary accepts at most 1 MiB of `gh` output (`maxBuffer` in
