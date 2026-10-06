@@ -206,3 +206,13 @@ this bounded classification; the same observer and repair ownership remain.
 The resumed retrospective accepts this bounded repair under the original
 contract; its queue advice remains unchanged. DD-242 records the Codex binding's
 missing acknowledgment boundary, with inferred and observed effects separated.
+
+## Closure inputs
+
+Branch CI for accepted repair `49555075912e8d106e7214965a9871bb6b9c4d9c`
+passed run 37434529261/1; completion confirmed observer shutdown with all seven
+failure events acknowledged. Consumer discovery found no agreements and three
+older non-story anchors in SEED-001, SEED-010 and SEED-028. Their current text was
+inspected, names no dependency on this story, and remains unchanged; the discovery
+format gaps are retained, not reported as repaired. The shared North Star topic
+still governs active SEED-113 observer work and remains.
