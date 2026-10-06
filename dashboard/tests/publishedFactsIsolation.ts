@@ -129,10 +129,13 @@ Proof: Observe the current publication.
 export type PublishedFacts = ReturnType<typeof factsAt>;
 
 export function groupOf(request: GhRequest): FactGroup | undefined {
-  if (request.kind !== "content") return undefined;
-  if (request.path === canonicalPath) return "preparation";
-  if (request.path.startsWith(".planning/agents/")) return "profiles";
-  if (request.path === donePath) return "done";
+  return request.kind === "content" ? factGroupOfPath(request.path) : undefined;
+}
+
+export function factGroupOfPath(path: string): FactGroup | undefined {
+  if (path === canonicalPath) return "preparation";
+  if (path.startsWith(".planning/agents/")) return "profiles";
+  if (path === donePath) return "done";
   return undefined;
 }
 

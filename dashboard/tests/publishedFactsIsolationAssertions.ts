@@ -14,7 +14,7 @@ import {
 import { repository } from "./sliceClockRecords.ts";
 import {
   canonicalPath,
-  groupOf,
+  factGroupOfPath,
   planPath,
   takenTitle,
   type FactGroup,
@@ -28,21 +28,34 @@ export const factCards = (page: Page, facts: PublishedFacts) => ({
 
 export async function expectHeldGroups(
   page: Page,
-  revision: string,
+  facts: PublishedFacts,
   groups: readonly FactGroup[],
 ) {
+  // Every held file must have reached its raw handler before the switch's
+  // request counter starts. One profile does not establish that its sibling's
+  // already-started gh process has reached the fake GitHub yet.
+  const paths = Object.keys(facts.files)
+    .filter((path) => {
+      const group = factGroupOfPath(path);
+      return group !== undefined && groups.includes(group);
+    })
+    .sort();
   await expect
     .poll(() =>
-      groups.filter((group) =>
-        githubFor(page).calls.some(
-          ({ request }) =>
-            "revision" in request &&
-            request.revision === revision &&
-            groupOf(request) === group,
+      [
+        ...new Set(
+          githubFor(page).calls.flatMap(({ request }) =>
+            request.kind === "content" &&
+            request.repository === repository &&
+            request.revision === facts.revision &&
+            paths.includes(request.path)
+              ? [request.path]
+              : [],
+          ),
         ),
-      ),
+      ].sort(),
     )
-    .toEqual(groups);
+    .toEqual(paths);
 }
 
 export async function focusCanonical(page: Page, facts: PublishedFacts) {

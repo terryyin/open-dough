@@ -34,7 +34,7 @@ export async function openHeldPublication(page: Page, facts: PublishedFacts) {
   const abandoned = origin.push(facts, groups);
   await page.goto("/");
   await expectMembership(page, facts.membership);
-  await expectHeldGroups(page, facts.revision, groups);
+  await expectHeldGroups(page, facts, groups);
   return { origin, abandoned };
 }
 

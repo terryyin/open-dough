@@ -65,7 +65,7 @@ test("new membership and fast B assignments replace a complete A without borrowi
   const current = origin.push(factsB, pendingB);
   await passTimeUntilChecked(page);
   await expectMembership(page, factsB.membership);
-  await expectHeldGroups(page, revisionB, pendingB);
+  await expectHeldGroups(page, factsB, pendingB);
 
   await test.step("B's available assignments and roster are usable while all A details disappear", async () => {
     await expectCurrentFacts(page, factsB, pendingB);
@@ -126,7 +126,7 @@ for (const outcome of ["success", "failure"] as const) {
       .project.getByRole("radio", { name: "Open Dough", exact: true })
       .check();
     await expectMembership(page, factsB.membership);
-    await expectHeldGroups(page, revisionB, pendingB);
+    await expectHeldGroups(page, factsB, pendingB);
     const link = await focusCanonical(page, factsB);
     await expectCurrentFacts(page, factsB, pendingB);
     await expectNoEarlierFacts(page, factsA);
