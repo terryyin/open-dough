@@ -17,7 +17,16 @@ between the two revisions touched it. Every revision, provenance, and gap
 qualification of a full read is kept.
 
 Include the story's five required behaviors, its evidence and failure
-constraints, and its fourteen key examples.
+constraints, and its sixteen key examples.
+
+**Intent clarified on main, 2026-10-07:** Terry's frequent "Human developer
+unknown" report and request-count concern make unchanged assignment credit an
+explicit acceptance journey. Preserve the existing execution identity and
+completed-slice proof; the additional proof belongs to remaining slice 3.
+Several assignments can credit the same human, but credit stays owned by each
+assignment's addition. Reuse established credit on unchanged-path evidence;
+rate-limit recovery belongs to its sibling story, and ordinary transient
+failure retries remain deferred there.
 
 Reads at a story branch head keep today's cost. Sharing held text across
 separately launched dashboard processes or across a restart, a request-count
@@ -154,6 +163,7 @@ usable proof route, not the remedy.
 | Evidence cost is one comparison and one read per commit between, each remembered by commit, and no listed record is reused worse than today. | 1–2: the addition walk asks each commit once across revisions; a page's burst at B shares one comparison and one commit read. |
 | A branch head read never compares. | 2: a story branch plan read at a moved head asks the plan and its commit time only. |
 | A profile's addition, its committer, and a path's last commit time are reused only when no commit between touched the path; identical text is never that evidence; a removed and re-added profile credits the re-adding commit. | 3: boundary cases on `committed=added` and `committed=last` at B; the page journey crediting the new committer. |
+| Several assignments crediting one human retain their separate attribution after an unrelated publication, with zero profile-history or addition-commit requests beyond shared change evidence; when one profile is touched only its history is read. | 3: a seven-profile page journey observing cards, details, and roster credit while counting history and commit calls separately from comparison evidence and avatar images, followed by a one-profile change. |
 | Observation is otherwise unchanged: the page replaces the whole view with the new revision and keeps revision, retrieval time, group arrival, and gaps; a reload, second tab, or return to a read revision costs what it costs today; memory stays bounded. | 2–3: the twenty trunk-moving journeys and `reopened-project-reads.spec.ts`; the memo keeps its one 500-entry bound. |
 | The reading contract and request accounting describe the result. | 2, 3: `dashboard/PUBLISHED-OBSERVATION.md` and `dashboard/GITHUB-REQUESTS.md`, each changed with the behavior it describes. |
 
@@ -237,6 +247,18 @@ and slice clock after an unrelated commit with no history list or commit time
 asked, and credits the re-adding committer after a profile is removed and
 re-added with identical text; `taken-agent-profile-refresh.spec.ts` and
 `profile-addition-latency.spec.ts` stay green.
+
+Expand the journey to seven readable assignments crediting one human. After
+an unrelated single-commit publication, observe each credited committer on its
+card and detail and in the roster, and assert its original allocation commit
+through the addition-read boundary. Count zero profile-history listings or
+addition-commit requests beyond the comparison and its shared commit record.
+Then publish a modification of one profile:
+only its history is listed and walked, while the other six credits reuse
+their own evidence. Retain the removed-and-re-added example with a different
+committer even when profile bytes are identical. These call assertions prove
+the request reduction; equal human names are never the cache key. Existing
+avatar and unknown-reason cases remain regressions.
 
 Behavior: the evidence of slice 2 is held for A and B → a read at B asks which
 commit added a listed profile's allocation, or when a plan or profile was last
