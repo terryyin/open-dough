@@ -1,7 +1,11 @@
 // Passive final report: changing selection cancels the previous identity's read.
 // Mark as done asks first, below the header, as the terminal's does.
 import { useEffect, useRef, useState } from "react";
-import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  launchSubject,
+  recordedWorkspace,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import {
   sessionResultEndpoint,
@@ -138,12 +142,7 @@ export function SessionResultPanel({
         </p>
         <p>{workspaceLimitation(record)}</p>
         <p>
-          Saved workspace{" "}
-          <code>
-            {record.session.host === "codex"
-              ? record.session.continuation?.workspace
-              : undefined}
-          </code>
+          Saved workspace <code>{recordedWorkspace(record)}</code>
         </p>
         <div role="status">
           {marking === "marking" && <p>Marking as done…</p>}

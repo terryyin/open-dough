@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "pyo-chan",
-  "email": "pyo-chan@example.org",
-  "identity": "SEED-110#retired-claude-session-access",
-  "mode": "story-branch",
-  "branch": "codex/retired-claude-session-access",
-  "host": "codex"
-}

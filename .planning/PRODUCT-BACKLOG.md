@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Dashboard columns page horizontally instead of wrapping in narrower windows](seeds/SEED-106-dashboard-paged-columns.md#paged-dashboard-columns) — SEED-106#paged-dashboard-columns ([plan](slice-plans/225-paged-dashboard-columns/PLAN.md))
-- [Completed Claude sessions remain readable after their workspace is retired](seeds/SEED-110-retired-claude-session-access.md#retired-claude-session-access) — SEED-110#retired-claude-session-access
 - [Story Branch increments publish only to their execution branch](seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target) — SEED-008#story-branch-delivery-target ([plan](slice-plans/256-story-branch-delivery-target/PLAN.md))
 - [Recently done reads beside owners, keeps the session look, and closes completely](seeds/SEED-107-dashboard-recently-done.md#recently-done-correction) — SEED-107#recently-done-correction ([plan](slice-plans/257-recently-done-correction/PLAN.md))
 

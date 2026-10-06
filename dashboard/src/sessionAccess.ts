@@ -30,7 +30,6 @@ export function sessionAccess(
   operations: HostOperations,
 ): SessionAccess | undefined {
   if (
-    record.session.host === "codex" &&
     record.workspaceState !== undefined &&
     record.workspaceState.kind !== "available"
   )

@@ -150,6 +150,16 @@ export const launchRecordSchema = z.object({
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
+// Native Codex continuation and Claude's established launch retain the saved
+// directory independently of whether the session still exists.
+export function recordedWorkspace(record: LaunchRecord): string | undefined {
+  if (record.session.host === "codex")
+    return record.session.continuation?.workspace;
+  if (record.session.host === "claude")
+    return (record.start ?? record.preparation)?.workspace;
+  return undefined;
+}
+
 // Current native availability and activity, normalized by the host. A retained
 // conversation can be continued even when unloaded. Unknown observation is
 // distinct from confirmed absence; none of this live evidence is stored.

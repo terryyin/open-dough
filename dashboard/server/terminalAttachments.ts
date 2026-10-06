@@ -24,6 +24,7 @@ import type { TerminalSession } from "./agentTerminals.ts";
 import type { LaunchInstructionInput } from "./launchInstruction.ts";
 import { LiveTerminalClient } from "./liveTerminalClient.ts";
 import { refuseWorkspace } from "./terminalSocketFrame.ts";
+import { directoryState } from "./sessionWorkspace.ts";
 
 const initialSize = { cols: 80, rows: 24 } as const;
 
@@ -35,6 +36,16 @@ export class TerminalAttachments {
   private readonly clients = new Map<IPty, LiveTerminalClient>();
 
   connect(ws: WebSocket, session: TerminalSession): void {
+    const workspaceUnavailable = () => {
+      if (session.savedWorkspace === undefined) return undefined;
+      const state = directoryState(session.savedWorkspace);
+      return state.kind === "available" ? undefined : state;
+    };
+    const unavailable = workspaceUnavailable();
+    if (unavailable !== undefined) {
+      refuseWorkspace(ws, unavailable);
+      return;
+    }
     const key = sessionKey(session.session);
     const existing = this.keptClient(key);
     if (existing !== undefined) {
@@ -51,6 +62,11 @@ export class TerminalAttachments {
       hostName = host.name;
       attachment = host.attach(session.session, session.folder, initialSize);
     } catch {
+      const unavailable = workspaceUnavailable();
+      if (unavailable !== undefined) {
+        refuseWorkspace(ws, unavailable);
+        return;
+      }
       ws.close(terminalAttachFailedCode, `${hostName} could not be attached.`);
       return;
     }
