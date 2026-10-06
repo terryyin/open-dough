@@ -233,9 +233,9 @@ test("with Open Dough already shown, its sidebar entry brings its Recent session
   await button.click();
   await expect(recent).not.toBeInViewport();
   await entry(text).click();
-  // The page beside the sidebar and terminal shows one column.
+  // The page beside the sidebar and terminal shows one column, which moves
+  // to Recent sessions.
   await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
-  await showColumn(page, "Recent sessions");
 
   await expect(recent).toBeInViewport();
   await expect(recent.getByText("Shown in terminal")).toBeVisible();

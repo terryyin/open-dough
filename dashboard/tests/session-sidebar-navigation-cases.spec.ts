@@ -10,7 +10,6 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts, recentSessionName } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
@@ -65,8 +64,8 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
       await expect(recent).not.toBeInViewport();
       await entry(removedStory.title).click();
       await expect(panel.getByRole("heading")).toHaveText(removedStory.title);
-      // The page beside the sidebar and terminal shows one column.
-      await showColumn(page, "Recent sessions");
+      // The page beside the sidebar and terminal shows one column, which
+      // moves to Recent sessions.
       await expect(recent).toBeInViewport();
       await expectRevealsSince(page, 0, recentName, "smooth");
       await expect(recent.getByText("Shown in terminal")).toBeVisible();

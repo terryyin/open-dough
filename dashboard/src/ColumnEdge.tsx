@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { Ref } from "react";
 import { Icon } from "./Icon.tsx";
 import { entryCount } from "./WorkStages.tsx";
 
@@ -17,13 +18,16 @@ export function ColumnEdge({
   side,
   column,
   onMove,
+  ref,
 }: {
   readonly side: "left" | "right";
   readonly column: ColumnSummary;
   readonly onMove: () => void;
+  readonly ref?: Ref<HTMLButtonElement>;
 }) {
   return (
     <button
+      ref={ref}
       type="button"
       className={`column-edge column-edge-${side}`}
       onClick={onMove}

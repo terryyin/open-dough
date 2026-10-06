@@ -194,7 +194,7 @@ average near 30 and passed every rerun.
 ### 3. The view follows focus and selection into a hidden column
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: in `dashboard-columns-paging.spec.ts`, tabbing backwards from Taken
 into the last Backlog card shows Backlog with that card in sight; choosing in
 the Sessions sidebar a session whose story card, or whose Recent sessions
@@ -206,6 +206,19 @@ stay green in the whole suite.
 Behavior: a column is hidden → keyboard focus lands inside it, or
 `keepInView` is asked for an element inside it → the view moves the fewest
 columns that show it, then the element is brought into sight as today.
+
+Accepted: one listener on the row answers `focusin` and the bubbling event
+`showColumnHolding` sends, which `keepInView` sends before it scrolls; both
+move through `moveTo` in `columnPaging.ts`. No automatic presentation calls
+`keepInView`, so starting a session leaves the view where it is. A pressed
+edge control that vanishes hands focus to the other side's control.
+`dashboard-columns-paging.spec.ts` (tabbing back into Backlog; keyboard
+hand-off), `dashboard-columns-paging-sessions-sidebar.spec.ts`, and the two
+journeys without stand-ins observe it; the whole suite passed (1091) before the
+hand-off, and focused runs after it.
+
+Learnings: a reveal sets `position` like an edge control does, so slice 4
+keeps `position` however it was set; only the clamp stays derived.
 
 ### 4. The position is kept across project switches and reloads
 

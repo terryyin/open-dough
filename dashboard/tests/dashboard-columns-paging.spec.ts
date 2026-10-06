@@ -4,9 +4,12 @@
 // it and how many entries it holds, stays in sight down a long page, and
 // moves the view one column, briefly sliding unless the developer asked for
 // reduced motion, and the chosen position comes back where the width allows
-// it. That the side panel pages the columns as a window would is
+// it; focus landing in a hidden column shows it. That the side panel pages
+// the columns as a window would is
 // ./dashboard-columns-paging-side-panel.spec.ts; that three columns show side
-// by side in a wide page is ./accessible-overview.spec.ts.
+// by side in a wide page is ./accessible-overview.spec.ts, and that a Sessions
+// sidebar choice shows its hidden column is
+// ./dashboard-columns-paging-sessions-sidebar.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -89,6 +92,29 @@ test.describe("in a narrow window", () => {
     });
   });
 
+  test("from the keyboard, a control gone after its move hands the keyboard to the other side's control", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 40 * rem, height: 800 });
+    await openLargeBacklog(page);
+    await expectView(page, ["Backlog"], ["Taken 1 entry"]);
+    const right = page.locator(".column-edge-right");
+
+    await right.focus();
+    await page.keyboard.press("Enter");
+    await expectView(
+      page,
+      ["Taken"],
+      [`Backlog ${queuedCount} entries`, "Recent sessions 0 entries"],
+    );
+    // The control pressed is still there and keeps the keyboard.
+    await expect(edgeControl(page, "Recent sessions")).toBeFocused();
+
+    await page.keyboard.press("Enter");
+    await expectView(page, ["Recent sessions"], ["Taken 1 entry"]);
+    await expect(edgeControl(page, "Taken")).toBeFocused();
+  });
+
   test("far down a long Backlog the edge control stays in sight and moves the view, and the shown stage heading stays stuck below the banner", async ({
     page,
   }) => {
@@ -162,5 +188,33 @@ test.describe("in a narrow window", () => {
       ["Taken"],
       [`Backlog ${queuedCount} entries`, "Recent sessions 0 entries"],
     );
+  });
+
+  test("tabbing backwards out of Taken into the last Backlog card shows Backlog with that card in sight", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 54 * rem, height: 700 });
+    await openLargeBacklog(page);
+    const { backlog, taken } = parts(page);
+    const lastCard = backlog.getByRole("article", {
+      name: queuedTitle(queuedCount),
+    });
+    await expect(lastCard).toBeVisible();
+    await showColumn(page, "Recent sessions");
+    await expectView(
+      page,
+      ["Taken", "Recent sessions"],
+      [`Backlog ${queuedCount} entries`],
+    );
+
+    // The keyboard on Taken's first stop, then one stop backwards.
+    await taken.getByRole("button").first().focus();
+    await page.keyboard.press("Shift+Tab");
+    const focused = page.locator(":focus");
+    await expect(lastCard.locator(":focus")).toHaveCount(1);
+    await expectView(page, ["Backlog", "Taken"], ["Recent sessions 0 entries"]);
+    // The view moved without taking the keyboard from the card.
+    await expect(focused).toBeInViewport({ ratio: 1 });
+    await expect(lastCard.locator(":focus")).toHaveCount(1);
   });
 });

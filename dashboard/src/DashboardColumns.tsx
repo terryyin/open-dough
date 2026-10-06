@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useLayoutEffect, useRef, type CSSProperties } from "react";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { ColumnEdge, type ColumnSummary } from "./ColumnEdge.tsx";
@@ -13,8 +13,9 @@ import "./dashboard-columns.css";
 // of published work; Recent sessions, local evidence of launches, is the
 // third column beside them. Where the page has no room for all three, the
 // whole columns that fit show, and an edge control on either side that has a
-// hidden column moves the view to it (./columnPaging.ts). Hidden columns stay
-// rendered, in the reading and tab order, cut off at the row's sides.
+// hidden column moves the view to it (./columnPaging.ts), as does focus or a
+// reveal landing in it. Hidden columns stay rendered, in the reading and tab
+// order, cut off at the row's sides.
 export function DashboardColumns({
   sourceId,
   work,
@@ -34,11 +35,32 @@ export function DashboardColumns({
     })),
     recentSessionsColumn(sourceId, launches.creations, launches.records),
   ];
-  const { frame, shown, leftmost, move, sliding, slid } = useColumnPaging(
+  const { frame, row, shown, leftmost, move, sliding, slid } = useColumnPaging(
     columns.length,
   );
   const left = columns[leftmost - 1];
   const right = columns[leftmost + shown];
+  // The keyboard stays on the edge controls: a control that holds it and is
+  // gone after its move hands it to the other side's, which points back the
+  // way the developer came, kept in sight where it stands, so the page does
+  // not scroll for it.
+  const edges = {
+    left: useRef<HTMLButtonElement>(null),
+    right: useRef<HTMLButtonElement>(null),
+  };
+  const handed = useRef<"left" | "right" | undefined>(undefined);
+  const press = (side: "left" | "right") => () => {
+    if (document.activeElement === edges[side].current) handed.current = side;
+    move(side === "left" ? -1 : 1);
+  };
+  useLayoutEffect(() => {
+    const side = handed.current;
+    handed.current = undefined;
+    if (side === undefined || edges[side].current) return;
+    edges[side === "left" ? "right" : "left"].current?.focus({
+      preventScroll: true,
+    });
+  });
   return (
     <div
       ref={frame}
@@ -47,15 +69,15 @@ export function DashboardColumns({
     >
       {left && (
         <ColumnEdge
+          ref={edges.left}
           side="left"
           column={left}
-          onMove={() => {
-            move(-1);
-          }}
+          onMove={press("left")}
         />
       )}
       <div className="dashboard-columns-view">
         <div
+          ref={row}
           className="dashboard-columns-row"
           data-sliding={sliding || undefined}
           style={{ "--leftmost": leftmost } as CSSProperties}
@@ -76,11 +98,10 @@ export function DashboardColumns({
       </div>
       {right && (
         <ColumnEdge
+          ref={edges.right}
           side="right"
           column={right}
-          onMove={() => {
-            move(1);
-          }}
+          onMove={press("right")}
         />
       )}
     </div>
