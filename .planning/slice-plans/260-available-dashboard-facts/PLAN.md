@@ -183,7 +183,7 @@ env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- agent-launch-acceptance
 env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_SPLIT=1/9 npm run test:dashboard -- --workers=2
 ```
 
-The CI-repair save receipt was clean, with no stash entry, at `f62292cd`; record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-EAalsH/record.json`. New fixes publish through the retained observer before restoration. Historical uncertainty stops the final execution/CI handoff; all four slice statuses remain done and their independently accepted proof remains attributable.
+The CI-repair save receipt was clean, with no stash entry, at `f62292cd`; record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-EAalsH/record.json`. Repair `7da9f1533316187860cb318dcac81238a6a538b6` was accepted on the story branch with the same observer; official restore returned `resumed`, no stash entry applied/dropped. Exact mailbox identities were checked: acknowledgment advances only through handled sequence 1; unresolved sequence 2 prevents acknowledging the contiguous prefix through repaired sequence 3. Historical uncertainty stops the final execution/CI handoff; all four slice statuses remain done and their independently accepted proof remains attributable.
 
 ## Verification and delivery
 
@@ -191,4 +191,4 @@ Fresh implementation and independent refactor per slice; coordinator accepts act
 
 ## Execution complete
 
-Product advice: Preserve the current order of observer request sharing, consistent rate-limit recovery, and unchanged-content reuse. This story establishes earlier useful facts and honest gaps; it makes no production latency or request-count savings claim. Outcome review found no required product correction; the subsequent CI repairs change test observation contracts only. Process review uses available coordinator history and agent reports; full internal agent histories remain unavailable. The final execution/CI handoff is incomplete because the thirteen failures preceding cancellation in run 37420000326 remain unexplained; current green proof does not dispose them.
+Product advice: Preserve the current order of observer request sharing, consistent rate-limit recovery, and unchanged-content reuse. This story establishes earlier useful facts and honest gaps; it makes no production latency or request-count savings claim. Outcome review found no required product correction; the subsequent CI repairs change test observation contracts only. Process review recorded this execution under existing ODF-201 using verified mailbox/cursor evidence; DearDough.md is 755 physical lines, above its 500-line warning threshold. Full internal agent histories remain unavailable. The final execution/CI handoff is incomplete because the thirteen failures preceding cancellation in run 37420000326 remain unexplained; current green proof does not dispose them.
