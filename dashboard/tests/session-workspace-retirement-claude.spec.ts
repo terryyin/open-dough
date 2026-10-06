@@ -77,7 +77,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   expect(doneAt).toBeDefined();
   await page.reload();
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: record.session.sessionId });
   await expect(recent).toContainText("Done");
   await recent.getByRole("button", { name: "Read final report" }).click();
@@ -117,7 +117,7 @@ for (const context of ["preparation", "start"] as const) {
     });
     await openStoryStagesJourney(page, journey);
     const entry = parts(page)
-      .recentSessions.getByRole("article")
+      .recentlyDone.getByRole("article")
       .filter({ hasText: record.session.sessionId });
     const open = entry.getByRole("button", { name: "Open terminal" });
     await expect(open).toBeVisible();

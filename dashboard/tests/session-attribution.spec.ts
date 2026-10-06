@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -32,6 +33,7 @@ test("a retained session keeps its allocation credit after release and a later p
     dashboard.home,
     "git/open-dough/.worktrees/c-refine",
   );
+  mkdirSync(workspace, { recursive: true });
   const sessionId = dashboard.claudeListsSession({
     name: storyC,
     cwd: workspace,
