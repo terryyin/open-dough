@@ -226,6 +226,25 @@ refactor; full suite 1091 passed with one unrelated flake
 preparation reads resizing cards; `expectWhollyInView` now waits for them
 and one frame. A done card counts as an entry for delete focus.
 
+## Execution complete
+
+Product advice:
+- Queue the correction [SEED-107#recently-done-correction](../../seeds/SEED-107-dashboard-recently-done.md#recently-done-correction)
+  ([plan 257](../257-recently-done-correction/PLAN.md)) ahead of other
+  dashboard work: work-card sessions lost their panel background in
+  `53333034`, and the done read gates owners and progress on a project with
+  many records.
+- At wrap-up, retire the North Star topic “Done stories as published
+  records” (the requirements, the module header, ADR 0008 and
+  `AGENT-LAUNCH-HISTORY.md` now explain it) and update its “Sessions are the
+  machine's” line naming Recent sessions;
+  `docs/dashboard-ux-ui-north-star.md` should say Recently done holds
+  published done cards beside local sessions.
+- SEED-106#paged-dashboard-columns still names Recent sessions; refresh it
+  to Recently done when it is next touched.
+- SEED-052#reconcile-recently-done-and-sessions is largely delivered by this
+  story; a human decides whether to drop it.
+
 ## Current decisions
 
 - The record's file name derives from the work identity alone, so completing

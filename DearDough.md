@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 237. Removed local codes are never reused.
+- Highest allocated local number: 239. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -158,6 +158,15 @@ Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (story
   - Evidence: plan 244's Current decisions set the local gate to "the focused Playwright specs named per slice". Slice 2 (`4ed30458`) ran 24 note- and tooltip-reading specs. CI failed `accessible-overview.spec.ts:190` (Inspect story under the sticky stage heading; `.card button` lacked `scroll-margin-top`), `agent-launch-attention.spec.ts:79` (snapshot before the credited human slice 1 added to the scan line loaded), and `agent-launch-ad-hoc-sessions.spec.ts:215` (shorter cards let Recent sessions into the 720px window). Slice 3's implementer ran the full dashboard suite (1036 passed, about 6 min) and repaired all three in `670e776f`.
   - Observed effect: one failed CI run; no separate repair cycle, because the next slice found and fixed them before its own delivery.
   - Inference: Qualified recurrence. Shorter cards and a new scan-line fact changed page-wide layout and loading, which the selected specs did not exercise. The planner wrote the focused-only gate while the ODF-150 follow-up was still unreleased.
+
+- Execution: `SEED-107#recently-done` / plan 253, first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+  - Timestamp: 2026-10-05T22:37:47Z (CI run 37383488386 jobs test (2/3) and test (3/3) on `0f334e41`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`, last updated by `b0bc3a08`)
+  - Evidence: slice 1 made `product-backlog complete` write an untracked `.planning/done/<id>.json`. Its return listed the node script tests that run `complete` as consumers and updated three of them; the installed `executable-proof.md` already names stand-ins. The shell substitute `native_one_shot_close_story` (`tests/support/native-agent-one-shot.sh`) committed with `commit -qam`, so `tests/git-publication-native-one-shot-results.sh` and `-workspaces.sh` failed on a dirty workspace. Repair `0b669ed2`.
+  - Observed effect: one failed CI run and one pause/repair/refactor cycle; slice 2's uncommitted work was saved and restored around it.
+  - Inference: Qualified recurrence with the stand-in rule installed: the consumer search followed `.mjs` callers and missed shell stand-ins of the same contract.
 
 ## ODF-141 — A delegated refactor pass ran on each of two tiny guidance changes and edited nothing
 
@@ -811,3 +820,29 @@ Follow-up: Open, unqueued.
   - Evidence: after the developer said "do it before wrap up", `execution-start.mjs start --admit` with the story's own workspace and branch answered `{"ok":false,"status":"invalid-request","error":"queued work requires a separate owned workspace"}`. `admit-accepted-work.md` lists "a retrospective's follow-up correction accepted for execution" as a mission, and also exempts "a supporting step of an active story". The coordinator ran the correction under the story's existing claim on its branch.
   - Observed effect: one refused call; the correction was delivered on the story branch with no Taken entry of its own.
   - Inference: Qualified. A correction that must land with its unlanded story fits the "supporting step of an active story" exemption better than admission, but the guidance does not say which applies, so the coordinator had to try admission first to find out.
+
+## DD-238 — A plan gave a shared operation a story-specific effect without checking callers that use it with another meaning
+
+### Occurrences
+
+- Execution: `SEED-107#recently-done` / plan 253, first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+  - Timestamp: unknown (slice 1 implementation return, 2026-10-06)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`, last updated by `b0bc3a08`)
+  - Evidence: plan 253's PFE chose "Change `complete`" to write a done record. `dough-story-wrap-up/references/follow-up-disposition.md` and backlog maintenance also use `complete` to drop work ("Dropping does not claim that the follow-up was implemented"). The slice 1 return raised it as gap 1; the coordinator added `complete --dropped` in the same slice (`0f334e41`).
+  - Observed effect: caught before delivery at the cost of one resumed implementation round; without it, dropped work would have shown as Recently done.
+  - Inference: Qualified. The planning premise checked what `complete` holds, not every caller's meaning of it.
+
+## DD-239 — A refactor return called a styling change a merge of identical rules, and acceptance did not read the hunk
+
+### Occurrences
+
+- Execution: `SEED-107#recently-done` / plan 253, first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+  - Timestamp: 2026-10-06T10:37:37+09:00 (commit `53333034`)
+  - Tool: Claude Code (delegated refactor agent; coordinator accepted)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`, last updated by `b0bc3a08`)
+  - Evidence: slice 4's refactor return said "the two identical `.session-entry { background: var(--panel) }` rules are merged into one selector pair". `git show 53333034 -- dashboard/src/agent-launch.css` deleted `.card-sessions .session-entry { background }` and put that selector in front of `.launch-local { color: var(--quiet) }`. No spec observes the style; the retrospective's outcome review found it.
+  - Observed effect: work-card sessions lost their panel background and turned quiet; done-card sessions never got the background. A correction was planned after delivery.
+  - Inference: Qualified. The return reported the CSS as unchanged in proof terms, and the coordinator reused accepted proof without inspecting the newly affected style hunk. One sample.

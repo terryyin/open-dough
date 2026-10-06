@@ -137,3 +137,35 @@ record of its own, is the
 [Done stories as published records](../NORTH-STAR.md#done-stories-as-published-records)
 topic. Delivery retires that topic into the code and the documents named in
 Scope. No Accepted ADR conflicts; ADR 0008 is Proposed and binds nothing.
+
+## Correction
+
+<a id="recently-done-correction"></a>
+
+### Recently done reads beside owners, keeps the session look, and closes completely
+
+**Identity:** SEED-107#recently-done-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/257-recently-done-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cd0e008757efb8c727ce04dd35826855e9797d6193a3be8263f933a16aea1f29","plan":"a9074f459065e6f9ebd96fa244dc802b6a9049495a958a3c42d8c142c99ee718"}}
+```
+
+**Goal:** A developer watching the dashboard sees owners, preparation, and
+progress without waiting on the done records, sees a story's sessions set off
+inside its card again, on a work card and a done card, and is told which done
+records are unreadable; an agent closing a queued story in one shot commits
+the done records `complete` wrote or removed. This corrects the delivered
+[Recently done](#recently-done) story without adding to its promises.
+
+**Scope:**
+
+- The done-record read stops delaying or failing the rest of the published
+  read, and done records are read concurrently and not reread at a new
+  revision when unchanged; the agent-profile read shares the same listed read.
+- The panel background of session entries inside a work card and a done card
+  is restored; only the local-launch note stays quiet.
+- The one-shot guidance for completing a queued story says the result commit
+  includes the done records `complete` wrote or removed.
+- Unreadable done records are proved as the column lists them, and the failed
+  read's journey step is named for what it proves.
+
+**Plan:** [257-recently-done-correction](../slice-plans/257-recently-done-correction/PLAN.md)
