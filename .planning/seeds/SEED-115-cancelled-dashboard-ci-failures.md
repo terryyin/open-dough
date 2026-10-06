@@ -26,11 +26,13 @@ and later passing runs establish current proof without explaining this run.
 
 **Identity:** SEED-115#explain-cancelled-ci-failures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"1b4df730a336bbc74ca5c41c2a92eb41b89d7d9a47ca3f3cab53ef7717c73212"}}
 ```
 
-**Goal:** Investigate the thirteen preceding failures and return an
-evidence-backed judgment about whether a remaining bug is worth fixing.
+**Goal:** Establish whether the cancelled run leaves worthwhile repair work,
+then repair the confirmed partial-setup cleanup crash in the acceptance-kept-first
+test harness. Preserve the primary startup error and release resources acquired
+before setup failed.
 
 **Expected behavior:** Dashboard tests provide reliable feedback about the
 promised behavior. A test failure is explained by a demonstrated product or
@@ -41,22 +43,27 @@ evidence; cancellation alone establishes none of these.
 reached its six-minute limit. Thirteen preceding failures remain unexplained
 in the closed execution's evidence.
 
-**Scope:** Bounded diagnosis of the run, its available logs and artifacts, the
-affected tests, landed repairs, and relevant current behavior. Temporary
-reproduction harnesses are investigation evidence. This instruction does not
-authorize a product repair or a change to execution guidance.
+**Scope:** Diagnosis is complete. Terry authorized Dough Bug Fixing on
+2026-10-06: one planless repair attempt with a ten-minute hard limit and
+`--no-replan`, focused on the demonstrated cleanup defect. Preserve the primary
+setup error, clean the acquired fixture, and avoid secondary uninitialized-resource
+errors. CI diagnostic retention and the thirteen unclassified primary causes
+remain follow-up work; they are not promises of this bounded repair. No execution
+guidance changes or speculative timeout/concurrency changes are authorized.
 
 **Key examples:** An affected test whose original failure is reproduced and
 removed by an existing repair is accounted for by that proof. A mismatch
 reproduced on current code establishes remaining work. Missing historical
 evidence remains explicit rather than being cleared by a green rerun.
 
-**Evaluation:** Account for each reported failure, identify any demonstrated
-common cause, and report confirmed defects, likely size, and remaining gaps.
-Avoid a full dashboard-suite rerun or speculative repairs.
+**Evaluation:** The diagnosis below accounts for each failure and its remaining
+evidence gap. Reproduce failed preview setup through the real test runner before
+repair, then observe the same primary error with its acquired fixture removed
+and without a secondary cleanup crash. Verify the related acceptance journey
+and complete independent shared refactoring. Avoid a full dashboard-suite rerun.
 
-**Open decisions:** Whether a remaining product, test, or CI diagnostic defect
-is confirmed and merits repair.
+**Open decisions:** None blocks the confirmed cleanup repair. The remaining
+CI diagnostics design and historical primary causes need separate follow-up.
 
 **Depends on:** No blocking story prerequisite. Preserve the active observer
 sharing story and its checkout.
@@ -152,12 +159,13 @@ the current refresh schedule waits for the initial read to settle. That is a
 specific synchronization premise to examine in the announcement test, not an
 accepted diagnosis from source inspection alone.
 
-**Disposition:** Diagnosis-only authority has been honored. No repair, plan,
-readiness assessment or guidance change was made. The disposable reproductions
-are removed. This admitted story stays Taken with its implementation approach
-unselected; these remaining-work findings are a local draft for review, pending
-an explicit keep or an instruction selecting repair. The original thirteen
-primary failures have not been dismissed or marked resolved.
+**Investigation disposition:** Diagnosis-only authority was honored during
+investigation; no repair or guidance change was made. Disposable reproductions
+were removed. Terry subsequently requested landing these findings and starting
+Dough Bug Fixing. The findings landed at
+`a53751f5468350c9033ba84c7f9ea48ae5837626`. The existing Taken claim continues
+for the bounded cleanup repair. The original thirteen primary failures have
+not been dismissed or marked resolved.
 
 ## Breadcrumbs
 
