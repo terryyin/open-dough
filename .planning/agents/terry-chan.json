@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "identity": "SEED-114#session-column-membership",
-  "mode": "story-branch",
-  "branch": "codex/dashboard-session-column-membership",
-  "host": "codex"
-}
