@@ -163,6 +163,8 @@ export function deliverQueued(
   return deliverThroughCli(fixture, {
     base,
     host: "cursor",
+    mode: "story-branch",
+    tracking: "one-shot",
     ...options,
     extra: [
       ...(session ? ["--session-json", JSON.stringify(session)] : []),

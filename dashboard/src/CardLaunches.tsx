@@ -233,7 +233,18 @@ export function CardLaunches({
         .map((record) => (
           <CreationEntry key={record.launchedAt} record={record} />
         ))}
-      <CardSessions sessions={sessions} launchedHere={launchedHere} />
+      <CardSessions
+        sessions={sessions}
+        launchedHere={launchedHere}
+        cardAssignments={[
+          ...(entry.owner?.status === "recorded"
+            ? entry.owner.assignments
+            : []),
+          ...(entry.preparing?.status === "recorded"
+            ? entry.preparing.assignments
+            : []),
+        ]}
+      />
     </>
   );
 }

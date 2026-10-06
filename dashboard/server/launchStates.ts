@@ -3,7 +3,7 @@
 import { configuredProject } from "./projectConfiguration.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
-import { savedWorkspaceState } from "./sessionWorkspace.ts";
+import { recordedWorkspaceState } from "./sessionWorkspace.ts";
 import type { LaunchRecord, LaunchWithState } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -62,9 +62,7 @@ export async function withStates(
         record,
         project === undefined ? undefined : projectFolder(project),
       ),
-      ...(record.session.host === "codex"
-        ? { workspaceState: savedWorkspaceState(record.session) }
-        : {}),
+      workspaceState: recordedWorkspaceState(record),
       sessionState: observations.find(
         (entry) => sessionKey(entry.session) === sessionKey(record.session),
       )?.sessionState ?? { kind: "unknown" },

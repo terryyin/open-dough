@@ -5,17 +5,20 @@
 // (`unreadReportSummary`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
+import type { AgentAssignment } from "./agentAssignments.ts";
 import { StorySessions } from "./SessionEntry.tsx";
 import { attentionSummary, unreadReportSummary } from "./sessionShown.ts";
 
 export function CardSessions({
   sessions,
   launchedHere,
+  cardAssignments,
 }: {
   // The story's sessions not marked done, oldest first.
   sessions: readonly LaunchWithState[];
   // The session the developer's own launch from the card just listed.
   launchedHere: string | undefined;
+  cardAssignments: readonly AgentAssignment[];
 }) {
   const attention = attentionSummary(sessions);
   const unreadReports = unreadReportSummary(sessions);
@@ -30,6 +33,7 @@ export function CardSessions({
         className="card-sessions"
         onCard
         launchedHere={launchedHere}
+        cardAssignments={cardAssignments}
       />
     </>
   );

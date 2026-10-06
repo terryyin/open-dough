@@ -24,7 +24,7 @@ import {
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
-const storyTarget = "refs/heads/cursor/story-execution";
+const storyTarget = "refs/heads/exec/story";
 const repo = "owner/project";
 
 test("Trunk Mode managed delivery establishes observation, attaches the accepted SHA, and delivers a delayed failure", async (t) => {
@@ -78,6 +78,7 @@ test("Story Branch managed delivery observes the recorded execution branch targe
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
+    mode: "story-branch",
     host: "claude",
     workspace: fixture.execution,
     branch: "exec/story",

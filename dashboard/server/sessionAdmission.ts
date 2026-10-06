@@ -1,6 +1,6 @@
 // Catalog and kept host-qualified identity are shared across local session requests.
 // Passive report admission does not require a project or continuation directory.
-import type { LaunchRecord } from "../src/agentLaunch.ts";
+import { recordedWorkspace, type LaunchRecord } from "../src/agentLaunch.ts";
 import {
   reportUnread,
   type CompletionReport,
@@ -148,12 +148,39 @@ export async function deleteRequest(
   return { kind: "delete" as const, source, record };
 }
 
-// A kept session whose host can read its native final report, with that reader.
+// A kept session with its admitted passive final-report reader.
 export type AdmittedResult = {
   readonly kind: "result";
   readonly record: LaunchRecord;
   readonly read: NonNullable<LaunchHost["readResult"]>;
 };
+
+// Recorded Claude launches read dashboard completion evidence. Legacy Claude
+// records keep their existing refusal, rather than implying a native reader.
+function retainedResultReader(
+  record: LaunchRecord,
+): AdmittedResult["read"] | undefined {
+  if (
+    record.session.host !== "claude" ||
+    recordedWorkspace(record) === undefined
+  )
+    return undefined;
+  return () => {
+    const { completion } = record;
+    if (completion === undefined || completion.message === "") {
+      return Promise.resolve({
+        kind: "unavailable",
+        explanation:
+          "No retained final report is available. Claude Code cannot read a native final report here. The saved conversation is unchanged.",
+      });
+    }
+    return Promise.resolve({
+      kind: "available",
+      receipt: completion.receipt,
+      text: completion.message,
+    });
+  };
+}
 
 export async function resultRequest(url: URL): Promise<AdmittedResult> {
   requireExactQuery(url, ["source", "host", "session"], "result");
@@ -165,7 +192,8 @@ export async function resultRequest(url: URL): Promise<AdmittedResult> {
   const record = await keptSession(source.id, { host: host.data, sessionId });
   if (record === undefined) throw noSuchSession();
   const boundary = launchHost(record.session.host);
-  const read = boundary?.readResult?.bind(boundary);
+  const read =
+    boundary?.readResult?.bind(boundary) ?? retainedResultReader(record);
   if (read === undefined)
     throw new RefusedRequest(400, "This host cannot read a final report.");
   return { kind: "result", record, read };

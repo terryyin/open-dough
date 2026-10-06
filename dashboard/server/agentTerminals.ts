@@ -25,6 +25,9 @@ export type TerminalSession = {
   readonly session: HostSession;
   readonly markedDone: boolean;
   readonly folder: ProjectFolder;
+  // Recorded Claude launch context to recheck before attachment. Absent for
+  // legacy Claude; Codex checks its native continuation inside its host.
+  readonly savedWorkspace?: string;
 };
 
 // Admits an upgrade to one session, or throws the `RefusedRequest` it gets.
