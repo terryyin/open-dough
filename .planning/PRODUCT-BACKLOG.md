@@ -18,7 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Dashboard columns page horizontally instead of wrapping in narrower windows](seeds/SEED-106-dashboard-paged-columns.md#paged-dashboard-columns) — SEED-106#paged-dashboard-columns ([plan](slice-plans/225-paged-dashboard-columns/PLAN.md))
 - [Retained sessions show who was assigned when they launched](seeds/SEED-109-retained-session-attribution.md#retained-session-attribution) — SEED-109#retained-session-attribution
 - [Completed Claude sessions remain readable after their workspace is retired](seeds/SEED-110-retired-claude-session-access.md#retired-claude-session-access) — SEED-110#retired-claude-session-access
-- [Story Branch increments publish only to their execution branch](seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target) — SEED-008#story-branch-delivery-target ([plan](slice-plans/256-story-branch-delivery-target/PLAN.md))
 
 ## Backlog list
 

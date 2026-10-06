@@ -225,7 +225,7 @@ Former local code: DD-196.
 
 The delivery references name an "authorized target ref" and say Story Branch Mode pushes to the remote execution branch, but do not say that `deliver --target-ref` then takes `refs/heads/<execution branch>` rather than the trunk the established start names as `target`.
 
-Follow-up: queued, not resolved: [SEED-008#story-branch-delivery-target](.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target).
+Follow-up: delivered, unreleased: SEED-008#story-branch-delivery-target (story and plan recoverable at `b413d0fe:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` and `b413d0fe:.planning/slice-plans/256-story-branch-delivery-target/PLAN.md`). Response commits `9a9e0a6e` and `a1bcad0d`, first containing release pending: `deliver` requires `--mode trunk|story-branch` and refuses a Story Branch target other than `refs/heads/<execution branch>` before any push; "Publish the candidate" shows the command with each mode's target.
 
 ### Occurrences
 
@@ -536,7 +536,7 @@ Follow-up: queued, not resolved: [Observe decisive planning premises through the
   - Tool: Claude Code (coordinator and delegated implementation agents)
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 256 premise "Managed delivery's production callers are the coordinator CLI and Trunk Mode closure only" came from a grep of `src` and `dashboard` for the function and script names. Slice 1 also had to align the credential-free substitute hosts `tests/support/native-agent-one-shot*.sh` and `deliverQueued`, which run the CLI. Slice 2's guidance told every caller to copy `--mode` from the established start, but caller-selected current-branch and host-owned execution have none. The implementer reported that gap, and the coordinator added `--mode trunk` for those callers (plan 256 slice 2 decision).
+  - Evidence: plan 256 premise "Managed delivery's production callers are the coordinator CLI and Trunk Mode closure only" came from a grep of `src` and `dashboard` for the function and script names. Slice 1 also had to align the credential-free substitute hosts `tests/support/native-agent-one-shot*.sh` and `deliverQueued`, which run the CLI. Slice 2's guidance told every caller to copy `--mode` from the established start, but caller-selected current-branch and host-owned execution have none. The implementer reported that gap, and the coordinator added `--mode trunk` for those callers (slice 2 decision in `b413d0fe:.planning/slice-plans/256-story-branch-delivery-target/PLAN.md`).
   - Observed effect: no CI failure or rework; extra caller alignment in slice 1 and one added guidance sentence in slice 2.
   - Inference: Qualified. Fifth occurrence: the sweep found code callers by name. It missed that the new required argument is supplied by every guidance path that runs the command, including paths without the established start the plan assumed.
 
