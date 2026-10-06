@@ -1,6 +1,6 @@
 // Native terminal admission remains independent of passive report access.
 import type { IncomingMessage } from "node:http";
-import { attachOpens } from "../src/agentLaunch.ts";
+import { attachOpens, recordedWorkspace } from "../src/agentLaunch.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
@@ -41,10 +41,13 @@ export async function admittedAttach(
         `The session is no longer available in ${hostBoundary.description.name}.`,
     );
   }
+  const savedWorkspace =
+    record.session.host === "claude" ? recordedWorkspace(record) : undefined;
   return {
     sourceId: source.id,
     session: record.session,
     markedDone: record.doneAt !== undefined,
     folder,
+    ...(savedWorkspace === undefined ? {} : { savedWorkspace }),
   };
 }
