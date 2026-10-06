@@ -3,8 +3,9 @@
 **Identity:** SEED-106#paged-columns-reveal-and-count-correction
 **Source:** [correction story](../../seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction),
 from the execution retrospective of
-[SEED-106#paged-dashboard-columns](../../seeds/SEED-106-dashboard-paged-columns.md#paged-dashboard-columns)
-(plan [225](../225-paged-dashboard-columns/PLAN.md)), delivered by commits
+SEED-106#paged-dashboard-columns
+(`be7125e4:.planning/seeds/SEED-106-dashboard-paged-columns.md`, plan
+`be7125e4:.planning/slice-plans/225-paged-dashboard-columns/PLAN.md`), delivered by commits
 a5e9e772, d5a159d8, 199c1418, 9be57f28 and af2e7d54 on
 `claude/dashboard-columns-page-horizontally-instead-of-w`, all CI green.
 **Prepared:** 2026-10-06. Planning only, in the execution's worktree.

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bastiaan-chan",
-  "email": "bastiaan-chan@example.org",
-  "identity": "SEED-106#paged-dashboard-columns",
-  "mode": "story-branch",
-  "branch": "claude/dashboard-columns-page-horizontally-instead-of-w",
-  "host": "claude"
-}

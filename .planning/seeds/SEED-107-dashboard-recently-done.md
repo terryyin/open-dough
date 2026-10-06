@@ -95,7 +95,7 @@ inside its card, together with the sessions that belong to no done story.
 
 **Boundary assumptions:**
 
-- [SEED-106#paged-dashboard-columns](SEED-106-dashboard-paged-columns.md#paged-dashboard-columns)
+- SEED-106#paged-dashboard-columns (`be7125e4:.planning/seeds/SEED-106-dashboard-paged-columns.md`)
   names the same column Recent sessions; whichever lands second uses the name
   then on trunk.
 - [SEED-052#reconcile-recently-done-and-sessions](SEED-052-start-agent-work-from-dashboard.md#reconcile-recently-done-and-sessions)
