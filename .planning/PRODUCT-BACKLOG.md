@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Dashboard shows recently done stories with their sessions](seeds/SEED-107-dashboard-recently-done.md#recently-done) — SEED-107#recently-done ([plan](slice-plans/253-dashboard-recently-done/PLAN.md))
 - [Dashboard columns page horizontally instead of wrapping in narrower windows](seeds/SEED-106-dashboard-paged-columns.md#paged-dashboard-columns) — SEED-106#paged-dashboard-columns ([plan](slice-plans/225-paged-dashboard-columns/PLAN.md))
-- [Retained sessions show who was assigned when they launched](seeds/SEED-109-retained-session-attribution.md#retained-session-attribution) — SEED-109#retained-session-attribution
 
 ## Backlog list
 
