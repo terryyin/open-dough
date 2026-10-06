@@ -95,22 +95,91 @@ This is a retired navigation reference, not another candidate.
 
 **Identity:** SEED-008#story-branch-delivery-target
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/256-story-branch-delivery-target/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"79fd86e2f99be4e109d469cd7d6f0d9ebbd7b53863215252632743d24123ca63","plan":"76dce5bf7b33d396b6ac0c58d41e97ccd473100469b3df04db940884833299b4"}}
 ```
 
 **Beneficiary:** a developer whose agent executes a story in Story Branch Mode.
 
 **Goal:** An increment delivered in Story Branch Mode reaches only its remote
 execution branch, never trunk before review and integration, and the
-coordinator does not have to read the delivery script to pass the right target.
+coordinator passes the right `--target-ref` from the established start and
+the delivery guidance alone, without reading the delivery script. This keeps
+the Story Branch Mode contract of
+[ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md) — publish
+progress to the story branch, integrate into trunk only at the authorized
+integration boundary — true in practice: fifteen ODF-200 occurrences cost
+lookups or a refused first call, and the latest one fast-forwarded an
+unreviewed increment onto remote `main`.
 
 **Scope:**
 
-- The delivery guidance and `execution-increment-delivery.mjs deliver` usage
-  name the `--target-ref` form: `refs/heads/<execution branch>` in Story Branch
-  Mode, `refs/heads/<trunk>` in Trunk Mode.
-- `deliver` refuses a Story Branch increment whose target is trunk, so an
-  established start's `target` cannot route the increment there.
+Required:
+
+- The coordinator tells `deliver` the execution mode, as the established start
+  names it (`mode: story-branch` or `trunk`) and as `execution-start.mjs start
+  --mode` already takes it. A Story Branch increment whose `--target-ref` is
+  not `refs/heads/<execution branch>` (the `--branch` value) is refused before
+  any fetch, rebase, push, or observer establishment, with an error naming the
+  required target. Trunk Mode keeps `refs/heads/<trunk>`.
+- The `deliver` usage text and the delivery steps a coordinator reads at
+  delivery time, [Publish an execution increment or repair](../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-an-execution-increment-or-repair)
+  and [Publish the candidate](../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-the-candidate),
+  show the `--target-ref` value for each mode next to the mode argument:
+  `refs/heads/<execution branch>` in Story Branch Mode, `refs/heads/<trunk>`
+  in Trunk Mode. The bare `REF` placeholder goes.
+- ODF-200 is updated at `DearDough.md` and `docs/maintainer/finding-names.md`.
+
+Rejection constraint: the refusal is justified by ADR 0009's Story Branch Mode
+row and [trunk publication](../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-an-execution-increment-or-repair)
+("Story Branch Mode pushes that candidate to the recorded remote execution
+branch and does not push it to remote trunk").
+
+Boundary — trunk-targeted publications from a Story Branch workspace that are
+not Story Branch increments keep their existing targets and are not refused:
+the [one-shot landing](../../src/skills/dough-execute-plan/references/one-shot.md#land-the-retained-result),
+which targets remote trunk even in Story Branch Mode, and wrap-up's
+[Story Branch integration](../../src/skills/dough-execute-plan/references/wrap-up-closure-publication.md#observe-story-branch-integration)
+and Trunk Mode closure through `trunk-closure.mjs finish`. Planning decides
+how each of those callers tells `deliver` it is not a Story Branch increment
+(omitting the mode or naming trunk) and confirms which of them run through
+managed delivery at all.
+
+Deferred, considered and excluded:
+
+- No refusal for a Trunk Mode increment aimed at a non-trunk branch: no
+  occurrence, and `deliver` is not told the trunk's name.
+- No new established-start field naming the delivery target: the block's
+  `mode` and `branch` plus the guidance are enough to copy the value.
+- No reversal of the increment plan 250 already fast-forwarded onto `main`
+  (`1be19216`); it is integrated history.
+- The existing `refs/heads/` form requirement stays; `origin/<branch>` and bare
+  branch names remain refused as today.
+
+**Key examples:**
+
+1. **Trunk target refused in Story Branch Mode.** Established start names
+   `mode: story-branch`, `branch: claude/x`, `target: main`; a slice is
+   committed. The coordinator runs `deliver --mode story-branch --branch
+   claude/x --target-ref refs/heads/main …`. Result: `ok: false`,
+   `publication: "refused"`, an error naming `refs/heads/claude/x` as the
+   required target; remote `main` and `claude/x` are unchanged, no observer
+   was established, nothing was fetched or rebased.
+2. **Execution branch accepted in Story Branch Mode.** Same start; the
+   coordinator runs `deliver --mode story-branch --branch claude/x
+   --target-ref refs/heads/claude/x …`. Result: accepted as today, receipt
+   target `refs/heads/claude/x`, observer bound to that branch.
+3. **Trunk Mode unchanged.** Established start names `mode: trunk`,
+   `target: main`; `deliver --mode trunk --target-ref refs/heads/main …` is
+   accepted with receipt target `refs/heads/main`.
+4. **No script lookup.** A coordinator at its first delivery reads only the
+   delivery step in `trunk-publication.md`, or runs `deliver` with no
+   arguments and reads its usage; both state the `--target-ref` value for the
+   established start's mode. The lookups and refused first calls ODF-200
+   records do not occur.
+5. **One-shot landing still reaches trunk.** A one-shot result in Story
+   Branch Mode is landed with `--one-shot-identity <identity>` and
+   `--target-ref refs/heads/main`; it is accepted as today, because it is a
+   trunk publication, not a Story Branch increment.
 
 **Evidence:** [ODF-200](../../DearDough.md#odf-200--story-branch-deliverys---target-ref-value-had-to-be-read-from-the-script)
 in `DearDough.md` and the
@@ -118,9 +187,10 @@ in `DearDough.md` and the
 occurrence published an unreviewed Story Branch increment to remote `main`.
 
 **Done when:** a Story Branch `deliver` with a trunk target is refused before
-any push; the guidance and usage name both forms; and ODF-200 is updated at
+any push; the usage and the delivery steps name both forms; one-shot landing
+and closure publications are still accepted; and ODF-200 is updated at
 `DearDough.md` and `docs/maintainer/finding-names.md` under
-[finding status](../../docs/maintainer/finding-names.md#retained-evidence).
+[retained evidence](../../docs/maintainer/finding-names.md#retained-evidence).
 
 ### Priority rationale and scope reduction
 

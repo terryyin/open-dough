@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "d.kanai-chan",
-  "email": "d.kanai-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#story-branch-delivery-target",
-  "host": "claude",
-  "model": "fable"
-}
