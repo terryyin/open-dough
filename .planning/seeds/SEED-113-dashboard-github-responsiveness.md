@@ -83,7 +83,7 @@ shared observer reads story is preserved.
 
 **Identity:** SEED-113#recover-consistently-from-rate-limits
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/264-rate-limit-recovery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cdc469a39c4bbbea8b63c799771361b9ea6117454b36ea152fc74755cf0ede4f","plan":"345b06da9cb98b879b138ae2d0aa6875c993e2bfb3532678f552d57b7df9c4d9"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/264-rate-limit-recovery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a0cc376ed545ac1b197ba897046a619f49ad3d8484d144e4c9d135aa02ef4236","plan":"8352e2b813c27f7e4669567958345bf0a9594d226596942dd009167b7d4d98c6"}}
 ```
 
 **Beneficiary:** A developer whose GitHub allowance is shared by dashboard reads
@@ -106,6 +106,18 @@ read, and returns only on reload or a later publication. Reads are bounded four
 at a time within each of a page's file-read groups and each listed-record read,
 while those groups, clock evidence, and credited humans run together, and
 every tab adds its own.
+
+**Human attribution intent (2026-10-07):** Terry reports frequent "Human
+developer unknown" and wants dependable assignment credit with fewer redundant
+requests. A rate-limited profile-history read is a withheld human credit, not
+evidence that the assignment has no human developer. At today's unchanged
+revision, periodic checks do not retry that detail. This story owns its
+automatic recovery after the limit; [reuse after publication](#reuse-unchanged-records-after-publication)
+owns avoiding history reads for unchanged assignments. The reported failing
+response has not been captured, so this does not classify every unknown label
+as a rate-limit defect. Ordinary connection failures and timeouts remain a
+follow-up to reassess after these two deliveries; they are not added to this
+story's recovery scope.
 
 **Scope — required behavior:**
 
@@ -142,7 +154,11 @@ every tab adds its own.
   nothing. Then a visible page reads on its own what the limit withheld: the
   project when nothing is shown, the withheld details of a shown snapshot, and
   its revision check. Content already read is not asked again. A hidden page
-  does so when it is seen again.
+  does so when it is seen again. This includes a profile's credited human:
+  even if trunk has not moved, its withheld history is read after the wait,
+  and a successfully established name replaces "Human developer unknown" on
+  its card, detail, and roster without a reload. Human credit and the Take's
+  slice clock continue to share one addition read.
 
 **Scope — evidence and failure constraints:** Follow the
 [existing published reading contract](../../dashboard/PUBLISHED-OBSERVATION.md)
@@ -186,6 +202,7 @@ images, which use no `gh` allowance, carry no new commitment.
 | Pre-condition and trigger | Result |
 | --- | --- |
 | A page is loading a project's detail. GitHub refuses one seed's content read with `Retry-After: 120`. | That seed is labeled as withheld by the limit and the details still waiting are not asked. The page keeps its snapshot and revision and says reading resumes in two minutes. |
+| GitHub limits one profile's history or addition-commit read. Its card says "Human developer unknown", and trunk stays at the shown revision through the directed wait. | The detail and roster explain the limit and resume time. After the wait the credited human appears without a reload or new publication, and the same recovered addition supplies its slice clock. Successful cached reads are not repeated; the history and each walked commit are asked once however many views need them. |
 | During that wait the developer reloads the page, opens a second tab, or selects another project. | GitHub is asked nothing. The page says GitHub limited requests and when reading resumes; with no snapshot it says none has been read. At that time it reads on its own. |
 | A second tab shows a complete snapshot and has met no refusal itself. Its next check falls inside the wait. | The check is answered as limited without reaching GitHub. The snapshot stays, and the tab says checks resume at the same time. Hidden and seen again before then, it asks nothing. |
 | The wait ends with three visible tabs waiting. | One read reaches GitHub alone. Once it is answered the others proceed, at most eight under way. Each tab fills what the limit withheld; content already read is not asked again, and each problem clears as today. |
@@ -223,6 +240,13 @@ two observers. The departure, bound, and shutdown examples qualify that result.
 Request counts and timings are observed for these examples, not adopted as
 budgets.
 
+Include the unchanged-revision human-credit journey: limit a profile's history
+or addition commit, then answer it with a usable committer after the directed
+wait. Assert the credit on the card, detail, and roster, its shared Take clock,
+the limit explanation before recovery, and the exact requests since refusal.
+No-addition, unnamed-committer, and ordinary non-limit failures retain their
+own explanations; an avatar failure does not make a known human unknown.
+
 **Value / learning:** Prevent avoidable refusals and repeated waiting while
 making service-imposed delays understandable.
 
@@ -250,7 +274,7 @@ useful even if unchanged records are still fetched after new publications.
 
 **Identity:** SEED-113#reuse-unchanged-records-after-publication
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/266-reuse-unchanged-records-after-publication/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2bce9bbb3771516248fb13fa14891ac9bed25e10549bb71913d32e87b3d09b17","plan":"762ee0555b3e0f433eae9ca0f4c0913530724e4297604757762b31bcfca4ed2e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/266-reuse-unchanged-records-after-publication/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bec838944958a80b9c819cb5d7c0f9d8072ae2626a490a9152cf6b91ef9d6670","plan":"c0e7493d2a23f3c29f5ae5a4bf6d1592601003df798f292d4cc8ed544edfe4e3"}}
 ```
 
 **Beneficiary:** A developer watching a project whose trunk receives frequent
@@ -275,6 +299,21 @@ walked commit changed about a profile is remembered by commit. The
 [replay above](#why-this-matters) measured 26 requests for a trunk revision
 whose planning records were unchanged, against 3 for a warm reload.
 
+**Human attribution intent (2026-10-07):** Terry reports frequent "Human
+developer unknown" and asks whether fetching developers and their humans
+makes unnecessary requests. At local revision `69f22b57`, all seven readable
+profiles have a current addition committed by Terry Yin. Code and local
+history imply about 14 cold attribution API calls (one history listing and
+one addition commit per profile), another seven history listings after an
+unrelated trunk publication, and none for successful cached attribution at
+the same revision. These are estimates excluding profile-content, backlog,
+plan, branch, and historical-session reads, not a live traffic capture or an
+acceptance budget. Lookup is per assignment, not per distinct human, because
+one person's separate assignments can have different addition commits. This
+story must retain established credit without new history requests when
+published evidence proves the assignment unchanged; [rate-limit recovery](#recover-consistently-from-rate-limits)
+owns recovery of credit the limit withheld.
+
 **Scope — required behavior:**
 
 - **Unchanged records are reused on commit evidence.** A read at the new
@@ -295,6 +334,10 @@ whose planning records were unchanged, against 3 for a warm reload.
   evidence that the new revision descends from that revision and that no
   commit between them changed that path. Without it they are read as today.
   Identical text is never that evidence.
+  In particular, an unrelated publication keeps an established human's name
+  and allocation on cards, details, and the roster without asking again for
+  that profile's history or addition commits. Equal human names or profile
+  blobs alone never justify sharing different assignments' attribution.
 - **Evidence cost does not grow with the number of records.** Learning what
   changed at a new revision costs one comparison of the two revisions and one
   read of each commit between them, each commit's answer remembered so that
@@ -347,6 +390,8 @@ Cooldowns and bounded demand belong to the rate-limit story.
 | Pre-condition and trigger | Result |
 | --- | --- |
 | A page shows revision A, read in full. A commit that changes only product code is published as B. | The check finds B and the page shows B with the same facts. GitHub is asked to compare A with B and what that one commit changed; no backlog, seed, plan, profile, setting, or done-record text or listing is read, and no profile history or last-commit time is asked, because no commit between A and B touched them. |
+| At A seven readable assignments credit the same human. One unrelated commit publishes B, with no profile changed. | All seven retain their own credited human and allocation, including on the roster. The new revision adds zero profile-history or addition-commit requests beyond the shared change evidence, regardless of how many views show the credit. |
+| After A, one profile is modified and the other six are untouched. All seven still name the same human. | Only the touched profile's allocation history is read at B; the other six retain their own credit on commit evidence. The touched profile's addition is established by its walk, never by another profile's matching human name. |
 | At B one seed's story section changed. | That seed alone is read at B and its new facts appear at the observed revision B. Every other record is reused. |
 | At B the backlog queues a new story whose seed is new. | The backlog and the new seed are read at B; the other seeds and plans are reused. |
 | At B a done record is added and a plan gains a done slice. | The done directory's listing is read and the new record read; the changed plan is read with its last commit time; nothing else is. |
@@ -384,6 +429,14 @@ addition is credited. Publish a non-descendant revision and fail the evidence
 read: every record and history is read as today and the shown snapshot is
 untouched. Request counts are observed for these examples, not adopted as
 budgets.
+
+For human credit, use several profiles and count history and commit requests
+separately from comparison evidence and avatar image reads. Observe unchanged
+credit on cards, details, and the roster after an unrelated commit, then touch
+one profile and show that only its history is read. An avatar failure keeps
+the known name. A real missing addition, unusable committer, or failed history
+read keeps its own explanation instead of guessing a human from another
+assignment or an older allocation.
 
 **Value / learning:** Make refresh cost follow changed published content
 rather than the whole set of dashboard records.
