@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "aki-chan",
-  "email": "aki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-115#retain-cancelled-ci-evidence",
-  "host": "claude",
-  "model": "fable"
-}
