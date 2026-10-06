@@ -1,8 +1,9 @@
 // Which read a request to the local authenticated read boundary
 // (`./authenticatedRead.ts`) asks for, once its catalog source is known:
-// the ref resolved afresh with its backlog; only whether the ref still names
-// the revision already shown (`since`), and which heads the story branches
-// recorded at that revision name now (`watch`); the backlog at an already
+// the ref resolved afresh, with the backlog at the commit it names; only
+// whether the ref still names the revision already shown (`since`), and which
+// heads the story branches recorded at that revision name now (`watch`); the
+// backlog at an already
 // resolved revision; one repository path at a pinned revision; when one repository
 // path was last committed at a pinned revision (`committed=last`); which
 // commit added one agent profile's current allocation, when, and who

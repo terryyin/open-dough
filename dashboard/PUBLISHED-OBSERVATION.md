@@ -21,7 +21,11 @@ same local read boundary from their Vite configuration, so the watcher's
 production preview needs no separate authentication setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
-reads once on opening, and reloading the page reads it again. While a snapshot
+reads once on opening, and reloading the page or returning to the project reads
+it again: GitHub is asked anew which commit the configured ref names and which
+head each recorded story branch names, while backlog and record text this
+dashboard process already read at those commits is not asked again. A record
+GitHub answered as missing, or that could not be read, is asked for again. While a snapshot
 is shown and the page is visible, it also asks every 15 seconds whether the
 project's configured ref still names the shown revision -- one conditional listing of
 every published branch head, which GitHub answers with `304 Not Modified` when

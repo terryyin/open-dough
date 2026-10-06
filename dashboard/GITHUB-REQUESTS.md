@@ -3,8 +3,10 @@
 What the [story dashboard](README.md) asks GitHub through the launching
 person's own `gh`, and so what it costs their GitHub API allowance.
 
-Each load of the dashboard makes two authenticated `gh` requests for membership, plus one per record not already read at that revision
-for preparation and detail, and, once per revision, one listing of the done
+Each load of the dashboard makes one authenticated `gh` request resolving the
+configured ref, and one reading its backlog unless this dashboard process
+already read it at the resolved revision, plus one per record not already read
+at that revision for preparation and detail, and, once per revision, one listing of the done
 record directory plus one per done record listed there, one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
@@ -16,7 +18,12 @@ which does not use the `gh` allowance; a failed avatar read is asked again
 when the avatar is next shown. Each
 Taken entry with a counted plan adds one last-commit-time request for its plan
 and one for its agent profile, and each Story Branch Mode entry adds one
-branch head request and one plan read on that branch. These count against the
+branch head request and one plan read on that branch. Only the ref and branch
+head requests are made on every load: content and history already read at a
+resolved revision or branch head are not asked again while the dashboard
+process runs, so a reload or a return to a project whose ref and branches are
+unchanged costs those requests plus one for each record GitHub answered as
+missing, or failed to answer, at that revision. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while

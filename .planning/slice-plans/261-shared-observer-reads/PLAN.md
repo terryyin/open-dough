@@ -151,14 +151,14 @@ remedy.
 | A failed shared read fails each waiter alike, with any directed wait, and is never kept. | 4: two waiters on a refused read and on a rate-limited check; the next request asks again and succeeds. |
 | No request waits past its bound for a shared read, and joiners cannot keep a GitHub read outstanding past the bound. | 4: a short-bound server with a stalled read and a late joiner. |
 | Visibility and publication observation are unchanged; what the process keeps stays bounded. | 1 and 3: the existing auto-refresh, visibility, branch, and isolation journeys. Outstanding entries leave when their read settles, shown by the later-request cases. |
-| The request accounting and reading contract describe the resulting costs. | 1 and 3: `dashboard/GITHUB-REQUESTS.md` and `dashboard/README.md`, each changed with the behavior it describes. |
+| The request accounting and reading contract describe the resulting costs. | 1 and 3: `dashboard/GITHUB-REQUESTS.md` and `dashboard/PUBLISHED-OBSERVATION.md`, each changed with the behavior it describes. |
 
 ## Ordered slices
 
 ### 1. Reopening a project asks only what could have changed
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/reopened-project-reads.spec.ts` through
 `dashboardTest.ts`, new cases in `authenticated-read-boundary.spec.ts`, the
 three specs O4 found asserting a reread, and the existing `auto-refresh.spec.ts`,
@@ -191,6 +191,18 @@ asked again and the kept backlog is not. Update the membership cost in
 
 Safe stop: Every reopen of an unchanged project costs one content read less,
 with freshness and recovery as before.
+
+Accepted proof: `env -u NODE_ENV npm run typecheck:dashboard`;
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- reopened-project-reads.spec.ts authenticated-read-boundary.spec.ts authenticated-read-revision-backlog.spec.ts direction-disclosure.spec.ts project-selection.spec.ts auto-refresh.spec.ts auto-refresh-detail-recovery.spec.ts auto-refresh-branches.spec.ts auto-refresh-unusable-branch.spec.ts project-read-isolation.spec.ts read-failure.spec.ts --workers=2`
+(33 passed) and `... -- production-watcher-updates.spec.ts --workers=2` (1 passed).
+The journey asserts exact reload and return call lists; the two membership-read
+boundary cases live in `authenticated-read-revision-backlog.spec.ts`. Without
+the remedy the journey fails on an extra backlog content call.
+
+Learning: the reading contract's reload sentences live in
+`dashboard/PUBLISHED-OBSERVATION.md`, not `dashboard/README.md`, which delegates
+to it; slice 3 updates that file. `.planning/open-dough.json` counts as a
+missing record on every reload when a project does not publish it.
 
 ### 2. One owner for an outstanding read
 
@@ -263,7 +275,8 @@ both tabs' facts. Repeat with one tab closed, and with one switched to another
 project, before the seed is released, and observe the remaining tab's facts.
 With both tabs' revision checks held, hide one tab, which abandons its check,
 and observe the other tab's check answered. Update the simultaneous-read and
-check costs in `GITHUB-REQUESTS.md` and the reading contract in `README.md`.
+check costs in `GITHUB-REQUESTS.md` and the reading contract in
+`PUBLISHED-OBSERVATION.md`.
 
 Interim: a refused or stalled shared read follows the owner's extracted rule,
 unproved for several `gh` waiters until slice 4.
@@ -316,7 +329,7 @@ Execution follows the installed post-change-refactoring and delivery workflow.
 The local commit gate is the check-only `.githooks/pre-commit`, which runs
 `npm run --silent lint -- --staged`. Hosted checks remain owned by execution's
 publication and CI workflow. Keep the enduring reading behavior in the tests,
-`dashboard/README.md`, and `dashboard/GITHUB-REQUESTS.md`. At wrap-up, retire
+`dashboard/PUBLISHED-OBSERVATION.md`, and `dashboard/GITHUB-REQUESTS.md`. At wrap-up, retire
 the North Star topic this plan follows.
 
 No numeric slice target, hard limit, or S/M/L bands were supplied. Each slice
