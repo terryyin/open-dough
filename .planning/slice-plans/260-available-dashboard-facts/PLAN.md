@@ -316,7 +316,7 @@ npm run typecheck:dashboard && git diff --check
 ### 3. Only the current project's observation can gain facts
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/published-facts-isolation.spec.ts` plus existing
 `auto-refresh.spec.ts`, `project-read-isolation.spec.ts`, and
 `auto-refresh-project-isolation.spec.ts`.
@@ -339,6 +339,72 @@ rather than adding a second project/generation registry.
 
 Safe stop: More independent callbacks cannot revive an abandoned project or
 create a view assembled from different backlog revisions.
+
+Accepted implementation observations: five journeys in
+`published-facts-isolation.spec.ts`, with raw evidence in
+`publishedFactsIsolation.ts` and rendered/request assertions in
+`publishedFactsIsolationAssertions.ts`. Complete A explicitly establishes
+credited humans and its current clock before B is published. B's full membership,
+fast owners/preparers and roster appear while its preparation/done are held;
+old A values and pinned links disappear. Success and failure cases abandon all
+three unfinished A groups on project switch, and return to partial B while the
+same project's A remains held. Releases retain the current inspection/focus,
+source, read status and retrieval time. Real subsequent requests and the next
+scheduled check name only the selected repository and pinned revision; every
+journey accounts for page errors. No production correction was needed.
+
+Passing terminal proof, all five new tests selected:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-isolation.spec.ts --workers=2
+npm run typecheck:dashboard
+git diff --check
+```
+
+The initial combined command below reached terminal exit 1, with only two new
+switch assertions failing because they targeted absent card elements in
+Doughnut's empty Taken column. The assertions now observe the existing stage;
+the complete new-spec rerun above closes those failures. All seven unchanged
+refresh/isolation regression tests completed without reported failure in that
+combined run. It is retained as such, not represented as a passing command:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-isolation.spec.ts auto-refresh.spec.ts project-read-isolation.spec.ts auto-refresh-project-isolation.spec.ts --workers=2
+```
+
+Initial typecheck exposed an optional card-name type and passed after its
+correction. No shared fixture, scheduler, observation, assignment, attribution,
+progress, clock or saved-session contract changed; arrival/failure and wider
+suites remain unaffected. Reader-position proof remains with slice 4.
+
+Independent refactoring subsequently consolidated the duplicated held-group
+answer rule in `support/heldFactGroupAnswers.ts`, and existing/new Doughnut
+selection setup in `doughnutJourney.ts`. The new spec keeps all five scenarios;
+raw publications, reader-context setup and rendered-fact observations have
+separate test-support owners. This changed arrival/failure and automatic
+project-isolation support, so the complete affected selection passed again,
+including a passing replacement for the original four-spec command:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-isolation.spec.ts auto-refresh.spec.ts project-read-isolation.spec.ts auto-refresh-project-isolation.spec.ts published-facts-arrival.spec.ts published-facts-failures.spec.ts --workers=2
+npm run typecheck:dashboard
+git diff --check
+```
+
+No production boundary changed. All completed slice observations remain covered;
+no second observation registry or new polling policy was introduced.
+Formatting exposed one extracted test method passed without its receiver.
+A type-only receiver annotation passed typecheck but conflicted with another
+lint rule. The final helper uses an arrow function over the same captured
+variables. Its affected browser proof and typed contracts are rechecked below.
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-isolation.spec.ts published-facts-arrival.spec.ts published-facts-failures.spec.ts --workers=2
+npm run typecheck:dashboard && git diff --check
+```
+
+Both terminal results passed after that repair; unchanged automatic refresh and
+project-isolation results from the six-spec run remain applicable.
 
 ### 4. Facts arriving preserve the reader's place
 

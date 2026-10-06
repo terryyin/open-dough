@@ -11,7 +11,7 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { branchRefAnswer, noConnection } from "./originAnswers.ts";
+import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { doneRecordAt, executed } from "./recentlyDoneRecords.ts";
 import {
@@ -28,11 +28,14 @@ import {
   revision,
   stories,
 } from "./sliceClockRecords.ts";
-import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
-import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
+import {
+  holdFactGroupAnswers,
+  type FactGroup,
+} from "./support/heldFactGroupAnswers.ts";
 
-export type FactGroup = "preparation" | "profiles" | "done";
+export type { FactGroup } from "./support/heldFactGroupAnswers.ts";
 export const takenCanonicalPath = ".planning/seeds/SEED-091-clock.md";
 export const preparing = "Prepare beside independently read work";
 const preparingIdentity = "SEED-091#preparing";
@@ -154,28 +157,17 @@ export async function heldFactGroups(page: Page) {
     },
     committed: { [planPath("after-take")]: minutesBefore(7) },
   });
-  const failed = new Set<FactGroup>();
-  let answer: RepositoryAnswerer = (call) => {
+  const held = holdFactGroupAnswers((call) => {
     const { request } = call;
-    const group = groupOf(request);
-    if (group !== undefined && failed.has(group)) {
-      return Promise.resolve(noConnection);
-    }
     if (request.kind === "branch") {
       return Promise.resolve(branchRefAnswer(branch, branchHead));
     }
     return "revision" in request && request.revision === branchHead
       ? onBranch(call)
       : trunk(call);
-  };
-  const release = new Map<FactGroup, () => void>();
-  for (const group of ["preparation", "profiles", "done"] as const) {
-    const held = holdingAnswer(answer, (request) => groupOf(request) === group);
-    answer = held.answer;
-    release.set(group, held.release);
-  }
+  }, groupOf);
   const github = githubFor(page);
-  github.serve(repository, answer);
+  github.serve(repository, held.answer);
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),
@@ -197,10 +189,9 @@ export async function heldFactGroups(page: Page) {
     queuedCard: backlog.getByRole("article", { name: preparing }),
     doneCard: recentlyDone.getByRole("article", { name: executed.title }),
     problem,
-    release: (group: FactGroup) => release.get(group)?.(),
+    release: held.release,
     fail: (group: FactGroup) => {
-      failed.add(group);
-      release.get(group)?.();
+      held.release(group, "failure");
     },
   };
 }
