@@ -27,13 +27,21 @@ missing, or failed to answer, at that revision. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while
-it is hidden, and none before a rate limit's directed time). GitHub documents
+it is hidden, and none before a rate limit's directed time); checks asked from
+several pages while one listing is outstanding share it. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
 commit then costs one backlog read plus its records, done records, and one history listing
 per readable profile, without resolving `main` again; a recorded story branch
 that moved costs one read of its plan and one of its last commit time at the
 new head.
+
+Pages served by one dashboard process that need the same GitHub answer while
+it is outstanding share one `gh` request for it, whatever was asked: two tabs
+opening one project together cost what one costs, resolving the ref once and
+reading each record once. A finished ref, branch-head, or check answer is never
+reused, so a later load or check asks again; separately launched dashboards
+share nothing.
 
 A listed story whose latest launch on this machine settled, published at a
 revision other than the one shown, and is not yet reconciled on the page costs

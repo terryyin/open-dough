@@ -42,6 +42,18 @@ replaces the whole view with one revision. No local
 checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
 
+Pages served by one dashboard process share what they ask GitHub: a request
+that needs an answer another request already waits for waits on that same
+`gh` request instead of asking again. Two tabs opening one project together
+resolve its ref once and read each record once, and revision checks from pages
+showing different revisions or watching different branches share one
+branch-head listing, each learning its own answer. Each page still shows what
+it would have read alone, under its own observation, and a shared resolution
+of the ref answers when GitHub was asked. A page that closes, is hidden, or
+switches project stops waiting without ending a read another page still waits
+for; the last one leaving ends it, as closing the dashboard does. A finished
+ref or branch-head answer is never reused: a later open or check asks again.
+
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done
 stories then appear as each group finishes, retaining the other groups already

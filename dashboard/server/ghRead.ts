@@ -1,6 +1,7 @@
 // The `gh`-invocation concern for the local authenticated read boundary
 // (`./authenticatedRead.ts`): running one `gh` call and classifying how it
-// failed, and when one path was last committed as of a resolved commit.
+// failed, one call shared by every request asking it while it is
+// outstanding, and when one path was last committed as of a resolved commit.
 // Which commit a ref or published branch names is asked in `./ghRevision.ts`;
 // content pinned to a resolved commit is read in `./ghContents.ts`. Each call
 // has a fixed argument array -- never a shell string, and never a
@@ -10,9 +11,11 @@
 
 import { execFile, type ExecException } from "node:child_process";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
+import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
 
-// How long one boundary request -- all of its owned `gh` subprocesses -- may
-// run before it is aborted (`./trackedGh.ts`): the shared read wait bound
+// How long one boundary request may wait for its `gh` answers before it is
+// given up (`./trackedGh.ts`), and how long one `gh` call may run from its
+// start however many requests wait on it: the shared read wait bound
 // (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`). A test may
 // shorten this through the environment to observe termination without
 // waiting out the production bound, which stays the shared bound whenever
@@ -85,16 +88,25 @@ type GhRun = {
   readonly error: ExecException | null;
   readonly stdout: string;
   readonly stderr: string;
+  // When this answer was asked of GitHub, by this server's clock: the start
+  // of the one `gh` call it shares.
+  readonly askedAt: string;
 };
 
-// One `gh` invocation, settled whatever its exit: `gh api --include` prints
-// GitHub's status line on stdout even when it exits non-zero, so a caller
-// that asked for it decides from that status before classifying the exit.
-export function execGh(
+// Every `gh` call still outstanding in this server process, keyed by its
+// argument array: the question asked of GitHub, any conditional hint
+// included. Requests asking it while it is outstanding wait on that one
+// call, which ends once none of them waits, at its own bound, or -- by
+// ending every request waiting on it -- when the boundary closes. No settled
+// answer is kept here.
+const outstandingGh = new OutstandingReads<GhRun>(readTimeoutMs());
+
+function spawnedGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhRun> {
-  return new Promise((resolve) => {
+  const askedAt = new Date().toISOString();
+  return new Promise((resolve, reject) => {
     execFile(
       "gh",
       [...args],
@@ -105,21 +117,64 @@ export function execGh(
         env: { ...process.env, GH_PROMPT_DISABLED: "1" },
       },
       (error, stdout, stderr) => {
-        resolve({ error, stdout, stderr });
+        if (signal.reason instanceof ReadBoundReached) {
+          reject(new GhFailure({ kind: "timed-out" }));
+          return;
+        }
+        resolve({ error, stdout, stderr, askedAt });
       },
     );
   });
+}
+
+// What a request that stopped waiting is answered, as `execFile` answers a
+// call aborted by its signal.
+function abandoned(args: readonly string[]): GhRun {
+  const error: ExecException = Object.assign(
+    new Error("The operation was aborted"),
+    { name: "AbortError", code: "ABORT_ERR", cmd: ["gh", ...args].join(" ") },
+  );
+  return { error, stdout: "", stderr: "", askedAt: new Date().toISOString() };
+}
+
+// One `gh` answer, settled whatever its exit: `gh api --include` prints
+// GitHub's status line on stdout even when it exits non-zero, so a caller
+// that asked for it decides from that status before classifying the exit.
+// `signal` ends this request's wait, not a call another request still waits
+// for; a call that reached its own bound is a timed-out failure.
+export async function execGh(
+  args: readonly string[],
+  signal: AbortSignal,
+): Promise<GhRun> {
+  try {
+    return await outstandingGh.waitFor(JSON.stringify(args), signal, (shared) =>
+      spawnedGh(args, shared),
+    );
+  } catch (error) {
+    if (signal.aborted) {
+      return abandoned(args);
+    }
+    throw error;
+  }
+}
+
+// One `gh` answer's output, and when it was asked of GitHub.
+export async function askGh(
+  args: readonly string[],
+  signal: AbortSignal,
+): Promise<{ readonly stdout: string; readonly askedAt: string }> {
+  const { error, stdout, stderr, askedAt } = await execGh(args, signal);
+  if (error) {
+    throw new GhFailure(classify(error, stderr));
+  }
+  return { stdout, askedAt };
 }
 
 export async function runGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<string> {
-  const { error, stdout, stderr } = await execGh(args, signal);
-  if (error) {
-    throw new GhFailure(classify(error, stderr));
-  }
-  return stdout;
+  return (await askGh(args, signal)).stdout;
 }
 
 // Whether a `gh` call failed only because GitHub has no such thing (`404`).

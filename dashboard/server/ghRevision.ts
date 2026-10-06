@@ -5,6 +5,7 @@
 // fails is `./ghRead.ts`.
 
 import {
+  askGh,
   classify,
   execGh,
   GhFailure,
@@ -31,14 +32,18 @@ function commitNamedBy(sha: string): string {
   return revision;
 }
 
+// Which commit `ref` names, and when GitHub was asked: a request that joined
+// a resolution another request started answers that resolution's time.
 export async function resolveRevisionViaGh(
   repository: string,
   ref: string,
   signal: AbortSignal,
-): Promise<string> {
-  return commitNamedBy(
-    await runGh(["api", refEndpoint(repository, ref), "--jq", ".sha"], signal),
+): Promise<{ readonly revision: string; readonly askedAt: string }> {
+  const { stdout, askedAt } = await askGh(
+    ["api", refEndpoint(repository, ref), "--jq", ".sha"],
+    signal,
   );
+  return { revision: commitNamedBy(stdout), askedAt };
 }
 
 // Which commit the published branch `branch` names now, or undefined when

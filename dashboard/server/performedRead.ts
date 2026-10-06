@@ -205,9 +205,9 @@ export async function perform(
         }
         case "ref": {
           // When the ref was asked, by this server's clock, as launch
-          // attempts settle by it.
-          const askedAt = new Date().toISOString();
-          const revision = await resolveRevisionViaGh(
+          // attempts settle by it: a resolution this request joined answers
+          // when it was asked, never when this request arrived.
+          const { revision, askedAt } = await resolveRevisionViaGh(
             source.repository,
             source.ref,
             signal,

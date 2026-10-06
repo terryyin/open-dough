@@ -243,7 +243,7 @@ fetch; slice 4's bound cases observe the owner's bound for `gh` reads.
 ### 3. Simultaneous reads share one GitHub request that its waiters own
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/authenticated-read-shared.spec.ts` at the boundary,
 new `dashboard/tests/shared-observer-reads.spec.ts` through `dashboardTest.ts`,
 and the existing lifecycle, plugin-hook, refusal, branch-boundary,
@@ -294,6 +294,28 @@ unproved for several `gh` waiters until slice 4.
 
 Safe stop: Simultaneous observers cost GitHub one request per question, and no
 observer can end another's read.
+
+Accepted proof: `env -u NODE_ENV npm run typecheck:dashboard`; the new
+`authenticated-read-shared.spec.ts`, `authenticated-read-shared-waiters.spec.ts`
+(the boundary proof split to stay under 250 lines), and
+`shared-observer-reads.spec.ts` with the O3 regression set through
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- <specs> --workers=2`
+(110 passed); the new specs with `--repeat-each=10`; and the whole
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard`. Disabling
+sharing fails every new spec; aborting the read on any departure fails the
+departure cases.
+
+Decisions and learnings:
+- `execGh` waits through one process-wide `OutstandingReads` keyed by the
+  argument array, so project addition's default-branch read is shared too;
+  `project-add-validation.spec.ts` now expects one call for two concurrent
+  additions of one repository.
+- A shared read reaching its own bound fails every waiter as `GhFailure`
+  timed-out (`ReadBoundReached`); `RevisionChecks` rethrows it instead of
+  asking the ref, as a request-bound timeout already did.
+- The shared `askedAt` is observed at the boundary only, not on the page.
+- One departure's reaching the server before the next marker is shown by
+  repetition, not by construction; the continuing cases cannot pass falsely.
 
 ### 4. A refused or stalled shared read ends for every waiter
 
