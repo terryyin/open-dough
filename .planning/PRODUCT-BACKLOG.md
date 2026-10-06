@@ -17,10 +17,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Shared GitHub reads say and signal only what their waiters own](seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction) — SEED-113#shared-read-waiter-residue-correction ([plan](slice-plans/263-shared-read-waiter-residue-correction/PLAN.md))
 - [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits ([plan](slice-plans/264-rate-limit-recovery/PLAN.md))
 - [Refresh published work without rereading unchanged files](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication) — SEED-113#reuse-unchanged-records-after-publication ([plan](slice-plans/266-reuse-unchanged-records-after-publication/PLAN.md))
+- [A session that retired its own checkout closes as finished](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#finished-after-retirement) — SEED-117#finished-after-retirement
 
 ## Backlog list
 
-- [A session that retired its own checkout closes as finished](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#finished-after-retirement) — SEED-117#finished-after-retirement
 - [Mark as done removes an exited Claude Code session's job](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#remove-exited-claude-job) — SEED-117#remove-exited-claude-job
 - [A Claude Code session marked done is renamed without an open terminal](seeds/SEED-116-claude-done-rename.md#claude-done-rename) — SEED-116#claude-done-rename
 - [Retain actionable diagnostics when a dashboard CI shard times out](seeds/SEED-115-cancelled-dashboard-ci-failures.md#retain-cancelled-ci-evidence) — SEED-115#retain-cancelled-ci-evidence
