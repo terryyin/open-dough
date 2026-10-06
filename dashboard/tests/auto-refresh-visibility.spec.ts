@@ -28,6 +28,7 @@ import {
   headsChecks,
   setPageVisibility,
 } from "./autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import {
   backlogB,
   revisionA,
@@ -108,6 +109,9 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
       { revision: revisionB, titles: titlesOfB },
       [revisionA],
     );
+    // What is shown can be whole before B's read has finished; the steady
+    // pace starts from its end, so let it end with page time standing still.
+    await untilPageRequestsAnswered(page);
     const calls = callsSince(page, beforeSeen);
     expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
       headsCheckArgv(revisionA),
