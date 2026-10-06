@@ -1,3 +1,16 @@
+## 0.3.57 - 2026-10-07
+
+- Renovate the dashboard frame, settings, launch dialogs, agent roster, Sessions sidebar, and story cards into a denser information radiator with credited-human avatars, clearer tool and model identity, and action icons and tooltips that explain what they do.
+- Share review and terminal content in one resizable, persistent side panel; present changed files as a collapsible folder tree with change kinds, line counts, line numbers, file navigation, and a full-height diff; and let a reviewer mark a snapshot and inspect only changes made since that review without mixing in later trunk changes.
+- Page narrower dashboard stages without losing the current column, add a Recently done column backed by published completion records, and keep open or retained sessions with the story and original assignment that owns them across completion and workspace retirement.
+- Separate unread reports and attention messages from ordinary session engagement, let Mark as read acknowledge a report without closing its session, confirm Mark as done when work may be unfinished, and route quiet completion through the same cohesive Done behavior used by the dashboard.
+- Make dashboard-launched Cursor sessions reliably receive instructions through empty composers and paste chips, remain joinable after launch, survive dashboard and terminal disconnects through the production runner, and expose the runner-held sessions and screen identity in the dashboard.
+- Show independent dashboard fact groups as their GitHub reads finish, preserve successful facts through sibling failures, share outstanding reads between observers, reuse unchanged blobs and reopened-project backlogs, and harden asynchronous browser journeys and partial setup cleanup against timing races.
+- Strengthen execution delivery by selecting proof from every consumer of a change, naming and enforcing each mode's delivery target, observing managed Codex and Cursor CI through their native coordinator channels, and allowing mailbox completion checks to run from any directory.
+- Publish completion records atomically with one-shot results, make process retrospective review opt-in for Dough Land and Story Wrap Up, and add repeatable CI-failure runs and diagnostics without retaining partial test setup.
+
+Native acceptance was explicitly skipped for `0.3.57` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed dashboard frame, review, session, Cursor runner, GitHub reading, execution-delivery, completion-record, retrospective, and test-diagnostic behavior, together with previously pending requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.56 - 2026-10-03
 
 - Deliver quiet dashboard completion reports for Codex, Cursor, and Claude Code without interrupting native sessions, preserve actionable attention and recovery details, and prepare dashboard-owned CI follow-up.
