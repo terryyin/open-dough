@@ -234,7 +234,10 @@ listing answers carrying each file's Git blob `sha` as GitHub's do.
 
 ### 4. One-shot closure commits the done records
 Type: Behavior
-Status: planned
+Status: done — the behavior review walked one queued one-shot story. The
+section names `complete`'s done record, profile, and expired records and puts
+them in the result commit. `one-shot-guidance.test.mjs` passed with 9 tests
+after the new assertion moved into its own test.
 Proof: Behavior review per AGENTS.md walking one one-shot queued story: the
 agent runs `complete`, sees the new `.planning/done/` record (untracked) and
 any removed expired records in status, and includes them in the result

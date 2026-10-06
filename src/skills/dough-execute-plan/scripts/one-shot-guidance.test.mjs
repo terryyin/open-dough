@@ -81,6 +81,17 @@ test("only an explicit landing request delivers the retained result", () => {
   assert.match(queued, /When landing it, add `--one-shot-identity/);
 });
 
+test("a queued story's result commit carries the done record its closure writes", () => {
+  const queued = section(
+    reference,
+    "## Complete a queued story in the same commit",
+  );
+  assert.match(
+    queued,
+    /writes its done record[\s\S]+commit it, with the profile and expired\s+records it removed, in the same result commit/,
+  );
+});
+
 test("a queued no-change closure waits for review like any result", () => {
   const none = section(reference, "## Finish with no change");
   assert.match(
