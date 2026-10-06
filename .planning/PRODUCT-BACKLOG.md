@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [A Claude Code session marked done is renamed without an open terminal](seeds/SEED-116-claude-done-rename.md#claude-done-rename) — SEED-116#claude-done-rename
 - [Retain actionable diagnostics when a dashboard CI shard times out](seeds/SEED-115-cancelled-dashboard-ci-failures.md#retain-cancelled-ci-evidence) — SEED-115#retain-cancelled-ci-evidence
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown
 - [A terminal the developer closed while its session starts stays closed](seeds/SEED-112-terminal-stays-closed-during-startup.md#closed-terminal-stays-closed) — SEED-112#closed-terminal-stays-closed
