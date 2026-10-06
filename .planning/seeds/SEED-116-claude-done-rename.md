@@ -59,7 +59,7 @@ Claude Code 2.1.292 offers no out-of-band rename command (`claude agents`,
 
 **Identity:** SEED-116#claude-done-rename
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/267-claude-done-rename/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bc20898849cee334c0e86229d9364aeb9a9f2bfe0136492409f9ff7318c1a3b3","plan":"914fcc467a15badf670d40d32b9bcf58235f2b35db71a116c7abbd11b0d45473"}}
 ```
 
 **For / why:** A developer who lets a Claude Code session report quietly, or
@@ -76,24 +76,30 @@ truly cannot be done or confirmed.
 Required behavior:
 
 - Quiet completion keeps its local Done mark immediately and leaves the native
-  rename pending, not failed, while the reporting turn runs.
-- Once Claude Code's listing shows the session idle, the dashboard opens a
-  private `claude attach` from the project folder, types `/rename
-  done-<name>`, confirms the name through the listing, and detaches. The
-  developer sees no terminal for it.
+  rename pending, not failed, while the reporting turn runs. The reporting
+  command is the sender's last operation, so once the receipt is answered the
+  dashboard waits a bounded time for Claude Code's listing to show the
+  session idle. The wait is one automatic attempt, not a background retry
+  loop.
+- Once the listing shows the session idle, the dashboard opens a private
+  `claude attach` from the project folder, types `/rename done-<name>`,
+  confirms the name through the listing, and detaches. The developer sees no
+  terminal for it.
 - Mark as done renames the same way whether or not the developer has the
   session's terminal open, and whether or not its saved workspace exists.
 - A visible terminal the developer has open is not disturbed by a private
   rename attachment beyond the typed `/rename` itself.
 - A rename problem appears only when the session process is gone, the
-  attachment cannot open, or the listing does not confirm the name within the
-  wait. Its text names that cause.
+  session is still working when the wait ends, the attachment cannot open, or
+  the listing does not confirm the name within the wait. Its text names that
+  cause, and a later Mark as done retries.
 - A record already carrying today's "requires terminal input" or "No terminal
   attachment" problem is renamed by Mark as done when its session is still
   running.
 - `dashboard/AGENT-LAUNCH-COMPLETION.md` and
-  `dashboard/AGENT-LAUNCH-TERMINALS.md` describe the new behavior and drop the
-  instruction to finish the rename with Mark as done.
+  `dashboard/AGENT-LAUNCH-TERMINALS.md` describe the new behavior, drop the
+  instruction to finish the rename with Mark as done, and reword "there is no
+  background retry" to describe the one bounded wait after the receipt.
 
 Rejection constraints:
 
@@ -122,21 +128,46 @@ Deferred promises, not commitments of this delivery:
    could not be renamed.
 5. The listing never shows the new name within the wait. The card states that
    the rename could not be confirmed, and a later Mark as done retries it.
+6. A session reports quiet completion but its turn keeps running past the
+   wait. The card keeps its local Done mark, states that the session was still
+   working, and Mark as done later renames it once it is idle.
+
+**Architecture:**
+
+- The private rename attachment is the socketless live client
+  `dashboard/server/terminalAttachments.ts` already keeps for a launch
+  handoff, opened through the host's `attach` and hung up by the rename when
+  it finishes. `dashboard/server/hosts/claude/rename.ts` does not grow a
+  second PTY path beside it. A client the developer has open is typed into as
+  today and is left open afterwards.
+- Each host owns when its rename may run: Codex renames at once out of band;
+  Claude waits for the listing to show the session idle, then types. The
+  `renameWhileReporting` flag and the "requires terminal input" guard in
+  `dashboard/server/doneMarks.ts` go away with that move; the shared Done
+  operation only attempts each host's rename and records its problem.
+- The receipt is answered before the sender's turn can end, so the wait for
+  idle and for the listed name runs as one bounded continuation of the Done
+  operation after the receipt, owned and closed with the server's terminal
+  registry; no scheduler, poller, or new record state is added.
 
 - **Value / learning:** Restores the `done-` naming promised by SEED-052's Mark
-  as done and confirms that a private `claude attach` from the project folder
-  is a reliable rename channel.
-- **Effort hypothesis:** M — medium confidence; assumes `claude attach` accepts
-  typed `/rename` on an idle session from the project folder, which has not yet
-  been observed.
+  as done through the private `claude attach` rename channel observed above.
+- **Effort hypothesis:** M — good confidence. The decisive premise was
+  observed on 2026-10-07: a private node-pty `claude attach 3d97347c` from
+  `/Users/terryyin/git/open-dough`, on an idle session whose worktree had
+  already been removed, accepted a typed `/rename done-…` (Ctrl-U, the
+  command, Enter, 300 ms apart, four seconds after attaching). `claude agents
+  --json --all` listed the new name within half a second, and the session kept
+  running after the attachment was hung up with SIGHUP.
 - **Depends on:** none
 - **Safe stopping point:** Mark as done through a private attachment
-  (examples 2 and 3) is valuable without the deferred quiet-completion rename.
+  (examples 2 and 3) is valuable without the automatic rename after quiet
+  completion.
 
 ## Ordering and Scope Reduction
 
 One story. If it overruns, deliver Mark as done through a private attachment
-first, then the deferred rename after quiet completion.
+first, then the automatic rename after quiet completion.
 
 ## Open Decisions
 
