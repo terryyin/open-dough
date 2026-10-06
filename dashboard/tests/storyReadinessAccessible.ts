@@ -17,6 +17,7 @@ import { expectMembership, parts } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
 import { rateLimitedAnswer } from "./originAnswers.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import {
   plannedBlocked,
   plannedReady,
@@ -92,6 +93,10 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   // The derived plan retains its work identity and stable navigation role.
   await expect(queuedPlan).toBeFocused();
   await expect(notice).toBeEmpty();
+  // Membership and its derived plan can arrive before the independent fact
+  // reads finish. This origin answers only its current revision, so finish
+  // this snapshot before publishing the next one.
+  await untilPageRequestsAnswered(page);
 
   const restored = publishRestoreUnrefined(openDough);
   origin.advanceTo(restored);
@@ -100,6 +105,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
     taken: [plannedReady.title],
     backlog: [unrefined.title, plannedBlocked.title],
   });
+  await untilPageRequestsAnswered(page);
 
   const unrefinedCard = backlog.getByRole("article", {
     name: unrefined.title,
@@ -118,6 +124,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
     `${unrefined.title} is no longer listed in the published work.`,
   );
   await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
+  await untilPageRequestsAnswered(page);
 }
 
 export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
