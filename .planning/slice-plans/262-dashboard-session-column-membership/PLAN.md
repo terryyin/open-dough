@@ -232,3 +232,12 @@ includes actual starts and operations, published membership movement with a
 retained terminal, raw mixed/closed records, held reads and reached shared
 consumers. Independent refactoring made one stage view authoritative for lists,
 headings and edges. No persisted/native completion policy changed.
+
+## Execution complete
+
+Product advice: No queue changes or additional feature promises are warranted.
+The delivered placement rule resolves the combined report while preserving
+published story membership, native completion policy and the existing observer
+work's scope. Wrap-up should align maintained dashboard surface descriptions
+with local Taken entries; the final session contract and executable journeys
+already preserve the lasting behavior.
