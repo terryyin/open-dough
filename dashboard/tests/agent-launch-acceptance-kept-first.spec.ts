@@ -35,6 +35,11 @@ test.describe("an accepted launch whose change is being kept", () => {
   let origin: StartOrigin;
   let server: DashboardServer;
   let push: PushHold;
+  let acquired: {
+    origin?: StartOrigin;
+    server?: DashboardServer;
+    push?: PushHold;
+  };
 
   // While it exists, names the field whose first keeping is held.
   const hold = () => path.join(origin.machine, "hold-kept-field");
@@ -65,7 +70,9 @@ test.describe("an accepted launch whose change is being kept", () => {
     existsSync(reached()) ? readFileSync(reached(), "utf8") : undefined;
 
   test.beforeEach(async () => {
+    acquired = {};
     origin = await startOrigin();
+    acquired.origin = origin;
     server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
@@ -74,14 +81,25 @@ test.describe("an accepted launch whose change is being kept", () => {
       launchTimeoutMs: 30_000,
       extraEnv: keepHold(),
     });
+    acquired.server = server;
     push = origin.holdPushes();
+    acquired.push = push;
   });
 
   test.afterEach(async () => {
-    rmSync(hold(), { force: true });
-    push.release();
-    await server.close();
-    origin.cleanup();
+    try {
+      if (acquired.origin) rmSync(hold(), { force: true });
+    } finally {
+      try {
+        acquired.push?.release();
+      } finally {
+        try {
+          await acquired.server?.close();
+        } finally {
+          acquired.origin?.cleanup();
+        }
+      }
+    }
   });
 
   const keptAttempts = () => keptOfMachine(server);
