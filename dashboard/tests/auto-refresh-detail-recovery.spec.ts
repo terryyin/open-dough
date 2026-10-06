@@ -10,7 +10,12 @@
 
 import type { Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  expectOwnersNotRecorded,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -35,6 +40,7 @@ async function expectGapClosedAtB(page: Page) {
   await page.reload();
   await expect(claimsCard).toBeVisible();
   await expectSettledPage(page);
+  await expectOwnersNotRecorded(page);
   await expect(claimsCard).not.toContainText(gap);
   await claimsCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(claimsCard).toContainText(`${claimsStory}, as published at B.`);
@@ -64,6 +70,7 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
   await test.step("B is shown, with the unavailable record labeled on its own card", async () => {
     expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
     await expectSettledPage(page, titlesOfB);
+    await expectOwnersNotRecorded(page);
     await expect(source).toContainText(revisionB);
     await expect(claimsCard).toContainText(gap);
     await expect(problem).toHaveCount(0);

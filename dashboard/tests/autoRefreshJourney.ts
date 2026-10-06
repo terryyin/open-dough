@@ -4,7 +4,7 @@
 
 import { expect, type Page } from "@playwright/test";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
-import { expectSettledPage } from "./dashboardPage.ts";
+import { expectOwnersNotRecorded, expectSettledPage } from "./dashboardPage.ts";
 import { headsEtag } from "./originAnswers.ts";
 import { isHeadsCheck } from "./originObservation.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
@@ -66,6 +66,10 @@ export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
   origin.push(revisionA, backlogA, recordsAt("A"));
   await page.goto("/");
   await expectSettledPage(page, titlesOfA);
+  // Preparation no longer implies that the independent profiles are read.
+  // This fixture publishes no assignments; its read owners establish the
+  // settled starting point for schedule and request-count observations.
+  await expectOwnersNotRecorded(page);
   return origin;
 }
 

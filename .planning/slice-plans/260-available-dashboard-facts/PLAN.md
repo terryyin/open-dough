@@ -5,6 +5,35 @@
 **Prepared:** 2026-10-06. Planning only, in the story's existing preparation
 workspace on `codex/refine-available-dashboard-facts`.
 
+## Execution identity
+
+Story Branch Mode, authorized by Terry's `dough-execute-plan` invocation.
+The execution workspace was created for this story at
+`/Users/terryyin/git/open-dough/.worktrees/show-available-dashboard-facts-promptly`,
+on `codex/show-available-dashboard-facts`, from
+`4f535d246471416caf873051c5250f6d05a8f845`. The originating and integration
+checkout is `/Users/terryyin/git/open-dough`.
+
+The publisher is `codex-dashboard-facts-20261006`, assigned agent `mike.li-chan`.
+The Take was accepted on `origin/main` at
+`ead6c3a656b0f1d26f067b84e2d2411d05ddf92d`; startup published the execution
+branch at that revision. Increments publish to
+`origin refs/heads/codex/show-available-dashboard-facts`.
+
+Checkout setup: `npm ci --offline --no-audit --no-fund` and
+`npm run typecheck:dashboard` passed against the unchanged lockfile. Existing
+planning authority is retained for bounded replanning; no numeric slice target
+or hard limit was supplied. CI uses GitHub Actions `ci.yml`, whose push trigger
+and selector were verified for the execution branch. The trunk Take has no
+observation receipt; managed increment delivery owns branch observation.
+
+CI observer: repository `terryyin/open-dough`, branch
+`codex/show-available-dashboard-facts`, coordinator
+`codex-dashboard-facts-20261006`, workflow `ci.yml`; checkout-bound runtime
+`.agents/skills/dough-execute-plan`.
+Codex yielded cell `138`, PTY session `91572`, PID `66922`, mailbox
+`/tmp/dough-ci-501/watch-5B7G8A`.
+
 ## Goal and boundaries
 
 After the complete published backlog is read, a developer can use completed
@@ -137,7 +166,7 @@ implementation completion or a production speedup.
 ### 1. Completed fact groups become usable independently
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/published-facts-arrival.spec.ts`, through
 `dashboardTest.ts` and held raw GitHub answers, plus the existing done/addition
 latency, branch-progress, story-readiness, and startup-reconciliation journeys.
@@ -172,6 +201,46 @@ regression proof rather than reimplementing their histories in another suite.
 Safe stop: Normal reads deliver available facts earlier, with current source,
 timeout, cancellation, and launch gates preserved. The remaining slices directly
 qualify the new arrival paths at failure, replacement, and interaction boundaries.
+
+Accepted execution proof: `published-facts-arrival.spec.ts` observes four release
+orders through raw held GitHub answers. Its assertions see owners, preparers,
+credited humans and roster independently of canonical preparation; canonical
+purpose, readiness, dependencies, plans and pinned links independently of
+profiles; and done cards independently of both. Route counts remain pending
+until preparation and profiles establish their source, then branch/trunk counts
+and clocks appear. Later releases retain all completed values. The startup
+reconciliation journey keeps actions protected until the whole read completes.
+No dashboard snapshot or product hook supplies those outcomes.
+
+Passing terminal commands in the execution checkout:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-arrival.spec.ts recently-done-read-latency.spec.ts profile-addition-latency.spec.ts branch-slice-progress.spec.ts story-readiness.spec.ts responsive-session-reconciliation.spec.ts auto-refresh-detail-recovery.spec.ts auto-refresh-project-isolation.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- auto-refresh.spec.ts auto-refresh-recovery.spec.ts auto-refresh-rate-limit.spec.ts auto-refresh-visibility.spec.ts auto-refresh-detail-recovery.spec.ts auto-refresh-project-isolation.spec.ts --workers=2
+npm run typecheck:dashboard
+# After independent refactoring:
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-arrival.spec.ts published-work.spec.ts --workers=2
+# After mechanical lint repairs to the saved core-cutoff result and typed fixture strings:
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-arrival.spec.ts auto-refresh-detail-recovery.spec.ts recently-done-read-latency.spec.ts profile-addition-latency.spec.ts --workers=2
+npm run typecheck:dashboard
+git diff --check
+```
+
+Independent refactoring retained the assembly/lifecycle behavior and extracted
+the existing backlog projection and raw arrival fixture; enduring reading
+documentation now lives in `dashboard/PUBLISHED-OBSERVATION.md`, linked from the
+README. Shared session-assignment and moved-branch helper contracts did not
+change. Failure, replacement and reader-context promises remain owned by slices
+2–4, rather than claimed complete here.
+
+Consequential learning: preparation availability no longer implies profiles or
+the whole read have settled. Refresh-count/timing starting checkpoints now
+explicitly observe owners after membership and preparation; their existing
+count and cadence assertions are retained. Initial proof failures exposed an
+invalid missing-settings fixture and these incomplete starting checkpoints;
+the raw settings record and checkpoint setup were corrected before the above
+passing terminal results. The lint-only async-flag repair returns the saved
+core-bound result from the task without moving its cutoff.
 
 ### 2. A group's failure leaves other read facts useful
 

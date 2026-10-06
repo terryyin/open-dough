@@ -114,6 +114,11 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await passTimeUntilChecked(page);
   await expect(takenStory).toBeVisible();
   await expect(story).toHaveCount(0);
+  // Profiles now arrive independently; their known assignment still cannot
+  // reconcile a snapshot whose canonical preparation remains unread.
+  await expect(takenStory.locator(".card-owner .owner-line")).toContainText(
+    "Claude Code",
+  );
   await expect(takenStory).toContainText(waiting);
   await expectProtected(takenStory);
   releaseSeed();

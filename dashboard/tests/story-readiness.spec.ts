@@ -229,6 +229,11 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     expect(doughnutPaths).toHaveLength(7);
   });
   await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  // Preparation may arrive before profiles. The no-extra-read check below
+  // starts after that unrelated group has answered too.
+  await expect(readyCard.locator(".card-owner")).toHaveText(
+    "Owner not recorded",
+  );
   await expectQueuedPlanCardAndDetail(
     backlog,
     openDoughRepository,
