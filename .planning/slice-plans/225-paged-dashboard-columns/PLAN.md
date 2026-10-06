@@ -137,6 +137,13 @@ removes; use `<` breakpoints so exactly 48rem shows two columns. A journey
 needing Recent sessions out of view at 1280px now opens the Sessions sidebar
 first (`agent-launch-ad-hoc-sessions.spec.ts`).
 
+CI repair (run 37383633842): third-width columns wrap a card's Starts on
+Linux fonts, leaving a Start at the window's bottom edge, so
+`agent-launch-card-noted-start.spec.ts` centres it before checking its
+tooltip whole. `agent-terminal-cursor-page.spec.ts` waited too little for its
+start to launch (a race older than this story); it now waits for
+`parts(page).adHocStarted`.
+
 ### 2. A narrower page shows the columns that fit and pages by edge controls
 
 Type: Behavior

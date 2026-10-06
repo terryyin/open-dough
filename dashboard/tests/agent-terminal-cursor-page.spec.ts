@@ -50,6 +50,9 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  // The start presents its session's terminal once it has launched; Close
+  // before then would see that presentation open the panel again.
+  await expect(parts(page).adHocStarted).toBeVisible({ timeout: 20_000 });
 
   const recent = parts(page).recentSessions.getByRole("article");
   await expect(recent).toHaveCount(1);

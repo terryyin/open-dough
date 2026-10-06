@@ -56,9 +56,7 @@ async function expectNothingStarted(page: Page) {
   await expect(startSessionDialog(page, "Open Dough")).toBeHidden();
   await expect(recentSessions.getByRole("article")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
-  await expect(
-    page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
-  ).toHaveCount(0);
+  await expect(parts(page).adHocStarted).toHaveCount(0);
 }
 
 for (const { scenario, words } of failures) {
@@ -93,9 +91,7 @@ for (const { scenario, words } of failures) {
       1,
     );
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
-    await expect(
-      page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
-    ).toHaveCount(1);
+    await expect(parts(page).adHocStarted).toHaveCount(1);
     await expect(button).toHaveAccessibleDescription("");
   });
 }

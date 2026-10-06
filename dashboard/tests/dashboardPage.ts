@@ -30,6 +30,12 @@ export function parts(page: Page) {
     // That status only while it says a read is under way.
     reading: status.filter({ hasText: "Reading published work" }),
     notice: page.locator("[aria-live='polite']"),
+    // What Start session announces once its ad hoc session has started, in a
+    // log: an implicitly polite live region that is neither the read status
+    // nor the published-read notice.
+    adHocStarted: page
+      .getByRole("log")
+      .filter({ hasText: "Ad hoc session started" }),
   };
 }
 

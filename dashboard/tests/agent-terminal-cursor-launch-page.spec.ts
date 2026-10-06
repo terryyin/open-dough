@@ -36,9 +36,7 @@ test("an instructed Cursor start shows that run and accepts typing", async ({
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(
-    page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
-  ).toBeVisible({ timeout: 20_000 });
+  await expect(parts(page).adHocStarted).toBeVisible({ timeout: 20_000 });
   const recent = parts(page).recentSessions.getByRole("article");
   await expect(recent).toHaveCount(1);
   await expect(recent).toContainText("First input accepted");

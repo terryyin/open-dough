@@ -184,9 +184,7 @@ test("a keyboard Start session hands the keyboard to its progress, and its sessi
   await expect(
     parts(page).recentSessions.getByRole("article").first(),
   ).toContainText("Shown in terminal");
-  await expect(
-    page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
-  ).toBeVisible();
+  await expect(parts(page).adHocStarted).toBeVisible();
   await expect(otherHide).toBeFocused();
   await expect(button).toBeEnabled();
 });
