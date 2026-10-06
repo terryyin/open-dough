@@ -15,7 +15,16 @@ and without a burst. The reads one dashboard process has under way at GitHub
 stay bounded across its tabs and projects.
 
 Include the story's six required behaviors, its evidence and failure
-constraints, and its eleven key examples.
+constraints, and its twelve key examples, including human attribution withheld
+by a limit at an unchanged trunk revision.
+
+**Intent clarified on main, 2026-10-07:** Terry's frequent "Human developer
+unknown" report makes assignment-history recovery an explicit acceptance
+journey. Preserve the existing execution identity, completed-slice proof, and
+scope; the additional proof belongs to remaining slices 6–7. A successful
+read after the directed wait must fill credit without requiring a reload or
+publication. Ordinary network-failure and timeout retries remain deferred,
+and the report's specific failure cause is not yet established.
 
 Reading the remaining allowance, slowing down ahead of a limit, showing the
 allowance, coordination between separately launched processes or across a
@@ -198,6 +207,7 @@ usable proof route, not the remedy.
 | After a cooldown the first read goes alone; answered, the rest proceed under the bound; refused, the cooldown starts again and nothing else was asked. A read waiting its turn when a cooldown starts is answered as limited. | 5: three requests after a passed wait with the first refused, and with the first held then answered. |
 | A limited page keeps what it shows and says that GitHub limited requests and when reading resumes, the same way whichever read was limited; a withheld detail is labeled as withheld by the limit; until then the page asks nothing. | 6: journeys limiting a detail read, a membership read, and a check, with a second tab, a reload, and a project switch during the wait. |
 | When the wait ends a visible page reads on its own what the limit withheld, content already read is not asked again, and a hidden page does so when seen again. | 7: journeys from each limited state through the reported time. |
+| Human attribution withheld by a rate limit recovers even while trunk is unchanged; its card, detail, and roster show the established committer, and its Take clock shares that addition. | 6–7: limit a profile-history or addition-commit read, observe the limit reason and resume time, let the wait pass with no publication, and assert the recovered human and clock plus exact history/commit call counts. |
 | Visibility and publication observation are unchanged outside a cooldown. | 2, 6, 7: the existing auto-refresh, visibility, branch, isolation, and recovery journeys. |
 | The reading contract and request accounting describe the result. | 2, 3, 4, 5, 6, 7: `dashboard/PUBLISHED-OBSERVATION.md` and `dashboard/GITHUB-REQUESTS.md`, each changed with the behavior it describes. |
 
@@ -434,6 +444,11 @@ stands, with or without a failed attempt, and word its recovery for the three
 cases: a snapshot, a snapshot with withheld detail, and nothing shown. Use the
 limit's wording for record-file and profile gaps when their read was limited.
 
+Include a limited profile-history or addition-commit read: its scan view may
+say "Human developer unknown", but the detail and roster identify the rate
+limit and resume time. Do not describe withheld history as a missing addition
+or an unnamed committer. Keep another successfully credited assignment useful.
+
 In the journeys, direct a long wait and assert the notice, the resume time
 against the failure time, the labeled gaps, the kept revision and retrieval
 time, and that `githubFor(page).calls` gains nothing while page time passes,
@@ -476,8 +491,16 @@ check.
 In the journeys, direct a two-second wait from each state of slice 6, let the
 reported time pass, pass page time, and assert the facts shown, the cleared
 notice, and the calls since the refusal: the ref, the branch heads, and the
-withheld paths only. Hide the page across the reported time and assert no
-call until it is revealed. Leave one record failing for another reason and
+withheld paths only. Include the human-credit case from slice 6 with trunk
+unchanged: after the wait, show the credited committer on its card, detail,
+and roster, and the Take clock derived from the same recovered addition.
+Count the profile-history listing and each needed addition commit once across
+these consumers, with no request for successfully cached attribution. Cover
+both a refused history listing and a refused commit during the walk; cached
+successful steps before the refusal are reused. Missing additions, unnamed
+committers, and ordinary non-limit failures keep their own explanations;
+an unavailable avatar keeps the known name. Hide the page across the reported
+time and assert no call until it is revealed. Leave one record failing for another reason and
 assert its gap stays. Replace the reading contract's recovery sentences and
 the wording slice 6 left about reloading, and complete the request
 accounting.

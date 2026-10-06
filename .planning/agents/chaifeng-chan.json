@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-113#reuse-unchanged-records-after-publication",
+  "mode": "story-branch",
+  "branch": "claude/refresh-published-work-without-rereading-unchang",
+  "host": "claude",
+  "model": "opus"
+}
