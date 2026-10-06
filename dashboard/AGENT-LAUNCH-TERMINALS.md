@@ -178,6 +178,10 @@ neither the removed workspace nor the original message file. Each new report has
 its own delivery identity; retry returns the original receipt and preserves newer
 reports and deliberate local Done or reopen. A newer attention or unfinished
 report clears an earlier automatic quiet Done while preserving explicit manual Done.
+Automatic quiet Done uses the same native naming operation as manual Done where
+safe during reporting; native failures retain a visible problem and can be retried.
+Reporting preserves the sender's attachments and running turn for acknowledgment.
+Claude's terminal rename requires the developer to finish Mark as done after reporting.
 Recovery is explicit and bounded;
 there is no background retry. Launch attempts retain receipts for their existing
-machine-local lifetime. Reporting never performs Git or native-session controls.
+machine-local lifetime. Reporting performs no Git operations and preserves the sender's running turn and attachments.

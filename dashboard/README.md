@@ -12,8 +12,9 @@ published beside the backlog, each holding this machine's launches for it,
 with the other launches, newest first, the **Sessions**
 sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
-done** records local Done for a reported session; for an unreported session it
-stops native work ([Agent launch](AGENT-LAUNCH.md)).
+done** records Done intent, renames the native session where supported and
+stops native work. Quiet automatic completion uses the same Done operation while
+preserving its reporting sender for acknowledgment ([Agent launch](AGENT-LAUNCH.md)).
 **Start session** on the project actions row starts an ad hoc session in the
 selected project's folder, with no story, listed in Recently done and the
 Sessions sidebar.

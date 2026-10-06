@@ -190,7 +190,7 @@ require(${JSON.stringify(fixturePath)});
     record: {
       doneAt: expect.any(String),
       doneProblem:
-        "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.",
+        "Local done mark retained. Claude Code rename failed: No terminal attachment is available to confirm native rename. Claude Code stop failed: The native operation could not be confirmed.",
       sessionState: { kind: "available", activity: "working" },
     },
   });

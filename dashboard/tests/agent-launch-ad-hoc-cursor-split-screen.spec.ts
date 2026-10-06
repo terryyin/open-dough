@@ -8,8 +8,7 @@
 // first answer, and the kept record is confirmed when the launch returns.
 
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField, startedSession } from "./launchCardPage.ts";
 import {
   expect,
   keptRecord,
@@ -40,8 +39,7 @@ test("a pasted Cursor instruction delivered in split screens is shown as accepte
   await startSessionField(dialog).fill("why is the CI slow?");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  const recent = parts(page).recentlyDone.getByRole("article");
-  await expect(recent).toHaveCount(1);
+  const recent = await startedSession(page);
   await expect(recent).toContainText("First input accepted");
   await expect(recent).toContainText("Ad hoc session started in Cursor");
   await expect(recent).not.toContainText("First input acceptance uncertain");

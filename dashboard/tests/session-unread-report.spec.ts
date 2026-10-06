@@ -1,18 +1,10 @@
-// A session's completion report not yet marked read or done is an unread report,
-// shown apart from the session's own native reading: the entry's edge, its
-// place in the Sessions sidebar, the banner badge, and the card's attention
-// line follow only the native reading, while the report shows by its own
-// mark and words (“Unread report: <completion label>”) and the card's line of
-// how many unread reports it holds. The entry's message part, on a card or in
-// Recently done, is expanded with Mark as read while the report is unread,
-// and collapsed and expandable once read or done. Mark as read clears the
-// unread report and leaves the session open with its native reading and its
-// own Mark as done; Mark as done, read or not, closes the session as any
-// session, asked about first while its work is not known complete (from the
-// terminal panel, ./agent-terminal-done-report.spec.ts).
-// The message part's own controls are ./session-unread-report-message.spec.ts.
-// Real start, launch, installed reporting command, store and page; only the
-// synthetic `claude` and GitHub are fakes.
+// Unread reports have their own mark and message; session edges, placement,
+// badges and attention lines follow native activity. Mark as read collapses
+// the message and leaves the session open; Mark as done closes it locally,
+// with unfinished work confirmed first. Terminal-panel confirmation is in
+// ./agent-terminal-done-report.spec.ts; message controls are in
+// ./session-unread-report-message.spec.ts. This uses real start, launch,
+// installed reporting command, store and page; only Claude and GitHub are fakes.
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
@@ -226,9 +218,9 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expectCollapsed(messageA, "Unfinished work");
 
   // 7. Mark as done on its entry closes the session as any session: it is
-  // named done-, stopped, and leaves the card and the sidebar for Recently done,
-  // Done, its message collapsed and expandable without Mark as
-  // read.
+  // marked Done locally and stopped, and leaves the card and sidebar for
+  // Recently done, its message collapsed and expandable without Mark as
+  // read. Without an attachment, native naming stays visibly recoverable.
   const stopsBeforeDone = dashboard.claudeStopCalls().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
@@ -241,7 +233,16 @@ test("an unread report is its own mark beside the session's native reading", asy
     .filter({ hasText: titleA });
   await expect(recentA.locator(".session-state")).toHaveText("Done");
   await expect(recentA.locator(".session-unread-report")).toHaveCount(0);
-  await expect(recentA).toContainText(`Named ${doneNameA}`);
+  await expect(recentA).toContainText(`Intended name ${doneNameA}`);
+  await expect(recentA).toContainText(
+    "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
+  );
+  await expect(
+    recentA.getByRole("button", { name: "Mark as done" }),
+  ).toBeEnabled();
+  expect((await recordOf(dashboard, sessionA))?.doneProblem).toContain(
+    "No terminal attachment is available",
+  );
   expect(dashboard.claudeStopCalls().slice(stopsBeforeDone)).toEqual([
     expect.objectContaining({ argv: ["stop", shortIdA] }),
   ]);

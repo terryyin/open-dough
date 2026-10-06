@@ -71,6 +71,10 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await settled();
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
+    await expect(entry).toContainText(`Intended name ${doneName}`);
+    await expect(entry).toContainText(
+      "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
+    );
 
     // Opening its terminal again reopens it, without waiting for the next
     // read of the records.
@@ -89,10 +93,15 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await expect(sessionStateOf(entry)).not.toHaveText("Done");
     await expect(entry).not.toContainText("Named done-");
 
+    // Reload closed the attachment. Reattach so this mark can confirm the
+    // native rename, clearing the problem from the first local Done.
+    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
+    await expect(entry).not.toContainText("rename failed");
     await expectMembership(page, queued);
   });
 });

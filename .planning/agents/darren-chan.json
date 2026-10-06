@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-109#retained-session-attribution",
+  "mode": "story-branch",
+  "branch": "codex/retained-session-attribution",
+  "host": "codex"
+}

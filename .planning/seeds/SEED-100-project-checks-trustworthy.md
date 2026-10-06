@@ -27,110 +27,99 @@ tests, not in the published skills.
 
 **Identity:** SEED-100#launched-session-development-environment
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/255-launched-session-development-environment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"65ae21865ebc797d62de2d0d7db94650773c3c035b6a96f696d630a5d63543fb","plan":"bb578a8ea3c18c2281334884b42f9acd158d76feacb609ecbff992de1dcfe7df"}}
 ```
 
-**For / why:** An agent the dashboard launched to work in a project needs its
-checkout preparation and project commands to behave as they would in a
-developer's shell. Then a passing readiness check means the checkout's own
-locked tools ran.
+**Beneficiary:** An agent the dashboard launched to work in a project, and the
+maintainer who trusts the checks that agent publishes on.
 
-**Goal:** A Claude, Codex, or Cursor session the dashboard launches does not
-inherit the dashboard deployment's `NODE_ENV=production` or its
-`node_modules/.bin` on `PATH`. Its `npm ci` installs the locked dev
-dependencies, and project commands resolve to the checkout's own tools.
+**Goal:** A session the dashboard launches, on any host, runs in the
+environment of the shell the developer started the dashboard from, without
+what the dashboard's own start-up added on the way. Its `npm ci` then installs
+the checkout's locked dev dependencies and its project commands resolve to the
+checkout's own tools, so a passing readiness check means those tools ran.
 
 **Findings:**
 [checks whose result depends on where or how they are run](../../ProjectFindings.md#checks-whose-result-depends-on-where-or-how-they-are-run-second-priority-queued)
 (DD-220).
 
-**Evidence:**
-
-- Four dashboard-launched sessions (plans 228, 233, 240, and the 2026-10-05
-  findings review) had `NODE_ENV=production`. In three of them
-  `npm ci` installed nothing ("audited 1 package"), and the readiness command
-  passed on the deployment's `tsc` or the parent checkout's
-  `node_modules`. The fourth unset it only because a recorded reminder said to.
-- The deployment runs under `npm run preview:dashboard`.
-  `dashboard/server/hosts/cursor/runnerProcess.ts` passes `env: process.env`,
-  and the Claude, Codex, and terminal spawns under `dashboard/server` pass no
-  `env`, so a launched host inherits the server's environment.
-- `dashboard/server/productionDeployment.mjs` already builds with dev
-  dependencies "whatever NODE_ENV the shell inherited", so the deployment
-  itself does not need the launched session to keep `production`.
-
-**Open question for refinement:** Decide whether the launch removes only the
-deployment's own additions (`NODE_ENV`, its `.bin` on `PATH`) or starts from
-the environment the dashboard itself was started with, and how a spec observes
-the difference without a paid native run.
-
-**Boundary:** The dashboard's session launch environment. The published
-readiness guidance is out of scope; DearDough.md's ODF-087 keeps that facet.
-
-<a id="dashboard-specs-deterministic"></a>
-
-### Four intermittently failing dashboard specs pass deterministically
-
-**Identity:** SEED-100#dashboard-specs-deterministic
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/254-dashboard-specs-deterministic/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"011642d3ff137131deb2ad22e7950143de907295faa04fea11cb464e28a44189","plan":"9ecfabb8b3ee74fd6364a43c7f5b6023c1484571c7396d85036f52d03488c4e7"}}
-```
-
-**For / why:** Every agent that publishes to `main` waits on CI's dashboard
-jobs. A spec that fails intermittently blocks an unrelated publication's
-completion and sends its agent to diagnose someone else's flake.
-
-**Goal:** Each of these specs fails only when the behavior it covers is
-broken, so a red dashboard job on `main` points at the publication that broke
-it, not at someone else's flake.
+**How the deployment's environment reaches a session today:** the developer
+starts the dashboard with `npm run watch:dashboard`, which runs the deployment
+under `npm run preview:dashboard`; each `npm run` prepends its package's
+`node_modules/.bin` chain and npm's `node-gyp-bin` to `PATH` and exports
+`npm_*` and `INIT_CWD`. Vite's preview then sets `NODE_ENV=production` inside
+the dashboard process, because nothing had set it. The dashboard's host
+processes (`claude --bg`, `claude attach`, the Codex launch and `codex resume`,
+the Cursor runner it starts and the `cursor-agent` that runner launches) are
+spawned with no environment of their own, or with `process.env`, so they
+inherit all of it. With `NODE_ENV=production`, `npm ci` omits dev dependencies
+("audited 1 package"), and a project command such as `tsc` resolves to the
+deployment's copy or a parent checkout's. The session this refinement ran in
+showed exactly that: `NODE_ENV=production`, two deployment `.bin` chains first
+on `PATH`, and an empty `node_modules` in its worktree.
 
 **Scope:**
 
-- For each spec, find what its failing assertion actually raced against and
-  replace the timing-dependent wait with the signal that establishes the
-  precondition, or fix the product race when the product, not the test, is
-  wrong. A product race is in scope wherever its fix lives.
-- Each cause is shown before it is fixed: the failure is reproduced
-  locally, for example by widening the suspected window as `58c93605` did,
-  and the same reproduction passes after the fix.
-- Rejection constraints (the goal is a trustworthy verdict, which these would
-  defeat): no retries, no added sleeps, no wait longer than the awaited
-  operation's own bound (for a start's answer, the launch wait the dashboard
-  allows it), no weakened or removed assertion, and no skipped or quarantined
-  spec.
-- Boundary assumption: the four specs have independent causes until a
-  reproduction shows otherwise. A spec whose failure cannot be reproduced
-  stops with its evidence reported; the others continue.
-- Deferred: surveying or fixing other dashboard specs, and CI-wide flake
-  detection or retry tooling.
+- Every process the dashboard starts for a session, on every host, gets the
+  dashboard's own environment with the dashboard's start-up additions removed:
+  `NODE_ENV`, the `npm_*` variables and `INIT_CWD` that `npm run` exports, and
+  the `PATH` entries `npm run` prepended (`node_modules/.bin` directories and
+  npm's `node-gyp-bin`). This covers the launch itself, a terminal attach, and
+  the Cursor runner together with what it launches: one rule, applied once,
+  wherever the dashboard spawns a host.
+- `NODE_ENV` is removed whatever its value. Vite sets it in the dashboard
+  process (`production` under preview, `development` under the dev server),
+  so its value never tells whether the developer's shell had set it. A
+  developer shell normally has none, and one that exports `production` would
+  skip dev dependencies in the developer's own `npm ci` too.
+- Everything else passes through unchanged: the developer's own `PATH`
+  entries, `HOME`, credentials, and the variables the dashboard's own
+  configuration or a test put there. The launch environment is the developer's
+  shell minus the additions above, not a clean environment. (The dashboard's
+  specs steer their fake hosts through such pass-through variables, and a
+  developer's tools and credentials reach sessions the same way.)
+- Both ways of running the dashboard behave the same: the production
+  deployment under `npm run watch:dashboard` and the development server under
+  `npm run dev:dashboard`.
+- The dashboard's specs prove this without a paid native run. A spec's own
+  server already runs under `vite preview`, so it has `NODE_ENV=production`
+  the way the deployment does; the spec also gives that server a `PATH` that
+  starts with a `node_modules/.bin` directory and `npm run`'s variables. The
+  fake host records the environment it was started with, and the spec reads
+  that record.
 
-**Key examples** (CI failure → deterministic result):
+**Deferred:** the published readiness guidance and the gate's own substitute
+check (ODF-087 in DearDough.md keeps that facet); the dashboard's other
+helper processes (`git`, `gh`, `osascript`, the start scripts it runs for
+itself), which keep their environment; and the deployment's own build, which
+already installs with `--include=dev`.
 
-- `side-panel-width.spec.ts:36`: the test timed out at 30 s inside
-  `expectWidth` (`sidePanelWidthPage.ts:87`). After the fix, the width the
-  mouse or keyboard chose is asserted once the panel reports it has settled,
-  and the spec passes with the suspected window widened.
-- `agent-launch-ad-hoc-cursor.spec.ts:43`: the recent-sessions entry showed
-  "First input acceptance uncertain — Cursor has not confirmed the first
-  prompt" where the spec expected "First input accepted". After the fix,
-  either the spec waits for Cursor's confirmation through the signal the
-  dashboard uses, or, if the dashboard declares uncertainty before a
-  confirmation that does arrive, that product race is fixed. A truly
-  unconfirmed first prompt still shows uncertain.
-- `story-review-action.spec.ts:31`: `expectOnOneLine`
-  (`partArrangement.ts:44`) measured one inspection control 29 px below the
-  others. After the fix, the arrangement is measured only once the layout it
-  covers has settled; a control that genuinely wraps still fails.
-- `agent-launch-acceptance.spec.ts:96`: at line 138 the served attempt carried
-  a `reporting` object (command, origin, reference) that the kept attempt read
-  for comparison did not. After the fix, the spec compares the two only once
-  the attempt record they both describe has reached the state under test, or
-  the dashboard keeps and serves the same attempt, whichever reproduction
-  shows is wrong.
+**Key examples:**
 
-**Evidence:** one failure each in the last 30 `main` CI runs (2026-10-05):
-runs 37239925415, 37207067477, 37173254314, and 37169060163, in the order
-above. The same pattern in `agent-launch-duplicate.spec.ts` was a test waiting
-on the launch record, which is kept before the attempt settles and releases
-the launch gate. It was reproduced by widening that window and fixed in
-`58c93605`.
+- The dashboard runs as the production deployment, so its process has
+  `NODE_ENV=production`, `npm_lifecycle_event=preview:dashboard`, `INIT_CWD`,
+  and two `node_modules/.bin` chains first on `PATH` → the developer starts a
+  Claude session for a story → the `claude --bg` process has no `NODE_ENV`,
+  no `npm_*` or `INIT_CWD`, a `PATH` without those entries, and otherwise the
+  same variables. In that session `npm ci` installs the locked dev
+  dependencies and `npx tsc` resolves to the worktree's own
+  `node_modules/.bin/tsc`.
+- The same dashboard → the developer starts a Codex session, or a Cursor
+  session, whose runner the dashboard starts → the Codex process, and the
+  `cursor-agent` the runner launches, get that same environment.
+- A Claude session is running → the developer opens its terminal on the
+  dashboard → the `claude attach` process gets that same environment.
+- The developer's shell exported `GH_TOKEN` and a `PATH` entry for a private
+  tools directory before starting the dashboard → a session it launches has
+  both, unchanged.
+- The dashboard runs as the development server (`npm run dev:dashboard`, so
+  its process has `NODE_ENV=development` and the dev checkout's `.bin` first
+  on `PATH`) → a session it launches has no `NODE_ENV` and no such `PATH`
+  entry.
+- A dashboard spec starts its server with `NODE_ENV=production`,
+  `npm_lifecycle_event=preview:dashboard`, `INIT_CWD`, and a `PATH` that
+  holds a `node_modules/.bin` directory ahead of the fake `claude`'s own
+  directory → the spec launches a story session → the fake `claude` recorded
+  an environment with none of those, with the rest of the server's variables
+  present and its own directory still on the recorded `PATH`. No real host
+  runs.
