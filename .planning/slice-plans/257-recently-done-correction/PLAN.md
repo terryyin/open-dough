@@ -257,6 +257,16 @@ Deliver together: one sentence or clause in “Complete a queued story in the
 same commit”, in the executing agent's terms, matching the wrap-up and
 product-backlog wording.
 
+
+## Execution complete
+
+Product advice: no new product work. The four findings are corrected and no
+correction follow-up is needed. One small residue is left, too small for a
+correction: agent profiles are kept both by blob and by path (`keptByPath` in
+`listedRecordsRead.ts`), because the story branch reads still read profiles by
+path. DD-240 in `ProjectFindings.md` records an unexplained local flake of the
+Claude completion specs, for the queued checks follow-up.
+
 ## Current decisions
 
 - Slices are independent and ordered by impact: 1 is visible now; 2 removes

@@ -89,7 +89,7 @@ the dashboard launched, and alongside or after another run in the same checkout.
 Each finding below is a local run whose result or output depended on how it was
 started.
 
-**Follow-up:** queued second: [A session the dashboard launches prepares its checkout as a developer shell would](.planning/seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) (DD-220). DD-162, DD-216, DD-224, and DD-226 have other causes and stay open.
+**Follow-up:** queued second: [A session the dashboard launches prepares its checkout as a developer shell would](.planning/seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) (DD-220). DD-162, DD-216, DD-224, DD-226, and DD-240 have other causes and stay open.
 
 ### DD-220 — A session the dashboard launches inherits its deployment's `NODE_ENV=production` and tools, so checkout preparation installs no dev dependencies and still passes
 
@@ -202,6 +202,27 @@ A refactor agent's rerun of a combined Playwright command replaced the output of
   - Evidence: the slice 2 refactor report says one run of its alert command failed `session-unread-report.spec.ts` (13 passed, 3.1m, load about 40) and that "the rerun overwrote its output"; the coordinator then ran that spec `--repeat-each 6 --workers 6` and the full command `--repeat-each 3` (48 passes at load about 42–44); plan 238 slice 2 records the failure as an open observation.
   - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
   - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
+
+### DD-240 — Claude completion and kept-start specs failed early in one full dashboard run and passed alone and in the next full run
+
+In one full local dashboard run, seven tests failed with a poll timeout or a
+start that "did not finish within the wait". They were every Claude
+early-binding variant in `agent-completion-binding.spec.ts`, plus
+`agent-completion-attention.spec.ts`, `agent-completion-early-recovery.spec.ts`
+and `agent-launch-preparation-resume.spec.ts:128`. All seven failed among the
+first tests the 8 workers ran. The same files passed when run alone (10 tests),
+and the next full run passed every test. The cause is unknown.
+
+#### Occurrences
+
+- Execution: `SEED-107#recently-done-correction` / plan 257, first related implementation commit `5cb0984a`
+  - Timestamp: unknown (slice 3 implementation, between `1d2724d6` committed 2026-10-06T12:31:18+09:00 and `ee0b21b7` committed 2026-10-06T13:07:51+09:00)
+  - Tool: Claude Code (delegated implementation agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts --reporter=dot` reported 1091 passed and 7 failed in 9.0 min; the failures were in the dot line's first 20 marks. Rerunning the four files alone gave 10 passed, and a second full run gave 1098 passed in 6.5 min. Slice 3 changed the server's listed-record reads and the fake GitHub listings, not the completion or launch code. The job-local logs are not retained in the repository. No load average was recorded.
+  - Observed effect: a second full run of about 6.5 minutes. The failure question is left without a cause.
+  - Inference: Qualified. The longer first run and the early position point to contention at suite start (load, or the concurrent `dashboard/dist` rebuild of DD-226), but nothing retained shows which. One sample.
 
 ## Local proof that leaves out what another CI job checks (second priority, not queued)
 
