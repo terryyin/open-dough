@@ -122,6 +122,16 @@ reads, and the matching wait in `auto-refresh-project-isolation.spec.ts` uses
 the same `readsBesideChecks` form. With 20 repeats of both specs, 140 passed;
 with 60 repeats of the returning case, 120 passed.
 
+CI repair (run 37537946358 on `feef5f18`): `story-readiness-accessible.spec.ts:104`
+found that focus moved by the developer was pulled back to the story card. A
+partial snapshot whose focus was recorded on arrival rendered after the move.
+That broke STORY-PREPARATION.md's promise that focus returns only if the user has
+not moved it. `restoreSnapshotFocus` now leaves focus wherever the developer
+holds it, except when it fell to the page body or sits on the card itself. With
+a delay widening the gap, the spec failed 2 of 16 runs before the fix and passed
+48 of 48 after it. The whole suite then passed 1159 tests; the merged rule then
+passed 17 focus specs and 16 repeats.
+
 ## Execution complete
 
 Product advice: no change. The correction adds no feature promise; it leaves
