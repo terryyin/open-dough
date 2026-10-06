@@ -4,7 +4,8 @@ What the [story dashboard](README.md) asks GitHub through the launching
 person's own `gh`, and so what it costs their GitHub API allowance.
 
 Each load of the dashboard makes two authenticated `gh` requests for membership, plus one per record not already read at that revision
-for preparation and detail, and, once per revision, one listing of the agent
+for preparation and detail, and, once per revision, one listing of the done
+record directory plus one per done record listed there, one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
 its addition (usually one). What a commit changed is remembered by commit, so
@@ -22,7 +23,7 @@ and `main` is asked alone (at most four a minute per visible page, none while
 it is hidden, and none before a rate limit's directed time). GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
-commit then costs one backlog read plus its records and one history listing
+commit then costs one backlog read plus its records, done records, and one history listing
 per readable profile, without resolving `main` again; a recorded story branch
 that moved costs one read of its plan and one of its last commit time at the
 new head.

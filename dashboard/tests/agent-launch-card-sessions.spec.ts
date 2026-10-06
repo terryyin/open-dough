@@ -173,8 +173,15 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       const completed = { taken: [readyStory], backlog: [takenStory] };
       await expectMembership(page, completed);
       await expectListed([readyStory, takenStory]);
-      const entries = recentlyDone.getByRole("article");
+      // Completing the story published its done record, listed beside the
+      // sessions.
+      const entries = recentlyDone.locator(".session-entry");
+      const doneCard = recentlyDone.getByRole("article", {
+        name: notRefinedStory,
+        exact: true,
+      });
       await expect(entries).toHaveCount(3);
+      await expect(doneCard).toBeVisible();
       await expect(
         recentlyDone.getByRole("article", {
           name: recentlyDoneSessionName("Execution", notRefinedStory),
@@ -185,6 +192,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await settled();
       await expectListed([readyStory, takenStory]);
       await expect(entries).toHaveCount(3);
+      await expect(doneCard).toBeVisible();
     });
 
     // Nothing was launched again along the way.

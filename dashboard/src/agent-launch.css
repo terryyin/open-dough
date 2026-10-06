@@ -122,6 +122,18 @@
   font-size: 0.9rem;
 }
 
+/* A done story: a published fact, so a solid edge, unlike the dashed edge of
+   a session kept on this machine. */
+.done-story {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--edge);
+  border-radius: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
 .session-state {
   font-weight: 600;
 }

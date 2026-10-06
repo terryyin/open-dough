@@ -164,7 +164,7 @@ its no-completion-words check.
 
 ### 3. Recently done lists done stories among the sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new Playwright journey with the fake GitHub publishing done records
 rendered by the shared module and the synthetic `claude` supplying sessions:
 a done card shows title, completion time,
@@ -183,6 +183,15 @@ card.
 Deliver together: the boundary's done-record read at the pinned revision; the
 snapshot's done stories and their read failure; the done card; the merged
 ordering; the 30-day display rule from the shared module.
+
+Accepted proof: `dashboard/tests/recently-done-stories.spec.ts` (ordering,
+card facts, no-agent card, 31-day record absent, no directory, failed read)
+→ 20 of 20 with `--repeat-each=10`; full suite 1090 passed before the
+refactor and 1089 after it, the one failure being
+`session-sidebar-navigation-cases.spec.ts:116` under full-suite load (15 of
+15 alone), carried to slice 4. The server read is `done=records` in
+`listedRecordsRead.ts` beside `agents=profiles`; the card is
+`DoneStoryCard.tsx`, the snapshot `PublishedWork.done` via `doneStories.ts`.
 
 ### 4. A done story's card holds its sessions
 Type: Behavior
@@ -225,6 +234,11 @@ README describing the list as built.
 
 ## Learnings
 
+- `publishStoryStagesJourney` runs the real `complete`, so completed-state
+  specs see a done card; slice 4 changes their counts again.
+- `session-sidebar-navigation-cases.spec.ts:116` (narrow window, reduced
+  motion) failed once under full-suite load at `expectWhollyInView`; slice 4
+  diagnoses and fixes it with the sidebar journeys it extends.
 - The dashboard's published read wait bound runs on the page clock; a
   journey that advances page time must first await the startup read, or
   cards stay locked.

@@ -35,6 +35,20 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
     await server.close();
   });
 
+  // A request refused for its parameters alone answers 400 with the reason,
+  // before any `gh` call.
+  async function expectRefusedParameters(query: string, error: string) {
+    server.github.serve(everyRepository, publishes({ revision, backlog }));
+    const callsBefore = server.ghCalls().length;
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${query}`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(400);
+    expect(JSON.parse(response.body)).toMatchObject({ error });
+    expect(server.ghCalls()).toHaveLength(callsBefore);
+  }
+
   test("refuses a mismatched Origin before launching gh", async () => {
     server.github.serve(everyRepository, publishes({ revision, backlog }));
     const response = await rawRequest({
@@ -126,38 +140,47 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       ),
     ).toBe(true);
   });
-  // An agent profile read names only the pinned revision: it never widens to
-  // another repository path, never doubles as a revision check, and never
-  // resolves a branch name itself.
-  const onlyPinned = "An agent profile read names only a pinned revision.";
-  for (const refused of [
+  // A read of the records listed beside the backlog names only the pinned
+  // revision: never another path, never with a revision check or the other
+  // listed read, and never a branch name it would resolve itself.
+  for (const { listed, named, onlyPinned, path, combined } of [
     {
-      read: "that also names a repository path",
-      query: `revision=${revision}&path=${encodeURIComponent(`.planning/${agentIdentity("Yui").path}`)}`,
-      error: onlyPinned,
+      listed: "an agent profile read",
+      named: "agents=profiles",
+      onlyPinned: "An agent profile read names only a pinned revision.",
+      path: `.planning/${agentIdentity("Yui").path}`,
+      combined: {
+        read: "combined with a revision check",
+        query: `revision=${revision}&since=${revision}`,
+      },
     },
     {
-      read: "combined with a revision check",
-      query: `revision=${revision}&since=${revision}`,
-      error: onlyPinned,
-    },
-    {
-      read: "at a revision that is not a commit sha",
-      query: "revision=main",
-      error: "The pinned revision is not a commit sha.",
+      listed: "a done record read",
+      named: "done=records",
+      onlyPinned: "A done record read names only a pinned revision.",
+      path: ".planning/done/SEED-001_x.json",
+      combined: {
+        read: "combined with an agent profile read",
+        query: `revision=${revision}&agents=profiles`,
+      },
     },
   ]) {
-    test(`refuses an agent profile read ${refused.read} before launching gh`, async () => {
-      server.github.serve(everyRepository, publishes({ revision, backlog }));
-      const callsBefore = server.ghCalls().length;
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&agents=profiles&${refused.query}`,
-        headers: { Origin: server.origin },
-      });
-      expect(response.status).toBe(400);
-      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
-      expect(server.ghCalls()).toHaveLength(callsBefore);
-    });
+    for (const refused of [
+      {
+        read: "that also names a repository path",
+        query: `revision=${revision}&path=${encodeURIComponent(path)}`,
+        error: onlyPinned,
+      },
+      { ...combined, error: onlyPinned },
+      {
+        read: "at a revision that is not a commit sha",
+        query: "revision=main",
+        error: "The pinned revision is not a commit sha.",
+      },
+    ]) {
+      test(`refuses ${listed} ${refused.read} before launching gh`, () =>
+        expectRefusedParameters(`${named}&${refused.query}`, refused.error));
+    }
   }
   // A branch read names a branch the server can put into GitHub's endpoint
   // unchanged, and reads a file only at a head it names as a commit.
@@ -184,17 +207,8 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
         "A branch read names only a pinned revision, a recorded branch, and for a file its resolved head and repository path.",
     },
   ]) {
-    test(`refuses a branch read ${refused.read} before launching gh`, async () => {
-      server.github.serve(everyRepository, publishes({ revision, backlog }));
-      const callsBefore = server.ghCalls().length;
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${refused.query}`,
-        headers: { Origin: server.origin },
-      });
-      expect(response.status).toBe(400);
-      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
-      expect(server.ghCalls()).toHaveLength(callsBefore);
-    });
+    test(`refuses a branch read ${refused.read} before launching gh`, () =>
+      expectRefusedParameters(refused.query, refused.error));
   }
   // A revision check watches only branches named plainly enough to compare
   // with GitHub's listing, and watching belongs to a revision check alone.
@@ -230,16 +244,7 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       error: onlyWithCheck,
     },
   ]) {
-    test(`refuses a watched branch ${refused.read} before launching gh`, async () => {
-      server.github.serve(everyRepository, publishes({ revision, backlog }));
-      const callsBefore = server.ghCalls().length;
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${refused.query}`,
-        headers: { Origin: server.origin },
-      });
-      expect(response.status).toBe(400);
-      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
-      expect(server.ghCalls()).toHaveLength(callsBefore);
-    });
+    test(`refuses a watched branch ${refused.read} before launching gh`, () =>
+      expectRefusedParameters(refused.query, refused.error));
   }
 });

@@ -8,7 +8,9 @@
 // `since` instead asks only whether the ref still names the revision shown,
 // and with `watch` which heads story branches
 // recorded there name now; `agents=profiles` and `committed=added` read the
-// published agent profiles (`./authenticatedProfileRead.ts`); `branch` asks
+// published agent profiles (`./authenticatedProfileRead.ts`), and
+// `done=records` the published done records (`./authenticatedDoneRead.ts`);
+// `branch` asks
 // about a story branch recorded at that revision
 // (`./authenticatedBranchRead.ts`). Every read makes the
 // same one request (`./authenticatedGet.ts`). No extra header or

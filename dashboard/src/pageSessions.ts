@@ -77,15 +77,24 @@ export function showsSession(sessionKey: string) {
 }
 
 // The session of the entry beside the one a control is in, in its card's list
-// or in Recently done: the entry after it, else the one before it.
+// or in Recently done: the nearest session entry after it, else the nearest
+// before it. A done story listed between them is passed over.
 function entryBeside(control: HTMLElement): string | undefined {
   const item = control.closest("li");
-  const beside = item?.nextElementSibling ?? item?.previousElementSibling;
-  return (
-    beside
+  const sessionIn = (sibling: Element | null | undefined) =>
+    sibling
       ?.querySelector(`[${showsSessionAttribute}]`)
-      ?.getAttribute(showsSessionAttribute) ?? undefined
-  );
+      ?.getAttribute(showsSessionAttribute) ?? undefined;
+  for (const step of [
+    "nextElementSibling",
+    "previousElementSibling",
+  ] as const) {
+    for (let sibling = item?.[step]; sibling; sibling = sibling[step]) {
+      const session = sessionIn(sibling);
+      if (session !== undefined) return session;
+    }
+  }
+  return undefined;
 }
 
 // Where the keyboard goes once the entry a control is in is deleted: the entry

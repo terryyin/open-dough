@@ -16,6 +16,7 @@ import type {
   UnreadableProfile,
 } from "./agentAssignments.ts";
 import type { AgentRoster } from "./assignmentRoster.ts";
+import type { DoneStories } from "./doneStories.ts";
 
 export type WorkEntry = {
   readonly identity: string;
@@ -75,6 +76,9 @@ export type PublishedWork = {
   // Every agent of the rotation and its published assignments at this
   // revision; loading until the profiles are read.
   readonly roster?: AgentRoster;
+  // The done records published beside the backlog at this revision; loading
+  // until they are read.
+  readonly done?: DoneStories;
 };
 
 // Receives each more complete snapshot of one read as it becomes known.

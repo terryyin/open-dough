@@ -10,7 +10,9 @@ import { z } from "zod";
 import {
   authenticatedGet,
   commitSha,
+  publishedFile,
   unexpectedAnswer,
+  type PublishedFile,
 } from "./authenticatedGet.ts";
 import {
   authenticatedAvatarEndpoint,
@@ -20,23 +22,17 @@ import type { PublishedSource } from "./publishedSource.ts";
 
 const okProfiles = z.object({
   revision: commitSha,
-  profiles: z.array(z.object({ path: z.string().min(1), text: z.string() })),
+  profiles: z.array(publishedFile),
   // The project setting file's text at the revision; null when it has none.
   settings: z.string().nullable(),
 });
-
-// A published agent profile's repository path and raw text.
-export type PublishedProfile = {
-  readonly path: string;
-  readonly text: string;
-};
 
 // The agent profiles published beside the backlog at `revision`, as the local
 // boundary found them listed there (none when the revision has no profile
 // directory), and the project setting file's text there (undefined when it
 // has none). What either says is left to the shared profile module.
 export type PublishedProfiles = {
-  readonly profiles: readonly PublishedProfile[];
+  readonly profiles: readonly PublishedFile[];
   readonly settings: string | undefined;
 };
 

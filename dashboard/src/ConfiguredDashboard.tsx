@@ -225,6 +225,7 @@ export function ConfiguredDashboard({
             sourceId={source.id}
             records={launches.records}
             creations={launches.creations}
+            done={work.done}
           />
         </main>
       )}
