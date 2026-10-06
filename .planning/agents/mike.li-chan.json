@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-113#show-available-facts-promptly",
+  "mode": "story-branch",
+  "branch": "codex/show-available-dashboard-facts",
+  "host": "codex"
+}
