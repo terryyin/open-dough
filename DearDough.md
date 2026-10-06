@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 242. Removed local codes are never reused.
+- Highest allocated local number: 243. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -273,6 +273,7 @@ Follow-up: delivered, unreleased: SEED-008#story-branch-delivery-target (story a
 - Execution: `SEED-100#dashboard-specs-pass-unchanged-code` / plan 251, first related implementation commit `3a0ff700` - Timestamp: 2026-10-05T19:19:01+09:00 (commit time of `3a0ff700`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref claude/dashboard-specs-pass-ci-on-a-revision-that-chang` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; same missing statement.
 - Execution: `SEED-088#review-changes-since-last-review` / plan 245, first related implementation commit `d754256c` - Timestamp: unknown (while slice 1's agent ran, before `d754256c` committed 2026-10-05T13:43:51+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator printed the `deliver` usage in `execution-increment-delivery.mjs`, grepped `targetRef` across the scripts, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; all six deliveries were accepted first time. - Inference: Qualified; same missing statement.
 - Execution: `SEED-106#paged-dashboard-columns` / plan 225, first related implementation commit `a5e9e772` - Timestamp: 2026-10-06T07:36:58+09:00 (commit time of `a5e9e772`; the refusal followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the first `deliver` passed `--target-ref claude/dashboard-columns-page-horizontally-instead-of-w` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; the queued follow-up has not reached this installed release.
+- Execution: `SEED-113#share-repeated-observer-reads` / plan 261, first related implementation commit `a1c593a9` - Timestamp: 2026-10-06T17:24:05+09:00 (commit time of `a1c593a9`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the first `deliver` passed `--target-ref claude/share-repeated-reads-across-dashboard-observers` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached, and later deliveries used that form. - Observed effect: one refused call; no state change. - Inference: Qualified; the delivered follow-up has not reached this installed release.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -785,3 +786,20 @@ Follow-up: Open, unqueued. Proposal: give the Codex binding an explicit supporte
   - Evidence: retained observer `/tmp/dough-ci-501/watch-XLyt1z` had seven CI_FAILURE events for attempts `37427204231/1`, `37431359551/1`, `37432066761/1` and no `delivery.json`. The installed `ci-notify-codex.md` binding calls `notify` without `recordDeliveryProgress`; `ci-mailbox-complete.mjs` gates shutdown on `unreadActionableFailures`. After bounded log classification of all attempts, the coordinator used the installed exported store API to acknowledge exactly those seven events, preserving later events and the live repair observer.
   - Observed effect: one additional mailbox/source inspection and explicit acknowledgment outside the prescribed Codex binding. The first completion receipt itself correctly retained the observer for the failed revision.
   - Inference: Qualified. Source inspection shows that a later green completion would still retain this mailbox for unread failures without acknowledgment. That later refusal was prevented, not observed; absence of progress does not by itself establish that a notification was delivered to the model.
+
+## DD-243 — The quiet passing reporter hides how many tests a focused run selected
+
+`npm run test:dashboard` prints nothing on a pass, so a delegated agent cannot see which or how many tests its filtered command selected, which proof acceptance asks it to report. Agents reran passing commands with `--reporter=line`, `--reporter=list`, or `--reporter=dot` to obtain the count.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-113#share-repeated-observer-reads` / plan 261, first related implementation commit `a1c593a9`
+  - Timestamp: unknown (slice 3 and slice 4 refactor returns, 2026-10-06, before `74f6904b` and `572faa6f`)
+  - Tool: Claude Code (delegated refactor agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: slice 3's refactor return: "The first run of this command without `--reporter=line` cut off its output before the result, so I ran it again"; slice 4's refactor return: "The default reporter printed nothing on a pass, so I added `--reporter=list` to see the counts"; slice 4's implementation reported its whole-suite count from a `--reporter=dot` run.
+  - Observed effect: at least two repeated focused runs (seconds to tens of seconds each); counts were reported for acceptance.
+  - Inference: Qualified. The silence is the project's chosen contract for passing journeys; the cost is small but recurs per agent. Stating in the delegation which reporter yields a selection count would avoid the rerun.

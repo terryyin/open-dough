@@ -1,7 +1,8 @@
-// One boundary request's owned `gh` work, for the local authenticated read
-// boundary (`./authenticatedRead.ts`): tracked so closing the boundary can
-// abort it, aborted when the requester disconnects, and given up as timed
-// out once `./ghRead.ts`'s `readTimeoutMs` passes.
+// One boundary request's wait for its `gh` answers, for the local
+// authenticated read boundary (`./authenticatedRead.ts`): tracked so closing
+// the boundary can end it, ended when the requester disconnects, and given up
+// as timed out once `./ghRead.ts`'s `readTimeoutMs` passes. Ending it leaves
+// any `gh` call another request still waits for running (`./ghRead.ts`).
 
 import type { IncomingMessage } from "node:http";
 import { GhFailure, readTimeoutMs } from "./ghRead.ts";

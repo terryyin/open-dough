@@ -13,7 +13,9 @@
 // ./authenticated-project-overview.spec.ts. Which requests it refuses before
 // launching `gh` is covered in ./authenticated-read-refusal.spec.ts, and
 // which commit added an agent profile in
-// ./authenticated-read-profile-addition.spec.ts; its
+// ./authenticated-read-profile-addition.spec.ts; which backlog a membership
+// read or a read at a known revision answers, and when it asks GitHub for it,
+// in ./authenticated-read-revision-backlog.spec.ts; its
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
 // -- in ./authenticated-read-subprocess-lifecycle.spec.ts; reads on a story
 // branch in ./authenticated-branch-read-boundary.spec.ts. All share this

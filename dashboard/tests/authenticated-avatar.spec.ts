@@ -14,7 +14,7 @@ import {
   type DashboardServer,
 } from "./support/dashboardServer.ts";
 import { everyRepository } from "./support/fakeGitHub.ts";
-import { avatarPathsRead } from "./avatarAnswers.ts";
+import { avatarPathsRead, holdingAvatar } from "./avatarAnswers.ts";
 import {
   additions,
   agents,
@@ -64,6 +64,36 @@ test.describe("authenticated avatar read (dev launch mode)", () => {
     expect(again.body).toBe(first.body);
     expect(server.ghCalls()).toHaveLength(callsBefore);
     expect(avatarReads()).toEqual(["/u/301"]);
+  });
+
+  test("shares one image read between two reads of one avatar source while its image is held, and answers both", async () => {
+    const held = holdingAvatar(avatarHost, "/u/309");
+    server.github.serveAvatars(held.answer);
+    try {
+      const first = avatarOf(profileQuery("airi-chan.json"));
+      await expect.poll(avatarReads).toContain("/u/309");
+      const callsBefore = server.ghCalls().length;
+      const second = avatarOf(profileQuery("airi-chan.json"));
+      // Answered without GitHub once the second read's handler has run.
+      const marker = await avatarOf(
+        profileQuery("airi-chan.json"),
+        "http://evil.example",
+      );
+      expect(marker.status).toBe(403);
+      // The second read reached the image with no GitHub read of its own.
+      expect(server.ghCalls()).toHaveLength(callsBefore);
+      held.release();
+      const [one, two] = await Promise.all([first, second]);
+      expect(one.status).toBe(200);
+      expect(two.status).toBe(200);
+      expect(two.body).toBe(one.body);
+      expect(avatarReads().filter((read) => read === "/u/309")).toEqual([
+        "/u/309",
+      ]);
+    } finally {
+      held.release();
+      server.github.serveAvatars(avatarHost);
+    }
   });
 
   test("fetches a changed avatar source afresh under the same login, and keeps each source", async () => {

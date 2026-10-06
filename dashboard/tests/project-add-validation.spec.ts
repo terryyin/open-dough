@@ -136,7 +136,10 @@ test("concurrent validated additions recheck admission and save exactly one appe
   );
   const results = Promise.allSettled([first, second]);
   try {
-    await expect.poll(() => fixture.github.calls.length).toBe(2);
+    // Additions asking GitHub the same question while it is outstanding
+    // share one `gh` call (../server/ghRead.ts); either way, neither has
+    // saved while it is held, and each rechecks admission when it saves.
+    await expect.poll(() => fixture.github.calls.length).toBe(1);
     expect(readFileSync(fixture.file, "utf8")).toBe("[]\n");
   } finally {
     release();

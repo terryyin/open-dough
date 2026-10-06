@@ -18,6 +18,27 @@ export function isHeadsCheck({ request }: GhCall): boolean {
   return request.kind === "matching-refs";
 }
 
+// What GitHub was asked besides the checks, as `<kind> <path>@<revision>` or
+// `branch <name>`.
+export function readsBesideChecks(calls: readonly GhCall[]): string[] {
+  return calls
+    .filter((call) => !isHeadsCheck(call))
+    .map(({ request }) => {
+      switch (request.kind) {
+        case "content":
+        case "listing":
+        case "commit-list":
+          return `${request.kind} ${request.path}@${request.revision}`;
+        case "branch":
+          return `branch ${request.branch}`;
+        case "ref":
+          return `ref ${request.ref}`;
+        default:
+          return request.kind;
+      }
+    });
+}
+
 // Notes a call among what an origin was asked, unless it is a revision check.
 export function observe(observed: ObservedRequest[], call: GhCall): void {
   if (!isHeadsCheck(call)) {

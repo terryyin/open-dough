@@ -129,5 +129,10 @@ test("changing projects removes previous direction while reading and starts each
   await expect(body).toBeHidden();
   await openDirection(page);
   await expect(body).toHaveText(fullDirection);
-  expect(pathsRead(origin)).toHaveLength(4);
+  // Returning asks the ref again, not the backlog already read at revision A.
+  expect(pathsRead(origin)).toEqual([
+    "main",
+    `PRODUCT-BACKLOG.md?ref=${revisionA}`,
+    "main",
+  ]);
 });

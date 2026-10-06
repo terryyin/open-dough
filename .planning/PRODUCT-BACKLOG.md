@@ -14,7 +14,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Share repeated reads across dashboard observers](seeds/SEED-113-dashboard-github-responsiveness.md#share-repeated-observer-reads) — SEED-113#share-repeated-observer-reads ([plan](slice-plans/261-shared-observer-reads/PLAN.md))
+- [Shared GitHub reads say and signal only what their waiters own](seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction) — SEED-113#shared-read-waiter-residue-correction ([plan](slice-plans/263-shared-read-waiter-residue-correction/PLAN.md))
 
 ## Backlog list
 

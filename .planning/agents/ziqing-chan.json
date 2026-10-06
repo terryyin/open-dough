@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-113#shared-read-waiter-residue-correction",
+  "mode": "story-branch",
+  "branch": "claude/shared-github-reads-say-and-signal-only-what-the",
+  "host": "claude"
+}
