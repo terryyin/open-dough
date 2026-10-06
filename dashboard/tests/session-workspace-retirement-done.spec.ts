@@ -66,7 +66,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   await machineSessions(dashboard);
   await page.reload();
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   await expect(recent).toContainText("Done");
   await recent.getByRole("button", { name: "Read final report" }).click();

@@ -169,7 +169,7 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
   await startSessionField(dialog).fill("why is the CI slow?");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(parts(page).recentSessions.getByRole("article")).toContainText(
+  await expect(parts(page).recentlyDone.getByRole("article")).toContainText(
     "First input accepted",
     { timeout: launchWaitMs },
   );

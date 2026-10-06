@@ -21,7 +21,7 @@ export function parts(page: Page) {
       name: "Preparation badge legend",
     }),
     // The selected project's sessions launched from this dashboard.
-    recentSessions: page.getByRole("region", { name: "Recent sessions" }),
+    recentlyDone: page.getByRole("region", { name: "Recently done" }),
     source: page.getByRole("region", { name: "Published Git state" }),
     problem: page.getByRole("alert"),
     // The read status is always on the page, so that a change of its text is
@@ -33,8 +33,8 @@ export function parts(page: Page) {
   };
 }
 
-// A Recent sessions entry, named for its launch's workflow and story.
-export const recentSessionName = (workflow: string, title: string) =>
+// A Recently done entry, named for its launch's workflow and story.
+export const recentlyDoneSessionName = (workflow: string, title: string) =>
   `${workflow} session for ${title}`;
 
 // A card's session entries, newest first.
@@ -57,11 +57,11 @@ export const cardSessionOf = (card: Locator, workflow: string) =>
     }),
   );
 
-// The state words a session entry shows, on a card or in Recent sessions.
+// The state words a session entry shows, on a card or in Recently done.
 export const sessionStateOf = (entry: Locator) =>
   entry.locator(".session-state");
 
-// The session id a session entry names, on a card or in Recent sessions.
+// The session id a session entry names, on a card or in Recently done.
 export async function sessionNamedBy(record: Locator): Promise<string> {
   const id = await record
     .locator("p", { hasText: /^Session / })

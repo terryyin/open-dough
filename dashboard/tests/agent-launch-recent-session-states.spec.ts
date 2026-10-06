@@ -5,7 +5,7 @@
 // with no attention, Working (idle between steps or not), Session
 // unavailable, or State unknown with its note. A session needing attention
 // has a solid, heavier edge beside those words. A card entry is the same
-// shared entry, so one session's card entry shows what its Recent sessions
+// shared entry, so one session's card entry shows what its Recently done
 // entry does, and ./agent-launch-card-session-states.spec.ts shows every
 // state staying on its card. The page reads the records again at the steady
 // pace while it is visible, so a change appears within one pace without a
@@ -24,7 +24,7 @@ import {
   cardSessionOf,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
@@ -73,7 +73,7 @@ test("each entry shows why its session needs attention, or that it does not, the
   dashboard.claudeScenario("launched");
   const { card, start, dialog, refine, refinementDialog } =
     await openTakenBacklog(page, journey);
-  const { recentSessions: recent } = parts(page);
+  const { recentlyDone: recent } = parts(page);
   const entries = recent.getByRole("article");
   const membership = {
     taken: [takenStory],
@@ -133,7 +133,7 @@ test("each entry shows why its session needs attention, or that it does not, the
       card(title).getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();
   }
-  // One session's card entry is rendered as its Recent sessions entry is, so
+  // One session's card entry is rendered as its Recently done entry is, so
   // it alone is checked on its card too.
   const onCard = cardSessionOf(card(notRefinedStory), "Execution");
   const placed = (index: number): readonly Locator[] =>
@@ -141,7 +141,7 @@ test("each entry shows why its session needs attention, or that it does not, the
   const sessionIds: string[] = [];
   for (const [index, { title, workflow }] of launches.entries()) {
     await expect(entries.nth(index)).toHaveAccessibleName(
-      recentSessionName(workflow, title),
+      recentlyDoneSessionName(workflow, title),
     );
     for (const entry of placed(index)) {
       await expectSessionShown(entry, "Working", false);

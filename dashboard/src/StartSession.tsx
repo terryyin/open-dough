@@ -1,7 +1,7 @@
 // The project actions row's Start session: the developer asks the selected host
 // to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
-// session is listed in Recent sessions and the Sessions sidebar, like any
+// session is listed in Recently done and the Sessions sidebar, like any
 // launched session; no card lists it. The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
 // button, that the startup goes on while the button waits for it. A started

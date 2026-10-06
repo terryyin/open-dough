@@ -40,7 +40,7 @@ test("a pasted Cursor instruction delivered in split screens is shown as accepte
   await startSessionField(dialog).fill("why is the CI slow?");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  const recent = parts(page).recentSessions.getByRole("article");
+  const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
   await expect(recent).toContainText("First input accepted");
   await expect(recent).toContainText("Ad hoc session started in Cursor");

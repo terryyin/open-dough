@@ -4,7 +4,7 @@
 // line follow only the native reading, while the report shows by its own
 // mark and words (“Unread report: <completion label>”) and the card's line of
 // how many unread reports it holds. The entry's message part, on a card or in
-// Recent sessions, is expanded with Mark as read while the report is unread,
+// Recently done, is expanded with Mark as read while the report is unread,
 // and collapsed and expandable once read or done. Mark as read clears the
 // unread report and leaves the session open with its native reading and its
 // own Mark as done; Mark as done, read or not, closes the session as any
@@ -105,6 +105,12 @@ test("an unread report is its own mark beside the session's native reading", asy
   );
   await expect(cardA.locator(".session-state")).toHaveText("Ready for review");
   await expect(cardA.locator(".session-unread-report")).toHaveText(unreadWords);
+  // Both starts are reconciled with the published work read, so the cards'
+  // actions can run before page time moves on past that read's wait bound.
+  for (const card of [cardA, cardB])
+    await expect(
+      card.getByRole("button", { name: "Inspect story" }),
+    ).toBeEnabled();
 
   // 2. A new instruction, no Mark as done: working, by launch time among the
   // sessions not needing engagement, still marked; the badge counts nothing.
@@ -220,8 +226,8 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expectCollapsed(messageA, "Unfinished work");
 
   // 7. Mark as done on its entry closes the session as any session: it is
-  // named done-, stopped, and leaves the card and the sidebar for Recent
-  // sessions, Done, its message collapsed and expandable without Mark as
+  // named done-, stopped, and leaves the card and the sidebar for Recently done,
+  // Done, its message collapsed and expandable without Mark as
   // read.
   const stopsBeforeDone = dashboard.claudeStopCalls().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
@@ -231,7 +237,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(badge).toHaveCount(0);
   await expect(cardA.locator(".session-state")).toHaveCount(0);
   const recentA = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: titleA });
   await expect(recentA.locator(".session-state")).toHaveText("Done");
   await expect(recentA.locator(".session-unread-report")).toHaveCount(0);

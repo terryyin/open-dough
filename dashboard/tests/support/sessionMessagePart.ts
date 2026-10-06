@@ -1,4 +1,4 @@
-// A session entry's message part, on a card or in Recent sessions: its
+// A session entry's message part, on a card or in Recently done: its
 // heading, the disclosure button named by the report's completion label, its
 // message text, and its Mark as read.
 

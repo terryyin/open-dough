@@ -15,7 +15,7 @@ Codex terminal attachment uses the conversation's saved workspace and app-server
 endpoint. “Ready for review” describes its native turn; it does not establish
 that the saved directory exists or that attachment will succeed.
 
-When refresh confirms the saved workspace is missing, cards, Recent sessions
+When refresh confirms the saved workspace is missing, cards, Recently done
 and the Sessions sidebar offer **Read final report**. The read-only dashboard
 panel shows that conversation's retained final report and explains why terminal
 continuation is unavailable. Missing does not establish why the directory went

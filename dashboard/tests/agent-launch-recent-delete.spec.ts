@@ -1,14 +1,14 @@
-// Delete record… on a Recent sessions entry, on the committed story-stages
+// Delete record… on a Recently done entry, on the committed story-stages
 // origin (./launchJourney.ts): a session whose story is in no list and one
 // marked done, both State unknown while the whole listing cannot be read, each
 // offer "Delete record…" with the same question as a card's entry
 // (./agent-launch-card-delete.spec.ts); confirming removes the entry from
-// Recent sessions and the Sessions sidebar without a success announcement,
-// and the keyboard goes to the next Recent sessions entry, else the previous,
-// else the Recent sessions section. Session unavailable is
+// Recently done and the Sessions sidebar without a success announcement,
+// and the keyboard goes to the next Recently done entry, else the previous,
+// else the Recently done section. Session unavailable is
 // ./agent-launch-recent-delete-unavailable.spec.ts. The sidebar's entries in
-// State unknown are each one control with no delete, and a Recent entry in
-// Working or Done offers none. Origin alone still places every story. The
+// State unknown are each one control with no delete, and a Recently done entry
+// in Working or Done offers none. Origin alone still places every story. The
 // page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
@@ -20,7 +20,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -37,7 +37,7 @@ import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-test.describe("deleting a Recent sessions entry's record", () => {
+test.describe("deleting a Recently done entry's record", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -47,7 +47,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a State unknown entry, whose story is in no list or which is marked done, offers Delete record…, deletes from Recent sessions and the sidebar, and moves the keyboard; the sidebar offers none and Working or Done offers none", async ({
+  test("a State unknown entry, whose story is in no list or which is marked done, offers Delete record…, deletes from Recently done and the sidebar, and moves the keyboard; the sidebar offers none and Working or Done offers none", async ({
     page,
     dashboard,
   }) => {
@@ -56,7 +56,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
     const queued = {
       taken: [],
@@ -89,7 +89,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
     const stopsBeforeDeletes = dashboard.claudeStopCalls().length;
     const entryOf = (workflow: "Execution" | "Refinement", title: string) =>
       recent.getByRole("article", {
-        name: recentSessionName(workflow, title),
+        name: recentlyDoneSessionName(workflow, title),
       });
     const markedDone = entryOf("Execution", readyStory);
     const inNoList = entryOf("Refinement", notRefinedStory);
@@ -99,7 +99,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
     const confirm = (entry: typeof working) =>
       entry.getByRole("button", { name: "Delete record", exact: true });
 
-    await test.step("a session marked done and one whose story left every list are Recent sessions entries", async () => {
+    await test.step("a session marked done and one whose story left every list are Recently done entries", async () => {
       await page.reload();
       await settled();
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
@@ -112,7 +112,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       ).toHaveCount(0);
     });
 
-    await test.step("while the listing is read, a Recent entry in Working or Done offers no Delete record…", async () => {
+    await test.step("while the listing is read, a Recently done entry in Working or Done offers no Delete record…", async () => {
       await expect(sessionStateOf(working)).toHaveText("Working");
       await expect(sessionStateOf(inNoList)).toHaveText("Working");
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
@@ -145,7 +145,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       }
     });
 
-    await test.step("deleting the middle entry asks first, removes it from Recent sessions and the sidebar, and puts the keyboard on the next Recent entry", async () => {
+    await test.step("deleting the middle entry asks first, removes it from Recently done and the sidebar, and puts the keyboard on the next Recently done entry", async () => {
       await deleteButton(inNoList).click();
       await expect(
         inNoList.getByRole("button", { name: "Keep" }),
@@ -179,7 +179,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
       expect(stored()).not.toContain(done);
     });
 
-    await test.step("deleting the only entry left puts the keyboard on the Recent sessions section", async () => {
+    await test.step("deleting the only entry left puts the keyboard on the Recently done section", async () => {
       await deleteButton(working).click();
       await confirm(working).click();
 

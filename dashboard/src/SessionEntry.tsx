@@ -1,7 +1,7 @@
 import { doneAutomatically, hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { hostName, marksDone } from "./sessionCapabilities.ts";
-// One kept session, shown consistently on cards and in Recent sessions.
+// One kept session, shown consistently on cards and in Recently done.
 // Its native observations and supported controls stay distinct from story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";

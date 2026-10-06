@@ -65,7 +65,7 @@ for (const text of ["", "why is the CI slow?"]) {
     if (!blank) await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-    const recent = parts(page).recentSessions.getByRole("article");
+    const recent = parts(page).recentlyDone.getByRole("article");
     await expect(recent).toHaveCount(1);
     const record = keptRecord(dashboard.home);
     if (record.session.host !== "cursor") {
@@ -219,6 +219,6 @@ test("a blank Cursor Start session with a chosen model is refused before create-
     "Launch failed: Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
   );
   await expect(button).toBeEnabled();
-  await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(0);
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
   expect(cursor.calls()).toEqual([]);
 });

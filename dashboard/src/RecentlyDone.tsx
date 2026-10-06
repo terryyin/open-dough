@@ -1,5 +1,5 @@
 import { sessionKey } from "./sessionReference.ts";
-// The selected project's Recent sessions: every native session this
+// The selected project's Recently done column: every native session this
 // dashboard's server launched for the project and still keeps on this
 // machine, newest first, once the machine's sessions are first read,
 // whatever origin now shows of its story, so the developer can reach a session
@@ -20,7 +20,7 @@ import type { CreationView } from "./launchCreation.ts";
 import { SessionEntry, SessionList } from "./SessionEntry.tsx";
 import "./agent-launch.css";
 
-export function RecentSessions({
+export function RecentlyDone({
   sourceId,
   creations = [],
   records: machineRecords,
@@ -35,14 +35,14 @@ export function RecentSessions({
   const records = projectSessionsOf(machineRecords, sourceId);
   return (
     <section
-      className="recent-sessions"
-      aria-labelledby="recent-sessions-heading"
+      className="recently-done"
+      aria-labelledby="recently-done-heading"
       tabIndex={-1}
     >
-      <h2 id="recent-sessions-heading">Recent sessions</h2>
+      <h2 id="recently-done-heading">Recently done</h2>
       <p className="quiet">
-        Sessions launched from this dashboard for this project, newest first,
-        kept on this machine.
+        Recently done stories and sessions launched from this dashboard for this
+        project, newest first. Sessions are kept on this machine.
       </p>
       {creations
         .filter((record) => record.request.source === sourceId)

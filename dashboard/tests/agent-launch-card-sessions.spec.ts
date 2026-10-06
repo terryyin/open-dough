@@ -5,7 +5,7 @@
 // story's own open session is listed; a refinement launched on a Preparing
 // card is listed at once; the Taken card keeps the listing and offers no
 // Start; and a reload in each keeps it. A story that leaves every list keeps
-// its sessions only in Recent sessions. That Starts stay unavailable for an
+// its sessions only in Recently done. That Starts stay unavailable for an
 // open session, return after Mark as done or Delete record, and a dialog
 // opened beforehand is refused, is ./agent-launch-card-open-session.spec.ts.
 // That a restart, a reload, and a project switch keep each entry and its
@@ -21,7 +21,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -47,7 +47,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a card lists each unclosed session beside its Start actions through Preparing and Taken, each reloaded, and a story in no list keeps them only in Recent sessions", async ({
+  test("a card lists each unclosed session beside its Start actions through Preparing and Taken, each reloaded, and a story in no list keeps them only in Recently done", async ({
     page,
     dashboard,
   }) => {
@@ -56,7 +56,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       page,
       stagesJourney,
     );
-    const { stages, taken, recentSessions } = parts(page);
+    const { stages, taken, recentlyDone } = parts(page);
     // A story's card in whichever stage origin shows it.
     const card = (title: string) =>
       stages.getByRole("article", { name: title, exact: true });
@@ -168,16 +168,16 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectListed([readyStory, ...backlog]);
     });
 
-    await test.step("a story that leaves every list keeps its sessions only in Recent sessions, through a reload", async () => {
+    await test.step("a story that leaves every list keeps its sessions only in Recently done, through a reload", async () => {
       await show(stagesJourney.completed);
       const completed = { taken: [readyStory], backlog: [takenStory] };
       await expectMembership(page, completed);
       await expectListed([readyStory, takenStory]);
-      const entries = recentSessions.getByRole("article");
+      const entries = recentlyDone.getByRole("article");
       await expect(entries).toHaveCount(3);
       await expect(
-        recentSessions.getByRole("article", {
-          name: recentSessionName("Execution", notRefinedStory),
+        recentlyDone.getByRole("article", {
+          name: recentlyDoneSessionName("Execution", notRefinedStory),
         }),
       ).toBeVisible();
       await page.reload();

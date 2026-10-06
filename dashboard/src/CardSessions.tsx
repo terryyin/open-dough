@@ -1,6 +1,6 @@
 import { sessionKey } from "./sessionReference.ts";
 // A card's open sessions (`./CardLaunches.tsx`): newest first, each shown as
-// Recent sessions shows it without the story the card already names, under
+// Recently done shows it without the story the card already names, under
 // how many of them need attention, when any do (`attentionSummary`), and, in
 // a line of its own, how many hold unread reports, when any do
 // (`unreadReportSummary`).

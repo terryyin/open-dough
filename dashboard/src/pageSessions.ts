@@ -2,7 +2,7 @@
 // one terminal or final-report panel, marking one done or its report read, and
 // reading one again once its terminal attaches, each asked with one request
 // shape. The page provides them (`./PageFrame.tsx`), and a session entry
-// on a card, in Recent sessions, or in the Sessions sidebar reaches opening
+// on a card, in Recently done, or in the Sessions sidebar reaches opening
 // and marking without every component between them passing them along. Each
 // session entry names its session, so the page can find where to bring the
 // entry into view.
@@ -77,7 +77,7 @@ export function showsSession(sessionKey: string) {
 }
 
 // The session of the entry beside the one a control is in, in its card's list
-// or in Recent sessions: the entry after it, else the one before it.
+// or in Recently done: the entry after it, else the one before it.
 function entryBeside(control: HTMLElement): string | undefined {
   const item = control.closest("li");
   const beside = item?.nextElementSibling ?? item?.previousElementSibling;
@@ -90,18 +90,18 @@ function entryBeside(control: HTMLElement): string | undefined {
 
 // Where the keyboard goes once the entry a control is in is deleted: the entry
 // beside it while its list still shows it, else its story's card (for a card's
-// entry) or Recent sessions. Read the neighbours before the delete; the
+// entry) or Recently done. Read the neighbours before the delete; the
 // answer is looked up afterwards.
 export function deletedEntryHome(
   control: HTMLElement,
   identity: string | undefined,
 ): () => HTMLElement | null {
   const beside = entryBeside(control);
-  const inRecent = control.closest(".recent-sessions") !== null;
+  const inRecentlyDone = control.closest(".recently-done") !== null;
   return () =>
-    inRecent
-      ? ((beside === undefined ? null : recentSessionsEntry(beside)) ??
-        document.querySelector<HTMLElement>(".recent-sessions"))
+    inRecentlyDone
+      ? ((beside === undefined ? null : recentlyDoneEntry(beside)) ??
+        document.querySelector<HTMLElement>(".recently-done"))
       : (cardEntry(beside) ??
         (identity === undefined ? undefined : workCard(identity)) ??
         null);
@@ -115,10 +115,10 @@ function cardEntry(sessionKey: string | undefined): HTMLElement | null {
       );
 }
 
-// The session's Recent sessions entry, while the page shows it.
-export function recentSessionsEntry(sessionKey: string): HTMLElement | null {
+// The session's Recently done entry, while the page shows it.
+export function recentlyDoneEntry(sessionKey: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(
-    `.recent-sessions [${showsSessionAttribute}="${CSS.escape(sessionKey)}"]`,
+    `.recently-done [${showsSessionAttribute}="${CSS.escape(sessionKey)}"]`,
   );
 }
 

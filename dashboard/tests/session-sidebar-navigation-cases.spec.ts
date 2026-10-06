@@ -1,5 +1,5 @@
 // Opening a Sessions sidebar entry whose story is on no card reveals and
-// marks its Recent sessions entry instead; a Session unavailable entry
+// marks its Recently done entry instead; a Session unavailable entry
 // reveals its card and opens no terminal; on a narrow window, opening an
 // entry also closes the sidebar lying over the page; and under reduced
 // motion the page moves to the story at once; closing the terminal then
@@ -9,7 +9,11 @@
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts, recentSessionName } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  parts,
+  recentlyDoneSessionName,
+} from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
@@ -44,7 +48,7 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a story on no card reveals and marks its Recent sessions entry, and a Session unavailable entry reveals its card and opens no terminal", async ({
+  test("a story on no card reveals and marks its Recently done entry, and a Session unavailable entry reveals its card and opens no terminal", async ({
     page,
     dashboard,
   }) => {
@@ -54,13 +58,16 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
       stagesJourney,
     );
     const { sidebar, button, entry } = sidebarParts(page);
-    const { recentSessions, backlog } = parts(page);
+    const { recentlyDone, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await button.click();
 
-    await test.step("the story on no card opens its session and reveals and marks its Recent sessions entry", async () => {
-      const recentName = recentSessionName("Execution", removedStory.title);
-      const recent = recentSessions.getByRole("article", { name: recentName });
+    await test.step("the story on no card opens its session and reveals and marks its Recently done entry", async () => {
+      const recentName = recentlyDoneSessionName(
+        "Execution",
+        removedStory.title,
+      );
+      const recent = recentlyDone.getByRole("article", { name: recentName });
       await expect(recent).not.toBeInViewport();
       await entry(removedStory.title).click();
       await expect(panel.getByRole("heading")).toHaveText(removedStory.title);

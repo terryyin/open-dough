@@ -1,6 +1,6 @@
-// Mark as done on a session from the scope that offers it: a card or Recent
-// sessions entry, a sidebar entry, or a terminal or report panel. A session
-// whose intention is complete (its latest report is `completed`, and it reads
+// Mark as done on a session from the scope that offers it: a card or Recently
+// done entry, a sidebar entry, or a terminal or report panel. A session whose
+// intention is complete (its latest report is `completed`, and it reads
 // neither working nor waiting) is marked done with `markDone`; any other
 // session is marked done with `markDoneAnyway`, which answers the question
 // Mark as done asks about it in place, on an entry or within a panel.

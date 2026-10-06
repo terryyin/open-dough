@@ -5,7 +5,7 @@ import { usePublishedObservation } from "./publishedObservation.ts";
 import { WorkStages } from "./WorkStages.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
-import { RecentSessions } from "./RecentSessions.tsx";
+import { RecentlyDone } from "./RecentlyDone.tsx";
 import { PageFrame } from "./PageFrame.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { NearFutureDirection } from "./NearFutureDirection.tsx";
@@ -221,7 +221,7 @@ export function ConfiguredDashboard({
             launches={launches}
             onOpenRoster={openRoster}
           />
-          <RecentSessions
+          <RecentlyDone
             sourceId={source.id}
             records={launches.records}
             creations={launches.creations}

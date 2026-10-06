@@ -1,9 +1,9 @@
 // Mark as done on a session its story's card lists, on the committed
 // story-stages origin (./launchJourney.ts), through the same page operation as
 // the terminal panel's (./agent-terminal-done.spec.ts): on a session Claude
-// Code no longer lists, it leaves the card without being stopped and Recent
-// sessions shows it Done. A refused mark keeps the entry on its card and says
-// so there. Origin alone still places the story. The page's own dashboard
+// Code no longer lists, it leaves the card without being stopped and Recently
+// done shows it Done. A refused mark keeps the entry on its card and says so
+// there. Origin alone still places the story. The page's own dashboard
 // server drives the synthetic `claude` (./fixtures/fake-claude); the real one
 // is never reached.
 
@@ -14,7 +14,7 @@ import {
   cardSessionOf,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -40,7 +40,7 @@ test.describe("marking a card's session done", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("Mark as done on a card's session Claude Code no longer lists takes it off the card and Recent sessions shows it Done", async ({
+  test("Mark as done on a card's session Claude Code no longer lists takes it off the card and Recently done shows it Done", async ({
     page,
     dashboard,
   }) => {
@@ -49,12 +49,12 @@ test.describe("marking a card's session done", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const onCard = (workflow: "Execution" | "Refinement") =>
       cardSessionOf(card(readyStory), workflow);
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {
-        name: recentSessionName(workflow, readyStory),
+        name: recentlyDoneSessionName(workflow, readyStory),
       });
     const queued = {
       taken: [],
@@ -64,7 +64,7 @@ test.describe("marking a card's session done", () => {
     await settled();
     await launch(readyStory, "Execution");
     const unavailable = await sessionNamedBy(onCard("Execution"));
-    await test.step("an unavailable session leaves its card without being stopped, and Recent sessions shows it Done", async () => {
+    await test.step("an unavailable session leaves its card without being stopped, and Recently done shows it Done", async () => {
       dashboard.claudeSessionBecomes(unavailable, "forgotten");
       await page.reload();
       await settled();

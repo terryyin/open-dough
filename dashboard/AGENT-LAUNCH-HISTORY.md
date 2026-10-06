@@ -13,16 +13,16 @@ records expire after 30 days. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.
 
-Cards list all unclosed sessions for their project/story newest first. Recent
-sessions list every selected-project record newest first, including done or
-stories absent from published lists; it appears only with readable published
+Cards list all unclosed sessions for their project/story newest first.
+Recently done lists every selected-project record newest first, including done
+or stories absent from published lists; it appears only with readable published
 work. Ad hoc labels collapse whitespace, truncate at 40 characters with ellipsis,
 or use local launch time for blank/control-character text; no card lists them.
 Reading sessions is distinguished from none kept. A session still navigates
 when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
 
-Host adapters normalize native state for the shared cards, Recent sessions,
+Host adapters normalize native state for the shared cards, Recently done,
 sidebar/counts and alerts; observations are never persisted. Host descriptions
 supply unknown-reading wording, and adapters distinguish explicit unfamiliar
 native states from incomplete reads for shared alerting. Claude reads one machine
@@ -72,4 +72,5 @@ an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload
 in browser storage. Closing while focused there restores the Sessions button.
 Wide layout is sidebar/page/terminal; narrow sidebar overlays below the banner,
 terminal stacks above page. Opening a row changes project/history and reveals
-its card or Recent entry until user navigation; reduced motion skips animation.
+its card or Recently done entry until user navigation; reduced motion skips
+animation.

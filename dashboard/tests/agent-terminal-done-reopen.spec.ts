@@ -1,6 +1,6 @@
 // Reopening a session marked done from the page, on the committed
 // story-stages origin (./launchJourney.ts): a session already marked done,
-// through the boundary, shows Done in Recent sessions with no card entry;
+// through the boundary, shows Done in Recently done with no card entry;
 // opening its terminal there reopens it: once the terminal attaches, it is
 // back on its card and no longer Done, through a reload, until it is marked
 // done again from its card. How the boundary reopens it is
@@ -14,7 +14,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -30,7 +30,7 @@ import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-test.describe("reopening a session marked done from its Recent sessions entry", () => {
+test.describe("reopening a session marked done from its Recently done entry", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -49,11 +49,11 @@ test.describe("reopening a session marked done from its Recent sessions entry", 
       page,
       stagesJourney,
     );
-    const { recentSessions: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const listed = cardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
-      name: recentSessionName("Execution", readyStory),
+      name: recentlyDoneSessionName("Execution", readyStory),
     });
     const queued = {
       taken: [],

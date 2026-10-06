@@ -1,6 +1,6 @@
 // A session entry says which model was requested, on the committed origin of
 // ./agent-launch-card.spec.ts (./launchJourney.ts): wherever the page lists a
-// session -- its story's card, Recent sessions, the Sessions sidebar -- the
+// session -- its story's card, Recently done, the Sessions sidebar -- the
 // entry reads "Model: <Name> (requested)" for a chosen model and says nothing
 // for Default, and a reload keeps the line, which is read from the launch
 // record. How a dialog sends the choice is ./agent-launch-model.spec.ts. The
@@ -63,13 +63,13 @@ for (const [model, words] of [
 ] as const) {
   test(`a story session launched on ${model ?? "Default"} ${
     words === undefined ? "shows no model" : "says so"
-  } on its card, in Recent sessions and in the sidebar, through a reload`, async ({
+  } on its card, in Recently done and in the sidebar, through a reload`, async ({
     page,
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
     const { card, start } = await openTakenBacklog(page, journey);
-    const { recentSessions } = parts(page);
+    const { recentlyDone } = parts(page);
     const { button, sidebar } = sidebarParts(page);
 
     await start(readyStory).click();
@@ -77,7 +77,7 @@ for (const [model, words] of [
 
     const entries = () => [
       cardSessions(card(readyStory)),
-      recentSessions.getByRole("article"),
+      recentlyDone.getByRole("article"),
     ];
     const expectWords = async () => {
       if ((await button.getAttribute("aria-expanded")) !== "true") {
@@ -107,18 +107,18 @@ for (const [model, words] of [
 
     await expectWords();
     await page.reload();
-    await expect(recentSessions.getByRole("article")).toHaveCount(1);
+    await expect(recentlyDone.getByRole("article")).toHaveCount(1);
     await expectWords();
   });
 }
 
-test("an ad hoc session launched on Sonnet says so in Recent sessions and in the sidebar, through a reload", async ({
+test("an ad hoc session launched on Sonnet says so in Recently done and in the sidebar, through a reload", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, journey);
-  const { recentSessions } = parts(page);
+  const { recentlyDone } = parts(page);
   const { button, sidebar } = sidebarParts(page);
 
   await startSession(page, "Open Dough").click();
@@ -130,7 +130,7 @@ test("an ad hoc session launched on Sonnet says so in Recent sessions and in the
     if ((await button.getAttribute("aria-expanded")) !== "true") {
       await button.click();
     }
-    const entry = recentSessions.getByRole("article");
+    const entry = recentlyDone.getByRole("article");
     await expect(entry).toHaveCount(1);
     await expect(entry).toContainText("Ad hoc");
     await expect(entry).toContainText(requested("Sonnet"));
@@ -142,6 +142,6 @@ test("an ad hoc session launched on Sonnet says so in Recent sessions and in the
 
   await expectWords();
   await page.reload();
-  await expect(recentSessions.getByRole("article")).toHaveCount(1);
+  await expect(recentlyDone.getByRole("article")).toHaveCount(1);
   await expectWords();
 });

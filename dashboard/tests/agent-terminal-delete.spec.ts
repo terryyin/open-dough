@@ -15,7 +15,7 @@ import {
   cardSessionOf,
   cardSessions,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -53,8 +53,8 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await launch(readyStory, "Execution");
     const entry = cardSessionOf(card(readyStory), "Execution");
     const sessionName = await sessionNamedBy(entry);
-    const inRecent = parts(page).recentSessions.getByRole("article", {
-      name: recentSessionName("Execution", readyStory),
+    const inRecent = parts(page).recentlyDone.getByRole("article", {
+      name: recentlyDoneSessionName("Execution", readyStory),
     });
 
     dashboard.claudeListingFails(true);

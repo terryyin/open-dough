@@ -83,7 +83,7 @@ export async function openRecentCursorSession(
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const recent = parts(page).recentSessions.getByRole("article");
+  const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
   return recent;
 }

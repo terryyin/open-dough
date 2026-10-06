@@ -7,13 +7,13 @@ Backlog card ask Claude Code on this machine to execute or refine the story
 (each launch dialog also offers a Model choice: Default, Fable, Opus, or Sonnet,
 and a story's dialog [Session choices](LAUNCH-START.md#session-choices): One-shot
 tracking, Default main with its existing changes, or Automatically land),
-**Recent sessions** lists those launches, newest first, the **Sessions**
+**Recently done** lists those launches, newest first, the **Sessions**
 sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** records local Done for a reported session; for an unreported session it
 stops native work ([Agent launch](AGENT-LAUNCH.md)).
 **Start session** on the project actions row starts an ad hoc session in the
-selected project's folder, with no story, listed in Recent sessions and the
+selected project's folder, with no story, listed in Recently done and the
 Sessions sidebar.
 
 The pinned banner shows the selected project in a disclosure and keeps the configured

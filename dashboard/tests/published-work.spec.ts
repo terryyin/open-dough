@@ -150,9 +150,14 @@ test("published overview shows Backlog and Taken work read at one revision", asy
 
   await test.step("membership makes no live or completion claim", async () => {
     await expectOwnersNotRecorded(page);
-    await expect(page.locator("body")).not.toContainText(
-      claimsBeyondMembership,
-    );
+    // Only the Recently done column, which names finished work, may say done.
+    await expect
+      .poll(async () => {
+        const column = await parts(page).recentlyDone.textContent();
+        const body = await page.locator("body").textContent();
+        return (body ?? "").replace(column ?? "", "");
+      })
+      .not.toMatch(claimsBeyondMembership);
     await expect(page.getByRole("alert")).toHaveCount(0);
   });
 

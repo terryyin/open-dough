@@ -139,7 +139,7 @@ Records live in `.planning/done/<identity with # as _>.json`; the module is
 
 ### 2. The column is named Recently done
 Type: Behavior
-Status: planned
+Status: done
 Proof: The existing Recent sessions journeys pass with the heading and
 describing text asserted under the new name, and
 `grep -rn "Recent sessions" dashboard docs` finds no remaining name for the
@@ -153,6 +153,14 @@ Deliver together: the heading, its describing text, element names, the specs
 and `dashboard/tests/README.md`, and every dashboard and `docs/` document
 naming the column. This slice changes no behavior beyond the name, so the 30
 spec files change mechanically and apart from the new read.
+
+Accepted proof: full dashboard suite 1084 passed with the one failure a
+pre-existing flake (`session-unread-report.spec.ts:64`, 3 of 20 at baseline)
+fixed in its test → 30 of 30; `npm run typecheck:dashboard` passes; `grep -rn
+"Recent sessions" dashboard docs` finds none. Names: `RecentlyDone.tsx`, class
+`recently-done`, locator `recentlyDoneEntry`, page part `recentlyDone`; spec
+file names keep `recent`. `published-work.spec.ts` exempts this column from
+its no-completion-words check.
 
 ### 3. Recently done lists done stories among the sessions
 Type: Behavior
@@ -217,6 +225,9 @@ README describing the list as built.
 
 ## Learnings
 
+- The dashboard's published read wait bound runs on the page clock; a
+  journey that advances page time must first await the startup read, or
+  cards stay locked.
 - Adding a file to `complete`'s change reaches tests that assert a closure
   commit's exact paths or a clean status (`dough-execute-plan` one-shot and
   agent-release tests); they change with the contract.
