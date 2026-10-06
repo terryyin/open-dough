@@ -23,6 +23,13 @@ never a Taken owner. It disappears when preparation lands or is abandoned.
 Unreadable profiles show "Preparation assignment unknown"; two assignments show
 as conflicting records.
 
+A story's session keeps the attribution from its saved assignment revision.
+Its **Session assignment** line is omitted when the card header already shows
+the same original allocation, agent, credited human, tool and model. A different
+assignment or unreadable attribution remains visible. Session views outside the
+story card keep their assignment line; reports, requested model information,
+workspace and session actions remain available on the card.
+
 Each agent portrait on a Taken or Preparing card opens the selected project's
 **Agent roster**: all 29 agents with portraits and assignments recorded at the
 shown revision (Taken or Preparing, task title/identity, mode, host, model, or

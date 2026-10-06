@@ -22,12 +22,14 @@ import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession, usePageSessions } from "./pageSessions.ts";
 import { DeleteRecord, MarkDone } from "./sessionRecordActions.tsx";
 import { SessionAssignment } from "./SessionAssignment.tsx";
+import type { AgentAssignment } from "./agentAssignments.ts";
 import "./agent-launch.css";
 
 export function SessionEntry({
   record,
   onCard,
   takesFocus,
+  cardAssignments,
 }: {
   readonly record: LaunchWithState;
   // Set where the entry is listed on its story's card, which names the story.
@@ -35,6 +37,7 @@ export function SessionEntry({
   // Given where the developer's own launch lists the entry, so the keyboard
   // can land on it; set, it takes the keyboard.
   readonly takesFocus?: boolean;
+  readonly cardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   const entry = useRef<HTMLElement>(null);
   const {
@@ -102,7 +105,7 @@ export function SessionEntry({
         <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
-      <SessionAssignment record={record} />
+      <SessionAssignment record={record} cardAssignments={cardAssignments} />
       {optionsWords !== undefined && <p>{optionsWords}</p>}
       {policyWords !== undefined && <p>{policyWords}</p>}
       {workspace !== undefined && <p>{workspace}</p>}
@@ -202,12 +205,14 @@ export function StorySessions({
   className,
   onCard,
   launchedHere,
+  cardAssignments,
 }: {
   // The story's sessions, oldest first.
   readonly sessions: readonly LaunchWithState[];
   readonly className: string;
   readonly onCard: boolean;
   readonly launchedHere?: string | undefined;
+  readonly cardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   if (sessions.length === 0) return null;
   return (
@@ -218,6 +223,7 @@ export function StorySessions({
             record={record}
             onCard={onCard}
             takesFocus={launchedHere === sessionKey(record.session)}
+            cardAssignments={cardAssignments}
           />
         </li>
       ))}

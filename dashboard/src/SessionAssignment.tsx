@@ -16,8 +16,10 @@ import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/prod
 
 export function SessionAssignment({
   record,
+  cardAssignments,
 }: {
   readonly record: LaunchRecord;
+  readonly cardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   const established = record.start ?? record.preparation;
   const agent = assignedAgent(established);
@@ -71,6 +73,24 @@ export function SessionAssignment({
   }, [source, revision, agent, identity]);
 
   if (agent === undefined) return null;
+  const human = assignment?.human;
+  // Only a known original allocation can establish that the header already
+  // carries this session's credit. Unknown history and reused names stay visible.
+  if (
+    !reading &&
+    human?.status === "credited" &&
+    cardAssignments?.some(
+      (current) =>
+        current.agent === agent &&
+        current.host === record.session.host &&
+        current.model === (record.request.model ?? assignment?.model) &&
+        current.human.status === "credited" &&
+        current.human.name === human.name &&
+        current.human.allocation === human.allocation,
+    )
+  ) {
+    return null;
+  }
   const developer: AgentAssignment = {
     profilePath: assignment?.profilePath ?? "",
     name: assignment?.name ?? agentNameOf(agent) ?? "",

@@ -30,6 +30,8 @@ export type HumanAttribution =
   | {
       readonly status: "credited";
       readonly name: string;
+      // The original allocation, stable across later published snapshots.
+      readonly allocation: string;
       // Where the local boundary serves the avatar of the GitHub account
       // GitHub matched to the committer, when it matched one.
       readonly avatar: string | undefined;
@@ -49,6 +51,7 @@ function attributionOf(
     : {
         status: "credited",
         name: addition.committerName,
+        allocation: addition.commit,
         avatar: addition.login === null ? undefined : avatar,
       };
 }
