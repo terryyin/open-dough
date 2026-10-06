@@ -140,7 +140,10 @@ already governs the record.
 
 ### 1. A story's sessions are set off inside its card again
 Type: Behavior
-Status: planned
+Status: done — the proof command passed (2 tests; before the fix both failed
+on the surface background), plus `agent-terminal-done.spec.ts`, whose colour
+helpers moved to the shared `dashboard/tests/pageColours.ts`. The Taken card's
+screenshots before 53333034 and after the fix matched by eye.
 Proof: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-card-sessions.spec.ts dashboard/tests/recently-done-story-sessions.spec.ts --reporter=line`,
 with the new assertions failing on the current CSS first. Assert computed
 style, not class names: a session entry inside a Taken or Preparing card has

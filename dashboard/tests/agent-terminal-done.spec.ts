@@ -35,6 +35,7 @@ import {
   takenStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
+import { colourOf, tokenColour } from "./pageColours.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import {
   doneQuestion,
@@ -45,21 +46,6 @@ import {
 } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-
-// The colour a page colour token resolves to, as computed styles report it.
-function tokenColour(page: Page, token: string): Promise<string> {
-  return page.evaluate((name) => {
-    const probe = document.createElement("span");
-    probe.style.color = `var(${name})`;
-    document.body.append(probe);
-    const colour = getComputedStyle(probe).color;
-    probe.remove();
-    return colour;
-  }, token);
-}
-
-const colourOf = (element: Locator) =>
-  element.evaluate((node) => getComputedStyle(node).color);
 
 // The panel header's own Mark as done, apart from the question's.
 const headerMarkAsDone = (panel: Locator) =>

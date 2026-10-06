@@ -83,8 +83,13 @@
   font-weight: 600;
 }
 
-/* A story's sessions inside its card, on a work card or a done story's card. */
+/* A story's sessions inside its card, on a work card or a done story's card,
+   are set off from the card on the panel. */
 .card-sessions .session-entry,
+.done-story-sessions .session-entry {
+  background: var(--panel);
+}
+
 .launch-local {
   color: var(--quiet);
 }

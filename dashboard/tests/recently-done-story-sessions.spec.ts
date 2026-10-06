@@ -17,6 +17,7 @@ import {
   recentlyDoneSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { expectSessionEntrySetOff } from "./pageColours.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import {
@@ -98,7 +99,7 @@ test("a done story's card holds this machine's sessions for it, open or marked d
     ).toHaveText(/Working/);
   });
 
-  await test.step("Card shows avatar's open and done sessions are inside its card, newest first, with their states and actions, and neither is an entry of its own", async () => {
+  await test.step("Card shows avatar's open and done sessions are inside its card, newest first, with their states and actions, each set off on the panel in the card's text, and neither is an entry of its own", async () => {
     const inside = sessionsIn(executed.title);
     await expect(inside).toHaveCount(2);
     await expect(inside.nth(0)).toHaveAccessibleName(executedOpen);
@@ -109,6 +110,8 @@ test("a done story's card holds this machine's sessions for it, open or marked d
       "Open terminal",
     ]);
     await expect(inside.nth(1).getByRole("button")).toHaveCount(0);
+    for (const entry of await inside.all())
+      await expectSessionEntrySetOff(entry);
     for (const name of [executedOpen, executedDone]) {
       await expect(recent.getByRole("article", { name })).toHaveCount(1);
     }
