@@ -63,7 +63,7 @@ for (const [model, words] of [
 ] as const) {
   test(`a story session launched on ${model ?? "Default"} ${
     words === undefined ? "shows no model" : "says so"
-  } on its card, in Recently done and in the sidebar, through a reload`, async ({
+  } on its card and in the sidebar, through a reload`, async ({
     page,
     dashboard,
   }) => {
@@ -75,22 +75,18 @@ for (const [model, words] of [
     await start(readyStory).click();
     await startWith(page, model);
 
-    const entries = () => [
-      cardSessions(card(readyStory)),
-      recentlyDone.getByRole("article"),
-    ];
+    const entry = cardSessions(card(readyStory));
     const expectWords = async () => {
+      await expect(recentlyDone.getByRole("article")).toHaveCount(0);
       if ((await button.getAttribute("aria-expanded")) !== "true") {
         await button.click();
       }
-      for (const entry of entries()) {
-        await expect(entry).toHaveCount(1);
-        await expect(entry).toContainText("Execution");
-        if (words === undefined) {
-          await expect(entry).not.toContainText("Model:");
-        } else {
-          await expect(entry).toContainText(words);
-        }
+      await expect(entry).toHaveCount(1);
+      await expect(entry).toContainText("Execution");
+      if (words === undefined) {
+        await expect(entry).not.toContainText("Model:");
+      } else {
+        await expect(entry).toContainText(words);
       }
       const row = sidebar.getByRole("listitem");
       await expect(row).toHaveCount(1);
@@ -107,7 +103,7 @@ for (const [model, words] of [
 
     await expectWords();
     await page.reload();
-    await expect(recentlyDone.getByRole("article")).toHaveCount(1);
+    await expect(cardSessions(card(readyStory))).toHaveCount(1);
     await expectWords();
   });
 }

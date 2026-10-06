@@ -1,0 +1,127 @@
+# Reviewed session column context
+
+Static discovery and baseline observations for the [executable plan](PLAN.md).
+Scope, promise ownership, slices and execution context remain in that plan.
+
+## Existing solutions and current decisions
+
+PFE found one machine-session owner in `dashboard/src/agentLaunches.ts`.
+`agentLaunch.ts` already supplies selected-project records, project/story
+matching, open card sessions, and the saved-done predicate. Reuse these facts.
+Native Working, input, review, unavailable, stopped, or unknown readings never
+determine the session's column. Existing manual and automatic operations that
+record or clear `doneAt` remain authoritative.
+
+The defect is a presentation rule: `RecentlyDone.tsx` groups every record of
+a shown done story and lists every remaining record, including open sessions
+already nested in active cards. `dashboard/AGENT-LAUNCH-HISTORY.md` explicitly
+requires that current rule. Change its rule and the overlapping journeys
+together; there is no missing saved story association to repair.
+
+`DashboardColumns.tsx` assembles the three views and column-edge summaries;
+`WorkStages.tsx` renders published Backlog/Taken cards and their heading counts.
+Derive the local column view from the same published membership and machine
+records using ordinary functions, and supply its lists and completeness to
+both rendering and counts. Keep `PublishedWork` and its backlog readers purely
+published evidence. A standalone local session is a session entry, never a
+fabricated `WorkEntry`, story priority, slice-progress record, or published Take.
+Extend this projection through the slices rather than adding a second store,
+persisted column field, placement registry, or rules per workflow/host.
+
+Reuse `SessionEntry`, `StorySessions`, `SessionList`, `DoneStoryCard`, and the
+existing record actions. `SessionEntry` currently exposes Mark as done only
+on a card or after a native-done problem; its open standalone Taken form needs
+the existing supported control without inheriting an invented story.
+`launchRecordActions.ts` already updates the one session by host-qualified key.
+`pageSidePanel.ts` and `PageFrame.tsx` own one shown terminal/report, independent
+of project and column placement. Keep that identity and attachment lifecycle.
+
+The caller search across dashboard, source skills, tests, installed scripts,
+and planning records found `stagesOf` and `recentlyDoneColumn` consumed only by
+the column assembly/rendering; card-session matching also serves `CardLaunches`
+and `WorkCard` for launch protection and highlighting. `recentlyDoneEntry` is
+used by `sessionNavigation.ts`, itself called by `PageFrame.tsx`;
+`deletedEntryHome` is called by `pageSidePanel.ts`. Their present assumption
+that a standalone entry lives in Recently done must change with the entry.
+Prefer the actual session element across the columns before a story fallback:
+a closed session may be in Recently done while its story remains active.
+Retain the valid original return control; when it disappeared, find the same
+session where it is now. Deletion needs neighbors and the containing column
+or card as fallback, including standalone Taken entries.
+
+Follow [Architectural North Star — one backlog interpretation, separate
+observation and presentation](../../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation)
+and [agent launch as a requested assignment](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment).
+The [UX/UI North Star](../../../docs/dashboard-ux-ui-north-star.md) preserves
+local versus published meaning, reading uncertainty, and usable navigation.
+Accepted [ADR 0000](../../../docs/adrs/0000-use-adrs-accepted.md) keeps this
+feature-local decision with the feature;
+[ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md) and
+[ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+support coherent vocabulary, one authoritative fact, and incremental delivery.
+The index and record statuses agree: 0000–0006 are Accepted, 0007–0009 Proposed.
+No relevant supersession or conflict was found. The existing direction covers
+this change; no new North Star topic, ADR, or human exception is needed.
+
+## Decisive premises and observations
+
+Observations ran against product code at
+`61baa0ec942044dd43a761415dc1aa53bafc94c7`, before implementation, with Node
+`v24.5.0`. The workspace and integration checkout have identical locked
+dependencies; a temporary workspace symlink reused the installed dependencies.
+Playwright builds the actual dashboard and serves its preview through the real
+local read/launch boundary. The fixtures supply raw published files, real
+test-owned Git histories, raw machine records, synthetic native transports and
+GitHub answers. They do not inject a prepared dashboard snapshot or use live
+accounts. Temporary dependency linkage is removed after observation.
+
+| Premise | Consumer | Literal observation and result |
+| --- | --- | --- |
+| A launched story session already has the right association; the old recent list creates the duplicate. | Slice 1's remedy and proof. | O1's `agent-launch-card-sessions.spec.ts` launched three real fixture sessions and published Preparing, Taken, and completion through the installed commands. The same records stayed inside their own active cards, while the existing final assertion also found all three in Recently done, including the two still on active cards. It passed, reproducing the duplication. The `newestFirst`/`listedOf` source and history contract explain the rule. |
+| A no-story start is already a durable session with done/reopen access, but its current home is Recently done. | Slice 2's change and sizing. | O1's `agent-launch-ad-hoc-sessions.spec.ts` used actual Start session, cross-project sidebar selection, terminal Mark as done, successful reopen and reload. Its old open-in-Recently-done assertions passed. The blocked and unreadable-native-list cases retained the same record and delete action. |
+| Saved Done, native activity, refusal, and native attachment are separate facts. | Both slices' preserved lifecycle; slice 2's movement. | O1's card-done journey recorded local Done despite unavailable native rename and retained placement on a refused mark. Its page-reopen journey cleared the mark through real attachment. O2's `agent-terminal-reopen.spec.ts` observed raw HTTP/socket attach clearing the mark durably across server restart, and a refused upgrade preserving it. All passed. |
+| Reading a report does not close a session; the existing automatic completion path does record a done mark. | Slice 2's classification without completion-policy changes. | O2's `session-unread-report.spec.ts` drove installed reporting and Mark as read, observed no `doneAt`, no native stop and continued Working, then explicit Mark as done. `agent-completion-quiet.spec.ts` exercised installed Land and both Wrap Up closures, observed the receiver's saved done mark and the real page's Done entry without native interruption. All passed. |
+| New attention can clear automatic Done while later reports preserve deliberate local Done. | Slice 2's existing clear-mark path and regression scope. | O4's agent-completion-recovery journey ran the installed reporting child after actual closure/retirement. Its completionRecoveryIntent consumer observed quiet Done replaced by a newer attention message with no doneAt, reloaded the actual page with that message, then recorded manual Done and preserved it through a newer unfinished report, receipt retries and restart. It passed. |
+| Done-card grouping, story chronology, expiry, and held/failed reads have real page consumers. | Slice 2's closed-session grouping and access. | O1's `recently-done-story-sessions.spec.ts` consumed raw shared-renderer done records and raw machine records through the preview. Its old open-and-closed grouping, later-launch ordering, and expired-story standalone assertions passed. O2's done-read-latency journey held a raw GitHub done-content answer, observed local entries while Taken ownership/clocks remained useful, then released it to obtain cards; the paused-clock 30-second bound produced a column-local gap. |
+| Entry reveal and edge counts use the real column surface, and unread machine records are not established absence. | Slice 2's navigation, counts and loading. | O2's `dashboard-columns-paging-sessions-sidebar.spec.ts` selected a sidebar session in a narrow page and revealed its actual hidden story column. O3's paging journey observed heading/edge counts and keyboard handoff through real edge controls. Its sidebar-reading journey held the records HTTP answer, observed Reading sessions and protected Starts, then released it and observed the actual launched entry and sidebar. All passed. |
+| Unresolved native creation is reachable evidence without a trustworthy session ID. | Both slices' exclusion of unconfirmed sessions. | O3's `agent-launch-codex-creation.spec.ts` lost the fake native creation identity, restarted the real boundary and observed preserved reconciliation advice on the story and recovery surface, no confirmed machine sessions and no first input. Its known-identity storage refusal preserved explicit continuation advice. Both passed. |
+
+Literal commands, run from the preparation workspace, all exited successfully:
+
+```sh
+# O1 — reported placement and existing manual lifecycle
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- agent-launch-card-sessions.spec.ts agent-launch-ad-hoc-sessions.spec.ts recently-done-story-sessions.spec.ts agent-launch-card-done.spec.ts agent-terminal-done-reopen.spec.ts --workers=2
+
+# O2 — read gaps, report/completion meaning, reopen, and narrow navigation
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- recently-done-read-latency.spec.ts session-unread-report.spec.ts agent-terminal-reopen.spec.ts dashboard-columns-paging-sessions-sidebar.spec.ts agent-completion-quiet.spec.ts --workers=2
+
+# O3 — initial machine read, counts, and unresolved creation
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- session-sidebar-reading.spec.ts dashboard-columns-paging.spec.ts agent-launch-codex-creation.spec.ts --workers=2
+
+# O4 — automatic Done cleared by later attention, deliberate Done preserved
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- agent-completion-recovery.spec.ts --workers=2
+```
+
+These are baseline observations, including passing expectations for the old
+placement, not proof that the remedy is delivered. Execution changes those
+expectations to the source's table at the actual consumer boundary.
+
+## Reviewed sizing and construction
+
+No numeric slice target, hard limit, or effort bands were supplied. Slice 1 has
+the reported association/projection proof loop; slice 2 completes the same rule
+at standalone rendering and its existing lifecycle/navigation consumers.
+Slice 2 is larger, but observed starts, done marks, reopen, reports, held reads
+and paging already supply its paths. Splitting its counts, controls, or focus
+into later activity-only slices would leave the moved entry unusable or the
+column dishonest. No separate Structure slice is justified. If implementation
+disproves a premise or boundedness, stop safely and revise the remaining plan
+within this outcome; a changed story boundary or disputed decision stays with
+Terry.
+
+Construction review found no remaining slice-specific concern about boundaries,
+cumulative design, proof ownership or sizing. Slice-plan refinement was not
+needed: the two proof loops preserve one placement rule and include each
+changed surface's consumer, with the named slice-1 interim behavior replaced
+by slice 2. Record readiness on the source against the reviewed story and plan
+digests after this plan exists.

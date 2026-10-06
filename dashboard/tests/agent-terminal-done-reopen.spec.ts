@@ -61,16 +61,19 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     };
     await settled();
     await launch(readyStory, "Execution");
+    const session = await sessionNamedBy(listed);
+    const key = await listed.getAttribute("data-shows-session");
     const doneName = `done-Open Dough · Execution · ${readyStory}`;
     const marked = await markDone(dashboard, {
       source: "open-dough",
-      session: await sessionNamedBy(listed),
+      session,
     });
     expect(marked.status).toBe(200);
     await page.reload();
     await settled();
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
+    await expect(entry).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(entry).toContainText(`Intended name ${doneName}`);
     await expect(entry).toContainText(
       "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
@@ -81,17 +84,17 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await entry.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(listed).toHaveCount(1);
+    await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
-    await expect(sessionStateOf(entry)).not.toHaveText("Done");
-    await expect(entry).not.toContainText("Named done-");
+    await expect(entry).toHaveCount(0);
     await expectMembership(page, queued);
 
     await page.reload();
     await settled();
     await expect(listed).toHaveCount(1);
+    await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
-    await expect(sessionStateOf(entry)).not.toHaveText("Done");
-    await expect(entry).not.toContainText("Named done-");
+    await expect(entry).toHaveCount(0);
 
     // Reload closed the attachment. Reattach so this mark can confirm the
     // native rename, clearing the problem from the first local Done.

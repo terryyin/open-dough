@@ -34,7 +34,7 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 (`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`,
 `agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
-`agent-launch-recent-session-states.spec.ts`,
+`agent-launch-session-state-pace.spec.ts`,
 `agent-launch-attention-clearing.spec.ts`,
 `agent-launch-attention.spec.ts`, `session-sidebar.spec.ts`,
 `session-sidebar-reading.spec.ts`, `session-sidebar-row.spec.ts`, `session-sidebar-stays-as-left.spec.ts`,
@@ -95,9 +95,9 @@ while an open session remains, return after Mark as done or Delete record, and
 a dialog opened beforehand is refused; `agent-launch-card-session-states.spec.ts`
 that an entry stays on its card in every state, without Open terminal when
 unavailable and with it when unknown, and survives a restarted server, a
-reload, and a project switch; `agent-launch-recent-session-states.spec.ts` what
-each state shows on a Recently done entry, and on one card entry, which is
-rendered the same way; and `agent-launch-attention.spec.ts` how many of a
+reload, and a project switch; `agent-launch-session-state-pace.spec.ts` what
+each native state shows on its active card entry within one read pace, with
+no Recently done duplicate; and `agent-launch-attention.spec.ts` how many of a
 card's sessions need attention.
 The ad hoc session started from Start session is walked by
 `agent-launch-ad-hoc-boundary.spec.ts` (the boundary: label, arguments,

@@ -5,7 +5,7 @@
 // has no Open terminal, and every one is State unknown with Open terminal
 // while the listing cannot be read. A restarted dashboard server, a reload,
 // and a project switch keep every entry and its state. What each state shows is
-// ./agent-launch-recent-session-states.spec.ts. Origin alone still places
+// ./agent-launch-session-state-pace.spec.ts. Origin alone still places
 // every story. The server keeps its HOME and the synthetic `claude`'s state
 // (./fixtures/fake-claude) in a machine directory, so a restart answers the
 // same records and sessions; the real `claude` is never reached.

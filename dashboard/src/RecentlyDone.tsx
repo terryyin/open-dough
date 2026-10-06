@@ -3,9 +3,10 @@ import { sessionKey } from "./sessionReference.ts";
 // stories done recently by the done records published at the snapshot's
 // revision (`./DoneStoryCard.tsx`), placed by when each was done, and every
 // native session this dashboard's server launched for the project and still
-// keeps on this machine, placed by when it was launched, whatever origin now
-// shows of its story, so the developer can reach a session whose story is in
-// no list, or one marked done. A session of a shown done story, open or
+// keeps on this machine, except open sessions held by active story cards.
+// Sessions are placed by launch time, so the developer can reach a session
+// whose story is in no list, or one marked done. A session of a shown done
+// story that is not held by an active card, open or
 // marked done, is listed inside that story's card, newest first, and nowhere
 // else in the column; a later launch for the story does not move the card.
 // Sessions are listed once the machine's sessions are first read; done
@@ -18,6 +19,7 @@ import { sessionKey } from "./sessionReference.ts";
 
 import {
   launchRetentionDays,
+  cardSessionsOf,
   projectSessionsOf,
   storySessionsOf,
   type LaunchWithState,
@@ -85,19 +87,33 @@ function DoneReadGaps({ done }: { readonly done: DoneStories | undefined }) {
 }
 
 // What Recently done lists for the project: its creations under way, its
-// kept sessions once they are first read, and, newest first, its recently
+// kept sessions except open ones held by active cards, and, newest first, its recently
 // done stories, each holding its sessions, and the sessions of no shown done
 // story.
-function listedOf(
+export function recentlyDoneOf(
   sourceId: string,
   creations: readonly CreationView[],
   machineRecords: readonly LaunchWithState[] | undefined,
   done: DoneStories | undefined,
+  activeStoryIdentities: readonly string[],
 ) {
-  const records = projectSessionsOf(machineRecords, sourceId);
+  const heldByActiveCards = new Set(
+    activeStoryIdentities.flatMap((identity) =>
+      cardSessionsOf(machineRecords, sourceId, identity),
+    ),
+  );
+  const projectRecords = projectSessionsOf(machineRecords, sourceId);
+  const records = projectRecords?.filter(
+    (record) => !heldByActiveCards.has(record),
+  );
   return {
     creations: creations.filter((record) => record.request.source === sourceId),
     records,
+    none:
+      projectRecords?.length === 0
+        ? "No sessions launched from this dashboard are kept."
+        : "No sessions are listed in Recently done.",
+    done,
     listed: newestFirst(
       recentDoneStories(done, new Date()),
       records ?? [],
@@ -111,12 +127,8 @@ const name = "Recently done";
 // Recently done as the dashboard columns name it: how many entries it lists
 // for the project.
 export function recentlyDoneColumn(
-  sourceId: string,
-  creations: readonly CreationView[],
-  machineRecords: readonly LaunchWithState[] | undefined,
-  done: DoneStories | undefined,
+  listed: ReturnType<typeof recentlyDoneOf>,
 ): ColumnSummary {
-  const listed = listedOf(sourceId, creations, machineRecords, done);
   return {
     name,
     entries: listed.creations.length + listed.listed.length,
@@ -124,25 +136,11 @@ export function recentlyDoneColumn(
 }
 
 export function RecentlyDone({
-  sourceId,
-  creations = [],
-  records: machineRecords,
-  done,
+  view,
 }: {
-  // The selected project.
-  readonly sourceId: string;
-  readonly creations?: readonly CreationView[];
-  // The machine's sessions, oldest first within a project, with their
-  // states; undefined until first read.
-  readonly records: readonly LaunchWithState[] | undefined;
-  // The done records published at the snapshot's revision.
-  readonly done?: DoneStories | undefined;
+  readonly view: ReturnType<typeof recentlyDoneOf>;
 }) {
-  const {
-    creations: listedCreations,
-    records,
-    listed,
-  } = listedOf(sourceId, creations, machineRecords, done);
+  const { creations: listedCreations, records, none, listed, done } = view;
   return (
     <section
       className="recently-done"
@@ -158,7 +156,7 @@ export function RecentlyDone({
       {listedCreations.map((record) => (
         <CreationEntry key={record.launchedAt} record={record} />
       ))}
-      <SessionList sessions={records}>
+      <SessionList sessions={records} none={none}>
         {() => (
           <p className="quiet">
             Sessions marked done are kept for {launchRetentionDays} days after

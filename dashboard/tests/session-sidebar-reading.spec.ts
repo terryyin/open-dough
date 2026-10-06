@@ -3,7 +3,7 @@
 // none kept it says so, and with all kept ones marked done it says none is
 // open. Before that first read answers, no card offers Start while the lists
 // keep reading; once read, a launch lists its session on the card, keyboard
-// on its entry, and in the lists. The page's
+// on its entry, and in the open sidebar, without a Recently done duplicate. The page's
 // own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude).
 
@@ -111,7 +111,21 @@ test.describe("the Sessions sidebar's reading", () => {
       recentlyDone.getByRole("article", {
         name: recentlyDoneSessionName("Execution", readyStory),
       }),
-    ).toHaveCount(1);
+    ).toHaveCount(0);
     await expect(own).toHaveCount(1);
+    const key = await own.getAttribute("data-shows-session");
+    await expect(
+      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+    ).toHaveCount(1);
+    await expect(recentlyDone).toContainText(
+      "No sessions are listed in Recently done.",
+    );
+    await page.reload();
+    await settled();
+    await expect(entries).toHaveCount(2);
+    await expect(own).toHaveAttribute("data-shows-session", key ?? "?");
+    await expect(
+      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+    ).toHaveCount(1);
   });
 });

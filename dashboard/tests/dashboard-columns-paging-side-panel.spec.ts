@@ -2,11 +2,11 @@
 // panel opening and closing pages them as a window would: beside it a 54rem
 // page shows two columns and an edge control naming the hidden one, a move
 // slides the view, the chosen position comes back where the width allows it,
-// and a new session counts on the control that names Recently done. How a
+// and an active story's session adds no Recently done entry. How a
 // narrow window pages the columns is ./dashboard-columns-paging.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { cardSessions, parts } from "./dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -48,7 +48,7 @@ test.describe("beside the side panel", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { start, dialog } = await openTakenBacklog(page, journey);
+    const { card, start, dialog } = await openTakenBacklog(page, journey);
     const terminal = page.getByRole("region", { name: "Terminal" });
     const { recentlyDone } = parts(page);
     // The view, beside a terminal whose screen scrolls on its own.
@@ -93,15 +93,16 @@ test.describe("beside the side panel", () => {
       await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
     });
 
-    await test.step("a session started from a Backlog card counts on the right control, and the view stays", async () => {
+    await test.step("a session started from a Backlog card stays on its card without adding to the right control's Recently done count, and the view stays", async () => {
       await edgeControl(page, "Backlog").click();
       await expectShown(["Backlog", "Taken"], ["Recently done 1 entry"]);
       await start(readyStory).click();
       await dialog.getByRole("button", { name: "Start" }).click();
+      await expect(cardSessions(card(readyStory))).toHaveCount(1);
       await expect(edgeControl(page, "Recently done")).toHaveText(
-        "Recently done 2 entries",
+        "Recently done 1 entry",
       );
-      await expectShown(["Backlog", "Taken"], ["Recently done 2 entries"]);
+      await expectShown(["Backlog", "Taken"], ["Recently done 1 entry"]);
     });
   });
 });

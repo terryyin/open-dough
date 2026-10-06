@@ -161,7 +161,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   expect(stored(dashboard.home)).toEqual(beforeDisplay);
   passive(native.calls.slice(sinceDisplay));
   expect(native.sockets.size).toBe(1);
-  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(2);
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
   await expect(sidebar.entries).toHaveCount(1);

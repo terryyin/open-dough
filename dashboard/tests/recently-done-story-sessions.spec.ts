@@ -11,6 +11,8 @@
 // `claude` (./fixtures/fake-claude) lists the kept sessions.
 
 import { expect, test } from "./dashboardTest.ts";
+import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { edgeControl, rem } from "./dashboardColumnsPage.ts";
 import {
   expectMembership,
   parts,
@@ -23,11 +25,14 @@ import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import { doneStorySessions } from "./recentlyDoneSessions.ts";
 import {
   executed,
+  at,
+  doneRecordAt,
   expired,
   lastWeek,
   placed,
   publishedFiles,
   queuedTitle,
+  queuedIdentity,
   removedQueued,
   repository,
   revision,
@@ -37,7 +42,6 @@ import {
   adHocEntry,
   expectEntries,
   listed,
-  queuedEntry,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
 
@@ -88,7 +92,6 @@ test("a done story's card holds this machine's sessions for it, open or marked d
     await expectEntries(recent, [
       adHocEntry,
       executed.title,
-      queuedEntry,
       removedQueued.title,
       lastWeek.title,
       expiredSession,
@@ -130,4 +133,81 @@ test("a done story's card holds this machine's sessions for it, open or marked d
   await test.step("a done card of a story this machine keeps no sessions for shows none", async () => {
     await expect(sessionsIn(removedQueued.title)).toHaveCount(0);
   });
+});
+
+test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose edge count uses the rendered entries", async ({
+  page,
+  dashboard,
+}) => {
+  const now = Date.now();
+  const records = sessionsOutsideDoneStories(dashboard, now);
+  const open = records.find(
+    (record) => record.request.workflow === "execution",
+  );
+  if (
+    open?.request.workflow !== "execution" ||
+    open.session.host !== "claude"
+  ) {
+    throw new Error("No queued Claude story session");
+  }
+  const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
+  await keepLaunchRecords(dashboard, [
+    {
+      ...open,
+      request: { ...open.request, workflow: "refinement" },
+      session: {
+        ...open.session,
+        sessionId: closedId,
+        shortId: closedId.slice(0, 8),
+      },
+      launchedAt: at(now, placed.executedDoneSessionLaunched),
+      doneAt: at(now, placed.executedDoneSessionMarked),
+    },
+    ...records,
+  ]);
+  await publishFiles(page, {
+    repository,
+    revision,
+    files: publishedFiles({
+      [doneRecordAt(queuedIdentity)]: renderDoneRecord({
+        identity: queuedIdentity,
+        title: queuedTitle,
+        completedAt: at(now, placed.executedDone),
+        developer: "Terry Yin",
+      }),
+    }),
+  });
+  await page.setViewportSize({ width: 54 * rem, height: 900 });
+  await page.goto("/");
+  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+  const { backlog, recentlyDone: recent } = parts(page);
+  const active = backlog.locator(".session-entry");
+  const doneCard = recent.getByRole("article", {
+    name: queuedTitle,
+    exact: true,
+  });
+  const closed = doneCard.locator(".session-entry");
+  const openKey = `claude:${open.session.sessionId}`;
+  const closedKey = `claude:${closedId}`;
+  const expectUnique = async () => {
+    await expect(active).toHaveAttribute("data-shows-session", openKey);
+    await expect(sessionStateOf(active)).toHaveText("Working");
+    await expect(
+      recent.locator(`[data-shows-session="${openKey}"]`),
+    ).toHaveCount(0);
+    await expect(closed).toHaveAttribute("data-shows-session", closedKey);
+    await expect(sessionStateOf(closed)).toHaveText("Done");
+    for (const key of [openKey, closedKey]) {
+      await expect(
+        page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+      ).toHaveCount(1);
+    }
+    await expectEntries(recent, [adHocEntry, queuedTitle]);
+    await expect(edgeControl(page, "Recently done")).toHaveText(
+      "Recently done 2 entries",
+    );
+  };
+  await expectUnique();
+  await page.reload();
+  await expectUnique();
 });

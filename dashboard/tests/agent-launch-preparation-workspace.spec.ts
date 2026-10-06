@@ -1,6 +1,6 @@
 // A refinement session whose start established a preparation says
-// "Workspace ~/git/<project>/.worktrees/<slug>" on its story's card and in
-// Recently done, beneath the project folder and never the machine's home
+// "Workspace ~/git/<project>/.worktrees/<slug>" on its story's card,
+// beneath the project folder and never the machine's home
 // directory, and one without a preparation says none. The kept record is
 // written as ./agent-launch-preparation-start.spec.ts shows the real start
 // leaves it, on a committed origin the production commands published
@@ -23,7 +23,7 @@ test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
-test("a refinement session with an established preparation says Workspace <folder> beneath the project folder on the card and in Recently done, and one without says none", async ({
+test("a refinement session with an established preparation says Workspace <folder> beneath the project folder on the card without a Recently done duplicate, and one without says none", async ({
   page,
   dashboard,
 }) => {
@@ -77,15 +77,14 @@ test("a refinement session with an established preparation says Workspace <folde
   const { card } = await openTakenBacklog(page, journey);
   const onCard = cardSessions(card(readyStory));
   const recent = parts(page).recentlyDone.getByRole("article");
-  for (const entries of [onCard, recent]) {
-    await expect(entries).toHaveCount(2);
-    const prepared = entries.filter({ hasText: "11111111" });
-    await expect(prepared).toContainText(
-      "Workspace ~/git/open-dough/.worktrees/story-b",
-    );
-    await expect(prepared).not.toContainText(dashboard.home);
-    await expect(entries.filter({ hasText: "22222222" })).not.toContainText(
-      "Workspace",
-    );
-  }
+  await expect(onCard).toHaveCount(2);
+  const prepared = onCard.filter({ hasText: "11111111" });
+  await expect(prepared).toContainText(
+    "Workspace ~/git/open-dough/.worktrees/story-b",
+  );
+  await expect(prepared).not.toContainText(dashboard.home);
+  await expect(onCard.filter({ hasText: "22222222" })).not.toContainText(
+    "Workspace",
+  );
+  await expect(recent).toHaveCount(0);
 });

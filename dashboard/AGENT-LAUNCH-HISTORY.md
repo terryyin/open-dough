@@ -13,15 +13,23 @@ records expire after 30 days. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.
 
-Cards list all unclosed sessions for their project/story newest first.
+Cards list all unclosed sessions for their project/story newest first. An open
+session whose story appears in Backlog (including Preparing) or Taken appears
+only inside that card across the columns, and follows the published story's
+membership through reload. Such a session is excluded from Recently done,
+including from a matching done-story card. Marking it done removes it from the
+active card and retains it in Recently done, without changing the story's
+published membership; successfully reopening it restores its active-card home.
 Recently done is one newest-first list of the selected project's done stories,
 from the done records published at the snapshot's revision, placed by
-completion time, and of every selected-project record that belongs to no shown
+completion time, and of every selected-project record not held by an active
+card that belongs to no shown
 done story, placed by launch time, including records marked done and stories
 absent from published lists; it appears only with readable published work. A
 done story's card shows its title, identity, completion time, developer, and the
 agent with its host when recorded, and holds every record of that story's work
-identity in the selected project, open or marked done, newest first, each the
+identity in the selected project except open sessions held by active cards,
+newest first, each the
 same session entry with its state and actions; none of them is listed again
 outside the card, and a session launched after completion does not move the
 card. A machine with no records for the story shows the card with none. A done
@@ -34,6 +42,13 @@ text; no card lists them.
 Reading sessions is distinguished from none kept. A session still navigates
 when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
+
+This is the interim delivered placement while session column membership is
+completed: open sessions with no active story card, including ad hoc sessions,
+still keep their previous Recently done placement and done-card grouping.
+The remaining change moves those open sessions into local Taken and reserves
+done-card sessions for saved Done. The recent view and its edge count already
+use the same projected list; nested sessions do not add top-level entries.
 
 An assigned session shows its original agent and human credit at the saved
 allocation revision, beside its native host and requested model (or the model

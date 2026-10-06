@@ -97,7 +97,8 @@ test.describe("the terminal beside the page", () => {
     await launch(readyStory, "Execution");
     const first = await sessionNamedBy(cardEntries(notRefinedStory));
     const second = await sessionNamedBy(cardEntries(readyStory));
-    await expect(openIn(entry(notRefinedStory))).toBeVisible();
+    await expect(openIn(cardEntries(notRefinedStory))).toBeVisible();
+    await expect(entry(notRefinedStory)).toHaveCount(0);
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
@@ -144,9 +145,9 @@ test.describe("the terminal beside the page", () => {
       await expect(rows).toContainText(`resized ${String(await size())}`);
     });
 
-    await test.step("opening another session from Recently done detaches the first, which keeps running, and shows the second in its place", async () => {
-      await showColumn(page, "Recently done");
-      await openIn(entry(readyStory)).click();
+    await test.step("opening another active card's session detaches the first, which keeps running, and shows the second in its place", async () => {
+      await showColumn(page, "Backlog");
+      await openIn(cardEntries(readyStory)).click();
       await expect(panel).toHaveCount(1);
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         readyStory,

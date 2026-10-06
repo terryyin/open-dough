@@ -106,8 +106,20 @@ test.describe("deleting a Recently done entry's record", () => {
     const insideDoneCard = doneCard.getByRole("article", {
       name: recentlyDoneSessionName("Refinement", notRefinedStory),
     });
-    const working = entryOf("Refinement", readyStory);
-    const ofStoryA = entryOf("Execution", takenStory);
+    const working = cardSessionOf(
+      parts(page).stages.getByRole("article", {
+        name: readyStory,
+        exact: true,
+      }),
+      "Refinement",
+    );
+    const ofStoryA = cardSessionOf(
+      parts(page).stages.getByRole("article", {
+        name: takenStory,
+        exact: true,
+      }),
+      "Execution",
+    );
     const deleteButton = (entry: typeof working) =>
       entry.getByRole("button", { name: "Delete record…" });
     const confirm = (entry: typeof working) =>
@@ -134,7 +146,7 @@ test.describe("deleting a Recently done entry's record", () => {
       ).toHaveCount(0);
     });
 
-    await test.step("while the listing is read, a Recently done entry in Working or Done offers no Delete record…", async () => {
+    await test.step("while the listing is read, active and Recently done entries in Working or Done offer no Delete record…", async () => {
       await expect(sessionStateOf(working)).toHaveText("Working");
       await expect(sessionStateOf(insideDoneCard)).toHaveText("Working");
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
@@ -197,19 +209,26 @@ test.describe("deleting a Recently done entry's record", () => {
       expect(stored()).not.toContain(done);
     });
 
-    await test.step("on a revision with no done record, deleting the last entry puts the keyboard on the previous one", async () => {
+    await test.step("on a revision with no done record, deleting the last session on an active Taken card puts the keyboard on that card", async () => {
       await show(stagesJourney.taken);
       await expect(doneCard).toHaveCount(0);
+      await showColumn(page, "Taken");
       await deleteEntry(working);
       await expect(sidebar.entries).toHaveCount(1);
-      await expect(ofStoryA).toBeFocused();
+      await expect(
+        parts(page).taken.getByRole("article", {
+          name: readyStory,
+          exact: true,
+        }),
+      ).toBeFocused();
       expect(stored()).not.toContain(refinement);
     });
 
-    await test.step("deleting the only entry left puts the keyboard on the Recently done section", async () => {
+    await test.step("deleting the remaining active Backlog session puts the keyboard on its card", async () => {
+      await showColumn(page, "Backlog");
       await deleteEntry(ofStoryA);
       await expect(sidebar.entries).toHaveCount(0);
-      await expect(recent).toBeFocused();
+      await expect(card(takenStory)).toBeFocused();
       expect(stored()).not.toContain(storyA);
       await expectMembership(page, {
         taken: [readyStory],

@@ -4,7 +4,11 @@ import type { MachineSessions } from "./agentLaunches.ts";
 import { ColumnEdge, type ColumnSummary } from "./ColumnEdge.tsx";
 import { useColumnPaging } from "./columnPaging.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { RecentlyDone, recentlyDoneColumn } from "./RecentlyDone.tsx";
+import {
+  RecentlyDone,
+  recentlyDoneColumn,
+  recentlyDoneOf,
+} from "./RecentlyDone.tsx";
 import { stagesOf, WorkStages } from "./WorkStages.tsx";
 import "./dashboard-columns.css";
 
@@ -29,17 +33,20 @@ export function DashboardColumns({
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
+  const stages = stagesOf(work);
+  const recent = recentlyDoneOf(
+    sourceId,
+    launches.creations,
+    launches.records,
+    work.done,
+    stages.flatMap(({ entries }) => entries.map(({ identity }) => identity)),
+  );
   const columns: readonly ColumnSummary[] = [
-    ...stagesOf(work).map(({ name, entries }) => ({
+    ...stages.map(({ name, entries }) => ({
       name,
       entries: entries.length,
     })),
-    recentlyDoneColumn(
-      sourceId,
-      launches.creations,
-      launches.records,
-      work.done,
-    ),
+    recentlyDoneColumn(recent),
   ];
   const { frame, row, shown, leftmost, move, sliding, slid } = useColumnPaging(
     columns.length,
@@ -95,12 +102,7 @@ export function DashboardColumns({
             launches={launches}
             onOpenRoster={onOpenRoster}
           />
-          <RecentlyDone
-            sourceId={sourceId}
-            records={launches.records}
-            creations={launches.creations}
-            done={work.done}
-          />
+          <RecentlyDone view={recent} />
         </div>
       </div>
       {right && (

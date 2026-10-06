@@ -64,6 +64,7 @@ test.describe("marking a card's session done", () => {
     await settled();
     await launch(readyStory, "Execution");
     const unavailable = await sessionNamedBy(onCard("Execution"));
+    await expect(inRecent("Execution")).toHaveCount(0);
     await test.step("an unavailable session leaves its card without being stopped, and Recently done shows it Done", async () => {
       dashboard.claudeSessionBecomes(unavailable, "forgotten");
       await page.reload();
@@ -76,6 +77,7 @@ test.describe("marking a card's session done", () => {
 
       await expect(onCard("Execution")).toHaveCount(0);
       const entry = inRecent("Execution");
+      await expect(entry).toContainText(`Session ${unavailable}`);
       await expect(sessionStateOf(entry)).toHaveText("Done");
       await expect(entry).toContainText(
         `Intended name done-Open Dough · Execution · ${readyStory}`,
@@ -92,6 +94,11 @@ test.describe("marking a card's session done", () => {
       expect(dashboard.claudeStopCalls()).toEqual([]);
     });
     await expectMembership(page, queued);
+    await page.reload();
+    await settled();
+    await expectMembership(page, queued);
+    await expect(onCard("Execution")).toHaveCount(0);
+    await expect(inRecent("Execution")).toContainText(`Session ${unavailable}`);
   });
 
   test("a refused mark keeps the session on its card and says so on its entry", async ({
@@ -107,6 +114,8 @@ test.describe("marking a card's session done", () => {
     await launch(readyStory, "Execution");
     const entry = cardSessionOf(card(readyStory), "Execution");
     await expect(entry).toHaveCount(1);
+    const recent = parts(page).recentlyDone.locator(".session-entry");
+    await expect(recent).toHaveCount(0);
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");
     renameSync(folder, `${folder}.moved`);
@@ -117,6 +126,7 @@ test.describe("marking a card's session done", () => {
       "The session could not be marked done.",
     );
     await expect(entry).toHaveCount(1);
+    await expect(recent).toHaveCount(0);
     await expect(
       entry.getByRole("button", { name: "Mark as done" }),
     ).toBeEnabled();
