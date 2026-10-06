@@ -157,6 +157,7 @@ export async function installManagedDelivery(
     generation_id: "managed-turn",
   };
   const requestBase = {
+    mode: "trunk",
     host: "cursor",
     session,
     authority: "publish",

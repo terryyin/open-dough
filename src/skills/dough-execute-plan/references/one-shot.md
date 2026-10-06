@@ -114,8 +114,10 @@ or a later one that names its workspace, deliver it from that workspace through
 [increment publication](trunk-publication.md#publish-an-execution-increment-or-repair)
 with `previouslyPublishedBase` set to the retained `startingRevision` (otherwise
 the merge base of the workspace branch and fetched trunk) and the target set to
-remote trunk, even in Story Branch Mode: one-shot work has no execution branch
-or claim to deliver to. That request is the authority to publish it. After
+remote trunk (`--target-ref refs/heads/<trunk>`), even in Story Branch Mode:
+one-shot work has no execution branch or claim to deliver to. In Story Branch
+Mode, declare that landing with `--mode story-branch --tracking one-shot`; in
+Trunk Mode, pass `--mode trunk`. That request is the authority to publish it. After
 acceptance, refresh the default checkout and complete CI observation as for any
 trunk publication. A default-checkout result is delivered from that checkout,
 with `previouslyPublishedBase` set to the merge base of its HEAD and fetched

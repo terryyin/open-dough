@@ -70,6 +70,8 @@ test("record-preparation names both one-shot start locations without a claim", (
 test("only an explicit landing request delivers the retained result", () => {
   const land = section(reference, "## Land the retained result");
   assert.match(land, /explicitly asks to land the retained result/);
+  assert.match(land, /`--mode story-branch --tracking one-shot`/);
+  assert.match(land, /`--target-ref refs\/heads\/<trunk>`/);
   assert.match(
     land,
     /`previouslyPublishedBase` set to the retained `startingRevision`/,

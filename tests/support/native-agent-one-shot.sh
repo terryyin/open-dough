@@ -82,7 +82,8 @@ native_one_shot_substitute() {
     || identityless=(env -u CLAUDE_CODE_SESSION_ID)
   admission_run_in "${execution}" "${identityless[@]}" node \
     "${skills}/dough-execute-plan/scripts/execution-increment-delivery.mjs" \
-    deliver --workspace "${execution}" --branch "${branch}" \
+    deliver --mode story-branch --tracking one-shot \
+    --workspace "${execution}" --branch "${branch}" \
     --previously-published-base "${starting}" --target-ref refs/heads/main \
     --repo owner/project --host "${host}" --default-checkout "${workspace}" \
     "${guard[@]}"

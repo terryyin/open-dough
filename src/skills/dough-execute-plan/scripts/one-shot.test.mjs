@@ -105,6 +105,8 @@ test("an unlisted one-shot result waits for review without publication authority
   );
   const delivered = await delivery.deliverManagedExecutionIncrement({
     ...delivery.requestBase,
+    mode: "story-branch",
+    tracking: "one-shot",
     workspace,
     branch,
     previouslyPublishedBase: started.receipt.startingRevision,
@@ -169,6 +171,8 @@ test("a lost push response resumes the one-shot result without a duplicate commi
   const lost = await deliverThroughCli(fixture, {
     base: started.receipt.startingRevision,
     host: "cursor",
+    mode: "story-branch",
+    tracking: "one-shot",
     env: { ...delivery.env, PATH: lostPushResponse(trunk).PATH },
   });
   assert.notEqual(lost.code, 0, lost.stdout);
