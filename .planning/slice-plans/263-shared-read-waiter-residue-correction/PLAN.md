@@ -84,7 +84,7 @@ delivery.
 ### 1. A departed waiter's wait ends without an imitated subprocess
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `authenticated-read-subprocess-lifecycle.spec.ts`,
 `authenticated-read-plugin-hooks.spec.ts`,
 `authenticated-read-shared-waiters.spec.ts`,
@@ -101,3 +101,14 @@ Correction: removes `abandoned()` and the catch in `execGh` so a departed
 waiter's rejection reaches its caller, removes the two dead `signal.aborted`
 guards, and rewords the four comments in finding 1 to the waiter model.
 External behavior is unchanged.
+
+Accepted proof: `env -u NODE_ENV npm run typecheck:dashboard` passed; the twelve
+named specs passed (53 tests, `--workers=2`); the whole dashboard suite passed
+1158 of 1159. Its one failure, `system-settings-terminal-theme.spec.ts`
+(preview), read the saved theme after Retry before that save settled. The test
+now waits for the selector to be enabled, as it already did after its other two
+saves, and passed 10 of 10 repeated runs.
+
+Learning: no consumer needed a change. Each already settles a departed request
+from its own signal, or rethrows its rejection (`revisionChecks.ts`,
+`performedBranchRead.ts`, `listedRecordsRead.ts`).

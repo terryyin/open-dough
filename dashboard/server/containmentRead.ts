@@ -68,7 +68,7 @@ async function containsViaGh(
     ],
     signal,
   );
-  const answer = signal.aborted ? undefined : parseIncluded(stdout);
+  const answer = parseIncluded(stdout);
   // GitHub knows no such accepted commit: nothing shown contains it.
   if (answer?.status === 404) return false;
   if (error || answer?.status !== 200) {
