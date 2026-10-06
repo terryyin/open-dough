@@ -47,6 +47,7 @@ export const additions: Readonly<Record<string, Account>> = {
   "rina-chan.json": { login: "svg", avatarUrl: onAvatarHost("/u/306") },
   "nana-chan.json": { login: "big", avatarUrl: onAvatarHost("/u/307") },
   "maki-chan.json": { login: "moved", avatarUrl: onAvatarHost("/u/308") },
+  "airi-chan.json": { login: "held", avatarUrl: onAvatarHost("/u/309") },
 };
 
 // Yui's addition at the later revision: the same account, whose avatar
@@ -82,6 +83,7 @@ const avatarsByPath = avatarsAt({
     contentType: "text/plain",
     body: Buffer.from("elsewhere"),
   },
+  "/u/309": avatarPng(6),
 });
 
 // The newer version of /u/301 is a wider image than the earlier one.

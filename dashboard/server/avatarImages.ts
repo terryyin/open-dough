@@ -7,6 +7,8 @@
 // images are disposable display aids, never an assignment or identity
 // authority.
 
+import { OutstandingReads } from "./outstandingReads.ts";
+
 // Where GitHub serves account avatars, as its commit answers name them.
 const avatarHost = "avatars.githubusercontent.com";
 
@@ -128,35 +130,33 @@ async function fetchAvatar(
 }
 
 // Each usable avatar source's image, fetched at most once while this process
-// keeps it: concurrent displays of one source share the same fetch. Kept by
-// source rather than login, so a changed avatar version, or a login reused by
-// another account, is fetched afresh instead of showing an earlier image. A
-// failed fetch is not kept, so a later display may ask again.
+// keeps it: concurrent displays of one source share the same fetch
+// (`./outstandingReads.ts`). Kept by source rather than login, so a changed
+// avatar version, or a login reused by another account, is fetched afresh
+// instead of showing an earlier image. A failed fetch is not kept, so a later
+// display may ask again.
 export class AvatarImages {
-  private readonly kept = new Map<string, Promise<AvatarImage>>();
+  private readonly kept = new Map<string, AvatarImage>();
+  private readonly fetching = new OutstandingReads<AvatarImage>(
+    avatarWaitLimitMs,
+  );
 
   // `source` is a usable avatar source (`usableAvatarSource`); `tracked` lets
   // closing the boundary abort a fetch still in flight.
   image(source: string, tracked: Set<AbortController>): Promise<AvatarImage> {
     const known = this.kept.get(source);
     if (known !== undefined) {
-      return known;
+      return Promise.resolve(known);
     }
-    const controller = new AbortController();
-    tracked.add(controller);
-    const timer = setTimeout(() => {
-      controller.abort();
-    }, avatarWaitLimitMs);
-    const fetched = fetchAvatar(source, controller.signal).finally(() => {
-      clearTimeout(timer);
-      tracked.delete(controller);
+    return this.fetching.read(source, tracked, async (signal) => {
+      const image = await fetchAvatar(source, signal);
+      this.keep(source, image);
+      return image;
     });
-    this.kept.set(source, fetched);
-    fetched.catch(() => {
-      if (this.kept.get(source) === fetched) {
-        this.kept.delete(source);
-      }
-    });
+  }
+
+  private keep(source: string, image: AvatarImage): void {
+    this.kept.set(source, image);
     while (this.kept.size > keptAvatarLimit) {
       const oldest = this.kept.keys().next().value;
       if (oldest === undefined) {
@@ -164,6 +164,5 @@ export class AvatarImages {
       }
       this.kept.delete(oldest);
     }
-    return fetched;
   }
 }

@@ -207,7 +207,7 @@ missing record on every reload when a project does not publish it.
 ### 2. One owner for an outstanding read
 
 Type: Structure
-Status: planned
+Status: done
 Proof: A new case in `authenticated-avatar.spec.ts`, written and passing
 before the extraction: two reads of one avatar source while its image is held
 make one image read and both receive it. Then that case,
@@ -228,6 +228,17 @@ Enables slice 3, which gives the same owner its waiters and uses it for every
 need here.
 
 Safe stop: Avatar reads behave as before through one named owner.
+
+Accepted proof: `env -u NODE_ENV npm run typecheck:dashboard` and
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-avatar.spec.ts agent-roster-avatar.spec.ts agent-terminal-avatar.spec.ts agent-roster-collection.spec.ts nerds-cartoon-portrait.spec.ts profile-addition-latency.spec.ts recently-done-read-latency.spec.ts --workers=2`
+(28 passed). The new held-image case in `authenticated-avatar.spec.ts` passed
+before extraction and fails with two image reads when sharing is disabled.
+The owner is `OutstandingReads` in `dashboard/server/outstandingReads.ts`,
+keyed by string, with one bound per owner; holds for `gh` and avatar answers
+share `holding` in `dashboard/tests/support/heldGitHubAnswer.ts`.
+
+Learning: no spec observes the avatar bound or closing the boundary ending a
+fetch; slice 4's bound cases observe the owner's bound for `gh` reads.
 
 ### 3. Simultaneous reads share one GitHub request that its waiters own
 
