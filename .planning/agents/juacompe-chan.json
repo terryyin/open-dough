@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "juacompe-chan",
+  "email": "juacompe-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-117#finished-after-retirement",
+  "host": "claude",
+  "model": "fable"
+}
