@@ -223,7 +223,7 @@ keeps `position` however it was set; only the clamp stays derived.
 ### 4. The position is kept across project switches and reloads
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a spec in the pattern of `side-panel-width-kept.spec.ts`: a first
 visit in a narrow page starts at Backlog; after moving to Taken and Recent
 sessions, switching project and reloading both still show them; a wide page
@@ -233,3 +233,11 @@ starts at Backlog without error.
 Behavior: the developer chose a position → they switch project or reload in
 the same browser → the same columns show, limited only by what the current
 width allows.
+
+Accepted: one position per browser under
+`open-dough.dashboardColumns.position`, read and kept in `columnPaging.ts`
+through `keptPreference.ts`; every choice is kept by `moveTo`, and the
+width's clamp is never kept. A project switch remounts `DashboardColumns`, so
+a page-lifetime `chosenOnPage` keeps the position where the browser keeps
+nothing. `dashboard-columns-kept.spec.ts` observes switch, reload, a wide page
+in between, unusable kept values, and refused storage; the whole suite passed.

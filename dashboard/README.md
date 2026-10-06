@@ -25,7 +25,9 @@ column names the next one there and how many entries it holds, stays in sight
 while the page scrolls, and moves the view one column with a brief slide (at
 once when the system asks for reduced motion). Widening or narrowing the page
 keeps the leftmost shown column where the width allows; the page never scrolls
-sideways.
+sideways. This browser keeps that position, as it keeps the side panel's
+width: a project switch or a reload shows the same columns, and a first visit
+starts at Backlog.
 
 The pinned banner shows the selected project in a disclosure and keeps the configured
 **Project** choices reachable while scrolling. The disclosure opens the repository/ref, full

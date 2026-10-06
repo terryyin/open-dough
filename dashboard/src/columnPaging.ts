@@ -17,6 +17,7 @@ import {
   type RefObject,
   type SyntheticEvent,
 } from "react";
+import { keep, readKept } from "./keptPreference.ts";
 import { prefersReducedMotion } from "./reducedMotion.ts";
 
 export type ColumnPaging = {
@@ -50,6 +51,23 @@ function leftmostOf(position: number, columns: number, shown: number) {
   return Math.max(0, Math.min(position, columns - shown));
 }
 
+// The position this browser keeps, if a usable one is kept, and otherwise the
+// one chosen on this page, even where the browser keeps nothing.
+const positionKey = "open-dough.dashboardColumns.position";
+let chosenOnPage = 0;
+
+function readPosition(): number {
+  const kept = readKept(positionKey);
+  if (kept === undefined) return chosenOnPage;
+  const position = Number(kept);
+  return Number.isInteger(position) && position > 0 ? position : 0;
+}
+
+function keepPosition(position: number) {
+  chosenOnPage = position;
+  keep(positionKey, String(position));
+}
+
 // Asked of the dashboard columns by a part of the page about to be brought
 // into view, which bubbles to the row that holds it; elsewhere nothing hears.
 const showHolding = "dashboard-columns-show";
@@ -75,7 +93,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
   const frame = useRef<HTMLDivElement>(null);
   const row = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(columns);
-  const [position, setPosition] = useState(0);
+  const [position, setPosition] = useState(readPosition);
   const [sliding, setSliding] = useState(false);
   const leftmost = leftmostOf(position, columns, shown);
 
@@ -98,6 +116,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
   // end.
   const moveTo = useCallback((to: number) => {
     setPosition(to);
+    keepPosition(to);
     setSliding(!prefersReducedMotion());
   }, []);
   const move = useCallback(
