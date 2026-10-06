@@ -531,6 +531,14 @@ Follow-up: queued, not resolved: [Observe decisive planning premises through the
   - Evidence: plan 254 premise "no `expectSettledPage` caller holds the sessions read", from a grep of the 17 files naming the helper; extending the helper then failed `session-sidebar-reading.spec.ts:43`, which reaches it through `openStoryStagesJourney().settled` (`storyStagesPage.ts:37`) while holding the read. The slice took its planned fallback (slice 1 learning and corrected premise row in `c2b6ffba:.planning/slice-plans/254-dashboard-specs-deterministic/PLAN.md`).
   - Observed effect: no CI failure; one helper edit, a failing consumer run, and a revert inside the slice.
   - Inference: Qualified. Fourth occurrence: the sweep named the helper, while the consumer reached it through a wrapper. The plan's written fallback kept the cost to minutes.
+- Execution: `SEED-008#story-branch-delivery-target` / plan 256, first related implementation commit `9a9e0a6e`
+  - Timestamp: unknown (slice 2 acceptance, before `a1bcad0d` committed 2026-10-06T12:06:05+09:00)
+  - Tool: Claude Code (coordinator and delegated implementation agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 256 premise "Managed delivery's production callers are the coordinator CLI and Trunk Mode closure only" came from a grep of `src` and `dashboard` for the function and script names. Slice 1 also had to align the credential-free substitute hosts `tests/support/native-agent-one-shot*.sh` and `deliverQueued`, which run the CLI. Slice 2's guidance told every caller to copy `--mode` from the established start, but caller-selected current-branch and host-owned execution have none. The implementer reported that gap, and the coordinator added `--mode trunk` for those callers (plan 256 slice 2 decision).
+  - Observed effect: no CI failure or rework; extra caller alignment in slice 1 and one added guidance sentence in slice 2.
+  - Inference: Qualified. Fifth occurrence: the sweep found code callers by name. It missed that the new required argument is supplied by every guidance path that runs the command, including paths without the established start the plan assumed.
 
 ## ODF-203 — A wrap-up applied a documentation correction and also queued it as a follow-up story
 

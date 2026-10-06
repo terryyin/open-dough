@@ -157,3 +157,10 @@ changed references (`execution-completion-record-guidance`,
 edit. Decision: caller-selected current-branch work and host-owned execution
 have no established start, so "Publish the candidate" names `--mode trunk` with
 their caller's authorized target, keeping today's behavior for them.
+
+## Execution complete
+
+Product advice: no new product work. At wrap-up, update the ODF-200 records with
+the response commits (`9a9e0a6e`, `a1bcad0d`) and release. The native evidence
+keyed to `execution-increment-delivery.mjs` and the one-shot substitute hosts is
+now stale; refresh it at the next manual paid native run.
