@@ -112,3 +112,9 @@ saves, and passed 10 of 10 repeated runs.
 Learning: no consumer needed a change. Each already settles a departed request
 from its own signal, or rethrows its rejection (`revisionChecks.ts`,
 `performedBranchRead.ts`, `listedRecordsRead.ts`).
+
+## Execution complete
+
+Product advice: no change. The correction adds no feature promise; it leaves
+`gh` error propagation explicit before the queued
+SEED-113#recover-consistently-from-rate-limits story.
