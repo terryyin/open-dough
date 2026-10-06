@@ -14,7 +14,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -53,7 +53,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     const panel = page.getByRole("region", { name: "Terminal" });
     const listed = cardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
-      name: recentlyDoneSessionName("Execution", readyStory),
+      name: standaloneSessionName("Execution", readyStory),
     });
     const queued = {
       taken: [],

@@ -5,7 +5,7 @@
 // story's own open session is listed; a refinement launched on a Preparing
 // card is listed at once; the Taken card keeps the listing and offers no
 // Start; and a reload in each keeps it. A story that leaves every list keeps
-// its sessions only in Recently done, inside its done card once it is done.
+// its open sessions as local Taken entries.
 // Each open session occurs once across the columns, while closing one puts
 // its retained entry in Recently done without changing its story's stage.
 // That Starts stay unavailable for an open session, return after Mark as done
@@ -23,7 +23,6 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { expectSessionEntrySetOff } from "./pageColours.ts";
@@ -51,7 +50,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a card lists each unclosed session beside its Start actions through Preparing and Taken, each reloaded, and a story in no list keeps them only in Recently done", async ({
+  test("a card lists each unclosed session beside its Start actions through Preparing and Taken, each reloaded, and a story in no list keeps them in local Taken", async ({
     page,
     dashboard,
   }) => {
@@ -151,34 +150,47 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectListed([readyStory, ...backlog]);
     });
 
-    await test.step("a story done and left every list keeps its sessions only in Recently done, inside its done card, through a reload", async () => {
-      await show(stagesJourney.completed);
+    await test.step("completion moves the open session into local Taken and returning the story restores its card without reattaching", async () => {
+      const key = listed.get(notRefinedStory)?.[0]?.key;
+      const native = listed.get(notRefinedStory)?.[0]?.session;
+      if (!key || !native) throw new Error("No completed story session");
+      await cardSessions(card(notRefinedStory))
+        .getByRole("button", { name: "Open terminal" })
+        .click();
+      const panel = page.getByRole("region", { name: "Terminal" });
+      await expect(panel.locator(".xterm-rows")).toContainText("attached");
+      const attaches = dashboard.claudeAttaches().length;
+      await show(stagesJourney.completed, { reload: false });
       const completed = { taken: [readyStory], backlog: [takenStory] };
       await expectMembership(page, completed);
-      await expectListed([readyStory, takenStory]);
-      // Completing the story published its done record, whose card holds
-      // the story's session.
-      const entries = recentlyDone.locator(".session-entry");
+      const local = taken.locator(`[data-shows-session="${key}"]`);
       const doneCard = recentlyDone.getByRole("article", {
         name: notRefinedStory,
         exact: true,
       });
-      const inDoneCard = doneCard.getByRole("article", {
-        name: recentlyDoneSessionName("Execution", notRefinedStory),
-      });
-      await expect(entries).toHaveCount(1);
+      await expect(local).toContainText(`Session ${native}`);
+      await expect(local).toContainText("Shown in terminal");
       await expect(doneCard).toBeVisible();
-      await expect(inDoneCard).toBeVisible();
-      await expect(doneCard.locator(".session-entry")).toHaveCount(1);
-      await expect(inDoneCard).toContainText(
-        `Session ${listed.get(notRefinedStory)?.[0]?.session}`,
+      await expect(doneCard.locator(".session-entry")).toHaveCount(0);
+      await expect(
+        page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+      ).toHaveCount(1);
+      expect(dashboard.claudeAttaches()).toHaveLength(attaches);
+      await show(stagesJourney.taken, { reload: false });
+      await expectListed([readyStory, takenStory, notRefinedStory]);
+      await expect(cardSessions(card(notRefinedStory))).toContainText(
+        "Shown in terminal",
       );
+      expect(dashboard.claudeAttaches()).toHaveLength(attaches);
+      await show(stagesJourney.completed, { reload: false });
+      await expect(local).toContainText("Shown in terminal");
+      await panel.getByRole("button", { name: "Close" }).click();
+      await expect(local).toBeFocused();
       await page.reload();
       await expectMembership(page, completed);
-      await settled();
+      await expect(local).toContainText(`Session ${native}`);
       await expectListed([readyStory, takenStory]);
-      await expect(entries).toHaveCount(1);
-      await expect(inDoneCard).toBeVisible();
+      await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
     });
 
     await test.step("Mark as done retains the same session in Recently done while its story stays in Backlog, through reload", async () => {

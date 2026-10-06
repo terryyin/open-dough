@@ -1,11 +1,7 @@
-// Starting an ad hoc session from the project actions row, on the committed
-// origin of ./agent-launch-card.spec.ts (./launchJourney.ts): Start session
-// is offered for the selected project whatever the published read is doing,
-// its dialog sends the optional text to the Open Dough or Pygardon folder, and
-// the session then reads in Recently done and the Sessions sidebar without
-// any card listing it. The page's own dashboard server launches the synthetic
-// `claude` (./fixtures/fake-claude); the real one is never reached. How the
-// launch boundary names the session is ./agent-launch-ad-hoc-boundary.spec.ts.
+// Start session stays available through published-read gaps. Its optional text
+// goes to the selected project's folder; the session reads in Taken and the
+// sidebar without a story card. The real boundary launches synthetic Claude
+// (./fixtures/fake-claude); naming is in ./agent-launch-ad-hoc-boundary.spec.ts.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -125,7 +121,7 @@ test("the dialog names the project and Claude Code, says the session has no stor
   expect(dashboard.claudeCalls()).toEqual([]);
 });
 
-test("starting with text sends it in the Open Dough folder, and the session reads in Recently done and the sidebar with no card listing it", async ({
+test("starting with text sends it in the Open Dough folder, and the session reads in Taken and the sidebar with no card listing it", async ({
   page,
   dashboard,
 }) => {
@@ -145,7 +141,8 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await startSessionField(dialog).fill(`  ${text}  `);
   await dialog.getByRole("button", { name: "Start" }).click();
 
-  const entry = recentlyDone.getByRole("article");
+  const entry = parts(page).taken.locator(".session-entry");
+  await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
   await expect(entry).toHaveCount(1);
   await expect(dialog).toBeHidden();
   await expect(entry).toHaveAccessibleName(`Ad hoc session for ${text}`);
@@ -205,7 +202,7 @@ for (const blank of ["", "   "]) {
     await startSessionField(dialog).fill(blank);
     await dialog.getByRole("button", { name: "Start" }).click();
 
-    await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
+    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     const [call] = dashboard.claudeLaunchCalls();
     expect(call?.argv).toHaveLength(3);
     expect(call?.argv[2]).toMatch(

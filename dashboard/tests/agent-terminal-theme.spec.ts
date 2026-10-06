@@ -63,7 +63,7 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   await openTakenBacklog(page, journey);
   const panel = page.getByRole("region", { name: "Terminal", exact: true });
   const rows = panel.locator(".xterm-rows");
-  const entry = parts(page).recentlyDone.getByRole("article");
+  const entry = parts(page).taken.locator(".session-entry");
   const openTerminal = entry.getByRole("button", { name: "Open terminal" });
 
   await page

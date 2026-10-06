@@ -41,7 +41,7 @@ export const placed = {
   expiredDone: 31 * day,
   // The done stories' sessions: Card shows avatar's execution, marked done,
   // and its refinement, still open, both launched before it was done; the
-  // story done last week's session launched yesterday; and the open session
+  // story done last week's session launched yesterday; and the retained closed session
   // of the story done 31 days before.
   executedDoneSessionLaunched: 5 * hour,
   executedDoneSessionMarked: 3 * hour,

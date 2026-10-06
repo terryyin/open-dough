@@ -61,10 +61,33 @@ async function openedWithHeldDoneRecord(
   page: Page,
   dashboard: DashboardServer,
 ) {
-  await keepLaunchRecords(
-    dashboard,
-    sessionsOutsideDoneStories(dashboard, opened.getTime()),
-  );
+  const closedId = dashboard.claudeListsSession({
+    name: executed.title,
+    cwd: dashboard.home,
+    startedAt: opened.getTime() - 4 * hour,
+  });
+  await keepLaunchRecords(dashboard, [
+    ...sessionsOutsideDoneStories(dashboard, opened.getTime(), {
+      adHoc: true,
+      queued: true,
+    }),
+    {
+      request: {
+        source: "open-dough",
+        workflow: "execution",
+        host: "claude",
+        ...executed,
+      },
+      session: {
+        host: "claude",
+        sessionId: closedId,
+        shortId: closedId.slice(0, 8),
+        name: executed.title,
+      },
+      launchedAt: new Date(opened.getTime() - 4 * hour).toISOString(),
+      doneAt: new Date(opened.getTime() - hour).toISOString(),
+    },
+  ]);
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
@@ -88,6 +111,7 @@ async function openedWithHeldDoneRecord(
   return {
     card: taken.getByRole("article", { name: afterTake }),
     recent: recentlyDone,
+    closed: recentlyDone.locator(`[data-shows-session="claude:${closedId}"]`),
     problem,
     release,
   };
@@ -97,10 +121,8 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
   page,
   dashboard,
 }) => {
-  const { card, recent, problem, release } = await openedWithHeldDoneRecord(
-    page,
-    dashboard,
-  );
+  const { card, recent, closed, problem, release } =
+    await openedWithHeldDoneRecord(page, dashboard);
 
   await test.step("while a done record's read is held, the Taken card shows its owner, preparation, and clock, and no done card shows", async () => {
     await expect(card.locator(".owner-line")).toContainText(
@@ -111,6 +133,13 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     ).toBeVisible();
     await expect(card).toContainText("Current slice started 12 min ago");
     await expect(recent.locator(".done-story")).toHaveCount(0);
+    await expect(recent.locator(".stage-count")).toHaveText(
+      "Entry count incomplete",
+    );
+    await expect(closed).toHaveCount(1);
+    await expect(
+      closed.getByRole("button", { name: "Open terminal" }),
+    ).toBeEnabled();
   });
 
   await test.step("the record's answer shows the done cards, with no read problem", async () => {
@@ -121,6 +150,13 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
       queuedEntry,
       removedQueued.title,
     ]);
+    await expect(closed).toHaveCount(1);
+    await expect(
+      recent
+        .locator(".done-story")
+        .filter({ hasText: executed.title })
+        .locator(".session-entry"),
+    ).toHaveCount(1);
     await expect(card).toContainText("Current slice started 12 min ago");
     await expect(problem).toHaveCount(0);
   });
@@ -130,7 +166,7 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   page,
   dashboard,
 }) => {
-  const { card, recent, problem } = await openedWithHeldDoneRecord(
+  const { card, recent, closed, problem } = await openedWithHeldDoneRecord(
     page,
     dashboard,
   );
@@ -139,7 +175,14 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   await expect(recent).toContainText(
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done records.",
   );
-  await expectEntries(recent, [adHocEntry, queuedEntry]);
+  await expectEntries(recent, [
+    adHocEntry,
+    queuedEntry,
+    `Execution session for ${executed.title}`,
+  ]);
+  await expect(
+    closed.getByRole("button", { name: "Open terminal" }),
+  ).toBeEnabled();
   await expect(card.locator(".owner-line")).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );

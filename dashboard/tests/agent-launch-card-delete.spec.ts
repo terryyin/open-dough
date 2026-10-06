@@ -19,7 +19,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -77,7 +77,7 @@ test.describe("deleting a card's session record", () => {
     const stored = () => readFileSync(recordFile, "utf8");
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {
-        name: recentlyDoneSessionName(workflow, readyStory),
+        name: standaloneSessionName(workflow, readyStory),
       });
     const deleteButton = (entry: typeof execution) =>
       entry.getByRole("button", { name: "Delete record…" });
@@ -200,7 +200,7 @@ test.describe("deleting a card's session record", () => {
     await expect(unavailable).toHaveCount(0);
     await expect(
       recent.getByRole("article", {
-        name: recentlyDoneSessionName("Execution", readyStory),
+        name: standaloneSessionName("Execution", readyStory),
       }),
     ).toHaveCount(0);
     await expect(sidebar.entries).toHaveCount(0);

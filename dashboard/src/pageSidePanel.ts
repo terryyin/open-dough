@@ -16,6 +16,7 @@ import { sessionKey } from "./sessionReference.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import {
   deletedEntryHome,
+  sessionEntry,
   type OpenSessionPanel,
   type PageSessions,
   type SessionRequest,
@@ -132,10 +133,13 @@ export function usePageSidePanel({
     setReturning({
       control: closed.control,
       shows: undefined,
-      home: () => workHome(identity),
+      home: () =>
+        ("record" in closed
+          ? sessionEntry(sessionKey(closed.record.session))
+          : null) ?? workHome(identity),
     });
   };
-  const markSessionDone: MarkSessionDone = async ({ record }) => {
+  const markSessionDone: MarkSessionDone = async ({ record, control }) => {
     if (!(await markDone(record))) return false;
     const open = shownSessionOf(latest.current);
     if (
@@ -143,6 +147,14 @@ export function usePageSidePanel({
       sessionKey(open.record.session) === sessionKey(record.session)
     )
       close(open);
+    else
+      setReturning({
+        control,
+        shows: latest.current?.request,
+        home: () =>
+          sessionEntry(sessionKey(record.session)) ??
+          workHome(launchSubject(record.request).identity),
+      });
     return true;
   };
   const markSessionRead: MarkSessionRead = ({ record }) => markRead(record);

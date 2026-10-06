@@ -30,7 +30,7 @@ import {
   expectNoBorrowedActivity,
   expectReadingWithoutScreenLabel,
   instruction,
-  openRecentCursorSession,
+  openTakenCursorSession,
   projectedSessions,
   readLog,
   unknownWords,
@@ -50,7 +50,7 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
   expect(cursorHost).not.toHaveProperty("rename");
   expectCursorUnknownWording();
 
-  const recent = await openRecentCursorSession(page, origin);
+  const recent = await openTakenCursorSession(page, origin);
   await expect(recent).toContainText(cursor.sessionId);
   await expect(recent).toContainText("Continue in Cursor:");
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
@@ -142,7 +142,7 @@ for (const { screen, label } of heldScreens) {
       cursor,
     }) => {
       test.setTimeout(120_000);
-      const recent = await openRecentCursorSession(page, origin);
+      const recent = await openTakenCursorSession(page, origin);
       await expectHeldLabel(recent, label);
       expect(agentCalls(cursor)).toEqual([["create-chat"]]);
       expect(cursor.attaches()).toHaveLength(1);
@@ -157,13 +157,13 @@ test("a stopped runner says so, shows no screen label, and starts no agent", asy
   cursor,
 }) => {
   test.setTimeout(120_000);
-  const recent = await openRecentCursorSession(page, origin);
+  const recent = await openTakenCursorSession(page, origin);
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
   await page.reload();
-  const again = parts(page).recentlyDone.getByRole("article");
+  const again = parts(page).taken.locator(".session-entry");
   await expect(again).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
     again,
@@ -180,7 +180,7 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   cursor,
 }) => {
   test.setTimeout(120_000);
-  const recent = await openRecentCursorSession(page, origin);
+  const recent = await openTakenCursorSession(page, origin);
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
@@ -188,7 +188,7 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   const release = await occupyRunner(dashboard.home);
   try {
     await page.reload();
-    const again = parts(page).recentlyDone.getByRole("article");
+    const again = parts(page).taken.locator(".session-entry");
     await expect(again).toHaveCount(1);
     await expectReadingWithoutScreenLabel(
       again,
@@ -207,7 +207,7 @@ test("a recorded session the runner does not hold shows no screen label", async 
   cursor,
 }) => {
   test.setTimeout(120_000);
-  const recent = await openRecentCursorSession(page, origin);
+  const recent = await openTakenCursorSession(page, origin);
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
   const calls = agentCalls(cursor);
   const pid = cursor.attaches()[0]?.pid ?? 0;
@@ -233,7 +233,7 @@ test("a recorded session the runner does not hold shows no screen label", async 
     )
     .toEqual({ runner: "running", count: 0 });
   await page.reload();
-  const again = parts(page).recentlyDone.getByRole("article");
+  const again = parts(page).taken.locator(".session-entry");
   await expect(again).toHaveCount(1);
   await expectReadingWithoutScreenLabel(again, unknownWords);
   const answer = await projectedSessions(page);

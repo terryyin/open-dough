@@ -14,7 +14,7 @@ import {
   cardSessionOf,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -54,7 +54,7 @@ test.describe("marking a card's session done", () => {
       cardSessionOf(card(readyStory), workflow);
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {
-        name: recentlyDoneSessionName(workflow, readyStory),
+        name: standaloneSessionName(workflow, readyStory),
       });
     const queued = {
       taken: [],

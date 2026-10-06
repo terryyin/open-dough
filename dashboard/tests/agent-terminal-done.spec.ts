@@ -25,7 +25,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import {
@@ -88,7 +88,7 @@ test.describe("marking a session done from its terminal", () => {
     const panel = page.getByRole("region", { name: "Terminal" });
     const listed = cardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
-      name: recentlyDoneSessionName("Execution", readyStory),
+      name: standaloneSessionName("Execution", readyStory),
     });
     const queued = {
       taken: [],

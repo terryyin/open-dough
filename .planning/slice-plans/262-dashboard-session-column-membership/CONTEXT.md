@@ -125,3 +125,49 @@ needed: the two proof loops preserve one placement rule and include each
 changed surface's consumer, with the named slice-1 interim behavior replaced
 by slice 2. Record readiness on the source against the reviewed story and plan
 digests after this plan exists.
+
+## Accepted execution proof
+
+
+Slice 1: the built dashboard's real launch/published-membership journey captures
+native and host-qualified identity in `cardSessionListing.ts` and observes one
+column occurrence through Preparing, Taken, reload and manual Done. Held-read,
+refused Done, reopen, matching done-card and edge-count assertions passed.
+The reached attribution, native-state, saved-detail, terminal/report, deletion
+and continuation consumers preserve their purpose at the actual single entry.
+No persistence or native-completion change. Open orphan/ad hoc placement remains
+the explicit interim behavior owned by slice 2. Independent refactor completed;
+its extraction/loop changes passed focused replacement proof and typecheck.
+All commands selected Node 24.21.0 via the Execution context PATH; test services
+ran with authorized loopback/Git-fixture access. Terminal results:
+
+- `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-card-sessions.spec.ts session-sidebar-reading.spec.ts agent-launch-card-done.spec.ts agent-terminal-done-reopen.spec.ts recently-done-story-sessions.spec.ts --workers=2` — exit 0, eight tests.
+- `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-card-sessions.spec.ts agent-launch-recent-sessions.spec.ts agent-terminal-done-codex-page.spec.ts agent-launch-codex-observation-boundary.spec.ts --grep 'a card lists each|lists each launch newest|Codex done|native interrupt refusal|predecessor without continuation' --workers=2` — exit 0, six selected tests, resolving two old duplicate-target assertions from the otherwise passing affected-consumer run.
+- `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-card-sessions.spec.ts agent-launch-model-entries.spec.ts agent-launch-options-entries.spec.ts agent-launch-preparation-workspace.spec.ts agent-launch-session-state-pace.spec.ts --workers=2` — exit 0, ten tests after refactoring.
+- `env PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard` and `git diff --check` — exit 0 after implementation and refactoring. Project `npm run format` — exit 0 before staging.
+
+## Slice 2 proof
+
+Accepted at the built dashboard/local service boundary, with raw machine,
+published Git/done records and synthetic native transports. Setup supplies
+starting facts; actual page assertions observe placement and operations.
+`session-column-membership` owns mixed counts/order, direct Start/refusal/Done
+and last-local deletion; `agent-launch-card-sessions` owns no-reload published
+completion/return and unchanged attachment counts. `recently-done-story-sessions`
+observes two distinct closed launches alongside an open Taken session, and
+independent published-card expiry/local retention. Held read/access/regroup and
+incomplete edge navigation use actual answers and paused clocks.
+MarkRead and automatic/manual Done distinctions remain observed by the report
+journeys and `completionRecoveryIntent`/`completionRecoveryFaults`; shared
+launch, Cursor, membership, paging and recent-fixture consumers were inventoried.
+The mechanical standaloneSessionName rename leaves labels/setup/assertions
+unchanged; typecheck proves imports. Every command reached a terminal result.
+
+- Core final placement, Done/refusal/focus, mixed counts, closed grouping/retention, live membership/attachment and navigation: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-column-membership.spec.ts recently-done-story-sessions.spec.ts agent-launch-card-sessions.spec.ts recently-done-read-latency.spec.ts session-sidebar-navigation-cases.spec.ts --workers=2` — exit 0.
+- Last-local deletion, closed access, corrected deletion baseline, paging/sidebar counts: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-column-membership.spec.ts recently-done-read-latency.spec.ts agent-launch-recent-delete.spec.ts agent-launch-recent-delete-unavailable.spec.ts dashboard-columns-paging.spec.ts dashboard-columns-paging-side-panel.spec.ts dashboard-columns-paging-sessions-sidebar.spec.ts session-sidebar-reading.spec.ts --workers=2` — exit 0.
+- Report/read, automatic Done/clear, attribution, ad hoc, retained workspace and responsive consumers: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-ad-hoc-sessions.spec.ts agent-launch-ad-hoc.spec.ts recently-done-stories.spec.ts session-sidebar-reading.spec.ts agent-launch-recent-delete.spec.ts agent-launch-recent-delete-unavailable.spec.ts dashboard-columns-paging.spec.ts dashboard-columns-paging-side-panel.spec.ts dashboard-columns-paging-sessions-sidebar.spec.ts session-unread-report.spec.ts session-unread-report-message.spec.ts agent-completion-quiet.spec.ts agent-completion-recovery.spec.ts session-workspace-retirement.spec.ts responsive-session-start.spec.ts responsive-session-access.spec.ts agent-terminal-avatar.spec.ts agent-launch-attention.spec.ts --workers=2` — exit 1 only for three stale observations corrected by the preceding replacement; all remaining observations passed.
+- All reached startedSession/Cursor reading consumers, Codex identity/recovery/model, native Working with saved Done/refusal/reopen, unresolved creation and project lifecycle: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-sidebar-reading.spec.ts agent-launch-ad-hoc-codex.spec.ts agent-launch-ad-hoc-codex-recovery.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-launch-ad-hoc-cursor-split-screen.spec.ts agent-terminal-cursor-launch-page.spec.ts agent-session-cursor.spec.ts agent-terminal-cursor-page.spec.ts cursor-runner-sessions.spec.ts agent-launch-cursor-model.spec.ts agent-launch-codex-model.spec.ts agent-terminal-theme.spec.ts responsive-session-start-codex.spec.ts project-restored-session.spec.ts project-remove.spec.ts agent-launch-ad-hoc-terminal.spec.ts agent-launch-ad-hoc-problems.spec.ts agent-terminal-done-codex-page.spec.ts agent-launch-codex-creation.spec.ts --workers=2` — exit 1 only for the newly added held-edge assertion; unaffected observations passed.
+- Corrected incomplete edge navigation before held records answer, settled empty counts: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-sidebar-reading.spec.ts --workers=2` — exit 0 after literal spacing and viewport floating-point tolerance corrections.
+- Independent refactor replacement for shared stage projection/count/completeness and navigation: `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- session-column-membership.spec.ts session-sidebar-reading.spec.ts recently-done-read-latency.spec.ts dashboard-columns-paging.spec.ts session-sidebar-navigation-cases.spec.ts agent-launch-ad-hoc-sessions.spec.ts agent-launch-card-sessions.spec.ts --workers=2` — exit 0.
+- `env PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard` and `git diff --check` — exit 0 after implementation/refactoring.
+- Project `npm run format` first found one remaining style issue and expanded one spec past 250 lines. Prose-only cap repair preserved proof; the necessary formatter repeat exited 0. All changed files are within the cap after formatting.

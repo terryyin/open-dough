@@ -16,7 +16,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
@@ -66,7 +66,7 @@ test.describe("the terminal beside the page", () => {
     const cardEntries = (title: string) => cardSessions(card(title));
     const entry = (title: string) =>
       recent.getByRole("article", {
-        name: recentlyDoneSessionName("Execution", title),
+        name: standaloneSessionName("Execution", title),
       });
     const openIn = (place: Locator) =>
       place.getByRole("button", { name: "Open terminal" });

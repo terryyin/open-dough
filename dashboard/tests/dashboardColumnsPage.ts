@@ -23,7 +23,7 @@ export function columnRegion(page: Page, column: ColumnName): Locator {
   ];
 }
 const controlName = (named: string) =>
-  new RegExp(`^(${named}) \\d+ entr(y|ies)$`);
+  new RegExp(`^(${named}) (\\d+ entr(y|ies)|Entry count incomplete)$`);
 export const edgeControl = (page: Page, column: ColumnName) =>
   page.getByRole("button", { name: controlName(column) });
 export const edgeControls = (page: Page) =>

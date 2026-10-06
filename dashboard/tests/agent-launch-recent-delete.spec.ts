@@ -21,7 +21,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -80,6 +80,10 @@ test.describe("deleting a Recently done entry's record", () => {
     const inDoneStory = await sessionNamedBy(
       cardSessionOf(card(notRefinedStory), "Refinement"),
     );
+    await markDoneAnyway(cardSessionOf(card(notRefinedStory), "Refinement"));
+    await expect(
+      cardSessionOf(card(notRefinedStory), "Refinement"),
+    ).toHaveCount(0);
     const refinement = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Refinement"),
     );
@@ -96,7 +100,7 @@ test.describe("deleting a Recently done entry's record", () => {
     const stopsBeforeDeletes = dashboard.claudeStopCalls().length;
     const entryOf = (workflow: "Execution" | "Refinement", title: string) =>
       recent.getByRole("article", {
-        name: recentlyDoneSessionName(workflow, title),
+        name: standaloneSessionName(workflow, title),
       });
     const doneCard = recent.getByRole("article", {
       name: notRefinedStory,
@@ -104,7 +108,7 @@ test.describe("deleting a Recently done entry's record", () => {
     });
     const markedDone = entryOf("Execution", readyStory);
     const insideDoneCard = doneCard.getByRole("article", {
-      name: recentlyDoneSessionName("Refinement", notRefinedStory),
+      name: standaloneSessionName("Refinement", notRefinedStory),
     });
     const working = cardSessionOf(
       parts(page).stages.getByRole("article", {
@@ -148,7 +152,7 @@ test.describe("deleting a Recently done entry's record", () => {
 
     await test.step("while the listing is read, active and Recently done entries in Working or Done offer no Delete record…", async () => {
       await expect(sessionStateOf(working)).toHaveText("Working");
-      await expect(sessionStateOf(insideDoneCard)).toHaveText("Working");
+      await expect(sessionStateOf(insideDoneCard)).toHaveText("Done");
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
       for (const entry of [working, insideDoneCard, markedDone]) {
         await expect(
@@ -163,14 +167,14 @@ test.describe("deleting a Recently done entry's record", () => {
       await settled();
       await sidebar.button.click();
       // The sidebar lists sessions not marked done.
-      await expect(sidebar.entries).toHaveCount(3);
+      await expect(sidebar.entries).toHaveCount(2);
       for (const entry of [ofStoryA, working, insideDoneCard, markedDone]) {
         await expect(sessionStateOf(entry)).toHaveText(
           "State unknown: Claude Code's session list could not be read",
         );
         await expect(deleteButton(entry)).toBeVisible();
       }
-      for (let index = 0; index < 3; index++) {
+      for (let index = 0; index < 2; index++) {
         const entry = sidebar.entries.nth(index);
         await expect(entry.getByRole("button")).toHaveCount(1);
         await expect(

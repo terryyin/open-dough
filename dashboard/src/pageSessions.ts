@@ -2,7 +2,7 @@
 // one terminal or final-report panel, marking one done or its report read, and
 // reading one again once its terminal attaches, each asked with one request
 // shape. The page provides them (`./PageFrame.tsx`), and a session entry
-// on a card, in Recently done, or in the Sessions sidebar reaches opening
+// on a card, in Taken or Recently done, or in the Sessions sidebar reaches opening
 // and marking without every component between them passing them along. Each
 // session entry names its session, so the page can find where to bring the
 // entry into view.
@@ -90,7 +90,11 @@ export function doneStoryMarks(identity: string) {
 // page has rendered the list anew.
 type Entry = { readonly attribute: string; readonly value: string };
 
-const entryMarks = [showsSessionAttribute, doneStoryAttribute] as const;
+const entryMarks = [
+  showsSessionAttribute,
+  doneStoryAttribute,
+  "data-work",
+] as const;
 
 // The entry an element is, by its mark.
 function entryOf(element: Element | null | undefined): Entry | undefined {
@@ -102,8 +106,8 @@ function entryOf(element: Element | null | undefined): Entry | undefined {
 }
 
 // The entry beside the one a control is in, in the same list: a card's
-// sessions, a done story's sessions, or Recently done itself, where a done
-// story's card is an entry as a session is. The nearest after it, else the
+// sessions, a done story's sessions, or either standalone column list, where
+// a story card is an entry as a session is. The nearest after it, else the
 // nearest before it; with none, the done story's card holding the list, for
 // the last of its sessions. A list item's entry is its first marked element,
 // which for a done story's card is the card, not a session inside it.
@@ -122,8 +126,7 @@ function entryBeside(control: HTMLElement): Entry | undefined {
   return entryOf(item?.closest(`[${doneStoryAttribute}]`));
 }
 
-// The entry where the page shows it now, within the part that listed it: a
-// session open on a card is in Recently done too.
+// The marked entry within the list or column that contained the operation.
 function entryShown(
   entry: Entry | undefined,
   within: string,
@@ -137,27 +140,31 @@ function entryShown(
 
 // Where the keyboard goes once the entry a control is in is deleted: the entry
 // beside it while the page still shows it (`entryBeside`), else its story's
-// card (for a card's entry) or Recently done. Read the neighbours before the
+// card (for a card's entry) or the containing column. Read the neighbours before the
 // delete; the answer is looked up afterwards.
 export function deletedEntryHome(
   control: HTMLElement,
   identity: string | undefined,
 ): () => HTMLElement | null {
   const beside = entryBeside(control);
-  const inRecentlyDone = control.closest(".recently-done") !== null;
+  const column =
+    control.closest(".recently-done") !== null
+      ? ".recently-done"
+      : `.stage[aria-labelledby="${control.closest(".stage")?.getAttribute("aria-labelledby")}"]`;
+  const within =
+    control.closest(".card-sessions") !== null ? ".card-sessions" : column;
   return () =>
-    entryShown(beside, inRecentlyDone ? ".recently-done" : ".card-sessions") ??
-    (inRecentlyDone
-      ? document.querySelector<HTMLElement>(".recently-done")
-      : ((identity === undefined ? undefined : workCard(identity)) ?? null));
+    entryShown(beside, within) ??
+    (identity === undefined ? undefined : workCard(identity)) ??
+    document.querySelector<HTMLElement>(column);
 }
 
-// The session's Recently done entry, while the page shows it, whether it is
-// an entry of its own or inside its done story's card.
-export function recentlyDoneEntry(sessionKey: string): HTMLElement | null {
+// The actual entry across all dashboard columns. The sidebar is navigation,
+// so it does not compete with the session's one column home.
+export function sessionEntry(sessionKey: string): HTMLElement | null {
   return entryShown(
     { attribute: showsSessionAttribute, value: sessionKey },
-    ".recently-done",
+    ".dashboard-columns",
   );
 }
 

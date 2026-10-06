@@ -13,7 +13,7 @@ import { expect, test } from "./dashboardTest.ts";
 import {
   cardSessionOf,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -63,16 +63,18 @@ test.describe("deleting an unavailable session's record from its current home", 
     dashboard.claudeSessionBecomes(gone, "forgotten");
     dashboard.claudeSessionBecomes(becameKnown, "forgotten");
     // The completed story has no active card, so its open session retains
-    // the interim done-card home while the other session follows Taken.
+    // its local Taken home while the other session follows Taken.
     await show(stagesJourney.completed);
     await sidebar.button.click();
     const unavailable = cardSessionOf(
       parts(page).taken.getByRole("article", { name: readyStory, exact: true }),
       "Execution",
     );
-    const becomesKnown = recent.getByRole("article", {
-      name: recentlyDoneSessionName("Refinement", notRefinedStory),
-    });
+    const becomesKnown = page
+      .locator(".dashboard-columns")
+      .getByRole("article", {
+        name: standaloneSessionName("Refinement", notRefinedStory),
+      });
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",
@@ -95,7 +97,7 @@ test.describe("deleting an unavailable session's record from its current home", 
     await test.step("a session whose state became known since the page read it keeps its record and says so", async () => {
       // Marked done elsewhere, it no longer reads Session unavailable.
       await markDone(dashboard, { source: "open-dough", session: becameKnown });
-      await showColumn(page, "Recently done");
+      await showColumn(page, "Taken");
       await becomesKnown
         .getByRole("button", { name: "Delete record…" })
         .click();
@@ -103,9 +105,7 @@ test.describe("deleting an unavailable session's record from its current home", 
         .getByRole("button", { name: "Delete record", exact: true })
         .click();
 
-      await expect(becomesKnown).toContainText(
-        "This session's state is now known",
-      );
+      await expect(recent.locator(".session-entry")).toHaveCount(1);
       expect(stored()).toContain(becameKnown);
       // Read again, it is Done: it offers no delete and leaves the sidebar.
       await expect(sessionStateOf(becomesKnown)).toHaveText("Done");

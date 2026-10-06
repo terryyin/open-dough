@@ -1,19 +1,13 @@
-// Opening a Sessions sidebar entry whose story is on no card reveals and
-// marks its Recently done entry instead, inside its done story's card when
-// the story is done; a Session unavailable entry
-// reveals its card and opens no terminal; on a narrow window, opening an
-// entry also closes the sidebar lying over the page; and under reduced
-// motion the page moves to the story at once; closing the terminal then
-// returns the keyboard to Sessions; and a pick left behind for another
-// project's stories never scrolls the page later. The page's own dashboard
-// server launches and attaches the synthetic `claude`
-// (./fixtures/fake-claude); the real one is never reached.
+// Sidebar selection reveals an open session's actual card or local Taken entry.
+// Unavailable sessions open no terminal; narrow selection closes the overlay,
+// reduced motion reveals at once, and stale project picks never scroll later.
+// The real dashboard boundary launches/attaches synthetic Claude only.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import { launched } from "./agentTerminalBoundary.ts";
@@ -51,7 +45,7 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a story on no card reveals and marks its Recently done entry, and a Session unavailable entry reveals its card and opens no terminal", async ({
+  test("a story on no card reveals and marks its Taken entry, and a Session unavailable entry reveals its card and opens no terminal", async ({
     page,
     dashboard,
   }) => {
@@ -61,25 +55,25 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
       stagesJourney,
     );
     const { sidebar, button, entry } = sidebarParts(page);
-    const { recentlyDone, backlog } = parts(page);
+    const { taken, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await button.click();
 
-    await test.step("the story on no card opens its session and reveals and marks its Recently done entry", async () => {
-      const recentName = recentlyDoneSessionName(
+    await test.step("the story on no card opens its session and reveals and marks its Taken entry", async () => {
+      const sessionName = standaloneSessionName(
         "Execution",
         removedStory.title,
       );
-      const recent = recentlyDone.getByRole("article", { name: recentName });
-      await expect(recent).not.toBeInViewport();
+      const local = taken.getByRole("article", { name: sessionName });
+      await page.setViewportSize({ width: 1000, height: 900 });
+      await expect(local).not.toBeInViewport();
       await entry(removedStory.title).click();
       await expect(panel.getByRole("heading")).toHaveText(removedStory.title);
-      // The page beside the sidebar and terminal shows one column, which
-      // moves to Recently done.
-      await expect(recent).toBeInViewport();
-      await expectRevealsSince(page, 0, recentName, "smooth");
-      await expect(recent.getByText("Shown in terminal")).toBeVisible();
-      await expect(recent).toHaveCSS("outline-style", "solid");
+      // The column beside the sidebar and terminal moves to Taken.
+      await expect(local).toBeInViewport();
+      await expectRevealsSince(page, 0, sessionName, "smooth");
+      await expect(local.getByText("Shown in terminal")).toBeVisible();
+      await expect(local).toHaveCSS("outline-style", "solid");
       await expect(entry(removedStory.title)).toHaveAttribute(
         "aria-current",
         "true",
@@ -118,7 +112,7 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     });
   });
 
-  test("a done story's session opens from the sidebar and reveals and marks its entry inside the done story's card", async ({
+  test("a done story's session opens from the sidebar and reveals and marks its entry as a local Taken entry", async ({
     page,
     dashboard,
   }) => {
@@ -134,21 +128,24 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
         workflow: "refinement",
       })
     ).sessionId;
-    // Story C is done: its card is gone from the stages and Recently done
-    // holds its session inside its done card.
+    // Story C is done; its open session remains a local Taken entry.
     await show(stagesJourney.completed);
     const { button, entry } = sidebarParts(page);
     const { recentlyDone, stages } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
-    const recentName = recentlyDoneSessionName("Refinement", notRefinedStory);
-    const inDoneCard = recentlyDone
-      .getByRole("article", { name: notRefinedStory, exact: true })
-      .getByRole("article", { name: recentName });
+    const sessionName = standaloneSessionName("Refinement", notRefinedStory);
+    const local = parts(page).taken.getByRole("article", { name: sessionName });
+    await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
     await expect(
-      stages.getByRole("article", { name: notRefinedStory, exact: true }),
+      stages.locator("[data-work]").filter({
+        has: page.getByRole("heading", {
+          name: notRefinedStory,
+          exact: true,
+        }),
+      }),
     ).toHaveCount(0);
-    await expect(inDoneCard).toBeVisible();
-    await expect(inDoneCard).not.toBeInViewport();
+    await expect(local).toBeVisible();
+    await expect(local).not.toBeInViewport();
     await button.click();
     const revealed = (await revealsOf(page)).length;
 
@@ -158,10 +155,10 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     await expect
       .poll(() => attachesOf(dashboard, doneStorySession))
       .toHaveLength(1);
-    await expect(inDoneCard).toBeInViewport();
-    await expectRevealsSince(page, revealed, recentName, "smooth");
-    await expect(inDoneCard.getByText("Shown in terminal")).toBeVisible();
-    await expect(inDoneCard).toHaveCSS("outline-style", "solid");
+    await expect(local).toBeInViewport();
+    await expectRevealsSince(page, revealed, sessionName, "smooth");
+    await expect(local.getByText("Shown in terminal")).toBeVisible();
+    await expect(local).toHaveCSS("outline-style", "solid");
     await expect(entry(notRefinedStory)).toHaveAttribute(
       "aria-current",
       "true",

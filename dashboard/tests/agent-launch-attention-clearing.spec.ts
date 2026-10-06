@@ -18,7 +18,7 @@ import {
   cardSessionOf,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
@@ -60,7 +60,7 @@ test("a session's attention stays through opening and closing its terminal, clea
   const panel = page.getByRole("region", { name: "Terminal" });
   const onCard = cardSessionOf(card(readyStory), "Execution");
   const inRecent = recent.getByRole("article", {
-    name: recentlyDoneSessionName("Execution", readyStory),
+    name: standaloneSessionName("Execution", readyStory),
   });
   const expectOpen = async (words: string, needsAttention: boolean) => {
     await expectSessionShown(onCard, words, needsAttention);

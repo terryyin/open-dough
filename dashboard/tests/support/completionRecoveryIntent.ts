@@ -12,7 +12,6 @@ import {
 } from "../../src/completionReport.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stored } from "./codexStart.ts";
-import { parts } from "../dashboardPage.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { messagePartOf } from "./sessionMessagePart.ts";
 import {
@@ -102,8 +101,8 @@ export async function observeLaterCompletionIntent(options: {
   );
   expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
   await page.reload();
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
+  const recent = page
+    .locator(".dashboard-columns .session-entry")
     .filter({ hasText: record.session.sessionId });
   const part = messagePartOf(recent);
   await expect(part.text).toHaveText(text);

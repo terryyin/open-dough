@@ -50,7 +50,7 @@ test.describe("beside the side panel", () => {
     dashboard.claudeScenario("launched");
     const { card, start, dialog } = await openTakenBacklog(page, journey);
     const terminal = page.getByRole("region", { name: "Terminal" });
-    const { recentlyDone } = parts(page);
+    const { taken } = parts(page);
     // The view, beside a terminal whose screen scrolls on its own.
     const expectShown = (
       shown: readonly ColumnName[],
@@ -71,7 +71,7 @@ test.describe("beside the side panel", () => {
         54 * rem,
         0,
       );
-      await expectShown(["Backlog", "Taken"], ["Recently done 1 entry"]);
+      await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
       await expectCardsKeepTheirShare(page, 2);
     });
 
@@ -88,21 +88,21 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("the side panel reopens: Taken and Recently done show again", async () => {
-      await recentlyDone.getByRole("button", { name: "Open terminal" }).click();
+      await taken.getByRole("button", { name: "Open terminal" }).click();
       await expect(terminal.locator(".xterm-rows")).toContainText("attached");
       await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
     });
 
     await test.step("a session started from a Backlog card stays on its card without adding to the right control's Recently done count, and the view stays", async () => {
       await edgeControl(page, "Backlog").click();
-      await expectShown(["Backlog", "Taken"], ["Recently done 1 entry"]);
+      await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
       await start(readyStory).click();
       await dialog.getByRole("button", { name: "Start" }).click();
       await expect(cardSessions(card(readyStory))).toHaveCount(1);
       await expect(edgeControl(page, "Recently done")).toHaveText(
-        "Recently done 1 entry",
+        "Recently done 0 entries",
       );
-      await expectShown(["Backlog", "Taken"], ["Recently done 1 entry"]);
+      await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
     });
   });
 });

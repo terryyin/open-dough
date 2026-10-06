@@ -20,35 +20,36 @@ membership through reload. Such a session is excluded from Recently done,
 including from a matching done-story card. Marking it done removes it from the
 active card and retains it in Recently done, without changing the story's
 published membership; successfully reopening it restores its active-card home.
-Recently done is one newest-first list of the selected project's done stories,
-from the done records published at the snapshot's revision, placed by
-completion time, and of every selected-project record not held by an active
-card that belongs to no shown
-done story, placed by launch time, including records marked done and stories
-absent from published lists; it appears only with readable published work. A
-done story's card shows its title, identity, completion time, developer, and the
-agent with its host when recorded, and holds every record of that story's work
-identity in the selected project except open sessions held by active cards,
-newest first, each the
-same session entry with its state and actions; none of them is listed again
-outside the card, and a session launched after completion does not move the
-card. A machine with no records for the story shows the card with none. A done
-record older than 30 days is not shown, so its story's records are listed as
-entries of their own again. A project publishing no done records lists only
-the records; done records that cannot be read are said in the column, which
-still lists the records. Ad hoc labels collapse whitespace, truncate at 40
-characters with ellipsis, or use local launch time for blank/control-character
-text; no card lists them.
-Reading sessions is distinguished from none kept. A session still navigates
-when its story changes stage or disappears. Only dashboard-recorded sessions
-appear; another project's records never count on a card.
+Every other confirmed open session appears once as a local session entry in
+Taken, after published Taken stories, newest launch first. This includes ad hoc
+sessions and sessions whose saved story is in neither active list, even when a
+matching done-story card is visible. The saved story reference, host-qualified
+identity, attribution, reports and native terminal owner remain intact. A story
+returning to an active list takes its open sessions back inside its card.
+Adding, closing or reopening a local entry creates no published Take or story
+completion.
 
-This is the interim delivered placement while session column membership is
-completed: open sessions with no active story card, including ad hoc sessions,
-still keep their previous Recently done placement and done-card grouping.
-The remaining change moves those open sessions into local Taken and reserves
-done-card sessions for saved Done. The recent view and its edge count already
-use the same projected list; nested sessions do not add top-level entries.
+Recently done combines published done stories by completion time and saved Done
+sessions by launch time. A done-story card holds only its marked-done sessions,
+newest first, with the same state and actions; later launches do not move the
+card. Closed sessions without a shown done card remain standalone, including
+those whose story is active. An expired published card releases its closed
+sessions to standalone entries for their remaining local retention window.
+Unread or failed done details retain closed-session access until regrouping.
+Native Working, Needs input, Ready for review, unavailable or unknown activity,
+and Mark as read, never choose a column. Existing operations recording or
+clearing Done remain authoritative; refused marking or native reopening keeps
+the existing placement, and native stop/rename problems remain visible beside
+any observed Working despite saved Done.
+
+Heading and edge counts use the same top-level entries: each story counts once,
+each standalone session once, and nested sessions add nothing. Unread machine
+records or done details leave counts explicitly incomplete and never establish
+an empty combined column. Unresolved creation evidence stays reachable in its
+recovery surface but is not a confirmed session count. Ad hoc labels collapse
+whitespace, truncate at 40 characters with ellipsis, or use local launch time for
+blank/control-character text. Only dashboard-recorded sessions appear and the
+selected project's records alone determine its column entries.
 
 An assigned session shows its original agent and human credit at the saved
 allocation revision, beside its native host and requested model (or the model
@@ -108,9 +109,11 @@ an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload
 in browser storage. Closing while focused there restores the Sessions button.
 Wide layout is sidebar/page/terminal; narrow sidebar overlays below the banner,
 terminal stacks above page. Opening a row changes project/history and reveals
-its card or Recently done entry, inside its done story's card when there is
-one, until user navigation; reduced motion skips animation. Deleting a session
+its actual session entry or containing active card, in Taken or Recently done,
+until user navigation; reduced motion skips animation. Deleting a session
 record moves the keyboard to the next entry in the same list (a card's
-sessions, a done card's sessions, or Recently done, where a done card is an
-entry), else the previous one, else the done card or story card that held it,
-else Recently done.
+sessions, a done card's sessions, or either standalone column list), else the
+previous one, else the done card or story card that held it,
+else the containing column. Closing a terminal or report keeps its original
+return control while usable, otherwise returns to the same session in its
+current home. Membership movement alone never attaches or detaches its terminal.

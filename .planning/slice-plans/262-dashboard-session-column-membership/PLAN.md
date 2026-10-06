@@ -126,7 +126,7 @@ trade-off is replaced by slice 2, not described as the final contract.
 ### 2. Every remaining open session belongs in local Taken
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `agent-launch-ad-hoc-sessions.spec.ts`,
 `recently-done-story-sessions.spec.ts`, the done-read-latency, sidebar-navigation
 and column-paging journeys; add `dashboard/tests/session-column-membership.spec.ts`
@@ -223,19 +223,12 @@ not execution or publication authority.
 
 ## Accepted execution proof
 
-Slice 1: the built dashboard's real launch/published-membership journey captures
-native and host-qualified identity in `cardSessionListing.ts` and observes one
-column occurrence through Preparing, Taken, reload and manual Done. Held-read,
-refused Done, reopen, matching done-card and edge-count assertions passed.
-The reached attribution, native-state, saved-detail, terminal/report, deletion
-and continuation consumers preserve their purpose at the actual single entry.
-No persistence or native-completion change. Open orphan/ad hoc placement remains
-the explicit interim behavior owned by slice 2. Independent refactor completed;
-its extraction/loop changes passed focused replacement proof and typecheck.
-All commands selected Node 24.21.0 via the Execution context PATH; test services
-ran with authorized loopback/Git-fixture access. Terminal results:
+Historical slice-1 proof and terminal results remain in the linked
+[execution proof context](CONTEXT.md#accepted-execution-proof).
 
-- `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-card-sessions.spec.ts session-sidebar-reading.spec.ts agent-launch-card-done.spec.ts agent-terminal-done-reopen.spec.ts recently-done-story-sessions.spec.ts --workers=2` — exit 0, eight tests.
-- `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-card-sessions.spec.ts agent-launch-recent-sessions.spec.ts agent-terminal-done-codex-page.spec.ts agent-launch-codex-observation-boundary.spec.ts --grep 'a card lists each|lists each launch newest|Codex done|native interrupt refusal|predecessor without continuation' --workers=2` — exit 0, six selected tests, resolving two old duplicate-target assertions from the otherwise passing affected-consumer run.
-- `env -u NO_COLOR -u FORCE_COLOR PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- agent-launch-card-sessions.spec.ts agent-launch-model-entries.spec.ts agent-launch-options-entries.spec.ts agent-launch-preparation-workspace.spec.ts agent-launch-session-state-pace.spec.ts --workers=2` — exit 0, ten tests after refactoring.
-- `env PATH=/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard` and `git diff --check` — exit 0 after implementation and refactoring. Project `npm run format` — exit 0 before staging.
+Slice 2 completed the placement table, supported controls, counts/completeness,
+ordering, retention, navigation and focus. Its [accepted proof](CONTEXT.md#slice-2-proof)
+includes actual starts and operations, published membership movement with a
+retained terminal, raw mixed/closed records, held reads and reached shared
+consumers. Independent refactoring made one stage view authoritative for lists,
+headings and edges. No persisted/native completion policy changed.

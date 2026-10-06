@@ -121,7 +121,7 @@ test("an ad-hoc session's message is read and marked read on its Recently done e
   await adHoc.report({ outcome: "unfinished", message: newerMessage });
   await publishOrigin(page, origin);
   await page.goto("/");
-  const recent = parts(page).recentlyDone.getByRole("article");
+  const recent = parts(page).taken.locator(".session-entry");
   await expect(recent).toHaveCount(1);
   const message = messagePartOf(recent);
   await expectExpanded(message, "Unfinished work", newerMessage);

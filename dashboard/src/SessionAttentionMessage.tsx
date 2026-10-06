@@ -1,4 +1,4 @@
-// A session entry's message part, the same on a card and in Recently done:
+// A session entry's message part, the same on a card or in either column:
 // the session's attention message under its report's completion label. The
 // label is the part's disclosure button (./frame-controls.css). While the
 // report is unread the part is expanded, offers Mark as read, and does not

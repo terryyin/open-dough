@@ -4,7 +4,7 @@
 // the recorded developer's name, and the agent's host beside its mark, for
 // example "Yui-chan · Terry Yin · Claude Code". A record naming no agent shows
 // none. It is a story fact, published for every machine. Inside it are the
-// sessions this machine keeps for the story, open or marked done, newest
+// marked-done sessions this machine keeps for the story, newest
 // first, each the entry Recently done shows (`./SessionEntry.tsx`); a machine
 // that keeps none shows none. The card holds the keyboard when the last of
 // them is deleted (`deletedEntryHome`).

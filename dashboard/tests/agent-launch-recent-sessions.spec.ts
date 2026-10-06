@@ -19,7 +19,7 @@ import {
   cardSessionOf,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
@@ -81,7 +81,7 @@ test.describe("retained launches in their current column homes", () => {
           : cardSessionOf(card(title), workflow);
         await expect(entry).toHaveAccessibleName(
           closed
-            ? recentlyDoneSessionName(workflow, title)
+            ? standaloneSessionName(workflow, title)
             : cardSessionName(workflow),
         );
         if (closed) {

@@ -19,7 +19,7 @@ import {
   cardSessionOf,
   cardSessions,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -58,7 +58,7 @@ async function unknownSession(page: Page, dashboard: DashboardServer) {
   await dialog.getByRole("button", { name: "Start" }).click();
   const entry = cardSessionOf(card(readyStory), "Execution");
   const inRecent = parts(page).recentlyDone.getByRole("article", {
-    name: recentlyDoneSessionName("Execution", readyStory),
+    name: standaloneSessionName("Execution", readyStory),
   });
   const session = await sessionNamedBy(entry);
   await expect(sessionStateOf(entry)).toHaveText("Working");

@@ -60,14 +60,17 @@ test("card, Recently done and sidebar review the retained report with attention,
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   await expect(recent).toHaveCount(0);
-  // With no active story card, its still-open session keeps the interim
-  // Recently done home and the same passive report access.
+  // With no active story card, its open session has the local Taken home
+  // and the same passive report access.
   await show(journey.completed);
-  await recent.getByRole("button", { name: "Read final report" }).click();
+  const local = parts(page)
+    .taken.locator(".session-entry")
+    .filter({ hasText: native.threadId });
+  await local.getByRole("button", { name: "Read final report" }).click();
   await expect(panel.locator(".session-final-report")).toHaveText(report);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(
-    recent.getByRole("button", { name: "Read final report" }),
+    local.getByRole("button", { name: "Read final report" }),
   ).toBeFocused();
   await show(journey.queued);
   await expect(recent).toHaveCount(0);

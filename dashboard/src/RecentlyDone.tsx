@@ -1,30 +1,14 @@
 import { sessionKey } from "./sessionReference.ts";
-// The selected project's Recently done column: one newest-first list of the
-// stories done recently by the done records published at the snapshot's
-// revision (`./DoneStoryCard.tsx`), placed by when each was done, and every
-// native session this dashboard's server launched for the project and still
-// keeps on this machine, except open sessions held by active story cards.
-// Sessions are placed by launch time, so the developer can reach a session
-// whose story is in no list, or one marked done. A session of a shown done
-// story that is not held by an active card, open or
-// marked done, is listed inside that story's card, newest first, and nowhere
-// else in the column; a later launch for the story does not move the card.
-// Sessions are listed once the machine's sessions are first read; done
-// records that cannot be read are said, and the sessions are still listed.
-// Each session entry (`./SessionEntry.tsx`) names its story and shows its
-// session's state as its host last observed it, read again at the page's
-// steady pace. It takes the keyboard when the last of its entries is deleted
-// (see `deletedEntryHome` in `./pageSessions.ts`). Session entries are local
-// evidence of launches, not story facts.
+// Recently done combines published stories by completion time and saved Done
+// sessions by launch time. Only closed sessions are nested in done cards;
+// unknown or failed published details leave their standalone access intact.
 
 import {
   launchRetentionDays,
-  cardSessionsOf,
-  projectSessionsOf,
   storySessionsOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import type { ColumnSummary } from "./ColumnEdge.tsx";
+import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import {
@@ -86,33 +70,21 @@ function DoneReadGaps({ done }: { readonly done: DoneStories | undefined }) {
   );
 }
 
-// What Recently done lists for the project: its creations under way, its
-// kept sessions except open ones held by active cards, and, newest first, its recently
-// done stories, each holding its sessions, and the sessions of no shown done
-// story.
+// Done stories and the selected project's closed sessions use one list for
+// rendering and counts. Unresolved creations remain recovery evidence only.
 export function recentlyDoneOf(
   sourceId: string,
   creations: readonly CreationView[],
-  machineRecords: readonly LaunchWithState[] | undefined,
+  records: readonly LaunchWithState[] | undefined,
   done: DoneStories | undefined,
-  activeStoryIdentities: readonly string[],
+  noneKept: boolean,
 ) {
-  const heldByActiveCards = new Set(
-    activeStoryIdentities.flatMap((identity) =>
-      cardSessionsOf(machineRecords, sourceId, identity),
-    ),
-  );
-  const projectRecords = projectSessionsOf(machineRecords, sourceId);
-  const records = projectRecords?.filter(
-    (record) => !heldByActiveCards.has(record),
-  );
   return {
     creations: creations.filter((record) => record.request.source === sourceId),
     records,
-    none:
-      projectRecords?.length === 0
-        ? "No sessions launched from this dashboard are kept."
-        : "No sessions are listed in Recently done.",
+    none: noneKept
+      ? "No sessions launched from this dashboard are kept."
+      : "No sessions are listed in Recently done.",
     done,
     listed: newestFirst(
       recentDoneStories(done, new Date()),
@@ -131,7 +103,12 @@ export function recentlyDoneColumn(
 ): ColumnSummary {
   return {
     name,
-    entries: listed.creations.length + listed.listed.length,
+    entries:
+      listed.records === undefined ||
+      listed.done?.status !== "read" ||
+      listed.done.unreadable.length > 0
+        ? undefined
+        : listed.listed.length,
   };
 }
 
@@ -147,7 +124,12 @@ export function RecentlyDone({
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
     >
-      <h2 id="recently-done-heading">{name}</h2>
+      <header className="stage-header">
+        <h2 id="recently-done-heading">{name}</h2>
+        <p className="stage-count">
+          {entryCount(recentlyDoneColumn(view).entries)}
+        </p>
+      </header>
       <p className="quiet">
         Recently done stories and sessions launched from this dashboard for this
         project, newest first. Sessions are kept on this machine.

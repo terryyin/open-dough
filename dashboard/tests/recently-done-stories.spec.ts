@@ -46,7 +46,7 @@ import {
 async function keepSessions(dashboard: DashboardServer, now: number) {
   await keepLaunchRecords(
     dashboard,
-    sessionsOutsideDoneStories(dashboard, now),
+    sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
   );
 }
 

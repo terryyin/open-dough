@@ -10,7 +10,6 @@ import {
 } from "../../src/completionReport.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stored } from "./codexStart.ts";
-import { parts } from "../dashboardPage.ts";
 import {
   reportingChild,
   retainedSubmission,
@@ -72,8 +71,8 @@ export async function observeCompletionFaults(options: {
   expect(stored(receiver.home)[0]?.completion).toBeUndefined();
   expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
   await page.reload();
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
+  const recent = page
+    .locator(".dashboard-columns .session-entry")
     .filter({ hasText: record.session.sessionId });
   await expect(recent).not.toContainText("Done");
   const stale = {

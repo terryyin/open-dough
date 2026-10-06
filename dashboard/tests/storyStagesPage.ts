@@ -14,6 +14,7 @@ import {
   revisionDoughnut,
 } from "./doughnutProject.ts";
 import type { StoryStagesJourney } from "./launchJourney.ts";
+import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 
 export type Workflow = "Execution" | "Refinement";
@@ -40,9 +41,13 @@ export async function openStoryStagesJourney(
     action,
     settled,
     // Origin publishes the revision, and the page reads it.
-    show: async (revision: string) => {
+    show: async (revision: string, { reload = true } = {}) => {
       origin.advanceTo(revision);
-      await page.reload();
+      if (reload) await page.reload();
+      else {
+        await setPageVisibility(page, "hidden");
+        await setPageVisibility(page, "visible");
+      }
       await expect(source).toContainText(revision);
       await settled();
     },
