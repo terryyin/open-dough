@@ -88,7 +88,7 @@ async function questionFollowsReadings(
 async function expectDone(page: Page, entry: Locator) {
   await expect(entry).toHaveCount(0);
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: titleA });
   await expect(sessionStateOf(recent)).toHaveText("Done");
 }

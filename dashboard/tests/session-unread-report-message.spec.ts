@@ -1,9 +1,9 @@
-// A session entry's message part, on a card or in Recent sessions: expanded
+// A session entry's message part, on a card or in Recently done: expanded
 // with Mark as read while its report is unread, beside the entry's own Mark as
 // done; a refused mark says so in the entry's status line; marked read, the
 // part collapses with the keyboard on its heading and expands again from it.
 // A session without a story card, here an ad-hoc session, is read on its
-// Recent sessions entry. A long message scrolls inside the part, with Mark as
+// Recently done entry. A long message scrolls inside the part, with Mark as
 // read and the entry's Mark as done in view. ./session-unread-report.spec.ts
 // is the unread report's journey beside the native reading. Real start,
 // launch, installed reporting command, store and page; only the synthetic
@@ -107,7 +107,7 @@ test("a card entry's unread message is marked read in its message part, beside t
   await expectCollapsed(message, label);
 });
 
-test("an ad-hoc session's message is read and marked read on its Recent sessions entry", async ({
+test("an ad-hoc session's message is read and marked read on its Recently done entry", async ({
   page,
   dashboard,
   origin,
@@ -121,7 +121,7 @@ test("an ad-hoc session's message is read and marked read on its Recent sessions
   await adHoc.report({ outcome: "unfinished", message: newerMessage });
   await publishOrigin(page, origin);
   await page.goto("/");
-  const recent = parts(page).recentSessions.getByRole("article");
+  const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
   const message = messagePartOf(recent);
   await expectExpanded(message, "Unfinished work", newerMessage);

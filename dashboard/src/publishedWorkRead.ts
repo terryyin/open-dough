@@ -35,6 +35,7 @@ import {
 } from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
+import { readDoneStories } from "./doneStories.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -134,14 +135,17 @@ export async function readPublishedWork(
         retrievedAt: new Date(),
         ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
         ...interpret(markdown, revision, source, { status: "loading" }),
+        done: { status: "loading" },
       });
       onPartial?.(work);
       // Owners and preparers come from the agent profiles at the same
-      // revision, read beside the preparation facts.
-      const [prepared, assignments] = await Promise.all([
+      // revision, read beside the preparation facts and the done records.
+      const [enrichedPreparation, assignments, done] = await Promise.all([
         enrichPreparation(work, untilEither),
         readAssignments(source, revision, untilEither),
+        readDoneStories(source, revision, untilEither),
       ]);
+      const prepared: PublishedWork = { ...enrichedPreparation, done };
       // Each profile's addition is read once, for both its assignment's human
       // and its Take's slice clock. Each human is read while progress and
       // clocks are, and is shown as soon as its own walk ends, in whatever

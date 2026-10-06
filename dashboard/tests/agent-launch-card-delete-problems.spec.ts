@@ -5,12 +5,12 @@
 // finds the state known keeps the record and says "This session's state is
 // now known"; an unwritable record file says "The session record could not be
 // deleted." with the boundary's reason, leaves the buttons and the keyboard
-// where they were. Card and Recent failures arrive in the same exposed status
-// that was empty before confirmation, and retry deletes without success speech;
-// a read answered after the deletion does not list the session again. The page's own
-// dashboard server drives the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached. The page clock stands still unless the
-// journey lets it pass.
+// where they were. Card and Recently done failures arrive in the same exposed
+// status that was empty before confirmation, and retry deletes without success
+// speech; a read answered after the deletion does not list the session again.
+// The page's own dashboard server drives the synthetic `claude`
+// (./fixtures/fake-claude); the real one is never reached. The page clock
+// stands still unless the journey lets it pass.
 
 import { chmodSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -19,7 +19,7 @@ import {
   cardSessionOf,
   cardSessions,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -57,8 +57,8 @@ async function unknownSession(page: Page, dashboard: DashboardServer) {
   await start(readyStory).click();
   await dialog.getByRole("button", { name: "Start" }).click();
   const entry = cardSessionOf(card(readyStory), "Execution");
-  const inRecent = parts(page).recentSessions.getByRole("article", {
-    name: recentSessionName("Execution", readyStory),
+  const inRecent = parts(page).recentlyDone.getByRole("article", {
+    name: recentlyDoneSessionName("Execution", readyStory),
   });
   const session = await sessionNamedBy(entry);
   await expect(sessionStateOf(entry)).toHaveText("Working");
@@ -128,7 +128,7 @@ test("a click that finds the state known keeps the record and says so beside the
   expect(dashboard.claudeStopCalls()).toEqual([]);
 });
 
-for (const location of ["card", "Recent"] as const) {
+for (const location of ["card", "Recently done"] as const) {
   test(`an unwritable record file reports its first failure in the persistent ${location} entry status, retains buttons and focus, and retries without success speech`, async ({
     page,
     dashboard,
@@ -187,7 +187,7 @@ for (const location of ["card", "Recent"] as const) {
     await expect(s.entry).toHaveCount(0);
     await expect(s.inRecent).toHaveCount(0);
     await expect(
-      location === "card" ? s.card(readyStory) : parts(page).recentSessions,
+      location === "card" ? s.card(readyStory) : parts(page).recentlyDone,
     ).toBeFocused();
     await expect(
       page.getByText("Session record deleted", { exact: true }),

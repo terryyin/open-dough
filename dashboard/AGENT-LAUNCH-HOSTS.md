@@ -136,7 +136,7 @@ the workspace's `.agents/skills/<skill>/SKILL.md`; ad hoc sends only optional te
 Creation refusal submits no input, keeps preparation and reports a validated, bounded
 native error message without dumping error data. A daemon whose working directory was
 removed needs a restart; the dashboard never restarts it automatically. Before creation,
-the launch document keeps workspace/endpoint. Without a trusted ID, cards/Recent show
+the launch document keeps workspace/endpoint. Without a trusted ID, cards/Recently done show
 a native history picker; Start requires reconciliation.
 Known input is awaiting before submission, uncertain before acknowledgment,
 confirmed by acceptance or matching saved intent in native history. Start reads/
@@ -148,7 +148,7 @@ Confirmation clears pending acceptance explanations, including legacy stale unce
 Connection loss retains the command with a separate continuation notice. Neither fact
 claims live/story state; predecessor Claude records remain confirmed.
 Codex records retain the exact native continuation arguments, endpoint and
-workspace. Cards/Recent show a shell-quoted command:
+workspace. Cards/Recently done show a shell-quoted command:
 `codex resume --remote <native Unix endpoint> --cd <recorded workspace> <thread ID>`.
 Use it in an ordinary terminal to read, answer questions and handle configured
 approval in the same native conversation, including while a turn is active.

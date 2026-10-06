@@ -65,7 +65,7 @@ test("Mark as done in the terminal panel closes a session with an unread report 
   await expect(card.locator(".session-state")).toHaveCount(0);
   await expect(row).toHaveCount(0);
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: titleA });
   await expect(recent.locator(".session-state")).toHaveText("Done");
   await expect(recent.locator(".session-unread-report")).toHaveCount(0);
@@ -106,7 +106,7 @@ test("in the terminal panel, a session with a read completed report that reads R
   await expect(panel).toHaveCount(0);
   await expect(entry).toHaveCount(0);
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: titleA });
   await expect(sessionStateOf(recent)).toHaveText("Done");
   expect(dashboard.claudeStopCalls().slice(before)).toEqual([

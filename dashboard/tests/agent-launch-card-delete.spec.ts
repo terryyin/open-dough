@@ -2,7 +2,7 @@
 // story-stages origin (./launchJourney.ts): while the whole listing cannot be
 // read, every entry says "State unknown" and offers "Delete record…", which
 // asks in place before it deletes and, once confirmed, takes only the
-// session's record: the entry leaves its card, Recent sessions and the
+// session's record: the entry leaves its card, Recently done and the
 // Sessions sidebar, the other session, the card's stage and its attention
 // count stay, no deletion-success message appears, and the keyboard goes to
 // the next entry or to the card. A Session unavailable entry offers and does the same; a Working
@@ -19,7 +19,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -57,7 +57,7 @@ test.describe("deleting a card's session record", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
     const queued = {
       taken: [],
@@ -77,7 +77,7 @@ test.describe("deleting a card's session record", () => {
     const stored = () => readFileSync(recordFile, "utf8");
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {
-        name: recentSessionName(workflow, readyStory),
+        name: recentlyDoneSessionName(workflow, readyStory),
       });
     const deleteButton = (entry: typeof execution) =>
       entry.getByRole("button", { name: "Delete record…" });
@@ -140,7 +140,7 @@ test.describe("deleting a card's session record", () => {
       expect(stored()).toContain(kept);
     });
 
-    await test.step("Delete record removes the entry from the card, Recent sessions and the sidebar without a success announcement, and moves the keyboard to the card", async () => {
+    await test.step("Delete record removes the entry from the card, Recently done and the sidebar without a success announcement, and moves the keyboard to the card", async () => {
       await deleteButton(execution).click();
       await execution
         .getByRole("button", { name: "Delete record", exact: true })
@@ -160,7 +160,7 @@ test.describe("deleting a card's session record", () => {
     });
   });
 
-  test("a Session unavailable entry offers Delete record…, asks, and confirming removes it from its card, Recent sessions and the sidebar", async ({
+  test("a Session unavailable entry offers Delete record…, asks, and confirming removes it from its card, Recently done and the sidebar", async ({
     page,
     dashboard,
   }) => {
@@ -169,7 +169,7 @@ test.describe("deleting a card's session record", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
     await settled();
     await launch(readyStory, "Execution");
@@ -200,7 +200,7 @@ test.describe("deleting a card's session record", () => {
     await expect(unavailable).toHaveCount(0);
     await expect(
       recent.getByRole("article", {
-        name: recentSessionName("Execution", readyStory),
+        name: recentlyDoneSessionName("Execution", readyStory),
       }),
     ).toHaveCount(0);
     await expect(sidebar.entries).toHaveCount(0);

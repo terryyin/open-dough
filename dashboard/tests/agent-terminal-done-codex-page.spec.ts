@@ -56,7 +56,7 @@ for (const attached of [false, true]) {
     const { card, settled } = await openStoryStagesJourney(page, journey);
     const listed = cardSessions(card(notRefinedStory));
     const recent = parts(page)
-      .recentSessions.getByRole("article")
+      .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });
     const panel = page.getByRole("region", { name: "Terminal" });
     await expect(listed.locator(".session-state")).toHaveText(
@@ -154,7 +154,7 @@ test("native interrupt refusal remains Working with retained local intent and di
   const { card } = await openStoryStagesJourney(page, journey);
   const listed = cardSessions(card(notRefinedStory));
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   const panel = page.getByRole("region", { name: "Terminal" });
   await listed.getByRole("button", { name: "Open terminal" }).click();

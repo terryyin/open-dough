@@ -5,7 +5,7 @@
 // the credited name with its avatar, or the short warning that it is unknown
 // (`HumanCreditBrief`).
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { AgentAssignment } from "./agentAssignments.ts";
 import "./agent-assignment.css";
 
@@ -91,6 +91,24 @@ export function HumanCredit({ developer }: { developer: AgentAssignment }) {
   }
 }
 
+// A human developer's name as a card's scan view shows it, after the avatar
+// when there is one. A done story's card names its recorded developer this
+// way, with no avatar.
+export function HumanName({
+  name,
+  avatar,
+}: {
+  name: string;
+  avatar?: ReactNode;
+}) {
+  return (
+    <span className="owner-human-name">
+      {avatar}
+      {name}
+    </span>
+  );
+}
+
 // The credited human as a card's scan view names it, for example
 // "Terry Yin" with their avatar (a name without one stands alone, since
 // initials would only repeat it), or the short warning that it is unknown;
@@ -107,15 +125,17 @@ export function HumanCreditBrief({
       return null;
     case "credited":
       return (
-        <span className="owner-human-name">
-          <HumanAvatar
-            key={human.avatar ?? ""}
-            name={human.name}
-            avatar={human.avatar}
-            withInitials={false}
-          />
-          {human.name}
-        </span>
+        <HumanName
+          name={human.name}
+          avatar={
+            <HumanAvatar
+              key={human.avatar ?? ""}
+              name={human.name}
+              avatar={human.avatar}
+              withInitials={false}
+            />
+          }
+        />
       );
     case "no-addition":
     case "unnamed":

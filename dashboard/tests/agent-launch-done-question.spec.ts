@@ -146,7 +146,7 @@ test("a session not reported complete asks first with its situation; Keep open a
 
     await expect(entryA).toHaveCount(0);
     const recentA = parts(page)
-      .recentSessions.getByRole("article")
+      .recentlyDone.getByRole("article")
       .filter({ hasText: titleA });
     await expect(sessionStateOf(recentA)).toHaveText("Done");
     await expect(recentA).toContainText(`Intended name ${doneName}`);
@@ -210,7 +210,7 @@ test("a completed report marks done at once only while the session neither works
 
     await expect(entryA).toHaveCount(0);
     const recentA = parts(page)
-      .recentSessions.getByRole("article")
+      .recentlyDone.getByRole("article")
       .filter({ hasText: titleA });
     await expect(sessionStateOf(recentA)).toHaveText("Done");
     expect(dashboard.claudeStopCalls().slice(before)).toEqual([

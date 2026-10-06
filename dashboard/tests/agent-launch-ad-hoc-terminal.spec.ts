@@ -37,7 +37,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     });
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
-    const { recentSessions } = parts(page);
+    const { recentlyDone } = parts(page);
 
     await page.evaluate(() => {
       window.scrollTo(0, 40);
@@ -51,7 +51,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     }
     await dialog.getByRole("button", { name: "Start" }).click();
 
-    const entry = recentSessions.getByRole("article");
+    const entry = recentlyDone.getByRole("article");
     await expect(entry).toHaveCount(1);
     const sessionId = await sessionNamedBy(entry);
     const title = await entry.getByRole("heading", { level: 3 }).textContent();

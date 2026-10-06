@@ -4,7 +4,8 @@
 // are tracked for the request's lifetime, and any failure is worded for this
 // source and what was being read when it failed. Reads on a story branch are
 // performed in `./performedBranchRead.ts`, revision checks in
-// `./performedRevisionCheck.ts`, containment in `./containmentRead.ts`; what
+// `./performedRevisionCheck.ts`, the records listed beside the backlog in
+// `./listedRecordsRead.ts`, containment in `./containmentRead.ts`; what
 // a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
@@ -24,19 +25,14 @@ import { withTrackedGh } from "./trackedGh.ts";
 import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import {
-  answered,
-  unreachable,
-  type Outcome,
-  type PinnedFile,
-} from "./readOutcome.ts";
+  performListedRecordsRead,
+  readingListedRecordsOf,
+} from "./listedRecordsRead.ts";
+import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import {
-  agentProfileDirectoryOf,
-  agentSettingsTextAt,
   isListedAgentProfile,
-  listedAgentProfilePaths,
   pathReachableFromRevision,
 } from "./reachablePaths.ts";
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -92,7 +88,8 @@ function readingOf(source: PublishedSource, read: RequestedRead): string {
     case "file-at":
       return readingPathAt(read.path, read.onBranch?.head ?? read.revision);
     case "agent-profiles-at":
-      return readingPathAt(agentProfileDirectoryOf(source), read.revision);
+    case "done-records-at":
+      return readingListedRecordsOf(source, read);
     case "addition-at":
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":
@@ -130,19 +127,17 @@ export async function perform(
               signal,
             )(source.backlogPath),
           });
-        case "agent-profiles-at": {
-          const listPinned = pinned.lister(source, read.revision, signal);
-          const readPinned = pinned.reader(source, read.revision, signal);
-          const profiles: PinnedFile[] = [];
-          const paths = await listedAgentProfilePaths(source, listPinned);
-          for (const path of paths) {
-            reading = readingPathAt(path, read.revision);
-            profiles.push({ path, text: await readPinned(path) });
-          }
-          reading = readingPathAt(agentSettingsPath, read.revision);
-          const settings = await agentSettingsTextAt(readPinned);
-          return answered({ revision: read.revision, profiles, settings });
-        }
+        case "agent-profiles-at":
+        case "done-records-at":
+          return await performListedRecordsRead(
+            pinned,
+            source,
+            read,
+            signal,
+            (now) => {
+              reading = now;
+            },
+          );
         case "addition-at": {
           const added = await listedProfileAddition(
             pinned,

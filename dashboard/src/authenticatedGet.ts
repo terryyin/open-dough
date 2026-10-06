@@ -15,6 +15,13 @@ import { ReadProblem } from "./readProblem.ts";
 
 export const commitSha = z.string().regex(commitShaPattern);
 
+// A file published at a pinned revision: its repository path and raw text.
+export const publishedFile = z.object({
+  path: z.string().min(1),
+  text: z.string(),
+});
+export type PublishedFile = z.infer<typeof publishedFile>;
+
 const errorAnswer = z.object({
   error: z.string().min(1),
   retryAfterSeconds: z

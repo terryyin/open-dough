@@ -59,7 +59,7 @@ test("predecessor without continuation gains no command; missing workspace prese
     const { card } = await openTakenBacklog(page, journey);
     const entries = () => [
       cardSessions(card(notRefinedStory)),
-      parts(page).recentSessions.getByRole("article"),
+      parts(page).recentlyDone.getByRole("article"),
     ];
     const check = async () => {
       for (const list of entries()) {

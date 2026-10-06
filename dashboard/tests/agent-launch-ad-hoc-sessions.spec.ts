@@ -1,12 +1,12 @@
 // An ad hoc session, which no card lists, is findable, doneable and
 // reopenable like any story's session, on the committed origin of
 // ./agent-launch-card.spec.ts (./launchJourney.ts): its sidebar entry opens
-// its project's stories and its terminal and brings its Recent sessions entry
+// its project's stories and its terminal and brings its Recently done entry
 // into view; Mark as done in the terminal takes it out of the sidebar and
-// reads Done in Recent sessions, whose Open terminal puts it back, through a
+// reads Done in Recently done, whose Open terminal puts it back, through a
 // reload; a blocked session reads "Needs input" and counts as needing
 // attention; and with the listing unreadable its record can be deleted, the
-// keyboard moving to the next Recent sessions entry. How the session starts is
+// keyboard moving to the next Recently done entry. How the session starts is
 // ./agent-launch-ad-hoc.spec.ts and how a story's sessions do the same is
 // ./session-sidebar-navigation-cases.spec.ts, ./agent-terminal-done.spec.ts
 // and ./agent-launch-recent-delete.spec.ts. The page's own dashboard server
@@ -76,11 +76,11 @@ async function startAndClose(page: Page, project: string, text: string) {
 }
 
 const recentOf = (page: Page, text: string) =>
-  parts(page).recentSessions.getByRole("article", {
+  parts(page).recentlyDone.getByRole("article", {
     name: `Ad hoc session for ${text}`,
   });
 
-test("its sidebar entry opens Open Dough's stories, the terminal and its Recent sessions entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
+test("its sidebar entry opens Open Dough's stories, the terminal and its Recently done entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
   page,
   dashboard,
 }) => {
@@ -99,7 +99,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
   await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
   await expect(project.getByRole("radio", { name: "Pygardon" })).toBeChecked();
 
-  await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Recent sessions entry", async () => {
+  await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Recently done entry", async () => {
     await button.click();
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
@@ -122,7 +122,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
     await expect(entry(text)).toHaveAttribute("aria-current", "true");
   });
 
-  await test.step("Mark as done in the terminal takes it out of the sidebar and Recent sessions reads Done", async () => {
+  await test.step("Mark as done in the terminal takes it out of the sidebar and Recently done reads Done", async () => {
     await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(entries).toHaveCount(0);
@@ -151,7 +151,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
   });
 });
 
-test("a blocked ad hoc session reads Needs input in Recent sessions and the sidebar, and the sidebar counts it", async ({
+test("a blocked ad hoc session reads Needs input in Recently done and the sidebar, and the sidebar counts it", async ({
   page,
   dashboard,
 }) => {
@@ -180,7 +180,7 @@ test("a blocked ad hoc session reads Needs input in Recent sessions and the side
   );
 });
 
-test("with the listing unreadable, an ad hoc session's record can be deleted from Recent sessions, leaving the sidebar and moving the keyboard to the next entry", async ({
+test("with the listing unreadable, an ad hoc session's record can be deleted from Recently done, leaving the sidebar and moving the keyboard to the next entry", async ({
   page,
   dashboard,
 }) => {
@@ -213,12 +213,12 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   await expect(older).toBeFocused();
 });
 
-test("with Open Dough already shown, its sidebar entry brings its Recent sessions entry into view", async ({
+test("with Open Dough already shown, its sidebar entry brings its Recently done entry into view", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  // A window short enough that Recent sessions starts below it.
+  // A window short enough that Recently done starts below it.
   await page.setViewportSize({ width: 1280, height: 600 });
   await openTakenBacklog(page, journey);
   const text = "where is this entry?";

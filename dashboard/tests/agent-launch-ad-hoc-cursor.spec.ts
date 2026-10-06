@@ -218,6 +218,6 @@ test("a blank Cursor Start session with a chosen model is refused before create-
     "Launch failed: Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
   );
   await expect(button).toBeEnabled();
-  await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(0);
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
   expect(cursor.calls()).toEqual([]);
 });

@@ -64,7 +64,7 @@ async function showPage(page: Page, origin: StartOrigin): Promise<void> {
   await expect(
     page.getByRole("button", { name: "Start session in Open Dough" }),
   ).toBeVisible();
-  await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(1);
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
 }
 
 async function openRunningList(page: Page) {
@@ -176,9 +176,7 @@ refused(
     await expect(terminalPanel).toHaveCount(0);
     expect(cursor.calls()).toHaveLength(calls);
     expect(cursor.attaches()).toHaveLength(attaches);
-    await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(
-      1,
-    );
+    await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
   },
 );
 

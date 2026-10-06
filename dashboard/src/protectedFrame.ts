@@ -3,7 +3,7 @@
 // status, and every action button in the card's protected frame takes that
 // as part of its accessible description, so a disabled action and its
 // reason are found together by keyboard and screen-reader navigation.
-// Outside a protected frame, as in Recent sessions, nothing is added.
+// Outside a protected frame, as in Recently done, nothing is added.
 
 import { createContext, useContext } from "react";
 

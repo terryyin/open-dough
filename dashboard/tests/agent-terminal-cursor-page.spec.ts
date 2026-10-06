@@ -51,7 +51,7 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  const recent = parts(page).recentSessions.getByRole("article");
+  const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
   const record = keptRecord(dashboard.home);
   const open = recent.getByRole("button", { name: "Open terminal" });

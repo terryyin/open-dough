@@ -121,14 +121,14 @@ the session as the page reads it again; a session that becomes complete loses
 the question and gets Mark as done back, as the Delete record question goes when
 its state becomes known.
 
-Recent keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
+Recently done keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
 persists when native rename/stop is unconfirmed, while live Working remains
 truthful. Local intent proves neither native stop nor published story completion.
 Failed reopen preserves the mark; successful native attachment clears it and
 returns the original session to its card. Deferred failures cannot undo a newer
 successful reopen or recreate a deleted record.
 
-Delete record is offered for unknown/unavailable observation on cards/Recent,
+Delete record is offered for unknown/unavailable observation on cards/Recently done,
 with in-place question, Delete record/Keep and keyboard on Keep. Keep/Escape
 restore the action. It rereads state; newly known state keeps the record with an
 explanation. Deletion forgets only host-qualified dashboard evidence, never
@@ -136,14 +136,14 @@ stops/renames/marks native work. Failure reports the problem and any available
 reason politely in the entry's persistent status, retains the record, question
 and focus, and enables retry or Keep. Success removes every entry, prevents older
 reads/lifecycle updates restoring it, closes any showing panel and restores
-next-entry/card/Recent focus without a deletion-success announcement. No local
+next-entry/card/Recently done focus without a deletion-success announcement. No local
 action changes a published story fact.
 
 ## Retained Codex results without their workspace
 
 A saved Codex conversation and its workspace are observed separately. When the
-saved directory is missing or its lookup is inconclusive, story cards, Recent
-sessions and Sessions sidebar selection lead to **Read final report** instead
+saved directory is missing or its lookup is inconclusive, story cards, Recently done
+and Sessions sidebar selection lead to **Read final report** instead
 of advertising a terminal in that directory. The panel reads the same recorded
 host-qualified conversation through its saved endpoint, shows its final report
 read-only and names the workspace limitation separately from review status.
@@ -158,7 +158,7 @@ workspace continuation and Claude Code behavior keep their terminal path.
 ## Explicit reports, Mark as read and Mark as done
 
 A session with an unread completion/attention report offers **Mark as read** in
-its entry's message part, on its card or in Recent sessions
+its entry's message part, on its card or in Recently done
 ([explicit completion](AGENT-LAUNCH-COMPLETION.md)); it keeps the report read
 and leaves the session open.
 **Mark as done**, its own control beside it, closes a reported session as

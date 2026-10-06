@@ -134,7 +134,7 @@ export const startSessionField = (dialog: Locator) =>
     name: "What would you like to talk about? (optional)",
   });
 
-// The session a Start session dialog started, as Recent sessions lists it
+// The session a Start session dialog started, as Recently done lists it
 // once the start answered. A read during the start may already list the
 // session, still without the start's outcome, so this waits for the answer's
 // announcement, as long as the start itself may (./support/launchWait.ts).
@@ -142,7 +142,7 @@ export async function startedSession(page: Page): Promise<Locator> {
   await expect(
     page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
   ).toBeVisible({ timeout: launchWaitMs });
-  const recent = parts(page).recentSessions.getByRole("article");
+  const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
   return recent;
 }

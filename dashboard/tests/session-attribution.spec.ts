@@ -126,7 +126,7 @@ test("a retained session keeps its allocation credit after release and a later p
   await expect(original).toContainText(historical);
   await expect(original).not.toContainText(journey.preparers.planning);
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: sessionId });
   await expect(recent).toContainText(historical);
   await show(reused);

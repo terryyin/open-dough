@@ -2,7 +2,7 @@
 // origin of ./agent-launch-card.spec.ts (./launchJourney.ts): Start session
 // is offered for the selected project whatever the published read is doing,
 // its dialog sends the optional text to the Open Dough or Pygardon folder, and
-// the session then reads in Recent sessions and the Sessions sidebar without
+// the session then reads in Recently done and the Sessions sidebar without
 // any card listing it. The page's own dashboard server launches the synthetic
 // `claude` (./fixtures/fake-claude); the real one is never reached. How the
 // launch boundary names the session is ./agent-launch-ad-hoc-boundary.spec.ts.
@@ -125,7 +125,7 @@ test("the dialog names the project and Claude Code, says the session has no stor
   expect(dashboard.claudeCalls()).toEqual([]);
 });
 
-test("starting with text sends it in the Open Dough folder, and the session reads in Recent sessions and the sidebar with no card listing it", async ({
+test("starting with text sends it in the Open Dough folder, and the session reads in Recently done and the sidebar with no card listing it", async ({
   page,
   dashboard,
 }) => {
@@ -133,7 +133,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await openJourney(page);
   const text = "why is the CI slow on main?";
   const dialog = startSessionDialog(page, "Open Dough");
-  const { recentSessions } = parts(page);
+  const { recentlyDone } = parts(page);
   const stories = () =>
     expectMembership(page, {
       taken: [takenStory],
@@ -145,7 +145,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await startSessionField(dialog).fill(`  ${text}  `);
   await dialog.getByRole("button", { name: "Start" }).click();
 
-  const entry = recentSessions.getByRole("article");
+  const entry = recentlyDone.getByRole("article");
   await expect(entry).toHaveCount(1);
   await expect(dialog).toBeHidden();
   await expect(entry).toHaveAccessibleName(`Ad hoc session for ${text}`);
@@ -205,9 +205,7 @@ for (const blank of ["", "   "]) {
     await startSessionField(dialog).fill(blank);
     await dialog.getByRole("button", { name: "Start" }).click();
 
-    await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(
-      1,
-    );
+    await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
     const [call] = dashboard.claudeLaunchCalls();
     expect(call?.argv).toHaveLength(3);
     expect(call?.argv[2]).toMatch(
@@ -216,13 +214,13 @@ for (const blank of ["", "   "]) {
   });
 }
 
-test("starting on Pygardon uses Pygardon's folder and lists the session in the sidebar under Pygardon, not in Open Dough's Recent sessions", async ({
+test("starting on Pygardon uses Pygardon's folder and lists the session in the sidebar under Pygardon, not in Open Dough's Recently done", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
   await openJourney(page);
-  const { project, recentSessions } = parts(page);
+  const { project, recentlyDone } = parts(page);
   await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
   const dialog = startSessionDialog(page, "Pygardon");
 
@@ -249,7 +247,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   ]);
 
   await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
-  await expect(recentSessions).toContainText(
+  await expect(recentlyDone).toContainText(
     "No sessions launched from this dashboard are kept.",
   );
 });

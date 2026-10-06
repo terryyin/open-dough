@@ -182,7 +182,7 @@ test("a keyboard Start session hands the keyboard to its progress, and its sessi
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel).toHaveCount(1, { timeout: 30_000 });
   await expect(
-    parts(page).recentSessions.getByRole("article").first(),
+    parts(page).recentlyDone.getByRole("article").first(),
   ).toContainText("Shown in terminal");
   await expect(
     page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
@@ -230,9 +230,9 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   // The terminal closed with Mark as done; no Shown-in-terminal on a new start.
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel).toHaveCount(0);
-  // Recent sessions lists the done session outside the frame.
+  // Recently done lists the done session outside the frame.
   await expect(
-    parts(page).recentSessions.getByRole("button", { disabled: true }),
+    parts(page).recentlyDone.getByRole("button", { disabled: true }),
   ).toHaveCount(0);
 
   push.release();

@@ -1,7 +1,8 @@
-// Recent sessions lists every session this dashboard launched for the
-// selected project, newest first, on a committed origin the production
-// commands publish (./launchJourney.ts): an entry names its story, workflow,
-// launch time, and session with Open terminal; two launches of one story
+// Recently done, under its heading and describing text, lists every session
+// this dashboard launched for the selected project, newest first, on a
+// committed origin the production commands publish (./launchJourney.ts): an
+// entry names its story, workflow, launch time, and session with Open
+// terminal; two launches of one story
 // are two entries; and another project's launches are not listed, through
 // reloads and project switches; until the page first reads them, it says it
 // is reading them. That entries stay through Preparing, the
@@ -16,7 +17,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
@@ -34,7 +35,7 @@ import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
-test.describe("Recent sessions of the launches from this dashboard", () => {
+test.describe("Recently done lists the launches from this dashboard", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -53,7 +54,7 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
       page,
       stagesJourney,
     );
-    const { project, recentSessions: recent } = parts(page);
+    const { project, recentlyDone: recent } = parts(page);
     const entries = recent.getByRole("article");
     const sessionIds: string[] = [];
     // Launches the workflow and remembers its session, as the new entry
@@ -63,7 +64,7 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
       await launch(title, workflow);
       await expect(entries).toHaveCount(before + 1);
       await expect(entries.first()).toHaveAccessibleName(
-        recentSessionName(workflow, title),
+        recentlyDoneSessionName(workflow, title),
       );
       sessionIds.unshift(await sessionNamedBy(entries.first()));
     };
@@ -75,7 +76,7 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
       for (const [index, [title, workflow]] of launches.entries()) {
         const entry = entries.nth(index);
         await expect(entry).toHaveAccessibleName(
-          recentSessionName(workflow, title),
+          recentlyDoneSessionName(workflow, title),
         );
         await expect(entry.getByRole("heading", { level: 3 })).toHaveText(
           title,
@@ -92,6 +93,12 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();
+    await expect(recent.getByRole("heading", { level: 2 })).toHaveText(
+      "Recently done",
+    );
+    await expect(recent.locator("> p").first()).toHaveText(
+      "Recently done stories and sessions launched from this dashboard for this project, newest first. Sessions are kept on this machine.",
+    );
     await expect(recent).toContainText(
       "No sessions launched from this dashboard are kept.",
     );
@@ -136,7 +143,7 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
       await launch(doughnutSharedTitle, "Execution");
       await expect(entries).toHaveCount(1);
       await expect(entries.first()).toHaveAccessibleName(
-        recentSessionName("Execution", doughnutSharedTitle),
+        recentlyDoneSessionName("Execution", doughnutSharedTitle),
       );
 
       await project

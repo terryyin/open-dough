@@ -168,7 +168,7 @@ for (const closure of [
         });
         await page.goto("/");
         const recent = parts(page)
-          .recentSessions.getByRole("article")
+          .recentlyDone.getByRole("article")
           .filter({ hasText: native.threadId });
         await expect(recent).toContainText("Done");
         await expect(recent).toContainText("Native session is still working");

@@ -1,4 +1,4 @@
-// One access decision for cards, Recent sessions and the Sessions sidebar.
+// One access decision for cards, Recently done and the Sessions sidebar.
 import {
   attachOpens,
   type LaunchRecord,

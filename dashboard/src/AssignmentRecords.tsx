@@ -67,30 +67,51 @@ export function RecordedFacts({
     ...(developer.mode === undefined || !withMode
       ? []
       : [{ kind: "mode", ...modes[developer.mode] }]),
-    {
-      kind: "host",
-      ...(developer.host === undefined
-        ? { label: "host not recorded", mark: undefined }
-        : {
-            label: hostDescription(developer.host).name,
-            mark: hostMarks[developer.host],
-          }),
-    },
+    { kind: "host", ...hostFact(developer.host) },
     {
       kind: "model",
       label: developer.model ?? "model not recorded",
       mark: undefined,
     },
   ];
-  return facts.map(({ kind, label, mark }, index) => (
-    <span key={kind}>
+  return facts.map((fact, index) => (
+    <span key={fact.kind}>
       {index > 0 && " · "}
-      <span className={`owner-fact owner-${kind}`}>
-        <OwnerMark file={mark} />
-        {label}
-      </span>
+      <RecordedFact {...fact} />
     </span>
   ));
+}
+
+// A recorded host as every assignment shows it, beside its mark; a done
+// story's card shows its agent's host the same way.
+export function RecordedHost({ host }: { host: AgentHost }) {
+  return <RecordedFact kind="host" {...hostFact(host)} />;
+}
+
+function hostFact(host: AgentHost | undefined): {
+  label: string;
+  mark: string | undefined;
+} {
+  return host === undefined
+    ? { label: "host not recorded", mark: undefined }
+    : { label: hostDescription(host).name, mark: hostMarks[host] };
+}
+
+function RecordedFact({
+  kind,
+  label,
+  mark,
+}: {
+  kind: string;
+  label: string;
+  mark: string | undefined;
+}) {
+  return (
+    <span className={`owner-fact owner-${kind}`}>
+      <OwnerMark file={mark} />
+      {label}
+    </span>
+  );
 }
 
 function BranchContext({ owner }: { owner: AgentOwner }) {

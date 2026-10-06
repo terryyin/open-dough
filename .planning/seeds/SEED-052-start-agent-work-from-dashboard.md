@@ -106,40 +106,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="reconcile-recently-done-and-sessions"></a>
-
-### Review recently done stories alongside their available sessions
-
-**Identity:** SEED-052#reconcile-recently-done-and-sessions
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **For / why:** A developer can understand recent completed product work and
-  revisit its conversations without losing sessions outside visible story lists.
-- **Evaluation:** A story with published completion evidence becomes reachable
-  in Recently done with its supporting evidence and any known dashboard-launched
-  sessions. Recent sessions remains independently accessible, including sessions
-  whose stories are in none of Backlog, Taken, or Recently done. One story can
-  link multiple sessions. Mere disappearance from the backlog proves nothing.
-- **Boundary:** Separate published story facts from local session facts. Session
-  stopping does not establish completion. No discovery of externally started
-  sessions is included. The completion evidence and meaning of recent require
-  refinement before this candidate can be selected for execution planning.
-- **Value / learning:** Tests a reconciled view while preserving both histories
-  and their different coverage.
-- **Effort hypothesis:** Unestimated; reconstructing or recording authoritative
-  completion and defining the recent window are unresolved.
-- **Depends on:** Published story completion evidence and story 2 for session
-  links; not a prerequisite for launch, Recent sessions, or embedded interaction.
-- **Safe stopping point:** Recent completed work and available conversations are
-  reviewable even without automatic attention notifications.
-
-This related outcome was explicitly valued in the interview but its priority
-relative to the launch epic was not selected. It stays here as one canonical
-unqueued candidate rather than disappearing from the discussion or being
-silently added to the launch critical path.
-
 ## Ordering and Scope Reduction
 
 Stories 2 and 3 make return and interaction useful; refinement launch and
@@ -147,8 +113,7 @@ embedded answers are already available. Story 4 now adds attention indicators
 so the developer can notice when to return, after story-session links support
 the same signal on cards.
 Recent-session navigation can be delivered alongside terminal interaction if
-refinement shows that separate delivery adds no useful stopping point; neither
-requires the Recently done view.
+refinement shows that separate delivery adds no useful stopping point.
 
 Interaction has a slight, explicitly provisional priority over scripted setup.
 Stories 5 and 6 may interleave with stories 2–4 when use reveals more value in
@@ -164,20 +129,16 @@ which the dashboard's refinement launch already provides. Story 4 selects
 local attention indicators; completion callbacks, notifications, state-aware
 skill selection, model selection, other skills, externally started sessions,
 and full project/tool setup remain deferred.
-Recently done is related work with its own value and priority decision.
 
 ## Open Decisions Before Refinement or Planning
 
 - Define project S/M/L bands before assigning comparative estimates; none were
   found, so there is no defensible numerical or band distribution yet.
-- Refine authoritative completion evidence and the recent window separately for
-  Recently done; do not infer completion from an absent backlog entry.
 
 ## When to Surface
 
 The maintainer selected the eight child stories for backlog priorities 4–11
-on 2026-09-28, replacing the original epic entry. The related Recently done
-candidate remains unqueued. This selection does not Take any story or authorize
+on 2026-09-28, replacing the original epic entry. This selection does not Take any story or authorize
 implementation; refinement and executable planning are later selections.
 
 ## Breadcrumbs

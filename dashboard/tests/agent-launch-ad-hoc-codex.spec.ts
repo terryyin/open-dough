@@ -67,7 +67,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     const panel = page.getByRole("region", { name: "Terminal" });
-    const recent = parts(page).recentSessions.getByRole("article");
+    const recent = parts(page).recentlyDone.getByRole("article");
     await expect(panel.locator(".xterm-rows")).toContainText(
       "GPT-6.1-Sol default",
     );

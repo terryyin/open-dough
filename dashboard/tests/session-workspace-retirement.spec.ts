@@ -24,7 +24,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
 
-test("card, Recent and sidebar review the retained report with attention, association and keyboard focus, without continuing", async ({
+test("card, Recently done and sidebar review the retained report with attention, association and keyboard focus, without continuing", async ({
   page,
   dashboard,
   codexProtocol: native,
@@ -57,7 +57,7 @@ test("card, Recent and sidebar review the retained report with attention, associ
   await expect(panel).toHaveCount(0);
   await expect(open).toBeFocused();
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   await recent.getByRole("button", { name: "Read final report" }).click();
   await expect(panel.locator(".session-final-report")).toHaveText(report);

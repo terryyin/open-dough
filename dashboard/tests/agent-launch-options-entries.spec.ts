@@ -1,6 +1,6 @@
 // A session entry says which refinement options were requested, on the
 // committed origin of ./agent-launch-card.spec.ts (./launchJourney.ts): on the
-// story's card and in Recent sessions the entry reads "Options: --explore
+// story's card and in Recently done the entry reads "Options: --explore
 // --borrow (requested)" beside its Model line, in definition order, and says
 // nothing for a launch that selected none; a reload keeps the line, which is
 // read from the launch record. How the dialog sends the selection is
@@ -38,7 +38,7 @@ for (const [what, options, model] of [
   ["no options", [], undefined],
   ["no options on Opus", [], "Opus"],
 ] as const) {
-  test(`a refinement launched with ${what} reads as requested on its card and in Recent sessions, through a reload`, async ({
+  test(`a refinement launched with ${what} reads as requested on its card and in Recently done, through a reload`, async ({
     page,
     dashboard,
   }) => {
@@ -48,7 +48,7 @@ for (const [what, options, model] of [
       page,
       journey,
     );
-    const { recentSessions } = parts(page);
+    const { recentlyDone } = parts(page);
 
     await refine(notRefinedStory).click();
     await showOptions(refinementDialog);
@@ -67,7 +67,7 @@ for (const [what, options, model] of [
     const expectWords = async () => {
       for (const entry of [
         cardSessions(card(notRefinedStory)),
-        recentSessions.getByRole("article"),
+        recentlyDone.getByRole("article"),
       ]) {
         await expect(entry).toHaveCount(1);
         await expect(entry).toContainText("Refinement");
@@ -86,7 +86,7 @@ for (const [what, options, model] of [
 
     await expectWords();
     await page.reload();
-    await expect(recentSessions.getByRole("article")).toHaveCount(1);
+    await expect(recentlyDone.getByRole("article")).toHaveCount(1);
     await expectWords();
   });
 }

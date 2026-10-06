@@ -52,9 +52,9 @@ async function startAdHoc(page: Page) {
 }
 
 async function expectNothingStarted(page: Page) {
-  const { recentSessions } = parts(page);
+  const { recentlyDone } = parts(page);
   await expect(startSessionDialog(page, "Open Dough")).toBeHidden();
-  await expect(recentSessions.getByRole("article")).toHaveCount(0);
+  await expect(recentlyDone.getByRole("article")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
   await expect(
     page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
@@ -89,9 +89,7 @@ for (const { scenario, words } of failures) {
     await startAdHoc(page);
 
     await expect(page.locator(".launch-problem")).toHaveCount(0);
-    await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(
-      1,
-    );
+    await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
     await expect(
       page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
