@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-107#recently-done",
+  "title": "Dashboard shows recently done stories with their sessions",
+  "completedAt": "2026-10-06T02:35:43.335Z",
+  "developer": "Terry Yin",
+  "agent": "ebacky-chan",
+  "host": "claude"
+}

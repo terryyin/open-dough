@@ -159,7 +159,7 @@ Follow-up: delivered, unreleased: SEED-095#prove-slices-through-consumers (story
   - Observed effect: one failed CI run; no separate repair cycle, because the next slice found and fixed them before its own delivery.
   - Inference: Qualified recurrence. Shorter cards and a new scan-line fact changed page-wide layout and loading, which the selected specs did not exercise. The planner wrote the focused-only gate while the ODF-150 follow-up was still unreleased.
 
-- Execution: `SEED-107#recently-done` / plan 253, first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+- Execution: `SEED-107#recently-done` / plan 253, recoverable at `1f929859491bc26285d64eface2d147f1ceee4a2:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`; first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
   - Timestamp: 2026-10-05T22:37:47Z (CI run 37383488386 jobs test (2/3) and test (3/3) on `0f334e41`)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -825,7 +825,7 @@ Follow-up: Open, unqueued.
 
 ### Occurrences
 
-- Execution: `SEED-107#recently-done` / plan 253, first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+- Execution: `SEED-107#recently-done` / plan 253, recoverable at `1f929859491bc26285d64eface2d147f1ceee4a2:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`; first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
   - Timestamp: unknown (slice 1 implementation return, 2026-10-06)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -838,7 +838,7 @@ Follow-up: Open, unqueued.
 
 ### Occurrences
 
-- Execution: `SEED-107#recently-done` / plan 253, first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+- Execution: `SEED-107#recently-done` / plan 253, recoverable at `1f929859491bc26285d64eface2d147f1ceee4a2:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`; first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
   - Timestamp: 2026-10-06T10:37:37+09:00 (commit `53333034`)
   - Tool: Claude Code (delegated refactor agent; coordinator accepted)
   - Model: claude-opus-5-5

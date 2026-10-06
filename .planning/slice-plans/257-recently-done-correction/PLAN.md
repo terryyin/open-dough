@@ -3,8 +3,9 @@
 **Identity:** SEED-107#recently-done-correction
 **Source:** [correction story](../../seeds/SEED-107-dashboard-recently-done.md#recently-done-correction),
 a bounded retrospective correction of the completed execution of
-[SEED-107#recently-done](../../seeds/SEED-107-dashboard-recently-done.md#recently-done)
-under [plan 253](../253-dashboard-recently-done/PLAN.md). Reviewed commits:
+`SEED-107#recently-done` (recoverable at `1f929859:.planning/seeds/SEED-107-dashboard-recently-done.md`)
+under plan 253 (recoverable at
+`1f929859:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`). Reviewed commits:
 0f334e41, 0b669ed2, 0acb8a8a, 73958ca3, 53333034, 179c375c.
 **Prepared:** 2026-10-06. Planning only, in the story's established
 workspace (branch `claude/dashboard-shows-recently-done-stories-with-their`).
@@ -19,7 +20,7 @@ card; unreadable done records are proved as the column lists them; and the
 one-shot closure guidance names the done records in the result commit.
 
 Preserved promises: every Scope item and key example of
-[SEED-107#recently-done](../../seeds/SEED-107-dashboard-recently-done.md#recently-done)
+`SEED-107#recently-done` (recoverable at `1f929859:.planning/seeds/SEED-107-dashboard-recently-done.md`)
 as delivered, including “When done records cannot be read, the column says so
 and still lists the sessions” and the 30-day window. Plan 253's decisions
 stay: one JSON file per done story, read only through the local boundary's
