@@ -89,6 +89,34 @@ test("new membership and fast B assignments replace a complete A without borrowi
   expect(errors).toEqual([]);
 });
 
+test("the settled alternate project finishes its independent reads before a return checkpoint starts", async ({
+  page,
+}) => {
+  await openHeldPublication(page, factsA);
+  let profilesRead = false;
+  let doneRead = false;
+  page.on("response", (response) => {
+    const url = new URL(response.url());
+    if (url.searchParams.get("source") !== "doughnut" || !response.ok()) return;
+    if (url.searchParams.get("agents") === "profiles") profilesRead = true;
+    if (url.searchParams.get("done") === "records") doneRead = true;
+  });
+  // Independent profile work can start later than preparation. Delay only
+  // its local request dispatch; the real preview and gh still do the read.
+  await page.route(
+    /__authenticated-read\?source=doughnut&.*agents=profiles$/,
+    async (route) => {
+      await new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+      await route.continue();
+    },
+  );
+  await selectSettledDoughnut(page);
+  expect({ profilesRead, doneRead }).toEqual({
+    profilesRead: true,
+    doneRead: true,
+  });
+});
+
 for (const outcome of ["success", "failure"] as const) {
   test(`switching projects abandons every unfinished fact group, including its late ${outcome}`, async ({
     page,

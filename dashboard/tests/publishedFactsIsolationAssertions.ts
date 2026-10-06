@@ -177,11 +177,11 @@ export function expectOnlyProjectAsked(
   const calls = githubFor(page).calls.slice(since);
   expect(calls.length).toBeGreaterThan(0);
   expect(
-    calls.every(
+    calls.filter(
       ({ request }) =>
-        request.kind !== "unknown" && request.repository === selectedRepository,
+        request.kind === "unknown" || request.repository !== selectedRepository,
     ),
-  ).toBe(true);
+  ).toEqual([]);
   expect(
     contentReads(calls).every((read) => read.endsWith(`?ref=${revision}`)),
   ).toBe(true);
