@@ -246,7 +246,7 @@ in between, unusable kept values, and refused storage; the whole suite passed.
 
 Product advice: the story's outcome is delivered; one bounded correction is
 planned as [SEED-106#paged-columns-reveal-and-count-correction](../../seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction)
-([plan 256](../256-paged-columns-reveal-and-count-correction/PLAN.md)): a
+([plan 258](../258-paged-columns-reveal-and-count-correction/PLAN.md)): a
 reveal from a launch dialog moved the view by screen position, and the Recent
 sessions control said “0 entries” before sessions were read. For wrap-up:
 

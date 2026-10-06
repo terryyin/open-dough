@@ -20,6 +20,9 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown
+- [A terminal the developer closed while its session starts stays closed](seeds/SEED-111-terminal-stays-closed-during-startup.md#closed-terminal-stays-closed) — SEED-111#closed-terminal-stays-closed
+- [Paged dashboard columns reveal by structure and count only what is read](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction) — SEED-106#paged-columns-reveal-and-count-correction
 - [Four intermittently failing dashboard specs pass deterministically](seeds/SEED-100-project-checks-trustworthy.md#dashboard-specs-deterministic) — SEED-100#dashboard-specs-deterministic
 - [Story Branch increments publish only to their execution branch](seeds/SEED-008-worktree-branch-trunk-sync.md#story-branch-delivery-target) — SEED-008#story-branch-delivery-target
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment

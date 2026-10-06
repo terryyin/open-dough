@@ -4,6 +4,8 @@
 // (./dashboard-columns-paging*.spec.ts) observe: which columns show and fill
 // the page, which edge controls offer which column, whether cards keep their
 // share of the page, and whether a move slid.
+// Journeys reach a hidden column only as a developer does, through an edge
+// control or focus, by `showColumn`; the product has no test-only way in.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
