@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Recently done reads beside owners, keeps the session look, and closes completely](seeds/SEED-107-dashboard-recently-done.md#recently-done-correction) — SEED-107#recently-done-correction ([plan](slice-plans/257-recently-done-correction/PLAN.md))
-
 ## Backlog list
 
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown

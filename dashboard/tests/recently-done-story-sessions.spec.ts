@@ -4,11 +4,11 @@
 // launched after the story was done stays inside and does not move the card,
 // a machine with no sessions for the story shows none, and once the record is
 // older than the shared 30-day window its open session is its own entry
-// again. The published records and kept sessions are ./recentlyDoneRecords.ts;
-// that the column lists done cards by their facts is
-// ./recently-done-stories.spec.ts. The fake GitHub only publishes files
-// spelled by the shared done-record renderer; the synthetic `claude`
-// (./fixtures/fake-claude) lists the kept sessions.
+// again. The published records are ./recentlyDoneRecords.ts and the kept
+// sessions ./recentlyDoneSessions.ts; that the column lists done cards by
+// their facts is ./recently-done-stories.spec.ts. The fake GitHub only
+// publishes files spelled by the shared done-record renderer; the synthetic
+// `claude` (./fixtures/fake-claude) lists the kept sessions.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -17,10 +17,11 @@ import {
   recentlyDoneSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { expectSessionEntrySetOff } from "./pageColours.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { doneStorySessions } from "./recentlyDoneSessions.ts";
 import {
-  doneStorySessions,
   executed,
   expired,
   lastWeek,
@@ -98,7 +99,7 @@ test("a done story's card holds this machine's sessions for it, open or marked d
     ).toHaveText(/Working/);
   });
 
-  await test.step("Card shows avatar's open and done sessions are inside its card, newest first, with their states and actions, and neither is an entry of its own", async () => {
+  await test.step("Card shows avatar's open and done sessions are inside its card, newest first, with their states and actions, each set off on the panel in the card's text, and neither is an entry of its own", async () => {
     const inside = sessionsIn(executed.title);
     await expect(inside).toHaveCount(2);
     await expect(inside.nth(0)).toHaveAccessibleName(executedOpen);
@@ -109,6 +110,8 @@ test("a done story's card holds this machine's sessions for it, open or marked d
       "Open terminal",
     ]);
     await expect(inside.nth(1).getByRole("button")).toHaveCount(0);
+    for (const entry of await inside.all())
+      await expectSessionEntrySetOff(entry);
     for (const name of [executedOpen, executedDone]) {
       await expect(recent.getByRole("article", { name })).toHaveCount(1);
     }

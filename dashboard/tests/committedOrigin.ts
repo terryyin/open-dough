@@ -17,12 +17,12 @@ import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
   commitAnswer,
-  directoryListingAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
+import { directoryListingAnswer, type ListedPath } from "./listingAnswers.ts";
 import { comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
@@ -41,28 +41,35 @@ function showAt(repoDir: string, revision: string, repositoryPath: string) {
   }
 }
 
-// The directory's paths at the revision; undefined once the journey's
-// repository is gone, as it is for a request arriving after the journey ends.
-function listAt(repoDir: string, revision: string, directory: string) {
+// The directory's paths at the revision, each with its object sha; undefined
+// once the journey's repository is gone, as it is for a request arriving
+// after the journey ends.
+function listedAt(
+  repoDir: string,
+  revision: string,
+  directory: string,
+): ListedPath[] | undefined {
   try {
     return execFileSync(
       "git",
-      [
-        "-C",
-        repoDir,
-        "ls-tree",
-        "--name-only",
-        revision,
-        "--",
-        `${directory}/`,
-      ],
+      ["-C", repoDir, "ls-tree", revision, "--", `${directory}/`],
       { encoding: "utf8" },
     )
       .split("\n")
-      .filter((path) => path !== "");
+      .flatMap((line) => {
+        // `<mode> <type> <sha>\t<path>`
+        const [object, path] = line.split("\t");
+        const sha = object?.split(" ")[2];
+        return path === undefined || sha === undefined ? [] : [{ path, sha }];
+      });
   } catch {
     return undefined;
   }
+}
+
+// The directory's paths at the revision, as `listedAt` lists them.
+function listAt(repoDir: string, revision: string, directory: string) {
+  return listedAt(repoDir, revision, directory)?.map(({ path }) => path);
 }
 
 // The commit `name` names in the repository, if it names one.
@@ -143,7 +150,7 @@ export function publishCommittedOrigin(
       if (overridden !== undefined) {
         return overridden;
       }
-      const listed = listAt(repoDir, request.revision, request.path);
+      const listed = listedAt(repoDir, request.revision, request.path);
       return listed === undefined
         ? noConnection
         : directoryListingAnswer(request.path, listed);

@@ -255,7 +255,14 @@ model. It links to no seed or plan, so wrap-up still deletes the spent
 history. The same `complete` run removes records completed more than 30 days
 before; a published record older than that is not recent work. The backlog
 scripts own the format and the window, and the dashboard reads the records at
-the revision it reads the backlog and profiles.
+the revision it reads the backlog and profiles. That read is a later detail,
+like owners' humans and slice clocks. Owners, preparation, and progress never
+wait for it. If it is still unanswered at the read's wait bound, or it fails,
+the column says done stories could not be read and still lists the sessions.
+A record the shared format rejects is listed by file name with its problem,
+beside the readable ones. A few records are read at once, and each text is
+kept under its Git blob, so a later revision rereads only new or changed
+records.
 
 Git history was explored first and does not identify completions within a
 bounded read: closure commits share no subject convention, profile deletions

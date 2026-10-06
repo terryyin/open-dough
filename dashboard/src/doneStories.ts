@@ -14,7 +14,7 @@ import {
 import type { PublishedFile } from "./authenticatedGet.ts";
 import { readDoneRecordsAt } from "./authenticatedDoneRead.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { ReadProblem } from "./readProblem.ts";
+import { detailGapProblem } from "./readWaitBound.ts";
 
 const doneStory = z.object({
   identity: z.string().min(1),
@@ -51,8 +51,9 @@ export type DoneStories =
 
 const doneUnreadProblem = "Done stories could not be read.";
 
-// Reads the revision's done records; a failed or abandoned read is the
-// column's gap.
+// Reads the revision's done records; a failed or abandoned read, one still
+// unanswered at the wait bound among them, is the column's gap, said with the
+// reason when one is known.
 export async function readDoneStories(
   source: PublishedSource,
   revision: string,
@@ -62,12 +63,10 @@ export async function readDoneStories(
   try {
     records = await readDoneRecordsAt(source, revision, signal);
   } catch (error) {
+    const why = detailGapProblem(error, signal, "the done records", "");
     return {
       status: "unavailable",
-      problem:
-        error instanceof ReadProblem
-          ? `${doneUnreadProblem} ${error.message}`
-          : doneUnreadProblem,
+      problem: `${doneUnreadProblem} ${why}`.trimEnd(),
     };
   }
   const stories: DoneStory[] = [];

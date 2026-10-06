@@ -22,12 +22,12 @@ import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
   commitAnswer,
-  directoryListingAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
+import { directoryListingAnswer, listedFiles } from "./listingAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
@@ -102,8 +102,16 @@ export function publishOrigin(
       return backlog.answer;
     }
     const { request } = call;
-    if (request.kind === "listing" && request.revision === backlog?.revision) {
-      return directoryListingAnswer(request.path, [backlogPath]);
+    if (
+      request.kind === "listing" &&
+      backlog !== undefined &&
+      request.revision === backlog.revision
+    ) {
+      const { answer } = backlog;
+      return directoryListingAnswer(
+        request.path,
+        listedFiles({ [backlogPath]: "body" in answer ? answer.body : "" }),
+      );
     }
     return noConnection;
   });
@@ -165,10 +173,13 @@ export function publishMovingOrigin(
       const files = records.get(request.revision);
       return files === undefined
         ? noConnection
-        : directoryListingAnswer(request.path, [
-            backlogPath,
-            ...Object.keys(files),
-          ]);
+        : directoryListingAnswer(
+            request.path,
+            listedFiles({
+              [backlogPath]: backlogs.get(request.revision) ?? "",
+              ...files,
+            }),
+          );
     }
     if (target === undefined) {
       return noConnection;

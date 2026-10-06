@@ -26,6 +26,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { expectSessionEntrySetOff } from "./pageColours.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   notRefinedStory,
@@ -130,7 +131,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expectStartsBlocked(queued);
     expect(launches()).toHaveLength(3);
 
-    await test.step("a Preparing card keeps its sessions and notes Start refinement", async () => {
+    await test.step("a Preparing card keeps its sessions, each set off on the panel in the card's text, and notes Start refinement", async () => {
       await show(stagesJourney.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
       await expect(
@@ -147,13 +148,17 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
           openSessionDescription,
         );
       }
+      // Each entry is set off from its Preparing card on the panel, in the
+      // card's own text, with its local-launch note quiet.
+      for (const entry of await cardSessions(card(readyStory)).all())
+        await expectSessionEntrySetOff(entry);
 
       await page.reload();
       await settled();
       await expectListed();
     });
 
-    await test.step("the published Take shows the story under Taken, whose card keeps every session and offers no Start", async () => {
+    await test.step("the published Take shows the story under Taken, whose card keeps every session, set off on the panel in the card's text, and offers no Start", async () => {
       await show(stagesJourney.taken);
       const backlog = [takenStory, notRefinedStory];
       await expectMembership(page, { taken: [readyStory], backlog });
@@ -163,6 +168,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expect(
         takenCard.getByRole("button", { name: /^Start / }),
       ).toHaveCount(0);
+      await expectSessionEntrySetOff(cardSessions(takenCard).first());
       await page.reload();
       await expectMembership(page, { taken: [readyStory], backlog });
       await settled();

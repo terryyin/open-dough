@@ -1,6 +1,6 @@
 // Pinned repository content through `gh` for the local authenticated read
 // boundary (`./authenticatedRead.ts`): one file's exact raw text, or one
-// directory's listed file names, at an already resolved commit. Both ask
+// directory's listed files, at an already resolved commit. Both ask
 // GitHub's one contents endpoint; how `gh` runs and fails is `./ghRead.ts`.
 
 import { GhFailure, isNotFound, runGh } from "./ghRead.ts";
@@ -40,7 +40,11 @@ export async function readRepositoryFileViaGh(
   );
 }
 
-// The file names one pinned repository directory lists, from the contents
+// One file a directory lists: its name, and the sha of its Git blob, which
+// names exactly its content at any commit.
+export type ListedFile = { readonly name: string; readonly sha: string };
+
+// The files one pinned repository directory lists, from the contents
 // endpoint's JSON listing rather than raw bytes. A directory the revision
 // does not have (GitHub's `404`) lists nothing: older projects simply have
 // none. Anything but a listing is not read as one.
@@ -49,7 +53,7 @@ export async function listRepositoryDirectoryViaGh(
   path: string,
   revision: string,
   signal: AbortSignal,
-): Promise<readonly string[]> {
+): Promise<readonly ListedFile[]> {
   let listing: string;
   try {
     listing = await runGh(
@@ -77,7 +81,17 @@ export async function listRepositoryDirectoryViaGh(
     throw new GhFailure({ kind: "failed" });
   }
   return entries.flatMap((entry: unknown) => {
-    const { name, type } = (entry ?? {}) as { name?: unknown; type?: unknown };
-    return type === "file" && typeof name === "string" ? [name] : [];
+    const { name, type, sha } = (entry ?? {}) as {
+      name?: unknown;
+      type?: unknown;
+      sha?: unknown;
+    };
+    if (type !== "file" || typeof name !== "string") {
+      return [];
+    }
+    if (typeof sha !== "string") {
+      throw new GhFailure({ kind: "failed" });
+    }
+    return [{ name, sha }];
   });
 }

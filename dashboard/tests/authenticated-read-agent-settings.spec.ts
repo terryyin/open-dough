@@ -17,10 +17,10 @@ import {
 } from "./support/fakeGitHub.ts";
 import {
   commitAnswer,
-  directoryListingAnswer,
   notFoundAnswer,
   rawFileAnswer,
 } from "./originAnswers.ts";
+import { directoryListingAnswer } from "./listingAnswers.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });

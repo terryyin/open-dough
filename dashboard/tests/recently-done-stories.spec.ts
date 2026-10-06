@@ -4,8 +4,9 @@
 // by when it was done and a session by when it was launched. A done card
 // names its title, completion time, developer, and the agent with its host
 // when recorded; a record older than the shared 30-day window is left out. A
-// revision with no done records lists the sessions as before, and done
-// records that cannot be read are said while the sessions are still listed.
+// revision with no done records lists the sessions as before; a done-record
+// read that fails is said, and each malformed record is named by its file
+// with its problem, while the sessions are still listed.
 // The fake GitHub only publishes files spelled by the shared done-record
 // renderer (./recentlyDoneRecords.ts) and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
@@ -22,6 +23,9 @@ import {
   doneRecordFiles,
   executed,
   expired,
+  futureFormatFile,
+  malformedRevision,
+  misnamedFile,
   otherRevision,
   placed,
   publishedFiles,
@@ -30,6 +34,7 @@ import {
   repository,
   revision,
   unanswered,
+  withMalformedRecordFiles,
 } from "./recentlyDoneRecords.ts";
 import {
   adHocEntry,
@@ -108,7 +113,7 @@ test("Recently done lists published done stories among the sessions, newest firs
   });
 });
 
-test("a revision with no done records lists the sessions as before, and one whose done records cannot be read says so and still lists them", async ({
+test("a revision with no done records lists the sessions as before, and one whose done records cannot be read, or are malformed, says so and still lists them", async ({
   page,
   dashboard,
 }) => {
@@ -129,7 +134,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expect(recent).not.toContainText(/could not be read|unreadable/);
   });
 
-  await test.step("an unreadable done record: the column says so and still lists the sessions", async () => {
+  await test.step("a done-record read that fails: the column says done stories could not be read and still lists the sessions", async () => {
     await publishFiles(page, {
       repository,
       revision: otherRevision,
@@ -141,5 +146,30 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expect(recent).toContainText("Done stories could not be read.");
     await expectEntries(recent, [adHocEntry, queuedEntry]);
     await expect(recent.locator(".done-story")).toHaveCount(0);
+  });
+
+  await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards and the sessions", async () => {
+    await publishFiles(page, {
+      repository,
+      revision: malformedRevision,
+      files: publishedFiles(withMalformedRecordFiles(now)),
+    });
+    await page.reload();
+    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expect(
+      recent
+        .getByRole("list", { name: "Unreadable done records" })
+        .getByRole("listitem"),
+    ).toHaveText([
+      `Done record ${futureFormatFile} is unreadable: done record schemaVersion must be 1.`,
+      `Done record ${misnamedFile} is unreadable: done record names another identity.`,
+    ]);
+    await expectEntries(recent, [
+      adHocEntry,
+      executed.title,
+      queuedEntry,
+      removedQueued.title,
+    ]);
+    await expect(recent).not.toContainText("Done stories could not be read.");
   });
 });

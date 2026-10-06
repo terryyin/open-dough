@@ -168,7 +168,11 @@ requires, apply its
 [spent-history deletion](../../dough-story-wrap-up/SKILL.md#delete-spent-history-including-shared-records)
 to this story: remove its entry with the product-backlog `complete` command,
 its story section (its seed only when every remaining section is spent), and
-its plan. Sibling stories and other entries stay as they are.
+its plan. Sibling stories and other entries stay as they are. `complete` also
+deletes the story's agent profile, writes its done record under `done/` beside
+the backlog, and removes expired done records; its report names each file. The
+new done record is untracked, so commit it, with the profile and expired
+records it removed, in the same result commit.
 
 When landing it, add `--one-shot-identity <identity>` to `deliver`, and to
 `resume` when resuming, so each fetched remote trunk is checked for the story

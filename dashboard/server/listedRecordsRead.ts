@@ -3,21 +3,24 @@
 // agent profiles (`agents=profiles`), with the project setting file's text,
 // or the done records (`done=records`). Each names only a pinned revision and
 // is refused here before any `gh` call otherwise. Which files are read is the
-// revision's listing of their directory (`./reachablePaths.ts`); a failure
-// names the file being read when it failed (`./performedRead.ts`).
+// revision's listing of their directory (`./recordsBesideBacklog.ts`). Records are
+// read a few at a time, each only while no earlier read has kept the blob its
+// listing names (`./pinnedTexts.ts`); a failure names the record whose read
+// failed (`./performedRead.ts`).
 
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
+import { mapPool } from "../src/boundedPool.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { PinnedTexts } from "./pinnedTexts.ts";
+import type { ListedPath, PinnedTexts } from "./pinnedTexts.ts";
+import type { PinnedLister } from "./reachablePaths.ts";
 import {
   agentProfileDirectoryOf,
   agentSettingsTextAt,
   doneRecordDirectoryOf,
-  listedAgentProfilePaths,
-  listedDoneRecordPaths,
-  type PinnedLister,
-} from "./reachablePaths.ts";
+  listedAgentProfiles,
+  listedDoneRecords,
+} from "./recordsBesideBacklog.ts";
 import { answered, type Outcome, type PinnedFile } from "./readOutcome.ts";
 import {
   isPinnedRevision,
@@ -38,26 +41,33 @@ type ListedRead = {
   readonly listed: (
     source: PublishedSource,
     listPinned: PinnedLister,
-  ) => Promise<string[]>;
+  ) => Promise<ListedPath[]>;
+  // Whether each record's text is also kept under its path at the revision,
+  // for later reads that ask for it by path there.
+  readonly keptByPath: boolean;
   readonly refusal: string;
 };
 
 // Each listed read by the parameter and value that name it, the directory its
 // records are listed in, and how it is refused when it names anything else.
-// A done record read is decided first when both are named.
+// A done record read is decided first when both are named. Agent profiles are
+// also kept by path: the story branch reads of the same revision read them so
+// (`./branchReachability.ts`).
 const listedReads: Readonly<Record<ListedRecordsRead["kind"], ListedRead>> = {
   "done-records-at": {
     parameter: "done",
     value: "records",
     directoryOf: doneRecordDirectoryOf,
-    listed: listedDoneRecordPaths,
+    listed: listedDoneRecords,
+    keptByPath: false,
     refusal: "A done record read names only a pinned revision.",
   },
   "agent-profiles-at": {
     parameter: "agents",
     value: "profiles",
     directoryOf: agentProfileDirectoryOf,
-    listed: listedAgentProfilePaths,
+    listed: listedAgentProfiles,
+    keptByPath: true,
     refusal: "An agent profile read names only a pinned revision.",
   },
 };
@@ -100,9 +110,13 @@ export function readingListedRecordsOf(
   return readingPathAt(listedReads[kind].directoryOf(source), revision);
 }
 
-// Reads every listed record at the pinned revision, naming each as it is read
-// so that a failure says which; a profile read also answers the project
-// setting file's text, null when the revision has none.
+// How many listed records are read from GitHub at once.
+const listedReadConcurrency = 4;
+
+// Reads every listed record at the pinned revision, a few at once, naming the
+// first record whose read fails so that the failure says which; a profile
+// read also answers the project setting file's text, null when the revision
+// has none.
 export async function performListedRecordsRead(
   pinned: PinnedTexts,
   source: PublishedSource,
@@ -111,12 +125,32 @@ export async function performListedRecordsRead(
   naming: (reading: string) => void,
 ): Promise<Outcome> {
   const readPinned = pinned.reader(source, revision, signal);
-  const listPinned = pinned.lister(source, revision, signal);
-  const files: PinnedFile[] = [];
-  for (const path of await listedReads[kind].listed(source, listPinned)) {
-    naming(readingPathAt(path, revision));
-    files.push({ path, text: await readPinned(path) });
-  }
+  const readListed = pinned.blobReader(source, revision, signal);
+  const { listed: listedIn, keptByPath } = listedReads[kind];
+  const listed = await listedIn(
+    source,
+    pinned.lister(source, revision, signal),
+  );
+  let failed = false;
+  const files: PinnedFile[] = await mapPool(
+    listed,
+    listedReadConcurrency,
+    async (record) => {
+      try {
+        const text = await readListed(record);
+        if (keptByPath) {
+          pinned.remember(source, revision, record.path, text);
+        }
+        return { path: record.path, text };
+      } catch (error) {
+        if (!failed) {
+          failed = true;
+          naming(readingPathAt(record.path, revision));
+        }
+        throw error;
+      }
+    },
+  );
   if (kind === "done-records-at") {
     return answered({ revision, records: files });
   }

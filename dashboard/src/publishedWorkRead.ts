@@ -35,7 +35,7 @@ import {
 } from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
-import { readDoneStories } from "./doneStories.ts";
+import { readDoneStories, type DoneStories } from "./doneStories.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -108,10 +108,10 @@ function interpret(
 // a read problem, so a stalled connection leaves the person able to retry;
 // nothing retries for them. When the bound ends a read after its membership
 // was shown, the snapshot is finished with a gap for each detail left unread
-// before the problem is reported. Each assignment's human and each Taken
-// card's slice clock are later details of the same read, sharing one addition
-// read per agent profile: their latency and failure, the bound included, stay
-// their own.
+// before the problem is reported. Each assignment's human, each Taken card's
+// slice clock, and the done stories are later details of the same read, the
+// humans and clocks sharing one addition read per agent profile: their
+// latency and failure, the bound included, stay their own.
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
@@ -138,25 +138,40 @@ export async function readPublishedWork(
         done: { status: "loading" },
       });
       onPartial?.(work);
+      // The done stories are read beside everything else and shown in
+      // whatever snapshot is shown once they answer; any failure, the bound
+      // included, is the column's gap.
+      let done: DoneStories = { status: "loading" };
+      let shown: PublishedWork | undefined;
+      const doneRead = readDoneStories(source, revision, untilEither).then(
+        (read) => {
+          done = read;
+          if (shown !== undefined) {
+            show(shown);
+          }
+        },
+      );
       // Owners and preparers come from the agent profiles at the same
-      // revision, read beside the preparation facts and the done records.
-      const [enrichedPreparation, assignments, done] = await Promise.all([
+      // revision, read beside the preparation facts.
+      const [prepared, assignments] = await Promise.all([
         enrichPreparation(work, untilEither),
         readAssignments(source, revision, untilEither),
-        readDoneStories(source, revision, untilEither),
       ]);
-      const prepared: PublishedWork = { ...enrichedPreparation, done };
       // Each profile's addition is read once, for both its assignment's human
       // and its Take's slice clock. Each human is read while progress and
       // clocks are, and is shown as soon as its own walk ends, in whatever
       // snapshot is shown by then.
       const additionOf = profileAdditionsAt(source, revision, untilEither);
       let credited = assignments;
-      let shown: PublishedWork | undefined;
+      // A snapshot with the humans credited and the done stories read so far.
+      const withLaterDetails = (next: PublishedWork): PublishedWork => ({
+        ...withAssignments(next, credited),
+        done,
+      });
       const show = (next: PublishedWork) => {
         shown = next;
         if (!signal.aborted) {
-          onPartial?.(withAssignments(next, credited));
+          onPartial?.(withLaterDetails(next));
         }
       };
       const attributed = readAttributedAssignments(
@@ -184,8 +199,8 @@ export async function readPublishedWork(
       );
       signal.throwIfAborted();
       show(sourced);
-      // Only the snapshot's own reads can fail it at the wait bound; a clock
-      // or human still unread then is that detail's gap.
+      // Only the snapshot's own reads can fail it at the wait bound; a clock,
+      // human, or done read still unread then is that detail's gap.
       const snapshotUnread = bound.aborted;
       // Each clock starts from commit times where its plan's slices were read,
       // once owners name the Take's profile, and is shown as soon as its own
@@ -197,7 +212,9 @@ export async function readPublishedWork(
         show,
       );
       signal.throwIfAborted();
-      const enriched = withAssignments(clocked, await attributed);
+      credited = await attributed;
+      await doneRead;
+      const enriched = withLaterDetails(clocked);
       signal.throwIfAborted();
       // Shown even when the wait bound ended it: each detail left unread is
       // an explicit gap, and the bound is still reported as the read problem.

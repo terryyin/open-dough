@@ -15,13 +15,13 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
   commitAnswer,
-  directoryListingAnswer,
   headsAnswer,
   noConnection,
   rawFileAnswer,
   rawFileContentType,
   type OriginAnswer,
 } from "../originAnswers.ts";
+import { directoryListingAnswer, listedFiles } from "../listingAnswers.ts";
 import {
   commitAnswerIn,
   commitListIn,
@@ -135,7 +135,7 @@ export function publishes(published: {
       return Promise.resolve(
         directoryListingAnswer(
           request.path,
-          Object.keys(published.files ?? {}),
+          listedFiles(published.files ?? {}),
         ),
       );
     }

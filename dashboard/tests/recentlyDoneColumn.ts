@@ -7,7 +7,8 @@ import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { recentlyDoneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keptSessions, placed, queuedTitle } from "./recentlyDoneRecords.ts";
+import { placed, queuedTitle } from "./recentlyDoneRecords.ts";
+import { keptSessions } from "./recentlyDoneSessions.ts";
 
 export const adHocEntry = recentlyDoneSessionName(
   "Ad hoc",
