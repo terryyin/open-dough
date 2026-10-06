@@ -13,16 +13,37 @@ records expire after 30 days. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.
 
-Cards list all unclosed sessions for their project/story newest first. Recent
-sessions list every selected-project record newest first, including done or
-stories absent from published lists; it appears only with readable published
-work. Ad hoc labels collapse whitespace, truncate at 40 characters with ellipsis,
-or use local launch time for blank/control-character text; no card lists them.
+Cards list all unclosed sessions for their project/story newest first.
+Recently done is one newest-first list of the selected project's done stories,
+from the done records published at the snapshot's revision, placed by
+completion time, and of every selected-project record that belongs to no shown
+done story, placed by launch time, including records marked done and stories
+absent from published lists; it appears only with readable published work. A
+done story's card shows its title, identity, completion time, developer, and the
+agent with its host when recorded, and holds every record of that story's work
+identity in the selected project, open or marked done, newest first, each the
+same session entry with its state and actions; none of them is listed again
+outside the card, and a session launched after completion does not move the
+card. A machine with no records for the story shows the card with none. A done
+record older than 30 days is not shown, so its story's records are listed as
+entries of their own again. A project publishing no done records lists only
+the records; done records that cannot be read are said in the column, which
+still lists the records. Ad hoc labels collapse whitespace, truncate at 40
+characters with ellipsis, or use local launch time for blank/control-character
+text; no card lists them.
 Reading sessions is distinguished from none kept. A session still navigates
 when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
 
-Host adapters normalize native state for the shared cards, Recent sessions,
+An assigned session shows its original agent and human credit at the saved
+allocation revision, beside its native host and requested model (or the model
+recorded at that assignment). This session attribution remains after assignment
+release and is separate from the story's current Preparing or Taken owner.
+Later allocations, including reuse of the same agent name, cannot replace it.
+Legacy records without allocation evidence and unreadable historical records
+keep their known launch facts and explicitly show “Human developer unknown.”
+
+Host adapters normalize native state for the shared cards, Recently done,
 sidebar/counts and alerts; observations are never persisted. Host descriptions
 supply unknown-reading wording, and adapters distinguish explicit unfamiliar
 native states from incomplete reads for shared alerting. Claude reads one machine
@@ -72,4 +93,9 @@ an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload
 in browser storage. Closing while focused there restores the Sessions button.
 Wide layout is sidebar/page/terminal; narrow sidebar overlays below the banner,
 terminal stacks above page. Opening a row changes project/history and reveals
-its card or Recent entry until user navigation; reduced motion skips animation.
+its card or Recently done entry, inside its done story's card when there is
+one, until user navigation; reduced motion skips animation. Deleting a session
+record moves the keyboard to the next entry in the same list (a card's
+sessions, a done card's sessions, or Recently done, where a done card is an
+entry), else the previous one, else the done card or story card that held it,
+else Recently done.

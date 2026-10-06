@@ -92,8 +92,10 @@ test("source navigation opens canonical and plan records at the inspected revisi
     // Record reads run concurrently, so only their set is fixed.
     expect(records.sort()).toEqual(
       [
-        // The agent profile directory is listed for Taken owners.
+        // The agent profile directory is listed for Taken owners, and the
+        // done-record directory for Recently done.
         ".planning/agents",
+        ".planning/done",
         ".planning/open-dough.json",
         ".planning/seeds/SEED-021-observe-published-story-progress.md",
         ".planning/slice-plans/059-installer-update-report/PLAN.md",

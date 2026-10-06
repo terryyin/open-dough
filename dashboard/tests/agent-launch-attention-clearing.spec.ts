@@ -18,7 +18,7 @@ import {
   cardSessionOf,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
@@ -56,11 +56,11 @@ test("a session's attention stays through opening and closing its terminal, clea
   const { passOnePace } = watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog } = await openTakenBacklog(page, journey);
-  const { recentSessions: recent } = parts(page);
+  const { recentlyDone: recent } = parts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
   const onCard = cardSessionOf(card(readyStory), "Execution");
   const inRecent = recent.getByRole("article", {
-    name: recentSessionName("Execution", readyStory),
+    name: recentlyDoneSessionName("Execution", readyStory),
   });
   const expectBoth = async (words: string, needsAttention: boolean) => {
     await expectSessionShown(onCard, words, needsAttention);

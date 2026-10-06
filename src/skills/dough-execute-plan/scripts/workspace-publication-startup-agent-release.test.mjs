@@ -1,5 +1,6 @@
 // Completing Taken work through the real backlog command releases its agent's
-// profile, and the next real startup Take does not reuse that name.
+// profile and publishes its done record with the closure, and the next real
+// startup Take does not reuse that name.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -48,7 +49,11 @@ test("a story completed through the backlog command releases Akiho-chan and the 
     (await git(workspace, "show", "--name-status", "--format=", "HEAD")).stdout
       .trim()
       .split("\n"),
-    ["M\t.planning/PRODUCT-BACKLOG.md", "D\t.planning/agents/akiho-chan.json"],
+    [
+      "M\t.planning/PRODUCT-BACKLOG.md",
+      "D\t.planning/agents/akiho-chan.json",
+      "A\t.planning/done/SEED-A_a.json",
+    ],
   );
 
   const next = startProcess(trunk, "b", identityB);

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-111#story-session-assignment-summary",
+  "mode": "story-branch",
+  "branch": "codex/story-session-assignment-summary",
+  "host": "codex"
+}

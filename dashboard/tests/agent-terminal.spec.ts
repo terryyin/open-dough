@@ -1,6 +1,6 @@
 // A session launched from this dashboard opens in the page's one terminal,
 // on a committed origin the production commands publish (./launchJourney.ts):
-// a card's session entry or a Recent sessions entry offers Open terminal, the page
+// a card's session entry or a Recently done entry offers Open terminal, the page
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,
 // which keeps running; Close detaches only and returns the keyboard to the
@@ -16,7 +16,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
@@ -50,7 +50,7 @@ test.describe("the terminal beside the page", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a card or Recent sessions entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
+  test("a card or Recently done entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
     page,
     dashboard,
   }) => {
@@ -59,13 +59,13 @@ test.describe("the terminal beside the page", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent, stages } = parts(page);
+    const { recentlyDone: recent, stages } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     const cardEntries = (title: string) => cardSessions(card(title));
     const entry = (title: string) =>
       recent.getByRole("article", {
-        name: recentSessionName("Execution", title),
+        name: recentlyDoneSessionName("Execution", title),
       });
     const openIn = (place: Locator) =>
       place.getByRole("button", { name: "Open terminal" });
@@ -142,7 +142,7 @@ test.describe("the terminal beside the page", () => {
       await expect(rows).toContainText(`resized ${String(await size())}`);
     });
 
-    await test.step("opening another session from Recent sessions detaches the first, which keeps running, and shows the second in its place", async () => {
+    await test.step("opening another session from Recently done detaches the first, which keeps running, and shows the second in its place", async () => {
       await openIn(entry(readyStory)).click();
       await expect(panel).toHaveCount(1);
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
@@ -162,7 +162,7 @@ test.describe("the terminal beside the page", () => {
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
       // The card still lists the session, so its entry's Open terminal, not
-      // the session's Recent sessions entry, has the keyboard.
+      // the session's Recently done entry, has the keyboard.
       await expect(openIn(cardEntries(notRefinedStory))).toBeFocused();
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);

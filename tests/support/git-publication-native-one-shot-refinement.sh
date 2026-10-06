@@ -145,6 +145,7 @@ run_one_shot_refinement_state_counterexamples() {
   # The story completed in the result.
   (cd -- "${workspace}" && node "${backlog_cli}" complete --identity "${identity}") \
     > /dev/null
+  git -C "${workspace}" add -A -- .planning/done
   refinement_amend
   native_assessor_rejects_observed story-completed queue \
     "${obs}" refinement_observe -- fail 'left the Backlog list'

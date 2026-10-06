@@ -73,7 +73,7 @@ connection and Reconnect, ended terminal), `agent-terminal-done.spec.ts`
 the page reads it now), `agent-terminal-done-report.spec.ts` (on sessions that
 reported), and
 `agent-terminal-done-reopen.spec.ts` (reopening a session marked done from its
-Recent sessions entry);
+Recently done entry);
 `agent-launch-card-done.spec.ts` marks a card's session done from its entry.
 `agent-launch-done-question.spec.ts` covers the question Mark as done asks on a
 card, and `agent-launch-done-question-follows.spec.ts` an open question
@@ -96,7 +96,7 @@ a dialog opened beforehand is refused; `agent-launch-card-session-states.spec.ts
 that an entry stays on its card in every state, without Open terminal when
 unavailable and with it when unknown, and survives a restarted server, a
 reload, and a project switch; `agent-launch-recent-session-states.spec.ts` what
-each state shows on a Recent sessions entry, and on one card entry, which is
+each state shows on a Recently done entry, and on one card entry, which is
 rendered the same way; and `agent-launch-attention.spec.ts` how many of a
 card's sessions need attention.
 The ad hoc session started from Start session is walked by
@@ -111,12 +111,12 @@ dialog, Default at each opening, `--model` reaching `claude`),
 `agent-launch-model-boundary.spec.ts` (the boundary: the alias before the
 instruction, a model outside the table refused, the refusal naming the model),
 and `agent-launch-model-entries.spec.ts` ("Model: <Name> (requested)" on a
-card, Recent sessions, and the sidebar, and nothing for Default).
+card, Recently done, and the sidebar, and nothing for Default).
 Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 `agent-launch-card-delete.spec.ts` and `agent-launch-card-delete-problems.spec.ts`
 (a card entry, and what refusals and failures leave), and
 `agent-launch-recent-delete.spec.ts` and
-`agent-launch-recent-delete-unavailable.spec.ts` (a Recent sessions entry).
+`agent-launch-recent-delete-unavailable.spec.ts` (a Recently done entry).
 
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select share `i` of `n` whole
 spec files. `longest-first` orders known files by recorded hosted duration;

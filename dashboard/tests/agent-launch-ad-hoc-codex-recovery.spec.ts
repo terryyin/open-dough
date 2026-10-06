@@ -67,7 +67,7 @@ for (const blank of [true, false]) {
       );
     }
     await page.reload();
-    const recent = parts(page).recentSessions.getByRole("article");
+    const recent = parts(page).recentlyDone.getByRole("article");
     await expect(recent).toContainText(
       blank
         ? "Blank conversation persistence unconfirmed"

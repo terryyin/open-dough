@@ -6,9 +6,9 @@
 // resolved revision; one repository path at a pinned revision; when one repository
 // path was last committed at a pinned revision (`committed=last`); which
 // commit added one agent profile's current allocation, when, and who
-// committed it, at a pinned revision (`committed=added`); the agent profiles
-// published beside the backlog at a pinned revision; which
-// commit a story branch recorded at a pinned revision names now (`branch`);
+// committed it, at a pinned revision (`committed=added`); the records
+// published beside the backlog at a pinned revision
+// (`./listedRecordsRead.ts`); which commit a story branch recorded at a pinned revision names now (`branch`);
 // or one path, or its last commit, at a head of that branch (`branch` and
 // `head`); or whether a pinned revision contains an accepted one
 // (`contains`, `./containmentRead.ts`). Malformed or mixed parameters are
@@ -19,11 +19,21 @@ import {
   isSafeBranchName,
 } from "../src/authenticatedReadRules.ts";
 import { parseSafeRepositoryPath } from "./reachablePaths.ts";
-import { refused, type RefusedParameters } from "./refusedParameters.ts";
+import {
+  isPinnedRevision,
+  refused,
+  unpinnedRevision,
+  type RefusedParameters,
+} from "./refusedParameters.ts";
 import {
   parseContainmentRead,
   type ContainmentRead,
 } from "./containmentRead.ts";
+import {
+  listedReadParameters,
+  parseListedRecordsRead,
+  type ListedRecordsRead,
+} from "./listedRecordsRead.ts";
 import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // A story branch as a read names it: the branch, and the head commit this
@@ -40,7 +50,7 @@ export type RequestedRead =
       readonly watched: readonly string[];
     }
   | { readonly kind: "backlog-at"; readonly revision: string }
-  | { readonly kind: "agent-profiles-at"; readonly revision: string }
+  | ListedRecordsRead
   | {
       readonly kind: "addition-at";
       readonly revision: string;
@@ -59,13 +69,6 @@ export type RequestedRead =
       // decides whether the branch and path may be read at all.
       readonly onBranch?: OnBranch;
     };
-
-// A revision a read is pinned to must already be a resolved commit.
-function isPinnedRevision(revision: string | null): revision is string {
-  return revision !== null && commitShaPattern.test(revision);
-}
-
-const unpinnedRevision = refused("The pinned revision is not a commit sha.");
 
 // At most this many story branches are watched by one check: far more than
 // a project's Taken entries.
@@ -116,7 +119,7 @@ function parseBranchRead(
   const committed = params.get("committed");
   if (
     params.get("since") !== null ||
-    params.get("agents") !== null ||
+    listedReadParameters.some((name) => params.get(name) !== null) ||
     branch === null
   ) {
     return refused(
@@ -174,13 +177,13 @@ export function parseRequestedRead(
   const revision = params.get("revision");
   const path = params.get("path");
   const since = params.get("since");
-  const agents = params.get("agents");
+  const listed = listedReadParameters.map((name) => params.get(name));
   const committed = params.get("committed");
   const branch = params.get("branch");
   const watch = params.getAll("watch");
   const onlyRevisionCheck =
     since !== null &&
-    [revision, path, agents, committed, branch, params.get("head")].every(
+    [revision, path, ...listed, committed, branch, params.get("head")].every(
       (other) => other === null,
     );
   if (watch.length > 0 && !onlyRevisionCheck) {
@@ -189,7 +192,7 @@ export function parseRequestedRead(
   // An addition read is asked only on trunk, so a branch or head is refused
   // as part of it.
   if (committed === "added") {
-    return [since, branch, params.get("head"), agents].every(
+    return [since, branch, params.get("head"), ...listed].every(
       (other) => other === null,
     )
       ? parseAdditionRead(revision, path)
@@ -200,19 +203,9 @@ export function parseRequestedRead(
   if (branch !== null || params.get("head") !== null) {
     return parseBranchRead(params, branch);
   }
-  if (agents !== null) {
-    if (
-      agents !== "profiles" ||
-      path !== null ||
-      since !== null ||
-      committed !== null
-    ) {
-      return refused("An agent profile read names only a pinned revision.");
-    }
-    if (!isPinnedRevision(revision)) {
-      return unpinnedRevision;
-    }
-    return { kind: "agent-profiles-at", revision };
+  const listedRead = parseListedRecordsRead(params);
+  if (listedRead !== undefined) {
+    return listedRead;
   }
   if (since !== null) {
     if (revision !== null || path !== null || committed !== null) {

@@ -104,8 +104,9 @@ native_one_shot_substitute() {
 }
 
 # Composes queued story ${identity}'s closure in execution workspace $1 with
-# installed skills $2: its backlog completion, its story section (the seed
-# keeps its sibling) and its plan, found from its backlog link and read state.
+# installed skills $2: its backlog completion with the done records it wrote
+# or removed, its story section (the seed keeps its sibling) and its plan,
+# found from its backlog link and read state.
 native_one_shot_close_story() {
   local execution=$1 skills=$2 link seed anchor plan
   local cli="${skills}/dough-product-backlog/scripts/product-backlog.mjs"
@@ -115,6 +116,7 @@ native_one_shot_close_story() {
   admission_run_in "${execution}" node "${cli}" read-state --link "${link}"
   plan=$(jq -r .approach.plan <<< "${admission_last}")
   admission_run_in "${execution}" node "${cli}" complete --identity "${identity}"
+  admission_run_in "${execution}" git add -A -- .planning/done
   awk -v start="<a id=\"${anchor}\"></a>" '
     $0 == start { skip = 1; next }
     skip && /^<a id="/ { skip = 0 }

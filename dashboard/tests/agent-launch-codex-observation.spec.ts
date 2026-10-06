@@ -1,4 +1,4 @@
-// Cards, Recent sessions and sidebar consume one recorded native observation.
+// Cards, Recently done and sidebar consume one recorded native observation.
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pausePageClockAt } from "./dashboardTest.ts";
@@ -31,7 +31,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => journey.cleanup());
 
-test("saved Codex states appear consistently on cards, Recent sessions and sidebar, reload with their attention counts", async ({
+test("saved Codex states appear consistently on cards, Recently done and sidebar, reload with their attention counts", async ({
   page,
   dashboard,
   codexProtocol,
@@ -142,7 +142,7 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
   const { card } = await openTakenBacklog(page, journey);
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
-  const recent = parts(page).recentSessions;
+  const recent = parts(page).recentlyDone;
   const entry = (entries: ReturnType<typeof cardSessions>, id: string) =>
     entries.filter({ has: page.locator(`code:text-is("${id}")`) });
   const check = async () => {

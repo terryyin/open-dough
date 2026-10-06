@@ -1,7 +1,7 @@
 // Mark as done in the page's one terminal (./agent-terminal.spec.ts), on the
 // committed story-stages origin (./launchJourney.ts): while it marks, the panel
 // says so quietly; then the panel closes, the session leaves its card, and
-// Recent sessions shows the entry Done under its `done-` name, still openable.
+// Recently done shows the entry Done under its `done-` name, still openable.
 // How the boundary renames and stops the session is ./agent-launch-done.spec.ts, how
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
 // entry's own Mark as done is ./agent-launch-card-done.spec.ts. A refused mark
@@ -25,7 +25,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentSessionName,
+  recentlyDoneSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import {
@@ -89,7 +89,7 @@ test.describe("marking a session done from its terminal", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("Mark as done closes the panel, the session leaves its card, and Recent sessions shows it Done until its terminal opens again", async ({
+  test("Mark as done closes the panel, the session leaves its card, and Recently done shows it Done until its terminal opens again", async ({
     page,
     dashboard,
   }) => {
@@ -98,11 +98,11 @@ test.describe("marking a session done from its terminal", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const listed = cardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
-      name: recentSessionName("Execution", readyStory),
+      name: recentlyDoneSessionName("Execution", readyStory),
     });
     const queued = {
       taken: [],

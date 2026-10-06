@@ -61,7 +61,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
       doneAt === undefined
         ? cardSessions(card(notRefinedStory))
         : parts(page)
-            .recentSessions.getByRole("article")
+            .recentlyDone.getByRole("article")
             .filter({ hasText: native.threadId });
     const open = entry.getByRole("button", { name: "Open terminal" });
     await expect(open).toBeVisible();

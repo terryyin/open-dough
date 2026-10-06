@@ -61,7 +61,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   writeFileSync(file, JSON.stringify(state));
   const { card } = await openStoryStagesJourney(page, journey);
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
@@ -194,7 +194,7 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
   await openStoryStagesJourney(page, journey);
   codexTerminalMode(native, "partial");
   await parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId })
     .getByRole("button", { name: "Open terminal" })
     .click();

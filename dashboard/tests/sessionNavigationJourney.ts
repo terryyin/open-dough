@@ -152,15 +152,32 @@ export async function openNavigationJourney(
 export const attachesOf = (dashboard: DashboardServer, sessionId: string) =>
   dashboard.claudeAttaches().filter(({ id }) => id === sessionId.slice(0, 8));
 
-// Whether the part lies wholly inside the window right now, without waiting.
+// Whether the part lies wholly inside the window once the page has settled:
+// its preparation facts are read, so no card changes size any more, and the
+// page has rendered since, so the part's keeping in view (`keepInView`) has
+// answered the last change. Measured sooner, a card lengthened or shortened
+// by a preparation read can leave it out of view until the next frame.
 export async function expectWhollyInView(page: Page, name: string) {
+  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
   expect(
-    await page.evaluate((label) => {
-      const shown = document.querySelector(`[aria-label="${label}"]`);
-      const box = shown?.getBoundingClientRect();
-      return (
-        box !== undefined && box.top >= 0 && box.bottom <= window.innerHeight
-      );
-    }, name),
+    await page.evaluate(
+      (label) =>
+        new Promise<boolean>((answer) => {
+          // A task queued from a frame callback runs after that frame's
+          // layout, resize observations, and paint.
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              const shown = document.querySelector(`[aria-label="${label}"]`);
+              const box = shown?.getBoundingClientRect();
+              answer(
+                box !== undefined &&
+                  box.top >= 0 &&
+                  box.bottom <= window.innerHeight,
+              );
+            });
+          });
+        }),
+      name,
+    ),
   ).toBe(true);
 }

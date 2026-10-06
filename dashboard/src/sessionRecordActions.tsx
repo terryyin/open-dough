@@ -1,4 +1,4 @@
-// Record actions shared by card and Recent sessions entries. Each says what
+// Record actions shared by card and Recently done entries. Each says what
 // it came to through the entry's one status line (`say`), which nothing clears
 // but the next control asking.
 import { hostName, marksRecordDone } from "./sessionCapabilities.ts";
@@ -48,7 +48,7 @@ export function MarkDone({
   );
 }
 
-// A card or Recent sessions entry's Delete record…, offered only while its
+// A card or Recently done entry's Delete record…, offered only while its
 // state is unknown or unavailable (`recordDeletable`); the Sessions sidebar's
 // entries offer none. It asks in place, with the keyboard on Keep, before the
 // record is deleted. Keep and Escape put the button back with the keyboard on

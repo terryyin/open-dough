@@ -1,9 +1,9 @@
-// Reveal the chosen session's story card or Recent sessions entry once its
+// Reveal the chosen session's story card or Recently done entry once its
 // project's stories are shown, keeping it visible until the developer moves.
 import { useLayoutEffect, useRef, useState } from "react";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { recentSessionsEntry } from "./pageSessions.ts";
+import { recentlyDoneEntry } from "./pageSessions.ts";
 import { keepInView, workCard } from "./workFocus.ts";
 
 export function useSessionNavigation(
@@ -12,7 +12,8 @@ export function useSessionNavigation(
 ) {
   // Going to a session: its project's stories, its terminal where it opens
   // one, and, once that project's stories are shown, its card brought into
-  // view, or its Recent sessions entry when no card lists it.
+  // view, or its Recently done entry when no card lists it, inside its done
+  // story's card when Recently done shows the story done.
   // Each going is its own, so going again to the same session reveals again.
   const [going, setGoing] = useState<{ readonly to: LaunchRecord }>();
   const revealed = useRef<{ readonly to: LaunchRecord } | undefined>(undefined);
@@ -33,7 +34,7 @@ export function useSessionNavigation(
     const { identity } = launchSubject(going.to.request);
     const shown =
       (identity === undefined ? undefined : workCard(identity)) ??
-      recentSessionsEntry(sessionKey(going.to.session));
+      recentlyDoneEntry(sessionKey(going.to.session));
     // Kept in view until the developer moves, goes elsewhere, or another
     // project's stories are shown.
     return shown === null ? undefined : keepInView(shown);

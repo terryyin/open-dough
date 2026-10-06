@@ -22,7 +22,7 @@ binds to its native session, with local Done for a quiet completion, when that l
 is confirmed. It never selects the
 newest session for a story. Optional `--session` must match the confirmed native ID.
 
-Every shared session entry, on a story card and in Recent sessions, shows its
+Every shared session entry, on a story card and in Recently done, shows its
 message as text in a message part headed by the report's completion label; the
 heading is a disclosure button that says whether the part is expanded. The
 message text has a limited height and scrolls on its own, reachable by
@@ -30,7 +30,7 @@ keyboard, so a long message leaves Mark as read and the rest of the entry in
 view. A
 report is unread until **Mark as read**, or until the session is marked done.
 While unread the part is expanded, does not collapse, and offers Mark as read,
-on card and Recent sessions entries alike, so a session without a story card
+on card and Recently done entries alike, so a session without a story card
 can be marked read. Mark as read keeps the report's receipt as read and does
 nothing else: the part collapses with the keyboard on its heading, and the
 session stays open with its native reading. A refused mark leaves the part
@@ -48,7 +48,7 @@ tooltip and as a message mark on its sidebar entry; a card says how many of its
 sessions hold one (“1 unread report”) in a line of its own. A new instruction to
 the session does not mark its report read. Messages survive a story's published
 stage change, dashboard restart, and workspace disappearance, and stay readable
-in Recent sessions after Done.
+in Recently done after Done.
 Reading a message, or marking it read, changes no native activity.
 Quiet completion offers no attention message or empty explicit report. The side
 panel holds a session's passive native final report (**Read final report**),

@@ -144,7 +144,7 @@ test("Start session closes at acceptance while Codex holds its input", async ({
 
   native.hold = false;
   native.release();
-  await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(1, {
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1, {
     timeout: 30_000,
   });
   await expect(button).toBeEnabled();

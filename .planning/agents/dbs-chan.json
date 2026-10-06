@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "dbs-chan",
+  "email": "dbs-chan@example.org",
+  "identity": "SEED-008#story-branch-delivery-target",
+  "mode": "story-branch",
+  "branch": "claude/story-branch-increments-publish-only-to-their-ex",
+  "host": "claude"
+}

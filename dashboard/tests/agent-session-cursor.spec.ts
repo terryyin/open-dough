@@ -163,7 +163,7 @@ test("a stopped runner says so, shows no screen label, and starts no agent", asy
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
   await page.reload();
-  const again = parts(page).recentSessions.getByRole("article");
+  const again = parts(page).recentlyDone.getByRole("article");
   await expect(again).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
     again,
@@ -188,7 +188,7 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   const release = await occupyRunner(dashboard.home);
   try {
     await page.reload();
-    const again = parts(page).recentSessions.getByRole("article");
+    const again = parts(page).recentlyDone.getByRole("article");
     await expect(again).toHaveCount(1);
     await expectReadingWithoutScreenLabel(
       again,
@@ -233,7 +233,7 @@ test("a recorded session the runner does not hold shows no screen label", async 
     )
     .toEqual({ runner: "running", count: 0 });
   await page.reload();
-  const again = parts(page).recentSessions.getByRole("article");
+  const again = parts(page).recentlyDone.getByRole("article");
   await expect(again).toHaveCount(1);
   await expectReadingWithoutScreenLabel(again, unknownWords);
   const answer = await projectedSessions(page);

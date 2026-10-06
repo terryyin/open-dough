@@ -134,7 +134,7 @@ test("Cursor installed report offers local Done without a native stop capability
   const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(done?.doneAt).toBeDefined();
   expect(done?.doneProblem).toBeUndefined();
-  const recent = parts(page).recentSessions.getByRole("article");
+  const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent.locator(".session-state")).toContainText("Done");
   await expect(recent).not.toContainText("Named done-");
   expect(done?.completion?.receipt).toBe(receipt.receipt);
@@ -182,7 +182,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
     const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
     expect(done?.doneAt).toBeDefined();
     expect(cursor.calls()).toHaveLength(before);
-    const recent = parts(page).recentSessions.getByRole("article");
+    const recent = parts(page).recentlyDone.getByRole("article");
     await expect(recent.locator(".session-state")).toContainText("Done");
   } finally {
     await release();
@@ -230,7 +230,7 @@ test("Cursor explicit quiet completion is durable local Done without native stop
   });
   await page.goto("/");
   const recent = parts(page)
-    .recentSessions.getByRole("article")
+    .recentlyDone.getByRole("article")
     .filter({ hasText: cursor.sessionId });
   await expect(recent).toContainText("Done");
   await expect(recent.locator(".session-attention-message")).toHaveCount(0);

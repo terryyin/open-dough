@@ -33,7 +33,7 @@ an unselected row preserves selection; removing the selected row selects its
 next neighbor or the first remaining project. Removing the last project leaves
 settings usable, with Add project and Back to dashboard's empty page. Nothing on disk or GitHub changes: checkouts,
 running sessions, and saved launch/session records remain. Removed sessions leave
-Recent sessions and the Sessions sidebar; adding the same repository restores them.
+Recently done and the Sessions sidebar; adding the same repository restores them.
 Cancel or Escape keeps the entry and returns focus to Remove project.
 
 [Dashboard overview](README.md) describes project observation and navigation.

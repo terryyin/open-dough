@@ -21,9 +21,7 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
 }) => {
   if (native === undefined) throw new Error("Missing native fixture.");
   const journey = await publishLaunchJourney();
-  afterGitHubStops(() => {
-    void journey.cleanup();
-  });
+  afterGitHubStops(journey.cleanup);
   const { card } = await openTakenBacklog(page, journey);
   expect(
     JSON.parse(

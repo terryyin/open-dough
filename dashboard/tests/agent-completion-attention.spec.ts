@@ -210,7 +210,7 @@ test("installed attention report stays open, durable and readable through stage 
     await machineSessions(restarted);
     await page.reload();
     const recent = parts(page)
-      .recentSessions.getByRole("article")
+      .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });
     await expect(recent.locator(".session-state")).toHaveText("Done");
     await expect(recent).toContainText(`Named ${doneName}`);

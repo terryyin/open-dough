@@ -1,7 +1,7 @@
 import { hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { hostName, marksDone } from "./sessionCapabilities.ts";
-// One kept session, shown consistently on cards and in Recent sessions.
+// One kept session, shown consistently on cards and in Recently done.
 // Its native observations and supported controls stay distinct from story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -21,6 +21,7 @@ import { LaunchSession } from "./LaunchSession.tsx";
 import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession, usePageSessions } from "./pageSessions.ts";
 import { DeleteRecord, MarkDone } from "./sessionRecordActions.tsx";
+import { SessionAssignment } from "./SessionAssignment.tsx";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -101,6 +102,7 @@ export function SessionEntry({
         <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
+      <SessionAssignment record={record} />
       {optionsWords !== undefined && <p>{optionsWords}</p>}
       {policyWords !== undefined && <p>{policyWords}</p>}
       {workspace !== undefined && <p>{workspace}</p>}
@@ -188,4 +190,37 @@ export function SessionList({
     return <p className="quiet">{none}</p>;
   }
   return children(sessions);
+}
+
+// A story's sessions inside its card, newest first, each the entry Recently
+// done shows: on a work card (`./CardSessions.tsx`), without the story the
+// card names, or on a done story's card (`./DoneStoryCard.tsx`). With none it
+// shows nothing. The entry the developer's own launch from the card just
+// listed takes the keyboard.
+export function StorySessions({
+  sessions,
+  className,
+  onCard,
+  launchedHere,
+}: {
+  // The story's sessions, oldest first.
+  readonly sessions: readonly LaunchWithState[];
+  readonly className: string;
+  readonly onCard: boolean;
+  readonly launchedHere?: string | undefined;
+}) {
+  if (sessions.length === 0) return null;
+  return (
+    <ol className={className} aria-label="Sessions">
+      {sessions.toReversed().map((record) => (
+        <li key={sessionKey(record.session)}>
+          <SessionEntry
+            record={record}
+            onCard={onCard}
+            takesFocus={launchedHere === sessionKey(record.session)}
+          />
+        </li>
+      ))}
+    </ol>
+  );
 }

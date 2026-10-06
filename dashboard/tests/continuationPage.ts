@@ -1,4 +1,4 @@
-// Saved continuation context on the mixed-host card and Recent entries.
+// Saved continuation context on the mixed-host card and Recently done entries.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
@@ -13,7 +13,7 @@ export async function expectMixedContinuation(
 ) {
   for (const entries of [
     cardSessions(card),
-    parts(page).recentSessions.getByRole("article"),
+    parts(page).recentlyDone.getByRole("article"),
   ]) {
     const codex = entries.filter({ hasText: "Refinement started in Codex" });
     await expect(codex.locator("p", { hasText: /^Workspace / })).toHaveText(
@@ -29,7 +29,7 @@ export async function expectMixedContinuation(
       hasText: "Refinement started in Claude Code",
     });
     // A Claude session marked done to allow the Codex launch leaves the card;
-    // Recent still lists it.
+    // Recently done still lists it.
     if ((await claude.count()) === 0) continue;
     await expect(claude.locator("p", { hasText: /^Continue in / })).toHaveCount(
       0,

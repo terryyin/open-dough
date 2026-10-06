@@ -155,12 +155,13 @@ Mode before-cleanup publication — delete the selected work's spent history und
   remaining section is spent;
 - its **Taken** or **Backlog list** entry when one exists, through the
   [dough-product-backlog](../dough-product-backlog/SKILL.md) `complete` command,
-  which also deletes that work's agent profile, an owned closure change; and
+  which also deletes that work's agent profile, writes its done record, and
+  removes expired done records, all owned closure changes; and
 - links whose sole purpose is preserving that history.
 
-Also remove the owned follow-up records and entry selected for explicit drop
-above, after their Git recovery is established. Otherwise preserve active
-follow-ups and their queue entries.
+Also remove the owned follow-up records selected for explicit drop above, after
+their Git recovery is established, and their entry with `complete --dropped`.
+Otherwise preserve active follow-ups and their queue entries.
 
 Remove empty directories belonging to the spent work, including untracked ones.
 The current snapshot must be free of that history, both tracked and untracked,

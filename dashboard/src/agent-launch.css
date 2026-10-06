@@ -1,5 +1,5 @@
 /* A Backlog card's launch actions, a launch's answer, and a launched
-   session's entry on its card and in the project's Recent sessions; the
+   session's entry on its card and in the project's Recently done; the
    launch dialog's own layout is ./launch-dialog.css.
    Text carries every meaning. A noted Start stays the accent action; its
    dashed edge marks the note its tooltip shows on hover and keyboard focus
@@ -83,10 +83,8 @@
   font-weight: 600;
 }
 
-.card-sessions .session-entry {
-  background: var(--panel);
-}
-
+/* A story's sessions inside its card, on a work card or a done story's card. */
+.card-sessions .session-entry,
 .launch-local {
   color: var(--quiet);
 }
@@ -95,7 +93,7 @@
   margin-top: 0.35rem;
 }
 
-.recent-sessions {
+.recently-done {
   margin-top: 1rem;
   border: 1px solid var(--line);
   border-radius: 0.5rem;
@@ -103,11 +101,11 @@
   background: var(--panel);
 }
 
-.recent-sessions > p {
+.recently-done > p {
   margin-top: 0.25rem;
 }
 
-.recent-sessions ol {
+.recently-done ol {
   list-style: none;
   display: grid;
   gap: 0.6rem;
@@ -120,6 +118,24 @@
   padding: 0.5rem 0.8rem;
   background: var(--surface);
   font-size: 0.9rem;
+}
+
+/* A done story: a published fact, so a solid edge, unlike the dashed edge of
+   a session kept on this machine. */
+.done-story {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--edge);
+  border-radius: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+/* A done story's sessions, inside its card as a card's sessions are. */
+.recently-done .done-story-sessions {
+  gap: 0.45rem;
+  margin-top: 0.2rem;
 }
 
 .session-state {
@@ -138,11 +154,11 @@
 }
 
 /* The session the page's terminal shows: its entries say "Shown in
-   terminal", and the card listing it, or its Recent sessions entry, is
+   terminal", and the card listing it, or its Recently done entry, is
    outlined in the page's selection accent (the card's accent left edge marks
    every card, so the words carry the meaning). */
 .card.in-terminal,
-.recent-sessions .session-entry.in-terminal {
+.recently-done .session-entry.in-terminal {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }

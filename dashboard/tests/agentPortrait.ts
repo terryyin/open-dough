@@ -79,6 +79,7 @@ export async function expectMark(
   await expect(mark).toBeVisible();
   await expect(mark).toHaveAttribute("alt", "");
   await expect(mark).toHaveAttribute("src", new RegExp(`/${file}$`));
+  await expect.poll(() => loadedWidth(mark)).toBeGreaterThan(0);
   const source = await mark.evaluate(
     (image) => (image as HTMLImageElement).currentSrc,
   );
@@ -87,9 +88,6 @@ export async function expectMark(
     source,
     file.endsWith(".svg") ? "image/svg+xml" : "image/png",
   );
-  expect(
-    await mark.evaluate((image) => (image as HTMLImageElement).naturalWidth),
-  ).toBeGreaterThan(0);
   // Beside its label: the mark starts the label's group.
   const markBox = await expectStartsGroup(mark, group);
   const portraitBox = await card.locator(".agent-portrait").boundingBox();
@@ -135,6 +133,15 @@ function backgroundImages(visual: Locator, pseudo: string | null = null) {
         ),
       ].map((match) => match[1] ?? ""),
     pseudo,
+  );
+}
+
+// The width of an image shown, once it has loaded; 0 until then. Read its
+// currentSrc only after this: until the image loads Chromium reports "",
+// which a request would resolve to the page itself.
+export function loadedWidth(image: Locator): Promise<number> {
+  return image.evaluate((element: HTMLImageElement) =>
+    element.complete ? element.naturalWidth : 0,
   );
 }
 

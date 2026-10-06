@@ -30,12 +30,15 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // path; a published agent profile nothing else dates was added by a commit of
 // its own (./pathHistoryAnswers.ts); for any other path the connection fails.
 // Each of `branches` is a published branch head, answered and observed the
-// same way at its own revision; any other branch is not published. A check
+// same way at its own revision; any other branch is not published. Each of
+// `unanswered` is listed in its directory, but reading it fails as a lost
+// connection would. A check
 // lists the configured ref and every published branch head; checks are answered but not
 // observed (./originObservation.ts).
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
+  readonly unanswered?: readonly string[];
   readonly committed?: Readonly<Record<string, Date>>;
   // Each path's history as of this revision, newest first; null when it is
   // not published.
@@ -131,8 +134,14 @@ export function publishMovingFiles(
     }
     if (request.kind === "listing") {
       return Promise.resolve(
-        directoryListingAnswer(request.path, Object.keys(at.files)),
+        directoryListingAnswer(request.path, [
+          ...Object.keys(at.files),
+          ...(at.unanswered ?? []),
+        ]),
       );
+    }
+    if (at.unanswered?.includes(request.path) === true) {
+      return Promise.resolve(noConnection);
     }
     const body = Object.hasOwn(at.files, request.path)
       ? at.files[request.path]

@@ -1,7 +1,7 @@
 // What one performed read of the local authenticated read boundary
 // (`./authenticatedRead.ts`) comes to: an answer, a refusal, or a reported
-// failure. Shared by `./performedRead.ts`, `./performedBranchRead.ts`, and
-// `./containmentRead.ts`.
+// failure. Shared by `./performedRead.ts`, `./performedBranchRead.ts`,
+// `./listedRecordsRead.ts`, and `./containmentRead.ts`.
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
@@ -40,6 +40,11 @@ type Answer =
       readonly revision: string;
       readonly profiles: readonly PinnedFile[];
       readonly settings: string | null;
+    }
+  // The done records listed beside the backlog at a revision.
+  | {
+      readonly revision: string;
+      readonly records: readonly PinnedFile[];
     }
   // The commit that added a listed profile's current allocation, or null
   // when its walked history has none.

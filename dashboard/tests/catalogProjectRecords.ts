@@ -137,6 +137,8 @@ export function expectPinnedGhCalls(
     [
       backlogPath,
       profileDirectory,
+      // The done-record directory is listed for Recently done.
+      ".planning/done",
       ".planning/open-dough.json",
       published.takenPath,
       published.queuedPath,

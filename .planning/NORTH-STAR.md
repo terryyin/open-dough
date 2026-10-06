@@ -150,7 +150,7 @@ parallel ones:
   Claude's machine-wide listing can supply that observation, while Codex reads
   the saved native thread and endpoint. The page reads them once
   for every configured project and holds one session state, apart from project
-  selection; cards, Recent sessions, and the Sessions sidebar
+  selection; cards, Recently done, and the Sessions sidebar
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
   Published observation stays one project at a time; later hosts join the
@@ -262,29 +262,3 @@ standalone observer, hook bridge, and completion wait are unchanged. This is
 supported by Accepted ADRs 0001, 0004, 0005, and 0006. Move the lasting
 feature rules to the dashboard launch documentation at wrap-up, and retire
 this topic when Codex and Cursor delivery no longer need it.
-
-## Done stories as published records
-
-A completed story is a published fact of its own, like an agent assignment:
-the product backlog's `complete` operation writes one small JSON record per
-done story in a directory beside the backlog, in the change that removes the
-entry and releases its agent profile. The backlog scripts own the record's
-format and its 30-day window; the dashboard reads the directory at the revision
-it reads the backlog and profiles, through the same published read, and never
-writes it. The record keeps only facts that outlive cleanup and links to no
-seed or plan, so wrap-up still leaves no spent history in the snapshot.
-
-One file per story, not a shared list: several agents close stories at once
-from separate worktrees, and a shared file would have every closure add at the
-same place and prune the same old lines, needing merge adapters as the backlog
-does. Separate files integrate without them, and two closures removing the
-same expired file agree.
-
-The [project visibility requirements](../docs/project-visibility-requirements.md#recently-finished-stories)
-asked to try Git history before adding a record. Observed on 2026-10-06:
-closure commits share no subject convention, agent-profile deletions also come
-from preparation releases, and the backlog had over a thousand commits in 30
-days, so no bounded published read identifies completions. Local session
-records stay machine evidence that the page attaches to a done story by work
-identity; they never establish that a story is done. This direction supports
-[SEED-107#recently-done](seeds/SEED-107-dashboard-recently-done.md#recently-done).

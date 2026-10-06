@@ -88,7 +88,7 @@ test("production seeds its four projects and shows a previously saved session", 
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
   await expect(
-    page.getByRole("region", { name: "Recent sessions" }),
+    page.getByRole("region", { name: "Recently done" }),
   ).toContainText(title);
   expect(
     JSON.parse(readFileSync(configurationFile("preview"), "utf8")),
@@ -146,7 +146,7 @@ for (const mode of ["dev", "preview"] as const) {
       ).toBeChecked();
       await expect(page).toHaveURL(`${server.baseURL}/`);
       await expect(
-        page.getByRole("region", { name: "Recent sessions" }),
+        page.getByRole("region", { name: "Recently done" }),
       ).toBeVisible();
       expect(server.ghCalls()).toContainEqual([
         "api",

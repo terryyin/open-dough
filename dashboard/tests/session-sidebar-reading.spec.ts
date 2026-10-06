@@ -1,5 +1,5 @@
 // Before the machine's sessions are first read, the Sessions sidebar says so,
-// as Recent sessions does, instead of claiming none are kept; once read with
+// as Recently done does, instead of claiming none are kept; once read with
 // none kept it says so, and with all kept ones marked done it says none is
 // open. Before that first read answers, no card offers Start while the lists
 // keep reading; once read, a launch lists its session on the card, keyboard
@@ -8,7 +8,11 @@
 // (./fixtures/fake-claude).
 
 import { expect, test } from "./dashboardTest.ts";
-import { cardSessions, parts, recentSessionName } from "./dashboardPage.ts";
+import {
+  cardSessions,
+  parts,
+  recentlyDoneSessionName,
+} from "./dashboardPage.ts";
 import {
   publishStoryStagesJourney,
   readyStory,
@@ -39,16 +43,16 @@ test.describe("the Sessions sidebar's reading", () => {
     const { answer } = await holdSessionReads(page);
     const { settled } = await openStoryStagesJourney(page, stagesJourney);
     const { sidebar, button, entries, badge } = sidebarParts(page);
-    const { recentSessions } = parts(page);
+    const { recentlyDone } = parts(page);
     await settled();
     await button.click();
-    for (const place of [sidebar, recentSessions]) {
+    for (const place of [sidebar, recentlyDone]) {
       await expect(place).toContainText("Reading sessions…");
       await expect(place).not.toContainText("No sessions launched");
     }
 
     answer();
-    for (const place of [sidebar, recentSessions]) {
+    for (const place of [sidebar, recentlyDone]) {
       await expect(place).toContainText(
         "No sessions launched from this dashboard are kept.",
       );
@@ -82,7 +86,7 @@ test.describe("the Sessions sidebar's reading", () => {
       stagesJourney,
     );
     const { sidebar, button, entries } = sidebarParts(page);
-    const { recentSessions } = parts(page);
+    const { recentlyDone } = parts(page);
     await settled();
     await button.click();
 
@@ -90,7 +94,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(
       card(readyStory).getByRole("button", { name: "Start execution" }),
     ).toBeDisabled();
-    for (const place of [sidebar, recentSessions]) {
+    for (const place of [sidebar, recentlyDone]) {
       await expect(place).toContainText("Reading sessions…");
     }
     await expect(entries).toHaveCount(0);
@@ -101,11 +105,11 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(own).toHaveCount(1);
     await expect(own).toBeFocused();
     await expect(sidebar).not.toContainText("Reading sessions…");
-    await expect(recentSessions).not.toContainText("Reading sessions…");
+    await expect(recentlyDone).not.toContainText("Reading sessions…");
     await expect(entries).toHaveCount(2);
     await expect(
-      recentSessions.getByRole("article", {
-        name: recentSessionName("Execution", readyStory),
+      recentlyDone.getByRole("article", {
+        name: recentlyDoneSessionName("Execution", readyStory),
       }),
     ).toHaveCount(1);
     await expect(own).toHaveCount(1);
