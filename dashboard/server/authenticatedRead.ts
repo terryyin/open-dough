@@ -17,8 +17,8 @@
 // reachability: `./reachablePaths.ts`, `./recordsBesideBacklog.ts`, and
 // `./branchReachability.ts`; pinned-text memo: `./pinnedTexts.ts`; revision
 // checks: `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved
-// branch heads: `./branchHeads.ts`; one request's `gh` lifetime:
-// `./trackedGh.ts`; failure wording and any directed wait:
+// branch heads: `./branchHeads.ts`; one request's wait for its `gh`
+// answers: `./trackedGh.ts`; failure wording and any directed wait:
 // `./readFailureMessage.ts`. Beside it, a second path serves the GitHub
 // avatar of the human credited for one listed profile (`./avatarRead.ts`,
 // images kept by `./avatarImages.ts`).

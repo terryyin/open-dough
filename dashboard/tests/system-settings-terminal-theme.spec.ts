@@ -82,6 +82,7 @@ for (const [mode, other] of [
       .click();
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expectShown(page, "Light");
+    await expect(themeChoice(page)).toBeEnabled();
     expect(savedTheme()).toEqual({ theme: "light" });
 
     await themeChoice(page).selectOption({ label: "Default" });

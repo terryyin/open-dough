@@ -13,9 +13,9 @@ import { execFile, type ExecException } from "node:child_process";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
 
-// How long one boundary request may wait for its `gh` answers before it is
-// given up (`./trackedGh.ts`), and how long one `gh` call may run from its
-// start however many requests wait on it: the shared read wait bound
+// How long one boundary request may wait for its `gh` answers before its
+// wait is given up (`./trackedGh.ts`), and how long one `gh` call may run
+// from its start however many requests wait on it: the shared read wait bound
 // (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`). A test may
 // shorten this through the environment to observe termination without
 // waiting out the production bound, which stays the shared bound whenever
@@ -59,8 +59,8 @@ export class GhFailure extends Error {
 // `gh` exits 4 when it has no usable login, and says so by pointing at
 // `gh auth login`; an HTTP error ends its stderr with "(HTTP <status>)", and a
 // rate limit or a failed connection names itself.
-// Timing out is the request bound's own finding (`./authenticatedRead.ts`),
-// never inferred here.
+// Timing out is never inferred from `gh`'s output: it is a request's own
+// bound (`./trackedGh.ts`) or the shared call's (`spawnedGh` below).
 export function classify(
   error: { readonly code?: string | number | undefined },
   stderr: string,
@@ -127,35 +127,19 @@ function spawnedGh(
   });
 }
 
-// What a request that stopped waiting is answered, as `execFile` answers a
-// call aborted by its signal.
-function abandoned(args: readonly string[]): GhRun {
-  const error: ExecException = Object.assign(
-    new Error("The operation was aborted"),
-    { name: "AbortError", code: "ABORT_ERR", cmd: ["gh", ...args].join(" ") },
-  );
-  return { error, stdout: "", stderr: "", askedAt: new Date().toISOString() };
-}
-
 // One `gh` answer, settled whatever its exit: `gh api --include` prints
 // GitHub's status line on stdout even when it exits non-zero, so a caller
 // that asked for it decides from that status before classifying the exit.
-// `signal` ends this request's wait, not a call another request still waits
-// for; a call that reached its own bound is a timed-out failure.
-export async function execGh(
+// `signal` ends only this request's wait, which then rejects with its reason
+// and gets no output; a call that reached its own bound is a timed-out
+// failure for every request waiting on it.
+export function execGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhRun> {
-  try {
-    return await outstandingGh.waitFor(JSON.stringify(args), signal, (shared) =>
-      spawnedGh(args, shared),
-    );
-  } catch (error) {
-    if (signal.aborted) {
-      return abandoned(args);
-    }
-    throw error;
-  }
+  return outstandingGh.waitFor(JSON.stringify(args), signal, (shared) =>
+    spawnedGh(args, shared),
+  );
 }
 
 // One `gh` answer's output, and when it was asked of GitHub.

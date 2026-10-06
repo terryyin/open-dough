@@ -155,7 +155,7 @@ export async function checkHeadsViaGh(
     ["api", "--include", ...conditional, headsEndpoint(repository)],
     signal,
   );
-  const answer = signal.aborted ? undefined : parseIncluded(stdout);
+  const answer = parseIncluded(stdout);
   if (answer?.status === 304 && earlier?.etag !== undefined) {
     return earlier;
   }

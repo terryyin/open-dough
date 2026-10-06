@@ -55,28 +55,6 @@ Effort bands remain unassigned because the repository supplies no S/M/L
 definitions. Each story records its principal sizing uncertainty. These are
 candidates for refinement; no executable plan or readiness assessment is implied.
 
-<a id="shared-read-waiter-residue-correction"></a>
-
-### Shared GitHub reads say and signal only what their waiters own
-
-**Identity:** SEED-113#shared-read-waiter-residue-correction
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/263-shared-read-waiter-residue-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f75cdd5cedfaaae10a4e455973c448f5e60ab52b6fca35a8e87b360e071c7152","plan":"a3c72342eae2a0b582620b4133164bd75bfdc64845b512db368034c01a0f3ed9"}}
-```
-
-**Goal:** A maintainer of the dashboard's local read boundary finds one account
-of who owns a `gh` call: each request owns only its wait. This corrects the
-shared observer reads delivery (SEED-113#share-repeated-observer-reads,
-`572faa6f:.planning/seeds/SEED-113-dashboard-github-responsiveness.md`); it adds
-no feature promise.
-
-**Scope:** Comments that still say a request owns its `gh` subprocess are
-reworded, and `execGh` stops imitating an aborted subprocess for a request that
-stopped waiting, with the guards that existed only for it. Every promise of the
-shared observer reads story is preserved.
-
-**Plan:** [263-shared-read-waiter-residue-correction](../slice-plans/263-shared-read-waiter-residue-correction/PLAN.md)
-
 <a id="recover-consistently-from-rate-limits"></a>
 
 ### Recover consistently from GitHub rate limits
