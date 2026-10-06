@@ -1,14 +1,13 @@
 // What the Recently done journeys (recently-done-stories.spec.ts and
-// recently-done-story-sessions.spec.ts) publish and keep: a backlog with one
-// queued story, done records beside it spelled by the shared done-record
-// renderer at times before the journey starts, and this machine's session
-// records of an ad hoc session and of the queued story, and, for the done
-// cards' sessions, of done stories, each listed by the synthetic `claude`.
+// recently-done-story-sessions.spec.ts) publish: a backlog with one queued
+// story, and done records beside it spelled by the shared done-record renderer
+// at times before the journey starts. What this machine keeps for them is
+// ./recentlyDoneSessions.ts.
 import {
   doneRecordPath,
   renderDoneRecord,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { LaunchRecord } from "../src/agentLaunch.ts";
+import { basename } from "node:path";
 
 export const repository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -17,7 +16,7 @@ export const revision = "d0".repeat(20);
 export const otherRevision = "d1".repeat(20);
 
 export const queuedTitle = "Prepare stories in a clear workspace";
-const queuedIdentity = "SEED-008#planning-workspace-procedure";
+export const queuedIdentity = "SEED-008#planning-workspace-procedure";
 
 export const backlog = `# Product backlog
 
@@ -69,15 +68,19 @@ export const expired = {
   title: "Finish something a month ago",
 };
 
-const at = (now: number, before: number) =>
+// The time `before` `now`.
+export const at = (now: number, before: number) =>
   new Date(now - before).toISOString();
+
+// Where `complete` publishes a story's done record.
+export const doneRecordAt = (identity: string) =>
+  `.planning/${doneRecordPath(identity)}`;
 
 // The done records beside the backlog, as `complete` would have published
 // them, completed `placed` before `now`.
 export function doneRecordFiles(now: number): Record<string, string> {
-  const file = (identity: string) => `.planning/${doneRecordPath(identity)}`;
   return {
-    [file(executed.identity)]: renderDoneRecord({
+    [doneRecordAt(executed.identity)]: renderDoneRecord({
       ...executed,
       completedAt: at(now, placed.executedDone),
       developer: "Terry Yin",
@@ -86,12 +89,12 @@ export function doneRecordFiles(now: number): Record<string, string> {
       model: "claude-opus-5-5",
     }),
     // A queued story removed with no execution agent profile.
-    [file(removedQueued.identity)]: renderDoneRecord({
+    [doneRecordAt(removedQueued.identity)]: renderDoneRecord({
       ...removedQueued,
       completedAt: at(now, placed.queuedRemovedDone),
       developer: "Terry Yin",
     }),
-    [file(expired.identity)]: renderDoneRecord({
+    [doneRecordAt(expired.identity)]: renderDoneRecord({
       ...expired,
       completedAt: at(now, placed.expiredDone),
       developer: "Terry Yin",
@@ -107,7 +110,7 @@ export function doneRecordFiles(now: number): Record<string, string> {
 export function withLastWeekRecordFiles(now: number): Record<string, string> {
   return {
     ...doneRecordFiles(now),
-    [`.planning/${doneRecordPath(lastWeek.identity)}`]: renderDoneRecord({
+    [doneRecordAt(lastWeek.identity)]: renderDoneRecord({
       ...lastWeek,
       completedAt: at(now, placed.lastWeekDone),
       developer: "Terry Yin",
@@ -124,99 +127,33 @@ export function publishedFiles(
 }
 
 // A done record whose read fails, listed in the done-record directory.
-export const unanswered = `.planning/${doneRecordPath(executed.identity)}`;
+export const unanswered = doneRecordAt(executed.identity);
 
-const session = (sessionId: string, name: string) => ({
-  host: "claude" as const,
-  sessionId,
-  shortId: sessionId.slice(0, 8),
-  name,
-});
+// Another revision still, whose reads the local boundary has not remembered.
+export const malformedRevision = "d2".repeat(20);
 
-// A story's session record, launched `before` `now`.
-const storySession = (
-  now: number,
-  story: { readonly identity: string; readonly title: string },
-  workflow: "execution" | "refinement",
-  sessionId: string,
-  before: number,
-): LaunchRecord => ({
-  request: { source: "open-dough", ...story, workflow, host: "claude" },
-  session: session(sessionId, story.title),
-  launchedAt: at(now, before),
-});
+// Done record files the shared reader refuses, by file name: one in a later
+// format, and one whose text names another identity than its file.
+const futureFormat = "SEED-050#future-format";
+const misnamed = "SEED-051#misnamed";
+export const futureFormatFile = basename(doneRecordPath(futureFormat));
+export const misnamedFile = basename(doneRecordPath(misnamed));
 
-// This machine's sessions of the done stories, oldest first, of the sessions
-// the synthetic `claude` lists by these ids: Card shows avatar's execution
-// marked done and its open refinement, the story done last week's execution
-// launched yesterday, and the 31-day-old story's open execution.
-export function doneStorySessions(
-  now: number,
-  sessionIds: {
-    readonly executedDone: string;
-    readonly executedOpen: string;
-    readonly lastWeek: string;
-    readonly expired: string;
-  },
-): LaunchRecord[] {
-  return [
-    storySession(
-      now,
-      expired,
-      "execution",
-      sessionIds.expired,
-      placed.expiredSessionLaunched,
-    ),
-    {
-      ...storySession(
-        now,
-        executed,
-        "execution",
-        sessionIds.executedDone,
-        placed.executedDoneSessionLaunched,
-      ),
-      doneAt: at(now, placed.executedDoneSessionMarked),
-    },
-    storySession(
-      now,
-      executed,
-      "refinement",
-      sessionIds.executedOpen,
-      placed.executedOpenSessionLaunched,
-    ),
-    storySession(
-      now,
-      lastWeek,
-      "execution",
-      sessionIds.lastWeek,
-      placed.lastWeekSessionLaunched,
-    ),
-  ];
-}
-
-// This machine's sessions for the project, each launched `placed` before
-// `now`, of the sessions the synthetic `claude` lists by these ids.
-export function keptSessions(
-  now: number,
-  sessionIds: { readonly adHoc: string; readonly queued: string },
-): LaunchRecord[] {
-  return [
-    storySession(
-      now,
-      { identity: queuedIdentity, title: queuedTitle },
-      "execution",
-      sessionIds.queued,
-      placed.queuedLaunched,
-    ),
-    {
-      request: {
-        source: "open-dough",
-        workflow: "ad-hoc",
-        title: "Open Dough session",
-        host: "claude",
-      },
-      session: session(sessionIds.adHoc, "Open Dough session"),
-      launchedAt: at(now, placed.adHocLaunched),
-    },
-  ];
+// The done records with the refused ones beside them.
+export function withMalformedRecordFiles(now: number): Record<string, string> {
+  return {
+    ...doneRecordFiles(now),
+    [doneRecordAt(futureFormat)]: `${JSON.stringify({
+      schemaVersion: 2,
+      identity: futureFormat,
+      title: "Written in a later format",
+      completedAt: at(now, placed.executedDone),
+    })}\n`,
+    [doneRecordAt(misnamed)]: renderDoneRecord({
+      identity: "SEED-052#named-inside",
+      title: "Named for another identity",
+      completedAt: at(now, placed.executedDone),
+      developer: "Terry Yin",
+    }),
+  };
 }

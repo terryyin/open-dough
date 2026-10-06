@@ -11,8 +11,10 @@ import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scrip
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
-import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import { publishes } from "./support/fakeGitHub.ts";
+import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
 import { pathChange } from "./pathHistoryAnswers.ts";
+import type { GhRequest } from "./support/ghRequest.ts";
 import {
   afterTake,
   backlogPath,
@@ -31,7 +33,7 @@ import { credited, preparer } from "./agentAttributionRecords.ts";
 
 // The slice clock records (sliceClockRecords.ts), where `credited` added the
 // Taken work's profile, beside a queued story `preparer` prepares. GitHub
-// answers one profile's addition commit only when `held` settles.
+// answers one profile's addition commit only once `release` is called.
 const takenAddition = {
   ...takes.Akiho,
   committer: credited,
@@ -40,11 +42,7 @@ const takenAddition = {
 const preparing = "Prepared beside the clocked work";
 const preparation = pathChange(0x22, "added", preparer);
 
-async function openedWithHeldAddition(
-  page: Page,
-  heldSha: string,
-  held: Promise<unknown>,
-) {
+async function openedWithHeldAddition(page: Page, heldSha: string) {
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
@@ -64,12 +62,9 @@ async function openedWithHeldAddition(
       [profilePath("Kirara")]: [preparation],
     },
   });
-  const answer: RepositoryAnswerer = async (call) => {
-    if (call.request.kind === "commit" && call.request.sha === heldSha) {
-      await held;
-    }
-    return published(call);
-  };
+  const isHeld = (request: GhRequest) =>
+    request.kind === "commit" && request.sha === heldSha;
+  const { answer, release } = holdingAnswer(published, isHeld);
   const github = githubFor(page);
   github.serve(repository, answer);
   await page.goto("/");
@@ -79,11 +74,7 @@ async function openedWithHeldAddition(
   });
   // The held addition commit has reached GitHub through the local `gh`.
   await expect
-    .poll(() =>
-      github.calls.some(
-        ({ request }) => request.kind === "commit" && request.sha === heldSha,
-      ),
-    )
+    .poll(() => github.calls.some(({ request }) => isHeld(request)))
     .toBe(true);
   const { taken, backlog, problem } = parts(page);
   return {
@@ -91,6 +82,7 @@ async function openedWithHeldAddition(
     otherTaken: taken.getByRole("article", { name: justTaken }),
     preparingCard: backlog.getByRole("article", { name: preparing }),
     problem,
+    release,
   };
 }
 
@@ -99,23 +91,11 @@ async function humanOf(card: Locator): Promise<Locator> {
   return (await inspectedDetail(card)).locator(".owner-human");
 }
 
-function held() {
-  let release: () => void = () => undefined;
-  const answered = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  return { answered, release };
-}
-
 test("another profile's slow human credit never holds back a Taken card's slice clock, and fills in when its addition commit answers", async ({
   page,
 }) => {
-  const { answered, release } = held();
-  const { card, preparingCard, problem } = await openedWithHeldAddition(
-    page,
-    preparation.sha,
-    answered,
-  );
+  const { card, preparingCard, problem, release } =
+    await openedWithHeldAddition(page, preparation.sha);
 
   await test.step("while the preparer's addition commit is held, the Taken card's clock and human are shown and the preparer is still being read", async () => {
     await expect(card).toContainText("Current slice started 12 min ago");
@@ -140,11 +120,9 @@ test("another profile's slow human credit never holds back a Taken card's slice 
 test("a Taken profile's slow addition leaves only its own card's clock and human reading, until both fill from that one addition", async ({
   page,
 }) => {
-  const { answered, release } = held();
-  const { card, otherTaken, problem } = await openedWithHeldAddition(
+  const { card, otherTaken, problem, release } = await openedWithHeldAddition(
     page,
     takenAddition.sha,
-    answered,
   );
 
   await test.step("while the Take's addition commit is held, its card's clock and human are still being read, and another Taken card's clock is shown", async () => {
@@ -171,7 +149,6 @@ test("a Taken profile's addition walk still unanswered at the wait bound is its 
   const { card, otherTaken, problem } = await openedWithHeldAddition(
     page,
     takenAddition.sha,
-    new Promise<never>(() => undefined),
   );
   await expect(otherTaken).toContainText("Current slice started 5 min ago");
   await page.clock.runFor(30_000);

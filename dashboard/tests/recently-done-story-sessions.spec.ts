@@ -4,11 +4,11 @@
 // launched after the story was done stays inside and does not move the card,
 // a machine with no sessions for the story shows none, and once the record is
 // older than the shared 30-day window its open session is its own entry
-// again. The published records and kept sessions are ./recentlyDoneRecords.ts;
-// that the column lists done cards by their facts is
-// ./recently-done-stories.spec.ts. The fake GitHub only publishes files
-// spelled by the shared done-record renderer; the synthetic `claude`
-// (./fixtures/fake-claude) lists the kept sessions.
+// again. The published records are ./recentlyDoneRecords.ts and the kept
+// sessions ./recentlyDoneSessions.ts; that the column lists done cards by
+// their facts is ./recently-done-stories.spec.ts. The fake GitHub only
+// publishes files spelled by the shared done-record renderer; the synthetic
+// `claude` (./fixtures/fake-claude) lists the kept sessions.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -20,8 +20,8 @@ import {
 import { expectSessionEntrySetOff } from "./pageColours.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { doneStorySessions } from "./recentlyDoneSessions.ts";
 import {
-  doneStorySessions,
   executed,
   expired,
   lastWeek,

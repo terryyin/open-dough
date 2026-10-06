@@ -164,7 +164,10 @@ alone on its quiet rule; the two specs' assertions.
 
 ### 2. Recently done is read as its own detail and says which records it cannot read
 Type: Behavior
-Status: planned
+Status: done — the proof command plus `recently-done-story-sessions.spec.ts`
+passed (9 tests; the new journey's 2 tests failed on the old code). After the
+refactor the whole dashboard suite passed (1094). The held-answer harness is
+shared in `dashboard/tests/support/heldGitHubAnswer.ts`.
 Proof: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts dashboard/tests/recently-done-stories.spec.ts dashboard/tests/recently-done-read-latency.spec.ts dashboard/tests/profile-addition-latency.spec.ts dashboard/tests/taken-agent-profile.spec.ts --reporter=line`
 (`recently-done-read-latency.spec.ts` is the new journey; name it at
 execution if a better existing home appears). The new journey, built like
