@@ -1,6 +1,7 @@
 // How the page lies in the window, measured by asking the browser. The
 // whole-page measurements look at every element on the page, so they name no
-// part of the stylesheet; how parts a journey found lie against one another is
+// part of the stylesheet but the one every page cuts by design, the dashboard
+// columns' view; how parts a journey found lie against one another is
 // compared in partArrangement.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
@@ -27,6 +28,14 @@ const keptFromSight = `(element) => {
   return false;
 }`;
 
+// The dashboard columns cut off the columns the page has no room to show, by
+// design: a developer moves the view to them by an edge control
+// (dashboardColumnsPage.ts `showColumn`). Inside the view, what lies wholly past its
+// sides is a hidden column's, as is what holds such a part; anything else
+// there must lie within the view, as everything else must within the window.
+// The view's own clipping cuts nothing shown short.
+const pagedView = JSON.stringify(".dashboard-columns-view");
+
 // Elements that reach past either side of the window. What a part cut by
 // design holds, such as a code line in an area that scrolls on its own, is
 // not counted; the part itself still is.
@@ -34,12 +43,29 @@ const pastTheWindow = (cutByDesign: readonly string[]) => `(() => {
   const keptFromSight = ${keptFromSight};
   const cutByDesign = ${JSON.stringify(cutByDesign.join(", "))};
   const limit = document.documentElement.clientWidth;
+  const hiddenColumns = new Set();
+  for (const view of document.querySelectorAll(${pagedView})) {
+    const sides = view.getBoundingClientRect();
+    for (const inner of view.querySelectorAll("*")) {
+      const box = inner.getBoundingClientRect();
+      if (box.width === 0 || (box.right > sides.left + 0.5 && box.left < sides.right - 0.5)) continue;
+      for (let at = inner; at !== view; at = at.parentElement) hiddenColumns.add(at);
+    }
+  }
+  const pastTheView = (element, box) => {
+    const view = element.parentElement?.closest(${pagedView});
+    if (!view) return undefined;
+    if (hiddenColumns.has(element)) return false;
+    const sides = view.getBoundingClientRect();
+    return box.left < sides.left - 0.5 || box.right > sides.right + 0.5;
+  };
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
       const box = element.getBoundingClientRect();
       return (
         box.width > 0 &&
-        (box.left < -0.5 || box.right > limit + 0.5) &&
+        (pastTheView(element, box) ??
+          (box.left < -0.5 || box.right > limit + 0.5)) &&
         !keptFromSight(element) &&
         !(cutByDesign !== "" && element.parentElement?.closest(cutByDesign))
       );
@@ -57,6 +83,7 @@ const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
       if (!(element instanceof HTMLElement) || keptFromSight(element) || element.getBoundingClientRect().height === 0) return false;
+      if (element.matches(${pagedView})) return false;
       if (cutByDesign !== "" && element.closest(cutByDesign)) return false;
       const tooNarrowForItsContent =
         element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1;
@@ -138,7 +165,13 @@ function clippedEdges(element: Element) {
   let unscrollable = 0;
   const scrolls = (overflow: string) =>
     overflow === "auto" || overflow === "scroll";
-  for (let at = element.parentElement; at; at = at.parentElement) {
+  // A modal dialog lies in the top layer, out of reach of what clips the
+  // parts around it in the page, such as the dashboard columns' view.
+  for (
+    let at = element.parentElement;
+    at;
+    at = at.matches(":modal") ? null : at.parentElement
+  ) {
     const style = getComputedStyle(at);
     if (style.overflowX === "visible" && style.overflowY === "visible")
       continue;

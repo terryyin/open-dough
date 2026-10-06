@@ -19,6 +19,7 @@ import {
   recentSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
@@ -59,7 +60,7 @@ test.describe("the terminal beside the page", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent, stages } = parts(page);
+    const { recentSessions: recent, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     const cardEntries = (title: string) => cardSessions(card(title));
@@ -109,8 +110,9 @@ test.describe("the terminal beside the page", () => {
       await expect(panel).toContainText(`Execution session ${first}`);
       await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
-      // The page stays on the left, and the terminal is to its right.
-      const left = await stages.boundingBox();
+      // The page, showing Backlog, stays on the left, and the terminal is to
+      // its right.
+      const left = await backlog.boundingBox();
       const right = await panel.boundingBox();
       expect(right?.x).toBeGreaterThanOrEqual(
         (left?.x ?? 0) + (left?.width ?? 0),
@@ -143,6 +145,7 @@ test.describe("the terminal beside the page", () => {
     });
 
     await test.step("opening another session from Recent sessions detaches the first, which keeps running, and shows the second in its place", async () => {
+      await showColumn(page, "Recent sessions");
       await openIn(entry(readyStory)).click();
       await expect(panel).toHaveCount(1);
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
@@ -157,6 +160,7 @@ test.describe("the terminal beside the page", () => {
     });
 
     await test.step("Close ends the panel and detaches only, and the keyboard returns to the card entry that opened it", async () => {
+      await showColumn(page, "Backlog");
       await openIn(cardEntries(notRefinedStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await panel.getByRole("button", { name: "Close" }).click();
@@ -176,6 +180,7 @@ test.describe("the terminal beside the page", () => {
         taken: [readyStory],
         backlog: [takenStory],
       });
+      await showColumn(page, "Recent sessions");
       await openIn(entry(notRefinedStory)).click();
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         notRefinedStory,

@@ -70,7 +70,8 @@ What exists and how it is used:
   itself. The dashboard columns own every reveal: the edge controls, focus
   entering a hidden column, and `keepInView`.
 - Journeys in tests reach a hidden column the way a developer does, through
-  an edge control or focus, by one shared helper in `tests/dashboardPage.ts`.
+  an edge control or focus, by one shared helper in
+  `tests/dashboardColumnsPage.ts`.
   Add no test-only hook to the product.
 - `tests/pageLayout.ts` counts elements past the window as a defect. Hidden
   columns are cut by design and are named there once, not per spec.
@@ -147,8 +148,9 @@ start to launch (a race older than this story); it now waits for
 ### 2. A narrower page shows the columns that fit and pages by edge controls
 
 Type: Behavior
-Status: planned
-Proof: a new `dashboard-columns-paging.spec.ts` drives the story's examples at
+Status: done
+Proof: new `dashboard-columns-paging.spec.ts` and
+`dashboard-columns-paging-side-panel.spec.ts` drive the story's examples at
 54rem and 40rem pages and across a side panel opening and closing: which
 columns show and fill the page, which controls exist and what they read,
 one-column moves, a count that follows a new session while the view stays, a
@@ -168,6 +170,26 @@ page margins and column framing, not the cards.
 
 Also update the narrow-screen paragraph of the UX/UI North Star and the
 layout description in `dashboard/README.md` to say this.
+
+Accepted: `columnPaging.ts` reads `--columns-shown`, which
+`dashboard-columns.css` sets from the `page` container alone, and keeps the
+chosen `position` apart from the clamped `leftmost`; `ColumnEdge.tsx` names a
+column from `stagesOf` or `recentSessionsColumn` in the heading's
+`entryCount` words. The two paging specs observe each promise through
+`expectView` (`tests/dashboardColumnsPage.ts`); the whole suite passed (1089).
+
+Learnings: journeys reach a hidden column through `showColumn` in
+`tests/dashboardColumnsPage.ts`. Two journeys use it only as a stand-in for
+slice 3's reveal and must drop it there:
+`agent-launch-ad-hoc-sessions.spec.ts` “with Open Dough already shown, its
+sidebar entry brings its Recent sessions entry into view” and
+`session-sidebar-navigation-cases.spec.ts` “a story on no card reveals…”.
+Pressing an edge control is a `pointerdown`, a developer's own move to
+`workFocus.ts`, which stops `keepInView` from following. A session
+`keepInView` presents could pull the view to Recent sessions, while the story
+says starting a session from a Backlog card leaves the view where it is.
+Watch `session-unread-report.spec.ts:64`: it timed out once under a load
+average near 30 and passed every rerun.
 
 ### 3. The view follows focus and selection into a hidden column
 

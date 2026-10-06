@@ -16,6 +16,17 @@ stops native work ([Agent launch](AGENT-LAUNCH.md)).
 selected project's folder, with no story, listed in Recent sessions and the
 Sessions sidebar.
 
+**Backlog**, **Taken**, and **Recent sessions** are three columns on one row.
+A page at least 72rem wide shows all three side by side. A narrower page --
+a narrow window, browser zoom, or the page beside an open Sessions sidebar or
+side panel -- shows the whole columns that fit, two from 48rem and one below,
+filling the page from Backlog. A slim edge control on a side with a hidden
+column names the next one there and how many entries it holds, stays in sight
+while the page scrolls, and moves the view one column with a brief slide (at
+once when the system asks for reduced motion). Widening or narrowing the page
+keeps the leftmost shown column where the width allows; the page never scrolls
+sideways.
+
 The pinned banner shows the selected project in a disclosure and keeps the configured
 **Project** choices reachable while scrolling. The disclosure opens the repository/ref, full
 source revision, retrieval time (not commit time), and publication warning.

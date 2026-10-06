@@ -14,6 +14,7 @@ import {
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { rateLimitedAnswer } from "./originAnswers.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import {
@@ -128,6 +129,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await page.setViewportSize(zoomedWindow);
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  await showColumn(page, "Taken");
   await readyCard.getByRole("button", { name: "Inspect story" }).click();
   const detail = readyCard.getByRole("region", {
     name: `Detail for ${plannedReady.title}`,
@@ -150,6 +152,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   const blockedCard = backlog.getByRole("article", {
     name: plannedBlocked.title,
   });
+  await showColumn(page, "Backlog");
   await blockedCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(detail).toHaveCount(0);
   const blockedDetail = blockedCard.getByRole("region", {

@@ -24,6 +24,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -146,6 +147,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
     });
 
     await test.step("deleting the middle entry asks first, removes it from Recent sessions and the sidebar, and puts the keyboard on the next Recent entry", async () => {
+      await showColumn(page, "Recent sessions");
       await deleteButton(inNoList).click();
       await expect(
         inNoList.getByRole("button", { name: "Keep" }),

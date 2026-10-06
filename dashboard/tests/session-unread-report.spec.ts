@@ -16,6 +16,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {
@@ -240,6 +241,7 @@ test("an unread report is its own mark beside the session's native reading", asy
     expect.objectContaining({ argv: ["stop", shortIdA] }),
   ]);
   const recentMessageA = messagePartOf(recentA);
+  await showColumn(page, "Recent sessions");
   await expectCollapsed(recentMessageA, "Unfinished work");
   await recentMessageA.heading.click();
   await expectExpanded(recentMessageA, "Unfinished work", newerMessage);

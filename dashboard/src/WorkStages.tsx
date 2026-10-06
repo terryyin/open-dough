@@ -9,8 +9,19 @@ import { stagesMarks } from "./workFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { WorkCard } from "./WorkCard.tsx";
 
-function count(entries: readonly WorkEntry[]): string {
-  return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
+// How many entries a column holds, in the words its stage heading and the
+// edge control that shows it (./ColumnEdge.tsx) both use.
+export function entryCount(entries: number): string {
+  return entries === 1 ? "1 entry" : `${entries} entries`;
+}
+
+// The two stages, left to right, each named and holding its recorded
+// entries, as they show and as the dashboard columns name them.
+export function stagesOf(work: PublishedWork) {
+  return [
+    { name: "Backlog", entries: work.backlog },
+    { name: "Taken", entries: work.taken },
+  ] as const;
 }
 
 function Stage({
@@ -43,7 +54,7 @@ function Stage({
     <section className="stage" aria-labelledby={headingId}>
       <header className="stage-header">
         <h2 id={headingId}>{name}</h2>
-        <p className="stage-count">{count(entries)}</p>
+        <p className="stage-count">{entryCount(entries.length)}</p>
       </header>
       <UnreadableProfiles profiles={unreadableProfiles} />
       {entries.length === 0 ? (
@@ -85,6 +96,7 @@ export function WorkStages({
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
+  const [backlog, taken] = stagesOf(work);
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
     undefined,
   );
@@ -98,8 +110,8 @@ export function WorkStages({
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
         <Stage
           sourceId={work.source.id}
-          name="Backlog"
-          entries={work.backlog}
+          name={backlog.name}
+          entries={backlog.entries}
           prioritized
           showsSliceProgress={false}
           launches={launches}
@@ -110,8 +122,8 @@ export function WorkStages({
         />
         <Stage
           sourceId={work.source.id}
-          name="Taken"
-          entries={work.taken}
+          name={taken.name}
+          entries={taken.entries}
           prioritized={false}
           showsSliceProgress
           launches={launches}

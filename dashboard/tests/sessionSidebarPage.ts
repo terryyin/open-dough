@@ -3,7 +3,8 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import { box, expectStackedInOrder } from "./pageLayout.ts";
+import { edgeControl, edgeRoom } from "./dashboardColumnsPage.ts";
+import { box } from "./pageLayout.ts";
 
 export function sidebarParts(page: Page) {
   const sidebar = page.getByRole("complementary", { name: "Sessions" });
@@ -145,16 +146,18 @@ export async function expectEntries(
   }
 }
 
-// The stages lay out as on a narrow window, for a page column that narrow
-// whatever the window's width: Backlog above Taken, each as wide as the
-// stages, and each card as wide as its stage inside its padding.
-export async function expectStagesStacked(page: Page): Promise<void> {
-  const { stages, backlog, taken } = parts(page);
-  await expectStackedInOrder([backlog, taken]);
-  const whole = await box(stages);
+// The dashboard columns lay out as on a narrow window, for a page column that
+// narrow whatever the window's width: Backlog alone fills the page but its
+// edge controls' slim room, the right one naming Taken, and
+// each card is as wide as the unframed column.
+export async function expectOneColumnShown(page: Page): Promise<void> {
+  const { backlog } = parts(page);
+  await expect(edgeControl(page, "Taken")).toBeVisible();
+  const pageColumn = await box(page.getByRole("main"));
   const stage = await box(backlog);
-  expect(stage.width).toBeGreaterThanOrEqual(whole.width - 1);
+  expect(stage.width).toBeGreaterThanOrEqual(
+    pageColumn.width - 2 * edgeRoom - 1,
+  );
   const card = await box(backlog.getByRole("article").first());
-  // The stage's side padding (1rem each) and border.
-  expect(card.width).toBeGreaterThanOrEqual(stage.width - 2 * 16 - 2 - 1);
+  expect(card.width).toBeGreaterThanOrEqual(stage.width - 1);
 }

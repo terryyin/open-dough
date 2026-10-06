@@ -7,11 +7,11 @@
 // developer, open or closed. A state change moves an entry between the two
 // groups, and a session marked done leaves. It sits left of the page, beside
 // the terminal on the right, or over the page on a narrow window; the page
-// column beside them lays its stages out as narrow as it is. Doughnut's and
-// Pygardon's sessions are launched through the boundary, Open Dough's from
-// their cards; the page's own dashboard server launches the synthetic
-// `claude` (./fixtures/fake-claude). The page clock stands still unless the
-// journey lets it pass.
+// column beside them shows the dashboard columns that fit its width, as a
+// window that narrow would. Doughnut's and Pygardon's sessions are launched
+// through the boundary, Open Dough's from their cards; the page's own
+// dashboard server launches the synthetic `claude` (./fixtures/fake-claude).
+// The page clock stands still unless the journey lets it pass.
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
@@ -33,7 +33,7 @@ import { watchRecordReads } from "./sessionStatePace.ts";
 import {
   expectEntries,
   expectSidebarSessionShown,
-  expectStagesStacked,
+  expectOneColumnShown,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
@@ -259,10 +259,10 @@ test.describe("the Sessions sidebar", () => {
       await expect(sidebar).toHaveCSS("overflow-y", "auto");
       // The page column, sharing the window with both, lays out as narrow,
       // as it does beside the terminal alone.
-      await expectStagesStacked(page);
+      await expectOneColumnShown(page);
       await button.click();
       await expect(sidebar).toBeHidden();
-      await expectStagesStacked(page);
+      await expectOneColumnShown(page);
       await button.click();
       await expect(sidebar).toBeVisible();
 

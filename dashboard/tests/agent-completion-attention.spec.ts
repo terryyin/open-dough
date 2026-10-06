@@ -8,6 +8,7 @@ import { test, expect, stored } from "./support/codexStart.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { expectInstalledReportingScript } from "./support/reportingInputAssertions.ts";
 import { keepFinalReport } from "./support/retainedReport.ts";
@@ -194,6 +195,7 @@ test("installed attention report stays open, durable and readable through stage 
     });
     const nativeBeforeDone = native.calls.length;
     await rememberButtons(panel);
+    await showColumn(page, "Taken");
     await messagePartOf(claimed).markRead.click();
     await expect(messagePartOf(claimed).markRead).toHaveCount(0);
     await expect

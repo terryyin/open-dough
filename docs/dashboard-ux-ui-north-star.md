@@ -197,9 +197,13 @@ moving focus; return focus to the originating story after closing detail.
 Meet normal text contrast of at least 4.5:1 and control/focus contrast of 3:1.
 Do not hide essential meaning in hover-only tooltips.
 
-On narrow screens, keep controls and source status reachable and reflow the
-connected stages when that is sufficient. If a viewport is introduced, let it
-pan to focused work. In readable work content, wrap
+On narrow screens, keep controls and source status reachable. Backlog, Taken,
+and Recent sessions stay on one row: a page with no room for three 24rem
+columns shows the two or one whole columns that fit, filling the page, and a
+slim edge control on each side with a hidden column names the next one and its
+entry count, stays in sight while the page scrolls, and moves the view one
+column with a brief slide (none under reduced motion). Let that view pan to
+focused work. In readable work content, wrap
 long titles/refs and labeled facts; browser page zoom must not make controls
 unreachable. Avoid page-wide horizontal scrolling: panning is contained within
 the stage. Keep touch controls comfortably sized and do not require precise

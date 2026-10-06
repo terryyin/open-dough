@@ -5,6 +5,7 @@ import path from "node:path";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import {
@@ -207,6 +208,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
       await page.reload();
       await expect(recent.locator(".session-state")).toHaveText("Done");
+      await showColumn(page, "Recent sessions");
       await recent.getByRole("button", { name: "Open terminal" }).click();
       await expect(panel.locator(".xterm-rows")).toContainText(
         "GPT-6.1-Sol default",
