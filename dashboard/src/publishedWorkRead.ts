@@ -4,18 +4,8 @@
 // preparation facts come from the shared story-state reader. Nothing here
 // parses Markdown itself.
 
-import { z } from "zod";
-import { directionOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-direction.mjs";
-import {
-  parseBacklog,
-  queueHeading,
-  takenHeading,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import type {
-  PublishedWork,
-  PublishedWorkProgress,
-  WorkEntry,
-} from "./publishedWork.ts";
+import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
+import { interpretPublishedBacklog } from "./publishedBacklog.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
 import { readPublishedSnapshot } from "./authenticatedRead.ts";
@@ -26,81 +16,15 @@ import {
   withProgressSources,
 } from "./progressSource.ts";
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
-import { resolveSourceLink } from "./sourceLink.ts";
-import type { WorkPreparation } from "./storyPreparation.ts";
 import {
   awaitingOwners,
   readAssignments,
   withAssignments,
+  type ProfileAssignments,
 } from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { readDoneStories, type DoneStories } from "./doneStories.ts";
-
-// The shared reader is untyped JavaScript, so its result is checked here for
-// the fields this dashboard shows rather than trusted by assertion.
-const interpretedBacklog = z.object({
-  entries: z.array(
-    z.object({
-      identity: z.string().min(1),
-      title: z.string().min(1),
-      list: z.enum([takenHeading, queueHeading]),
-      href: z.string().min(1),
-      plan: z.object({ target: z.string().min(1) }).optional(),
-    }),
-  ),
-});
-const interpretedDirection = z.string();
-
-function interpret(
-  markdown: string,
-  revision: string,
-  source: PublishedSource,
-  preparation: WorkPreparation | undefined,
-): Pick<PublishedWork, "direction" | "taken" | "backlog"> {
-  let document: unknown;
-  let direction: unknown;
-  try {
-    document = parseBacklog(markdown);
-    direction = directionOf(document);
-  } catch (error) {
-    // The reader's refusal is quoted whole as the reader's own report: some
-    // of it is advice to the tools that change a backlog, and choosing which
-    // of its words to pass on would be interpreting it here.
-    const reported = error instanceof Error ? error.message : String(error);
-    throw new ReadProblem(
-      `The published backlog could not be interpreted. The shared backlog reader reports: “${reported}” This dashboard only reads; the project’s backlog needs correcting at its source.`,
-    );
-  }
-  const backlog = interpretedBacklog.safeParse(document);
-  const recorded = interpretedDirection.safeParse(direction);
-  if (!backlog.success || !recorded.success) {
-    throw new ReadProblem(
-      "The shared backlog reader answered in a shape this dashboard does not understand.",
-    );
-  }
-  const entriesIn = (list: string): WorkEntry[] =>
-    backlog.data.entries
-      .filter((entry) => entry.list === list)
-      .map(({ identity, title, href, plan }) => ({
-        identity,
-        title,
-        canonical: resolveSourceLink(href, source, revision),
-        ...(plan && {
-          plan: resolveSourceLink(plan.target, source, revision),
-        }),
-        ...(preparation !== undefined && {
-          preparation,
-          purpose: { status: "loading" as const },
-          planSlices: { status: "loading" as const },
-        }),
-      }));
-  return {
-    direction: recorded.data,
-    taken: entriesIn(takenHeading),
-    backlog: entriesIn(queueHeading),
-  };
-}
 
 // Reads the source's ref afresh, or, given a revision a check already
 // resolved, that exact revision: the ref is never resolved a second time.
@@ -134,95 +58,135 @@ export async function readPublishedWork(
         revision,
         retrievedAt: new Date(),
         ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
-        ...interpret(markdown, revision, source, { status: "loading" }),
+        ...interpretPublishedBacklog(markdown, revision, source),
         done: { status: "loading" },
       });
-      onPartial?.(work);
-      // The done stories are read beside everything else and shown in
-      // whatever snapshot is shown once they answer; any failure, the bound
-      // included, is the column's gap.
+      // Each completed group updates only its own facts. Later callbacks
+      // compose those facts with the current progress, never a whole snapshot
+      // captured before another group answered.
+      let prepared = work;
+      let progress: PublishedWork | undefined;
+      let assignmentsRead = false;
+      let credited: ProfileAssignments | undefined;
       let done: DoneStories = { status: "loading" };
-      let shown: PublishedWork | undefined;
+      const assembled = (): PublishedWork => {
+        // Trunk's plan facts do not establish a Taken entry's progress until
+        // its profiles can say where that progress is published.
+        const current = progress ?? {
+          ...prepared,
+          taken: prepared.taken.map((entry) =>
+            entry.planSlices !== undefined &&
+            entry.planSlices.status !== "absent"
+              ? { ...entry, planSlices: { status: "loading" as const } }
+              : entry,
+          ),
+        };
+        return {
+          ...(assignmentsRead ? withAssignments(current, credited) : current),
+          done,
+        };
+      };
+      const show = () => {
+        if (!signal.aborted) {
+          onPartial?.(assembled());
+        }
+      };
+      // Establish the pending observation before any detail can answer.
+      show();
+      // The done stories are independent of preparation and profiles; any
+      // failure, the bound included, is the column's own gap.
       const doneRead = readDoneStories(source, revision, untilEither).then(
         (read) => {
           done = read;
-          if (shown !== undefined) {
-            show(shown);
-          }
+          show();
         },
       );
       // Owners and preparers come from the agent profiles at the same
       // revision, read beside the preparation facts.
-      const [prepared, assignments] = await Promise.all([
-        enrichPreparation(work, untilEither),
-        readAssignments(source, revision, untilEither),
-      ]);
+      const preparationRead = enrichPreparation(work, untilEither).then(
+        (read) => {
+          prepared = read;
+          show();
+          return read;
+        },
+      );
+      const profilesRead = readAssignments(source, revision, untilEither).then(
+        (read) => {
+          credited = read;
+          assignmentsRead = true;
+          show();
+          return read;
+        },
+      );
       // Each profile's addition is read once, for both its assignment's human
       // and its Take's slice clock. Each human is read while progress and
       // clocks are, and is shown as soon as its own walk ends, in whatever
       // snapshot is shown by then.
       const additionOf = profileAdditionsAt(source, revision, untilEither);
-      let credited = assignments;
-      // A snapshot with the humans credited and the done stories read so far.
-      const withLaterDetails = (next: PublishedWork): PublishedWork => ({
-        ...withAssignments(next, credited),
-        done,
-      });
-      const show = (next: PublishedWork) => {
-        shown = next;
-        if (!signal.aborted) {
-          onPartial?.(withLaterDetails(next));
-        }
-      };
-      const attributed = readAttributedAssignments(
-        source,
-        revision,
-        assignments,
-        additionOf,
-        untilEither,
-        (partial) => {
-          credited = partial;
-          if (shown !== undefined) {
-            show(shown);
-          }
+      const attributed = profilesRead.then((assignments) =>
+        readAttributedAssignments(
+          source,
+          revision,
+          assignments,
+          additionOf,
+          untilEither,
+          (partial) => {
+            credited = partial;
+            show();
+          },
+        ),
+      );
+      const progressed = Promise.all([preparationRead, profilesRead]).then(
+        async ([preparation, assignments]) => {
+          const owned = awaitingProgressSources(
+            withAssignments(preparation, assignments),
+          );
+          signal.throwIfAborted();
+          progress = awaitingSliceClocks(owned);
+          show();
+          // Branch routing needs both the canonical plan and profiles.
+          progress = awaitingSliceClocks(
+            await withProgressSources(owned, untilEither),
+          );
+          signal.throwIfAborted();
+          show();
+          // Only core snapshot reads fail the observation at the bound;
+          // clocks, humans, and done records retain their own detail gaps.
+          const snapshotUnread = bound.aborted;
+          progress = await withSliceClocks(
+            progress,
+            additionOf,
+            untilEither,
+            (partial) => {
+              progress = partial;
+              show();
+            },
+          );
+          return snapshotUnread;
         },
       );
-      const owned = awaitingProgressSources(
-        withAssignments(prepared, assignments),
-      );
-      signal.throwIfAborted();
-      show(awaitingSliceClocks(owned));
-      // A Story Branch Mode entry's slices come from its recorded branch
-      // instead, once owners say which branch that is.
-      const sourced = awaitingSliceClocks(
-        await withProgressSources(owned, untilEither),
-      );
-      signal.throwIfAborted();
-      show(sourced);
-      // Only the snapshot's own reads can fail it at the wait bound; a clock,
-      // human, or done read still unread then is that detail's gap.
-      const snapshotUnread = bound.aborted;
-      // Each clock starts from commit times where its plan's slices were read,
-      // once owners name the Take's profile, and is shown as soon as its own
-      // reads end. Clocks never wait for other profiles' humans.
-      const clocked = await withSliceClocks(
-        sourced,
-        additionOf,
-        untilEither,
-        show,
-      );
-      signal.throwIfAborted();
-      credited = await attributed;
-      await doneRead;
-      const enriched = withLaterDetails(clocked);
-      signal.throwIfAborted();
-      // Shown even when the wait bound ended it: each detail left unread is
-      // an explicit gap, and the bound is still reported as the read problem.
-      onPartial?.(enriched);
-      if (snapshotUnread) {
-        bound.throwIfAborted();
+      const details = [
+        preparationRead,
+        profilesRead,
+        progressed,
+        attributed,
+        doneRead,
+      ] as const;
+      try {
+        const [, , snapshotUnread] = await Promise.all(details);
+        signal.throwIfAborted();
+        const enriched = assembled();
+        // Finish every started read before the final promise establishes
+        // completion, even when a bound left explicit gaps in the view.
+        onPartial?.(enriched);
+        if (snapshotUnread) {
+          bound.throwIfAborted();
+        }
+        return enriched;
+      } finally {
+        // An abandoned or failed path still owns all its started tasks.
+        await Promise.allSettled(details);
       }
-      return enriched;
     } catch (error) {
       if (bound.aborted && !signal.aborted) {
         throw new ReadProblem(

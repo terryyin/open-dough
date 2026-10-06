@@ -11,13 +11,34 @@ export async function box(locator: Locator) {
   return found;
 }
 
+// Relative placement needs one browser turn: independent boundingBox calls can
+// straddle a scroll or a snapshot update even when the parts never overlap.
+async function boxesTogether(parts: Locator[]) {
+  const first = parts[0];
+  if (first === undefined) return [];
+  const handles = await Promise.all(parts.map((part) => part.elementHandle()));
+  try {
+    return await first.page().evaluate(
+      (nodes) =>
+        nodes.map((node) => {
+          if (node.getClientRects().length === 0)
+            throw new Error("No visible box for a measured part");
+          const { x, y, width, height } = node.getBoundingClientRect();
+          return { x, y, width, height };
+        }),
+      handles,
+    );
+  } finally {
+    await Promise.all(handles.map((handle) => handle.dispose()));
+  }
+}
+
 // Each part ends before the next begins, across the page or down it.
-async function expectEachEndsBeforeNext(
-  partsInOrder: Locator[],
+function expectEachEndsBeforeNext(
+  boxes: Awaited<ReturnType<typeof boxesTogether>>,
   start: "x" | "y",
   extent: "width" | "height",
 ) {
-  const boxes = await Promise.all(partsInOrder.map(box));
   boxes.slice(1).forEach((next, index) => {
     const previous = boxes[index];
     expect(
@@ -28,21 +49,19 @@ async function expectEachEndsBeforeNext(
 }
 
 export async function expectSideBySideInOrder(partsInOrder: Locator[]) {
-  await expectEachEndsBeforeNext(partsInOrder, "x", "width");
+  expectEachEndsBeforeNext(await boxesTogether(partsInOrder), "x", "width");
 }
 
 export async function expectStackedInOrder(partsInOrder: Locator[]) {
-  await expectEachEndsBeforeNext(partsInOrder, "y", "height");
+  expectEachEndsBeforeNext(await boxesTogether(partsInOrder), "y", "height");
 }
 
 // The controls share one line, side by side in their order.
 export async function expectOnOneLine(controls: Locator[]) {
-  const tops = await Promise.all(
-    controls.map(async (control) => (await box(control)).y),
-  );
-  for (const top of tops)
-    expect(Math.abs(top - (tops[0] ?? 0))).toBeLessThanOrEqual(1);
-  await expectSideBySideInOrder(controls);
+  const boxes = await boxesTogether(controls);
+  for (const each of boxes)
+    expect(Math.abs(each.y - (boxes[0]?.y ?? 0))).toBeLessThanOrEqual(1);
+  expectEachEndsBeforeNext(boxes, "x", "width");
 }
 
 // Whether everything in the wrapping group fits on its line at once: the
@@ -75,8 +94,9 @@ export async function expectOnOneLineWhenRoom(
 // The parts read in their order: each follows the one before it on the same
 // line or starts on a later line, never reaching beyond the area.
 export async function expectInReadingOrder(area: Locator, parts: Locator[]) {
-  const around = await box(area);
-  const boxes = await Promise.all(parts.map(box));
+  const [around, ...boxes] = await boxesTogether([area, ...parts]);
+  if (around === undefined)
+    throw new Error("No visible box for the measured area");
   boxes.forEach((each, index) => {
     expect(each.x, `part ${index + 1} inside`).toBeGreaterThanOrEqual(around.x);
     expect(each.x + each.width, `part ${index + 1} inside`).toBeLessThanOrEqual(
@@ -104,7 +124,9 @@ export async function expectInReadingOrder(area: Locator, parts: Locator[]) {
 }
 
 export async function expectInside(inner: Locator, outer: Locator) {
-  const [inside, around] = await Promise.all([box(inner), box(outer)]);
+  const [inside, around] = await boxesTogether([inner, outer]);
+  if (inside === undefined || around === undefined)
+    throw new Error("No visible box for the measured containment");
   expect(inside.x).toBeGreaterThanOrEqual(around.x - 0.5);
   expect(inside.x + inside.width).toBeLessThanOrEqual(
     around.x + around.width + 0.5,

@@ -32,11 +32,27 @@ export type FocusedWork = {
   readonly title: string;
   // Which recorded link held focus; undefined when the card itself did.
   readonly link: string | undefined;
+  // Captured before a snapshot update; a reader can scroll away while leaving
+  // the keyboard on a control. Only a visible reading place is kept in view.
+  readonly visible?: boolean;
 };
 
 export function focusedWork(): FocusedWork | undefined {
   const focused = document.activeElement;
-  return focused ? workHolding(focused) : undefined;
+  const work = focused ? workHolding(focused) : undefined;
+  return work && focused ? { ...work, visible: inView(focused) } : undefined;
+}
+
+function inView(element: Element): boolean {
+  const at = element.getBoundingClientRect();
+  const padding = getComputedStyle(document.documentElement);
+  return (
+    at.height > 0 &&
+    at.top >= Number.parseFloat(padding.scrollPaddingTop) &&
+    at.bottom <= innerHeight - Number.parseFloat(padding.scrollPaddingBottom) &&
+    at.left >= 0 &&
+    at.right <= innerWidth
+  );
 }
 
 // The work whose card holds `focused`, as focus on it would be held.
@@ -150,13 +166,14 @@ export function restoreSnapshotFocus(
   work: PublishedWork | undefined,
 ): FocusedWork | undefined {
   const current = focusedWork();
+  // Enrichment captures the fallback card too. While the keyboard remains on
+  // that card, keep the original deferred link as its intended destination.
   const wanted =
-    held ??
     (deferred &&
     current?.identity === deferred.identity &&
     document.activeElement?.hasAttribute(workAttribute)
       ? deferred
-      : undefined);
+      : undefined) ?? held;
   if (!wanted) return undefined;
   // Focus still within the work's card, kept across the snapshot, stays.
   const kept = document.activeElement;
@@ -165,8 +182,19 @@ export function restoreSnapshotFocus(
     kept !== null &&
     kept !== workCard(wanted.identity) &&
     workCard(wanted.identity)?.contains(kept) === true
-  )
+  ) {
+    // The same control can keep focus yet be pushed out of view by new facts.
+    // Reveal only what the reader could see before this update, and move only
+    // far enough to keep it readable below the pinned banner.
+    if (wanted.visible === true && !inView(kept)) {
+      kept.scrollIntoView({
+        block: "nearest",
+        inline: "nearest",
+        behavior: "instant",
+      });
+    }
     return undefined;
+  }
   returnFocusTo(wanted);
   const entry = [...(work?.taken ?? []), ...(work?.backlog ?? [])].find(
     (item) => item.identity === wanted.identity,

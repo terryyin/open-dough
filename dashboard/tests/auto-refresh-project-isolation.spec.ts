@@ -10,7 +10,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -24,13 +24,12 @@ import {
   headsChecks,
 } from "./autoRefreshJourney.ts";
 import {
-  doughnutBacklog,
-  doughnutRecords,
   doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
   revisionDoughnut,
 } from "./doughnutProject.ts";
+import { selectSettledDoughnut } from "./doughnutJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogA,
@@ -47,29 +46,6 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe("project read isolation of automatic checks", () => {
-  // Selects Doughnut, published at its own revision, and waits until its
-  // whole snapshot, detail included, is shown; then puts keyboard focus on
-  // its shared story's canonical record link.
-  async function selectSettledDoughnut(page: Page) {
-    const doughnut = await publishMovingOrigin(page, doughnutRepository);
-    doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
-    const { project, backlog, source } = parts(page);
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
-    await expectSettledPage(page, {
-      taken: [],
-      backlog: [doughnutSharedTitle],
-    });
-    await expect(source).toContainText(revisionDoughnut);
-    const card = backlog.getByRole("article", { name: doughnutSharedTitle });
-    await card.getByRole("button", { name: "Inspect story" }).click();
-    const link = card.getByRole("link", { name: /^Canonical record/ });
-    await link.focus();
-    return {
-      link,
-      retrievedAt: await source.locator("time").getAttribute("datetime"),
-    };
-  }
-
   // Doughnut still shows its own snapshot, evidence, and focus, and nothing
   // of Open Dough's.
   async function expectOnlyDoughnut(

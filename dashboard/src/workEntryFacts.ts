@@ -143,6 +143,9 @@ export function planSlicesFor(
   planProblems: ReadonlyMap<string, string>,
   canonicalText: ReadonlyMap<string, string>,
 ): WorkPlanSlices {
+  if (preparation.status === "unavailable") {
+    return preparation;
+  }
   if (preparation.status !== "recorded") {
     return { status: "absent" };
   }

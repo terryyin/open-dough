@@ -86,11 +86,20 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     const reading = new AbortController();
     const { movedBranches } = readRequest;
     const shown = shownWork.current;
+    const publishWork = (next: PublishedWork, firstMembership = false) => {
+      const held = focusedWork();
+      heldFocus.current = held;
+      setRetrieval((last) =>
+        firstMembership
+          ? { work: next, notice: unlistedNotice(held, next), complete: false }
+          : { ...last, work: next },
+      );
+    };
     if (movedBranches !== undefined && shown !== undefined) {
       readMovedProgress(shown, movedBranches, reading.signal).then(
         (read) => {
           if (!reading.signal.aborted) {
-            setRetrieval((last) => ({ ...last, work: read }));
+            publishWork(read);
             setReadSettled(true);
           }
         },
@@ -110,19 +119,10 @@ export function usePublishedObservation(initialSource: PublishedSource) {
       if (reading.signal.aborted) {
         return;
       }
-      if (!acceptedMembership) {
-        acceptedMembership = true;
-        acceptMembership();
-        const held = focusedWork();
-        heldFocus.current = held;
-        setRetrieval({
-          work: partial,
-          notice: unlistedNotice(held, partial),
-          complete: false,
-        });
-        return;
-      }
-      setRetrieval((last) => ({ ...last, work: partial }));
+      const firstMembership = !acceptedMembership;
+      acceptedMembership = true;
+      if (firstMembership) acceptMembership();
+      publishWork(partial, firstMembership);
     };
     readPublishedWork(
       source,
