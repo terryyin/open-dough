@@ -30,10 +30,11 @@ This plan builds on the sharing story's delivered code: `execGh` with its
 process-wide `OutstandingReads` (`dashboard/server/outstandingReads.ts`).
 Every observation below ran on that story's head,
 `3301c9c202531ae51275f8b3ee837f22c15d6ede`, which trunk contains since its
-landing (`9dec1035`) and wrap-up. The queued correction
-[SEED-113#shared-read-waiter-residue-correction](../../seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction)
-removes `execGh`'s imitated abort and rewords comments; no slice here depends
-on either state.
+landing (`9dec1035`) and wrap-up. The correction
+SEED-113#shared-read-waiter-residue-correction
+(`5a498d17:.planning/seeds/SEED-113-dashboard-github-responsiveness.md`) removed
+`execGh`'s imitated abort and reworded comments; no slice here depends on either
+state.
 
 ## Existing solutions and current decisions
 
