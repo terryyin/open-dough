@@ -195,7 +195,7 @@ refactor and 1089 after it, the one failure being
 
 ### 4. A done story's card holds its sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright journeys: a done story with one open and one done session
 shows both inside its card, newest first, with their states and actions, and
 neither as a separate entry; a session launched yesterday for a story done
@@ -213,6 +213,18 @@ Deliver together: attachment by work identity within the selected project;
 the entry locator and deleted-entry home for entries inside a card; the
 [session history](../../../dashboard/AGENT-LAUNCH-HISTORY.md) and dashboard
 README describing the list as built.
+
+Accepted proof: `dashboard/tests/recently-done-story-sessions.spec.ts`
+(open and done sessions inside the card, newest first, none separately; a
+later launch stays inside; no sessions; expired record releases its open
+session), `session-sidebar-navigation-cases.spec.ts` (sidebar opens and
+reveals a session inside a done card), `agent-launch-recent-delete.spec.ts`
+(focus moves to the neighbouring entry; the last session inside a card
+focuses the card) → 90 of 90 at `--repeat-each=10`, 51 of 51 after the
+refactor; full suite 1091 passed with one unrelated flake
+(`taken-agent-profile.spec.ts:24`). The slice 3 sidebar flake raced
+preparation reads resizing cards; `expectWhollyInView` now waits for them
+and one frame. A done card counts as an entry for delete focus.
 
 ## Current decisions
 

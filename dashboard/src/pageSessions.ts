@@ -50,8 +50,8 @@ export type MarkSessionRead = SessionOperation<Promise<boolean>>;
 
 // Deletes the session's dashboard record and answers what came of it: deleted,
 // kept because its state is now known, or failed with the reason given. Once
-// deleted, the keyboard goes to the entry beside the session's card entry, or
-// to its card when none is left.
+// deleted, the keyboard goes to the entry beside the deleted one, or to the
+// card or column that listed it when none is left (`deletedEntryHome`).
 export type DeleteSessionRecord = SessionOperation<
   Promise<DeleteRecordOutcome>
 >;
@@ -76,31 +76,69 @@ export function showsSession(sessionKey: string) {
   return { [showsSessionAttribute]: sessionKey };
 }
 
-// The session of the entry beside the one a control is in, in its card's list
-// or in Recently done: the nearest session entry after it, else the nearest
-// before it. A done story listed between them is passed over.
-function entryBeside(control: HTMLElement): string | undefined {
+// The attribute by which a done story's card in Recently done names its
+// story. The card is focusable only so the keyboard can be put on it, so it
+// stays out of the tab order.
+const doneStoryAttribute = "data-done-story";
+
+export function doneStoryMarks(identity: string) {
+  return { [doneStoryAttribute]: identity, tabIndex: -1 } as const;
+}
+
+// What the keyboard can be put on in a list of entries: a session entry by its
+// session, or a done story's card by its story, so it is found again once the
+// page has rendered the list anew.
+type Entry = { readonly attribute: string; readonly value: string };
+
+const entryMarks = [showsSessionAttribute, doneStoryAttribute] as const;
+
+// The entry an element is, by its mark.
+function entryOf(element: Element | null | undefined): Entry | undefined {
+  for (const attribute of entryMarks) {
+    const value = element?.getAttribute(attribute);
+    if (value !== null && value !== undefined) return { attribute, value };
+  }
+  return undefined;
+}
+
+// The entry beside the one a control is in, in the same list: a card's
+// sessions, a done story's sessions, or Recently done itself, where a done
+// story's card is an entry as a session is. The nearest after it, else the
+// nearest before it; with none, the done story's card holding the list, for
+// the last of its sessions. A list item's entry is its first marked element,
+// which for a done story's card is the card, not a session inside it.
+function entryBeside(control: HTMLElement): Entry | undefined {
   const item = control.closest("li");
-  const sessionIn = (sibling: Element | null | undefined) =>
-    sibling
-      ?.querySelector(`[${showsSessionAttribute}]`)
-      ?.getAttribute(showsSessionAttribute) ?? undefined;
+  const marked = entryMarks.map((attribute) => `[${attribute}]`).join(", ");
   for (const step of [
     "nextElementSibling",
     "previousElementSibling",
   ] as const) {
     for (let sibling = item?.[step]; sibling; sibling = sibling[step]) {
-      const session = sessionIn(sibling);
-      if (session !== undefined) return session;
+      const entry = entryOf(sibling.querySelector(marked));
+      if (entry !== undefined) return entry;
     }
   }
-  return undefined;
+  return entryOf(item?.closest(`[${doneStoryAttribute}]`));
+}
+
+// The entry where the page shows it now, within the part that listed it: a
+// session open on a card is in Recently done too.
+function entryShown(
+  entry: Entry | undefined,
+  within: string,
+): HTMLElement | null {
+  return entry === undefined
+    ? null
+    : document.querySelector<HTMLElement>(
+        `${within} [${entry.attribute}="${CSS.escape(entry.value)}"]`,
+      );
 }
 
 // Where the keyboard goes once the entry a control is in is deleted: the entry
-// beside it while its list still shows it, else its story's card (for a card's
-// entry) or Recently done. Read the neighbours before the delete; the
-// answer is looked up afterwards.
+// beside it while the page still shows it (`entryBeside`), else its story's
+// card (for a card's entry) or Recently done. Read the neighbours before the
+// delete; the answer is looked up afterwards.
 export function deletedEntryHome(
   control: HTMLElement,
   identity: string | undefined,
@@ -108,26 +146,18 @@ export function deletedEntryHome(
   const beside = entryBeside(control);
   const inRecentlyDone = control.closest(".recently-done") !== null;
   return () =>
-    inRecentlyDone
-      ? ((beside === undefined ? null : recentlyDoneEntry(beside)) ??
-        document.querySelector<HTMLElement>(".recently-done"))
-      : (cardEntry(beside) ??
-        (identity === undefined ? undefined : workCard(identity)) ??
-        null);
+    entryShown(beside, inRecentlyDone ? ".recently-done" : ".card-sessions") ??
+    (inRecentlyDone
+      ? document.querySelector<HTMLElement>(".recently-done")
+      : ((identity === undefined ? undefined : workCard(identity)) ?? null));
 }
 
-function cardEntry(sessionKey: string | undefined): HTMLElement | null {
-  return sessionKey === undefined
-    ? null
-    : document.querySelector<HTMLElement>(
-        `.card-sessions [${showsSessionAttribute}="${CSS.escape(sessionKey)}"]`,
-      );
-}
-
-// The session's Recently done entry, while the page shows it.
+// The session's Recently done entry, while the page shows it, whether it is
+// an entry of its own or inside its done story's card.
 export function recentlyDoneEntry(sessionKey: string): HTMLElement | null {
-  return document.querySelector<HTMLElement>(
-    `.recently-done [${showsSessionAttribute}="${CSS.escape(sessionKey)}"]`,
+  return entryShown(
+    { attribute: showsSessionAttribute, value: sessionKey },
+    ".recently-done",
   );
 }
 

@@ -1,4 +1,3 @@
-import { sessionKey } from "./sessionReference.ts";
 // A card's open sessions (`./CardLaunches.tsx`): newest first, each shown as
 // Recently done shows it without the story the card already names, under
 // how many of them need attention, when any do (`attentionSummary`), and, in
@@ -6,7 +5,7 @@ import { sessionKey } from "./sessionReference.ts";
 // (`unreadReportSummary`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
-import { SessionEntry } from "./SessionEntry.tsx";
+import { StorySessions } from "./SessionEntry.tsx";
 import { attentionSummary, unreadReportSummary } from "./sessionShown.ts";
 
 export function CardSessions({
@@ -26,19 +25,12 @@ export function CardSessions({
       {unreadReports !== undefined && (
         <p className="card-unread-reports">{unreadReports}</p>
       )}
-      {sessions.length > 0 && (
-        <ol className="card-sessions" aria-label="Sessions">
-          {sessions.toReversed().map((record) => (
-            <li key={sessionKey(record.session)}>
-              <SessionEntry
-                record={record}
-                onCard
-                takesFocus={launchedHere === sessionKey(record.session)}
-              />
-            </li>
-          ))}
-        </ol>
-      )}
+      <StorySessions
+        sessions={sessions}
+        className="card-sessions"
+        onCard
+        launchedHere={launchedHere}
+      />
     </>
   );
 }

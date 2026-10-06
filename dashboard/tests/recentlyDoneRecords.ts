@@ -1,9 +1,9 @@
-// What the Recently done stories journey (recently-done-stories.spec.ts)
-// publishes and keeps: a backlog with one queued story, done records beside
-// it spelled by the shared done-record renderer at times before the journey
-// starts, and this machine's session records of an ad hoc session and of the
-// queued story, each listed by the synthetic `claude`.
-
+// What the Recently done journeys (recently-done-stories.spec.ts and
+// recently-done-story-sessions.spec.ts) publish and keep: a backlog with one
+// queued story, done records beside it spelled by the shared done-record
+// renderer at times before the journey starts, and this machine's session
+// records of an ad hoc session and of the queued story, and, for the done
+// cards' sessions, of done stories, each listed by the synthetic `claude`.
 import {
   doneRecordPath,
   renderDoneRecord,
@@ -40,6 +40,16 @@ export const placed = {
   queuedLaunched: 3 * hour,
   queuedRemovedDone: day,
   expiredDone: 31 * day,
+  // The done stories' sessions: Card shows avatar's execution, marked done,
+  // and its refinement, still open, both launched before it was done; the
+  // story done last week's session launched yesterday; and the open session
+  // of the story done 31 days before.
+  executedDoneSessionLaunched: 5 * hour,
+  executedDoneSessionMarked: 3 * hour,
+  executedOpenSessionLaunched: 4 * hour,
+  lastWeekDone: 7 * day,
+  lastWeekSessionLaunched: 20 * hour,
+  expiredSessionLaunched: 32 * day,
 };
 
 export const executed = {
@@ -49,6 +59,10 @@ export const executed = {
 export const removedQueued = {
   identity: "SEED-042#queued-and-removed",
   title: "Remove a story nobody executed",
+};
+export const lastWeek = {
+  identity: "SEED-039#done-last-week",
+  title: "Finish something last week",
 };
 export const expired = {
   identity: "SEED-011#done-long-ago",
@@ -89,6 +103,18 @@ export function doneRecordFiles(now: number): Record<string, string> {
   };
 }
 
+// The done records, with the story done last week's beside them.
+export function withLastWeekRecordFiles(now: number): Record<string, string> {
+  return {
+    ...doneRecordFiles(now),
+    [`.planning/${doneRecordPath(lastWeek.identity)}`]: renderDoneRecord({
+      ...lastWeek,
+      completedAt: at(now, placed.lastWeekDone),
+      developer: "Terry Yin",
+    }),
+  };
+}
+
 // The published files at `revision`: the backlog, and the done records when
 // given.
 export function publishedFiles(
@@ -100,30 +126,88 @@ export function publishedFiles(
 // A done record whose read fails, listed in the done-record directory.
 export const unanswered = `.planning/${doneRecordPath(executed.identity)}`;
 
+const session = (sessionId: string, name: string) => ({
+  host: "claude" as const,
+  sessionId,
+  shortId: sessionId.slice(0, 8),
+  name,
+});
+
+// A story's session record, launched `before` `now`.
+const storySession = (
+  now: number,
+  story: { readonly identity: string; readonly title: string },
+  workflow: "execution" | "refinement",
+  sessionId: string,
+  before: number,
+): LaunchRecord => ({
+  request: { source: "open-dough", ...story, workflow, host: "claude" },
+  session: session(sessionId, story.title),
+  launchedAt: at(now, before),
+});
+
+// This machine's sessions of the done stories, oldest first, of the sessions
+// the synthetic `claude` lists by these ids: Card shows avatar's execution
+// marked done and its open refinement, the story done last week's execution
+// launched yesterday, and the 31-day-old story's open execution.
+export function doneStorySessions(
+  now: number,
+  sessionIds: {
+    readonly executedDone: string;
+    readonly executedOpen: string;
+    readonly lastWeek: string;
+    readonly expired: string;
+  },
+): LaunchRecord[] {
+  return [
+    storySession(
+      now,
+      expired,
+      "execution",
+      sessionIds.expired,
+      placed.expiredSessionLaunched,
+    ),
+    {
+      ...storySession(
+        now,
+        executed,
+        "execution",
+        sessionIds.executedDone,
+        placed.executedDoneSessionLaunched,
+      ),
+      doneAt: at(now, placed.executedDoneSessionMarked),
+    },
+    storySession(
+      now,
+      executed,
+      "refinement",
+      sessionIds.executedOpen,
+      placed.executedOpenSessionLaunched,
+    ),
+    storySession(
+      now,
+      lastWeek,
+      "execution",
+      sessionIds.lastWeek,
+      placed.lastWeekSessionLaunched,
+    ),
+  ];
+}
+
 // This machine's sessions for the project, each launched `placed` before
 // `now`, of the sessions the synthetic `claude` lists by these ids.
 export function keptSessions(
   now: number,
   sessionIds: { readonly adHoc: string; readonly queued: string },
 ): LaunchRecord[] {
-  const session = (sessionId: string, name: string) => ({
-    host: "claude" as const,
-    sessionId,
-    shortId: sessionId.slice(0, 8),
-    name,
-  });
   return [
-    {
-      request: {
-        source: "open-dough",
-        identity: queuedIdentity,
-        title: queuedTitle,
-        workflow: "execution",
-        host: "claude",
-      },
-      session: session(sessionIds.queued, queuedTitle),
-      launchedAt: at(now, placed.queuedLaunched),
-    },
+    storySession(
+      now,
+      { identity: queuedIdentity, title: queuedTitle },
+      "execution",
+      sessionIds.queued,
+      placed.queuedLaunched,
+    ),
     {
       request: {
         source: "open-dough",

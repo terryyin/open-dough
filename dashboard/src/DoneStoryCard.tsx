@@ -3,15 +3,22 @@
 // Taken card's scan line names its developer, the agent with its portrait,
 // the recorded developer's name, and the agent's host beside its mark, for
 // example "Yui-chan · Terry Yin · Claude Code". A record naming no agent shows
-// none. It is a story fact, published for every machine.
+// none. It is a story fact, published for every machine. Inside it are the
+// sessions this machine keeps for the story, open or marked done, newest
+// first, each the entry Recently done shows (`./SessionEntry.tsx`); a machine
+// that keeps none shows none. The card holds the keyboard when the last of
+// them is deleted (`deletedEntryHome`).
 
 import { useId } from "react";
+import type { LaunchWithState } from "./agentLaunch.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { RecordedHost } from "./AssignmentRecords.tsx";
 import type { DoneStory } from "./doneStories.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
+import { doneStoryMarks } from "./pageSessions.ts";
+import { StorySessions } from "./SessionEntry.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";
 
@@ -25,7 +32,14 @@ function DoneAgent({ agent }: { agent: string }) {
   );
 }
 
-export function DoneStoryCard({ story }: { readonly story: DoneStory }) {
+export function DoneStoryCard({
+  story,
+  sessions,
+}: {
+  readonly story: DoneStory;
+  // This machine's sessions for the story, oldest first.
+  readonly sessions: readonly LaunchWithState[];
+}) {
   const heading = useId();
   const { title, identity, completedAt, developer, agent, host } = story;
   const facts = [
@@ -40,7 +54,11 @@ export function DoneStoryCard({ story }: { readonly story: DoneStory }) {
       : [{ key: "host", fact: <RecordedHost host={host} /> }]),
   ];
   return (
-    <article className="done-story" aria-labelledby={heading}>
+    <article
+      className="done-story"
+      aria-labelledby={heading}
+      {...doneStoryMarks(identity)}
+    >
       <h3 id={heading}>{title}</h3>
       <p className="card-identity">{identity}</p>
       <p>
@@ -58,6 +76,11 @@ export function DoneStoryCard({ story }: { readonly story: DoneStory }) {
           </span>
         </p>
       )}
+      <StorySessions
+        sessions={sessions}
+        className="done-story-sessions"
+        onCard={false}
+      />
     </article>
   );
 }

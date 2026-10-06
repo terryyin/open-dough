@@ -10,16 +10,11 @@
 // renderer (./recentlyDoneRecords.ts) and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
 // local read boundary, the shared done-record reader, and the page decide
-// everything shown. A done story's sessions are still entries of their own
-// here.
+// everything shown. That a done card holds its story's sessions is
+// ./recently-done-story-sessions.spec.ts.
 
-import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import {
-  expectMembership,
-  parts,
-  recentlyDoneSessionName,
-} from "./dashboardPage.ts";
+import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
@@ -27,7 +22,6 @@ import {
   doneRecordFiles,
   executed,
   expired,
-  keptSessions,
   otherRevision,
   placed,
   publishedFiles,
@@ -37,34 +31,19 @@ import {
   revision,
   unanswered,
 } from "./recentlyDoneRecords.ts";
-
-const adHocEntry = recentlyDoneSessionName("Ad hoc", "Open Dough session");
-const queuedEntry = recentlyDoneSessionName("Execution", queuedTitle);
+import {
+  adHocEntry,
+  expectEntries,
+  queuedEntry,
+  sessionsOutsideDoneStories,
+} from "./recentlyDoneColumn.ts";
 
 // Keeps this machine's two sessions, listed by the synthetic `claude`.
 async function keepSessions(dashboard: DashboardServer, now: number) {
-  const listed = (name: string, before: number) =>
-    dashboard.claudeListsSession({
-      name,
-      cwd: dashboard.home,
-      startedAt: now - before,
-    });
   await keepLaunchRecords(
     dashboard,
-    keptSessions(now, {
-      adHoc: listed("Open Dough session", placed.adHocLaunched),
-      queued: listed(queuedTitle, placed.queuedLaunched),
-    }),
+    sessionsOutsideDoneStories(dashboard, now),
   );
-}
-
-// The column's entries, newest first, by accessible name.
-async function expectEntries(recent: Locator, names: readonly string[]) {
-  const entries = recent.getByRole("listitem").getByRole("article");
-  await expect(entries).toHaveCount(names.length);
-  for (const [index, name] of names.entries()) {
-    await expect(entries.nth(index)).toHaveAccessibleName(name);
-  }
 }
 
 test("Recently done lists published done stories among the sessions, newest first, with each card's facts", async ({

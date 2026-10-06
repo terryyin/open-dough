@@ -189,3 +189,36 @@ export function SessionList({
   }
   return children(sessions);
 }
+
+// A story's sessions inside its card, newest first, each the entry Recently
+// done shows: on a work card (`./CardSessions.tsx`), without the story the
+// card names, or on a done story's card (`./DoneStoryCard.tsx`). With none it
+// shows nothing. The entry the developer's own launch from the card just
+// listed takes the keyboard.
+export function StorySessions({
+  sessions,
+  className,
+  onCard,
+  launchedHere,
+}: {
+  // The story's sessions, oldest first.
+  readonly sessions: readonly LaunchWithState[];
+  readonly className: string;
+  readonly onCard: boolean;
+  readonly launchedHere?: string | undefined;
+}) {
+  if (sessions.length === 0) return null;
+  return (
+    <ol className={className} aria-label="Sessions">
+      {sessions.toReversed().map((record) => (
+        <li key={sessionKey(record.session)}>
+          <SessionEntry
+            record={record}
+            onCard={onCard}
+            takesFocus={launchedHere === sessionKey(record.session)}
+          />
+        </li>
+      ))}
+    </ol>
+  );
+}

@@ -1,11 +1,12 @@
 // Delete record… on a Recently done entry, on the committed story-stages
-// origin (./launchJourney.ts): a session whose story is in no list and one
-// marked done, both State unknown while the whole listing cannot be read, each
-// offer "Delete record…" with the same question as a card's entry
-// (./agent-launch-card-delete.spec.ts); confirming removes the entry from
-// Recently done and the Sessions sidebar without a success announcement,
-// and the keyboard goes to the next Recently done entry, else the previous,
-// else the Recently done section. Session unavailable is
+// origin (./launchJourney.ts): a session whose story is done, inside its done
+// story's card, one marked done, and others, all State unknown while the
+// whole listing cannot be read, each offer "Delete record…" with the same
+// question as a card's entry (./agent-launch-card-delete.spec.ts); confirming
+// removes the entry from Recently done and the Sessions sidebar without a
+// success announcement, and the keyboard goes to the next entry in the same
+// list, else the previous, else the done story's card that held it, else the
+// Recently done section. Session unavailable is
 // ./agent-launch-recent-delete-unavailable.spec.ts. The sidebar's entries in
 // State unknown are each one control with no delete, and a Recently done entry
 // in Working or Done offers none. Origin alone still places every story. The
@@ -47,7 +48,7 @@ test.describe("deleting a Recently done entry's record", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a State unknown entry, whose story is in no list or which is marked done, offers Delete record…, deletes from Recently done and the sidebar, and moves the keyboard; the sidebar offers none and Working or Done offers none", async ({
+  test("a State unknown entry, inside a done story's card or of its own, offers Delete record…, deletes from Recently done and the sidebar, and moves the keyboard to the neighbouring entry; the sidebar offers none and Working or Done offers none", async ({
     page,
     dashboard,
   }) => {
@@ -72,13 +73,18 @@ test.describe("deleting a Recently done entry's record", () => {
     await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launch(readyStory, "Refinement");
+    await launch(takenStory, "Execution");
     // Every launch finishes, its entry naming its session, before the page
     // reloads; reloading sooner would lose a launch still in flight.
-    await sessionNamedBy(cardSessionOf(card(readyStory), "Refinement"));
-    const noList = await sessionNamedBy(
+    const inDoneStory = await sessionNamedBy(
       cardSessionOf(card(notRefinedStory), "Refinement"),
     );
-    await sessionNamedBy(cardSessionOf(card(readyStory), "Refinement"));
+    const refinement = await sessionNamedBy(
+      cardSessionOf(card(readyStory), "Refinement"),
+    );
+    const storyA = await sessionNamedBy(
+      cardSessionOf(card(takenStory), "Execution"),
+    );
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",
@@ -91,20 +97,35 @@ test.describe("deleting a Recently done entry's record", () => {
       recent.getByRole("article", {
         name: recentlyDoneSessionName(workflow, title),
       });
+    const doneCard = recent.getByRole("article", {
+      name: notRefinedStory,
+      exact: true,
+    });
     const markedDone = entryOf("Execution", readyStory);
-    const inNoList = entryOf("Refinement", notRefinedStory);
+    const insideDoneCard = doneCard.getByRole("article", {
+      name: recentlyDoneSessionName("Refinement", notRefinedStory),
+    });
     const working = entryOf("Refinement", readyStory);
+    const ofStoryA = entryOf("Execution", takenStory);
     const deleteButton = (entry: typeof working) =>
       entry.getByRole("button", { name: "Delete record…" });
     const confirm = (entry: typeof working) =>
       entry.getByRole("button", { name: "Delete record", exact: true });
+    const deleteEntry = async (entry: typeof working) => {
+      await deleteButton(entry).click();
+      await confirm(entry).click();
+      await expect(entry).toHaveCount(0);
+      await expect(
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
+    };
 
-    await test.step("a session marked done and one whose story left every list are Recently done entries", async () => {
+    await test.step("a session marked done and one whose story is done, inside its done card, are Recently done entries", async () => {
       await page.reload();
       await settled();
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
       await show(stagesJourney.completed);
-      await expect(entryOf("Refinement", notRefinedStory)).toBeVisible();
+      await expect(insideDoneCard).toBeVisible();
       await expect(
         page
           .getByRole("region", { name: "Work stages" })
@@ -114,29 +135,29 @@ test.describe("deleting a Recently done entry's record", () => {
 
     await test.step("while the listing is read, a Recently done entry in Working or Done offers no Delete record…", async () => {
       await expect(sessionStateOf(working)).toHaveText("Working");
-      await expect(sessionStateOf(inNoList)).toHaveText("Working");
+      await expect(sessionStateOf(insideDoneCard)).toHaveText("Working");
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
-      for (const entry of [working, inNoList, markedDone]) {
+      for (const entry of [working, insideDoneCard, markedDone]) {
         await expect(
           entry.getByRole("button", { name: /^Delete record/ }),
         ).toHaveCount(0);
       }
     });
 
-    await test.step("with the listing unreadable, all three say State unknown, and each offers Delete record… while each sidebar entry stays one control", async () => {
+    await test.step("with the listing unreadable, each says State unknown and offers Delete record… while each sidebar entry stays one control", async () => {
       dashboard.claudeListingFails(true);
       await page.reload();
       await settled();
       await sidebar.button.click();
       // The sidebar lists sessions not marked done.
-      await expect(sidebar.entries).toHaveCount(2);
-      for (const entry of [working, inNoList, markedDone]) {
+      await expect(sidebar.entries).toHaveCount(3);
+      for (const entry of [ofStoryA, working, insideDoneCard, markedDone]) {
         await expect(sessionStateOf(entry)).toHaveText(
           "State unknown: Claude Code's session list could not be read",
         );
         await expect(deleteButton(entry)).toBeVisible();
       }
-      for (let index = 0; index < 2; index++) {
+      for (let index = 0; index < 3; index++) {
         const entry = sidebar.entries.nth(index);
         await expect(entry.getByRole("button")).toHaveCount(1);
         await expect(
@@ -145,53 +166,52 @@ test.describe("deleting a Recently done entry's record", () => {
       }
     });
 
-    await test.step("deleting the middle entry asks first, removes it from Recently done and the sidebar, and puts the keyboard on the next Recently done entry", async () => {
-      await deleteButton(inNoList).click();
+    await test.step("deleting the last session inside a done story's card asks first, removes it from Recently done and the sidebar, and puts the keyboard on the card, which stays", async () => {
+      await deleteButton(insideDoneCard).click();
       await expect(
-        inNoList.getByRole("button", { name: "Keep" }),
+        insideDoneCard.getByRole("button", { name: "Keep" }),
       ).toBeFocused();
-      expect(stored()).toContain(noList);
+      expect(stored()).toContain(inDoneStory);
 
-      await confirm(inNoList).click();
+      await confirm(insideDoneCard).click();
 
-      await expect(inNoList).toHaveCount(0);
-      await expect(sidebar.entries).toHaveCount(1);
+      await expect(insideDoneCard).toHaveCount(0);
+      await expect(sidebar.entries).toHaveCount(2);
       await expect(sidebar.sidebar.getByText(notRefinedStory)).toHaveCount(0);
-      await expect(markedDone).toBeFocused();
+      await expect(doneCard).toBeFocused();
+      await expect(doneCard.locator(".session-entry")).toHaveCount(0);
       await expect(
         page.getByText("Session record deleted", { exact: true }),
       ).toHaveCount(0);
-      expect(stored()).not.toContain(noList);
+      expect(stored()).not.toContain(inDoneStory);
       expect(stored()).toContain(done);
       expect(dashboard.claudeStopCalls()).toHaveLength(stopsBeforeDeletes);
     });
 
-    await test.step("deleting the last entry puts the keyboard on the previous one", async () => {
-      await deleteButton(markedDone).click();
-      await confirm(markedDone).click();
-
-      await expect(markedDone).toHaveCount(0);
-      await expect(sidebar.entries).toHaveCount(1);
-      await expect(working).toBeFocused();
-      await expect(
-        page.getByText("Session record deleted", { exact: true }),
-      ).toHaveCount(0);
+    await test.step("deleting an entry between another and a done story's card puts the keyboard on the next entry, the card", async () => {
+      await deleteEntry(markedDone);
+      await expect(sidebar.entries).toHaveCount(2);
+      await expect(doneCard).toBeFocused();
       expect(stored()).not.toContain(done);
     });
 
-    await test.step("deleting the only entry left puts the keyboard on the Recently done section", async () => {
-      await deleteButton(working).click();
-      await confirm(working).click();
+    await test.step("on a revision with no done record, deleting the last entry puts the keyboard on the previous one", async () => {
+      await show(stagesJourney.taken);
+      await expect(doneCard).toHaveCount(0);
+      await deleteEntry(working);
+      await expect(sidebar.entries).toHaveCount(1);
+      await expect(ofStoryA).toBeFocused();
+      expect(stored()).not.toContain(refinement);
+    });
 
-      await expect(working).toHaveCount(0);
+    await test.step("deleting the only entry left puts the keyboard on the Recently done section", async () => {
+      await deleteEntry(ofStoryA);
       await expect(sidebar.entries).toHaveCount(0);
       await expect(recent).toBeFocused();
-      await expect(
-        page.getByText("Session record deleted", { exact: true }),
-      ).toHaveCount(0);
+      expect(stored()).not.toContain(storyA);
       await expectMembership(page, {
         taken: [readyStory],
-        backlog: [takenStory],
+        backlog: [takenStory, notRefinedStory],
       });
     });
   });

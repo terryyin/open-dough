@@ -7,7 +7,9 @@ Backlog card ask Claude Code on this machine to execute or refine the story
 (each launch dialog also offers a Model choice: Default, Fable, Opus, or Sonnet,
 and a story's dialog [Session choices](LAUNCH-START.md#session-choices): One-shot
 tracking, Default main with its existing changes, or Automatically land),
-**Recently done** lists those launches, newest first, the **Sessions**
+**Recently done** lists the stories recently done, from the done records
+published beside the backlog, each holding this machine's launches for it,
+with the other launches, newest first, the **Sessions**
 sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** records local Done for a reported session; for an unreported session it

@@ -12,7 +12,8 @@ export function useSessionNavigation(
 ) {
   // Going to a session: its project's stories, its terminal where it opens
   // one, and, once that project's stories are shown, its card brought into
-  // view, or its Recently done entry when no card lists it.
+  // view, or its Recently done entry when no card lists it, inside its done
+  // story's card when Recently done shows the story done.
   // Each going is its own, so going again to the same session reveals again.
   const [going, setGoing] = useState<{ readonly to: LaunchRecord }>();
   const revealed = useRef<{ readonly to: LaunchRecord } | undefined>(undefined);

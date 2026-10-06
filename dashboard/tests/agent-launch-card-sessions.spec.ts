@@ -5,9 +5,10 @@
 // story's own open session is listed; a refinement launched on a Preparing
 // card is listed at once; the Taken card keeps the listing and offers no
 // Start; and a reload in each keeps it. A story that leaves every list keeps
-// its sessions only in Recently done. That Starts stay unavailable for an
-// open session, return after Mark as done or Delete record, and a dialog
-// opened beforehand is refused, is ./agent-launch-card-open-session.spec.ts.
+// its sessions only in Recently done, inside its done card once it is done.
+// That Starts stay unavailable for an open session, return after Mark as done
+// or Delete record, and a dialog opened beforehand is refused, is
+// ./agent-launch-card-open-session.spec.ts.
 // That a restart, a reload, and a project switch keep each entry and its
 // state is ./agent-launch-card-session-states.spec.ts, and that closing or
 // losing a terminal leaves its session listed is ./agent-terminal.spec.ts and
@@ -168,31 +169,31 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectListed([readyStory, ...backlog]);
     });
 
-    await test.step("a story that leaves every list keeps its sessions only in Recently done, through a reload", async () => {
+    await test.step("a story done and left every list keeps its sessions only in Recently done, inside its done card, through a reload", async () => {
       await show(stagesJourney.completed);
       const completed = { taken: [readyStory], backlog: [takenStory] };
       await expectMembership(page, completed);
       await expectListed([readyStory, takenStory]);
-      // Completing the story published its done record, listed beside the
-      // sessions.
+      // Completing the story published its done record, whose card holds
+      // the story's session.
       const entries = recentlyDone.locator(".session-entry");
       const doneCard = recentlyDone.getByRole("article", {
         name: notRefinedStory,
         exact: true,
       });
+      const inDoneCard = doneCard.getByRole("article", {
+        name: recentlyDoneSessionName("Execution", notRefinedStory),
+      });
       await expect(entries).toHaveCount(3);
       await expect(doneCard).toBeVisible();
-      await expect(
-        recentlyDone.getByRole("article", {
-          name: recentlyDoneSessionName("Execution", notRefinedStory),
-        }),
-      ).toBeVisible();
+      await expect(inDoneCard).toBeVisible();
+      await expect(doneCard.locator(".session-entry")).toHaveCount(1);
       await page.reload();
       await expectMembership(page, completed);
       await settled();
       await expectListed([readyStory, takenStory]);
       await expect(entries).toHaveCount(3);
-      await expect(doneCard).toBeVisible();
+      await expect(inDoneCard).toBeVisible();
     });
 
     // Nothing was launched again along the way.

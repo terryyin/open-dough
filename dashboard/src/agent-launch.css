@@ -83,10 +83,8 @@
   font-weight: 600;
 }
 
-.card-sessions .session-entry {
-  background: var(--panel);
-}
-
+/* A story's sessions inside its card, on a work card or a done story's card. */
+.card-sessions .session-entry,
 .launch-local {
   color: var(--quiet);
 }
@@ -132,6 +130,12 @@
   padding: 0.5rem 0.8rem;
   background: var(--surface);
   font-size: 0.9rem;
+}
+
+/* A done story's sessions, inside its card as a card's sessions are. */
+.recently-done .done-story-sessions {
+  gap: 0.45rem;
+  margin-top: 0.2rem;
 }
 
 .session-state {

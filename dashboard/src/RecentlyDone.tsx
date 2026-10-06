@@ -5,9 +5,11 @@ import { sessionKey } from "./sessionReference.ts";
 // native session this dashboard's server launched for the project and still
 // keeps on this machine, placed by when it was launched, whatever origin now
 // shows of its story, so the developer can reach a session whose story is in
-// no list, or one marked done. Sessions are listed once the machine's
-// sessions are first read; done records that cannot be read are said, and
-// the sessions are still listed.
+// no list, or one marked done. A session of a shown done story, open or
+// marked done, is listed inside that story's card, newest first, and nowhere
+// else in the column; a later launch for the story does not move the card.
+// Sessions are listed once the machine's sessions are first read; done
+// records that cannot be read are said, and the sessions are still listed.
 // Each session entry (`./SessionEntry.tsx`) names its story and shows its
 // session's state as its host last observed it, read again at the page's
 // steady pace. It takes the keyboard when the last of its entries is deleted
@@ -17,6 +19,7 @@ import { sessionKey } from "./sessionReference.ts";
 import {
   launchRetentionDays,
   projectSessionsOf,
+  storySessionsOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
@@ -31,18 +34,32 @@ import { SessionEntry, SessionList } from "./SessionEntry.tsx";
 import "./agent-launch.css";
 
 type Listed =
-  | { readonly at: number; readonly story: DoneStory }
+  | {
+      readonly at: number;
+      readonly story: DoneStory;
+      // The story's sessions, oldest first.
+      readonly sessions: readonly LaunchWithState[];
+    }
   | { readonly at: number; readonly session: LaunchWithState };
 
-// Done stories by completion and sessions by launch, newest first; sessions
-// launched at one moment keep their newest-first order.
+// Done stories by completion, each holding its sessions, and the sessions of
+// no shown done story by launch, newest first; sessions launched at one
+// moment keep their newest-first order.
 function newestFirst(
   stories: readonly DoneStory[],
   sessions: readonly LaunchWithState[],
+  sourceId: string,
 ): readonly Listed[] {
+  const cards = stories.map((story) => ({
+    at: Date.parse(story.completedAt),
+    story,
+    sessions: storySessionsOf(sessions, sourceId, story.identity),
+  }));
+  const held = new Set(cards.flatMap((card) => card.sessions));
   return [
-    ...stories.map((story) => ({ at: Date.parse(story.completedAt), story })),
+    ...cards,
     ...sessions
+      .filter((session) => !held.has(session))
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
   ].sort((one, other) => other.at - one.at);
@@ -85,6 +102,7 @@ export function RecentlyDone({
   const listed = newestFirst(
     recentDoneStories(done, new Date()),
     records ?? [],
+    sourceId,
   );
   return (
     <section
@@ -116,7 +134,7 @@ export function RecentlyDone({
           {listed.map((each) =>
             "story" in each ? (
               <li key={`done ${each.story.identity}`}>
-                <DoneStoryCard story={each.story} />
+                <DoneStoryCard story={each.story} sessions={each.sessions} />
               </li>
             ) : (
               <li key={sessionKey(each.session.session)}>
