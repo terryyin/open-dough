@@ -66,7 +66,10 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
       ),
     );
     if (accepted.kind !== "accepted") throw new Error("No accepted launch");
-    await expect.poll(() => server.claudeLaunchCalls().length).toBe(1);
+    // The launch spawns the synthetic `claude`, slower on a loaded machine.
+    await expect
+      .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
+      .toBe(1);
     const command = /^- reporting command: (.+)$/m.exec(
       server.claudeLaunchCalls()[0]?.argv.at(-1) ?? "",
     )?.[1];

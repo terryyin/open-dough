@@ -1,4 +1,6 @@
+import { showColumnHolding } from "./columnPaging.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { prefersReducedMotion } from "./reducedMotion.ts";
 
 // Keyboard focus across a replaced snapshot. A card is rebuilt when its work
 // changes group or order, which would drop focus to the page; focus follows
@@ -81,18 +83,16 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 
 // Scrolls a part of the page, such as a work's card, into view, smoothly or,
 // when the developer asks for reduced motion, at once, leaving the keyboard
-// where it is. It keeps the part in view while the page changes size around
-// it, as when facts read after the stories lengthen the cards above it,
-// until the developer scrolls, points, or types, or the returned stop is
-// called.
+// where it is; a dashboard column that hides it shows first. It keeps the
+// part in view while the page changes size around it, as when facts read
+// after the stories lengthen the cards above it, until the developer
+// scrolls, points, or types, or the returned stop is called.
 export function keepInView(element: Element): () => void {
   const show = () => {
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    showColumnHolding(element);
     element.scrollIntoView({
       block: "center",
-      behavior: reduced ? "auto" : "smooth",
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   };
   show();

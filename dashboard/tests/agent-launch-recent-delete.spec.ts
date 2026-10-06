@@ -25,6 +25,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -167,6 +168,7 @@ test.describe("deleting a Recently done entry's record", () => {
     });
 
     await test.step("deleting the last session inside a done story's card asks first, removes it from Recently done and the sidebar, and puts the keyboard on the card, which stays", async () => {
+      await showColumn(page, "Recently done");
       await deleteButton(insideDoneCard).click();
       await expect(
         insideDoneCard.getByRole("button", { name: "Keep" }),

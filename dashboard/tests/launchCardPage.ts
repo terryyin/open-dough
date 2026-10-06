@@ -139,9 +139,9 @@ export const startSessionField = (dialog: Locator) =>
 // session, still without the start's outcome, so this waits for the answer's
 // announcement, as long as the start itself may (./support/launchWait.ts).
 export async function startedSession(page: Page): Promise<Locator> {
-  await expect(
-    page.getByRole("log").filter({ hasText: "Ad hoc session started" }),
-  ).toBeVisible({ timeout: launchWaitMs });
+  await expect(parts(page).adHocStarted).toBeVisible({
+    timeout: launchWaitMs,
+  });
   const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
   return recent;

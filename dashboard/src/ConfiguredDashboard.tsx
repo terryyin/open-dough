@@ -2,10 +2,9 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useProjects } from "./projectList.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
-import { WorkStages } from "./WorkStages.tsx";
+import { DashboardColumns } from "./DashboardColumns.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
-import { RecentlyDone } from "./RecentlyDone.tsx";
 import { PageFrame } from "./PageFrame.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { NearFutureDirection } from "./NearFutureDirection.tsx";
@@ -216,16 +215,11 @@ export function ConfiguredDashboard({
       </div>
       {work && (
         <main hidden={showsRoster}>
-          <WorkStages
+          <DashboardColumns
+            sourceId={source.id}
             work={work}
             launches={launches}
             onOpenRoster={openRoster}
-          />
-          <RecentlyDone
-            sourceId={source.id}
-            records={launches.records}
-            creations={launches.creations}
-            done={work.done}
           />
         </main>
       )}

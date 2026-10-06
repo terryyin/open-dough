@@ -95,6 +95,12 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
     );
     await native.close();
     restore();
-    rmSync(tempRoot, { recursive: true, force: true });
+    // A closed PTY's process may still be writing its last files there.
+    rmSync(tempRoot, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 100,
+    });
   }
 });

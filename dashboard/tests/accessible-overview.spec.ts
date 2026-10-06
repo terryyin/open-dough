@@ -14,6 +14,7 @@ import {
   unusableTarget,
 } from "./accessibleOverview.ts";
 import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { enabledCardLaunchActions, inspectedDetail } from "./cardControls.ts";
 import {
   commitAnswer,
@@ -42,16 +43,22 @@ test("accessible overview reflows long published work for a narrow window and pa
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await page.goto("/");
-  const { backlog, taken, direction, source } = parts(page);
+  const { backlog, taken, recentlyDone, direction, source } = parts(page);
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
 
-  await test.step("a wide window reads the long work whole, side by side", async () => {
+  await test.step("a wide window reads the long work whole, three columns side by side", async () => {
     await expectNoSidewaysScrollAndWholeText(page);
-    await expectSideBySideInOrder([backlog, taken]);
-    // Nothing stands between the stages: only the frame's gap separates them.
-    const [from, to] = await Promise.all([box(backlog), box(taken)]);
-    expect(to.x - (from.x + from.width)).toBeLessThanOrEqual(24);
+    const columns = [backlog, taken, recentlyDone];
+    await expectSideBySideInOrder(columns);
+    // Nothing stands between the columns: only the frame's gap separates them.
+    const boxes = await Promise.all(columns.map(box));
+    boxes.slice(1).forEach((to, index) => {
+      const from = boxes[index];
+      expect(to.x - ((from?.x ?? 0) + (from?.width ?? 0))).toBeLessThanOrEqual(
+        24,
+      );
+    });
     await page.screenshot({
       path: testInfo.outputPath("long-work-wide.png"),
       fullPage: true,
@@ -64,8 +71,11 @@ test("accessible overview reflows long published work for a narrow window and pa
     await expectNoSidewaysScrollAndWholeText(page);
   });
 
-  await test.step("the page reads top to bottom: direction, Backlog, Taken", async () => {
-    await expectStackedInOrder([direction, backlog, taken]);
+  await test.step("the page reads direction, then Backlog alone, and its edge control brings Taken", async () => {
+    await expectStackedInOrder([direction, backlog]);
+    await showColumn(page, "Taken");
+    await expectStackedInOrder([direction, taken]);
+    await expectNoSidewaysScrollAndWholeText(page);
   });
 
   await test.step("long titles, identities, and recorded targets stay inside their card", async () => {
@@ -77,11 +87,12 @@ test("accessible overview reflows long published work for a narrow window and pa
       name: "Keep a target that is not offered as a link readable",
     });
     // Identities and recorded targets are read in each story's detail.
-    for (const [card, texts] of [
-      [longCard, [longIdentity, longPlan]],
-      [external, [longAddress]],
-      [unusable, [unusableTarget]],
+    for (const [column, card, texts] of [
+      ["Taken", longCard, [longIdentity, longPlan]],
+      ["Backlog", external, [longAddress]],
+      ["Backlog", unusable, [unusableTarget]],
     ] as const) {
+      await showColumn(page, column);
       const detail = await inspectedDetail(card);
       for (const text of texts) {
         await expectInside(detail.getByText(text), card);
@@ -130,6 +141,9 @@ test("accessible overview keeps empty groups readable in a narrow window", async
     backlog.getByText("No Backlog entries are recorded."),
   ).toBeVisible();
   await openDirection(page);
+  await expectStackedInOrder([direction, backlog]);
+  await showColumn(page, "Taken");
+  await expectStackedInOrder([direction, taken]);
   await expect(taken.getByText("No Taken entries are recorded.")).toBeVisible();
   await expect(
     direction.getByText("No near-future direction is recorded."),
@@ -138,7 +152,6 @@ test("accessible overview keeps empty groups readable in a narrow window", async
   await expectInside(source.getByText(revision), source);
   await parts(page).sourceEvidence.click();
   await expectNoSidewaysScrollAndWholeText(page);
-  await expectStackedInOrder([direction, backlog, taken]);
 });
 
 test("accessible overview keeps a read problem and the retained work reachable in a narrow window", async ({

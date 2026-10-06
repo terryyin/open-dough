@@ -16,6 +16,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -91,6 +92,7 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
     await test.step("a session whose state became known since the page read it keeps its record and says so", async () => {
       // Marked done elsewhere, it no longer reads Session unavailable.
       await markDone(dashboard, { source: "open-dough", session: becameKnown });
+      await showColumn(page, "Recently done");
       await becomesKnown
         .getByRole("button", { name: "Delete record…" })
         .click();

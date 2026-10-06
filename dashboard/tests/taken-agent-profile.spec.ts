@@ -6,6 +6,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { enlargedView, expectMark, expectPortrait } from "./agentPortrait.ts";
 import {
@@ -45,6 +46,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
       name: /^(?:Inspect story|Hide detail)$/,
     });
     await expect(toggle).toBeVisible();
+    await showColumn(page, "Taken");
     if ((await toggle.textContent()) === "Inspect story") await toggle.click();
     return card(title).getByRole("region", { name: `Detail for ${title}` });
   };
@@ -215,6 +217,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
 
   // Its scan line and marks belong to backlog-preparing.spec.ts.
   await test.step("a queued entry shows its preparation assignment as Preparing, never as an owner", async () => {
+    await showColumn(page, "Backlog");
     const preparing = queue.getByRole("article", { name: queued });
     await expect(preparing.locator(".preparing-activity")).toHaveText(
       "Preparing",
@@ -235,15 +238,10 @@ test("each Taken card shows its published agent profile, or says plainly that no
         : [],
     );
     expect(asked).toContain(`listing ${agents}?ref=${revisionA}`);
-    for (const file of [
-      "akiho-chan.json",
-      "kirara-chan.json",
-      "mana-chan.json",
-      "rina-chan.json",
-      "sola-chan.json",
-      "yuma-chan.json",
-    ]) {
-      expect(asked).toContain(`content ${agents}/${file}?ref=${revisionA}`);
+    for (const agent of ["akiho", "kirara", "mana", "rina", "sola", "yuma"]) {
+      expect(asked).toContain(
+        `content ${agents}/${agent}-chan.json?ref=${revisionA}`,
+      );
     }
     expect(asked).not.toContain(`content ${agents}/README.md?ref=${revisionA}`);
   });

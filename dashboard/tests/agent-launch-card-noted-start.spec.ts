@@ -66,6 +66,12 @@ async function expectNoteTooltip(start: Locator, name: string, note: string) {
   await page.mouse.move(0, 0);
   await start.blur();
   await expect(tip).toBeHidden();
+  // The tooltip hangs below its Start, so a Start that wrapping leaves at the
+  // window's bottom edge is first brought to the middle, leaving the tooltip
+  // room to show whole.
+  await start.evaluate((node) => {
+    node.scrollIntoView({ block: "center" });
+  });
   await start.hover();
   await expect(tip).toBeVisible();
   await expect(tip).toBeInViewport({ ratio: 1 });

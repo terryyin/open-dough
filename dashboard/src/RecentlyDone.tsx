@@ -22,6 +22,7 @@ import {
   storySessionsOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
+import type { ColumnSummary } from "./ColumnEdge.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import {
@@ -83,6 +84,45 @@ function DoneReadGaps({ done }: { readonly done: DoneStories | undefined }) {
   );
 }
 
+// What Recently done lists for the project: its creations under way, its
+// kept sessions once they are first read, and, newest first, its recently
+// done stories, each holding its sessions, and the sessions of no shown done
+// story.
+function listedOf(
+  sourceId: string,
+  creations: readonly CreationView[],
+  machineRecords: readonly LaunchWithState[] | undefined,
+  done: DoneStories | undefined,
+) {
+  const records = projectSessionsOf(machineRecords, sourceId);
+  return {
+    creations: creations.filter((record) => record.request.source === sourceId),
+    records,
+    listed: newestFirst(
+      recentDoneStories(done, new Date()),
+      records ?? [],
+      sourceId,
+    ),
+  };
+}
+
+const name = "Recently done";
+
+// Recently done as the dashboard columns name it: how many entries it lists
+// for the project.
+export function recentlyDoneColumn(
+  sourceId: string,
+  creations: readonly CreationView[],
+  machineRecords: readonly LaunchWithState[] | undefined,
+  done: DoneStories | undefined,
+): ColumnSummary {
+  const listed = listedOf(sourceId, creations, machineRecords, done);
+  return {
+    name,
+    entries: listed.creations.length + listed.listed.length,
+  };
+}
+
 export function RecentlyDone({
   sourceId,
   creations = [],
@@ -98,29 +138,26 @@ export function RecentlyDone({
   // The done records published at the snapshot's revision.
   readonly done?: DoneStories | undefined;
 }) {
-  const records = projectSessionsOf(machineRecords, sourceId);
-  const listed = newestFirst(
-    recentDoneStories(done, new Date()),
-    records ?? [],
-    sourceId,
-  );
+  const {
+    creations: listedCreations,
+    records,
+    listed,
+  } = listedOf(sourceId, creations, machineRecords, done);
   return (
     <section
       className="recently-done"
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
     >
-      <h2 id="recently-done-heading">Recently done</h2>
+      <h2 id="recently-done-heading">{name}</h2>
       <p className="quiet">
         Recently done stories and sessions launched from this dashboard for this
         project, newest first. Sessions are kept on this machine.
       </p>
       <DoneReadGaps done={done} />
-      {creations
-        .filter((record) => record.request.source === sourceId)
-        .map((record) => (
-          <CreationEntry key={record.launchedAt} record={record} />
-        ))}
+      {listedCreations.map((record) => (
+        <CreationEntry key={record.launchedAt} record={record} />
+      ))}
       <SessionList sessions={records}>
         {() => (
           <p className="quiet">

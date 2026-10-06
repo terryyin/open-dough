@@ -6,6 +6,7 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
@@ -50,6 +51,9 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  // The start presents its session's terminal once it has launched; Close
+  // before then would see that presentation open the panel again.
+  await expect(parts(page).adHocStarted).toBeVisible({ timeout: 20_000 });
 
   const recent = parts(page).recentlyDone.getByRole("article");
   await expect(recent).toHaveCount(1);
@@ -57,6 +61,10 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   const open = recent.getByRole("button", { name: "Open terminal" });
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
+  // The started session's terminal opens beside the page, which then shows
+  // one column.
+  await expect(panel).toHaveCount(1);
+  await showColumn(page, "Recently done");
   await open.click();
   await expect(rows).toContainText("ctrl+c to stop");
   await expect(rows).toContainText("Add a follow-up");

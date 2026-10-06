@@ -72,7 +72,7 @@ test.describe("maximizing the terminal panel", () => {
       page,
       stagesJourney,
     );
-    const { banner, stages } = parts(page);
+    const { banner, stages, backlog } = parts(page);
     const sidebar = sidebarParts(page);
     const pageColumn = page.locator(".page-column");
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -202,8 +202,9 @@ test.describe("maximizing the terminal panel", () => {
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
+      // The page, showing Backlog, stays left of the panel.
       expect((await box(panel)).x).toBeGreaterThanOrEqual(
-        (await box(stages)).x + (await box(stages)).width,
+        (await box(backlog)).x + (await box(backlog)).width,
       );
     });
 

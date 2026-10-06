@@ -27,6 +27,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
+import { showColumn } from "./dashboardColumnsPage.ts";
 import {
   notRefinedStory,
   publishLaunchJourney,
@@ -134,6 +135,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recentl
   });
 
   await test.step("Open terminal reopens it into the sidebar, and a reload keeps it there", async () => {
+    await showColumn(page, "Recently done");
     await recent.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(entries).toHaveCount(1);
@@ -202,6 +204,7 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
 
   const unknown = "State unknown: Claude Code's session list could not be read";
   await expect(sessionStateOf(newer)).toHaveText(unknown);
+  await showColumn(page, "Recently done");
   await newer.getByRole("button", { name: "Delete record…" }).click();
   await newer
     .getByRole("button", { name: "Delete record", exact: true })
@@ -218,7 +221,8 @@ test("with Open Dough already shown, its sidebar entry brings its Recently done 
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  // A window short enough that Recently done starts below it.
+  // A window short enough that, beside the open Sessions sidebar, Recently
+  // done starts below it.
   await page.setViewportSize({ width: 1280, height: 600 });
   await openTakenBacklog(page, journey);
   const text = "where is this entry?";
@@ -226,9 +230,12 @@ test("with Open Dough already shown, its sidebar entry brings its Recently done 
   const recent = recentOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
-  await expect(recent).not.toBeInViewport();
   await button.click();
+  await expect(recent).not.toBeInViewport();
   await entry(text).click();
+  // The page beside the sidebar and terminal shows one column, which moves
+  // to Recently done.
+  await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
 
   await expect(recent).toBeInViewport();
   await expect(recent.getByText("Shown in terminal")).toBeVisible();
