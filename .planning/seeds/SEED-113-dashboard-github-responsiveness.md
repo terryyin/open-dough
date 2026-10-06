@@ -59,26 +59,89 @@ candidates for refinement; no executable plan or readiness assessment is implied
 
 **Identity:** SEED-113#show-available-facts-promptly
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/260-available-dashboard-facts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e79fff9c35c53832059c037e4cebd7e0b669d9e9bf2375e6ecc4779138a1d32f","plan":"dc2e7924000d8463fe175b366bbc21a8a260b803226d875edbe230ebbc72c031"}}
 ```
 
 **Beneficiary:** A developer reading published work while one group of GitHub
 reads is slow or unavailable.
 
-**Goal:** Facts from an independent completed read group become usable without
-waiting for unrelated groups. A slow done-record read does not delay already
-read owners or preparation facts.
+**Goal:** Once the published backlog's membership is known, a developer can use
+each completed group of facts without waiting for unrelated groups. Earlier
+assignments, preparation facts, and recently done stories make the dashboard
+useful while the rest of the observation is still being read.
 
-**Evaluation:** Hold the done-record answer while preparation and profile reads
-finish: the developer can see the available preparation facts and assignments
-before the held answer arrives. When it arrives, done stories update without
-disturbing those facts or the developer's reading position.
+**Current baseline:** Slow done records already leave owners, preparation, and
+slice clocks usable. The remaining wait is mutual: preparation and assignments
+are withheld until both groups finish, and completed done records wait for that
+same point. The existing slow-done behavior remains a regression example.
 
-**Scope and safety:** Preserve each fact's pinned revision, project context,
-loading state, and explicit failure gap. Abandoned or superseded reads cannot
-update the selected project. Missing evidence is never shown as an empty set or
-borrowed from another revision. Existing inspection and project switching remain
-usable while reads are outstanding.
+**Scope — required behavior:**
+
+- Read and interpret the complete backlog before showing its membership and
+  direction. After that, preparation facts, profile assignments, and done
+  stories appear independently when their own required evidence has been read.
+  Preparation includes the purpose, readiness, dependencies, and plan facts
+  already shown; assignments include Taken owners, queued preparers, and the
+  roster. This applies on opening, returning to a project, and reading a newly
+  observed published revision.
+- Keep an unfinished group's existing loading indication while completed
+  groups become usable. A later update adds its facts to the same observation
+  without removing or returning already read facts to loading. Preserve the
+  existing independent arrival of credited humans and slice clocks.
+- Respect actual evidence dependencies. For example, a slice clock still needs
+  its plan and allocation evidence, and Story Branch Mode progress still needs
+  the published assignment that identifies its branch. Completion of an
+  unrelated group is never evidence that those dependent facts are known.
+- Keep inspection and project switching usable. When the same story and control
+  remain present, arrival of another group's facts retains the selected column
+  page, keyboard focus, and open inspection, without resetting the reader to
+  the overview or the top of the page. Existing launch and reconciliation rules
+  continue to require their own evidence; showing a partial observation does
+  not mean every detail has finished reading.
+
+**Scope — evidence and failure constraints:** Follow the
+[existing published reading contract](../../dashboard/README.md) and
+[visibility requirements](../../docs/project-visibility-requirements.md).
+All membership, preparation, profile, and done facts belong to the selected
+project and the same pinned backlog revision. Story-branch progress retains its
+own published source qualification. Missing evidence stays loading or explicitly
+unavailable; it is never reported as an empty set, absent assignment, or fact
+borrowed from a previous revision. Only a successful read can establish absence.
+
+Keep the existing 30-second read bound and recovery rules. A failed or timed-out
+detail leaves its explicit gap while independently completed facts remain
+visible; retain the existing distinction between a project read problem and a
+detail's own gap. A failure before membership is read keeps the prior snapshot,
+if any, under its own revision. Project switching and replacement reads abandon
+the previous observation, whose late answers cannot change the selected view.
+
+**Scope — deferred promises:** The other three stories own observer request
+sharing, consistent rate-limit recovery, and content reuse after publication.
+This delivery makes no request-count reduction or new polling, concurrency,
+authentication, retry, cache, layout, or launch-policy commitment. It does not
+require showing each file or story separately before its read group finishes;
+naturally supported finer updates remain possible.
+
+**Key examples:**
+
+| Pre-condition and trigger | Result while the delayed answer is still held |
+| --- | --- |
+| Backlog membership is shown; profile assignments finish while preparation records are held. | Taken owners, queued preparers, and the roster show the read assignments. Preparation remains loading. Credited humans remain qualified by their own read state. |
+| Backlog membership is shown; preparation finishes while profile records are held. | Read purpose, preparation, readiness, dependencies, and plan facts appear. Assignments remain loading, without an inference that no agent is assigned. Progress that needs the missing assignment remains qualified as pending. |
+| Done records finish while preparation or profile records are held. | Recently done shows its published stories without waiting for either unrelated group. The group's loading or failure state does not replace the read done facts. |
+| Done records are held while preparation, assignments, and the required clock evidence finish. | Those facts and available slice clocks appear as they do today. Releasing the done answer fills Recently done without taking those facts away. |
+| Preparation is still unread at the existing wait bound while assignments and done records have finished. | Unread preparation details become explicit gaps with the existing read-problem qualification where applicable. The read assignments and done stories remain useful. An ordinary detail failure has the same isolation from completed groups. |
+| A newer backlog revision has been read after an earlier snapshot was shown; only the new revision's assignments have finished. | New membership and assignments are shown at the new revision. Preparation and done facts from the earlier revision are not carried over as if read at the new one. A late answer from the replaced read changes nothing. |
+| A developer changes from project A to project B while A has outstanding detail reads. | B starts its own observation and stays selectable and readable. A's late answers cannot replace B's facts, loading state, failure, or focus. |
+| A developer has paged to and focused a still-present story, or opened its inspection, while another group finishes. | Its available detail updates in place; the selected page, valid focused control, and open inspection remain. |
+
+**Evaluation:** Hold the relevant GitHub answers through the existing local read
+boundary and observe the dashboard. Completion is demonstrated by useful facts
+appearing before the unrelated held answer is released, then by that answer
+joining the same observation without losing read facts or reader context. The
+failure, replacement, and switching examples qualify that result. No invented
+production latency threshold or API-call budget is required; production timing
+can inform the evaluation without replacing these observable examples.
 
 **Value / learning:** Test whether removing the shared loading wait materially
 improves the developer's time to useful information.
@@ -87,6 +150,10 @@ improves the developer's time to useful information.
 preserving coherent partial observations and focus through independent updates.
 
 **Depends on:** No blocking story prerequisite.
+
+**Open decisions:** None about the goal, scope, or examples. The selected
+execution approach and proof design are in the
+[slice plan](../slice-plans/260-available-dashboard-facts/PLAN.md).
 
 **Safe stopping point:** The developer benefits from earlier available facts even
 if request sharing and caching across commits are never implemented.
