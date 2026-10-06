@@ -36,6 +36,7 @@ Accepted published increments (no reconciliation; observer reused each time):
 - Slice 1: `cba2dedfe40de7bf9c7956e974b2021c279cd5fe`.
 - Slice 2: `9baca4db8d9509dd20d6ba8869202eb641836c4b`.
 - Slice 3: `31458fce60b1a38c982dec7d6214657c85de12e9`.
+- Slice 4: `eaa279dc026764cdb96d5abe54d7d8533163af08`.
 
 ## Goal, boundaries and current decisions
 
@@ -220,18 +221,18 @@ Passing terminal commands (all named full specs):
 
 ```sh
 env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-reading.spec.ts branch-progress-reading.spec.ts auto-refresh-branches.spec.ts dashboard-columns-kept.spec.ts auto-refresh.spec.ts story-readiness-accessible.spec.ts agent-roster.spec.ts published-facts-isolation.spec.ts auto-refresh-project-isolation.spec.ts project-read-isolation.spec.ts --workers=2
+# After restoring the sensitivity experiment:
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- branch-progress-reading.spec.ts auto-refresh-branches.spec.ts --workers=2
 npm run typecheck:dashboard
 git diff --check
 ```
 
 No raw fixture or fact-reader contract changed; session navigation's existing
 `keepInView`, `workHolding` and `returnFocusTo` remain unchanged.
-Independent refactoring unified group and moved-branch work publication/capture.
-The moved-progress journey fails with the original bypass (focused link wholly
-offscreen), then passes with the final path restored, including a terminal rerun
-of `branch-progress-reading.spec.ts auto-refresh-branches.spec.ts` with the same
-browser command prefix/`--workers=2`, typecheck and whitespace check. Shared
-visible-reading assertions now live in `readingPlace.ts`; no new state owner.
+Independent refactoring unified group and moved-branch publication/capture. The
+moved-progress journey fails with the original bypass (focused link offscreen),
+then passes with the final path restored. Assertions share `readingPlace.ts`;
+no new state owner was introduced.
 Safe stop: available facts stay usable during actual reading.
 
 ## Verification and delivery
@@ -242,3 +243,7 @@ publishes before the next slice. Verify changed contracts/consumers, not a blank
 suite. Every started verification is owned to terminal. No live-service timing
 or API savings are inferred from synthetic proof. Retain this plan/owned branch
 for automatic retrospective, completion publication/CI handoff and later wrap-up.
+
+## Execution complete
+
+Product advice: Preserve the current order of observer request sharing, consistent rate-limit recovery, and unchanged-content reuse. This story establishes earlier useful facts and honest gaps; it makes no production latency or request-count savings claim. Outcome review found no required correction; process review used available coordinator history and agent reports, with full internal agent histories unavailable and no supported process-log change. CI remains pending until execution's completion operation.
