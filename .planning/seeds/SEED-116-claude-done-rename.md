@@ -59,7 +59,7 @@ Claude Code 2.1.292 offers no out-of-band rename command (`claude agents`,
 
 **Identity:** SEED-116#claude-done-rename
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/267-claude-done-rename/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bc20898849cee334c0e86229d9364aeb9a9f2bfe0136492409f9ff7318c1a3b3","plan":"914fcc467a15badf670d40d32b9bcf58235f2b35db71a116c7abbd11b0d45473"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/267-claude-done-rename/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bc20898849cee334c0e86229d9364aeb9a9f2bfe0136492409f9ff7318c1a3b3","plan":"ef9999aced06ed89082a6d1c93bd0eae6bc81cbe803592cd3f110b4b84fa2453"}}
 ```
 
 **For / why:** A developer who lets a Claude Code session report quietly, or

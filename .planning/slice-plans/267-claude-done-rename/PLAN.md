@@ -133,19 +133,36 @@ this session's prompt; the rest are readings.
 | The missing-workspace journey already exists in a spec. | Slice 1's example 3 proof. | Reading `agent-launch-card-done.spec.ts:121` (`renameSync(folder, …moved)` before Mark as done). |
 | The Codex quiet spec reads the stored problem synchronously right after the page shows Done. | Slice 3's Codex timing. | Reading `agent-completion-quiet.spec.ts:171-179`: `stored(...)[0]?.doneProblem` is asserted at 176 before the page assertion at 179; after the move to the continuation, the page assertion goes first. |
 | The stop-failure spec's substitute `claude` delegates every non-stop command to the fixture, so its attach and listing work. | Slice 1's regression set. | Reading `agent-launch-done-codex-races.spec.ts:163-180`; after slice 1 its expected problem is the stop failure alone. |
+| The pending text is shown in the problem color today, so a pending native mark reads as a red problem. | Slice 3's presentation. | Reading `SessionEntry.tsx:115-124` (every `doneProblem` renders in `.launch-problem`) and `agent-launch.css:62-64` (`color: var(--problem)`); the pending sentence is spelled once, in `doneMarks.ts:32`, on the server only. |
+| `markReportedSessionDone` has three callers, one of them the late binding of a session that reported before it was bound. | Slice 3's continuation scheduling. | `grep -rn "markReportedSessionDone(" dashboard/server`: `completionDelivery.ts:37` (applied receipt retry), `completionDelivery.ts:100` (first delivery), `launchRecordBinding.ts:81` inside `keepRecord`, which `launchRun.ts:149`, `launchVerification.ts:151`, and `launchRecording.ts:42` call after a launch is confirmed. |
+| A socketless client without `keep` and without an idle rule stays until something hangs it up; the registry's idle hangup needs a declared rule. | Slice 1's private client lifetime. | Reading `detachedIdleWatch.ts:1-4` ("no idle rule leaves the client running") and `liveTerminalClient.ts` (`socketDropped` only acts on a drop); `claudeHost.attach` declares no `detachedIdle`. |
 | Dependencies are not installed in this workspace. | Every slice's first proof run. | `ls node_modules/.bin/playwright`: no such file. Execution runs `env -u NODE_ENV npm ci --ignore-scripts --offline` first; a dashboard-launched session inherits `NODE_ENV=production`, under which `npm ci` skips dev dependencies. |
 | The workspace lints clean with the story changes. | Delivery gate. | `env -u NODE_ENV node scripts/lint.mjs`: "All matched files use Prettier code style!". |
 
-Literal observation, run by the developer from this session's prompt:
+Literal observation, run by the developer from this session's prompt. The
+probe script lived in that session's temporary job directory and is gone;
+it did, with `@lydell/node-pty` resolved from `dashboard/package.json`,
+exactly what the plan's private attachment does, and can be redone by hand
+on any idle background session from the project folder:
 
 ```sh
-# O1 — private attach rename probe; script kept at $CLAUDE_JOB_DIR/tmp/probe-rename.mjs during this session
-node probe-rename.mjs 3d97347c "done-Open Dough · Refinement · Retain actionable diagnostics when a dashboard CI shard times out"
+# O1 — private attach rename probe (node-pty: spawn `claude attach 3d97347c` in
+# /Users/terryyin/git/open-dough at 80x24, wait 4 s, write "\u0015", then
+# "/rename done-…", then "\r" 300 ms apart, poll the listing, SIGHUP the pty)
 # [0.5s] before: … "status":"idle","state":"done"
 # [5.1s] typed /rename
 # [5.5s] confirmed: … "name":"done-Open Dough · Refinement · …"
 # [7.5s] after detach: … "status":"idle" (pid 17444 unchanged)
+
+# By hand, in a terminal:
+cd /Users/terryyin/git/open-dough && claude attach <short id>   # then type: /rename done-<name>  and Enter, then Ctrl+Z or close
+claude agents --json --all | grep -o '"name":"done-[^"]*"'
 ```
+
+Automatic classifier note: in a Claude Code session, auto mode denied
+running a node-pty `claude attach` as a workload interference; the developer
+ran the probe from the prompt with `!`. Execution's specs use the fake
+Claude, which auto mode allows.
 
 ## Proof ownership
 
@@ -161,6 +178,8 @@ node probe-rename.mjs 3d97347c "done-Open Dough · Refinement · Retain actionab
 | Quiet completion whose turn outlasts the wait keeps its local Done and names the cause (example 6, reporting) | 3 | same spec, listing left `working`, short wait → `The session was still working when the wait ended.`; Mark as done after `done-live` shows `Named` |
 | Codex and Cursor done behavior unchanged | 3 | `agent-completion-quiet.spec.ts` and `agent-completion-cursor.spec.ts` green after the reorder noted above |
 | Shutdown mid-wait leaves the pending text, no hung client | 3 | `agent-completion-binding.spec.ts` or a sibling: stop the server during the wait; store still holds the pending text; fake's attach (if opened) ended by SIGHUP |
+| A pending native mark is no red problem (example 1) | 3 | same quiet case: while pending, the entry shows `Intended name` and the pending sentence outside `.launch-problem`, and offers Mark as done |
+| Mark as done during a pending wait wins; no second rename runs | 3 | spec: quiet receipt, then Mark as done before `done-live` → one attach in `claudeAttaches()`, record `Named`, `automatic` write dropped |
 | Docs describe the behavior | 1, 3 | `dashboard/AGENT-LAUNCH-TERMINALS.md` and `dashboard/AGENT-LAUNCH-COMPLETION.md` read as the slices below say |
 
 Proof commands, from the workspace root:
@@ -195,6 +214,14 @@ the listing confirmation inside `use`, and reports `The terminal attachment
 could not be opened.` when the attach throws or exits before its first
 screen; `AGENT-LAUNCH-TERMINALS.md:97` says Claude renames through its own
 attachment, or the open one.
+
+The private client is a `LiveTerminalClient` with `keep: false`,
+`admitted: true`, no readiness, no `detachedIdle` rule, and no socket, tracked
+in the registry so `close()` hangs it up; `withAttachment` is the only other
+thing that hangs it up, after `use` settles or throws. `screenText()` gives
+the first settled screen. The attach's `workspaceUnavailable` refusal in
+`connect` is the page terminal's; the private attachment runs from the
+project folder and does not check the saved workspace.
 
 ### 2. The Claude rename waits for an idle session and names a gone or busy one
 Type: Behavior
@@ -233,6 +260,43 @@ run outside `withKeptAttempts`; the `renameWhileReporting` flag and the
 and `AGENT-LAUNCH-TERMINALS.md:181-186` describe the pending mark, the one
 bounded wait after the receipt, and that recovery beyond it is explicit
 (Mark as done or delivery retry).
+
+Also includes: all three callers schedule the continuation, so a session
+bound after its report (`keepRecord` in `launchRecordBinding.ts`) renames the
+same way; the owner holds one continuation per session and `markSessionDone`
+aborts that session's continuation before its own rename, so manual Done
+during the wait runs one rename and the dropped automatic write stays
+dropped; the pending sentence moves to `dashboard/src/doneMark.ts` beside
+`doneSessionName`, and `SessionEntry.tsx` renders it as ordinary text (not
+`.launch-problem`), still with `Intended name` and Mark as done offered;
+`agent-completion-quiet.spec.ts:176-179` swaps its stored-state and page
+assertions. The continuation's wait uses an `AbortSignal` the owner's
+`close()` triggers; an aborted wait writes nothing.
+
+## Starting from a clean session
+
+This plan was written and recorded ready in a preparation session that did
+not execute it. A fresh execution session needs nothing from that session:
+
+- Take the story through `dough-execute-plan`, which creates the execution
+  workspace from fetched trunk; the plan and seed are on `main` at or after
+  `b870c62312625442bb4865eae53c5deef0c77bac`, and the file and line references
+  above are to that revision.
+- Install dependencies first: `env -u NODE_ENV npm ci --ignore-scripts
+  --offline` from the workspace root. A dashboard-launched session inherits
+  `NODE_ENV=production`, under which `npm ci` skips the dev dependencies the
+  specs need.
+- Run one spec with `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run
+  test:dashboard -- <name>.spec.ts --workers=1`; the fake Claude is on PATH
+  for every spec through `dashboard/tests/support/fakeClaude.ts`, with
+  `doneRenameWaitMs` and `claudeSessionBecomes` as the controls named above.
+- The real-session observation O1 is already settled; do not repeat it. If a
+  slice needs to see the real `claude attach` again, the by-hand commands
+  above work from any terminal and need no dashboard.
+- Local launch records with today's problems live in
+  `~/.open-dough/dashboard/agent-launches.json`; the story's examples 3 and 5
+  can be tried on them by hand after slice 1 through the dashboard's Mark as
+  done, but the specs are the proof.
 
 ## Current decisions
 
