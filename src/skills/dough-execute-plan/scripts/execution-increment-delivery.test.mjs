@@ -7,6 +7,8 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { markdownSection as section } from "../../../../tests/support/markdown-section.mjs";
+
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(join(skills, path), "utf8");
 
@@ -69,4 +71,36 @@ test("execution entry routes name the same increment and repair owner", () => {
   assert.match(publisher, /<fetched-remote-target>/);
   assert.match(publisher, /The receipt is that accepted SHA and the target/);
   assert.match(publisher, /Do not register a pre-rebase SHA/);
+});
+
+test("the candidate's publication names the delivery command and each mode's target", () => {
+  const publish = section(trunk, "## Publish the candidate");
+  const command = publish.match(/```text\n([\s\S]*?)```/)?.[1] ?? "";
+  assert.match(
+    command,
+    /execution-increment-delivery\.mjs deliver[\s\S]*--mode <mode from the established start>/,
+  );
+  for (const flag of [
+    "--workspace",
+    "--branch",
+    "--previously-published-base",
+    "--target-ref",
+    "--repo",
+    "--host",
+    "--authority",
+  ]) {
+    assert.match(command, new RegExp(`${flag} <`));
+  }
+  assert.match(
+    publish,
+    /Story Branch Mode[^.]*`--target-ref refs\/heads\/<execution branch>`/,
+  );
+  assert.match(publish, /Trunk Mode[^.]*`--target-ref refs\/heads\/<trunk>`/);
+
+  const increment = section(
+    trunk,
+    "## Publish an execution increment or repair",
+  );
+  assert.match(increment, /`refs\/heads\/<trunk>`/);
+  assert.match(increment, /`refs\/heads\/<execution branch>`/);
 });

@@ -132,7 +132,7 @@ one-shot substitute scripts is now stale; refreshing it is a manual paid run.
 
 ### 2. The delivery guidance names the target for each mode
 Type: Behavior
-Status: planned
+Status: done
 Proof: `env -u NODE_ENV node --test src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs`, extended as in the proof table; the new assertions fail before the edit.
 
 Behavior: a coordinator at its first delivery reads only
@@ -148,3 +148,12 @@ Write the command block in the style of `wrap-up-closure-publication.md:35-41`,
 keep the pinned phrases at one occurrence each, and name the value once in
 "Publish an execution increment or repair" beside the Trunk/Story Branch
 sentence. Do not add a third description of the sequence.
+
+Accepted proof: the focused command above plus the guidance tests reading the
+changed references (`execution-completion-record-guidance`,
+`established-start-guidance`, `ci-completion-lifecycle-guidance`,
+`workspace-ownership-lifecycle`, `refinement-outcome-guidance`,
+`one-shot-refinement-guidance`): 50 pass. The new assertions failed before the
+edit. Decision: caller-selected current-branch work and host-owned execution
+have no established start, so "Publish the candidate" names `--mode trunk` with
+their caller's authorized target, keeping today's behavior for them.
