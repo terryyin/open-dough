@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "identity": "SEED-107#recently-done-correction",
-  "mode": "story-branch",
-  "branch": "claude/recently-done-reads-beside-owners-keeps-the-sess",
-  "host": "claude"
-}
