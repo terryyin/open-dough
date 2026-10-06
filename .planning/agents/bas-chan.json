@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "identity": "SEED-115#explain-cancelled-ci-failures",
-  "mode": "story-branch",
-  "branch": "codex/investigate-cancelled-dashboard-ci",
-  "host": "codex"
-}
