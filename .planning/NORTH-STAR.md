@@ -150,7 +150,7 @@ parallel ones:
   Claude's machine-wide listing can supply that observation, while Codex reads
   the saved native thread and endpoint. The page reads them once
   for every configured project and holds one session state, apart from project
-  selection; cards, Recent sessions, and the Sessions sidebar
+  selection; cards, Recently done, and the Sessions sidebar
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
   Published observation stays one project at a time; later hosts join the
