@@ -10,7 +10,7 @@
 // the cartoons are never in the repository. The synthetic `claude`
 // (./fixtures/fake-claude) is attached; the real one is never reached.
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -55,17 +55,17 @@ function establish(home: string, established: Kept) {
   writeFileSync(file, JSON.stringify(store));
 }
 
-const where = {
-  workspace: "/tmp/open-dough-agent-workspace",
-  branch: "claude/agent-workspace",
-  remote: "origin",
-  target: "main",
-};
-
 test("the header shows the recorded agent's portrait left of its two rows, proportionate to both, named by the agent, and none without an agent or a portrait", async ({
   page,
   dashboard,
 }) => {
+  const where = {
+    workspace: path.join(dashboard.home, "agent-workspace"),
+    branch: "claude/agent-workspace",
+    remote: "origin",
+    target: "main",
+  };
+  mkdirSync(where.workspace);
   dashboard.claudeScenario("launched");
   await page.route(
     /\/agent-avatars\/odd-e-nerds\/cartoon\/stanly\.webp$/,
