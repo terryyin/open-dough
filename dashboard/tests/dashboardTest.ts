@@ -27,7 +27,8 @@ import { startFakeGitHub, type FakeGitHub } from "./support/fakeGitHub.ts";
 export { expect };
 
 const githubServing = new WeakMap<BrowserContext, FakeGitHub>();
-const removalsAfterStop = new WeakMap<FakeGitHub, Array<() => void>>();
+type Removal = () => void | Promise<void>;
+const removalsAfterStop = new WeakMap<FakeGitHub, Removal[]>();
 
 // Page time stands still at `at` until a journey lets it pass. The clock is
 // installed an hour earlier because it runs until paused, and Playwright
@@ -65,7 +66,7 @@ export const test = base.extend<{
   startTimeoutMs: number | undefined;
   extraEnv: Readonly<Record<string, string>> | undefined;
   pathPrefix: readonly string[] | undefined;
-  afterGitHubStops: (removal: () => void) => void;
+  afterGitHubStops: (removal: Removal) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
 }>({
@@ -81,11 +82,11 @@ export const test = base.extend<{
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
     const github = await startFakeGitHub();
-    const removals: Array<() => void> = [];
+    const removals: Removal[] = [];
     removalsAfterStop.set(github, removals);
     await use(github);
     await github.close();
-    for (const removal of removals.reverse()) removal();
+    for (const removal of removals.reverse()) await removal();
   },
   afterGitHubStops: async ({ github }, use) => {
     const removals = removalsAfterStop.get(github) ?? [];

@@ -17,11 +17,14 @@ import {
   identityC,
   lsRemoteSha,
   planStoryC,
+  publishAssignment,
+  git,
   recorder,
   refineStoryC,
   releasePreparation,
   startPreparation,
 } from "../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
+import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export const storyA = "Story A";
 export const storyB = "Story B";
@@ -36,9 +39,14 @@ export type PreparingJourney = {
   // Remote main after each published step.
   readonly queued: string;
   readonly announced: string;
+  readonly refiningAllocation: string;
   readonly refinedLanded: string;
   readonly abandoned: string;
   readonly plannedLanded: string;
+  readonly planningAnnounced: string;
+  // A later allocation is a supplied history precondition, committed through
+  // the shared profile fixture; it does not manufacture the release journey.
+  readonly reuseRefiner: () => Promise<string>;
   readonly conflicting: string;
   // Who each start assigned, as its receipt names the developer.
   readonly preparers: {
@@ -76,7 +84,12 @@ async function start(
   if (receipt.status !== "announced") {
     throw new Error(`start ${name}: ${JSON.stringify(receipt)}`);
   }
-  return { workspace, branch, agent: receipt.agent };
+  return {
+    workspace,
+    branch,
+    agent: receipt.agent,
+    publication: await remoteMain(trunk),
+  };
 }
 
 async function keep(
@@ -140,6 +153,7 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
       "--host",
       "codex",
     ]);
+    const planningAnnounced = await remoteMain(trunk);
     planStoryC(planning.workspace);
     const planned = [
       "--approach",
@@ -179,9 +193,21 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
       cleanup: trunk.cleanup,
       queued,
       announced,
+      refiningAllocation: refining.publication,
       refinedLanded,
       abandoned,
       plannedLanded,
+      planningAnnounced,
+      reuseRefiner: async () => {
+        await git(trunk.integration, "config", "user.name", "Later Allocator");
+        await publishAssignment(trunk, agentNameOf(refining.agent), {
+          activity: "preparation",
+          identity: identityA,
+          host: "cursor",
+          model: "later-model",
+        });
+        return remoteMain(trunk);
+      },
       conflicting,
       preparers: {
         refining: refining.agent,

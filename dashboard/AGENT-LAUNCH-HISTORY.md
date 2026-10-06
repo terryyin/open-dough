@@ -22,6 +22,14 @@ Reading sessions is distinguished from none kept. A session still navigates
 when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
 
+An assigned session shows its original agent and human credit at the saved
+allocation revision, beside its native host and requested model (or the model
+recorded at that assignment). This session attribution remains after assignment
+release and is separate from the story's current Preparing or Taken owner.
+Later allocations, including reuse of the same agent name, cannot replace it.
+Legacy records without allocation evidence and unreadable historical records
+keep their known launch facts and explicitly show “Human developer unknown.”
+
 Host adapters normalize native state for the shared cards, Recent sessions,
 sidebar/counts and alerts; observations are never persisted. Host descriptions
 supply unknown-reading wording, and adapters distinguish explicit unfamiliar

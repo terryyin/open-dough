@@ -21,6 +21,7 @@ import { LaunchSession } from "./LaunchSession.tsx";
 import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession, usePageSessions } from "./pageSessions.ts";
 import { DeleteRecord, MarkDone } from "./sessionRecordActions.tsx";
+import { SessionAssignment } from "./SessionAssignment.tsx";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -101,6 +102,7 @@ export function SessionEntry({
         <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
+      <SessionAssignment record={record} />
       {optionsWords !== undefined && <p>{optionsWords}</p>}
       {policyWords !== undefined && <p>{policyWords}</p>}
       {workspace !== undefined && <p>{workspace}</p>}

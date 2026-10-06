@@ -26,6 +26,7 @@ import {
 import { comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
+import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
 
 function showAt(repoDir: string, revision: string, repositoryPath: string) {
   try {
@@ -99,6 +100,9 @@ export function publishCommittedOrigin(
     readonly revision: string;
     readonly repository: string;
     readonly follows?: boolean;
+    // Read actual allocation history instead of the default one-addition
+    // history supplied for each listed agent profile.
+    readonly realHistory?: boolean;
   },
 ): Promise<CommittedOrigin> {
   const { repoDir, repository } = options;
@@ -114,6 +118,7 @@ export function publishCommittedOrigin(
   const compares: string[] = [];
   const held = new Map<string, Promise<void>>();
   const instead = new Map<string, OriginAnswer>();
+  const history = committedHistoryAnswers(repoDir);
 
   githubFor(page).serve(repository, async (call) => {
     const { request } = call;
@@ -154,6 +159,9 @@ export function publishCommittedOrigin(
       ),
     });
     if (request.kind === "commit-list" && readable(request.revision)) {
+      if (options.realHistory === true) {
+        return history.list(request.revision, request.path, request.perPage);
+      }
       return (
         commitListIn(
           profiles(request.revision),
@@ -163,6 +171,12 @@ export function publishCommittedOrigin(
       );
     }
     if (request.kind === "commit") {
+      if (
+        options.realHistory === true &&
+        commitOf(repoDir, request.sha) === request.sha
+      ) {
+        return history.commit(request.sha);
+      }
       return commitAnswerIn([profiles()], request.sha) ?? noConnection;
     }
     // Only the currently published revision is readable, or, followed, any
