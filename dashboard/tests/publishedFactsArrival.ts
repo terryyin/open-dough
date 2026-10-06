@@ -1,5 +1,5 @@
-// Raw pinned records and independently held GitHub fact groups for the arrival
-// journeys. Membership and every held request are observed before any release.
+// Raw pinned records and independently held GitHub fact groups for arrival and
+// failure journeys. Membership and every held request precede release or failure.
 
 import type { Page } from "@playwright/test";
 import { z } from "zod";
@@ -11,7 +11,7 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { branchRefAnswer } from "./originAnswers.ts";
+import { branchRefAnswer, noConnection } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { doneRecordAt, executed } from "./recentlyDoneRecords.ts";
 import {
@@ -33,7 +33,7 @@ import type { GhRequest } from "./support/ghRequest.ts";
 import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
 
 export type FactGroup = "preparation" | "profiles" | "done";
-const seedPath = ".planning/seeds/SEED-091-clock.md";
+export const takenCanonicalPath = ".planning/seeds/SEED-091-clock.md";
 export const preparing = "Prepare beside independently read work";
 const preparingIdentity = "SEED-091#preparing";
 export const preparingPath = ".planning/seeds/SEED-091-preparing.md";
@@ -104,7 +104,7 @@ const assessed = z.string().parse(
 
 const groupOf = (request: GhRequest): FactGroup | undefined => {
   if (request.kind !== "content") return undefined;
-  if (request.path === seedPath) return "preparation";
+  if (request.path === takenCanonicalPath) return "preparation";
   if (request.path === profilePath("Akiho")) return "profiles";
   if (request.path === donePath) return "done";
   return undefined;
@@ -154,8 +154,13 @@ export async function heldFactGroups(page: Page) {
     },
     committed: { [planPath("after-take")]: minutesBefore(7) },
   });
+  const failed = new Set<FactGroup>();
   let answer: RepositoryAnswerer = (call) => {
     const { request } = call;
+    const group = groupOf(request);
+    if (group !== undefined && failed.has(group)) {
+      return Promise.resolve(noConnection);
+    }
     if (request.kind === "branch") {
       return Promise.resolve(branchRefAnswer(branch, branchHead));
     }
@@ -193,5 +198,9 @@ export async function heldFactGroups(page: Page) {
     doneCard: recentlyDone.getByRole("article", { name: executed.title }),
     problem,
     release: (group: FactGroup) => release.get(group)?.(),
+    fail: (group: FactGroup) => {
+      failed.add(group);
+      release.get(group)?.();
+    },
   };
 }

@@ -4,74 +4,27 @@
 // Different release orders also exercise later human and clock publications.
 
 import type { Locator, Page } from "@playwright/test";
-import { inspectedDetail } from "./cardControls.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { rosterParts } from "./dashboardPage.ts";
 import {
   heldFactGroups,
   preparing,
-  preparingPath,
-  purpose,
   preparer,
   type FactGroup,
 } from "./publishedFactsArrival.ts";
-import { executed } from "./recentlyDoneRecords.ts";
+import { afterTake, revision } from "./sliceClockRecords.ts";
 import {
-  afterTake,
-  planPath,
-  repository,
-  revision,
-} from "./sliceClockRecords.ts";
-
-async function expectCanonicalFacts(queuedCard: Locator) {
-  await expect(
-    queuedCard.getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    queuedCard.getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  const detail = await inspectedDetail(queuedCard);
-  await expect(detail.locator(".story-purpose")).toHaveText(purpose);
-  await expect(detail).toContainText("Assessment: Ready for execution");
-  await expect(detail).toContainText("1 of 2 slices recorded complete");
-  await expect(
-    detail.getByRole("link", { name: /^Slice plan/ }),
-  ).toHaveAttribute(
-    "href",
-    `https://github.com/${repository}/blob/${revision}/${planPath("preparing")}`,
-  );
-  await expect(
-    detail.getByRole("link", { name: /^Canonical record/ }),
-  ).toHaveAttribute(
-    "href",
-    `https://github.com/${repository}/blob/${revision}/${preparingPath}#preparing`,
-  );
-  const dependencies = queuedCard.locator(".story-dependencies");
-  await dependencies
-    .getByText("Dependencies · 1 blocking", { exact: true })
-    .click();
-  await expect(dependencies).toContainText(
-    "The consumer needs the supplier's canonical contract.",
-  );
-  await expect(dependencies).toContainText(
-    "The supplier's contract is integrated and verified.",
-  );
-  await dependencies
-    .getByText("Dependencies · 1 blocking", { exact: true })
-    .click();
-}
+  expectCanonicalFacts,
+  expectCardAssignments,
+  expectDoneFacts,
+} from "./publishedFactsAssertions.ts";
 
 async function expectAssignments(
   page: Page,
   branchCard: Locator,
   queuedCard: Locator,
 ) {
-  await expect(branchCard.locator(".card-owner .owner-line")).toContainText(
-    "Akiho-chan · Fixture Committer · Claude Code",
-  );
-  await expect(queuedCard.locator(".card-preparing")).toContainText(
-    `PreparingKirara-chan · ${preparer} · Codex`,
-  );
+  await expectCardAssignments(branchCard, queuedCard);
   const { opener, member, back, roster } = rosterParts(page);
   await opener("Akiho-chan").click();
   await expect(roster).toContainText(
@@ -129,8 +82,7 @@ for (const order of [
           await expect(queuedCard.locator(".card-preparing")).toHaveCount(0);
         }
         if (complete.has("done")) {
-          await expect(doneCard).toContainText(executed.identity);
-          await expect(doneCard).toContainText("Terry Yin");
+          await expectDoneFacts(doneCard);
         } else {
           await expect(doneCard).toHaveCount(0);
         }

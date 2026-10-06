@@ -245,7 +245,7 @@ core-bound result from the task without moving its cutoff.
 ### 2. A group's failure leaves other read facts useful
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/published-facts-failures.spec.ts` and existing
 `auto-refresh-detail-recovery.spec.ts`, `auto-refresh-recovery.spec.ts`,
 `recently-done-read-latency.spec.ts`, and `profile-addition-latency.spec.ts`.
@@ -267,6 +267,51 @@ arrivals expose a failure; add no independent retry policy.
 
 Safe stop: The available-facts behavior remains useful when a read fails or
 stalls, and its uncertainty and recovery are explicit.
+
+Execution learning and proof: the new canonical failure journey exposed
+`workEntryFacts.ts::planSlicesFor` treating unavailable preparation as absent
+plan evidence. It now preserves the unavailable result; successfully unrecorded
+or unplanned preparation still establishes absence. The four full-path failure
+journeys observe completed assignments/done during canonical failure, completed
+preparation/done during profile failure (including the ordinary roster), and
+completed preparation/owners/branch progress/clocks during done failure. They
+positively observe gaps, reject false absence, and account for settled loading
+indicators and page errors. The core-bound journey observes pending preparation
+at 29,999 ms and a standing read problem at 30,000 ms, retained completed facts,
+an unchanged check with no content read, and reload closure at the same revision.
+Existing root/detail recovery and later-detail gap proof remain distinct.
+
+The fixture only releases raw GitHub answers as success/failure through the
+actual built preview and local read boundary. A failed canonical can also
+prevent another plan's path authorization in `server/reachablePaths.ts`; the
+queued purpose already read remains visible with explicit readiness/plan gaps.
+An initial extra queued-plan success assertion was corrected after observing
+that genuine dependency. Per-file independence and authorization policy changes
+remain deferred. The failed run also exposed an incorrect assumed reload-message
+substring; the existing automatic-check wording and actual reload behavior are
+now observed without changing product recovery policy.
+
+Implementation terminal proof passed, all listed specs selected without filters:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-failures.spec.ts auto-refresh-detail-recovery.spec.ts auto-refresh-recovery.spec.ts recently-done-read-latency.spec.ts profile-addition-latency.spec.ts published-facts-arrival.spec.ts story-readiness.spec.ts published-work.spec.ts branch-slice-progress.spec.ts --workers=2
+npm run typecheck:dashboard && git diff --check
+```
+
+Only preparation projection and the raw arrival/failure fixture contracts
+changed. Their current consumers are covered above; assignment, attribution,
+progress, clock, saved-session and moved-branch helper contracts are unchanged.
+
+Independent refactoring consolidated repeated rendered-fact observations into
+`publishedFactsAssertions.ts`, preserving the arrival assertions and adding their
+assessment/dependency checks to the failure journeys. Production routing and
+projection needed no further refactor. Both affected full specs and typed
+contracts passed again:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- published-facts-failures.spec.ts published-facts-arrival.spec.ts --workers=2
+npm run typecheck:dashboard && git diff --check
+```
 
 ### 3. Only the current project's observation can gain facts
 
