@@ -2,22 +2,25 @@
 
 A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
-entries, as connected stages. **Start execution** and **Start refinement** on a
+stories and this machine's other open sessions, as connected stages. **Start execution** and **Start refinement** on a
 Backlog card ask Claude Code on this machine to execute or refine the story
 (each launch dialog also offers a Model choice: Default, Fable, Opus, or Sonnet,
 and a story's dialog [Session choices](LAUNCH-START.md#session-choices): One-shot
 tracking, Default main with its existing changes, or Automatically land),
 **Recently done** lists the stories recently done, from the done records
-published beside the backlog, each holding this machine's launches for it,
-with the other launches, newest first, the **Sessions**
+published beside the backlog, each holding this machine's marked-done sessions
+for it, with the other marked-done sessions, newest first. Open sessions whose
+story is in Backlog or Taken appear only inside its card; all other open
+sessions appear in Taken after the published stories. The **Sessions**
 sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** records Done intent, renames the native session where supported and
 stops native work. Quiet automatic completion uses the same Done operation while
 preserving its reporting sender for acknowledgment ([Agent launch](AGENT-LAUNCH.md)).
 **Start session** on the project actions row starts an ad hoc session in the
-selected project's folder, with no story, listed in Recently done and the
-Sessions sidebar.
+selected project's folder, with no story, listed in Taken and the Sessions
+sidebar while open. Marking it done moves it to Recently done. Local session
+operations preserve published story membership.
 
 **Backlog**, **Taken**, and **Recently done** are three columns on one row.
 A page at least 72rem wide shows all three side by side. A narrower page --

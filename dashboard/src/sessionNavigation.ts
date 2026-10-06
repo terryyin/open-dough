@@ -1,9 +1,9 @@
-// Reveal the chosen session's story card or Recently done entry once its
+// Reveal the chosen session's actual entry or containing active card once its
 // project's stories are shown, keeping it visible until the developer moves.
 import { useLayoutEffect, useRef, useState } from "react";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { recentlyDoneEntry } from "./pageSessions.ts";
+import { sessionEntry } from "./pageSessions.ts";
 import { keepInView, workCard } from "./workFocus.ts";
 
 export function useSessionNavigation(
@@ -11,9 +11,9 @@ export function useSessionNavigation(
   shownSource: string | undefined,
 ) {
   // Going to a session: its project's stories, its terminal where it opens
-  // one, and, once that project's stories are shown, its card brought into
-  // view, or its Recently done entry when no card lists it, inside its done
-  // story's card when Recently done shows the story done.
+  // one, and, once that project's membership is known, its actual session
+  // entry brought into view. An active story card holds its open sessions;
+  // standalone entries and closed sessions are revealed in their current home.
   // Each going is its own, so going again to the same session reveals again.
   const [going, setGoing] = useState<{ readonly to: LaunchRecord }>();
   const revealed = useRef<{ readonly to: LaunchRecord } | undefined>(undefined);
@@ -32,9 +32,12 @@ export function useSessionNavigation(
     }
     revealed.current = going;
     const { identity } = launchSubject(going.to.request);
+    const entry = sessionEntry(sessionKey(going.to.session));
     const shown =
+      entry?.closest<HTMLElement>("[data-work]") ??
+      entry ??
       (identity === undefined ? undefined : workCard(identity)) ??
-      recentlyDoneEntry(sessionKey(going.to.session));
+      null;
     // Kept in view until the developer moves, goes elsewhere, or another
     // project's stories are shown.
     return shown === null ? undefined : keepInView(shown);

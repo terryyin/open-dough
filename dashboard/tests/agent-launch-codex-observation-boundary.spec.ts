@@ -57,11 +57,11 @@ test("predecessor without continuation gains no command; missing workspace prese
     save(dashboard, [legacy, missing]);
     const before = stored(dashboard.home);
     const { card } = await openTakenBacklog(page, journey);
-    const entries = () => [
-      cardSessions(card(notRefinedStory)),
-      parts(page).recentlyDone.getByRole("article"),
-    ];
+    const entries = () => [cardSessions(card(notRefinedStory))];
     const check = async () => {
+      await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(
+        0,
+      );
       for (const list of entries()) {
         for (const { session } of [legacy, missing]) {
           const id = session.sessionId;

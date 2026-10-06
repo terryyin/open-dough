@@ -5,16 +5,13 @@
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { recentlyDoneSessionName } from "./dashboardPage.ts";
+import { standaloneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { placed, queuedTitle } from "./recentlyDoneRecords.ts";
+import { at, placed, queuedTitle } from "./recentlyDoneRecords.ts";
 import { keptSessions } from "./recentlyDoneSessions.ts";
 
-export const adHocEntry = recentlyDoneSessionName(
-  "Ad hoc",
-  "Open Dough session",
-);
-export const queuedEntry = recentlyDoneSessionName("Execution", queuedTitle);
+export const adHocEntry = standaloneSessionName("Ad hoc", "Open Dough session");
+export const queuedEntry = standaloneSessionName("Execution", queuedTitle);
 
 // A session the synthetic `claude` lists, started `before` `now`.
 export const listed = (
@@ -30,15 +27,20 @@ export const listed = (
   });
 
 // This machine's ad hoc and queued story's sessions, listed by the synthetic
-// `claude`.
+// `claude`; callers explicitly supply saved Done when testing retained closed entries.
 export const sessionsOutsideDoneStories = (
   dashboard: DashboardServer,
   now: number,
+  closed: { readonly adHoc?: boolean; readonly queued?: boolean } = {},
 ) =>
   keptSessions(now, {
     adHoc: listed(dashboard, now, "Open Dough session", placed.adHocLaunched),
     queued: listed(dashboard, now, queuedTitle, placed.queuedLaunched),
-  });
+  }).map((record) =>
+    (record.request.workflow === "ad-hoc" ? closed.adHoc : closed.queued)
+      ? { ...record, doneAt: at(now, 30 * 60_000) }
+      : record,
+  );
 
 // The column's own entries, newest first, by accessible name: done cards and
 // sessions of no shown done story, not the sessions inside a card.

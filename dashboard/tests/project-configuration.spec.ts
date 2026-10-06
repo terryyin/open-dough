@@ -1,5 +1,4 @@
-// Real server starts read/write isolated machine configuration. The fake GitHub
-// supplies only published facts; project loading, selection and storage are real.
+// Real server configuration, selection and storage; fake GitHub supplies published facts.
 import {
   mkdirSync,
   mkdtempSync,
@@ -88,7 +87,7 @@ test("production seeds its four projects and shows a previously saved session", 
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
   await expect(
-    page.getByRole("region", { name: "Recently done" }),
+    page.getByRole("region", { name: "Taken", exact: true }),
   ).toContainText(title);
   expect(
     JSON.parse(readFileSync(configurationFile("preview"), "utf8")),

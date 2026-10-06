@@ -230,7 +230,7 @@ test("Start session in Claude Code closes at acceptance while its launch is held
   ]);
 
   dashboard.releaseHeldClaude();
-  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1, {
+  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1, {
     timeout: 30_000,
   });
   await expect(button).toBeEnabled();

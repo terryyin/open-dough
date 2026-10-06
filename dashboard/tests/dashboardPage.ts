@@ -39,8 +39,8 @@ export function parts(page: Page) {
   };
 }
 
-// A Recently done entry, named for its launch's workflow and story.
-export const recentlyDoneSessionName = (workflow: string, title: string) =>
+// A standalone session entry, named for its launch's workflow and title.
+export const standaloneSessionName = (workflow: string, title: string) =>
   `${workflow} session for ${title}`;
 
 // A card's session entries, newest first.
@@ -124,16 +124,16 @@ export function rosterParts(page: Page) {
   };
 }
 
-// The titles each stage shows, in the order it shows them.
+// The published story titles in each stage, excluding standalone sessions.
 export async function expectMembership(
   page: Page,
   titles: { readonly taken: string[]; readonly backlog: string[] },
 ) {
   const { taken, backlog } = parts(page);
-  await expect(taken.getByRole("heading", { level: 3 })).toHaveText(
+  await expect(taken.locator("[data-work] > fieldset > h3")).toHaveText(
     titles.taken,
   );
-  await expect(backlog.getByRole("heading", { level: 3 })).toHaveText(
+  await expect(backlog.locator("[data-work] > fieldset > h3")).toHaveText(
     titles.backlog,
   );
 }

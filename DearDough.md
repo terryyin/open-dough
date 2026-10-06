@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 240. Removed local codes are never reused.
+- Highest allocated local number: 242. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -753,3 +753,35 @@ Follow-up: Open, unqueued.
   - Evidence: slice 3 return "Gaps" list; the addendum added "from the keyboard, a control gone after its move hands the keyboard to the other side's control" in `dashboard/tests/dashboard-columns-paging.spec.ts`.
   - Observed effect: one extra resume of the implementation agent and a focused rerun; a keyboard focus loss did not ship.
   - Inference: Qualified. "Pre-existing" was judged against the slice's starting revision, not the story's, so a gap the story owns read as outside it. The wrap-up rule to read every named gap against the story's goal caught it. One sample.
+
+## DD-241 — A refactor file-size check was invalidated by the required downstream formatter
+
+The independent refactor returned changed files within the 250-line limit, but the coordinator's required formatter expanded one spec to 254 lines. The same refactor agent then shortened prose before a necessary formatter repeat.
+
+Follow-up: Open, unqueued. Proposal: assess the file-size limit on formatted output, so the required delivery step cannot invalidate an accepted refactor solely through layout.
+
+### Occurrences
+
+- Execution: `SEED-114#session-column-membership` / plan 262, recoverable at `398fd61a1e94afea5720bc633be6412a1597164f:.planning/slice-plans/262-dashboard-session-column-membership/CONTEXT.md`; first related implementation commit `1f06b04d256536d55aa99670b8033b4fa1c09613`
+  - Timestamp: unknown (slice 2 formatter and refactor follow-up, before `398fd61a` on 2026-10-06)
+  - Tool: Codex
+  - Open Dough release: unknown (execution-time installed guidance provenance not retained)
+  - Evidence: slice 2's independent `refactor_two` hand-back checked every changed file at no more than 250 lines. The coordinator's first `npm run format` expanded `agent-launch-ad-hoc-sessions.spec.ts` to 254 lines; the resumed refactor shortened its header, preserved executable proof and returned it at 246 lines. The necessary formatter repeat exited 0 and the post-format cap check passed. Accepted execution proof records this sequence at the recovery reference above.
+  - Observed effect: one extra refactor hand-back and a second project-wide formatter invocation; no behavioral changes or repeated tests for the prose-only repair.
+  - Inference: Qualified. This is a sequencing mismatch between the cap check and formatting, distinct from ODF-152's conflict between conceptual scope and an already oversized file. The first formatter also reported a remaining style issue in a different spec; its cause was not established and is not attributed to this mismatch.
+
+## DD-242 — The Codex observer binding has no durable failure acknowledgment step
+
+The prescribed yielded-stream binding forwards events with `notify` but never updates the mailbox's delivery progress. Completion separately treats unacknowledged failure events as actionable, even after a coordinator has classified and repaired them.
+
+Follow-up: Open, unqueued. Proposal: give the Codex binding an explicit supported acknowledgment boundary consistent with completion's unread-failure gate.
+
+### Occurrences
+
+- Execution: `SEED-114#session-column-membership` / plan 262, first related implementation commit `1f06b04d256536d55aa99670b8033b4fa1c09613`
+  - Timestamp: unknown (after completion's failed receipt for `70b6f62a`, before its CI repair)
+  - Tool: Codex
+  - Open Dough release: unknown (execution-time installed guidance provenance not retained)
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-XLyt1z` had seven CI_FAILURE events for attempts `37427204231/1`, `37431359551/1`, `37432066761/1` and no `delivery.json`. The installed `ci-notify-codex.md` binding calls `notify` without `recordDeliveryProgress`; `ci-mailbox-complete.mjs` gates shutdown on `unreadActionableFailures`. After bounded log classification of all attempts, the coordinator used the installed exported store API to acknowledge exactly those seven events, preserving later events and the live repair observer.
+  - Observed effect: one additional mailbox/source inspection and explicit acknowledgment outside the prescribed Codex binding. The first completion receipt itself correctly retained the observer for the failed revision.
+  - Inference: Qualified. Source inspection shows that a later green completion would still retain this mailbox for unread failures without acknowledgment. That later refusal was prevented, not observed; absence of progress does not by itself establish that a notification was delivered to the model.

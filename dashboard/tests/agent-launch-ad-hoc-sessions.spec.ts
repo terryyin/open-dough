@@ -1,17 +1,9 @@
-// An ad hoc session, which no card lists, is findable, doneable and
-// reopenable like any story's session, on the committed origin of
-// ./agent-launch-card.spec.ts (./launchJourney.ts): its sidebar entry opens
-// its project's stories and its terminal and brings its Recently done entry
-// into view; Mark as done in the terminal takes it out of the sidebar and
-// reads Done in Recently done, whose Open terminal puts it back, through a
-// reload; a blocked session reads "Needs input" and counts as needing
-// attention; and with the listing unreadable its record can be deleted, the
-// keyboard moving to the next Recently done entry. How the session starts is
-// ./agent-launch-ad-hoc.spec.ts and how a story's sessions do the same is
-// ./session-sidebar-navigation-cases.spec.ts, ./agent-terminal-done.spec.ts
-// and ./agent-launch-recent-delete.spec.ts. The page's own dashboard server
-// drives the synthetic `claude` (./fixtures/fake-claude); the real one is
-// never reached.
+// Ad hoc sessions occupy Taken without a story card. Sidebar selection opens
+// their project/terminal; Done moves them to Recently done and reopen survives reload.
+// Blocked sessions count as needing attention; deletion under an unread native
+// listing returns focus to the next Taken entry. The real boundary drives fake Claude.
+// Related journeys: ./agent-launch-ad-hoc.spec.ts, ./session-sidebar-navigation-cases.spec.ts,
+// ./agent-terminal-done.spec.ts, ./agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -76,12 +68,12 @@ async function startAndClose(page: Page, project: string, text: string) {
   await expect(panel).toHaveCount(0);
 }
 
-const recentOf = (page: Page, text: string) =>
-  parts(page).recentlyDone.getByRole("article", {
+const localOf = (page: Page, text: string) =>
+  parts(page).taken.getByRole("article", {
     name: `Ad hoc session for ${text}`,
   });
 
-test("its sidebar entry opens Open Dough's stories, the terminal and its Recently done entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
+test("its sidebar entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
   page,
   dashboard,
 }) => {
@@ -92,15 +84,19 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recentl
   const { project } = parts(page);
   const { button, entries, entry } = sidebarParts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
-  const recent = recentOf(page, text);
+  const active = localOf(page, text);
+  const recent = parts(page).recentlyDone.getByRole("article", {
+    name: `Ad hoc session for ${text}`,
+  });
 
   await startAndClose(page, "Open Dough", text);
-  await expect(recent).toHaveCount(1);
-  const sessionId = await sessionNamedBy(recent);
+  await expect(active).toHaveCount(1);
+  await expect(recent).toHaveCount(0);
+  const sessionId = await sessionNamedBy(active);
   await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
   await expect(project.getByRole("radio", { name: "Pygardon" })).toBeChecked();
 
-  await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Recently done entry", async () => {
+  await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Taken entry", async () => {
     await button.click();
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
@@ -119,7 +115,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recentl
       .poll(async () => (await revealsOf(page)).length)
       .toBeGreaterThan(0);
     await expectRevealsSince(page, 0, `Ad hoc session for ${text}`, "smooth");
-    await expect(recent.getByText("Shown in terminal")).toBeVisible();
+    await expect(active.getByText("Shown in terminal")).toBeVisible();
     await expect(entry(text)).toHaveAttribute("aria-current", "true");
   });
 
@@ -139,8 +135,9 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recentl
     await recent.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(entries).toHaveCount(1);
-    await expect(sessionStateOf(recent)).not.toHaveText("Done");
-    await expect(recent).not.toContainText("Named done-");
+    await expect(recent).toHaveCount(0);
+    await expect(sessionStateOf(active)).not.toHaveText("Done");
+    await expect(active).not.toContainText("Named done-");
 
     await page.reload();
     await expectMembership(page, openDoughStories);
@@ -149,11 +146,12 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recentl
     }
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
-    await expect(sessionStateOf(recent)).not.toHaveText("Done");
+    await expect(sessionStateOf(active)).not.toHaveText("Done");
+    await expect(recent).toHaveCount(0);
   });
 });
 
-test("a blocked ad hoc session reads Needs input in Recently done and the sidebar, and the sidebar counts it", async ({
+test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and the sidebar counts it", async ({
   page,
   dashboard,
 }) => {
@@ -161,16 +159,16 @@ test("a blocked ad hoc session reads Needs input in Recently done and the sideba
   await openTakenBacklog(page, journey);
   const text = "what is blocking us?";
   const { button, entries, badge } = sidebarParts(page);
-  const recent = recentOf(page, text);
+  const local = localOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
-  const sessionId = await sessionNamedBy(recent);
-  await expectSessionShown(recent, "Working", false);
+  const sessionId = await sessionNamedBy(local);
+  await expectSessionShown(local, "Working", false);
   dashboard.claudeSessionBecomes(sessionId, "blocked", "input needed");
   await page.reload();
   await expectMembership(page, openDoughStories);
 
-  await expectSessionShown(recent, "Needs input: input needed", true);
+  await expectSessionShown(local, "Needs input: input needed", true);
   await expect(badge).toHaveText("1");
   await expect(badge).toHaveAccessibleName("1 session needs attention");
   await button.click();
@@ -182,15 +180,15 @@ test("a blocked ad hoc session reads Needs input in Recently done and the sideba
   );
 });
 
-test("with the listing unreadable, an ad hoc session's record can be deleted from Recently done, leaving the sidebar and moving the keyboard to the next entry", async ({
+test("with the listing unreadable, an ad hoc session's record can be deleted from Taken, leaving the sidebar and moving the keyboard to the next entry", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, journey);
   const { entries, button } = sidebarParts(page);
-  const older = recentOf(page, "the older question");
-  const newer = recentOf(page, "the newer question");
+  const older = localOf(page, "the older question");
+  const newer = localOf(page, "the newer question");
 
   await startAndClose(page, "Open Dough", "the older question");
   await expect(older).toHaveCount(1);
@@ -204,7 +202,7 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
 
   const unknown = "State unknown: Claude Code's session list could not be read";
   await expect(sessionStateOf(newer)).toHaveText(unknown);
-  await showColumn(page, "Recently done");
+  await showColumn(page, "Taken");
   await newer.getByRole("button", { name: "Delete record…" }).click();
   await newer
     .getByRole("button", { name: "Delete record", exact: true })
@@ -214,29 +212,35 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   await expect(entries).toHaveCount(1);
   await expect(entries.first()).toContainText("the older question");
   await expect(older).toBeFocused();
+  await older.getByRole("button", { name: "Delete record…" }).click();
+  await older
+    .getByRole("button", { name: "Delete record", exact: true })
+    .click();
+  await expect(older).toHaveCount(0);
+  await expect(
+    parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
+  ).toBeFocused();
 });
 
-test("with Open Dough already shown, its sidebar entry brings its Recently done entry into view", async ({
+test("with Open Dough already shown, its sidebar entry brings its Taken entry into view", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  // A window short enough that, beside the open Sessions sidebar, Recently
-  // done starts below it.
-  await page.setViewportSize({ width: 1280, height: 600 });
+  // Beside the open sidebar, the local Taken entry starts outside this viewport.
+  await page.setViewportSize({ width: 700, height: 600 });
   await openTakenBacklog(page, journey);
   const text = "where is this entry?";
   const { button, entry } = sidebarParts(page);
-  const recent = recentOf(page, text);
+  const local = localOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
   await button.click();
-  await expect(recent).not.toBeInViewport();
+  await expect(local).not.toBeInViewport();
   await entry(text).click();
-  // The page beside the sidebar and terminal shows one column, which moves
-  // to Recently done.
+  // The single column beside the sidebar and terminal moves to Taken.
   await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
 
-  await expect(recent).toBeInViewport();
-  await expect(recent.getByText("Shown in terminal")).toBeVisible();
+  await expect(local).toBeInViewport();
+  await expect(local.getByText("Shown in terminal")).toBeVisible();
 });

@@ -3,16 +3,12 @@
 // none kept it says so, and with all kept ones marked done it says none is
 // open. Before that first read answers, no card offers Start while the lists
 // keep reading; once read, a launch lists its session on the card, keyboard
-// on its entry, and in the lists. The page's
+// on its entry, and in the open sidebar, without a Recently done duplicate. The page's
 // own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude).
 
 import { expect, test } from "./dashboardTest.ts";
-import {
-  cardSessions,
-  parts,
-  recentlyDoneSessionName,
-} from "./dashboardPage.ts";
+import { cardSessions, parts, standaloneSessionName } from "./dashboardPage.ts";
 import {
   publishStoryStagesJourney,
   readyStory,
@@ -23,6 +19,7 @@ import { launched } from "./agentTerminalBoundary.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { edgeControl, showColumn } from "./dashboardColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -40,16 +37,37 @@ test.describe("the Sessions sidebar's reading", () => {
     page,
     dashboard,
   }) => {
+    await page.setViewportSize({ width: 1000, height: 1000 });
     const { answer } = await holdSessionReads(page);
     const { settled } = await openStoryStagesJourney(page, stagesJourney);
     const { sidebar, button, entries, badge } = sidebarParts(page);
-    const { recentlyDone } = parts(page);
+    const { recentlyDone, taken } = parts(page);
     await settled();
     await button.click();
+    await expect(taken.locator(".stage-count")).toHaveText(
+      "Entry count incomplete",
+    );
+    await expect(taken).toContainText("Reading sessions…");
+    await expect(taken).not.toContainText("No Taken entries");
     for (const place of [sidebar, recentlyDone]) {
       await expect(place).toContainText("Reading sessions…");
       await expect(place).not.toContainText("No sessions launched");
     }
+    await expect(edgeControl(page, "Taken")).toHaveText(
+      "Taken Entry count incomplete",
+    );
+    await showColumn(page, "Taken");
+    await expect(taken.locator(".stage-header")).toBeInViewport({
+      ratio: 0.999,
+    });
+    await expect(edgeControl(page, "Recently done")).toHaveText(
+      "Recently done Entry count incomplete",
+    );
+    await showColumn(page, "Recently done");
+    await expect(recentlyDone.locator(".stage-header")).toBeInViewport({
+      ratio: 0.999,
+    });
+    await showColumn(page, "Taken");
 
     answer();
     for (const place of [sidebar, recentlyDone]) {
@@ -58,6 +76,8 @@ test.describe("the Sessions sidebar's reading", () => {
       );
       await expect(place).not.toContainText("Reading sessions…");
     }
+    await expect(taken.locator(".stage-count")).toHaveText("0 entries");
+    await expect(taken).toContainText("No Taken entries are recorded.");
     await expect(entries).toHaveCount(0);
     await expect(badge).toHaveCount(0);
 
@@ -109,9 +129,23 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(entries).toHaveCount(2);
     await expect(
       recentlyDone.getByRole("article", {
-        name: recentlyDoneSessionName("Execution", readyStory),
+        name: standaloneSessionName("Execution", readyStory),
       }),
-    ).toHaveCount(1);
+    ).toHaveCount(0);
     await expect(own).toHaveCount(1);
+    const key = await own.getAttribute("data-shows-session");
+    await expect(
+      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+    ).toHaveCount(1);
+    await expect(recentlyDone).toContainText(
+      "No sessions are listed in Recently done.",
+    );
+    await page.reload();
+    await settled();
+    await expect(entries).toHaveCount(2);
+    await expect(own).toHaveAttribute("data-shows-session", key ?? "?");
+    await expect(
+      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+    ).toHaveCount(1);
   });
 });

@@ -1,6 +1,6 @@
 // A Sessions sidebar choice whose story card lies in a hidden dashboard
 // column shows that column, then brings the card into view as it does in a
-// shown one. That a choice shows a Recently done entry hidden the same way
+// shown one. That a choice shows a local Taken entry hidden the same way
 // is ./session-sidebar-navigation-cases.spec.ts and
 // ./agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
 // ./dashboard-columns-paging.spec.ts.
@@ -65,7 +65,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       await expectView(
         page,
         ["Backlog"],
-        ["Taken 0 entries"],
+        ["Taken 1 entry"],
         [...scrollsOnItsOwn, ".sidebar-title"],
       );
       await expect(card(readyStory)).toBeInViewport();

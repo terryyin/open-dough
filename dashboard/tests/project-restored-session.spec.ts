@@ -45,7 +45,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     expect(await machineSessions(server)).toEqual([]);
     expect(existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "")).toBe(false);
     await addProjectOnPage(page);
-    const recent = page.getByRole("region", { name: "Recently done" });
+    const recent = page.getByRole("region", { name: "Taken", exact: true });
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
     await expect(recent).toContainText("retained-sample");
     expect((await machineSessions(server))[0]).toMatchObject({

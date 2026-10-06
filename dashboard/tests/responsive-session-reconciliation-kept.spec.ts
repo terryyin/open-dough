@@ -23,11 +23,18 @@ test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 // The page shows the revision read, with Story A gone, Story B's actions
 // available once this machine's attempts are read, and no Startup recovery.
 async function expectRemovedSettled(page: Page, revision: string) {
-  const { stages, backlog } = parts(page);
+  const { stages, backlog, taken, recentlyDone } = parts(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${revision.slice(0, 7)}`,
   );
-  await expect(stages.getByRole("article", { name: "Story A" })).toHaveCount(0);
+  await expect(
+    stages
+      .locator("[data-work]")
+      .and(page.getByRole("article", { name: "Story A" })),
+  ).toHaveCount(0);
+  await expect(taken.locator(".session-entry")).toHaveCount(1);
+  await expect(taken.locator(".session-entry")).toContainText("Story A");
+  await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
   const other = backlog.getByRole("article", { name: "Story B" });
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   await expect(recoveryOf(page)).toHaveCount(0);

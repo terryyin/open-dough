@@ -100,7 +100,7 @@ for (const attached of [false, true]) {
     );
     await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
     await expect(listed).toHaveCount(1);
-    await expect(recent.locator(".session-state")).not.toHaveText("Done");
+    await expect(recent).toHaveCount(0);
     expect(
       codexAttaches(native).every(
         (attachment) => attachment.args.at(-1) === native.threadId,
@@ -185,7 +185,8 @@ test("native interrupt refusal remains Working with retained local intent and di
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();
   await expect(listed).toHaveCount(1);
-  await expect(recent).not.toContainText("Owner denied native interruption");
+  await expect(recent).toHaveCount(0);
+  await expect(listed).not.toContainText("Owner denied native interruption");
   expect(native.observations.get(native.threadId)?.turns).toEqual([
     { id: "refused-turn", status: "inProgress" },
   ]);

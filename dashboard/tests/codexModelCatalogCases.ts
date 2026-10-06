@@ -131,7 +131,7 @@ test("a vanished explicit model is explained; deliberate default and former dyna
     .toBe("not-requested");
   codexProtocol.models = [];
   await page.reload();
-  await expect(parts(page).recentlyDone).toContainText(
+  await expect(parts(page).taken).toContainText(
     `Model: ${dynamicId} (requested)`,
   );
   await expect(page.locator("img[src=x]")).toHaveCount(0);

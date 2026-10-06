@@ -33,7 +33,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   const { record, workspace } = await retained(dashboard, native);
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const since = native.calls.length;
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card, show } = await openStoryStagesJourney(page, journey);
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("Ready for review");
   await expect(entry).toContainText("saved workspace is missing");
@@ -59,12 +59,22 @@ test("card, Recently done and sidebar review the retained report with attention,
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
-  await recent.getByRole("button", { name: "Read final report" }).click();
+  await expect(recent).toHaveCount(0);
+  // With no active story card, its open session has the local Taken home
+  // and the same passive report access.
+  await show(journey.completed);
+  const local = parts(page)
+    .taken.locator(".session-entry")
+    .filter({ hasText: native.threadId });
+  await local.getByRole("button", { name: "Read final report" }).click();
   await expect(panel.locator(".session-final-report")).toHaveText(report);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(
-    recent.getByRole("button", { name: "Read final report" }),
+    local.getByRole("button", { name: "Read final report" }),
   ).toBeFocused();
+  await show(journey.queued);
+  await expect(recent).toHaveCount(0);
+  await expect(entry).toContainText(record.session.sessionId);
   await page.getByRole("button", { name: "Sessions", exact: true }).click();
   await parts(page)
     .project.getByRole("radio", { name: "Doughnut", exact: true })

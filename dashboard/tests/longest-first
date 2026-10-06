@@ -82,7 +82,7 @@ agent-launch-start-refusal.spec.ts
 agent-launch-preparation-codex.spec.ts
 agent-launch-done-codex.spec.ts
 agent-launch-codex-observation.spec.ts
-agent-launch-recent-session-states.spec.ts
+agent-launch-session-state-pace.spec.ts
 agent-launch-start-codex.spec.ts
 backlog-preparing.spec.ts
 agent-launch-codex-reconciliation.spec.ts

@@ -79,7 +79,7 @@ test("Add selects, reads the repository's default branch, launches in its config
     realpathSync(fixture.checkout),
   );
   await expect(
-    page.getByRole("region", { name: "Recently done" }),
+    page.getByRole("region", { name: "Taken", exact: true }),
   ).toContainText("Work in this checkout");
 
   await fixture.stop(server);
@@ -214,7 +214,7 @@ test("retained workspace explanations use the configured folder and keep actual 
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   await expect(
-    page.getByRole("region", { name: "Recently done" }),
+    page.getByRole("region", { name: "Taken", exact: true }),
   ).toContainText("Workspace ~/work/private-checkout/.worktrees/topic");
   const response = await rawRequest({
     url: `${server.baseURL}/__agent-launch`,

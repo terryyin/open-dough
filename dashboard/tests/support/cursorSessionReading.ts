@@ -64,7 +64,7 @@ export function cursorRecord(answer: SessionsAnswer, sessionId: string) {
   );
 }
 
-export async function openRecentCursorSession(
+export async function openTakenCursorSession(
   page: Page,
   origin: StartOrigin,
 ): Promise<Locator> {
@@ -83,7 +83,7 @@ export async function openRecentCursorSession(
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const recent = parts(page).recentlyDone.getByRole("article");
+  const recent = parts(page).taken.locator(".session-entry");
   await expect(recent).toHaveCount(1);
   return recent;
 }

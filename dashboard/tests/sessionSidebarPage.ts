@@ -4,7 +4,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { edgeControl, edgeRoom } from "./dashboardColumnsPage.ts";
-import { box } from "./pageLayout.ts";
+import { box, expectSideBySideInOrder } from "./pageLayout.ts";
 
 export function sidebarParts(page: Page) {
   const sidebar = page.getByRole("complementary", { name: "Sessions" });
@@ -146,11 +146,51 @@ export async function expectEntries(
   }
 }
 
+// With a terminal open, the sidebar sits beside the page in a wide window.
+// Toggling it preserves column paging; narrowing the window overlays the page.
+export async function expectSidebarLayout(
+  page: Page,
+  panel: Locator,
+): Promise<void> {
+  const { sidebar, button } = sidebarParts(page);
+  const main = page.getByRole("main");
+  await expectSideBySideInOrder([sidebar, main, panel]);
+  const view = page.viewportSize() ?? { width: 0, height: 0 };
+  const column = await box(sidebar);
+  expect(column.x).toBe(0);
+  expect(column.y).toBe(0);
+  expect(column.height).toBe(view.height);
+  await expect(sidebar).toHaveCSS("overflow-y", "auto");
+  // The page column lays out as narrow beside both sidebar and terminal.
+  await expectOneColumnShown(page);
+  await button.click();
+  await expect(sidebar).toBeHidden();
+  await expectOneColumnShown(page);
+  await button.click();
+  await expect(sidebar).toBeVisible();
+
+  await page.setViewportSize({ width: 700, height: view.height });
+  const overlay = await box(sidebar);
+  const beside = await box(main);
+  expect(overlay.x).toBe(0);
+  expect(beside.x).toBeLessThan(overlay.x + overlay.width);
+  const center = {
+    x: overlay.x + overlay.width / 2,
+    y: overlay.y + overlay.height / 2,
+  };
+  expect(
+    await page.evaluate(
+      ({ x, y }) => document.elementFromPoint(x, y)?.closest("aside")?.id ?? "",
+      center,
+    ),
+  ).toBe(await sidebar.evaluate((element) => element.id));
+}
+
 // The dashboard columns lay out as on a narrow window, for a page column that
 // narrow whatever the window's width: Backlog alone fills the page but its
 // edge controls' slim room, the right one naming Taken, and
 // each card is as wide as the unframed column.
-export async function expectOneColumnShown(page: Page): Promise<void> {
+async function expectOneColumnShown(page: Page): Promise<void> {
   const { backlog } = parts(page);
   await expect(edgeControl(page, "Taken")).toBeVisible();
   const pageColumn = await box(page.getByRole("main"));

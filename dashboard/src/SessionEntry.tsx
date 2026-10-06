@@ -1,7 +1,7 @@
 import { hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { hostName, marksDone } from "./sessionCapabilities.ts";
-// One kept session, shown consistently on cards and in Recently done.
+// One kept session, shown consistently on cards and in either session column.
 // Its native observations and supported controls stay distinct from story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -124,7 +124,7 @@ export function SessionEntry({
         </p>
       )}
       <LaunchSession record={record} />
-      {(onCard || record.doneProblem !== undefined) && (
+      {(!markedDone || record.doneProblem !== undefined) && (
         <MarkDone record={record} say={say} />
       )}
       <DeleteRecord record={record} say={say} />

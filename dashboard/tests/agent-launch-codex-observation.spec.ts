@@ -1,4 +1,5 @@
-// Cards, Recently done and sidebar consume one recorded native observation.
+// Active cards and sidebar consume one recorded native observation; Recently
+// done retains the saved Done entry without duplicating open card sessions.
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pausePageClockAt } from "./dashboardTest.ts";
@@ -31,7 +32,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => journey.cleanup());
 
-test("saved Codex states appear consistently on cards, Recently done and sidebar, reload with their attention counts", async ({
+test("saved Codex states appear on active cards and sidebar while Recently done retains only the closed session, through reload with their attention counts", async ({
   page,
   dashboard,
   codexProtocol,
@@ -150,9 +151,7 @@ test("saved Codex states appear consistently on cards, Recently done and sidebar
       await expect(
         sessionStateOf(entry(cardSessions(card(notRefinedStory)), id)),
       ).toHaveText(words);
-      await expect(
-        sessionStateOf(entry(recent.getByRole("article"), id)),
-      ).toHaveText(words);
+      await expect(entry(recent.getByRole("article"), id)).toHaveCount(0);
       await expect
         .poll(() =>
           sidebar.entries
@@ -177,9 +176,6 @@ test("saved Codex states appear consistently on cards, Recently done and sidebar
         await expect(
           entry(cardSessions(card(notRefinedStory)), id),
         ).not.toHaveClass(/needs-attention/);
-        await expect(entry(recent.getByRole("article"), id)).not.toHaveClass(
-          /needs-attention/,
-        );
         const row = sidebar.entries.filter({
           has: page.locator(`button[title^="${words}"]`),
         });
@@ -232,9 +228,7 @@ test("saved Codex states appear consistently on cards, Recently done and sidebar
   await expect(
     sessionStateOf(entry(cardSessions(card(notRefinedStory)), "work")),
   ).toHaveText("Needs input: Codex is waiting for approval");
-  await expect(
-    sessionStateOf(entry(recent.getByRole("article"), "work")),
-  ).toHaveText("Needs input: Codex is waiting for approval");
+  await expect(entry(recent.getByRole("article"), "work")).toHaveCount(0);
   await expect(sidebar.badge).toHaveAccessibleName("7 sessions need attention");
   observed(native, "work", { type: "idle" }, "completed");
   await passOnePace();

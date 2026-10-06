@@ -39,7 +39,6 @@ import {
 import {
   adHocEntry,
   expectEntries,
-  queuedEntry,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
 
@@ -47,7 +46,7 @@ import {
 async function keepSessions(dashboard: DashboardServer, now: number) {
   await keepLaunchRecords(
     dashboard,
-    sessionsOutsideDoneStories(dashboard, now),
+    sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
   );
 }
 
@@ -68,13 +67,13 @@ test("Recently done lists published done stories among the sessions, newest firs
   const card = (title: string) =>
     recent.getByRole("article", { name: title, exact: true });
 
-  await test.step("a done story at 10:00 sits between an ad hoc session launched at 11:00 and a queued story's session launched at 09:00", async () => {
+  await test.step("a done story at 10:00 follows an ad hoc session launched at 11:00; the queued story's open session stays on its card", async () => {
     await expectEntries(recent, [
       adHocEntry,
       executed.title,
-      queuedEntry,
       removedQueued.title,
     ]);
+    await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
   });
 
   await test.step("a done card names its title, completion time, developer, and agent with host", async () => {
@@ -129,7 +128,8 @@ test("a revision with no done records lists the sessions as before, and one whos
     });
     await page.goto("/");
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
-    await expectEntries(recent, [adHocEntry, queuedEntry]);
+    await expectEntries(recent, [adHocEntry]);
+    await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
     await expect(recent).not.toContainText(/could not be read|unreadable/);
   });
@@ -144,7 +144,8 @@ test("a revision with no done records lists the sessions as before, and one whos
     await page.reload();
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
     await expect(recent).toContainText("Done stories could not be read.");
-    await expectEntries(recent, [adHocEntry, queuedEntry]);
+    await expectEntries(recent, [adHocEntry]);
+    await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
   });
 
@@ -167,7 +168,6 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expectEntries(recent, [
       adHocEntry,
       executed.title,
-      queuedEntry,
       removedQueued.title,
     ]);
     await expect(recent).not.toContainText("Done stories could not be read.");

@@ -1,14 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Ref } from "react";
 import { Icon } from "./Icon.tsx";
-import { entryCount } from "./WorkStages.tsx";
-
-// A dashboard column as an edge control names it: its name and how many
-// entries it holds, as the column itself shows them.
-export type ColumnSummary = {
-  readonly name: string;
-  readonly entries: number;
-};
+import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 
 // The slim strip at one side of the dashboard columns while a column is
 // hidden that way: it names the next hidden column and how many entries it

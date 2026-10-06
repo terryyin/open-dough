@@ -1,6 +1,6 @@
 // A session launched from this dashboard opens in the page's one terminal,
 // on a committed origin the production commands publish (./launchJourney.ts):
-// a card's session entry or a Recently done entry offers Open terminal, the page
+// a card's session entry or a standalone Taken entry offers Open terminal, the page
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,
 // which keeps running; Close detaches only and returns the keyboard to the
@@ -16,7 +16,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
@@ -51,7 +51,7 @@ test.describe("the terminal beside the page", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a card or Recently done entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
+  test("a card or standalone Taken entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
     page,
     dashboard,
   }) => {
@@ -60,13 +60,13 @@ test.describe("the terminal beside the page", () => {
       page,
       stagesJourney,
     );
-    const { recentlyDone: recent, backlog } = parts(page);
+    const { taken, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     const cardEntries = (title: string) => cardSessions(card(title));
     const entry = (title: string) =>
-      recent.getByRole("article", {
-        name: recentlyDoneSessionName("Execution", title),
+      taken.getByRole("article", {
+        name: standaloneSessionName("Execution", title),
       });
     const openIn = (place: Locator) =>
       place.getByRole("button", { name: "Open terminal" });
@@ -97,7 +97,8 @@ test.describe("the terminal beside the page", () => {
     await launch(readyStory, "Execution");
     const first = await sessionNamedBy(cardEntries(notRefinedStory));
     const second = await sessionNamedBy(cardEntries(readyStory));
-    await expect(openIn(entry(notRefinedStory))).toBeVisible();
+    await expect(openIn(cardEntries(notRefinedStory))).toBeVisible();
+    await expect(entry(notRefinedStory)).toHaveCount(0);
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
@@ -144,9 +145,9 @@ test.describe("the terminal beside the page", () => {
       await expect(rows).toContainText(`resized ${String(await size())}`);
     });
 
-    await test.step("opening another session from Recently done detaches the first, which keeps running, and shows the second in its place", async () => {
-      await showColumn(page, "Recently done");
-      await openIn(entry(readyStory)).click();
+    await test.step("opening another active card's session detaches the first, which keeps running, and shows the second in its place", async () => {
+      await showColumn(page, "Backlog");
+      await openIn(cardEntries(readyStory)).click();
       await expect(panel).toHaveCount(1);
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         readyStory,
@@ -166,7 +167,7 @@ test.describe("the terminal beside the page", () => {
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
       // The card still lists the session, so its entry's Open terminal, not
-      // the session's Recently done entry, has the keyboard.
+      // another entry, has the keyboard.
       await expect(openIn(cardEntries(notRefinedStory))).toBeFocused();
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
@@ -180,7 +181,7 @@ test.describe("the terminal beside the page", () => {
         taken: [readyStory],
         backlog: [takenStory],
       });
-      await showColumn(page, "Recently done");
+      await showColumn(page, "Taken");
       await openIn(entry(notRefinedStory)).click();
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         notRefinedStory,

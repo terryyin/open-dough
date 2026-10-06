@@ -82,8 +82,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   const heading = panel.getByRole("heading", { level: 2 });
   const sessionRow = names.locator("p");
   const portrait = panel.locator(".agent-portrait");
-  const { recentlyDone } = parts(page);
-  const entry = recentlyDone.getByRole("article");
+  const entry = parts(page).taken.locator(".session-entry");
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })

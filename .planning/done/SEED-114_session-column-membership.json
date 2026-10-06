@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-114#session-column-membership",
+  "title": "Sessions appear with active work until marked done",
+  "completedAt": "2026-10-06T08:19:24.619Z",
+  "developer": "Terry Yin",
+  "agent": "terry-chan",
+  "host": "codex"
+}

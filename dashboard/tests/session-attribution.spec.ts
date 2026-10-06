@@ -157,7 +157,7 @@ test("a retained session keeps its allocation credit after release and a later p
     parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: matchingId }),
-  ).toContainText(historical);
+  ).toHaveCount(0);
   await show(journey.refinedLanded);
   await expect(duplicate).toContainText(historical);
   await expect(duplicate).toContainText("Model: claude-opus-5-5 (requested)");
@@ -180,7 +180,7 @@ test("a retained session keeps its allocation credit after release and a later p
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: sessionId });
-  await expect(recent).toContainText(historical);
+  await expect(recent).toHaveCount(0);
   await show(reused);
   const newAssignment = parts(page)
     .backlog.getByRole("article", { name: storyA })

@@ -50,7 +50,7 @@ test("removing a configured project retains its checkout and records, hides sess
   let server = await fixture.start("preview");
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
-  const recent = page.getByRole("region", { name: "Recently done" });
+  const recent = page.getByRole("region", { name: "Taken", exact: true });
   await expect(recent).toContainText("Retained sample session", {
     timeout: 5_000,
   });

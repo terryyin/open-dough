@@ -43,7 +43,8 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
 
   await openTakenBacklog(page, journey);
   const { stages } = parts(page);
-  const articles = await stages.getByRole("article").count();
+  const cards = stages.locator("[data-work]");
+  const storyCards = await cards.count();
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(
     "Ad hoc session · session start in Codex",
@@ -60,9 +61,21 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
   await expect(
     recovery.getByRole("button", { name: "Recheck Ad hoc session" }),
   ).toBeEnabled();
-  await expect(stages.getByRole("article")).toHaveCount(articles);
-  await expect(stages.getByRole("article", { name: /ad hoc/i })).toHaveCount(0);
+  await expect(cards).toHaveCount(storyCards);
+  await expect(
+    cards.and(page.getByRole("article", { name: /ad hoc/i })),
+  ).toHaveCount(0);
   await expect(stages).not.toContainText("Startup needs reconciliation");
+  // The recorded native id has its local entry; recovery concerns whether
+  // the blank conversation persisted, not a new published story.
+  const session = stored(dashboard.home)[0]?.session.sessionId;
+  expect(session).toBeDefined();
+  const entry = parts(page).taken.locator(".session-entry");
+  await expect(entry).toHaveCount(1);
+  await expect(entry).toContainText(`Session ${String(session)}`);
+  await expect(parts(page).recentlyDone.locator(".session-entry")).toHaveCount(
+    0,
+  );
 
   delete native.beforeRead;
   await recovery
@@ -84,6 +97,8 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     }),
   ]);
   expect(stored(dashboard.home)).toHaveLength(1);
+  expect(stored(dashboard.home)[0]?.session.sessionId).toBe(session);
+  await expect(entry).toContainText(`Session ${String(session)}`);
   expect(stored(dashboard.home)[0]?.firstInput).toMatchObject({
     state: "not-requested",
     intent: "blank",

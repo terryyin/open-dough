@@ -37,7 +37,7 @@ const storySession = (
 // This machine's sessions of the done stories, oldest first, of the sessions
 // the synthetic `claude` lists by these ids: Card shows avatar's execution
 // marked done and its open refinement, the story done last week's execution
-// launched yesterday, and the 31-day-old story's open execution.
+// launched yesterday and marked done, and the 31-day-old story's retained closed execution.
 export function doneStorySessions(
   now: number,
   sessionIds: {
@@ -48,13 +48,16 @@ export function doneStorySessions(
   },
 ): LaunchRecord[] {
   return [
-    storySession(
-      now,
-      expired,
-      "execution",
-      sessionIds.expired,
-      placed.expiredSessionLaunched,
-    ),
+    {
+      ...storySession(
+        now,
+        expired,
+        "execution",
+        sessionIds.expired,
+        placed.expiredSessionLaunched,
+      ),
+      doneAt: at(now, placed.executedDoneSessionMarked),
+    },
     {
       ...storySession(
         now,
@@ -72,13 +75,16 @@ export function doneStorySessions(
       sessionIds.executedOpen,
       placed.executedOpenSessionLaunched,
     ),
-    storySession(
-      now,
-      lastWeek,
-      "execution",
-      sessionIds.lastWeek,
-      placed.lastWeekSessionLaunched,
-    ),
+    {
+      ...storySession(
+        now,
+        lastWeek,
+        "execution",
+        sessionIds.lastWeek,
+        placed.lastWeekSessionLaunched,
+      ),
+      doneAt: at(now, placed.lastWeekSessionLaunched),
+    },
   ];
 }
 

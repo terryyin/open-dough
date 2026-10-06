@@ -1,28 +1,14 @@
 import { sessionKey } from "./sessionReference.ts";
-// The selected project's Recently done column: one newest-first list of the
-// stories done recently by the done records published at the snapshot's
-// revision (`./DoneStoryCard.tsx`), placed by when each was done, and every
-// native session this dashboard's server launched for the project and still
-// keeps on this machine, placed by when it was launched, whatever origin now
-// shows of its story, so the developer can reach a session whose story is in
-// no list, or one marked done. A session of a shown done story, open or
-// marked done, is listed inside that story's card, newest first, and nowhere
-// else in the column; a later launch for the story does not move the card.
-// Sessions are listed once the machine's sessions are first read; done
-// records that cannot be read are said, and the sessions are still listed.
-// Each session entry (`./SessionEntry.tsx`) names its story and shows its
-// session's state as its host last observed it, read again at the page's
-// steady pace. It takes the keyboard when the last of its entries is deleted
-// (see `deletedEntryHome` in `./pageSessions.ts`). Session entries are local
-// evidence of launches, not story facts.
+// Recently done combines published stories by completion time and saved Done
+// sessions by launch time. Only closed sessions are nested in done cards;
+// unknown or failed published details leave their standalone access intact.
 
 import {
   launchRetentionDays,
-  projectSessionsOf,
   storySessionsOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import type { ColumnSummary } from "./ColumnEdge.tsx";
+import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import {
@@ -84,20 +70,22 @@ function DoneReadGaps({ done }: { readonly done: DoneStories | undefined }) {
   );
 }
 
-// What Recently done lists for the project: its creations under way, its
-// kept sessions once they are first read, and, newest first, its recently
-// done stories, each holding its sessions, and the sessions of no shown done
-// story.
-function listedOf(
+// Done stories and the selected project's closed sessions use one list for
+// rendering and counts. Unresolved creations remain recovery evidence only.
+export function recentlyDoneOf(
   sourceId: string,
   creations: readonly CreationView[],
-  machineRecords: readonly LaunchWithState[] | undefined,
+  records: readonly LaunchWithState[] | undefined,
   done: DoneStories | undefined,
+  noneKept: boolean,
 ) {
-  const records = projectSessionsOf(machineRecords, sourceId);
   return {
     creations: creations.filter((record) => record.request.source === sourceId),
     records,
+    none: noneKept
+      ? "No sessions launched from this dashboard are kept."
+      : "No sessions are listed in Recently done.",
+    done,
     listed: newestFirst(
       recentDoneStories(done, new Date()),
       records ?? [],
@@ -111,45 +99,37 @@ const name = "Recently done";
 // Recently done as the dashboard columns name it: how many entries it lists
 // for the project.
 export function recentlyDoneColumn(
-  sourceId: string,
-  creations: readonly CreationView[],
-  machineRecords: readonly LaunchWithState[] | undefined,
-  done: DoneStories | undefined,
+  listed: ReturnType<typeof recentlyDoneOf>,
 ): ColumnSummary {
-  const listed = listedOf(sourceId, creations, machineRecords, done);
   return {
     name,
-    entries: listed.creations.length + listed.listed.length,
+    entries:
+      listed.records === undefined ||
+      listed.done?.status !== "read" ||
+      listed.done.unreadable.length > 0
+        ? undefined
+        : listed.listed.length,
   };
 }
 
 export function RecentlyDone({
-  sourceId,
-  creations = [],
-  records: machineRecords,
-  done,
+  view,
 }: {
-  // The selected project.
-  readonly sourceId: string;
-  readonly creations?: readonly CreationView[];
-  // The machine's sessions, oldest first within a project, with their
-  // states; undefined until first read.
-  readonly records: readonly LaunchWithState[] | undefined;
-  // The done records published at the snapshot's revision.
-  readonly done?: DoneStories | undefined;
+  readonly view: ReturnType<typeof recentlyDoneOf>;
 }) {
-  const {
-    creations: listedCreations,
-    records,
-    listed,
-  } = listedOf(sourceId, creations, machineRecords, done);
+  const { creations: listedCreations, records, none, listed, done } = view;
   return (
     <section
       className="recently-done"
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
     >
-      <h2 id="recently-done-heading">{name}</h2>
+      <header className="stage-header">
+        <h2 id="recently-done-heading">{name}</h2>
+        <p className="stage-count">
+          {entryCount(recentlyDoneColumn(view).entries)}
+        </p>
+      </header>
       <p className="quiet">
         Recently done stories and sessions launched from this dashboard for this
         project, newest first. Sessions are kept on this machine.
@@ -158,7 +138,7 @@ export function RecentlyDone({
       {listedCreations.map((record) => (
         <CreationEntry key={record.launchedAt} record={record} />
       ))}
-      <SessionList sessions={records}>
+      <SessionList sessions={records} none={none}>
         {() => (
           <p className="quiet">
             Sessions marked done are kept for {launchRetentionDays} days after

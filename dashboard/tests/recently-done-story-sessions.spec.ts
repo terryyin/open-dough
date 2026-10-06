@@ -1,20 +1,14 @@
-// A done card in Recently done holds every session this machine keeps for
-// its story, open or marked done, newest first, each with the state and
-// actions of its entry, and none of them is an entry of its own; a session
-// launched after the story was done stays inside and does not move the card,
-// a machine with no sessions for the story shows none, and once the record is
-// older than the shared 30-day window its open session is its own entry
-// again. The published records are ./recentlyDoneRecords.ts and the kept
-// sessions ./recentlyDoneSessions.ts; that the column lists done cards by
-// their facts is ./recently-done-stories.spec.ts. The fake GitHub only
-// publishes files spelled by the shared done-record renderer; the synthetic
-// `claude` (./fixtures/fake-claude) lists the kept sessions.
+// Only saved Done sessions are nested in done-story cards. Open former-story
+// sessions stay local Taken; completion time orders cards, and local retention
+// preserves a closed standalone session after its published card expires.
 
 import { expect, test } from "./dashboardTest.ts";
+import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { edgeControl, rem } from "./dashboardColumnsPage.ts";
 import {
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { expectSessionEntrySetOff } from "./pageColours.ts";
@@ -23,11 +17,14 @@ import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import { doneStorySessions } from "./recentlyDoneSessions.ts";
 import {
   executed,
+  at,
+  doneRecordAt,
   expired,
   lastWeek,
   placed,
   publishedFiles,
   queuedTitle,
+  queuedIdentity,
   removedQueued,
   repository,
   revision,
@@ -37,11 +34,10 @@ import {
   adHocEntry,
   expectEntries,
   listed,
-  queuedEntry,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
 
-test("a done story's card holds this machine's sessions for it, open or marked done, newest first, and a session of a record past the window is its own entry", async ({
+test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,
   dashboard,
 }) => {
@@ -52,7 +48,23 @@ test("a done story's card holds this machine's sessions for it, open or marked d
   await keepLaunchRecords(
     dashboard,
     [
-      ...sessionsOutsideDoneStories(dashboard, now),
+      ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
+      {
+        request: {
+          source: "open-dough",
+          workflow: "execution" as const,
+          host: "claude" as const,
+          ...executed,
+        },
+        session: {
+          host: "claude" as const,
+          sessionId: "newer-closed-card-session",
+          shortId: "newer-cl",
+          name: executed.title,
+        },
+        launchedAt: at(now, placed.adHocLaunched / 2),
+        doneAt: at(now, placed.adHocLaunched / 4),
+      },
       ...doneStorySessions(now, {
         // Marked done and no longer listed by Claude Code.
         executedDone: "0e5c2d7a-done-session-of-card-shows-avatar",
@@ -79,16 +91,15 @@ test("a done story's card holds this machine's sessions for it, open or marked d
     recent.getByRole("article", { name: title, exact: true });
   const sessionsIn = (title: string) =>
     card(title).getByRole("list", { name: "Sessions" }).getByRole("article");
-  const executedOpen = recentlyDoneSessionName("Refinement", executed.title);
-  const executedDone = recentlyDoneSessionName("Execution", executed.title);
-  const lastWeekSession = recentlyDoneSessionName("Execution", lastWeek.title);
-  const expiredSession = recentlyDoneSessionName("Execution", expired.title);
+  const executedOpen = standaloneSessionName("Refinement", executed.title);
+  const executedDone = standaloneSessionName("Execution", executed.title);
+  const lastWeekSession = standaloneSessionName("Execution", lastWeek.title);
+  const expiredSession = standaloneSessionName("Execution", expired.title);
 
-  await test.step("the done cards and the sessions of no shown done story make one newest-first list; a story done last week stays below today's entries though its session was launched yesterday, and the 31-day-old story's open session is its own entry", async () => {
+  await test.step("the done cards and the sessions of no shown done story make one newest-first list; a story done last week stays below today's entries though its session was launched yesterday, and the 31-day-old story's retained closed session is its own entry", async () => {
     await expectEntries(recent, [
       adHocEntry,
       executed.title,
-      queuedEntry,
       removedQueued.title,
       lastWeek.title,
       expiredSession,
@@ -99,21 +110,42 @@ test("a done story's card holds this machine's sessions for it, open or marked d
     ).toHaveText(/Working/);
   });
 
-  await test.step("Card shows avatar's open and done sessions are inside its card, newest first, with their states and actions, each set off on the panel in the card's text, and neither is an entry of its own", async () => {
+  await test.step("Card shows avatar holds only its closed session; its open session remains local Taken, each preserving state and actions", async () => {
     const inside = sessionsIn(executed.title);
     await expect(inside).toHaveCount(2);
-    await expect(inside.nth(0)).toHaveAccessibleName(executedOpen);
-    await expect(inside.nth(1)).toHaveAccessibleName(executedDone);
-    await expect(sessionStateOf(inside.nth(0))).toHaveText("Working");
-    await expect(sessionStateOf(inside.nth(1))).toHaveText("Done");
-    await expect(inside.nth(0).getByRole("button")).toHaveText([
+    await expect(inside.nth(0)).toHaveAttribute(
+      "data-shows-session",
+      "claude:newer-closed-card-session",
+    );
+    await expect(inside.nth(1)).toHaveAttribute(
+      "data-shows-session",
+      "claude:0e5c2d7a-done-session-of-card-shows-avatar",
+    );
+    for (const closed of await inside.all()) {
+      await expect(closed).toHaveAccessibleName(executedDone);
+      await expect(sessionStateOf(closed)).toHaveText("Done");
+    }
+    const local = parts(page).taken.getByRole("article", {
+      name: executedOpen,
+    });
+    await expect(sessionStateOf(local)).toHaveText("Working");
+    await expect(local.locator(".card-identity")).toHaveText(executed.identity);
+    await expect(local.getByRole("button")).toHaveText([
       "Open terminal",
+      "Mark as done",
     ]);
-    await expect(inside.nth(1).getByRole("button")).toHaveCount(0);
+    await expect(inside.first().getByRole("button")).toHaveCount(0);
     for (const entry of await inside.all())
       await expectSessionEntrySetOff(entry);
+    await expect(
+      recent.getByRole("article", { name: executedOpen }),
+    ).toHaveCount(0);
     for (const name of [executedOpen, executedDone]) {
-      await expect(recent.getByRole("article", { name })).toHaveCount(1);
+      await expect(
+        page
+          .locator(".dashboard-columns")
+          .getByRole("article", { name, exact: true }),
+      ).toHaveCount(name === executedDone ? 2 : 1);
     }
   });
 
@@ -130,4 +162,81 @@ test("a done story's card holds this machine's sessions for it, open or marked d
   await test.step("a done card of a story this machine keeps no sessions for shows none", async () => {
     await expect(sessionsIn(removedQueued.title)).toHaveCount(0);
   });
+});
+
+test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose edge count uses the rendered entries", async ({
+  page,
+  dashboard,
+}) => {
+  const now = Date.now();
+  const records = sessionsOutsideDoneStories(dashboard, now, { adHoc: true });
+  const open = records.find(
+    (record) => record.request.workflow === "execution",
+  );
+  if (
+    open?.request.workflow !== "execution" ||
+    open.session.host !== "claude"
+  ) {
+    throw new Error("No queued Claude story session");
+  }
+  const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
+  await keepLaunchRecords(dashboard, [
+    {
+      ...open,
+      request: { ...open.request, workflow: "refinement" },
+      session: {
+        ...open.session,
+        sessionId: closedId,
+        shortId: closedId.slice(0, 8),
+      },
+      launchedAt: at(now, placed.executedDoneSessionLaunched),
+      doneAt: at(now, placed.executedDoneSessionMarked),
+    },
+    ...records,
+  ]);
+  await publishFiles(page, {
+    repository,
+    revision,
+    files: publishedFiles({
+      [doneRecordAt(queuedIdentity)]: renderDoneRecord({
+        identity: queuedIdentity,
+        title: queuedTitle,
+        completedAt: at(now, placed.executedDone),
+        developer: "Terry Yin",
+      }),
+    }),
+  });
+  await page.setViewportSize({ width: 54 * rem, height: 900 });
+  await page.goto("/");
+  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+  const { backlog, recentlyDone: recent } = parts(page);
+  const active = backlog.locator(".session-entry");
+  const doneCard = recent.getByRole("article", {
+    name: queuedTitle,
+    exact: true,
+  });
+  const closed = doneCard.locator(".session-entry");
+  const openKey = `claude:${open.session.sessionId}`;
+  const closedKey = `claude:${closedId}`;
+  const expectUnique = async () => {
+    await expect(active).toHaveAttribute("data-shows-session", openKey);
+    await expect(sessionStateOf(active)).toHaveText("Working");
+    await expect(
+      recent.locator(`[data-shows-session="${openKey}"]`),
+    ).toHaveCount(0);
+    await expect(closed).toHaveAttribute("data-shows-session", closedKey);
+    await expect(sessionStateOf(closed)).toHaveText("Done");
+    for (const key of [openKey, closedKey]) {
+      await expect(
+        page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+      ).toHaveCount(1);
+    }
+    await expectEntries(recent, [adHocEntry, queuedTitle]);
+    await expect(edgeControl(page, "Recently done")).toHaveText(
+      "Recently done 2 entries",
+    );
+  };
+  await expectUnique();
+  await page.reload();
+  await expectUnique();
 });

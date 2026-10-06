@@ -4,7 +4,7 @@
 // preserve membership and origin's published facts. Counts belong to their
 // project and are read afresh from Claude Code's listing on return or reload.
 // Stories leaving every list keep affected sessions, reasons and Open terminal
-// in Recently done. Only synthetic `claude` (./fixtures/fake-claude) launches;
+// in local Taken. Only synthetic `claude` (./fixtures/fake-claude) launches;
 // the page clock stays still unless this journey advances it.
 
 import type { Locator } from "@playwright/test";
@@ -15,7 +15,7 @@ import {
   cardSessions,
   expectMembership,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
@@ -77,7 +77,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("counts each card's affected sessions through Backlog, Preparing, and Taken, never another project's or an unknown one, and a story in no list keeps its affected session in Recently done", async ({
+  test("counts each card's affected sessions through Backlog, Preparing, and Taken, never another project's or an unknown one, and a story in no list keeps its affected session in local Taken", async ({
     page,
     dashboard,
   }) => {
@@ -88,7 +88,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       page,
       stagesJourney,
     );
-    const { stages, project, recentlyDone } = parts(page);
+    const { stages, project, taken } = parts(page);
     const card = (title: string) =>
       stages.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
@@ -228,7 +228,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectCounted({});
     });
 
-    await test.step("a story that leaves every list keeps its affected session, with its reason and Open terminal, in Recently done", async () => {
+    await test.step("a story that leaves every list keeps its affected session, with its reason and Open terminal, in local Taken", async () => {
       becomes(notRefinedStory, "Execution", "done-live");
       await passOnePace();
       await show(stagesJourney.completed);
@@ -237,8 +237,8 @@ test.describe("a story's card counts the sessions that need attention", () => {
         backlog: [takenStory],
       });
       await expectCounted({});
-      const kept = recentlyDone.getByRole("article", {
-        name: recentlyDoneSessionName("Execution", notRefinedStory),
+      const kept = taken.getByRole("article", {
+        name: standaloneSessionName("Execution", notRefinedStory),
       });
       await expectSessionShown(kept, "Ready for review", true);
       await expect(

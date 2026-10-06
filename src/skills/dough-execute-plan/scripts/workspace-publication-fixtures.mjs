@@ -98,6 +98,10 @@ async function buildQueuedTrunk(
   // push returns, and a copy of the remote can list the lock and then miss it.
   await git(origin, "config", "maintenance.auto", "false");
   await exec("git", ["init", "-b", "main", integration]);
+  // Dashboard callers do not inherit the shell runner's Git overrides.
+  // Protect the template's objects and every copied checkout from detached
+  // maintenance too, before the first commit can start it.
+  await git(integration, "config", "maintenance.auto", "false");
   await git(integration, "config", "user.name", "Integration Checkout");
   await git(integration, "config", "user.email", "integration@example.test");
   await git(integration, "remote", "add", "origin", origin);

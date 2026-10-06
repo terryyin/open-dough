@@ -1,3 +1,6 @@
+import { SessionEntry } from "./SessionEntry.tsx";
+import { sessionKey } from "./sessionReference.ts";
+import type { LaunchWithState } from "./agentLaunch.ts";
 import { useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
 import {
@@ -8,26 +11,44 @@ import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks } from "./workFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { WorkCard } from "./WorkCard.tsx";
+import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 
-// How many entries a column holds, in the words its stage heading and the
-// edge control that shows it (./ColumnEdge.tsx) both use.
-export function entryCount(entries: number): string {
-  return entries === 1 ? "1 entry" : `${entries} entries`;
-}
+type StageView = {
+  readonly column: ColumnSummary;
+  readonly entries: readonly WorkEntry[];
+  readonly localSessions: readonly LaunchWithState[] | undefined;
+};
 
-// The two stages, left to right, each named and holding its recorded
-// entries, as they show and as the dashboard columns name them.
-export function stagesOf(work: PublishedWork) {
+// Each stage's stories, standalone sessions, and completeness feed both its
+// rendered list and the heading/edge summary. Published order stays intact.
+export function stagesOf(
+  work: PublishedWork,
+  localTaken: readonly LaunchWithState[] | undefined,
+) {
+  const stage = (
+    name: string,
+    entries: readonly WorkEntry[],
+    localSessions: readonly LaunchWithState[] | undefined,
+  ): StageView => ({
+    column: {
+      name,
+      entries:
+        localSessions === undefined
+          ? undefined
+          : entries.length + localSessions.length,
+    },
+    entries,
+    localSessions,
+  });
   return [
-    { name: "Backlog", entries: work.backlog },
-    { name: "Taken", entries: work.taken },
+    stage("Backlog", work.backlog, []),
+    stage("Taken", work.taken, localTaken),
   ] as const;
 }
 
 function Stage({
   sourceId,
-  name,
-  entries,
+  view,
   prioritized,
   showsSliceProgress,
   launches,
@@ -38,8 +59,7 @@ function Stage({
   unreadableProfiles,
 }: {
   sourceId: string;
-  name: string;
-  entries: readonly WorkEntry[];
+  view: StageView;
   prioritized: boolean;
   showsSliceProgress: boolean;
   launches: MachineSessions;
@@ -49,15 +69,23 @@ function Stage({
   onOpenRoster: OpenRoster;
   unreadableProfiles?: readonly UnreadableProfile[] | undefined;
 }) {
+  const {
+    column: { name, entries: count },
+    entries,
+    localSessions,
+  } = view;
   const headingId = `stage-${name.toLowerCase()}`;
   return (
-    <section className="stage" aria-labelledby={headingId}>
+    <section className="stage" aria-labelledby={headingId} tabIndex={-1}>
       <header className="stage-header">
         <h2 id={headingId}>{name}</h2>
-        <p className="stage-count">{entryCount(entries.length)}</p>
+        <p className="stage-count">{entryCount(count)}</p>
       </header>
       <UnreadableProfiles profiles={unreadableProfiles} />
-      {entries.length === 0 ? (
+      {localSessions === undefined && (
+        <p className="quiet">Reading sessions…</p>
+      )}
+      {count === 0 ? (
         <p className="quiet stage-empty">No {name} entries are recorded.</p>
       ) : (
         <ol className="cards">
@@ -76,27 +104,31 @@ function Stage({
               />
             </li>
           ))}
+          {localSessions?.map((record) => (
+            <li key={sessionKey(record.session)}>
+              <SessionEntry record={record} onCard={false} />
+            </li>
+          ))}
         </ol>
       )}
     </section>
   );
 }
 
-// Two recorded groups and the one relationship between them. Membership and
-// order come straight from the snapshot; nothing here sorts, infers further
-// stages, or marks work as active. Cards are keyed by work identity so the same
-// work is one card across snapshots, and carry the marks `workFocus` defines so
-// keyboard focus can follow that work.
+// The projected stages keep published story membership/order separate from
+// machine-local sessions. Cards retain work identity and workFocus marks.
 export function WorkStages({
   work,
+  stages,
   launches,
   onOpenRoster,
 }: {
   work: PublishedWork;
+  stages: ReturnType<typeof stagesOf>;
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
-  const [backlog, taken] = stagesOf(work);
+  const [backlog, taken] = stages;
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
     undefined,
   );
@@ -110,8 +142,7 @@ export function WorkStages({
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
         <Stage
           sourceId={work.source.id}
-          name={backlog.name}
-          entries={backlog.entries}
+          view={backlog}
           prioritized
           showsSliceProgress={false}
           launches={launches}
@@ -122,8 +153,7 @@ export function WorkStages({
         />
         <Stage
           sourceId={work.source.id}
-          name={taken.name}
-          entries={taken.entries}
+          view={taken}
           prioritized={false}
           showsSliceProgress
           launches={launches}

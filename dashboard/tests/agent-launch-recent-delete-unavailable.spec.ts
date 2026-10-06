@@ -1,6 +1,7 @@
-// Delete record… on a Recently done entry that reads Session unavailable
+// Delete record… on an entry that reads Session unavailable, on its active
+// card or in Recently done after its story completes
 // (./agent-launch-recent-delete.spec.ts covers State unknown and keyboard
-// movement): confirming deletes from Recently done and the Sessions sidebar
+// movement): confirming deletes from its card and the Sessions sidebar
 // without a success announcement; an entry whose state became known since the
 // page read it keeps its record and says so. Origin alone still places every
 // story. The page's own dashboard server drives the synthetic `claude`
@@ -12,24 +13,24 @@ import { expect, test } from "./dashboardTest.ts";
 import {
   cardSessionOf,
   parts,
-  recentlyDoneSessionName,
+  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
+import { markDone } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
   readyStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { markDone } from "./agentLaunchBoundary.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-test.describe("deleting an unavailable Recently done entry's record", () => {
+test.describe("deleting an unavailable session's record from its current home", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -39,12 +40,12 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a Session unavailable entry offers Delete record…, deletes from Recently done and the sidebar, and keeps the record when its state became known", async ({
+  test("a Session unavailable entry offers Delete record…, deletes from its active card and the sidebar, and a completed story's entry keeps the record when its state became known", async ({
     page,
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, show, launch } = await openStoryStagesJourney(
       page,
       stagesJourney,
     );
@@ -61,15 +62,19 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
     );
     dashboard.claudeSessionBecomes(gone, "forgotten");
     dashboard.claudeSessionBecomes(becameKnown, "forgotten");
-    await page.reload();
-    await settled();
+    // The completed story has no active card, so its open session retains
+    // its local Taken home while the other session follows Taken.
+    await show(stagesJourney.completed);
     await sidebar.button.click();
-    const unavailable = recent.getByRole("article", {
-      name: recentlyDoneSessionName("Execution", readyStory),
-    });
-    const becomesKnown = recent.getByRole("article", {
-      name: recentlyDoneSessionName("Refinement", notRefinedStory),
-    });
+    const unavailable = cardSessionOf(
+      parts(page).taken.getByRole("article", { name: readyStory, exact: true }),
+      "Execution",
+    );
+    const becomesKnown = page
+      .locator(".dashboard-columns")
+      .getByRole("article", {
+        name: standaloneSessionName("Refinement", notRefinedStory),
+      });
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",
@@ -92,7 +97,7 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
     await test.step("a session whose state became known since the page read it keeps its record and says so", async () => {
       // Marked done elsewhere, it no longer reads Session unavailable.
       await markDone(dashboard, { source: "open-dough", session: becameKnown });
-      await showColumn(page, "Recently done");
+      await showColumn(page, "Taken");
       await becomesKnown
         .getByRole("button", { name: "Delete record…" })
         .click();
@@ -100,9 +105,7 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
         .getByRole("button", { name: "Delete record", exact: true })
         .click();
 
-      await expect(becomesKnown).toContainText(
-        "This session's state is now known",
-      );
+      await expect(recent.locator(".session-entry")).toHaveCount(1);
       expect(stored()).toContain(becameKnown);
       // Read again, it is Done: it offers no delete and leaves the sidebar.
       await expect(sessionStateOf(becomesKnown)).toHaveText("Done");
@@ -112,7 +115,8 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
       await expect(sidebar.entries).toHaveCount(1);
     });
 
-    await test.step("an unavailable session's record is deleted from Recently done and the sidebar", async () => {
+    await test.step("an unavailable active session's record is deleted from its card and the sidebar", async () => {
+      await showColumn(page, "Taken");
       await unavailable.getByRole("button", { name: "Delete record…" }).click();
       await unavailable
         .getByRole("button", { name: "Delete record", exact: true })
@@ -120,6 +124,7 @@ test.describe("deleting an unavailable Recently done entry's record", () => {
 
       await expect(unavailable).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
+      await expect(recent.locator(".session-entry")).toHaveCount(1);
       expect(stored()).not.toContain(gone);
       await expect(
         page.getByText("Session record deleted", { exact: true }),

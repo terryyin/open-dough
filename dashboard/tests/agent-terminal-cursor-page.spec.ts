@@ -55,7 +55,7 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   // before then would see that presentation open the panel again.
   await expect(parts(page).adHocStarted).toBeVisible({ timeout: 20_000 });
 
-  const recent = parts(page).recentlyDone.getByRole("article");
+  const recent = parts(page).taken.locator(".session-entry");
   await expect(recent).toHaveCount(1);
   const record = keptRecord(dashboard.home);
   const open = recent.getByRole("button", { name: "Open terminal" });
@@ -64,7 +64,7 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   // The started session's terminal opens beside the page, which then shows
   // one column.
   await expect(panel).toHaveCount(1);
-  await showColumn(page, "Recently done");
+  await showColumn(page, "Taken");
   await open.click();
   await expect(rows).toContainText("ctrl+c to stop");
   await expect(rows).toContainText("Add a follow-up");
