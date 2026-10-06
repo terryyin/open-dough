@@ -29,10 +29,8 @@ import {
   readingListedRecordsOf,
 } from "./listedRecordsRead.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
-import {
-  isListedAgentProfile,
-  pathReachableFromRevision,
-} from "./reachablePaths.ts";
+import { pathReachableFromRevision } from "./reachablePaths.ts";
+import { isListedAgentProfile } from "./recordsBesideBacklog.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {

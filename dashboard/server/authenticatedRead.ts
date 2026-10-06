@@ -14,13 +14,14 @@
 // `./requestedRead.ts`; performing it: `./performedRead.ts`, on a story
 // branch `./performedBranchRead.ts`, and what it comes to `./readOutcome.ts`;
 // gh calls: `./ghRead.ts`, `./ghRevision.ts`, and `./ghContents.ts`; path
-// reachability: `./reachablePaths.ts` and `./branchReachability.ts`;
-// pinned-text memo: `./pinnedTexts.ts`; revision checks:
-// `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved branch
-// heads: `./branchHeads.ts`; one request's `gh` lifetime: `./trackedGh.ts`;
-// failure wording and any directed wait: `./readFailureMessage.ts`. Beside
-// it, a second path serves the GitHub avatar of the human credited for one
-// listed profile (`./avatarRead.ts`, images kept by `./avatarImages.ts`).
+// reachability: `./reachablePaths.ts`, `./recordsBesideBacklog.ts`, and
+// `./branchReachability.ts`; pinned-text memo: `./pinnedTexts.ts`; revision
+// checks: `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved
+// branch heads: `./branchHeads.ts`; one request's `gh` lifetime:
+// `./trackedGh.ts`; failure wording and any directed wait:
+// `./readFailureMessage.ts`. Beside it, a second path serves the GitHub
+// avatar of the human credited for one listed profile (`./avatarRead.ts`,
+// images kept by `./avatarImages.ts`).
 // Node-only; never returns credentials, raw stderr, or an arbitrary path or
 // image proxy.
 

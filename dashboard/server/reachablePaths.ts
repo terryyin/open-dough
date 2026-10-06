@@ -5,16 +5,10 @@
 // and story-state peek rules as the browser enrichment path. The records it
 // consults are read through the caller's own pinned reader
 // (`./performedRead.ts`), so already-read text at the same revision is
-// not fetched again. Agent profiles beside the backlog are reachable only as
-// the profile files the pinned revision's directory listing names. When a
-// path was last committed may be asked only for a reachable record, such as
-// a plan's last recorded update; a profile's Take is the commit that added
-// it (`./ghProfileAddition.ts`), asked only for a listed profile. Done
-// records beside the backlog are read the same way: only as the record files
-// the pinned revision's listing of their directory names. The one
-// project setting file the shared profile module names is reachable only as
-// part of the profile read, never by a client-supplied path.
-// What may be read on a story branch is decided from the same records in
+// not fetched again. When a path was last committed may be asked only for a
+// reachable record, such as a plan's last recorded update. Which records
+// beside the backlog are reachable is `./recordsBesideBacklog.ts`; what may
+// be read on a story branch is decided from the same records in
 // `./branchReachability.ts`.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -24,16 +18,8 @@ import {
   snapshotRepositoryPath,
 } from "../src/sourceLink.ts";
 import { peekRecordedApproach } from "../src/storyPreparation.ts";
-import {
-  agentProfileDirectory,
-  agentSettingsPath,
-  profileAgentName,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { ListedFile } from "./ghContents.ts";
 import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import {
-  doneRecordDirectory,
-  isDoneRecordFileName,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 export function isSafeRepositoryPath(path: string): boolean {
   if (path.length === 0 || path.startsWith("/") || path.includes("\\")) {
@@ -117,8 +103,11 @@ export function plannedPlanPath(
 // Reads one repository file of the source at the revision under check.
 export type PinnedReader = (repositoryPath: string) => Promise<string>;
 
-// Lists one directory's file names at the revision under check.
-export type PinnedLister = (directory: string) => Promise<readonly string[]>;
+// Lists one directory's files, each with its blob sha, at the revision under
+// check.
+export type PinnedLister = (
+  directory: string,
+) => Promise<readonly ListedFile[]>;
 
 export async function pathReachableFromRevision(
   source: PublishedSource,
@@ -157,92 +146,4 @@ export async function pathReachableFromRevision(
     }
   }
   return false;
-}
-
-// Where a directory of published records named by the shared backlog
-// modules lives for this source: beside its backlog.
-function besideBacklog(source: PublishedSource, name: string): string {
-  const directory = resolveBesideFile(source.backlogPath, name);
-  if (directory === undefined) {
-    throw new Error(`No ${name} directory beside ${source.backlogPath}`);
-  }
-  return directory;
-}
-
-// Where agent profiles live for this source: beside its backlog.
-export function agentProfileDirectoryOf(source: PublishedSource): string {
-  return besideBacklog(source, agentProfileDirectory);
-}
-
-// Where done records live for this source: beside its backlog.
-export function doneRecordDirectoryOf(source: PublishedSource): string {
-  return besideBacklog(source, doneRecordDirectory);
-}
-
-// Which records of a directory beside the backlog may be read at a pinned
-// revision: the listing of that directory at the revision decides which exist
-// (a directory the revision lacks lists none), and only the files the shared
-// module names as its records are read. Anything else listed is not.
-async function listedBesideBacklog(
-  directory: string,
-  isRecordName: (name: string) => boolean,
-  listPinned: PinnedLister,
-): Promise<string[]> {
-  return (await listPinned(directory))
-    .filter(isRecordName)
-    .sort()
-    .map((name) => `${directory}/${name}`);
-}
-
-// The agent profiles listed beside the backlog at a pinned revision.
-export function listedAgentProfilePaths(
-  source: PublishedSource,
-  listPinned: PinnedLister,
-): Promise<string[]> {
-  return listedBesideBacklog(
-    agentProfileDirectoryOf(source),
-    (name) => profileAgentName(name) !== undefined,
-    listPinned,
-  );
-}
-
-// The done records listed beside the backlog at a pinned revision.
-export function listedDoneRecordPaths(
-  source: PublishedSource,
-  listPinned: PinnedLister,
-): Promise<string[]> {
-  return listedBesideBacklog(
-    doneRecordDirectoryOf(source),
-    isDoneRecordFileName,
-    listPinned,
-  );
-}
-
-// Whether `requestedPath` is one of the agent profiles listed beside the
-// backlog at a pinned revision. The profile directory is listed only for a
-// path inside it.
-export async function isListedAgentProfile(
-  source: PublishedSource,
-  requestedPath: string,
-  listPinned: PinnedLister,
-): Promise<boolean> {
-  if (!requestedPath.startsWith(`${agentProfileDirectoryOf(source)}/`)) {
-    return false;
-  }
-  return (await listedAgentProfilePaths(source, listPinned)).includes(
-    requestedPath,
-  );
-}
-
-// The text of the project setting file at a pinned revision, or null when the
-// revision has none or it cannot be read: either way the current collection
-// is used.
-export async function agentSettingsTextAt(
-  readPinned: PinnedReader,
-): Promise<string | null> {
-  try {
-    return await readPinned(agentSettingsPath);
-  } catch {
-    return null;
-  }
 }

@@ -7,12 +7,16 @@ import { githubFor } from "./dashboardTest.ts";
 import {
   branchRefAnswer,
   commitAnswer,
-  directoryListingAnswer,
   headsAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
 } from "./originAnswers.ts";
+import {
+  directoryListingAnswer,
+  listedFiles,
+  unansweredFile,
+} from "./listingAnswers.ts";
 import {
   commitAnswerIn,
   commitListIn,
@@ -135,8 +139,10 @@ export function publishMovingFiles(
     if (request.kind === "listing") {
       return Promise.resolve(
         directoryListingAnswer(request.path, [
-          ...Object.keys(at.files),
-          ...(at.unanswered ?? []),
+          ...listedFiles(at.files).filter(
+            ({ path }) => at.unanswered?.includes(path) !== true,
+          ),
+          ...(at.unanswered ?? []).map(unansweredFile),
         ]),
       );
     }

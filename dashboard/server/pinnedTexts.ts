@@ -1,12 +1,13 @@
 // Server-side memo of repository file text, directory listings, last
-// commit times, and profile additions at a resolved commit, and of each
-// commit's change to a path, for the local authenticated read boundary
-// (`./authenticatedRead.ts`).
+// commit times, and profile additions at a resolved commit, of each
+// commit's change to a path, and of each listed Git blob's text, for the
+// local authenticated read boundary (`./authenticatedRead.ts`).
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   listRepositoryDirectoryViaGh,
   readRepositoryFileViaGh,
+  type ListedFile,
 } from "./ghContents.ts";
 import { lastCommitTimeViaGh } from "./ghRead.ts";
 import {
@@ -19,9 +20,13 @@ import {
 // File text at a commit never changes, so what one request already read at a
 // pinned revision can decide a later request's reachability (or answer it)
 // without asking GitHub again. Bounded, in memory, per launched server, and
-// only ever keyed by a resolved commit -- never by a moving ref. Failures are
-// not remembered.
+// only ever keyed by a resolved commit -- never by a moving ref -- or by a
+// Git blob's sha, which names exactly one text. Failures are not remembered.
 const pinnedTextLimit = 500;
+
+// A file a pinned directory listing names, by its repository path, with the
+// sha of its Git blob.
+export type ListedPath = { readonly path: string; readonly sha: string };
 
 export class PinnedTexts {
   private readonly texts = new Map<string, string>();
@@ -30,13 +35,23 @@ export class PinnedTexts {
     return `${source.repository}\0${revision}\0${path}`;
   }
 
+  // A blob is kept in place of a revision under `blob`, which no commit sha
+  // ever is.
+  private static blobKey(source: PublishedSource, sha: string) {
+    return `${source.repository}\0blob\0${sha}`;
+  }
+
   remember(
     source: PublishedSource,
     revision: string,
     path: string,
     text: string,
   ): void {
-    this.texts.set(PinnedTexts.key(source, revision, path), text);
+    this.kept(PinnedTexts.key(source, revision, path), text);
+  }
+
+  private kept(key: string, text: string): void {
+    this.texts.set(key, text);
     while (this.texts.size > pinnedTextLimit) {
       const oldest = this.texts.keys().next().value;
       if (oldest === undefined) {
@@ -49,18 +64,25 @@ export class PinnedTexts {
   // What is kept under `entry` at `revision`, or else what `read` answers,
   // then kept there. Every memo below shares this rule; each kind of answer
   // is kept under its own `entry` shape.
-  private async recalled(
+  private recalled(
     source: PublishedSource,
     revision: string,
     entry: string,
     read: () => Promise<string>,
   ): Promise<string> {
-    const known = this.texts.get(PinnedTexts.key(source, revision, entry));
+    return this.recalledAt(PinnedTexts.key(source, revision, entry), read);
+  }
+
+  private async recalledAt(
+    key: string,
+    read: () => Promise<string>,
+  ): Promise<string> {
+    const known = this.texts.get(key);
     if (known !== undefined) {
       return known;
     }
     const text = await read();
-    this.remember(source, revision, entry, text);
+    this.kept(key, text);
     return text;
   }
 
@@ -84,11 +106,11 @@ export class PinnedTexts {
       );
   }
 
-  // A directory's listed file names at a commit, remembered the same way. A
-  // listing is kept under its directory with a trailing `/`, which no file
-  // path ever has.
+  // A directory's listed files, each with its blob sha, at a commit,
+  // remembered the same way. A listing is kept under its directory with a
+  // trailing `/`, which no file path ever has.
   lister(source: PublishedSource, revision: string, signal: AbortSignal) {
-    return (directory: string): Promise<readonly string[]> =>
+    return (directory: string): Promise<readonly ListedFile[]> =>
       this.recalledJson(source, revision, `${directory}/`, () =>
         listRepositoryDirectoryViaGh(
           source.repository,
@@ -96,6 +118,16 @@ export class PinnedTexts {
           revision,
           signal,
         ),
+      );
+  }
+
+  // A listed file's text, read at a commit whose listing names it and
+  // remembered under its blob sha: any later revision whose listing names the
+  // same blob asks GitHub nothing for it.
+  blobReader(source: PublishedSource, revision: string, signal: AbortSignal) {
+    return ({ path, sha }: ListedPath): Promise<string> =>
+      this.recalledAt(PinnedTexts.blobKey(source, sha), () =>
+        readRepositoryFileViaGh(source.repository, path, revision, signal),
       );
   }
 

@@ -201,7 +201,12 @@ comment's list of later details; the new journey and the
 
 ### 3. Listed records are read together and reused while unchanged
 Type: Behavior
-Status: planned
+Status: done — the proof command passed (37 tests). After the refactor it
+passed with the listing seam's consumers added (70 tests). The full dashboard
+suite passed (1098). Of the new boundary tests, 1, 2 and 4 failed on the old
+code. Test 3 failed when records were named as each read started. Agent
+profiles are still kept by path as well, because the story branch reads use
+that (`branchReachability.ts`).
 Proof: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts dashboard/tests/authenticated-read-listed-records.spec.ts dashboard/tests/authenticated-read-agent-settings.spec.ts dashboard/tests/authenticated-read-refusal.spec.ts dashboard/tests/authenticated-branch-read-boundary.spec.ts dashboard/tests/recently-done-stories.spec.ts dashboard/tests/recently-done-story-sessions.spec.ts dashboard/tests/taken-agent-profile.spec.ts dashboard/tests/agent-roster.spec.ts dashboard/tests/backlog-preparing.spec.ts --reporter=line`
 plus `npm run typecheck:dashboard`. The new boundary spec
 (`authenticated-read-listed-records.spec.ts`, real HTTP against the local

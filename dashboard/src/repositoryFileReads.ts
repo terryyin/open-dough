@@ -2,38 +2,11 @@
 // snapshot, through the local authenticated boundary for every source.
 
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
+import { mapPool } from "./boundedPool.ts";
 import { cachedFile, rememberFile } from "./fileContentCache.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const fileReadConcurrency = 4;
-
-async function mapPool<T, R>(
-  items: readonly T[],
-  limit: number,
-  map: (item: T) => Promise<R>,
-): Promise<R[]> {
-  if (items.length === 0) {
-    return [];
-  }
-  const results = new Array<R>(items.length);
-  let next = 0;
-  const workers = Array.from(
-    { length: Math.min(limit, items.length) },
-    async () => {
-      while (next < items.length) {
-        const index = next;
-        next += 1;
-        const item = items[index];
-        if (item === undefined) {
-          continue;
-        }
-        results[index] = await map(item);
-      }
-    },
-  );
-  await Promise.all(workers);
-  return results;
-}
 
 async function readCachedFile(
   source: PublishedSource,
