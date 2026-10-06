@@ -241,3 +241,23 @@ width's clamp is never kept. A project switch remounts `DashboardColumns`, so
 a page-lifetime `chosenOnPage` keeps the position where the browser keeps
 nothing. `dashboard-columns-kept.spec.ts` observes switch, reload, a wide page
 in between, unusable kept values, and refused storage; the whole suite passed.
+
+## Execution complete
+
+Product advice: the story's outcome is delivered; one bounded correction is
+planned as [SEED-106#paged-columns-reveal-and-count-correction](../../seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction)
+([plan 256](../256-paged-columns-reveal-and-count-correction/PLAN.md)): a
+reveal from a launch dialog moved the view by screen position, and the Recent
+sessions control said “0 entries” before sessions were read. For wrap-up:
+
+- Accept the edge label “Recent sessions 4 entries”, the heading's wording,
+  over the story's shorthand “Recent sessions 4”.
+- Trim the North Star's narrow-screen paragraph back to direction; the built
+  edge control is described in `dashboard/README.md`.
+- Open choice: the 1.75rem edge strip is above 24px but below the 44px used
+  elsewhere; about 2.5rem still keeps cards their share. Recommend keeping it.
+- Candidate follow-up: hidden columns keep the row as tall as a long hidden
+  Backlog, leaving blank scroll below short shown columns (reasoned from CSS,
+  not observed).
+- SEED-107's rename of Recent sessions should land after the correction and
+  take the edge control name and `tests/dashboardColumnsPage.ts` `columns`.
