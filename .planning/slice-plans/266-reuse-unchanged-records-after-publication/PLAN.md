@@ -162,7 +162,7 @@ usable proof route, not the remedy.
 ### 1. A commit's change list is remembered whole, by commit
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `authenticated-read-profile-addition.spec.ts`,
 `profile-addition-latency.spec.ts`, `taken-agent-profile-refresh.spec.ts`,
 and `agent-roster-avatar.spec.ts` stay green, including their assertions that
@@ -179,6 +179,19 @@ from it, so the walk answers exactly what it answers today, including the
 ended walk for a path the list does not name. The `\0change` entry shape goes.
 
 Enables slice 2, whose evidence is the same commit records.
+
+Accepted proof: the four named specs (15 passed, including the new
+"asks GitHub about a commit once, whichever profile's walk reaches it", whose
+commit requests equal `[d0, d1]`) and `npm run typecheck:dashboard`.
+Learnings for slice 2: `pinned.commitRecorder(source, signal)(sha)` answers a
+`CommitRecord` (`dashboard/server/ghCommit.ts`: `Committer` plus `files` of
+`filename`, `status`, `previousFilename`, and `whole`), remembered under the
+entry `\0commit` (a leading NUL, so no root file named `commit` collides);
+`parsedJson` lives in `ghRead.ts`. The fake's `commitAnswerIn` now lists every
+path whose history names the commit; `moveTrunk(at, by)` commits need their own
+whole `files`. One full-suite run failed `production-watcher-updates.spec.ts:33`
+once under load (an old deployment directory still present after the 5 s poll);
+it passed alone three times and does not reach this change.
 
 ### 2. Records and listings unchanged since the revision last read are not read again
 
@@ -279,3 +292,9 @@ read, and the test support for commits between revisions, with the twenty
 trunk-moving journeys as its regression set. If execution disproves an observed
 premise or the boundedness of a slice, stop safely and revise the remaining
 plan within the same outcome; story-boundary changes stay with Terry.
+
+## Execution
+
+Story Branch Mode in this workspace on
+`claude/refresh-published-work-without-rereading-unchang`, pushed to the
+`origin` execution branch; target `main`. Claim published at `c9e90018`.

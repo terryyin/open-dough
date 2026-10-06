@@ -177,6 +177,15 @@ export async function runGh(
   return (await askGh(args, signal)).stdout;
 }
 
+// A `gh` answer read as JSON; an answer that is not JSON is a failed call.
+export function parsedJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new GhFailure({ kind: "failed" });
+  }
+}
+
 // Whether a `gh` call failed only because GitHub has no such thing (`404`).
 export function isNotFound(error: unknown): boolean {
   return (

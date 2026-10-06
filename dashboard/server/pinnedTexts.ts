@@ -1,7 +1,7 @@
 // Server-side memo of repository file text, directory listings, last
 // commit times, and profile additions at a resolved commit, of each
-// commit's change to a path, and of each listed Git blob's text, for the
-// local authenticated read boundary (`./authenticatedRead.ts`).
+// commit's own record, and of each listed Git blob's text, for the local
+// authenticated read boundary (`./authenticatedRead.ts`).
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -10,8 +10,9 @@ import {
   type ListedFile,
 } from "./ghContents.ts";
 import { lastCommitTimeViaGh } from "./ghRead.ts";
+import { commitViaGh, type CommitRecord } from "./ghCommit.ts";
 import {
-  commitChangeViaGh,
+  commitChangeOf,
   findAddition,
   listPathCommitsViaGh,
   type ProfileAddition,
@@ -141,19 +142,29 @@ export class PinnedTexts {
       );
   }
 
+  // A commit's own record -- who committed it and every file it changed --
+  // remembered under that commit with an entry that starts with NUL, which
+  // no file path ever does. Whichever path or read asks, GitHub is asked
+  // about a commit once.
+  commitRecorder(source: PublishedSource, signal: AbortSignal) {
+    return (commit: string): Promise<CommitRecord> =>
+      this.recalledJson(source, commit, "\0commit", () =>
+        commitViaGh(source.repository, commit, signal),
+      );
+  }
+
   // Which commit added a profile's current allocation as of a commit, and
   // who committed it, remembered the same way under the path with a trailing
-  // NUL. What each walked commit changed about the path is remembered under
-  // that commit, so a later revision's walk asks GitHub only for its list.
+  // NUL. Each walked commit's change to the path is derived from that
+  // commit's remembered record, so a later revision's walk asks GitHub only
+  // for its list.
   adder(source: PublishedSource, revision: string, signal: AbortSignal) {
+    const recordOf = this.commitRecorder(source, signal);
     return (path: string): Promise<ProfileAddition> =>
       this.recalledJson(source, revision, `${path}\0added`, async () =>
         findAddition(
           await listPathCommitsViaGh(source.repository, path, revision, signal),
-          (commit) =>
-            this.recalledJson(source, commit, `${path}\0change`, () =>
-              commitChangeViaGh(source.repository, commit, path, signal),
-            ),
+          async (commit) => commitChangeOf(await recordOf(commit), path),
         ),
       );
   }

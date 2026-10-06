@@ -145,8 +145,8 @@ export function commitListIn(
 }
 
 // GitHub's answer for commit `sha` when a history of one of `publications`
-// lists it, naming its change to that path among the files it changed;
-// undefined when none does.
+// lists it, naming its change to each path whose history there lists it among
+// the files it changed; undefined when none does.
 export function commitAnswerIn(
   publications: readonly PublishedHistories[],
   sha: string,
@@ -156,20 +156,23 @@ export function commitAnswerIn(
       ...Object.keys(published.history ?? {}),
       ...Object.keys(published.files ?? {}),
     ]);
-    for (const path of paths) {
+    const changes = [...paths].flatMap((path) => {
       const change = historyOf(published, path)?.find(
         (each) => each.sha === sha,
       );
-      if (change !== undefined) {
-        const { status } = change;
-        return jsonAnswer({
-          ...historyCommit(change),
-          files: [
-            { filename: ".planning/PRODUCT-BACKLOG.md", status: "modified" },
-            ...(status === null ? [] : [{ filename: path, status }]),
-          ],
-        });
-      }
+      return change === undefined ? [] : [{ path, change }];
+    });
+    const [first] = changes;
+    if (first !== undefined) {
+      return jsonAnswer({
+        ...historyCommit(first.change),
+        files: [
+          { filename: ".planning/PRODUCT-BACKLOG.md", status: "modified" },
+          ...changes.flatMap(({ path, change: { status } }) =>
+            status === null ? [] : [{ filename: path, status }],
+          ),
+        ],
+      });
     }
   }
   return undefined;
