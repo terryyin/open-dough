@@ -53,6 +53,10 @@ of the ref answers when GitHub was asked. A page that closes, is hidden, or
 switches project stops waiting without ending a read another page still waits
 for; the last one leaving ends it, as closing the dashboard does. A finished
 ref or branch-head answer is never reused: a later open or check asks again.
+A shared request that GitHub refuses, or leaves unanswered for the 30-second
+bound counted from when it was first asked, fails every page waiting on it
+alike, so a page that joined it late can be told so sooner than 30 seconds
+after it asked; the failure is not kept, and the next request asks again.
 
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done

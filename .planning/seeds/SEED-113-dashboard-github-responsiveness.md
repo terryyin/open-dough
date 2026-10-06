@@ -312,8 +312,6 @@ remaining priorities from the developer's observations.
 
 ## Open Decisions Before Refinement or Planning
 
-- Select request-sharing lifetimes and cancellation behavior while preserving
-  freshness and the existing local access boundary.
 - Select cooldown and concurrency policies from the actual read contract.
 - Select how published evidence establishes unchanged content without reusing
   historical provenance incorrectly.
