@@ -113,6 +113,15 @@ Learning: no consumer needed a change. Each already settles a departed request
 from its own signal, or rethrows its rejection (`revisionChecks.ts`,
 `performedBranchRead.ts`, `listedRecordsRead.ts`).
 
+CI repair (run 37536012215 on `aae961f6`): `published-facts-isolation.spec.ts`
+counted Doughnut's setting-file read as asked after returning to Open Dough.
+`selectSettledDoughnut` returned before Doughnut's done listing and setting-file
+read reached GitHub, so the page could look settled before they answered. It
+failed 6 of 60 runs locally with or without `11ddc3db`. It now waits for both
+reads, and the matching wait in `auto-refresh-project-isolation.spec.ts` uses
+the same `readsBesideChecks` form. With 20 repeats of both specs, 140 passed;
+with 60 repeats of the returning case, 120 passed.
+
 ## Execution complete
 
 Product advice: no change. The correction adds no feature promise; it leaves
