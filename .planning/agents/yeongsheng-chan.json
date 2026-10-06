@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "YeongSheng-chan",
-  "email": "yeongsheng-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-113#reuse-unchanged-records-after-publication",
-  "host": "claude",
-  "model": "fable"
-}
