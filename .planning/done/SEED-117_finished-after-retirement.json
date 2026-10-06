@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-117#finished-after-retirement",
+  "title": "A session that retired its own checkout closes as finished",
+  "completedAt": "2026-10-06T23:10:33.885Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "claude"
+}
