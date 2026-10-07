@@ -119,6 +119,11 @@ test.describe("marking a session done from its terminal", () => {
       await expect(listed).toHaveCount(1);
     }
     const release = await holdDoneRequests(page);
+    // Still working, but idle between steps, so its prompt takes the rename.
+    dashboard.claudeSessionBecomes(
+      String(session?.["sessionId"]),
+      "working-idle",
+    );
 
     await markDoneAnyway(panel);
 

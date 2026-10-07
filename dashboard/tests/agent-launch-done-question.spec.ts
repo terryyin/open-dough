@@ -37,7 +37,12 @@ import {
 import { publishOrigin, test } from "./support/startOriginTest.ts";
 import { markReportRead } from "./support/sessionMessagePart.ts";
 
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
+// A session waiting for input is not renamed; that wait is kept short.
+test.use({
+  projectFolders: ["open-dough"],
+  launchTimeoutMs: 30_000,
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "2000" },
+});
 
 const titleA = "Story A";
 const titleB = "Story B";
@@ -135,12 +140,13 @@ test("a session not reported complete asks first with its situation; Keep open a
     );
   });
 
-  await test.step("(d) Needs input: asks that it is waiting for your input; confirming renames and stops it as Mark as done does", async () => {
+  await test.step("(d) Needs input: asks that it is waiting for your input; confirming stops it as Mark as done does, without typing a rename into its prompt", async () => {
     dashboard.claudeSessionBecomes(storyA.sessionId, "blocked");
     await page.reload();
     await expect(sessionStateOf(entryA)).toHaveText("Needs input");
     const doneName = doneNameOf(dashboard, storyA.sessionId);
     const shortId = shortIdOf(dashboard, storyA.sessionId);
+    const attachesBefore = dashboard.claudeAttaches().length;
     const question = await expectAsked(entryA, waitingForInput);
     await markAsDone(question).click();
 
@@ -149,14 +155,16 @@ test("a session not reported complete asks first with its situation; Keep open a
       .recentlyDone.getByRole("article")
       .filter({ hasText: titleA });
     await expect(sessionStateOf(recentA)).toHaveText("Done");
-    await expect(recentA).toContainText(`Named ${doneName}`);
-    await expect(recentA).not.toContainText("rename failed");
+    await expect(recentA).toContainText(`Intended name ${doneName}`);
+    await expect(recentA).toContainText(
+      "Claude Code rename failed: The session was still working when the wait ended.",
+    );
+    expect(dashboard.claudeAttaches().slice(attachesBefore)).toEqual([]);
     expect(dashboard.claudeStopCalls().slice(before)).toEqual([
       expect.objectContaining({ argv: ["stop", shortId] }),
     ]);
     const done = await recordOf(dashboard, storyA.sessionId);
     expect(done?.doneAt).toBeDefined();
-    expect(done?.doneProblem).toBeUndefined();
   });
 });
 

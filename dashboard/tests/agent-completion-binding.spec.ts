@@ -169,6 +169,8 @@ for (const quiet of [false, true])
           expect(current?.completion?.receipt).toBe(receipt.receipt);
           if (quiet) expect(current?.doneAt).toBe(receipt.receivedAt);
         }
+        // Its turn has ended; the session idles until it is marked done.
+        server.claudeSessionBecomes(bound.session.sessionId, "done-live");
         const done = await markDone(server, {
           source: "open-dough",
           host: "claude",

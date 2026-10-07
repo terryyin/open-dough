@@ -181,6 +181,8 @@ require(${JSON.stringify(fixturePath)});
     { mode: 0o755 },
   );
   const session = await launched(dashboard);
+  // Idle between steps, so the rename succeeds and only the stop fails.
+  dashboard.claudeSessionBecomes(session.sessionId, "working-idle");
   const response = await markDone(dashboard, {
     source: "open-dough",
     session: session.sessionId,

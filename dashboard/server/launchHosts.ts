@@ -56,12 +56,17 @@ import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 // Runs `use` with typing into one attachment to this session: the newest one
 // the developer has open, else a private one opened from `folder` for this
 // call alone and hung up once `use` settles. Rejects with
-// `TerminalAttachmentUnopened` when that private one cannot show a screen.
+// `TerminalAttachmentUnopened` when that private one cannot show a screen
+// before `signal` ends the wait.
 export type WithAttachment = <T>(
   session: HostSession,
   folder: ProjectFolder,
   use: (type: (input: string) => void) => Promise<T>,
+  signal: AbortSignal,
 ) => Promise<T>;
+
+// Whether the developer marked the session done, or its own report did.
+export type DoneIntent = "manual" | "reporting";
 
 export type LaunchHost = {
   options?(signal: AbortSignal, cwd?: string): Promise<LaunchHostOptions>;
@@ -126,6 +131,7 @@ export type LaunchHost = {
     record: LaunchRecord,
     folder: ProjectFolder,
     withAttachment: WithAttachment,
+    intent: DoneIntent,
   ): Promise<void>;
   stop?(
     session: HostSession,

@@ -225,7 +225,7 @@ project folder and does not check the saved workspace.
 
 ### 2. The Claude rename waits for an idle session and names a gone or busy one
 Type: Behavior
-Status: planned
+Status: done
 Proof: one spec (new or in `agent-launch-card-done.spec.ts`) with the two listing changes above and `DOUGH_DONE_RENAME_WAIT_MS` short; `claudeAttaches()` empty in both; `claudeStopCalls()` has one.
 
 Behavior: the session's listing says `busy` → Mark as done → no attach is
@@ -330,3 +330,21 @@ not execute it. A fresh execution session needs nothing from that session:
   test in `agent-launch-card-done.spec.ts` (now "could not be confirmed" with a
   300 ms wait) and the done-question step (d) (`waiting`) change outcome under
   slice 2's rules.
+- Slice 2: one deadline in `hosts/claude/rename.ts` covers the idle poll, the
+  private attach (bounded by an `AbortSignal` through `withAttachment`), the
+  keys, and the name check; `DoneIntent` (`manual` 5 s, `reporting` 60 s) is
+  passed to `LaunchHost.rename`. A `forgotten` session is not stopped; a
+  `done-exited` one is still listed (retained) and is stopped as before. A
+  listing that stays unreadable through the idle wait reports `The native
+  rename could not be confirmed.` The fake gained `claudeAttachesSilent` for
+  the hung-attach bound. Accepted proof: `agent-launch-done-stop` (busy,
+  exited, forgotten, silent attach, ignored-then-retry) and the consumers
+  that now make the fake session `working-idle` or `done-live` before a mark.
+- For slice 3: the fake lists a newly launched session `busy`, so a
+  quiet-completion spec switches it to `done-live` or `working-idle` before
+  the continuation can rename. Tests expecting `Named` through a private
+  attach need a wait of about 2 s; at 300 ms the confirmation read is aborted.
+- Open real-host risk: O1 waited a fixed 4 s before typing, so how fast a
+  real `claude attach` shows its first settled screen is unmeasured; if it
+  takes most of the 5 s manual wait, manual Done reports "could not be
+  opened" or "could not be confirmed". The quiet-completion wait is 60 s.

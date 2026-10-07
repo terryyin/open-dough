@@ -119,8 +119,9 @@ export class AgentTerminals {
     session: HostSession,
     folder: ProjectFolder,
     use: (type: (input: string) => void) => Promise<T>,
+    signal: AbortSignal,
   ): Promise<T> {
-    return this.attachments.withAttachment(session, folder, use);
+    return this.attachments.withAttachment(session, folder, use, signal);
   }
 
   endAttachments(session: SessionReference): void {

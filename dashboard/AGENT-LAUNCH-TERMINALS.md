@@ -94,9 +94,12 @@ requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
 and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
 history needs no invented interrupt. A race/refusal never retries against a
-newer turn. Claude types `/rename` into the open attachment, or else into a
-private attachment of its own from the project folder that is hung up once the
-rename settles, and waits for listing confirmation. Native history is retained.
+newer turn. Claude waits for its listing to show the session idle, never
+typing into one that is busy or waiting, then types `/rename` into the open
+attachment, or else into a private attachment of its own from the project
+folder that is hung up once the rename settles, and waits for listing
+confirmation, all within one bounded wait of five seconds. A session listed
+with no running process is not renamed. Native history is retained.
 
 Wherever it is offered, on a card or in the terminal or final report panel, Mark as
 done marks a session at once only when its intended work is complete: its

@@ -124,11 +124,13 @@ export class TerminalAttachments {
   // Runs `use` against the newest open attachment to this session, which
   // stays open. With none, a private client is attached from `folder`, with
   // no saved-workspace check, and `use` runs once its first screen has
-  // settled; that client is hung up when `use` settles.
+  // settled, unless `signal` ends the wait first; that client is hung up when
+  // `use` settles.
   async withAttachment<T>(
     session: HostSession,
     folder: ProjectFolder,
     use: (type: (input: string) => void) => Promise<T>,
+    signal: AbortSignal,
   ): Promise<T> {
     const open = this.newestOpen(session);
     if (open !== undefined) {
@@ -136,7 +138,7 @@ export class TerminalAttachments {
         open.pty.write(input);
       });
     }
-    const client = await this.openPrivate(session, folder);
+    const client = await this.openPrivate(session, folder, signal);
     try {
       return await use((input) => {
         client.pty.write(input);
@@ -156,16 +158,30 @@ export class TerminalAttachments {
   }
 
   // A socketless client with no idle rule, tracked so `close()` hangs it up,
-  // once it has shown a settled screen.
+  // once it has shown a settled screen before `signal` ends the wait.
   private async openPrivate(
     session: HostSession,
     folder: ProjectFolder,
+    signal: AbortSignal,
   ): Promise<LiveTerminalClient> {
     const attached = nativeAttach(session, folder, true);
     if (!("pty" in attached)) throw new TerminalAttachmentUnopened();
     const client = this.watchClient(attached.pty, attached.options);
-    const shown = await client.firstOutput;
-    await client.screenText();
+    const settled = client.firstOutput.then(async (shown) => {
+      if (shown) await client.screenText();
+      return shown;
+    });
+    const shown = await new Promise<boolean>((resolve) => {
+      const ended = () => {
+        resolve(false);
+      };
+      if (signal.aborted) ended();
+      signal.addEventListener("abort", ended, { once: true });
+      void settled.then((value) => {
+        signal.removeEventListener("abort", ended);
+        resolve(value);
+      });
+    });
     if (!shown || !this.clients.has(client.pty)) {
       client.hangup();
       throw new TerminalAttachmentUnopened();

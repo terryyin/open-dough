@@ -8,7 +8,7 @@ import {
   HostOperationFailure,
   TerminalAttachmentUnopened,
 } from "./hostLaunch.ts";
-import { launchHost } from "./launchHosts.ts";
+import { launchHost, type DoneIntent } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
 import {
   completedWithoutAttention,
@@ -68,7 +68,7 @@ async function finishNativeDone(
   sourceId: string,
   record: LaunchRecord,
   folder: ProjectFolder,
-  intent: "manual" | "reporting",
+  intent: DoneIntent,
   launches?: AgentLaunches,
   terminals?: AgentTerminals,
   source?: PublishedSource,
@@ -90,10 +90,14 @@ async function finishNativeDone(
         throw new HostOperationFailure(
           "Native rename requires terminal input while the reporting sender is still working. Use Mark as done after reporting finishes.",
         );
-      await host.rename?.(record, folder, (session, at, use) =>
-        terminals === undefined
-          ? Promise.reject(new TerminalAttachmentUnopened())
-          : terminals.withAttachment(session, at, use),
+      await host.rename?.(
+        record,
+        folder,
+        (session, at, use, signal) =>
+          terminals === undefined
+            ? Promise.reject(new TerminalAttachmentUnopened())
+            : terminals.withAttachment(session, at, use, signal),
+        intent,
       );
     });
   }
