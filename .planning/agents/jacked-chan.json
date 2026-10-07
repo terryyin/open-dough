@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-116#claude-done-rename-readiness-correction",
+  "host": "claude"
+}
