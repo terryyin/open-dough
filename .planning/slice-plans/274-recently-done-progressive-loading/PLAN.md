@@ -633,3 +633,23 @@ target or hard limit, and none is invented. No boundary-specific refactoring
 pass is needed for this sequence. Both human-owned source questions are
 answered and recorded as decisions 7 and 8; no remaining concern blocks
 execution once it is separately authorized.
+
+## Execution complete
+
+Product advice:
+
+- Before or while landing, rebuild `.planning/done/.catalog.json` after
+  integrating `origin/main`: main already holds the SEED-106 and SEED-118 done
+  records that this branch's catalog does not list, and this repository's
+  installed producer copies cannot rebuild it until a release is installed.
+- Terry decides whether Recently done keeps strict catalog mode or adds a
+  compatibility path for projects without a current catalog, and the release
+  order of the producer payload and the dashboard (decision 2 was recorded as
+  a recommendation, not agreement).
+- Correction `SEED-119#done-catalog-currency-correction` (plan 276, ready, not
+  queued) makes the backlog Git adapters rebuild the catalog, names the
+  `catalog-done` repair in the gap, and re-asks failed done records on a new
+  revision.
+- SEED-118 "Recover from temporary GitHub failures" (plan 273) should treat
+  `doneDetails.ts` per-record failures and the catalog gap as recovery
+  consumers, rather than add a second retry policy.

@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 251. Removed local codes are never reused.
+- Highest allocated local number: 253. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -975,3 +975,17 @@ Follow-up: Open, unqueued.
   - Evidence: slice 4's format output contained "Format failed: unresolved findings or tool failures remain" and `agent-commit.mjs` then returned `commit-failed` for two `'_' is defined but never used` errors in new specs; slice 7's filtered format output showed "Async arrow function has no 'await' expression" and the commit was refused the same way. Each was fixed, re-proved with the touched spec and the typecheck, and committed.
   - Observed effect: two refused commits and two short fix cycles; no unproved change was published.
   - Inference: Qualified. Wrap-up step 4 already requires formatting success before staging; filtering the formatter's output hid its exit status. Telling delegated agents the hook's lint rules, or checking the formatter's exit before staging, would avoid it.
+
+## DD-252 — A CI repair fixed one spec's race and left the same race in a sibling spec from the same slice
+
+A repair for a timing race in a new test fixed only the reported spec. A sibling spec written in the same slice had the same pattern: it switched projects while demanded reads were still in flight, then asserted an exact set of asked records. That sibling then failed CI separately.
+
+### Occurrences
+- Execution: `SEED-119#recently-done-progressive-loading` / plan 274, first related implementation commit `62238f21` - Timestamp: 2026-10-08T06:30:48+09:00 (repair `d04890e8`); second repair `fbab9e3a` at 2026-10-08T06:43:54+09:00 - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.57 (installed `dough-update/VERSION`) - Evidence: CI run 37687776071 on `c98b364c` failed `recently-done-progressive-navigation.spec.ts` ("choosing another project…"); the coordinator's brief asked only for that test, and repair `d04890e8` added a wait to it. `recently-done-progressive-navigation-cursor.spec.ts` (also slice 4) then asked records twice in the slice 5 refactor sweep and failed CI runs 37689968037 (`d04890e8`) and 37691024378 (`670b27fa`); `fbab9e3a` applied the same wait. - Observed effect: two more failed CI runs, a second diagnosis agent (about 97k subagent tokens), and a second repair commit. - Inference: Qualified. The first diagnosis named a general cause: a project switch cancels in-flight reads and `recordsAsked` counts cancelled asks. Searching the same slice's specs for project switches after demanded reads would likely have found the sibling in the same repair.
+
+## DD-253 — Managed delivery waits indefinitely on a stalled `git fetch`
+
+`execution-increment-delivery.mjs deliver` runs `git fetch` and `git push` with no time bound. A stalled SSH fetch held the delivery until the coordinator killed it. An earlier attempt at the same boundary stopped `needs-validation` after a push rejection, although the remote tip had not moved.
+
+### Occurrences
+- Execution: `SEED-119#recently-done-progressive-loading` / plan 274, first related implementation commit `62238f21` - Timestamp: unknown (slice 3 delivery of `a6dbc253`, committed 2026-10-08T01:54:24+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.57 (installed `dough-update/VERSION`) - Evidence: the first `deliver` returned `publication: reconciled, status: needs-validation` with `remoteTip` equal to the previously published base `988d0267`. The retry with `--validated-candidate` ran over 10 minutes, and `ps` showed `git fetch origin` / `ssh … git-upload-pack` alive for 15 minutes. After that fetch was killed, a manual fetch took 2 s and the retry was accepted. - Observed effect: about 25 minutes of delivery delay. The coordinator also truncated the first result with `cut -c1-300`, which lost its diagnostic fields. - Inference: Qualified. A transient network stall; a bounded fetch/push with a named timeout result would have turned the hang into an explicit, retryable stop.
