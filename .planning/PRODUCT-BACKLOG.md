@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Show the latest 10 done items and reveal older items on demand](seeds/SEED-119-recently-done-progressive-loading.md#recently-done-progressive-loading) — SEED-119#recently-done-progressive-loading
 - [Recover automatically from temporary GitHub failures](seeds/SEED-118-dashboard-reading-reliability.md#recover-from-temporary-github-failures) — SEED-118#recover-from-temporary-github-failures
 - [Show basic story cards without waiting for expensive cache validation](seeds/SEED-118-dashboard-reading-reliability.md#show-cards-before-expensive-cache-validation) — SEED-118#show-cards-before-expensive-cache-validation
 - [Reduce repeated GitHub reads across tabs and deployments](seeds/SEED-118-dashboard-reading-reliability.md#reduce-repeated-reads-across-tabs-and-deployments) — SEED-118#reduce-repeated-reads-across-tabs-and-deployments
