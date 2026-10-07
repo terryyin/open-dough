@@ -42,7 +42,12 @@ function publishedAs(markdown: string): Origin {
   };
 }
 
-const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
+const failedOpenings: {
+  when: string;
+  origin: Origin;
+  problem: string;
+  recovery?: string;
+}[] = [
   {
     when: "the connection fails",
     origin: { ref: noConnection },
@@ -54,6 +59,8 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
     origin: { ref: rateLimitedAnswer(429) },
     problem:
       "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub named no wait, so reading resumes in 60 seconds.",
+    recovery:
+      "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
   },
   {
     when: "the ref answer names no commit",
@@ -91,13 +98,18 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
   },
 ];
 
-for (const { when, origin, problem } of failedOpenings) {
+for (const { when, origin, problem, recovery } of failedOpenings) {
   test(`read failure and retry shows a read problem and no snapshot when ${when}`, async ({
     page,
   }) => {
     await publishOrigin(page, origin);
     await page.goto("/");
-    await expectProblemAndNoSnapshot(page, problem);
+    await expectProblemAndNoSnapshot(page, problem, undefined, recovery);
+    if (recovery !== undefined) {
+      await expect(parts(page).problem).toContainText(
+        "Reload the page after that time to read again.",
+      );
+    }
   });
 }
 

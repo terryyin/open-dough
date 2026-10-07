@@ -3,8 +3,8 @@
 // once `X-RateLimit-Remaining` is `0`) keeps the last successful snapshot,
 // says when checks resume, and asks nothing -- not even when the page is seen
 // again -- before that time; the check at that time reads what was published,
-// and success restores the steady pace. Other failed automatic reads:
-// ./auto-refresh-recovery.spec.ts. The page, its local authenticated read
+// and the steady pace returns once the wait has passed. Other failed
+// automatic reads: ./auto-refresh-recovery.spec.ts. The page, its local authenticated read
 // boundary, the `gh` invocation, and the shared interpretation are the
 // production ones; the fake GitHub behind the synthetic `gh`
 // (./support/fakeGitHub.ts) only publishes commits and limits answers. The
@@ -84,7 +84,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
       "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
     );
     await expect(problem).toContainText(
-      "As GitHub asked, automatic checks wait until",
+      "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
     );
     await expect(problem).not.toContainText("Retry");
     await expect(page.getByRole("button", { name: "Retry" })).toHaveCount(0);
@@ -170,7 +170,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     await expect(problem).toHaveCount(0);
   });
 
-  await test.step("success lifts GitHub's wait: checks resume at the steady pace", async () => {
+  await test.step("with GitHub's wait passed, checks resume at the steady pace", async () => {
     expectSteadyPace(await passTimeUntilChecked(page));
     await expect(problem).toHaveCount(0);
   });

@@ -15,7 +15,11 @@ import {
   type ProfileAddition,
   type ProfileAdditions,
 } from "./authenticatedProfileRead.ts";
-import type { ProfileAssignments } from "./agentAssignments.ts";
+import {
+  profilesUnread,
+  type ProfileAssignments,
+  type ProfilesRead,
+} from "./agentAssignments.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { detailGapProblem } from "./readWaitBound.ts";
 
@@ -86,19 +90,19 @@ async function attributionAt(
 
 // The snapshot's assignments, each with the human its own profile credits,
 // from the read's one addition per readable profile (`additionOf`, shared with
-// the Take's slice clock); `withAssignments` places them wherever assignments
-// are shown. Each human is passed on to `onAttributed` as soon as its own walk
+// the Take's slice clock); `withAssignments` (`./assignmentPlacement.ts`)
+// places them wherever assignments are shown. Each human is passed on to `onAttributed` as soon as its own walk
 // ends, so a slow walk delays only its own credit.
 export async function readAttributedAssignments(
   source: PublishedSource,
   revision: string,
-  profiles: ProfileAssignments | undefined,
+  profiles: ProfilesRead,
   additionOf: ProfileAdditions,
   signal: AbortSignal,
   onAttributed?: (profiles: ProfileAssignments) => void,
-): Promise<ProfileAssignments | undefined> {
-  if (profiles === undefined) {
-    return undefined;
+): Promise<ProfilesRead> {
+  if (profilesUnread(profiles)) {
+    return profiles;
   }
   let attributed = profiles;
   await Promise.all(

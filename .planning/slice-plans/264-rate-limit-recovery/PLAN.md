@@ -480,8 +480,8 @@ next picked call once.
 ### 6. A limited page says so once and asks nothing until reading resumes
 
 Type: Behavior
-Status: planned
-Proof: New `dashboard/tests/limited-reading.spec.ts` through `dashboardTest.ts`,
+Status: done
+Proof: New `dashboard/tests/limited-reading-*.spec.ts` through `dashboardTest.ts`,
 with `auto-refresh-rate-limit.spec.ts`, `auto-refresh-recovery.spec.ts`,
 `auto-refresh-detail-recovery.spec.ts`, `read-failure.spec.ts`,
 `auto-refresh-visibility.spec.ts`, and `project-selection.spec.ts`.
@@ -526,12 +526,32 @@ after the wait, and says so, until slice 7.
 Safe stop: Every tab says the same thing about a limit and none of them asks
 during it.
 
+Done: the page's one record is `src/readingLimit.ts`, set where
+`authenticatedGet` meets `retryAfterSeconds`, moved only later, ended only by
+its time, and kept across project selection; while it stands
+`authenticatedGet` refuses locally. `ReadProblem.resumesAt` replaces
+`retryAfterSeconds`, `checksResumeAt` is gone, and the check schedule keeps the
+time it asked under (`askedUnder`) so a limited check does not abort itself.
+`ReadingLimitNotice` words three recoveries; `limitGapProblem` labels limited
+record-file and profile gaps; `snapshotRetrieval.ts` marks a snapshot
+`withheld` when a limit was met during its read. Accepted proof: the four
+`limited-reading-*.spec.ts` journeys (detail, membership, check, profile
+history listing with human credit), each through `whileTheLimitStands` (hide
+and reveal, second tab, project switch, reload) with no GitHub call; disabling
+the local refusal failed all four; the named regressions. Gaps: "withheld" is
+page-wide (a limited sidebar or containment read marks it); the addition-commit
+refusal and done-record wording are left to slice 7's proof; a held-back detail
+gap reads "Reading resumes in N seconds. Limited until T." Learnings:
+`useStandingLimit` re-renders when the time ends, the place to trigger
+recovery; `limitedReadingJourney.ts` and `limitNotice.ts` hold the journey
+support.
+
 ### 7. A page reads on its own what the limit withheld
 
 Type: Behavior
 Status: planned
 Proof: New `dashboard/tests/limit-recovery.spec.ts` through `dashboardTest.ts`,
-with `limited-reading.spec.ts`, `auto-refresh-rate-limit.spec.ts`,
+with `limited-reading-*.spec.ts`, `auto-refresh-rate-limit.spec.ts`,
 `reopened-project-reads.spec.ts`, `auto-refresh-visibility.spec.ts`, and
 `responsive-session-reconciliation.spec.ts`.
 

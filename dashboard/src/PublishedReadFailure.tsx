@@ -1,20 +1,27 @@
 // A failed read of the published work, said as an alert: what stopped it,
 // when, what the shown snapshot is then (what this attempt read, the earlier
-// snapshot, or none), and when automatic checks resume.
+// snapshot, or none), and how reading continues: while GitHub's rate limit
+// stands, as its notice says (`./ReadingLimitNotice.tsx`).
 
 import { TriangleAlert } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import { Moment } from "./Moment.tsx";
 import type { FailedAttempt } from "./observationAttempt.ts";
 import { shortRevision, type PublishedWork } from "./publishedWork.ts";
+import { ReadingLimitNotice } from "./ReadingLimitNotice.tsx";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
 export function PublishedReadFailure({
   attempt,
   work,
+  limitedUntil,
+  withheld,
 }: {
   readonly attempt: FailedAttempt;
   readonly work: PublishedWork | undefined;
+  // When the page's standing rate limit ends, if one stands.
+  readonly limitedUntil: Date | undefined;
+  readonly withheld: boolean;
 }) {
   return (
     <div role="alert" className="read-problem">
@@ -40,18 +47,19 @@ export function PublishedReadFailure({
           ". No published work is shown, because none has been read."
         )}
       </p>
-      <p>
-        {work && attempt.checksResumeAt ? (
-          <>
-            As GitHub asked, automatic checks wait until{" "}
-            <Moment at={attempt.checksResumeAt} />.
-          </>
-        ) : work ? (
-          `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible.`
-        ) : (
-          "Reload the page to read again."
-        )}
-      </p>
+      {limitedUntil ? (
+        <ReadingLimitNotice
+          until={limitedUntil}
+          work={work}
+          withheld={withheld}
+        />
+      ) : (
+        <p>
+          {work
+            ? `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible.`
+            : "Reload the page to read again."}
+        </p>
+      )}
     </div>
   );
 }

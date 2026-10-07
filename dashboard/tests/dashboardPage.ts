@@ -217,12 +217,13 @@ export const controlsBesideSessions = (page: Page) =>
     .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
-// A failed read with no earlier snapshot shows the problem and the way to read
-// again, and nothing that only a snapshot could say.
+// A failed read with no earlier snapshot shows the problem, the way to read
+// again (`recovery`), and nothing that only a snapshot could say.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
   repository = "terryyin/open-dough",
+  recovery = "Reload the page to read again.",
 ) {
   const { stages, source, problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
@@ -230,7 +231,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(problem).toContainText(
     "No published work is shown, because none has been read.",
   );
-  await expect(problem).toContainText("Reload the page to read again.");
+  await expect(problem).toContainText(recovery);
   await expect(controlsBesideSessions(page)).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
   await expect(stages).toHaveCount(0);
@@ -239,8 +240,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
   await expect(page.getByText("Near-future direction")).toHaveCount(0);
   await expect(source).toContainText(repository);
-  await expect(source).not.toContainText("Revision");
-  await expect(source).not.toContainText("Retrieved");
+  await expect(source).not.toContainText(/Revision|Retrieved/);
 }
 
 // Expand through the actual control before claiming direction is readable.

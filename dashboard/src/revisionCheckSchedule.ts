@@ -6,8 +6,9 @@
 // While a snapshot is shown, the page is visible, and no read is under
 // way, ask at a steady pace whether the selected project's ref still names
 // its revision; a page seen again asks once at once. A failed check or read
-// keeps that pace rather than retrying at once, and a rate limit's directed
-// wait postpones the next check further, hidden or not. An unchanged answer
+// keeps that pace rather than retrying at once, and while the page's record
+// of GitHub's rate limit stands (`./readingLimit.ts`) no check is asked
+// before its time, hidden, seen again, or not. An unchanged answer
 // leaves the snapshot, its retrieval time, and its detail exactly as they
 // are; a changed one reads the newly named commit. While the ref is
 // unchanged, a watched branch found at another head, or no longer published,
@@ -22,6 +23,7 @@ import { checkPublishedRevision } from "./authenticatedRead.ts";
 import { movedBranches } from "./movedBranchProgress.ts";
 import type { Visibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { useLimitedUntil } from "./readingLimit.ts";
 
 // How long a shown snapshot waits before asking whether the selected
 // project's `main` still names its revision: often enough that newly
@@ -37,9 +39,6 @@ type ScheduledChecks = {
   // it, so a check and a read never overlap.
   readonly readSettled: boolean;
   readonly visibility: Visibility;
-  // The page-clock time before which no check may be asked, because GitHub's
-  // rate limit said so; zero when nothing directs a wait.
-  readonly checksResumeAt: number;
   // The ref names another commit, which the caller reads.
   readonly onChanged: (revision: string) => void;
   // The shown snapshot is still what the ref names.
@@ -55,12 +54,18 @@ export function useRevisionCheckSchedule({
   watchedHeads,
   readSettled,
   visibility,
-  checksResumeAt,
   onChanged,
   onUnchanged,
   onBranchesMoved,
   onFailed,
 }: ScheduledChecks): void {
+  // The page-clock time before which no check may be asked. While a check is
+  // outstanding the schedule keeps the time it was asked under, so the limit
+  // that check's own answer sets never cancels it; once it settles, the next
+  // check obeys the latest time.
+  const limitedUntil = useLimitedUntil();
+  const [askedUnder, setAskedUnder] = useState<number | undefined>();
+  const checksResumeAt = askedUnder ?? limitedUntil;
   // The watched branches and heads as one value, so an unchanged watch keeps
   // the schedule as it is.
   const watchKey = JSON.stringify([...watchedHeads]);
@@ -77,6 +82,7 @@ export function useRevisionCheckSchedule({
     const checking = new AbortController();
     const waiting = setTimeout(
       () => {
+        setAskedUnder(checksResumeAt);
         checkPublishedRevision(
           source,
           shownRevision,
@@ -116,6 +122,7 @@ export function useRevisionCheckSchedule({
     return () => {
       clearTimeout(waiting);
       checking.abort();
+      setAskedUnder(undefined);
     };
   }, [
     checksResumeAt,
