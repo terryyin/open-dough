@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-113#rate-limit-recovery-residue-correction",
+  "title": "Rate-limit recovery waits, resumes, and labels as promised",
+  "completedAt": "2026-10-07T11:39:13.334Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "claude"
+}

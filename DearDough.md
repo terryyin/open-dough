@@ -571,7 +571,7 @@ Follow-up: queued, not resolved: [Observe decisive planning premises through the
   - Evidence: plan 256 premise "Managed delivery's production callers are the coordinator CLI and Trunk Mode closure only" came from a grep of `src` and `dashboard` for the function and script names. Slice 1 also had to align the credential-free substitute hosts `tests/support/native-agent-one-shot*.sh` and `deliverQueued`, which run the CLI. Slice 2's guidance told every caller to copy `--mode` from the established start, but caller-selected current-branch and host-owned execution have none. The implementer reported that gap, and the coordinator added `--mode trunk` for those callers (slice 2 decision in `b413d0fe:.planning/slice-plans/256-story-branch-delivery-target/PLAN.md`).
   - Observed effect: no CI failure or rework; extra caller alignment in slice 1 and one added guidance sentence in slice 2.
   - Inference: Qualified. Fifth occurrence: the sweep found code callers by name. It missed that the new required argument is supplied by every guidance path that runs the command, including paths without the established start the plan assumed.
-- Execution: `SEED-113#rate-limit-recovery-residue-correction` / plan 272, first related implementation commit `8c6f1c09`
+- Execution: `SEED-113#rate-limit-recovery-residue-correction` / plan 272 (`669a3d3b:.planning/slice-plans/272-rate-limit-recovery-residue-correction/PLAN.md`), first related implementation commit `8c6f1c09`
   - Timestamp: unknown (slice 4 delegation, before `40194cfc` committed 2026-10-07T16:54:22+09:00)
   - Tool: Claude Code (coordinator and delegated implementation agent)
   - Model: claude-opus-5-5
@@ -892,7 +892,7 @@ Follow-up: Open, unqueued.
   - Evidence: slice 1 was delegated with an independent refactor pass. For slice 2, the CI probe, the background coordinator wrote the probe spec, the `longest-first` and `ci.yml` edits, the rename commit `2afb6ab1`, and the restore `8958faf1` itself. It ran no refactor pass, because the restore returned the code exactly to `a68d3211`.
   - Observed effect: the probe's ordering mistake (ProjectFindings.md DD-249) was the coordinator's own and was not reviewed independently. It cost one extra probe commit and CI run.
   - Inference: Qualified. The probe slice was mostly commit, push and observation, which only the coordinator can do, so the "single interactive slice" condition fits a probe slice poorly. A delegated agent would not necessarily have known Playwright's file order either.
-- Execution: `SEED-113#rate-limit-recovery-residue-correction` / plan 272, first related implementation commit `8c6f1c09`
+- Execution: `SEED-113#rate-limit-recovery-residue-correction` / plan 272 (`669a3d3b:.planning/slice-plans/272-rate-limit-recovery-residue-correction/PLAN.md`), first related implementation commit `8c6f1c09`
   - Timestamp: 2026-10-07T16:54:22+09:00 (slice 4 commit `40194cfc`; the edits came shortly before)
   - Tool: Claude Code
   - Model: claude-opus-5-5
