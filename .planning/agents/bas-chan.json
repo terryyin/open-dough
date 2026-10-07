@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-106#paged-columns-height-follows-shown",
+  "mode": "story-branch",
+  "branch": "claude/the-page-ends-where-the-shown-dashboard-columns",
+  "host": "claude"
+}
