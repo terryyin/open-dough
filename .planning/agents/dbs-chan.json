@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "dbs-chan",
-  "email": "dbs-chan@example.org",
-  "identity": "SEED-112#closed-terminal-stays-closed",
-  "mode": "story-branch",
-  "branch": "claude/a-terminal-the-developer-closed-while-its-sessio",
-  "host": "claude"
-}
