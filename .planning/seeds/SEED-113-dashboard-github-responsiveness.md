@@ -458,6 +458,31 @@ alike, beside the blob reuse listed records already have.
 **Safe stopping point:** New publications need fewer content reads while all
 published-evidence qualifications remain valid.
 
+<a id="reuse-evidence-merge-correction"></a>
+
+### Reuse evidence names every path a merge between changed
+
+**Identity:** SEED-113#reuse-evidence-merge-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/269-reuse-evidence-merge-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"738b84c39378f9c65735faa19b0c56226ca01ea8f27baf7a3bea59f7a8f8e770","plan":"8b05b642fa5d50bad46aa03a577fdc55f0ae15f2f8ab1fa24b119ebd34312264"}}
+```
+
+**Goal:** A developer watching a project whose trunk receives merges sees, at
+a newly found commit, the records that changed since the revision last read,
+never text held from that earlier revision. This corrects the delivery of
+[refreshing published work without rereading unchanged files](#reuse-unchanged-records-after-publication)
+(plan 266, commits 945857c9, 81b24c14, d6192d89); it adds no feature promise.
+
+**Scope:** The touched paths between two revisions also include the files
+GitHub's comparison of them names, from the comparison already asked, so a
+merge whose own change list omits a path it changed cannot leave that path
+reused; a comparison that may not list them all establishes nothing. The
+story's untested examples of a failing commit read and a rename gain proof,
+and the reuse tests' load-fragile or misleading support is corrected. Every
+promise of that story is preserved.
+
+**Plan:** [269-reuse-evidence-merge-correction](../slice-plans/269-reuse-evidence-merge-correction/PLAN.md)
+
 ## Ordering and Scope Reduction
 
 The selected order favors immediate responsiveness, then contained request

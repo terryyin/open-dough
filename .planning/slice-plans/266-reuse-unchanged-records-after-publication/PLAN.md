@@ -324,6 +324,29 @@ Two specs that failed only under whole-suite load were fixed beside this
 slice: the session-state pace now counts reads in the page, and the production
 watcher journey waits on the retired checkout's removal.
 
+## Execution complete
+
+Product advice: Queue the bounded correction
+[SEED-113#reuse-evidence-merge-correction](../../seeds/SEED-113-dashboard-github-responsiveness.md#reuse-evidence-merge-correction)
+([plan 269](../269-reuse-evidence-merge-correction/PLAN.md)) ahead of further
+SEED-113 reuse work: a merge whose own change list omits a path it changed can
+leave stale text reused at the new revision, and the comparison already asked
+names the exact net change at no extra request. Its plan also adds the missing
+proof for a failing commit read and a rename and corrects load-fragile reuse
+test support. Cost-only observations for later SEED-113 work, not queued: two
+sources on one repository can cancel each other's reuse; a comparison that
+keeps failing is asked again on each read at the new revision (as the story
+specifies); the unrelated-commit, restart, and re-added-profile cases are
+proven at both the boundary and the page, a consolidation candidate. Whole-suite
+runs under routine load keep exposing default 5 s polls over real-process work;
+an audit of such polls would likely remove several flakes at once. The
+journey test helper `expectSettledPage` returns before the agent-profile read
+lands, so call counts taken right after it can flake
+(`shared-observer-reads.spec.ts:232` failed once in 3 runs under load; not
+fixed here). Fixed beside this story: a pre-existing page defect where a read
+asked before the page was hidden delayed the prompt check of a page seen again
+by a whole interval.
+
 ## Verification, sizing, and delivery
 
 Each slice owns its product change, outside-in proof, and cleanup together.

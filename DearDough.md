@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 243. Removed local codes are never reused.
+- Highest allocated local number: 245. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -803,3 +803,43 @@ Follow-up: Open, unqueued.
   - Evidence: slice 3's refactor return: "The first run of this command without `--reporter=line` cut off its output before the result, so I ran it again"; slice 4's refactor return: "The default reporter printed nothing on a pass, so I added `--reporter=list` to see the counts"; slice 4's implementation reported its whole-suite count from a `--reporter=dot` run.
   - Observed effect: at least two repeated focused runs (seconds to tens of seconds each); counts were reported for acceptance.
   - Inference: Qualified. The silence is the project's chosen contract for passing journeys; the cost is small but recurs per agent. Stating in the delegation which reporter yields a selection count would avoid the rerun.
+
+## DD-244 — Concurrent Playwright runs in one checkout delete each other's trace output
+
+Two agents ran dashboard Playwright commands in the same execution checkout at
+the same time. Both used the default `dashboard/test-results` output folder, and
+one run's cleanup removed the other's `.playwright-artifacts-*` trace files, so
+passing tests were reported as failed with `ENOENT`. Giving each concurrent run
+a private `--output` folder removed the noise.
+
+### Occurrences
+
+- Execution: `SEED-113#reuse-unchanged-records-after-publication` / plan 266, first related implementation commit `945857c9`
+  - Timestamp: unknown (slice 3 implementation and the load-flake fix ran together, before `7d8319bc` at 2026-10-07T10:01:13+09:00)
+  - Tool: Claude Code (delegated implementation agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; installed guidance 0.3.56, updated to 0.3.57 by the mid-execution merge `8cc33280`
+  - Evidence: slice 3 return: first 42-file run "had 4 failures, all `ENOENT` on `dashboard/test-results/.playwright-artifacts-*` trace files"; flake-fix return: first run "failed both specs, but only with trace ENOENT errors"; both reran with `--output` and passed.
+  - Observed effect: one rerun per agent (minutes each); no false acceptance, because both agents read the error kind.
+  - Inference: Qualified. The coordinator launched the two agents together without assigning output folders; delegation that runs tests concurrently in one checkout could name a private `--output` per agent.
+
+## DD-245 — Whole-suite runs under routine load reveal default-deadline polls on real process work one run at a time
+
+Whole dashboard suite runs on the developer machine (load average 25–35 from
+other work) failed in specs that pass alone. Each cause was a default 5 s
+`expect.poll`, or an event-order assumption, over real work whose duration grows
+with load: a recursive checkout removal, a page read answered late after a
+reload, and a launch of about 85 sequential git subprocesses. Each ~15-minute
+whole-suite run exposed a different spec, so the fixes came one run apart.
+
+### Occurrences
+
+- Execution: `SEED-113#reuse-unchanged-records-after-publication` / plan 266, first related implementation commit `945857c9`
+  - Timestamp: unknown (whole-suite runs during slices 1 and 2, and after slice 3, before `0b2613f4` at 2026-10-07T10:27:38+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; installed guidance 0.3.56, updated to 0.3.57 by the mid-execution merge `8cc33280`
+  - Evidence: slice 1 return (`production-watcher-updates.spec.ts:33`); slice 2 return (that spec again and `agent-launch-attention.spec.ts:80`, 22 expected reads, 21 seen); whole-suite log after slice 3 (four `agent-completion-binding.spec.ts:31` variants and `agent-completion-attention.spec.ts:31`, "Timeout 5000ms"); fixes `7d8319bc` and `0b2613f4`, each reproduced before the fix (delayed answer, slowed git on PATH).
+  - Observed effect: three extra diagnosis agents and at least one extra whole-suite run; story delivery was not blocked, because the failing specs did not reach the changed reads.
+  - Inference: Qualified. Neighbouring launch journeys already used 30 s bounds; a single audit for default-deadline polls on real-process work would likely find more than one flake per run.
+  - Note: the next whole-suite run failed `agent-launch-card-sessions.spec.ts:53` (1 in 6 repeated, 1 in 12 at the pre-story revision `c9e90018`). Its cause was a product defect, not a deadline: a read asked before the page was hidden settled the page's "seen again" state, so the prompt revision check waited 15 s (`pageVisibility.ts`, `publishedObservation.ts`). It was fixed in this execution. The diagnosis also found `expectSettledPage` returning before the agent-profile read lands, which can make call counts taken right after it flaky (`shared-observer-reads.spec.ts:232` failed once in 3 runs; not fixed).
