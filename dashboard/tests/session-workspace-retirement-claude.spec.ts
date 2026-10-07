@@ -4,7 +4,7 @@ import path from "node:path";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
-import { launch, markDone, refinementRequest } from "./agentLaunchBoundary.ts";
+import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryStagesJourney,
@@ -139,35 +139,57 @@ for (const context of ["preparation", "start"] as const) {
   });
 }
 
-test("Mark as done renames a running Claude session whose saved workspace is missing", async ({
-  page,
-  dashboard,
-}) => {
-  const { record, workspace } = await recorded(dashboard);
-  dashboard.claudeSessionBecomes(record.session.sessionId, "done-live");
-  rmSync(workspace, { recursive: true });
-  const doneName = `done-${record.session.name}`;
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: record.session.sessionId,
+for (const [cause, oldProblem] of [
+  [
+    "requires terminal input",
+    "Native rename requires terminal input while the reporting sender is still working. Use Mark as done after reporting finishes.",
+  ],
+  [
+    "No terminal attachment",
+    "No terminal attachment is available to confirm native rename.",
+  ],
+] as const) {
+  test(`Recently done renames a retired-workspace Claude session with the old ${cause} problem`, async ({
+    page,
+    dashboard,
+  }) => {
+    const { record, workspace } = await recorded(dashboard);
+    dashboard.claudeSessionBecomes(record.session.sessionId, "done-live");
+    rmSync(workspace, { recursive: true });
+    record.doneAt = "2026-10-01T00:00:00Z";
+    record.doneProblem = `Local done mark retained. Claude Code rename failed: ${oldProblem}`;
+    save(dashboard.home, [record]);
+    const doneName = `done-${record.session.name}`;
+    await openStoryStagesJourney(page, journey);
+    const recent = parts(page)
+      .recentlyDone.getByRole("article")
+      .filter({ hasText: record.session.sessionId });
+    await expect(recent).toContainText(record.doneProblem);
+    await expect(recent).toContainText("saved workspace is missing");
+    expect(dashboard.claudeAttaches()).toEqual([]);
+
+    await recent.getByRole("button", { name: "Mark as done" }).click();
+
+    await expect(recent).toContainText(`Named ${doneName}`);
+    await expect(recent).not.toContainText(oldProblem);
+    await expect(recent.locator(".launch-problem")).toHaveText("");
+    expect(stored(dashboard.home)[0]).not.toHaveProperty("doneProblem");
+    expect(
+      dashboard
+        .claudeListing()
+        .find((each) => each["sessionId"] === record.session.sessionId),
+    ).toMatchObject({ name: doneName });
+    expect(dashboard.claudeAttaches()).toEqual([
+      expect.objectContaining({
+        id: record.session.host === "claude" ? record.session.shortId : "",
+        lines: [`/rename ${doneName}`],
+      }),
+    ]);
+    await expect(
+      page.getByRole("region", { name: "Terminal", exact: true }),
+    ).toHaveCount(0);
   });
-  expect(response.status).toBe(200);
-  expect(JSON.parse(response.body)).not.toHaveProperty("record.doneProblem");
-  expect(
-    dashboard
-      .claudeListing()
-      .find((each) => each["sessionId"] === record.session.sessionId),
-  ).toMatchObject({ name: doneName });
-  expect(dashboard.claudeAttaches()).toEqual([
-    expect.objectContaining({ lines: [`/rename ${doneName}`] }),
-  ]);
-  await openStoryStagesJourney(page, journey);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: record.session.sessionId });
-  await expect(recent).toContainText(`Named ${doneName}`);
-  await expect(recent).not.toContainText("rename failed");
-});
+}
 
 test("missing Claude workspace without retained report explains the limitation without waking", async ({
   page,

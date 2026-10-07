@@ -4,12 +4,9 @@
 // lists is only marked, never stopped; one whose listing cannot be read is
 // still stopped; one listed as exited has its job removed with `claude rm`,
 // neither renamed nor stopped, keeping Done with the cause when the removal
-// fails until a later Mark as done removes it; and one that never lists the
-// typed `/rename` is answered with only its own `done-` name and that cause
-// once the rename wait ends, is still stopped, and is renamed by a later Mark
-// as done. A session still running a turn is never attached to: once the wait
-// ends it is still stopped, and a later Mark as done renames it once idle. An
-// attachment that never opens is hung up once the wait ends. The whole-flow
+// fails until a later Mark as done removes it. Rename wait failures are in
+// ./agent-launch-done-rename-wait.spec.ts; shutdown abandonment is in
+// ./agent-launch-done-close.spec.ts. The whole-flow
 // cases are ./agent-launch-done.spec.ts. The machine directory holds HOME and
 // the synthetic `claude`'s (./fixtures/fake-claude) state; the real one is
 // never reached.
@@ -24,7 +21,7 @@ import {
   recordsOf,
   title,
 } from "./agentLaunchBoundary.ts";
-import { launched, openTerminal, shows } from "./agentTerminalBoundary.ts";
+import { launched } from "./agentTerminalBoundary.ts";
 import { seedEarlierDoneMark } from "./machineLaunchRecords.ts";
 import {
   builtDashboardDir,
@@ -205,129 +202,5 @@ test.describe("marking a session done by what Claude Code lists", () => {
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
     expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([]);
-  });
-
-  test("marks an idle session whose typed rename is never listed once the wait ends, keeping the done- name only in the record, and still stops it; a later Mark as done renames it", async () => {
-    const session = await launched(server);
-    const terminal = await openTerminal(server, session);
-    expect(await shows(terminal, "attached")).toBe(true);
-    server.claudeSessionBecomes(session.sessionId, "working-idle");
-    server.claudeRenamesIgnored(true);
-    const stopsBefore = server.claudeStopCalls().length;
-    const removalsBefore = server.claudeRemovalCalls().length;
-    try {
-      const response = await markSessionDone(session);
-
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          doneProblem:
-            "Local done mark retained. Claude Code rename failed: The native rename could not be confirmed.",
-          session: { sessionId: session.sessionId, name: launchName },
-          sessionState: {
-            kind: "available",
-            availability: "retained",
-            activity: "interrupted",
-          },
-        },
-      });
-    } finally {
-      server.claudeRenamesIgnored(false);
-    }
-    expect(server.claudeAttaches().at(-1)?.lines).toEqual([
-      `/rename done-${launchName}`,
-    ]);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: launchName, state: "stopped" });
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([]);
-
-    // Running and idle again, the session is renamed by the retry.
-    server.claudeSessionBecomes(session.sessionId, "done-live");
-    const retried = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-    expect(retried.status).toBe(200);
-    expect(JSON.parse(retried.body)).not.toHaveProperty("record.doneProblem");
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: `done-${launchName}` });
-  });
-
-  test("never attaches to a session still working, names that cause once the wait ends, and still stops it; a later Mark as done renames it once idle", async () => {
-    const session = await launched(server);
-    server.claudeSessionBecomes(session.sessionId, "working");
-    const attachesBefore = server.claudeAttaches().length;
-    const stopsBefore = server.claudeStopCalls().length;
-
-    const response = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
-      record: {
-        doneAt: expect.any(String),
-        doneProblem:
-          "Local done mark retained. Claude Code rename failed: The session was still working when the wait ended.",
-        session: { sessionId: session.sessionId, name: launchName },
-      },
-    });
-    expect(server.claudeAttaches().slice(attachesBefore)).toEqual([]);
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-
-    server.claudeSessionBecomes(session.sessionId, "done-live");
-    const retried = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-    expect(retried.status).toBe(200);
-    expect(JSON.parse(retried.body)).not.toHaveProperty("record.doneProblem");
-    expect(server.claudeAttaches().slice(attachesBefore)).toHaveLength(1);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: `done-${launchName}` });
-  });
-
-  test("hangs up a private attachment that never opens once the wait ends", async () => {
-    const session = await launched(server);
-    server.claudeSessionBecomes(session.sessionId, "working-idle");
-    const attachesBefore = server.claudeAttaches().length;
-    server.claudeAttachesSilent(true);
-    try {
-      const response = await markDone(server, {
-        source: "open-dough",
-        session: session.sessionId,
-      });
-
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          doneProblem:
-            "Local done mark retained. Claude Code rename failed: The terminal attachment could not be opened.",
-        },
-      });
-    } finally {
-      server.claudeAttachesSilent(false);
-    }
-    await expect
-      .poll(() => server.claudeAttaches().slice(attachesBefore))
-      .toEqual([
-        {
-          pid: expect.any(Number),
-          id: session.shortId,
-          lines: [],
-          endedBy: "SIGHUP",
-        },
-      ]);
   });
 });

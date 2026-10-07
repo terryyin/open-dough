@@ -9,48 +9,22 @@
 // on PATH, or, to observe a missing one, a PATH holding none, so no test
 // raises a real notification.
 
-import {
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { appendedRecords } from "./appendedRecords.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import {
-  fakeClaudeListing,
-  type ClaudeListingControls,
-} from "./fakeClaudeListing.ts";
+  fakeClaudeControls,
+  type FakeClaudeControls,
+} from "./fakeClaudeControls.ts";
+export type {
+  FakeClaudeScenario,
+  ClaudeCall,
+  OsascriptCall,
+  ClaudeAttach,
+  FakeClaudeControls,
+} from "./fakeClaudeControls.ts";
 
 export type { ClaudeSessionChange } from "./fakeClaudeListing.ts";
-
-export type FakeClaudeScenario =
-  | "launched"
-  | "refused"
-  | "untrusted"
-  | "hang"
-  | "held"
-  | "unlisted"
-  | "launched-hang";
-
-export type ClaudeCall = {
-  readonly argv: readonly string[];
-  readonly cwd: string;
-};
-
-export type OsascriptCall = { readonly argv: readonly string[] };
-
-// One `claude attach` the fake ran: its pid, the short id it attached to,
-// each line entered in it, and the signal, or `Ctrl+Z`, that ended it, once
-// one did.
-export type ClaudeAttach = {
-  readonly pid: number;
-  readonly id: string;
-  readonly lines: readonly string[];
-  readonly endedBy: string | undefined;
-};
 
 export type FakeClaudeOptions = {
   // A directory the caller owns that holds this server's HOME and the fake's
@@ -76,45 +50,6 @@ export type FakeClaudeOptions = {
   readonly doneRenameWaitMs?: number | undefined;
 };
 
-export type FakeClaudeControls = ClaudeListingControls & {
-  // This server's HOME; project folders are under `<home>/git/`.
-  readonly home: string;
-  claudeCalls(): ClaudeCall[];
-  // The `claude --bg` launches alone, without the session listings, attaches,
-  // stops, and removals the page also runs.
-  claudeLaunchCalls(): ClaudeCall[];
-  // The native `claude stop` calls alone, oldest first, whatever asked for them.
-  claudeStopCalls(): ClaudeCall[];
-  // The native `claude rm` calls alone, oldest first.
-  claudeRemovalCalls(): ClaudeCall[];
-  // Whether the fake's `claude rm` fails, removing nothing.
-  claudeRemovalFails(fails: boolean): void;
-  claudeScenario(scenario: FakeClaudeScenario): void;
-  // Lets a `held` launch go on and launch its session.
-  releaseHeldClaude(): void;
-  // Whether a session's typed `/rename` is left unapplied: the listing keeps
-  // the session's name, as when Claude Code is busy.
-  claudeRenamesIgnored(ignored: boolean): void;
-  // Whether a `claude attach` prints nothing, as one that never opens.
-  claudeAttachesSilent(silent: boolean): void;
-  // The pid of a `hang` launch still holding its answer, and the signal that
-  // ended it, once one did.
-  heldClaudePid(): number | undefined;
-  heldClaudeEndedBy(): string | undefined;
-  // Every `claude attach` run so far, oldest first.
-  claudeAttaches(): ClaudeAttach[];
-  // Every `osascript` the fake ran so far, oldest first.
-  osascriptCalls(): OsascriptCall[];
-  // Every start probe the server ran, apart from those calls.
-  osascriptProbes(): OsascriptCall[];
-  // Changes how the fake `osascript` answers from now on.
-  osascriptBecomes(mode: "working" | "failing" | "hang"): void;
-  // The pid of a `hang` notification still open, and the signal that ended
-  // it, once one did.
-  heldOsascriptPid(): number | undefined;
-  heldOsascriptEndedBy(): string | undefined;
-};
-
 // A PATH directory holding only this Node, for a server that must find no
 // `claude` anywhere: the Vite launcher and the fake `gh` still start through
 // `env node`.
@@ -123,14 +58,6 @@ function nodeOnlyBinDir(tempRoot: string): string {
   mkdirSync(binDir, { recursive: true });
   symlinkSync(process.execPath, path.join(binDir, "node"));
   return binDir;
-}
-
-function readState(file: string): string | undefined {
-  try {
-    return readFileSync(file, "utf8");
-  } catch {
-    return undefined;
-  }
 }
 
 // The environment entries this server's launch boundary sees, given the
@@ -190,65 +117,5 @@ export function installFakeClaude(
   if (options.osascript === "failing" || options.osascript === "hang") {
     writeFileSync(state("osascript-mode"), options.osascript);
   }
-  const jsonLines = <T>(file: string): T[] =>
-    appendedRecords<T>(readState(state(file)) ?? "");
-  const claudeCalls = () => jsonLines<ClaudeCall>("calls.jsonl");
-  const callsOf = (command: string) =>
-    claudeCalls().filter((call) => call.argv[0] === command);
-  // Sets a control file whose presence alone changes how the fake answers.
-  const flag = (file: string) => (on: boolean) => {
-    if (on) writeFileSync(state(file), "");
-    else rmSync(state(file), { force: true });
-  };
-  const pidIn = (file: string) => {
-    const pid = readState(state(file));
-    return pid === undefined ? undefined : Number(pid);
-  };
-  return {
-    env,
-    controls: {
-      ...fakeClaudeListing(stateDir, home),
-      home,
-      claudeCalls,
-      claudeLaunchCalls: () => callsOf("--bg"),
-      claudeStopCalls: () => callsOf("stop"),
-      claudeRemovalCalls: () => callsOf("rm"),
-      claudeRemovalFails: flag("removal-fails"),
-      claudeScenario(scenario) {
-        writeFileSync(state("scenario"), scenario);
-      },
-      releaseHeldClaude() {
-        writeFileSync(state("release"), "");
-      },
-      osascriptCalls() {
-        return jsonLines<OsascriptCall>("osascript-calls.jsonl");
-      },
-      osascriptProbes() {
-        return jsonLines<OsascriptCall>("osascript-probes.jsonl");
-      },
-      osascriptBecomes(mode) {
-        writeFileSync(state("osascript-mode"), mode);
-      },
-      heldOsascriptPid: () => pidIn("osascript.pid"),
-      heldOsascriptEndedBy() {
-        return readState(state("osascript.pid.exited"));
-      },
-      claudeRenamesIgnored: flag("renames-ignored"),
-      claudeAttachesSilent: flag("attaches-silent"),
-      heldClaudePid: () => pidIn("pid"),
-      heldClaudeEndedBy() {
-        return readState(state("pid.exited"));
-      },
-      claudeAttaches() {
-        return jsonLines<{ pid: number; id: string }>("attaches.jsonl").map(
-          ({ pid, id }) => ({
-            pid,
-            id,
-            lines: jsonLines<string>(`attach.${String(pid)}.lines`),
-            endedBy: readState(state(`attach.${String(pid)}.ended`)),
-          }),
-        );
-      },
-    },
-  };
+  return { env, controls: fakeClaudeControls(stateDir, home) };
 }

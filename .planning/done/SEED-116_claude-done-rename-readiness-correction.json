@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-116#claude-done-rename-readiness-correction",
+  "title": "A private Claude Code rename types only at a ready prompt",
+  "completedAt": "2026-10-07T08:18:10.455Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

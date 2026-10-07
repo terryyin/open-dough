@@ -8,7 +8,11 @@
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import type { HostSession } from "../src/hostSession.ts";
-import type { DetachedIdle, UnavailableWorkspace } from "./launchHosts.ts";
+import type {
+  DetachedIdle,
+  ScreenReadiness,
+  UnavailableWorkspace,
+} from "./launchHosts.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import {
   detachedIdleWatch,
@@ -28,8 +32,7 @@ export type LiveTerminalClientOptions = {
   readonly session: HostSession;
   readonly admitted: boolean;
   readonly size: { readonly cols: number; readonly rows: number };
-  readonly readiness:
-    ((screen: string, cursorVisible: boolean) => boolean) | undefined;
+  readonly readiness: ScreenReadiness | undefined;
   readonly startupFailure: (() => UnavailableWorkspace | undefined) | undefined;
   readonly detachedIdle?: DetachedIdle;
   // Records the screen of a client that does not declare keep.
@@ -55,11 +58,6 @@ export class LiveTerminalClient {
   // has exited. Later screens can still accept the instruction. Already
   // resolved when this client has no launch instruction.
   readonly firstScreen: Promise<void>;
-  private outputSeen: ((shown: boolean) => void) | undefined;
-  // Resolves true at this client's first output, or false if it exits first.
-  readonly firstOutput = new Promise<boolean>((resolve) => {
-    this.outputSeen = resolve;
-  });
   private readonly sockets: JoinedSockets;
   private readonly isTracked: () => boolean;
   private readonly untrack: () => boolean;
@@ -127,7 +125,6 @@ export class LiveTerminalClient {
   // this client, so an exit can still find it.
   watch(): void {
     this.pty.onData((output) => {
-      this.outputSeen?.(true);
       this.idle?.write(output);
       this.launch?.write(output);
       if (!this.sockets.hasOpen() && !this.launch?.holdsIdle()) {
@@ -138,7 +135,6 @@ export class LiveTerminalClient {
     // Exited on its own. A socket-only detach does not reach this for a
     // kept client, because that client stays tracked.
     this.pty.onExit(() => {
-      this.outputSeen?.(false);
       this.launch?.clientExited();
       this.releaseIdle();
       if (!this.untrack()) return;
@@ -161,6 +157,11 @@ export class LiveTerminalClient {
   // The client's current screen, after its writes have settled.
   screenText(): Promise<string> {
     return this.idle?.text() ?? Promise.resolve("");
+  }
+
+  // Private callers wait on this client’s existing recorded output and lifetime.
+  waitForScreen(ready: ScreenReadiness, signal: AbortSignal): Promise<boolean> {
+    return this.idle?.waitForScreen(ready, signal) ?? Promise.resolve(false);
   }
 
   releaseHandoff(): void {

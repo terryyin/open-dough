@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [A private Claude Code rename types only at a ready prompt](seeds/SEED-116-claude-done-rename.md#claude-done-rename-readiness-correction) — SEED-116#claude-done-rename-readiness-correction ([plan](slice-plans/270-claude-done-rename-readiness-correction/PLAN.md))
 - [Rate-limit recovery waits, resumes, and labels as promised](seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction) — SEED-113#rate-limit-recovery-residue-correction ([plan](slice-plans/272-rate-limit-recovery-residue-correction/PLAN.md))
 - [Recover automatically from temporary GitHub failures](seeds/SEED-118-dashboard-reading-reliability.md#recover-from-temporary-github-failures) — SEED-118#recover-from-temporary-github-failures ([plan](slice-plans/273-temporary-github-recovery/PLAN.md))
 

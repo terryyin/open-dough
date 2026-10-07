@@ -10,7 +10,7 @@
 import type { Connect, HttpServer, Plugin } from "vite";
 import { initializeProjectConfiguration } from "./projectConfiguration.ts";
 
-type BoundaryCleanup = () => void;
+type BoundaryCleanup = () => void | Promise<void>;
 
 // A ready pair installs its middleware and publishes `close` before `ready`
 // settles, so a caller that does not await this hook still has `closeServer`.
@@ -70,10 +70,10 @@ export function localBoundaryPlugin(
       await mount(server.middlewares, server.httpServer);
     },
     closeServer() {
-      cleanup?.();
+      return cleanup?.();
     },
     closePreviewServer() {
-      cleanup?.();
+      return cleanup?.();
     },
   };
 }

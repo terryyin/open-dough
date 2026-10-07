@@ -2,7 +2,9 @@
 
 // The synthetic `claude attach <id>` (./fake-claude), in this process's
 // terminal. Prints `attached <id> <cols>x<rows>` unless attaches-silent
-// exists, echoes typing and
+// exists, then shows Claude Code’s bordered composer and visible cursor.
+// attach-prompt-delay-ms delays that prompt; keys before it are discarded.
+// Echoes typing and
 // `echo <line>`, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
 // on Ctrl+Z. Logs pid in attaches.jsonl, lines in attach.<pid>.lines, and
 // ending signal or Ctrl+Z in attach.<pid>.ended. `/rename <name>` updates the
@@ -29,6 +31,27 @@ module.exports = function attach(dir, id, renameListed) {
   process.stdout.on("resize", () => {
     process.stdout.write(`\r\nresized ${size()}\r\n`);
   });
+  let ready = false;
+  let promptDelayMs = 0;
+  try {
+    promptDelayMs = Number(
+      fs.readFileSync(path.join(dir, "attach-prompt-delay-ms"), "utf8"),
+    );
+  } catch {
+    // No control: the prompt follows the banner immediately.
+  }
+  const showPrompt = () => {
+    ready = true;
+    process.stdout.write(
+      "──────────────────── Claude Code ─\r\n" +
+        "❯\u00a0\r\n" +
+        "──────────────────────────────────\r\n\u001b[?25h",
+    );
+  };
+  if (!silent) {
+    if (promptDelayMs > 0) setTimeout(showPrompt, promptDelayMs);
+    else showPrompt();
+  }
   let line = "";
   // The terminal may go before the signal that ends this process arrives.
   process.stdin.on("error", () => {});
@@ -36,6 +59,7 @@ module.exports = function attach(dir, id, renameListed) {
   process.stdin.setRawMode(true);
   process.stdin.setEncoding("utf8");
   process.stdin.on("data", (typed) => {
+    if (!ready) return;
     for (const key of typed) {
       if (key === "\r" || key === "\n") {
         fs.appendFileSync(
