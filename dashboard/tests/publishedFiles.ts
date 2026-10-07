@@ -8,6 +8,7 @@ import {
   branchRefAnswer,
   commitAnswer,
   headsAnswer,
+  emptyCommitListAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -39,7 +40,8 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // `committed` gives that path, or with the commits `history` lists for it,
 // as many as it asks for, each of which answers for its own change to that
 // path; a published agent profile nothing else dates was added by a commit of
-// its own (./pathHistoryAnswers.ts); for any other path the connection fails.
+// its own (./pathHistoryAnswers.ts); for any other path GitHub's empty commit
+// list answers (established absence), not a lost connection.
 // Each of `branches` is a published branch head, answered and observed the
 // same way at its own revision; any other branch is not published. Each of
 // `unanswered` is listed in its directory, but reading it fails as a lost
@@ -192,7 +194,8 @@ export function publishMovingFiles(
     observe(requests, call);
     if (request.kind === "commit-list") {
       return Promise.resolve(
-        commitListIn(at, request.path, request.perPage) ?? noConnection,
+        commitListIn(at, request.path, request.perPage) ??
+          emptyCommitListAnswer(),
       );
     }
     if (request.kind === "listing") {

@@ -19,6 +19,7 @@ import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
   commitAnswer,
+  emptyCommitListAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -154,9 +155,8 @@ export function publishCommittedOrigin(
         return overridden;
       }
       const listed = listedAt(repoDir, request.revision, request.path);
-      return listed === undefined
-        ? noConnection
-        : directoryListingAnswer(request.path, listed);
+      // Absent directory: empty listing, not a temporary connection loss.
+      return directoryListingAnswer(request.path, listed ?? []);
     }
     // Each agent profile listed at the revision was added by a commit of its
     // own; these history reads are answered but not observed.
@@ -177,7 +177,7 @@ export function publishCommittedOrigin(
           profiles(request.revision),
           request.path,
           request.perPage,
-        ) ?? noConnection
+        ) ?? emptyCommitListAnswer()
       );
     }
     if (request.kind === "commit") {

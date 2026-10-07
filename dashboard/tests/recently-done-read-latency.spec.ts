@@ -162,7 +162,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
   });
 });
 
-test("a done-record read still unanswered at the wait bound is the Recently done column's gap, not the project's read problem", async ({
+test("a done-record read still unanswered at the wait bound is the Recently done column's gap, with detail recovery scheduled", async ({
   page,
   dashboard,
 }) => {
@@ -187,5 +187,8 @@ test("a done-record read still unanswered at the wait bound is the Recently done
     "Akiho-chan · Fixture Committer · Claude Code",
   );
   await expect(card).toContainText("Current slice started 12 min ago");
-  await expect(problem).toHaveCount(0);
+  // Bound interruption is eligible for same-revision detail recovery; the
+  // observation did not fail membership — only unanswered detail is pending.
+  await expect(problem).toContainText("Reading unanswered detail again");
+  await expect(problem).not.toContainText("Published work could not be read");
 });

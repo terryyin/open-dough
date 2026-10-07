@@ -9,6 +9,7 @@ import type { GhCall } from "./support/fakeGitHub.ts";
 import {
   branchRefAnswer,
   commitAnswer,
+  emptyCommitListAnswer,
   headsAnswer,
   noConnection,
   notFoundAnswer,
@@ -210,7 +211,7 @@ export function answerFrom(
             },
             request.path,
             request.perPage,
-          ) ?? noConnection
+          ) ?? emptyCommitListAnswer()
         );
       }
       const text = files[request.path];

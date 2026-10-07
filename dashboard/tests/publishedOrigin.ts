@@ -44,7 +44,11 @@ export {
   type OriginAnswer,
   type RawAnswer,
 } from "./originAnswers.ts";
-export { pathsRead, type ObservedRequest } from "./originObservation.ts";
+export {
+  detailContentPaths,
+  pathsRead,
+  type ObservedRequest,
+} from "./originObservation.ts";
 export { publishFiles } from "./publishedFiles.ts";
 
 // The project this dashboard opens by default. Callers that observe another
@@ -115,6 +119,16 @@ export function publishOrigin(
         listedFiles({ [backlogPath]: "body" in answer ? answer.body : "" }),
       );
     }
+    // Published at this revision with no such file: a missing record, not a
+    // temporary connection loss. Leave it unobserved so membership journeys
+    // that only publish ref+backlog still account only those two reads.
+    if (
+      request.kind === "content" &&
+      backlog !== undefined &&
+      request.revision === backlog.revision
+    ) {
+      return notFoundAnswer();
+    }
     return noConnection;
   });
   return Promise.resolve(observed);
@@ -171,8 +185,8 @@ export function publishMovingOrigin(
         return rawFileAnswer(body);
       }
       // Published at this revision with no such file: a missing record, not a
-      // temporary connection loss (those use answerWith / hold).
-      observe(requests, call);
+      // temporary connection loss (those use answerWith / hold). Leave it
+      // unobserved so membership request accounting stays ref+backlog.
       return notFoundAnswer();
     }
     if (request.kind === "listing") {

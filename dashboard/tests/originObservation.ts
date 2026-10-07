@@ -56,8 +56,25 @@ export function pathsRead(origin: {
       return request.ref;
     }
     if (request.kind === "content") {
-      return `${request.path.split("/").pop() ?? ""}?ref=${request.revision}`;
+      return contentPathRead(request.path, request.revision);
     }
     return "unknown";
   });
+}
+
+// Content paths among every `gh` call except the backlog membership read,
+// named as `pathsRead` names them. Use when membership left detail unobserved.
+export function detailContentPaths(
+  calls: readonly GhCall[],
+  backlogPath = ".planning/PRODUCT-BACKLOG.md",
+): string[] {
+  return calls.flatMap(({ request }) =>
+    request.kind === "content" && request.path !== backlogPath
+      ? [contentPathRead(request.path, request.revision)]
+      : [],
+  );
+}
+
+function contentPathRead(path: string, revision: string): string {
+  return `${path.split("/").pop() ?? ""}?ref=${revision}`;
 }

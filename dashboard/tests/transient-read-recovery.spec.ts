@@ -12,6 +12,7 @@ import {
   parts,
 } from "./dashboardPage.ts";
 import {
+  detailContentPaths,
   httpErrorAnswer,
   noConnection,
   pathsRead,
@@ -227,14 +228,13 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
       [],
     );
     await expect(problem).toHaveCount(0);
-    // Membership recovery continues into detail asks; missing records answer
-    // as established absence (observed), not a lost connection.
-    expect(pathsRead(origin).slice(0, 3)).toEqual([
+    // Membership stays ref+backlog; detail is established absence, not lost.
+    expect(pathsRead(origin)).toEqual([
       "main",
       "main",
       `PRODUCT-BACKLOG.md?ref=${revisionA}`,
     ]);
-    expect(pathsRead(origin).slice(3).sort()).toEqual(
+    expect(detailContentPaths(githubFor(page).calls).sort()).toEqual(
       [
         `PLAN.md?ref=${revisionA}`,
         `SEED-021-progress.md?ref=${revisionA}`,

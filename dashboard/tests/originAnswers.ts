@@ -136,6 +136,16 @@ export function fixtureCommit(
   };
 }
 
+// GitHub's commit list for a path when that path has no commits in the
+// named history: an empty array, not a lost connection.
+export function emptyCommitListAnswer(): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: "[]",
+  };
+}
+
 // GitHub's commit list for a path, newest first, as far as `per_page=1`
 // asks: the one commit that last changed it, committed at `committedAt`.
 function commitListAnswer(committedAt: Date): RawAnswer {

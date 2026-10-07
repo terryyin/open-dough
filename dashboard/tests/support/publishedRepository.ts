@@ -3,6 +3,7 @@
 
 import {
   commitAnswer,
+  emptyCommitListAnswer,
   headsAnswer,
   noConnection,
   rawFileAnswer,
@@ -41,10 +42,11 @@ export function publishes(published: {
         }),
       });
     if (request.kind === "commit-list") {
-      // A path with no published history or commit time is unreachable, not
-      // an unrecognized CLI shape (same as ../publishedFiles.ts).
+      // No published history or commit time: GitHub's empty list (established
+      // absence), not a temporary connection loss.
       return Promise.resolve(
-        commitListIn(published, request.path, request.perPage) ?? noConnection,
+        commitListIn(published, request.path, request.perPage) ??
+          emptyCommitListAnswer(),
       );
     }
     if (request.kind === "commit") {

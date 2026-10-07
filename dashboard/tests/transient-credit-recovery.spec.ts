@@ -152,7 +152,6 @@ test("a refused profile history recovers human credit and Take clock from one sh
       "ref main",
       `commit-list ${profilePath("Yuma")}@${revision}`,
       `commit ${takes.Yuma.sha}`,
-      `commit-list .planning/slice-plans/091-time-unread/PLAN.md@${revision}`,
     ].sort(),
   );
 });
@@ -175,10 +174,6 @@ test("a refused addition commit mid-walk recovers without re-asking answered his
     "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
   );
   expect(askedSince(page, asked).sort()).toEqual(
-    [
-      "ref main",
-      `commit ${takes.Yuma.sha}`,
-      `commit-list .planning/slice-plans/091-time-unread/PLAN.md@${revision}`,
-    ].sort(),
+    ["ref main", `commit ${takes.Yuma.sha}`].sort(),
   );
 });
