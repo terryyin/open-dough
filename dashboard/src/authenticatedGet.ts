@@ -59,7 +59,13 @@ export async function authenticatedGet(
       signal,
     });
   } catch (error) {
-    if (signal.aborted) {
+    // Fetch may reject with AbortError before `signal.aborted` is visible;
+    // never rewrite that as a terminal reachability failure, or wait-bound
+    // gaps lose transient recovery eligibility.
+    if (
+      signal.aborted ||
+      (error instanceof Error && error.name === "AbortError")
+    ) {
       throw error;
     }
     throw new ReadProblem(

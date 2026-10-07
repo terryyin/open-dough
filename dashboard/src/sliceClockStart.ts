@@ -86,11 +86,18 @@ async function startOf(
   // A started clock whose plan commit stays settled is kept for this pin.
   // An unavailable clock is kept only when neither the plan nor the Take
   // still needs an ask — otherwise a rate-limited Take beside an answered
-  // plan would stick forever.
+  // plan would stick forever. Once profiles heal to not-recorded, the
+  // prior profiles-unreadable gap must not stick; the clock starts at the
+  // plan commit.
   if (prior?.status === "started" && !askPlan) {
     return prior;
   }
-  if (prior?.status === "unavailable" && !askPlan && !askTake) {
+  if (
+    prior?.status === "unavailable" &&
+    !askPlan &&
+    !askTake &&
+    take.kind !== "not-recorded"
+  ) {
     return prior;
   }
   try {

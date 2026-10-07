@@ -115,6 +115,10 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
       )
       .toBe(true);
     await expect(claimsCard).toContainText("Reading preparation…");
+    // Independent profiles must land before the wait bound so this journey
+    // isolates the held preparation detail; under CI load they can otherwise
+    // share the bound and leave a second recovery gap.
+    await expectOwnersNotRecorded(page);
   });
 
   await test.step("at the wait bound the unread record is labeled as a gap, and the failed attempt says B's membership was read", async () => {

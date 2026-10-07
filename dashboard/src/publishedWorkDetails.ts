@@ -5,11 +5,7 @@
 
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
-import {
-  profilesQuestion,
-  readAssignments,
-  type ProfilesRead,
-} from "./agentAssignments.ts";
+import { readAssignments, type ProfilesRead } from "./agentAssignments.ts";
 import { withAssignments } from "./assignmentPlacement.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
@@ -17,6 +13,7 @@ import { readDoneStories, type DoneStories } from "./doneStories.ts";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import {
   awaitingProgressSources,
+  withKnownProgressSources,
   withProgressSources,
 } from "./progressSource.ts";
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
@@ -50,12 +47,11 @@ export async function readPublishedDetails(
           : entry,
       ),
     };
-    return {
-      ...(credited === undefined
-        ? current
-        : withAssignments(current, credited)),
-      done,
-    };
+    const withOwners =
+      credited === undefined ? current : withAssignments(current, credited);
+    // Owners from `credited` can heal before `progress` is rewritten; keep
+    // trunk-copy labels aligned (or cleared) with the owners now shown.
+    return { ...withKnownProgressSources(withOwners), done };
   };
   const show = () => {
     if (!signal.aborted) {
@@ -88,13 +84,9 @@ export async function readPublishedDetails(
     show();
     return read;
   });
-  // Same-revision recovery that already credited profiles must not put
-  // humans back to loading while the listing memo answers; attributed
-  // walks still refresh only eligible additions below.
-  const profilesAlreadyAnswered =
-    sameRevision &&
-    outcomes.of(profilesQuestion(work.source.id, work.revision))?.kind ===
-      "answered";
+  // Profiles answers (including same-revision listing memo) update owners
+  // as soon as they land; attributed walks still refresh only eligible
+  // additions below.
   const profilesRead = readAssignments(
     work.source,
     work.revision,
@@ -102,10 +94,8 @@ export async function readPublishedDetails(
     outcomes,
     bound,
   ).then((read) => {
-    if (!profilesAlreadyAnswered) {
-      credited = read;
-      show();
-    }
+    credited = read;
+    show();
     return read;
   });
   // Each profile's addition is read once, for both its assignment's human
@@ -135,10 +125,14 @@ export async function readPublishedDetails(
   );
   const progressed = Promise.all([preparationRead, profilesRead]).then(
     async ([preparation, assignments]) => {
-      const placed = profilesAlreadyAnswered
-        ? preparation
-        : withAssignments(preparation, assignments);
-      const owned = sameRevision ? placed : awaitingProgressSources(placed);
+      // Always place the landed profiles answer: same-revision memo reads
+      // must heal a stale unread gap left on `shown` from an earlier bound.
+      const placed = withAssignments(preparation, assignments);
+      // Same-revision recovery must not keep a profiles-unreadable trunk-copy
+      // label after owners heal; branch progress still stays until re-routed.
+      const owned = sameRevision
+        ? withKnownProgressSources(placed)
+        : awaitingProgressSources(placed);
       signal.throwIfAborted();
       progress = sameRevision ? owned : awaitingSliceClocks(owned);
       show();

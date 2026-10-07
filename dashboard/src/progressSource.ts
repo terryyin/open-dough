@@ -50,6 +50,15 @@ function unavailable(problem: string): UnavailableGap {
 // Every Taken entry's progress source that needs no read is known at once;
 // one on a story branch waits for that branch's plan, and trunk's count is
 // not shown for it meanwhile.
+function withoutProgressSource(entry: WorkEntry): WorkEntry {
+  if (entry.progressSource === undefined) {
+    return entry;
+  }
+  const cleared = { ...entry };
+  delete cleared.progressSource;
+  return cleared;
+}
+
 export function awaitingProgressSources(work: PublishedWork): PublishedWork {
   return {
     ...work,
@@ -57,7 +66,9 @@ export function awaitingProgressSources(work: PublishedWork): PublishedWork {
       const route = routeOf(entry);
       switch (route.kind) {
         case "none":
-          return entry;
+          // Absent or not-yet-routable plans must not keep a source label
+          // from an earlier profiles gap on this pin.
+          return withoutProgressSource(entry);
         case "known":
           return { ...entry, progressSource: route.source };
         case "gap":
@@ -65,6 +76,26 @@ export function awaitingProgressSources(work: PublishedWork): PublishedWork {
         case "branch":
           return { ...entry, planSlices: { status: "loading" as const } };
       }
+    }),
+  };
+}
+
+// Trunk and trunk-copy sources follow the current owner. Same-revision
+// recovery keeps counted branch progress, but must refresh known sources
+// when profiles answer after a wait-bound gap, and drop a stale
+// `profiles-unreadable` label when the route is none (absent plan).
+export function withKnownProgressSources(work: PublishedWork): PublishedWork {
+  return {
+    ...work,
+    taken: work.taken.map((entry) => {
+      const route = routeOf(entry);
+      if (route.kind === "known") {
+        return { ...entry, progressSource: route.source };
+      }
+      if (route.kind === "none") {
+        return withoutProgressSource(entry);
+      }
+      return entry;
     }),
   };
 }

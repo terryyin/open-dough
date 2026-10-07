@@ -62,6 +62,10 @@ export function limitGapProblem(error: unknown): string | undefined {
 // Typed cause of one later detail's gap. `untilEither` ends on caller
 // departure or the owned bound; `bound` ends only when the owned bound
 // passed. Departure without the bound is marked so outcomes do not settle it.
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
+}
+
 export function gapCauseOf(
   error: unknown,
   untilEither: AbortSignal,
@@ -85,6 +89,16 @@ export function gapCauseOf(
   }
   if (untilEither.aborted) {
     return { problem: unreadable, departed: true };
+  }
+  // Fetch may reject with AbortError before either signal flag is visible.
+  // Prefer a bound-style transient gap so recovery can heal; never settle a
+  // terminal unread that blocks the project-local schedule.
+  if (isAbortError(error)) {
+    return {
+      problem: `${unansweredWithinReadWait} while reading ${reading}.`,
+      recovery: "transient",
+      bound: true,
+    };
   }
   return { problem: unreadable };
 }
