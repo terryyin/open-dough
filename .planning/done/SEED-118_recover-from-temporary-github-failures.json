@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-118#recover-from-temporary-github-failures",
+  "title": "Recover automatically from temporary GitHub failures",
+  "completedAt": "2026-10-07T23:55:19.961Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "cursor",
+  "model": "auto"
+}
