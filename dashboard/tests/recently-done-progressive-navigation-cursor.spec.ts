@@ -15,7 +15,7 @@ import { parts, standaloneSessionName } from "./dashboardPage.ts";
 import { rem } from "./dashboardColumnsPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
-import { shownEntries } from "./recentlyDoneColumn.ts";
+import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
 import { recordsAsked } from "./recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -79,6 +79,13 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
   const { project, backlog } = parts(page);
   const entry = recent.getByRole("article", { name: entryName });
   await expect(entry).toHaveCount(0);
+  // The first ten entries' records are read before Pygardon is chosen:
+  // leaving Open Dough abandons a read still under way, which returning
+  // would otherwise ask for again.
+  await expectEntries(recent, names(10));
+  expect(recordsAsked(github).toSorted()).toEqual(
+    storiesThrough(10).toSorted(),
+  );
   await project.getByRole("radio", { name: "Pygardon" }).check();
   await expect(backlog).toContainText("A Pygardon story");
 
