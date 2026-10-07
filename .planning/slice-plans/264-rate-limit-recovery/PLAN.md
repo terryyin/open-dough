@@ -636,3 +636,22 @@ cooldown outlives the request that met the limit; O4 names them. If execution
 disproves an observed premise or the boundedness of a slice, stop safely and
 revise the remaining plan within the same outcome; story-boundary changes stay
 with Terry.
+
+## Execution complete
+
+Product advice: Execute the planned correction
+[SEED-113#rate-limit-recovery-residue-correction](../271-rate-limit-recovery-residue-correction/PLAN.md)
+before or with this story's landing. A wait GitHub directs as already passed
+(`Retry-After: 0`, or a reset time the local clock has reached) makes every
+visible page re-read in a tight loop during a limit, observed at 66 seed reads
+in three seconds. Its other slices restore full turns after a first read GitHub
+never answers, give a withheld detail one label, and remove a duplicate test
+helper. Then continue with
+[SEED-113#reuse-unchanged-records-after-publication](../266-reuse-unchanged-records-after-publication/PLAN.md),
+whose plan predates this story's delivery: its existing-solution premises name
+`containsViaGh --include`, `parseIncluded`, and `limitedAsDirected`, now
+replaced by `execGh`'s `GhAnswer` and `readAnswer` with `ReadAdmission`
+holding reads back. Its evidence reads now take turns and go one first after a
+wait, a held-back comparison must count as not remembered rather than as no
+evidence, and the memo now also holds one history listing per profile per
+revision. Review that plan against these before taking it.

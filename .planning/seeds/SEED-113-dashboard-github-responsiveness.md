@@ -268,6 +268,32 @@ withheld.
 **Safe stopping point:** Rate-limit recovery and bounded request demand remain
 useful even if unchanged records are still fetched after new publications.
 
+<a id="rate-limit-recovery-residue-correction"></a>
+
+### Rate-limit recovery waits, resumes, and labels as promised
+
+**Identity:** SEED-113#rate-limit-recovery-residue-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/271-rate-limit-recovery-residue-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f9b12c20f0c6e88649bcfa994c4bd77cee0a1b77b665a4903f2317f222bb4b9","plan":"dcc5e977b2b29a445c3a798c260c8e001c9148f2c15cc6487f8bf27d7551839b"}}
+```
+
+**Goal:** A developer whose dashboard meets GitHub's rate limit gets the
+recovery the [rate-limit recovery story](#recover-consistently-from-rate-limits)
+promised: a limit naming a time already passed waits instead of making pages
+re-read in a burst, reading reopens after a wait whose first read ends without
+a limit, and a detail the limit withheld is labeled one way. This corrects
+that story's delivery (plan 264, through commit adc41a56); it adds no feature
+promise.
+
+**Scope:** A directed wait of zero or a time already passed is treated as no
+usable wait; the first read after a wait that ends without a limit reopens the
+turns; withheld-detail labels come from one page builder naming what was read
+and when the limit ends, with one "not asked" sentence; a stale comment and a
+duplicated test helper go. Every promise and key example of the rate-limit
+recovery story is preserved.
+
+**Plan:** [271-rate-limit-recovery-residue-correction](../slice-plans/271-rate-limit-recovery-residue-correction/PLAN.md)
+
 <a id="reuse-unchanged-records-after-publication"></a>
 
 ### Refresh published work without rereading unchanged files
