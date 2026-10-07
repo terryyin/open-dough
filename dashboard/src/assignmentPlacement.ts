@@ -9,9 +9,19 @@ import {
   type EntryAssignments,
   type ProfileAssignment,
   type ProfilesRead,
+  type ProfilesUnread,
 } from "./agentAssignments.ts";
 import { rosterOf } from "./assignmentRoster.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { gapRetention, type UnavailableGap } from "./readWaitBound.ts";
+
+function profilesGap(profiles: ProfilesUnread): UnavailableGap {
+  return {
+    status: "unavailable",
+    problem: profiles.unread,
+    ...gapRetention(profiles),
+  };
+}
 
 // The assignments of one activity naming an entry, or the gap when none is
 // recorded or the profiles could not be read.
@@ -21,7 +31,7 @@ function assignmentsOf<A extends ProfileAssignment["activity"]>(
   profiles: ProfilesRead,
 ): EntryAssignments<Extract<ProfileAssignment, { readonly activity: A }>> {
   if (profilesUnread(profiles)) {
-    return { status: "unavailable", problem: profiles.unread };
+    return profilesGap(profiles);
   }
   const named = profiles.assignments.filter(
     (
@@ -63,8 +73,6 @@ export function withAssignments(
       preparing: assignmentsOf(entry.identity, "preparation", profiles),
     })),
     unreadableProfiles: unread ? [] : profiles.unreadable,
-    roster: unread
-      ? { status: "unavailable", problem: profiles.unread }
-      : rosterOf(work, profiles),
+    roster: unread ? profilesGap(profiles) : rosterOf(work, profiles),
   };
 }

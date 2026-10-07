@@ -226,9 +226,12 @@ classification, deadline and timing changes stay together with their consumers.
 
 ### 2. Retain settled read outcomes for the active observation
 Type: Structure
-Status: planned
+Status: done
 Proof: Keep slice 1's outside-in recovery and the O1 preservation journeys green,
 including pinned reuse, partial facts, credit/Take sharing and terminal gaps.
+Accepted:
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2 --reporter=line transient-read-recovery.spec.ts transient-read-exclusions.spec.ts authenticated-read-transient-eligibility.spec.ts read-failure.spec.ts auto-refresh-recovery.spec.ts reopened-project-reads.spec.ts published-facts-failures.spec.ts limit-recovery-credit-history.spec.ts limit-recovery-detail.spec.ts auto-refresh-detail-recovery.spec.ts`
+(40 passed) and `env -u NODE_ENV npm run typecheck:dashboard`.
 
 Internal change: Expose one observation-scoped outcome owner to the normal
 requested-read/enrichment flow. Retain the question's identity and typed failure

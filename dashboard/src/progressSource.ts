@@ -12,10 +12,20 @@ import {
   type BranchHead,
   type StoryBranchHeads,
 } from "./authenticatedBranchRead.ts";
+import {
+  settleMissing,
+  trackSettledAsk,
+  type ObservationOutcomes,
+} from "./observationOutcomes.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import { ReadProblem } from "./readProblem.ts";
 import { routeOf, type Route } from "./progressRoute.ts";
-import { interpretPlanSlices, type WorkPlanSlices } from "./storyPlan.ts";
+import {
+  gapCauseOf,
+  unavailableGap,
+  type UnavailableGap,
+} from "./readWaitBound.ts";
+import { interpretPlanSlices } from "./storyPlan.ts";
 
 // Where a Taken entry's slice progress is read. When one profile records
 // where the work is published, `profilePath` is that profile: the one
@@ -32,7 +42,7 @@ export type ProgressSource =
   // The recorded story branch, at the head read.
   | ({ readonly kind: "branch"; readonly profilePath: string } & BranchHead);
 
-function unavailable(problem: string): WorkPlanSlices {
+function unavailable(problem: string): UnavailableGap {
   return { status: "unavailable", problem };
 }
 
@@ -66,6 +76,8 @@ async function branchProgress(
   entry: WorkEntry,
   { branch, planPath, profilePath }: Extract<Route, { kind: "branch" }>,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
   known?: { readonly head: string | undefined },
 ): Promise<WorkEntry> {
   const { source, revision } = work;
@@ -74,12 +86,39 @@ async function branchProgress(
   };
   delete unsourced.progressSource;
   delete unsourced.sliceClock;
+  const headQuestion = {
+    sourceId: source.id,
+    revision,
+    operation: "branch-head" as const,
+    path: branch,
+  };
+  const unreadable = `The plan on branch ${branch} could not be read.`;
   try {
     const head =
       known === undefined
-        ? await readBranchHeadAt(source, revision, branch, signal)
+        ? await trackSettledAsk(
+            outcomes,
+            readBranchHeadAt(source, revision, branch, signal),
+            {
+              question: headQuestion,
+              of: (resolved) =>
+                resolved === undefined
+                  ? "missing"
+                  : {
+                      kind: "answered",
+                      question: { ...headQuestion, head: resolved },
+                    },
+              untilEither: signal,
+              bound,
+              reading: `branch ${branch}`,
+              unreadable,
+            },
+          )
         : known.head;
     if (head === undefined) {
+      if (known !== undefined) {
+        settleMissing(outcomes, headQuestion);
+      }
       return {
         ...unsourced,
         planSlices: unavailable(
@@ -88,12 +127,24 @@ async function branchProgress(
       };
     }
     const onBranch = { branch, head };
-    const text = await readFileOnBranch(
-      source,
-      planPath,
+    const fileQuestion = {
+      sourceId: source.id,
       revision,
-      onBranch,
-      signal,
+      head,
+      operation: "branch-file" as const,
+      path: planPath,
+    };
+    const text = await trackSettledAsk(
+      outcomes,
+      readFileOnBranch(source, planPath, revision, onBranch, signal),
+      {
+        question: fileQuestion,
+        of: (found) => (found === undefined ? "missing" : "answered"),
+        untilEither: signal,
+        bound,
+        reading: planPath,
+        unreadable,
+      },
     );
     return {
       ...unsourced,
@@ -108,22 +159,28 @@ async function branchProgress(
   } catch (error) {
     return {
       ...unsourced,
-      planSlices: unavailable(
-        error instanceof ReadProblem
-          ? error.message
-          : `The plan on branch ${branch} could not be read.`,
+      planSlices: unavailableGap(
+        gapCauseOf(
+          error,
+          signal,
+          bound,
+          `branch ${branch}`,
+          error instanceof ReadProblem ? error.message : unreadable,
+        ),
       ),
     };
   }
 }
 
 // Reads each Story Branch Mode entry's plan at its branch head; a failed or
-// abandoned read is that entry's gap. Given the heads a revision check found
-// for `moved` branches, reads only the entries on those branches, at those
-// heads, and leaves every other entry as shown.
+// bound-interrupted read is that entry's gap. Given the heads a revision
+// check found for `moved` branches, reads only the entries on those branches,
+// at those heads, and leaves every other entry as shown.
 export async function withProgressSources(
   work: PublishedWork,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
   moved?: StoryBranchHeads,
 ): Promise<PublishedWork> {
   return {
@@ -135,10 +192,10 @@ export async function withProgressSources(
           return Promise.resolve(entry);
         }
         if (moved === undefined) {
-          return branchProgress(work, entry, route, signal);
+          return branchProgress(work, entry, route, signal, outcomes, bound);
         }
         return moved.has(route.branch)
-          ? branchProgress(work, entry, route, signal, {
+          ? branchProgress(work, entry, route, signal, outcomes, bound, {
               head: moved.get(route.branch),
             })
           : Promise.resolve(entry);

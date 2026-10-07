@@ -45,6 +45,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   const [source, setSource] = useState<PublishedSource>(initialSource);
   const {
     retrieval,
+    outcomes,
     show,
     completeDetail,
     withhold,
@@ -83,31 +84,38 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     // withheld.
     const limitMet = limitsMetSince();
     const askedAsOf = visibilityChanges();
-    carryOutRead(readRequest, source, shownWork.current, reading.signal, {
-      show: (next, firstMembership) => {
-        const held = focusedWork();
-        heldFocus.current = held;
-        if (firstMembership) clearTransientFailure();
-        show(next, firstMembership ? unlistedNotice(held, next) : undefined);
+    carryOutRead(
+      readRequest,
+      source,
+      shownWork.current,
+      reading.signal,
+      outcomes,
+      {
+        show: (next, firstMembership) => {
+          const held = focusedWork();
+          heldFocus.current = held;
+          if (firstMembership) clearTransientFailure();
+          show(next, firstMembership ? unlistedNotice(held, next) : undefined);
+        },
+        acceptMembership: () => {
+          clearTransientFailure();
+          acceptMembership();
+        },
+        completeDetail,
+        fail: (error, afterMembership = false) => {
+          fail(error, afterMembership);
+          recordSettledFailure(
+            error,
+            !afterMembership && shownWork.current === undefined,
+          );
+        },
+        settle: (revealing) => {
+          if (limitMet()) withhold();
+          setReadSettled(true);
+          if (revealing) settleRevealed(askedAsOf);
+        },
       },
-      acceptMembership: () => {
-        clearTransientFailure();
-        acceptMembership();
-      },
-      completeDetail,
-      fail: (error, afterMembership = false) => {
-        fail(error, afterMembership);
-        recordSettledFailure(
-          error,
-          !afterMembership && shownWork.current === undefined,
-        );
-      },
-      settle: (revealing) => {
-        if (limitMet()) withhold();
-        setReadSettled(true);
-        if (revealing) settleRevealed(askedAsOf);
-      },
-    });
+    );
     return () => {
       reading.abort();
     };

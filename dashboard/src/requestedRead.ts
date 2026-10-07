@@ -7,6 +7,7 @@
 
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { readMovedProgress } from "./movedBranchProgress.ts";
+import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { readPublishedWork } from "./publishedWorkRead.ts";
@@ -34,6 +35,7 @@ export function carryOutRead(
   source: PublishedSource,
   shown: PublishedWork | undefined,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
   reports: ReadReports,
 ) {
   const landed = (revealing: boolean, found: () => void) => {
@@ -42,7 +44,7 @@ export function carryOutRead(
     reports.settle(revealing);
   };
   if (movedBranches !== undefined && shown !== undefined) {
-    readMovedProgress(shown, movedBranches, signal).then(
+    readMovedProgress(shown, movedBranches, signal, outcomes).then(
       (read) => {
         landed(false, () => {
           reports.show(read, false);
@@ -64,7 +66,7 @@ export function carryOutRead(
     if (firstMembership) reports.acceptMembership();
     reports.show(partial, firstMembership);
   };
-  readPublishedWork(source, signal, acceptProgress, revision).then(
+  readPublishedWork(source, signal, outcomes, acceptProgress, revision).then(
     (read) => {
       landed(true, () => {
         acceptProgress(read);

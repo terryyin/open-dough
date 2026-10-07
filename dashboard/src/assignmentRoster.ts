@@ -15,6 +15,7 @@ import type {
   UnreadableProfile,
 } from "./agentAssignments.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import type { UnavailableGap } from "./readWaitBound.ts";
 
 // An assignment on the roster, with the title the snapshot's backlog records
 // for its identity; undefined when the backlog read lists no such entry.
@@ -37,7 +38,7 @@ export type RosterMember = {
 // say which collection it selected.
 export type AgentRoster =
   | { readonly status: "loading" }
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | { readonly status: "collection-unknown"; readonly problem: string }
   | { readonly status: "read"; readonly members: readonly RosterMember[] };
 

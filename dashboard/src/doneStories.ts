@@ -13,8 +13,18 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { PublishedFile } from "./authenticatedGet.ts";
 import { readDoneRecordsAt } from "./authenticatedDoneRead.ts";
+import {
+  settleAnswered,
+  settleGapCause,
+  type ObservationOutcomes,
+  type ReadQuestion,
+} from "./observationOutcomes.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { detailGapProblem } from "./readWaitBound.ts";
+import {
+  gapCauseOf,
+  unavailableGap,
+  type UnavailableGap,
+} from "./readWaitBound.ts";
 
 const doneStory = z.object({
   identity: z.string().min(1),
@@ -42,7 +52,7 @@ export type UnreadableDoneRecord = {
 
 export type DoneStories =
   | { readonly status: "loading" }
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | {
       readonly status: "read";
       readonly stories: readonly DoneStory[];
@@ -51,24 +61,44 @@ export type DoneStories =
 
 const doneUnreadProblem = "Done stories could not be read.";
 
-// Reads the revision's done records; a failed or abandoned read, one still
-// unanswered at the wait bound among them, is the column's gap, said with the
-// reason when one is known.
+function doneQuestion(source: PublishedSource, revision: string): ReadQuestion {
+  return {
+    sourceId: source.id,
+    revision,
+    operation: "done-records",
+  };
+}
+
+// Reads the revision's done records; a failed or bound-interrupted read is
+// the column's gap, with typed failure meaning retained on the gap and the
+// observation's outcome owner.
 export async function readDoneStories(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
 ): Promise<DoneStories> {
+  const question = doneQuestion(source, revision);
   let records: readonly PublishedFile[];
   try {
     records = await readDoneRecordsAt(source, revision, signal);
   } catch (error) {
-    const why = detailGapProblem(error, signal, "the done records", "");
-    return {
-      status: "unavailable",
-      problem: `${doneUnreadProblem} ${why}`.trimEnd(),
-    };
+    const cause = gapCauseOf(
+      error,
+      signal,
+      bound,
+      "the done records",
+      doneUnreadProblem,
+    );
+    settleGapCause(outcomes, question, cause);
+    const gap = unavailableGap({
+      ...cause,
+      problem: `${doneUnreadProblem} ${cause.problem}`.trimEnd(),
+    });
+    return gap;
   }
+  settleAnswered(outcomes, question);
   const stories: DoneStory[] = [];
   const unreadable: UnreadableDoneRecord[] = [];
   for (const { path, text } of records) {

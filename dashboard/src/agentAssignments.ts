@@ -26,8 +26,19 @@ import {
   attributionLoading,
   type HumanAttribution,
 } from "./assignmentAttribution.ts";
+import {
+  settleAnswered,
+  settleGapCause,
+  type ObservationOutcomes,
+  type ReadQuestion,
+} from "./observationOutcomes.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { limitGapProblem } from "./readWaitBound.ts";
+import {
+  gapCauseOf,
+  gapRetention,
+  limitGapProblem,
+  type UnavailableGap,
+} from "./readWaitBound.ts";
 
 const agentMode = z.enum(agentModes);
 const agentHost = z.enum(agentHosts);
@@ -81,7 +92,7 @@ export type AgentOwner = AgentAssignment & {
 // The published assignments naming one entry, or the gap when none is
 // recorded or the profiles could not be read.
 export type EntryAssignments<T extends AgentAssignment> =
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | { readonly status: "not-recorded" }
   | { readonly status: "recorded"; readonly assignments: readonly T[] };
 
@@ -121,8 +132,25 @@ export type ProfileAssignments = {
 
 const profilesUnreadProblem = "Agent profiles could not be read.";
 
-// Profiles that could not be read, and why.
-export type ProfilesUnread = { readonly unread: string };
+// Profiles that could not be read, and why, with typed failure meaning when
+// the observation retained a cause.
+export type ProfilesUnread = {
+  readonly unread: string;
+  readonly resumesAt?: Date;
+  readonly recovery?: "transient";
+  readonly bound?: true;
+};
+
+function profilesQuestion(
+  source: PublishedSource,
+  revision: string,
+): ReadQuestion {
+  return {
+    sourceId: source.id,
+    revision,
+    operation: "profiles",
+  };
+}
 
 // What a read of the revision's profiles established.
 export type ProfilesRead = ProfileAssignments | ProfilesUnread;
@@ -185,19 +213,36 @@ function interpretProfiles({
   };
 }
 
-// Reads the revision's profiles; a failed or abandoned read is a gap on each
-// Taken and queued entry, never an empty set of assignments, said as the
-// limit when GitHub's rate limit stopped it.
+// Reads the revision's profiles; a failed or bound-interrupted read is a gap
+// on each Taken and queued entry, never an empty set of assignments, said as
+// the limit when GitHub's rate limit stopped it. Typed failure meaning is
+// retained on the gap and the observation's outcome owner.
 export async function readAssignments(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
 ): Promise<ProfilesRead> {
+  const question = profilesQuestion(source, revision);
   try {
-    return interpretProfiles(
+    const read = interpretProfiles(
       await readAgentProfilesAt(source, revision, signal),
     );
+    settleAnswered(outcomes, question);
+    return read;
   } catch (error) {
-    return { unread: limitGapProblem(error) ?? profilesUnreadProblem };
+    const cause = gapCauseOf(
+      error,
+      signal,
+      bound,
+      "the agent profiles",
+      profilesUnreadProblem,
+    );
+    settleGapCause(outcomes, question, cause);
+    return {
+      unread: limitGapProblem(error) ?? profilesUnreadProblem,
+      ...gapRetention(cause),
+    };
   }
 }

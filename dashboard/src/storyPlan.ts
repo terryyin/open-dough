@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { readPlanSlices } from "../../src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
 import { ReadProblem } from "./readProblem.ts";
+import type { UnavailableGap } from "./readWaitBound.ts";
 
 const planSliceSchema = z.object({
   index: z.number().int().positive(),
@@ -44,7 +45,7 @@ export type PlanCompletion = z.infer<typeof planCompletionSchema>;
 export type WorkPlanSlices =
   | { readonly status: "loading" }
   | { readonly status: "absent" }
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | {
       readonly status: "uninterpretable";
       readonly problem: string;

@@ -1,14 +1,17 @@
 // Reads one published backlog revision into the snapshot the dashboard shows
-// (`./publishedWork.ts`), with the evidence of where and when it was read.
-// What a backlog means stays with the shared backlog reader; story
-// preparation facts come from the shared story-state reader. Nothing here
-// parses Markdown itself.
+// (`./publishedWork.ts`). Settled question outcomes for the active observation
+// (`./observationOutcomes.ts`) are recorded as each detail validates its
+// answer or projects a typed gap.
 
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
 import { interpretPublishedBacklog } from "./publishedBacklog.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
 import { readPublishedSnapshot } from "./authenticatedRead.ts";
+import {
+  trackSettledAsk,
+  type ObservationOutcomes,
+} from "./observationOutcomes.ts";
 import { ReadProblem } from "./readProblem.ts";
 import { unansweredWithinReadWait, withinReadWait } from "./readWaitBound.ts";
 import {
@@ -22,19 +25,13 @@ import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { readDoneStories, type DoneStories } from "./doneStories.ts";
 
-// Reads the source's ref afresh, or, given a revision a check already
-// resolved, that exact revision: the ref is never resolved a second time.
-// A read still unanswered at the shared wait bound (`readWaitLimitMs`) ends as
-// a read problem, so a stalled connection leaves the person able to retry;
-// nothing retries for them. When the bound ends a read after its membership
-// was shown, the snapshot is finished with a gap for each detail left unread
-// before the problem is reported. Each assignment's human, each Taken card's
-// slice clock, and the done stories are later details of the same read, the
-// humans and clocks sharing one addition read per agent profile: their
-// latency and failure, the bound included, stay their own.
+// Reads the source's ref afresh, or an already resolved revision. When the
+// wait bound ends after membership, unfinished details become gaps. Humans
+// and clocks share one addition read per agent profile.
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
   onPartial?: PublishedWorkProgress,
   knownRevision?: string,
 ): Promise<PublishedWork> {
@@ -42,11 +39,42 @@ export async function readPublishedWork(
     try {
       // Every catalog source is read through the one local authenticated
       // boundary: one resolved revision and its raw backlog text first.
-      const {
-        revision,
-        backlog: markdown,
-        askedAt,
-      } = await readPublishedSnapshot(source, untilEither, knownRevision);
+      const membershipQuestion =
+        knownRevision === undefined
+          ? { sourceId: source.id, operation: "ref" as const }
+          : {
+              sourceId: source.id,
+              revision: knownRevision,
+              operation: "backlog" as const,
+              path: source.backlogPath,
+            };
+      const snapshot = await trackSettledAsk(
+        outcomes,
+        readPublishedSnapshot(source, untilEither, knownRevision),
+        {
+          question: membershipQuestion,
+          of: (read) => ({
+            kind: "answered",
+            question: {
+              sourceId: source.id,
+              revision: read.revision,
+              operation: knownRevision === undefined ? "ref" : "backlog",
+              ...(knownRevision === undefined
+                ? {}
+                : { path: source.backlogPath }),
+            },
+          }),
+          untilEither,
+          bound,
+          reading:
+            knownRevision === undefined
+              ? `${source.ref} of ${source.repository}`
+              : source.backlogPath,
+          unreadable: "Published work could not be read.",
+        },
+      );
+      const { revision, backlog: markdown, askedAt } = snapshot;
+      outcomes.pinRevision(revision);
       // Membership first, then preparation enrichment through the same
       // boundary's reachability-checked path reads at that revision.
       const work: PublishedWork = awaitingOwners({
@@ -93,33 +121,50 @@ export async function readPublishedWork(
       show();
       // The done stories are independent of preparation and profiles; any
       // failure, the bound included, is the column's own gap.
-      const doneRead = readDoneStories(source, revision, untilEither).then(
-        (read) => {
-          done = read;
-          show();
-        },
-      );
+      const doneRead = readDoneStories(
+        source,
+        revision,
+        untilEither,
+        outcomes,
+        bound,
+      ).then((read) => {
+        done = read;
+        show();
+      });
       // Owners and preparers come from the agent profiles at the same
       // revision, read beside the preparation facts.
-      const preparationRead = enrichPreparation(work, untilEither).then(
-        (read) => {
-          prepared = read;
-          show();
-          return read;
-        },
-      );
-      const profilesRead = readAssignments(source, revision, untilEither).then(
-        (read) => {
-          credited = read;
-          show();
-          return read;
-        },
-      );
+      const preparationRead = enrichPreparation(
+        work,
+        untilEither,
+        outcomes,
+        bound,
+      ).then((read) => {
+        prepared = read;
+        show();
+        return read;
+      });
+      const profilesRead = readAssignments(
+        source,
+        revision,
+        untilEither,
+        outcomes,
+        bound,
+      ).then((read) => {
+        credited = read;
+        show();
+        return read;
+      });
       // Each profile's addition is read once, for both its assignment's human
       // and its Take's slice clock. Each human is read while progress and
       // clocks are, and is shown as soon as its own walk ends, in whatever
       // snapshot is shown by then.
-      const additionOf = profileAdditionsAt(source, revision, untilEither);
+      const additionOf = profileAdditionsAt(
+        source,
+        revision,
+        untilEither,
+        outcomes,
+        bound,
+      );
       const attributed = profilesRead.then((assignments) =>
         readAttributedAssignments(
           source,
@@ -127,6 +172,7 @@ export async function readPublishedWork(
           assignments,
           additionOf,
           untilEither,
+          bound,
           (partial) => {
             credited = partial;
             show();
@@ -143,7 +189,7 @@ export async function readPublishedWork(
           show();
           // Branch routing needs both the canonical plan and profiles.
           progress = awaitingSliceClocks(
-            await withProgressSources(owned, untilEither),
+            await withProgressSources(owned, untilEither, outcomes, bound),
           );
           signal.throwIfAborted();
           show();
@@ -154,6 +200,8 @@ export async function readPublishedWork(
             progress,
             additionOf,
             untilEither,
+            outcomes,
+            bound,
             (partial) => {
               progress = partial;
               show();

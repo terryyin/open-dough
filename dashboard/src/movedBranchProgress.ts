@@ -8,6 +8,7 @@
 
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
+import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import { withProgressSources } from "./progressSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { withSliceClocks } from "./sliceClockStart.ts";
@@ -28,21 +29,36 @@ export function movedBranches(
 
 // Reads the progress of the entries on `moved` branches again, within the
 // shared read wait bound; an entry whose read fails or is given up shows that
-// gap, as on any read.
+// gap, as on any read. Settled outcomes stay on the active observation.
 export async function readMovedProgress(
   work: PublishedWork,
   moved: StoryBranchHeads,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
 ): Promise<PublishedWork> {
-  return withinReadWait(signal, async (untilEither) => {
-    const resourced = await withProgressSources(work, untilEither, moved);
+  return withinReadWait(signal, async (untilEither, bound) => {
+    const resourced = await withProgressSources(
+      work,
+      untilEither,
+      outcomes,
+      bound,
+      moved,
+    );
     const reread = resourced.taken.filter(
       (entry) => !work.taken.includes(entry),
     );
     const clocked = await withSliceClocks(
       { ...resourced, taken: reread },
-      profileAdditionsAt(work.source, work.revision, untilEither),
+      profileAdditionsAt(
+        work.source,
+        work.revision,
+        untilEither,
+        outcomes,
+        bound,
+      ),
       untilEither,
+      outcomes,
+      bound,
     );
     signal.throwIfAborted();
     return {

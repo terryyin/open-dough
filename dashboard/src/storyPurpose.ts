@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { readStoryPurpose } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-purpose.mjs";
 import { ReadProblem } from "./readProblem.ts";
+import type { UnavailableGap } from "./readWaitBound.ts";
 
 const interpretedPurpose = z.discriminatedUnion("status", [
   z.object({ status: z.literal("not-recorded") }),
@@ -12,7 +13,7 @@ const interpretedPurpose = z.discriminatedUnion("status", [
 export type WorkPurpose =
   | { readonly status: "loading" }
   | { readonly status: "not-recorded" }
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | { readonly status: "recorded"; readonly purpose: string };
 
 export function interpretStoryPurpose(

@@ -16,15 +16,24 @@ import type {
   ProfileAdditions,
 } from "./authenticatedProfileRead.ts";
 import { readLastCommitTimeAt } from "./authenticatedRead.ts";
+import {
+  trackSettledAsk,
+  type ObservationOutcomes,
+  type ReadQuestion,
+} from "./observationOutcomes.ts";
 import { countedPlanBranch } from "./progressSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import { ReadProblem } from "./readProblem.ts";
-import { detailGapProblem } from "./readWaitBound.ts";
+import {
+  gapCauseOf,
+  unavailableGap,
+  type UnavailableGap,
+} from "./readWaitBound.ts";
 
 export type SliceClock =
   | { readonly status: "loading" }
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | {
       readonly status: "started";
       readonly at: Date;
@@ -91,6 +100,22 @@ function takeTimeOf(addition: ProfileAddition): Date {
   return new Date(addition.committedAt);
 }
 
+function commitTimeQuestion(
+  source: PublishedSource,
+  revision: string,
+  planPath: string,
+  entry: WorkEntry,
+): ReadQuestion {
+  const onBranch = countedPlanBranch(entry);
+  return {
+    sourceId: source.id,
+    revision: onBranch?.head ?? revision,
+    ...(onBranch !== undefined ? { head: onBranch.head } : {}),
+    operation: "commit-time",
+    path: planPath,
+  };
+}
+
 async function startOf(
   entry: WorkEntry,
   planPath: string,
@@ -98,19 +123,32 @@ async function startOf(
   revision: string,
   additionOf: ProfileAdditions,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
 ): Promise<SliceClock> {
   const take = takeSourceOf(entry);
   if (take.kind === "unknown") {
     return { status: "unavailable", problem: take.problem };
   }
+  const question = commitTimeQuestion(source, revision, planPath, entry);
   try {
     const [planCommitted, taken] = await Promise.all([
-      readLastCommitTimeAt(
-        source,
-        planPath,
-        revision,
-        signal,
-        countedPlanBranch(entry),
+      trackSettledAsk(
+        outcomes,
+        readLastCommitTimeAt(
+          source,
+          planPath,
+          revision,
+          signal,
+          countedPlanBranch(entry),
+        ),
+        {
+          question,
+          untilEither: signal,
+          bound,
+          reading: "the last plan commit",
+          unreadable: "The last plan commit could not be read.",
+        },
       ),
       take.kind === "profile"
         ? additionOf(take.path).then(takeTimeOf)
@@ -122,15 +160,15 @@ async function startOf(
       takeRecorded: taken !== undefined,
     };
   } catch (error) {
-    return {
-      status: "unavailable",
-      problem: detailGapProblem(
+    return unavailableGap(
+      gapCauseOf(
         error,
         signal,
+        bound,
         "the last plan commit or the Take",
         "The last plan commit or Take time could not be read.",
       ),
-    };
+    );
   }
 }
 
@@ -148,13 +186,15 @@ export function awaitingSliceClocks(work: PublishedWork): PublishedWork {
 }
 
 // Reads each clock's start from the read's profile additions (`additionOf`);
-// a failed or abandoned read is that clock's gap. Each clock is passed on to
-// `onClocked` as soon as its own reads end, so a slow Take delays only its own
-// clock.
+// a failed or bound-interrupted read is that clock's gap. Each clock is
+// passed on to `onClocked` as soon as its own reads end, so a slow Take
+// delays only its own clock.
 export async function withSliceClocks(
   work: PublishedWork,
   additionOf: ProfileAdditions,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
   onClocked?: (work: PublishedWork) => void,
 ): Promise<PublishedWork> {
   const { source, revision } = work;
@@ -172,6 +212,8 @@ export async function withSliceClocks(
         revision,
         additionOf,
         signal,
+        outcomes,
+        bound,
       );
       clocked = {
         ...clocked,

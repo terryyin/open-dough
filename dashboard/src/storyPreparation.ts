@@ -5,6 +5,7 @@
 import { z } from "zod";
 import { readStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { ReadProblem } from "./readProblem.ts";
+import type { UnavailableGap } from "./readWaitBound.ts";
 
 const approachSchema = z.union([
   z.object({ kind: z.literal("unselected") }),
@@ -50,7 +51,7 @@ export type WorkPreparation =
       readonly status: "unsupported-version";
       readonly schemaVersion: unknown;
     }
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | {
       readonly status: "recorded";
       readonly refinement: "not-refined" | "refined";

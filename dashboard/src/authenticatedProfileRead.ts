@@ -18,6 +18,11 @@ import {
   authenticatedAvatarEndpoint,
   readingAdditionAt,
 } from "./authenticatedReadRules.ts";
+import {
+  trackSettledAsk,
+  type ObservationOutcomes,
+  type ReadQuestion,
+} from "./observationOutcomes.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const okProfiles = z.object({
@@ -109,19 +114,49 @@ async function readProfileAdditionAt(
   return parsed.data.added;
 }
 
+function additionQuestion(
+  source: PublishedSource,
+  revision: string,
+  path: string,
+): ReadQuestion {
+  return {
+    sourceId: source.id,
+    revision,
+    operation: "addition",
+    path,
+  };
+}
+
 // One read's additions at `revision`: each profile's addition is asked once,
 // however many details of the read need it (its assignment's human and its
 // Take's slice clock), and each asker waits only for its own profile's.
+// Settled outcomes retain success, established missing, or typed failure for
+// the observation without caching failure content.
 export function profileAdditionsAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
 ): ProfileAdditions {
   const asked = new Map<string, Promise<ProfileAddition>>();
   return (profilePath) => {
     let addition = asked.get(profilePath);
     if (addition === undefined) {
-      addition = readProfileAdditionAt(source, profilePath, revision, signal);
+      const question = additionQuestion(source, revision, profilePath);
+      addition = trackSettledAsk(
+        outcomes,
+        readProfileAdditionAt(source, profilePath, revision, signal),
+        {
+          question,
+          of: (added) => (added === null ? "missing" : "answered"),
+          untilEither: signal,
+          bound,
+          reading: readingAdditionAt(profilePath, revision),
+          unreadable:
+            "The commit that added this agent profile could not be read.",
+        },
+      );
       asked.set(profilePath, addition);
     }
     return addition;
