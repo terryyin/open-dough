@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-117#remove-exited-claude-job",
+  "title": "Mark as done removes an exited Claude Code session's job",
+  "completedAt": "2026-10-07T05:04:04.896Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "claude"
+}

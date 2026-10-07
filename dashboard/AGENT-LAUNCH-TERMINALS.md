@@ -100,7 +100,12 @@ attachment, or else into a private attachment of its own from the project
 folder that is hung up once the rename settles, and waits for listing
 confirmation, all within one bounded wait of five seconds, or sixty after a
 quiet report's receipt while its sender finishes. A session listed with no
-running process is not renamed. Native history is retained.
+running process is not renamed. Native history is retained. When Claude Code
+lists the session without a running status (its process has exited), Mark as
+done instead closes dashboard attachments and runs `claude rm <short id>` from
+the project folder, with neither rename nor stop: a removed job has no name
+left to show. The short id goes alone, so the removal never discards commits or
+a worktree; the transcript stays with Claude Code.
 
 Wherever it is offered, on a card or in the terminal or final report panel, Mark as
 done marks a session at once only when its intended work is complete: its
@@ -127,7 +132,8 @@ the question and gets Mark as done back, as the Delete record question goes when
 its state becomes known.
 
 Recently done keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
-persists when native rename/stop is unconfirmed, while live Working remains
+persists when native rename/stop, or the removal of an exited Claude Code
+session's job, is unconfirmed, while live Working remains
 truthful. Local intent proves neither native stop nor published story completion.
 Failed reopen preserves the mark; successful native attachment clears it and
 returns the original session to its card. Deferred failures cannot undo a newer

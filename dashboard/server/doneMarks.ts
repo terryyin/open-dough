@@ -18,7 +18,8 @@ import type { ProjectFolder } from "./projectFolders.ts";
 import { nativeDoneMarkPending } from "../src/doneMark.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
-const stopWaitMs = 10_000;
+// The wait before Done reports a native stop or removal unconfirmed.
+const nativeWaitMs = 10_000;
 
 // Both reporting and explicit Done use this durable intent. Reporting keeps
 // the receipt's time and leaves later explicit Done/reopen intent independent.
@@ -170,7 +171,18 @@ async function finishNativeDone(
       );
     }
   };
-  if (host?.rename !== undefined) {
+  const sessionState =
+    done.intent === "manual"
+      ? (await done.launches.stateOf(done.source, record)).sessionState
+      : undefined;
+  // An exited session has no process to stop, and its removed job no name left
+  // to show, so neither rename nor stop runs.
+  const removal =
+    sessionState?.kind === "available" &&
+    sessionState.availability === "retained"
+      ? host?.remove?.bind(host)
+      : undefined;
+  if (removal === undefined && host?.rename !== undefined) {
     await attempt("rename", async () => {
       await host.rename?.(
         record,
@@ -186,11 +198,14 @@ async function finishNativeDone(
   if (done.intent === "reporting" && done.stopped.aborted) return record;
   if (done.intent === "manual") {
     terminals.endAttachments(record.session);
-    const { sessionState } = await done.launches.stateOf(done.source, record);
     const stop = host?.stop?.bind(host);
-    if (sessionState.kind !== "unavailable" && stop !== undefined)
+    if (removal !== undefined)
+      await attempt("removal", () =>
+        removal(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
+      );
+    else if (sessionState?.kind !== "unavailable" && stop !== undefined)
       await attempt("stop", () =>
-        stop(record.session, folder, AbortSignal.timeout(stopWaitMs)),
+        stop(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
       );
   }
   const doneProblem =
