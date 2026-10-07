@@ -83,7 +83,7 @@ test.describe("marking a card's session done", () => {
         `Intended name done-Open Dough · Execution · ${readyStory}`,
       );
       await expect(entry).toContainText(
-        "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
+        "Claude Code rename failed: The session is no longer running, so it was not renamed.",
       );
       await expect(
         entry.getByRole("button", { name: "Mark as done" }),
@@ -91,6 +91,7 @@ test.describe("marking a card's session done", () => {
       await expect(
         entry.getByRole("button", { name: "Open terminal" }),
       ).toHaveCount(0);
+      expect(dashboard.claudeAttaches()).toEqual([]);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     });
     await expectMembership(page, queued);

@@ -94,6 +94,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   // Whether a session's typed `/rename` is left unapplied: the listing keeps
   // the session's name, as when Claude Code is busy.
   claudeRenamesIgnored(ignored: boolean): void;
+  // Whether a `claude attach` prints nothing, as one that never opens.
+  claudeAttachesSilent(silent: boolean): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
   // ended it, once one did.
   heldClaudePid(): number | undefined;
@@ -146,7 +148,11 @@ export function installFakeClaude(
   const stateDir = path.join(machine, "claude-state");
   const home = path.join(machine, "home");
   installFixtureExecutable("fake-claude", binDir, "claude");
-  installFixtureExecutable("fake-claude-attach.cjs", binDir, "attach.cjs");
+  installFixtureExecutable(
+    "fake-claude-attach.cjs",
+    binDir,
+    "fake-claude-attach.cjs",
+  );
   if (options.osascript !== "absent") {
     installFixtureExecutable("fake-osascript", osascriptBinDir, "osascript");
   }
@@ -230,6 +236,7 @@ export function installFakeClaude(
         return readState(state("osascript.pid.exited"));
       },
       claudeRenamesIgnored: flag("renames-ignored"),
+      claudeAttachesSilent: flag("attaches-silent"),
       heldClaudePid: () => pidIn("pid"),
       heldClaudeEndedBy() {
         return readState(state("pid.exited"));

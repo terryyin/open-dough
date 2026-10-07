@@ -38,6 +38,7 @@ import {
   titlesOfA,
   titlesOfB,
 } from "./refreshJourney.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 
 const canonical = { name: /^Canonical record/ };
 
@@ -173,6 +174,9 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
     expect(reads.every((read) => read.endsWith(`?ref=${revisionB}`))).toBe(
       true,
     );
+    // B's read is whole once every read beside its backlog is answered too,
+    // so the next check's pace is measured from there.
+    await untilPageRequestsAnswered(page);
   });
 
   await test.step("the next check finds C and reads it whole", async () => {

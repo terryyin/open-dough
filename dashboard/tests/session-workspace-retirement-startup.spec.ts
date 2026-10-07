@@ -93,7 +93,9 @@ test("loss between successful host check and real PTY startup is established by 
       workspaceUnavailable: { kind: "missing" },
     });
     expect(socket.controls).not.toContainEqual({ readiness: "attached" });
-    expect(attachments.type(session, "no replacement input")).toBe(false);
+    // No attachment holds the refused socket: ending them closes nothing more.
+    attachments.endAttachments(session);
+    expect(socket.closes).toHaveLength(1);
     expect(() => statSync(workspace)).toThrow();
   } finally {
     scheduledLoss = undefined;

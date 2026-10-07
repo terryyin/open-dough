@@ -61,7 +61,8 @@ function sanitizedAsJson(body: string): string {
 }
 
 // `gh api --jq .field` prints one field of a JSON answer, and
-// `--jq .[0].field` one field of its first element; a missing one is `null`.
+// `--jq .[0].field` one field of its first element; a missing or null one
+// prints an empty line, as the real `gh` prints a null.
 // `.list[].field` prints that field of every element, and filters joined by
 // `, ` print each one's values in turn, one per line.
 function applyJq(argv: readonly string[], body: string): string {
@@ -76,7 +77,7 @@ function applyJq(argv: readonly string[], body: string): string {
     .flatMap((path) => jqValues(answer, path.trim()))
     .map(
       (value) =>
-        `${typeof value === "string" ? value : JSON.stringify(value ?? null)}\n`,
+        `${typeof value === "string" ? value : value === null || value === undefined ? "" : JSON.stringify(value)}\n`,
     )
     .join("");
 }

@@ -181,6 +181,8 @@ require(${JSON.stringify(fixturePath)});
     { mode: 0o755 },
   );
   const session = await launched(dashboard);
+  // Idle between steps, so the rename succeeds and only the stop fails.
+  dashboard.claudeSessionBecomes(session.sessionId, "working-idle");
   const response = await markDone(dashboard, {
     source: "open-dough",
     session: session.sessionId,
@@ -190,7 +192,7 @@ require(${JSON.stringify(fixturePath)});
     record: {
       doneAt: expect.any(String),
       doneProblem:
-        "Local done mark retained. Claude Code rename failed: No terminal attachment is available to confirm native rename. Claude Code stop failed: The native operation could not be confirmed.",
+        "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.",
       sessionState: { kind: "available", activity: "working" },
     },
   });

@@ -28,6 +28,9 @@ for (const closure of [
     test.setTimeout(120000);
     if (native === undefined) throw new Error("Missing native fixture");
     const nativeSession = native;
+    // The native calls of `methods` made since call `from`.
+    const callsSince = (from: number, ...methods: string[]) =>
+      native.calls.slice(from).filter((call) => methods.includes(call.method));
     const accepted = await launch(dashboard, {
       source: "open-dough",
       host: "codex",
@@ -142,25 +145,16 @@ for (const closure of [
         );
         expect(stored(dashboard.home)[0]?.doneAt).toBe(receipt.receivedAt);
         expect(
-          native.calls
-            .slice(before)
-            .filter((call) =>
-              ["turn/interrupt", "turn/start", "thread/resume"].includes(
-                call.method,
-              ),
-            ),
+          callsSince(before, "turn/interrupt", "turn/start", "thread/resume"),
         ).toEqual([]);
-        expect(
-          native.calls
-            .slice(before)
-            .filter((call) => call.method === "thread/name/set")
-            .map((call) => call.params),
-        ).toEqual([
-          {
-            threadId: native.threadId,
-            name: `done-${record.session.name}`,
-          },
-        ]);
+        // The native rename follows the receipt.
+        await expect
+          .poll(() =>
+            callsSince(before, "thread/name/set").map((call) => call.params),
+          )
+          .toEqual([
+            { threadId: native.threadId, name: `done-${record.session.name}` },
+          ]);
         await publishCommittedOrigin(page, {
           repoDir: origin.origin,
           revision: final,
@@ -173,10 +167,10 @@ for (const closure of [
         await expect(recent).toContainText("Done");
         await expect(recent).toContainText("Native session is still working");
         if (closure === "Trunk Wrap Up") {
+          await expect(recent).toContainText("Native rename refused.");
           expect(stored(dashboard.home)[0]?.doneProblem).toContain(
             "Native rename refused.",
           );
-          await expect(recent).toContainText("Native rename refused.");
           await expect(
             recent.getByRole("button", { name: "Mark as done", exact: true }),
           ).toBeVisible();
@@ -199,19 +193,13 @@ for (const closure of [
               }),
             });
           expect(JSON.parse((await retry()).body)).toEqual(receipt);
-          expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();
+          await expect
+            .poll(() => stored(dashboard.home)[0]?.doneProblem)
+            .toBeUndefined();
           const afterRetry = native.calls.length;
           expect(JSON.parse((await retry()).body)).toEqual(receipt);
-          expect(
-            native.calls
-              .slice(afterRetry)
-              .filter((call) => call.method === "thread/name/set"),
-          ).toEqual([]);
-          expect(
-            native.calls
-              .slice(before)
-              .filter((call) => call.method === "turn/interrupt"),
-          ).toEqual([]);
+          expect(callsSince(afterRetry, "thread/name/set")).toEqual([]);
+          expect(callsSince(before, "turn/interrupt")).toEqual([]);
         }
         expect(native.names.get(native.threadId)).toBe(
           `done-${record.session.name}`,

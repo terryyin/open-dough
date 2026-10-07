@@ -18,31 +18,38 @@ import {
   reportingAttempt,
   type CompletionSubmission,
 } from "./completionAdmission.ts";
-import { doneSessionRecord, markReportedSessionDone } from "./doneMarks.ts";
+import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
+// A quiet report's native Done starts once its receipt is answered, outside
+// the attempts lock, since the sender's turn goes on until then.
 export async function deliverCompletion(
   report: CompletionSubmission,
   origin: string,
+  doneMarks: NativeDoneMarks,
 ): Promise<CompletionReceipt> {
   const delivery = report.delivery ?? randomUUID();
   try {
     // An applied immutable receipt can recover its acknowledgment without a write.
     const previous = await previousCompletion(report, origin, delivery);
     if (previous?.applied) {
-      if (previous.nativeDonePending)
-        await withKeptAttempts(async (attempts) => {
-          const attempt = reportingAttempt(attempts, report, origin);
-          if (attempt.completion?.receipt === previous.receipt.receipt)
-            await markReportedSessionDone(report.source, previous.receipt);
-        });
+      if (
+        previous.nativeDonePending &&
+        (await withKeptAttempts((attempts) =>
+          Promise.resolve(
+            reportingAttempt(attempts, report, origin).completion?.receipt ===
+              previous.receipt.receipt,
+          ),
+        ))
+      )
+        doneMarks.reported(report.source, previous.receipt);
       return previous.receipt;
     }
     const saved =
       previous?.receipt ?? (await reserveCompletion(report, origin, delivery));
     // No second attempt write follows disposition; failed writes cannot follow
     // successful disposition and turn it into a failed delivery.
-    return await withKeptAttempts(async (attempts) => {
+    const delivered = await withKeptAttempts(async (attempts) => {
       const attempt = reportingAttempt(attempts, report, origin);
       const bound = (await keptRecords(report.source)).find((entry) =>
         isReportingRecord(entry, report),
@@ -52,7 +59,7 @@ export async function deliverCompletion(
           attempt.outcome === undefined &&
           saved.state === "pending-native-session"
         )
-          return saved;
+          return { saved, current: false };
         throw new RefusedRequest(
           409,
           "This launch has no retained reporting session.",
@@ -96,10 +103,10 @@ export async function deliverCompletion(
       }));
       if (!binding.found)
         throw new RefusedRequest(409, "The reporting session was deleted.");
-      if (attempt.completion?.receipt === saved.receipt)
-        await markReportedSessionDone(report.source, saved);
-      return saved;
+      return { saved, current: attempt.completion?.receipt === saved.receipt };
     });
+    if (delivered.current) doneMarks.reported(report.source, saved);
+    return delivered.saved;
   } catch (error) {
     if (error instanceof RefusedRequest) throw error;
     throw new RefusedRequest(

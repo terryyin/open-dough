@@ -151,8 +151,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: Start prerequisite acquisition deadline (180 seconds)
-        run: echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( $(date +%s) * 1000 + 180000 ))" >> "$GITHUB_ENV"
+      # Both deadlines count from the job's start, so a slow setup shortens
+      # the browser suite's time rather than pushing it past the job bound.
+      - name: Start prerequisite acquisition (180 seconds) and browser suite (320 seconds) deadlines
+        run: |
+          started=$(( $(date +%s) * 1000 ))
+          echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
+          echo "OPEN_DOUGH_DASHBOARD_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v7
         id: node
         timeout-minutes: 1
@@ -185,13 +190,19 @@ jobs:
       - name: Type-check the dashboard
         if: matrix.shard == strategy.job-total
         run: npm run typecheck:dashboard
+      # The suite ends itself at OPEN_DOUGH_DASHBOARD_DEADLINE_MS, about 30
+      # seconds inside the job's 6 minutes, naming the deadline. A shard
+      # that runs out of time then fails instead of being cancelled, so the
+      # report below is still kept.
       - name: Run the dashboard browser suite
         env:
           OPEN_DOUGH_DASHBOARD_SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
         run: npm run test:dashboard
       # The HTML report records how many browser tests each shard executed,
-      # and on failure it and test-results/ keep the diagnostics, so each
-      # shard keeps its own whenever the suite was not cancelled.
+      # and on failure, including the suite's own deadline, it and
+      # test-results/ keep the completed tests' diagnostics and name the
+      # unfinished ones, so each shard keeps its own whenever the suite was
+      # not cancelled.
       - name: Keep the Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7

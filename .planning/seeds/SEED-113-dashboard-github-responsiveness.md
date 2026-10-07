@@ -246,33 +246,6 @@ withheld.
 **Safe stopping point:** Rate-limit recovery and bounded request demand remain
 useful even if unchanged records are still fetched after new publications.
 
-<a id="reuse-evidence-merge-correction"></a>
-
-### Reuse evidence names every path a merge between changed
-
-**Identity:** SEED-113#reuse-evidence-merge-correction
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/269-reuse-evidence-merge-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f50e0e8c4c64f056854b0b41942a444a6d6dd7a5fc86f61a39af12de647affb3","plan":"7c3689cd10246f2e4e83348570d40266335f8878c5af175532d829eae4cdd411"}}
-```
-
-**Goal:** A developer watching a project whose trunk receives merges sees, at
-a newly found commit, the records that changed since the revision last read,
-never text held from that earlier revision. This corrects the delivery of
-refreshing published work without rereading unchanged files (story and
-plan 266 at `962c717c`, commits 945857c9, 81b24c14, d6192d89); it adds no feature promise.
-
-**Scope:** The touched paths between two revisions also include the files
-GitHub's comparison of them names, from the comparison already asked, so a
-merge whose own change list omits a path it changed cannot leave that path
-reused; a comparison that may not list them all establishes nothing. The
-story's untested examples of a failing commit read and a rename gain proof,
-and the reuse tests' load-fragile or misleading support is corrected. The
-intermittent `shared-observer-reads.spec.ts` failure seen under load during
-that execution is fixed so it gives the same result locally and in CI. Every
-promise of that story is preserved.
-
-**Plan:** [269-reuse-evidence-merge-correction](../slice-plans/269-reuse-evidence-merge-correction/PLAN.md)
-
 ## Ordering and Scope Reduction
 
 The selected order favors immediate responsiveness, then contained request

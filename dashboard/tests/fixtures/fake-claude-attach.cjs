@@ -1,7 +1,8 @@
 "use strict";
 
 // The synthetic `claude attach <id>` (./fake-claude), in this process's
-// terminal. Prints `attached <id> <cols>x<rows>`, echoes typing and
+// terminal. Prints `attached <id> <cols>x<rows>` unless attaches-silent
+// exists, echoes typing and
 // `echo <line>`, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
 // on Ctrl+Z. Logs pid in attaches.jsonl, lines in attach.<pid>.lines, and
 // ending signal or Ctrl+Z in attach.<pid>.ended. `/rename <name>` updates the
@@ -23,7 +24,8 @@ module.exports = function attach(dir, id, renameListed) {
       process.exit(128);
     });
   }
-  process.stdout.write(`attached ${id} ${size()}\r\n`);
+  const silent = fs.existsSync(path.join(dir, "attaches-silent"));
+  if (!silent) process.stdout.write(`attached ${id} ${size()}\r\n`);
   process.stdout.on("resize", () => {
     process.stdout.write(`\r\nresized ${size()}\r\n`);
   });

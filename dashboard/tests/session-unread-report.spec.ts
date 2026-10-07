@@ -221,10 +221,11 @@ test("an unread report is its own mark beside the session's native reading", asy
   // 7. Mark as done on its entry closes the session as any session: it is
   // marked Done locally and stopped, and leaves the card and sidebar for
   // Recently done, its message collapsed and expandable without Mark as
-  // read. Without an attachment, native naming stays visibly recoverable.
+  // read. Idle, with no terminal open, it is still renamed natively.
   const stopsBeforeDone = dashboard.claudeStopCalls().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
+  dashboard.claudeSessionBecomes(sessionA, "working-idle");
   await markDoneAnyway(entryA);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
@@ -234,16 +235,9 @@ test("an unread report is its own mark beside the session's native reading", asy
     .filter({ hasText: titleA });
   await expect(recentA.locator(".session-state")).toHaveText("Done");
   await expect(recentA.locator(".session-unread-report")).toHaveCount(0);
-  await expect(recentA).toContainText(`Intended name ${doneNameA}`);
-  await expect(recentA).toContainText(
-    "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
-  );
-  await expect(
-    recentA.getByRole("button", { name: "Mark as done" }),
-  ).toBeEnabled();
-  expect((await recordOf(dashboard, sessionA))?.doneProblem).toContain(
-    "No terminal attachment is available",
-  );
+  await expect(recentA).toContainText(`Named ${doneNameA}`);
+  await expect(recentA).not.toContainText("rename failed");
+  expect((await recordOf(dashboard, sessionA))?.doneProblem).toBeUndefined();
   expect(dashboard.claudeStopCalls().slice(stopsBeforeDone)).toEqual([
     expect.objectContaining({ argv: ["stop", shortIdA] }),
   ]);

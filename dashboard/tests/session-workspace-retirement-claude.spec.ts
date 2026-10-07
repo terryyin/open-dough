@@ -4,7 +4,7 @@ import path from "node:path";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
-import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
+import { launch, markDone, refinementRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryStagesJourney,
@@ -138,6 +138,36 @@ for (const context of ["preparation", "start"] as const) {
     await expect(open).toBeFocused();
   });
 }
+
+test("Mark as done renames a running Claude session whose saved workspace is missing", async ({
+  page,
+  dashboard,
+}) => {
+  const { record, workspace } = await recorded(dashboard);
+  dashboard.claudeSessionBecomes(record.session.sessionId, "done-live");
+  rmSync(workspace, { recursive: true });
+  const doneName = `done-${record.session.name}`;
+  const response = await markDone(dashboard, {
+    source: "open-dough",
+    session: record.session.sessionId,
+  });
+  expect(response.status).toBe(200);
+  expect(JSON.parse(response.body)).not.toHaveProperty("record.doneProblem");
+  expect(
+    dashboard
+      .claudeListing()
+      .find((each) => each["sessionId"] === record.session.sessionId),
+  ).toMatchObject({ name: doneName });
+  expect(dashboard.claudeAttaches()).toEqual([
+    expect.objectContaining({ lines: [`/rename ${doneName}`] }),
+  ]);
+  await openStoryStagesJourney(page, journey);
+  const recent = parts(page)
+    .recentlyDone.getByRole("article")
+    .filter({ hasText: record.session.sessionId });
+  await expect(recent).toContainText(`Named ${doneName}`);
+  await expect(recent).not.toContainText("rename failed");
+});
 
 test("missing Claude workspace without retained report explains the limitation without waking", async ({
   page,

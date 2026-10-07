@@ -9,6 +9,7 @@ import {
   type OriginAnswer,
   type RawAnswer,
 } from "./originAnswers.ts";
+import type { ChangedFile } from "./pathHistoryAnswers.ts";
 
 // How the head relates to the base: identical, ahead of it (the head contains
 // the base), behind it, or diverged from it.
@@ -18,15 +19,43 @@ export function compareAnswer(status: CompareStatus): RawAnswer {
   return {
     status: 200,
     contentType: "application/json; charset=utf-8",
-    body: JSON.stringify({ status, ahead_by: 0, behind_by: 0, commits: [] }),
+    body: JSON.stringify({
+      status,
+      ahead_by: 0,
+      behind_by: 0,
+      commits: [],
+      files: [],
+    }),
   };
 }
 
+// Every file that differs from `base` to `head`, as GitHub's comparison of
+// two revisions names it: added, removed, or modified, whatever the commits
+// between say of their own changes.
+export function changedBetween(
+  base: Readonly<Record<string, string>>,
+  head: Readonly<Record<string, string>>,
+): ChangedFile[] {
+  return [...new Set([...Object.keys(base), ...Object.keys(head)])].flatMap(
+    (filename): ChangedFile[] => {
+      if (!Object.hasOwn(head, filename))
+        return [{ filename, status: "removed" }];
+      if (!Object.hasOwn(base, filename))
+        return [{ filename, status: "added" }];
+      return base[filename] === head[filename]
+        ? []
+        : [{ filename, status: "modified" }];
+    },
+  );
+}
+
 // The head is ahead of the base by `commits`, oldest first: GitHub counts
-// them all in `total_commits` and lists at most `perPage` of them.
+// them all in `total_commits` and lists at most `perPage` of them, and names
+// the `files` that differ between the two.
 export function aheadByAnswer(
   commits: readonly string[],
-  perPage?: number,
+  perPage: number | undefined,
+  files: readonly ChangedFile[],
 ): RawAnswer {
   return {
     status: 200,
@@ -37,9 +66,24 @@ export function aheadByAnswer(
       behind_by: 0,
       total_commits: commits.length,
       commits: commits.slice(0, perPage ?? 250).map((sha) => ({ sha })),
+      files,
     }),
   };
 }
+
+// GitHub's answer to one comparison, given how many commits it lists and the
+// files that differ between the two published revisions.
+export type Comparison = (
+  perPage: number | undefined,
+  files: readonly ChangedFile[],
+) => OriginAnswer;
+
+// The head is ahead of the base by `commits`, naming whatever files differ
+// between the two.
+export const aheadBy =
+  (commits: readonly string[]): Comparison =>
+  (perPage, files) =>
+    aheadByAnswer(commits, perPage, files);
 
 // Whether `ancestor` is in the history of `commit`; undefined when either is
 // not a commit there.
@@ -54,6 +98,14 @@ function isAncestor(repoDir: string, ancestor: string, commit: string) {
   } catch (error) {
     return (error as { status?: number }).status === 1 ? false : undefined;
   }
+}
+
+// Whether `argv` asks GitHub's comparison only how the head relates to the
+// base (`--jq .status`), as the containment read does, rather than the
+// commits and files between.
+export function asksContainment(argv: readonly string[]): boolean {
+  const jq = argv.indexOf("--jq");
+  return jq !== -1 && argv[jq + 1] === ".status";
 }
 
 // The comparison as the repository's history answers it; GitHub's 404 when

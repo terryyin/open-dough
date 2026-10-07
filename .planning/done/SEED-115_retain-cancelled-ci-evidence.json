@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-115#retain-cancelled-ci-evidence",
+  "title": "Retain actionable diagnostics when a dashboard CI shard times out",
+  "completedAt": "2026-10-07T02:53:05.950Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "claude",
+  "model": "opus"
+}

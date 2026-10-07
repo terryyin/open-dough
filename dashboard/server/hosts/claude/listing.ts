@@ -22,11 +22,13 @@ const listedSession = z.looseObject({
   startedAt: z.number().optional().catch(undefined),
 });
 
-// Private Claude listing evidence also confirms launch identities and renames.
+// Private Claude listing evidence also confirms launch identities and renames;
+// a rename waits on `status`, kept only while the session's process runs.
 // Shared callers receive only normalized observations for their saved targets.
 export type ListedSession = {
   readonly session: ClaudeSession;
   readonly sessionState: Extract<SessionState, { kind: "available" }>;
+  readonly status?: string;
   readonly cwd?: string;
   readonly startedAt?: number;
 };
@@ -64,8 +66,10 @@ export function parsedListing(
     const parsed = listedSession.safeParse(listedEntry);
     if (!parsed.success) return [];
     const entry = parsed.data;
+    const status = entry.status ?? undefined;
     return [
       {
+        ...(status === undefined ? {} : { status }),
         ...(entry.cwd === undefined ? {} : { cwd: entry.cwd }),
         ...(entry.startedAt === undefined
           ? {}
@@ -78,10 +82,7 @@ export function parsedListing(
         },
         sessionState: {
           kind: "available",
-          availability:
-            entry.status === undefined || entry.status === null
-              ? "retained"
-              : "loaded",
+          availability: status === undefined ? "retained" : "loaded",
           activity: activityOf(entry.state),
           ...(activityOf(entry.state) === "unknown"
             ? {

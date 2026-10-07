@@ -32,6 +32,7 @@ import { keepRecord, readableRecordsByProject } from "./launchRecordStore.ts";
 import { launchRecord, launchStartContext } from "./launchRecord.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptStart, removeLaunchedStart } from "./startStore.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
 
 // What a verification settles, or why the attempt stays unresolved.
 export type Verified =
@@ -73,6 +74,7 @@ export async function verifyLaunch(
     reporting,
   }: LaunchAttemptRecord & { request: StoryLaunchRequest },
   signal: AbortSignal,
+  doneMarks: NativeDoneMarks,
 ): Promise<Verified> {
   const host = launchHost(request.host);
   if (host?.launchedSessions === undefined)
@@ -148,7 +150,7 @@ export async function verifyLaunch(
     new Date().toISOString(),
   );
   try {
-    await keepRecord(source.id, record);
+    await keepRecord(source.id, record, doneMarks);
     await removeLaunchedStart(source.id, record);
   } catch {
     return unresolved(

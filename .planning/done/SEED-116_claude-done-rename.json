@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-116#claude-done-rename",
+  "title": "A Claude Code session marked done is renamed without an open terminal",
+  "completedAt": "2026-10-07T02:50:18.964Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "claude"
+}

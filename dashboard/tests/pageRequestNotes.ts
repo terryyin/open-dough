@@ -3,7 +3,8 @@
 // still unanswered, and the message turns on which it acts. See
 // ./autoRefreshJourney.ts.
 
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
 // A browser request to the local boundary is a revision check when it names
 // the revision the page already shows with this search parameter.
@@ -122,4 +123,43 @@ export async function whileNotingChecks<T>(
       .slice(alreadyAsked)
       .map((askedAt) => askedAt - startedAt),
   );
+}
+
+// The reads beside preparation of one project at one revision, each by the
+// search parameter that asks it: its agent profiles, with the project setting
+// file, and its done records.
+const readsBesidePreparation = { agents: "profiles", done: "records" };
+
+// From now on, notes the page's answers to the reads beside preparation of
+// one project at one revision. A settled page (`expectSettledPage`) shows
+// neither while the project has no Taken work or done story, and preparation
+// alone can finish before either has reached `gh`; the returned wait ends once
+// both are answered, so a count of what was asked taken after it includes
+// them. Start noting before the page asks them.
+export function noteReadsBesidePreparation(
+  page: Page,
+  sourceId: string,
+  revision: string,
+): () => Promise<void> {
+  const answered = new Map<string, boolean>();
+  page.on("response", (response) => {
+    const url = new URL(response.url());
+    if (
+      url.pathname !== authenticatedReadEndpoint ||
+      url.searchParams.get("source") !== sourceId ||
+      url.searchParams.get("revision") !== revision
+    ) {
+      return;
+    }
+    for (const [group, asked] of Object.entries(readsBesidePreparation)) {
+      if (url.searchParams.get(group) === asked) {
+        answered.set(group, response.ok());
+      }
+    }
+  });
+  return async () => {
+    await expect
+      .poll(() => Object.fromEntries(answered))
+      .toEqual({ agents: true, done: true });
+  };
 }

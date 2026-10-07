@@ -21,6 +21,7 @@ import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
 
 import { keepAttempt } from "./launchAttemptStore.ts";
 import { reportingContext } from "./completionReporting.ts";
@@ -41,6 +42,7 @@ export async function attemptRun(
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
   progress: StartProgress,
+  doneMarks: NativeDoneMarks,
 ): Promise<LaunchResult> {
   const owned = own;
   const { request, controller, attempt } = owned;
@@ -81,7 +83,16 @@ export async function attemptRun(
       controller.abort();
     }, launchTimeoutMs());
     return await withTerminalHandoff(attachTerminal, () =>
-      launchRun(source, recording, folder, began, start, controller, pending),
+      launchRun(
+        source,
+        recording,
+        folder,
+        began,
+        start,
+        controller,
+        doneMarks,
+        pending,
+      ),
     );
   } finally {
     clearTimeout(timer);
@@ -100,6 +111,7 @@ async function launchRun(
   began: Date,
   start: Exclude<Started, { kind: "stopped" }>,
   controller: AbortController,
+  doneMarks: NativeDoneMarks,
   pending?: LaunchRecord,
 ): Promise<LaunchResult> {
   const host = launchHost(recording.host);
@@ -111,6 +123,7 @@ async function launchRun(
     began,
     pending ?? (start.kind === "established" ? start.handoff.established : {}),
     pending,
+    doneMarks,
   );
   const launched =
     pending === undefined
@@ -146,7 +159,8 @@ async function launchRun(
       start.kind === "established" ? start.handoff.established : {},
       new Date().toISOString(),
     );
-  if (evidence.retained === undefined) await keepRecord(source.id, record);
+  if (evidence.retained === undefined)
+    await keepRecord(source.id, record, doneMarks);
   await removeLaunchedStart(source.id, record);
   return {
     kind: "launched",

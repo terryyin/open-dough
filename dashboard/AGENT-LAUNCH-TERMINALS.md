@@ -94,13 +94,18 @@ requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
 and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
 history needs no invented interrupt. A race/refusal never retries against a
-newer turn. Claude types `/rename` into an open attachment, if any, and waits
-for listing confirmation. Native history is retained. When Claude Code lists
-the session without a running status (its process has exited), Mark as done
-instead closes dashboard attachments and runs `claude rm <short id>` from the
-project folder, with neither rename nor stop: a removed job has no name left
-to show. The short id goes alone, so the removal never discards commits or a
-worktree; the transcript stays with Claude Code.
+newer turn. Claude waits for its listing to show the session idle, never
+typing into one that is busy or waiting, then types `/rename` into the open
+attachment, or else into a private attachment of its own from the project
+folder that is hung up once the rename settles, and waits for listing
+confirmation, all within one bounded wait of five seconds, or sixty after a
+quiet report's receipt while its sender finishes. A session listed with no
+running process is not renamed. Native history is retained. When Claude Code
+lists the session without a running status (its process has exited), Mark as
+done instead closes dashboard attachments and runs `claude rm <short id>` from
+the project folder, with neither rename nor stop: a removed job has no name
+left to show. The short id goes alone, so the removal never discards commits or
+a worktree; the transcript stays with Claude Code.
 
 Wherever it is offered, on a card or in the terminal or final report panel, Mark as
 done marks a session at once only when its intended work is complete: its
@@ -184,10 +189,11 @@ neither the removed workspace nor the original message file. Each new report has
 its own delivery identity; retry returns the original receipt and preserves newer
 reports and deliberate local Done or reopen. A newer attention or unfinished
 report clears an earlier automatic quiet Done while preserving explicit manual Done.
-Automatic quiet Done uses the same native naming operation as manual Done where
-safe during reporting; native failures retain a visible problem and can be retried.
+Automatic quiet Done uses the same native naming operation as manual Done; its
+local mark reads `Native done mark is pending.` until one bounded rename wait
+that starts after the receipt is sent. Native failures retain a visible problem.
 Reporting preserves the sender's attachments and running turn for acknowledgment.
-Claude's terminal rename requires the developer to finish Mark as done after reporting.
-Recovery is explicit and bounded;
+Recovery beyond that wait is explicit and bounded, through Mark as done or a
+delivery retry;
 there is no background retry. Launch attempts retain receipts for their existing
 machine-local lifetime. Reporting performs no Git operations and preserves the sender's running turn and attachments.

@@ -117,8 +117,8 @@ if (args[0] === "agents") {
 }
 
 if (args[0] === "attach") {
-  // Installed beside this script (../support/fakeClaude.ts).
-  const attach = require(path.join(__dirname, "attach.cjs"));
+  // Beside this script, in fixtures/ or installed (../support/fakeClaude.ts).
+  const attach = require(path.join(__dirname, "fake-claude-attach.cjs"));
   attach(dir, args[1], (name) =>
     changeListed(args[1], (session) => {
       session.name = name;

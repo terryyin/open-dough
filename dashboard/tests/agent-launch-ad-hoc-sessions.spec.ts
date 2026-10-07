@@ -120,6 +120,8 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Taken e
   });
 
   await test.step("Mark as done in the terminal takes it out of the sidebar and Recently done reads Done", async () => {
+    // Still working, but idle between steps, so its prompt takes the rename.
+    dashboard.claudeSessionBecomes(sessionId, "working-idle");
     await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(entries).toHaveCount(0);

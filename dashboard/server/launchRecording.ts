@@ -12,6 +12,7 @@ import {
   updateRecord,
 } from "./launchRecordStore.ts";
 import { launchRecord } from "./launchRecord.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
 
 export type LaunchRecording = {
   session(session: HostSession, evidence: FirstInput): Promise<void>;
@@ -22,7 +23,8 @@ export function launchRecording(
   request: RecordedLaunchRequest,
   began: Date,
   facts: Pick<LaunchRecord, "start" | "preparation">,
-  previous?: LaunchRecord,
+  previous: LaunchRecord | undefined,
+  doneMarks: NativeDoneMarks,
 ) {
   let retained = previous;
   return {
@@ -39,7 +41,8 @@ export function launchRecording(
         ),
         firstInput,
       };
-      if (retained === undefined) await keepRecord(request.source, record);
+      if (retained === undefined)
+        await keepRecord(request.source, record, doneMarks);
       else if (!(await updateRecord(request.source, record)))
         throw new Error("The launch record was deleted.");
       retained = record;
