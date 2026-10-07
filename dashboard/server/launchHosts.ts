@@ -125,13 +125,13 @@ export type LaunchHost = {
     folder: ProjectFolder,
     size: { readonly cols: number; readonly rows: number },
   ): TerminalAttachment;
-  // Out-of-band rename can run while the reporting sender awaits its receipt.
-  readonly renameWhileReporting?: boolean;
+  // Each host decides when it may rename; `stopped` abandons any wait.
   rename?(
     record: LaunchRecord,
     folder: ProjectFolder,
     withAttachment: WithAttachment,
     intent: DoneIntent,
+    stopped?: AbortSignal,
   ): Promise<void>;
   stop?(
     session: HostSession,

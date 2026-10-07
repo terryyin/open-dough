@@ -64,14 +64,18 @@ all is asked about first ([Mark as done](AGENT-LAUNCH-TERMINALS.md)); an unread
 report alone is not asked about. Done does not complete the product story.
 
 Quiet reporting uses the same Done operation as Mark as done, including native
-naming where the host can rename safely while reporting. Codex uses its native
-out-of-band name operation. Claude requires terminal input to rename; reporting
-retains a native rename problem for the developer to finish with Mark as done
-after reporting. Missing attachment or unconfirmed rename also retains a problem.
-The receipt acknowledges durable completion and Done intent; native failures remain
-visible and the same delivery can retry them. A successful delivery retry does not
-repeat a confirmed rename. Early quiet reporting applies the same operation when
-its native session is bound.
+naming. The receipt acknowledges durable completion and Done intent at once,
+with the local mark reading `Native done mark is pending.` as ordinary text, not
+a problem; the native rename starts once the receipt is sent, since the sender's
+turn goes on until then. Codex uses its native out-of-band name operation.
+Claude renames as Mark as done does, within one bounded wait of sixty seconds
+for the session to go idle, so the sender can print its final response. A turn
+that outlasts the wait, a session no longer running, an attachment that cannot
+open, or an unconfirmed rename retains its problem. Recovery beyond that wait is
+explicit: Mark as done, which takes over a rename still waiting, or the same
+delivery's retry; a successful delivery retry does not repeat a confirmed
+rename. A server that closes during the wait leaves the pending mark. Early
+quiet reporting applies the same operation when its native session is bound.
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a

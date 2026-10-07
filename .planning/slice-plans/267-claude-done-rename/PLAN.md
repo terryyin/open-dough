@@ -240,7 +240,7 @@ the `renameWaitMs` split by intent (manual five seconds, reporting sixty).
 
 ### 3. Quiet completion renames after the receipt
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-completion-binding.spec.ts` quiet case extended as the table says, `agent-completion-quiet.spec.ts` reordered and green, `agent-completion-cursor.spec.ts` green, and the shutdown case.
 
 Behavior: a Claude session reports `completed` with no attention →
@@ -348,3 +348,15 @@ not execute it. A fresh execution session needs nothing from that session:
   real `claude attach` shows its first settled screen is unmeasured; if it
   takes most of the 5 s manual wait, manual Done reports "could not be
   opened" or "could not be confirmed". The quiet-completion wait is 60 s.
+- Slice 3: the continuation owner is `NativeDoneMarks` in `doneMarks.ts`,
+  built from the terminals only (launches come per call through `markDone`,
+  since the reporting path does not need them); `keepRecord`,
+  `deliverCompletion`, `launchRecording`, `attemptRun`, `verifyLaunch`, and
+  `AgentLaunches` take it. A reported Done renames from the reporting
+  project's folder. `LaunchHost.rename` gained `stopped?: AbortSignal`, which
+  Codex ignores. The page re-reads records every 15 s, so a background rename
+  shows without a reload. Accepted proof: `agent-completion-quiet-claude`
+  (pending then renamed, manual Done during the wait, turn outlasting the
+  wait, server closed mid-wait), `agent-completion-binding` (late binding),
+  `agent-completion-quiet` (Codex, reordered and polled),
+  `agent-completion-cursor`, and 103 consumer specs, all green.

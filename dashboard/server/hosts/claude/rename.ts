@@ -37,13 +37,14 @@ const controlCharacter = /[\u0000-\u001f\u007f-\u009f]/;
 
 // Once Claude Code lists the session idle, renames it through its open
 // attachment, or a private one, and waits until Claude Code lists the
-// `done-` name, all within one wait. A session running a turn is never
-// typed into.
+// `done-` name, all within one wait, which `stopped` abandons. A session
+// running a turn is never typed into.
 export async function renameInClaudeCode(
   record: LaunchRecord,
   folder: ProjectFolder,
   withAttachment: WithAttachment,
   intent: DoneIntent,
+  stopped: AbortSignal = new AbortController().signal,
 ): Promise<void> {
   const name = doneSessionName(record.session);
   if (controlCharacter.test(name)) {
@@ -51,8 +52,8 @@ export async function renameInClaudeCode(
       "The native name contains terminal control characters.",
     );
   }
-  const deadline = Date.now() + renameWaitMs(intent);
-  await waitForIdle(record, folder, deadline);
+  const wait = { deadline: Date.now() + renameWaitMs(intent), stopped };
+  await waitForIdle(record, folder, wait);
   await withAttachment(
     record.session,
     folder,
@@ -60,19 +61,25 @@ export async function renameInClaudeCode(
       const typed = ["\u0015", `/rename ${name}`, "\r"];
       for (const [index, keys] of typed.entries()) {
         if (index > 0) {
-          await delay(keyPauseMs);
+          await delay(keyPauseMs, undefined, { signal: stopped });
         }
         type(keys);
       }
-      await confirmListed(record, folder, name, deadline);
+      await confirmListed(record, folder, name, wait);
     },
-    remaining(deadline),
+    remaining(wait),
   );
 }
 
+// One rename attempt's wait: when it ends, and what abandons it sooner.
+type RenameWait = { readonly deadline: number; readonly stopped: AbortSignal };
+
 // What is left of the rename wait, for one listing read or the attachment.
-function remaining(deadline: number): AbortSignal {
-  return AbortSignal.timeout(Math.max(1, deadline - Date.now()));
+function remaining({ deadline, stopped }: RenameWait): AbortSignal {
+  return AbortSignal.any([
+    AbortSignal.timeout(Math.max(1, deadline - Date.now())),
+    stopped,
+  ]);
 }
 
 // Waits until Claude Code lists this session idle. `busy` and `waiting` are
@@ -80,12 +87,12 @@ function remaining(deadline: number): AbortSignal {
 function waitForIdle(
   record: LaunchRecord,
   folder: ProjectFolder,
-  deadline: number,
+  wait: RenameWait,
 ): Promise<void> {
   const { sessionId } = record.session;
   return pollListing(
     folder,
-    deadline,
+    wait,
     idlePollMs,
     (listed) => {
       if (listed === undefined) return false;
@@ -111,12 +118,12 @@ function confirmListed(
   record: LaunchRecord,
   folder: ProjectFolder,
   name: string,
-  deadline: number,
+  wait: RenameWait,
 ): Promise<void> {
   const { sessionId } = record.session;
   return pollListing(
     folder,
-    deadline,
+    wait,
     listingPollMs,
     (listed) =>
       listed?.some(
@@ -130,20 +137,21 @@ function confirmListed(
 type Listing = Awaited<ReturnType<typeof claudeSessions>>;
 
 // Reads Claude Code's listing every `pollMs` until `settled` accepts it, or
-// fails with what `expired` names once another read would pass `deadline`.
+// fails with what `expired` names once another read would pass the deadline.
 async function pollListing(
   folder: ProjectFolder,
-  deadline: number,
+  wait: RenameWait,
   pollMs: number,
   settled: (listed: Listing) => boolean,
   expired: (listed: Listing) => string,
 ): Promise<void> {
   for (;;) {
-    const listed = await claudeSessions(folder, remaining(deadline));
+    const listed = await claudeSessions(folder, remaining(wait));
+    wait.stopped.throwIfAborted();
     if (settled(listed)) return;
-    if (Date.now() + pollMs >= deadline) {
+    if (Date.now() + pollMs >= wait.deadline) {
       throw new HostOperationFailure(expired(listed));
     }
-    await delay(pollMs);
+    await delay(pollMs, undefined, { signal: wait.stopped });
   }
 }
