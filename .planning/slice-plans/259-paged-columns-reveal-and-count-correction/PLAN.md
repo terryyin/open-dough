@@ -192,7 +192,12 @@ dashboard columns; `RecentlyDone.tsx` no longer imports `ColumnEdge.tsx`.
 ### 3. The dashboard columns' slide rule says only what can apply
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+dashboard/tests/dashboard-columns-paging.spec.ts
+dashboard/tests/dashboard-columns-paging-side-panel.spec.ts` (6 passed,
+including “with reduced motion asked for, a move shows the next column at
+once” and the 40rem slide counts); lint runs in the commit hook.
 Proof: `dashboard-columns-paging.spec.ts` (its slide counts and “with
 reduced motion asked for, a move shows the next column at once”) and
 `npm run lint` pass with the rule removed.
