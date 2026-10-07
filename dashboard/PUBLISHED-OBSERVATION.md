@@ -204,3 +204,25 @@ Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, reload the page (or, with a snapshot shown, let the next check find it).
 The dashboard never logs in on its own.
+
+On the launching machine, a maintainer can inspect this process's newest failed
+upstream reads without a diagnostics screen or persistent storage. Same-origin
+loopback `GET /__authenticated-read-diagnostics?source=<configured-id>` returns
+that configured source's entries from the newest 100 failures kept in memory
+for this dashboard process (oldest dropped), and asks GitHub nothing. Unknown
+sources and disallowed origins or methods are refused before any GitHub call,
+under the same local-origin protections as the read boundary. Each shared `gh`
+invocation that failed contributes one entry, attributed to the admitted reader
+that started it — not one per waiter — with time, configured source id, fixed
+request category, pinned revision when the request already knew one, failure
+classification, elapsed time from when that invocation started, and, only when
+GitHub answered, HTTP status, GitHub request id, and validated rate-limit
+limit/remaining/reset/resource and Retry-After values. Each textual metadata
+field is at most 256 characters; numeric values are finite nonnegative safe
+integers. Credentials, request or response bodies, raw CLI output, arbitrary
+headers, and caller-supplied command or path text are never retained or
+returned. A read held back by admission stays identifiable in the ordinary
+limited response and does not invent an upstream diagnostic event; a local
+deadline or lost connection records its cause without inventing a GitHub status
+or request id. Ordinary waiter departure is not recorded as a retryable
+failure. A newly started dashboard has an empty history.

@@ -103,3 +103,9 @@ revision other than the one shown, and is not yet reconciled on the page costs
 one comparison of the two commits per newly shown revision (a page that opens
 asks one for each such story); an answered comparison is not asked again by
 that page, and a failed one is asked again only with the next read.
+
+Inspecting recent failed upstream reads through
+`GET /__authenticated-read-diagnostics?source=<configured-id>` costs no GitHub
+request: the response is answered from this process's in-memory history under
+the same local same-origin admission as other authenticated-read routes, and a
+refused diagnostic request never launches `gh`.

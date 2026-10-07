@@ -19,9 +19,11 @@
 // checks: `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved
 // branch heads: `./branchHeads.ts`; one request's wait for its `gh`
 // answers: `./trackedGh.ts`; failure wording and any directed wait:
-// `./readFailureMessage.ts`. Beside it, a second path serves the GitHub
+// `./readFailureMessage.ts`; bounded local failure history:
+// `./readDiagnostics.ts`. Beside it, a second path serves the GitHub
 // avatar of the human credited for one listed profile (`./avatarRead.ts`,
-// images kept by `./avatarImages.ts`).
+// images kept by `./avatarImages.ts`), and a third inspects recent failed
+// upstream reads without asking GitHub.
 // Node-only; never returns credentials, raw stderr, or an arbitrary path or
 // image proxy.
 
@@ -34,6 +36,10 @@ import { BranchHeads } from "./branchHeads.ts";
 import { AvatarImages } from "./avatarImages.ts";
 import { performAvatarRead, type AvatarOutcome } from "./avatarRead.ts";
 import { perform, type Boundary } from "./performedRead.ts";
+import {
+  diagnosticsForSource,
+  type DiagnosticOutcome,
+} from "./readDiagnostics.ts";
 import type { Outcome } from "./readOutcome.ts";
 import { parseRequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -41,6 +47,7 @@ import { configuredProject } from "./projectConfiguration.ts";
 // The endpoint paths, shared with the browser.
 import {
   authenticatedAvatarEndpoint,
+  authenticatedReadDiagnosticsEndpoint,
   authenticatedReadEndpoint,
 } from "../src/authenticatedReadRules.ts";
 
@@ -84,10 +91,17 @@ async function answer(
   req: IncomingMessage,
   boundary: Boundary,
   url: URL,
-): Promise<Outcome | AvatarOutcome> {
+): Promise<Outcome | AvatarOutcome | DiagnosticOutcome> {
   const source = admitted(req, url.searchParams);
   if ("kind" in source) {
     return source;
+  }
+  if (url.pathname === authenticatedReadDiagnosticsEndpoint) {
+    // Local inspection only: never asks GitHub.
+    return {
+      kind: "diagnostics",
+      failures: diagnosticsForSource(source.id),
+    };
   }
   if (url.pathname === authenticatedAvatarEndpoint) {
     return performAvatarRead(req, boundary, source, url.searchParams);
@@ -96,7 +110,10 @@ async function answer(
   return read.kind === "refused" ? read : perform(req, boundary, source, read);
 }
 
-function respond(res: ServerResponse, outcome: Outcome | AvatarOutcome): void {
+function respond(
+  res: ServerResponse,
+  outcome: Outcome | AvatarOutcome | DiagnosticOutcome,
+): void {
   // Disconnect is a cancellation trigger; a closed response has no audience.
   if (res.writableEnded || res.destroyed) {
     return;
@@ -114,6 +131,11 @@ function respond(res: ServerResponse, outcome: Outcome | AvatarOutcome): void {
       "X-Content-Type-Options": "nosniff",
     });
     res.end(outcome.image.bytes);
+    return;
+  }
+  if (outcome.kind === "diagnostics") {
+    res.writeHead(200, headers);
+    res.end(JSON.stringify({ failures: outcome.failures }));
     return;
   }
   if (outcome.kind === "answered") {
@@ -151,7 +173,8 @@ export function installAuthenticatedReadMiddleware(
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
       url.pathname !== authenticatedReadEndpoint &&
-      url.pathname !== authenticatedAvatarEndpoint
+      url.pathname !== authenticatedAvatarEndpoint &&
+      url.pathname !== authenticatedReadDiagnosticsEndpoint
     ) {
       next();
       return;

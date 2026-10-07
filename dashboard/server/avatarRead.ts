@@ -14,6 +14,10 @@ import { reportedFailure } from "./readFailureMessage.ts";
 import { unreachable, type Outcome } from "./readOutcome.ts";
 import { parseAdditionRead } from "./requestedRead.ts";
 import { withTrackedGh } from "./trackedGh.ts";
+import {
+  contextForAvatarRead,
+  withReadDiagnosticContext,
+} from "./readDiagnostics.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { readingAdditionAt } from "../src/authenticatedReadRules.ts";
 
@@ -53,8 +57,12 @@ export async function performAvatarRead(
   }
   let added;
   try {
-    added = await withTrackedGh(req, boundary.tracked, (signal) =>
-      listedProfileAddition(boundary.pinned, source, read, signal),
+    added = await withReadDiagnosticContext(
+      contextForAvatarRead(source.id, read.revision),
+      () =>
+        withTrackedGh(req, boundary.tracked, (signal) =>
+          listedProfileAddition(boundary.pinned, source, read, signal),
+        ),
     );
   } catch (error) {
     return {

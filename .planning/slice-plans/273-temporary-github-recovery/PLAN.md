@@ -331,12 +331,15 @@ active observation's lease and its termination, not separate polling subsystems.
 
 ### 5. A maintainer can inspect the latest failures without unsafe output
 Type: Behavior
-Status: planned
-Proof: Add `authenticated-read-diagnostics.spec.ts`, using a real dev boundary
-and the synthetic upstream. Reuse shared-read, short-bound and local-refusal
+Status: done
+Proof: Add `authenticated-read-diagnostics.spec.ts` and
+`authenticated-read-diagnostics-bounds.spec.ts`, using a real dev boundary and
+the synthetic upstream. Reuse shared-read, short-bound and local-refusal
 fixtures. Run authenticated boundary/refusal/sharing/subprocess lifecycle
 consumers affected by instrumentation and both launch modes where the boundary
-plugin is mounted.
+plugin is mounted. Accepted:
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2 --reporter=line authenticated-read-diagnostics.spec.ts authenticated-read-diagnostics-bounds.spec.ts authenticated-read-boundary.spec.ts authenticated-read-refusal.spec.ts authenticated-read-shared-waiters.spec.ts authenticated-read-subprocess-lifecycle.spec.ts authenticated-read-transient-eligibility.spec.ts`
+(57 passed) and `env -u NODE_ENV npm run typecheck:dashboard`.
 
 Behavior: Upstream reads fail, including a shared timeout, unmarked 403 and
 marked rate limit → a maintainer requests the admitted local diagnostic route →
