@@ -109,9 +109,17 @@ export async function perform(
     return await withTrackedGh(req, tracked, async (signal) => {
       // The backlog at a resolved commit: one this process already read there
       // is answered from the memo, which keeps it for the reachability checks
-      // of that revision's later detail reads.
-      const backlogAt = (revision: string) =>
-        pinned.reader(source, revision, signal)(source.backlogPath);
+      // of that revision's later detail reads. A revision the ref names next
+      // is compared with the last one answered here (`./pinnedTexts.ts`).
+      const backlogAt = async (revision: string) => {
+        const backlog = await pinned.reader(
+          source,
+          revision,
+          signal,
+        )(source.backlogPath);
+        pinned.answeredBacklog(source, revision);
+        return backlog;
+      };
       switch (read.kind) {
         case "revision-check":
           return await performRevisionCheck(
@@ -212,6 +220,7 @@ export async function perform(
             source.ref,
             signal,
           );
+          pinned.namedByRef(source, revision);
           reading = readingPathAt(source.backlogPath, revision);
           // Only which commit the ref names can have changed.
           return answered({

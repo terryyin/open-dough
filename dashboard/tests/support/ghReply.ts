@@ -62,21 +62,45 @@ function sanitizedAsJson(body: string): string {
 
 // `gh api --jq .field` prints one field of a JSON answer, and
 // `--jq .[0].field` one field of its first element; a missing one is `null`.
+// `.list[].field` prints that field of every element, and filters joined by
+// `, ` print each one's values in turn, one per line.
 function applyJq(argv: readonly string[], body: string): string {
   const at = argv.indexOf("--jq");
   const filter = at >= 0 ? argv[at + 1] : undefined;
   if (filter === undefined) {
     return body;
   }
-  let value: unknown = JSON.parse(body);
-  for (const field of filter.split(".").filter(Boolean)) {
+  const answer: unknown = JSON.parse(body);
+  return filter
+    .split(",")
+    .flatMap((path) => jqValues(answer, path.trim()))
+    .map(
+      (value) =>
+        `${typeof value === "string" ? value : JSON.stringify(value ?? null)}\n`,
+    )
+    .join("");
+}
+
+// The values one `.a.b`, `.[0].b`, or `.a[].b` path picks from `answer`.
+function jqValues(answer: unknown, path: string): unknown[] {
+  let values: unknown[] = [answer];
+  for (const step of path.split(".").filter(Boolean)) {
+    const iterated = step.endsWith("[]");
+    const field = iterated ? step.slice(0, -2) : step;
     const index = /^\[(\d+)\]$/.exec(field)?.[1];
-    value =
-      value === null || value === undefined
-        ? undefined
-        : (value as Record<string, unknown>)[index ?? field];
+    values = values.flatMap((value) => {
+      const picked =
+        value === null || value === undefined
+          ? undefined
+          : (value as Record<string, unknown>)[index ?? field];
+      return iterated
+        ? Array.isArray(picked)
+          ? (picked as unknown[])
+          : []
+        : [picked];
+    });
   }
-  return `${typeof value === "string" ? value : JSON.stringify(value ?? null)}\n`;
+  return values;
 }
 
 const reasonPhrases: Readonly<Record<number, string>> = {

@@ -31,10 +31,19 @@ it is hidden, and none before a rate limit's directed time); checks asked from
 several pages while one listing is outstanding share it. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
-commit then costs one backlog read plus its records, done records, and one history listing
-per readable profile, without resolving `main` again; a recorded story branch
-that moved costs one read of its plan and one of its last commit time at the
-new head.
+commit then costs, without resolving `main` again, one comparison of it with
+the revision at which this dashboard process last read the backlog, one read
+of each commit between them (a commit already asked about is not asked
+again), and reads of only the backlog, records, done records, and record
+listings those commits changed, plus one history listing per readable
+profile; a commit that changes no planning record reads none. With more than
+ten commits between, a commit whose change list GitHub cuts at 300 files, or a
+new commit that does not descend from the earlier one, the comparison is not
+asked again and the new commit's backlog and records are read as before; a
+comparison or commit read that fails is asked again with the next read at that
+commit, which meanwhile reads as before. A recorded story branch that moved
+costs one read of its plan and one of its last commit time at the new head,
+and never a comparison.
 
 Pages served by one dashboard process that need the same GitHub answer while
 it is outstanding share one `gh` request for it, whatever was asked: two tabs

@@ -206,7 +206,7 @@ it passed alone three times and does not reach this change.
 ### 2. Records and listings unchanged since the revision last read are not read again
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/authenticated-read-revision-reuse.spec.ts` at the
 boundary through `startDashboardServer` and `rawRequest`, with one answerer
 publishing revisions A and B, the comparison, and the commits between, counting
@@ -248,6 +248,25 @@ answerer in the new spec composes the same answers from
 Documentation: `dashboard/PUBLISHED-OBSERVATION.md` (what a newly found
 commit reads) and `dashboard/GITHUB-REQUESTS.md` (what a newly published commit
 costs: the comparison, one read per commit between, and the changed records).
+
+Accepted proof: `authenticated-read-revision-reuse.spec.ts`, `-bounds.spec.ts`,
+and `-failures.spec.ts` (exact `gh` call lists for every example above, with
+shared fixtures in `revisionReuseOrigin.ts` and `revisionReuseBoundary.ts`),
+`unchanged-records-refresh.spec.ts`, `reopened-project-reads.spec.ts` (its last
+step now reads only what changed), the twenty trunk-moving journeys,
+`authenticated-read-*.spec.ts`, and `npm run typecheck:dashboard`.
+Learnings for slice 3: `PinnedTexts.unchangedSince` holds the rule; reuse is
+opt-in per reader (`reader`, `lister`), because a `\0commit` entry's sha can
+equal a named revision. Route `committer` (`<path>\0committed`) and `adder`
+(`<path>\0added`) through it with the bare path as the touched path, not the
+entry. The base is kept under `<B>\0\0since`, the touched list under
+`<B>\0\0since\0<A>`. `committedOrigin` answers only `per_page=1`
+comparisons, so committed-origin journeys read a new revision in full. The
+whole suite failed twice under load, each time in a spec that does not reach
+these reads: `production-watcher-updates.spec.ts:33` (again) and
+`agent-launch-attention.spec.ts:80` (22 expected session-state reads, 21
+seen); both passed alone twice. They are fixed as local-suite defects before
+slice 3's whole-suite run.
 
 ### 3. History facts are reused only when no commit between touched the path
 

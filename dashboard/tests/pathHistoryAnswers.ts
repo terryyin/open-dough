@@ -177,3 +177,26 @@ export function commitAnswerIn(
   }
   return undefined;
 }
+
+// One file a commit changed as GitHub's answer for the commit names it: its
+// path, status, and the path it was renamed or copied from, when it was.
+export type ChangedFile = {
+  readonly filename: string;
+  readonly status: "added" | "modified" | "removed" | "renamed" | "copied";
+  readonly previous_filename?: string;
+};
+
+// A commit a move of the configured ref was made by: its sha and committer,
+// as a path's history names it, and every file it changed.
+export type MadeCommit = Omit<PathChange, "status"> & {
+  readonly files: readonly ChangedFile[];
+};
+
+// GitHub's answer for a commit a move was made by, naming every file it
+// changed, as one answer names at most 300 of them.
+export function madeCommitAnswer(made: MadeCommit): RawAnswer {
+  return jsonAnswer({
+    ...historyCommit({ ...made, status: null }),
+    files: made.files.slice(0, 300),
+  });
+}

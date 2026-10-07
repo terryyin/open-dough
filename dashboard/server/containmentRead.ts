@@ -50,34 +50,55 @@ export function parseContainmentRead(
 }
 
 // GitHub's comparison status for a head that is, or descends from, its base.
-const containing = new Set(["identical", "ahead"]);
-const notContaining = new Set(["behind", "diverged"]);
+export const containing = new Set(["identical", "ahead"]);
+export const notContaining = new Set(["behind", "diverged"]);
 
-async function containsViaGh(
+// GitHub's comparison of `head` with `base` in `repository`, as `jq` picks
+// from it, with at most `perPage` of the commits between listed; undefined
+// when GitHub knows no such commit (`404`). Any other refusal is a failure,
+// rate-limited as GitHub directs. Shared with the reuse of unchanged records
+// at a newly named revision (`./commitsBetween.ts`).
+export async function comparisonViaGh(
   repository: string,
-  { accepted, revision }: ContainmentRead,
+  { base, head }: { readonly base: string; readonly head: string },
+  { perPage, jq }: { readonly perPage: number; readonly jq: string },
   signal: AbortSignal,
-): Promise<boolean> {
+): Promise<string | undefined> {
   const { error, stdout, stderr } = await execGh(
     [
       "api",
       "--include",
-      `repos/${repository}/compare/${accepted}...${revision}?per_page=1`,
+      `repos/${repository}/compare/${base}...${head}?per_page=${String(perPage)}`,
       "--jq",
-      ".status",
+      jq,
     ],
     signal,
   );
   const answer = signal.aborted ? undefined : parseIncluded(stdout);
-  // GitHub knows no such accepted commit: nothing shown contains it.
-  if (answer?.status === 404) return false;
+  if (answer?.status === 404) return undefined;
   if (error || answer?.status !== 200) {
     throw new GhFailure(
       limitedAsDirected(answer) ??
         (error ? classify(error, stderr) : { kind: "failed" }),
     );
   }
-  const status = answer.body.trim();
+  return answer.body;
+}
+
+async function containsViaGh(
+  repository: string,
+  { accepted, revision }: ContainmentRead,
+  signal: AbortSignal,
+): Promise<boolean> {
+  const answer = await comparisonViaGh(
+    repository,
+    { base: accepted, head: revision },
+    { perPage: 1, jq: ".status" },
+    signal,
+  );
+  // GitHub knows no such accepted commit: nothing shown contains it.
+  if (answer === undefined) return false;
+  const status = answer.trim();
   if (containing.has(status)) return true;
   if (notContaining.has(status)) return false;
   throw new GhFailure({ kind: "failed" });

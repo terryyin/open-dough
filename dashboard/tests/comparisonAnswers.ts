@@ -22,6 +22,25 @@ export function compareAnswer(status: CompareStatus): RawAnswer {
   };
 }
 
+// The head is ahead of the base by `commits`, oldest first: GitHub counts
+// them all in `total_commits` and lists at most `perPage` of them.
+export function aheadByAnswer(
+  commits: readonly string[],
+  perPage?: number,
+): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify({
+      status: commits.length === 0 ? "identical" : "ahead",
+      ahead_by: commits.length,
+      behind_by: 0,
+      total_commits: commits.length,
+      commits: commits.slice(0, perPage ?? 250).map((sha) => ({ sha })),
+    }),
+  };
+}
+
 // Whether `ancestor` is in the history of `commit`; undefined when either is
 // not a commit there.
 function isAncestor(repoDir: string, ancestor: string, commit: string) {

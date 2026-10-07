@@ -8,6 +8,8 @@
 // head found for it is remembered as resolved (`./branchHeads.ts`), so the
 // page may read that branch's plan there without resolving it again. A check
 // whose listing could not say answers the ref alone, naming no branch head.
+// The revision the ref names is noted as named (`./pinnedTexts.ts`), so reads
+// there may reuse what is unchanged since the backlog last answered.
 
 import type { BranchHeads } from "./branchHeads.ts";
 import { branchRecordedAtRevision } from "./branchReachability.ts";
@@ -43,6 +45,7 @@ export async function performRevisionCheck(
     }
   }
   const { revision, heads } = await checks.check(source, signal);
+  pinned.namedByRef(source, revision);
   const checked = { revision, changed: revision !== since };
   if (heads === undefined) {
     return answered(checked);
