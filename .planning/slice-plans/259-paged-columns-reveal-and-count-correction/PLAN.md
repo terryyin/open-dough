@@ -117,7 +117,19 @@ rest after publication.
 ### 1. A reveal moves to the column that holds the element in the page
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard --
+dashboard/tests/dashboard-columns-paging-launch-dialog.spec.ts
+dashboard/tests/agent-launch-start-taken.spec.ts` (3 passed); the new journey
+fails on the unchanged product in its “while the dialog is open” step, once
+that step waits for focus inside the dialog. The shared setup is
+`reachKeptStart` in `dashboard/tests/keptStartJourney.ts`. The nine listed
+reruns plus `agent-terminal-delete.spec.ts` (reaches `keepInView`) passed (24
+tests), and `npm run typecheck:dashboard` passed. Columns are marked by
+`dashboardColumnMark` (`columnPaging.ts`) on `section.stage` and
+`section.recently-done`.
+Learning: an `expectView` right after the dialog shows can match before focus
+reaches it; wait for focus inside the dialog first.
 Proof: a new journey, `dashboard/tests/dashboard-columns-paging-launch-dialog.spec.ts`,
 on the kept-start fixture of `agent-launch-start-taken.spec.ts` (extract its
 shared setup, the refused first launch through the Taken card offering Start

@@ -1,111 +1,34 @@
 // A claim published without a session offers Start on its Taken card
-// (../server/agentLaunches.ts, ../src/CardLaunches.tsx). The real installed
-// `execution-start.mjs` and a real bare origin (./support/startOrigin.ts) stand
-// behind the page, which reads that origin as GitHub would
-// (./committedOrigin.ts); the synthetic `claude` refuses the first launch. The
-// card then says "Launch failed:" and that the story is Taken by the Agent its
-// claim names, no session started, with the workspace; once origin shows the
-// story Taken and the page is reloaded, that Taken card offers Start execution
-// with "Started here, no session yet", and no other Taken card does. Start
-// there opens the session in the same workspace, never a second claim, and the
-// offer goes.
+// (../server/agentLaunches.ts, ../src/CardLaunches.tsx), reached through a
+// refused first launch (./keptStartJourney.ts). That Taken card offers Start
+// execution with "Started here, no session yet", and no other Taken card
+// does. Start there opens the session in the same workspace, never a second
+// claim, and the offer goes.
 
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expect, test as base } from "./dashboardTest.ts";
+import { expect } from "./dashboardTest.ts";
 import { expectStartNote } from "./cardControls.ts";
-import { parts } from "./dashboardPage.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
+import { queuedIdentity } from "./support/startOrigin.ts";
 import {
-  builtDashboardDir,
-  startDashboardServer,
-} from "./support/dashboardServer.ts";
-import {
-  otherQueuedIdentity,
-  queuedIdentity,
-  startOrigin,
-  type StartOrigin,
-} from "./support/startOrigin.ts";
-
-const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
-    await use(origin);
-    origin.cleanup();
-  },
-  dashboard: async ({ github, origin }, use) => {
-    const server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
-      github,
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: launchWaitMs,
-    });
-    await use(server);
-    await server.close();
-  },
-});
-
-const workspaceShown = "~/git/open-dough/.worktrees/story-a";
+  reachKeptStart,
+  startAction,
+  test,
+  workspaceShown,
+} from "./keptStartJourney.ts";
 
 test("a Taken card offers Start with the words while this machine keeps a start with no session, and Start opens the session in the same workspace", async ({
   page,
   dashboard,
   origin,
 }) => {
-  // Story B is Taken by another agent; Story A is queued.
-  await origin.takenByAnotherAgent(otherQueuedIdentity);
-  const published = await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
-  const { backlog, taken, source } = parts(page);
-  const backlogCard = backlog.getByRole("article", { name: "Story A" });
-  const takenCard = taken.getByRole("article", { name: "Story A" });
-  const otherTakenCard = taken.getByRole("article", { name: "Story B" });
-  const startAction = (card: typeof takenCard) =>
-    card.getByRole("button", { name: "Start execution" });
-  await expect(backlogCard).toBeVisible();
-  await expect(otherTakenCard).toBeVisible();
-  await expect(startAction(otherTakenCard)).toHaveCount(0);
-
-  // The first launch: the start publishes the Take, `claude` refuses.
-  dashboard.claudeScenario("refused");
-  await startAction(backlogCard).click();
-  await page
-    .getByRole("dialog", { name: "Start execution in Claude Code" })
-    .getByRole("button", { name: "Start" })
-    .click();
-  await expect(backlogCard.locator(".launch-problem")).toContainText(
-    `Launch failed: Claude Code refused to start a session in ${workspaceShown}.`,
-    { timeout: launchWaitMs },
+  const { takenCard, otherTakenCard, workspace } = await reachKeptStart(
+    page,
+    dashboard,
+    origin,
   );
-  const profile = (await origin.takenProfiles()).find(
-    (each) => each["identity"] === queuedIdentity,
-  );
-  const agent = String(profile?.["agent"]);
-  await expect(backlogCard.locator(".launch-problem")).toContainText(
-    `Taken by ${agent}; no session started. Workspace ${workspaceShown}.`,
-  );
-  const workspace = path.join(origin.project, ".worktrees", "story-a");
-  expect(existsSync(workspace)).toBe(true);
-
-  // Origin shows the story Taken; after a reload its Taken card offers Start.
-  const revision = (await origin.originGit("rev-parse", "main")).trim();
-  published.advanceTo(revision);
-  await page.reload();
-  await expect(source).toContainText(revision);
-  await expect(takenCard).toBeVisible();
-  await expect(backlog.getByRole("article", { name: "Story A" })).toHaveCount(
-    0,
-  );
-  await page.reload();
   await expectStartNote(
     takenCard,
     "Start execution",

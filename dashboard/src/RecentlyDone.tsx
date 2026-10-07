@@ -10,6 +10,7 @@ import {
 } from "./agentLaunch.ts";
 import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
+import { dashboardColumnMark } from "./columnPaging.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import {
   recentDoneStories,
@@ -123,6 +124,7 @@ export function RecentlyDone({
       className="recently-done"
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
+      {...dashboardColumnMark}
     >
       <header className="stage-header">
         <h2 id="recently-done-heading">{name}</h2>

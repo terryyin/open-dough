@@ -7,10 +7,12 @@
 // column, and the chosen position comes back when the width allows it again.
 // A hidden column also shows when keyboard focus lands in it, or when a part
 // of it is to be brought into view (`showColumnHolding`, ./workFocus.ts
-// `keepInView`): the view moves the fewest columns that show it. Which
-// columns are hidden follows from the same facts (`hidden`), so that hidden
-// columns add nothing to the page's length; focus that showed a column is
-// brought into sight once that column has its length again.
+// `keepInView`): the view moves the fewest columns that show the column
+// holding that element in the page (`dashboardColumnMark`), so a dialog
+// opened from a card belongs to the card's column wherever the window shows
+// it. Which columns are hidden follows from the same facts (`hidden`), so that
+// hidden columns add nothing to the page's length; focus that showed a column
+// is brought into sight once that column has its length again.
 
 import {
   useCallback,
@@ -92,15 +94,21 @@ export function showColumnHolding(element: Element): void {
   element.dispatchEvent(new Event(showHolding, { bubbles: true }));
 }
 
-// Which of the row's equal columns holds `element`: where it starts across
-// the row, which moves as a whole, so a hidden column answers as a shown one.
-function columnHolding(row: Element, element: Element, columns: number) {
-  const across = row.getBoundingClientRect();
-  const column = Math.floor(
-    ((element.getBoundingClientRect().left - across.left) * columns) /
-      across.width,
+// Marks a region of the page as one of the dashboard columns, set where each
+// column renders.
+const columnAttribute = "data-dashboard-column";
+export const dashboardColumnMark = { [columnAttribute]: "" } as const;
+
+// Which of the row's columns, counted from 0 in the row's order, holds
+// `element` in the page, wherever it shows on the screen; none when no column
+// holds it.
+function columnHolding(row: Element, element: Element): number | undefined {
+  const holding = element.closest(`[${columnAttribute}]`);
+  if (holding === null) return undefined;
+  const column = [...row.querySelectorAll(`[${columnAttribute}]`)].indexOf(
+    holding,
   );
-  return Math.max(0, Math.min(column, columns - 1));
+  return column < 0 ? undefined : column;
 }
 
 export function useColumnPaging(columns: number): ColumnPaging {
@@ -153,7 +161,8 @@ export function useColumnPaging(columns: number): ColumnPaging {
     if (!moved || !measured) return undefined;
     const show = (event: Event) => {
       if (!(event.target instanceof Element)) return;
-      const column = columnHolding(moved, event.target, columns);
+      const column = columnHolding(moved, event.target);
+      if (column === undefined) return;
       const fit = columnsShown(measured, columns);
       const from = leftmostOf(position, columns, fit);
       const to =
