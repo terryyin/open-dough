@@ -15,12 +15,15 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [A private Claude Code rename types only at a ready prompt](seeds/SEED-116-claude-done-rename.md#claude-done-rename-readiness-correction) — SEED-116#claude-done-rename-readiness-correction ([plan](slice-plans/270-claude-done-rename-readiness-correction/PLAN.md))
+- [A terminal the developer closed while its session starts stays closed](seeds/SEED-112-terminal-stays-closed-during-startup.md#closed-terminal-stays-closed) — SEED-112#closed-terminal-stays-closed ([plan](slice-plans/269-closed-terminal-stays-closed/PLAN.md))
 
 ## Backlog list
 
 - [Rate-limit recovery waits, resumes, and labels as promised](seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction) — SEED-113#rate-limit-recovery-residue-correction
+- [Recover automatically from temporary GitHub failures](seeds/SEED-118-dashboard-reading-reliability.md#recover-from-temporary-github-failures) — SEED-118#recover-from-temporary-github-failures
+- [Show basic story cards without waiting for expensive cache validation](seeds/SEED-118-dashboard-reading-reliability.md#show-cards-before-expensive-cache-validation) — SEED-118#show-cards-before-expensive-cache-validation
+- [Reduce repeated GitHub reads across tabs and deployments](seeds/SEED-118-dashboard-reading-reliability.md#reduce-repeated-reads-across-tabs-and-deployments) — SEED-118#reduce-repeated-reads-across-tabs-and-deployments
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown
-- [A terminal the developer closed while its session starts stays closed](seeds/SEED-112-terminal-stays-closed-during-startup.md#closed-terminal-stays-closed) — SEED-112#closed-terminal-stays-closed
 - [Paged dashboard columns reveal by structure and count only what is read](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction) — SEED-106#paged-columns-reveal-and-count-correction
 - [Observe decisive planning premises through the full promised journey](seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment
