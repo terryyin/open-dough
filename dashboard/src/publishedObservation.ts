@@ -76,7 +76,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   });
   // Whether the latest read, detail included, has finished.
   const [readSettled, setReadSettled] = useState(false);
-  const { visibility, settleRevealed } = usePageVisibility();
+  const { visibility, visibilityChanges, settleRevealed } = usePageVisibility();
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
   const deferredFocus = useRef<FocusedWork | undefined>(undefined);
   // The snapshot shown, for a read of moved branches' progress to start from.
@@ -84,6 +84,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   shownWork.current = retrieval.work;
   useEffect(() => {
     const reading = new AbortController();
+    const askedAsOf = visibilityChanges();
     const { movedBranches } = readRequest;
     const shown = shownWork.current;
     const publishWork = (next: PublishedWork, firstMembership = false) => {
@@ -135,14 +136,14 @@ export function usePublishedObservation(initialSource: PublishedSource) {
         if (!reading.signal.aborted) {
           setRetrieval((last) => ({ ...last, complete: true }));
           setReadSettled(true);
-          settleRevealed();
+          settleRevealed(askedAsOf);
         }
       },
       (error: unknown) => {
         if (!reading.signal.aborted) {
           fail(error, acceptedMembership);
           setReadSettled(true);
-          settleRevealed();
+          settleRevealed(askedAsOf);
         }
       },
     );

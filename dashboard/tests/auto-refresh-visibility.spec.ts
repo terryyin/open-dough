@@ -9,6 +9,7 @@
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
+  expectOwnersNotRecorded,
   expectSettledPage,
   expectWholeSnapshot,
   parts,
@@ -28,10 +29,13 @@ import {
   headsChecks,
   setPageVisibility,
 } from "./autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import {
   backlogB,
+  backlogC,
   revisionA,
   revisionB,
+  revisionC,
   titlesOfA,
   titlesOfB,
 } from "./refreshJourney.ts";
@@ -103,6 +107,8 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     await setPageVisibility(page, "visible");
     await checkedAtOnce(page);
     await expectSettledPage(page, titlesOfB);
+    // B's read is whole once its agent profiles are read beside its backlog.
+    await expectOwnersNotRecorded(page);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },
@@ -133,4 +139,31 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
       headsCheckArgv(revisionB),
     ]);
   });
+});
+
+test("auto refresh: a page seen again while a read is under way checks once that read lands, so what was published meanwhile is shown", async ({
+  page,
+}) => {
+  const origin = await openSettledAtA(page);
+  const { source } = parts(page);
+  const releaseB = origin.hold(revisionB);
+  origin.push(revisionB, backlogB, recordsAt("B"));
+  const beforeB = githubFor(page).calls.length;
+  await passTimeUntilChecked(page);
+  // The check found B, whose read has reached GitHub and waits there.
+  await expect
+    .poll(() => contentReads(callsSince(page, beforeB)))
+    .toContain(`.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`);
+  await setPageVisibility(page, "hidden");
+  origin.push(revisionC, backlogC, recordsAt("C"));
+  await setPageVisibility(page, "visible");
+  releaseB();
+  await expectSettledPage(page, titlesOfB);
+  await untilPageRequestsAnswered(page);
+  const beforeSeen = githubFor(page).calls.length;
+  await checkedAtOnce(page);
+  await expect(source).toContainText(revisionC);
+  expect(
+    headsChecks(callsSince(page, beforeSeen)).map(({ argv }) => argv),
+  ).toEqual([headsCheckArgv(revisionB)]);
 });
