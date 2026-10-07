@@ -3,9 +3,9 @@
 **Identity:** SEED-113#reuse-evidence-merge-correction
 **Source:** [correction story](../../seeds/SEED-113-dashboard-github-responsiveness.md#reuse-evidence-merge-correction),
 from the execution retrospective of SEED-113#reuse-unchanged-records-after-publication
-([story](../../seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication),
-plan [266](../266-reuse-unchanged-records-after-publication/PLAN.md), slices
-1–3 done), delivered by commits 945857c9, 81b24c14 and d6192d89, with load
+(story `962c717c8a7dfccd09467a2dc18064afe43a1cc2:.planning/seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication`,
+plan `962c717c8a7dfccd09467a2dc18064afe43a1cc2:.planning/slice-plans/266-reuse-unchanged-records-after-publication/PLAN.md`,
+slices 1–3 done), delivered by commits 945857c9, 81b24c14 and d6192d89, with load
 fixes 7d8319bc and 0b2613f4, on
 `claude/refresh-published-work-without-rereading-unchang`.
 **Prepared:** 2026-10-07. Planning only, in the execution's checkout at
