@@ -65,18 +65,30 @@ export function PublishedReadStatus({
           recoversAt={recoversAt}
           withheld={withheld}
         />
+      ) : limitedUntil ? (
+        <div role="alert" className="read-problem">
+          <h2>
+            <Icon icon={Hourglass} />
+            Reading waits for GitHub's rate limit
+          </h2>
+          <ReadingLimitNotice
+            until={limitedUntil}
+            work={work}
+            withheld={withheld}
+          />
+        </div>
       ) : (
-        limitedUntil && (
+        recoversAt &&
+        work !== undefined && (
           <div role="alert" className="read-problem">
             <h2>
               <Icon icon={Hourglass} />
-              Reading waits for GitHub's rate limit
+              Reading unanswered detail again
             </h2>
-            <ReadingLimitNotice
-              until={limitedUntil}
-              work={work}
-              withheld={withheld}
-            />
+            <p>
+              Detail still unread is labeled where it is shown; this page reads
+              it at <Moment at={recoversAt} />, or when it is next seen.
+            </p>
           </div>
         )
       )}

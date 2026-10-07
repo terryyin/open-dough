@@ -14,6 +14,7 @@ import {
 } from "./authenticatedBranchRead.ts";
 import {
   settleMissing,
+  shouldAsk,
   trackSettledAsk,
   type ObservationOutcomes,
 } from "./observationOutcomes.ts";
@@ -93,6 +94,16 @@ async function branchProgress(
     path: branch,
   };
   const unreadable = `The plan on branch ${branch} could not be read.`;
+  const priorHead = outcomes.of(headQuestion);
+  if (
+    known === undefined &&
+    !shouldAsk(outcomes, headQuestion) &&
+    priorHead !== undefined &&
+    priorHead.kind !== "answered"
+  ) {
+    // Missing or terminal/bound head failure: keep this entry's shown gap.
+    return entry;
+  }
   try {
     const head =
       known === undefined
@@ -134,6 +145,14 @@ async function branchProgress(
       operation: "branch-file" as const,
       path: planPath,
     };
+    const priorFile = outcomes.of(fileQuestion);
+    if (
+      !shouldAsk(outcomes, fileQuestion) &&
+      priorFile !== undefined &&
+      priorFile.kind !== "answered"
+    ) {
+      return entry;
+    }
     const text = await trackSettledAsk(
       outcomes,
       readFileOnBranch(source, planPath, revision, onBranch, signal),

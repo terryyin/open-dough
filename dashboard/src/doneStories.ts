@@ -14,8 +14,10 @@ import {
 import type { PublishedFile } from "./authenticatedGet.ts";
 import { readDoneRecordsAt } from "./authenticatedDoneRead.ts";
 import {
+  gapCauseFromOutcome,
   settleAnswered,
   settleGapCause,
+  shouldAsk,
   type ObservationOutcomes,
   type ReadQuestion,
 } from "./observationOutcomes.ts";
@@ -69,36 +71,9 @@ function doneQuestion(source: PublishedSource, revision: string): ReadQuestion {
   };
 }
 
-// Reads the revision's done records; a failed or bound-interrupted read is
-// the column's gap, with typed failure meaning retained on the gap and the
-// observation's outcome owner.
-export async function readDoneStories(
-  source: PublishedSource,
-  revision: string,
-  signal: AbortSignal,
-  outcomes: ObservationOutcomes,
-  bound: AbortSignal,
-): Promise<DoneStories> {
-  const question = doneQuestion(source, revision);
-  let records: readonly PublishedFile[];
-  try {
-    records = await readDoneRecordsAt(source, revision, signal);
-  } catch (error) {
-    const cause = gapCauseOf(
-      error,
-      signal,
-      bound,
-      "the done records",
-      doneUnreadProblem,
-    );
-    settleGapCause(outcomes, question, cause);
-    const gap = unavailableGap({
-      ...cause,
-      problem: `${doneUnreadProblem} ${cause.problem}`.trimEnd(),
-    });
-    return gap;
-  }
-  settleAnswered(outcomes, question);
+function interpretDoneRecords(
+  records: readonly PublishedFile[],
+): Extract<DoneStories, { readonly status: "read" }> {
   const stories: DoneStory[] = [];
   const unreadable: UnreadableDoneRecord[] = [];
   for (const { path, text } of records) {
@@ -117,6 +92,49 @@ export async function readDoneStories(
     }
   }
   return { status: "read", stories, unreadable };
+}
+
+// Reads the revision's done records; a failed or bound-interrupted read is
+// the column's gap, with typed failure meaning retained on the gap and the
+// observation's outcome owner.
+export async function readDoneStories(
+  source: PublishedSource,
+  revision: string,
+  signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
+): Promise<DoneStories> {
+  const question = doneQuestion(source, revision);
+  const prior = outcomes.of(question);
+  if (!shouldAsk(outcomes, question) && prior !== undefined) {
+    if (prior.kind === "failed" || prior.kind === "bound") {
+      const problem = `${doneUnreadProblem} ${prior.message}`.trimEnd();
+      return unavailableGap(gapCauseFromOutcome(prior, problem) ?? { problem });
+    }
+    // Answered: the listing memo answers without re-settling under the bound.
+    return interpretDoneRecords(
+      await readDoneRecordsAt(source, revision, signal),
+    );
+  }
+  let records: readonly PublishedFile[];
+  try {
+    records = await readDoneRecordsAt(source, revision, signal);
+  } catch (error) {
+    const cause = gapCauseOf(
+      error,
+      signal,
+      bound,
+      "the done records",
+      doneUnreadProblem,
+    );
+    settleGapCause(outcomes, question, cause);
+    return unavailableGap({
+      ...cause,
+      problem: `${doneUnreadProblem} ${cause.problem}`.trimEnd(),
+    });
+  }
+  settleAnswered(outcomes, question);
+  return interpretDoneRecords(records);
 }
 
 // The done stories still recent at `now`, by the shared window.

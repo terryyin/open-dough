@@ -8,8 +8,10 @@ import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { mapPool } from "./boundedPool.ts";
 import { cachedFile, rememberFile } from "./fileContentCache.ts";
 import {
+  gapCauseFromOutcome,
   settleAnswered,
   settleGapCause,
+  shouldAsk,
   type ObservationOutcomes,
   type ReadQuestion,
 } from "./observationOutcomes.ts";
@@ -67,6 +69,23 @@ export async function loadRepositoryTexts(
   const problems = new Map<string, GapCause>();
   await mapPool(paths, fileReadConcurrency, async (path) => {
     const question = fileQuestion(source, revision, path);
+    const prior = outcomes.of(question);
+    if (!shouldAsk(outcomes, question) && prior !== undefined) {
+      if (prior.kind === "answered") {
+        const hit = cachedFile(source.repository, revision, path);
+        if (hit !== undefined) {
+          text.set(path, hit);
+          return;
+        }
+        // Cache miss for an answered path: ask again below.
+      } else {
+        const gap = gapCauseFromOutcome(prior, problem);
+        if (gap !== undefined) {
+          problems.set(path, gap);
+          return;
+        }
+      }
+    }
     try {
       text.set(path, await readCachedFile(source, revision, path, signal));
       settleAnswered(outcomes, question);

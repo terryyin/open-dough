@@ -1,8 +1,9 @@
 // A failed read of the published work, said as an alert: what stopped it,
 // when, what the shown snapshot is then (what this attempt read, the earlier
 // snapshot, or none), and how reading continues: while GitHub's rate limit
-// stands, as its notice says (`./ReadingLimitNotice.tsx`); or, on an empty
-// page, when the next eligible transient recovery is due.
+// stands, as its notice says (`./ReadingLimitNotice.tsx`); or when the next
+// eligible transient recovery is due for an empty page or for unanswered
+// detail on the shown snapshot.
 
 import { TriangleAlert } from "lucide-react";
 import { Icon } from "./Icon.tsx";
@@ -23,7 +24,7 @@ export function PublishedReadFailure({
   readonly work: PublishedWork | undefined;
   // When the page's standing rate limit ends, if one stands.
   readonly limitedUntil: Date | undefined;
-  // When the empty page next reads an eligible transient failure on its own.
+  // When the page next reads an eligible transient failure on its own.
   readonly recoversAt: Date | undefined;
   readonly withheld: boolean;
 }) {
@@ -61,6 +62,11 @@ export function PublishedReadFailure({
         <p>
           This page reads the published work at <Moment at={recoversAt} />, or
           when it is next seen.
+        </p>
+      ) : recoversAt && work !== undefined ? (
+        <p>
+          Detail still unread is labeled where it is shown; this page reads it
+          at <Moment at={recoversAt} />, or when it is next seen.
         </p>
       ) : (
         <p>

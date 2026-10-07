@@ -7,7 +7,7 @@
 // new project or a different revision clears it. Departure without the bound
 // does not settle a question.
 
-import { gapCauseOf, type GapCause } from "./readWaitBound.ts";
+import type { GapCause } from "./readWaitBound.ts";
 
 // Existing read operations the local boundary already names, plus the listing
 // reads that collect several paths under one ask.
@@ -60,6 +60,18 @@ function questionKey({
   );
 }
 
+// Eligible for the observation's project-local recovery: owned-bound
+// interruption or a typed transient failure. Answered, missing, and
+// non-retryable failures are not.
+export function isEligibleUnanswered(
+  outcome: SettledOutcome | undefined,
+): boolean {
+  return (
+    outcome?.kind === "bound" ||
+    (outcome?.kind === "failed" && outcome.recovery === "transient")
+  );
+}
+
 export class ObservationOutcomes {
   private readonly settled = new Map<string, SettledOutcome>();
   private pinnedRevision: string | undefined;
@@ -73,11 +85,30 @@ export class ObservationOutcomes {
     this.settled.set(questionKey(question), outcome);
   }
 
+  // Whether any settled question still needs a recovery ask.
+  hasEligibleUnanswered(): boolean {
+    for (const outcome of this.settled.values()) {
+      if (isEligibleUnanswered(outcome)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // A newly shown membership at another revision abandons prior outcomes;
-  // the same revision keeps them for selective recovery.
+  // the same revision keeps them for selective recovery. The first pin also
+  // drops pre-membership questions (ref/backlog asked before the revision
+  // was known) so an empty-page recovery does not keep their failures.
   pinRevision(revision: string): void {
     if (this.pinnedRevision !== undefined && this.pinnedRevision !== revision) {
       this.settled.clear();
+    } else if (this.pinnedRevision === undefined) {
+      for (const key of [...this.settled.keys()]) {
+        const pinned = key.split("\0")[1] ?? "";
+        if (pinned !== revision) {
+          this.settled.delete(key);
+        }
+      }
     }
     this.pinnedRevision = revision;
   }
@@ -87,6 +118,47 @@ export class ObservationOutcomes {
     this.settled.clear();
     this.pinnedRevision = undefined;
   }
+}
+
+// Whether a fresh read should reach GitHub for this question. Answered,
+// missing, and terminal non-limit failures stay settled for this pin.
+// Eligible transient failures and rate-limit gaps (resumesAt) are asked
+// again; the latter ride the existing rate-limit recovery, not the
+// project-local transient schedule.
+export function shouldAsk(
+  outcomes: ObservationOutcomes,
+  question: ReadQuestion,
+): boolean {
+  const settled = outcomes.of(question);
+  if (settled === undefined || isEligibleUnanswered(settled)) {
+    return true;
+  }
+  return settled.kind === "failed" && settled.resumesAt !== undefined;
+}
+
+// Public gap wording stays the caller's; typed meaning comes from the settled
+// outcome so recovery does not re-ask this pin. Answered outcomes project no
+// gap.
+export function gapCauseFromOutcome(
+  outcome: SettledOutcome,
+  problem: string,
+): GapCause | undefined {
+  if (outcome.kind === "answered") {
+    return undefined;
+  }
+  if (outcome.kind === "missing") {
+    return { problem };
+  }
+  if (outcome.kind === "bound") {
+    return { problem, bound: true, recovery: "transient" };
+  }
+  return {
+    problem,
+    ...(outcome.resumesAt !== undefined
+      ? { resumesAt: outcome.resumesAt }
+      : {}),
+    ...(outcome.recovery !== undefined ? { recovery: outcome.recovery } : {}),
+  };
 }
 
 // Records a validated success without storing its content.
@@ -132,53 +204,5 @@ export function settleGapCause(
   });
 }
 
-// How a resolved ask maps to a settled outcome; the question may gain a head
-// or revision only known after success.
-export type AskSettlement =
-  | { readonly kind: "answered"; readonly question?: ReadQuestion }
-  | { readonly kind: "missing"; readonly question?: ReadQuestion };
-
-// Settles a shared ask when it answers, establishes absence, or fails with a
-// typed gap cause. Failure uses the question known before the ask.
-export function trackSettledAsk<T>(
-  outcomes: ObservationOutcomes,
-  ask: Promise<T>,
-  settle: {
-    readonly question: ReadQuestion;
-    readonly of?: (value: T) => AskSettlement | "answered" | "missing";
-    readonly untilEither: AbortSignal;
-    readonly bound: AbortSignal;
-    readonly reading: string;
-    readonly unreadable: string;
-  },
-): Promise<T> {
-  return ask.then(
-    (value) => {
-      const result = settle.of?.(value) ?? "answered";
-      if (result === "answered") {
-        settleAnswered(outcomes, settle.question);
-      } else if (result === "missing") {
-        settleMissing(outcomes, settle.question);
-      } else if (result.kind === "answered") {
-        settleAnswered(outcomes, result.question ?? settle.question);
-      } else {
-        settleMissing(outcomes, result.question ?? settle.question);
-      }
-      return value;
-    },
-    (error: unknown) => {
-      settleGapCause(
-        outcomes,
-        settle.question,
-        gapCauseOf(
-          error,
-          settle.untilEither,
-          settle.bound,
-          settle.reading,
-          settle.unreadable,
-        ),
-      );
-      throw error;
-    },
-  );
-}
+export type { AskSettlement } from "./trackSettledAsk.ts";
+export { trackSettledAsk } from "./trackSettledAsk.ts";

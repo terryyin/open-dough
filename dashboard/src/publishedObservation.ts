@@ -7,10 +7,10 @@
 // another commit; when it finds a story branch the shown progress is read from
 // at another head, only that progress is read again. Each read is carried
 // out by `./requestedRead.ts`. What GitHub's rate limit withheld, or an
-// eligible empty-page transient failure, is read again once recovery is due
-// (`./limitRecovery.ts`). What is shown, as launch
-// reconciliation sees it (`shown`), also says whether every detail of it has
-// been read.
+// eligible transient failure of the empty page or of detail on a shown
+// snapshot, is read again once recovery is due (`./limitRecovery.ts`). What
+// is shown, as launch reconciliation sees it (`shown`), also says whether
+// every detail of it has been read.
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
@@ -22,7 +22,7 @@ import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
 import {
   clearTransientFailure,
-  recordSettledFailure,
+  recordSettledOutcomes,
   useLimitRecovery,
 } from "./limitRecovery.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
@@ -94,24 +94,24 @@ export function usePublishedObservation(initialSource: PublishedSource) {
         show: (next, firstMembership) => {
           const held = focusedWork();
           heldFocus.current = held;
-          if (firstMembership) clearTransientFailure();
-          show(next, firstMembership ? unlistedNotice(held, next) : undefined);
+          // Only a new membership (or the first) replaces the retrieval
+          // whole; same-revision recovery keeps complete/withheld and the
+          // shown facts while unanswered detail is asked again.
+          const replacing =
+            firstMembership &&
+            (shownWork.current === undefined ||
+              shownWork.current.revision !== next.revision);
+          show(next, replacing ? unlistedNotice(held, next) : undefined);
         },
-        acceptMembership: () => {
-          clearTransientFailure();
-          acceptMembership();
-        },
+        acceptMembership,
         completeDetail,
         fail: (error, afterMembership = false) => {
           fail(error, afterMembership);
-          recordSettledFailure(
-            error,
-            !afterMembership && shownWork.current === undefined,
-          );
         },
         settle: (revealing) => {
           if (limitMet()) withhold();
           setReadSettled(true);
+          recordSettledOutcomes(outcomes);
           if (revealing) settleRevealed(askedAsOf);
         },
       },
@@ -156,7 +156,6 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     withheld,
     readSettled,
     visibility,
-    emptyPage: work === undefined,
     readAfresh: () => {
       askRead(undefined);
     },

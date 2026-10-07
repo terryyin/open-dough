@@ -1,17 +1,18 @@
 // How the published observation (`./publishedObservation.ts`) recovers what
 // a settled read left unanswered of its latest attempt: GitHub's rate limit
 // (`./readingLimit.ts`) withheld of a settled read (`./snapshotRetrieval.ts`),
-// or an eligible transient failure of an empty page
-// (`./transientRecovery.ts`). Once recovery is due on a visible page, it
-// reads the ref afresh -- the project when nothing is shown, or again beside
-// the shown snapshot. A standing GitHub wait takes precedence over a shorter
-// transient backoff and is never shortened. A hidden page waits until it is
-// seen again. Until then no revision check is asked in its place. One
-// schedule owns both recoveries; there is no second timer beside it.
+// or an eligible transient failure of the empty page or of detail on a shown
+// snapshot (`./transientRecovery.ts`, `./observationOutcomes.ts`). Once
+// recovery is due on a visible page, it reads the ref afresh -- the project
+// when nothing is shown, or again beside the shown snapshot. A standing
+// GitHub wait takes precedence over a shorter transient backoff and is never
+// shortened. A hidden page waits until it is seen again. Until then no
+// revision check is asked in its place. One schedule owns both recoveries;
+// there is no second timer beside it.
 
 import { useEffect } from "react";
+import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import type { Visibility } from "./pageVisibility.ts";
-import { ReadProblem } from "./readProblem.ts";
 import { useStandingLimit } from "./readingLimit.ts";
 import {
   clearTransientFailure,
@@ -22,15 +23,13 @@ import {
 
 export { clearTransientFailure };
 
-// Records a settled empty-page failure when it is eligible for transient
-// recovery. Access, malformed-data, and unknown failures are left alone.
-export function recordSettledFailure(error: unknown, emptyPage: boolean): void {
-  if (
-    emptyPage &&
-    error instanceof ReadProblem &&
-    error.recovery === "transient"
-  ) {
+// After a settled read: schedule project-local recovery when any question is
+// still eligible and unanswered; clear the backoff when none remain.
+export function recordSettledOutcomes(outcomes: ObservationOutcomes): void {
+  if (outcomes.hasEligibleUnanswered()) {
     noteTransientFailure();
+  } else {
+    clearTransientFailure();
   }
 }
 
@@ -40,13 +39,11 @@ export function useLimitRecovery({
   withheld,
   readSettled,
   visibility,
-  emptyPage,
   readAfresh,
 }: {
   readonly withheld: boolean;
   readonly readSettled: boolean;
   readonly visibility: Visibility;
-  readonly emptyPage: boolean;
   readonly readAfresh: () => void;
 }): {
   readonly checksMayRun: boolean;
@@ -59,7 +56,6 @@ export function useLimitRecovery({
   const limitRecoveryDue =
     withheld && readSettled && !limitStands && visibility !== "hidden";
   const transientRecoveryDue =
-    emptyPage &&
     transientPending &&
     transientUntil === undefined &&
     readSettled &&
@@ -69,11 +65,10 @@ export function useLimitRecovery({
     if (limitRecoveryDue || transientRecoveryDue) readAfresh();
   }, [limitRecoveryDue, transientRecoveryDue]);
   return {
-    // Settled reads exclude checks while withheld or while an empty page's
-    // transient recovery is still unresolved.
-    checksMayRun: readSettled && !withheld && !(emptyPage && transientPending),
+    // Settled reads exclude checks while withheld or while transient
+    // recovery is still unresolved (empty page or unanswered detail).
+    checksMayRun: readSettled && !withheld && !transientPending,
     recoversAt:
-      standingLimit ??
-      (emptyPage && transientPending ? transientUntil : undefined),
+      standingLimit ?? (transientPending ? transientUntil : undefined),
   };
 }

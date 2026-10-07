@@ -1,9 +1,9 @@
-// An unavailable detail of a revision the dashboard shows stays labeled and is
-// read again only when the page is reloaded; so does a detail still unread
-// when the read's wait bound gives it up, whose failed attempt a later
-// unchanged check does not clear. Failed checks and reads of a newly found
-// commit: ./auto-refresh-recovery.spec.ts. The page, its local authenticated
-// read boundary, the `gh` invocation, and the shared interpretation are the
+// A missing detail of a revision the dashboard shows stays labeled and is
+// read again only when the page is reloaded. A detail still unread when the
+// read's wait bound gives it up recovers on the page's transient schedule at
+// that same revision. Failed checks and reads of a newly found commit:
+// ./auto-refresh-recovery.spec.ts. The page, its local authenticated read
+// boundary, the `gh` invocation, and the shared interpretation are the
 // production ones; the fake GitHub behind the synthetic `gh`
 // (./support/fakeGitHub.ts) only publishes commits and holds answers. The
 // page's clock is paused and advanced by the test.
@@ -93,11 +93,11 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
   });
 });
 
-test("auto refresh recovery: a detail of B still unread at the wait bound is labeled as a gap, the failed attempt says B's membership was read, an unchanged check keeps that failure and reads nothing, and a reload reads the detail at B", async ({
+test("auto refresh recovery: a detail of B still unread at the wait bound is labeled as a gap, the failed attempt says B's membership was read, and the page's recovery reads the detail at B without reload", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, backlog, problem, status } = parts(page);
+  const { source, backlog, problem } = parts(page);
   const recordsB = recordsAt("B");
   origin.push(revisionB, backlogB, recordsB);
   const releaseClaims = origin.hold(claimsRecord);
@@ -125,24 +125,37 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
     await expect(problem).toContainText(readAtB);
     await expect(problem).toContainText("What is shown is what it read");
     await expect(problem).not.toContainText("added nothing");
+    await expect(problem).toContainText("this page reads it");
     await expect(claimsCard).toContainText(gap);
     await expectSettledPage(page);
     await expect(source).toContainText(revisionB);
   });
 
-  await test.step("an unchanged check keeps the failure, settles no read status, and reads no content", async () => {
+  await test.step("while recovery waits, checks do not run and the gap stays", async () => {
     const from = githubFor(page).calls.length;
-    expectSteadyPace(await passTimeUntilChecked(page));
-    const calls = callsSince(page, from);
-    expect(headsChecks(calls)).toHaveLength(1);
-    expect(contentReads(calls)).toEqual([]);
+    await page.clock.runFor(14_000);
+    expect(headsChecks(callsSince(page, from))).toHaveLength(0);
+    expect(contentReads(callsSince(page, from))).toEqual([]);
     await expect(problem).toContainText(readAtB);
-    await expect(status).toHaveText("");
     await expect(claimsCard).toContainText(gap);
   });
 
-  await test.step("a reload reads the record again at B, and the gap closes", async () => {
+  await test.step("due recovery reads the record again at B, and the gap closes", async () => {
     releaseClaims();
-    await expectGapClosedAtB(page);
+    const from = githubFor(page).calls.length;
+    await page.clock.runFor(1_250);
+    await expect(claimsCard).toBeVisible();
+    await expectSettledPage(page);
+    await expectOwnersNotRecorded(page);
+    await expect(claimsCard).not.toContainText(gap);
+    await claimsCard.getByRole("button", { name: "Inspect story" }).click();
+    await expect(claimsCard).toContainText(
+      `${claimsStory}, as published at B.`,
+    );
+    await expect(source).toContainText(revisionB);
+    await expect(problem).toHaveCount(0);
+    await expect
+      .poll(() => contentReads(callsSince(page, from)))
+      .toContain(`${claimsRecord}?ref=${revisionB}`);
   });
 });

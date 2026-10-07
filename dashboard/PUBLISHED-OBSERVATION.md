@@ -105,13 +105,15 @@ bound the local boundary shares) ends as a read problem, never as an empty or
 partial backlog. The snapshot read earlier stays shown with its own revision and
 retrieval time -- it is the last successful snapshot, not a claim that the configured ref
 still names it -- the problem says what failed and when, and how the page
-recovers: with a snapshot shown, automatic checks continue; with nothing
-shown, an eligible temporary failure -- a wait-bound timeout, a recognized
-lost connection, or GitHub's HTTP `408`, `500`, `502`, `503`, or `504` --
-is read again on its own 15, then 30, then 60 seconds after settlement,
-thereafter at most once a minute, while the page is visible; a rate limit
+recovers: an eligible temporary failure -- a wait-bound timeout, a recognized
+lost connection, or GitHub's HTTP `408`, `500`, `502`, `503`, or `504` -- of
+the empty page or of detail on a shown snapshot is read again on its own 15,
+then 30, then 60 seconds after settlement, thereafter at most once a minute,
+while the page is visible; at an unchanged revision, successfully shown facts
+stay shown and only eligible unanswered questions are asked again; a rate limit
 still waits for GitHub's time; access, missing, invalid, or unknown failures
-stay until the page is reloaded. When GitHub's rate limit stopped
+stay until the page is reloaded and are not looped by another detail's
+recovery. When GitHub's rate limit stopped
 the read, the page reads on its own once the limit's time passes. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
 snapshot. While a snapshot is shown the page keeps checking, but only at the
@@ -165,15 +167,18 @@ wait, or its own when GitHub directed none, at most one hour. The page's wait
 ends only at its time: a later check or read that succeeds clears the
 problem, unless the problem stands with its snapshot as described below, but
 no answer lifts the wait early. A record detail that
-could not be read for any reason but the limit stays labeled on its card
-rather than borrowing an older one; checks that find the configured ref
-unchanged never read it again, so reload the page to read it again at the same
-revision. A fresh read after a limit asks it again with the rest, and it stays
-a gap while GitHub still does not answer it. When the 30-second bound ends a read after the
-new commit's backlog was shown, each detail still unread is shown as such a gap
-on that snapshot, and the problem stands with it (a slice clock or credited
-human still unread is only its own gap): a check that finds the configured ref unchanged
-does not clear it, and only a later read that replaces that snapshot does.
+could not be read for an access, missing, invalid, or unknown reason stays
+labeled on its card rather than borrowing an older one; checks that find the
+configured ref unchanged never read it again, and eligible recovery of another
+gap does not ask it again for that same pin -- reload the page to try it at the
+same revision after access is corrected. A fresh read after a limit asks it
+again with the rest, and it stays a gap while GitHub still does not answer it.
+When the 30-second bound ends a read after the new commit's backlog was shown,
+each detail still unread is shown as such a gap on that snapshot, and the
+problem stands with it (a slice clock or credited human still unread is only
+its own gap): a check that finds the configured ref unchanged does not clear
+it; an eligible unread detail is read again on the page's transient recovery
+schedule at that same revision, keeping successfully shown facts.
 Selecting another project stays available throughout: a failed or still-reading
 project never blocks switching to another, and returning to a project starts a
 fresh read rather than replaying the failure. Switching projects abandons the

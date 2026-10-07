@@ -145,7 +145,11 @@ export async function waitedOut(page: Page, limitSeenAt: number) {
 // the unreadable plan time keeps its own gap.
 export async function expectRecovered(page: Page, solaExplained: string) {
   await test.step("the credited human appears on its card, detail, and roster, and its Take clock beside it, with the notice gone", async () => {
-    await expect(parts(page).problem).toHaveCount(0);
+    // Rate-limit notice is gone; an unrelated unread plan time may still
+    // schedule project-local recovery of its own eligible gap.
+    await expect(page.locator("body")).not.toContainText(
+      "GitHub limited the rate",
+    );
     const yumaCard = card(page, justTaken);
     await expect(yumaCard.locator(".card-owner")).toContainText(recoveredHuman);
     await expect(yumaCard).toContainText("Current slice started 5 min ago");

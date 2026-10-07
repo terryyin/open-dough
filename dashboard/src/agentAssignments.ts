@@ -10,25 +10,18 @@
 // a queued entry's preparer, never an execution owner, so it cannot route
 // progress or start a slice clock.
 
-import { z } from "zod";
 import {
   agentHosts,
-  agentIdentity,
   agentModes,
-  agentRotationFor,
-  parseAgentProfileFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { readAgentProfilesAt } from "./authenticatedProfileRead.ts";
+import type { HumanAttribution } from "./assignmentAttribution.ts";
+import { interpretProfiles } from "./interpretAgentProfiles.ts";
 import {
-  readAgentProfilesAt,
-  type PublishedProfiles,
-} from "./authenticatedProfileRead.ts";
-import {
-  attributionLoading,
-  type HumanAttribution,
-} from "./assignmentAttribution.ts";
-import {
+  gapCauseFromOutcome,
   settleAnswered,
   settleGapCause,
+  shouldAsk,
   type ObservationOutcomes,
   type ReadQuestion,
 } from "./observationOutcomes.ts";
@@ -40,34 +33,8 @@ import {
   type UnavailableGap,
 } from "./readWaitBound.ts";
 
-const agentMode = z.enum(agentModes);
-const agentHost = z.enum(agentHosts);
-
-const profileFacts = {
-  name: z.string().min(1),
-  identity: z.string().min(1),
-  host: agentHost.optional(),
-  model: z.string().min(1).optional(),
-};
-
-const readProfile = z.discriminatedUnion("ok", [
-  z.object({
-    ok: z.literal(true),
-    profile: z.discriminatedUnion("activity", [
-      z.object({
-        ...profileFacts,
-        activity: z.literal("execution"),
-        mode: agentMode,
-        branch: z.string().min(1),
-      }),
-      z.object({ ...profileFacts, activity: z.literal("preparation") }),
-    ]),
-  }),
-  z.object({ ok: z.literal(false), error: z.string().min(1) }),
-]);
-
-export type AgentMode = z.infer<typeof agentMode>;
-export type AgentHost = z.infer<typeof agentHost>;
+export type AgentMode = (typeof agentModes)[number];
+export type AgentHost = (typeof agentHosts)[number];
 
 // One published assignment's developer facts, and the repository path its
 // profile is published at; host and model stay undefined when the profile
@@ -141,12 +108,12 @@ export type ProfilesUnread = {
   readonly bound?: true;
 };
 
-function profilesQuestion(
-  source: PublishedSource,
+export function profilesQuestion(
+  sourceId: string,
   revision: string,
 ): ReadQuestion {
   return {
-    sourceId: source.id,
+    sourceId,
     revision,
     operation: "profiles",
   };
@@ -157,60 +124,6 @@ export type ProfilesRead = ProfileAssignments | ProfilesUnread;
 
 export function profilesUnread(read: ProfilesRead): read is ProfilesUnread {
   return "unread" in read;
-}
-
-function interpretProfiles({
-  profiles,
-  settings,
-}: PublishedProfiles): ProfileAssignments {
-  const assignments: ProfileAssignment[] = [];
-  const unreadable: UnreadableProfile[] = [];
-  for (const { path, text } of profiles) {
-    const file = path.split("/").pop() ?? path;
-    let raw: unknown;
-    try {
-      raw = parseAgentProfileFile(file, text);
-    } catch (error) {
-      raw = {
-        ok: false,
-        error: error instanceof Error ? error.message : String(error),
-      };
-    }
-    const read = readProfile.safeParse(raw);
-    if (!read.success) {
-      unreadable.push({
-        file,
-        problem:
-          "The shared profile reader answered in a shape this dashboard does not understand.",
-      });
-      continue;
-    }
-    if (!read.data.ok) {
-      unreadable.push({ file, problem: read.data.error });
-      continue;
-    }
-    const { profile } = read.data;
-    const { name, identity, host, model } = profile;
-    const facts: AgentAssignment = {
-      profilePath: path,
-      name,
-      agent: agentIdentity(name).agent,
-      host,
-      model,
-      human: attributionLoading,
-    };
-    if (profile.activity === "preparation") {
-      assignments.push({ ...facts, activity: "preparation", identity });
-    } else {
-      const { activity, mode, branch } = profile;
-      assignments.push({ ...facts, mode, branch, activity, identity });
-    }
-  }
-  return {
-    rotation: agentRotationFor(settings) as ProjectRotation,
-    assignments,
-    unreadable,
-  };
 }
 
 // Reads the revision's profiles; a failed or bound-interrupted read is a gap
@@ -224,7 +137,21 @@ export async function readAssignments(
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
 ): Promise<ProfilesRead> {
-  const question = profilesQuestion(source, revision);
+  const question = profilesQuestion(source.id, revision);
+  const prior = outcomes.of(question);
+  if (!shouldAsk(outcomes, question) && prior !== undefined) {
+    if (prior.kind === "failed" || prior.kind === "bound") {
+      const cause = gapCauseFromOutcome(prior, profilesUnreadProblem);
+      return {
+        unread: profilesUnreadProblem,
+        ...(cause === undefined ? {} : gapRetention(cause)),
+      };
+    }
+    // Answered: the listing memo answers without re-settling under the bound.
+    return interpretProfiles(
+      await readAgentProfilesAt(source, revision, signal),
+    );
+  }
   try {
     const read = interpretProfiles(
       await readAgentProfilesAt(source, revision, signal),

@@ -1,16 +1,16 @@
 // The page's project-local backoff for an eligible transient failure of its
-// empty-page membership read: waits after settlement of 15, 30, 60, then 60
-// seconds before the observation reads the ref afresh again
-// (`./limitRecovery.ts`). Distinct from the login-wide rate-limit record
-// (`./readingLimit.ts`): a standing GitHub wait takes precedence and is never
-// shortened. An unrelated success or unchanged check does not reset this
-// unresolved failure's step; only a recovered membership, or leaving the
-// project, clears it.
+// empty-page membership read or of detail on a shown snapshot: waits after
+// settlement of 15, 30, 60, then 60 seconds before the observation reads the
+// ref afresh again (`./limitRecovery.ts`). Distinct from the login-wide
+// rate-limit record (`./readingLimit.ts`): a standing GitHub wait takes
+// precedence and is never shortened. An unrelated success or unchanged check
+// does not reset this unresolved failure's step; only healing every eligible
+// unanswered question, or leaving the project, clears it.
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 // Whole seconds after settlement before the next recovery attempt, by how
-// many eligible failures this empty-page observation has settled.
+// many eligible failures this observation has settled.
 const waitAfterSettlementSeconds = [15, 30, 60] as const;
 
 let recoversUntil = 0;
@@ -29,8 +29,9 @@ function subscribe(listener: () => void): () => void {
   };
 }
 
-// An eligible empty-page failure settled: schedule the next recovery after
-// the wait for this step, advancing through 15 → 30 → 60 and staying at 60.
+// An eligible failure settled (empty page or unanswered detail): schedule
+// the next recovery after the wait for this step, advancing through
+// 15 → 30 → 60 and staying at 60.
 export function noteTransientFailure(): void {
   const step = Math.min(failureCount, waitAfterSettlementSeconds.length - 1);
   const waitSeconds = waitAfterSettlementSeconds[step] ?? 60;
@@ -40,8 +41,8 @@ export function noteTransientFailure(): void {
   changed();
 }
 
-// Membership was obtained, or the observed project was left: the unresolved
-// failure and its backoff are over.
+// Every eligible unanswered question healed, or the observed project was
+// left: the unresolved failure and its backoff are over.
 export function clearTransientFailure(): void {
   if (!pending && failureCount === 0 && recoversUntil === 0) {
     return;
@@ -56,8 +57,8 @@ function useRecoversUntil(): number {
   return useSyncExternalStore(subscribe, () => recoversUntil);
 }
 
-// Whether an unresolved empty-page transient recovery still stands,
-// re-rendered when it is noted or cleared.
+// Whether an unresolved transient recovery still stands, re-rendered when
+// it is noted or cleared.
 export function useTransientRecoveryPending(): boolean {
   return useSyncExternalStore(subscribe, () => pending);
 }

@@ -16,7 +16,6 @@ import {
   noConnection,
   pathsRead,
   publishMovingOrigin,
-  type ObservedRequest,
 } from "./publishedOrigin.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
@@ -27,29 +26,13 @@ import {
 } from "./refreshJourney.ts";
 import { failedAt } from "./limitNotice.ts";
 import { headsChecks } from "./autoRefreshJourney.ts";
+import {
+  expectRecoversAfter,
+  mainReads,
+  transientRecovery,
+} from "./transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
-const transientRecovery = "This page reads the published work at";
-
-function mainReads(origin: {
-  readonly requests: readonly ObservedRequest[];
-}): number {
-  return pathsRead(origin).filter((path) => path === "main").length;
-}
-
-async function expectRecoversAfter(
-  page: Parameters<typeof parts>[0],
-  failedMs: number,
-  waitSeconds: number,
-): Promise<void> {
-  const notice = parts(page).problem.locator("p", {
-    hasText: transientRecovery,
-  });
-  await expect(notice).toHaveCount(1);
-  expect(
-    Date.parse((await notice.locator("time").getAttribute("datetime")) ?? ""),
-  ).toBe(failedMs + waitSeconds * 1_000);
-}
 
 test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds after settlement, and a later answer publishes membership without reload", async ({
   page,
@@ -244,10 +227,20 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
       [],
     );
     await expect(problem).toHaveCount(0);
-    expect(pathsRead(origin)).toEqual([
+    // Membership recovery continues into detail asks; missing records answer
+    // as established absence (observed), not a lost connection.
+    expect(pathsRead(origin).slice(0, 3)).toEqual([
       "main",
       "main",
       `PRODUCT-BACKLOG.md?ref=${revisionA}`,
     ]);
+    expect(pathsRead(origin).slice(3).sort()).toEqual(
+      [
+        `PLAN.md?ref=${revisionA}`,
+        `SEED-021-progress.md?ref=${revisionA}`,
+        `SEED-008-sync.md?ref=${revisionA}`,
+        `open-dough.json?ref=${revisionA}`,
+      ].sort(),
+    );
   });
 });

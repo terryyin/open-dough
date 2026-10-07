@@ -250,12 +250,15 @@ internal, and automatic detail recovery is still not advertised.
 
 ### 3. Recover unanswered facts without losing successfully shown facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `transient-detail-recovery.spec.ts` and
 `transient-credit-recovery.spec.ts`, using the published-facts and slice-clock
 records through the existing dashboard fixture. Run `published-facts-failures`,
 `auto-refresh-detail-recovery`, `reopened-project-reads`, `unchanged-assignment-credit`,
 `taken-slice-clock`, and both limit-recovery credit/history consumers affected.
+Accepted:
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2 --reporter=line transient-detail-recovery.spec.ts transient-credit-recovery.spec.ts published-facts-failures.spec.ts auto-refresh-detail-recovery.spec.ts reopened-project-reads.spec.ts unchanged-assignment-credit.spec.ts taken-slice-clock.spec.ts limit-recovery-credit-history.spec.ts limit-recovery-detail.spec.ts transient-read-recovery.spec.ts limit-recovery-credit-commit.spec.ts`
+(22 passed) and `env -u NODE_ENV npm run typecheck:dashboard`.
 
 Behavior: At revision A, one or several eligible detail questions fail while
 others succeed → the next due recovery observes A again → successful facts stay

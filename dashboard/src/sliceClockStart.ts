@@ -11,12 +11,13 @@
 // that was is left to the page clock (`./SliceClock.tsx`), so time passing
 // asks nothing further.
 
-import type {
-  ProfileAddition,
-  ProfileAdditions,
+import {
+  additionQuestion,
+  type ProfileAdditions,
 } from "./authenticatedProfileRead.ts";
 import { readLastCommitTimeAt } from "./authenticatedRead.ts";
 import {
+  shouldAsk,
   trackSettledAsk,
   type ObservationOutcomes,
   type ReadQuestion,
@@ -24,12 +25,16 @@ import {
 import { countedPlanBranch } from "./progressSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
-import { ReadProblem } from "./readProblem.ts";
 import {
   gapCauseOf,
   unavailableGap,
   type UnavailableGap,
 } from "./readWaitBound.ts";
+import {
+  countedPlanPathOf,
+  takeSourceOf,
+  takeTimeOf,
+} from "./sliceClockTake.ts";
 
 export type SliceClock =
   | { readonly status: "loading" }
@@ -41,64 +46,6 @@ export type SliceClock =
       // the plan's last commit.
       readonly takeRecorded: boolean;
     };
-
-// Where the Take time comes from: the one profile recording where the
-// entry's progress is published, whose adding commit is the Take; none, when
-// no profile records it; or a gap when the profiles cannot say which commit
-// was the Take. Which profile that is, and that there is only one, is the
-// progress source's (`./progressSource.ts`).
-type TakeSource =
-  | { readonly kind: "profile"; readonly path: string }
-  | { readonly kind: "not-recorded" }
-  | { readonly kind: "unknown"; readonly problem: string };
-
-function takeSourceOf({ progressSource }: WorkEntry): TakeSource {
-  switch (progressSource?.kind) {
-    case "trunk":
-    case "branch":
-      return { kind: "profile", path: progressSource.profilePath };
-    case "trunk-copy":
-      return progressSource.branchUnknown === "not-recorded"
-        ? { kind: "not-recorded" }
-        : {
-            kind: "unknown",
-            problem:
-              "The Take time cannot be determined because agent profiles could not be read.",
-          };
-    // Sources are always known once clocks are read; a clock never guesses
-    // that no profile records the Take.
-    case undefined:
-      return {
-        kind: "unknown",
-        problem: "The Take time cannot be determined yet.",
-      };
-  }
-}
-
-// Only Taken entries whose plan slices are counted run a clock, from the
-// commit time of the plan those slices were read from.
-function countedPlanPathOf(entry: WorkEntry): string | undefined {
-  return entry.planSlices?.status === "interpreted"
-    ? entry.planPath
-    : undefined;
-}
-
-// When the Take was: the committer date of the commit that added the
-// profile's current allocation. An addition the walk did not find, or one
-// without a usable date, leaves the Take time unknown.
-function takeTimeOf(addition: ProfileAddition): Date {
-  if (addition === null) {
-    throw new ReadProblem(
-      "The Take time cannot be determined: no commit adding the agent profile was found in its recent published history.",
-    );
-  }
-  if (addition.committedAt === null) {
-    throw new ReadProblem(
-      "The Take time cannot be determined: the commit that added the agent profile names no usable commit time.",
-    );
-  }
-  return new Date(addition.committedAt);
-}
 
 function commitTimeQuestion(
   source: PublishedSource,
@@ -131,25 +78,51 @@ async function startOf(
     return { status: "unavailable", problem: take.problem };
   }
   const question = commitTimeQuestion(source, revision, planPath, entry);
+  const prior = entry.sliceClock;
+  const askPlan = shouldAsk(outcomes, question);
+  const askTake =
+    take.kind === "profile" &&
+    shouldAsk(outcomes, additionQuestion(source, revision, take.path));
+  // A started clock whose plan commit stays settled is kept for this pin.
+  // An unavailable clock is kept only when neither the plan nor the Take
+  // still needs an ask — otherwise a rate-limited Take beside an answered
+  // plan would stick forever.
+  if (prior?.status === "started" && !askPlan) {
+    return prior;
+  }
+  if (prior?.status === "unavailable" && !askPlan && !askTake) {
+    return prior;
+  }
   try {
+    // Answered plan times reuse the existing memo without re-settling under
+    // a shared bound another gap may still be waiting on. Plan and Take
+    // still run together so a failed plan does not wait on its Take.
     const [planCommitted, taken] = await Promise.all([
-      trackSettledAsk(
-        outcomes,
-        readLastCommitTimeAt(
-          source,
-          planPath,
-          revision,
-          signal,
-          countedPlanBranch(entry),
-        ),
-        {
-          question,
-          untilEither: signal,
-          bound,
-          reading: "the last plan commit",
-          unreadable: "The last plan commit could not be read.",
-        },
-      ),
+      askPlan
+        ? trackSettledAsk(
+            outcomes,
+            readLastCommitTimeAt(
+              source,
+              planPath,
+              revision,
+              signal,
+              countedPlanBranch(entry),
+            ),
+            {
+              question,
+              untilEither: signal,
+              bound,
+              reading: "the last plan commit",
+              unreadable: "The last plan commit could not be read.",
+            },
+          )
+        : readLastCommitTimeAt(
+            source,
+            planPath,
+            revision,
+            signal,
+            countedPlanBranch(entry),
+          ),
       take.kind === "profile"
         ? additionOf(take.path).then(takeTimeOf)
         : undefined,

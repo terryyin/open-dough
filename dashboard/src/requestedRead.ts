@@ -66,7 +66,14 @@ export function carryOutRead(
     if (firstMembership) reports.acceptMembership();
     reports.show(partial, firstMembership);
   };
-  readPublishedWork(source, signal, outcomes, acceptProgress, revision).then(
+  readPublishedWork(
+    source,
+    signal,
+    outcomes,
+    acceptProgress,
+    revision,
+    shown,
+  ).then(
     (read) => {
       landed(true, () => {
         acceptProgress(read);

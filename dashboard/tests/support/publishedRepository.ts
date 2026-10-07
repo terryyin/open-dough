@@ -40,12 +40,12 @@ export function publishes(published: {
           default_branch: published.defaultBranch ?? "main",
         }),
       });
-    const commitList =
-      request.kind === "commit-list"
-        ? commitListIn(published, request.path, request.perPage)
-        : undefined;
-    if (commitList !== undefined) {
-      return Promise.resolve(commitList);
+    if (request.kind === "commit-list") {
+      // A path with no published history or commit time is unreachable, not
+      // an unrecognized CLI shape (same as ../publishedFiles.ts).
+      return Promise.resolve(
+        commitListIn(published, request.path, request.perPage) ?? noConnection,
+      );
     }
     if (request.kind === "commit") {
       return Promise.resolve(

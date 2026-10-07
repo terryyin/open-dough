@@ -19,10 +19,12 @@ import {
   readingAdditionAt,
 } from "./authenticatedReadRules.ts";
 import {
+  shouldAsk,
   trackSettledAsk,
   type ObservationOutcomes,
   type ReadQuestion,
 } from "./observationOutcomes.ts";
+import { ReadProblem } from "./readProblem.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const okProfiles = z.object({
@@ -114,7 +116,7 @@ async function readProfileAdditionAt(
   return parsed.data.added;
 }
 
-function additionQuestion(
+export function additionQuestion(
   source: PublishedSource,
   revision: string,
   path: string,
@@ -144,19 +146,43 @@ export function profileAdditionsAt(
     let addition = asked.get(profilePath);
     if (addition === undefined) {
       const question = additionQuestion(source, revision, profilePath);
-      addition = trackSettledAsk(
-        outcomes,
-        readProfileAdditionAt(source, profilePath, revision, signal),
-        {
-          question,
-          of: (added) => (added === null ? "missing" : "answered"),
-          untilEither: signal,
-          bound,
-          reading: readingAdditionAt(profilePath, revision),
-          unreadable:
-            "The commit that added this agent profile could not be read.",
-        },
-      );
+      const prior = outcomes.of(question);
+      if (!shouldAsk(outcomes, question) && prior !== undefined) {
+        if (prior.kind === "missing") {
+          addition = Promise.resolve(null);
+        } else if (prior.kind === "failed" || prior.kind === "bound") {
+          addition = Promise.reject(
+            new ReadProblem(
+              prior.message,
+              prior.kind === "failed" ? prior.resumesAt : undefined,
+              prior.kind === "bound" ? "transient" : prior.recovery,
+            ),
+          );
+        } else {
+          // Answered: reuse the walk memo without re-settling under the
+          // shared bound another gap may still be waiting on.
+          addition = readProfileAdditionAt(
+            source,
+            profilePath,
+            revision,
+            signal,
+          );
+        }
+      } else {
+        addition = trackSettledAsk(
+          outcomes,
+          readProfileAdditionAt(source, profilePath, revision, signal),
+          {
+            question,
+            of: (added) => (added === null ? "missing" : "answered"),
+            untilEither: signal,
+            bound,
+            reading: readingAdditionAt(profilePath, revision),
+            unreadable:
+              "The commit that added this agent profile could not be read.",
+          },
+        );
+      }
       asked.set(profilePath, addition);
     }
     return addition;

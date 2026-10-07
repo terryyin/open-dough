@@ -8,8 +8,9 @@
 // concurrently observed repositories.
 //
 // `publishOrigin` publishes only the ref and the backlog file, and
-// `publishMovingOrigin` also any record files a push names; any other file
-// gets no answer and is not observed, so detail reads fail as unavailable.
+// `publishMovingOrigin` also any record files a push names; any other content
+// path at a published revision is answered as not found (missing), not as a
+// lost connection.
 // Both list a published revision's directories from those files alone, so a
 // project without agent profiles lists none; listings are not observed.
 // `publishFiles` (./publishedFiles.ts) publishes fixed files at one revision,
@@ -169,6 +170,10 @@ export function publishMovingOrigin(
         await held.get(request.path);
         return rawFileAnswer(body);
       }
+      // Published at this revision with no such file: a missing record, not a
+      // temporary connection loss (those use answerWith / hold).
+      observe(requests, call);
+      return notFoundAnswer();
     }
     if (request.kind === "listing") {
       const files = records.get(request.revision);
