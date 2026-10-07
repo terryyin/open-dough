@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits ([plan](slice-plans/264-rate-limit-recovery/PLAN.md))
-- [Reuse evidence names every path a merge between changed](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-evidence-merge-correction) — SEED-113#reuse-evidence-merge-correction ([plan](slice-plans/269-reuse-evidence-merge-correction/PLAN.md))
 - [Mark as done removes an exited Claude Code session's job](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#remove-exited-claude-job) — SEED-117#remove-exited-claude-job ([plan](slice-plans/268-remove-exited-claude-job/PLAN.md))
 
 ## Backlog list

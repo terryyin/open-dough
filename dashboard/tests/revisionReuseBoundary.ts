@@ -12,7 +12,7 @@ import {
 import { everyRepository } from "./support/fakeGitHub.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import type { MadeCommit, PathHistories } from "./pathHistoryAnswers.ts";
-import { aheadByAnswer } from "./comparisonAnswers.ts";
+import { aheadBy } from "./comparisonAnswers.ts";
 import {
   answerFrom,
   described,
@@ -136,11 +136,9 @@ export function revisionReuseBoundary() {
     published.revisions.set(revision, files);
     published.histories?.set(revision, history);
     if (by !== undefined) {
-      published.compared.set(`${trunk.revision}...${revision}`, (perPage) =>
-        aheadByAnswer(
-          by.map(({ sha }) => sha),
-          perPage,
-        ),
+      published.compared.set(
+        `${trunk.revision}...${revision}`,
+        aheadBy(by.map(({ sha }) => sha)),
       );
       for (const made of by) published.made.set(made.sha, made);
     }

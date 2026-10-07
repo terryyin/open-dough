@@ -37,15 +37,17 @@ commit then costs, without resolving `main` again, one comparison of it with
 the revision at which this dashboard process last read the backlog, one read
 of each commit between them (a commit already asked about is not asked
 again), and reads of only the backlog, records, done records, and record
-listings those commits changed, plus one history listing for each readable
-profile those commits touched and one last-commit-time request for each
-counted plan they touched. A profile or plan no commit between touched keeps
+listings the comparison or those commits changed (a merge's own change list
+names only what differs from its first parent, so the comparison's files
+name what differs between the two revisions), plus one history listing for
+each readable profile they touched and one last-commit-time request for each
+counted plan they touched. A profile or plan neither touched keeps
 its credited human, addition, and last commit time without another request,
 however many assignments credit the same human; one removed and re-added,
 even with identical text, is walked again and credits the re-adding commit. A
 commit that changes no planning record reads none of them. With more than
-ten commits between, a commit whose change list GitHub cuts at 300 files, or a
-new commit that does not descend from the earlier one, the comparison is not
+ten commits between, a comparison or commit whose change list GitHub cuts at
+300 files, or a new commit that does not descend from the earlier one, the comparison is not
 asked again and the new commit's backlog, records, histories, and last commit
 times are read as before; a
 comparison or commit read that fails is asked again with the next read at that

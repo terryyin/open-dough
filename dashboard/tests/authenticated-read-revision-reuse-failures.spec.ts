@@ -1,8 +1,8 @@
 // Failures and concurrency while comparing a revision the configured ref
-// names next (../server/pinnedTexts.ts): a failed comparison is not
-// remembered and the read proceeds from GitHub, a rate limit is reported as
-// one, and a burst of reads shares one comparison and one read of each commit
-// between (./revisionReuseBoundary.ts).
+// names next (../server/pinnedTexts.ts): a failed comparison or commit read
+// is not remembered and the read proceeds from GitHub, a rate limit is
+// reported as one, and a burst of reads shares one comparison and one read of
+// each commit between (./revisionReuseBoundary.ts).
 
 import { expect, test } from "./support/pageTest.ts";
 import { everyRepository } from "./support/fakeGitHub.ts";
@@ -54,6 +54,32 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
     ]);
   });
 
+  test("a commit between that fails to be read is not remembered: that read is answered from GitHub, and a later read asks the commit again and reuses", async () => {
+    const [a, b] = [named("ac"), named("bc")];
+    const files = filesFor("failing commit");
+    const published = await publishedAt(a, files);
+    const between = madeBy("cc", [modified("src/app.ts")]);
+    await movedTo(published, a, { revision: b, files }, [between]);
+    published.made.delete(between.sha);
+
+    let backlog: Answer | undefined;
+    expect(
+      await asked(async () => {
+        backlog = await at(b).backlog();
+      }),
+    ).toEqual(["compare ac...bc", "commit cc", `content ${backlogPath}@bc`]);
+    expect(backlog).toEqual({
+      status: 200,
+      body: { revision: b, backlog: files[backlogPath] },
+    });
+
+    published.made.set(between.sha, between);
+    expect(await asked(() => at(b).file(seedPath))).toEqual([
+      "compare ac...bc",
+      "commit cc",
+    ]);
+  });
+
   test("a comparison GitHub refuses with Retry-After is reported as a rate limit, and nothing is read for it", async () => {
     const [a, b] = [named("ab"), named("bb")];
     const files = filesFor("limited");
@@ -83,11 +109,8 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
     await movedTo(published, a, { revision: b, files }, [
       madeBy("ce", [modified("src/app.ts")]),
     ]);
-    // GitHub answers the comparison only after every read has asked for it.
-    const comparing = published.compared.get(`${a}...${b}`);
-    published.compared.set(`${a}...${b}`, (perPage) =>
-      comparing === undefined ? noConnection : comparing(perPage),
-    );
+    // The comparison is answered once the first read has asked for it, while
+    // the others are under way.
     let release: () => void = () => undefined;
     const released = new Promise<void>((resolve) => {
       release = resolve;
@@ -113,8 +136,6 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
           ),
         )
         .toBe(true);
-      // Every read reaches its comparison within moments of the first.
-      await new Promise((resolve) => setTimeout(resolve, 300));
       release();
       for (const answer of await answers) expect(answer.status).toBe(200);
     });
