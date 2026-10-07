@@ -200,6 +200,16 @@ claim the real-host outcome from green fake tests alone.
 
 ## Learnings
 
+CI run `37578754642`, attempt 1, failed the recent-sessions placement assertion
+on slice 4's published SHA `c611e187`: the busy fake's five-second native wait
+raced its five-second UI assertion. Trace showed Done returning valid 200
+at 75521 ms, with the assertion ending at 75580 ms. The placement-only test
+uses the existing two-second rename-wait override; production waits unchanged.
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts agent-launch-recent-sessions.spec.ts --workers=1 --reporter=line`
+passed (one test, 8.7 s), observing card removal and retained Recently done
+placement across project switching/reload. Native failure/cancellation proof
+remains unchanged. This repairs test timing; a passing retry was not the cause evidence.
+
 ## Execution context
 
 - Established start: identity `SEED-116#claude-done-rename-readiness-correction`,

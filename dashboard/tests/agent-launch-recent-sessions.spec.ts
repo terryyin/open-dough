@@ -35,7 +35,13 @@ import { holdSessionReads } from "./sessionStatePace.ts";
 import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut"] });
+test.use({
+  projectFolders: ["open-dough", "doughnut"],
+  // This journey observes placement after Done, not the native rename's
+  // five-second wait. Its working fake reaches that bound before stopping;
+  // keep the wait shorter than the page assertion that observes the move.
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "2000" },
+});
 
 test.describe("retained launches in their current column homes", () => {
   let stagesJourney: StoryStagesJourney;
