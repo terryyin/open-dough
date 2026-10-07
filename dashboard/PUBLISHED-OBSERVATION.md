@@ -36,7 +36,10 @@ about 30 seconds. Only GitHub's own account of what changed lets that read
 reuse anything: the dashboard process compares the new commit with the
 revision at which it last read the backlog and reads each commit between, and
 a backlog, record, or record listing none of those commits touched is answered
-from what it already read, as the new commit's own. A record a commit between
+from what it already read, as the new commit's own, as are the addition that
+credits a profile's human and a plan's last commit time when none of them
+touched that profile or plan; identical text never stands in for that, so a
+profile removed and re-added credits the re-adding commit. A record a commit between
 changed, added, or removed is read at the new commit, and one missing there
 stays missing. When the new commit does not descend from the earlier one, more
 than ten commits lie between, a commit's change list is not given whole, or

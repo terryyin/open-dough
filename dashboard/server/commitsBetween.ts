@@ -1,6 +1,6 @@
 // What the commits between two revisions of a source's configured ref
 // touched, by GitHub's own account, for the local authenticated read
-// boundary's memo (`./pinnedTexts.ts`) to answer a read at the later revision
+// boundary's memo (`./pinnedMemo.ts`) to answer a read at the later revision
 // from what it holds at the earlier one: GitHub's comparison of the two
 // (`./containmentRead.ts`) lists the commits between, and each commit's own
 // record (`./ghCommit.ts`) names every file it changed. Nothing else -- the

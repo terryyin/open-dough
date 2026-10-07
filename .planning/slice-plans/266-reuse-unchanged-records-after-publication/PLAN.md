@@ -271,7 +271,7 @@ slice 3's whole-suite run.
 ### 3. History facts are reused only when no commit between touched the path
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases in `authenticated-read-revision-reuse.spec.ts` for
 `committed=added` and `committed=last` at B; a journey in
 `unchanged-records-refresh.spec.ts` whose Taken card keeps its credited human
@@ -303,6 +303,26 @@ a blob sha or otherwise, is never consulted for this.
 
 Documentation: `dashboard/GITHUB-REQUESTS.md` (history listings and commit
 times at a new revision).
+
+Accepted proof: `authenticated-read-revision-reuse-history.spec.ts` (an
+unrelated commit asks only the comparison and its commit; a touched profile and
+plan are listed and walked at B while the untouched profile's addition is
+reused; a profile removed and re-added with identical text credits the
+re-adding committer and time) and `unchanged-assignment-credit.spec.ts` (seven
+assignments crediting one human keep card, detail, and roster credit with no
+history request at B; one modified profile asks only its own history at C; a
+re-added profile credits its new committer and slice clock at D), with
+`unchanged-records-refresh.spec.ts`, the twenty trunk-moving journeys,
+`authenticated-read-*.spec.ts`, `taken-agent-profile-refresh.spec.ts`,
+`profile-addition-latency.spec.ts`, and typecheck. The whole dashboard suite
+failed only in five `agent-completion-*` journeys that arrived from main and
+pass alone; they are fixed as load defects beside this story.
+Reverting `pinnedTexts.ts` alone failed both new specs with extra `commit-list`
+calls. The memo moved to `dashboard/server/pinnedMemo.ts`, whose
+`unchangedSince` takes the touched path from the entry before its NUL suffix.
+Two specs that failed only under whole-suite load were fixed beside this
+slice: the session-state pace now counts reads in the page, and the production
+watcher journey waits on the retired checkout's removal.
 
 ## Verification, sizing, and delivery
 

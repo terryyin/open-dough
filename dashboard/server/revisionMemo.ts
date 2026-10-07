@@ -1,5 +1,5 @@
 // The bounded store behind the local authenticated read boundary's memo of
-// answers at resolved commits (`./pinnedTexts.ts`): in memory, per launched
+// answers at resolved commits (`./pinnedMemo.ts`): in memory, per launched
 // server, holding at most `memoLimit` texts and letting the oldest kept go
 // first. Failures are never kept.
 

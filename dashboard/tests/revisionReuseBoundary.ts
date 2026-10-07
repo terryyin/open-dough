@@ -11,7 +11,7 @@ import {
 } from "./support/dashboardServer.ts";
 import { everyRepository } from "./support/fakeGitHub.ts";
 import { rawRequest } from "./support/rawHttp.ts";
-import type { MadeCommit } from "./pathHistoryAnswers.ts";
+import type { MadeCommit, PathHistories } from "./pathHistoryAnswers.ts";
 import { aheadByAnswer } from "./comparisonAnswers.ts";
 import {
   answerFrom,
@@ -58,6 +58,16 @@ export function revisionReuseBoundary() {
     backlog: () => read(`&revision=${revision}`),
     file: (path: string) =>
       read(`&revision=${revision}&path=${encodeURIComponent(path)}`),
+    // Which commit added a listed profile's allocation, and who committed it.
+    addition: (path: string) =>
+      read(
+        `&revision=${revision}&path=${encodeURIComponent(path)}&committed=added`,
+      ),
+    // When a seed or plan the backlog names was last committed.
+    lastCommitted: (path: string) =>
+      read(
+        `&revision=${revision}&path=${encodeURIComponent(path)}&committed=last`,
+      ),
     profiles: () => read(`&revision=${revision}&agents=profiles`),
     done: () => read(`&revision=${revision}&done=records`),
   });
@@ -82,15 +92,21 @@ export function revisionReuseBoundary() {
     return started().github.calls.slice(before).map(described);
   };
 
-  // Publishes `files` at revision A as what the ref names, and has this
-  // process answer everything there.
-  const publishedAt = async (revision: string, files: Files) => {
+  // Publishes `files` at revision A as what the ref names, with `history`
+  // as each path's history there when given, and has this process answer
+  // everything there.
+  const publishedAt = async (
+    revision: string,
+    files: Files,
+    history: PathHistories = {},
+  ) => {
     const published: Publication = {
       trunk: { revision },
       revisions: new Map([[revision, files]]),
       branches: new Map(),
       compared: new Map(),
       made: new Map(),
+      histories: new Map([[revision, history]]),
     };
     started().github.serve(everyRepository, (call) =>
       Promise.resolve(answerFrom(published, call)),
@@ -103,16 +119,22 @@ export function revisionReuseBoundary() {
     return published;
   };
 
-  // The ref moves to `revision` with `files`, by the commits `by` when
-  // given; a revision check from `since` finds it.
+  // The ref moves to `revision` with `files`, and `history` as each path's
+  // history there when given, by the commits `by` when given; a revision
+  // check from `since` finds it.
   const movedTo = async (
     published: Publication,
     since: string,
-    { revision, files }: { revision: string; files: Files },
+    {
+      revision,
+      files,
+      history = {},
+    }: { revision: string; files: Files; history?: PathHistories },
     by?: readonly MadeCommit[],
   ) => {
     const { trunk } = published;
     published.revisions.set(revision, files);
+    published.histories?.set(revision, history);
     if (by !== undefined) {
       published.compared.set(`${trunk.revision}...${revision}`, (perPage) =>
         aheadByAnswer(

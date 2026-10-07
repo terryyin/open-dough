@@ -17,10 +17,12 @@ import {
 } from "./originAnswers.ts";
 import { directoryListingAnswer, listedFiles } from "./listingAnswers.ts";
 import {
+  commitAnswerIn,
   commitListIn,
   madeCommitAnswer,
   type ChangedFile,
   type MadeCommit,
+  type PathHistories,
 } from "./pathHistoryAnswers.ts";
 import { compareAnswer } from "./comparisonAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -112,8 +114,11 @@ export const modified = (filename: string): ChangedFile => ({
 
 // What GitHub publishes for one test: the files at each revision, which
 // revision the configured ref and each branch name, the answer to each
-// comparison by `<base>...<head>` (a pair it does not name is diverged), and
-// the commits made, each answered with every file it changed.
+// comparison by `<base>...<head>` (a pair it does not name is diverged), the
+// commits made, each answered with every file it changed, and, when given,
+// each path's history as of a revision, whose commits answer for their own
+// change to it (./pathHistoryAnswers.ts); a path no history names was last
+// committed whenever it is asked.
 export type Publication = {
   // The revision the configured ref names, moved as the ref moves.
   readonly trunk: { revision: string };
@@ -121,6 +126,7 @@ export type Publication = {
   readonly branches: Map<string, string>;
   readonly compared: Map<string, (perPage?: number) => OriginAnswer>;
   readonly made: Map<string, MadeCommit>;
+  readonly histories?: Map<string, PathHistories>;
 };
 
 export function answerFrom(
@@ -155,7 +161,16 @@ export function answerFrom(
     }
     case "commit": {
       const made = published.made.get(request.sha);
-      return made === undefined ? noConnection : madeCommitAnswer(made);
+      if (made !== undefined) return madeCommitAnswer(made);
+      return (
+        commitAnswerIn(
+          [...(published.histories ?? [])].map(([revision, history]) => ({
+            files: published.revisions.get(revision) ?? {},
+            history,
+          })),
+          request.sha,
+        ) ?? noConnection
+      );
     }
     case "content":
     case "listing":
@@ -166,9 +181,14 @@ export function answerFrom(
         return directoryListingAnswer(request.path, listedFiles(files));
       }
       if (request.kind === "commit-list") {
+        const history = published.histories?.get(request.revision);
         return (
           commitListIn(
-            { files, committed: { [request.path]: new Date() } },
+            {
+              files,
+              committed: { [request.path]: new Date() },
+              ...(history !== undefined && { history }),
+            },
             request.path,
             request.perPage,
           ) ?? noConnection

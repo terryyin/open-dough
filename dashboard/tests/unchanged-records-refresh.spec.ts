@@ -3,10 +3,11 @@
 // revision A, the check that finds B has the local read boundary compare A
 // with B and read the one commit between, and the page shows B with the same
 // facts without any backlog, seed, plan, profile, setting, or done-record
-// text or listing being read again. A second tab costs what a reload does,
-// and a restarted dashboard process reads B in full. The fake GitHub only
-// publishes the commits (./publishedFiles.ts); the local read boundary, its
-// memo, and the page decide what is asked and shown.
+// text or listing, profile history, or last commit time being read again. A
+// second tab costs what a reload does, and a restarted dashboard process reads
+// B in full. The fake GitHub only publishes the commits (./publishedFiles.ts);
+// the local read boundary, its memo, and the page decide what is asked and
+// shown.
 
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -148,7 +149,7 @@ test("a commit that changes no planning record is shown without reading the unch
     ]),
   );
 
-  await test.step("the check finds B and the page shows it after one comparison and one commit read, reading no record", async () => {
+  await test.step("the check finds B and the page shows it after one comparison and one commit read, reading no record, history, or commit time", async () => {
     const before = origin.requests.length;
     origin.moveTrunk(atB, [productCodeCommit]);
     await passTimeUntilChecked(page);
@@ -157,6 +158,9 @@ test("a commit that changes no planning record is shown without reading the unch
     expect(asked.filter((call) => call === "compare")).toHaveLength(1);
     expect(asked.filter((call) => call === "commit")).toHaveLength(1);
     expect(recordsReadAt(asked, revisionB)).toEqual([]);
+    // The card keeps its credited human and slice clock without listing the
+    // profile's history or asking the plan's last commit time again.
+    expect(asked.filter((call) => call.startsWith("commit-list "))).toEqual([]);
     expect(
       origin.requests
         .slice(before)

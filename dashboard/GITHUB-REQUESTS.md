@@ -11,13 +11,15 @@ record directory plus one per done record listed there, one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
 its addition (usually one). What a commit changed is remembered by commit, so
-at a later revision an unchanged profile costs only its history listing. Each
+a later revision that must walk a profile's history again costs only its
+history listing. Each
 GitHub account matched to a credited human costs one unauthenticated read of
 its avatar image from GitHub's avatar host while the dashboard process runs,
 which does not use the `gh` allowance; a failed avatar read is asked again
 when the avatar is next shown. Each
-Taken entry with a counted plan adds one last-commit-time request for its plan
-and one for its agent profile, and each Story Branch Mode entry adds one
+Taken entry with a counted plan adds one last-commit-time request for its plan,
+its Take time coming from its agent profile's addition already read, and each
+Story Branch Mode entry adds one
 branch head request and one plan read on that branch. Only the ref and branch
 head requests are made on every load: content and history already read at a
 resolved revision or branch head are not asked again while the dashboard
@@ -35,11 +37,17 @@ commit then costs, without resolving `main` again, one comparison of it with
 the revision at which this dashboard process last read the backlog, one read
 of each commit between them (a commit already asked about is not asked
 again), and reads of only the backlog, records, done records, and record
-listings those commits changed, plus one history listing per readable
-profile; a commit that changes no planning record reads none. With more than
+listings those commits changed, plus one history listing for each readable
+profile those commits touched and one last-commit-time request for each
+counted plan they touched. A profile or plan no commit between touched keeps
+its credited human, addition, and last commit time without another request,
+however many assignments credit the same human; one removed and re-added,
+even with identical text, is walked again and credits the re-adding commit. A
+commit that changes no planning record reads none of them. With more than
 ten commits between, a commit whose change list GitHub cuts at 300 files, or a
 new commit that does not descend from the earlier one, the comparison is not
-asked again and the new commit's backlog and records are read as before; a
+asked again and the new commit's backlog, records, histories, and last commit
+times are read as before; a
 comparison or commit read that fails is asked again with the next read at that
 commit, which meanwhile reads as before. A recorded story branch that moved
 costs one read of its plan and one of its last commit time at the new head,
