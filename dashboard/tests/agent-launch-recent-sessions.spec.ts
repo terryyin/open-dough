@@ -33,7 +33,7 @@ import {
 } from "./launchJourney.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
 import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -113,6 +113,7 @@ test.describe("retained launches in their current column homes", () => {
 
     const before = Date.now();
     await launchListed(readyStory, "Refinement");
+    idleBetweenSteps(dashboard, sessionIds[0] ?? "");
     await markDoneAnyway(cardSessions(card(readyStory)));
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launchListed(readyStory, "Execution");

@@ -6,6 +6,7 @@
 // Mark as done asks about it in place, on an entry or within a panel.
 
 import { expect, type Locator } from "@playwright/test";
+import type { ClaudeListingControls } from "./fakeClaudeListing.ts";
 
 const anyway = "Mark it done anyway?";
 
@@ -44,6 +45,17 @@ export async function expectQuestion(scope: Locator, statement: string) {
   ).toBeFocused();
   await expect(markAsDone(question)).toBeEnabled();
   return question;
+}
+
+// Leaves the fake `claude`'s session still working, but idle between steps:
+// it still reads Working, so Mark as done still asks about it, yet its prompt
+// takes the native rename at once instead of Mark as done waiting out the
+// rename wait while the session is busy.
+export function idleBetweenSteps(
+  claude: Pick<ClaudeListingControls, "claudeSessionBecomes">,
+  sessionId: string,
+) {
+  claude.claudeSessionBecomes(sessionId, "working-idle");
 }
 
 // A session whose intention is complete.

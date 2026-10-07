@@ -15,7 +15,7 @@
 // session -- without taking the keyboard from their new task. Static states:
 // ./responsiveRecovery.ts (`expectStaticallyProtected`).
 
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { cardSessions, parts, sessionNamedBy } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   countMachineReads,
@@ -27,7 +27,7 @@ import {
 } from "./responsiveAccess.ts";
 import { startExecution } from "./responsiveRecovery.ts";
 import { instruction, openStories, test } from "./responsiveStart.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -215,6 +215,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   await entry.getByRole("button", { name: "Open terminal" }).click();
   await expect(entry).toContainText("Shown in terminal");
 
+  idleBetweenSteps(dashboard, await sessionNamedBy(entry));
   await markDoneAnyway(entry);
   await expect(cardSessions(story)).toHaveCount(0);
 

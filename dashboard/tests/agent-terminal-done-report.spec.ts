@@ -14,7 +14,11 @@ import { recordsOf } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { markDone, markDoneAnyway } from "./support/markDone.ts";
+import {
+  idleBetweenSteps,
+  markDone,
+  markDoneAnyway,
+} from "./support/markDone.ts";
 import {
   doneNameOf,
   launchedStory,
@@ -58,8 +62,7 @@ test("Mark as done in the terminal panel closes a session with an unread report 
   const terminal = page.getByRole("region", { name: "Terminal" });
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   const stopsBefore = dashboard.claudeStopCalls().length;
-  // Still working, but idle between steps, so its prompt takes the rename.
-  dashboard.claudeSessionBecomes(sessionId, "working-idle");
+  idleBetweenSteps(dashboard, sessionId);
 
   await markDoneAnyway(terminal);
 

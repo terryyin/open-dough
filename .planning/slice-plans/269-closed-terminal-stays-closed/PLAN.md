@@ -184,6 +184,13 @@ its header comment; the `AGENT-LAUNCH.md` sentence.
   makes once, so the panel check right after the announcement observes it.
 - The withholding route's `route.fetch` must restate
   `sec-fetch-site: same-origin`, or the server answers 403.
+- CI repair (run 37579123301, `agent-launch-recent-sessions.spec.ts:117`):
+  Mark done on a fake Claude session listed busy waits out the 5 s manual
+  rename wait before answering, racing a 5 s expectation. Fifteen page-level
+  Mark done sites now idle the session first through `idleBetweenSteps`
+  (`dashboard/tests/support/markDone.ts`). Proof: every changed spec with
+  `DOUGH_DONE_RENAME_WAIT_MS=6000` (failed before, 24 passed after) and the
+  seven originally racing specs with `--repeat-each=5` (60 passed).
 
 ## Execution complete
 

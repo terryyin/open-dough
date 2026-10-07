@@ -35,7 +35,7 @@ import {
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -71,8 +71,7 @@ test.describe("deleting a Recently done entry's record", () => {
     const done = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Execution"),
     );
-    // Still working, but idle between steps, so its prompt takes the rename.
-    dashboard.claudeSessionBecomes(done, "working-idle");
+    idleBetweenSteps(dashboard, done);
     await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launch(readyStory, "Refinement");
@@ -82,7 +81,7 @@ test.describe("deleting a Recently done entry's record", () => {
     const inDoneStory = await sessionNamedBy(
       cardSessionOf(card(notRefinedStory), "Refinement"),
     );
-    dashboard.claudeSessionBecomes(inDoneStory, "working-idle");
+    idleBetweenSteps(dashboard, inDoneStory);
     await markDoneAnyway(cardSessionOf(card(notRefinedStory), "Refinement"));
     await expect(
       cardSessionOf(card(notRefinedStory), "Refinement"),

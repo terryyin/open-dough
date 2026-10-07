@@ -26,7 +26,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -64,8 +64,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     const session = await sessionNamedBy(listed);
     const key = await listed.getAttribute("data-shows-session");
     const doneName = `done-Open Dough · Execution · ${readyStory}`;
-    // Idle between steps, so its prompt takes the rename.
-    dashboard.claudeSessionBecomes(session, "working-idle");
+    idleBetweenSteps(dashboard, session);
     const marked = await markDone(dashboard, {
       source: "open-dough",
       session,
@@ -111,8 +110,8 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const opened = dashboard.claudeAttaches().length;
-    // Attached, it runs again, idle between steps.
-    dashboard.claudeSessionBecomes(session, "working-idle");
+    // Attached, it runs again.
+    idleBetweenSteps(dashboard, session);
     await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
