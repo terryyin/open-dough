@@ -33,6 +33,30 @@ function daysAgo(days: number): string {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
+// Marks this session's stored launch done a day ago with this problem, as an
+// earlier Mark as done that could not finish natively left it.
+export function seedEarlierDoneMark(
+  machine: string,
+  sessionId: string,
+  doneProblem: string,
+): void {
+  const store = JSON.parse(readFileSync(storeFile(machine), "utf8")) as Record<
+    string,
+    Record<string, unknown>[]
+  >;
+  const stored = Object.values(store)
+    .flat()
+    .find(
+      (record) =>
+        (record["session"] as { sessionId?: string } | undefined)?.sessionId ===
+        sessionId,
+    );
+  if (stored === undefined) throw new Error("The launch was not stored.");
+  stored["doneAt"] = daysAgo(1);
+  stored["doneProblem"] = doneProblem;
+  seedStore(machine, JSON.stringify(store));
+}
+
 export function recordLaunchedDaysAgo(
   days: number,
   sessionId: string,

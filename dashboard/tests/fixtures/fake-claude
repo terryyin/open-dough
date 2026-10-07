@@ -9,7 +9,8 @@
 // The support controls end/forget sessions or fail listing via shared files.
 //
 // Attach is ./fake-claude-attach.cjs. `stop <id>` lists the session stopped,
-// without status; `rm <id>` drops the session from the listing.
+// without status; `rm <id>` drops the session from the listing, or refuses
+// while `removal-fails` exists.
 //
 // Scenario file: launched (default), refused, untrusted, hang, held (waits
 // for release), unlisted (reports an unlisted session), or launched-hang
@@ -78,6 +79,14 @@ function changeListed(id, change) {
     change(sessions[index], () => sessions.splice(index, 1));
     return true;
   });
+}
+
+if (args[0] === "rm" && fs.existsSync(path.join(dir, "removal-fails"))) {
+  process.stderr.write(
+    `Error: fake claude refused to remove ${args[1]} (secret-marker-from-claude-rm)\n`,
+  );
+  process.exitCode = 1;
+  return;
 }
 
 if (args[0] === "stop" || args[0] === "rm") {

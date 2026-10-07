@@ -9,14 +9,13 @@
 
 import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
-import { z } from "zod";
-import type {
-  ClaudeSession,
-  LaunchRecord,
-  SessionState,
-} from "../../../src/agentLaunch.ts";
-import type { SessionObservation } from "../../hostLaunch.ts";
+import type { LaunchRecord } from "../../../src/agentLaunch.ts";
+import {
+  HostOperationFailure,
+  type SessionObservation,
+} from "../../hostLaunch.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
+import { parsedListing, type ListedSession } from "./listing.ts";
 
 type ClaudeRun = {
   readonly error: ExecException | null;
@@ -108,114 +107,27 @@ export async function stopClaude(
 
 // `claude rm <short id>` in the project folder, for an exited session Mark as
 // done removes from Claude Code's jobs. The short id alone: never a flag that
-// discards commits or removes a worktree.
+// discards commits or removes a worktree. A failure names its one cause: the
+// folder exists, so `ENOENT` is the missing executable, as for a launch
+// (`./launch.ts`); what made Claude Code refuse is not read from its stderr.
 export async function removeClaude(
   shortId: string,
   folder: ProjectFolder,
   signal: AbortSignal,
 ): Promise<void> {
-  const result = await execClaude(["rm", shortId], folder, signal);
-  if (result.error !== null || signal.aborted)
-    throw new Error("The native removal could not be confirmed.");
+  const { error } = await execClaude(["rm", shortId], folder, signal);
+  if (error === null && !signal.aborted) return;
+  throw new HostOperationFailure(
+    signal.aborted
+      ? "Claude Code did not answer within 10 seconds."
+      : error?.code === "ENOENT"
+        ? "Claude Code is not installed where this dashboard runs."
+        : "Claude Code refused to remove the session.",
+  );
 }
 
-// Claude Code's own session listing: `--all` includes sessions whose process
-// has exited, `status` (busy, idle, or waiting) is present only while a
-// session's process runs, and `waitingFor` says, when Claude Code reports it,
-// what a blocked session waits for. A `waitingFor` that is not text is left
-// out rather than refusing the whole listing, and so is an entry without a
-// short id or state, such as an interactive session running in a terminal.
-// Where a session started (`cwd`) and when (`startedAt`, epoch milliseconds)
-// are kept only when listed so, for verifying an uncertain launch
-// (`./verification.ts`).
+// `claude agents --json --all`, parsed by `./listing.ts`.
 const listingArgs = ["agents", "--json", "--all"] as const;
-
-const listedSession = z.looseObject({
-  id: z.string().min(1),
-  sessionId: z.string().min(1),
-  name: z.string().optional(),
-  state: z.string(),
-  status: z.string().nullish(),
-  waitingFor: z.string().nullish().catch(undefined),
-  cwd: z.string().optional().catch(undefined),
-  startedAt: z.number().optional().catch(undefined),
-});
-
-// Private Claude listing evidence also confirms launch identities and renames.
-// Shared callers receive only normalized observations for their saved targets.
-type ListedSession = {
-  readonly session: ClaudeSession;
-  readonly sessionState: Extract<SessionState, { kind: "available" }>;
-  readonly cwd?: string;
-  readonly startedAt?: number;
-};
-
-function activityOf(
-  state: string,
-): Extract<SessionState, { kind: "available" }>["activity"] {
-  switch (state) {
-    case "working":
-      return "working";
-    case "blocked":
-      return "waiting";
-    case "done":
-      return "review";
-    case "failed":
-      return "failed";
-    case "stopped":
-      return "interrupted";
-    default:
-      return "unknown";
-  }
-}
-
-function parsedListing(stdout: string): readonly ListedSession[] | undefined {
-  let listed: unknown;
-  try {
-    listed = JSON.parse(stdout);
-  } catch {
-    return undefined;
-  }
-  if (!Array.isArray(listed)) return undefined;
-  return listed.flatMap((listedEntry) => {
-    const parsed = listedSession.safeParse(listedEntry);
-    if (!parsed.success) return [];
-    const entry = parsed.data;
-    return [
-      {
-        ...(entry.cwd === undefined ? {} : { cwd: entry.cwd }),
-        ...(entry.startedAt === undefined
-          ? {}
-          : { startedAt: entry.startedAt }),
-        session: {
-          host: "claude",
-          sessionId: entry.sessionId,
-          shortId: entry.id,
-          name: entry.name ?? "",
-        },
-        sessionState: {
-          kind: "available",
-          availability:
-            entry.status === undefined || entry.status === null
-              ? "retained"
-              : "loaded",
-          activity: activityOf(entry.state),
-          ...(activityOf(entry.state) === "unknown"
-            ? {
-                description: `Claude Code lists it as ${entry.state}`,
-                unknownReason: "unrecognized",
-              }
-            : {}),
-          ...(entry.waitingFor === undefined ||
-          entry.waitingFor === null ||
-          entry.waitingFor === ""
-            ? {}
-            : { waitingFor: entry.waitingFor }),
-        },
-      },
-    ];
-  });
-}
 
 // Every session Claude Code lists, running or not, as it answers in the
 // project folder, or undefined when its listing could not be read. Both a

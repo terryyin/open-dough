@@ -159,7 +159,13 @@ diagnostic wording.
 
 ### 2. A failed removal keeps Done with its cause and a later Mark as done retries it
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts --reporter=list agent-launch-done-stop.spec.ts`
+(6 pass; "keeps Done with the removal's cause when claude rm fails, and a later
+Mark as done retries it" and "clears a stored stop failure by removing the
+exited session's job"); after refactor, 119 consumer spec files 444 pass;
+typecheck and lint clean. Missing-`claude` and timeout sentences reviewed by
+reading `removeClaude`.
 Proof: the two spec cases in the table above, in `agent-launch-done-stop.spec.ts`; the same consumer specs green.
 
 Behavior: the fake refuses `rm` → Mark as done → the record keeps Done and
@@ -192,3 +198,6 @@ reuses the store helpers the done specs already use.
 - The fake `claude`'s attach emulation now lives in
   `dashboard/tests/fixtures/fake-claude-attach.cjs` (keeping the fake under
   250 lines); `.cjs` fixtures are linted, extensionless ones are not.
+- Claude Code's listing parse moved to `dashboard/server/hosts/claude/listing.ts`
+  to keep `runtime.ts` under 250 lines; `stopClaude` keeps its generic failure
+  wording, so stop and removal were not unified.

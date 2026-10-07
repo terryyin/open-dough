@@ -86,6 +86,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   claudeStopCalls(): ClaudeCall[];
   // The native `claude rm` calls alone, oldest first.
   claudeRemovalCalls(): ClaudeCall[];
+  // Whether the fake's `claude rm` fails, removing nothing.
+  claudeRemovalFails(fails: boolean): void;
   claudeScenario(scenario: FakeClaudeScenario): void;
   // Lets a `held` launch go on and launch its session.
   releaseHeldClaude(): void;
@@ -187,21 +189,27 @@ export function installFakeClaude(
       .filter((line) => line !== "")
       .map((line) => JSON.parse(line) as T);
   const claudeCalls = () => jsonLines<ClaudeCall>("calls.jsonl");
+  const callsOf = (command: string) =>
+    claudeCalls().filter((call) => call.argv[0] === command);
+  // Sets a control file whose presence alone changes how the fake answers.
+  const flag = (file: string) => (on: boolean) => {
+    if (on) writeFileSync(state(file), "");
+    else rmSync(state(file), { force: true });
+  };
+  const pidIn = (file: string) => {
+    const pid = readState(state(file));
+    return pid === undefined ? undefined : Number(pid);
+  };
   return {
     env,
     controls: {
       ...fakeClaudeListing(stateDir, home),
       home,
       claudeCalls,
-      claudeLaunchCalls() {
-        return claudeCalls().filter((call) => call.argv[0] === "--bg");
-      },
-      claudeStopCalls() {
-        return claudeCalls().filter((call) => call.argv[0] === "stop");
-      },
-      claudeRemovalCalls() {
-        return claudeCalls().filter((call) => call.argv[0] === "rm");
-      },
+      claudeLaunchCalls: () => callsOf("--bg"),
+      claudeStopCalls: () => callsOf("stop"),
+      claudeRemovalCalls: () => callsOf("rm"),
+      claudeRemovalFails: flag("removal-fails"),
       claudeScenario(scenario) {
         writeFileSync(state("scenario"), scenario);
       },
@@ -217,21 +225,12 @@ export function installFakeClaude(
       osascriptBecomes(mode) {
         writeFileSync(state("osascript-mode"), mode);
       },
-      heldOsascriptPid() {
-        const pid = readState(state("osascript.pid"));
-        return pid === undefined ? undefined : Number(pid);
-      },
+      heldOsascriptPid: () => pidIn("osascript.pid"),
       heldOsascriptEndedBy() {
         return readState(state("osascript.pid.exited"));
       },
-      claudeRenamesIgnored(ignored) {
-        if (ignored) writeFileSync(state("renames-ignored"), "");
-        else rmSync(state("renames-ignored"), { force: true });
-      },
-      heldClaudePid() {
-        const pid = readState(state("pid"));
-        return pid === undefined ? undefined : Number(pid);
-      },
+      claudeRenamesIgnored: flag("renames-ignored"),
+      heldClaudePid: () => pidIn("pid"),
       heldClaudeEndedBy() {
         return readState(state("pid.exited"));
       },
