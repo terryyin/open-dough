@@ -1,22 +1,34 @@
 // Binding takes the attempt lock before the record lock, like completion delivery.
 import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
-import { completedWithoutAttention } from "../src/completionReport.ts";
+import {
+  completedWithoutAttention,
+  type CompletionReport,
+} from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 
-// Keeps one known conversation and its first-input evidence, replacing any
-// unresolved creation of that launch. A report kept before the binding has
-// its native Done started through `doneMarks` once the locks are released; a
-// writer without them starts none.
+// Binds one known conversation, then starts any early reported Done after
+// releasing the persistence locks.
 export async function keepRecord(
   sourceId: string,
   record: LaunchRecord,
-  doneMarks?: NativeDoneMarks,
+  doneMarks: NativeDoneMarks,
 ): Promise<void> {
-  const earlyReport = await withKeptAttempts(async (attempts) => {
+  const earlyReport = await bindRecord(sourceId, record);
+  if (earlyReport !== undefined) doneMarks.reported(sourceId, earlyReport);
+}
+
+// Keeps one known conversation and its first-input evidence, replacing any
+// unresolved creation of that launch. Answers the report kept before binding
+// so its owner can continue native Done once the locks are released.
+export async function bindRecord(
+  sourceId: string,
+  record: LaunchRecord,
+): Promise<CompletionReport | undefined> {
+  return withKeptAttempts(async (attempts) => {
     const attempt =
       record.request.reporting === undefined
         ? undefined
@@ -82,5 +94,4 @@ export async function keepRecord(
     });
     return completion;
   });
-  if (earlyReport !== undefined) doneMarks?.reported(sourceId, earlyReport);
 }

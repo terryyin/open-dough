@@ -102,7 +102,7 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
     ]);
     expect(deleted.stdout.trim()).toBe("true");
     await expect(
-      recordOperation(server, "keepRecord", [
+      recordOperation(server, "bindRecord", [
         "open-dough",
         { ...record, completion: undefined, doneAt: undefined },
       ]),

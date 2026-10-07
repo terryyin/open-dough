@@ -93,7 +93,7 @@ without changing the native prompt assumption or stopping policy.
 
 ### 3. `keepRecord` requires its Done owner
 Type: Structure
-Status: planned
+Status: done
 Proof: `agent-completion-recovery.spec.ts`,
 `agent-completion-early-recovery.spec.ts`, `agent-completion-binding.spec.ts`,
 `agent-completion-identity.spec.ts` green; typecheck; lint.

@@ -112,3 +112,24 @@ once after slice 5 and before delivery.
   `git diff --check` passed; accepted behavior proof unchanged.
 - `npm run format` passed; hook-owned lint runs at commit. Native prompt
   observation remains pending for slices 1 and 5.
+
+## Accepted execution proof: slice 3
+
+- `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts agent-completion-recovery.spec.ts agent-completion-early-recovery.spec.ts agent-completion-binding.spec.ts agent-completion-identity.spec.ts --workers=1 --reporter=line`: 7 passed (42.2 s).
+- `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts agent-launch-ad-hoc-cursor.spec.ts --workers=1 --reporter=line`: 3 passed (7.4 s); covers `launchRecording` initial binding.
+- `env -u NODE_ENV npm run typecheck:dashboard`: passed.
+- Boundary: production binding after held native launch or Recheck, durable
+  completion receiver and out-of-process stale writers. Inspected
+  `launchRecordBinding.bindRecord` preserves the locked write; required
+  `keepRecord` starts Done only after that promise settles. Binding spec
+  setups submit a real early report while launch is held; assertions retain
+  receipt/Done across stale writes and observe one quiet rename after idle.
+  Early recovery/deletion and recovery fault assertions reject resurrection
+  and reserved unapplied receipt import, preserve duplicate receipt identity,
+  and observe recovered native naming. Identity assertions retain newer
+  session/reopen intent against old reports. Cursor assertions observe
+  initial persisted first-input/session evidence through `launchRecording`.
+- Searches found three production owners and four dynamic test writers; all
+  test writers use `bindRecord`, and no test `keepRecord` literal remains.
+  Independent refactor: none, already clean; accepted boundaries unchanged.
+  `git diff --check` and `npm run format` passed; commit hook owns lint.
