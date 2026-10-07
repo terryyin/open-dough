@@ -7,9 +7,11 @@
 // button, that the startup goes on while the button waits for it. A started
 // session then opens in the page's terminal, with the keyboard in it unless
 // the developer moved it meanwhile (`keyboardRestsOn`), and Close returns
-// the keyboard to the button. The dialog's mechanics, including the
-// keyboard's return to the button when nothing was accepted, belong to
-// `LaunchDialog`. A launch that did not start, or may not have, says so
+// the keyboard to the button. A session whose terminal the developer already
+// opened themselves during the startup is left as they left it: closed stays
+// closed, open stays open (`presentTerminal`). The dialog's mechanics,
+// including the keyboard's return to the button when nothing was accepted,
+// belong to `LaunchDialog`. A launch that did not start, or may not have, says so
 // beside the button, which stays enabled to start again. Nothing here makes
 // a card or a story.
 
@@ -54,7 +56,7 @@ export function StartSession({
     starting,
     useCallback(() => progress.current, []),
   );
-  const { openTerminal, hostOperations } = usePageSessions();
+  const { presentTerminal, hostOperations } = usePageSessions();
   const [announcement, setAnnouncement] = useState("");
 
   return (
@@ -110,7 +112,7 @@ export function StartSession({
                 embeddedTerminal(hostOperations, record.session.host) &&
                 launcher.current !== null
               )
-                openTerminal({
+                presentTerminal({
                   record,
                   control: launcher.current,
                   // The button holds the keyboard once the startup ends,

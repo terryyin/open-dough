@@ -90,6 +90,9 @@ export function usePageSidePanel({
         : returning.home?.();
     control?.focus();
   }, [returning]);
+  // The sessions whose terminal the developer opened themselves on this page,
+  // which a launch's presentation then leaves as the developer left them.
+  const openedByDeveloper = useRef(new Set<string>());
   const openTerminal = useCallback<OpenSessionPanel>((request) => {
     setPanel((current) =>
       current?.kind === "terminal" &&
@@ -185,9 +188,14 @@ export function usePageSidePanel({
   };
   const sessions: PageSessions = {
     hostOperations,
-    openTerminal,
+    presentTerminal: (request) => {
+      if (!openedByDeveloper.current.has(sessionKey(request.record.session)))
+        openTerminal(request);
+    },
     openSession: (request) => {
       const access = sessionAccess(request.record, hostOperations);
+      if (access === "terminal")
+        openedByDeveloper.current.add(sessionKey(request.record.session));
       if (access !== undefined)
         (access === "result" ? openResult : openTerminal)(request);
     },

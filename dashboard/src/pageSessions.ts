@@ -60,7 +60,10 @@ export type DeleteSessionRecord = SessionOperation<
 // panel shows, if any, from which every entry derives its current-session mark.
 export type PageSessions = {
   readonly hostOperations: HostOperations;
-  readonly openTerminal: OpenSessionPanel;
+  // Presents a session's terminal, as a launch does once it starts, unless
+  // the developer already opened that session's terminal on this page; then
+  // it changes nothing and leaves the keyboard where it is.
+  readonly presentTerminal: OpenSessionPanel;
   readonly openSession: SessionOperation<void, LaunchWithState>;
   readonly shownSession:
     { readonly kind: SessionAccess; readonly key: string } | undefined;

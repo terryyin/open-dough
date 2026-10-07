@@ -133,7 +133,7 @@ Observations are readings in this workspace at the base above unless noted.
 
 ### 1. A launch presents its terminal only while the developer has not opened it themselves
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-ad-hoc-terminal.spec.ts` with the two new cases, run red against unchanged code first, then green; `agent-launch-ad-hoc-sessions.spec.ts`, `session-sidebar-navigation-cases.spec.ts`, `agent-terminal-done.spec.ts`, `agent-launch-card.spec.ts`, `agent-launch-card-done.spec.ts` green; lint and `npm run typecheck:dashboard`.
 
 Behavior: the developer starts an ad hoc session, the record is listed while
@@ -156,6 +156,31 @@ its header comment; the `AGENT-LAUNCH.md` sentence.
   never touches a panel showing another session.
 - `useAskedLaunches` is not changed.
 
+## Accepted proof (slice 1)
+
+- Red first: the example 1 case failed on unchanged code at
+  `expect(panel).toHaveCount(0)` after "Ad hoc session started" (received 1);
+  rechecked by forcing `presentTerminal` to always open.
+- `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts --repeat-each=4`:
+  16 passed. Cases "a terminal the developer closed while its session started
+  stays closed…" (examples 1 and 2) and "a terminal the developer reopened
+  while its session started stays open…" (example 4); the two existing cases
+  (example 3). Setup: `withholdLaunchOutcomes` and `openWhileStarting` in the
+  same spec.
+- `agent-launch-ad-hoc-sessions`, `session-sidebar-navigation-cases`,
+  `agent-terminal-done`, `agent-launch-card`, `agent-launch-card-done`,
+  `agent-launch-card-sessions`, `agent-launch-open-session`,
+  `agent-launch-card-open-session` specs green; `npm run typecheck:dashboard`
+  and `npm run format` clean.
+
 ## Learnings
 
-None yet.
+- The proof table's exact `claudeAttaches()` counts were flaky (1 in 12): the
+  server may keep an attach across Close and reuse it on reopen. The cases
+  assert the count is unchanged across the release and every attach names
+  the launched session instead.
+- No separate hold poll after the announcement: the announcement and any
+  presentation come from the same `onLaunched` call, which `useAskedLaunches`
+  makes once, so the panel check right after the announcement observes it.
+- The withholding route's `route.fetch` must restate
+  `sec-fetch-site: same-origin`, or the server answers 403.
