@@ -3,8 +3,8 @@
 **Identity:** SEED-113#rate-limit-recovery-residue-correction
 **Source:** [correction story](../../seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction),
 from the execution retrospective of SEED-113#recover-consistently-from-rate-limits
-([story](../../seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits),
-plan [264-rate-limit-recovery](../264-rate-limit-recovery/PLAN.md), all seven
+(story at `11c71766:.planning/seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits`,
+plan at `11c71766:.planning/slice-plans/264-rate-limit-recovery/PLAN.md`, all seven
 slices done), delivered by commits a2d43dde, 823c1eda, 9935c040, b015cb8b,
 68d46d28, 5d767de4, 7edb4b2b, 4b9695eb, 8025b9eb, 35b025ed and adc41a56 on
 `claude/recover-consistently-from-github-rate-limits`.

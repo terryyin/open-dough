@@ -41,7 +41,7 @@ its process-wide `OutstandingReads` and the rate-limit story's plan but not
 its delivery. The queued correction
 [SEED-113#shared-read-waiter-residue-correction](../../seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction)
 and the queued
-[rate-limit recovery](../../seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits)
+rate-limit recovery story (recoverable at `11c71766:.planning/seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits`)
 both change `ghRead.ts`; no slice here depends on either state, and the
 comparison read reuses what `containmentRead.ts` already does with a refused
 answer, so a cooldown delivered first or later applies to it as to every read.
