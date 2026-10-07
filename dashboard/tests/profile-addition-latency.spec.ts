@@ -143,7 +143,7 @@ test("a Taken profile's slow addition leaves only its own card's clock and human
   });
 });
 
-test("a Taken profile's addition walk still unanswered at the wait bound is its clock's and its human's gap, not the snapshot's read problem", async ({
+test("a Taken profile's addition walk still unanswered at the wait bound is its clock's and its human's gap, with detail recovery scheduled", async ({
   page,
 }) => {
   const { card, otherTaken, problem } = await openedWithHeldAddition(
@@ -173,5 +173,8 @@ test("a Taken profile's addition walk still unanswered at the wait bound is its 
     "Human developer unknown",
   );
   await expect(otherTaken).toContainText("Current slice started 5 min ago");
-  await expect(problem).toHaveCount(0);
+  // Wait-bound unanswered addition is eligible detail recovery, not a
+  // membership/core read failure that empties the snapshot.
+  await expect(problem).toContainText("Reading unanswered detail again");
+  await expect(problem).not.toContainText("so the read was given up");
 });

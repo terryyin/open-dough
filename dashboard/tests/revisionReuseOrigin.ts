@@ -9,7 +9,6 @@ import type { GhCall } from "./support/fakeGitHub.ts";
 import {
   branchRefAnswer,
   commitAnswer,
-  emptyCommitListAnswer,
   headsAnswer,
   noConnection,
   notFoundAnswer,
@@ -202,16 +201,14 @@ export function answerFrom(
       }
       if (request.kind === "commit-list") {
         const history = published.histories?.get(request.revision);
-        return (
-          commitListIn(
-            {
-              files,
-              committed: { [request.path]: new Date() },
-              ...(history !== undefined && { history }),
-            },
-            request.path,
-            request.perPage,
-          ) ?? emptyCommitListAnswer()
+        return commitListIn(
+          {
+            files,
+            committed: { [request.path]: new Date() },
+            ...(history !== undefined && { history }),
+          },
+          request.path,
+          request.perPage,
         );
       }
       const text = files[request.path];

@@ -90,13 +90,14 @@ test("each Taken card's clock measures from the later of its last plan commit an
     );
   });
 
-  await test.step("a commit list that fails is a clock gap, and the bar stays", async () => {
+  await test.step("an empty plan commit list is a terminal clock gap, and the bar stays", async () => {
     await expect(card(timeUnread)).toContainText(
-      `Current slice time unavailable: The local GitHub CLI could not reach GitHub while reading the last commit of ${planPath("time-unread")} at ${revision}.`,
+      `Current slice time unavailable: GitHub's answer for the last commit of ${planPath("time-unread")} at ${revision} did not name a commit.`,
     );
     await expectBarStays(card(timeUnread));
     await expect(card(timeUnread)).not.toContainText("Current slice started");
-    await expect(problem).toContainText("this page reads it");
+    // Established absence: labeled on the card; does not arm detail recovery.
+    await expect(problem).toHaveCount(0);
   });
 
   // A failed plan commit shows its card's gap without waiting for that card's
@@ -136,8 +137,8 @@ test("each Taken card's clock measures from the later of its last plan commit an
 
   await test.step("60 s more of page time shows 13 min; answered clocks ask nothing of their own", async () => {
     const from = githubFor(page).calls.length;
-    // The unread plan's eligible gap may recover; revision checks stay off
-    // while that recovery is pending.
+    // Empty plan history is terminal absence, so checks are not blocked by
+    // detail recovery while clocks tick.
     await page.clock.runFor(60_000);
     await expect(card(afterTake)).toContainText(
       "Current slice started 13 min ago",

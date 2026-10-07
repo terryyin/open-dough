@@ -19,7 +19,6 @@ import {
   asHeadsListing,
   branchRefAnswer,
   commitAnswer,
-  emptyCommitListAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -125,12 +124,10 @@ export function publishCommittedOrigin(
       if (options.realHistory === true) {
         return history.list(request.revision, request.path, request.perPage);
       }
-      return (
-        commitListIn(
-          profiles(request.revision),
-          request.path,
-          request.perPage,
-        ) ?? emptyCommitListAnswer()
+      return commitListIn(
+        profiles(request.revision),
+        request.path,
+        request.perPage,
       );
     }
     if (request.kind === "commit") {

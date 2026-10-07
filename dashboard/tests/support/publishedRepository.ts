@@ -3,7 +3,6 @@
 
 import {
   commitAnswer,
-  emptyCommitListAnswer,
   headsAnswer,
   noConnection,
   rawFileAnswer,
@@ -42,11 +41,10 @@ export function publishes(published: {
         }),
       });
     if (request.kind === "commit-list") {
-      // No published history or commit time: GitHub's empty list (established
-      // absence), not a temporary connection loss.
+      // Absent history or commit time: empty list; explicit `null` history:
+      // lost connection (`commitListIn`).
       return Promise.resolve(
-        commitListIn(published, request.path, request.perPage) ??
-          emptyCommitListAnswer(),
+        commitListIn(published, request.path, request.perPage),
       );
     }
     if (request.kind === "commit") {

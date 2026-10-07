@@ -8,7 +8,6 @@ import {
   branchRefAnswer,
   commitAnswer,
   headsAnswer,
-  emptyCommitListAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -193,10 +192,7 @@ export function publishMovingFiles(
     }
     observe(requests, call);
     if (request.kind === "commit-list") {
-      return Promise.resolve(
-        commitListIn(at, request.path, request.perPage) ??
-          emptyCommitListAnswer(),
-      );
+      return Promise.resolve(commitListIn(at, request.path, request.perPage));
     }
     if (request.kind === "listing") {
       return Promise.resolve(
