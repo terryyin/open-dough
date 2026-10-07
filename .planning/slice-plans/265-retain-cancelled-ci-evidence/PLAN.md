@@ -204,6 +204,15 @@ Behavior: a pushed revision whose suite cannot finish by the deadline → CI run
 
 A probe result that lacks the artifact, shows a cancelled shard, or exceeds the bound stops here and changes this plan before anything is reported as delivered; the forced commit never reaches trunk in effect, since the next commit reverts its two changes.
 
+## Execution complete
+
+Product advice: no change. The story serves the near-future direction's
+trustworthy CI evidence. The deferred historical failures need no story until
+one recurs, when it now leaves retrievable diagnostics. The `ci.yml` comment's
+"at least 35 seconds" margin is about 30–32 seconds in practice, because the
+deadline step starts 3–5 seconds after the job; story wrap-up may correct the
+wording.
+
 ## Considered and excluded
 
 - An `always()` upload step: it would run only if the runner honored it after a

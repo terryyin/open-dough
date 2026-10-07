@@ -278,6 +278,46 @@ Ubuntu runner did not.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
+### DD-247 — `tests/native-setup.sh` cannot run on a machine without the exact `.node-version` Node
+
+`.node-version` pins Node 24.21.0, and `tests/native-setup.sh` refuses any
+other Node with "Node prerequisite mismatch". This machine has only Node 24.5.0,
+so a change that reaches `ci.yml` leaves that consumer to CI. Its `ci.yml` text
+assertions can be checked by hand; its setup-script behavior cannot.
+
+#### Occurrences
+
+- Execution: `SEED-115#retain-cancelled-ci-evidence` / plan 265, first related implementation commit `a68d3211`
+  - Timestamp: unknown (slice 1 implementation, before `a68d3211` committed 2026-10-07T09:37:19+09:00)
+  - Tool: Claude Code (delegated implementation agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: the slice 1 return said `tests/native-setup.sh` failed with "Node prerequisite mismatch: selected 24.21.0, actual 24.5.0". The coordinator reran the test's `ci.yml` assertions (lines 124–134) by `grep`, and they held. `node --version` printed v24.5.0. No nvm, fnm, mise, volta or n was installed.
+  - Observed effect: one known consumer of the change was proved only in part locally, and the rest was left for CI.
+  - Inference: Qualified. Any change that reaches `ci.yml` or `scripts/setup-native.mjs` will meet this until the machine has the pinned Node. That matches this group's goal that local checks give CI's result.
+
+## Probe design for CI-only paths (not queued)
+
+### DD-246 — A CI probe assumed `longest-first` sets the order a shard runs its files
+
+Slice 2 of plan 265 needed one shard to complete a deliberate failure before
+the forced deadline. The probe listed its spec first in
+`dashboard/tests/longest-first`. That file only assigns specs to shards. Under
+`fullyParallel: true`, Playwright schedules a shard's files alphabetically, so
+`deadline-probe.spec.ts` queued behind `agent-launch-*` specs that were still
+running at the deadline, and it never started.
+
+#### Occurrences
+
+- Execution: `SEED-115#retain-cancelled-ci-evidence` / plan 265, first related implementation commit `a68d3211`
+  - Timestamp: 2026-10-07T09:39:25+09:00 (probe commit `631484ee`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: run 37553117469 at `631484ee`. Shard 1's artifact held only three interrupted `agent-launch-preparation-*` tests' results. Run 37553839091, after the rename to `aaa-deadline-probe.spec.ts` in `2afb6ab1`, kept the probe's `trace.zip` and `error-context.md`. `dashboard/playwright.config.ts` sets `fullyParallel: true`.
+  - Observed effect: one extra probe commit and CI run, about 8 minutes from push to verdict.
+  - Inference: Qualified. A local `--list` or `--workers=1` dry run of the shard would have shown the order before the push. The plan's probe recipe named the failing spec's placement but not how to make it run first.
+
 ## Native host runs routed through the developer (low priority, not queued)
 
 Paid native runs are manual-only in this repository (`tests/README.md`). Each finding below is a paid run
