@@ -109,6 +109,7 @@ test("Recently done lists published done stories among the sessions, newest firs
     );
     expect(read).toHaveLength(3);
     expect(read).not.toContain(".planning/done/README.md");
+    expect(read).not.toContain(".planning/done/.catalog.json");
   });
 });
 

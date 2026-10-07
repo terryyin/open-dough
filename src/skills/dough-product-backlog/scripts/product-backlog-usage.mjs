@@ -5,6 +5,7 @@
 
 import { directionHeading } from "./product-backlog-direction.mjs";
 import { queueHeading, takenHeading } from "./product-backlog-document.mjs";
+import { doneCatalogPath } from "./product-backlog-done-catalog.mjs";
 import {
   doneRecordDirectory,
   doneRecordWindowDays,
@@ -20,6 +21,7 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
        product-backlog.mjs take --identity <id> (--plan <path> | --no-plan)
                              [--file <path>]
        product-backlog.mjs complete --identity <id> [--dropped] [--file <path>]
+       product-backlog.mjs catalog-done [--file <path>]
        product-backlog.mjs refresh --identity <id>
                              [--title <title>] [--link <href>] [--plan <path>]
                              [--file <path>]
@@ -70,8 +72,18 @@ configured with, and the released profile's agent, host, and model. Completing
 the same identity again replaces its record. --dropped removes work that was
 dropped rather than finished: the entry and profile go as above and the done
 record is left out. Either way it removes done records completed
-more than ${doneRecordWindowDays} days before. Include those files in the same commit as the
-backlog change. A preparation profile is left for its own release.
+more than ${doneRecordWindowDays} days before, then rebuilds ${doneCatalogPath} from the done
+records that remain. Include those files in the same commit as the backlog
+change. A preparation profile is left for its own release.
+
+catalog-done rebuilds ${doneCatalogPath} beside the backlog from the done records
+already there: each readable record's file name, identity, completion time, and
+Git blob hash, newest first, and each unreadable record file by name and hash
+alone. It changes no record and no backlog entry, prunes nothing, and writes no
+completion. Run it to publish a catalog for records written before catalogs
+existed, and after records arrive or change any other way, such as a merge,
+rebase, or cherry-pick; the catalog is derived from the records and never merged
+by hand.
 
 refresh updates what one listed entry says about itself — its title, the
 canonical document it links, or the active plan it links — after that document

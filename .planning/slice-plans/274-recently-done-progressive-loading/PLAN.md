@@ -244,6 +244,8 @@ Preserved consumer groups, selected by the inspected use rather than filename:
 
 - **Record production/delivery:** `npm test --
   tests/support/product-backlog-complete-done-record.test.mjs
+  tests/support/product-backlog-complete-done-catalog.test.mjs
+  tests/support/product-backlog-done-catalog.test.mjs
   tests/support/product-backlog-complete.test.mjs
   tests/support/product-backlog-complete-profile.test.mjs
   tests/product-backlog-payload-update.sh tests/payload-declaration-links.sh`.
@@ -295,7 +297,7 @@ revision-isolation observations instead of weakening their assertions.
 ### 1. Published completions expose a rebuildable minimal catalog
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend the real completion CLI tests and installed payload runtime proof;
 run the Record production/delivery group. Add a rebuild case with existing
 records, invalid records, and an alternate backlog location; compare record and
@@ -315,6 +317,35 @@ in the payload and prove standalone use with the source unavailable.
 Safe stopping point: records and existing dashboard behavior remain valid; the
 published metadata and installed producer are useful preparation for deferred
 reading. Source implementation is not presented as a release or local upgrade.
+
+Accepted proof and learnings (2026-10-07, terry-chan):
+
+- Catalog owner: `src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs`,
+  Node-free, exporting `doneCatalogFileName`, `doneCatalogPath`
+  (`done/.catalog.json`), `catalogDoneRecords`, `renderDoneCatalog`,
+  `parseDoneCatalog` (strict: schemaVersion 1, exact keys, published order,
+  unique names, identity/file agreement, UTC ISO times, 40/64-hex blobs) and
+  `doneCatalogMismatch(catalog, [{fileName, blob}])` (record-named files only).
+  Format: `{schemaVersion:1, records:[{fileName, identity, completedAt, blob}]
+  newest first with file-name ties, unreadable:[{fileName, blob}]}`. The
+  catalog does not apply the 30-day window; readers keep `isWithinDoneWindow`.
+  A catalog exists only while a record-named file exists.
+- `complete` now closes beside-backlog files, including `rebuildDoneCatalog`,
+  inside the backlog lock through the store's `applyReportedChange` close
+  step; `catalog-done [--file]` rebuilds under the same lock. This
+  repository's `.planning/done/.catalog.json` was backfilled by the real CLI.
+- Proof: the Record production/delivery group above (with the two catalog test
+  files), all `tests/support/product-backlog-*.test.mjs`, the `complete`
+  callers in `dough-execute-plan`/`dough-story-refinement`/supplier tests,
+  the changed-guidance and install tests, `npm run typecheck:dashboard`, and
+  the Done projection group plus `authenticated-read-listed-records.spec.ts`
+  (35 passed); `recently-done-stories.spec.ts` asserts the hidden catalog is
+  never read by today's eager reader. Installed proof runs from `.agents` and
+  `.claude` roots with the source removed.
+- Known limits: blob hashes are SHA-1 of working-tree bytes, so a SHA-256 or
+  filtered repository surfaces as a mismatch gap, not wrong data. The test
+  fixture `dashboard/tests/recentlyDoneRecords.ts` publishes a placeholder
+  catalog that slice 2/3 must replace with a generated one.
 
 ### 2. Published done metadata admits only requested record details
 

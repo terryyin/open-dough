@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "fileName": "SEED-113_rate-limit-recovery-residue-correction.json",
+      "identity": "SEED-113#rate-limit-recovery-residue-correction",
+      "completedAt": "2026-10-07T11:39:13.334Z",
+      "blob": "b10f91cca57f7f2155446531299020cf1599343e"
+    },
+    {
+      "fileName": "SEED-116_claude-done-rename-readiness-correction.json",
+      "identity": "SEED-116#claude-done-rename-readiness-correction",
+      "completedAt": "2026-10-07T08:18:10.455Z",
+      "blob": "6380bc2342e1e7435887ac44dd96c61ae2f44ee7"
+    },
+    {
+      "fileName": "SEED-112_closed-terminal-stays-closed.json",
+      "identity": "SEED-112#closed-terminal-stays-closed",
+      "completedAt": "2026-10-07T07:49:23.160Z",
+      "blob": "a4699dbe2b0374e3b963585fd5072c8b3d48d30b"
+    },
+    {
+      "fileName": "SEED-117_remove-exited-claude-job.json",
+      "identity": "SEED-117#remove-exited-claude-job",
+      "completedAt": "2026-10-07T05:04:04.896Z",
+      "blob": "999b8ae745cae85cfaad8af24fde12379c425c9d"
+    },
+    {
+      "fileName": "SEED-113_recover-consistently-from-rate-limits.json",
+      "identity": "SEED-113#recover-consistently-from-rate-limits",
+      "completedAt": "2026-10-07T04:44:14.800Z",
+      "blob": "d6bad811210bb98ec335510b43a49e3625a5e9d3"
+    },
+    {
+      "fileName": "SEED-113_reuse-evidence-merge-correction.json",
+      "identity": "SEED-113#reuse-evidence-merge-correction",
+      "completedAt": "2026-10-07T04:40:06.889Z",
+      "blob": "91d2aed7b87f49cca95114664cbe830a550d85ec"
+    },
+    {
+      "fileName": "SEED-115_retain-cancelled-ci-evidence.json",
+      "identity": "SEED-115#retain-cancelled-ci-evidence",
+      "completedAt": "2026-10-07T02:53:05.950Z",
+      "blob": "2e8a8357f5b9f047d122c01d6e302a4d91c42ba8"
+    },
+    {
+      "fileName": "SEED-116_claude-done-rename.json",
+      "identity": "SEED-116#claude-done-rename",
+      "completedAt": "2026-10-07T02:50:18.964Z",
+      "blob": "8eccaf0c92d31b55e7097ae08706afe8eb7336a8"
+    },
+    {
+      "fileName": "SEED-113_reuse-unchanged-records-after-publication.json",
+      "identity": "SEED-113#reuse-unchanged-records-after-publication",
+      "completedAt": "2026-10-07T02:12:44.671Z",
+      "blob": "387b1ad630f284660295deb0b3ea1d331ba6bb47"
+    },
+    {
+      "fileName": "SEED-117_finished-after-retirement.json",
+      "identity": "SEED-117#finished-after-retirement",
+      "completedAt": "2026-10-06T23:10:33.885Z",
+      "blob": "6de920799c76f5eb14288267d5470fe033047793"
+    },
+    {
+      "fileName": "SEED-114_session-column-membership.json",
+      "identity": "SEED-114#session-column-membership",
+      "completedAt": "2026-10-06T08:19:24.619Z",
+      "blob": "f8b2d61acfa1c75d0e190142de17072ba841a203"
+    },
+    {
+      "fileName": "SEED-008_story-branch-delivery-target.json",
+      "identity": "SEED-008#story-branch-delivery-target",
+      "completedAt": "2026-10-06T03:27:09.000Z",
+      "blob": "57e6f9cb5a7082277efa502f1bed43189e8599c7"
+    },
+    {
+      "fileName": "SEED-107_recently-done.json",
+      "identity": "SEED-107#recently-done",
+      "completedAt": "2026-10-06T02:35:43.335Z",
+      "blob": "338ed5536a94dca1fe8199e9915eba80ec57380e"
+    }
+  ],
+  "unreadable": []
+}

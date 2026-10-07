@@ -103,6 +103,10 @@ export function doneRecordFiles(now: number): Record<string, string> {
     }),
     // Not a done record by its name, so never read.
     ".planning/done/README.md": "Not a done record.\n",
+    // The hidden done catalog completion publishes among the records. Only its
+    // name matters here: a reader listing records by name never reads it as
+    // one, whatever it holds.
+    ".planning/done/.catalog.json": '{ "schemaVersion": 1 }\n',
   };
 }
 
