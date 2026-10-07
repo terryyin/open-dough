@@ -10,7 +10,6 @@ import {
   expectRecovered,
   isCommit,
   openedWithYumaWithheld,
-  unreadPlanTime,
   waitedOut,
   yumaAddition,
 } from "./limitRecoveryCredit.ts";
@@ -35,6 +34,6 @@ test("an addition commit limited during the walk is read once the wait ends, reu
     "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
   );
   expect(askedSince(page, asked).sort()).toEqual(
-    ["ref main", `commit ${takes.Yuma.sha}`, unreadPlanTime].sort(),
+    ["ref main", `commit ${takes.Yuma.sha}`].sort(),
   );
 });

@@ -9,7 +9,6 @@ import {
   expectRecovered,
   isYumaHistory,
   openedWithYumaWithheld,
-  unreadPlanTime,
   waitedOut,
   yumaAddition,
 } from "./limitRecoveryCredit.ts";
@@ -31,12 +30,13 @@ test("a limited profile history is read once the wait ends, crediting its human 
     page,
     "Human developer unknown: the commit that added this agent profile names no usable committer.",
   );
+  // Unrelated empty/missing plan history stays terminal; recovery asks only
+  // the limited credit walk.
   expect(askedSince(page, asked).sort()).toEqual(
     [
       "ref main",
       `commit-list ${profilePath("Yuma")}@${revision}`,
       `commit ${takes.Yuma.sha}`,
-      unreadPlanTime,
     ].sort(),
   );
 });

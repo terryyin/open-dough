@@ -96,7 +96,8 @@ test("an ordinary canonical failure keeps completed assignments and done stories
     "The associated plan could not be read for readiness facts.",
   );
   await expectNoOrphanReading(page);
-  await expect(problem).toContainText("this page reads it");
+  // Terminal missing fact: labeled in place; does not arm detail recovery.
+  await expect(problem).toHaveCount(0);
 });
 
 test("an ordinary profile failure keeps preparation and done facts and makes assignments unknown on cards and the roster", async ({
@@ -125,7 +126,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
   await expectCanonicalFacts(queuedCard);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
-  await expect(problem).toContainText("this page reads it");
+  await expect(problem).toHaveCount(0);
 
   // Without a readable assignment there is no portrait to open its roster.
   // Visit the ordinary roster URL with the same failed GitHub answer.
@@ -141,7 +142,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
   await expectCanonicalFacts(queuedCard);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
-  await expect(problem).toContainText("this page reads it");
+  await expect(problem).toHaveCount(0);
 });
 
 test("an ordinary done-record failure stays in Recently done while preparation, assignments, branch progress, and clocks remain useful", async ({
@@ -161,7 +162,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
     "Done stories could not be read.",
   );
   await expect(parts(page).recentlyDone).toContainText(
-    "The local GitHub CLI could not reach GitHub",
+    "GitHub answered HTTP 404",
   );
   await expect(doneCard).toHaveCount(0);
   await expectCanonicalFacts(queuedCard);
@@ -172,7 +173,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
   await expect(branchCard).toContainText("From story branch; not in trunk.");
   await expect(branchCard).toContainText("Current slice started 7 min ago");
   await expectNoOrphanReading(page);
-  await expect(problem).toContainText("this page reads it");
+  await expect(problem).toHaveCount(0);
 });
 
 test("the existing 30-second core bound keeps assignments and done facts, leaves a standing preparation gap, and the page's recovery closes it without reload", async ({

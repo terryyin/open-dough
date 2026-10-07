@@ -64,10 +64,6 @@ export function askedSince(page: Page, from: number): string[] {
     );
 }
 
-// The plan last-commit time GitHub cannot answer, asked again by every fresh
-// read: a gap of its own, never the limit's.
-export const unreadPlanTime = `commit-list .planning/slice-plans/091-time-unread/PLAN.md@${revision}`;
-
 // Opens the clock records with Yuma's profile history `yumaHistory` and
 // Sola's `solaHistory`; GitHub refuses each request `refused` picks with a
 // short directed wait, once Akiho's and Sola's additions have reached
@@ -145,8 +141,8 @@ export async function waitedOut(page: Page, limitSeenAt: number) {
 // the unreadable plan time keeps its own gap.
 export async function expectRecovered(page: Page, solaExplained: string) {
   await test.step("the credited human appears on its card, detail, and roster, and its Take clock beside it, with the notice gone", async () => {
-    // Rate-limit notice is gone; an unrelated unread plan time may still
-    // schedule project-local recovery of its own eligible gap.
+    // Rate-limit notice is gone; an unrelated empty/missing plan history
+    // stays a terminal gap and does not arm project-local recovery.
     await expect(page.locator("body")).not.toContainText(
       "GitHub limited the rate",
     );
