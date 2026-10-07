@@ -76,6 +76,8 @@ explicit: Mark as done, which takes over a rename still waiting, or the same
 delivery's retry; a successful delivery retry does not repeat a confirmed
 rename. A server that closes during the wait leaves the pending mark. Early
 quiet reporting applies the same operation when its native session is bound.
+Launch binding releases persistence locks before its required Done owner
+continues an early report.
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a

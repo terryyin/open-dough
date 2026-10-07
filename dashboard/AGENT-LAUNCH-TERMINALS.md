@@ -100,7 +100,12 @@ attachment, or else into a private attachment of its own from the project
 folder, typing only once Claude Code’s prompt shows. That private attachment
 is hung up once the rename settles, and rename waits for listing
 confirmation, all within one bounded wait of five seconds, or sixty after a
-quiet report's receipt while its sender finishes. A session listed with no
+quiet report's receipt while its sender finishes.
+Idle detection, prompt readiness, key entry and listing confirmation share that
+deadline. A later Done or server close cancels the same attempt. An abandoned
+manual Done retains its rename problem before shutdown; reporting leaves the
+pending mark.
+A session listed with no
 running process is not renamed. Native history is retained. When Claude Code
 lists the session without a running status (its process has exited), Mark as
 done instead closes dashboard attachments and runs `claude rm <short id>` from
