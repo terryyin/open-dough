@@ -190,8 +190,8 @@ jobs:
       - name: Type-check the dashboard
         if: matrix.shard == strategy.job-total
         run: npm run typecheck:dashboard
-      # The suite ends itself at OPEN_DOUGH_DASHBOARD_DEADLINE_MS, at least
-      # 35 seconds inside the job's 6 minutes, naming the deadline. A shard
+      # The suite ends itself at OPEN_DOUGH_DASHBOARD_DEADLINE_MS, about 30
+      # seconds inside the job's 6 minutes, naming the deadline. A shard
       # that runs out of time then fails instead of being cancelled, so the
       # report below is still kept.
       - name: Run the dashboard browser suite

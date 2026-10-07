@@ -134,7 +134,10 @@ the shard job starts, and the config turns what remains of it into Playwright's
 shard that cannot finish by then fails naming the deadline (`Timed out
 waiting`), still within the job's 6 minutes, and its kept report holds the
 completed failures' traces and error context and lists unfinished tests as
-skipped. Local runs without the variable are unbounded.
+skipped. Local runs without the variable are unbounded. Like the shell
+suite's `tests/time-budget`, the 320 seconds and the job's `timeout-minutes`
+are a reviewed ceiling: a shard that reaches the deadline is made faster or
+rebalanced, not given more time.
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that
