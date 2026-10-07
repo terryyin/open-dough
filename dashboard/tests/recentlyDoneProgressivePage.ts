@@ -2,12 +2,13 @@
 // (./recently-done-progressive-loading.spec.ts) open the page over a
 // published list (./recentlyDoneProgressive.ts) and observe it: which done
 // records' reads reached the fake GitHub, the reveal action, and where the
-// shown entries stand. Nothing here decides what the page shows or reads.
+// shown entries stand, and the open terminal. Nothing here decides what the page shows or reads.
 
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { githubFor } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
+import { shownEntries } from "./recentlyDoneColumn.ts";
 import { queuedTitle } from "./recentlyDoneRecords.ts";
 import { publishes, type FakeGitHub } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
@@ -79,12 +80,16 @@ export async function opened(
   return { github, recent: parts(page).recentlyDone, now };
 }
 
+// The side panel's open terminal.
+export const terminalOf = (page: Page) =>
+  page.getByRole("region", { name: "Terminal" });
+
 export const revealAction = (recent: Locator) =>
   recent.getByRole("button", { name: /older entr(y|ies)$|^Reading done/ });
 
 // Where the shown entries stand on the page.
 export const standing = async (page: Page, recent: Locator, count: number) => {
-  const shown = recent.locator(":scope > ol > li > article");
+  const shown = shownEntries(recent);
   const tops: number[] = [];
   for (let index = 0; index < count; index += 1) {
     tops.push((await shown.nth(index).boundingBox())?.y ?? Number.NaN);

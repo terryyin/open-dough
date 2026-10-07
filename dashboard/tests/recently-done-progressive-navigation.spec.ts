@@ -21,6 +21,7 @@ import {
   recordsAsked,
   revealAction,
   settle,
+  terminalOf,
 } from "./recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -33,9 +34,6 @@ import {
 import { sidebarParts } from "./sessionSidebarPage.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
-
-const terminalOf = (page: Parameters<typeof parts>[0]) =>
-  page.getByRole("region", { name: "Terminal" });
 
 test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27 are read, after a choice of it while open and a done entry already shown read nothing more", async ({
   page,

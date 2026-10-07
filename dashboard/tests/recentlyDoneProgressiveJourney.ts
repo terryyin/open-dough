@@ -10,7 +10,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { expectEntries } from "./recentlyDoneColumn.ts";
+import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
 import {
   entryName,
   progressiveEntries,
@@ -119,9 +119,7 @@ export async function expectThroughDestinationPending(
   arrived: Locator,
 ) {
   await expect(heldCard).toContainText("Reading done story…");
-  await expect(recent.locator(":scope > ol > li > article")).toHaveCount(
-    destination,
-  );
+  await expect(shownEntries(recent)).toHaveCount(destination);
   await expect(arrived).toBeVisible();
   await expect(arrived).not.toBeFocused();
   await expect

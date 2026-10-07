@@ -5,7 +5,8 @@
 // done story before its record is read, so the combined list, its count, and
 // where each session belongs are known at once. Only the first ten entries
 // show until the developer asks for the next ten, or a journey lands on an
-// entry beyond them (`./recentlyDoneRange.ts`), and only the records of the
+// entry beyond them, and the developer can return to the latest ten
+// (`./recentlyDoneRange.ts`), and only the records of the
 // stories shown are read (`./doneDetails.ts`); a story shown before its
 // record answers keeps its place, with its sessions, under its identity.
 // `./RecentlyDone.tsx` presents it.
@@ -166,6 +167,9 @@ export function useRecentlyDone({
     column,
     reveal: () => {
       range.reveal(sourceId, shown.length);
+    },
+    collapse: () => {
+      range.collapse(sourceId);
     },
   };
 }

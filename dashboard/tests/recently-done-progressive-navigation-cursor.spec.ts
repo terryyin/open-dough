@@ -15,6 +15,7 @@ import { parts, standaloneSessionName } from "./dashboardPage.ts";
 import { rem } from "./dashboardColumnsPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
+import { shownEntries } from "./recentlyDoneColumn.ts";
 import { recordsAsked } from "./recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -98,9 +99,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     ).toBeChecked();
     await expect(view.heldCard).toContainText("Reading done story…");
     await expect(entry).toBeVisible();
-    await expect(recent.locator(":scope > ol > li > article")).toHaveCount(
-      destination,
-    );
+    await expect(shownEntries(recent)).toHaveCount(destination);
     await expect
       .poll(() => recordsAsked(github).toSorted())
       .toEqual(storiesThrough(destination).toSorted());
@@ -114,11 +113,9 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
       .toBeGreaterThan(before);
     await expectRevealsSince(page, before, entryName, "auto");
     await expect(entry).toBeInViewport();
-    await expect(recent.locator(":scope > ol > li > article")).toHaveCount(
-      destination,
-    );
+    await expect(shownEntries(recent)).toHaveCount(destination);
     await expect(
-      recent.locator(":scope > ol > li > article").nth(destination - 2),
+      shownEntries(recent).nth(destination - 2),
     ).toHaveAccessibleName(names(destination - 1).at(-1) ?? "");
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesThrough(destination).toSorted(),

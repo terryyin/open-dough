@@ -522,7 +522,7 @@ Accepted proof and learnings (2026-10-08, terry-chan):
 ### 5. Collapse returns to ten and supersedes older demand
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: add collapse cases in `recently-done-progressive-state.spec.ts`, run
 alongside the reveal/navigation specs and the Navigation group. Extend the
 list with an open terminal/report, hold another batch or destination answer,
@@ -539,6 +539,29 @@ scrolling.
 
 Safe stopping point: the extended view has a reliable short-list recovery path
 and the reveal action and journeys remain available.
+
+Accepted proof and learnings (2026-10-08, terry-chan):
+
+- `collapse(sourceId)` on the one range owner returns to `latestOf(sourceId)`
+  (ten, no destination), so a pending journey answers `superseded`. **Show
+  latest 10** sits in Recently done's sticky `stage-header` after the count,
+  only above ten entries; it moves focus to the section start and scrolls the
+  heading into view (smooth unless reduced motion). Its compact style keeps
+  the header height unchanged, which the loading spec's exact scroll
+  assertion depends on. Recently done's own styles now live in
+  `dashboard/src/recently-done.css`.
+- Proof: `recently-done-progressive-state.spec.ts` (held reveal with an
+  attached terminal at 80rem; held Cursor-row destination), observing ten
+  entries, heading in view, focus, terminal kept, zero new record requests,
+  no late scroll or re-extension, then fresh reveal and journey; the
+  progressive specs, Navigation and Done projection groups (38), and a
+  78-file Recently done/header/keyboard consumer sweep.
+- CI run 37687776071 on `c98b364c` failed the slice 4 project-switch test: a
+  project switch cancels the pooled record read, so the asked set depended on
+  timing. Repaired in `d04890e8` by waiting for the demanded records first.
+- Open defect for the next boundary: one sweep run of
+  `recently-done-progressive-navigation-cursor.spec.ts` asked a done record
+  twice (passes alone); diagnose before slice 6.
 
 ### 6. Refresh preserves reading range and a new project starts short
 

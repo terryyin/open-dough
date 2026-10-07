@@ -5,7 +5,8 @@
 // developer asks for the next ten, or when a journey lands on a done entry
 // beyond it; scrolling, resizing, and paging the columns ask for nothing. It
 // is how the page presents the project, not anything read: it belongs to the
-// project shown and starts again at ten for another project or a reload.
+// project shown and starts again at ten for another project or a reload, or
+// when the developer asks for the latest ten again.
 //
 // The page keeps one range (`./PageFrame.tsx`), so the journeys that end on
 // a session's entry -- the side panel's keyboard return
@@ -15,7 +16,8 @@
 // extends the range exactly through that entry, never shortening a longer
 // one, and says it is reached once the entries through it are read, or that
 // Recently done does not hold it. Only the newest destination is answered; an
-// earlier one is superseded.
+// earlier one is superseded, as is any destination when the developer asks
+// for the latest ten, so no answer read later extends the list again.
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
@@ -46,16 +48,19 @@ export type DestinationAnswer = "pending" | "reached" | "absent" | "superseded";
 
 let demands = 0;
 
+// The latest ten of `sourceId`'s entries, with no destination.
+const latestOf = (sourceId: string | undefined): Range => ({
+  sourceId,
+  requested: doneBatch,
+});
+
 // The page's one range, for the project whose stories it shows.
 export function useRecentlyDoneRange(shownSource: string | undefined) {
-  const [range, setRange] = useState<Range>({
-    sourceId: shownSource,
-    requested: doneBatch,
-  });
+  const [range, setRange] = useState<Range>(() => latestOf(shownSource));
   // Another project's stories start again at ten, and supersede any
   // destination still to be answered.
   if (shownSource !== undefined && range.sourceId !== shownSource) {
-    setRange({ sourceId: shownSource, requested: doneBatch });
+    setRange(latestOf(shownSource));
   }
   const { destination } = range;
   // Answers the destination `id` with `answer`, or extends the range through
@@ -86,6 +91,10 @@ export function useRecentlyDoneRange(shownSource: string | undefined) {
     // Asks for the next ten entries after the `shown` ones.
     reveal: (sourceId: string, shown: number) => {
       setRange((last) => ({ ...last, sourceId, requested: shown + doneBatch }));
+    },
+    // Asks for the latest ten entries again, superseding any destination.
+    collapse: (sourceId: string) => {
+      setRange(latestOf(sourceId));
     },
     // Asks the list for the entry of `record`'s session in its project;
     // answers the demand, by which its answer is found (`answerOf`).

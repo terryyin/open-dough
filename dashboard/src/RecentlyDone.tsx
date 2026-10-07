@@ -1,16 +1,18 @@
 // Recently done as the dashboard columns show it (`./recentlyDoneView.ts`
 // decides what it lists): the requested first entries newest first, each
-// done story's card holding its sessions, the gaps in what could be read, and
-// the one action that shows the next ten older entries.
+// done story's card holding its sessions, the gaps in what could be read, the
+// one action that shows the next ten older entries, and, beside the heading
+// while more than ten show, the one that shows only the latest ten again
+// (`./RecentlyDoneRangeActions.tsx`).
 
-import { useLayoutEffect, useRef } from "react";
+import { useRef } from "react";
 import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { launchRetentionDays } from "./agentLaunch.ts";
 import { entryCount } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
+import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
-import { doneBatch } from "./recentlyDoneRange.ts";
 import {
   recentlyDoneName,
   type Listed,
@@ -19,6 +21,7 @@ import {
 import { SessionEntry, SessionList } from "./SessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 import "./agent-launch.css";
+import "./recently-done.css";
 
 function DoneReadGaps({ view }: { readonly view: RecentlyDoneView }) {
   const { problem, unreadable, details } = view;
@@ -95,67 +98,8 @@ function ListedEntry({
   );
 }
 
-const entriesWord = (count: number) => (count === 1 ? "entry" : "entries");
-
-// How much of the list shows, and the one action that shows the next ten
-// older entries, naming how many are older. Once every entry shows, it says
-// so, and the keyboard that asked for the last of them stays there.
-function ShownRange({ view }: { readonly view: RecentlyDoneView }) {
-  const { shown, older, column, details, reveal } = view;
-  const action = useRef<HTMLButtonElement>(null);
-  const statement = useRef<HTMLParagraphElement>(null);
-  const asked = useRef(false);
-  const all = shown.length + older;
-  useLayoutEffect(() => {
-    if (older === 0 && asked.current) {
-      asked.current = false;
-      statement.current?.focus({ preventScroll: true });
-    }
-  });
-  if (older === 0 && shown.length <= doneBatch) {
-    return null;
-  }
-  const next = Math.min(older, doneBatch);
-  const reading = details.reading;
-  return (
-    <div className="recently-done-range">
-      <p className="quiet">
-        {column.entries === undefined
-          ? `Showing ${String(shown.length)} ${entriesWord(shown.length)}.`
-          : `Showing ${String(shown.length)} of ${entryCount(all)}.`}
-      </p>
-      {older > 0 ? (
-        <button
-          ref={action}
-          type="button"
-          className="frame-button"
-          aria-disabled={reading}
-          onClick={() => {
-            if (reading) return;
-            asked.current = document.activeElement === action.current;
-            reveal();
-          }}
-        >
-          {reading
-            ? "Reading done stories…"
-            : next < older
-              ? `Show ${String(next)} of ${String(older)} older entries`
-              : `Show the ${String(older)} older ${entriesWord(older)}`}
-        </button>
-      ) : (
-        <p ref={statement} tabIndex={-1}>
-          {reading
-            ? "Reading done stories…"
-            : column.entries === undefined
-              ? `All ${String(shown.length)} ${entriesWord(shown.length)} listed so far are shown.`
-              : `All ${entryCount(all)} are shown.`}
-        </p>
-      )}
-    </div>
-  );
-}
-
 export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
+  const section = useRef<HTMLElement>(null);
   const {
     creations: listedCreations,
     records,
@@ -166,13 +110,17 @@ export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
   } = view;
   return (
     <section
+      ref={section}
       className="recently-done"
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
     >
       <header className="stage-header">
         <h2 id="recently-done-heading">{recentlyDoneName}</h2>
-        <p className="stage-count">{entryCount(column.entries)}</p>
+        <div className="stage-header-actions">
+          <p className="stage-count">{entryCount(column.entries)}</p>
+          <ShowLatest view={view} section={section} />
+        </div>
       </header>
       <p className="quiet">
         Recently done stories and sessions launched from this dashboard for this
