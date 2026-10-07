@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits ([plan](slice-plans/264-rate-limit-recovery/PLAN.md))
-- [A private Claude Code rename types only at a ready prompt](seeds/SEED-116-claude-done-rename.md#claude-done-rename-readiness-correction) — SEED-116#claude-done-rename-readiness-correction ([plan](slice-plans/270-claude-done-rename-readiness-correction/PLAN.md))
 
 ## Backlog list
 
