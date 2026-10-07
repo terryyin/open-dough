@@ -94,7 +94,7 @@ Rejected alternatives:
 
 **Identity:** SEED-117#remove-exited-claude-job
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/268-remove-exited-claude-job/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e3ffb228671d39f8bf1abace4eaf2c4fc0ee53b7bd5b61a0b0759276c020c72d","plan":"200fcb8f1f5427e0cfc75ed2a86ce421fa65f89a07d8d7fa0b3d1bfa187e744c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/268-remove-exited-claude-job/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"594ff80a42b7e84bb6841fea648c1d8ea1c04cef46e4c121e49e58e9b683b37c","plan":"200fcb8f1f5427e0cfc75ed2a86ce421fa65f89a07d8d7fa0b3d1bfa187e744c"}}
 ```
 
 **For / why:** A developer who marks a finished Claude Code session done from
