@@ -26,8 +26,7 @@ its cooldown and demand-admission behavior.
 
 The reported timeout happened before backlog membership appeared. Initial
 failure leaves no shown revision to drive refresh checks; failed details also
-remain missing when a later check finds an unchanged revision. Cache validation
-can compare revisions and read intervening commits before answering the backlog.
+remain missing when a later check finds an unchanged revision.
 Successful cached answers are held in memory and disappear on server replacement;
 separate dashboard processes do not share them. Cards render a shared snapshot,
 while collecting its profiles, histories, and other records still makes
@@ -201,122 +200,6 @@ rate-limit recovery owner rather than introducing a competing recovery policy.
 **Safe stopping point:** Temporary failures heal without reload even if the
 initial reading path and request savings remain as they are.
 
-<a id="show-cards-before-expensive-cache-validation"></a>
-
-### Show basic story cards without waiting for expensive cache validation
-
-**Identity:** SEED-118#show-cards-before-expensive-cache-validation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"119041586bb9c35e42990ea7180b757823dc58cde3d1172622eb5a8df2ec5951"}}
-```
-
-**Beneficiary:** A developer whose running dashboard already holds an earlier
-revision's facts when the published ref moves, while the comparison or
-intervening-commit reads that validate reusing those facts are slow or failing.
-
-**Goal:** Once the moved ref and its backlog can be read, basic story cards
-appear from those two answers alone, and the comparison and commit reads that
-validate reuse govern only the details that follow. This takes reuse
-validation off the path to first cards. It does not promise a faster first
-visit, which compares nothing, and it does not settle the cause of the
-uncaptured timeout.
-
-**Selected reading strategy:** When the ref names B while this process last
-answered the backlog at A, read the backlog at B directly instead of first
-asking GitHub whether it changed since A. Details keep today's comparison-based
-reuse. Today's route was observed in the read boundary and its specs: the
-backlog answer at B awaits one comparison and one read per commit between
-before it is reused or read, so an unrelated commit costs 1 + n requests and
-one upstream stage before cards, and a changed backlog costs those plus the
-backlog read, two stages before cards; a comparison or commit read that hangs
-holds membership for the whole 30-second bound. The selected route answers
-membership after the ref (or check) and the backlog read, the same two stages
-as a first visit, with the comparison and commit reads running beside it for
-the details. Its cost is one extra backlog read per newly published revision
-whose backlog the comparison would have proved untouched, none when the
-backlog changed, and none on the far more frequent unchanged checks. Healthy
-upstream answers measured 0.17 to 0.36 seconds during the review; the removed
-stage matters most when it runs to the bound. Rejected: waiting briefly for
-the comparison before reading directly, which adds a timing policy and still
-delays cards; and a conditional backlog read to avoid the extra request, which
-is unproven across refs and belongs with the request-savings sibling if ever
-measured worthwhile.
-
-**Scope — required behavior:**
-
-- **Membership from the backlog alone.** When the ref or a revision check
-  names B and B's backlog is readable, the membership answer carries B's own
-  backlog text read at B, under B's revision, without awaiting any comparison
-  or commit read. Basic card facts are what the backlog alone establishes: the
-  list (Taken or Backlog list), order, title, canonical link, identity, and
-  plan link. Every other fact keeps today's pending label until its group
-  arrives.
-- **Reuse validation governs details only.** Preparation records, profiles
-  and assignments, additions and credited humans, plans, clocks, and done
-  records reuse A's answers only on the comparison and commit evidence the
-  published reading contract already requires. That evidence is asked once
-  per newly shown revision and shared by every detail that needs it, whether
-  it starts beside the membership read or with the first detail that asks;
-  the untouched-reuse rule, the read-as-a-first-visit fallbacks, and
-  rate-limit withholding stay as they are for details.
-- **Failures stay distinct.** A comparison or commit read that fails, runs to
-  the bound, or is rate-limited no longer withholds membership; its details
-  become read gaps or limited labels under the existing wording. A backlog
-  that cannot be read at B remains a read problem that keeps the last snapshot
-  under its own revision; A's backlog is never shown as B's.
-- **Bounded demand.** The backlog read at B is one request. Shared outstanding
-  reads, the eight-under-way bound, hidden-page rules, project switching, and
-  rate-limit admission are preserved.
-- **Documentation.** The request accounting and the published reading
-  contract state the new ordering and cost.
-
-**Scope — deferred promises:** A faster first visit, avoiding the extra
-backlog read, done-record loading under SEED-119, and automatic recovery
-retries under the transient-recovery sibling. None of these rejects behavior
-the product already supports.
-
-**Key examples / evaluation:**
-
-1. The process holds A's backlog. The ref moves to B after a commit that
-   changed only product code; the comparison and commit answers are held.
-   B's cards appear under revision B with details pending. Releasing the held
-   answers fills the details from A's facts as B's own, reading no record.
-   Upstream calls at B: one backlog read, one comparison, one commit read.
-2. B changes the backlog and one agent profile; the comparison is held. B's
-   new membership shows at once: added, removed, and moved entries in their
-   columns. After release, only the touched profile and its history are read;
-   untouched seeds, plans, and done records are reused.
-3. The comparison fails other than by a rate limit, or runs to the bound:
-   cards stay shown and details are read as a first visit reads them or
-   labeled as gaps, with the next read asking again. A rate-limited
-   comparison leaves cards shown and labels the details limited until the
-   resume time; membership is not labeled limited.
-4. B's backlog read itself fails. The read problem names it and the last
-   snapshot stays shown under A; no card under B shows A's facts.
-5. An unchanged check reads no backlog, and a first visit reads ref and
-   backlog without a comparison, as today.
-
-Prove these through the dashboard's actual read boundary with controlled
-GitHub answers that hold comparison and commit responses, observing the
-displayed cards and the upstream call list. The existing revision-reuse and
-unchanged-records specs encode the old ordering and change with it.
-
-**Policy basis:** The
-[published reading contract](../../dashboard/PUBLISHED-OBSERVATION.md) and
-[request accounting](../../dashboard/GITHUB-REQUESTS.md) keep reuse bound to
-GitHub's own account of what changed; this story moves that account off the
-membership path rather than weakening it. Under
-[ADR 0002's high-cohesion principle](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
-change the existing reuse owner rather than adding a second backlog path. No
-Accepted-ADR conflict was found.
-
-**Depends on:** No blocking story prerequisite. Reconcile with the
-transient-recovery sibling's plan where both touch the backlog read path;
-neither needs the other first.
-
-**Safe stopping point:** Basic published work appears promptly even if some
-details still fail or further request savings are deferred.
-
 <a id="reduce-repeated-reads-across-tabs-and-deployments"></a>
 
 ### Reduce repeated GitHub reads across tabs and deployments
@@ -366,16 +249,14 @@ machines.
 
 ## Ordering and Scope Reduction
 
-Terry selected these as production backlog priorities 1–3 on 2026-10-07.
+Terry selected these as production backlog priorities on 2026-10-07.
 Recovering from temporary failures comes first because the reported timeout can
-leave the page empty indefinitely. Faster basic cards comes next. Measured
-request savings follows and is the first work to defer if scope is reduced.
+leave the page empty indefinitely. Measured request savings follows and is the
+first work to defer if scope is reduced.
 Diagnostics belong to the recovery story, not a separate metrics product.
 
-The recovery story has recorded refinement and an associated Slice Plan, and
-the basic-cards story has recorded refinement without a selected execution
-approach. The request-savings story awaits refinement. All three remain
-queued. Preparation records do not authorize implementation.
+The recovery story has recorded refinement and an associated Slice Plan. The
+request-savings story awaits refinement. Both remain queued. Preparation records do not authorize implementation.
 
 ## Breadcrumbs
 

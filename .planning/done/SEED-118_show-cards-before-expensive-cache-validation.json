@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-118#show-cards-before-expensive-cache-validation",
+  "title": "Show basic story cards without waiting for expensive cache validation",
+  "completedAt": "2026-10-07T21:35:11.133Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "claude",
+  "model": "opus"
+}
