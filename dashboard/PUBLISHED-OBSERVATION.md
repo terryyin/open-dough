@@ -153,16 +153,18 @@ walked back to its addition are remembered once answered, so the walk asks
 only from the step the limit refused, once for the human and the clock that
 share it.
 Each withheld record file, profile set, human, clock, or done record is
-labeled with the limit's wording and that time, never as missing; a human
-whose profile history was withheld is unknown on its card, while its detail
-and the roster name the limit. Another tab, or the page reloaded, learns the
-same limit from its next request, which the process holds back without asking
-GitHub. The boundary passes on only the validated
-wait, or its own when GitHub directed none, at most one hour. The page's wait
-ends only at its time: a later check or read that succeeds clears the
-problem, unless the problem stands with its snapshot as described below, but
-no answer lifts the wait early. A record detail that
-could not be read for any reason but the limit stays labeled on its card
+labeled one way, never as missing: "GitHub's rate limit withheld" what was
+being read, and "Limited until" that time, whether GitHub refused the read,
+the process held it back, or the page did not ask; no label names a number of
+seconds. A human whose profile history was withheld is unknown on its card,
+while its detail and the roster give that label after "Human developer
+unknown." Another tab, or the page reloaded, learns the same limit from its
+next request, which the process holds back without asking GitHub. The
+boundary passes on only the validated wait, or its own when GitHub directed
+none, at most one hour. The page's wait ends only at its time: a later check
+or read that succeeds clears the problem, unless the problem stands with its
+snapshot as described below, but no answer lifts the wait early. A record
+detail that could not be read for any reason but the limit stays labeled on its card
 rather than borrowing an older one; checks that find the configured ref
 unchanged never read it again, so reload the page to read it again at the same
 revision. A fresh read after a limit asks it again with the rest, and it stays

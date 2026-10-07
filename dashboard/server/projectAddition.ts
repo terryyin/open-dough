@@ -1,5 +1,6 @@
 import { realpath } from "node:fs/promises";
 import path from "node:path";
+import { notAskedOfGitHub } from "../src/authenticatedReadRules.ts";
 import {
   githubRepository,
   projectIdentity,
@@ -21,7 +22,7 @@ function limitedCheck(error: unknown, repository: string): string | undefined {
   const stop = rateLimitStop(error);
   if (stop === undefined) return undefined;
   if (stop.kind === "held-back")
-    return `GitHub limited the rate of the local GitHub CLI's requests, so the repository ${repository} was not asked of GitHub. Try again in ${String(stop.waitSeconds)} seconds.`;
+    return `${notAskedOfGitHub(`the repository ${repository}`)} Try again in ${String(stop.waitSeconds)} seconds.`;
   return `GitHub limited the rate of the local GitHub CLI's requests while checking the repository ${repository}. Try again in ${String(stop.waitSeconds)} seconds.`;
 }
 

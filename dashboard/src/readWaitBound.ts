@@ -8,20 +8,23 @@ import { ReadProblem } from "./readProblem.ts";
 // How a read, or one detail of it, still unanswered at the bound is said.
 export const unansweredWithinReadWait = `GitHub did not answer within ${readWaitLimitMs / 1000} seconds`;
 
-// Why a read GitHub's rate limit stopped is a gap: the limit's own wording
-// and the time the page's limit ends (`./readingLimit.ts`), as its notice says
-// it; undefined when anything else stopped it.
+// Why a read GitHub's rate limit stopped is a gap, said one way whether
+// GitHub refused it, the server held it back, or the page did not ask: what
+// was being read and the time the page's limit ends (`./readingLimit.ts`), as
+// its notice says it; undefined when anything else stopped it.
 export function limitGapProblem(error: unknown): string | undefined {
-  return error instanceof ReadProblem && error.resumesAt !== undefined
-    ? `${error.message} Limited until ${error.resumesAt.toLocaleString()}.`
-    : undefined;
+  if (!(error instanceof ReadProblem) || error.limited === undefined) {
+    return undefined;
+  }
+  const { reading, resumesAt } = error.limited;
+  return `GitHub's rate limit withheld ${reading}. Limited until ${resumesAt.toLocaleString()}.`;
 }
 
 // Why one later detail of a read, such as a human or a slice clock, is a gap:
-// a read problem says why itself, with when reading resumes when GitHub's
-// rate limit stopped it; a read still unanswered when `signal` aborted (the
-// bound) was so `while reading` what it names; any other failure is said as
-// `unreadable`.
+// a read problem says why itself, or is the limit's gap (`limitGapProblem`)
+// when GitHub's rate limit stopped it; a read still unanswered when `signal`
+// aborted (the bound) was so `while reading` what it names; any other failure
+// is said as `unreadable`.
 export function detailGapProblem(
   error: unknown,
   signal: AbortSignal,

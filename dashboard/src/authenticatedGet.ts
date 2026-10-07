@@ -11,6 +11,7 @@ import {
   authenticatedReadEndpoint,
   commitShaPattern,
   longestDirectedWaitSeconds,
+  notAskedOfGitHub,
 } from "./authenticatedReadRules.ts";
 import { ReadProblem } from "./readProblem.ts";
 import { noteLimit, noteWithheld, standingLimit } from "./readingLimit.ts";
@@ -36,7 +37,8 @@ const errorAnswer = z.object({
 
 // While the page's limit stands (`./readingLimit.ts`), a read is answered as
 // limited here, never asked; a limited answer from the boundary sets or
-// extends that limit, and says when reading resumes.
+// extends that limit. Either limited problem carries `reading` and when
+// reading resumes.
 export async function authenticatedGet(
   query: string,
   reading: string,
@@ -45,10 +47,10 @@ export async function authenticatedGet(
   const standing = standingLimit();
   if (standing !== undefined) {
     noteWithheld();
-    throw new ReadProblem(
-      `GitHub limited the rate of the local GitHub CLI's requests, so ${reading} was not asked of GitHub.`,
-      standing,
-    );
+    throw new ReadProblem(notAskedOfGitHub(reading), {
+      reading,
+      resumesAt: standing,
+    });
   }
   let response: Response;
   try {
@@ -76,9 +78,11 @@ export async function authenticatedGet(
     if (retryAfterSeconds !== undefined && !signal.aborted) {
       noteLimit(retryAfterSeconds);
     }
+    const resumesAt =
+      retryAfterSeconds === undefined ? undefined : standingLimit();
     throw new ReadProblem(
       error,
-      retryAfterSeconds === undefined ? undefined : standingLimit(),
+      resumesAt === undefined ? undefined : { reading, resumesAt },
     );
   }
   return body;

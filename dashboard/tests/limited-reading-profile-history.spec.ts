@@ -57,7 +57,7 @@ test("limiting a profile's history leaves its human unknown in the scan view, na
   await expectSettledPage(page);
   const resumesAt = clockOpened.getTime() + waitSeconds * 1_000;
   const until = await limitedUntil(page, resumesAt);
-  const akihoUnknown = `Human developer unknown. GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading the commit that added ${profilePath("Akiho")} at ${clockRevision}. GitHub asked to wait ${String(waitSeconds)} seconds before asking again. ${until}`;
+  const akihoUnknown = `Human developer unknown. GitHub's rate limit withheld the commit that added ${profilePath("Akiho")} at ${clockRevision}. ${until}`;
   const { taken, problem } = parts(page);
   const akihoCard = taken.getByRole("article", { name: afterTake });
   const yumaCard = taken.getByRole("article", { name: justTaken });
@@ -67,7 +67,7 @@ test("limiting a profile's history leaves its human unknown in the scan view, na
       "Human developer unknown",
     );
     await expect(akihoCard).toContainText(
-      "Current slice time unavailable: GitHub limited the rate of the local GitHub CLI's requests",
+      "Current slice time unavailable: GitHub's rate limit withheld",
     );
     const human = (await inspectedDetail(akihoCard)).locator(".owner-human");
     await expect(human).toHaveText(akihoUnknown);

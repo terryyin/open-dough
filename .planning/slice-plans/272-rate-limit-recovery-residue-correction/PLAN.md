@@ -316,7 +316,7 @@ reads as any ending without a limit.
 ### 3. A detail the limit withheld is labeled one way
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The updated gap assertions in `limited-reading-detail.spec.ts`,
 `limited-reading-profile-history.spec.ts`, and `limit-recovery-detail.spec.ts`.
 Every other file the wording grep lists stays green after updating its
@@ -364,6 +364,24 @@ sentence on how withheld detail is labeled.
 
 Safe stop: Every card says the same thing about a withheld detail, in the
 time the notice shows.
+
+Accepted proof: red before the remedy. The three asserting specs still
+received "…GitHub asked to wait 900 (or 2) seconds…". After the remedy:
+
+- `limited-reading-detail.spec.ts` gives the GitHub-refused seed and the plan
+  the page did not ask the same label and the same `until`. No card text
+  matches `/\d+ seconds/`.
+- `limited-reading-profile-history.spec.ts` shows the human's
+  "Human developer unknown. GitHub's rate limit withheld the commit that
+  added … Limited until …" and the slice clock's label.
+- `limit-recovery-detail.spec.ts` and `limitRecoveryCredit.ts` show the label
+  before recovery and none after it.
+
+The 18 wording-consumer specs passed (62), as did the whole suite (1239) and
+the typecheck. `ReadProblem` now carries `limited: { reading, resumesAt }`.
+Its only reader is `limitGapProblem`. Profiles and done records share that
+path with no per-kind code, and no page case limits them. `notAskedOfGitHub`
+is the one "not asked" producer.
 
 ### 4. Credit recovery journeys name GitHub's requests as the others do
 
