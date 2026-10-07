@@ -17,6 +17,7 @@
 import type { BrowserContext, Page } from "@playwright/test";
 import { test as base, expect } from "./support/pageTest.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
+import { noteRequestsInEveryPage } from "./pageRequestNotes.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -131,6 +132,7 @@ export const test = base.extend<{
   },
   context: async ({ context, github }, use) => {
     githubServing.set(context, github);
+    await noteRequestsInEveryPage(context);
     const directGitHubReads: string[] = [];
     await context.route(
       /^https?:\/\/(?!(localhost|127\.0\.0\.1)[:/])/,

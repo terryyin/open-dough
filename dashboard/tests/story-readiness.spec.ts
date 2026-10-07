@@ -33,6 +33,7 @@ import {
   expectPlanKeyboardDestination,
 } from "./queuedPlanNavigation.ts";
 import { publishTwoSlicesDone } from "./storyReadinessPublications.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
@@ -222,6 +223,9 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
 
     await expectPlanlessDetailAbsentPlan(backlog);
 
+    // The project setting file is read last, with the agent profiles, which
+    // no card here shows as reading.
+    await untilPageReadsAnswered(page);
     const doughnutPaths = contentPathsRead(doughnutOrigin);
     expect(doughnutPaths[0]).toBe("main");
     // main + backlog + planless seed + legacy + malformed + external seeds

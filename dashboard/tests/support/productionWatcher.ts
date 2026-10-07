@@ -36,6 +36,20 @@ export async function productionActivation(
   return { url: match[1], pid: Number(match[2]) };
 }
 
+// Waits for the watcher's first check of main after it reported serving the
+// commit. The watcher retires superseded deployment checkouts before it
+// checks main again, so by then they are gone, however long that took.
+export async function checkedAfterActivation(
+  watcher: ProductionWatcher | undefined,
+  commit: string,
+) {
+  const activatedAt = watcher?.output().search(activationPattern(commit)) ?? -1;
+  expect(activatedAt).toBeGreaterThanOrEqual(0);
+  await expect
+    .poll(() => watcher?.output().slice(activatedAt) ?? "", { timeout: 60_000 })
+    .toContain(`Checked published main: ${commit}.`);
+}
+
 export function outputCount(
   watcher: ProductionWatcher | undefined,
   expression: RegExp,

@@ -12,6 +12,7 @@ import { installFakeClaude } from "./support/fakeClaude.ts";
 import { publishes, startFakeGitHub } from "./support/fakeGitHub.ts";
 import { ownAddress } from "./support/viteAddress.ts";
 import {
+  checkedAfterActivation,
   outputCount,
   productionActivation,
   productionDeployments,
@@ -52,6 +53,8 @@ test("npm watcher replaces production with each newly published main commit at t
   const builds = () => recordedBuilds(fixture.home);
   const count = (expression: RegExp) => outputCount(watcher, expression);
   const activation = (commit: string) => productionActivation(watcher, commit);
+  const checkoutOf = (commit: string) =>
+    expect.stringMatching(new RegExp(`^${commit.slice(0, 12)}-`));
   let watcher: ProductionWatcher | undefined;
   let development: ReturnType<typeof dashboardCommand> | undefined;
   const page = await browser.newPage();
@@ -95,7 +98,7 @@ test("npm watcher replaces production with each newly published main commit at t
     expect(await builds()).toEqual([
       {
         pid: expect.any(Number),
-        checkout: expect.stringMatching(new RegExp(`^${a.slice(0, 12)}-`)),
+        checkout: checkoutOf(a),
       },
     ]);
 
@@ -130,9 +133,7 @@ test("npm watcher replaces production with each newly published main commit at t
     await expect
       .poll(async () => (await builds()).length, { timeout: 180_000 })
       .toBe(2);
-    expect((await builds())[1]?.checkout).toMatch(
-      new RegExp(`^${b.slice(0, 12)}-`),
-    );
+    expect((await builds())[1]?.checkout).toEqual(checkoutOf(b));
     const c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
     await rm(holdBuildPath(fixture.home, 2));
     const switched = await activation(b);
@@ -212,9 +213,8 @@ test("npm watcher replaces production with each newly published main commit at t
     expect(claude.controls.claudeLaunchCalls()).toHaveLength(launchesBefore);
 
     // Superseded checkouts are retired after C serves, not before.
-    await expect
-      .poll(() => readdir(deployments))
-      .toEqual([expect.stringMatching(new RegExp(`^${c.slice(0, 12)}-`))]);
+    await checkedAfterActivation(watcher, c);
+    expect(await readdir(deployments)).toEqual([checkoutOf(c)]);
 
     // SIGTERM while D is in its real build ends that build, the served C
     // preview and every deployment checkout.

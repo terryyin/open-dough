@@ -4,6 +4,7 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { cardLaunchActions, detailToggle } from "./cardControls.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
@@ -138,11 +139,14 @@ export async function expectMembership(
   );
 }
 
-// The page once every shown card's preparation facts are read. Cards come
-// first: until the stages show them -- these titles, or else a first card --
-// no card says it is still reading, as just after a reload, so that absence
-// alone settles nothing. `timeout` bounds only the wait for the reading to
-// end.
+// The page once every shown card's preparation facts are read, and every
+// read it sent the local boundary besides its revision checks is answered:
+// a detail no card shows as reading, such as the agent profiles and project
+// setting file of a project with no Taken entry, has then reached GitHub
+// too. Cards come first: until the stages show them -- these titles, or else
+// a first card -- no card says it is still reading, as just after a reload,
+// so that absence alone settles nothing. `timeout` bounds only the wait for
+// the preparation reading to end.
 export async function expectSettledPage(
   page: Page,
   membership?: { readonly taken: string[]; readonly backlog: string[] },
@@ -156,6 +160,7 @@ export async function expectSettledPage(
   await expect(page.getByText("Reading preparation…")).toHaveCount(0, {
     ...(timeout !== undefined && { timeout }),
   });
+  await untilPageReadsAnswered(page);
 }
 
 // Every Taken card, once the agent profiles beside the backlog are read, says
