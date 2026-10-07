@@ -3,7 +3,8 @@
 // as a developer does, and what the paging journeys
 // (./dashboard-columns-paging*.spec.ts) observe: which columns show and fill
 // the page, which edge controls offer which column, whether cards keep their
-// share of the page, and whether a move slid.
+// share of the page, whether a move slid, and whether the page ends with the
+// shown columns.
 // Journeys reach a hidden column only as a developer does, through an edge
 // control or focus, by `showColumn`; the product has no test-only way in.
 
@@ -84,7 +85,7 @@ export const edgeRoom = 1.75 * rem;
 export async function expectView(
   page: Page,
   shown: readonly ColumnName[],
-  controls: readonly string[],
+  controls: readonly (string | RegExp)[],
   cutByDesign: readonly string[] = [],
 ) {
   await expect(edgeControls(page)).toHaveText([...controls]);
@@ -156,3 +157,69 @@ export async function recordSlides(page: Page) {
 }
 export const slidesOf = (page: Page) =>
   page.evaluate(() => (window as unknown as { slides: number }).slides);
+
+// How long the page is against the columns it shows: as far as it
+// scrolls, read with the wheel as a developer reads, and whether it ends
+// with the shown columns.
+
+// The page's ordinary framing below the columns' end.
+const framing = 3 * rem;
+
+export const scrollYOf = (page: Page) => page.evaluate(() => scrollY);
+export const bottomOf = (page: Page) =>
+  page.evaluate(
+    () =>
+      document.documentElement.scrollHeight -
+      document.documentElement.clientHeight,
+  );
+export const extentOf = (page: Page) =>
+  page.evaluate(() => document.documentElement.scrollHeight);
+
+// Wheels the page to `y` as a developer reads, by exactly as far as is left,
+// so no wheel movement outlasts the read.
+export async function wheelTo(page: Page, y: number) {
+  const left = y - (await scrollYOf(page));
+  if (left !== 0) await page.mouse.wheel(0, left);
+  await expect.poll(() => scrollYOf(page)).toBe(y);
+}
+
+// Where a part ends, measured from the top of the page.
+async function endOf(part: Locator) {
+  const { y, height } = await box(part);
+  return y + height + (await scrollYOf(part.page()));
+}
+
+// A part starts below the pinned banner, not under it.
+export async function expectBelowBanner(part: Locator) {
+  const banner = await box(parts(part.page()).banner);
+  expect((await box(part)).y).toBeGreaterThanOrEqual(banner.y + banner.height);
+}
+
+// Read to its end, the page shows the end of the longest `shown` column, or
+// of its edge controls' room where that is longer, followed by no more than
+// its ordinary framing.
+export async function expectEndsWithShown(
+  page: Page,
+  shown: readonly ColumnName[],
+) {
+  await wheelTo(page, await bottomOf(page));
+  const ends = await Promise.all([
+    ...shown.map((column) => endOf(columnRegion(page, column))),
+    ...(await edgeControls(page).all()).map(endOf),
+  ]);
+  const shownEnd = Math.max(...ends);
+  const blank = (await extentOf(page)) - shownEnd;
+  expect(blank, "blank page below the shown columns").toBeGreaterThanOrEqual(0);
+  expect(blank, "blank page below the shown columns").toBeLessThanOrEqual(
+    framing,
+  );
+}
+
+// A part of a hidden column lies further down than the page reaches: its
+// content is longer than the shown columns' and would leave a blank tail
+// were it counted.
+export async function expectLongerThanThePage(part: Locator) {
+  expect(await endOf(part)).toBeGreaterThan(
+    (await extentOf(part.page())) + framing,
+  );
+}

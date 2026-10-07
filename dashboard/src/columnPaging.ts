@@ -7,7 +7,10 @@
 // column, and the chosen position comes back when the width allows it again.
 // A hidden column also shows when keyboard focus lands in it, or when a part
 // of it is to be brought into view (`showColumnHolding`, ./workFocus.ts
-// `keepInView`): the view moves the fewest columns that show it.
+// `keepInView`): the view moves the fewest columns that show it. Which
+// columns are hidden follows from the same facts (`hidden`), so that hidden
+// columns add nothing to the page's length; focus that showed a column is
+// brought into sight once that column has its length again.
 
 import {
   useCallback,
@@ -34,6 +37,9 @@ export type ColumnPaging = {
   readonly move: (step: 1 | -1) => void;
   readonly sliding: boolean;
   readonly slid: (event: SyntheticEvent) => void;
+  // The columns, counted from 0, that are neither shown nor sliding out of
+  // view.
+  readonly hidden: readonly number[];
 };
 
 // How many of the `columns` the frame's stylesheet says fit right now.
@@ -49,6 +55,14 @@ function columnsShown(frame: Element, columns: number): number {
 // rests past the last of the `columns` while `shown` of them show.
 function leftmostOf(position: number, columns: number, shown: number) {
   return Math.max(0, Math.min(position, columns - shown));
+}
+
+// The columns, counted from 0, outside every one of the views, each the
+// `shown` columns from its leftmost.
+function hiddenFrom(views: readonly number[], shown: number, columns: number) {
+  return [...Array(columns).keys()].filter((column) =>
+    views.every((leftmost) => column < leftmost || column >= leftmost + shown),
+  );
 }
 
 // The position this browser keeps, if a usable one is kept, and otherwise the
@@ -95,7 +109,11 @@ export function useColumnPaging(columns: number): ColumnPaging {
   const [shown, setShown] = useState(columns);
   const [position, setPosition] = useState(readPosition);
   const [sliding, setSliding] = useState(false);
+  // Where a slide started, whose columns stay until it ends.
+  const [slidFrom, setSlidFrom] = useState(0);
   const leftmost = leftmostOf(position, columns, shown);
+  // Focus that landed in a hidden column, brought into sight once it shows.
+  const focused = useRef<Element | undefined>(undefined);
 
   useLayoutEffect(() => {
     const measured = frame.current;
@@ -114,14 +132,15 @@ export function useColumnPaging(columns: number): ColumnPaging {
   // The view moves to a position as a slide, unless the developer asked for
   // reduced motion, where it moves at once and no slide is left waiting to
   // end.
-  const moveTo = useCallback((to: number) => {
+  const moveTo = useCallback((to: number, from: number) => {
     setPosition(to);
     keepPosition(to);
+    setSlidFrom(from);
     setSliding(!prefersReducedMotion());
   }, []);
   const move = useCallback(
     (step: 1 | -1) => {
-      moveTo(leftmostOf(leftmost + step, columns, shown));
+      moveTo(leftmostOf(leftmost + step, columns, shown), leftmost);
     },
     [moveTo, leftmost, columns, shown],
   );
@@ -139,7 +158,9 @@ export function useColumnPaging(columns: number): ColumnPaging {
       const from = leftmostOf(position, columns, fit);
       const to =
         column < from ? column : column >= from + fit ? column - fit + 1 : from;
-      if (to !== from) moveTo(to);
+      if (to === from) return;
+      if (event.type === "focusin") focused.current = event.target;
+      moveTo(to, from);
     };
     for (const asked of ["focusin", showHolding]) {
       moved.addEventListener(asked, show);
@@ -151,9 +172,25 @@ export function useColumnPaging(columns: number): ColumnPaging {
     };
   }, [moveTo, columns, position]);
 
+  // The browser scrolled the focus into view while its column was hidden, so
+  // within the page as long as the shown columns were: now that the column
+  // has its length, the focus is brought the rest of the way, as little as
+  // shows it.
+  useLayoutEffect(() => {
+    const target = focused.current;
+    focused.current = undefined;
+    if (target === undefined || target !== document.activeElement) return;
+    target.scrollIntoView({ block: "nearest", inline: "nearest" });
+  });
+
   const slid = useCallback((event: SyntheticEvent) => {
     if (event.target === event.currentTarget) setSliding(false);
   }, []);
 
-  return { frame, row, shown, leftmost, move, sliding, slid };
+  const hidden = hiddenFrom(
+    sliding ? [leftmost, slidFrom] : [leftmost],
+    shown,
+    columns,
+  );
+  return { frame, row, shown, leftmost, move, sliding, slid, hidden };
 }

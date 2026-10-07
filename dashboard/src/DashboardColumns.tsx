@@ -21,7 +21,8 @@ import "./dashboard-columns.css";
 // control on either side that has a hidden column moves the view to it
 // (./columnPaging.ts), as does focus or a reveal landing in it. Hidden
 // columns stay rendered, in the reading and tab order, cut off at the row's
-// sides.
+// sides, and the row names them (`data-hidden`, counted from 1) so that they
+// add nothing to the page's length.
 export function DashboardColumns({
   sourceId,
   work,
@@ -51,9 +52,8 @@ export function DashboardColumns({
     ...stages.map(({ column }) => column),
     recentlyDoneColumn(recent),
   ];
-  const { frame, row, shown, leftmost, move, sliding, slid } = useColumnPaging(
-    columns.length,
-  );
+  const { frame, row, shown, leftmost, move, sliding, slid, hidden } =
+    useColumnPaging(columns.length);
   const left = columns[leftmost - 1];
   const right = columns[leftmost + shown];
   // The keyboard stays on the edge controls: a control that holds it and is
@@ -96,6 +96,9 @@ export function DashboardColumns({
           ref={row}
           className="dashboard-columns-row"
           data-sliding={sliding || undefined}
+          data-hidden={
+            hidden.map((column) => column + 1).join(" ") || undefined
+          }
           style={{ "--leftmost": leftmost } as CSSProperties}
           onTransitionEnd={slid}
           onTransitionCancel={slid}

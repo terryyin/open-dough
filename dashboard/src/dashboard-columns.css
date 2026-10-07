@@ -51,6 +51,23 @@
   }
 }
 
+/* A hidden column, named by its place on the row (`data-hidden`), keeps its
+   place across the row, its content, and its tab stops, but adds no length
+   to the page: the page is as long as the shown columns, and a column shown
+   again has all its length back. Nothing in it anchors the page's scroll
+   position, so hiding it never moves the shown columns. */
+.dashboard-columns-row[data-hidden~="1"] > .stages > :nth-child(1),
+.dashboard-columns-row[data-hidden~="2"] > .stages > :nth-child(2),
+.dashboard-columns-row[data-hidden~="3"] > .recently-done {
+  height: 0;
+  contain: size;
+  overflow: clip;
+  margin-block: 0;
+  border-block: none;
+  padding-block: 0;
+  overflow-anchor: none;
+}
+
 /* Backlog and Taken take the row's first two columns. */
 .dashboard-columns .stages {
   display: grid;

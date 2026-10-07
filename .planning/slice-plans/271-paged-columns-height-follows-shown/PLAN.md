@@ -134,7 +134,7 @@ disposable probe as proof of delivery.
 ### 1. Reading and revealing columns uses only their shown content height
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: every promise in the ownership table, through the new height journey,
 the extended keyboard/sidebar journeys, and the regression command below.
 
@@ -165,6 +165,37 @@ proof is green. A height-only result that leaves a focused or selected item
 clipped is incomplete. If the chosen layout needs materially different
 structure, return the new evidence for in-place plan reassessment rather than
 adding a competing visibility or scrolling system.
+
+Accepted proof (execution `bas-chan` on
+`claude/the-page-ends-where-the-shown-dashboard-columns`):
+
+- Product: `columnPaging.ts` derives `hidden` from `leftmost`/`shown`
+  (a slide's start columns stay until `slid`) and, after a `focusin` move,
+  scrolls the still-focused target nearest in a layout effect;
+  `DashboardColumns.tsx` names hidden columns on the row (`data-hidden`);
+  `dashboard-columns.css` collapses them (`height: 0; contain: size;
+  overflow: clip`, block framing removed, `overflow-anchor: none`).
+- Examples 1–2, 4 (inspection, arrival), 5: new
+  `dashboard-columns-height.spec.ts`, three journeys failing red before the
+  product change: hidden 40-entry Recently done and inspection grow/shrink;
+  `heldFactGroups(page, { moreDone: 40 })` release with
+  `expectLongerThanThePage` and unchanged extent; `largeBacklog` positive clamp
+  below 1500, kept position, wide and one-column ends.
+- Example 3 and sticky/edge preservation: `dashboard-columns-paging.spec.ts`
+  (clamp, Taken heading below banner, kept position, stuck Backlog heading at
+  1500; reading-order regions while hidden; Shift+Tab control below banner and
+  end reachable — fails with the nearest scroll disabled);
+  `dashboard-columns-paging-sessions-sidebar.spec.ts` (Backlog whole length
+  after the sidebar choice, `keepInView` unchanged).
+  `accessible-overview.spec.ts` now shows Taken before measuring a card inside
+  it, since hidden geometry intentionally collapses.
+- Commands: the plan's 47-spec consumer command plus
+  `published-facts-arrival`, `published-facts-failures`,
+  `accessible-overview-keyboard`, `agent-launch-dialog-layout`,
+  `frame-launch-look`, `side-panel-width-stacking` passed (exit 0), with ten
+  further narrow-viewport consumers; after refactor and lint repair, height,
+  paging, sidebar, kept, side-panel, accessible-overview and published-facts
+  specs and `npm run typecheck:dashboard` passed.
 
 ## Verification and delivery
 
@@ -268,6 +299,12 @@ slice-boundary, cumulative-design, or proof-ownership concern. All delivery
 proof remains planned, not completed.
 
 ## Learnings
+
+Collapsing a hidden column also needs `overflow-anchor: none`: otherwise
+Chrome's scroll anchoring can pick an anchor inside the column being hidden
+and shift the shown columns after a move. Test wheels should travel exactly
+the remaining distance; overshooting leaves Chromium's wheel animation
+running, which moves the page once it grows.
 
 Excluding hidden extent changes the range available to the browser's native
 focus scroll. Restoring the column and then finishing the reveal is necessary;
