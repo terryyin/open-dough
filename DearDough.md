@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 251. Removed local codes are never reused.
+- Highest allocated local number: 252. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -975,3 +975,24 @@ Follow-up: Open, unqueued.
   - Evidence: slice 4's format output contained "Format failed: unresolved findings or tool failures remain" and `agent-commit.mjs` then returned `commit-failed` for two `'_' is defined but never used` errors in new specs; slice 7's filtered format output showed "Async arrow function has no 'await' expression" and the commit was refused the same way. Each was fixed, re-proved with the touched spec and the typecheck, and committed.
   - Observed effect: two refused commits and two short fix cycles; no unproved change was published.
   - Inference: Qualified. Wrap-up step 4 already requires formatting success before staging; filtering the formatter's output hid its exit status. Telling delegated agents the hook's lint rules, or checking the formatter's exit before staging, would avoid it.
+- Execution: `SEED-106#paged-columns-height-follows-shown` / plan 271, first related implementation commit `c9106b78`
+  - Timestamp: unknown (between the refactor return and commit `c9106b78` at 2026-10-07T22:55:17+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: both delegated returns noted only Prettier findings; the coordinator's `npm run format 2>&1 | tail; echo rc=$?` printed `rc=0` beside "Format failed" and three `'_' is defined but never used` errors (`Array.from({ length }, (_, i) => …)` in `columnPaging.ts` and two test files). The coordinator read the text, rewrote them as `[...Array(n).keys()]`, reformatted, and reran seven affected specs plus the typecheck before committing.
+  - Observed effect: no refused commit this time; one extra format and proof cycle after the refactor pass.
+  - Inference: Qualified. Same rule and pipe masking as the earlier row; reading the text rather than the exit caught it. Recurrence across executions supports telling delegated agents the lint rule or giving them a read-only lint check.
+
+## DD-252 — New page-geometry assertions were accepted on single runs, then failed CI on font metrics and under repetition
+
+### Occurrences
+
+- Execution: `SEED-106#paged-columns-height-follows-shown` / plan 271, first related implementation commit `c9106b78`
+  - Timestamp: 2026-10-07T13:57:20Z (CI failure in run 37632417898, `dashboard (5/9)`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: `dashboard-columns-height.spec.ts:216` required the whole last card `toBeInViewport({ ratio: 1 })` in a 480px window; with Linux fonts the card is about 440px (macOS about 360px), ratio 0.989. Repair stress `…:173 --repeat-each=30 --workers=4` at `c9106b78` failed 16 of 30 (clamp read before cards settled). Repair `62b21604` asserts the card's end and waits with `expectSettledPage`.
+  - Observed effect: one red CI run, one stash/repair/refactor/publish cycle (repair agent about 130k tokens, 49 minutes under machine load).
+  - Inference: Qualified. Both slice acceptance and the refactor pass reran new journeys once; a short `--repeat-each` stress of newly written geometry tests, and asserting a reachable edge rather than a whole element against a small window, would likely have caught both.

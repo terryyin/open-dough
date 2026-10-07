@@ -205,6 +205,15 @@ Accepted proof (execution `bas-chan` on
   --repeat-each=8 --workers=4` and the height, paging and sidebar specs
   passed.
 
+## Execution complete
+
+Product advice: no correction is needed; the delivered rule covers all five
+key examples, and the CI repair changed tests only. Keep the queued
+[reveal/count correction](../../seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction)
+at its place; when it runs, route its structural reveal through the same
+`columnPaging.ts` shown-membership and post-layout focus reveal rather than a
+second visibility rule.
+
 ## Verification and delivery
 
 Run from this workspace's repository root. Dependencies were installed here
