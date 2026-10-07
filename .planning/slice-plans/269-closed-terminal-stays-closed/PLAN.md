@@ -184,3 +184,9 @@ its header comment; the `AGENT-LAUNCH.md` sentence.
   makes once, so the panel check right after the announcement observes it.
 - The withholding route's `route.fetch` must restate
   `sec-fetch-site: same-origin`, or the server answers 403.
+
+## Execution complete
+
+Product advice: no change. The story's deferred case — a different session's
+terminal open when the launch finishes is replaced — stays deferred; no
+evidence from this execution asks to revisit it.
