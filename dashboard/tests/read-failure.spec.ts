@@ -107,7 +107,7 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
     await expectProblemAndNoSnapshot(page, problem, undefined, recovery);
     if (recovery !== undefined) {
       await expect(parts(page).problem).toContainText(
-        "Reload the page after that time to read again.",
+        "This page reads the published work then, or when it is next seen.",
       );
     }
   });

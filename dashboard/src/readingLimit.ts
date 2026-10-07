@@ -5,8 +5,9 @@
 // limited itself, without asking. A further limited answer only moves it
 // later; nothing but its time ends it, and it outlives the observed project,
 // since the limit is the login's, not a project's. The revision check
-// schedule (`./revisionCheckSchedule.ts`) and the page's notice
-// (`./PublishedReadStatus.tsx`) read it.
+// schedule (`./revisionCheckSchedule.ts`), the page's notice
+// (`./PublishedReadStatus.tsx`), and the recovery that reads what the limit
+// withheld once it ends (`./limitRecovery.ts`) read it.
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 

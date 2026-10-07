@@ -549,7 +549,7 @@ support.
 ### 7. A page reads on its own what the limit withheld
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/limit-recovery.spec.ts` through `dashboardTest.ts`,
 with `limited-reading-*.spec.ts`, `auto-refresh-rate-limit.spec.ts`,
 `reopened-project-reads.spec.ts`, `auto-refresh-visibility.spec.ts`, and
@@ -589,6 +589,22 @@ the wording slice 6 left about reloading, and complete the request
 accounting.
 
 Safe stop: A limit costs the developer a wait, not a reload of every tab.
+
+Done: `snapshotRetrieval.ts` keeps "withheld" per observation (set whenever a
+limit met the read, cleared when a read is asked); `useLimitRecovery`
+(`src/limitRecovery.ts`) asks the fresh read when the limit ends on a page not
+hidden, and otherwise lets the check run as today. The server remembers a
+profile's history listing at its revision, so a walk a refusal ended resumes
+from the refused step. The notice no longer asks for a reload. Accepted proof:
+`limit-recovery-{detail,tabs,check,credit-history,credit-commit}.spec.ts`
+(20/20 on repeat; removing the hidden-page condition or the listing memo each
+fail one) with the named regressions and a green whole suite. Departure from
+the plan's "the withheld paths only": the recovery read is the fresh read a
+reload makes, so a record that failed for another reason, or was answered
+missing, is asked again too; the story's "content already read is not asked
+again" holds, and such a gap stays while GitHub keeps failing it. Untested: a
+recorded story branch during recovery (rests on `reopened-project-reads`), and
+a recovery read the 30-second bound ends.
 
 ## Verification, sizing, and delivery
 

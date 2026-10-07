@@ -7,6 +7,7 @@ import { expect, githubFor, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import {
+  isContent,
   openedBeside,
   waitSeconds,
   whileTheLimitStands,
@@ -24,10 +25,6 @@ import {
   withheldTitle,
 } from "./limitedReadingRecords.ts";
 import { publishes } from "./support/fakeGitHub.ts";
-import type { GhRequest } from "./support/ghRequest.ts";
-
-const isContent = (path: string) => (request: GhRequest) =>
-  request.kind === "content" && request.path === path;
 
 test("limiting a detail read keeps the snapshot, labels what the limit withheld, says once when reading resumes, and asks nothing until then", async ({
   page,
@@ -67,7 +64,7 @@ test("limiting a detail read keeps the snapshot, labels what the limit withheld,
     await expect(page.getByText(/could not be read for/)).toHaveCount(0);
     await expect(problem).toHaveCount(1);
     await expect(problem).toContainText(
-      "Detail the limit withheld is labeled where it is shown; reload the page after that time to read it.",
+      "Detail the limit withheld is labeled where it is shown; this page reads it then, or when it is next seen.",
     );
     expect(await noticedResumeTime(page)).toBe(resumesAt);
     const asked = githubFor(page).calls.map(({ request }) => request);

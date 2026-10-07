@@ -143,13 +143,17 @@ export class PinnedTexts {
 
   // Which commit added a profile's current allocation as of a commit, and
   // who committed it, remembered the same way under the path with a trailing
-  // NUL. What each walked commit changed about the path is remembered under
-  // that commit, so a later revision's walk asks GitHub only for its list.
+  // NUL. Each step of the walk is remembered too: the path's history as of
+  // the commit, and what each walked commit changed about the path under
+  // that commit. So a walk a failure ended asks GitHub again only from the
+  // step that failed, and a later revision's walk asks only for its list.
   adder(source: PublishedSource, revision: string, signal: AbortSignal) {
     return (path: string): Promise<ProfileAddition> =>
       this.recalledJson(source, revision, `${path}\0added`, async () =>
         findAddition(
-          await listPathCommitsViaGh(source.repository, path, revision, signal),
+          await this.recalledJson(source, revision, `${path}\0history`, () =>
+            listPathCommitsViaGh(source.repository, path, revision, signal),
+          ),
           (commit) =>
             this.recalledJson(source, commit, `${path}\0change`, () =>
               commitChangeViaGh(source.repository, commit, path, signal),

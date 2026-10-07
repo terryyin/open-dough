@@ -5,19 +5,21 @@
 // when launch reconciliation asks to read afresh, and when a scheduled
 // revision check (`./revisionCheckSchedule.ts`) finds the selected ref naming
 // another commit; when it finds a story branch the shown progress is read from
-// at another head, only that progress is read again
-// (`./movedBranchProgress.ts`). What is shown, as launch reconciliation sees
-// it (`shown`), also says whether every detail of it has been read.
+// at another head, only that progress is read again. Each read is carried
+// out by `./requestedRead.ts`. What GitHub's rate limit withheld is read
+// again once it ends (`./limitRecovery.ts`). What is shown, as launch
+// reconciliation sees it (`shown`), also says whether every detail of it has
+// been read.
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
-import { readMovedProgress } from "./movedBranchProgress.ts";
 import { watchedBranchHeads } from "./progressSource.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { readPublishedWork } from "./publishedWorkRead.ts";
+import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
+import { useLimitRecovery } from "./limitRecovery.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
@@ -32,15 +34,6 @@ import {
 // No snapshot shown, so no story branch watched.
 const noBranchHeads: StoryBranchHeads = new Map();
 
-// A read of the selected project: of its ref afresh, or of a revision a check
-// already found the ref naming; or, while the ref is unchanged, of only the
-// progress on story branches a check found at other heads.
-type ReadRequest = {
-  readonly asked: number;
-  readonly revision: string | undefined;
-  readonly movedBranches?: StoryBranchHeads;
-};
-
 export function usePublishedObservation(initialSource: PublishedSource) {
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
@@ -49,7 +42,8 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     retrieval,
     show,
     completeDetail,
-    withholdDetail,
+    withhold,
+    readAgain,
     clearNotice,
     clear,
   } = useSnapshotRetrieval();
@@ -80,73 +74,24 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   shownWork.current = retrieval.work;
   useEffect(() => {
     const reading = new AbortController();
-    const { movedBranches } = readRequest;
-    const shown = shownWork.current;
-    // Whether the limit met any of this read: its detail was then withheld.
+    // Whether the limit met any of this read: what it asked was then
+    // withheld.
     const limitMet = limitsMetSince();
-    const noteWithheldDetail = () => {
-      if (limitMet()) withholdDetail();
-    };
-    const publishWork = (next: PublishedWork, firstMembership = false) => {
-      const held = focusedWork();
-      heldFocus.current = held;
-      show(next, firstMembership ? unlistedNotice(held, next) : undefined);
-    };
-    if (movedBranches !== undefined && shown !== undefined) {
-      readMovedProgress(shown, movedBranches, reading.signal).then(
-        (read) => {
-          if (!reading.signal.aborted) {
-            publishWork(read);
-            noteWithheldDetail();
-            setReadSettled(true);
-          }
-        },
-        (error: unknown) => {
-          if (!reading.signal.aborted) {
-            fail(error);
-            noteWithheldDetail();
-            setReadSettled(true);
-          }
-        },
-      );
-      return () => {
-        reading.abort();
-      };
-    }
-    let acceptedMembership = false;
-    const acceptProgress = (partial: PublishedWork) => {
-      if (reading.signal.aborted) {
-        return;
-      }
-      const firstMembership = !acceptedMembership;
-      acceptedMembership = true;
-      if (firstMembership) acceptMembership();
-      publishWork(partial, firstMembership);
-    };
-    readPublishedWork(
-      source,
-      reading.signal,
-      acceptProgress,
-      readRequest.revision,
-    ).then(
-      (read) => {
-        acceptProgress(read);
-        if (!reading.signal.aborted) {
-          completeDetail();
-          noteWithheldDetail();
-          setReadSettled(true);
-          settleRevealed();
-        }
+    carryOutRead(readRequest, source, shownWork.current, reading.signal, {
+      show: (next, firstMembership) => {
+        const held = focusedWork();
+        heldFocus.current = held;
+        show(next, firstMembership ? unlistedNotice(held, next) : undefined);
       },
-      (error: unknown) => {
-        if (!reading.signal.aborted) {
-          fail(error, acceptedMembership);
-          if (acceptedMembership) noteWithheldDetail();
-          setReadSettled(true);
-          settleRevealed();
-        }
+      acceptMembership,
+      completeDetail,
+      fail,
+      settle: (revealing) => {
+        if (limitMet()) withhold();
+        setReadSettled(true);
+        if (revealing) settleRevealed();
       },
-    );
+    });
     return () => {
       reading.abort();
     };
@@ -157,6 +102,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   const askRead = (revision: string | undefined) => {
     startReading();
     clearNotice();
+    readAgain();
     setReadSettled(false);
     setReadRequest((last) => ({ asked: last.asked + 1, revision }));
   };
@@ -182,11 +128,20 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     [work],
   );
 
+  const { checksMayRun } = useLimitRecovery({
+    withheld,
+    readSettled,
+    visibility,
+    readAfresh: () => {
+      askRead(undefined);
+    },
+  });
+
   useRevisionCheckSchedule({
     source,
     shownRevision: work?.revision,
     watchedHeads,
-    readSettled,
+    readSettled: checksMayRun,
     visibility,
     onChanged: askRead,
     onBranchesMoved: askMovedProgress,

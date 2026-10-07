@@ -58,3 +58,28 @@ Status: planned
 Proof: A journey observes slice 1.
 `,
 };
+
+// The same records with a third story whose record GitHub cannot be reached
+// for, for the recovery journeys (limit-recovery-*.spec.ts): a gap that
+// another failure left, not the limit.
+export const unreachableTitle = "A story whose record could not be reached";
+export const unreachableSeed = ".planning/seeds/SEED-264-unreachable.md";
+export const unreachableGap =
+  "The canonical record could not be read for preparation facts.";
+export const titlesBesideUnreachable = {
+  taken: [],
+  backlog: [withheldTitle, plannedTitle, unreachableTitle],
+};
+export const filesBesideUnreachable = {
+  ...files,
+  [backlogPath]: `${files[backlogPath]}- [${unreachableTitle}](seeds/SEED-264-unreachable.md#unreachable) — SEED-264#unreachable
+`,
+  [unreachableSeed]: `# Unreachable
+
+<a id="unreachable"></a>
+
+### ${unreachableTitle}
+
+**Identity:** SEED-264#unreachable
+`,
+};

@@ -42,23 +42,35 @@ import type { GhRequest } from "./support/ghRequest.ts";
 
 // GitHub's limit, directing a wait no journey waits out.
 export const waitSeconds = 900;
-const limited = rateLimitedAnswer(429, { "Retry-After": String(waitSeconds) });
+
+// A request for the record at `path`.
+export const isContent = (path: string) => (request: GhRequest) =>
+  request.kind === "content" && request.path === path;
 
 const doughnutTitles = { taken: [], backlog: [doughnutSharedTitle] };
 
 // GitHub's answers from `published`, except that each request `limit` picks
-// is refused with the long directed wait -- once every request `after`
-// picks has reached GitHub, so those are answered as GitHub answers them.
+// is refused with the directed wait, `directed` seconds unless a journey
+// waits it out -- once a request each of `after` picks has reached GitHub,
+// so those are answered as GitHub answers them. Lifted, nothing more is
+// refused, and `lift` says when, by the real clock: the server's wait began
+// when it received GitHub's refusal, before the page was answered as limited,
+// so waiting from then outlasts it.
 // Says when, by the real clock, the first refusal was given.
-export function limiting(page: Page, published: RepositoryAnswerer) {
+export function limiting(
+  page: Page,
+  published: RepositoryAnswerer,
+  directed = waitSeconds,
+) {
+  const limited = rateLimitedAnswer(429, { "Retry-After": String(directed) });
   let picked: ((request: GhRequest) => boolean) | undefined;
-  let after: ((request: GhRequest) => boolean) | undefined;
+  let after: readonly ((request: GhRequest) => boolean)[] = [];
   let refusedAt: number | undefined;
   const reached = (wanted: (request: GhRequest) => boolean) =>
     githubFor(page).calls.some(({ request }) => wanted(request));
   const answer: RepositoryAnswerer = async (call) => {
     if (picked?.(call.request) !== true) return published(call);
-    while (after !== undefined && !reached(after)) {
+    while (!after.every(reached)) {
       await new Promise((resolve) => setTimeout(resolve, 20));
     }
     refusedAt ??= Date.now();
@@ -68,10 +80,14 @@ export function limiting(page: Page, published: RepositoryAnswerer) {
     answer,
     limit(
       chosen: (request: GhRequest) => boolean,
-      once?: (request: GhRequest) => boolean,
+      ...once: readonly ((request: GhRequest) => boolean)[]
     ) {
       picked = chosen;
       after = once;
+    },
+    lift() {
+      picked = undefined;
+      return Date.now();
     },
     refusedAt: () => refusedAt ?? Number.NaN,
   };
@@ -174,7 +190,7 @@ export async function whileTheLimitStands(
       page,
       doughnutWithheld,
       doughnutRepository,
-      "Reload the page after that time to read again.",
+      "This page reads the published work then, or when it is next seen.",
     );
     expect(await noticedResumeTime(page)).toBe(resumesAt);
     expect(sent).toEqual([]);
@@ -186,7 +202,7 @@ export async function whileTheLimitStands(
       page,
       doughnutWithheld,
       doughnutRepository,
-      "Reload the page after that time to read again.",
+      "This page reads the published work then, or when it is next seen.",
     );
     await expectSameResumeTime(page, resumesAt, refusedAt);
     expect(sent).toHaveLength(1);

@@ -1,8 +1,9 @@
 // What the published observation (`./publishedObservation.ts`) shows of its
 // last snapshot, apart from the latest attempt (`./observationAttempt.ts`):
 // the snapshot, whether every detail of it is read, whether GitHub's rate
-// limit withheld any of that detail (`./readingLimit.ts`), and a notice said
-// once when a new snapshot no longer lists the work that held focus.
+// limit (`./readingLimit.ts`) withheld anything its latest read asked -- the
+// membership, when nothing is shown, or a detail of what is -- and a notice
+// said once when a new snapshot no longer lists the work that held focus.
 
 import { useState } from "react";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -13,6 +14,8 @@ type Retrieval = {
   readonly work: PublishedWork | undefined;
   readonly notice: string;
   readonly complete: boolean;
+  // The limit withheld something the latest read asked, so the page reads
+  // again once the limit ends.
   readonly withheld: boolean;
 };
 
@@ -39,8 +42,12 @@ export function useSnapshotRetrieval() {
     completeDetail: () => {
       setRetrieval((last) => ({ ...last, complete: true }));
     },
-    withholdDetail: () => {
+    withhold: () => {
       setRetrieval((last) => ({ ...last, withheld: true }));
+    },
+    // A new read is asked: it notes again whatever the limit withholds of it.
+    readAgain: () => {
+      setRetrieval((last) => ({ ...last, withheld: false }));
     },
     clearNotice: () => {
       setRetrieval((last) => ({ ...last, notice: "" }));

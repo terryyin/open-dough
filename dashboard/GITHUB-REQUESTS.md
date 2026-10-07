@@ -10,8 +10,10 @@ at that revision for preparation and detail, and, once per revision, one listing
 record directory plus one per done record listed there, one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
-its addition (usually one). What a commit changed is remembered by commit, so
-at a later revision an unchanged profile costs only its history listing. Each
+its addition (usually one). A history listing is remembered at its revision,
+and what a commit changed is remembered by commit, so a walk a failure or a
+rate limit ended asks again only from the step that failed, and at a later
+revision an unchanged profile costs only its history listing. Each
 GitHub account matched to a credited human costs one unauthenticated read of
 its avatar image from GitHub's avatar host while the dashboard process runs,
 which does not use the `gh` allowance; a failed avatar read is asked again
@@ -61,6 +63,20 @@ others are answered as limited; answered, the others proceed up to eight at
 once. A request waiting its turn when a wait starts is answered as limited and
 never asked. A separately launched dashboard does not know of the wait
 and asks at once.
+
+When the wait ends, each visible page asks again on its own, and a page
+hidden then asks when it is next seen; nothing waits for a reload. A page
+whose snapshot met the limit only in a revision check makes its next check,
+one request. A page that showed nothing, or whose snapshot's detail the limit
+withheld, reads the configured ref afresh as a reload does: one request for
+the ref, one per recorded story branch head, one per request the limit
+withheld (a record, a history listing, or the commits walked from the step
+the limit refused), and one per record GitHub answered as missing, or failed
+to answer, at that revision; content already read is not asked again, so a
+credited human and its Take clock withheld at an unchanged trunk revision
+cost only their history's unanswered steps. Pages recovering together share
+each request outstanding for them all, and the first goes alone as after any
+wait.
 
 A listed story whose latest launch on this machine settled, published at a
 revision other than the one shown, and is not yet reconciled on the page costs
