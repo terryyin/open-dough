@@ -204,6 +204,12 @@ Accepted proof (execution `bas-chan` on
   the page at its true bottom. `dashboard-columns-height.spec.ts
   --repeat-each=8 --workers=4` and the height, paging and sidebar specs
   passed.
+- CI repair (run 37640824194, `dashboard (5/9)`, existing
+  `agent-completion-identity.spec.ts`): the spec snapshotted the launch store
+  and made it read-only while the first report's native Done was still
+  writing after its receipt. It now waits until that record's pending
+  `doneProblem` clears and the store lock is released. Test-only; 1 of 40
+  failed before, 80 and 40 repeated runs passed after.
 
 ## Execution complete
 
