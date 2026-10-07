@@ -73,7 +73,10 @@ export function usePublicationContainment(
   const [problems, setProblems] = useState<ReadonlyMap<string, string>>(
     new Map(),
   );
-  const asking = useRef(new Set<string>());
+  // Each question outstanding or answered, and each failure by the snapshot
+  // it failed for, noted the moment it settles: an effect committed before
+  // React shows the settled answer must not ask it again.
+  const asked = useRef(new Set<string>());
   const unmounted = useRef(new AbortController());
   useEffect(() => {
     const ended = new AbortController();
@@ -87,9 +90,8 @@ export function usePublicationContainment(
     const ended = unmounted.current.signal;
     for (const key of JSON.parse(wanted) as string[]) {
       const failedNow = `${key}@${String(generation)}`;
-      if (answers.has(key) || problems.has(failedNow)) continue;
-      if (asking.current.has(key)) continue;
-      asking.current.add(key);
+      if (asked.current.has(key) || asked.current.has(failedNow)) continue;
+      asked.current.add(key);
       const [sourceId, accepted, revision] = JSON.parse(key) as string[];
       void readContainment(
         sourceId ?? "",
@@ -98,19 +100,23 @@ export function usePublicationContainment(
         ended,
       ).then(
         (contained) => {
-          asking.current.delete(key);
-          if (!ended.aborted)
-            setAnswers((now) => new Map(now).set(key, contained));
+          if (ended.aborted) {
+            asked.current.delete(key);
+            return;
+          }
+          setAnswers((now) => new Map(now).set(key, contained));
         },
         (error: unknown) => {
-          asking.current.delete(key);
+          asked.current.delete(key);
           if (ended.aborted) return;
+          asked.current.add(failedNow);
           const said = error instanceof Error ? error.message : String(error);
           setProblems((now) => new Map(now).set(failedNow, said));
         },
       );
     }
-  }, [wanted, generation, answers, problems]);
+    // A failure noted asks again for a later snapshot already shown.
+  }, [wanted, generation, problems]);
   return {
     contained: (question) => answers.get(keyOf(question)),
     problem: (question) =>
