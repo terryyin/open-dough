@@ -1,6 +1,7 @@
 // Actual page/xterm renders native startup then shared transport/reconnect lifecycle.
 import { writeFileSync, readFileSync } from "node:fs";
 import path from "node:path";
+import type { Page } from "@playwright/test";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
@@ -29,6 +30,16 @@ test.beforeAll(async () => {
   journey = await publishStoryStagesJourney();
 });
 test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+
+// Opens the journey once its preparation is read and the boundary launch's
+// start has reconciled: until then Backlog cards shrink as they settle, which
+// moves Recently done under a press and loses its click.
+async function settledAfterBoundaryLaunch(page: Page) {
+  const opened = await openStoryStagesJourney(page, journey);
+  await opened.settled();
+  await expect(page.getByText(/this story's actions/)).toHaveCount(0);
+  return opened;
+}
 
 test("rendered readiness preserves hook review and done intent, then keyboard/resize/detach/reconnect retain identity", async ({
   page,
@@ -59,7 +70,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     doneAt: "2026-10-01T00:00:00Z",
   }));
   writeFileSync(file, JSON.stringify(state));
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card } = await settledAfterBoundaryLaunch(page);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
@@ -191,7 +202,7 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
     doneAt: "2026-10-01T00:00:00Z",
   }));
   writeFileSync(file, JSON.stringify(state));
-  await openStoryStagesJourney(page, journey);
+  await settledAfterBoundaryLaunch(page);
   codexTerminalMode(native, "partial");
   await parts(page)
     .recentlyDone.getByRole("article")
