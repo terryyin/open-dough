@@ -53,7 +53,7 @@ const failedOpenings: { when: string; origin: Origin; problem: string }[] = [
     when: "GitHub limits the rate with HTTP 429",
     origin: { ref: rateLimitedAnswer(429) },
     problem:
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. Wait before reloading the page.",
+      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub named no wait, so reading resumes in 60 seconds.",
   },
   {
     when: "the ref answer names no commit",

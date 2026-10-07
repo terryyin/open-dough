@@ -15,7 +15,7 @@ import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
-import { rateLimitedAnswer } from "./originAnswers.ts";
+import { noConnection } from "./originAnswers.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import {
@@ -177,7 +177,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await expectNoSidewaysScrollAndWholeText(page);
   await legend.getByRole("button", { name: "Close" }).click();
 
-  const restore = origin.answerWith("main", rateLimitedAnswer());
+  const restore = origin.answerWith("main", noConnection);
   await passTimeUntilChecked(page, 502);
   const { problem, source } = parts(page);
   await expect(problem).toContainText("Published work could not be read");

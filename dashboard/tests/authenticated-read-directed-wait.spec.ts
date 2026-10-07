@@ -3,8 +3,9 @@
 // refuses -- a content read, a directory listing, a history read, a ref
 // resolution, or a branch-head resolution -- the answer says GitHub asked to
 // wait and carries that wait, whether GitHub directed it with `Retry-After` or
-// with a reset time once nothing remains. A rate limit that directs nothing,
-// an unmarked `403`, and a `404` carry no wait. Tested directly against real
+// with a reset time once nothing remains. An unmarked `403` and a `404` carry
+// no wait. A rate limit that directs nothing waits as the process backs off:
+// ./authenticated-read-backoff.spec.ts. Tested directly against real
 // HTTP and the synthetic `gh` (./support/sharedReads.ts publishes the
 // revision). The direction's validation and bound, and the check's and
 // comparison's own refusals:
@@ -176,23 +177,9 @@ test.describe("authenticated read boundary: every refused read reports the wait 
     );
   });
 
-  test("a rate limit directing nothing, an unmarked 403, and a 404 carry no wait, and the refusals keep their access advice", async () => {
+  test("an unmarked 403 and a 404 carry no wait, and the refusals keep their access advice", async () => {
     const [content] = readKinds;
     if (content === undefined) throw new Error("no content read");
-    const undirectedAt = revisionOf("7c");
-    expect(
-      await refusedRead(content, undirectedAt, rateLimitedAnswer()),
-    ).toEqual({
-      status: 502,
-      body: {
-        error: limited(
-          403,
-          content.reading(undirectedAt),
-          "Wait before reloading the page.",
-        ),
-      },
-    });
-
     const forbiddenAt = revisionOf("8d");
     expect(
       await refusedRead(content, forbiddenAt, {

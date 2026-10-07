@@ -12,24 +12,35 @@
 // `./localOrigin.ts`'s request-refusal concern: everything here already
 // trusts that the request was allowed to reach this point.
 
-import { execFile, type ExecException } from "node:child_process";
+import { execFile } from "node:child_process";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { readAnswer, type GhAnswer } from "./ghAnswer.ts";
 import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
 import { ReadAdmission } from "./readAdmission.ts";
 
+// A duration a test may shorten through the environment, to observe it
+// without waiting out the production value, which stays whenever the
+// environment says nothing usable.
+function configuredMs(variable: string, productionMs: number): number {
+  const configured = Number(process.env[variable]);
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : productionMs;
+}
+
 // How long one boundary request may wait for its `gh` answers before it is
 // given up (`./trackedGh.ts`), and how long one `gh` call may run from its
 // start however many requests wait on it: the shared read wait bound
-// (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`). A test may
-// shorten this through the environment to observe termination without
-// waiting out the production bound, which stays the shared bound whenever
-// the environment says nothing.
+// (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`).
 export function readTimeoutMs(): number {
-  const configured = Number(process.env["DOUGH_READ_TIMEOUT_MS"]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : readWaitLimitMs;
+  return configuredMs("DOUGH_READ_TIMEOUT_MS", readWaitLimitMs);
+}
+
+// How long this process first waits after a rate limit that directs no
+// wait (`./readAdmission.ts`), doubling while the limit continues: GitHub's
+// own guidance of at least one minute.
+function limitBackoffBaseMs(): number {
+  return configuredMs("DOUGH_LIMIT_BACKOFF_MS", 60_000);
 }
 
 // Why a `gh` call did not answer, as far as this boundary can say without
@@ -42,12 +53,15 @@ export type GhFailureReason =
   | {
       readonly kind: "rate-limited";
       readonly status: number;
-      // How long GitHub asked this login to wait before asking again, when
-      // its answer said so (`./rateLimitDirection.ts`); already validated and
-      // bounded, never a header value as GitHub sent it.
-      readonly waitSeconds?: number;
+      // How long this process waits before asking GitHub again
+      // (`./readAdmission.ts`): the wait GitHub directed
+      // (`./rateLimitDirection.ts`), already validated and bounded, never a
+      // header value as GitHub sent it; or, marked `backoff`, this process's
+      // own when GitHub directed none.
+      readonly waitSeconds: number;
+      readonly backoff?: true;
     }
-  // Not asked of GitHub at all: a rate limit GitHub directed earlier still
+  // Not asked of GitHub at all: a rate limit GitHub met earlier still
   // holds back every read of this process (`./readAdmission.ts`) for these
   // whole seconds. Never GitHub's status, so never an absence either.
   | { readonly kind: "held-back"; readonly waitSeconds: number }
@@ -65,9 +79,9 @@ export class GhFailure extends Error {
   }
 }
 
-// A read GitHub's rate limit stopped: GitHub refused it, or a wait GitHub
-// directed earlier held it back unasked. Either says nothing of what was
-// asked, so it fails the read rather than standing for any answer.
+// A read GitHub's rate limit stopped: GitHub refused it, or a rate limit met
+// earlier held it back unasked. Either says nothing of what was asked, so it
+// fails the read rather than standing for any answer.
 export type RateLimitStop = Extract<
   GhFailureReason,
   { readonly kind: "rate-limited" | "held-back" }
@@ -98,7 +112,7 @@ const outstandingGh = new OutstandingReads<GhAnswer>(readTimeoutMs());
 
 // Whether this process may ask GitHub now. Every call `outstandingGh` starts
 // is admitted here once, for all the requests waiting on it.
-const admission = new ReadAdmission();
+const admission = new ReadAdmission(limitBackoffBaseMs());
 
 function spawnedGh(
   args: readonly string[],
@@ -107,13 +121,7 @@ function spawnedGh(
   const askedAt = new Date().toISOString();
   const heldBack = admission.heldBack(Date.now());
   if (heldBack !== undefined) {
-    return Promise.resolve({
-      status: undefined,
-      headers: new Map(),
-      body: "",
-      failure: heldBack,
-      askedAt,
-    });
+    return Promise.resolve(unasked(heldBack, askedAt));
   }
   return new Promise((resolve, reject) => {
     execFile(
@@ -141,14 +149,11 @@ function spawnedGh(
   });
 }
 
-// What a request that stopped waiting is answered, as `execFile` answers a
-// call aborted by its signal.
-function abandoned(args: readonly string[]): GhAnswer {
-  const error: ExecException = Object.assign(
-    new Error("The operation was aborted"),
-    { name: "AbortError", code: "ABORT_ERR", cmd: ["gh", ...args].join(" ") },
-  );
-  return readAnswer(error, "", "", new Date().toISOString());
+// An answer that never came from GitHub: held back, or -- `failed`, as
+// `execFile` answers a call aborted by its signal -- for a request that
+// stopped waiting.
+function unasked(failure: GhFailureReason, askedAt: string): GhAnswer {
+  return { status: undefined, headers: new Map(), body: "", failure, askedAt };
 }
 
 // One `gh api` answer, settled whatever its exit: `--include` makes `gh`
@@ -169,7 +174,7 @@ export async function execGh(
     );
   } catch (error) {
     if (signal.aborted) {
-      return abandoned(asked);
+      return unasked({ kind: "failed" }, new Date().toISOString());
     }
     throw error;
   }

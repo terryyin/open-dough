@@ -1,41 +1,88 @@
 // Whether this server process may ask GitHub now, for the one `gh`
 // invocation every authenticated read and project addition reaches
-// (`./ghRead.ts`): the one record of a rate limit GitHub directed, whichever
-// read met it and whichever project or tab asks next. It lives in this
-// process's memory only, so a newly started process asks GitHub at once.
+// (`./ghRead.ts`): the one record of a rate limit, whichever read met it and
+// whichever project or tab asks next. It lives in this process's memory only,
+// so a newly started process asks GitHub at once.
 
-import type { GhAnswer } from "./ghAnswer.ts";
+import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
+import type { GhAnswer, GhPrintedFailure } from "./ghAnswer.ts";
 import type { GhFailureReason } from "./ghRead.ts";
+
+type RateLimited = Extract<GhFailureReason, { readonly kind: "rate-limited" }>;
+
+// Whether GitHub answered the read itself: a success, or a `304` naming what
+// the conditional read already holds.
+function succeeded(answer: GhAnswer<GhPrintedFailure>): boolean {
+  return answer.failure === undefined || answer.status === 304;
+}
 
 export class ReadAdmission {
   // The time, by this server's clock, before which nothing is asked of
   // GitHub. It only ever moves later, and nothing but its time ends it.
   private resumesAtMs = 0;
 
+  // How many rate limits that directed no wait were met since a read last
+  // succeeded: each one waits twice as long as the one before.
+  private backoffStep = 0;
+
+  // `backoffBaseMs` is the wait after the first rate limit that directs none
+  // (`./ghRead.ts`'s `limitBackoffBaseMs`).
+  constructor(private readonly backoffBaseMs: number) {}
+
   // Why a read may not be asked now, carrying the whole seconds left,
   // rounded up so a requester that waits as told never asks before this
   // process allows it; undefined when it may be asked.
   heldBack(nowMs: number): GhFailureReason | undefined {
     return nowMs < this.resumesAtMs
-      ? {
-          kind: "held-back",
-          waitSeconds: Math.ceil((this.resumesAtMs - nowMs) / 1000),
-        }
+      ? { kind: "held-back", waitSeconds: this.secondsLeft(nowMs) }
       : undefined;
   }
 
-  // Learns from one answer GitHub gave: a rate limit that directed a wait
-  // holds back every read until then, unless a later time already stands.
-  // No other answer -- an unmarked refusal, a `404`, a success -- lifts or
-  // starts anything.
-  answered(answer: GhAnswer, nowMs: number): GhAnswer {
+  // Learns from one answer GitHub gave. A rate limit holds back every read
+  // until the wait GitHub directed, or, when it directed none, until this
+  // process's own backoff ends; a later time already standing stays. A read
+  // that succeeds ends the backoff's doubling. No answer lifts a wait.
+  answered(answer: GhAnswer<GhPrintedFailure>, nowMs: number): GhAnswer {
     const { failure } = answer;
-    if (failure?.kind === "rate-limited" && failure.waitSeconds !== undefined) {
-      this.resumesAtMs = Math.max(
-        this.resumesAtMs,
-        nowMs + failure.waitSeconds * 1000,
-      );
+    if (failure?.kind !== "rate-limited") {
+      if (succeeded(answer)) this.backoffStep = 0;
+      return { ...answer, failure };
     }
-    return answer;
+    const { status, waitSeconds } = failure;
+    const limited: RateLimited =
+      waitSeconds === undefined
+        ? this.backedOff(status, nowMs)
+        : { kind: "rate-limited", status, waitSeconds };
+    this.resumesAtMs = Math.max(
+      this.resumesAtMs,
+      nowMs + limited.waitSeconds * 1000,
+    );
+    return { ...answer, failure: limited };
+  }
+
+  // A rate limit that directed no wait, given this process's own: the base
+  // wait, doubled for each such limit since a read last succeeded, up to the
+  // longest wait the boundary passes on. A read that was already at GitHub
+  // when a wait started reports what is left of it and doubles nothing:
+  // only the first read asked after a wait can show the limit continues.
+  private backedOff(status: number, nowMs: number): RateLimited {
+    const ownWait = (waitSeconds: number): RateLimited => ({
+      kind: "rate-limited",
+      status,
+      waitSeconds,
+      backoff: true,
+    });
+    if (nowMs < this.resumesAtMs) return ownWait(this.secondsLeft(nowMs));
+    const longestMs = longestDirectedWaitSeconds * 1000;
+    const waitMs = Math.min(
+      this.backoffBaseMs * 2 ** this.backoffStep,
+      longestMs,
+    );
+    if (waitMs < longestMs) this.backoffStep += 1;
+    return ownWait(Math.ceil(waitMs / 1000));
+  }
+
+  private secondsLeft(nowMs: number): number {
+    return Math.ceil((this.resumesAtMs - nowMs) / 1000);
   }
 }

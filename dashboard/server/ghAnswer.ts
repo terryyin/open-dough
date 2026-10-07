@@ -9,8 +9,20 @@ import type { ExecException } from "node:child_process";
 import type { GhFailureReason } from "./ghRead.ts";
 import { directedWaitSeconds } from "./rateLimitDirection.ts";
 
-// One `gh api --include` answer, read once for every request sharing it.
-export type GhAnswer = {
+// How one `gh` call failed, as it printed: a rate limit names a wait only
+// when GitHub directed one, until this process's admission
+// (`./readAdmission.ts`) gives every rate limit its wait.
+export type GhPrintedFailure =
+  | Exclude<GhFailureReason, { readonly kind: "rate-limited" | "held-back" }>
+  | {
+      readonly kind: "rate-limited";
+      readonly status: number;
+      readonly waitSeconds?: number;
+    };
+
+// One `gh api --include` answer, read once for every request sharing it:
+// as admitted, unless `Failure` says it is still as `gh` printed it.
+export type GhAnswer<Failure = GhFailureReason> = {
   // GitHub's status and headers, when `gh` printed them; undefined when no
   // answer came from GitHub (no login, no connection, no `gh`).
   readonly status: number | undefined;
@@ -20,7 +32,7 @@ export type GhAnswer = {
   // How the call failed, when `gh` exited non-zero; a successful exit has
   // none. A conditional caller still decides from `status` first (a `304`
   // exits non-zero too).
-  readonly failure: GhFailureReason | undefined;
+  readonly failure: Failure | undefined;
   // When this answer was asked of GitHub, by this server's clock: the start
   // of the one `gh` call it shares.
   readonly askedAt: string;
@@ -69,7 +81,7 @@ function parseIncluded(stdout: string): IncludedAnswer | undefined {
 function limitedAsDirected(
   answer: IncludedAnswer | undefined,
   nowMs: number,
-): GhFailureReason | undefined {
+): GhPrintedFailure | undefined {
   if (answer?.status !== 403 && answer?.status !== 429) {
     return undefined;
   }
@@ -88,7 +100,7 @@ function limitedAsDirected(
 function classify(
   error: { readonly code?: string | number | undefined },
   stderr: string,
-): GhFailureReason {
+): GhPrintedFailure {
   if (error.code === "ENOENT") {
     return { kind: "not-installed" };
   }
@@ -114,7 +126,7 @@ export function readAnswer(
   stdout: string,
   stderr: string,
   askedAt: string,
-): GhAnswer {
+): GhAnswer<GhPrintedFailure> {
   const included = parseIncluded(stdout);
   return {
     status: included?.status,

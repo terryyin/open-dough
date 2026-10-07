@@ -16,13 +16,13 @@ import { runGit } from "./gitRunner.ts";
 
 // What a repository check GitHub's rate limit stopped is told instead of
 // advice to check access: whether GitHub was asked at all, and how long to
-// wait when that is known.
+// wait.
 function limitedCheck(error: unknown, repository: string): string | undefined {
   const stop = rateLimitStop(error);
   if (stop === undefined) return undefined;
   if (stop.kind === "held-back")
     return `GitHub limited the rate of the local GitHub CLI's requests, so the repository ${repository} was not asked of GitHub. Try again in ${String(stop.waitSeconds)} seconds.`;
-  return `GitHub limited the rate of the local GitHub CLI's requests while checking the repository ${repository}. ${stop.waitSeconds === undefined ? "Try again later." : `Try again in ${String(stop.waitSeconds)} seconds.`}`;
+  return `GitHub limited the rate of the local GitHub CLI's requests while checking the repository ${repository}. Try again in ${String(stop.waitSeconds)} seconds.`;
 }
 
 export async function addProject(input: ProjectInput, signal: AbortSignal) {

@@ -57,7 +57,7 @@ A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it
 alike, so a page that joined it late can be told so sooner than 30 seconds
 after it asked; the failure is not kept, and the next request asks again,
-once any wait GitHub directed has passed.
+once any rate limit's wait has passed.
 
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done
@@ -99,12 +99,16 @@ more until that time, whichever page or project asks: each read asked meanwhile,
 and adding a project, is answered at once as limited, says it was not asked,
 and carries the whole seconds left, so it is never taken for a missing record. A
 read already at GitHub keeps GitHub's own answer, and a later directed time only
-extends the wait. A refusal that directs no wait, a `404`, a timeout, or an
-unreachable GitHub holds back nothing. The wait is kept in the process's memory,
+extends the wait. A rate-limit refusal that directs no usable wait holds back
+reads the same way for one minute; when the first read after that wait is
+refused the same way, the wait doubles, up to one hour, and once a read
+succeeds the next such refusal waits one minute again. Its problem says GitHub
+named no wait and when reading resumes. An unmarked `403`, a `404`, a timeout,
+or an unreachable GitHub holds back nothing. The wait is kept in the process's memory,
 so a newly started dashboard asks at once. A page whose check was so limited
 asks nothing more until that time -- even when the page is seen again -- and the
 problem says when checks resume. The boundary passes on only the validated
-wait, at most one hour. A later check
+wait, or its own when GitHub directed none, at most one hour. A later check
 or read that succeeds lifts any such wait and clears the problem, unless the
 problem stands with its snapshot as described below. A record detail that
 could not be read stays labeled on its card rather than borrowing an older one;

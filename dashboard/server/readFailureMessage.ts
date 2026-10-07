@@ -7,8 +7,8 @@ import { GhFailure, rateLimitStop, readTimeoutMs } from "./ghRead.ts";
 
 export type ReportedFailure = {
   readonly message: string;
-  // Whole seconds GitHub asked the local `gh` login to wait before asking
-  // again, when a refused answer said so, or left of that wait when the read
+  // Whole seconds before this process asks GitHub again, when a rate limit
+  // stopped the read: the wait it met, or what is left of it when the read
   // was held back.
   readonly retryAfterSeconds: number | undefined;
 };
@@ -43,10 +43,9 @@ function failureMessage(
     case "unreachable":
       return `The local GitHub CLI could not reach GitHub while reading ${reading}.`;
     case "rate-limited": {
-      const wait =
-        reason.waitSeconds === undefined
-          ? "Wait before reloading the page."
-          : `GitHub asked to wait ${String(reason.waitSeconds)} seconds before asking again.`;
+      const wait = reason.backoff
+        ? `GitHub named no wait, so reading resumes in ${String(reason.waitSeconds)} seconds.`
+        : `GitHub asked to wait ${String(reason.waitSeconds)} seconds before asking again.`;
       return `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(reason.status)}) while reading ${reading}. ${wait}`;
     }
     case "held-back":

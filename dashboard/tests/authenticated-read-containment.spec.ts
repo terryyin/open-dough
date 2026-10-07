@@ -95,7 +95,7 @@ test.describe("authenticated read boundary containment (dev launch mode)", () =>
     });
   });
 
-  test("a failure or rate limit is reported as a read failure, with only the wait GitHub directs", async () => {
+  test("a failure or rate limit is reported as a read failure, with the wait GitHub directs", async () => {
     const reading = `whether ${shown} contains ${accepted}`;
     const directed = await onServerOfItsOwn(async (own) => {
       own.github.serve(everyRepository, () =>
@@ -114,13 +114,6 @@ test.describe("authenticated read boundary containment (dev launch mode)", () =>
       body: {
         error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading ${reading}. GitHub asked to wait 120 seconds before asking again.`,
         retryAfterSeconds: 120,
-      },
-    });
-    answer = rateLimitedAnswer();
-    expect(await contains()).toMatchObject({
-      status: 502,
-      body: {
-        error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading ${reading}. Wait before reloading the page.`,
       },
     });
     answer = noConnection;

@@ -4,8 +4,8 @@
 // (./support/sharedReads.ts publishes the revision): a rate-limited setting
 // file fails its read with the limit rather than being taken as absent; a
 // second server asks at once; adding a project while the wait stands is held
-// back like a read; and a refusal that directs no wait, a `404`, a timeout,
-// and an unreachable GitHub hold back nothing. How the wait holds back every
+// back like a read; and an unmarked `403`, a `404`, a timeout, and an
+// unreachable GitHub hold back nothing. How the wait holds back every
 // read of its process: ./authenticated-read-cooldown.spec.ts.
 
 import { expect, test } from "./support/pageTest.ts";
@@ -33,7 +33,6 @@ import {
   noConnection,
   notFoundAnswer,
   rateLimitedAnswer,
-  type OriginAnswer,
 } from "./originAnswers.ts";
 import {
   askedSince,
@@ -51,49 +50,28 @@ const isContent = (request: GhRequest, path: string) =>
   request.kind === "content" && request.path === path;
 
 test.describe("authenticated read boundary: what a directed rate limit reaches beyond its own process's reads (dev launch mode)", () => {
-  let server: DashboardServer;
-
-  test.beforeEach(async () => {
-    server = await startDashboardServer({ mode: "dev" });
-  });
-
-  test.afterEach(async () => {
-    await server.close();
-  });
-
   test("a setting file GitHub's rate limit refuses fails the profile read with the limit, never answering it as absent", async () => {
-    let refusal: OriginAnswer = rateLimitedAnswer();
-    servedRefusing(server, revision, (request) =>
-      isContent(request, agentSettingsPath) ? refusal : undefined,
-    );
-    const limitedAs = (status: number, wait: string) =>
-      `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(status)}) while reading ${agentSettingsPath} at ${revision}. ${wait}`;
-
-    // A limit that directs no wait holds nothing back, so it comes first.
-    const undirected = await timedRead(server, profilesRead);
-    expect({ status: undirected.status, body: undirected.body }).toEqual({
-      status: 502,
-      body: { error: limitedAs(403, "Wait before reloading the page.") },
-    });
-
-    refusal = rateLimitedAnswer(429, { "Retry-After": "600" });
-    const directed = await timedRead(server, profilesRead);
-    expect({ status: directed.status, body: directed.body }).toEqual({
-      status: 502,
-      body: {
-        error: limitedAs(
-          429,
-          "GitHub asked to wait 600 seconds before asking again.",
-        ),
-        retryAfterSeconds: 600,
-      },
+    await onServerOfItsOwn(async (limited) => {
+      servedRefusing(limited, revision, (request) =>
+        isContent(request, agentSettingsPath)
+          ? rateLimitedAnswer(429, { "Retry-After": "600" })
+          : undefined,
+      );
+      const refused = await timedRead(limited, profilesRead);
+      expect({ status: refused.status, body: refused.body }).toEqual({
+        status: 502,
+        body: {
+          error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading ${agentSettingsPath} at ${revision}. GitHub asked to wait 600 seconds before asking again.`,
+          retryAfterSeconds: 600,
+        },
+      });
     });
   });
 
   test("a second server on the same GitHub asks at once while the first still holds back its reads", async () => {
-    await server.close();
     const github = await startFakeGitHub();
     const limited = await startDashboardServer({ mode: "dev", github });
+    let server: DashboardServer | undefined;
     try {
       servedRefusing(limited, revision, (request) =>
         request.kind === "ref"
@@ -116,6 +94,7 @@ test.describe("authenticated read boundary: what a directed rate limit reaches b
       );
       expect(askedSince(server, before)).toHaveLength(1);
     } finally {
+      await server?.close();
       await limited.close();
       await github.close();
     }

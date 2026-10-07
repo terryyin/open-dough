@@ -15,7 +15,7 @@
 import { attempts, runningStarts } from "./agentLaunchBoundary.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
-import { rateLimitedAnswer } from "./originAnswers.ts";
+import { noConnection } from "./originAnswers.ts";
 import {
   continueLabel,
   expectRecoveryOffered,
@@ -115,7 +115,7 @@ test("a failed published read after settlement is said beside the project's acti
 }) => {
   test.setTimeout(150_000);
   const { published, story, takenStory } = await openStories(page, origin);
-  const restore = published.answerWith("main", rateLimitedAnswer());
+  const restore = published.answerWith("main", noConnection);
   await startExecution(page, story);
   await expect
     .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {

@@ -336,7 +336,7 @@ time below the 15-second pace only after a reveal.
 ### 3. A limit that directs no wait backs off
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases in `authenticated-read-cooldown.spec.ts`, and the journeys O4
 found using an undirected rate limit as a passing failure.
 
@@ -362,6 +362,19 @@ before reloading the page", and the two documents.
 
 Safe stop: A secondary limit is followed by a growing pause instead of
 repeated refusals.
+
+Done: `ReadAdmission` keeps the backoff step and is the only place a rate
+limit gets its wait (`readAnswer` yields a `GhPrintedFailure`; after
+admission every `rate-limited` failure carries `waitSeconds`). The base comes
+from `DOUGH_LIMIT_BACKOFF_MS`, set by `startDashboardServer`'s
+`limitBackoffMs`. A success or a `304` resets the step; a refusal while a wait
+stands reports what is left without doubling (no dedicated case). Accepted
+proof: `authenticated-read-backoff.spec.ts` (1 then 2, success, 1 again; 60
+on the production base; 3600 beyond an hour), the reworked boundary specs, and
+the O4 journeys, which now answer `noConnection` where they needed only some
+failure. Learnings: a boundary case meeting any rate limit needs a server of
+its own with `limitBackoffMs: 1_000` and `untilReported`; a journey needing
+only a failure answers `noConnection`.
 
 ### 4. One process has at most eight reads under way at GitHub
 

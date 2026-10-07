@@ -27,7 +27,7 @@ missing, or failed to answer, at that revision. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while
-it is hidden, and none before a rate limit's directed time); checks asked from
+it is hidden, and none before a rate limit's wait ends); checks asked from
 several pages while one listing is outstanding share it. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
@@ -43,10 +43,12 @@ reading each record once. A finished ref, branch-head, or check answer is never
 reused, so a later load or check asks again; separately launched dashboards
 share nothing.
 
-Once GitHub refuses any request with a rate limit that directs a wait, one
-dashboard process makes no `gh` request at all until that time, for any page,
-project, or project addition: what is asked meanwhile is answered as limited and
-costs nothing. A request already at GitHub when the limit was met is still
+Once GitHub refuses any request with a rate limit, one dashboard process makes
+no `gh` request at all until the wait ends, for any page, project, or project
+addition: what is asked meanwhile is answered as limited and costs nothing. The
+wait is the one GitHub directed, or, when it directed none, one minute, doubled
+for each such refusal of the first request after the wait, up to one hour, and
+one minute again once a request succeeds. A request already at GitHub when the limit was met is still
 answered and counted. A separately launched dashboard does not know of the wait
 and asks at once.
 

@@ -5,7 +5,7 @@ import {
   emptyBacklog,
   pathsRead,
   publishMovingOrigin,
-  rateLimitedAnswer,
+  noConnection,
 } from "./publishedOrigin.ts";
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 
@@ -83,7 +83,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
 
-  const restore = origin.answerWith("main", rateLimitedAnswer());
+  const restore = origin.answerWith("main", noConnection);
   await passTimeUntilChecked(page, 502);
   await expect(problem).toBeVisible();
   await expect(body).toBeVisible();
