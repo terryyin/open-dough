@@ -2,8 +2,10 @@
 // invocation every authenticated read and project addition reaches
 // (`./ghRead.ts`): the one record of a rate limit, whichever read met it and
 // whichever project or tab asks next, and the turns that bound how many reads
-// are under way at GitHub at once. It lives in this process's memory only,
-// so a newly started process asks GitHub at once.
+// are under way at GitHub at once. After any wait, directed or backed off,
+// one read goes first: its answer reopens the turns, or a limit it meets
+// starts the wait again with nothing else asked. It lives in this process's
+// memory only, so a newly started process asks GitHub at once.
 
 import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
 import type { GhAnswer, GhPrintedFailure } from "./ghAnswer.ts";
@@ -35,6 +37,10 @@ export class ReadAdmission {
   private underWay = 0;
   private readonly waiting = new Set<() => void>();
 
+  // Whether a wait was set and no read asked since it ended has been
+  // answered without a limit: until then, one read at a time goes first.
+  private resuming = false;
+
   // `backoffBaseMs` is the wait after the first rate limit that directs none
   // (`./ghRead.ts`'s `limitBackoffBaseMs`).
   constructor(private readonly backoffBaseMs: number) {}
@@ -54,7 +60,7 @@ export class ReadAdmission {
   // reason, and the next read takes its place.
   turn(signal: AbortSignal): Promise<() => void> {
     if (signal.aborted) return Promise.reject(signal.reason as Error);
-    if (this.underWay < readsUnderWayLimit) {
+    if (this.waiting.size === 0 && this.underWay < this.turnsOpen()) {
       this.underWay += 1;
       return Promise.resolve(this.endOfTurn());
     }
@@ -72,32 +78,51 @@ export class ReadAdmission {
     });
   }
 
-  // A turn's end, which passes it to the read waiting longest, if any.
+  // How many turns may be held at once: one while reading resumes after a
+  // wait, otherwise the process's bound.
+  private turnsOpen(): number {
+    return this.resuming ? 1 : readsUnderWayLimit;
+  }
+
+  // A turn's end, which gives turns to the reads waiting longest while
+  // turns are open. While a wait stands every waiting read is given one at
+  // once: it is held back when its turn comes (`./ghRead.ts`'s `spawnedGh`)
+  // and never reaches GitHub, so a wait answers them all without delay.
   private endOfTurn(): () => void {
     let over = false;
     return () => {
       if (over) return;
       over = true;
-      const [next] = this.waiting;
-      if (next === undefined) {
-        this.underWay -= 1;
-        return;
+      this.underWay -= 1;
+      const standing = this.heldBack(Date.now()) !== undefined;
+      for (const next of this.waiting) {
+        if (!standing && this.underWay >= this.turnsOpen()) return;
+        this.waiting.delete(next);
+        this.underWay += 1;
+        next();
       }
-      this.waiting.delete(next);
-      next();
     };
   }
 
   // Learns from one answer GitHub gave. A rate limit holds back every read
   // until the wait GitHub directed, or, when it directed none, until this
   // process's own backoff ends; a later time already standing stays. A read
-  // that succeeds ends the backoff's doubling. No answer lifts a wait.
+  // that succeeds ends the backoff's doubling. No answer lifts a wait; an
+  // answer GitHub gave without a limit to a read asked once the wait had
+  // ended reopens the turns.
   answered(answer: GhAnswer<GhPrintedFailure>, nowMs: number): GhAnswer {
     const { failure } = answer;
     if (failure?.kind !== "rate-limited") {
       if (succeeded(answer)) this.backoffStep = 0;
+      if (
+        answer.status !== undefined &&
+        Date.parse(answer.askedAt) >= this.resumesAtMs
+      ) {
+        this.resuming = false;
+      }
       return { ...answer, failure };
     }
+    this.resuming = true;
     const { status, waitSeconds } = failure;
     const limited: RateLimited =
       waitSeconds === undefined

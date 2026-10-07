@@ -10,7 +10,8 @@
 // the request that met it. What else the wait reaches, and what starts none:
 // ./authenticated-read-cooldown-reach.spec.ts. How each read reports
 // GitHub's own direction: ./authenticated-read-directed-wait.spec.ts. A limit
-// that directs no wait: ./authenticated-read-backoff.spec.ts.
+// that directs no wait: ./authenticated-read-backoff.spec.ts. How reading
+// resumes once a wait ends: ./authenticated-read-resumption.spec.ts.
 
 import { expect, test } from "./support/pageTest.ts";
 import {

@@ -434,7 +434,7 @@ six connections per host, so more page reads need a second context.
 ### 5. Reading resumes with one read first
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases in `authenticated-read-cooldown.spec.ts`, with
 `authenticated-read-turns.spec.ts` and `authenticated-read-shared-failures.spec.ts`.
 
@@ -461,6 +461,21 @@ Describe paced resumption in the two documents.
 
 Safe stop: A still-standing limit costs one refused read per wait, however
 many tabs were waiting.
+
+Done: any rate-limit answer, directed or backed off, sets `ReadAdmission`'s
+`resuming`; while set, one turn is open, and it clears only when a read asked
+after the wait ended is answered by GitHub without a limit. While a cooldown
+stands, waiting reads are handed turns at once and refused by `spawnedGh`'s
+post-turn re-check, never reaching GitHub. Accepted proof:
+`authenticated-read-resumption.spec.ts` (first read refused, directed and
+backed off: one call, all three limited; first read held: one arrival, then
+three; eight under way and two queued when a wait starts: the queued are held
+back unasked), with mutations of the one turn, the re-check, and the hand-out
+each failing; whole suite green. Untested: a first read that GitHub never
+answers (unreachable, aborted, timed out) keeps one turn open until some read
+is answered. Learnings: after any wait a page's first reads go one first;
+`answeringFirst` (`tests/support/heldGitHubAnswer.ts`) refuses or answers the
+next picked call once.
 
 ### 6. A limited page says so once and asks nothing until reading resumes
 

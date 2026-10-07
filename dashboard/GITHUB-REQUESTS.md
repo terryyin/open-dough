@@ -55,7 +55,11 @@ addition: what is asked meanwhile is answered as limited and costs nothing. The
 wait is the one GitHub directed, or, when it directed none, one minute, doubled
 for each such refusal of the first request after the wait, up to one hour, and
 one minute again once a request succeeds. A request already at GitHub when the limit was met is still
-answered and counted. A separately launched dashboard does not know of the wait
+answered and counted. When any wait ends, one request goes first while the
+others wait their turn: refused with a new limit, it alone is counted and the
+others are answered as limited; answered, the others proceed up to eight at
+once. A request waiting its turn when a wait starts is answered as limited and
+never asked. A separately launched dashboard does not know of the wait
 and asks at once.
 
 A listed story whose latest launch on this machine settled, published at a

@@ -2,10 +2,28 @@
 // request as `answerer` does, except each request `isHeld` picks, which is
 // answered only once `release` is called, or never when it is not. Or each
 // held answer released on its own, in the order its call arrived
-// (`heldInTurn`).
+// (`heldInTurn`). Or one answer given in place of the first a request gets
+// (`answeringFirst`), which a held answer can wrap.
 
 import type { RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
+import type { OriginAnswer } from "../originAnswers.ts";
+
+// Answers the first call whose request `isPicked` picks with `first`, and
+// every other call as `answerer` does.
+export function answeringFirst(
+  answerer: RepositoryAnswerer,
+  isPicked: (request: GhRequest) => boolean,
+  first: OriginAnswer,
+): RepositoryAnswerer {
+  let unanswered: OriginAnswer | undefined = first;
+  return (call) => {
+    const answer = isPicked(call.request) ? unanswered : undefined;
+    if (answer === undefined) return answerer(call);
+    unanswered = undefined;
+    return Promise.resolve(answer);
+  };
+}
 
 export function holding<Request, Answer>(
   answerer: (request: Request) => Answer | Promise<Answer>,

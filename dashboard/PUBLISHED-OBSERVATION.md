@@ -108,7 +108,12 @@ extends the wait. A rate-limit refusal that directs no usable wait holds back
 reads the same way for one minute; when the first read after that wait is
 refused the same way, the wait doubles, up to one hour, and once a read
 succeeds the next such refusal waits one minute again. Its problem says GitHub
-named no wait and when reading resumes. An unmarked `403`, a `404`, a timeout,
+named no wait and when reading resumes. When any wait ends, directed or not,
+reading resumes with one read: the reads asked with it wait their turn until
+GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
+they are answered as limited with the new resume time and only that read
+reached GitHub. A read waiting its turn when a wait starts is answered as
+limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
 or an unreachable GitHub holds back nothing. The wait is kept in the process's memory,
 so a newly started dashboard asks at once. A page whose check was so limited
 asks nothing more until that time -- even when the page is seen again -- and the
