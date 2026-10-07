@@ -56,7 +56,11 @@ for (const quiet of [false, true])
         expect(accepted.kind).toBe("accepted");
         if (accepted.kind !== "accepted")
           throw new Error("The launch was not accepted.");
-        await expect.poll(() => server.claudeLaunchCalls().length).toBe(1);
+        // Take publication, the workspace and the synthetic `claude` spawn run
+        // dozens of real git and child processes, slower on a loaded machine.
+        await expect
+          .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
+          .toBe(1);
         const call = server.claudeLaunchCalls()[0];
         const input = call?.argv.at(-1) ?? "";
         const command = /^- reporting command: (.+)$/m.exec(input)?.[1];
