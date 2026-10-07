@@ -71,14 +71,14 @@ the table and supply the missing page journey. No implementation slice is done.
 | The real prompt, its recognizing text, and attach-to-prompt time are known | 1 | Developer's observation recorded in Learnings |
 | Example 3 as written: Recently done, old problem text, Mark as done → `Named`, problem gone | 2 | `session-workspace-retirement-claude.spec.ts` |
 | Keys are typed only once the prompt shows, within the one wait | 5 | New case: fake prompt delayed below the wait → `Named`, the attach's lines hold `/rename done-…`; red at `bcb39b01` (keys discarded → "could not be confirmed") |
-| A prompt that never shows reports "could not be opened" and hangs up | 5 | Existing silent-attach case in `agent-launch-done-stop.spec.ts:214`, plus a case with the prompt delayed past the wait |
+| A prompt that never shows reports "could not be opened" and hangs up | 5 | Existing silent-attach case in `agent-launch-done-rename-wait.spec.ts`, plus a case with the prompt delayed past the wait |
 | Quiet completion keeps the pending mark until idle, then renames; first manual recovery after a failed reported wait works | 4, 5 | `agent-completion-quiet-claude.spec.ts` receipt, takeover, and expired-wait cases |
 | The corrected dashboard renames on the real host | 5 | Owner-run Mark as done without a page terminal; native listing confirms `done-<name>` and the entry has no rename problem |
-| Manual rename failures keep cause-specific text, retain local Done, and still stop; exited sessions are not renamed | 4, 5 | `agent-launch-done-stop.spec.ts`; descriptions distinguish external fake revival from the deferred retry |
+| Manual rename failures keep cause-specific text, retain local Done, and still stop; exited sessions are not renamed | 4, 5 | `agent-launch-done-stop.spec.ts`, `agent-launch-done-rename-wait.spec.ts`; descriptions distinguish external fake revival from the deferred retry |
 | Open page terminals retain admission, typing, and reopen behavior; retirement needs no page terminal | 2, 5 | `agent-terminal-done-reopen.spec.ts`, terminal consumer specs, and `session-workspace-retirement-claude.spec.ts` |
 | Docs and comments say the private attachment types at the prompt | 5 | Reading `AGENT-LAUNCH-TERMINALS.md:97-101`, `terminalAttachments.ts`, `launchHosts.ts` |
 | `keepRecord` takes `doneMarks` as required; test writers use the binding write | 3 | Typecheck plus the four writers' specs green |
-| One signal, always passed; abandoned manual Done never shows `Named` | 4 | Typecheck; done and quiet specs green; new manual close case |
+| One signal, always passed; abandoned manual Done never shows `Named` | 4 | Typecheck; done and quiet specs green; new manual close case in `agent-launch-done-close.spec.ts` |
 | Codex and Cursor done behavior unchanged | 4, 5 | `agent-completion-quiet.spec.ts`, `agent-completion-cursor.spec.ts` green |
 
 Proof commands, from the worktree root:
@@ -133,3 +133,41 @@ once after slice 5 and before delivery.
   test writers use `bindRecord`, and no test `keepRecord` literal remains.
   Independent refactor: none, already clean; accepted boundaries unchanged.
   `git diff --check` and `npm run format` passed; commit hook owns lint.
+
+## Slice 4 shutdown observation and decision
+
+The first named 20-case run reached its terminal result: 19 passed; the new
+manual-close case retained `doneAt` without `doneProblem`. It invalidates the
+assumption that synchronous abort lets manual failure persistence finish.
+Installed Vite (`node_modules/vite/dist/node/chunks/node.js`, shutdown's
+`closePreviewServer` await then `process.exit`) awaits the existing boundary
+cleanup hook. `localBoundaryPlugin` discards cleanup results and the launch
+plugin returns no tracked settlement. PFE selected the existing boundary
+cleanup and Done settlement ownership, extended to return an awaited promise;
+no second shutdown or retry mechanism. The correction outcome is unchanged.
+The first run is superseded for final-candidate acceptance, not a pass.
+
+## Accepted execution proof: slice 4
+
+- `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts agent-completion-quiet-claude.spec.ts agent-launch-done-stop.spec.ts agent-launch-done-rename-wait.spec.ts agent-launch-done-close.spec.ts agent-terminal-done-reopen.spec.ts agent-completion-quiet.spec.ts agent-completion-cursor.spec.ts agent-completion-binding.spec.ts --workers=1 --reporter=line`: 24 passed (1.8 m) after cohesive helper/test extraction.
+- `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts authenticated-read-plugin-hooks.spec.ts authenticated-read-subprocess-lifecycle.spec.ts agent-terminal-close.spec.ts agent-terminal-codex-close.spec.ts agent-terminal-lifetime.spec.ts agent-launch-codex-lifetime.spec.ts --workers=1 --reporter=line`: 18 passed (14.6 s); refactor did not change those boundaries.
+- Formatter exposed TypeScript narrowing `signal.aborted` across an await.
+  Consolidating the listing/abort/poll catch preserves last-observed stage
+  evidence. Its directly affected final proof:
+  `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts agent-completion-quiet-claude.spec.ts agent-launch-done-rename-wait.spec.ts agent-launch-done-close.spec.ts --workers=1 --reporter=line`: 8 passed (1.0 m). Remaining accepted proof is unchanged.
+- `env -u NODE_ENV npm run typecheck:dashboard`, `git diff --check`, and
+  repaired `npm run format` passed. Hook-owned lint runs at commit.
+- Inspected boundary: Done request/quiet receipt → tracked signal → native
+  rename and durable problem, with existing Vite cleanup awaiting settlement.
+  `agent-launch-done-close.spec.ts` supplies working fake activity and repeated
+  listing before closing a real preview process, then observes durable working
+  cause, local mark, no attachment/input, stop and unchanged native name.
+  Rename-wait cases observe existing cause texts and stop, with external
+  revival explicitly a new precondition. Quiet Claude cases observe pending
+  then confirmed rename, takeover, first manual recovery and reported close
+  with no late write. Other hosts and page reopen remain covered.
+- Independent refactor extracted unchanged durable helpers to
+  `doneSessionRecord.ts`, preserving public exports; split listing/removal,
+  rename wait and close tests along cohesive seams and updated future proof
+  selectors. Early-binding consumers were rechecked. All touched files fit
+  the refactor size rule. No native prompt or real-dashboard proof supplied.

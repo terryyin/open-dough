@@ -44,7 +44,7 @@ export async function renameInClaudeCode(
   folder: ProjectFolder,
   withAttachment: WithAttachment,
   intent: DoneIntent,
-  stopped: AbortSignal = new AbortController().signal,
+  stopped: AbortSignal,
 ): Promise<void> {
   const name = doneSessionName(record.session);
   if (controlCharacter.test(name)) {
@@ -58,12 +58,21 @@ export async function renameInClaudeCode(
     record.session,
     folder,
     async (type) => {
-      const typed = ["\u0015", `/rename ${name}`, "\r"];
-      for (const [index, keys] of typed.entries()) {
-        if (index > 0) {
-          await delay(keyPauseMs, undefined, { signal: stopped });
+      const signal = remaining(wait);
+      try {
+        const typed = ["\u0015", `/rename ${name}`, "\r"];
+        for (const [index, keys] of typed.entries()) {
+          if (index > 0) {
+            await delay(keyPauseMs, undefined, { signal });
+          }
+          signal.throwIfAborted();
+          type(keys);
         }
-        type(keys);
+      } catch (error) {
+        if (!signal.aborted) throw error;
+        throw new HostOperationFailure(
+          "The native rename could not be confirmed.",
+        );
       }
       await confirmListed(record, folder, name, wait);
     },
@@ -145,13 +154,21 @@ async function pollListing(
   settled: (listed: Listing) => boolean,
   expired: (listed: Listing) => string,
 ): Promise<void> {
+  let listed: Listing;
   for (;;) {
-    const listed = await claudeSessions(folder, remaining(wait));
-    wait.stopped.throwIfAborted();
-    if (settled(listed)) return;
-    if (Date.now() + pollMs >= wait.deadline) {
+    const signal = remaining(wait);
+    try {
+      const current = await claudeSessions(folder, signal);
+      signal.throwIfAborted();
+      listed = current;
+      if (settled(listed)) return;
+      if (Date.now() + pollMs >= wait.deadline) {
+        throw new HostOperationFailure(expired(listed));
+      }
+      await delay(pollMs, undefined, { signal });
+    } catch (error) {
+      if (!signal.aborted) throw error;
       throw new HostOperationFailure(expired(listed));
     }
-    await delay(pollMs, undefined, { signal: wait.stopped });
   }
 }

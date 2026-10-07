@@ -108,6 +108,14 @@ the prompt is required whatever the wait is.
 
 ## Current decisions
 
+- Execution observation: Vite awaits `closePreviewServer` hook promises, then
+  exits. The current void cleanup drops manual Done failure persistence.
+  Slice 4 must return the existing tracked Done settlements through
+  `NativeDoneMarks.close` → `agentLaunchPlugin` → `localBoundaryPlugin`
+  cleanup, while closing attachments immediately. This necessary lifecycle
+  structure establishes the already-required manual-close outcome; reported
+  abandonment remains write-free. Verify affected shutdown consumers.
+
 - Implementation slices run their named specs, typecheck, and lint before
   commit. The owner-run probe changes no product code and records its
   observation instead. Slice 5 adds the whole dashboard suite once because

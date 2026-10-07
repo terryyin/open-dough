@@ -131,7 +131,7 @@ export type LaunchHost = {
     folder: ProjectFolder,
     withAttachment: WithAttachment,
     intent: DoneIntent,
-    stopped?: AbortSignal,
+    stopped: AbortSignal,
   ): Promise<void>;
   stop?(
     session: HostSession,

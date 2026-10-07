@@ -56,7 +56,7 @@ import { SessionAlerts } from "./sessionAlerts.ts";
 function installAgentLaunchMiddleware(
   middlewares: Connect.Server,
   httpServer: HttpServer | null,
-): { close: () => void; ready: Promise<boolean> } {
+): { close: () => Promise<void>; ready: Promise<boolean> } {
   // Admission reads the launches only once an upgrade arrives.
   const terminals: AgentTerminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
@@ -81,9 +81,10 @@ function installAgentLaunchMiddleware(
     close: () => {
       void releaseCursorHandoffs();
       alerts.close();
-      doneMarks.close();
+      const doneSettled = doneMarks.close();
       terminals.close();
       launches.close();
+      return doneSettled;
     },
   };
 }

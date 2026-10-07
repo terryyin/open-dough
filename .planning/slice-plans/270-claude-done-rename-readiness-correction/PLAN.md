@@ -111,12 +111,13 @@ still green. No new native operation or persistence authority is introduced.
 
 ### 4. One rename signal, owned by the Done that runs
 Type: Structure
-Status: planned
+Status: done
 Proof: typecheck; `agent-completion-quiet-claude.spec.ts` (manual Done during
 the wait, server closed mid-wait), `agent-launch-done-stop.spec.ts`,
+`agent-launch-done-rename-wait.spec.ts`, `agent-launch-done-close.spec.ts`,
 `agent-terminal-done-reopen.spec.ts`, `agent-completion-quiet.spec.ts`,
 `agent-completion-cursor.spec.ts` green; one new case in
-`agent-launch-done-stop.spec.ts`: a manual Done waiting on a `working`
+`agent-launch-done-close.spec.ts`: a manual Done waiting on a `working`
 session while the server closes leaves a record that does not show `Named`
 (its `doneProblem` is one of the four texts); lint.
 
@@ -138,8 +139,9 @@ direct correction of finding 4; it also supplies slice 5's cancellation seam.
 ### 5. The private rename attachment types only once Claude Code's prompt shows
 Type: Behavior
 Status: planned
-Proof: the new cases below in `agent-launch-done-stop.spec.ts`; existing
-`agent-launch-done-stop`, `agent-terminal-done-reopen`,
+Proof: the new cases below in `agent-launch-done-rename-wait.spec.ts`; existing
+`agent-launch-done-stop`, `agent-launch-done-rename-wait`,
+`agent-launch-done-close`, `agent-terminal-done-reopen`,
 `session-workspace-retirement-claude`, `agent-completion-quiet-claude`,
 `agent-completion-binding`, `agent-completion-quiet`,
 `agent-completion-cursor`, `agent-launch-card-done`,
@@ -207,8 +209,10 @@ claim the real-host outcome from green fake tests alone.
   (reused owned linked worktree); no integration checkout supplied.
 - Branch `codex/a-private-claude-code-rename-types-only-at-a-rea`,
   mode `story-branch`, remote `origin`, authorized trunk `main`.
-- Published claim/base `4c3bb49e1efdb265cf7130b5f3d647ffcb96834f`;
+- Published claim `4c3bb49e1efdb265cf7130b5f3d647ffcb96834f`;
   starting revision `7ee18a095f1841560914df5eefc26774f9d39271`.
+- Accepted story-branch increments: slice 2 `c5b7cc8bf784335665e52f94c483b55364d2bb00`;
+  slice 3 `e7b25862935ebecd3cbd32eca5563b6ac0cd862b`.
 - Checkout setup: `env -u NODE_ENV npm ci --ignore-scripts --offline`;
   applicable command `env -u NODE_ENV npm run typecheck:dashboard` passed.
 - No numeric slice limit supplied; existing planned-work replanning authority
@@ -217,5 +221,7 @@ claim the real-host outcome from green fake tests alone.
   branch. Codex yielded stream cell `9`, session `95192`, PID `77601`,
   directory `/tmp/dough-ci-501/watch-nEzcyy`; coordinator launch reference
   `feb9bae7-fd70-4864-bcc6-439be0be1c46`. Claim publication on trunk is unobserved.
-- Slice 1's owner-run native observation was requested; independent slices
-  2–4 proceed while its marker, timing, and native confirmation remain pending.
+- Slices 2–4 have accepted proof; slice 1's owner-run native observation
+  remains pending. Slice 5 cannot start until its marker, timing, and native
+  confirmation are accepted; its corrected-dashboard native check also remains
+  required. No execution-complete record or retrospective is due at this stop.
