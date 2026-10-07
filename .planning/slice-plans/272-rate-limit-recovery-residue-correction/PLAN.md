@@ -428,3 +428,17 @@ has one proof loop. Slice 3 reaches the most existing assertions, because
 many specs assert the limit wording. If execution disproves an observed
 premise or a slice's boundedness, stop safely and revise the remaining plan
 within the same outcome. Story-boundary changes stay with Terry.
+
+## Execution complete
+
+Product advice: reasoned no-change. The delivered correction meets its goal,
+and the review found no defect or residue that needs another correction. For
+wrap-up:
+
+- `.planning/NORTH-STAR.md`'s "After a cooldown one read goes first; its
+  answer reopens the turns." is now explained by `server/readAdmission.ts`.
+  Any ending without a limit reopens the turns, so retire or reword that
+  sentence.
+- Profiles and done records share the one `limitGapProblem` label but have
+  no page case of their own. That is acceptable while the label has no
+  per-kind code.
