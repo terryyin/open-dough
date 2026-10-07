@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 248. Removed local codes are never reused.
+- Highest allocated local number: 250. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -856,6 +856,14 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator conversation: edits to `ghRead.ts`, `ghRevision.ts`, `containmentRead.ts` and three comment files by the coordinator's own scripted replacement; focused proof, typecheck and the whole suite were run by the coordinator; the refactor pass was delegated as required.
   - Observed effect: no rework; the independent refactor pass found nothing to change, and proof was accepted from the coordinator's own runs.
   - Inference: Qualified. A deviation from the stated condition. It saved one delegated agent's context, but implementation and proof acceptance were not independent. One sample does not show whether "interactive" should be relaxed for tiny Structure slices.
+- Execution: `SEED-115#retain-cancelled-ci-evidence` / plan 265, first related implementation commit `a68d3211`
+  - Timestamp: 2026-10-07T09:39:25+09:00 (probe commit `631484ee`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: slice 1 was delegated with an independent refactor pass. For slice 2, the CI probe, the background coordinator wrote the probe spec, the `longest-first` and `ci.yml` edits, the rename commit `2afb6ab1`, and the restore `8958faf1` itself. It ran no refactor pass, because the restore returned the code exactly to `a68d3211`.
+  - Observed effect: the probe's ordering mistake (ProjectFindings.md DD-249) was the coordinator's own and was not reviewed independently. It cost one extra probe commit and CI run.
+  - Inference: Qualified. The probe slice was mostly commit, push and observation, which only the coordinator can do, so the "single interactive slice" condition fits a probe slice poorly. A delegated agent would not necessarily have known Playwright's file order either.
 
 ## DD-246 — Concurrent Playwright runs in one checkout delete each other's trace output
 
