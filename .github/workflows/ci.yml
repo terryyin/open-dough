@@ -157,7 +157,7 @@ jobs:
         run: |
           started=$(( $(date +%s) * 1000 ))
           echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
-          echo "OPEN_DOUGH_DASHBOARD_DEADLINE_MS=$(( started + 75000 ))" >> "$GITHUB_ENV"
+          echo "OPEN_DOUGH_DASHBOARD_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v7
         id: node
         timeout-minutes: 1

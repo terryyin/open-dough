@@ -177,7 +177,27 @@ Includes: the helper beside `testFiles.mjs` in `dashboard/tests/support/`; the c
 
 ### 2. Probe: the forced deadline path on CI retains the shard's evidence
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: probe commits `631484ee` and `2afb6ab1` recorded a 75-second
+allowance and added a deliberately failing spec listed first in
+`longest-first` (shard 1). Run 37553839091 (at `2afb6ab1`): all nine dashboard
+shards concluded `failure`, none `cancelled`, each in 81–85 seconds (bound 360);
+every suite log printed `Timed out waiting <57–65>s for the test suite to run`;
+every `Keep the Playwright report` step succeeded and all nine
+`dashboard-playwright-report-<shard>` artifacts were listed; shard 1's log
+printed the probe's `FAIL:` block with its `error-context` and `trace` paths,
+and its downloaded artifact contains
+`test-results/aaa-deadline-probe-deadline-probe-fails-before-the-deadline-chromium/`
+`trace.zip` and `error-context.md`. Run 37553117469 (at `631484ee`) showed the
+same failed-not-cancelled shards, deadline lines, durations (82–85 seconds) and
+uploads, with three interrupted tests' traces and error context in shard 1's
+artifact. The restore commit removes the probe spec and returns `ci.yml` and
+`longest-first` to `a68d3211`; its run is the completion boundary's CI.
+Learnings: under `fullyParallel`, Playwright schedules a shard's files
+alphabetically, not in `longest-first` order, so the first probe spec
+(`deadline-probe.spec.ts`) queued behind specs still running at the deadline
+and never started; renaming it to sort first made the failure complete. The
+interrupted tests keep `trace.zip` and `error-context.md` too.
 Proof: one temporary commit on the story branch shortens the recorded allowance so the suite is interrupted mid-tests (about 75 seconds after the deadline step; raise it if the log shows the build itself interrupted) and adds a deliberately failing spec under `dashboard/tests/` so one shard completes a failure first. Observe that run with read-only `gh` queries: every dashboard shard concluded `failure`, none `cancelled`; each log has `Timed out waiting`; the shard holding the failing spec lists `dashboard-playwright-report-<shard>` and the downloaded artifact contains that test's `trace.zip` and `error-context.md`; each shard's duration is under 360 seconds and its upload step ran. Then a second commit removes the failing spec and restores the 320-second allowance, and its run passes all nine shards with their artifacts. Record both run ids and the observed durations in this plan.
 
 Behavior: a pushed revision whose suite cannot finish by the deadline → CI runs → the maintainer retrieves the completed failure's diagnostics from the run and reads the deadline as the cause, within the job bound.
