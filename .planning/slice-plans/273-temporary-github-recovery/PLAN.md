@@ -432,3 +432,12 @@ the current premises through their consuming operations.
 Readiness is recorded only in the story's canonical structured block, with
 current story and plan digests; this plan has no parallel readiness/status record
 or execution completion section.
+
+## Execution complete
+
+Product advice: No backlog change. Sibling SEED-118 stories for faster basic cards and
+cross-tab/deployment read savings remain queued and unrefined; this story's deferred
+promises stay deferred. Direction alignment holds: temporary-failure recovery and
+diagnostics stay in the observation/read boundary rather than new story lifecycle
+states. Ready for wrap-up/land when requested; leave landing and backlog completion
+to that workflow.

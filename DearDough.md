@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 251. Removed local codes are never reused.
+- Highest allocated local number: 252. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -953,3 +953,26 @@ Follow-up: Open, unqueued.
   - Evidence: slice 4's format output contained "Format failed: unresolved findings or tool failures remain" and `agent-commit.mjs` then returned `commit-failed` for two `'_' is defined but never used` errors in new specs; slice 7's filtered format output showed "Async arrow function has no 'await' expression" and the commit was refused the same way. Each was fixed, re-proved with the touched spec and the typecheck, and committed.
   - Observed effect: two refused commits and two short fix cycles; no unproved change was published.
   - Inference: Qualified. Wrap-up step 4 already requires formatting success before staging; filtering the formatter's output hid its exit status. Telling delegated agents the hook's lint rules, or checking the formatter's exit before staging, would avoid it.
+- Execution: `SEED-118#recover-from-temporary-github-failures` / plan 273, first related implementation commit `2854d30b`
+  - Timestamp: 2026-10-08T04:15:08+09:00 (commit time of repair `598cd884`, after refused omit-pattern attempts)
+  - Tool: Cursor
+  - Open Dough release: 0.3.57
+  - Evidence: coordinator `npm run format` printed "Format failed: unresolved findings or tool failures remain" for `@typescript-eslint/no-unused-expressions` on a bare `progressSource;` omit in `dashboard/src/progressSource.ts`, and earlier `agent-commit.mjs` returned `commit-failed` for an unused `_stale` binding in the same CI-repair edit; the lint-clean `delete cleared.progressSource` form then committed as `598cd884`.
+  - Observed effect: at least two refused or format-failed commit attempts on one CI repair before the published SHA.
+  - Inference: Qualified. Same coordinator pattern as the rate-limit execution: format/lint findings surface only at wrap-up, and piping or continuing past a failed format invites a refused commit.
+
+## DD-252 — Managed story-branch delivery can stall after a successful agent-commit
+
+`execution-increment-delivery.mjs deliver` remained running for about two hours after `agent-commit.mjs` had already recorded a successful commit SHA, so the story-branch tip stayed unpublished until the hung delivery was killed and deliver was rerun.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-118#recover-from-temporary-github-failures` / plan 273, first related implementation commit `2854d30b`
+  - Timestamp: 2026-10-08T04:15:08+09:00 (commit `598cd884`); hung delivery observed still running at about 2026-10-07T21:04Z UTC (~1h50m elapsed)
+  - Tool: Cursor
+  - Open Dough release: 0.3.57
+  - Evidence: local HEAD was `598cd884` with a clean tree while `origin/cursor/recover-automatically-from-temporary-github-fail` remained at `ded67152`; the deliver shell (pid 36319) was still listed running; killing it and re-invoking deliver accepted publication of `598cd884` in ~12s.
+  - Observed effect: CI and completion waited on an unpublished repair tip; a second deliver was required.
+  - Inference: Qualified. The commit step and the publish/register step are separable; an unobserved stall after commit leaves the branch behind without a failing exit.
