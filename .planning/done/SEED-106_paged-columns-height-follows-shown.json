@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-106#paged-columns-height-follows-shown",
+  "title": "The page ends where the shown dashboard columns end",
+  "completedAt": "2026-10-07T20:57:35.379Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "claude"
+}

@@ -99,6 +99,8 @@ test("accessible overview reflows long published work for a narrow window and pa
       }
       await expectNoSidewaysScrollAndWholeText(page);
     }
+    // Shown again, Taken holds the long card whole.
+    await showColumn(page, "Taken");
     await expectInside(longCard, taken);
   });
 

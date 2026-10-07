@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Recover automatically from temporary GitHub failures](seeds/SEED-118-dashboard-reading-reliability.md#recover-from-temporary-github-failures) — SEED-118#recover-from-temporary-github-failures ([plan](slice-plans/273-temporary-github-recovery/PLAN.md))
 - [Show the latest 10 done items and reveal older items on demand](seeds/SEED-119-recently-done-progressive-loading.md#recently-done-progressive-loading) — SEED-119#recently-done-progressive-loading ([plan](slice-plans/274-recently-done-progressive-loading/PLAN.md))
-- [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown ([plan](slice-plans/271-paged-columns-height-follows-shown/PLAN.md))
 
 ## Backlog list
 

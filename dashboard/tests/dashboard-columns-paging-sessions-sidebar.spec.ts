@@ -1,6 +1,7 @@
 // A Sessions sidebar choice whose story card lies in a hidden dashboard
 // column shows that column, then brings the card into view as it does in a
-// shown one. That a choice shows a local Taken entry hidden the same way
+// shown one, and the page reaches the column's whole length again. That a
+// choice shows a local Taken entry hidden the same way
 // is ./session-sidebar-navigation-cases.spec.ts and
 // ./agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
 // ./dashboard-columns-paging.spec.ts.
@@ -20,7 +21,12 @@ import {
   openNavigationJourney,
   revealsOf,
 } from "./sessionNavigationJourney.ts";
-import { expectView, showColumn } from "./dashboardColumnsPage.ts";
+import {
+  expectEndsWithShown,
+  expectView,
+  showColumn,
+} from "./dashboardColumnsPage.ts";
+import { box } from "./pageLayout.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
@@ -73,6 +79,13 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       await expect(
         card(readyStory).getByText("Shown in terminal"),
       ).toBeVisible();
+    });
+
+    await test.step("Backlog has its whole length back: read to the page's end, its last card ends the page", async () => {
+      const { x, y, width } = await box(card(readyStory));
+      await page.mouse.move(x + width / 2, y + 1);
+      await expectEndsWithShown(page, ["Backlog"]);
+      await expect(card(notRefinedStory)).toBeInViewport({ ratio: 1 });
     });
   });
 });

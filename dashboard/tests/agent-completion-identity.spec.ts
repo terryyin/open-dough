@@ -1,5 +1,11 @@
 // Real receiver/store and installed CLI, with native provider answers substituted.
-import { chmodSync, readFileSync, mkdirSync, rmSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  readFileSync,
+  mkdirSync,
+  rmSync,
+} from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { rawRequest } from "./support/rawHttp.ts";
@@ -65,6 +71,18 @@ test("older launch delivery cannot close another session and durable duplicates 
   );
   const retry = `${oldCommand} --retry ${quote(pending)}`;
   const directory = path.join(dashboard.home, ".open-dough/dashboard");
+  const lock = path.join(directory, "agent-launches.json.lock");
+  // The report's receipt follows a store write naming its native Done
+  // pending; that Done then clears the problem in a later store write. Let
+  // that write finish and release the store before it goes read-only.
+  await expect
+    .poll(() => ({
+      doneProblem: stored(dashboard.home).find(
+        (entry) => entry.session.sessionId === older.session.sessionId,
+      )?.doneProblem,
+      locked: existsSync(lock),
+    }))
+    .toEqual({ doneProblem: undefined, locked: false });
   const attempts = readFileSync(
     path.join(directory, "launch-attempts.json"),
     "utf8",
@@ -103,7 +121,6 @@ test("older launch delivery cannot close another session and durable duplicates 
       headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-  const lock = path.join(directory, "agent-launches.json.lock");
   mkdirSync(lock);
   const first = post();
   await expect

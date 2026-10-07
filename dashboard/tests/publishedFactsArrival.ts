@@ -1,5 +1,7 @@
 // Raw pinned records and independently held GitHub fact groups for arrival and
 // failure journeys. Membership and every held request precede release or failure.
+// A variant publishes `moreDone` further recent done records beside the one
+// every journey reads, all held in the done group.
 
 import type { Page } from "@playwright/test";
 import { z } from "zod";
@@ -47,6 +49,7 @@ const plan = files[planPath("after-take")] ?? "";
 const branch = "story/available-facts";
 const branchHead = "b4".repeat(20);
 const donePath = doneRecordAt(executed.identity);
+const doneDirectory = ".planning/done/";
 export const preparer = "Pat Preparer";
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
@@ -109,11 +112,34 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
   if (request.kind !== "content") return undefined;
   if (request.path === takenCanonicalPath) return "preparation";
   if (request.path === profilePath("Akiho")) return "profiles";
-  if (request.path === donePath) return "done";
+  if (request.path.startsWith(doneDirectory)) return "done";
   return undefined;
 };
 
-export async function heldFactGroups(page: Page) {
+// Further done stories, completed in the hours before the page opened.
+export const moreDoneTitle = (place: number) =>
+  `Finished work number ${place} rests in Recently done`;
+function moreDoneRecords(count: number): Record<string, string> {
+  return Object.fromEntries(
+    [...Array(count).keys()].map((index) => {
+      const identity = `SEED-3${index + 1}#finished`;
+      return [
+        doneRecordAt(identity),
+        renderDoneRecord({
+          identity,
+          title: moreDoneTitle(index + 1),
+          completedAt: minutesBefore(90 + index * 10).toISOString(),
+          developer: "Terry Yin",
+        }),
+      ];
+    }),
+  );
+}
+
+export async function heldFactGroups(
+  page: Page,
+  { moreDone = 0 }: { readonly moreDone?: number } = {},
+) {
   await pausePageClockAt(page, opened);
   const trunk = publishes({
     revision,
@@ -141,6 +167,7 @@ export async function heldFactGroups(page: Page) {
         completedAt: minutesBefore(60).toISOString(),
         developer: "Terry Yin",
       }),
+      ...moreDoneRecords(moreDone),
     },
     committed,
     history: {

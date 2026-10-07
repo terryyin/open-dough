@@ -33,9 +33,14 @@ once when the system asks for reduced motion). Widening or narrowing the page
 keeps the leftmost shown column where the width allows; the page never scrolls
 sideways. Hidden columns stay in the reading and tab order: keyboard focus,
 or a Sessions sidebar choice, landing in one moves the view to show it, while
-starting a session leaves the view where it is. This browser keeps that position, as it keeps the side panel's
+starting a session leaves the view where it is; the focused item or chosen
+card is brought into sight once its column has its full length again. This browser keeps that position, as it keeps the side panel's
 width: a project switch or a reload shows the same columns, and a first visit
-starts at Backlog.
+starts at Backlog. The page is only as long as the columns it shows, with its
+ordinary framing and the edge controls' room: a taller hidden column adds no
+blank stretch, and showing it makes all of it reachable again. Paging keeps
+the vertical position while the newly shown columns reach it; where they are
+shorter, the page stops at their bottom instead, without returning to the top.
 
 The pinned banner shows the selected project in a disclosure and keeps the configured
 **Project** choices reachable while scrolling. The disclosure opens the repository/ref, full
