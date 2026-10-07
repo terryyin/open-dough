@@ -19,7 +19,8 @@ import {
 } from "./sessionShown.ts";
 import { LaunchSession } from "./LaunchSession.tsx";
 import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
-import { showsSession, usePageSessions } from "./pageSessions.ts";
+import { showsSession } from "./pageEntries.ts";
+import { usePageSessions } from "./pageSessions.ts";
 import { DeleteRecord, MarkDone } from "./sessionRecordActions.tsx";
 import { SessionAssignment } from "./SessionAssignment.tsx";
 import type { AgentAssignment } from "./agentAssignments.ts";

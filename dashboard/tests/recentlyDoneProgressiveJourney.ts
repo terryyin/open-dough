@@ -22,6 +22,7 @@ import {
   recordsAsked,
 } from "./recentlyDoneProgressivePage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
@@ -32,7 +33,8 @@ export const heldPlace = 25;
 const sessionsAt = [2, 7, 11, 16, 23, destination, 29, 34];
 export const entries = progressiveEntries(35, sessionsAt);
 
-const at = (place: number): ProgressiveEntry => {
+// The entry at `place`.
+export const entryAt = (place: number): ProgressiveEntry => {
   const entry = entries[place - 1];
   if (entry === undefined) throw new Error(`No entry at ${String(place)}`);
   return entry;
@@ -47,7 +49,8 @@ export const names = (to: number) => entries.slice(0, to).map(entryName);
 
 // Opens the page with the session at each of `open` kept open, the held
 // story's record answering only once `release` is called, and `also` kept;
-// `elsewhere` leaves the destination's place to a session `also` keeps.
+// `elsewhere` leaves the destination's place to a session `also` keeps;
+// `moving` answers for later publications too (./recentlyDoneRefresh.ts).
 export async function openedWithHeldStory(
   page: Page,
   dashboard: DashboardServer,
@@ -55,13 +58,15 @@ export async function openedWithHeldStory(
     open = [destination],
     also,
     elsewhere = false,
+    moving = (published) => published,
   }: {
     readonly open?: readonly number[];
     readonly also?: (now: number) => readonly LaunchRecord[];
     readonly elsewhere?: boolean;
+    readonly moving?: (published: RepositoryAnswerer) => RepositoryAnswerer;
   } = {},
 ) {
-  const held = at(heldPlace);
+  const held = entryAt(heldPlace);
   if (held.kind !== "story") throw new Error("The held entry is no story.");
   let release: () => void = () => undefined;
   const list = elsewhere
@@ -71,18 +76,18 @@ export async function openedWithHeldStory(
     open,
     ...(also === undefined ? {} : { also }),
     answering: (published) => {
-      const holding = holdingAnswer(published, isRecord(held.path));
+      const holding = holdingAnswer(moving(published), isRecord(held.path));
       release = holding.release;
       return holding.answer;
     },
   });
-  const name = (place: number) => entryName(at(place));
+  const name = (place: number) => entryName(entryAt(place));
   const taken = (place: number) =>
     parts(page).taken.getByRole("article", { name: name(place) });
   const idle = (place: number) => {
     const session = dashboard
       .claudeListing()
-      .find((each) => String(each["name"]).endsWith(at(place).title));
+      .find((each) => String(each["name"]).endsWith(entryAt(place).title));
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
   };
   return {

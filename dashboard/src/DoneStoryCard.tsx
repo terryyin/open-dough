@@ -20,7 +20,7 @@ import { RecordedHost } from "./AssignmentRecords.tsx";
 import type { DoneStory } from "./doneStories.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
-import { doneStoryMarks } from "./pageSessions.ts";
+import { doneStoryMarks } from "./pageEntries.ts";
 import { StorySessions } from "./SessionEntry.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";

@@ -6,7 +6,9 @@
 // beyond it; scrolling, resizing, and paging the columns ask for nothing. It
 // is how the page presents the project, not anything read: it belongs to the
 // project shown and starts again at ten for another project or a reload, or
-// when the developer asks for the latest ten again.
+// when the developer asks for the latest ten again. A refresh of the same
+// project keeps it, and grows it only as far as the entry holding the
+// keyboard there now stands (`HeldEntry`), until the keyboard leaves it.
 //
 // The page keeps one range (`./PageFrame.tsx`), so the journeys that end on
 // a session's entry -- the side panel's keyboard return
@@ -36,10 +38,20 @@ type Destination = {
   readonly answer?: "reached" | "absent";
 };
 
+// The Recently done entry holding the keyboard: a done story's card, or a
+// session's entry, standalone or on a done story's card.
+export type HeldEntry =
+  | { readonly story: string; readonly session?: never }
+  | { readonly session: string; readonly story?: never };
+
+const sameEntry = (one?: HeldEntry, other?: HeldEntry) =>
+  one?.story === other?.story && one?.session === other?.session;
+
 type Range = {
   readonly sourceId: string | undefined;
   readonly requested: number;
-  readonly destination?: Destination;
+  readonly destination?: Destination | undefined;
+  readonly held?: HeldEntry | undefined;
 };
 
 // Where a demanded destination stands: still being read, its entry shown,
@@ -92,6 +104,27 @@ export function useRecentlyDoneRange(shownSource: string | undefined) {
     reveal: (sourceId: string, shown: number) => {
       setRange((last) => ({ ...last, sourceId, requested: shown + doneBatch }));
     },
+    // The entry holding the keyboard in `sourceId`'s list, if any.
+    heldIn: (sourceId: string) =>
+      range.sourceId === sourceId ? range.held : undefined,
+    // Notes that `held` holds the keyboard in `sourceId`'s list, or, given
+    // undefined, that the keyboard left it.
+    hold: (sourceId: string, held: HeldEntry | undefined) => {
+      setRange((last) =>
+        last.sourceId !== sourceId || sameEntry(last.held, held)
+          ? last
+          : { ...last, held },
+      );
+    },
+    // Keeps at least the first `through` of `sourceId`'s entries, as when the
+    // entry holding the keyboard stands later after a refresh.
+    include: (sourceId: string, through: number) => {
+      setRange((last) =>
+        last.sourceId === sourceId && through > last.requested
+          ? { ...last, requested: through }
+          : last,
+      );
+    },
     // Asks for the latest ten entries again, superseding any destination.
     collapse: (sourceId: string) => {
       setRange(latestOf(sourceId));
@@ -116,7 +149,7 @@ export function useRecentlyDoneRange(shownSource: string | undefined) {
       untilOwnMove(() => {
         setRange((last) =>
           last.destination?.id === id && last.destination.answer === undefined
-            ? { sourceId: last.sourceId, requested: last.requested }
+            ? { ...last, destination: undefined }
             : last,
         );
         gaveUp();

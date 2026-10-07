@@ -14,18 +14,19 @@ const entriesWord = (count: number) => (count === 1 ? "entry" : "entries");
 
 // How much of the list shows, and the one action that shows the next ten
 // older entries, naming how many are older. Once every entry shows, it says
-// so, and the keyboard that asked for the last of them stays there.
+// so, and the keyboard that asked for the last of them stays there; a list a
+// refresh exhausts later leaves the keyboard where it is.
 export function ShownRange({ view }: { readonly view: RecentlyDoneView }) {
   const { shown, older, column, details, reveal } = view;
   const action = useRef<HTMLButtonElement>(null);
   const statement = useRef<HTMLParagraphElement>(null);
   const asked = useRef(false);
   const all = shown.length + older;
+  // Only the reveal the keyboard asked for, as it shows, moves it on.
   useLayoutEffect(() => {
-    if (older === 0 && asked.current) {
-      asked.current = false;
-      statement.current?.focus({ preventScroll: true });
-    }
+    if (!asked.current) return;
+    asked.current = false;
+    if (older === 0) statement.current?.focus({ preventScroll: true });
   });
   if (older === 0 && shown.length <= doneBatch) {
     return null;

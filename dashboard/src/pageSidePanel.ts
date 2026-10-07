@@ -15,9 +15,8 @@ import type { MachineSessions } from "./agentLaunches.ts";
 import { sessionAccess, type SessionAccess } from "./sessionAccess.ts";
 import { sessionKey } from "./sessionReference.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
+import { deletedEntryHome, sessionEntry } from "./pageEntries.ts";
 import {
-  deletedEntryHome,
-  sessionEntry,
   type OpenSessionPanel,
   type PageSessions,
   type SessionRequest,

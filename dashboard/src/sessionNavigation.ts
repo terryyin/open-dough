@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { sessionEntry } from "./pageSessions.ts";
+import { sessionEntry } from "./pageEntries.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
 import { keepInView, workCard } from "./workFocus.ts";
 

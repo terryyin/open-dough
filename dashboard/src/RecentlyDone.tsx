@@ -3,7 +3,8 @@
 // done story's card holding its sessions, the gaps in what could be read, the
 // one action that shows the next ten older entries, and, beside the heading
 // while more than ten show, the one that shows only the latest ten again
-// (`./RecentlyDoneRangeActions.tsx`).
+// (`./RecentlyDoneRangeActions.tsx`). The keyboard in the list keeps a useful
+// place across a refresh (`./recentlyDoneFocus.ts`).
 
 import { useRef } from "react";
 import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
@@ -13,6 +14,7 @@ import { CreationEntry } from "./CreationEntry.tsx";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
+import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import {
   recentlyDoneName,
   type Listed,
@@ -108,6 +110,7 @@ export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
     details,
     column,
   } = view;
+  const focus = useHeldEntryFocus(view, section);
   return (
     <section
       ref={section}
@@ -139,7 +142,7 @@ export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
         )}
       </SessionList>
       {shown.length > 0 && (
-        <ol>
+        <ol {...focus}>
           {shown.map((each) => (
             <li
               key={

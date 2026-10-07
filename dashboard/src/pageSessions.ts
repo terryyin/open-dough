@@ -5,7 +5,7 @@
 // on a card, in Taken or Recently done, or in the Sessions sidebar reaches opening
 // and marking without every component between them passing them along. Each
 // session entry names its session, so the page can find where to bring the
-// entry into view.
+// entry into view (`./pageEntries.ts`).
 // The page also says which session its panel shows. Every Mark as done or
 // Mark as read control follows its mark the same way (`useMarking`), and
 // every Mark as done decides whether to ask first the same way
@@ -17,7 +17,6 @@ import { unfinishedIntention } from "./sessionShown.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
-import { workCard } from "./workFocus.ts";
 
 // A request about one session the page shows: its launch record, joined with
 // its state where the operation needs it, and the control that asked, which
@@ -51,7 +50,7 @@ export type MarkSessionRead = SessionOperation<Promise<boolean>>;
 // Deletes the session's dashboard record and answers what came of it: deleted,
 // kept because its state is now known, or failed with the reason given. Once
 // deleted, the keyboard goes to the entry beside the deleted one, or to the
-// card or column that listed it when none is left (`deletedEntryHome`).
+// card or column that listed it when none is left (`./pageEntries.ts`).
 export type DeleteSessionRecord = SessionOperation<
   Promise<DeleteRecordOutcome>
 >;
@@ -71,105 +70,6 @@ export type PageSessions = {
   readonly markRead: MarkSessionRead;
   readonly deleteRecord: DeleteSessionRecord;
 };
-
-// The attribute by which a session entry names the session it shows.
-const showsSessionAttribute = "data-shows-session";
-
-export function showsSession(sessionKey: string) {
-  return { [showsSessionAttribute]: sessionKey };
-}
-
-// The attribute by which a done story's card in Recently done names its
-// story. The card is focusable only so the keyboard can be put on it, so it
-// stays out of the tab order.
-const doneStoryAttribute = "data-done-story";
-
-export function doneStoryMarks(identity: string) {
-  return { [doneStoryAttribute]: identity, tabIndex: -1 } as const;
-}
-
-// What the keyboard can be put on in a list of entries: a session entry by its
-// session, or a done story's card by its story, so it is found again once the
-// page has rendered the list anew.
-type Entry = { readonly attribute: string; readonly value: string };
-
-const entryMarks = [
-  showsSessionAttribute,
-  doneStoryAttribute,
-  "data-work",
-] as const;
-
-// The entry an element is, by its mark.
-function entryOf(element: Element | null | undefined): Entry | undefined {
-  for (const attribute of entryMarks) {
-    const value = element?.getAttribute(attribute);
-    if (value !== null && value !== undefined) return { attribute, value };
-  }
-  return undefined;
-}
-
-// The entry beside the one a control is in, in the same list: a card's
-// sessions, a done story's sessions, or either standalone column list, where
-// a story card is an entry as a session is. The nearest after it, else the
-// nearest before it; with none, the done story's card holding the list, for
-// the last of its sessions. A list item's entry is its first marked element,
-// which for a done story's card is the card, not a session inside it.
-function entryBeside(control: HTMLElement): Entry | undefined {
-  const item = control.closest("li");
-  const marked = entryMarks.map((attribute) => `[${attribute}]`).join(", ");
-  for (const step of [
-    "nextElementSibling",
-    "previousElementSibling",
-  ] as const) {
-    for (let sibling = item?.[step]; sibling; sibling = sibling[step]) {
-      const entry = entryOf(sibling.querySelector(marked));
-      if (entry !== undefined) return entry;
-    }
-  }
-  return entryOf(item?.closest(`[${doneStoryAttribute}]`));
-}
-
-// The marked entry within the list or column that contained the operation.
-function entryShown(
-  entry: Entry | undefined,
-  within: string,
-): HTMLElement | null {
-  return entry === undefined
-    ? null
-    : document.querySelector<HTMLElement>(
-        `${within} [${entry.attribute}="${CSS.escape(entry.value)}"]`,
-      );
-}
-
-// Where the keyboard goes once the entry a control is in is deleted: the entry
-// beside it while the page still shows it (`entryBeside`), else its story's
-// card (for a card's entry) or the containing column. Read the neighbours before the
-// delete; the answer is looked up afterwards.
-export function deletedEntryHome(
-  control: HTMLElement,
-  identity: string | undefined,
-): () => HTMLElement | null {
-  const beside = entryBeside(control);
-  const column =
-    control.closest(".recently-done") !== null
-      ? ".recently-done"
-      : `.stage[aria-labelledby="${control.closest(".stage")?.getAttribute("aria-labelledby")}"]`;
-  const within =
-    control.closest(".card-sessions") !== null ? ".card-sessions" : column;
-  return () =>
-    entryShown(beside, within) ??
-    (identity === undefined ? undefined : workCard(identity)) ??
-    document.querySelector<HTMLElement>(column);
-}
-
-// The actual entry across all dashboard columns. The sidebar is navigation,
-// so it does not compete with the session's one column home.
-export function sessionEntry(sessionKey: string): HTMLElement | null {
-  return entryShown(
-    { attribute: showsSessionAttribute, value: sessionKey },
-    ".dashboard-columns",
-  );
-}
 
 export const SessionsOnPage = createContext<PageSessions | undefined>(
   undefined,

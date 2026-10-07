@@ -559,14 +559,16 @@ Accepted proof and learnings (2026-10-08, terry-chan):
 - CI run 37687776071 on `c98b364c` failed the slice 4 project-switch test: a
   project switch cancels the pooled record read, so the asked set depended on
   timing. Repaired in `d04890e8` by waiting for the demanded records first.
-- Open defect for the next boundary: one sweep run of
-  `recently-done-progressive-navigation-cursor.spec.ts` asked a done record
-  twice (passes alone); diagnose before slice 6.
+- CI runs 37689968037 (`d04890e8`) and 37691024378 (`670b27fa`) failed the
+  Cursor journey test the same way: switching projects cancels Open Dough's
+  in-flight first-ten reads by design, and returning legitimately asks them
+  again, which `recordsAsked` counted. No product reread; repaired in
+  `fbab9e3a` by reading the first ten before switching (CI green there).
 
 ### 6. Refresh preserves reading range and a new project starts short
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend `recently-done-progressive-state.spec.ts`; run all three
 capability specs, the Done projection/independent arrivals group, changed
 revision-reuse consumers, and the Navigation group. Publish a new revision
@@ -589,6 +591,34 @@ Safe stopping point: the complete range lifecycle is delivered. Assimilate the
 result into `dashboard/README.md` and session-history/navigation documentation
 alongside the final producer/adoption contract; retain this seed and plan for
 the authorized execution retrospective and wrap-up.
+
+Accepted proof and learnings (2026-10-08, terry-chan):
+
+- Same-project refresh keeps the requested count because the owner is keyed
+  by source. Found and fixed: a new revision briefly shows `done: loading`,
+  which emptied the list and dropped focus; `useShownDone` in
+  `recentlyDoneView.ts` keeps the last catalogued list until the new catalog
+  answers, reading records at the revision whose catalog lists them.
+- The range owner holds a focused entry (`HeldEntry`, `hold`, `include`,
+  `heldIn`; `dashboard/src/recentlyDoneFocus.ts`), cleared by the developer's
+  own move, collapse, or a project switch. When the focused entry disappears,
+  focus goes to the entry holding its session, else the entry now in its place,
+  else the last shown entry, else the section. A stale reveal `asked` flag no
+  longer pulls focus to the exhaustion statement after a refresh. Entry-mark
+  lookups moved to `dashboard/src/pageEntries.ts`.
+- Documentation: `dashboard/AGENT-LAUNCH-HISTORY.md#recently-done-range`,
+  the README's Recently done sentence, and `dashboard/GITHUB-REQUESTS.md`
+  (catalog read plus one read per shown, not yet read record). North Star has
+  no passage for this story's design.
+- Proof: `recently-done-progressive-refresh.spec.ts` (20 kept across new first
+  entry/retitle/removal with exact per-revision asks; focused entry kept and
+  refocused after removal; expiry clamps scroll; pending Mark-as-done
+  destination kept in its new place) and `recently-done-progressive-reset.spec.ts`
+  (late old-revision answer ignored; panels, panel resize, sidebar and paging
+  keep 20; reload and project switch return to ten), 16/16 with
+  `--repeat-each=4`; mutation checks fail the matching steps. Combined
+  progressive, Done projection, revision-reuse and Navigation run: 102 passed;
+  Recently done/refresh consumer sweep: 255 passed; typecheck and lint.
 
 ## Cumulative review
 
