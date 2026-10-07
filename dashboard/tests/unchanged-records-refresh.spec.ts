@@ -155,23 +155,22 @@ test("a commit that changes no planning record is shown without reading the unch
     await passTimeUntilChecked(page);
     await expectSettledAt(page, revisionB);
     const asked = readsBesideChecks(origin.requests.slice(before));
-    expect(asked.filter((call) => call === "compare")).toHaveLength(1);
-    expect(asked.filter((call) => call === "commit")).toHaveLength(1);
-    expect(recordsReadAt(asked, revisionB)).toEqual([]);
-    // The card keeps its credited human and slice clock without listing the
-    // profile's history or asking the plan's last commit time again.
-    expect(asked.filter((call) => call.startsWith("commit-list "))).toEqual([]);
     expect(
       origin.requests
         .slice(before)
         .flatMap(({ request }) =>
           request.kind === "compare"
             ? [`${request.base}...${request.head}`]
-            : request.kind === "commit"
-              ? [request.sha]
-              : [],
+            : [],
         ),
-    ).toEqual([`${revisionA}...${revisionB}`, productCodeCommit.sha]);
+    ).toEqual([`${revisionA}...${revisionB}`]);
+    expect(asked.filter((call) => call.startsWith("commit "))).toEqual([
+      `commit ${productCodeCommit.sha}`,
+    ]);
+    expect(recordsReadAt(asked, revisionB)).toEqual([]);
+    // The card keeps its credited human and slice clock without listing the
+    // profile's history or asking the plan's last commit time again.
+    expect(asked.filter((call) => call.startsWith("commit-list "))).toEqual([]);
   });
 
   await test.step("a second tab asks only which commit the ref names", async () => {

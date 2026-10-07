@@ -147,7 +147,7 @@ is left with only its pre-existing `DearDough.md` change.
 | The page knows what each limited read was reading. | Slice 3's label. | `authenticatedGet(query, reading, signal)` (`src/authenticatedGet.ts`) receives `reading` for every boundary request and builds both limited `ReadProblem`s there. |
 | The "not asked" sentence has exactly three producers, and the server can share a page rule. | Slice 3's one sentence. | `grep -rn "not asked of GitHub" dashboard/server dashboard/src`: `authenticatedGet.ts`, `readFailureMessage.ts:52`, and `projectAddition.ts:24`. `rateLimitDirection.ts` and `readAdmission.ts` already import `src/authenticatedReadRules.ts`. |
 | Which tests assert the limit wording. | Slice 3's regression set. | `grep -rln "GitHub limited the rate\|asked to wait\|was not asked of GitHub\|Reading resumes in\|Try again in\|Limited until\|limitSaid" dashboard/tests` lists the files under slice 3's proof. Gap labels are asserted in `limited-reading-detail.spec.ts:58,62`, `limited-reading-profile-history.spec.ts:60`, and `limit-recovery-detail.spec.ts` (the card's "GitHub limited the rate", and its absence after recovery). |
-| `askedSince` differs from `readsBesideChecks` only in naming `commit <sha>` and keeping checks, and neither credit expectation names a check. | Slice 4. | Reading `limitRecoveryCredit.ts:57-65`, `originObservation.ts:23-40`, `limit-recovery-credit-commit.spec.ts:37`, and `limit-recovery-credit-history.spec.ts:34`. No other caller of `readsBesideChecks` expects a bare `commit` (`grep -rn '"commit"'` over those callers). |
+| `askedSince` differs from `readsBesideChecks` only in naming `commit <sha>` and keeping checks, and neither credit expectation names a check. | Slice 4. | Reading `limitRecoveryCredit.ts:57-65`, `originObservation.ts:23-40`, `limit-recovery-credit-commit.spec.ts:37`, and `limit-recovery-credit-history.spec.ts:34`. Execution disproved the last part: `reopened-project-reads.spec.ts` and `unchanged-records-refresh.spec.ts` assert a bare `commit` from `readsBesideChecks` (see slice 4). |
 | The named regressions pass at the base. | Every slice's proof. | O4 exit 0. |
 
 Literal observation commands, from the repository root:
@@ -386,13 +386,9 @@ is the one "not asked" producer.
 ### 4. Credit recovery journeys name GitHub's requests as the others do
 
 Type: Structure
-Status: planned
-Proof: `limit-recovery-credit-history.spec.ts` and
-`limit-recovery-credit-commit.spec.ts` stay green, as do the other
-`readsBesideChecks` callers: `limit-recovery-detail.spec.ts`,
-`limit-recovery-tabs.spec.ts`, `reopened-project-reads.spec.ts`,
-`shared-observer-reads.spec.ts`, `auto-refresh-branches.spec.ts`, and
-`auto-refresh-unusable-branch.spec.ts`. Run the typecheck.
+Status: done
+Proof: Every spec that imports `readsBesideChecks`, `originObservation.ts`,
+or `limitRecoveryCredit.ts` stays green. Run the typecheck.
 
 Correction: `readsBesideChecks` names a `commit` request `commit <sha>`. The
 local `askedSince(page, from)` in `limitRecoveryCredit.ts` goes. The two
@@ -401,6 +397,20 @@ with their current expectations. This finding is owned directly by the
 retrospective. External behavior is unchanged. The only difference is that a
 revision check during recovery is no longer listed, matching every other
 recovery journey.
+
+Learning during execution: the premise that no other caller expected a bare
+`commit` was false. `reopened-project-reads.spec.ts` now expects
+`commit ${madeB.sha}`, and `unchanged-records-refresh.spec.ts` expects
+exactly `commit ${productCodeCommit.sha}`. The outcome is the same: one test
+name for what GitHub was asked.
+
+Accepted proof: the typecheck is clean. Twelve specs passed (18 tests):
+`auto-refresh-branches`, `auto-refresh-project-isolation`,
+`auto-refresh-unusable-branch`, `limit-recovery-credit-commit`,
+`limit-recovery-credit-history`, `limit-recovery-detail`,
+`limit-recovery-tabs`, `reopened-project-reads`, `shared-observer-reads`,
+`taken-slice-clock`, `unchanged-assignment-credit`, and
+`unchanged-records-refresh`.
 
 ## Verification, sizing, and delivery
 

@@ -14,7 +14,6 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { limiting } from "./limitedReadingJourney.ts";
-import { readsBesideChecks } from "./originObservation.ts";
 import { untilReported } from "./support/directedWait.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
@@ -51,18 +50,6 @@ export const isCommit = (sha: string) => (request: GhRequest) =>
 
 const card = (page: Page, title: string) =>
   parts(page).taken.getByRole("article", { name: title });
-
-// What a recovery asks of GitHub, in the order it was asked, as
-// `readsBesideChecks` names it, with each commit by its sha.
-export function askedSince(page: Page, from: number): string[] {
-  return githubFor(page)
-    .calls.slice(from)
-    .map((call) =>
-      call.request.kind === "commit"
-        ? `commit ${call.request.sha}`
-        : (readsBesideChecks([call])[0] ?? call.request.kind),
-    );
-}
 
 // The plan last-commit time GitHub cannot answer, asked again by every fresh
 // read: a gap of its own, never the limit's.

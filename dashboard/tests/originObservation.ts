@@ -18,8 +18,8 @@ export function isHeadsCheck({ request }: GhCall): boolean {
   return request.kind === "matching-refs";
 }
 
-// What GitHub was asked besides the checks, as `<kind> <path>@<revision>` or
-// `branch <name>`.
+// What GitHub was asked besides the checks, as `<kind> <path>@<revision>`,
+// `branch <name>`, or `commit <sha>`.
 export function readsBesideChecks(calls: readonly GhCall[]): string[] {
   return calls
     .filter((call) => !isHeadsCheck(call))
@@ -33,6 +33,8 @@ export function readsBesideChecks(calls: readonly GhCall[]): string[] {
           return `branch ${request.branch}`;
         case "ref":
           return `ref ${request.ref}`;
+        case "commit":
+          return `commit ${request.sha}`;
         default:
           return request.kind;
       }

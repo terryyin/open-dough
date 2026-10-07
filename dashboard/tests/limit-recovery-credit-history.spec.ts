@@ -3,9 +3,8 @@
 // its card, detail, and roster, and its Take clock beside it, asking GitHub
 // only the ref, that history, and its addition (./limitRecoveryCredit.ts).
 
-import { expect, test } from "./dashboardTest.ts";
+import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
-  askedSince,
   expectRecovered,
   isYumaHistory,
   openedWithYumaWithheld,
@@ -13,6 +12,7 @@ import {
   waitedOut,
   yumaAddition,
 } from "./limitRecoveryCredit.ts";
+import { readsBesideChecks } from "./originObservation.ts";
 import { pathChange } from "./pathHistoryAnswers.ts";
 import { profilePath, revision, takes } from "./sliceClockRecords.ts";
 
@@ -31,7 +31,7 @@ test("a limited profile history is read once the wait ends, crediting its human 
     page,
     "Human developer unknown: the commit that added this agent profile names no usable committer.",
   );
-  expect(askedSince(page, asked).sort()).toEqual(
+  expect(readsBesideChecks(githubFor(page).calls.slice(asked)).sort()).toEqual(
     [
       "ref main",
       `commit-list ${profilePath("Yuma")}@${revision}`,
