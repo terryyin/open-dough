@@ -21,7 +21,9 @@ between two revisions becomes the union of each listed commit's own files
 comparison of the two revisions names, taken from the comparison request
 already made. The story's untested examples of a failing commit read and a
 rename gain proof, and the reuse tests' load-fragile or misleading support is
-corrected.
+corrected. The intermittent `shared-observer-reads.spec.ts:232` failure seen
+under load during plan 266's execution is fixed so that the journey gives the
+same result locally and in CI (added by Terry, 2026-10-07).
 
 Exclusions, recorded as product advice rather than correction: two sources on
 one repository cancelling each other's reuse (a cost, never wrong content),
@@ -148,6 +150,7 @@ red against the current code before the fix.
 | A failing commit-record read is not remembered, and the read proceeds as today. | 2: boundary case; a later read asks the commit again and reuses. |
 | Every plan 266 promise and its accepted proof stay green; no request is added. | 1–2: `authenticated-read-revision-reuse*.spec.ts`, `unchanged-records-refresh.spec.ts`, `unchanged-assignment-credit.spec.ts`, `reopened-project-reads.spec.ts`, the trunk-moving journeys, and the whole dashboard suite. |
 | The containment read is unchanged. | 1–2: `authenticated-read-containment.spec.ts` and the committed-origin journeys. |
+| `shared-observer-reads.spec.ts` "revision checks from two tabs share one head listing…" passes repeatedly under load: no call counted after its settle belongs to an earlier read. | 3: its cause confirmed from a failing trace, then repeated runs under load (`--repeat-each` with CPU stress) all pass. |
 | The request accounting and reading contract describe the evidence. | 1: `dashboard/GITHUB-REQUESTS.md`, `dashboard/PUBLISHED-OBSERVATION.md`, and the North Star topic while it exists. |
 
 ## Ordered slices
@@ -215,6 +218,29 @@ product change.
   recorded moves as ahead by their commits (no connection if a move named
   none), the reverse as behind, and others as diverged.
 
+### 3. Call counts after a settled page are not taken while an earlier read is still landing
+
+Type: Structure
+Status: planned
+Proof: `shared-observer-reads.spec.ts` fails before the fix in a deterministic
+reproduction (for example holding the late read with `page.route`, or slowed
+answers), then passes with `--repeat-each=30 --workers=12` under CPU load;
+every spec whose call counts follow the changed wait stays green.
+
+Correction: during plan 266's execution,
+`dashboard/tests/shared-observer-reads.spec.ts:232` ("revision checks from two
+tabs share one head listing…") failed once in three runs at load about 28 with
+one extra `"content"` call. The likely cause, unconfirmed: the journey helper
+`expectSettledPage` returns before the agent-profile read lands, so a call
+count taken right after it includes that read. A neighbouring flake of the same
+kind in `auto-refresh-visibility.spec.ts` was fixed by waiting for owners
+(`expectOwnersNotRecorded`) before counting (commit `84ec09b9`). Confirm the
+cause from a failing trace first. Then fix it where it lives: in this spec when
+only it counts too early, or in the settle helper when the helper is what
+returns before the page's reads have landed, keeping what each caller asserts.
+A product race found instead stops this slice for a decision. No assertion is
+weakened and no fixed sleep is added.
+
 ## Verification and delivery
 
 Run from this checkout with `NODE_ENV` unset:
@@ -233,5 +259,6 @@ publication and CI workflow.
 
 No numeric slice target or hard limit was supplied. Each slice has one proof
 loop: slice 1 a product change of one function with its fakes and documents,
-slice 2 test support and two regression cases. If execution disproves an
+slice 2 test support and two regression cases, slice 3 one diagnosed test
+wait. If execution disproves an
 observed premise, stop and revise the remaining plan within this outcome.

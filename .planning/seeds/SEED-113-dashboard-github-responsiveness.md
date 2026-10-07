@@ -464,7 +464,7 @@ published-evidence qualifications remain valid.
 
 **Identity:** SEED-113#reuse-evidence-merge-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/269-reuse-evidence-merge-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"738b84c39378f9c65735faa19b0c56226ca01ea8f27baf7a3bea59f7a8f8e770","plan":"8b05b642fa5d50bad46aa03a577fdc55f0ae15f2f8ab1fa24b119ebd34312264"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/269-reuse-evidence-merge-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a1562c1b1a7ccc3a11f9878b4e9003222702ae6298dd9a5c6f10e309064bbe02","plan":"35a54fdfbded0965f0ecbe047caf3a1ce2c850b35e6e44ea66ade454659131b3"}}
 ```
 
 **Goal:** A developer watching a project whose trunk receives merges sees, at
@@ -478,7 +478,9 @@ GitHub's comparison of them names, from the comparison already asked, so a
 merge whose own change list omits a path it changed cannot leave that path
 reused; a comparison that may not list them all establishes nothing. The
 story's untested examples of a failing commit read and a rename gain proof,
-and the reuse tests' load-fragile or misleading support is corrected. Every
+and the reuse tests' load-fragile or misleading support is corrected. The
+intermittent `shared-observer-reads.spec.ts` failure seen under load during
+that execution is fixed so it gives the same result locally and in CI. Every
 promise of that story is preserved.
 
 **Plan:** [269-reuse-evidence-merge-correction](../slice-plans/269-reuse-evidence-merge-correction/PLAN.md)
