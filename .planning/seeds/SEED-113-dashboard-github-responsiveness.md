@@ -61,7 +61,7 @@ candidates for refinement; no executable plan or readiness assessment is implied
 
 **Identity:** SEED-113#rate-limit-recovery-residue-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/271-rate-limit-recovery-residue-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f9b12c20f0c6e88649bcfa994c4bd77cee0a1b77b665a4903f2317f222bb4b9","plan":"dcc5e977b2b29a445c3a798c260c8e001c9148f2c15cc6487f8bf27d7551839b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/272-rate-limit-recovery-residue-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f9b12c20f0c6e88649bcfa994c4bd77cee0a1b77b665a4903f2317f222bb4b9","plan":"dcc5e977b2b29a445c3a798c260c8e001c9148f2c15cc6487f8bf27d7551839b"}}
 ```
 
 **Goal:** A developer whose dashboard meets GitHub's rate limit gets the
@@ -79,7 +79,7 @@ and when the limit ends, with one "not asked" sentence; a stale comment and a
 duplicated test helper go. Every promise and key example of the rate-limit
 recovery story is preserved.
 
-**Plan:** [271-rate-limit-recovery-residue-correction](../slice-plans/271-rate-limit-recovery-residue-correction/PLAN.md)
+**Plan:** [272-rate-limit-recovery-residue-correction](../slice-plans/272-rate-limit-recovery-residue-correction/PLAN.md)
 
 ## Ordering and Scope Reduction
 
