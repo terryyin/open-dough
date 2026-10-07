@@ -10,9 +10,11 @@ at that revision for preparation and detail, and, once per revision, one listing
 record directory plus one per done record listed there, one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
-its addition (usually one). What a commit changed is remembered by commit, so
-a later revision that must walk a profile's history again costs only its
-history listing. Each
+its addition (usually one). A history listing is remembered at its revision,
+and what a commit changed is remembered by commit, so a walk a failure or a
+rate limit ended asks again only from the step that failed, and a later
+revision that must walk a profile's history again costs only its history
+listing. Each
 GitHub account matched to a credited human costs one unauthenticated read of
 its avatar image from GitHub's avatar host while the dashboard process runs,
 which does not use the `gh` allowance; a failed avatar read is asked again
@@ -29,7 +31,7 @@ missing, or failed to answer, at that revision. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while
-it is hidden, and none before a rate limit's directed time); checks asked from
+it is hidden, and none before a rate limit's wait ends); checks asked from
 several pages while one listing is outstanding share it. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
@@ -51,7 +53,8 @@ ten commits between, a comparison or commit whose change list GitHub cuts at
 asked again and the new commit's backlog, records, histories, and last commit
 times are read as before; a
 comparison or commit read that fails is asked again with the next read at that
-commit, which meanwhile reads as before. A recorded story branch that moved
+commit, which meanwhile reads as before; one a rate limit refused or held back
+withholds that read, as the limit withholds any read. A recorded story branch that moved
 costs one read of its plan and one of its last commit time at the new head,
 and never a comparison.
 
@@ -61,6 +64,39 @@ opening one project together cost what one costs, resolving the ref once and
 reading each record once. A finished ref, branch-head, or check answer is never
 reused, so a later load or check asks again; separately launched dashboards
 share nothing.
+
+One dashboard process has at most eight `gh` requests under way at GitHub at
+once, across every page, project, and project addition; a shared request counts
+once. Further requests wait their turn in the order they were asked, which adds
+waiting but never requests; a request whose page stops waiting before its turn
+is never asked, and waiting counts toward the 30-second bound.
+
+Once GitHub refuses any request with a rate limit, one dashboard process makes
+no `gh` request at all until the wait ends, for any page, project, or project
+addition: what is asked meanwhile is answered as limited and costs nothing. The
+wait is the one GitHub directed, or, when it directed none, one minute, doubled
+for each such refusal of the first request after the wait, up to one hour, and
+one minute again once a request succeeds. A request already at GitHub when the limit was met is still
+answered and counted. When any wait ends, one request goes first while the
+others wait their turn: refused with a new limit, it alone is counted and the
+others are answered as limited; answered, the others proceed up to eight at
+once. A request waiting its turn when a wait starts is answered as limited and
+never asked. A separately launched dashboard does not know of the wait
+and asks at once.
+
+When the wait ends, each visible page asks again on its own, and a page
+hidden then asks when it is next seen; nothing waits for a reload. A page
+whose snapshot met the limit only in a revision check makes its next check,
+one request. A page that showed nothing, or whose snapshot's detail the limit
+withheld, reads the configured ref afresh as a reload does: one request for
+the ref, one per recorded story branch head, one per request the limit
+withheld (a record, a history listing, or the commits walked from the step
+the limit refused), and one per record GitHub answered as missing, or failed
+to answer, at that revision; content already read is not asked again, so a
+credited human and its Take clock withheld at an unchanged trunk revision
+cost only their history's unanswered steps. Pages recovering together share
+each request outstanding for them all, and the first goes alone as after any
+wait.
 
 A listed story whose latest launch on this machine settled, published at a
 revision other than the one shown, and is not yet reconciled on the page costs

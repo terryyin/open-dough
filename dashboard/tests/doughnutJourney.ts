@@ -12,22 +12,32 @@ import {
   revisionDoughnut,
 } from "./doughnutProject.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { noteReadsBesidePreparation } from "./pageRequestNotes.ts";
 
 export async function selectSettledDoughnut(page: Page) {
   const origin = await publishMovingOrigin(page, doughnutRepository);
   origin.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   const { project, backlog, source } = parts(page);
   // This fixture has no assignments or Taken plans, so its profile and done
-  // records finish every read beside preparation; a following switch must
-  // not count that older work.
-  const readsBesideAnswered = noteReadsBesidePreparation(
-    page,
-    "doughnut",
-    revisionDoughnut,
+  // responses finish every independent read beside preparation. Observe them
+  // before selecting: preparation alone can finish before either request has
+  // even reached gh, and a following switch must not count that older work.
+  const independentReads = Promise.all(
+    ["agents", "done"].map((group) =>
+      page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname === "/__authenticated-read" &&
+          url.searchParams.get("source") === "doughnut" &&
+          url.searchParams.get("revision") === revisionDoughnut &&
+          url.searchParams.get(group) ===
+            (group === "agents" ? "profiles" : "records")
+        );
+      }),
+    ),
   );
   await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
-  await readsBesideAnswered();
+  for (const response of await independentReads)
+    expect(response.ok()).toBe(true);
   await expectSettledPage(page, { taken: [], backlog: [doughnutSharedTitle] });
   await expect(source).toContainText(revisionDoughnut);
   const card = backlog.getByRole("article", { name: doughnutSharedTitle });

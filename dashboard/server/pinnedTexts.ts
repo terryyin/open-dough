@@ -10,7 +10,7 @@ import {
   readRepositoryFileViaGh,
   type ListedFile,
 } from "./ghContents.ts";
-import { lastCommitTimeViaGh } from "./ghRead.ts";
+import { lastCommitTimeViaGh } from "./ghCommitTime.ts";
 import {
   commitChangeOf,
   findAddition,
@@ -79,8 +79,10 @@ export class PinnedTexts extends PinnedMemo {
   // Which commit added a profile's current allocation as of a commit, and
   // who committed it, remembered the same way under the path with a trailing
   // NUL: each assignment keeps its own addition, whoever else the same human
-  // credits. Each walked commit's change to the path is derived from that
-  // commit's remembered record, so a walk asks GitHub only for its list.
+  // credits. The path's history as of the commit is remembered the same way,
+  // and each walked commit's change to the path is derived from that commit's
+  // remembered record. So a walk a failure ended asks GitHub again only from
+  // the step that failed, and a later revision's walk asks only for its list.
   adder(source: PublishedSource, revision: string, signal: AbortSignal) {
     const recordOf = this.commitRecorder(source, signal);
     return (path: string): Promise<ProfileAddition> =>
@@ -91,11 +93,13 @@ export class PinnedTexts extends PinnedMemo {
         signal,
         async () =>
           findAddition(
-            await listPathCommitsViaGh(
-              source.repository,
-              path,
+            await this.recalledOrUnchangedJson(
+              source,
               revision,
+              `${path}\0history`,
               signal,
+              () =>
+                listPathCommitsViaGh(source.repository, path, revision, signal),
             ),
             async (commit) => commitChangeOf(await recordOf(commit), path),
           ),

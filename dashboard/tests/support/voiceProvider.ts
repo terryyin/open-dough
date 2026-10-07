@@ -2,6 +2,7 @@ import { createServer, type ServerResponse } from "node:http";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { appendedRecords } from "./appendedRecords.ts";
 
 export async function voiceProvider(
   options: { deadlineMs?: number | undefined } = {},
@@ -114,13 +115,9 @@ globalThis.fetch = (input, options) => {
     },
     deadlines(): Array<{ milliseconds: number; stack: string }> {
       try {
-        return readFileSync(deadlineFile, "utf8")
-          .trim()
-          .split("\n")
-          .map(
-            (line) =>
-              JSON.parse(line) as { milliseconds: number; stack: string },
-          );
+        return appendedRecords<{ milliseconds: number; stack: string }>(
+          readFileSync(deadlineFile, "utf8"),
+        );
       } catch {
         return [];
       }

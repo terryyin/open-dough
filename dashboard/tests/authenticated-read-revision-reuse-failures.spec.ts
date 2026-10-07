@@ -80,28 +80,6 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
     ]);
   });
 
-  test("a comparison GitHub refuses with Retry-After is reported as a rate limit, and nothing is read for it", async () => {
-    const [a, b] = [named("ab"), named("bb")];
-    const files = filesFor("limited");
-    const published = await publishedAt(a, files);
-    await movedTo(published, a, { revision: b, files });
-    published.compared.set(`${a}...${b}`, () =>
-      rateLimitedAnswer(403, { "Retry-After": "120" }),
-    );
-
-    let limited: Answer | undefined;
-    expect(
-      await asked(async () => {
-        limited = await at(b).backlog();
-      }),
-    ).toEqual(["compare ab...bb"]);
-    expect(limited).toMatchObject({
-      status: 502,
-      body: { retryAfterSeconds: 120 },
-    });
-    expect(JSON.stringify(limited?.body)).toContain("GitHub limited the rate");
-  });
-
   test("a burst of reads at B shares one comparison and one read of the commit between", async () => {
     const [a, b] = [named("ae"), named("be")];
     const files = filesFor("burst");
@@ -140,5 +118,34 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
       for (const answer of await answers) expect(answer.status).toBe(200);
     });
     expect(calls).toEqual(["compare ae...be", "commit ce"]);
+  });
+});
+
+// A rate limit holds back every later read of its server's process
+// (../server/readAdmission.ts), so the case that meets one has a server of its
+// own.
+test.describe("authenticated read reuse at a newly named revision under a rate limit (dev launch mode)", () => {
+  const { at, asked, publishedAt, movedTo } = revisionReuseBoundary();
+
+  test("a comparison GitHub refuses with Retry-After is reported as a rate limit, and nothing is read for it", async () => {
+    const [a, b] = [named("ab"), named("bb")];
+    const files = filesFor("limited");
+    const published = await publishedAt(a, files);
+    await movedTo(published, a, { revision: b, files });
+    published.compared.set(`${a}...${b}`, () =>
+      rateLimitedAnswer(403, { "Retry-After": "120" }),
+    );
+
+    let limited: Answer | undefined;
+    expect(
+      await asked(async () => {
+        limited = await at(b).backlog();
+      }),
+    ).toEqual(["compare ab...bb"]);
+    expect(limited).toMatchObject({
+      status: 502,
+      body: { retryAfterSeconds: 120 },
+    });
+    expect(JSON.stringify(limited?.body)).toContain("GitHub limited the rate");
   });
 });

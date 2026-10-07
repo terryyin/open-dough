@@ -2,10 +2,12 @@
 // (../server/revisionChecks.ts, ../server/rateLimitDirection.ts), tested
 // directly against real HTTP and the synthetic `gh`
 // (./revisionCheckBoundary.ts): a failed listing is classified as a failure;
-// a rate limit passes on only the wait GitHub directs; an answer spending the
-// last allowance is still an answer; and a listing that fails for any reason
-// but a rate limit reports the ref's commit alone, naming no branch head, for
-// that check only. Answers and GitHub's 304:
+// a rate limit passes on the wait GitHub directs, or the process's own when
+// GitHub directs none, each met on a server of its own because it holds back
+// that server's later reads (./authenticated-read-cooldown.spec.ts); an
+// answer spending the last allowance is still an answer; and a listing that
+// fails for any reason but a rate limit reports the ref's commit alone,
+// naming no branch head, for that check only. Answers and GitHub's 304:
 // ./authenticated-read-revision-check.spec.ts.
 
 import { expect, test } from "./support/pageTest.ts";
@@ -17,6 +19,7 @@ import {
 import {
   checkArgv,
   listingEtag,
+  ownRevisionCheckBoundary,
   revisionA,
   revisionB,
   revisionCheckBoundary,
@@ -27,7 +30,13 @@ test.describe.configure({ mode: "serial" });
 // The argv that asks which commit a repository's `main` names, and nothing
 // about other branches.
 function refArgv(repository: string): string[] {
-  return ["api", `repos/${repository}/commits/main`, "--jq", ".sha"];
+  return [
+    "api",
+    "--include",
+    `repos/${repository}/commits/main`,
+    "--jq",
+    ".sha",
+  ];
 }
 
 // GitHub giving up on an answer, as it does on a large repository's listing.
@@ -41,14 +50,23 @@ test.describe("authenticated read boundary revision check failures (dev launch m
   const { main, listing, check } = revisionCheckBoundary();
 
   test("a real failure of the conditional listing is still classified as a failure, and a rate limit is never asked of the ref alone", async () => {
-    listing.set("terryyin/open-dough", rateLimitedAnswer());
-    main.set("terryyin/open-dough", commitAnswer(revisionB));
-    const limited = await check("open-dough", revisionB);
-    listing.delete("terryyin/open-dough");
+    // Even a limit that directs no wait holds back that server's later reads
+    // while the process backs off, so it is met on a server of its own.
+    const own = await ownRevisionCheckBoundary();
+    const limited = await (async () => {
+      try {
+        own.listing.set("terryyin/open-dough", rateLimitedAnswer());
+        own.main.set("terryyin/open-dough", commitAnswer(revisionB));
+        return await own.check("open-dough", revisionB);
+      } finally {
+        await own.close();
+      }
+    })();
     expect(limited.status).toBe(502);
     expect(limited.body).toEqual({
       error:
-        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading main of terryyin/open-dough. Wait before reloading the page.",
+        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading main of terryyin/open-dough. GitHub named no wait, so reading resumes in 60 seconds.",
+      retryAfterSeconds: 60,
     });
     // Only the listing: a rate limit is never asked of the ref alone.
     expect(limited.calls).toHaveLength(1);
@@ -65,15 +83,29 @@ test.describe("authenticated read boundary revision check failures (dev launch m
     });
   });
 
-  test("a rate limit that directs a wait passes on only that wait, validated and bounded, for the page's next check", async () => {
+  test("a rate limit passes on the wait GitHub directs, validated and bounded, or the process's own when it directs none, for the page's next check", async () => {
     const limitedMessage = (status: number, wait: string) =>
       `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(status)}) while reading main of terryyin/open-dough. ${wait}`;
 
-    main.set(
-      "terryyin/open-dough",
+    // Each wait holds back every later read of its server, so each is met on
+    // a server of its own.
+    // `refusal` is made once the server has started, so a reset time names
+    // a time from the check itself.
+    const refusedOnOwnServer = async (
+      refusal: () => ReturnType<typeof rateLimitedAnswer>,
+    ) => {
+      const own = await ownRevisionCheckBoundary();
+      try {
+        own.main.set("terryyin/open-dough", refusal());
+        return await own.check("open-dough", revisionB);
+      } finally {
+        await own.close();
+      }
+    };
+
+    const retryAfter = await refusedOnOwnServer(() =>
       rateLimitedAnswer(429, { "Retry-After": "120" }),
     );
-    const retryAfter = await check("open-dough", revisionB);
     expect(retryAfter.status).toBe(502);
     expect(retryAfter.body).toEqual({
       error: limitedMessage(
@@ -83,40 +115,43 @@ test.describe("authenticated read boundary revision check failures (dev launch m
       retryAfterSeconds: 120,
     });
 
-    const resetSeconds = Math.floor(Date.now() / 1000) + 90;
-    main.set(
-      "terryyin/open-dough",
+    const reset = await refusedOnOwnServer(() =>
       rateLimitedAnswer(403, {
         "X-RateLimit-Remaining": "0",
-        "X-RateLimit-Reset": String(resetSeconds),
+        "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) + 90),
       }),
     );
-    const reset = await check("open-dough", revisionB);
     expect(reset.status).toBe(502);
     const { retryAfterSeconds } = reset.body as { retryAfterSeconds: number };
     expect(retryAfterSeconds).toBeGreaterThanOrEqual(85);
     expect(retryAfterSeconds).toBeLessThanOrEqual(90);
 
     // A direction beyond GitHub's own hour-long window is bounded to it.
-    main.set(
-      "terryyin/open-dough",
-      rateLimitedAnswer(429, { "Retry-After": "86400" }),
-    );
-    expect((await check("open-dough", revisionB)).body).toMatchObject({
-      retryAfterSeconds: 3600,
-    });
+    expect(
+      (
+        await refusedOnOwnServer(() =>
+          rateLimitedAnswer(429, { "Retry-After": "86400" }),
+        )
+      ).body,
+    ).toMatchObject({ retryAfterSeconds: 3600 });
 
-    // Headers that direct nothing usable leave the ordinary failure alone:
-    // an unreadable Retry-After, and a reset while allowance remains.
+    // Headers that direct nothing usable direct no wait, so the process backs
+    // off its own first wait: an unreadable Retry-After, and a reset while
+    // allowance remains.
     for (const headers of [
       { "Retry-After": "soon" },
       { "X-RateLimit-Remaining": "12", "X-RateLimit-Reset": "1" },
     ]) {
-      main.set("terryyin/open-dough", rateLimitedAnswer(403, headers));
-      const undirected = await check("open-dough", revisionB);
+      const undirected = await refusedOnOwnServer(() =>
+        rateLimitedAnswer(403, headers),
+      );
       expect(undirected.status).toBe(502);
       expect(undirected.body).toEqual({
-        error: limitedMessage(403, "Wait before reloading the page."),
+        error: limitedMessage(
+          403,
+          "GitHub named no wait, so reading resumes in 60 seconds.",
+        ),
+        retryAfterSeconds: 60,
       });
     }
   });

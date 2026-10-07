@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Jane-chan",
-  "email": "jane-chan@example.org",
-  "identity": "SEED-113#recover-consistently-from-rate-limits",
-  "mode": "story-branch",
-  "branch": "claude/recover-consistently-from-github-rate-limits",
-  "host": "claude"
-}

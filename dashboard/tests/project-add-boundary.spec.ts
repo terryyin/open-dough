@@ -112,8 +112,9 @@ test("server shutdown ends pending Add validation without writing configuration"
   const pid = server.ghPid();
   if (pid === undefined) throw new Error("The fake gh did not record its pid.");
   await fixture.stop(server);
-  // Already over once `stop` resolves; an exited gh not yet reaped may still
-  // answer `kill(pid, 0)`, so ask whether it can still run.
+  // Already over once the server's process group is: an exited `gh` that
+  // outlived Vite still answers `kill(pid, 0)` until launchd reaps it, late
+  // under load, so only whether it can still run code says it was ended.
   expect(processRunning(pid)).toBe(false);
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     before,

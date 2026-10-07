@@ -26,14 +26,12 @@ import {
   expectPinnedGhCalls,
   publicationOf,
   projects,
-  sourceIdOf,
 } from "./catalogProjectRecords.ts";
 import {
   assertNoCredentialMarker,
   collectFiles,
 } from "./support/credentialAbsence.ts";
 import { startDashboardServer } from "./support/dashboardServer.ts";
-import { noteReadsBesidePreparation } from "./pageRequestNotes.ts";
 
 // Shaped like a real GitHub token and placed only in the spawned server
 // process's own environment, where the production `gh` invocation would see
@@ -79,18 +77,6 @@ for (const mode of ["dev", "preview"] as const) {
       github,
       extraEnv: { GH_TOKEN: credentialMarker },
     });
-    // Each project's profiles and done records, noted before the first is
-    // read on opening.
-    const readsBeside = new Map(
-      projects.map((published) => [
-        published,
-        noteReadsBesidePreparation(
-          page,
-          sourceIdOf(published),
-          published.revision,
-        ),
-      ]),
-    );
     try {
       await page.goto(server.baseURL);
       const { project: selector, direction, source, problem } = parts(page);
@@ -121,8 +107,6 @@ for (const mode of ["dev", "preview"] as const) {
             name: published.queued,
           });
           await expectSettledPage(page);
-          // Its gh calls are counted once these are read too.
-          await readsBeside.get(published)?.();
           await expect(
             takenCard.getByText("Not recorded", { exact: true }),
           ).toBeVisible();
@@ -162,6 +146,7 @@ for (const mode of ["dev", "preview"] as const) {
           await expect.poll(() => calls.length).toBeGreaterThan(before);
           expect(calls[before]?.argv).toEqual([
             "api",
+            "--include",
             `repos/${published.repository}/commits/${published.ref}`,
             "--jq",
             ".sha",

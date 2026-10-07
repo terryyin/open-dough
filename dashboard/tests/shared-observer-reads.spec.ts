@@ -21,7 +21,7 @@ import {
   revisionDoughnut,
 } from "./doughnutProject.ts";
 import { readsBesideChecks } from "./originObservation.ts";
-import { isCheck, noteReadsBesidePreparation } from "./pageRequestNotes.ts";
+import { isCheck } from "./pageRequestNotes.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
@@ -110,8 +110,7 @@ async function expectGoalShown(page: Page) {
 
 // Opens Open Dough in this page and a second tab of the same browser, with
 // its ref and then its seed held until both tabs wait on each; the seed is
-// left held. Once it is released, `readsBesideAnswered` waits until both tabs
-// have their profiles and done records too.
+// left held.
 async function openedTogether(page: Page) {
   await pausePageClockAt(page, new Date("2026-10-06T09:00:00.000Z"));
   const github = githubFor(page);
@@ -131,9 +130,6 @@ async function openedTogether(page: Page) {
   const tabs = [page, other];
   const opened = tabs.map((tab) => tab.waitForRequest(isMembership));
   const seedRead = tabs.map((tab) => tab.waitForRequest(isSeedRead));
-  const readsBeside = tabs.map((tab) =>
-    noteReadsBesidePreparation(tab, "open-dough", revision),
-  );
   await Promise.all(tabs.map((tab) => tab.goto("/")));
   await waitingTogether(tabs, opened);
   ref.release();
@@ -150,12 +146,7 @@ async function openedTogether(page: Page) {
     "ref main",
     `content ${backlogPath}@${revision}`,
   ]);
-  return {
-    other,
-    releaseSeed: seed.release,
-    readsBesideAnswered: () =>
-      Promise.all(readsBeside.map((answered) => answered())),
-  };
+  return { other, releaseSeed: seed.release };
 }
 
 const askedOnce = (page: Page) => {
@@ -208,13 +199,10 @@ test("a tab switched to another project before the seed is answered leaves the o
 test("revision checks from two tabs share one head listing, which still answers the tab left showing when the other is hidden", async ({
   page,
 }) => {
-  const { other, releaseSeed, readsBesideAnswered } =
-    await openedTogether(page);
+  const { other, releaseSeed } = await openedTogether(page);
   releaseSeed();
   await expectSettledPage(page, titles);
   await expectSettledPage(other, titles);
-  // Calls are counted from once every read of the opening has landed.
-  await readsBesideAnswered();
   const github = githubFor(page);
   const listing = holdingAnswer(
     publishes({ revision, files }),

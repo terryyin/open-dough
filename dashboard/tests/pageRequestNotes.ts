@@ -1,9 +1,9 @@
-// What the auto-refresh journey's page asks of the local boundary, as the
-// page itself notes it: the page times of its revision checks, the requests
-// still unanswered, and the message turns on which it acts. See
-// ./autoRefreshJourney.ts.
+// What a dashboard page asks of the local boundary, as the page itself notes
+// it: the page times of its revision checks, the requests and reads still
+// unanswered, and the message turns on which it acts. See
+// ./autoRefreshJourney.ts and ./dashboardPage.ts.
 
-import { expect, type Page } from "@playwright/test";
+import type { BrowserContext, Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
 // A browser request to the local boundary is a revision check when it names
@@ -14,12 +14,14 @@ export function isCheck(url: string): boolean {
   return new URL(url).searchParams.has(checkParameter);
 }
 
-// What the page notes about its own requests (see `noteChecksInPage`): the
-// page times at which it asked for revision checks, and every request it has
-// sent that is not yet answered.
-type ChecksNoted = {
+// What the page notes about its own requests (see `noteRequestsInPage`):
+// the page times at which it asked for revision checks, every request it has
+// sent that is not yet answered, and of those its reads of the local read
+// boundary other than revision checks.
+type RequestsNoted = {
   revisionChecksAskedAt?: number[];
   requestsUnanswered?: Set<Promise<unknown>>;
+  readsUnanswered?: Set<Promise<unknown>>;
 };
 
 // From now on, the page notes the page time at which it asks for each
@@ -30,37 +32,67 @@ type ChecksNoted = {
 // place this page sends any -- until that request's answer has been read
 // whole, or the request has failed or been abandoned. The page's requests
 // and the answers it reads are left exactly as they are; only a copy of each
-// answer is read here.
-async function noteChecksInPage(page: Page): Promise<void> {
-  await page.evaluate((parameter) => {
-    const noted = window as ChecksNoted & typeof window;
-    if (noted.revisionChecksAskedAt !== undefined) {
-      return;
+// answer is read here. Runs in the page, as a page script or as an init
+// script before the page's own scripts (`./dashboardTest.ts`).
+function noteRequestsInPage({
+  checkParameter: parameter,
+  readPath,
+}: {
+  readonly checkParameter: string;
+  readonly readPath: string;
+}): void {
+  const noted = window as RequestsNoted & typeof window;
+  if (noted.revisionChecksAskedAt !== undefined) {
+    return;
+  }
+  const askedAt: number[] = [];
+  const unanswered = new Set<Promise<unknown>>();
+  const readsUnanswered = new Set<Promise<unknown>>();
+  noted.revisionChecksAskedAt = askedAt;
+  noted.requestsUnanswered = unanswered;
+  noted.readsUnanswered = readsUnanswered;
+  const send = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const url = new URL(
+      input instanceof Request ? input.url : input,
+      window.location.href,
+    );
+    const check = url.searchParams.has(parameter);
+    if (check) {
+      askedAt.push(Date.now());
     }
-    const askedAt: number[] = [];
-    const unanswered = new Set<Promise<unknown>>();
-    noted.revisionChecksAskedAt = askedAt;
-    noted.requestsUnanswered = unanswered;
-    const send = window.fetch.bind(window);
-    window.fetch = (input, init) => {
-      const url =
-        input instanceof Request
-          ? input.url
-          : new URL(input, window.location.href).href;
-      if (new URL(url).searchParams.has(parameter)) {
-        askedAt.push(Date.now());
-      }
-      const sent = send(input, init);
-      const answered = sent
-        .then((response) => response.clone().arrayBuffer())
-        .catch(() => undefined)
-        .finally(() => {
-          unanswered.delete(answered);
-        });
-      unanswered.add(answered);
-      return sent;
-    };
-  }, checkParameter);
+    const read = !check && url.pathname === readPath;
+    const sent = send(input, init);
+    const answered = sent
+      .then((response) => response.clone().arrayBuffer())
+      .catch(() => undefined)
+      .finally(() => {
+        unanswered.delete(answered);
+        readsUnanswered.delete(answered);
+      });
+    unanswered.add(answered);
+    if (read) {
+      readsUnanswered.add(answered);
+    }
+    return sent;
+  };
+}
+
+const notedRequests = {
+  checkParameter,
+  readPath: authenticatedReadEndpoint,
+};
+
+async function noteRequestsInOpenPage(page: Page): Promise<void> {
+  await page.evaluate(noteRequestsInPage, notedRequests);
+}
+
+// Every page of `context` notes its requests from before its own scripts
+// run, so a journey can wait for reads it sent on opening.
+export async function noteRequestsInEveryPage(
+  context: BrowserContext,
+): Promise<void> {
+  await context.addInitScript(noteRequestsInPage, notedRequests);
 }
 
 // Gives the page its message turns: the page's own work runs on them, and
@@ -86,15 +118,32 @@ export async function givePageItsTurns(page: Page): Promise<void> {
 // request it has sent is answered: the local boundary asks `gh` only while
 // it answers the page, so after this no `gh` call is on its way.
 export async function untilPageRequestsAnswered(page: Page): Promise<void> {
+  await untilNotedAnswered(page, "requestsUnanswered");
+}
+
+// Waits until every read the page has sent the local read boundary, its
+// revision checks aside, is answered, and the answers have led to no further
+// read: what the page shows can then come from nothing still on its way. A
+// revision check is left alone, so a journey holding GitHub's listing can
+// still wait here. A page whose requests are not noted has nothing to wait
+// for.
+export async function untilPageReadsAnswered(page: Page): Promise<void> {
+  await untilNotedAnswered(page, "readsUnanswered");
+}
+
+async function untilNotedAnswered(
+  page: Page,
+  unansweredNote: "requestsUnanswered" | "readsUnanswered",
+): Promise<void> {
   for (;;) {
     await givePageItsTurns(page);
-    const waited = await page.evaluate(async () => {
+    const waited = await page.evaluate(async (note) => {
       const unanswered = [
-        ...((window as ChecksNoted & typeof window).requestsUnanswered ?? []),
+        ...((window as RequestsNoted & typeof window)[note] ?? []),
       ];
       await Promise.all(unanswered);
       return unanswered.length > 0;
-    });
+    }, unansweredNote);
     if (!waited) {
       return;
     }
@@ -104,7 +153,7 @@ export async function untilPageRequestsAnswered(page: Page): Promise<void> {
 // The page times of the revision checks the page has asked for so far.
 async function checksAskedAt(page: Page): Promise<readonly number[]> {
   return page.evaluate(() => [
-    ...((window as ChecksNoted & typeof window).revisionChecksAskedAt ?? []),
+    ...((window as RequestsNoted & typeof window).revisionChecksAskedAt ?? []),
   ]);
 }
 
@@ -115,7 +164,7 @@ export async function whileNotingChecks<T>(
   page: Page,
   passing: (askedAfter: () => Promise<readonly number[]>) => Promise<T>,
 ): Promise<T> {
-  await noteChecksInPage(page);
+  await noteRequestsInOpenPage(page);
   const alreadyAsked = (await checksAskedAt(page)).length;
   const startedAt = await page.evaluate(() => Date.now());
   return passing(async () =>
@@ -123,43 +172,4 @@ export async function whileNotingChecks<T>(
       .slice(alreadyAsked)
       .map((askedAt) => askedAt - startedAt),
   );
-}
-
-// The reads beside preparation of one project at one revision, each by the
-// search parameter that asks it: its agent profiles, with the project setting
-// file, and its done records.
-const readsBesidePreparation = { agents: "profiles", done: "records" };
-
-// From now on, notes the page's answers to the reads beside preparation of
-// one project at one revision. A settled page (`expectSettledPage`) shows
-// neither while the project has no Taken work or done story, and preparation
-// alone can finish before either has reached `gh`; the returned wait ends once
-// both are answered, so a count of what was asked taken after it includes
-// them. Start noting before the page asks them.
-export function noteReadsBesidePreparation(
-  page: Page,
-  sourceId: string,
-  revision: string,
-): () => Promise<void> {
-  const answered = new Map<string, boolean>();
-  page.on("response", (response) => {
-    const url = new URL(response.url());
-    if (
-      url.pathname !== authenticatedReadEndpoint ||
-      url.searchParams.get("source") !== sourceId ||
-      url.searchParams.get("revision") !== revision
-    ) {
-      return;
-    }
-    for (const [group, asked] of Object.entries(readsBesidePreparation)) {
-      if (url.searchParams.get(group) === asked) {
-        answered.set(group, response.ok());
-      }
-    }
-  });
-  return async () => {
-    await expect
-      .poll(() => Object.fromEntries(answered))
-      .toEqual({ agents: true, done: true });
-  };
 }

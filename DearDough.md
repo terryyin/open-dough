@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 250. Removed local codes are never reused.
+- Highest allocated local number: 251. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -285,6 +285,7 @@ Follow-up: delivered, unreleased: SEED-008#story-branch-delivery-target (story a
 - Execution: `SEED-088#review-changes-since-last-review` / plan 245, first related implementation commit `d754256c` - Timestamp: unknown (while slice 1's agent ran, before `d754256c` committed 2026-10-05T13:43:51+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the coordinator printed the `deliver` usage in `execution-increment-delivery.mjs`, grepped `targetRef` across the scripts, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; all six deliveries were accepted first time. - Inference: Qualified; same missing statement.
 - Execution: `SEED-106#paged-dashboard-columns` / plan 225, first related implementation commit `a5e9e772` - Timestamp: 2026-10-06T07:36:58+09:00 (commit time of `a5e9e772`; the refusal followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the first `deliver` passed `--target-ref claude/dashboard-columns-page-horizontally-instead-of-w` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; the queued follow-up has not reached this installed release.
 - Execution: `SEED-113#share-repeated-observer-reads` / plan 261, first related implementation commit `a1c593a9` - Timestamp: 2026-10-06T17:24:05+09:00 (commit time of `a1c593a9`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: the first `deliver` passed `--target-ref claude/share-repeated-reads-across-dashboard-observers` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached, and later deliveries used that form. - Observed effect: one refused call; no state change. - Inference: Qualified; the delivered follow-up has not reached this installed release.
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde` - Timestamp: unknown (before the first delivery of `a2d43dde`, committed 2026-10-07T07:51:11+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION` at claim `0edabd1c`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. After main (0.3.57) was merged at `fefab16d`, the next `deliver` was refused for the missing `--mode` and retried with `--mode story-branch`. - Observed effect: two extra lookup calls and one refused call; every delivery was accepted. - Inference: Qualified; the released response now refuses a missing mode, which surfaced mid-execution when the merge updated the installed scripts.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -664,6 +665,14 @@ Follow-up: Open, unqueued.
   - Evidence: the CI repair for run 37111699644 ran `--repeat-each 24/30` with 6–12 workers in a temporary worktree while slice 5's full suite (about 17:18–17:21 +08:00) and its refactor pass's tests (until about 17:38 +08:00) ran; load averages reached 83–89. The repair reported six load-only failures; the refactor pass saw `codexEffortDialogCases.ts:114/:166` fail once and reran `agent-launch-codex-model` four times (10.6 minutes against about 2 for the other slices' passes); slice 5's delivery took about 6 minutes against about 1.3.
   - Observed effect: extra reruns and diagnosis of load-only failures; no wrong verdict was accepted.
   - Inference: Qualified. The published guidance runs CI repair concurrently with slice work and says nothing about shared machine load; one sample.
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
+  - Timestamp: unknown (2026-10-07, while the refactor pass that preceded `823c1eda`, committed 2026-10-07T09:30:10+09:00, overlapped the CI repair delivered as `9935c040`)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION` after the merge at `fefab16d`)
+  - Evidence: the coordinator ran a CI repair (run 37545377335) and a refactor pass concurrently in the same execution checkout. The repair's `--repeat-each=10 --workers=8` Playwright run cleared the shared `dashboard/test-results`, so the refactor pass's `production-watcher-updates` stress failed 8 of 8 with trace `ENOENT`, and its first `shared-observer-reads`/`story-readiness` stress failed 8 of 48 with 30-second timeouts at load about 101. Both passed on rerun, the first with a private `--output`. Later delegations required a private `--output` for every Playwright run.
+  - Observed effect: two invalid stress runs and their diagnosis; no wrong verdict was accepted.
+  - Inference: Qualified. Same concurrency as the earlier row, plus a shared-output-directory collision that only arises when both run in one checkout.
 
 ## ODF-110 — A removal premise swept client names but missed server and fixture consumers
 
@@ -822,6 +831,14 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator conversation: the plan's focused command `npm run test:dashboard -- <12 specs> --workers=2`, piped to `tail -8`, showed only the npm header; the coordinator reran it as `npx playwright test ... --reporter=line` to see `53 passed`.
   - Observed effect: one repeated focused run (about 15 seconds).
   - Inference: Qualified. The plan's literal proof command has the same gap as the delegation; naming a counting reporter in the plan's Proof section would avoid it.
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
+  - Timestamp: unknown (refactor returns of slices 1, 3, 5, and 7, 2026-10-07)
+  - Tool: Claude Code (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 at claim `0edabd1c`; 0.3.57 after the merge at `fefab16d`
+  - Evidence: slice 1's refactor return: "the default reporter printed no summary", rerun with `--reporter=line`; slices 3, 5, and 7's refactor returns invoked `npx playwright test ... --reporter=line|list` directly "because the default reporter's output did not show".
+  - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
+  - Inference: Qualified; the same recurring cost, unchanged by the release.
 
 ## DD-244 — The coordinator spawned a no-op fork while waiting for a background agent
 
@@ -919,3 +936,20 @@ A refactor return declared accepted proof still valid for consumer specs its edi
   - Evidence: slice 1's return listed five consumer specs (`agent-completion-binding`, `agent-launch-card-done`, `agent-launch-done-codex-races`, `agent-launch-done-question`, `session-unread-report`) as "not rerun" although they reach the rewritten private-attach path; the coordinator ran them (15 passed). Slice 3's return called making `keepRecord`'s `doneMarks` required "type-only" and did not rerun `agent-completion-binding`. The coordinator reran it only because the commit hook's `require-await` finding forced a fix; four tests failed (`TypeError … reading 'reported'` from out-of-process test callers that pass no owner), and the edit was reverted.
   - Observed effect: two extra coordinator spec runs; one broken change that would otherwise have reached CI.
   - Inference: Qualified. The refactor delegation asks for proof effects but accepts "paths unchanged" judgments. A type change at a call boundary also has callers outside the type checker's view (out-of-process `node -e` imports). Related to DD-239 (a refactor return mischaracterized its change), but here the coordinator's rerun caught it.
+
+## DD-251 — The coordinator committed after the selective formatter reported unresolved lint findings
+
+The selective formatter (`npm run format`) printed "Format failed: unresolved findings or tool failures remain" with a lint error, but the coordinator piped its output through `grep`/`tail`, did not check its exit, and staged and committed; the check-only commit hook then refused the commit. Implementation and refactor agents are told not to run hook-owned lint, so such findings first surface at the coordinator's format step.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
+  - Timestamp: 2026-10-07T11:32:58+09:00 (commit time of `7edb4b2b`, after the refused attempt) and before `adc41a56` (2026-10-07T13:14:53+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION` after the merge at `fefab16d`)
+  - Evidence: slice 4's format output contained "Format failed: unresolved findings or tool failures remain" and `agent-commit.mjs` then returned `commit-failed` for two `'_' is defined but never used` errors in new specs; slice 7's filtered format output showed "Async arrow function has no 'await' expression" and the commit was refused the same way. Each was fixed, re-proved with the touched spec and the typecheck, and committed.
+  - Observed effect: two refused commits and two short fix cycles; no unproved change was published.
+  - Inference: Qualified. Wrap-up step 4 already requires formatting success before staging; filtering the formatter's output hid its exit status. Telling delegated agents the hook's lint rules, or checking the formatter's exit before staging, would avoid it.

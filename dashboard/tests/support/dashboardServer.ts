@@ -86,6 +86,9 @@ export async function startDashboardServer(
     readonly codexProtocol?: FakeCodex | undefined;
     // The server's own bound when unset.
     readonly readTimeoutMs?: number | undefined;
+    // The server's first wait after a rate limit that directs none
+    // (`../../server/readAdmission.ts`); one minute when unset.
+    readonly limitBackoffMs?: number | undefined;
     // The fake GitHub this server's `gh` asks; a fresh one, closed with the
     // server, when omitted.
     readonly github?: FakeGitHub;
@@ -142,6 +145,9 @@ export async function startDashboardServer(
   };
   if (options.readTimeoutMs !== undefined) {
     env["DOUGH_READ_TIMEOUT_MS"] = String(options.readTimeoutMs);
+  }
+  if (options.limitBackoffMs !== undefined) {
+    env["DOUGH_LIMIT_BACKOFF_MS"] = String(options.limitBackoffMs);
   }
 
   const serverArgs = [

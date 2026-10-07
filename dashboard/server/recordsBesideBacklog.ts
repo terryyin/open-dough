@@ -10,6 +10,7 @@
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { resolveBesideFile } from "../src/repositoryPath.ts";
+import { rateLimitStop } from "./ghRead.ts";
 import type { ListedPath } from "./pinnedTexts.ts";
 import type { PinnedLister, PinnedReader } from "./reachablePaths.ts";
 import {
@@ -102,13 +103,15 @@ export async function isListedAgentProfile(
 
 // The text of the project setting file at a pinned revision, or null when the
 // revision has none or it cannot be read: either way the current collection
-// is used.
+// is used. A read GitHub's rate limit refused or held back says nothing of
+// the file, so it fails the read that wanted it, to be read again later.
 export async function agentSettingsTextAt(
   readPinned: PinnedReader,
 ): Promise<string | null> {
   try {
     return await readPinned(agentSettingsPath);
-  } catch {
+  } catch (error) {
+    if (rateLimitStop(error) !== undefined) throw error;
     return null;
   }
 }

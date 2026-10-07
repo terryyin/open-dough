@@ -14,11 +14,11 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits ([plan](slice-plans/264-rate-limit-recovery/PLAN.md))
 - [A private Claude Code rename types only at a ready prompt](seeds/SEED-116-claude-done-rename.md#claude-done-rename-readiness-correction) — SEED-116#claude-done-rename-readiness-correction ([plan](slice-plans/270-claude-done-rename-readiness-correction/PLAN.md))
 
 ## Backlog list
 
+- [Rate-limit recovery waits, resumes, and labels as promised](seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction) — SEED-113#rate-limit-recovery-residue-correction
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown
 - [A terminal the developer closed while its session starts stays closed](seeds/SEED-112-terminal-stays-closed-during-startup.md#closed-terminal-stays-closed) — SEED-112#closed-terminal-stays-closed
 - [Paged dashboard columns reveal by structure and count only what is read](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction) — SEED-106#paged-columns-reveal-and-count-correction

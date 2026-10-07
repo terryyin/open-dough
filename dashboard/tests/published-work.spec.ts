@@ -178,9 +178,16 @@ test("published overview shows Backlog and Taken work read at one revision", asy
 
   await test.step("the ref and then the file are read through the local gh at the resolved revision", () => {
     expect(requests.map((request) => request.argv)).toEqual([
-      ["api", "repos/terryyin/open-dough/commits/main", "--jq", ".sha"],
       [
         "api",
+        "--include",
+        "repos/terryyin/open-dough/commits/main",
+        "--jq",
+        ".sha",
+      ],
+      [
+        "api",
+        "--include",
         "-H",
         "Accept: application/vnd.github.raw",
         `repos/terryyin/open-dough/contents/.planning/PRODUCT-BACKLOG.md?ref=${revision}`,

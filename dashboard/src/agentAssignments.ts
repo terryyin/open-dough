@@ -26,9 +26,8 @@ import {
   attributionLoading,
   type HumanAttribution,
 } from "./assignmentAttribution.ts";
-import { rosterOf } from "./assignmentRoster.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import type { PublishedWork } from "./publishedWork.ts";
+import { limitGapProblem } from "./readWaitBound.ts";
 
 const agentMode = z.enum(agentModes);
 const agentHost = z.enum(agentHosts);
@@ -81,7 +80,7 @@ export type AgentOwner = AgentAssignment & {
 
 // The published assignments naming one entry, or the gap when none is
 // recorded or the profiles could not be read.
-type EntryAssignments<T extends AgentAssignment> =
+export type EntryAssignments<T extends AgentAssignment> =
   | { readonly status: "unavailable"; readonly problem: string }
   | { readonly status: "not-recorded" }
   | { readonly status: "recorded"; readonly assignments: readonly T[] };
@@ -121,6 +120,16 @@ export type ProfileAssignments = {
 };
 
 const profilesUnreadProblem = "Agent profiles could not be read.";
+
+// Profiles that could not be read, and why.
+export type ProfilesUnread = { readonly unread: string };
+
+// What a read of the revision's profiles established.
+export type ProfilesRead = ProfileAssignments | ProfilesUnread;
+
+export function profilesUnread(read: ProfilesRead): read is ProfilesUnread {
+  return "unread" in read;
+}
 
 function interpretProfiles({
   profiles,
@@ -176,74 +185,19 @@ function interpretProfiles({
   };
 }
 
-// The assignments of one activity naming an entry, or the gap when none is
-// recorded or the profiles could not be read.
-function assignmentsOf<A extends ProfileAssignment["activity"]>(
-  identity: string,
-  activity: A,
-  profiles: ProfileAssignments | undefined,
-): EntryAssignments<Extract<ProfileAssignment, { readonly activity: A }>> {
-  if (profiles === undefined) {
-    return { status: "unavailable", problem: profilesUnreadProblem };
-  }
-  const named = profiles.assignments.filter(
-    (
-      assignment,
-    ): assignment is Extract<ProfileAssignment, { readonly activity: A }> =>
-      assignment.activity === activity && assignment.identity === identity,
-  );
-  return named.length === 0
-    ? { status: "not-recorded" }
-    : { status: "recorded", assignments: named };
-}
-
-// Every Taken entry waits for its owner, and the roster for every agent's
-// assignment, while profiles are read.
-export function awaitingOwners(work: PublishedWork): PublishedWork {
-  return {
-    ...work,
-    roster: { status: "loading" },
-    taken: work.taken.map((entry) => ({
-      ...entry,
-      owner: { status: "loading" },
-    })),
-  };
-}
-
 // Reads the revision's profiles; a failed or abandoned read is a gap on each
-// Taken and queued entry, never an empty set of assignments.
+// Taken and queued entry, never an empty set of assignments, said as the
+// limit when GitHub's rate limit stopped it.
 export async function readAssignments(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
-): Promise<ProfileAssignments | undefined> {
+): Promise<ProfilesRead> {
   try {
     return interpretProfiles(
       await readAgentProfilesAt(source, revision, signal),
     );
-  } catch {
-    return undefined;
+  } catch (error) {
+    return { unread: limitGapProblem(error) ?? profilesUnreadProblem };
   }
-}
-
-export function withAssignments(
-  work: PublishedWork,
-  profiles: ProfileAssignments | undefined,
-): PublishedWork {
-  return {
-    ...work,
-    taken: work.taken.map((entry) => ({
-      ...entry,
-      owner: assignmentsOf(entry.identity, "execution", profiles),
-    })),
-    backlog: work.backlog.map((entry) => ({
-      ...entry,
-      preparing: assignmentsOf(entry.identity, "preparation", profiles),
-    })),
-    unreadableProfiles: profiles?.unreadable ?? [],
-    roster:
-      profiles === undefined
-        ? { status: "unavailable", problem: profilesUnreadProblem }
-        : rosterOf(work, profiles),
-  };
 }

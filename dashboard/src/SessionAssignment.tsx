@@ -5,7 +5,11 @@
 import { useEffect, useState } from "react";
 import { assignedAgent, type LaunchRecord } from "./launchRecord.ts";
 import { useProjects } from "./projectList.tsx";
-import { readAssignments, type AgentAssignment } from "./agentAssignments.ts";
+import {
+  profilesUnread,
+  readAssignments,
+  type AgentAssignment,
+} from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { withinReadWait } from "./readWaitBound.ts";
@@ -44,10 +48,11 @@ export function SessionAssignment({
     setReading(true);
     void withinReadWait(controller.signal, async (signal) => {
       const profiles = await readAssignments(source, revision, signal);
-      const own = profiles?.assignments.filter(
+      if (profilesUnread(profiles)) return undefined;
+      const own = profiles.assignments.filter(
         (each) => each.agent === agent && each.identity === identity,
       );
-      if (profiles === undefined || own?.length !== 1) return undefined;
+      if (own.length !== 1) return undefined;
       const attributed = await readAttributedAssignments(
         source,
         revision,
@@ -55,7 +60,7 @@ export function SessionAssignment({
         profileAdditionsAt(source, revision, signal),
         signal,
       );
-      return attributed?.assignments[0];
+      return profilesUnread(attributed) ? undefined : attributed.assignments[0];
     }).then(
       (found) => {
         if (!controller.signal.aborted) {

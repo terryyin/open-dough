@@ -46,7 +46,7 @@ even when the commit that changed it is a merge whose own change list does
 not name it, and one missing there stays missing. When the new commit does
 not descend from the earlier one, more than ten commits lie between, the
 comparison's or a commit's change list is not given whole (GitHub names at
-most 300 files), or the comparison fails, the new commit is read as a first visit reads it. While the configured ref is unchanged, a story branch that a shown Taken
+most 300 files), or the comparison fails other than by a rate limit, the new commit is read as a first visit reads it; a rate limit withholds what it stopped. While the configured ref is unchanged, a story branch that a shown Taken
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
@@ -70,7 +70,13 @@ ref or branch-head answer is never reused: a later open or check asks again.
 A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it
 alike, so a page that joined it late can be told so sooner than 30 seconds
-after it asked; the failure is not kept, and the next request asks again.
+after it asked; the failure is not kept, and the next request asks again,
+once any rate limit's wait has passed. However many pages and projects ask, one
+dashboard process has at most eight reads under way at GitHub at once, a
+shared read counting once; further reads wait their turn in the order they
+were asked. A read whose page stops waiting before its turn never reaches
+GitHub, and time spent waiting counts toward the 30-second bound, so a read
+still waiting then fails as unanswered.
 
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done
@@ -99,22 +105,66 @@ bound the local boundary shares) ends as a read problem, never as an empty or
 partial backlog. The snapshot read earlier stays shown with its own revision and
 retrieval time -- it is the last successful snapshot, not a claim that the configured ref
 still names it -- the problem says what failed and when, and how the page
-recovers: with a snapshot shown, automatic checks continue (or, after a rate
-limit, the problem says when they resume); with nothing shown, reloading the
-page reads again. A failed revision check, or a failed read
+recovers: with a snapshot shown, automatic checks continue; with nothing
+shown, reloading the page reads again, or, when GitHub's rate limit stopped
+the read, the page reads on its own once the limit's time passes. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
 snapshot. While a snapshot is shown the page keeps checking, but only at the
 15-second pace, never at once: a new commit whose backlog could not be read is
-found again by the next check and read then. When GitHub answers a check with a
+found again by the next check and read then. When GitHub answers any read with a
 rate limit that says when to ask again (`Retry-After`, or `X-RateLimit-Reset`
-once `X-RateLimit-Remaining` is `0`), the page asks nothing more until that time
--- even when the page is seen again -- and the problem says when checks resume.
-The boundary passes on only the validated wait, at most one hour. A later check
-or read that succeeds lifts any such wait and clears the problem, unless the
-problem stands with its snapshot as described below. A record detail that
-could not be read stays labeled on its card rather than borrowing an older one;
-checks that find the configured ref unchanged never read it again, so reload the page to
-read it again at the same revision. When the 30-second bound ends a read after the
+once `X-RateLimit-Remaining` is `0`), the dashboard process asks GitHub nothing
+more until that time, whichever page or project asks: each read asked meanwhile,
+and adding a project, is answered at once as limited, says it was not asked,
+and carries the whole seconds left, so it is never taken for a missing record. A
+read already at GitHub keeps GitHub's own answer, and a later directed time only
+extends the wait. A rate-limit refusal that directs no usable wait holds back
+reads the same way for one minute; when the first read after that wait is
+refused the same way, the wait doubles, up to one hour, and once a read
+succeeds the next such refusal waits one minute again. Its problem says GitHub
+named no wait and when reading resumes. When any wait ends, directed or not,
+reading resumes with one read: the reads asked with it wait their turn until
+GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
+they are answered as limited with the new resume time and only that read
+reached GitHub. A read waiting its turn when a wait starts is answered as
+limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
+or an unreachable GitHub holds back nothing. The wait is kept in the process's memory,
+so a newly started dashboard asks at once. A page told of such a wait by any of its
+reads -- the membership read, a detail, or a revision check -- keeps that time
+as its one record of the limit, across project selection, and a later limited
+answer only moves it later; until then it asks the local boundary nothing --
+no check, even when the page is seen again, and no detail -- answering each
+read as limited itself, and one notice says that GitHub limited requests and
+when reading resumes, the same way whichever read was limited, and what the
+page reads then. Once that time passes on a visible page, or when a page
+hidden then is seen again, the page reads on its own what the limit withheld,
+without a reload: with no snapshot shown it reads the project; with a
+snapshot whose detail the limit withheld it reads the configured ref afresh
+beside that snapshot, which stays shown until the new read replaces it, so
+GitHub is asked which commit the ref and each recorded story branch name and
+for the withheld records, never again for content already read at those
+commits; with a snapshot read whole it makes its next revision check at the
+usual pace. Its notice clears then. A human or Take whose profile history or
+addition commit the limit withheld is read the same way even while trunk
+stays at the shown revision: each profile's history listing and each commit
+walked back to its addition are remembered once answered, so the walk asks
+only from the step the limit refused, once for the human and the clock that
+share it.
+Each withheld record file, profile set, human, clock, or done record is
+labeled with the limit's wording and that time, never as missing; a human
+whose profile history was withheld is unknown on its card, while its detail
+and the roster name the limit. Another tab, or the page reloaded, learns the
+same limit from its next request, which the process holds back without asking
+GitHub. The boundary passes on only the validated
+wait, or its own when GitHub directed none, at most one hour. The page's wait
+ends only at its time: a later check or read that succeeds clears the
+problem, unless the problem stands with its snapshot as described below, but
+no answer lifts the wait early. A record detail that
+could not be read for any reason but the limit stays labeled on its card
+rather than borrowing an older one; checks that find the configured ref
+unchanged never read it again, so reload the page to read it again at the same
+revision. A fresh read after a limit asks it again with the rest, and it stays
+a gap while GitHub still does not answer it. When the 30-second bound ends a read after the
 new commit's backlog was shown, each detail still unread is shown as such a gap
 on that snapshot, and the problem stands with it (a slice clock or credited
 human still unread is only its own gap): a check that finds the configured ref unchanged

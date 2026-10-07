@@ -13,7 +13,7 @@ import {
   type RepositoryAnswerer,
 } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
-import { holdingAnswer } from "./heldGitHubAnswer.ts";
+import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -98,15 +98,12 @@ export async function servedHolding(
   for (const query of warm) {
     expect((await readAt(server, query)).status).toBe(200);
   }
-  let unanswered = firstHeld;
-  const held = holdingAnswer((call) => {
-    const first = isHeld(call.request) ? unanswered : undefined;
-    if (first === undefined) {
-      return published(call);
-    }
-    unanswered = undefined;
-    return Promise.resolve(first);
-  }, isHeld);
+  const held = holdingAnswer(
+    firstHeld === undefined
+      ? published
+      : answeringFirst(published, isHeld, firstHeld),
+    isHeld,
+  );
   server.github.serve(everyRepository, held.answer);
   return { release: held.release, before: server.github.calls.length };
 }

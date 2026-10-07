@@ -30,7 +30,13 @@ import {
 } from "./support/codexContinuation.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+// Mark as done on a session still working waits out the rename's wait for
+// idle before the card lets it go; the rename is not this journey's subject,
+// so that wait stays well inside one expectation's bound.
+test.use({
+  projectFolders: ["open-dough"],
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+});
 let journey: LaunchJourney | undefined;
 test.beforeAll(async () => {
   test.setTimeout(120_000);

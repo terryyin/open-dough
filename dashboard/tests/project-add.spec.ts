@@ -41,12 +41,14 @@ test("Add selects, reads the repository's default branch, launches in its config
   await expect(source).toContainText(addedRevision);
   expect(server.ghCalls()).toContainEqual([
     "api",
+    "--include",
     `repos/${addedRepository}`,
     "--jq",
     ".default_branch",
   ]);
   expect(server.ghCalls()).toContainEqual([
     "api",
+    "--include",
     `repos/${addedRepository}/commits/${encodeURIComponent(addedBranch)}`,
     "--jq",
     ".sha",
@@ -96,6 +98,7 @@ test("Add selects, reads the repository's default branch, launches in its config
   );
   expect(server.ghCalls()).toContainEqual([
     "api",
+    "--include",
     `repos/${addedRepository}/commits/${encodeURIComponent(addedBranch)}`,
     "--jq",
     ".sha",

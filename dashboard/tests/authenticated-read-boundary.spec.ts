@@ -138,6 +138,7 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(server.ghCalls().slice(callsBefore)).toEqual([
       [
         "api",
+        "--include",
         "-H",
         "Accept: application/vnd.github.raw",
         `repos/${knownRepository}/contents/.planning/seeds/SEED-boundary.md?ref=${revision}`,
@@ -208,6 +209,7 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(server.ghCalls().slice(callsBefore)).toEqual([
       [
         "api",
+        "--include",
         `repos/${knownRepository}/commits?sha=${revision}&path=${encodeURIComponent(seedPath)}&per_page=1`,
         "--jq",
         ".[0].commit.committer.date",

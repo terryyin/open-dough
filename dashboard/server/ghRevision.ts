@@ -4,17 +4,7 @@
 // conditional check, every published branch head at once. How `gh` runs and
 // fails is `./ghRead.ts`.
 
-import {
-  askGh,
-  classify,
-  execGh,
-  GhFailure,
-  isNotFound,
-  runGh,
-  type GhFailureReason,
-} from "./ghRead.ts";
-import { parseIncluded, type IncludedAnswer } from "./includedAnswer.ts";
-import { directedWaitSeconds } from "./rateLimitDirection.ts";
+import { askGh, execGh, GhFailure, isNotFound, runGh } from "./ghRead.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 
 // Which commit a ref alone names, asked for `.sha` alone: what a membership
@@ -75,23 +65,6 @@ export async function resolveBranchHeadViaGh(
   }
 }
 
-// A refused answer that says when to ask again is a rate limit, whatever
-// else `gh` printed: GitHub directs a wait with `Retry-After`, or with
-// `X-RateLimit-Reset` once `X-RateLimit-Remaining` reaches zero, on its `403`
-// and `429` answers. Only the validated wait leaves this module; it is shared
-// with the containment read (`./containmentRead.ts`).
-export function limitedAsDirected(
-  answer: IncludedAnswer | undefined,
-): GhFailureReason | undefined {
-  if (answer?.status !== 403 && answer?.status !== 429) {
-    return undefined;
-  }
-  const waitSeconds = directedWaitSeconds(answer.headers, Date.now());
-  return waitSeconds === undefined
-    ? undefined
-    : { kind: "rate-limited", status: answer.status, waitSeconds };
-}
-
 // The commit each published branch head named, and the entity tag GitHub
 // gave that answer.
 export type HeadsAnswer = {
@@ -141,9 +114,8 @@ function headsListed(body: string): ReadonlyMap<string, string> {
 // Asks GitHub which commit every published branch head names now,
 // conditionally on an earlier answer. GitHub answers `304 Not Modified` when
 // that answer still holds, which `gh api` reports by exiting 1; that status is
-// recognized from the included status line before the exit is ever treated
-// as a failure, and every other non-success is classified as any read
-// failure is.
+// recognized from GitHub's included status before the exit is ever treated
+// as a failure, and every other non-success fails as `./ghRead.ts` read it.
 export async function checkHeadsViaGh(
   repository: string,
   earlier: HeadsAnswer | undefined,
@@ -151,19 +123,15 @@ export async function checkHeadsViaGh(
 ): Promise<HeadsAnswer> {
   const conditional =
     earlier?.etag === undefined ? [] : ["-H", `If-None-Match: ${earlier.etag}`];
-  const { error, stdout, stderr } = await execGh(
-    ["api", "--include", ...conditional, headsEndpoint(repository)],
+  const answer = await execGh(
+    ["api", ...conditional, headsEndpoint(repository)],
     signal,
   );
-  const answer = parseIncluded(stdout);
-  if (answer?.status === 304 && earlier?.etag !== undefined) {
+  if (answer.status === 304 && earlier?.etag !== undefined) {
     return earlier;
   }
-  if (error || answer?.status !== 200) {
-    throw new GhFailure(
-      limitedAsDirected(answer) ??
-        (error ? classify(error, stderr) : { kind: "failed" }),
-    );
+  if (answer.failure || answer.status !== 200) {
+    throw new GhFailure(answer.failure ?? { kind: "failed" });
   }
   return { heads: headsListed(answer.body), etag: answer.headers.get("etag") };
 }

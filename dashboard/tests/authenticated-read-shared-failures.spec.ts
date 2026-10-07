@@ -1,7 +1,8 @@
 // A shared read that GitHub refuses or that stalls, at the local
 // authenticated read boundary (../server/ghRead.ts): every request waiting
 // on it is answered as it would be alone, with any wait GitHub directed;
-// nothing is kept, so the next request asks again; and no request, however
+// nothing is kept, so the next request asks again, once any wait GitHub
+// directed has passed; and no request, however
 // late it joins, waits past its own bound or keeps the `gh` call running
 // past the call's. Tested directly against real HTTP and the synthetic
 // `gh`, with the requests made to coincide on a held answer as
@@ -18,6 +19,7 @@ import {
 import type { GhRequest } from "./support/ghRequest.ts";
 import { processAlive } from "./support/processGroup.ts";
 import { rateLimitedAnswer } from "./originAnswers.ts";
+import { untilReported } from "./support/directedWait.ts";
 import {
   answeredTogether,
   askedSince,
@@ -88,7 +90,7 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
     ]);
   });
 
-  test("two checks waiting on a listing GitHub rate-limits both report the wait it directed, and the next check asks again", async () => {
+  test("two checks waiting on a listing GitHub rate-limits both report the wait it directed, and the next check after it asks again", async () => {
     const revision = revisionOf("7b");
     const since = (checked: string) => `&since=${checked}`;
     const holding = await servedHolding(
@@ -96,7 +98,7 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
       revision,
       isListing,
       [since(revision)],
-      rateLimitedAnswer(429, { "Retry-After": "120" }),
+      rateLimitedAnswer(429, { "Retry-After": "2" }),
     );
     const { answers, whileHeld } = await answeredTogether(
       server,
@@ -104,15 +106,19 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
       [since(revision), since(revisionOf("7c"))],
       1,
     );
+    const answeredAt = Date.now();
     expect(whileHeld).toEqual(["matching-refs"]);
     const waited = {
       error:
-        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 120 seconds before asking again.",
-      retryAfterSeconds: 120,
+        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
+      retryAfterSeconds: 2,
     };
     expect(answers.map(({ status }) => status)).toEqual([502, 502]);
     expect(answers.map(({ body }) => failed(body))).toEqual([waited, waited]);
 
+    // GitHub's wait holds back every read of this server until it has passed
+    // (./authenticated-read-cooldown.spec.ts).
+    await untilReported(answeredAt, waited.retryAfterSeconds);
     const next = await readAt(server, since(revision));
     expect(next.status).toBe(200);
     expect(JSON.parse(next.body)).toMatchObject({ revision, changed: false });

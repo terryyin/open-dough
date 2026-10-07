@@ -33,7 +33,13 @@ import {
 } from "./recentlyDoneRecords.ts";
 import { keptSessions } from "./recentlyDoneSessions.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut"] });
+// Mark as done on a session still working waits out the rename's wait for
+// idle before the card lets it go; the rename is not this journey's subject,
+// so that wait stays well inside one expectation's bound.
+test.use({
+  projectFolders: ["open-dough", "doughnut"],
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+});
 
 const empty = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 const publish = (page: Parameters<typeof publishFiles>[0], backlog = empty) =>

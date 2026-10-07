@@ -10,9 +10,7 @@
 // failure, worded and rate-limited as every read's (`./performedRead.ts`,
 // `./readFailureMessage.ts`), never a guess.
 
-import { classify, execGh, GhFailure } from "./ghRead.ts";
-import { limitedAsDirected } from "./ghRevision.ts";
-import { parseIncluded } from "./includedAnswer.ts";
+import { execGh, GhFailure } from "./ghRead.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
@@ -64,23 +62,18 @@ export async function comparisonViaGh(
   { perPage, jq }: { readonly perPage: number; readonly jq: string },
   signal: AbortSignal,
 ): Promise<string | undefined> {
-  const { error, stdout, stderr } = await execGh(
+  const answer = await execGh(
     [
       "api",
-      "--include",
       `repos/${repository}/compare/${base}...${head}?per_page=${String(perPage)}`,
       "--jq",
       jq,
     ],
     signal,
   );
-  const answer = parseIncluded(stdout);
-  if (answer?.status === 404) return undefined;
-  if (error || answer?.status !== 200) {
-    throw new GhFailure(
-      limitedAsDirected(answer) ??
-        (error ? classify(error, stderr) : { kind: "failed" }),
-    );
+  if (answer.status === 404) return undefined;
+  if (answer.failure || answer.status !== 200) {
+    throw new GhFailure(answer.failure ?? { kind: "failed" });
   }
   return answer.body;
 }

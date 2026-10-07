@@ -16,12 +16,8 @@ import {
   withProgressSources,
 } from "./progressSource.ts";
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
-import {
-  awaitingOwners,
-  readAssignments,
-  withAssignments,
-  type ProfileAssignments,
-} from "./agentAssignments.ts";
+import { readAssignments, type ProfilesRead } from "./agentAssignments.ts";
+import { awaitingOwners, withAssignments } from "./assignmentPlacement.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { readDoneStories, type DoneStories } from "./doneStories.ts";
@@ -66,8 +62,8 @@ export async function readPublishedWork(
       // captured before another group answered.
       let prepared = work;
       let progress: PublishedWork | undefined;
-      let assignmentsRead = false;
-      let credited: ProfileAssignments | undefined;
+      // What the profiles established, once they are read.
+      let credited: ProfilesRead | undefined;
       let done: DoneStories = { status: "loading" };
       const assembled = (): PublishedWork => {
         // Trunk's plan facts do not establish a Taken entry's progress until
@@ -82,7 +78,9 @@ export async function readPublishedWork(
           ),
         };
         return {
-          ...(assignmentsRead ? withAssignments(current, credited) : current),
+          ...(credited === undefined
+            ? current
+            : withAssignments(current, credited)),
           done,
         };
       };
@@ -113,7 +111,6 @@ export async function readPublishedWork(
       const profilesRead = readAssignments(source, revision, untilEither).then(
         (read) => {
           credited = read;
-          assignmentsRead = true;
           show();
           return read;
         },

@@ -4,6 +4,7 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { cardLaunchActions, detailToggle } from "./cardControls.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
@@ -138,11 +139,14 @@ export async function expectMembership(
   );
 }
 
-// The page once every shown card's preparation facts are read. Cards come
-// first: until the stages show them -- these titles, or else a first card --
-// no card says it is still reading, as just after a reload, so that absence
-// alone settles nothing. `timeout` bounds only the wait for the reading to
-// end.
+// The page once every shown card's preparation facts are read, and every
+// read it sent the local boundary besides its revision checks is answered:
+// a detail no card shows as reading, such as the agent profiles and project
+// setting file of a project with no Taken entry, has then reached GitHub
+// too. Cards come first: until the stages show them -- these titles, or else
+// a first card -- no card says it is still reading, as just after a reload,
+// so that absence alone settles nothing. `timeout` bounds only the wait for
+// the preparation reading to end.
 export async function expectSettledPage(
   page: Page,
   membership?: { readonly taken: string[]; readonly backlog: string[] },
@@ -156,6 +160,7 @@ export async function expectSettledPage(
   await expect(page.getByText("Reading preparation…")).toHaveCount(0, {
     ...(timeout !== undefined && { timeout }),
   });
+  await untilPageReadsAnswered(page);
 }
 
 // Every Taken card, once the agent profiles beside the backlog are read, says
@@ -212,12 +217,13 @@ export const controlsBesideSessions = (page: Page) =>
     .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
-// A failed read with no earlier snapshot shows the problem and the way to read
-// again, and nothing that only a snapshot could say.
+// A failed read with no earlier snapshot shows the problem, the way to read
+// again (`recovery`), and nothing that only a snapshot could say.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
   repository = "terryyin/open-dough",
+  recovery = "Reload the page to read again.",
 ) {
   const { stages, source, problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
@@ -225,7 +231,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(problem).toContainText(
     "No published work is shown, because none has been read.",
   );
-  await expect(problem).toContainText("Reload the page to read again.");
+  await expect(problem).toContainText(recovery);
   await expect(controlsBesideSessions(page)).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
   await expect(stages).toHaveCount(0);
@@ -234,8 +240,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
   await expect(page.getByText("Near-future direction")).toHaveCount(0);
   await expect(source).toContainText(repository);
-  await expect(source).not.toContainText("Revision");
-  await expect(source).not.toContainText("Retrieved");
+  await expect(source).not.toContainText(/Revision|Retrieved/);
 }
 
 // Expand through the actual control before claiming direction is readable.

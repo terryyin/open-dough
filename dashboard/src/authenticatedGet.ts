@@ -2,7 +2,8 @@
 // (`../server/authenticatedRead.ts`), shared by every published-state read
 // (`./authenticatedRead.ts`, `./authenticatedBranchRead.ts`): an ordinary
 // same-origin `fetch` whose refusal or failure becomes a `ReadProblem` naming
-// what was being read. What it answers crossed a process/HTTP boundary, so
+// what was being read. It keeps the page's record of GitHub's rate limit
+// (`./readingLimit.ts`). What it answers crossed a process/HTTP boundary, so
 // each reader checks it as external input.
 
 import { z } from "zod";
@@ -12,6 +13,7 @@ import {
   longestDirectedWaitSeconds,
 } from "./authenticatedReadRules.ts";
 import { ReadProblem } from "./readProblem.ts";
+import { noteLimit, noteWithheld, standingLimit } from "./readingLimit.ts";
 
 export const commitSha = z.string().regex(commitShaPattern);
 
@@ -32,11 +34,22 @@ const errorAnswer = z.object({
     .optional(),
 });
 
+// While the page's limit stands (`./readingLimit.ts`), a read is answered as
+// limited here, never asked; a limited answer from the boundary sets or
+// extends that limit, and says when reading resumes.
 export async function authenticatedGet(
   query: string,
   reading: string,
   signal: AbortSignal,
 ): Promise<unknown> {
+  const standing = standingLimit();
+  if (standing !== undefined) {
+    noteWithheld();
+    throw new ReadProblem(
+      `GitHub limited the rate of the local GitHub CLI's requests, so ${reading} was not asked of GitHub.`,
+      standing,
+    );
+  }
   let response: Response;
   try {
     response = await fetch(`${authenticatedReadEndpoint}?${query}`, {
@@ -53,11 +66,20 @@ export async function authenticatedGet(
   const body: unknown = await response.json().catch(() => undefined);
   if (!response.ok) {
     const reported = errorAnswer.safeParse(body);
-    throw reported.success
-      ? new ReadProblem(reported.data.error, reported.data.retryAfterSeconds)
-      : new ReadProblem(
-          `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
-        );
+    if (!reported.success) {
+      throw new ReadProblem(
+        `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
+      );
+    }
+    const { error, retryAfterSeconds } = reported.data;
+    // An answer the page no longer waits for teaches it nothing.
+    if (retryAfterSeconds !== undefined && !signal.aborted) {
+      noteLimit(retryAfterSeconds);
+    }
+    throw new ReadProblem(
+      error,
+      retryAfterSeconds === undefined ? undefined : standingLimit(),
+    );
   }
   return body;
 }

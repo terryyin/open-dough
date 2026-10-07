@@ -25,7 +25,13 @@ import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { expectAsked, markAsDone, stillWorking } from "./support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+// Mark as done on a session still working waits out the rename's wait for
+// idle before the card lets it go; the rename is not this journey's subject,
+// so that wait stays well inside one expectation's bound.
+test.use({
+  projectFolders: ["open-dough"],
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+});
 
 test.describe("Mark as done in the terminal asks by the session's current reading", () => {
   let stagesJourney: StoryStagesJourney;

@@ -5,7 +5,8 @@
 // (`./ghProfileAddition.ts`) derives one path's change from it. How `gh` runs
 // and fails is `./ghRead.ts`.
 
-import { GhFailure, parsedJson, runGh, usableCommitterDate } from "./ghRead.ts";
+import { GhFailure, parsedJson, runGh } from "./ghRead.ts";
+import { usableCommitterDate } from "./ghCommitTime.ts";
 import { usableAvatarSource } from "./avatarImages.ts";
 
 // GitHub lists at most this many of a commit's files in one answer; a list

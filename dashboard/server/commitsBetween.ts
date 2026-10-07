@@ -15,7 +15,7 @@ import {
   notContaining,
 } from "./containmentRead.ts";
 import type { CommitRecord } from "./ghCommit.ts";
-import { GhFailure } from "./ghRead.ts";
+import { GhFailure, rateLimitStop } from "./ghRead.ts";
 
 // At most this many commits between two revisions are read for their change
 // lists; more establish nothing.
@@ -102,8 +102,9 @@ export function touchedAt(touched: readonly string[], entry: string): boolean {
 }
 
 // What `learn` answers, or null -- establishing nothing, so the read proceeds
-// as without it -- when it fails, unless GitHub limited it or the request is
-// over.
+// as without it -- when it fails, unless a rate limit stopped it (GitHub
+// refused it, or held it back unasked: nothing learned, not nothing touched)
+// or the request is over.
 export async function unlessFailed<T>(
   signal: AbortSignal,
   learn: () => Promise<T>,
@@ -111,10 +112,7 @@ export async function unlessFailed<T>(
   try {
     return await learn();
   } catch (error) {
-    if (
-      signal.aborted ||
-      (error instanceof GhFailure && error.reason.kind === "rate-limited")
-    ) {
+    if (signal.aborted || rateLimitStop(error) !== undefined) {
       throw error;
     }
     return null;

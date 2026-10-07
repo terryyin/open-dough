@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-113#recover-consistently-from-rate-limits",
+  "title": "Recover consistently from GitHub rate limits",
+  "completedAt": "2026-10-07T04:44:14.800Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "claude"
+}

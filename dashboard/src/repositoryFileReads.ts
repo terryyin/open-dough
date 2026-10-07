@@ -5,6 +5,7 @@ import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { mapPool } from "./boundedPool.ts";
 import { cachedFile, rememberFile } from "./fileContentCache.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { limitGapProblem } from "./readWaitBound.ts";
 
 const fileReadConcurrency = 4;
 
@@ -43,11 +44,12 @@ export async function loadRepositoryTexts(
   await mapPool(paths, fileReadConcurrency, async (path) => {
     try {
       text.set(path, await readCachedFile(source, revision, path, signal));
-    } catch {
+    } catch (error) {
       // A read that failed, or was abandoned when `signal` ended it, leaves
-      // its file as a gap; whether a snapshot with gaps is shown is decided
-      // by whoever ended the reads.
-      problems.set(path, problem);
+      // its file as a gap, said as the limit when GitHub's rate limit stopped
+      // it; whether a snapshot with gaps is shown is decided by whoever ended
+      // the reads.
+      problems.set(path, limitGapProblem(error) ?? problem);
     }
   });
   return { text, problems };

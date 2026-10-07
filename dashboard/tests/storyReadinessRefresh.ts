@@ -11,7 +11,7 @@ import {
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { rateLimitedAnswer } from "./originAnswers.ts";
+import { noConnection } from "./originAnswers.ts";
 import {
   externalPlan,
   legacy,
@@ -33,7 +33,7 @@ export async function expectFailedCheckKeepsPriorRevision(
   backlog: Locator,
 ) {
   const retainedRevision = openDough.revision;
-  const restore = origin.answerWith("main", rateLimitedAnswer());
+  const restore = origin.answerWith("main", noConnection);
   origin.requests.splice(0, origin.requests.length);
 
   await passTimeUntilChecked(page, 502);

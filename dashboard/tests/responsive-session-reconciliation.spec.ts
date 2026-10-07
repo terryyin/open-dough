@@ -19,7 +19,11 @@ import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
-import { commitAnswer, rateLimitedAnswer } from "./originAnswers.ts";
+import {
+  commitAnswer,
+  noConnection,
+  rateLimitedAnswer,
+} from "./originAnswers.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import {
   commitOn,
@@ -88,14 +92,14 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);
 
-  // An unrelated revision is not the published Take; a comparison GitHub
-  // refuses proves nothing either, and is asked again for the next read.
+  // An unrelated revision is not the published Take; a comparison that
+  // fails proves nothing either, and is asked again for the next read.
   const unrelated = await commitOn(origin, before);
   published.answerWith("main", commitAnswer(unrelated));
-  const restoreCompare = published.answerWith("compare", rateLimitedAnswer());
+  const restoreCompare = published.answerWith("compare", noConnection);
   await passTimeUntilChecked(page);
   await expect(story).toContainText(
-    `GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading whether ${unrelated} contains ${accepted}.`,
+    `The local GitHub CLI could not reach GitHub while reading whether ${unrelated} contains ${accepted}.`,
   );
   await expectProtected(story);
   restoreCompare();
@@ -103,7 +107,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${unrelated.slice(0, 7)}`,
   );
-  await expect(story).not.toContainText("GitHub limited the rate");
+  await expect(story).not.toContainText("could not reach GitHub");
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 

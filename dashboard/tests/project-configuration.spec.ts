@@ -149,6 +149,7 @@ for (const mode of ["dev", "preview"] as const) {
       ).toBeVisible();
       expect(server.ghCalls()).toContainEqual([
         "api",
+        "--include",
         "repos/example/zebra/commits/trunk",
         "--jq",
         ".sha",

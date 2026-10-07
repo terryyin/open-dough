@@ -104,7 +104,7 @@ continues to own project state.
 
 ## One owner admits reads to GitHub
 
-For [recovering consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits),
+For [rate-limit recovery that waits, resumes, and labels as promised](seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction),
 the local read boundary of one launched dashboard server owns what reaches
 GitHub. Its single `gh` invocation is the only place every tab, project, and
 kind of read passes, so the login's allowance has one owner there. Pages do not
@@ -138,8 +138,8 @@ memory.
   and to read again what was withheld.
 
 Proactive use of the remaining allowance, coordination beyond one process, and
-priority among kinds of read are not built ahead. Retire this topic when the
-story is delivered.
+priority among kinds of read are not built ahead. Retire this topic when that
+correction is delivered.
 
 ## Agent launch as a requested assignment
 

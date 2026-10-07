@@ -82,6 +82,7 @@ for (const [mode, other] of [
       .click();
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expectShown(page, "Light");
+    // The choice shows while it is being saved; enabled means the save settled.
     await expect(themeChoice(page)).toBeEnabled();
     expect(savedTheme()).toEqual({ theme: "light" });
 
