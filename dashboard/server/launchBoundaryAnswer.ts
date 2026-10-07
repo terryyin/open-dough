@@ -5,9 +5,8 @@ import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import { admitted, type Admitted } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { type AgentLaunchAnswer } from "./agentLaunchResponse.ts";
-import { AgentTerminals } from "./agentTerminals.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
-import { markSessionDone } from "./doneMarks.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { hostOperations } from "./launchHosts.ts";
 import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
@@ -35,15 +34,9 @@ const changeWaitMs = 30_000;
 async function markedDone(
   { source, record, folder }: Extract<Admitted, { readonly kind: "done" }>,
   launches: AgentLaunches,
-  terminals: AgentTerminals,
+  doneMarks: NativeDoneMarks,
 ): Promise<LaunchWithState> {
-  const marked = await markSessionDone(
-    source,
-    record,
-    folder,
-    launches,
-    terminals,
-  );
+  const marked = await doneMarks.markDone(source, record, folder, launches);
   return launches.stateOf(source, marked);
 }
 
@@ -90,12 +83,12 @@ export async function answer(
   url: URL,
   res: ServerResponse,
   launches: AgentLaunches,
-  terminals: AgentTerminals,
+  doneMarks: NativeDoneMarks,
   alerts: SessionAlerts,
 ): Promise<AgentLaunchAnswer> {
   try {
     if (url.pathname === completionEndpoint)
-      return { status: 200, body: await submitCompletion(req) };
+      return { status: 200, body: await submitCompletion(req, doneMarks) };
     const request = await admitted(req, url, launches);
     switch (request.kind) {
       case "host-options": {
@@ -186,7 +179,7 @@ export async function answer(
       case "done":
         return {
           status: 200,
-          body: { record: await markedDone(request, launches, terminals) },
+          body: { record: await markedDone(request, launches, doneMarks) },
         };
       case "read":
         return {

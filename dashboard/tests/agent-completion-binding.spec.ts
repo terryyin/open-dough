@@ -37,6 +37,7 @@ for (const quiet of [false, true])
         machine: origin.machine,
         projectFolders: ["open-dough"],
         launchTimeoutMs: 30000,
+        doneRenameWaitMs: 30_000,
       });
       try {
         server.claudeScenario("held");
@@ -158,8 +159,9 @@ for (const quiet of [false, true])
         expect(bound?.session.host).toBe("claude");
         if (quiet) {
           expect(bound?.doneAt).toBe(receipt.receivedAt);
-          expect(bound?.doneProblem).toContain(
-            "Native rename requires terminal input",
+          // The session still lists busy, so its rename waits.
+          expect(bound?.doneProblem).toBe(
+            "Local done mark retained. Native done mark is pending.",
           );
         } else expect(bound?.doneAt).toBeUndefined();
         if (bound === undefined) throw new Error("No bound record");
@@ -173,6 +175,38 @@ for (const quiet of [false, true])
           expect(current?.completion?.receipt).toBe(receipt.receipt);
           if (quiet) expect(current?.doneAt).toBe(receipt.receivedAt);
         }
+        // Its turn has ended; the session idles until it is marked done.
+        server.claudeSessionBecomes(bound.session.sessionId, "done-live");
+        const shortId = server
+          .claudeListing()
+          .find((listed) => listed["sessionId"] === bound.session.sessionId)?.[
+          "id"
+        ];
+        const doneName = `done-${bound.session.name}`;
+        if (quiet) {
+          // The binding's quiet report renames it once idle, through one
+          // private attachment, without stopping it.
+          await expect
+            .poll(
+              async () =>
+                ((await recordsOf(server, "open-dough")) as LaunchRecord[])[0]
+                  ?.doneProblem,
+              { timeout: 30_000 },
+            )
+            .toBeUndefined();
+          expect(
+            server.claudeListing().find((listed) => listed["id"] === shortId)?.[
+              "name"
+            ],
+          ).toBe(doneName);
+          expect(server.claudeAttaches()).toEqual([
+            expect.objectContaining({
+              lines: [`/rename ${doneName}`],
+              endedBy: "SIGHUP",
+            }),
+          ]);
+          expect(server.claudeStopCalls()).toEqual([]);
+        }
         const done = await markDone(server, {
           source: "open-dough",
           host: "claude",
@@ -182,13 +216,8 @@ for (const quiet of [false, true])
         expect(
           markDoneAnswerSchema.parse(JSON.parse(done.body)).record.doneAt,
         ).toBeDefined();
-        // Mark as done closes the reported session as any session: stopped,
-        // with no attachment of its own.
-        const shortId = server
-          .claudeListing()
-          .find((listed) => listed["sessionId"] === bound.session.sessionId)?.[
-          "id"
-        ];
+        // Mark as done closes the reported session as any session: renamed
+        // through a private attachment, then stopped.
         expect(
           server
             .claudeCalls()
@@ -196,7 +225,11 @@ for (const quiet of [false, true])
               (entry) => entry.argv[0] === "stop" || entry.argv[0] === "attach",
             )
             .map((entry) => entry.argv),
-        ).toEqual([["stop", shortId]]);
+        ).toEqual([
+          ...(quiet ? [["attach", shortId]] : []),
+          ["attach", shortId],
+          ["stop", shortId],
+        ]);
         expect(
           keptAttempts(server).find(
             (attempt) => attempt.id === accepted.attempt.id,

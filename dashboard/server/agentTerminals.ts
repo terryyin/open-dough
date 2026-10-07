@@ -4,7 +4,8 @@
 // session is bridged to the machine-local runner, which holds that client,
 // so closing this server does not hang it up. Output and input use the shared
 // terminal protocol. Native startup remains interactive while readiness controls
-// reopening; marking done can type into and end those attachments.
+// reopening; marking done can type into and end those attachments, or type
+// through a private attachment of its own.
 
 import { STATUS_CODES, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
@@ -114,8 +115,13 @@ export class AgentTerminals {
     });
   }
 
-  type(session: SessionReference, input: string): boolean {
-    return this.attachments.type(session, input);
+  withAttachment<T>(
+    session: HostSession,
+    folder: ProjectFolder,
+    use: (type: (input: string) => void) => Promise<T>,
+    signal: AbortSignal,
+  ): Promise<T> {
+    return this.attachments.withAttachment(session, folder, use, signal);
   }
 
   endAttachments(session: SessionReference): void {

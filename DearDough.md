@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 247. Removed local codes are never reused.
+- Highest allocated local number: 248. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -86,6 +86,8 @@ Follow-up: queued, not resolved: [Observe decisive planning premises through the
 
 - Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737` - Timestamp: unknown; between re-bind `e8ce93b9` (2026-09-27T15:50:01+08:00) and slice 2 commit `6f350f28` (2026-09-27T16:40:20+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42) - Evidence: plan 112 premise table at `e8ce93b9` cites `execution-increment-publication.mjs:143-197`; slice 2 first return reported the merge-driver conflict; corrected premise row and North Star wording in `6f350f28` - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
 - Execution: `SEED-052#script-execution-preparation` / plan 178, first related implementation commit `821cd555` - Timestamp: 2026-09-30T14:50:39+08:00 (CI repair `f77110df`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: plan 178's premise table row "New script files ship with the skill directory (no manifest to edit)", observed by `grep -rln execution-start-receipt` outside skill copies, marked yes for slice 1; CI failed on `tests/payload-declaration-links.sh` because `install.sh` `managed_files` declares each shipped script and reference; slice 1's own files were declared in `f77110df`, and the plan row now records the premise as wrong. - Observed effect: one failed CI run and one repair commit early in the execution. - Inference: Qualified. The premise was observed by searching for a name, not by the consuming operation (adding a shipped file and running the payload-declaration check), which is the same shape as this finding.
+
+- Execution: `SEED-116#claude-done-rename` / plan 267, first related implementation commit `ed9a306e` - Timestamp: unknown; plan written before the claim `fef99b34`, risk surfaced by the retrospective after `bcb39b01` (2026-10-07T11:07:28+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.57 (installed `dough-update/VERSION`) - Evidence: plan 267 premise row "its screen settles through `KeptClientScreen.settled()`" and decision "`screenText()` gives the first settled screen", read from `keptClientScreen.ts:107`, which only drains xterm's write queue; O1 typed after a fixed 4 s wait, not at the moment the dashboard types; the fake accepts input at once, so every spec passed; correction plan 270 - Observed effect: the delivered private attachment types at the first output byte of `claude attach`; the real-host risk was found only by the retrospective and needs a correction - Inference: Qualified. The premise was observed by reading a method name and a probe with different timing, not the dashboard's own typing journey on a real attach.
 
 ## ODF-156 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
 
@@ -894,3 +896,18 @@ whole-suite run exposed a different spec, so the fixes came one run apart.
   - Observed effect: three extra diagnosis agents and at least one extra whole-suite run; story delivery was not blocked, because the failing specs did not reach the changed reads.
   - Inference: Qualified. Neighbouring launch journeys already used 30 s bounds; a single audit for default-deadline polls on real-process work would likely find more than one flake per run.
   - Note: the next whole-suite run failed `agent-launch-card-sessions.spec.ts:53` (1 in 6 repeated, 1 in 12 at the pre-story revision `c9e90018`). Its cause was a product defect, not a deadline: a read asked before the page was hidden settled the page's "seen again" state, so the prompt revision check waited 15 s (`pageVisibility.ts`, `publishedObservation.ts`). It was fixed in this execution. The diagnosis also found `expectSettledPage` returning before the agent-profile read lands, which can make call counts taken right after it flaky (`shared-observer-reads.spec.ts:232` failed once in 3 runs; not fixed).
+
+## DD-248 — A refactor return's proof-effects section left reached consumers unrun, once on a wrong "type-only" claim
+
+A refactor return declared accepted proof still valid for consumer specs its edits reached, without rerunning them. Once the claim was wrong.
+
+### Occurrences
+
+- Execution: `SEED-116#claude-done-rename` / plan 267, first related implementation commit `ed9a306e`
+  - Timestamp: 2026-10-07T11:07:28+09:00 (slice 3 commit `bcb39b01`, after the return); slice 1's instance before `ed9a306e` (2026-10-07T09:40:18+09:00)
+  - Tool: Claude Code (delegated refactor agents; coordinator caught both)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: slice 1's return listed five consumer specs (`agent-completion-binding`, `agent-launch-card-done`, `agent-launch-done-codex-races`, `agent-launch-done-question`, `session-unread-report`) as "not rerun" although they reach the rewritten private-attach path; the coordinator ran them (15 passed). Slice 3's return called making `keepRecord`'s `doneMarks` required "type-only" and did not rerun `agent-completion-binding`. The coordinator reran it only because the commit hook's `require-await` finding forced a fix; four tests failed (`TypeError … reading 'reported'` from out-of-process test callers that pass no owner), and the edit was reverted.
+  - Observed effect: two extra coordinator spec runs; one broken change that would otherwise have reached CI.
+  - Inference: Qualified. The refactor delegation asks for proof effects but accepts "paths unchanged" judgments. A type change at a call boundary also has callers outside the type checker's view (out-of-process `node -e` imports). Related to DD-239 (a refactor return mischaracterized its change), but here the coordinator's rerun caught it.

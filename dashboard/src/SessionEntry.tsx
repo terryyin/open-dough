@@ -10,7 +10,7 @@ import {
   workspaceWords,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { doneSessionName } from "./doneMark.ts";
+import { doneSessionName, nativeDoneMarkPending } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import {
   sessionShown,
@@ -119,7 +119,15 @@ export function SessionEntry({
         </p>
       )}
       {record.doneProblem !== undefined && (
-        <p role="status" className="launch-problem">
+        // A pending native mark is still to come, not a problem.
+        <p
+          role="status"
+          className={
+            record.doneProblem === nativeDoneMarkPending
+              ? undefined
+              : "launch-problem"
+          }
+        >
           {record.doneProblem}
         </p>
       )}

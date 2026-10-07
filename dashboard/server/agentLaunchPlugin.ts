@@ -43,6 +43,7 @@ import type { Connect, HttpServer, Plugin } from "vite";
 import { admittedAttach, launchBoundaryPaths } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
+import { NativeDoneMarks } from "./doneMarks.ts";
 import { respondToLaunch } from "./agentLaunchResponse.ts";
 import {
   ensureCursorRunner,
@@ -56,18 +57,20 @@ function installAgentLaunchMiddleware(
   middlewares: Connect.Server,
   httpServer: HttpServer | null,
 ): { close: () => void; ready: Promise<boolean> } {
-  const launches = new AgentLaunches();
-  const alerts = new SessionAlerts(launches);
-  const terminals = new AgentTerminals(httpServer, (req, url) =>
+  // Admission reads the launches only once an upgrade arrives.
+  const terminals: AgentTerminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
   );
+  const doneMarks = new NativeDoneMarks(terminals);
+  const launches: AgentLaunches = new AgentLaunches(doneMarks);
+  const alerts = new SessionAlerts(launches);
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (!launchBoundaryPaths.has(url.pathname)) {
       next();
       return;
     }
-    void answer(req, url, res, launches, terminals, alerts).then((outcome) => {
+    void answer(req, url, res, launches, doneMarks, alerts).then((outcome) => {
       respondToLaunch(res, outcome);
     }, next);
   });
@@ -78,6 +81,7 @@ function installAgentLaunchMiddleware(
     close: () => {
       void releaseCursorHandoffs();
       alerts.close();
+      doneMarks.close();
       terminals.close();
       launches.close();
     },

@@ -33,6 +33,7 @@ import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
 import { verifyLaunch } from "./launchVerification.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
 import {
   establishing,
   establishingHosts,
@@ -64,6 +65,9 @@ export class AgentLaunches {
   private readonly owner = new LaunchAttemptOwner();
   private readonly progress = new StartProgress();
   private readonly savedSessionServices = new SavedSessionServices();
+
+  // A session bound after its quiet report has its native Done started there.
+  constructor(private readonly doneMarks: NativeDoneMarks) {}
 
   async machineSessions(): Promise<readonly LaunchWithState[]> {
     await this.savedSessionServices.refresh();
@@ -180,7 +184,7 @@ export class AgentLaunches {
     return this.owner.accept(
       request,
       (own, notePublication) =>
-        attemptRun(source, own, notePublication, this.progress),
+        attemptRun(source, own, notePublication, this.progress, this.doneMarks),
       reportingOrigin,
     );
   }
@@ -201,7 +205,7 @@ export class AgentLaunches {
           ? startStillRunning
           : preAcceptanceAnswer(source, request),
       (own, notePublication) =>
-        attemptRun(source, own, notePublication, this.progress),
+        attemptRun(source, own, notePublication, this.progress, this.doneMarks),
     );
   }
 
@@ -214,7 +218,12 @@ export class AgentLaunches {
   // stays unresolved.
   verify(source: PublishedSource, id: string) {
     return this.owner.verify(source.id, id, (attempt) =>
-      verifyLaunch(source, attempt, AbortSignal.timeout(verifyWaitMs)),
+      verifyLaunch(
+        source,
+        attempt,
+        AbortSignal.timeout(verifyWaitMs),
+        this.doneMarks,
+      ),
     );
   }
 

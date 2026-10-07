@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "steven-chan",
-  "email": "steven-chan@example.org",
-  "identity": "SEED-116#claude-done-rename",
-  "mode": "story-branch",
-  "branch": "claude/a-claude-code-session-marked-done-is-renamed-wit",
-  "host": "claude"
-}

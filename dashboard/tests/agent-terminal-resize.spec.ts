@@ -128,8 +128,9 @@ for (const state of ["ready", "starting"] as const) {
       expect(failed.resizes()).toBe(1);
       expect(failed.writes()).toBe(0);
       expect(failed.kills()).toBe(1);
+      // No attachment still holds the socket: ending them closes nothing more.
+      attachments.endAttachments(session.session);
       expect(socket.closes).toHaveLength(1);
-      expect(attachments.type(session.session, "hello")).toBe(false);
 
       const second = new Socket();
       attachments.connect(second as unknown as WebSocket, session);

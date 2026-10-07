@@ -27,7 +27,6 @@ export const codexHost: LaunchHost = {
   readResult: readCodexResult,
   attach: attachCodex,
   rename: renameCodex,
-  renameWhileReporting: true,
   stop: (...[session, , signal]) => stopCodex(session, signal),
   prepareSavedSessions: async (signal) => {
     await daemonEndpoint(signal);
