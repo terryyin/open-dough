@@ -1,6 +1,7 @@
 // Starts a host's attach client for one session and reads its attach result
 // as the terminal client it describes. A private client ignores the host's
-// keep, readiness, and idle declarations, and records its screen.
+// keep, page admission readiness, and idle declarations, and records its
+// screen. Its caller waits for the host’s prompt before typing privately.
 import type { IPty } from "@lydell/node-pty";
 import type { HostSession } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";

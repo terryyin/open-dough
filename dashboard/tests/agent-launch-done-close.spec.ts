@@ -74,3 +74,47 @@ test("a server closed while manual Done waits for a working session retains the 
     rmSync(machine, { recursive: true, force: true });
   }
 });
+
+test("a server closed before the private composer abandons manual rename without typing", async () => {
+  const machine = mkdtempSync(path.join(tmpdir(), "dough-done-prompt-close-"));
+  const server = await startDashboardServer({
+    mode: "preview",
+    prebuilt: builtDashboardDir,
+    machine,
+    projectFolders: ["open-dough"],
+    doneRenameWaitMs: 30_000,
+  });
+  let closed = false;
+  try {
+    const session = await launched(server);
+    server.claudeSessionBecomes(session.sessionId, "working-idle");
+    server.claudeAttachPromptDelay(60_000);
+    const marked = markDone(server, {
+      source: "open-dough",
+      session: session.sessionId,
+    }).catch(() => undefined);
+    await expect.poll(() => server.claudeAttaches().length).toBe(1);
+    await server.close();
+    closed = true;
+    await marked;
+    expect((storedRecords(machine) as LaunchRecord[])[0]).toMatchObject({
+      doneAt: expect.any(String),
+      doneProblem:
+        "Local done mark retained. Claude Code rename failed: The terminal attachment could not be opened.",
+      session: { name: launchName },
+    });
+    await expect
+      .poll(() => server.claudeAttaches())
+      .toEqual([
+        {
+          pid: expect.any(Number),
+          id: session.shortId,
+          lines: [],
+          endedBy: "SIGHUP",
+        },
+      ]);
+  } finally {
+    if (!closed) await server.close();
+    rmSync(machine, { recursive: true, force: true });
+  }
+});

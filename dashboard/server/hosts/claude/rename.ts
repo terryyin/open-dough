@@ -6,6 +6,7 @@ import type { ProjectFolder } from "../../projectFolders.ts";
 import { HostOperationFailure } from "../../hostLaunch.ts";
 import type { DoneIntent, WithAttachment } from "../../launchHosts.ts";
 import { claudeSessions } from "./runtime.ts";
+import { claudePromptReady } from "./prompt.ts";
 
 // Manual Done waits briefly; a reporting session still prints its final
 // response after its receipt, so its rename waits longer.
@@ -77,6 +78,7 @@ export async function renameInClaudeCode(
       await confirmListed(record, folder, name, wait);
     },
     remaining(wait),
+    claudePromptReady,
   );
 }
 

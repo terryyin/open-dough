@@ -97,7 +97,8 @@ history needs no invented interrupt. A race/refusal never retries against a
 newer turn. Claude waits for its listing to show the session idle, never
 typing into one that is busy or waiting, then types `/rename` into the open
 attachment, or else into a private attachment of its own from the project
-folder that is hung up once the rename settles, and waits for listing
+folder, typing only once Claude Code’s prompt shows. That private attachment
+is hung up once the rename settles, and rename waits for listing
 confirmation, all within one bounded wait of five seconds, or sixty after a
 quiet report's receipt while its sender finishes. A session listed with no
 running process is not renamed. Native history is retained. When Claude Code

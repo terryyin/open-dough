@@ -174,8 +174,8 @@ async function finishNativeDone(
       await host.rename?.(
         record,
         folder,
-        (session, at, use, signal) =>
-          terminals.withAttachment(session, at, use, signal),
+        (session, at, use, signal, ready) =>
+          terminals.withAttachment(session, at, use, signal, ready),
         intent,
         done.stopped,
       );

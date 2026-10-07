@@ -138,9 +138,10 @@ direct correction of finding 4; it also supplies slice 5's cancellation seam.
 
 ### 5. The private rename attachment types only once Claude Code's prompt shows
 Type: Behavior
-Status: planned
-Proof: the new cases below in `agent-launch-done-rename-wait.spec.ts`; existing
-`agent-launch-done-stop`, `agent-launch-done-rename-wait`,
+Status: done
+Accepted proof: [slice 5 proof](SLICE-5-PROOF.md), including the real dashboard observation.
+Proof: the new cases below in `agent-launch-done-prompt.spec.ts`; existing
+`agent-launch-done-stop`, `agent-launch-done-rename-wait`, `agent-launch-done-prompt`,
 `agent-launch-done-close`, `agent-terminal-done-reopen`,
 `session-workspace-retirement-claude`, `agent-completion-quiet-claude`,
 `agent-completion-binding`, `agent-completion-quiet`,
@@ -154,11 +155,11 @@ fake attach's text green (`agent-terminal`, `agent-terminal-reopen`,
 `agent-terminal-lifetime`, `story-panel-switching`,
 `session-sidebar-navigation`, `agent-terminal-done-question`,
 `agent-terminal-keyboard`, `agent-terminal-avatar`, `side-panel-width`);
-then the whole dashboard suite; typecheck and lint. One owner-run real-host
+then the whole dashboard suite; typecheck and lint. One owned real-host
 Mark as done with no page terminal, followed by native listing confirmation,
 checks the corrected dashboard against the marker observed in slice 1.
-Pending owner-held proof remains incomplete; do not substitute the fake or
-slice 1's direct native rename for this observation.
+The executing agent completed this observation with a dedicated probe; the
+fake and slice 1's direct rename remain separate evidence.
 
 Behavior: a recorded Claude session is idle with no terminal open, and its
 attach shows `attached …` at once but its prompt only after a delay shorter
@@ -224,7 +225,8 @@ remains unchanged. This repairs test timing; a passing retry was not the cause e
 - Accepted story-branch increments: slice 2 `c5b7cc8bf784335665e52f94c483b55364d2bb00`;
   slice 3 `e7b25862935ebecd3cbd32eca5563b6ac0cd862b`;
   slice 4 `c611e18769db80f6f3548ae5411dfd3578652e14`;
-  CI repair `59baac6473732faf6723918ac086022730240134`.
+  CI repair `59baac6473732faf6723918ac086022730240134`;
+  slice 1 `f8c3061bcd0bf1c9563f4b1d410cbade1e38fc04`.
 - Checkout setup: `env -u NODE_ENV npm ci --ignore-scripts --offline`;
   applicable command `env -u NODE_ENV npm run typecheck:dashboard` passed.
 - No numeric slice limit supplied; existing planned-work replanning authority
@@ -233,6 +235,5 @@ remains unchanged. This repairs test timing; a passing retry was not the cause e
   branch. Codex yielded stream cell `11`, session `86975`, PID `60644`,
   directory `/tmp/dough-ci-501/watch-Ws0DXW`; coordinator launch reference
   `feb9bae7-fd70-4864-bcc6-439be0be1c46`. Claim publication on trunk is unobserved.
-- Slices 1–4 have accepted proof. Terry authorized the native slice 1 probe
-  on 2026-10-07; its marker, timing, and confirmed rename allow slice 5 to start.
-  Slice 5's corrected-dashboard native check remains required.
+- All five slices have accepted proof. Terry authorized the native slice 1
+  probe on 2026-10-07; slice 5 also passed through the corrected dashboard.

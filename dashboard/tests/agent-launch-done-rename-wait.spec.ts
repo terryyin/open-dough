@@ -4,6 +4,7 @@
 // The local launch boundary runs against the synthetic Claude, never the real
 // host. Native listing stop/removal cases are in ./agent-launch-done-stop.spec.ts;
 // server-close abandonment is in ./agent-launch-done-close.spec.ts.
+// Private composer readiness is in ./agent-launch-done-prompt.spec.ts.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -133,39 +134,5 @@ test.describe("manual Done when Claude Code rename does not settle", () => {
     expect(
       server.claudeListing().find((each) => each["id"] === session.shortId),
     ).toMatchObject({ name: `done-${launchName}` });
-  });
-
-  test("hangs up a private attachment that never opens once the wait ends", async () => {
-    const session = await launched(server);
-    server.claudeSessionBecomes(session.sessionId, "working-idle");
-    const attachesBefore = server.claudeAttaches().length;
-    server.claudeAttachesSilent(true);
-    try {
-      const response = await markDone(server, {
-        source: "open-dough",
-        session: session.sessionId,
-      });
-
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          doneProblem:
-            "Local done mark retained. Claude Code rename failed: The terminal attachment could not be opened.",
-        },
-      });
-    } finally {
-      server.claudeAttachesSilent(false);
-    }
-    await expect
-      .poll(() => server.claudeAttaches().slice(attachesBefore))
-      .toEqual([
-        {
-          pid: expect.any(Number),
-          id: session.shortId,
-          lines: [],
-          endedBy: "SIGHUP",
-        },
-      ]);
   });
 });

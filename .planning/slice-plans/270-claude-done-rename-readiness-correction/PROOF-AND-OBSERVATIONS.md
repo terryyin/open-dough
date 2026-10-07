@@ -71,7 +71,7 @@ the table and supply the missing page journey. No implementation slice is done.
 | The real prompt, its recognizing text, and attach-to-prompt time are known | 1 | Explicitly authorized agent's native observation in [accepted slice 1 proof](#accepted-execution-proof-slice-1) |
 | Example 3 as written: Recently done, old problem text, Mark as done → `Named`, problem gone | 2 | `session-workspace-retirement-claude.spec.ts` |
 | Keys are typed only once the prompt shows, within the one wait | 5 | New case: fake prompt delayed below the wait → `Named`, the attach's lines hold `/rename done-…`; red at `bcb39b01` (keys discarded → "could not be confirmed") |
-| A prompt that never shows reports "could not be opened" and hangs up | 5 | Existing silent-attach case in `agent-launch-done-rename-wait.spec.ts`, plus a case with the prompt delayed past the wait |
+| A prompt that never shows reports "could not be opened" and hangs up | 5 | Silent-attach case in `agent-launch-done-prompt.spec.ts`, plus a case with the prompt delayed past the wait |
 | Quiet completion keeps the pending mark until idle, then renames; first manual recovery after a failed reported wait works | 4, 5 | `agent-completion-quiet-claude.spec.ts` receipt, takeover, and expired-wait cases |
 | The corrected dashboard renames on the real host | 5 | Owner-run Mark as done without a page terminal; native listing confirms `done-<name>` and the entry has no rename problem |
 | Manual rename failures keep cause-specific text, retain local Done, and still stop; exited sessions are not renamed | 4, 5 | `agent-launch-done-stop.spec.ts`, `agent-launch-done-rename-wait.spec.ts`; descriptions distinguish external fake revival from the deferred retry |
