@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-118#show-cards-before-expensive-cache-validation",
+  "mode": "story-branch",
+  "branch": "claude/show-basic-story-cards-without-waiting-for-expen",
+  "host": "claude",
+  "model": "opus"
+}
