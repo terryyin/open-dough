@@ -201,3 +201,10 @@ reuses the store helpers the done specs already use.
 - Claude Code's listing parse moved to `dashboard/server/hosts/claude/listing.ts`
   to keep `runtime.ts` under 250 lines; `stopClaude` keeps its generic failure
   wording, so stop and removal were not unified.
+
+## Execution complete
+
+Product advice: SEED-116's queued plan 267 was written against trunk
+`2b982f95`, before this removal branch existed; its exited-session "no longer
+running" rename problem case now routes to the removal. Refresh plan 267
+against this delivery before it is taken. No other change recommended.
