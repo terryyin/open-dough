@@ -5,6 +5,8 @@ import { sessionKey } from "./sessionReference.ts";
 // remounting the page. pageSidePanel owns selection, current marks,
 // maximization and focus return; sidePanelWidth its width beside the page;
 // terminal readiness alone rereads a done record after native attachment.
+// The page's one Recently done range (`./recentlyDoneRange.ts`) is kept here
+// too, so a journey's destination can ask it for the entry it lands on.
 
 import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
 import { SessionResultPanel } from "./SessionResultPanel.tsx";
@@ -23,6 +25,10 @@ import { ReviewsOnPage } from "./pageReviews.ts";
 import { shownRecord, usePageSidePanel } from "./pageSidePanel.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
+import {
+  RecentlyDoneRangeOnPage,
+  useRecentlyDoneRange,
+} from "./recentlyDoneRange.ts";
 import { SidePanelEdgeOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
 import "./side-panel.css";
 
@@ -63,11 +69,13 @@ export function PageFrame({
 }) {
   const projects = useProjects();
   const sidebar = useSessionSidebar(records, alerts);
+  const range = useRecentlyDoneRange(stories.shown);
   const panel = usePageSidePanel({
     markDone,
     markRead,
     deleteRecord,
     hostOperations,
+    range,
   });
   const { terminal, result, review, maximized, markSessionDone } = panel;
   const frame = useRef<HTMLDivElement>(null);
@@ -84,7 +92,11 @@ export function PageFrame({
     },
     [readSession],
   );
-  const revealSession = useSessionNavigation(stories.selected, stories.shown);
+  const revealSession = useSessionNavigation(
+    stories.selected,
+    stories.shown,
+    range,
+  );
   const goToSession: OpenSidebarEntry = ({ record, control }) => {
     const source = projects.find(
       (project) => project.id === record.request.source,
@@ -124,7 +136,9 @@ export function PageFrame({
           >
             <SessionSidebar {...sidebar} onOpen={goToSession} />
             <SidebarOnPage value={sidebar}>
-              <div className="page-column">{children}</div>
+              <RecentlyDoneRangeOnPage value={range}>
+                <div className="page-column">{children}</div>
+              </RecentlyDoneRangeOnPage>
             </SidebarOnPage>
             {result && (
               <SessionResultPanel

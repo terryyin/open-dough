@@ -5,6 +5,7 @@
 // shown entries stand. Nothing here decides what the page shows or reads.
 
 import type { Locator, Page } from "@playwright/test";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { githubFor } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { queuedTitle } from "./recentlyDoneRecords.ts";
@@ -49,14 +50,23 @@ export async function opened(
     nestedIn,
     answering = (published) => published,
     at = revision,
+    open,
+    also,
   }: {
     readonly nestedIn?: number;
     readonly answering?: Answering;
     readonly at?: string;
+    // The ad hoc entries' places kept open, and other sessions kept
+    // (`keepProgressiveSessions`).
+    readonly open?: readonly number[];
+    readonly also?: (now: number) => readonly LaunchRecord[];
   } = {},
 ) {
   const now = Date.now();
-  await keepProgressiveSessions(dashboard, now, list, nestedIn);
+  await keepProgressiveSessions(dashboard, now, list, nestedIn, {
+    ...(open === undefined ? {} : { open }),
+    ...(also === undefined ? {} : { also: also(now) }),
+  });
   const github = githubFor(page);
   github.serve(
     repository,
@@ -66,7 +76,7 @@ export async function opened(
   );
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
-  return { github, recent: parts(page).recentlyDone };
+  return { github, recent: parts(page).recentlyDone, now };
 }
 
 export const revealAction = (recent: Locator) =>

@@ -460,7 +460,7 @@ Accepted proof and learnings (2026-10-08, terry-chan):
 ### 4. A journey onto a done entry reveals the exact prefix through it
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: add `recently-done-progressive-navigation.spec.ts`, driving each real
 trigger from decision 7 rather than injecting a selection or pre-marking the
 session in place. Run it with the Navigation, Done journeys, and paging group.
@@ -487,6 +487,37 @@ placement are untouched.
 
 Safe stopping point: every way the dashboard already lands on a done entry
 works with the short list, and no journey loses its session.
+
+Accepted proof and learnings (2026-10-08, terry-chan):
+
+- One page-level range owner: `useRecentlyDoneRange(shownSource)` in
+  `dashboard/src/recentlyDoneRange.ts`, created in `PageFrame` and read by the
+  list through `usePageRange()`. API: `requestedOf`, `reveal`,
+  `demand(record) → id`, `answerOf(id)` (`pending | reached | absent |
+  superseded`), `givenUpOnOwnMove(id, gaveUp)`, and list-facing `wanted`,
+  `settle`, `destination` (one slot; a newer demand supersedes by id).
+  `useDestinationAnswer` in `recentlyDoneView.ts` extends to
+  `max(current, place + 1)` once the catalog places the destination and
+  answers `reached` only after entries through it settle. A project switch
+  resets to ten; an abandoned journey keeps its already extended prefix.
+- Keyboard return moved unchanged in meaning to `dashboard/src/keyboardReturn.ts`
+  (demand, then `sessionEntry`, else `workHome`; single-shot).
+  `sessionNavigation.ts` reveals only after the answer, so a going is no
+  longer marked revealed while its target is absent.
+- Trigger finding: closing an attached Claude terminal reopens a done session
+  (`joinedSockets.ts` clears `doneAt`), so "close a terminal whose session is
+  done" is proved by Mark as done on the Taken entry while its terminal shows
+  (the page closes it) and by Close on a Cursor done session.
+- Proof: `recently-done-progressive-navigation.spec.ts` (Taken entry, terminal,
+  Taken-while-terminal-shows at 40rem, already shown/repeat/longer prefix, own
+  move, project switch), `-navigation-report.spec.ts` (real Final report panel
+  for a retired workspace), `-navigation-cursor.spec.ts` (Running Cursor
+  sessions row from another project, reduced motion, single auto reveal);
+  each holds story 25 and observes records 28–35 never asked. Plus the
+  Navigation/Done journeys/paging group, Done projection group, typecheck,
+  and a 233-spec consumer sweep of side-panel/session/project/navigation
+  specs (867 passed). Under machine load ~14 some Mark-as-done steps exceeded
+  the 30-second test timeout; at normal load repeated runs passed.
 
 ### 5. Collapse returns to ten and supersedes older demand
 

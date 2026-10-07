@@ -4,6 +4,7 @@
 // terminal without ending its session, and returns to the normal split.
 // Session operations retain their host-qualified identity across
 // asynchronous answers; a review is not a session and has no session mark.
+// How the keyboard returns is `./keyboardReturn.ts`.
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   launchSubject,
@@ -29,7 +30,9 @@ import {
   type OpenStoryReview,
   type StoryReviewRequest,
 } from "./pageReviews.ts";
+import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
 import { workHome } from "./workFocus.ts";
+import { useKeyboardReturn } from "./keyboardReturn.ts";
 
 // What the panel shows, and whether it takes the page column's room too.
 // Maximization belongs to the shown content, so new content starts split.
@@ -38,11 +41,6 @@ type Panel = (
   | { readonly kind: "review"; readonly request: StoryReviewRequest }
 ) & { readonly maximized?: boolean };
 type Shown = Panel["request"];
-type KeyboardReturn = {
-  readonly control: HTMLElement;
-  readonly shows: Shown | undefined;
-  readonly home?: () => HTMLElement | null;
-};
 
 const shownSessionOf = (panel: Panel | undefined) =>
   panel === undefined || panel.kind === "review" ? undefined : panel.request;
@@ -68,28 +66,19 @@ export function usePageSidePanel({
   markRead,
   deleteRecord,
   hostOperations,
+  range,
 }: Pick<
   MachineSessions,
   "markDone" | "markRead" | "deleteRecord" | "hostOperations"
->) {
+> & { readonly range: RecentlyDoneRange }) {
   const [panel, setPanel] = useState<Panel | undefined>();
   const shown = panel?.request;
   const latest = useRef<Panel | undefined>(undefined);
-  const [returning, setReturning] = useState<KeyboardReturn | undefined>();
   useLayoutEffect(() => {
     latest.current = panel;
   }, [panel]);
-  useLayoutEffect(() => {
-    if (returning === undefined || latest.current?.request !== returning.shows)
-      return;
-    // A control the page no longer shows, as in a hidden sidebar, cannot
-    // take the keyboard.
-    const control =
-      returning.control.getClientRects().length > 0
-        ? returning.control
-        : returning.home?.();
-    control?.focus();
-  }, [returning]);
+  // After `latest` follows the panel, so a return sees what the panel shows.
+  const setReturning = useKeyboardReturn<Shown>(latest, range);
   // The sessions whose terminal the developer opened themselves on this page,
   // which a launch's presentation then leaves as the developer left them.
   const openedByDeveloper = useRef(new Set<string>());
@@ -136,6 +125,7 @@ export function usePageSidePanel({
     setReturning({
       control: closed.control,
       shows: undefined,
+      ...("record" in closed ? { session: closed.record } : {}),
       home: () =>
         ("record" in closed
           ? sessionEntry(sessionKey(closed.record.session))
@@ -157,6 +147,7 @@ export function usePageSidePanel({
       setReturning({
         control,
         shows: latest.current?.request,
+        session: record,
         home: () =>
           sessionEntry(sessionKey(record.session)) ??
           workHome(launchSubject(record.request).identity),

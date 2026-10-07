@@ -1,5 +1,6 @@
 // What the progressive Recently done journeys
-// (./recently-done-progressive-loading.spec.ts) publish and keep: a long list
+// (./recently-done-progressive-loading.spec.ts,
+// ./recently-done-progressive-navigation.spec.ts) publish and keep: a long list
 // of done stories and saved Done sessions, one entry an hour apart, newest
 // first. The done records are spelled by the shared done-record renderer and
 // catalogued by the real backlog CLI's `catalog-done`, run on a scratch copy
@@ -88,7 +89,7 @@ export function progressiveEntries(
 }
 
 // The time an entry's completion or launch is placed at, before `now`.
-const placedAt = (now: number, place: number) =>
+export const placedAt = (now: number, place: number) =>
   new Date(now - place * hour - 30 * 60_000).toISOString();
 
 // The published files: the backlog, each story's done record, and the done
@@ -134,14 +135,22 @@ export function publishedWithCatalog(
   }
 }
 
-// Keeps this machine's sessions: each ad hoc entry's session, marked done,
-// and, for the story at `nestedIn`, three of its sessions marked done, each
-// launched long before the story was done, which its card holds.
+// Keeps this machine's sessions: each ad hoc entry's session, marked done
+// unless its place is among `open`, which Taken then lists instead; for the
+// story at `nestedIn`, three of its sessions marked done, each launched long
+// before the story was done, which its card holds; and `also`, as given.
 export async function keepProgressiveSessions(
   dashboard: DashboardServer,
   now: number,
   entries: readonly ProgressiveEntry[],
   nestedIn?: number,
+  {
+    open = [],
+    also = [],
+  }: {
+    readonly open?: readonly number[];
+    readonly also?: readonly LaunchRecord[];
+  } = {},
 ) {
   const listed = (name: string, launchedAt: string) => {
     const sessionId = dashboard.claudeListsSession({
@@ -170,7 +179,7 @@ export async function keepProgressiveSessions(
           },
           session: listed(entry.title, launchedAt),
           launchedAt,
-          doneAt,
+          ...(open.includes(entry.place) ? {} : { doneAt }),
         },
       ];
     }
@@ -193,5 +202,5 @@ export async function keepProgressiveSessions(
       },
     );
   });
-  await keepLaunchRecords(dashboard, records);
+  await keepLaunchRecords(dashboard, [...records, ...also]);
 }

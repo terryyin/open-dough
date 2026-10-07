@@ -119,14 +119,29 @@ export function keepInView(element: Element): () => void {
     observed = true;
   });
   resized.observe(document.body);
-  const stop = () => {
+  const stop = untilOwnMove(() => {
     resized.disconnect();
+  });
+  return () => {
+    resized.disconnect();
+    stop();
+  };
+}
+
+// Calls `moved` once the developer scrolls, points, or types, unless the
+// returned stop is called first.
+export function untilOwnMove(moved: () => void): () => void {
+  const stop = () => {
     for (const move of ownMoves) {
-      window.removeEventListener(move, stop, true);
+      window.removeEventListener(move, heard, true);
     }
   };
+  const heard = () => {
+    stop();
+    moved();
+  };
   for (const move of ownMoves) {
-    window.addEventListener(move, stop, true);
+    window.addEventListener(move, heard, true);
   }
   return stop;
 }
