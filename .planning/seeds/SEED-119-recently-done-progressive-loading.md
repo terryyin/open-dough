@@ -245,7 +245,8 @@ remains Proposed, not a binding decision; no Accepted-ADR conflict was found.
 **Boundary:** This story changes the Recently done list's shown range and
 detail demand. Reconcile with the existing
 [column reveal and count correction](SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction)
-and [shown-column height story](SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown).
+and the page length that follows the shown columns
+([dashboard README](../../dashboard/README.md)).
 Shared navigation and reading code does not establish a blocking prerequisite.
 Reconcile failure feedback with
 [temporary reading recovery](SEED-118-dashboard-reading-reliability.md#recover-from-temporary-github-failures)
