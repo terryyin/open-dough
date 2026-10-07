@@ -12,7 +12,7 @@
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { inspectedDetail } from "./cardControls.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   largeBacklog,
   queuedCount,
@@ -88,7 +88,8 @@ test.describe("in a two-column page", () => {
       },
     });
     await page.goto("/");
-    await expectMembership(page, { taken: [], backlog: [inspectedTitle] });
+    // Read only once every card has its length, as in the long-Backlog read.
+    await expectSettledPage(page, { taken: [], backlog: [inspectedTitle] });
     const { backlog, recentlyDone } = parts(page);
     const lastDone = recentlyDone.getByRole("article", {
       name: doneTitle(doneCount),
@@ -184,6 +185,12 @@ test("a long Backlog read far down: shorter columns clamp the page to their bott
   const lastCard = backlog.getByRole("article", {
     name: queuedTitle(queuedCount),
   });
+  // Where the Backlog's last card ends, which a developer reading to the
+  // Backlog's end reaches whatever the card's height against the window.
+  const lastCardEnd = lastCard.getByRole("button", { name: "Inspect story" });
+  // Read only once every card has its length, so the bottom a move stops
+  // at is the page's own and not one a later read lengthens.
+  await expectSettledPage(page);
   await expect(lastCard).toBeVisible();
   const backlogControl = `Backlog ${queuedCount} entries`;
 
@@ -206,14 +213,14 @@ test("a long Backlog read far down: shorter columns clamp the page to their bott
     await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
     expect(await scrollYOf(page)).toBe(kept);
     await expectEndsWithShown(page, ["Backlog", "Taken"]);
-    await expect(lastCard).toBeInViewport({ ratio: 1 });
+    await expect(lastCardEnd).toBeInViewport({ ratio: 1 });
   });
 
   await test.step("a page wide enough for all three is as long as Backlog, which is read whole", async () => {
     await page.setViewportSize({ width: 80 * rem, height: 480 });
     await expectView(page, ["Backlog", "Taken", "Recently done"], []);
     await expectEndsWithShown(page, ["Backlog", "Taken", "Recently done"]);
-    await expect(lastCard).toBeInViewport({ ratio: 1 });
+    await expect(lastCardEnd).toBeInViewport({ ratio: 1 });
   });
 
   await test.step("a one-column page shows Backlog, the kept column, then only a short Recently done, with no blank page past it", async () => {

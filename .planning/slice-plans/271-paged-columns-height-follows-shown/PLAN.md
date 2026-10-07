@@ -196,6 +196,14 @@ Accepted proof (execution `bas-chan` on
   further narrow-viewport consumers; after refactor and lint repair, height,
   paging, sidebar, kept, side-panel, accessible-overview and published-facts
   specs and `npm run typecheck:dashboard` passed.
+- CI repair (run 37632417898, `dashboard (5/9)`): on Linux fonts the
+  three-column card is taller than the 480px window, so the long-Backlog test
+  now asserts the last card's end (its Inspect story control) in view, and
+  both page tests wait for a settled page before reading; acting before cards
+  finished loading clamped to a premature bottom. Test-only; the trace showed
+  the page at its true bottom. `dashboard-columns-height.spec.ts
+  --repeat-each=8 --workers=4` and the height, paging and sidebar specs
+  passed.
 
 ## Verification and delivery
 
