@@ -188,6 +188,50 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
     expect(await additionOf("Maki")).toBeNull();
   });
 
+  test("asks GitHub about a commit once, whichever profile's walk reaches it", async () => {
+    const path = (name: string) => `${agents}/${name.toLowerCase()}-chan.json`;
+    const walked = "fc".repeat(20);
+    // One commit added both profiles; one of them was modified since.
+    const together = pathChange(0xd0, "added", "Both At Once");
+    const since = pathChange(0xd1, "modified", "Mo");
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision: walked,
+        backlog,
+        files: Object.fromEntries(
+          ["Sola", "Honoka"].map((name) => [path(name), profile(name)]),
+        ),
+        history: {
+          [path("Sola")]: [together],
+          [path("Honoka")]: [since, together],
+        },
+      }),
+    );
+    const additionOf = async (name: string) => {
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${walked}&path=${encodeURIComponent(path(name))}&committed=added`,
+        headers: { Origin: server.origin },
+      });
+      return (JSON.parse(response.body) as { added: unknown }).added;
+    };
+    const asked = () =>
+      server.github.calls.flatMap(({ request }) =>
+        request.kind === "commit" ? [request.sha] : [],
+      );
+
+    const before = asked().length;
+    const added = {
+      commit: together.sha,
+      committerName: "Both At Once",
+      committedAt: "2026-09-20T08:00:00.000Z",
+      login: null,
+    };
+    expect(await additionOf("Sola")).toEqual(added);
+    expect(await additionOf("Honoka")).toEqual(added);
+    expect(asked().slice(before)).toEqual([together.sha, since.sha]);
+  });
+
   // An addition read asks which commit added one agent profile, only at a
   // pinned trunk revision and only for a path shaped as a profile: never an
   // arbitrary record, a traversal, a moving ref, or a branch.

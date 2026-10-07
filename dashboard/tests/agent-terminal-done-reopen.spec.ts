@@ -64,6 +64,8 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     const session = await sessionNamedBy(listed);
     const key = await listed.getAttribute("data-shows-session");
     const doneName = `done-Open Dough · Execution · ${readyStory}`;
+    // Idle between steps, so its prompt takes the rename.
+    dashboard.claudeSessionBecomes(session, "working-idle");
     const marked = await markDone(dashboard, {
       source: "open-dough",
       session,
@@ -74,10 +76,18 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toHaveAttribute("data-shows-session", key ?? "?");
-    await expect(entry).toContainText(`Intended name ${doneName}`);
-    await expect(entry).toContainText(
-      "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
-    );
+    await expect(entry).toContainText(`Named ${doneName}`);
+    await expect(entry).not.toContainText("rename failed");
+    // With no terminal open, the rename ran through one private attachment
+    // that was hung up once the name was listed.
+    await expect
+      .poll(() => dashboard.claudeAttaches())
+      .toEqual([
+        expect.objectContaining({
+          lines: [`/rename ${doneName}`],
+          endedBy: "SIGHUP",
+        }),
+      ]);
 
     // Opening its terminal again reopens it, without waiting for the next
     // read of the records.
@@ -96,15 +106,22 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
     await expect(entry).toHaveCount(0);
 
-    // Reload closed the attachment. Reattach so this mark can confirm the
-    // native rename, clearing the problem from the first local Done.
+    // Reload closed the attachment. With a terminal open again, this mark
+    // types the rename into it rather than opening another.
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    const opened = dashboard.claudeAttaches().length;
+    // Attached, it runs again, idle between steps.
+    dashboard.claudeSessionBecomes(session, "working-idle");
     await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     await expect(entry).not.toContainText("rename failed");
+    expect(dashboard.claudeAttaches()).toHaveLength(opened);
+    expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([
+      `/rename ${doneName}`,
+    ]);
     await expectMembership(page, queued);
   });
 });

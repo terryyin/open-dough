@@ -58,6 +58,8 @@ test("Mark as done in the terminal panel closes a session with an unread report 
   const terminal = page.getByRole("region", { name: "Terminal" });
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   const stopsBefore = dashboard.claudeStopCalls().length;
+  // Still working, but idle between steps, so its prompt takes the rename.
+  dashboard.claudeSessionBecomes(sessionId, "working-idle");
 
   await markDoneAnyway(terminal);
 

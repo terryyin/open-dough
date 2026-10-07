@@ -48,29 +48,50 @@ export function parseContainmentRead(
 }
 
 // GitHub's comparison status for a head that is, or descends from, its base.
-const containing = new Set(["identical", "ahead"]);
-const notContaining = new Set(["behind", "diverged"]);
+export const containing = new Set(["identical", "ahead"]);
+export const notContaining = new Set(["behind", "diverged"]);
+
+// GitHub's comparison of `head` with `base` in `repository`, as `jq` picks
+// from it, with at most `perPage` of the commits between listed; undefined
+// when GitHub knows no such commit (`404`). Any other refusal is a failure,
+// rate-limited as GitHub directs. Shared with the reuse of unchanged records
+// at a newly named revision (`./commitsBetween.ts`).
+export async function comparisonViaGh(
+  repository: string,
+  { base, head }: { readonly base: string; readonly head: string },
+  { perPage, jq }: { readonly perPage: number; readonly jq: string },
+  signal: AbortSignal,
+): Promise<string | undefined> {
+  const answer = await execGh(
+    [
+      "api",
+      `repos/${repository}/compare/${base}...${head}?per_page=${String(perPage)}`,
+      "--jq",
+      jq,
+    ],
+    signal,
+  );
+  if (answer.status === 404) return undefined;
+  if (answer.failure || answer.status !== 200) {
+    throw new GhFailure(answer.failure ?? { kind: "failed" });
+  }
+  return answer.body;
+}
 
 async function containsViaGh(
   repository: string,
   { accepted, revision }: ContainmentRead,
   signal: AbortSignal,
 ): Promise<boolean> {
-  const answer = await execGh(
-    [
-      "api",
-      `repos/${repository}/compare/${accepted}...${revision}?per_page=1`,
-      "--jq",
-      ".status",
-    ],
+  const answer = await comparisonViaGh(
+    repository,
+    { base: accepted, head: revision },
+    { perPage: 1, jq: ".status" },
     signal,
   );
   // GitHub knows no such accepted commit: nothing shown contains it.
-  if (!signal.aborted && answer.status === 404) return false;
-  if (signal.aborted || answer.failure || answer.status !== 200) {
-    throw new GhFailure(answer.failure ?? { kind: "failed" });
-  }
-  const status = answer.body.trim();
+  if (answer === undefined) return false;
+  const status = answer.trim();
   if (containing.has(status)) return true;
   if (notContaining.has(status)) return false;
   throw new GhFailure({ kind: "failed" });

@@ -5,11 +5,13 @@
 // listings with `git ls-tree` at that revision — never with hand-constructed
 // display state; each listed agent profile's history is its addition by a
 // commit of its own (./pathHistoryAnswers.ts). A listing and a history read
-// are answered but not observed. A comparison of two commits is answered from
-// the repository's own history (./comparisonAnswers.ts) and kept in
-// `compares`. A repository the journey publishes to may be followed
-// (`follows`): its `main` is then the published revision as each request
-// arrives, as GitHub follows pushes, and any of its commits is readable.
+// are answered but not observed. A comparison of an accepted publication with
+// a shown revision is answered from the repository's own history
+// (./comparisonAnswers.ts) and kept in `compares`; one asking for the commits
+// between two revisions the ref named is not answered, so every newly named
+// revision is read in full. A repository the journey publishes to may be
+// followed (`follows`): its `main` is then the published revision as each
+// request arrives, as GitHub follows pushes, and any commit of it is readable.
 
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
@@ -23,7 +25,7 @@ import {
   type OriginAnswer,
 } from "./originAnswers.ts";
 import { directoryListingAnswer, type ListedPath } from "./listingAnswers.ts";
-import { comparisonIn } from "./comparisonAnswers.ts";
+import { asksContainment, comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
@@ -135,6 +137,7 @@ export function publishCommittedOrigin(
       return instead.get("main") ?? commitAnswer(published());
     }
     if (request.kind === "compare") {
+      if (!asksContainment(call.argv)) return noConnection;
       compares.push(`${request.base}...${request.head}`);
       await held.get("compare");
       const overridden = instead.get("compare");

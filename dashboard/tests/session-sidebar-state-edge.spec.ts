@@ -39,7 +39,7 @@ test.describe("the Sessions sidebar's state edge", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { passOnePace } = watchRecordReads(page);
+    const { passOnePace } = await watchRecordReads(page);
     const states = [
       ["working", "Working", "working"],
       ["blocked", "Needs input", "needs-input"],

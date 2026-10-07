@@ -14,6 +14,7 @@ import {
   partitionTestFiles,
   dashboardTestMatch,
 } from "../../dashboard/tests/support/testFiles.mjs";
+import { remainingSuiteTime } from "../../dashboard/tests/support/suiteDeadline.mjs";
 
 test("longest-first files stay apart and new files run exactly once", () => {
   const files = ["z.spec.ts", "b.spec.ts", "a.spec.ts", "long.spec.ts"];
@@ -98,6 +99,32 @@ test("the nine CI shares match every actual browser spec exactly once", () => {
       ).length,
       1,
       file,
+    );
+  }
+});
+
+test("the recorded deadline leaves the suite its remaining time", () => {
+  const now = 1_700_000_000_000;
+  assert.equal(remainingSuiteTime(undefined, now), undefined);
+  assert.equal(remainingSuiteTime(String(now + 320_000), now), 320_000);
+  assert.equal(remainingSuiteTime(String(now + 1), now), 1);
+});
+
+test("a passed or unreadable deadline fails the run naming it", () => {
+  const now = 1_700_000_000_000;
+  for (const passed of [String(now), String(now - 5_000)]) {
+    assert.throws(
+      () => remainingSuiteTime(passed, now),
+      new RegExp(`OPEN_DOUGH_DASHBOARD_DEADLINE_MS=${passed} passed`),
+    );
+  }
+  for (const invalid of ["", "soon", "-1", "1.5", "1e12", "9007199254740993"]) {
+    assert.throws(
+      () => remainingSuiteTime(invalid, now),
+      (error) =>
+        error.message.startsWith(
+          `OPEN_DOUGH_DASHBOARD_DEADLINE_MS=${invalid} is not`,
+        ),
     );
   }
 });

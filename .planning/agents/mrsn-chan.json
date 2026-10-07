@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-117#finished-after-retirement",
-  "mode": "story-branch",
-  "branch": "claude/a-session-that-retired-its-own-checkout-closes-a",
-  "host": "claude"
-}

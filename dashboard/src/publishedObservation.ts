@@ -66,7 +66,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   });
   // Whether the latest read, detail included, has finished.
   const [readSettled, setReadSettled] = useState(false);
-  const { visibility, settleRevealed } = usePageVisibility();
+  const { visibility, visibilityChanges, settleRevealed } = usePageVisibility();
   const heldFocus = useRef<FocusedWork | undefined>(undefined);
   const deferredFocus = useRef<FocusedWork | undefined>(undefined);
   // The snapshot shown, for a read of moved branches' progress to start from.
@@ -77,6 +77,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     // Whether the limit met any of this read: what it asked was then
     // withheld.
     const limitMet = limitsMetSince();
+    const askedAsOf = visibilityChanges();
     carryOutRead(readRequest, source, shownWork.current, reading.signal, {
       show: (next, firstMembership) => {
         const held = focusedWork();
@@ -89,7 +90,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
       settle: (revealing) => {
         if (limitMet()) withhold();
         setReadSettled(true);
-        if (revealing) settleRevealed();
+        if (revealing) settleRevealed(askedAsOf);
       },
     });
     return () => {

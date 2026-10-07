@@ -202,9 +202,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     const planlessCard = backlog.getByRole("article", {
       name: planless.title,
     });
-    const legacyCard = backlog.getByRole("article", {
-      name: legacy.title,
-    });
+    const legacyCard = backlog.getByRole("article", { name: legacy.title });
     await expect(
       planlessCard.getByText("Refined", { exact: true }),
     ).toBeVisible();

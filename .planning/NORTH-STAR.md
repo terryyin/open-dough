@@ -141,32 +141,6 @@ Proactive use of the remaining allowance, coordination beyond one process, and
 priority among kinds of read are not built ahead. Retire this topic when that
 correction is delivered.
 
-## Reuse is established by the commits between
-
-For [refreshing published work without rereading unchanged files](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication),
-the local read boundary reuses what it holds only on GitHub's own account of
-the commits between the revision it last read and the new one, never on a
-ref's name, elapsed time, or the bytes a reread would compare.
-
-- **Change is learned once per new revision.** GitHub's comparison of the two
-  revisions says whether the new one is ahead and which commits lie between;
-  each commit's own change list, remembered whole by commit, says which paths
-  they changed. One bounded fact, consulted by every read at the new revision.
-- **Untouched paths are recalled.** Text, directory listings, a profile's
-  addition, and a path's last commit time at the new revision are what the
-  boundary holds for that path at the earlier revision when no commit between
-  changed it; they are kept as the new revision's own. A listed record's blob
-  reuse stays as it is.
-- **History needs the same evidence, not identical text.** An addition or
-  commit time is never reused because the bytes match.
-- **Absence, bounds, and failure keep their meaning.** A record the new
-  revision lacks is missing or gone. A comparison that is not ahead, beyond
-  the bound, or with a change list GitHub did not give whole is remembered as
-  no evidence; a failed comparison or commit read is not, and the read that
-  needed it proceeds as today.
-
-Retire this topic when the story is delivered.
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard

@@ -60,6 +60,9 @@ export type GhRequest =
       readonly repository: string;
       readonly base: string;
       readonly head: string;
+      // How many of the commits between are asked for (`per_page`), when
+      // said.
+      readonly perPage: number | undefined;
     }
   | { readonly kind: "unknown" };
 
@@ -106,7 +109,7 @@ export function parseRequest(argv: readonly string[]): GhRequest {
     };
   }
   const compare =
-    /^repos\/([^/]+\/[^/]+)\/compare\/([0-9a-f]{40})\.\.\.([0-9a-f]{40})(?:\?.*)?$/.exec(
+    /^repos\/([^/]+\/[^/]+)\/compare\/([0-9a-f]{40})\.\.\.([0-9a-f]{40})(?:\?(.*))?$/.exec(
       endpoint,
     );
   if (
@@ -119,6 +122,9 @@ export function parseRequest(argv: readonly string[]): GhRequest {
       repository: compare[1],
       base: compare[2],
       head: compare[3],
+      perPage: new URLSearchParams(compare[4] ?? "").has("per_page")
+        ? Number(new URLSearchParams(compare[4] ?? "").get("per_page"))
+        : undefined,
     };
   }
   const heads = /^repos\/([^/]+\/[^/]+)\/git\/matching-refs\/heads\/$/.exec(

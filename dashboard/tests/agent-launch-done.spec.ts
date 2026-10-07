@@ -1,9 +1,10 @@
 // Mark as done at the local launch boundary (../server/agentLaunchPlugin.ts,
 // ../server/doneMarks.ts), over raw HTTP and a raw terminal socket: a
-// same-origin POST for a session this dashboard recorded types Claude Code's
-// own `/rename done-<name>` into its open terminal, ends that attachment,
-// runs `claude stop <short id>`, and keeps the done mark on this machine
-// across a restart. With no terminal open, or a launch name holding a
+// same-origin POST for a session this dashboard recorded, idle between
+// steps, types Claude Code's own `/rename done-<name>` into its open terminal,
+// ends that attachment, runs `claude stop <short id>`, and keeps the done
+// mark on this machine across a restart. With no terminal open, it renames
+// through a private attachment it then hangs up. With a launch name holding a
 // control character, the `done-` name is only the record's, and the session
 // is still stopped. What the listing changes about a stop is
 // ./agent-launch-done-stop.spec.ts. Which requests are refused before
@@ -71,6 +72,7 @@ test.describe("marking a recorded session done", () => {
     const terminal = await openTerminal(server, session);
     expect(await shows(terminal, "attached")).toBe(true);
     terminal.send({ input: "a leftover draft" });
+    server.claudeSessionBecomes(session.sessionId, "working-idle");
 
     const response = await markDone(server, {
       source: "open-dough",
@@ -161,8 +163,9 @@ test.describe("marking a recorded session done", () => {
     expect(listed(session)).toMatchObject({ name: escName, state: "stopped" });
   });
 
-  test("with no terminal open, keeps the done- name only in the record and still stops the session", async () => {
+  test("with no terminal open, renames through a private attachment it then hangs up, and still stops the session", async () => {
     const session = await launched(server);
+    server.claudeSessionBecomes(session.sessionId, "working-idle");
     const attachesBefore = server.claudeAttaches().length;
     const stopsBefore = server.claudeStopCalls().length;
 
@@ -183,12 +186,19 @@ test.describe("marking a recorded session done", () => {
         },
       },
     });
-    expect(server.claudeAttaches()).toHaveLength(attachesBefore);
+    expect(JSON.parse(response.body)).not.toHaveProperty("record.doneProblem");
+    expect(server.claudeAttaches().slice(attachesBefore)).toEqual([
+      expect.objectContaining({
+        id: session.shortId,
+        lines: [`/rename ${doneName}`],
+      }),
+    ]);
+    expect(await lastAttachEnded(server)).toBe("SIGHUP");
     expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
     expect(listed(session)).toMatchObject({
-      name: launchName,
+      name: doneName,
       state: "stopped",
     });
   });

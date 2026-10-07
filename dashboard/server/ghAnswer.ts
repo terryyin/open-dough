@@ -95,8 +95,8 @@ function limitedAsDirected(
 // `gh` exits 4 when it has no usable login, and says so by pointing at
 // `gh auth login`; an HTTP error ends its stderr with "(HTTP <status>)", and a
 // rate limit or a failed connection names itself.
-// Timing out is the request bound's own finding (`./authenticatedRead.ts`),
-// never inferred here.
+// Timing out is never inferred from `gh`'s output: it is a request's own
+// bound (`./trackedGh.ts`) or the shared call's (`./ghRead.ts`).
 function classify(
   error: { readonly code?: string | number | undefined },
   stderr: string,

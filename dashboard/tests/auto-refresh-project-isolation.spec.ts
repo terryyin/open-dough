@@ -30,6 +30,7 @@ import {
   revisionDoughnut,
 } from "./doughnutProject.ts";
 import { selectSettledDoughnut } from "./doughnutJourney.ts";
+import { readsBesideChecks } from "./originObservation.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogA,
@@ -143,29 +144,18 @@ test.describe("project read isolation of automatic checks", () => {
     // The setting file is read right after the listing, in the same
     // request, so the listing alone does not prove it was recorded.
     await expect
-      .poll(() => contentReads(openDough.requests))
+      .poll(() => readsBesideChecks(openDoughCalls(githubFor(page).calls)))
       .toEqual(
         expect.arrayContaining(
           [
-            ".planning/seeds/SEED-021-progress.md",
-            ".planning/seeds/SEED-008-sync.md",
-            ".planning/slice-plans/059-installer-update-report/PLAN.md",
-          ].map((path) => `${path}?ref=${revisionA}`),
+            "content .planning/seeds/SEED-021-progress.md",
+            "content .planning/seeds/SEED-008-sync.md",
+            "content .planning/slice-plans/059-installer-update-report/PLAN.md",
+            `listing .planning/${agentProfileDirectory}`,
+            `content ${agentSettingsPath}`,
+          ].map((read) => `${read}@${revisionA}`),
         ),
       );
-    await expect
-      .poll(() =>
-        openDoughCalls(githubFor(page).calls).some(
-          ({ request }) =>
-            request.kind === "listing" &&
-            request.path === `.planning/${agentProfileDirectory}` &&
-            request.revision === revisionA,
-        ),
-      )
-      .toBe(true);
-    await expect
-      .poll(() => contentReads(openDoughCalls(githubFor(page).calls)))
-      .toContain(`${agentSettingsPath}?ref=${revisionA}`);
     await expect(page.getByText("Reading preparation…")).not.toHaveCount(0);
 
     const atSwitch = githubFor(page).calls.length;

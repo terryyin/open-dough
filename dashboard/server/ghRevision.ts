@@ -127,10 +127,10 @@ export async function checkHeadsViaGh(
     ["api", ...conditional, headsEndpoint(repository)],
     signal,
   );
-  if (!signal.aborted && answer.status === 304 && earlier?.etag !== undefined) {
+  if (answer.status === 304 && earlier?.etag !== undefined) {
     return earlier;
   }
-  if (signal.aborted || answer.failure || answer.status !== 200) {
+  if (answer.failure || answer.status !== 200) {
     throw new GhFailure(answer.failure ?? { kind: "failed" });
   }
   return { heads: headsListed(answer.body), etag: answer.headers.get("etag") };

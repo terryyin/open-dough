@@ -20,8 +20,15 @@ import {
 import {
   commitAnswerIn,
   commitListIn,
+  madeCommitAnswer,
+  type MadeCommit,
   type PathHistories,
 } from "./pathHistoryAnswers.ts";
+import {
+  aheadByAnswer,
+  changedBetween,
+  compareAnswer,
+} from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 
 // A repository whose configured ref (default `main`) names one revision at which these files are
@@ -38,7 +45,14 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // `unanswered` is listed in its directory, but reading it fails as a lost
 // connection would. A check
 // lists the configured ref and every published branch head; checks are answered but not
-// observed (./originObservation.ts).
+// observed (./originObservation.ts). A comparison of two revisions the ref
+// named, joined by its moves from the base to the head, is observed and
+// answered as ahead by the commits those moves were made by, naming the files
+// that differ between the two published revisions, and each of those commits
+// with every file it changed; joined through a move that names none, it
+// answers no connection. The reverse, from a later revision the ref named to
+// an earlier one, is answered behind, and any other comparison diverged, both
+// observed.
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
@@ -60,8 +74,9 @@ function publishedAt(
 // Every revision ever published stays readable, as commits do.
 export type MovingFiles = {
   readonly requests: ObservedRequest[];
-  // The configured ref names `at` from now on.
-  moveTrunk(at: PublishedRevision): void;
+  // The configured ref names `at` from now on, moved there by the commits
+  // `by`, oldest first, when given.
+  moveTrunk(at: PublishedRevision, by?: readonly MadeCommit[]): void;
   // `branch` is published at `at` from now on, or, given undefined, deleted.
   moveBranch(branch: string, at: PublishedRevision | undefined): void;
 };
@@ -79,6 +94,24 @@ export function publishMovingFiles(
   let trunk: PublishedRevision = published;
   const branches = new Map(Object.entries(published.branches ?? {}));
   const revisions = [published, ...branches.values()];
+  // Each move of the ref in order, with the commits it was made by when it
+  // names them.
+  const moves: {
+    readonly from: string;
+    readonly to: string;
+    readonly by: readonly MadeCommit[] | undefined;
+  }[] = [];
+  // The moves that took the ref from `base` to `head`, oldest first, or
+  // undefined when it never moved from one to the other.
+  const movesBetween = (base: string, head: string) => {
+    for (let first = 0; first < moves.length; first += 1) {
+      if (moves[first]?.from !== base) continue;
+      const last = moves.findIndex(({ to }, at) => at >= first && to === head);
+      if (last !== -1) return moves.slice(first, last + 1);
+    }
+    return undefined;
+  };
+  const madeCommits = new Map<string, MadeCommit>();
   githubFor(page).serve(repository, (call) => {
     const { request } = call;
     if (request.kind === "repository")
@@ -111,7 +144,37 @@ export function publishMovingFiles(
           : branchRefAnswer(request.branch, head.revision),
       );
     }
+    if (request.kind === "compare") {
+      const { base, head } = request;
+      const forward = movesBetween(base, head);
+      if (forward?.some(({ by }) => by === undefined) === true) {
+        return Promise.resolve(noConnection);
+      }
+      observe(requests, call);
+      if (forward === undefined) {
+        return Promise.resolve(
+          compareAnswer(
+            movesBetween(head, base) === undefined ? "diverged" : "behind",
+          ),
+        );
+      }
+      return Promise.resolve(
+        aheadByAnswer(
+          forward.flatMap(({ by = [] }) => by.map(({ sha }) => sha)),
+          request.perPage,
+          changedBetween(
+            publishedAt(revisions, base)?.files ?? {},
+            publishedAt(revisions, head)?.files ?? {},
+          ),
+        ),
+      );
+    }
     if (request.kind === "commit") {
+      const made = madeCommits.get(request.sha);
+      if (made !== undefined) {
+        observe(requests, call);
+        return Promise.resolve(madeCommitAnswer(made));
+      }
       const answer = commitAnswerIn(revisions, request.sha);
       if (answer === undefined) {
         return Promise.resolve(noConnection);
@@ -119,11 +182,7 @@ export function publishMovingFiles(
       observe(requests, call);
       return Promise.resolve(answer);
     }
-    if (
-      request.kind === "unknown" ||
-      request.kind === "ref" ||
-      request.kind === "compare"
-    ) {
+    if (request.kind === "unknown" || request.kind === "ref") {
       return Promise.resolve(noConnection);
     }
     const at = publishedAt(revisions, request.revision);
@@ -158,7 +217,11 @@ export function publishMovingFiles(
   });
   return {
     requests,
-    moveTrunk(at) {
+    moveTrunk(at, by) {
+      moves.push({ from: trunk.revision, to: at.revision, by });
+      for (const made of by ?? []) {
+        madeCommits.set(made.sha, made);
+      }
       trunk = at;
       revisions.push(at);
     },

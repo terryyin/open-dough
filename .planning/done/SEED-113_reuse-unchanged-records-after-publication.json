@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-113#reuse-unchanged-records-after-publication",
+  "title": "Refresh published work without rereading unchanged files",
+  "completedAt": "2026-10-07T02:12:44.671Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "claude",
+  "model": "opus"
+}

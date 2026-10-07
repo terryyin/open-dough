@@ -82,7 +82,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { passOnePace } = watchRecordReads(page);
+    const { passOnePace } = await watchRecordReads(page);
     dashboard.claudeScenario("launched");
     const { settled, show, launch } = await openStoryStagesJourney(
       page,

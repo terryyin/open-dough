@@ -20,8 +20,9 @@ const exec = promisify(execFile);
 export const reportedMessage = "Published. Reminder: check the migration.";
 
 // A launched session: its native session id, and a report the store records,
-// completed with `reportedMessage` unless asked otherwise. Each report is a
-// new one, with its own receipt.
+// completed with `reportedMessage` unless asked otherwise; an empty message
+// reports quietly, with no message file. Each report is a new one, with its
+// own receipt.
 export type ReportedLaunch = {
   readonly sessionId: string;
   report(report?: {
@@ -84,9 +85,10 @@ async function reportedLaunch(
     async report({ outcome = "completed", message = reportedMessage } = {}) {
       const file = path.join(origin.machine, `report-${randomUUID()}.txt`);
       writeFileSync(file, message);
+      const messageFile = message === "" ? "" : ` --message-file '${file}'`;
       const reported = await exec(
         "bash",
-        ["-c", `${command} --outcome ${outcome} --message-file '${file}'`],
+        ["-c", `${command} --outcome ${outcome}${messageFile}`],
         { cwd: origin.machine },
       );
       expect(

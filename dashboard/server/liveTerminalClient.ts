@@ -20,8 +20,8 @@ import {
   type LaunchInstructionInput,
 } from "./launchInstruction.ts";
 
-type LiveTerminalClientInput = {
-  readonly pty: IPty;
+// What a registry supplies for one client, beside its process and live set.
+export type LiveTerminalClientOptions = {
   readonly key: string;
   readonly hostName: string;
   readonly keep: boolean;
@@ -32,8 +32,14 @@ type LiveTerminalClientInput = {
     ((screen: string, cursorVisible: boolean) => boolean) | undefined;
   readonly startupFailure: (() => UnavailableWorkspace | undefined) | undefined;
   readonly detachedIdle?: DetachedIdle;
+  // Records the screen of a client that does not declare keep.
+  readonly observeScreen?: true;
   // Absent when this client was not started with a launch instruction.
   readonly launchInput?: LaunchInstructionInput;
+};
+
+type LiveTerminalClientInput = LiveTerminalClientOptions & {
+  readonly pty: IPty;
   // The registry's live set. Messages are ignored once the client is gone,
   // and hangup is a no-op the second time.
   readonly isTracked: () => boolean;
@@ -49,6 +55,11 @@ export class LiveTerminalClient {
   // has exited. Later screens can still accept the instruction. Already
   // resolved when this client has no launch instruction.
   readonly firstScreen: Promise<void>;
+  private outputSeen: ((shown: boolean) => void) | undefined;
+  // Resolves true at this client's first output, or false if it exits first.
+  readonly firstOutput = new Promise<boolean>((resolve) => {
+    this.outputSeen = resolve;
+  });
   private readonly sockets: JoinedSockets;
   private readonly isTracked: () => boolean;
   private readonly untrack: () => boolean;
@@ -90,7 +101,7 @@ export class LiveTerminalClient {
           this.hangup();
         },
       },
-      input.keep,
+      input.keep || input.observeScreen === true,
     );
     this.launch =
       input.launchInput === undefined
@@ -116,6 +127,7 @@ export class LiveTerminalClient {
   // this client, so an exit can still find it.
   watch(): void {
     this.pty.onData((output) => {
+      this.outputSeen?.(true);
       this.idle?.write(output);
       this.launch?.write(output);
       if (!this.sockets.hasOpen() && !this.launch?.holdsIdle()) {
@@ -126,6 +138,7 @@ export class LiveTerminalClient {
     // Exited on its own. A socket-only detach does not reach this for a
     // kept client, because that client stays tracked.
     this.pty.onExit(() => {
+      this.outputSeen?.(false);
       this.launch?.clientExited();
       this.releaseIdle();
       if (!this.untrack()) return;

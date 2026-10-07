@@ -215,6 +215,7 @@ test("npm watcher replaces production with each newly published main commit at t
     // Superseded checkouts are retired after C serves, not before.
     await checkedAfterActivation(watcher, c);
     expect(await readdir(deployments)).toEqual([checkoutOf(c)]);
+    expect(watcher.output()).not.toContain("Could not remove retired");
 
     // SIGTERM while D is in its real build ends that build, the served C
     // preview and every deployment checkout.

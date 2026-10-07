@@ -175,18 +175,18 @@ export function restoreSnapshotFocus(
       ? deferred
       : undefined) ?? held;
   if (!wanted) return undefined;
-  // Focus still within the work's card, kept across the snapshot, stays.
+  // Focus captured with the snapshot is applied only once it renders, so the
+  // developer may have moved it meanwhile. Focus they still hold anywhere but
+  // the work's card itself stays, whether on a control within that card kept
+  // across the snapshot or elsewhere on the page; only focus dropped to the
+  // page or left on the fallback card returns to the wanted place.
+  const card = workCard(wanted.identity);
   const kept = document.activeElement;
-  if (
-    held !== undefined &&
-    kept !== null &&
-    kept !== workCard(wanted.identity) &&
-    workCard(wanted.identity)?.contains(kept) === true
-  ) {
+  if (kept !== null && kept !== document.body && kept !== card) {
     // The same control can keep focus yet be pushed out of view by new facts.
     // Reveal only what the reader could see before this update, and move only
     // far enough to keep it readable below the pinned banner.
-    if (wanted.visible === true && !inView(kept)) {
+    if (wanted.visible === true && card?.contains(kept) && !inView(kept)) {
       kept.scrollIntoView({
         block: "nearest",
         inline: "nearest",

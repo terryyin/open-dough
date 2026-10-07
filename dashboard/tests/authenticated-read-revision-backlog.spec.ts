@@ -126,8 +126,17 @@ test.describe("authenticated read boundary backlog (dev launch mode)", () => {
       revision: nextRevision,
       backlog: nextBacklog,
     });
+    // The new commit is first compared with the one whose backlog was read,
+    // which GitHub does not answer here, so its backlog is read as before.
     expect(server.ghCalls().slice(callsBefore)).toEqual([
       refCall,
+      [
+        "api",
+        "--include",
+        `repos/${knownRepository}/compare/${revision}...${nextRevision}?per_page=10`,
+        "--jq",
+        ".status, .total_commits, .commits[].sha, .files[].filename, .files[].previous_filename",
+      ],
       backlogCall(nextRevision),
     ]);
   });
@@ -156,6 +165,8 @@ test.describe("authenticated read boundary backlog (dev launch mode)", () => {
     const read = await membershipRead();
     expect(read.status).toBe(200);
     expect(JSON.parse(read.body)).toMatchObject({ revision, backlog });
-    expect(server.ghCalls().slice(callsBefore)).toHaveLength(2);
+    // The ref, the comparison with the revision whose backlog was read before
+    // (unanswered here, so not remembered), and the backlog.
+    expect(server.ghCalls().slice(callsBefore)).toHaveLength(3);
   });
 });

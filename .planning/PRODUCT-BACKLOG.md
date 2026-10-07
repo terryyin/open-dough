@@ -14,16 +14,12 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Shared GitHub reads say and signal only what their waiters own](seeds/SEED-113-dashboard-github-responsiveness.md#shared-read-waiter-residue-correction) — SEED-113#shared-read-waiter-residue-correction ([plan](slice-plans/263-shared-read-waiter-residue-correction/PLAN.md))
-- [Refresh published work without rereading unchanged files](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication) — SEED-113#reuse-unchanged-records-after-publication ([plan](slice-plans/266-reuse-unchanged-records-after-publication/PLAN.md))
-- [A session that retired its own checkout closes as finished](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#finished-after-retirement) — SEED-117#finished-after-retirement
-- [A Claude Code session marked done is renamed without an open terminal](seeds/SEED-116-claude-done-rename.md#claude-done-rename) — SEED-116#claude-done-rename ([plan](slice-plans/267-claude-done-rename/PLAN.md))
+- [Mark as done removes an exited Claude Code session's job](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#remove-exited-claude-job) — SEED-117#remove-exited-claude-job ([plan](slice-plans/268-remove-exited-claude-job/PLAN.md))
 
 ## Backlog list
 
 - [Rate-limit recovery waits, resumes, and labels as promised](seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction) — SEED-113#rate-limit-recovery-residue-correction
-- [Mark as done removes an exited Claude Code session's job](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#remove-exited-claude-job) — SEED-117#remove-exited-claude-job
-- [Retain actionable diagnostics when a dashboard CI shard times out](seeds/SEED-115-cancelled-dashboard-ci-failures.md#retain-cancelled-ci-evidence) — SEED-115#retain-cancelled-ci-evidence
+- [A private Claude Code rename types only at a ready prompt](seeds/SEED-116-claude-done-rename.md#claude-done-rename-readiness-correction) — SEED-116#claude-done-rename-readiness-correction
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown
 - [A terminal the developer closed while its session starts stays closed](seeds/SEED-112-terminal-stays-closed-during-startup.md#closed-terminal-stays-closed) — SEED-112#closed-terminal-stays-closed
 - [Paged dashboard columns reveal by structure and count only what is read](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction) — SEED-106#paged-columns-reveal-and-count-correction

@@ -28,9 +28,9 @@ function configuredMs(variable: string, productionMs: number): number {
     : productionMs;
 }
 
-// How long one boundary request may wait for its `gh` answers before it is
-// given up (`./trackedGh.ts`), and how long one `gh` call may run from its
-// start however many requests wait on it: the shared read wait bound
+// How long one boundary request may wait for its `gh` answers before its
+// wait is given up (`./trackedGh.ts`), and how long one `gh` call may run
+// from its start however many requests wait on it: the shared read wait bound
 // (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`).
 export function readTimeoutMs(): number {
   return configuredMs("DOUGH_READ_TIMEOUT_MS", readWaitLimitMs);
@@ -177,9 +177,8 @@ async function spawnedGh(
   });
 }
 
-// An answer that never came from GitHub: held back, or -- `failed`, as
-// `execFile` answers a call aborted by its signal -- for a request that
-// stopped waiting, or a call that ended while waiting its turn.
+// An answer that never came from GitHub: held back, or -- `failed` -- for a
+// call that ended while waiting its turn, which no request waits on any more.
 function unasked(
   failure: GhFailureReason,
   askedAt = new Date().toISOString(),
@@ -190,25 +189,17 @@ function unasked(
 // One `gh api` answer, settled whatever its exit: `--include` makes `gh`
 // print GitHub's status line on stdout even when it exits non-zero, so a
 // caller can decide from that status before treating the exit as a failure.
-// `signal` ends this request's wait, not a call another request still waits
-// for; a call that reached its own bound is a timed-out failure.
-export async function execGh(
+// `signal` ends only this request's wait, which then rejects with its reason
+// and gets no answer; a call that reached its own bound is a timed-out
+// failure for every request waiting on it.
+export function execGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhAnswer> {
   const asked = includedArgs(args);
-  try {
-    return await outstandingGh.waitFor(
-      JSON.stringify(asked),
-      signal,
-      (shared) => spawnedGh(asked, shared),
-    );
-  } catch (error) {
-    if (signal.aborted) {
-      return unasked({ kind: "failed" });
-    }
-    throw error;
-  }
+  return outstandingGh.waitFor(JSON.stringify(asked), signal, (shared) =>
+    spawnedGh(asked, shared),
+  );
 }
 
 // One `gh` answer's body, and when it was asked of GitHub.
@@ -228,6 +219,15 @@ export async function runGh(
   signal: AbortSignal,
 ): Promise<string> {
   return (await askGh(args, signal)).stdout;
+}
+
+// A `gh` answer read as JSON; an answer that is not JSON is a failed call.
+export function parsedJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new GhFailure({ kind: "failed" });
+  }
 }
 
 // Whether a `gh` call failed only because GitHub has no such thing (`404`).

@@ -145,8 +145,8 @@ export function commitListIn(
 }
 
 // GitHub's answer for commit `sha` when a history of one of `publications`
-// lists it, naming its change to that path among the files it changed;
-// undefined when none does.
+// lists it, naming its change to each path whose history there lists it among
+// the files it changed; undefined when none does.
 export function commitAnswerIn(
   publications: readonly PublishedHistories[],
   sha: string,
@@ -156,21 +156,47 @@ export function commitAnswerIn(
       ...Object.keys(published.history ?? {}),
       ...Object.keys(published.files ?? {}),
     ]);
-    for (const path of paths) {
+    const changes = [...paths].flatMap((path) => {
       const change = historyOf(published, path)?.find(
         (each) => each.sha === sha,
       );
-      if (change !== undefined) {
-        const { status } = change;
-        return jsonAnswer({
-          ...historyCommit(change),
-          files: [
-            { filename: ".planning/PRODUCT-BACKLOG.md", status: "modified" },
-            ...(status === null ? [] : [{ filename: path, status }]),
-          ],
-        });
-      }
+      return change === undefined ? [] : [{ path, change }];
+    });
+    const [first] = changes;
+    if (first !== undefined) {
+      return jsonAnswer({
+        ...historyCommit(first.change),
+        files: [
+          { filename: ".planning/PRODUCT-BACKLOG.md", status: "modified" },
+          ...changes.flatMap(({ path, change: { status } }) =>
+            status === null ? [] : [{ filename: path, status }],
+          ),
+        ],
+      });
     }
   }
   return undefined;
+}
+
+// One file a commit changed as GitHub's answer for the commit names it: its
+// path, status, and the path it was renamed or copied from, when it was.
+export type ChangedFile = {
+  readonly filename: string;
+  readonly status: "added" | "modified" | "removed" | "renamed" | "copied";
+  readonly previous_filename?: string;
+};
+
+// A commit a move of the configured ref was made by: its sha and committer,
+// as a path's history names it, and every file it changed.
+export type MadeCommit = Omit<PathChange, "status"> & {
+  readonly files: readonly ChangedFile[];
+};
+
+// GitHub's answer for a commit a move was made by, naming every file it
+// changed, as one answer names at most 300 of them.
+export function madeCommitAnswer(made: MadeCommit): RawAnswer {
+  return jsonAnswer({
+    ...historyCommit({ ...made, status: null }),
+    files: made.files.slice(0, 300),
+  });
 }

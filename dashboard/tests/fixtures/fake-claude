@@ -8,12 +8,12 @@
 // exposes status only for running processes; exited sessions need --all.
 // The support controls end/forget sessions or fail listing via shared files.
 //
-// Attach prints `attached <id> <cols>x<rows>`, echoes typing and `echo <line>`,
-// clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits on Ctrl+Z.
-// Logs pid in attaches.jsonl, lines in attach.<pid>.lines, and ending signal
-// or Ctrl+Z in attach.<pid>.ended. `/rename <name>` updates the listed name
-// and prints `Session renamed to: <name>`; renames-ignored suppresses only
-// the update. `stop <id>` lists the session stopped, without status.
+// Attach prints `attached <id> <cols>x<rows>` unless attaches-silent exists,
+// echoes typing and `echo <line>`, clears input on Ctrl+U, prints `resized`,
+// exits on Ctrl+Z; it logs pid, lines, and the ending signal or Ctrl+Z in
+// attaches.jsonl, attach.<pid>.lines, attach.<pid>.ended. `/rename <name>`
+// updates the listed name and prints `Session renamed to: <name>`;
+// renames-ignored suppresses only the update. `stop <id>` lists it stopped.
 //
 // Scenario file: launched (default), refused, untrusted, hang, held (waits
 // for release), unlisted (reports an unlisted session), or launched-hang
@@ -122,7 +122,8 @@ if (args[0] === "attach") {
       process.exit(128);
     });
   }
-  process.stdout.write(`attached ${id} ${size()}\r\n`);
+  const silent = fs.existsSync(path.join(dir, "attaches-silent"));
+  if (!silent) process.stdout.write(`attached ${id} ${size()}\r\n`);
   process.stdout.on("resize", () => {
     process.stdout.write(`\r\nresized ${size()}\r\n`);
   });

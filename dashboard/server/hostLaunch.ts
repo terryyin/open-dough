@@ -23,6 +23,13 @@ export class HostOperationFailure extends Error {
   }
 }
 
+// A terminal attachment that failed to open, or ended before its first screen.
+export class TerminalAttachmentUnopened extends HostOperationFailure {
+  constructor() {
+    super("The terminal attachment could not be opened.");
+  }
+}
+
 // An observation of one recorded host-qualified native target.
 export type SessionObservation = {
   readonly session: HostSession;

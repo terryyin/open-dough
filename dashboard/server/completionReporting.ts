@@ -8,6 +8,7 @@ import type { ReportingContext } from "../src/launchRequest.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { deliverCompletion } from "./completionDelivery.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
 import { submissionSchema } from "./completionAdmission.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
@@ -71,7 +72,10 @@ export async function reportingContext(
   };
 }
 
-export async function submitCompletion(req: IncomingMessage) {
+export async function submitCompletion(
+  req: IncomingMessage,
+  doneMarks: NativeDoneMarks,
+) {
   verifyLocalOrigin(req);
   if (req.method !== "POST")
     throw new RefusedRequest(405, "Only POST is accepted here.");
@@ -82,5 +86,5 @@ export async function submitCompletion(req: IncomingMessage) {
     throw new RefusedRequest(400, "The completion request is malformed.");
   const report = parsed.data;
   knownSource(report.source);
-  return deliverCompletion(report, `http://${req.headers.host}`);
+  return deliverCompletion(report, `http://${req.headers.host}`, doneMarks);
 }

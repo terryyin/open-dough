@@ -35,3 +35,8 @@ export const markDoneAnswerSchema = z.object({ record: launchWithStateSchema });
 export function doneSessionName(session: Pick<HostSession, "name">): string {
   return `done-${session.name}`;
 }
+
+// What a done mark says between a quiet report's receipt and its native Done:
+// the local mark is kept, the rename still to come. It is no problem.
+export const nativeDoneMarkPending =
+  "Local done mark retained. Native done mark is pending.";

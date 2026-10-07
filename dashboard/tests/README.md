@@ -60,7 +60,8 @@ makes the listing fail. It records every call's argv and working directory
 terminal boundary's pseudo-terminal, it echoes each line entered, clears the
 line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
-(`claudeAttaches`). The terminal boundary specs drive it over a raw socket
+(`claudeAttaches`); `claudeAttachesSilent` makes it print nothing. The
+terminal boundary specs drive it over a raw socket
 (`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
 server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
 marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,
@@ -127,6 +128,17 @@ list entries are ignored. With the variable unset,
 `npm run test:dashboard` keeps running the whole suite. The partition check
 in `tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
 and assignment without duplicates or omissions.
+
+CI also records `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`, the epoch 320 seconds after
+the shard job starts, and the config turns what remains of it into Playwright's
+`globalTimeout` (`support/suiteDeadline.mjs`). The build counts against it. A
+shard that cannot finish by then fails naming the deadline (`Timed out
+waiting`), still within the job's 6 minutes, and its kept report holds the
+completed failures' traces and error context and lists unfinished tests as
+skipped. Local runs without the variable are unbounded. Like the shell
+suite's `tests/time-budget`, the 320 seconds and the job's `timeout-minutes`
+are a reviewed ceiling: a shard that reaches the deadline is made faster or
+rebalanced, not given more time.
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that

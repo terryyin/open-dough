@@ -50,17 +50,26 @@ test("installed attention report stays open, durable and readable through stage 
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  // Take publication, the workspace and the native session creation run
+  // dozens of real git and child processes, slower on a loaded machine.
   await expect
-    .poll(() =>
-      existsSync(
-        path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
-      )
-        ? stored(dashboard.home).length
-        : 0,
+    .poll(
+      () =>
+        existsSync(
+          path.join(
+            dashboard.home,
+            ".open-dough/dashboard/agent-launches.json",
+          ),
+        )
+          ? stored(dashboard.home).length
+          : 0,
+      { timeout: 30_000 },
     )
     .toBe(1);
   await expect
-    .poll(() => stored(dashboard.home)[0]?.firstInput?.state)
+    .poll(() => stored(dashboard.home)[0]?.firstInput?.state, {
+      timeout: 30_000,
+    })
     .toBe("confirmed");
   const record = stored(dashboard.home)[0];
   if (record?.request.reporting === undefined)

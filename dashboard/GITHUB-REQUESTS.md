@@ -12,14 +12,16 @@ profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
 its addition (usually one). A history listing is remembered at its revision,
 and what a commit changed is remembered by commit, so a walk a failure or a
-rate limit ended asks again only from the step that failed, and at a later
-revision an unchanged profile costs only its history listing. Each
+rate limit ended asks again only from the step that failed, and a later
+revision that must walk a profile's history again costs only its history
+listing. Each
 GitHub account matched to a credited human costs one unauthenticated read of
 its avatar image from GitHub's avatar host while the dashboard process runs,
 which does not use the `gh` allowance; a failed avatar read is asked again
 when the avatar is next shown. Each
-Taken entry with a counted plan adds one last-commit-time request for its plan
-and one for its agent profile, and each Story Branch Mode entry adds one
+Taken entry with a counted plan adds one last-commit-time request for its plan,
+its Take time coming from its agent profile's addition already read, and each
+Story Branch Mode entry adds one
 branch head request and one plan read on that branch. Only the ref and branch
 head requests are made on every load: content and history already read at a
 resolved revision or branch head are not asked again while the dashboard
@@ -33,10 +35,28 @@ it is hidden, and none before a rate limit's wait ends); checks asked from
 several pages while one listing is outstanding share it. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
-commit then costs one backlog read plus its records, done records, and one history listing
-per readable profile, without resolving `main` again; a recorded story branch
-that moved costs one read of its plan and one of its last commit time at the
-new head.
+commit then costs, without resolving `main` again, one comparison of it with
+the revision at which this dashboard process last read the backlog, one read
+of each commit between them (a commit already asked about is not asked
+again), and reads of only the backlog, records, done records, and record
+listings the comparison or those commits changed (a merge's own change list
+names only what differs from its first parent, so the comparison's files
+name what differs between the two revisions), plus one history listing for
+each readable profile they touched and one last-commit-time request for each
+counted plan they touched. A profile or plan neither touched keeps
+its credited human, addition, and last commit time without another request,
+however many assignments credit the same human; one removed and re-added,
+even with identical text, is walked again and credits the re-adding commit. A
+commit that changes no planning record reads none of them. With more than
+ten commits between, a comparison or commit whose change list GitHub cuts at
+300 files, or a new commit that does not descend from the earlier one, the comparison is not
+asked again and the new commit's backlog, records, histories, and last commit
+times are read as before; a
+comparison or commit read that fails is asked again with the next read at that
+commit, which meanwhile reads as before; one a rate limit refused or held back
+withholds that read, as the limit withholds any read. A recorded story branch that moved
+costs one read of its plan and one of its last commit time at the new head,
+and never a comparison.
 
 Pages served by one dashboard process that need the same GitHub answer while
 it is outstanding share one `gh` request for it, whatever was asked: two tabs
