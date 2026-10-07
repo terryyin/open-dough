@@ -310,3 +310,17 @@ loop: slice 1 a product change of one function with its fakes and documents,
 slice 2 test support and two regression cases, slice 3 one diagnosed test
 wait. If execution disproves an
 observed premise, stop and revise the remaining plan within this outcome.
+
+## Execution complete
+
+Product advice: no change to the queue. The plan's recorded exclusions stay
+advice only: two sources on one repository cancelling each other's reuse (a
+cost, never wrong content), repeated failing comparisons, and consolidating
+the overlapping boundary and page test layers. The rename through a commit's
+own `previous_filename` is now proven only with a comparison faked to name no
+files, since GitHub's comparison names both paths; the per-commit rename
+union is kept for history facts, not for content. Specs that count calls
+right after `expectSettledPage` on a page with no Taken work were not
+audited; a reviewed sample (`auto-refresh-recovery`, `auto-refresh-rate-limit`)
+counts only after later checks, so no correction is planned, and a recurrence
+takes `noteReadsBesidePreparation` as its remedy.
