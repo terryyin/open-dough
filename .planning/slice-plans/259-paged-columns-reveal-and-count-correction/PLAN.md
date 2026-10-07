@@ -156,7 +156,22 @@ nothing, and the kept position is unchanged.
 ### 2. The Recently done control counts only sessions that are read
 
 Type: Behavior
-Status: planned
+Status: done (no change: delivered on main before execution)
+Accepted proof: 398fd61a (“List standalone open sessions in Taken until
+marked done”) already gives the outcome. `recentlyDoneColumn` returns an
+unknown count until the machine's sessions and the done records are both read,
+which settles the open question above. The heading and edge control then read
+“Entry count incomplete”, in the dashboard's existing wording, not a bare
+name. `ColumnSummary` and `entryCount` live in `dashboard/src/columnSummary.ts`,
+and `RecentlyDone.tsx` no longer imports `ColumnEdge.tsx`. Each column's
+content module builds its summary from that one type, because its heading
+shows the same count. `dashboardColumnsPage.ts` accepts either form of the
+control name. `npm run test:dashboard --
+dashboard/tests/session-sidebar-reading.spec.ts
+dashboard/tests/recently-done-read-latency.spec.ts
+dashboard/tests/dashboard-columns-paging.spec.ts` (9 passed): the first holds
+the sessions read and asserts “Recently done Entry count incomplete” on the
+edge control, then the read count after `answer()`.
 Proof: in `dashboard/tests/dashboard-columns-paging.spec.ts`, a 54rem page
 whose first sessions read is held (`holdSessionReads`, `sessionStatePace.ts`)
 → the right control's accessible name and text are exactly “Recently done”
