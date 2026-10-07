@@ -28,7 +28,11 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+// The rename of an unlisted session is not confirmed; it is not waited on long.
+test.use({
+  projectFolders: ["open-dough"],
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+});
 
 test.describe("marking a card's session done", () => {
   let stagesJourney: StoryStagesJourney;
@@ -83,7 +87,7 @@ test.describe("marking a card's session done", () => {
         `Intended name done-Open Dough · Execution · ${readyStory}`,
       );
       await expect(entry).toContainText(
-        "Claude Code rename failed: No terminal attachment is available to confirm native rename.",
+        "Claude Code rename failed: The native rename could not be confirmed.",
       );
       await expect(
         entry.getByRole("button", { name: "Mark as done" }),

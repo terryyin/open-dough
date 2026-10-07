@@ -4,7 +4,10 @@ import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { AgentTerminals } from "./agentTerminals.ts";
-import { HostOperationFailure } from "./hostLaunch.ts";
+import {
+  HostOperationFailure,
+  TerminalAttachmentUnopened,
+} from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
 import {
@@ -87,10 +90,10 @@ async function finishNativeDone(
         throw new HostOperationFailure(
           "Native rename requires terminal input while the reporting sender is still working. Use Mark as done after reporting finishes.",
         );
-      await host.rename?.(
-        record,
-        folder,
-        (session, input) => terminals?.type(session, input) ?? false,
+      await host.rename?.(record, folder, (session, at, use) =>
+        terminals === undefined
+          ? Promise.reject(new TerminalAttachmentUnopened())
+          : terminals.withAttachment(session, at, use),
       );
     });
   }

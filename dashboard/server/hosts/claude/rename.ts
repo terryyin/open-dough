@@ -1,10 +1,10 @@
 // Claude Code's native /rename interaction and confirmation through its listing.
 import { setTimeout as delay } from "node:timers/promises";
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
-import type { SessionReference } from "../../../src/sessionReference.ts";
 import { doneSessionName } from "../../../src/doneMark.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
 import { HostOperationFailure } from "../../hostLaunch.ts";
+import type { WithAttachment } from "../../launchHosts.ts";
 import { claudeSessions } from "./runtime.ts";
 
 const defaultRenameWaitMs = 5_000;
@@ -27,30 +27,37 @@ function renameWaitMs(): number {
 // eslint-disable-next-line no-control-regex
 const controlCharacter = /[\u0000-\u001f\u007f-\u009f]/;
 
-// Renames the session through its open attachment, if there is one, and
+// Renames the session through its open attachment, or a private one, and
 // waits until Claude Code lists the `done-` name or the wait expires.
 export async function renameInClaudeCode(
   record: LaunchRecord,
   folder: ProjectFolder,
-  type: (session: SessionReference, input: string) => boolean,
+  withAttachment: WithAttachment,
 ): Promise<void> {
-  const { sessionId } = record.session;
   const name = doneSessionName(record.session);
   if (controlCharacter.test(name)) {
     throw new HostOperationFailure(
       "The native name contains terminal control characters.",
     );
   }
-  for (const [index, keys] of ["\u0015", `/rename ${name}`, "\r"].entries()) {
-    if (index > 0) {
-      await delay(keyPauseMs);
+  await withAttachment(record.session, folder, async (type) => {
+    for (const [index, keys] of ["\u0015", `/rename ${name}`, "\r"].entries()) {
+      if (index > 0) {
+        await delay(keyPauseMs);
+      }
+      type(keys);
     }
-    if (!type(record.session, keys)) {
-      throw new HostOperationFailure(
-        "No terminal attachment is available to confirm native rename.",
-      );
-    }
-  }
+    await confirmListed(record, folder, name);
+  });
+}
+
+// Waits until Claude Code lists `name` for this session, within the rename wait.
+async function confirmListed(
+  record: LaunchRecord,
+  folder: ProjectFolder,
+  name: string,
+): Promise<void> {
+  const { sessionId } = record.session;
   const deadline = Date.now() + renameWaitMs();
   for (;;) {
     const listed = await claudeSessions(

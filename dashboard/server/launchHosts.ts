@@ -8,7 +8,6 @@ import type {
   LaunchRecord,
   RecordedLaunchRequest,
 } from "../src/agentLaunch.ts";
-import type { SessionReference } from "../src/sessionReference.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { LaunchRecording } from "./launchRecording.ts";
 import type { CreationRecord } from "../src/launchCreation.ts";
@@ -53,6 +52,16 @@ export type TerminalAttachment =
   | { readonly workspaceUnavailable: UnavailableWorkspace };
 
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
+
+// Runs `use` with typing into one attachment to this session: the newest one
+// the developer has open, else a private one opened from `folder` for this
+// call alone and hung up once `use` settles. Rejects with
+// `TerminalAttachmentUnopened` when that private one cannot show a screen.
+export type WithAttachment = <T>(
+  session: HostSession,
+  folder: ProjectFolder,
+  use: (type: (input: string) => void) => Promise<T>,
+) => Promise<T>;
 
 export type LaunchHost = {
   options?(signal: AbortSignal, cwd?: string): Promise<LaunchHostOptions>;
@@ -116,7 +125,7 @@ export type LaunchHost = {
   rename?(
     record: LaunchRecord,
     folder: ProjectFolder,
-    type: (session: SessionReference, input: string) => boolean,
+    withAttachment: WithAttachment,
   ): Promise<void>;
   stop?(
     session: HostSession,

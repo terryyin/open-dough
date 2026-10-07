@@ -6,7 +6,9 @@
 // socket whose screen matches that for the declared settle period is hung
 // up; any other screen keeps it. Hosts that declare nothing still receive
 // SIGHUP when their socket closes. A launch may keep its client before any
-// socket: a later open joins that client. `close()` hangs up every client.
+// socket: a later open joins that client. A private client, opened for one
+// call with no socket, is hung up when that call settles. `close()` hangs up
+// every client.
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import {
@@ -15,18 +17,18 @@ import {
 } from "../src/agentTerminal.ts";
 import type { HostSession } from "../src/agentLaunch.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import {
-  launchHost,
-  type DetachedIdle,
-  type UnavailableWorkspace,
-} from "./launchHosts.ts";
+import { TerminalAttachmentUnopened } from "./hostLaunch.ts";
+import { launchHost, type DetachedIdle } from "./launchHosts.ts";
+import type { ProjectFolder } from "./projectFolders.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import type { LaunchInstructionInput } from "./launchInstruction.ts";
-import { LiveTerminalClient } from "./liveTerminalClient.ts";
+import {
+  LiveTerminalClient,
+  type LiveTerminalClientOptions,
+} from "./liveTerminalClient.ts";
+import { nativeAttach } from "./nativeAttach.ts";
 import { refuseWorkspace } from "./terminalSocketFrame.ts";
 import { directoryState } from "./sessionWorkspace.ts";
-
-const initialSize = { cols: 80, rows: 24 } as const;
 
 export type KeptLaunch = LaunchInstructionInput & {
   readonly detachedIdle?: DetachedIdle;
@@ -46,49 +48,29 @@ export class TerminalAttachments {
       refuseWorkspace(ws, unavailable);
       return;
     }
-    const key = sessionKey(session.session);
-    const existing = this.keptClient(key);
+    const existing = this.keptClient(sessionKey(session.session));
     if (existing !== undefined) {
       existing.attach(ws, session, true);
       return;
     }
-    const host = launchHost(session.session.host);
-    let hostName = host?.name ?? session.session.host;
-    let attachment;
-    try {
-      if (host?.attach === undefined) {
-        throw new Error("This host cannot attach.");
-      }
-      hostName = host.name;
-      attachment = host.attach(session.session, session.folder, initialSize);
-    } catch {
+    const attached = nativeAttach(session.session, session.folder, false);
+    if ("failedHost" in attached) {
       const unavailable = workspaceUnavailable();
       if (unavailable !== undefined) {
         refuseWorkspace(ws, unavailable);
         return;
       }
-      ws.close(terminalAttachFailedCode, `${hostName} could not be attached.`);
+      ws.close(
+        terminalAttachFailedCode,
+        `${attached.failedHost} could not be attached.`,
+      );
       return;
     }
-    if ("workspaceUnavailable" in attachment) {
-      refuseWorkspace(ws, attachment.workspaceUnavailable);
+    if ("workspaceUnavailable" in attached) {
+      refuseWorkspace(ws, attached.workspaceUnavailable);
       return;
     }
-    const pty = attachment.pty;
-    const client = this.watchClient(pty, {
-      key,
-      hostName,
-      keep: attachment.keep === true,
-      session: session.session,
-      admitted: attachment.ready === undefined,
-      size: { cols: initialSize.cols, rows: initialSize.rows },
-      readiness: attachment.ready,
-      startupFailure: attachment.startupFailure,
-      ...(attachment.detachedIdle !== undefined
-        ? { detachedIdle: attachment.detachedIdle }
-        : {}),
-    });
-    client.attach(ws, session, false);
+    this.watchClient(attached.pty, attached.options).attach(ws, session, false);
   }
 
   // Starts one kept client before any socket. A later open joins it. The
@@ -126,20 +108,7 @@ export class TerminalAttachments {
   // spawned, and a launch uses the process it already started.
   private watchClient(
     pty: IPty,
-    input: {
-      readonly key: string;
-      readonly hostName: string;
-      readonly keep: boolean;
-      readonly session: HostSession;
-      readonly admitted: boolean;
-      readonly size: { readonly cols: number; readonly rows: number };
-      readonly readiness:
-        ((screen: string, cursorVisible: boolean) => boolean) | undefined;
-      readonly startupFailure:
-        (() => UnavailableWorkspace | undefined) | undefined;
-      readonly detachedIdle?: DetachedIdle;
-      readonly launchInput?: LaunchInstructionInput;
-    },
+    input: LiveTerminalClientOptions,
   ): LiveTerminalClient {
     const client = new LiveTerminalClient({
       ...input,
@@ -152,15 +121,56 @@ export class TerminalAttachments {
     return client;
   }
 
-  // Types `input` into the newest open attachment to this session, and
-  // answers whether one was open.
-  type(session: SessionReference, input: string): boolean {
+  // Runs `use` against the newest open attachment to this session, which
+  // stays open. With none, a private client is attached from `folder`, with
+  // no saved-workspace check, and `use` runs once its first screen has
+  // settled; that client is hung up when `use` settles.
+  async withAttachment<T>(
+    session: HostSession,
+    folder: ProjectFolder,
+    use: (type: (input: string) => void) => Promise<T>,
+  ): Promise<T> {
+    const open = this.newestOpen(session);
+    if (open !== undefined) {
+      return use((input) => {
+        open.pty.write(input);
+      });
+    }
+    const client = await this.openPrivate(session, folder);
+    try {
+      return await use((input) => {
+        client.pty.write(input);
+      });
+    } finally {
+      client.hangup();
+    }
+  }
+
+  private newestOpen(
+    session: SessionReference,
+  ): LiveTerminalClient | undefined {
     const key = sessionKey(session);
-    const newest = [...this.clients.values()]
+    return [...this.clients.values()]
       .filter((client) => client.key === key && client.hasOpenSocket())
       .at(-1);
-    newest?.pty.write(input);
-    return newest !== undefined;
+  }
+
+  // A socketless client with no idle rule, tracked so `close()` hangs it up,
+  // once it has shown a settled screen.
+  private async openPrivate(
+    session: HostSession,
+    folder: ProjectFolder,
+  ): Promise<LiveTerminalClient> {
+    const attached = nativeAttach(session, folder, true);
+    if (!("pty" in attached)) throw new TerminalAttachmentUnopened();
+    const client = this.watchClient(attached.pty, attached.options);
+    const shown = await client.firstOutput;
+    await client.screenText();
+    if (!shown || !this.clients.has(client.pty)) {
+      client.hangup();
+      throw new TerminalAttachmentUnopened();
+    }
+    return client;
   }
 
   // Ends every attachment to this session: its client hangs up, and its

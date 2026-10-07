@@ -161,7 +161,7 @@ test.describe("marking a recorded session done", () => {
     expect(listed(session)).toMatchObject({ name: escName, state: "stopped" });
   });
 
-  test("with no terminal open, keeps the done- name only in the record and still stops the session", async () => {
+  test("with no terminal open, renames through a private attachment it then hangs up, and still stops the session", async () => {
     const session = await launched(server);
     const attachesBefore = server.claudeAttaches().length;
     const stopsBefore = server.claudeStopCalls().length;
@@ -183,12 +183,19 @@ test.describe("marking a recorded session done", () => {
         },
       },
     });
-    expect(server.claudeAttaches()).toHaveLength(attachesBefore);
+    expect(JSON.parse(response.body)).not.toHaveProperty("record.doneProblem");
+    expect(server.claudeAttaches().slice(attachesBefore)).toEqual([
+      expect.objectContaining({
+        id: session.shortId,
+        lines: [`/rename ${doneName}`],
+      }),
+    ]);
+    expect(await lastAttachEnded(server)).toBe("SIGHUP");
     expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
       { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
     ]);
     expect(listed(session)).toMatchObject({
-      name: launchName,
+      name: doneName,
       state: "stopped",
     });
   });

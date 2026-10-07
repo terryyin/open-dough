@@ -169,7 +169,7 @@ Claude, which auto mode allows.
 | Promise (story) | Owning slice | Proof |
 | --- | --- | --- |
 | Mark as done renames without an open terminal (example 2) | 1 | `agent-terminal-done-reopen.spec.ts`: first Mark as done shows `Named done-…` with no problem; `claudeAttaches()` has one attach whose lines hold the `/rename`, ended by SIGHUP |
-| Mark as done renames when the saved workspace is gone (example 3) | 1 | `agent-launch-card-done.spec.ts`: after the folder is moved, the entry shows `Named` and no rename problem |
+| Mark as done renames when the saved workspace is gone (example 3) | 1 | `session-workspace-retirement-claude.spec.ts` "Mark as done renames a running Claude session whose saved workspace is missing": saved workspace removed, Mark as done answers no problem, listing `done-…`, one private attach, Recently done shows `Named` |
 | A visible terminal is typed into and left open | 1 | `agent-terminal-done-reopen.spec.ts` second mark (existing): `/rename` typed into the open attachment, no second attach |
 | Unconfirmed rename names that cause; a later Mark as done retries (example 5) | 1 | existing `claudeRenamesIgnored(true)` journey keeps "could not be confirmed"; `claudeRenamesIgnored(false)` then Mark as done shows `Named` |
 | No typing while a turn runs; still-working names that cause (example 6, manual) | 2 | spec: `claudeSessionBecomes(id, "working")`, short wait, Mark as done → `The session was still working when the wait ended.`, no attach ran, stop ran |
@@ -195,7 +195,7 @@ env -u NODE_ENV npm run typecheck:dashboard
 
 ### 1. Mark as done renames through a private attachment
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal-done-reopen.spec.ts` and `agent-launch-card-done.spec.ts` as the table above says, plus `session-unread-report.spec.ts`, `agent-launch-done-question.spec.ts`, and `agent-launch-done-codex-races.spec.ts` updated to the renamed outcome and green.
 
 Behavior: a recorded Claude session is still running and idle, with or
@@ -309,4 +309,24 @@ not execute it. A fresh execution session needs nothing from that session:
 
 ## Learnings
 
-None yet.
+- Slice 1: `agent-launch-card-done.spec.ts:121` moves the project folder, not
+  the saved workspace, and still expects the boundary to refuse the mark; the
+  example 3 proof lives in `session-workspace-retirement-claude.spec.ts`.
+- Slice 1: the seam is `TerminalAttachments.withAttachment`, with host attach
+  steps shared by the page terminal and the private client in
+  `dashboard/server/nativeAttach.ts`; `TerminalAttachmentUnopened` is a
+  `HostOperationFailure` carrying `The terminal attachment could not be
+  opened.` Accepted proof: `agent-terminal-done-reopen`, `agent-launch-done-stop`
+  (ignored rename, then retry after `done-live` shows `Named`),
+  `session-workspace-retirement-claude`, and the updated consumers
+  `agent-completion-binding`, `agent-launch-card-done`,
+  `agent-launch-done-codex-races`, `agent-launch-done-question`,
+  `agent-launch-done`, `session-unread-report`, `agent-terminal-resize`,
+  `session-workspace-retirement-startup`, `agent-terminal`,
+  `agent-terminal-lifetime`, all green.
+- For slice 2: the private client types once its first output has settled and
+  has no bound of its own on an attach that never prints; slice 2's one
+  bounded wait should cover opening the attachment too. The forgotten-session
+  test in `agent-launch-card-done.spec.ts` (now "could not be confirmed" with a
+  300 ms wait) and the done-question step (d) (`waiting`) change outcome under
+  slice 2's rules.
