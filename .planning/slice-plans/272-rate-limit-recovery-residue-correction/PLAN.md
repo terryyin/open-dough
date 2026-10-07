@@ -255,7 +255,7 @@ consumer, `limitedAsDirected`, which already classifies `undefined` from
 ### 2. Reading reopens when the first read after a wait ends without a limit
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases in `authenticated-read-resumption.spec.ts`, and the
 regressions `authenticated-read-turns.spec.ts`,
 `authenticated-read-cooldown.spec.ts`, `authenticated-read-backoff.spec.ts`,
@@ -295,6 +295,23 @@ Describe this in the paced-resumption sentences of both documents.
 
 Safe stop: An unreachable or slow GitHub after a wait is reported as today
 and holds back no other read.
+
+Accepted proof: red before the remedy. Each ending's case polled "Expected 3,
+Received 1". After the remedy, the `endingsWithoutLimit` loop in
+`authenticated-read-resumption.spec.ts` passes:
+
+- `expect.poll(() => askedSince(server, before).length).toBe(3)` while every
+  answer is held;
+- the statuses are `[200, 200, 200]` after release.
+
+The named regressions passed (29), as did the whole suite (1239) and the
+typecheck. `ReadAdmission.answered` drops its status condition, and the
+departed call already reached it. `spawnedGh` calls `admission.timedOut`
+before the turn ends. The refactor moved the "wait that starts while reads
+wait their turn" case to `authenticated-read-wait-in-turn.spec.ts`, and the
+shared fixture to `tests/support/resumingReads.ts`. Both specs reran green.
+For wrap-up: `.planning/NORTH-STAR.md`'s "its answer reopens the turns" now
+reads as any ending without a limit.
 
 ### 3. A detail the limit withheld is labeled one way
 

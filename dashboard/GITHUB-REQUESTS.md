@@ -80,7 +80,8 @@ after the wait, up to one hour, and one minute again once a request succeeds. A
 request already at GitHub when the limit was met is still answered and counted.
 When any wait ends, one request goes first while the others wait their turn:
 refused with a new limit, it alone is counted and the others are answered as
-limited; answered, the others proceed up to eight at once. A request waiting its
+limited; ended any other way -- answered, GitHub unreachable, the request gone,
+or timed out -- the others proceed up to eight at once. A request waiting its
 turn when a wait starts is answered as limited and never asked. A separately
 launched dashboard does not know of the wait and asks at once.
 

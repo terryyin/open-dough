@@ -125,7 +125,8 @@ doubles, up to one hour, and once a read succeeds the next such refusal waits
 one minute again. Its problem says GitHub named no wait and when reading
 resumes. When any wait ends, directed or not,
 reading resumes with one read: the reads asked with it wait their turn until
-GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
+it ends, then proceed up to eight at once, whether GitHub answered it, was
+unreachable, its request left, or it timed out; if GitHub limits it again,
 they are answered as limited with the new resume time and only that read
 reached GitHub. A read waiting its turn when a wait starts is answered as
 limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
