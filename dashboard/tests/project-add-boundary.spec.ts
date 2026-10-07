@@ -8,6 +8,7 @@ import {
 } from "./support/projectAddMachine.ts";
 import { rawRequest, abandonedRequest } from "./support/rawHttp.ts";
 import { hangs } from "./support/fakeGitHub.ts";
+import { processRunning } from "./support/processGroup.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -111,7 +112,10 @@ test("server shutdown ends pending Add validation without writing configuration"
   const pid = server.ghPid();
   if (pid === undefined) throw new Error("The fake gh did not record its pid.");
   await fixture.stop(server);
-  expect(() => process.kill(pid, 0)).toThrow();
+  // Already over once the server's process group is: an exited `gh` that
+  // outlived Vite still answers `kill(pid, 0)` until launchd reaps it, late
+  // under load, so only whether it can still run code says it was ended.
+  expect(processRunning(pid)).toBe(false);
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     before,
   );
