@@ -1,13 +1,14 @@
 // What establishes nothing about a revision the configured ref names next
 // (../server/pinnedTexts.ts, ../server/commitsBetween.ts): a revision behind
 // or diverged from the one last answered, more commits between than the
-// bound, a commit whose change list is not whole, a story branch head, and a
-// restarted dashboard process each read as before, asking GitHub about the
-// comparison or commits at most once (./revisionReuseBoundary.ts).
+// bound, a comparison or commit whose change list is not whole, a story
+// branch head, and a restarted dashboard process each read as before, asking
+// GitHub about the comparison or commits at most once
+// (./revisionReuseBoundary.ts).
 
 import { expect, test } from "./support/pageTest.ts";
 import { everyRepository } from "./support/fakeGitHub.ts";
-import { aheadByAnswer, compareAnswer } from "./comparisonAnswers.ts";
+import { aheadBy, aheadByAnswer, compareAnswer } from "./comparisonAnswers.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -96,6 +97,34 @@ test.describe("authenticated read reuse bounds at a newly named revision (dev la
     expect(calls).toContain(`content ${planPath}@b9`);
   });
 
+  test("a comparison naming 300 files establishes nothing: no commit is read, B is read as before, and it is asked once", async () => {
+    const [a, b] = [named("3a"), named("3b")];
+    const files = filesFor("three-hundred-compared");
+    const published = await publishedAt(a, files);
+    const merge = madeBy("3c", [modified("src/app.ts")]);
+    await movedTo(published, a, { revision: b, files }, [merge]);
+    // GitHub's comparison names at most 300 files, so 300 may not be all.
+    const many = [...Array(300).keys()].map((n) =>
+      modified(`src/generated/${String(n)}.ts`),
+    );
+    published.compared.set(`${a}...${b}`, (perPage) =>
+      aheadByAnswer([merge.sha], perPage, many),
+    );
+
+    expect((await asked(() => readEverything(b))).sort()).toEqual(
+      [
+        "compare 3a...3b",
+        `content ${backlogPath}@3b`,
+        `content ${seedPath}@3b`,
+        `content ${otherSeedPath}@3b`,
+        `content ${planPath}@3b`,
+        "listing .planning/agents@3b",
+        `content ${settingsPath}@3b`,
+        "listing .planning/done@3b",
+      ].sort(),
+    );
+  });
+
   test("a story branch plan read at a moved head asks the plan and its commit time only, never a comparison", async () => {
     const [a, b] = [named("ac"), named("bc")];
     const files = filesFor("branch");
@@ -152,12 +181,7 @@ test("a restarted dashboard process holds nothing, so B is read in full without 
       [b, files],
     ]),
     branches: new Map(),
-    compared: new Map([
-      [
-        `${a}...${b}`,
-        (perPage?: number) => aheadByAnswer([named("cf")], perPage),
-      ],
-    ]),
+    compared: new Map([[`${a}...${b}`, aheadBy([named("cf")])]]),
     made: new Map([[named("cf"), madeBy("cf", [modified("src/app.ts")])]]),
   };
   // What a membership read asked the GitHub behind `server`.

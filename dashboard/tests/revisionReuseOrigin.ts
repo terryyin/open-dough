@@ -24,7 +24,11 @@ import {
   type MadeCommit,
   type PathHistories,
 } from "./pathHistoryAnswers.ts";
-import { compareAnswer } from "./comparisonAnswers.ts";
+import {
+  changedBetween,
+  compareAnswer,
+  type Comparison,
+} from "./comparisonAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export const sourceId = "open-dough";
@@ -114,7 +118,8 @@ export const modified = (filename: string): ChangedFile => ({
 
 // What GitHub publishes for one test: the files at each revision, which
 // revision the configured ref and each branch name, the answer to each
-// comparison by `<base>...<head>` (a pair it does not name is diverged), the
+// comparison by `<base>...<head>` given the files that differ between the
+// two published revisions (a pair it does not name is diverged), the
 // commits made, each answered with every file it changed, and, when given,
 // each path's history as of a revision, whose commits answer for their own
 // change to it (./pathHistoryAnswers.ts); a path no history names was last
@@ -124,7 +129,7 @@ export type Publication = {
   readonly trunk: { revision: string };
   readonly revisions: Map<string, Files>;
   readonly branches: Map<string, string>;
-  readonly compared: Map<string, (perPage?: number) => OriginAnswer>;
+  readonly compared: Map<string, Comparison>;
   readonly made: Map<string, MadeCommit>;
   readonly histories?: Map<string, PathHistories>;
 };
@@ -157,7 +162,15 @@ export function answerFrom(
       const compared = published.compared.get(
         `${request.base}...${request.head}`,
       );
-      return compared?.(request.perPage) ?? compareAnswer("diverged");
+      return (
+        compared?.(
+          request.perPage,
+          changedBetween(
+            published.revisions.get(request.base) ?? {},
+            published.revisions.get(request.head) ?? {},
+          ),
+        ) ?? compareAnswer("diverged")
+      );
     }
     case "commit": {
       const made = published.made.get(request.sha);

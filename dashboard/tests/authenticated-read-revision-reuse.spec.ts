@@ -2,13 +2,14 @@
 // names next (../server/pinnedTexts.ts): once this dashboard process answered
 // the backlog at revision A, reads at the newly named revision B ask GitHub
 // to compare A with B and what each commit between changed, and a record or
-// listing no commit touched is answered from what is held at A without
-// asking GitHub again; what a commit between touched is read at B. Tested
+// listing neither the comparison nor a commit between touched is answered
+// from what is held at A without asking GitHub again; what either touched is
+// read at B. Tested
 // directly against real HTTP and the synthetic `gh`, counting the `gh` calls
 // GitHub received (./revisionReuseBoundary.ts).
 
 import { expect, test } from "./support/pageTest.ts";
-import { aheadByAnswer } from "./comparisonAnswers.ts";
+import { aheadBy } from "./comparisonAnswers.ts";
 import {
   addedDonePath,
   backlogNaming,
@@ -210,11 +211,9 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
       madeBy("fd", [modified("README.md")]),
     ];
     for (const made of between) published.made.set(made.sha, made);
-    published.compared.set(`${a}...${c}`, (perPage) =>
-      aheadByAnswer(
-        between.map(({ sha }) => sha),
-        perPage,
-      ),
+    published.compared.set(
+      `${a}...${c}`,
+      aheadBy(between.map(({ sha }) => sha)),
     );
 
     // The commits between are read together, in no particular order.

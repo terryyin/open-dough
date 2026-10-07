@@ -35,15 +35,18 @@ the page reads exactly that commit, so newly published work appears within
 about 30 seconds. Only GitHub's own account of what changed lets that read
 reuse anything: the dashboard process compares the new commit with the
 revision at which it last read the backlog and reads each commit between, and
-a backlog, record, or record listing none of those commits touched is answered
-from what it already read, as the new commit's own, as are the addition that
-credits a profile's human and a plan's last commit time when none of them
-touched that profile or plan; identical text never stands in for that, so a
-profile removed and re-added credits the re-adding commit. A record a commit between
-changed, added, or removed is read at the new commit, and one missing there
-stays missing. When the new commit does not descend from the earlier one, more
-than ten commits lie between, a commit's change list is not given whole, or
-the comparison fails, the new commit is read as a first visit reads it. While the configured ref is unchanged, a story branch that a shown Taken
+a backlog, record, or record listing that neither the comparison's files nor
+any of those commits touched is answered from what it already read, as the
+new commit's own, as are the addition that credits a profile's human and a
+plan's last commit time when none of them touched that profile or plan;
+identical text never stands in for that, so a profile removed and re-added
+credits the re-adding commit. A record the comparison or a commit between
+names as changed, added, removed, or renamed away is read at the new commit,
+even when the commit that changed it is a merge whose own change list does
+not name it, and one missing there stays missing. When the new commit does
+not descend from the earlier one, more than ten commits lie between, the
+comparison's or a commit's change list is not given whole (GitHub names at
+most 300 files), or the comparison fails, the new commit is read as a first visit reads it. While the configured ref is unchanged, a story branch that a shown Taken
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,

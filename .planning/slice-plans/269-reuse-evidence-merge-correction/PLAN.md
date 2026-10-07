@@ -158,7 +158,23 @@ red against the current code before the fix.
 ### 1. A merge between the revisions cannot hide a changed path
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `authenticated-read-revision-reuse-compared.spec.ts` "a seed
+that differs between A and B is read at B though the merge between does not
+name it" and "a seed the comparison names as renamed away, though no commit
+between does, is missing at B", and `authenticated-read-revision-reuse-bounds.spec.ts`
+"a comparison naming 300 files establishes nothing…", each with its exact `gh`
+call list and each red before the fix; typecheck, every
+`authenticated-read-*.spec.ts`, `project-add-*`, `reopened-project-reads`,
+`unchanged-assignment-credit`, `unchanged-records-refresh`, and the whole
+dashboard suite green except the load flake slice 3 owns
+(`shared-observer-reads.spec.ts:232`, one extra `"content"` call at load ~30).
+Learnings: a comparison listing fewer commits than `total_commits` with ten
+or fewer between is now a failure rather than no evidence, since the files
+follow the shas; with `per_page=10` GitHub lists them all. The North Star
+bullet no longer exists, so only the two dashboard documents changed. Fake
+comparisons are built through `aheadBy(commits)` in `comparisonAnswers.ts`,
+which slice 2's `publishMovingFiles` and burst-case changes reuse.
 Proof: new cases in `dashboard/tests/authenticated-read-revision-reuse.spec.ts`
 (or `-bounds.spec.ts` for the 300-file case) through `revisionReuseBoundary`,
 with exact `gh` call lists; the first fails against the current code before

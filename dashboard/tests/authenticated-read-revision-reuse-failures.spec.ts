@@ -85,8 +85,8 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
     ]);
     // GitHub answers the comparison only after every read has asked for it.
     const comparing = published.compared.get(`${a}...${b}`);
-    published.compared.set(`${a}...${b}`, (perPage) =>
-      comparing === undefined ? noConnection : comparing(perPage),
+    published.compared.set(`${a}...${b}`, (perPage, changed) =>
+      comparing === undefined ? noConnection : comparing(perPage, changed),
     );
     let release: () => void = () => undefined;
     const released = new Promise<void>((resolve) => {

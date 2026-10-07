@@ -132,7 +132,7 @@ test.describe("authenticated read boundary backlog (dev launch mode)", () => {
         "--include",
         `repos/${knownRepository}/compare/${revision}...${nextRevision}?per_page=10`,
         "--jq",
-        ".status, .total_commits, .commits[].sha",
+        ".status, .total_commits, .commits[].sha, .files[].filename, .files[].previous_filename",
       ],
       backlogCall(nextRevision),
     ]);

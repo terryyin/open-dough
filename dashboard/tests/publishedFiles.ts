@@ -24,7 +24,11 @@ import {
   type MadeCommit,
   type PathHistories,
 } from "./pathHistoryAnswers.ts";
-import { aheadByAnswer, compareAnswer } from "./comparisonAnswers.ts";
+import {
+  aheadByAnswer,
+  changedBetween,
+  compareAnswer,
+} from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 
 // A repository whose configured ref (default `main`) names one revision at which these files are
@@ -43,8 +47,9 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // lists the configured ref and every published branch head; checks are answered but not
 // observed (./originObservation.ts). A comparison of the revision the ref
 // named with the one a move made it name is observed and answered as ahead
-// by the commits that move was made by, and each of those commits with every
-// file it changed; a move that names none answers no connection, and any
+// by the commits that move was made by, naming the files that differ between
+// the two published revisions, and each of those commits with every file it
+// changed; a move that names none answers no connection, and any
 // other comparison is answered, and observed, as diverged.
 export type PublishedRevision = {
   readonly revision: string;
@@ -136,6 +141,10 @@ export function publishMovingFiles(
           : aheadByAnswer(
               by.map(({ sha }) => sha),
               request.perPage,
+              changedBetween(
+                publishedAt(revisions, request.base)?.files ?? {},
+                publishedAt(revisions, request.head)?.files ?? {},
+              ),
             ),
       );
     }
