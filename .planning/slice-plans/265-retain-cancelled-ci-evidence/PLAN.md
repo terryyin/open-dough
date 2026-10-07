@@ -151,7 +151,24 @@ These establish today's behavior and a usable proof route, not the remedy.
 
 ### 1. The browser suite ends at the job's recorded deadline and keeps completed diagnostics
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- quiet-reporter.spec.ts`
+(5 pass; the new case runs `failing.proof.ts` then `hanging.proof.ts` on one
+worker with `globalTimeout: 8000` and asserts non-zero status, `Timed out
+waiting` and the failure in stdout, exactly one `failing.proof.ts-*/trace.zip`
+with `error-context.md`, and the HTML report's deadline error, Failed1 and
+Skipped1 entries); `node --test tests/support/dashboard-test-files.test.mjs`
+(6 pass, `remainingSuiteTime` in `dashboard/tests/support/suiteDeadline.mjs`);
+`env -u NODE_ENV npm run typecheck:dashboard`; `npm test --
+tests/ci-lint-setup.sh tests/ci-container.sh` with Bash 5 first on PATH;
+`tests/native-setup.sh`'s `ci.yml` assertions checked by grep (its runtime
+part needs Node 24.21.0, absent locally; CI runs it). No `timeout-minutes`
+line changed.
+Learnings: the HTML report lists an interrupted test under Skipped, not by
+the word "interrupted"; the interrupted test also keeps a trace of its own.
+Playwright workers reload the config, so a worker started after the deadline
+would fail loading it; that can only follow a run already ended by
+`globalTimeout`, so slice 2's log may show such an extra config error.
 Proof: `dashboard/tests/quiet-reporter.spec.ts` gains "a run that reaches its deadline names it, keeps completed failures' traces, and records unfinished tests": substitute config with a small `globalTimeout` and the HTML reporter, `failing.proof.ts` plus a new `hanging.proof.ts` under `tests/fixtures/quiet-reporter/`; asserts non-zero status, `Timed out waiting` in stdout, one `trace.zip` with its `error-context.md`, and an HTML report naming the interrupted test. `tests/support/dashboard-test-files.test.mjs` (or a sibling unit file) proves the helper that turns `OPEN_DOUGH_DASHBOARD_DEADLINE_MS` into the remaining timeout: unset gives no bound, a future epoch gives its remainder, a past or invalid value fails the run naming the value. Run `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- quiet-reporter.spec.ts` and the node unit test.
 
 Behavior: the dashboard job records `OPEN_DOUGH_DASHBOARD_DEADLINE_MS` (its first step's time plus 320 seconds) → the suite step runs with it → `playwright.config.ts` sets `globalTimeout` to the remaining time, so a run still going at that epoch ends with exit 1, the console names the deadline, completed failures keep trace and error context, the HTML report records interrupted and unrun tests, and the existing `Keep the Playwright report` step uploads them. Without the variable the suite runs unbounded, as today.
