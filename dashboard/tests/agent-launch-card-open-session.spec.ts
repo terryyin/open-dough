@@ -32,7 +32,13 @@ import { expectStartNote, launchGroup } from "./cardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { markDoneAnyway } from "./support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+// Mark as done on a session still working waits out the rename's wait for
+// idle before the card lets it go; the rename is not this journey's subject,
+// so that wait stays well inside one expectation's bound.
+test.use({
+  projectFolders: ["open-dough"],
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+});
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),

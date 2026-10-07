@@ -29,7 +29,14 @@ import { startExecution } from "./responsiveRecovery.ts";
 import { instruction, openStories, test } from "./responsiveStart.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
+// Mark as done on a session still working waits out the rename's wait for
+// idle before the card lets it go; the rename is not this journey's subject,
+// so that wait stays well inside one expectation's bound.
+test.use({
+  projectFolders: ["open-dough"],
+  launchTimeoutMs: 60_000,
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+});
 
 const unavailable =
   "Local startup in progress; this story's actions are unavailable until it settles.";
