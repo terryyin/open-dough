@@ -164,6 +164,34 @@ Deferred promises, not commitments of this delivery:
   (examples 2 and 3) is valuable without the automatic rename after quiet
   completion.
 
+<a id="claude-done-rename-readiness-correction"></a>
+
+### A private Claude Code rename types only at a ready prompt
+
+**Identity:** SEED-116#claude-done-rename-readiness-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/270-claude-done-rename-readiness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"03ef40608b8ff7db3817528f40641477682c1da98580c16f0c8312f722be661c","plan":"c80335c2c287d00d32edb66adb3757e9d59d12ed24f8e63697e9fe7a570f6cbc"}}
+```
+
+**Goal:** A developer marking a Claude Code session done, or letting it
+complete quietly, gets its `done-` name on a real Claude Code host because the
+private rename attachment types only once Claude Code's prompt shows. This
+corrects the Claude done rename delivery (SEED-116#claude-done-rename,
+`bcb39b01:.planning/seeds/SEED-116-claude-done-rename.md`); it adds no feature
+promise.
+
+**Scope:** The private attachment waits for Claude Code's prompt, within the
+same one bounded wait, before typing, proven with a fake whose prompt can
+arrive late and one developer-run real-host observation; example 3 is proven
+from Recently done on a record carrying an old rename problem; `keepRecord`
+takes `doneMarks` as required, with its out-of-process test writers using the
+binding write; one rename signal is always passed, owned by the Done that
+runs. Every promise of the Claude done rename story is preserved. Manual Done
+stopping a session after a failed rename is a pending owner decision, outside
+this correction.
+
+**Plan:** [270-claude-done-rename-readiness-correction](../slice-plans/270-claude-done-rename-readiness-correction/PLAN.md)
+
 ## Ordering and Scope Reduction
 
 One story. If it overruns, deliver Mark as done through a private attachment

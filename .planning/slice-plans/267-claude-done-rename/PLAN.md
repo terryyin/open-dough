@@ -360,3 +360,22 @@ not execute it. A fresh execution session needs nothing from that session:
   wait, server closed mid-wait), `agent-completion-binding` (late binding),
   `agent-completion-quiet` (Codex, reordered and polled),
   `agent-completion-cursor`, and 103 consumer specs, all green.
+
+## Execution complete
+
+Product advice:
+
+- The next queued story, SEED-117#remove-exited-claude-job, takes over the
+  case this story now reports as `The session is no longer running, so it was
+  not renamed.`; its refinement should decide whether that text stays.
+- Correction SEED-116#claude-done-rename-readiness-correction
+  ([plan 270](../270-claude-done-rename-readiness-correction/PLAN.md)) is
+  written and ready, not queued. It makes the private attachment type only at
+  Claude Code's prompt, after a developer-run real-attach probe. The delivered
+  rename may drop its first keys on a real host until then.
+- Owner decision pending: manual Done stops the session even after a failed
+  rename, so on a real host "a later Mark as done retries" (example 5, manual
+  example 6) meets a stopped session and reports it no longer running. The
+  specs revive stopped sessions with `claudeSessionBecomes(id, "done-live")`.
+  Keep the stop after a failed rename and drop the manual-retry promise, or
+  skip the stop when the rename failed on a running session.
