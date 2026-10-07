@@ -22,6 +22,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [A private Claude Code rename types only at a ready prompt](seeds/SEED-116-claude-done-rename.md#claude-done-rename-readiness-correction) — SEED-116#claude-done-rename-readiness-correction
 - [Mark as done removes an exited Claude Code session's job](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#remove-exited-claude-job) — SEED-117#remove-exited-claude-job
 - [Retain actionable diagnostics when a dashboard CI shard times out](seeds/SEED-115-cancelled-dashboard-ci-failures.md#retain-cancelled-ci-evidence) — SEED-115#retain-cancelled-ci-evidence
 - [The page ends where the shown dashboard columns end](seeds/SEED-106-dashboard-paged-columns.md#paged-columns-height-follows-shown) — SEED-106#paged-columns-height-follows-shown
