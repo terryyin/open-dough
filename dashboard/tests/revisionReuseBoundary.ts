@@ -4,6 +4,8 @@
 // `gh`, answered from one publication (./revisionReuseOrigin.ts), with every
 // `gh` call GitHub received described by kind, path, and revision pair.
 
+import { z } from "zod";
+import { parseDoneCatalog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
@@ -69,11 +71,25 @@ export function revisionReuseBoundary() {
         `&revision=${revision}&path=${encodeURIComponent(path)}&committed=last`,
       ),
     profiles: () => read(`&revision=${revision}&agents=profiles`),
-    done: () => read(`&revision=${revision}&done=records`),
+    // The done catalog, then every record it lists, as the records'
+    // answer.
+    done: async () => {
+      const catalog = await read(`&revision=${revision}&done=catalog`);
+      const listed = z.object({ catalog: z.string() }).safeParse(catalog.body);
+      if (catalog.status !== 200 || !listed.success) return catalog;
+      const parsed = parseDoneCatalog(listed.data.catalog);
+      if (!parsed.ok) throw new Error(parsed.error);
+      const { records, unreadable } = parsed.catalog;
+      return read(
+        `&revision=${revision}&done=bodies${[...records, ...unreadable]
+          .map(({ fileName }) => `&file=${encodeURIComponent(fileName)}`)
+          .join("")}`,
+      );
+    },
   });
   // Every kind of read a page asks at a revision: the backlog, the seeds and
   // plan it names, both listings with the profiles and setting file, and the
-  // done records.
+  // done catalog with the records it lists.
   const readEverything = async (revision: string) => {
     const reads = at(revision);
     return [

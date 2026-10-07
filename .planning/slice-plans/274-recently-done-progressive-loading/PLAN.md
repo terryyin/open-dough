@@ -398,7 +398,7 @@ Accepted proof and learnings (2026-10-07, terry-chan):
 ### 3. A short initial list reveals the next ten only when asked
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: add `recently-done-progressive-loading.spec.ts`; run it and the Done
 projection and independent arrivals group, the changed authenticated
 consumers, the paging consumers of the Navigation group, and typechecking. The
@@ -424,6 +424,38 @@ the initial view saves body reads. Exact prefix navigation for a journey onto
 a hidden done entry is an interim omission replaced by slice 4; until then
 such a journey keeps today's fallback and removes no record or independent
 terminal/report access.
+
+Accepted proof and learnings (2026-10-08, terry-chan):
+
+- Range owner: `useRecentlyDoneRange(sourceId)` in
+  `dashboard/src/recentlyDoneRange.ts` (`requested`, `reveal(shown)`,
+  `doneBatch = 10`), used by `useRecentlyDone` in
+  `dashboard/src/recentlyDoneView.ts` (combined `newestFirst` list, called by
+  `DashboardColumns`). Demanded record reads live in `dashboard/src/doneDetails.ts`;
+  `readDoneStories` now waits only for the catalog, so unread suffixes never
+  hold revision checks. The eager `done=records` read is retired; the shared
+  per-read cap is `doneRecordsPerRead` in `authenticatedReadRules.ts`.
+  `pageSidePanel` and `sessionNavigation` sit above `DashboardColumns`, so
+  slice 4 lifts or exposes the range owner (keyed by source) rather than
+  adding a second one; catalog placement already renders a destination's
+  entry/card with its `data-shows-session`/`data-done-story` marks once the
+  range covers it.
+- Wording: footer "Showing N of M entries."; action "Show 10 of K older
+  entries" / "Show the K older entries" / "Reading done stories…";
+  exhaustion "All M entries are shown."; card "Reading done story…" /
+  "This done story could not be read."; gap "Done stories could not be read. …"
+  with "Retry done stories".
+- Accepted limits: one demanded group is one read, so a failing record fails
+  its group's cards until Retry (healthy blobs are not reread at `gh`);
+  catalog-unreadable records are read to name their problem, since they hold
+  no place in the list; rate-limited reads wait for the developer's Retry.
+- Proof: `recently-done-progressive-loading.spec.ts` (35-entry publication
+  whose catalog comes from the real `catalog-done` CLI; exact records asked at
+  10/20/30/35, held entry 13 never asked before reveal, wheel scroll at 80rem,
+  40rem paging/resize read nothing, focus and positions retained; failed
+  record plus one Retry; six/empty boundaries), the Done projection group, all
+  `authenticated-read-*` specs, paging and Done-journey groups, typecheck,
+  plus project-overview/isolation/navigation/refresh consumers.
 
 ### 4. A journey onto a done entry reveals the exact prefix through it
 

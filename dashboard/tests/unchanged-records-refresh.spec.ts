@@ -3,7 +3,8 @@
 // revision A, the check that finds B has the local read boundary compare A
 // with B and read the one commit between, and the page shows B with the same
 // facts without any backlog, seed, plan, profile, setting, or done-record
-// text or listing, profile history, or last commit time being read again. A
+// text or listing, done catalog, profile history, or last commit time being
+// read again. A
 // second tab costs what a reload does, and a restarted dashboard process reads
 // B in full. The fake GitHub only publishes the commits (./publishedFiles.ts);
 // the local read boundary, its memo, and the page decide what is asked and
@@ -18,6 +19,7 @@ import {
 } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import { slicePlan } from "./branchProgressRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { startDashboardServer } from "./support/dashboardServer.ts";
@@ -36,6 +38,7 @@ const planPath = ".planning/slice-plans/271-refresh/PLAN.md";
 const profilePath = ".planning/agents/akiho-chan.json";
 const settingsPath = ".planning/open-dough.json";
 const donePath = ".planning/done/SEED-270_done.json";
+const doneCatalogPath = ".planning/done/.catalog.json";
 
 const takenTitle = "Refresh without rereading";
 const queuedTitle = "Queued beside it";
@@ -69,21 +72,26 @@ const seed = `# Refresh fixture
 **Identity:** SEED-271#queued
 `;
 
-const files: Record<string, string> = {
-  [backlogPath]: backlog,
-  [seedPath]: seed,
-  [planPath]: slicePlan(5, 2),
-  [profilePath]: renderAgentProfile({
-    name: "Akiho",
-    identity: "SEED-271#refresh",
-    mode: "trunk",
-    branch: "main",
-    host: "claude",
-    model: undefined,
-  }),
-  [settingsPath]: "{}\n",
-  [donePath]: `{"note":"an earlier story's done record"}\n`,
-};
+// The done record is published with the done catalog beside it, which lists
+// it as a record it could not read.
+const files: Record<string, string> = withDoneCatalog(
+  {
+    [backlogPath]: backlog,
+    [seedPath]: seed,
+    [planPath]: slicePlan(5, 2),
+    [profilePath]: renderAgentProfile({
+      name: "Akiho",
+      identity: "SEED-271#refresh",
+      mode: "trunk",
+      branch: "main",
+      host: "claude",
+      model: undefined,
+    }),
+    [settingsPath]: "{}\n",
+    [donePath]: `{"note":"an earlier story's done record"}\n`,
+  },
+  ".planning/done",
+);
 
 const atA: PublishedRevision = {
   revision: revisionA,
@@ -145,6 +153,7 @@ test("a commit that changes no planning record is shown without reading the unch
       `content ${profilePath}@${revisionA}`,
       `content ${settingsPath}@${revisionA}`,
       `listing .planning/done@${revisionA}`,
+      `content ${doneCatalogPath}@${revisionA}`,
       `content ${donePath}@${revisionA}`,
     ]),
   );
@@ -200,6 +209,7 @@ test("a commit that changes no planning record is shown without reading the unch
           `listing .planning/agents@${revisionB}`,
           `content ${profilePath}@${revisionB}`,
           `listing .planning/done@${revisionB}`,
+          `content ${doneCatalogPath}@${revisionB}`,
           `content ${donePath}@${revisionB}`,
         ]),
       );

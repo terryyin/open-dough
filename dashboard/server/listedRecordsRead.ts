@@ -1,14 +1,14 @@
 // Reads of the records published beside the backlog at a pinned revision,
 // for the local authenticated read boundary (`./authenticatedRead.ts`): the
-// agent profiles (`agents=profiles`), with the project setting file's text,
-// or every done record (`done=records`), which Recently done reads only until
-// it reads the records its shown entries need through the done catalog
-// (`./doneCatalogRead.ts`). Each names only a pinned revision and is refused
-// here before any `gh` call otherwise. Which files are read is the revision's
-// listing of their directory (`./recordsBesideBacklog.ts`). Records are read
-// a few at a time, each only while no earlier read has kept the blob its
-// listing names (`./pinnedTexts.ts`); a failure names the record whose read
-// failed (`./performedRead.ts`).
+// agent profiles (`agents=profiles`), with the project setting file's text.
+// Done records are read only as the done catalog lists them
+// (`./doneCatalogRead.ts`, `done=catalog` and `done=bodies`). Each names
+// only a pinned revision and is refused here before any `gh` call otherwise.
+// Which files are read is the revision's listing of their directory
+// (`./recordsBesideBacklog.ts`). Records are read a few at a time, each only
+// while no earlier read has kept the blob its listing names
+// (`./pinnedTexts.ts`); a failure names the record whose read failed
+// (`./performedRead.ts`).
 
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import { mapPool } from "../src/boundedPool.ts";
@@ -19,9 +19,7 @@ import type { PinnedLister } from "./reachablePaths.ts";
 import {
   agentProfileDirectoryOf,
   agentSettingsTextAt,
-  doneRecordDirectoryOf,
   listedAgentProfiles,
-  listedDoneRecords,
 } from "./recordsBesideBacklog.ts";
 import { answered, type Outcome, type PinnedFile } from "./readOutcome.ts";
 import {
@@ -32,7 +30,7 @@ import {
 } from "./refusedParameters.ts";
 
 export type ListedRecordsRead = {
-  readonly kind: "agent-profiles-at" | "done-records-at";
+  readonly kind: "agent-profiles-at";
   readonly revision: string;
 };
 
@@ -52,18 +50,9 @@ type ListedRead = {
 
 // Each listed read by the parameter and value that name it, the directory its
 // records are listed in, and how it is refused when it names anything else.
-// A done record read is decided first when both are named. Agent profiles are
-// also kept by path: the story branch reads of the same revision read them so
-// (`./branchReachability.ts`).
+// Agent profiles are also kept by path: the story branch reads of the same
+// revision read them so (`./branchReachability.ts`).
 const listedReads: Readonly<Record<ListedRecordsRead["kind"], ListedRead>> = {
-  "done-records-at": {
-    parameter: "done",
-    value: "records",
-    directoryOf: doneRecordDirectoryOf,
-    listed: listedDoneRecords,
-    keptByPath: false,
-    refusal: "A done record read names only a pinned revision.",
-  },
   "agent-profiles-at": {
     parameter: "agents",
     value: "profiles",
@@ -76,10 +65,12 @@ const listedReads: Readonly<Record<ListedRecordsRead["kind"], ListedRead>> = {
 
 const listedKinds = Object.keys(listedReads) as ListedRecordsRead["kind"][];
 
-// The parameters that ask for a listed read, which every other read refuses.
-export const listedReadParameters = listedKinds.map(
-  (kind) => listedReads[kind].parameter,
-);
+// The parameters that ask for a listed read or a done read
+// (`./doneCatalogRead.ts`), which every other read refuses.
+export const listedReadParameters = [
+  ...listedKinds.map((kind) => listedReads[kind].parameter),
+  "done",
+];
 
 // The listed read a request names, undefined when it names none.
 export function parseListedRecordsRead(
@@ -153,11 +144,8 @@ export async function readListedTexts(
   });
 }
 
-// Reads every listed record at the pinned revision; a profile read also
-// answers the project setting file's text, null when the revision has none.
-// Every done record is read here only until Recently done asks for the
-// records its shown entries need through the done catalog
-// (`./doneCatalogRead.ts`).
+// Reads every listed profile at the pinned revision, with the project setting
+// file's text, null when the revision has none.
 export async function performListedRecordsRead(
   pinned: PinnedTexts,
   source: PublishedSource,
@@ -180,9 +168,6 @@ export async function performListedRecordsRead(
     naming,
     keptByPath,
   );
-  if (kind === "done-records-at") {
-    return answered({ revision, records: files });
-  }
   naming(readingPathAt(agentSettingsPath, revision));
   const settings = await agentSettingsTextAt(readPinned);
   return answered({ revision, profiles: files, settings });

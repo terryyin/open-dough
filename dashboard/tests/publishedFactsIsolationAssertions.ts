@@ -127,7 +127,12 @@ export async function expectCurrentFacts(
     );
   }
   if (pending.includes("done")) {
-    await expect(recentlyDone.getByRole("article")).toHaveCount(0);
+    // The done catalog places the story; its record's facts are still owed.
+    const placed = recentlyDone.getByRole("article");
+    await expect(placed).toHaveCount(1);
+    await expect(placed).toHaveAccessibleName(facts.doneIdentity);
+    await expect(placed).toContainText("Reading done story…");
+    await expect(placed).not.toContainText(facts.developer);
   } else {
     const done = recentlyDone.getByRole("article", { name: facts.doneTitle });
     await expect(done).toContainText(facts.developer);

@@ -14,6 +14,8 @@ import {
   addedDonePath,
   backlogNaming,
   backlogPath,
+  doneCatalogPath,
+  doneDirectory,
   donePath,
   filesFor,
   madeBy,
@@ -29,6 +31,7 @@ import {
   seedPath,
   seedText,
 } from "./revisionReuseOrigin.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -101,13 +104,16 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
     const files = filesFor("changed");
     const published = await publishedAt(a, files);
     const backlogAtB = backlogNaming("changed", newSeedEntry);
-    const atB = {
-      ...files,
-      [backlogPath]: backlogAtB,
-      [newSeedPath]: newSeedText,
-      [addedDonePath]: `{"label":"added"}\n`,
-      [planPath]: "# Plan changed, a slice done\n",
-    };
+    const atB = withDoneCatalog(
+      {
+        ...files,
+        [backlogPath]: backlogAtB,
+        [newSeedPath]: newSeedText,
+        [addedDonePath]: `{"label":"added"}\n`,
+        [planPath]: "# Plan changed, a slice done\n",
+      },
+      doneDirectory,
+    );
     await movedTo(published, a, { revision: b, files: atB }, [
       madeBy("c3", [
         modified(backlogPath),
@@ -115,6 +121,7 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
       ]),
       madeBy("d3", [
         { filename: addedDonePath, status: "added" },
+        modified(doneCatalogPath),
         modified(planPath),
       ]),
     ]);
@@ -137,6 +144,7 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
         `content ${backlogPath}@b3`,
         `content ${planPath}@b3`,
         "listing .planning/done@b3",
+        `content ${doneCatalogPath}@b3`,
         `content ${addedDonePath}@b3`,
         `content ${newSeedPath}@b3`,
       ].sort(),

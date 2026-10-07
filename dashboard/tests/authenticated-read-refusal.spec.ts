@@ -140,7 +140,7 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       ),
     ).toBe(true);
   });
-  // A read of the records listed beside the backlog names only the pinned
+  // A listed records read, or a done catalog read, names only the pinned
   // revision: never another path, never with a revision check or the other
   // listed read, and never a branch name it would resolve itself.
   for (const { listed, named, onlyPinned, path, combined } of [
@@ -155,9 +155,9 @@ test.describe("authenticated read boundary refusal (dev launch mode)", () => {
       },
     },
     {
-      listed: "a done record read",
-      named: "done=records",
-      onlyPinned: "A done record read names only a pinned revision.",
+      listed: "a done catalog read",
+      named: "done=catalog",
+      onlyPinned: "A done catalog read names only a pinned revision.",
       path: ".planning/done/SEED-001_x.json",
       combined: {
         read: "combined with an agent profile read",

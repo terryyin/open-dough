@@ -5,11 +5,8 @@ import { ColumnEdge } from "./ColumnEdge.tsx";
 import type { ColumnSummary } from "./columnSummary.ts";
 import { useColumnPaging } from "./columnPaging.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import {
-  RecentlyDone,
-  recentlyDoneColumn,
-  recentlyDoneOf,
-} from "./RecentlyDone.tsx";
+import { RecentlyDone } from "./RecentlyDone.tsx";
+import { useRecentlyDone } from "./recentlyDoneView.ts";
 import { columnSessionsOf } from "./columnSessions.ts";
 import { stagesOf, WorkStages } from "./WorkStages.tsx";
 import "./dashboard-columns.css";
@@ -40,16 +37,16 @@ export function DashboardColumns({
     [...work.backlog, ...work.taken].map(({ identity }) => identity),
   );
   const stages = stagesOf(work, sessions.taken);
-  const recent = recentlyDoneOf(
+  const recent = useRecentlyDone({
     sourceId,
-    launches.creations,
-    sessions.done,
-    work.done,
-    sessions.noneKept,
-  );
+    work,
+    creations: launches.creations,
+    records: sessions.done,
+    noneKept: sessions.noneKept,
+  });
   const columns: readonly ColumnSummary[] = [
     ...stages.map(({ column }) => column),
-    recentlyDoneColumn(recent),
+    recent.column,
   ];
   const { frame, row, shown, leftmost, move, sliding, slid } = useColumnPaging(
     columns.length,

@@ -38,6 +38,8 @@ test.describe.configure({ mode: "serial" });
 const bodiesRefusal =
   "A done record read names only a pinned revision and the catalogued record files.";
 const catalogRefusal = "A done catalog read names only a pinned revision.";
+const doneRefusal =
+  "A done read names the done catalog or the catalogued record files.";
 
 test.describe("authenticated done catalog refusal (dev launch mode)", () => {
   let server: DashboardServer;
@@ -89,9 +91,14 @@ test.describe("authenticated done catalog refusal (dev launch mode)", () => {
       error: catalogRefusal,
     },
     {
-      read: "of every record naming a record",
+      read: "of every record at once",
+      query: "done=records",
+      error: doneRefusal,
+    },
+    {
+      read: "of another kind naming a record",
       query: "done=records&file=SEED-001_x.json",
-      error: "A done record read names only a pinned revision.",
+      error: doneRefusal,
     },
     {
       read: "of the catalog at a revision that is not a commit sha",

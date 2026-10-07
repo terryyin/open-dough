@@ -4,11 +4,9 @@
 // records there are, in completion order, once the boundary found it agrees
 // with the record files the revision lists, or names the gap that keeps it
 // from being trusted; only records that catalog lists are then read, by file
-// name (`done=bodies`). Until Recently done reads that way, it still reads
-// every record file the revision lists (`done=records`), as the agent
-// profiles are read (`./authenticatedProfileRead.ts`). How the catalog and
-// each record are spelled is left to the shared done modules
-// (`./doneStories.ts`).
+// name (`done=bodies`), as the entries Recently done shows need them
+// (`./doneDetails.ts`). How the catalog and each record are spelled is left
+// to the shared done modules (`./doneStories.ts`).
 
 import { z } from "zod";
 import {
@@ -36,27 +34,6 @@ const okDoneCatalog = z.union([
 
 const sourceAt = (source: PublishedSource, revision: string) =>
   `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}`;
-
-// The done records published at `revision`, by repository path and raw text
-// (none when the revision has no done-record directory). Recently done's
-// reading of every record, until it reads only those its entries need.
-export async function readDoneRecordsAt(
-  source: PublishedSource,
-  revision: string,
-  signal: AbortSignal,
-): Promise<readonly PublishedFile[]> {
-  const reading = `the done records of ${source.repository} at ${revision}`;
-  const body = await authenticatedGet(
-    `${sourceAt(source, revision)}&done=records`,
-    reading,
-    signal,
-  );
-  const parsed = okDoneRecords.safeParse(body);
-  if (!parsed.success || parsed.data.revision !== revision) {
-    throw unexpectedAnswer(reading);
-  }
-  return parsed.data.records;
-}
 
 // The done catalog at a revision, newest completion first; or the gap that
 // keeps its records from being known there.

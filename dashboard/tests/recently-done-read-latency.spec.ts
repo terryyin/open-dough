@@ -1,8 +1,10 @@
 // Done stories are a later detail of the published read: a slow or stalled
 // done-record read never holds back or fails the Taken cards' owners,
-// preparation, and slice clocks. Done cards fill in when their read answers;
-// a read still unanswered at the wait bound is the Recently done column's
-// gap, not the project's read problem. The fake GitHub only publishes the
+// preparation, and slice clocks. The done catalog places each done story,
+// with this machine's sessions for it, before its record is read; its card
+// fills in when that read answers. A read still unanswered at the wait bound
+// is the Recently done column's gap, not the project's read problem, and the
+// story keeps its place and its sessions. The fake GitHub only publishes the
 // slice clock records (sliceClockRecords.ts) with two done records spelled by
 // the shared done-record renderer, holding one record's content read; the
 // synthetic `claude` lists this machine's sessions; the page clock is paused,
@@ -28,10 +30,12 @@ import {
   stories,
 } from "./sliceClockRecords.ts";
 import {
+  doneDirectory,
   doneRecordAt,
   executed,
   removedQueued,
 } from "./recentlyDoneRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import {
   adHocEntry,
   expectEntries,
@@ -91,7 +95,7 @@ async function openedWithHeldDoneRecord(
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
-    files: { ...files, ...doneRecords },
+    files: withDoneCatalog({ ...files, ...doneRecords }, doneDirectory),
     committed,
     history,
   });
@@ -124,7 +128,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
   const { card, recent, closed, problem, release } =
     await openedWithHeldDoneRecord(page, dashboard);
 
-  await test.step("while a done record's read is held, the Taken card shows its owner, preparation, and clock, and no done card shows", async () => {
+  await test.step("while a done record's read is held, the Taken card shows its owner, preparation, and clock, and each done story holds its place and sessions under its identity", async () => {
     await expect(card.locator(".owner-line")).toContainText(
       "Akiho-chan · Fixture Committer · Claude Code",
     );
@@ -132,11 +136,22 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
       card.getByRole("img", { name: "1 of 2 slices recorded complete" }),
     ).toBeVisible();
     await expect(card).toContainText("Current slice started 12 min ago");
-    await expect(recent.locator(".done-story")).toHaveCount(0);
-    await expect(recent.locator(".stage-count")).toHaveText(
-      "Entry count incomplete",
-    );
+    await expectEntries(recent, [
+      adHocEntry,
+      executed.identity,
+      queuedEntry,
+      removedQueued.identity,
+    ]);
+    await expect(
+      recent.getByRole("article", { name: executed.identity }),
+    ).toContainText("Reading done story…");
+    await expect(recent.locator(".stage-count")).toHaveText("4 entries");
     await expect(closed).toHaveCount(1);
+    await expect(
+      recent
+        .getByRole("article", { name: executed.identity })
+        .locator(".session-entry"),
+    ).toHaveCount(1);
     await expect(
       closed.getByRole("button", { name: "Open terminal" }),
     ).toBeEnabled();
@@ -175,11 +190,18 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   await expect(recent).toContainText(
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done records.",
   );
+  await expect(
+    recent.getByRole("button", { name: "Retry done stories" }),
+  ).toBeVisible();
   await expectEntries(recent, [
     adHocEntry,
+    executed.identity,
     queuedEntry,
-    `Execution session for ${executed.title}`,
+    removedQueued.identity,
   ]);
+  const unread = recent.getByRole("article", { name: executed.identity });
+  await expect(unread).toContainText("This done story could not be read.");
+  await expect(unread.locator(".session-entry")).toHaveCount(1);
   await expect(
     closed.getByRole("button", { name: "Open terminal" }),
   ).toBeEnabled();

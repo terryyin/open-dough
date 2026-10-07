@@ -99,7 +99,7 @@ test("the settled alternate project finishes its independent reads before a retu
     const url = new URL(response.url());
     if (url.searchParams.get("source") !== "doughnut" || !response.ok()) return;
     if (url.searchParams.get("agents") === "profiles") profilesRead = true;
-    if (url.searchParams.get("done") === "records") doneRead = true;
+    if (url.searchParams.get("done") === "catalog") doneRead = true;
   });
   // Independent profile work can start later than preparation. Delay only
   // its local request dispatch; the real preview and gh still do the read.

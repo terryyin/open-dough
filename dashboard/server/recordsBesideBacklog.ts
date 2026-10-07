@@ -3,10 +3,10 @@
 // from that revision's own listing of their directory. Agent profiles are
 // reachable only as the profile files the listing names, and a profile's Take
 // (`./ghProfileAddition.ts`) is asked only for a listed profile. Done records
-// are read the same way: only as the record files their directory's listing
-// names. The one project setting file the shared profile module names is
-// reachable only as part of the profile read, never by a client-supplied
-// path. The done catalog (`../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs`)
+// are read only as the record files the done catalog agreeing with their
+// directory's listing names (`./doneCatalogRead.ts`). The one project
+// setting file the shared profile module names is reachable only as part of
+// the profile read, never by a client-supplied path. The done catalog (`../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs`)
 // sits among the done records, at the one path that module names; what it
 // admits is read in `./doneCatalogRead.ts`.
 
@@ -21,10 +21,7 @@ import {
   agentSettingsPath,
   profileAgentName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  doneRecordDirectory,
-  isDoneRecordFileName,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneCatalogPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 // Where a directory of published records named by the shared backlog
@@ -78,18 +75,6 @@ export function listedAgentProfiles(
   return listedBesideBacklog(
     agentProfileDirectoryOf(source),
     (name) => profileAgentName(name) !== undefined,
-    listPinned,
-  );
-}
-
-// The done records listed beside the backlog at a pinned revision.
-export function listedDoneRecords(
-  source: PublishedSource,
-  listPinned: PinnedLister,
-): Promise<ListedPath[]> {
-  return listedBesideBacklog(
-    doneRecordDirectoryOf(source),
-    isDoneRecordFileName,
     listPinned,
   );
 }

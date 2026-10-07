@@ -30,6 +30,7 @@ import {
   type Comparison,
 } from "./comparisonAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 
 export const sourceId = "open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -40,8 +41,10 @@ export const planPath = ".planning/slice-plans/301-reuse/PLAN.md";
 export const profilePath = ".planning/agents/akiho-chan.json";
 export const otherProfilePath = ".planning/agents/maki-chan.json";
 export const settingsPath = ".planning/open-dough.json";
+export const doneDirectory = ".planning/done";
 export const donePath = ".planning/done/SEED-300_first.json";
 export const addedDonePath = ".planning/done/SEED-304_added.json";
+export const doneCatalogPath = ".planning/done/.catalog.json";
 
 // Revisions and commits are named by one hex pair; each test uses its own,
 // since the boundary remembers what it read while the server runs.
@@ -79,8 +82,13 @@ export const seedText = (label: string) => `# Reuse fixture ${label}
 `;
 
 // Every record a project shows at one revision, each text naming `label`, so
-// no other test's blob stands in for it.
+// no other test's blob stands in for it, with the done catalog completion
+// publishes beside the done record.
 export function filesFor(label: string): Files {
+  return withDoneCatalog(filesWithoutCatalog(label), doneDirectory);
+}
+
+function filesWithoutCatalog(label: string): Files {
   return {
     [backlogPath]: backlogNaming(label),
     [seedPath]: seedText(label),

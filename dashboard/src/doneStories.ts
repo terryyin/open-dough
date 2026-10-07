@@ -1,18 +1,22 @@
-// The done stories published beside the backlog at the snapshot's revision:
-// each done record the local boundary lists there, as the shared done-record
-// module under `src/skills/dough-product-backlog/scripts/` reads it, checked
-// here for the fields this dashboard shows. Which records are still recent is
-// that module's window too. A record the module refuses is reported by its
-// file name and shows no story; a failed read is a gap, never an empty set.
+// The done stories published beside the backlog at the snapshot's revision.
+// The done catalog the local boundary agreed with that revision's record
+// files (`./authenticatedDoneRead.ts`) says which records there are and
+// when each was completed, so Recently done can place every done story
+// without reading its record; each record is read only when an entry shown
+// needs it (`./doneDetails.ts`), as the shared done-record module under
+// `src/skills/dough-product-backlog/scripts/` reads it, checked here for the
+// fields this dashboard shows. Which records are still recent is that
+// module's window too. A record the module refuses is reported by its file
+// name and shows no story; a failed read is a gap, never an empty set.
 
 import { z } from "zod";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import {
   isWithinDoneWindow,
   parseDoneRecordFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { PublishedFile } from "./authenticatedGet.ts";
-import { readDoneRecordsAt } from "./authenticatedDoneRead.ts";
+import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { detailGapProblem } from "./readWaitBound.ts";
 
@@ -34,67 +38,99 @@ const readRecord = z.discriminatedUnion("ok", [
 // undefined when the record does not name them.
 export type DoneStory = z.infer<typeof doneStory>;
 
-// A published done record the shared reader could not read, by its file name.
-export type UnreadableDoneRecord = {
-  readonly file: string;
-  readonly problem: string;
+// A done record as the catalog names it: its file name and the Git blob of
+// its text, which the record's read is asked and kept by.
+export type NamedDoneRecord = {
+  readonly fileName: string;
+  readonly blob: string;
 };
 
+// The done records at the snapshot's revision, as their catalog says, until
+// any is read: catalogued, newest completion first, with the record files the
+// catalog could not read; loading until the catalog answers; or unavailable,
+// with the reason, when it could not be read or does not describe the
+// published records.
 export type DoneStories =
   | { readonly status: "loading" }
   | { readonly status: "unavailable"; readonly problem: string }
   | {
-      readonly status: "read";
-      readonly stories: readonly DoneStory[];
-      readonly unreadable: readonly UnreadableDoneRecord[];
+      readonly status: "catalogued";
+      readonly records: readonly CataloguedDoneRecord[];
+      readonly unreadable: readonly NamedDoneRecord[];
     };
 
 const doneUnreadProblem = "Done stories could not be read.";
 
-// Reads the revision's done records; a failed or abandoned read, one still
-// unanswered at the wait bound among them, is the column's gap, said with the
-// reason when one is known.
+// Reads the revision's done catalog; a failed or abandoned read, one still
+// unanswered at the wait bound among them, or a catalog that does not agree
+// with the published records, is the column's gap, said with the reason.
 export async function readDoneStories(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
 ): Promise<DoneStories> {
-  let records: readonly PublishedFile[];
   try {
-    records = await readDoneRecordsAt(source, revision, signal);
+    const catalog = await readDoneCatalogAt(source, revision, signal);
+    return catalog.status === "gap"
+      ? {
+          status: "unavailable",
+          problem: `${doneUnreadProblem} The done catalog does not describe the published done records: ${catalog.problem}.`,
+        }
+      : {
+          status: "catalogued",
+          records: catalog.records,
+          unreadable: catalog.unreadable,
+        };
   } catch (error) {
-    const why = detailGapProblem(error, signal, "the done records", "");
     return {
       status: "unavailable",
-      problem: `${doneUnreadProblem} ${why}`.trimEnd(),
+      problem: doneGapProblem(error, signal, "the done catalog"),
     };
   }
-  const stories: DoneStory[] = [];
-  const unreadable: UnreadableDoneRecord[] = [];
-  for (const { path, text } of records) {
-    const file = path.split("/").pop() ?? path;
-    const read = readRecord.safeParse(parseDoneRecordFile(file, text));
-    if (!read.success) {
-      unreadable.push({
-        file,
-        problem:
-          "the shared done-record reader answered in a shape this dashboard does not understand",
-      });
-    } else if (read.data.ok) {
-      stories.push(read.data.record);
-    } else {
-      unreadable.push({ file, problem: read.data.error });
-    }
-  }
-  return { status: "read", stories, unreadable };
 }
 
-// The done stories still recent at `now`, by the shared window.
-export function recentDoneStories(
+// What one done record's text says: its story, or why the shared reader
+// refused it.
+export type DoneRecordRead =
+  | { readonly status: "read"; readonly story: DoneStory }
+  | { readonly status: "unreadable"; readonly problem: string };
+
+export function doneRecordOf(file: string, text: string): DoneRecordRead {
+  const read = readRecord.safeParse(parseDoneRecordFile(file, text));
+  if (!read.success) {
+    return {
+      status: "unreadable",
+      problem:
+        "the shared done-record reader answered in a shape this dashboard does not understand",
+    };
+  }
+  return read.data.ok
+    ? { status: "read", story: read.data.record }
+    : { status: "unreadable", problem: read.data.error };
+}
+
+// Why reading the done catalog or the done records failed, as the column says
+// it.
+function doneGapProblem(
+  error: unknown,
+  signal: AbortSignal,
+  reading: string,
+): string {
+  const why = detailGapProblem(error, signal, reading, "");
+  return `${doneUnreadProblem} ${why}`.trimEnd();
+}
+
+export const doneRecordsGapProblem = (error: unknown, signal: AbortSignal) =>
+  doneGapProblem(error, signal, "the done records");
+
+// The catalogued done records still recent at `now`, by the shared window.
+export function recentDoneRecords(
   done: DoneStories | undefined,
   now: Date,
-): readonly DoneStory[] {
-  return done?.status === "read"
-    ? done.stories.filter((story) => isWithinDoneWindow(story.completedAt, now))
+): readonly CataloguedDoneRecord[] {
+  return done?.status === "catalogued"
+    ? done.records.filter((record) =>
+        isWithinDoneWindow(record.completedAt, now),
+      )
     : [];
 }

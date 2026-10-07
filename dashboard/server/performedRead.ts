@@ -69,7 +69,6 @@ function readingOf(source: PublishedSource, read: RequestedRead): string {
     case "file-at":
       return readingPathAt(read.path, read.onBranch?.head ?? read.revision);
     case "agent-profiles-at":
-    case "done-records-at":
       return readingListedRecordsOf(source, read);
     case "done-catalog-at":
     case "done-bodies-at":
@@ -124,7 +123,6 @@ export async function perform(
             backlog: await backlogAt(read.revision),
           });
         case "agent-profiles-at":
-        case "done-records-at":
           return await performListedRecordsRead(
             pinned,
             source,

@@ -9,7 +9,8 @@
 // and with `watch` which heads story branches
 // recorded there name now; `agents=profiles` and `committed=added` read the
 // published agent profiles (`./authenticatedProfileRead.ts`), and
-// `done=records` the published done records (`./authenticatedDoneRead.ts`);
+// `done=catalog` and `done=bodies` the published done catalog and the
+// records it lists (`./authenticatedDoneRead.ts`);
 // `branch` asks
 // about a story branch recorded at that revision
 // (`./authenticatedBranchRead.ts`). Every read makes the

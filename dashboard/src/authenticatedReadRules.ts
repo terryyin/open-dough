@@ -40,6 +40,12 @@ export function isSafeBranchName(branch: string): boolean {
   );
 }
 
+// At most this many done records are named by one catalogued record read
+// (`../server/doneCatalogRead.ts`): far more than one batch of Recently done,
+// or a journey's way to an entry. The page splits a larger ask into reads of
+// at most this many (`./doneDetails.ts`).
+export const doneRecordsPerRead = 100;
+
 // How long one read may wait for GitHub: the browser's whole read
 // (`./publishedWorkRead.ts`), each boundary request's wait for its `gh`
 // answers, and each shared `gh` call (`../server/ghRead.ts`) are all given up

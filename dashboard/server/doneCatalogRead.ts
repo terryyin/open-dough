@@ -16,7 +16,10 @@
 // once, each only while no earlier read has kept its blob
 // (`./listedRecordsRead.ts`); any other name is refused without being read.
 
-import { readingPathAt } from "../src/authenticatedReadRules.ts";
+import {
+  doneRecordsPerRead,
+  readingPathAt,
+} from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   doneCatalogFileName,
@@ -48,22 +51,21 @@ export type DoneCatalogRead =
       readonly files: readonly string[];
     };
 
-// At most this many records are named by one read: far more than one batch
-// of Recently done, or a journey's way to an entry.
-const namedRecordLimit = 100;
-
 const catalogRefusal = "A done catalog read names only a pinned revision.";
+const doneRefusal =
+  "A done read names the done catalog or the catalogued record files.";
 const bodiesRefusal =
   "A done record read names only a pinned revision and the catalogued record files.";
 
-// The done catalog read a request names, undefined when it names none: the
-// `done` parameter with another value is a listed read
-// (`./listedRecordsRead.ts`).
+// The done catalog read a request names, undefined when it names none. Done
+// records are read only through the catalog: any other `done` read is
+// refused.
 export function parseDoneCatalogRead(
   params: URLSearchParams,
 ): DoneCatalogRead | RefusedParameters | undefined {
   const done = params.get("done");
-  if (done !== "catalog" && done !== "bodies") return undefined;
+  if (done === null) return undefined;
+  if (done !== "catalog" && done !== "bodies") return refused(doneRefusal);
   const files = params.getAll("file");
   const others = [
     "path",
@@ -82,7 +84,7 @@ export function parseDoneCatalogRead(
     if (files.length === 0 || !files.every(isDoneRecordFileName)) {
       return refused(bodiesRefusal);
     }
-    if (files.length > namedRecordLimit) {
+    if (files.length > doneRecordsPerRead) {
       return refused("A done record read names too many records.");
     }
   }

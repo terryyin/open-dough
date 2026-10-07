@@ -13,7 +13,12 @@ import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
-import { doneRecordAt, executed } from "./recentlyDoneRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import {
+  doneDirectory,
+  doneRecordAt,
+  executed,
+} from "./recentlyDoneRecords.ts";
 import {
   afterTake,
   backlogPath,
@@ -117,31 +122,34 @@ export async function heldFactGroups(page: Page) {
   await pausePageClockAt(page, opened);
   const trunk = publishes({
     revision,
-    files: {
-      ...files,
-      ".planning/open-dough.json": "{}\n",
-      [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
-      [preparingPath]: assessed,
-      [planPath("preparing")]: plan,
-      [profilePath("Akiho")]: renderAgentProfile({
-        name: "Akiho",
-        identity: "SEED-091#after-take",
-        mode: "story-branch",
-        branch,
-        host: "claude",
-      }),
-      [profilePath("Kirara")]: renderAgentProfile({
-        name: "Kirara",
-        identity: preparingIdentity,
-        activity: "preparation",
-        host: "codex",
-      }),
-      [donePath]: renderDoneRecord({
-        ...executed,
-        completedAt: minutesBefore(60).toISOString(),
-        developer: "Terry Yin",
-      }),
-    },
+    files: withDoneCatalog(
+      {
+        ...files,
+        ".planning/open-dough.json": "{}\n",
+        [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
+        [preparingPath]: assessed,
+        [planPath("preparing")]: plan,
+        [profilePath("Akiho")]: renderAgentProfile({
+          name: "Akiho",
+          identity: "SEED-091#after-take",
+          mode: "story-branch",
+          branch,
+          host: "claude",
+        }),
+        [profilePath("Kirara")]: renderAgentProfile({
+          name: "Kirara",
+          identity: preparingIdentity,
+          activity: "preparation",
+          host: "codex",
+        }),
+        [donePath]: renderDoneRecord({
+          ...executed,
+          completedAt: minutesBefore(60).toISOString(),
+          developer: "Terry Yin",
+        }),
+      },
+      doneDirectory,
+    ),
     committed,
     history: {
       ...history,
