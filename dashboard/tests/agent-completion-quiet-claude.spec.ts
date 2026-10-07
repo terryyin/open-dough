@@ -73,6 +73,8 @@ test.describe("within a wait the session outlasts", () => {
     ).toBeVisible();
     expect(dashboard.claudeAttaches()).toEqual([]);
 
+    // Its banner precedes the composer; even quiet Done waits for that prompt.
+    dashboard.claudeAttachPromptDelay(800);
     // The sender's turn ends; the session idles and is renamed.
     dashboard.claudeSessionBecomes(sessionId, "done-live");
     await expect

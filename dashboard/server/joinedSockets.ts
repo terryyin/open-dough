@@ -2,7 +2,7 @@
 // and resize from any socket reach the process. Readiness observed on a
 // socket admits every joined socket.
 import type { WebSocket } from "ws";
-import type { UnavailableWorkspace } from "./launchHosts.ts";
+import type { ScreenReadiness, UnavailableWorkspace } from "./launchHosts.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import {
@@ -26,8 +26,7 @@ export class JoinedSockets {
     private readonly client: {
       readonly hostName: string;
       readonly admitted: boolean;
-      readonly readiness:
-        ((screen: string, cursorVisible: boolean) => boolean) | undefined;
+      readonly readiness: ScreenReadiness | undefined;
       readonly startupFailure:
         (() => UnavailableWorkspace | undefined) | undefined;
       readonly isTracked: () => boolean;

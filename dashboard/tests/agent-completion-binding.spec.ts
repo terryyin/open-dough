@@ -166,7 +166,7 @@ for (const quiet of [false, true])
         } else expect(bound?.doneAt).toBeUndefined();
         if (bound === undefined) throw new Error("No bound record");
         const stale = { ...bound, completion: undefined, doneAt: undefined };
-        for (const operation of ["updateRecord", "keepRecord"]) {
+        for (const operation of ["updateRecord", "bindRecord"]) {
           await recordOperation(server, operation, ["open-dough", stale]);
           const [current] = (await recordsOf(
             server,

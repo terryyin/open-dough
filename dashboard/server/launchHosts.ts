@@ -36,10 +36,15 @@ export type DetachedIdle = {
   readonly matches: (screen: string) => boolean;
 };
 
+export type ScreenReadiness = (
+  screen: string,
+  cursorVisible: boolean,
+) => boolean;
+
 export type TerminalAttachment =
   | {
       readonly pty: IPty;
-      readonly ready?: (screen: string, cursorVisible: boolean) => boolean;
+      readonly ready?: ScreenReadiness;
       // Re-observe native context after a failure before readiness, never infer it
       // from a process exit code.
       readonly startupFailure?: () => UnavailableWorkspace | undefined;
@@ -56,13 +61,14 @@ import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 // Runs `use` with typing into one attachment to this session: the newest one
 // the developer has open, else a private one opened from `folder` for this
 // call alone and hung up once `use` settles. Rejects with
-// `TerminalAttachmentUnopened` when that private one cannot show a screen
-// before `signal` ends the wait.
+// `TerminalAttachmentUnopened` when that private one cannot show the host’s
+// ready prompt before `signal` ends the wait.
 export type WithAttachment = <T>(
   session: HostSession,
   folder: ProjectFolder,
   use: (type: (input: string) => void) => Promise<T>,
   signal: AbortSignal,
+  ready: ScreenReadiness,
 ) => Promise<T>;
 
 // Whether the developer marked the session done, or its own report did.
@@ -131,7 +137,7 @@ export type LaunchHost = {
     folder: ProjectFolder,
     withAttachment: WithAttachment,
     intent: DoneIntent,
-    stopped?: AbortSignal,
+    stopped: AbortSignal,
   ): Promise<void>;
   stop?(
     session: HostSession,

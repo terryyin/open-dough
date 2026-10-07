@@ -18,6 +18,7 @@ import type { SessionReference } from "../src/sessionReference.ts";
 import { bridgeCursorTerminal } from "./hosts/cursor/runnerClient.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import type { ScreenReadiness } from "./launchHosts.ts";
 
 // The one recorded session an admitted upgrade attaches to, in its project,
 // and whether its record is marked done.
@@ -120,8 +121,9 @@ export class AgentTerminals {
     folder: ProjectFolder,
     use: (type: (input: string) => void) => Promise<T>,
     signal: AbortSignal,
+    ready: ScreenReadiness,
   ): Promise<T> {
-    return this.attachments.withAttachment(session, folder, use, signal);
+    return this.attachments.withAttachment(session, folder, use, signal, ready);
   }
 
   endAttachments(session: SessionReference): void {

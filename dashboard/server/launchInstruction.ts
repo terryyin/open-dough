@@ -6,6 +6,7 @@
 // screen that is not ready still waits for a completed frame. The client
 // exiting also settles the wait. A later screen can still accept the
 // instruction.
+import type { ScreenReadiness } from "./launchHosts.ts";
 import { KeptClientScreen } from "./keptClientScreen.ts";
 
 function showsPasteChip(screen: string): boolean {
@@ -14,7 +15,7 @@ function showsPasteChip(screen: string): boolean {
 
 export type LaunchInstructionInput = {
   readonly instruction: string;
-  readonly ready: (screen: string, cursorVisible: boolean) => boolean;
+  readonly ready: ScreenReadiness;
   readonly onEntered: () => Promise<void>;
   // The page's terminal is part of this launch. Idle waits until that socket
   // joins, or the dashboard releases the handoff.
