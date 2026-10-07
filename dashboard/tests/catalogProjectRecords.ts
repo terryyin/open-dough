@@ -3,6 +3,7 @@
 
 import { expect } from "./dashboardTest.ts";
 import type { ObservedRequest } from "./publishedOrigin.ts";
+import { productionSeedProjects } from "../server/projectConfigurationSeed.ts";
 import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -56,6 +57,17 @@ export const projects: readonly Project[] = [
     "master",
   ),
 ];
+
+// The source id this project is configured under in the catalog.
+export function sourceIdOf(published: Project): string {
+  const configured = productionSeedProjects.find(
+    ({ repository }) => repository === published.repository,
+  );
+  if (configured === undefined) {
+    throw new Error(`No catalog project for ${published.repository}.`);
+  }
+  return configured.id;
+}
 
 export function filesOf(published: Project): Record<string, string> {
   const number = published.takenPath.split("/")[2]?.split("-")[0] ?? "";

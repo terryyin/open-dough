@@ -253,7 +253,23 @@ product change.
 ### 3. Call counts after a settled page are not taken while an earlier read is still landing
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: the cause is confirmed as a test defect, not a product race.
+`expectSettledPage` returns before the agent-profile read (the `.planning/agents`
+listing, then `.planning/open-dough.json`) and the done-records read land when
+the page shows nothing that depends on them. Holding those reads reproduced
+the flake signature in `shared-observer-reads.spec.ts:232`,
+`story-readiness.spec.ts` (six `doughnutPaths` of seven), `auto-refresh.spec.ts:146`
+(pace over 15250 ms), and, by matching signature, `authenticated-project-overview.spec.ts:47`.
+`pageRequestNotes.ts` `noteReadsBesidePreparation` now waits for both answers
+before each count; `selectSettledDoughnut` reuses it. Under CPU stress (load
+~50–60), those four specs with `--repeat-each=30 --workers=12` gave 270
+passed; typecheck clean; the whole dashboard suite green; the refactored
+callers (`published-facts-isolation`, `auto-refresh-project-isolation`) green.
+Learnings: with no Taken work, `expectOwnersNotRecorded` proves nothing, so a
+count must wait on the boundary answers, noted before they are asked. Other
+specs counting right after `expectSettledPage` on such a page were not
+audited; any that flake share this cause and this remedy.
 Proof: `shared-observer-reads.spec.ts` fails before the fix in a deterministic
 reproduction (for example holding the late read with `page.route`, or slowed
 answers), then passes with `--repeat-each=30 --workers=12` under CPU load;
