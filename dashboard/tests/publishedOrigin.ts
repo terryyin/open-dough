@@ -34,6 +34,7 @@ import type { GhCall } from "./support/fakeGitHub.ts";
 export {
   commitAnswer,
   emptyBacklog,
+  httpErrorAnswer,
   noConnection,
   notFoundAnswer,
   notLoggedIn,

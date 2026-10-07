@@ -200,6 +200,19 @@ export function rateLimitedAnswer(
   };
 }
 
+// GitHub's HTTP error body, with no rate-limit direction. Used for both
+// eligible transient statuses and unmarked access refusals.
+export function httpErrorAnswer(
+  status: number,
+  message = "GitHub error",
+): RawAnswer {
+  return {
+    status,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify({ message, status: String(status) }),
+  };
+}
+
 export function notFoundAnswer(): RawAnswer {
   return {
     status: 404,

@@ -122,12 +122,14 @@ function respond(res: ServerResponse, outcome: Outcome | AvatarOutcome): void {
     return;
   }
   res.writeHead(outcome.kind === "refused" ? outcome.status : 502, headers);
-  // An undefined directed wait is left out of the JSON answer altogether.
+  // An undefined directed wait or recovery eligibility is left out of the
+  // JSON answer altogether; the browser validates either as typed data.
   res.end(
     JSON.stringify({
       error: outcome.message,
       retryAfterSeconds:
         outcome.kind === "failed" ? outcome.retryAfterSeconds : undefined,
+      recovery: outcome.kind === "failed" ? outcome.recovery : undefined,
     }),
   );
 }

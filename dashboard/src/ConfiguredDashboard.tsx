@@ -67,6 +67,7 @@ export function ConfiguredDashboard({
     attempt,
     notice,
     withheld,
+    recoversAt,
     reading,
     readAfresh,
     selectSource,
@@ -189,6 +190,7 @@ export function ConfiguredDashboard({
           reading={reading}
           work={work}
           withheld={withheld}
+          recoversAt={recoversAt}
           notice={notice}
         />
         <div className="project-actions" hidden={showsRoster}>

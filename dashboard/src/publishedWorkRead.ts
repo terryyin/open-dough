@@ -185,9 +185,13 @@ export async function readPublishedWork(
         await Promise.allSettled(details);
       }
     } catch (error) {
+      // The browser-owned wait bound, not caller departure: eligible for
+      // project-local transient recovery. Departure keeps its abort reason.
       if (bound.aborted && !signal.aborted) {
         throw new ReadProblem(
           `${unansweredWithinReadWait}, so the read was given up.`,
+          undefined,
+          "transient",
         );
       }
       throw error;

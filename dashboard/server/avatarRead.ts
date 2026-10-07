@@ -90,6 +90,7 @@ export async function performAvatarRead(
       kind: "failed",
       message: `The GitHub avatar of ${added.login} could not be fetched as a small image.`,
       retryAfterSeconds: undefined,
+      recovery: undefined,
     };
   }
 }

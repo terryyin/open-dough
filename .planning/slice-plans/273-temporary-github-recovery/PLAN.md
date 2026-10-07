@@ -188,11 +188,16 @@ latency or workload premise is used.
 
 ### 1. A failed initial read recovers on its own at a bounded pace
 Type: Behavior
-Status: planned
-Proof: Extend `read-failure.spec.ts` and add `transient-read-recovery.spec.ts`;
-run the real page/preview/boundary with controlled upstream failures and paused
-page time. Include `auto-refresh-recovery.spec.ts` and the changed authenticated
-failure-boundary consumers.
+Status: done
+Proof: Extend `read-failure.spec.ts` and add `transient-read-recovery.spec.ts`,
+`transient-read-exclusions.spec.ts`, and
+`authenticated-read-transient-eligibility.spec.ts`; run the real
+page/preview/boundary with controlled upstream failures and paused page time.
+Include `auto-refresh-recovery.spec.ts` and the changed authenticated
+failure-boundary consumers. Accepted:
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2 --reporter=line read-failure.spec.ts transient-read-recovery.spec.ts transient-read-exclusions.spec.ts authenticated-read-transient-eligibility.spec.ts auto-refresh-recovery.spec.ts authenticated-read-boundary.spec.ts`
+(35 passed) plus containment/shared-failures/project-read-recovery (9 passed)
+and `env -u NODE_ENV npm run typecheck:dashboard`.
 
 Behavior: No snapshot is shown → the ref/backlog read times out, loses its
 connection, or receives an eligible HTTP refusal → the visible page says when

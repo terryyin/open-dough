@@ -6,8 +6,9 @@
 // revision check (`./revisionCheckSchedule.ts`) finds the selected ref naming
 // another commit; when it finds a story branch the shown progress is read from
 // at another head, only that progress is read again. Each read is carried
-// out by `./requestedRead.ts`. What GitHub's rate limit withheld is read
-// again once it ends (`./limitRecovery.ts`). What is shown, as launch
+// out by `./requestedRead.ts`. What GitHub's rate limit withheld, or an
+// eligible empty-page transient failure, is read again once recovery is due
+// (`./limitRecovery.ts`). What is shown, as launch
 // reconciliation sees it (`shown`), also says whether every detail of it has
 // been read.
 
@@ -19,7 +20,11 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
-import { useLimitRecovery } from "./limitRecovery.ts";
+import {
+  clearTransientFailure,
+  recordSettledFailure,
+  useLimitRecovery,
+} from "./limitRecovery.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
@@ -82,11 +87,21 @@ export function usePublishedObservation(initialSource: PublishedSource) {
       show: (next, firstMembership) => {
         const held = focusedWork();
         heldFocus.current = held;
+        if (firstMembership) clearTransientFailure();
         show(next, firstMembership ? unlistedNotice(held, next) : undefined);
       },
-      acceptMembership,
+      acceptMembership: () => {
+        clearTransientFailure();
+        acceptMembership();
+      },
       completeDetail,
-      fail,
+      fail: (error, afterMembership = false) => {
+        fail(error, afterMembership);
+        recordSettledFailure(
+          error,
+          !afterMembership && shownWork.current === undefined,
+        );
+      },
       settle: (revealing) => {
         if (limitMet()) withhold();
         setReadSettled(true);
@@ -129,10 +144,11 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     [work],
   );
 
-  const { checksMayRun } = useLimitRecovery({
+  const { checksMayRun, recoversAt } = useLimitRecovery({
     withheld,
     readSettled,
     visibility,
+    emptyPage: work === undefined,
     readAfresh: () => {
       askRead(undefined);
     },
@@ -185,6 +201,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     }
     heldFocus.current = undefined;
     deferredFocus.current = undefined;
+    clearTransientFailure();
     setSource(next);
     // A revision found for the previous project names nothing here.
     askRead(undefined);
@@ -199,6 +216,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     attempt,
     notice,
     withheld,
+    recoversAt,
     reading,
     readAfresh,
     selectSource,

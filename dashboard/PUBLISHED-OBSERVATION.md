@@ -106,7 +106,12 @@ partial backlog. The snapshot read earlier stays shown with its own revision and
 retrieval time -- it is the last successful snapshot, not a claim that the configured ref
 still names it -- the problem says what failed and when, and how the page
 recovers: with a snapshot shown, automatic checks continue; with nothing
-shown, reloading the page reads again, or, when GitHub's rate limit stopped
+shown, an eligible temporary failure -- a wait-bound timeout, a recognized
+lost connection, or GitHub's HTTP `408`, `500`, `502`, `503`, or `504` --
+is read again on its own 15, then 30, then 60 seconds after settlement,
+thereafter at most once a minute, while the page is visible; a rate limit
+still waits for GitHub's time; access, missing, invalid, or unknown failures
+stay until the page is reloaded. When GitHub's rate limit stopped
 the read, the page reads on its own once the limit's time passes. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
 snapshot. While a snapshot is shown the page keeps checking, but only at the

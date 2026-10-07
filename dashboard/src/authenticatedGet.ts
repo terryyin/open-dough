@@ -32,6 +32,9 @@ const errorAnswer = z.object({
     .min(0)
     .max(longestDirectedWaitSeconds)
     .optional(),
+  // Eligibility for project-local transient recovery, as the boundary
+  // classified it; never inferred from this response's HTTP status.
+  recovery: z.literal("transient").optional(),
 });
 
 // While the page's limit stands (`./readingLimit.ts`), a read is answered as
@@ -71,7 +74,7 @@ export async function authenticatedGet(
         `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
       );
     }
-    const { error, retryAfterSeconds } = reported.data;
+    const { error, retryAfterSeconds, recovery } = reported.data;
     // An answer the page no longer waits for teaches it nothing.
     if (retryAfterSeconds !== undefined && !signal.aborted) {
       noteLimit(retryAfterSeconds);
@@ -79,6 +82,7 @@ export async function authenticatedGet(
     throw new ReadProblem(
       error,
       retryAfterSeconds === undefined ? undefined : standingLimit(),
+      recovery,
     );
   }
   return body;

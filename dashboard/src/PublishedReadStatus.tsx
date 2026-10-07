@@ -16,6 +16,7 @@ export function PublishedReadStatus({
   reading,
   work,
   withheld,
+  recoversAt,
   notice,
 }: {
   readonly attempt: ReturnType<typeof useObservationAttempt>["attempt"];
@@ -23,6 +24,7 @@ export function PublishedReadStatus({
   readonly work: PublishedWork | undefined;
   // Whether GitHub's rate limit withheld detail of the shown snapshot.
   readonly withheld: boolean;
+  readonly recoversAt: Date | undefined;
   readonly notice: string;
 }) {
   const limitedUntil = useStandingLimit();
@@ -60,6 +62,7 @@ export function PublishedReadStatus({
           attempt={attempt}
           work={work}
           limitedUntil={limitedUntil}
+          recoversAt={recoversAt}
           withheld={withheld}
         />
       ) : (
