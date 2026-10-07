@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-117#remove-exited-claude-job",
+  "mode": "story-branch",
+  "branch": "claude/mark-as-done-removes-an-exited-claude-code-sessi",
+  "host": "claude"
+}
