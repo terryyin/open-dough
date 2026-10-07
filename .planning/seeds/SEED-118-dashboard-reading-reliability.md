@@ -207,7 +207,7 @@ initial reading path and request savings remain as they are.
 
 **Identity:** SEED-118#show-cards-before-expensive-cache-validation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["No execution approach is selected yet: slice planning, or execution started with an explicit skip-planning instruction, selects it."],"basis":{"document":"119041586bb9c35e42990ea7180b757823dc58cde3d1172622eb5a8df2ec5951"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"119041586bb9c35e42990ea7180b757823dc58cde3d1172622eb5a8df2ec5951"}}
 ```
 
 **Beneficiary:** A developer whose running dashboard already holds an earlier
