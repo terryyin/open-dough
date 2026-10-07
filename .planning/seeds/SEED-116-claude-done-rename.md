@@ -59,7 +59,7 @@ Claude Code 2.1.292 offers no out-of-band rename command (`claude agents`,
 
 **Identity:** SEED-116#claude-done-rename-readiness-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/270-claude-done-rename-readiness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"03ef40608b8ff7db3817528f40641477682c1da98580c16f0c8312f722be661c","plan":"c80335c2c287d00d32edb66adb3757e9d59d12ed24f8e63697e9fe7a570f6cbc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/270-claude-done-rename-readiness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c12b4e78fe46b53290b003919d9b13f81b243f21164050ed9e21ba7ab04b32f8","plan":"95eed4324a6ee985a5a46df83d6bcb3c1c3aa7defcc1459240bd2ef9fe2767fb"}}
 ```
 
 **Goal:** A developer marking a Claude Code session done, or letting it
@@ -70,14 +70,15 @@ corrects the Claude done rename delivery (SEED-116#claude-done-rename,
 promise.
 
 **Scope:** The private attachment waits for Claude Code's prompt, within the
-same one bounded wait, before typing, proven with a fake whose prompt can
-arrive late and one developer-run real-host observation; example 3 is proven
-from Recently done on a record carrying an old rename problem; `keepRecord`
-takes `doneMarks` as required, with its out-of-process test writers using the
-binding write; one rename signal is always passed, owned by the Done that
-runs. Every promise of the Claude done rename story is preserved. Manual Done
-stopping a session after a failed rename is a pending owner decision, outside
-this correction.
+same one bounded wait, before typing. The correction also proves the
+retired-workspace recovery from Recently done with either old rename problem,
+removes the test-only optional Done owner from `keepRecord`, and gives both
+Done intents one owned rename signal. Findings, key examples, proof, and
+decisions remain in the linked correction plan. At Terry's direction on
+2026-10-07, manual Done continues stopping the session after a failed rename;
+repair of the original post-failure manual retry promise is deferred. Recovery
+by a first manual Done after a failed quiet report remains in scope because
+reporting does not stop the session.
 
 **Plan:** [270-claude-done-rename-readiness-correction](../slice-plans/270-claude-done-rename-readiness-correction/PLAN.md)
 
@@ -88,7 +89,7 @@ first, then the automatic rename after quiet completion.
 
 ## Open Decisions
 
-None.
+None for this correction. The linked plan retains the resolved retry boundary.
 
 ## When to Surface
 
