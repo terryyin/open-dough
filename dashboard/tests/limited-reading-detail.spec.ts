@@ -3,22 +3,29 @@
 // the limit and the time it names, says once when reading resumes, and asks
 // nothing until then (./limitedReadingJourney.ts).
 
-import { expect, githubFor, test } from "./dashboardTest.ts";
+import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import {
   isContent,
+  limiting,
   openedBeside,
   waitSeconds,
   whileTheLimitStands,
 } from "./limitedReadingJourney.ts";
-import { limitedUntil, noticedResumeTime } from "./limitNotice.ts";
+import {
+  expectSameResumeTime,
+  limitedUntil,
+  noticedResumeTime,
+} from "./limitNotice.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import {
   files,
   opened,
   plannedPlan,
   plannedSeed,
   plannedTitle,
+  repository,
   revision,
   titles,
   withheldSeed,
@@ -73,4 +80,29 @@ test("limiting a detail read keeps the snapshot, labels what the limit withheld,
   });
 
   await whileTheLimitStands(page, other, resumesAt, answers.refusedAt());
+});
+
+test("a limit naming a time already passed waits as one naming none: the page says reading resumes a minute later and asks GitHub for the withheld detail once", async ({
+  page,
+}) => {
+  await pausePageClockAt(page, opened);
+  // GitHub refuses the withheld record with `Retry-After: 0`, and never lifts
+  // the refusal.
+  const answers = limiting(page, publishes({ revision, files }), 0);
+  githubFor(page).serve(repository, answers.answer);
+  answers.limit(isContent(withheldSeed), isContent(plannedSeed));
+  await page.goto("/");
+  await expectSettledPage(page, titles);
+  // The process's own first wait, 60 seconds from the page's opening time.
+  await expectSameResumeTime(
+    page,
+    opened.getTime() + 60_000,
+    answers.refusedAt(),
+  );
+
+  // A few seconds of real time pass with page time standing still.
+  await new Promise((resolve) => setTimeout(resolve, 3_000));
+  await untilPageRequestsAnswered(page);
+  const asked = githubFor(page).calls.map(({ request }) => request);
+  expect(asked.filter(isContent(withheldSeed))).toHaveLength(1);
 });

@@ -1,9 +1,9 @@
 // When GitHub asked the local `gh` login to wait before asking again, read
-// from the headers of any refused read's answer (`./ghAnswer.ts`), so the
-// page's automatic revision checks (`../src/revisionCheckSchedule.ts`) never
-// ask sooner. GitHub directs a wait in one of two ways: `Retry-After` (seconds, or
-// an HTTP date), or `X-RateLimit-Reset` (epoch seconds) once
-// `X-RateLimit-Remaining` has reached zero.
+// from the headers of any refused read's answer (`./ghAnswer.ts`). The wait
+// feeds the process's admission of every read (`./readAdmission.ts`), so no
+// read reaches GitHub sooner. GitHub directs a wait in one of two ways:
+// `Retry-After` (seconds, or an HTTP date), or `X-RateLimit-Reset` (epoch
+// seconds) once `X-RateLimit-Remaining` has reached zero.
 
 import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
 
@@ -38,13 +38,13 @@ function askedWait(
 
 // Whole seconds from `nowMs` until GitHub allows another request, bounded to
 // `longestDirectedWaitSeconds`, or undefined when the headers direct nothing
-// usable. A time already passed directs no wait at all (zero).
+// usable, including a time not later than now.
 export function directedWaitSeconds(
   headers: ReadonlyMap<string, string>,
   nowMs: number,
 ): number | undefined {
   const asked = askedWait(headers, nowMs);
-  return asked === undefined || !Number.isFinite(asked)
+  return asked === undefined || !Number.isFinite(asked) || asked <= 0
     ? undefined
-    : Math.min(Math.max(asked, 0), longestDirectedWaitSeconds);
+    : Math.min(asked, longestDirectedWaitSeconds);
 }

@@ -118,11 +118,12 @@ more until that time, whichever page or project asks: each read asked meanwhile,
 and adding a project, is answered at once as limited, says it was not asked,
 and carries the whole seconds left, so it is never taken for a missing record. A
 read already at GitHub keeps GitHub's own answer, and a later directed time only
-extends the wait. A rate-limit refusal that directs no usable wait holds back
-reads the same way for one minute; when the first read after that wait is
-refused the same way, the wait doubles, up to one hour, and once a read
-succeeds the next such refusal waits one minute again. Its problem says GitHub
-named no wait and when reading resumes. When any wait ends, directed or not,
+extends the wait. A rate-limit refusal that directs no usable wait, including
+one naming a time already passed, holds back reads the same way for one
+minute; when the first read after that wait is refused the same way, the wait
+doubles, up to one hour, and once a read succeeds the next such refusal waits
+one minute again. Its problem says GitHub named no wait and when reading
+resumes. When any wait ends, directed or not,
 reading resumes with one read: the reads asked with it wait their turn until
 GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
 they are answered as limited with the new resume time and only that read

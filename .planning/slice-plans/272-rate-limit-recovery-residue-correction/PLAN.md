@@ -193,7 +193,7 @@ revise this plan.
 ### 1. A limit naming a time already passed waits as one naming none
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New headers in the "directs nothing usable" loop of
 `authenticated-read-revision-check-failures.spec.ts`, a new case in
 `limited-reading-detail.spec.ts`, and the regressions
@@ -233,6 +233,24 @@ Update the matching sentence in `dashboard/GITHUB-REQUESTS.md`.
 
 Safe stop: A limit whose direction has already passed costs one wait, not a
 burst of reads.
+
+Accepted proof: red before the remedy. The boundary loop received "GitHub
+asked to wait 0 seconds…" with `retryAfterSeconds: 0`. The page case never
+settled, because the page kept re-reading. After the remedy:
+
+- the boundary loop's
+  `expect(undirected.body).toEqual({ error: limitedMessage(403, "GitHub named
+  no wait, so reading resumes in 60 seconds."), retryAfterSeconds: 60 })`
+  holds for all five header sets;
+- `limited-reading-detail.spec.ts` "a limit naming a time already passed waits
+  as one naming none…" asserts the resume time is 60 s after the opening time,
+  and that the seed was asked once after 3 s of real time.
+
+The named regressions, `authenticated-read-cooldown-reach` and
+`authenticated-read-revision-reuse-failures` passed (34). The whole suite
+passed (1236), and so did the typecheck. `directedWaitSeconds` has one
+consumer, `limitedAsDirected`, which already classifies `undefined` from
+`gh`'s output.
 
 ### 2. Reading reopens when the first read after a wait ends without a limit
 
