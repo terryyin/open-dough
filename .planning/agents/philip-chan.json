@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "philip-chan",
-  "email": "philip-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-119#recently-done-progressive-loading",
-  "host": "claude",
-  "model": "fable"
-}
