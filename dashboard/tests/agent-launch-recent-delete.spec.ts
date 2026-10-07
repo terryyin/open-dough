@@ -71,6 +71,8 @@ test.describe("deleting a Recently done entry's record", () => {
     const done = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Execution"),
     );
+    // Still working, but idle between steps, so its prompt takes the rename.
+    dashboard.claudeSessionBecomes(done, "working-idle");
     await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     await launch(readyStory, "Refinement");
@@ -80,6 +82,7 @@ test.describe("deleting a Recently done entry's record", () => {
     const inDoneStory = await sessionNamedBy(
       cardSessionOf(card(notRefinedStory), "Refinement"),
     );
+    dashboard.claudeSessionBecomes(inDoneStory, "working-idle");
     await markDoneAnyway(cardSessionOf(card(notRefinedStory), "Refinement"));
     await expect(
       cardSessionOf(card(notRefinedStory), "Refinement"),
