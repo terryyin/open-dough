@@ -36,7 +36,7 @@ import {
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { cardSessionListing } from "./cardSessionListing.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -202,6 +202,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await test.step("Mark as done retains the same session in Recently done while its story stays in Backlog, through reload", async () => {
       const closed = listed.get(takenStory)?.[0];
       if (closed === undefined) throw new Error("No launched refinement");
+      idleBetweenSteps(dashboard, closed.session);
       await markDoneAnyway(cardSessions(card(takenStory)));
       listed.set(takenStory, []);
       const retained = recentlyDone.locator(

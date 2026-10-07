@@ -23,7 +23,12 @@ import {
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
-import { expectAsked, markAsDone, stillWorking } from "./support/markDone.ts";
+import {
+  expectAsked,
+  idleBetweenSteps,
+  markAsDone,
+  stillWorking,
+} from "./support/markDone.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -67,6 +72,11 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     });
 
     const question = await expectAsked(panel, stillWorking);
+    // Asked while it reads working, it then idles between steps.
+    idleBetweenSteps(
+      dashboard,
+      String(dashboard.claudeListing()[0]?.["sessionId"]),
+    );
     await markAsDone(question).click();
 
     await expect(panel).toHaveCount(0);
@@ -98,6 +108,8 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     await expect(sessionStateOf(listed)).toHaveText("Working");
 
     const question = await expectAsked(panel, stillWorking);
+    // Asked while it reads working, it then idles between steps.
+    idleBetweenSteps(dashboard, sessionId);
     await markAsDone(question).click();
     await expect(panel).toHaveCount(0);
     await expect(listed).toHaveCount(0);

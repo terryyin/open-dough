@@ -20,7 +20,7 @@ import {
 } from "./launchCardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import {
   at,
@@ -137,6 +137,7 @@ test("one Taken story with two sessions and one local session means two entries;
     const entry = parts(page).taken.locator(
       `[data-shows-session="claude:${session}"]`,
     );
+    idleBetweenSteps(dashboard, session);
     await markDoneAnyway(entry);
     await expect(entry).toHaveCount(0);
   }
@@ -193,6 +194,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   expect((await saved(dashboard))[0]?.doneAt).toBeUndefined();
   await expect(recent).toHaveCount(0);
   renameSync(`${folder}.away`, folder);
+  idleBetweenSteps(dashboard, native);
   await markDoneAnyway(active);
   await expect(active).toHaveCount(0);
   await expect(recent).toBeFocused();

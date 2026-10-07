@@ -17,7 +17,7 @@ import {
   sidebarParts,
   sidebarTooltipOf,
 } from "./sessionSidebarPage.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 import { launchedStory, reportedMessage } from "./support/reportedLaunch.ts";
 import {
   expectCollapsed,
@@ -225,7 +225,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   const stopsBeforeDone = dashboard.claudeStopCalls().length;
   const doneNameA = doneNameOf(dashboard, sessionA);
   const shortIdA = shortIdOf(dashboard, sessionA);
-  dashboard.claudeSessionBecomes(sessionA, "working-idle");
+  idleBetweenSteps(dashboard, sessionA);
   await markDoneAnyway(entryA);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);

@@ -129,16 +129,14 @@ the selection and “Shown in terminal” marks. Its status says the start phase
 (“Preparing execution…” / “Preparing refinement…”, then “Starting execution
 in <host>…” / “Starting refinement in <host>…”, using the actual running
 start’s host) and “Local startup in progress; this story's actions are
-unavailable until it settles.”,
-then “Waiting for published story state” once the outcome settled. Only that
-progress shows an indicator, which moves unless reduced motion is requested.
-Local startup never moves the story or shows Taken, Preparing or an owner.
-When no running phase is reported, the installed skill's start-establishment
-capability determines Preparing versus Starting; Starting names the recorded
-host for execution and refinement. These sentences come directly from workflow
-and host facts.
-Story Starts stay unavailable until the page first reads this machine's
-attempts.
+unavailable until it settles.”, then “Waiting for published story state” once
+the outcome settled. Only that progress shows an indicator, which moves unless
+reduced motion is requested. Local startup never moves the story or shows Taken,
+Preparing or an owner. When no running phase is reported, the installed skill's
+start-establishment capability determines Preparing versus Starting; Starting
+names the recorded host for execution and refinement. These sentences come
+directly from workflow and host facts. Story Starts stay unavailable until the
+page first reads this machine's attempts.
 
 A publishing start reconciles when the shown revision is its accepted
 publication or, by the authenticated comparison in
@@ -157,9 +155,8 @@ A lost answer, an attempt no running server owns, or an outcome whose session or
 publication may or may not exist says “Startup needs reconciliation” statically
 on the card, which stays protected, and in the Startup recovery region beside the
 project's actions, which also says when this machine's attempts could not be
-read. Recheck
-reads this machine's evidence and the published state again. For a story
-attempt whose launch is uncertain after its start settled
+read. Recheck reads this machine's evidence and the published state again. For a
+story attempt whose launch is uncertain after its start settled
 (publication known), and whose host boundary offers a session listing
 (`hostOperations.launchedSessions`), Recheck first posts to `POST /__agent-launch/verify`,
 which first reads this machine's launch records (`server/launchVerification.ts`).
@@ -167,18 +164,17 @@ A record of the same project, story and workflow launched since the attempt
 was accepted confirms its session: the latest such record settles the attempt
 as launched without reading a session listing or writing another launch record,
 even if the kept start is gone or the session is no longer listed. Otherwise
-verification reads `claude agents` once. Exactly one
-listed session with the launch's name (`<project> · <kind> · <title>`),
-started in its start folder (the project folder or the kept start's
-workspace) at or after the attempt was accepted, and held by no other launch
-record, is recorded as the attempt's launched session, with a launch record as
-confirmation keeps one; a readable listing with no such session settles it as
-not launched (`not-listed`). Either outcome is kept with the attempt, so it is
-no longer unresolved. An unreadable listing or more than one such session
-leaves it unresolved and the answer says why; Continue stays available. Recheck
-never launches a session. Starts whose host offers no listing (including Codex)
-and ad hoc starts reread evidence and published state without native verification.
-Continue posts to
+verification reads `claude agents` once. Exactly one listed session with the
+launch's name (`<project> · <kind> · <title>`), started in its start folder (the
+project folder or the kept start's workspace) at or after the attempt was
+accepted, and held by no other launch record, is recorded as the attempt's
+launched session, with a launch record as confirmation keeps one; a readable
+listing with no such session settles it as not launched (`not-listed`). Either
+outcome is kept with the attempt, so it is no longer unresolved. An unreadable
+listing or more than one such session leaves it unresolved and the answer says
+why; Continue stays available. Recheck never launches a session. Starts whose
+host offers no listing (including Codex) and ad hoc starts reread evidence and
+published state without native verification. Continue posts to
 `POST /__agent-launch/continue`, which runs the same kept request under the same
 attempt and the existing [start recovery](LAUNCH-START.md#mechanical-start-and-recovery)
 and native rules, or answers why not; it never creates a replacement attempt.
@@ -200,13 +196,14 @@ remain. Advice presence does not establish a launch or continuation capability.
 
 At handoff the keyboard goes to what says the startup: the story's card, which
 its status describes, or Start session's progress, never the unavailable action.
-Every unavailable card action is described by the card's status; a Start
-waiting for this machine's first read is described by why. A settled launch
-presents its session on the card, or in the terminal for Start session, and
-moves the keyboard there only while it still rests where handoff left it. A
-polite “Startup announcements” log says each story's move to in progress,
-waiting, needs reconciliation and reconciled once, however many reads find it
-unchanged.
+Every unavailable card action is described by the card's status; a Start waiting
+for this machine's first read is described by why. A settled launch presents its
+session on the card, or in the terminal for Start session, and moves the
+keyboard there only while it still rests where handoff left it. Start session
+leaves a terminal the developer opened during its startup as they left it,
+closed or open, and moves no keyboard. A polite “Startup announcements” log says
+each story's move to in progress, waiting, needs reconciliation and reconciled
+once, however many reads find it unchanged.
 
 ## Installed options
 

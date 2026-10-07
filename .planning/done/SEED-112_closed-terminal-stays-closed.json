@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-112#closed-terminal-stays-closed",
+  "title": "A terminal the developer closed while its session starts stays closed",
+  "completedAt": "2026-10-07T07:49:23.160Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "claude"
+}

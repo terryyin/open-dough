@@ -28,7 +28,7 @@ import {
   expectResumeCommand,
   disconnectContinuation,
 } from "./support/codexContinuation.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -62,6 +62,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
   const claudeSession = String(dashboard.claudeListing()[0]?.["sessionId"]);
+  idleBetweenSteps(dashboard, claudeSession);
   await markDoneAnyway(cardSessions(card(notRefinedStory)));
   await expect(cardSessions(card(notRefinedStory))).toHaveCount(0);
   native.threadId = claudeSession;

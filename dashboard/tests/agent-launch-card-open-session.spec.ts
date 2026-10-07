@@ -16,6 +16,7 @@ import {
   expectMembership,
   expectSettledPage,
   parts,
+  sessionNamedBy,
 } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { sessionOpenExplanation } from "../src/launchOutcome.ts";
@@ -30,7 +31,7 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { expectStartNote, launchGroup } from "./cardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -94,7 +95,9 @@ test.describe("a story's card while its session is open", () => {
     });
 
     await test.step("Mark as done returns both Starts without a reload", async () => {
-      await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
+      const open = cardSessionOf(card(readyStory), "Execution");
+      idleBetweenSteps(dashboard, await sessionNamedBy(open));
+      await markDoneAnyway(open);
       await expect(cardSessions(card(readyStory))).toHaveCount(0);
       await expectOffered(readyStory);
       await expect(action(readyStory, "Execution")).toHaveAccessibleDescription(
