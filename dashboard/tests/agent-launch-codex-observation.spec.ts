@@ -139,7 +139,7 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
   );
   const before = readFileSync(recordFile, "utf8");
   await pausePageClockAt(page, new Date());
-  const { passOnePace } = watchRecordReads(page);
+  const { passOnePace } = await watchRecordReads(page);
   const { card } = await openTakenBacklog(page, journey);
   const sidebar = sidebarParts(page);
   await sidebar.button.click();

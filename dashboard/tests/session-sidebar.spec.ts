@@ -54,7 +54,7 @@ test.describe("the Sessions sidebar", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { passOnePace } = watchRecordReads(page);
+    const { passOnePace } = await watchRecordReads(page);
     // Launched in this order, so this is their launch order, earliest first.
     const story = (letter: string) => ({
       identity: `SEED-900#story-${letter}`,
@@ -115,7 +115,7 @@ test.describe("the Sessions sidebar", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { passOnePace } = watchRecordReads(page);
+    const { passOnePace } = await watchRecordReads(page);
     // Server time, which a launch record's time is.
     const since = Date.now() - 1_000;
     const { sessionId: doughnut } = await launched(dashboard, "doughnut", {

@@ -68,7 +68,7 @@ test("each active card entry shows why its session needs attention, or that it d
   dashboard,
 }) => {
   await pausePageClockAt(page, new Date());
-  const { passOnePace } = watchRecordReads(page);
+  const { passOnePace } = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog, refine, refinementDialog } =
     await openTakenBacklog(page, journey);

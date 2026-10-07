@@ -51,7 +51,7 @@ const question =
 
 async function unknownSession(page: Page, dashboard: DashboardServer) {
   await pausePageClockAt(page, new Date());
-  const pace = watchRecordReads(page);
+  const pace = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog } = await openTakenBacklog(page, journey);
   await start(readyStory).click();

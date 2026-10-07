@@ -210,10 +210,14 @@ test("npm watcher replaces production with each newly published main commit at t
     expect(await refused.json()).toHaveProperty("error");
     expect(claude.controls.claudeLaunchCalls()).toHaveLength(launchesBefore);
 
-    // Superseded checkouts are retired after C serves, not before.
+    // Superseded checkouts are retired after C serves, not before. The
+    // watcher removes B's installed checkout only once C is served, and that
+    // removal takes seconds on a loaded machine, so wait on the listing
+    // itself rather than on a short default deadline.
     await expect
-      .poll(() => readdir(deployments))
+      .poll(() => readdir(deployments), { timeout: 60_000 })
       .toEqual([expect.stringMatching(new RegExp(`^${c.slice(0, 12)}-`))]);
+    expect(watcher.output()).not.toContain("Could not remove retired");
 
     // SIGTERM while D is in its real build ends that build, the served C
     // preview and every deployment checkout.

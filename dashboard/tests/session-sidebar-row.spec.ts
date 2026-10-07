@@ -44,7 +44,7 @@ test.describe("a Sessions sidebar entry", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { passOnePace } = watchRecordReads(page);
+    const { passOnePace } = await watchRecordReads(page);
     const { sessionId } = await launched(dashboard, "doughnut", shortWork);
     await launched(dashboard, "doughnut", longWork);
     dashboard.claudeSessionBecomes(sessionId, "blocked", "input needed");

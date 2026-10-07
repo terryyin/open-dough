@@ -73,7 +73,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   dashboard.claudeSessionBecomes(sessionA, "done-live");
   await publishOrigin(page, origin);
   await pausePageClockAt(page, new Date());
-  const { passOnePace } = watchRecordReads(page);
+  const { passOnePace } = await watchRecordReads(page);
   await page.goto("/");
   const { button, badge } = sidebarParts(page);
   const cardA = takenCard(page, titleA);

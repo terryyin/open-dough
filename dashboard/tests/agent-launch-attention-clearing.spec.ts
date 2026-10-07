@@ -53,7 +53,7 @@ test("a session's attention stays through opening and closing its terminal, clea
   dashboard,
 }) => {
   await pausePageClockAt(page, new Date());
-  const { passOnePace } = watchRecordReads(page);
+  const { passOnePace } = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog } = await openTakenBacklog(page, journey);
   const { recentlyDone: recent } = parts(page);
