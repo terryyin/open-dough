@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-113#reuse-evidence-merge-correction",
+  "mode": "story-branch",
+  "branch": "claude/reuse-evidence-names-every-path-a-merge-between",
+  "host": "claude"
+}
