@@ -15,8 +15,8 @@ and a rename signal passed for one intent only) are made whole.
 Included: the four current findings below, the fake Claude and its support
 control needed to prove finding 1, the comments and
 `dashboard/AGENT-LAUNCH-TERMINALS.md` wording that state when the private
-attachment types, an owner-run real-attach probe, and native confirmation of
-the corrected dashboard's Done action.
+attachment types, the explicitly authorized agent-run real-attach probe, and
+native confirmation of the corrected dashboard's Done action.
 
 Exclusions:
 

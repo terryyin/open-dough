@@ -27,10 +27,9 @@ signal seam; it keeps its fake and product changes in one green delivery.
 
 ### 1. A real Claude Code attach prompt is observed
 Type: Behavior
-Status: planned
-Owner: developer; early probe, no product implementation.
-Proof: the developer's recorded observation in Learnings: the prompt's
-recognizing text, T, and the rename confirmed in the listing.
+Status: done
+Owner: executing agent, explicitly authorized by Terry on 2026-10-07; early probe, no product implementation.
+Proof: the accepted native observation in [proof and observations](PROOF-AND-OBSERVATIONS.md#accepted-execution-proof-slice-1), including the prompt marker, T, and native listing confirmation.
 
 Behavior: a developer-selected finished session is still running and idle
 with no page terminal → the owner observes its native attach → the ready
@@ -38,8 +37,9 @@ prompt is distinguishable from earlier output at 80×24, typed `/rename` is
 confirmed by the listing, and prompt timing is recorded for slice 5.
 
 The original execution recorded an auto-mode refusal of an agent's real
-attach. This plan keeps the remaining credentialed, state-changing observation
-owner-run; no real attach was attempted during this preparation. The owner
+attach. Terry explicitly authorized the executing agent to perform this credentialed
+probe on 2026-10-07. The agent selected a dedicated one-turn probe session,
+completed idle before attach; no unrelated session was modified. The owner
 chooses a session they intend to finish and captures its native attach:
 
 ```sh
@@ -222,16 +222,17 @@ remains unchanged. This repairs test timing; a passing retry was not the cause e
 - Published claim `4c3bb49e1efdb265cf7130b5f3d647ffcb96834f`;
   starting revision `7ee18a095f1841560914df5eefc26774f9d39271`.
 - Accepted story-branch increments: slice 2 `c5b7cc8bf784335665e52f94c483b55364d2bb00`;
-  slice 3 `e7b25862935ebecd3cbd32eca5563b6ac0cd862b`.
+  slice 3 `e7b25862935ebecd3cbd32eca5563b6ac0cd862b`;
+  slice 4 `c611e18769db80f6f3548ae5411dfd3578652e14`;
+  CI repair `59baac6473732faf6723918ac086022730240134`.
 - Checkout setup: `env -u NODE_ENV npm ci --ignore-scripts --offline`;
   applicable command `env -u NODE_ENV npm run typecheck:dashboard` passed.
 - No numeric slice limit supplied; existing planned-work replanning authority
   retained. Manual retry repair remains deferred.
 - CI: GitHub Actions `ci.yml` (verified selector), observing the remote story
-  branch. Codex yielded stream cell `9`, session `95192`, PID `77601`,
-  directory `/tmp/dough-ci-501/watch-nEzcyy`; coordinator launch reference
+  branch. Codex yielded stream cell `11`, session `86975`, PID `60644`,
+  directory `/tmp/dough-ci-501/watch-Ws0DXW`; coordinator launch reference
   `feb9bae7-fd70-4864-bcc6-439be0be1c46`. Claim publication on trunk is unobserved.
-- Slices 2–4 have accepted proof; slice 1's owner-run native observation
-  remains pending. Slice 5 cannot start until its marker, timing, and native
-  confirmation are accepted; its corrected-dashboard native check also remains
-  required. No execution-complete record or retrospective is due at this stop.
+- Slices 1–4 have accepted proof. Terry authorized the native slice 1 probe
+  on 2026-10-07; its marker, timing, and confirmed rename allow slice 5 to start.
+  Slice 5's corrected-dashboard native check remains required.

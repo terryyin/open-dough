@@ -68,7 +68,7 @@ the table and supply the missing page journey. No implementation slice is done.
 
 | Correction outcome | Owning slice | Proof |
 | --- | --- | --- |
-| The real prompt, its recognizing text, and attach-to-prompt time are known | 1 | Developer's observation recorded in Learnings |
+| The real prompt, its recognizing text, and attach-to-prompt time are known | 1 | Explicitly authorized agent's native observation in [accepted slice 1 proof](#accepted-execution-proof-slice-1) |
 | Example 3 as written: Recently done, old problem text, Mark as done → `Named`, problem gone | 2 | `session-workspace-retirement-claude.spec.ts` |
 | Keys are typed only once the prompt shows, within the one wait | 5 | New case: fake prompt delayed below the wait → `Named`, the attach's lines hold `/rename done-…`; red at `bcb39b01` (keys discarded → "could not be confirmed") |
 | A prompt that never shows reports "could not be opened" and hangs up | 5 | Existing silent-attach case in `agent-launch-done-rename-wait.spec.ts`, plus a case with the prompt delayed past the wait |
@@ -171,3 +171,35 @@ The first run is superseded for final-candidate acceptance, not a pass.
   rename wait and close tests along cohesive seams and updated future proof
   selectors. Early-binding consumers were rechecked. All touched files fit
   the refactor size rule. No native prompt or real-dashboard proof supplied.
+
+## Accepted execution proof: slice 1
+
+Terry authorized the executing agent to run the native probe on 2026-10-07.
+Claude Code `2.1.292`; session `50922762-2c72-4b2e-85dd-0ce1022b2879`,
+short ID `50922762`, original name `Open Dough · Native prompt readiness probe`.
+Created with `claude --bg --name 'Open Dough · Native prompt readiness probe'
+'Reply only READY. Do not use tools or modify any files.'`; its listing was
+`status: idle`, `state: done` before attaching. Dedicated probe, no page terminal.
+
+A temporary harness spawned `claude attach 50922762` in an 80×24
+`xterm-256color` PTY, recording output and monotonic chunk times. Every chunk
+was rendered serially through the production `KeptClientScreen(80,24)`, with
+its settled text and cursor visibility recorded before the next chunk.
+First screen at **205.287 ms**: `Attaching…`, cursor hidden, no composer.
+Ready screen at **213.793 ms**: header/version, the completed READY turn, then
+a blank `❯` input row between two `─` separator rows near the bottom; cursor
+visible. The completed-frame flag was false at this first ready screen.
+Selected marker: visible cursor and the empty `❯` composer between separator
+rows, rather than transcript `❯` lines or the earlier attach banner.
+
+After observing that screen, the harness sent Ctrl-U,
+`/rename done-Open Dough · Native prompt readiness probe`, then Enter.
+Rendered output showed `Session renamed to: done-Open Dough · Native prompt readiness probe`.
+`claude agents --json --all` confirmed that exact name for this same session,
+still idle/done. Ctrl+Z detached, attachment exit code 0; no native stop ran during the measurement.
+The dedicated probe session was stopped after its accepted confirmation.
+T is **0.214 s**, well below the roughly-three-second decision point.
+The raw capture and timestamped renderer frames were inspected in
+`/tmp/claude-attach.typescript` and `/tmp/dough-270-native-probe/frames.json`;
+compact accepted evidence is retained here. This direct rename does not prove
+the corrected dashboard; slice 5 still owns that native acceptance.

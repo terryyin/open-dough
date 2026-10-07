@@ -102,9 +102,10 @@ the prompt is required whatever the wait is.
   root here. In a new checkout run `env -u NODE_ENV npm ci --ignore-scripts
   --offline` first: a dashboard-launched session inherits
   `NODE_ENV=production`, under which `npm ci` skips dev dependencies.
-- Slice 1 is owner-run because it uses a real credentialed session; its
-  state-changing observation has not been run in this preparation. The final
-  real-host observation is also owner-run and uses the corrected dashboard.
+- Terry authorized the executing agent to run slice 1's credentialed probe on
+  2026-10-07; its accepted observation is recorded in
+  [proof and observations](PROOF-AND-OBSERVATIONS.md#accepted-execution-proof-slice-1).
+  The final real-host observation remains owner-run and uses the corrected dashboard.
 
 ## Current decisions
 
