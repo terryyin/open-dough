@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-118#recover-from-temporary-github-failures",
+  "mode": "story-branch",
+  "branch": "cursor/recover-automatically-from-temporary-github-fail",
+  "host": "cursor",
+  "model": "auto"
+}
