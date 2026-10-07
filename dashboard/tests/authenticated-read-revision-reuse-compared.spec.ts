@@ -49,7 +49,12 @@ test.describe("authenticated read reuse of what the comparison names (dev launch
         seedAtB = await at(b).file(seedPath);
         await readEverything(b);
       }),
-    ).toEqual(["compare a0...b0", "commit c0", `content ${seedPath}@b0`]);
+    ).toEqual([
+      `content ${backlogPath}@b0`,
+      "compare a0...b0",
+      "commit c0",
+      `content ${seedPath}@b0`,
+    ]);
     expect(seedAtB).toEqual({
       status: 200,
       body: { revision: b, path: seedPath, text: seedText("merged at B") },
@@ -83,7 +88,12 @@ test.describe("authenticated read reuse of what the comparison names (dev launch
       await asked(async () => {
         missing = await at(b).file(otherSeedPath);
       }),
-    ).toEqual(["compare 0a...0b", "commit 0c", `content ${otherSeedPath}@0b`]);
+    ).toEqual([
+      `content ${backlogPath}@0b`,
+      "compare 0a...0b",
+      "commit 0c",
+      `content ${otherSeedPath}@0b`,
+    ]);
     expect(missing?.status).toBe(502);
     expect(JSON.stringify(missing?.body)).toContain("HTTP 404");
   });
@@ -132,9 +142,9 @@ test.describe("authenticated read reuse of what the comparison names (dev launch
         moved = await at(b).file(newSeedPath);
       }),
     ).toEqual([
+      `content ${backlogPath}@1b`,
       "compare 1a...1b",
       "commit 1c",
-      `content ${backlogPath}@1b`,
       `content ${otherSeedPath}@1b`,
       `content ${newSeedPath}@1b`,
     ]);

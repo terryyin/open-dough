@@ -35,11 +35,13 @@ it is hidden, and none before a rate limit's wait ends); checks asked from
 several pages while one listing is outstanding share it. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
-commit then costs, without resolving `main` again, one comparison of it with
-the revision at which this dashboard process last read the backlog, one read
-of each commit between them (a commit already asked about is not asked
-again), and reads of only the backlog, records, done records, and record
-listings the comparison or those commits changed (a merge's own change list
+commit then costs, without resolving `main` again, one read of its backlog,
+which answers its membership without waiting on anything else; then, for its
+details, one comparison of it with the revision at which this dashboard
+process last read the backlog, one read of each commit between them (a commit
+already asked about is not asked again), and reads of only the records, done
+records, and record listings the comparison or those commits changed (a
+merge's own change list
 names only what differs from its first parent, so the comparison's files
 name what differs between the two revisions), plus one history listing for
 each readable profile they touched and one last-commit-time request for each
@@ -50,11 +52,13 @@ even with identical text, is walked again and credits the re-adding commit. A
 commit that changes no planning record reads none of them. With more than
 ten commits between, a comparison or commit whose change list GitHub cuts at
 300 files, or a new commit that does not descend from the earlier one, the comparison is not
-asked again and the new commit's backlog, records, histories, and last commit
-times are read as before; a
+asked again and the new commit's records, histories, and last commit times
+are read as before; a
 comparison or commit read that fails is asked again with the next read at that
 commit, which meanwhile reads as before; one a rate limit refused or held back
-withholds that read, as the limit withholds any read. A recorded story branch that moved
+withholds that read, as the limit withholds any read, while the new commit's
+membership stays shown. Reading the backlog directly costs one more request
+than reuse when no commit between touched it, and none when one did. A recorded story branch that moved
 costs one read of its plan and one of its last commit time at the new head,
 and never a comparison.
 

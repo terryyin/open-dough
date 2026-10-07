@@ -108,11 +108,10 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     expect(one).toMatchObject({ revision });
     expect(two).toEqual(one);
     expect(whileHeld).toEqual(["ref main"]);
-    // The newly named revision is compared once with the one this process
-    // read the backlog at before, which GitHub does not answer here.
+    // The newly named revision's backlog is read there once, never compared
+    // with the one this process read the backlog at before.
     expect(askedSince(server, holding.before)).toEqual([
       "ref main",
-      "compare",
       `content .planning/PRODUCT-BACKLOG.md@${revision}`,
     ]);
 

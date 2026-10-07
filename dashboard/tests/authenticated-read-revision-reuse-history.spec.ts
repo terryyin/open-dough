@@ -10,6 +10,7 @@
 
 import { expect, test } from "./support/pageTest.ts";
 import {
+  backlogPath,
   filesFor,
   madeBy,
   modified,
@@ -81,7 +82,12 @@ test.describe("authenticated read history reuse at a newly named revision (dev l
       await asked(async () => {
         factsAtB = await factsAt(b);
       }),
-    ).toEqual(["compare 11...12", "commit 13"]);
+    ).toEqual([
+      "compare 11...12",
+      "commit 13",
+      // The plan's reachability reads the backlog at B itself.
+      `content ${backlogPath}@12`,
+    ]);
     // Each assignment keeps its own addition, not the other's of the same
     // human.
     expect(JSON.stringify(factsAtB)).toEqual(
@@ -130,6 +136,7 @@ test.describe("authenticated read history reuse at a newly named revision (dev l
       [
         "compare 14...15",
         "commit 16",
+        `content ${backlogPath}@15`,
         "listing .planning/agents@15",
         `commit-list ${profilePath}@15`,
         `commit-list ${planPath}@15`,

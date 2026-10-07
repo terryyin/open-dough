@@ -3,7 +3,8 @@
 // touched: a read at a revision the ref named later is answered from what is
 // held at the revision it is compared with when GitHub's account of the
 // commits between says none touched it. Which reads are kept under which
-// entries is the readers' (`./pinnedTexts.ts`).
+// entries, and which are never compared, is the readers'
+// (`./pinnedTexts.ts`).
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { commitViaGh, type CommitRecord } from "./ghCommit.ts";
@@ -91,7 +92,7 @@ export class PinnedMemo {
   // What is kept under `entry` at `revision`, or else what `read` answers,
   // then kept there. Every memo below shares this rule; each kind of answer
   // is kept under its own `entry` shape.
-  private recalled(
+  protected recalled(
     source: PublishedSource,
     revision: string,
     entry: string,

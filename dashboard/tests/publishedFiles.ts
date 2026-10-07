@@ -52,7 +52,8 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // with every file it changed; joined through a move that names none, it
 // answers no connection. The reverse, from a later revision the ref named to
 // an earlier one, is answered behind, and any other comparison diverged, both
-// observed.
+// observed. While comparisons are held, each one asked is observed at once
+// and answered only once they are released.
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
@@ -79,6 +80,8 @@ export type MovingFiles = {
   moveTrunk(at: PublishedRevision, by?: readonly MadeCommit[]): void;
   // `branch` is published at `at` from now on, or, given undefined, deleted.
   moveBranch(branch: string, at: PublishedRevision | undefined): void;
+  // Holds every comparison asked from now on until the returned release.
+  holdComparisons(): () => void;
 };
 
 export function publishMovingFiles(
@@ -112,60 +115,54 @@ export function publishMovingFiles(
     return undefined;
   };
   const madeCommits = new Map<string, MadeCommit>();
-  githubFor(page).serve(repository, (call) => {
+  let comparisonsHeld: Promise<void> = Promise.resolve();
+  githubFor(page).serve(repository, async (call) => {
     const { request } = call;
     if (request.kind === "repository")
-      return Promise.resolve({
+      return {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ default_branch: ref }),
-      });
+      };
     if (request.kind === "ref" && request.ref === ref) {
       observe(requests, call);
-      return Promise.resolve(commitAnswer(trunk.revision));
+      return commitAnswer(trunk.revision);
     }
     if (request.kind === "matching-refs") {
       observe(requests, call);
-      return Promise.resolve(
-        headsAnswer({
-          ...Object.fromEntries(
-            [...branches].map(([branch, at]) => [branch, at.revision]),
-          ),
-          [ref]: trunk.revision,
-        }),
-      );
+      return headsAnswer({
+        ...Object.fromEntries(
+          [...branches].map(([branch, at]) => [branch, at.revision]),
+        ),
+        [ref]: trunk.revision,
+      });
     }
     if (request.kind === "branch") {
       observe(requests, call);
       const head = branches.get(request.branch);
-      return Promise.resolve(
-        head === undefined
-          ? notFoundAnswer()
-          : branchRefAnswer(request.branch, head.revision),
-      );
+      return head === undefined
+        ? notFoundAnswer()
+        : branchRefAnswer(request.branch, head.revision);
     }
     if (request.kind === "compare") {
       const { base, head } = request;
       const forward = movesBetween(base, head);
       if (forward?.some(({ by }) => by === undefined) === true) {
-        return Promise.resolve(noConnection);
+        return noConnection;
       }
       observe(requests, call);
+      await comparisonsHeld;
       if (forward === undefined) {
-        return Promise.resolve(
-          compareAnswer(
-            movesBetween(head, base) === undefined ? "diverged" : "behind",
-          ),
+        return compareAnswer(
+          movesBetween(head, base) === undefined ? "diverged" : "behind",
         );
       }
-      return Promise.resolve(
-        aheadByAnswer(
-          forward.flatMap(({ by = [] }) => by.map(({ sha }) => sha)),
-          request.perPage,
-          changedBetween(
-            publishedAt(revisions, base)?.files ?? {},
-            publishedAt(revisions, head)?.files ?? {},
-          ),
+      return aheadByAnswer(
+        forward.flatMap(({ by = [] }) => by.map(({ sha }) => sha)),
+        request.perPage,
+        changedBetween(
+          publishedAt(revisions, base)?.files ?? {},
+          publishedAt(revisions, head)?.files ?? {},
         ),
       );
     }
@@ -173,47 +170,41 @@ export function publishMovingFiles(
       const made = madeCommits.get(request.sha);
       if (made !== undefined) {
         observe(requests, call);
-        return Promise.resolve(madeCommitAnswer(made));
+        return madeCommitAnswer(made);
       }
       const answer = commitAnswerIn(revisions, request.sha);
       if (answer === undefined) {
-        return Promise.resolve(noConnection);
+        return noConnection;
       }
       observe(requests, call);
-      return Promise.resolve(answer);
+      return answer;
     }
     if (request.kind === "unknown" || request.kind === "ref") {
-      return Promise.resolve(noConnection);
+      return noConnection;
     }
     const at = publishedAt(revisions, request.revision);
     if (at === undefined) {
-      return Promise.resolve(noConnection);
+      return noConnection;
     }
     observe(requests, call);
     if (request.kind === "commit-list") {
-      return Promise.resolve(
-        commitListIn(at, request.path, request.perPage) ?? noConnection,
-      );
+      return commitListIn(at, request.path, request.perPage) ?? noConnection;
     }
     if (request.kind === "listing") {
-      return Promise.resolve(
-        directoryListingAnswer(request.path, [
-          ...listedFiles(at.files).filter(
-            ({ path }) => at.unanswered?.includes(path) !== true,
-          ),
-          ...(at.unanswered ?? []).map(unansweredFile),
-        ]),
-      );
+      return directoryListingAnswer(request.path, [
+        ...listedFiles(at.files).filter(
+          ({ path }) => at.unanswered?.includes(path) !== true,
+        ),
+        ...(at.unanswered ?? []).map(unansweredFile),
+      ]);
     }
     if (at.unanswered?.includes(request.path) === true) {
-      return Promise.resolve(noConnection);
+      return noConnection;
     }
     const body = Object.hasOwn(at.files, request.path)
       ? at.files[request.path]
       : undefined;
-    return Promise.resolve(
-      body === undefined ? notFoundAnswer() : rawFileAnswer(body),
-    );
+    return body === undefined ? notFoundAnswer() : rawFileAnswer(body);
   });
   return {
     requests,
@@ -224,6 +215,13 @@ export function publishMovingFiles(
       }
       trunk = at;
       revisions.push(at);
+    },
+    holdComparisons() {
+      let release: () => void = () => undefined;
+      comparisonsHeld = new Promise((resolve) => {
+        release = resolve;
+      });
+      return release;
     },
     moveBranch(branch, at) {
       if (at === undefined) {

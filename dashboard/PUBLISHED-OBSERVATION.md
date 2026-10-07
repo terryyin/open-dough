@@ -32,10 +32,12 @@ every published branch head, which GitHub answers with `304 Not Modified` when
 no branch moved, so an unchanged ref reads no backlog or record and changes
 neither the revision nor the retrieval time. When the configured ref names a new commit,
 the page reads exactly that commit, so newly published work appears within
-about 30 seconds. Only GitHub's own account of what changed lets that read
+about 30 seconds. Its backlog is read there directly, so its cards appear
+without waiting on anything else, while the details that follow may reuse
+earlier answers. Only GitHub's own account of what changed lets those details
 reuse anything: the dashboard process compares the new commit with the
 revision at which it last read the backlog and reads each commit between, and
-a backlog, record, or record listing that neither the comparison's files nor
+a record or record listing that neither the comparison's files nor
 any of those commits touched is answered from what it already read, as the
 new commit's own, as are the addition that credits a profile's human and a
 plan's last commit time when none of them touched that profile or plan;
@@ -46,7 +48,7 @@ even when the commit that changed it is a merge whose own change list does
 not name it, and one missing there stays missing. When the new commit does
 not descend from the earlier one, more than ten commits lie between, the
 comparison's or a commit's change list is not given whole (GitHub names at
-most 300 files), or the comparison fails other than by a rate limit, the new commit is read as a first visit reads it; a rate limit withholds what it stopped. While the configured ref is unchanged, a story branch that a shown Taken
+most 300 files), or the comparison fails other than by a rate limit, the new commit's details are read as a first visit reads them; a rate limit withholds the details it stopped, never the cards already shown. While the configured ref is unchanged, a story branch that a shown Taken
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,

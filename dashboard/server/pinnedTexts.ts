@@ -24,11 +24,17 @@ import { PinnedMemo } from "./pinnedMemo.ts";
 export type ListedPath = { readonly path: string; readonly sha: string };
 
 export class PinnedTexts extends PinnedMemo {
+  // The backlog is read at the revision itself, never compared: membership
+  // never waits on GitHub's account of what changed, which only the records
+  // it names wait on.
   reader(source: PublishedSource, revision: string, signal: AbortSignal) {
-    return (path: string): Promise<string> =>
-      this.recalledOrUnchanged(source, revision, path, signal, () =>
-        readRepositoryFileViaGh(source.repository, path, revision, signal),
-      );
+    return (path: string): Promise<string> => {
+      const read = () =>
+        readRepositoryFileViaGh(source.repository, path, revision, signal);
+      return path === source.backlogPath
+        ? this.recalled(source, revision, path, read)
+        : this.recalledOrUnchanged(source, revision, path, signal, read);
+    };
   }
 
   // A directory's listed files, each with its blob sha, at a commit,

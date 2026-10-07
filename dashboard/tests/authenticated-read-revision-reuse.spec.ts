@@ -1,10 +1,11 @@
 // The local authenticated read boundary at a revision its configured ref
 // names next (../server/pinnedTexts.ts): once this dashboard process answered
-// the backlog at revision A, reads at the newly named revision B ask GitHub
-// to compare A with B and what each commit between changed, and a record or
-// listing neither the comparison nor a commit between touched is answered
-// from what is held at A without asking GitHub again; what either touched is
-// read at B. Tested
+// the backlog at revision A, the backlog at the newly named revision B is read
+// there directly, while reads of the records it names ask GitHub to compare A
+// with B and what each commit between changed, and a record or listing
+// neither the comparison nor a commit between touched is answered from what
+// is held at A without asking GitHub again; what either touched is read at B.
+// Tested
 // directly against real HTTP and the synthetic `gh`, counting the `gh` calls
 // GitHub received (./revisionReuseBoundary.ts).
 
@@ -37,7 +38,7 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
   const { server, at, readEverything, asked, publishedAt, movedTo } =
     revisionReuseBoundary();
 
-  test("an unrelated commit: every kind of read at B is answered from A after one comparison and one commit read", async () => {
+  test("an unrelated commit: the backlog is read at B, and every other kind of read there is answered from A after one comparison and one commit read", async () => {
     const [a, b] = [named("a1"), named("b1")];
     const files = filesFor("unrelated");
     const published = await publishedAt(a, files);
@@ -47,11 +48,11 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
     ]);
 
     const reads = at(b);
-    expect(await asked(reads.backlog)).toEqual([
+    expect(await asked(reads.backlog)).toEqual([`content ${backlogPath}@b1`]);
+    expect(await asked(() => reads.file(seedPath))).toEqual([
       "compare a1...b1",
       "commit c1",
     ]);
-    expect(await asked(() => reads.file(seedPath))).toEqual([]);
     expect(await asked(() => reads.file(otherSeedPath))).toEqual([]);
     expect(await asked(() => reads.file(planPath))).toEqual([]);
     expect(await asked(reads.profiles)).toEqual([]);
@@ -85,7 +86,12 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
         seedAtB = await at(b).file(seedPath);
         await readEverything(b);
       }),
-    ).toEqual(["compare a2...b2", "commit c2", `content ${seedPath}@b2`]);
+    ).toEqual([
+      `content ${backlogPath}@b2`,
+      "compare a2...b2",
+      "commit c2",
+      `content ${seedPath}@b2`,
+    ]);
     expect(seedAtB).toEqual({
       status: 200,
       body: {
@@ -190,7 +196,12 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
       await asked(async () => {
         missing = await at(b).file(otherSeedPath);
       }),
-    ).toEqual(["compare a5...b5", "commit c5", `content ${otherSeedPath}@b5`]);
+    ).toEqual([
+      `content ${backlogPath}@b5`,
+      "compare a5...b5",
+      "commit c5",
+      `content ${otherSeedPath}@b5`,
+    ]);
     expect(missing?.status).toBe(502);
     expect(JSON.stringify(missing?.body)).toContain("HTTP 404");
     expect(JSON.stringify(missing?.body)).not.toContain(removed ?? "");
@@ -219,6 +230,7 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
       "commit ed",
       "commit fd",
       "compare ad...cd",
+      `content ${backlogPath}@cd`,
     ]);
   });
 });
