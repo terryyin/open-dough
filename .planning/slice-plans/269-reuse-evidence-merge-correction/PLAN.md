@@ -209,7 +209,23 @@ per new revision" likewise, if the topic is still present.
 ### 2. The reuse proofs cover a failing commit read and a rename, and their fakes answer as GitHub does
 
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `authenticated-read-revision-reuse-failures.spec.ts` "a commit
+between that fails to be read is not remembered…" and
+`authenticated-read-revision-reuse-compared.spec.ts` "a seed a commit between
+renames away, though the comparison does not name it, …", each with its exact
+`gh` call list and each failing under a temporary product mutation; the burst
+case 30/30 with `--repeat-each=30`; typecheck; the reuse, containment, and
+every `committedOrigin`/`publishMovingFiles` spec (108 passed); the whole
+suite green but for one load flake, `story-readiness.spec.ts:40` (six
+`doughnutPaths` where seven were expected, the agent setting read missing),
+which passed 10/10 on repeat.
+Learnings: a seed read must be reachable from the backlog at that revision,
+so a "new path is read" case has a commit between change the backlog too.
+Isolating a commit's own `previous_filename` needs a comparison faked to name
+no files, since GitHub's would name both paths. `story-readiness.spec.ts:40`
+looks like slice 3's kind of early count; slice 3 checks whether the same
+settle cause explains it.
 Proof: the new cases below pass; `authenticated-read-revision-reuse*.spec.ts`,
 `authenticated-read-containment.spec.ts`, the specs using `committedOrigin`
 and `publishMovingFiles` (`grep -ln "committedOrigin\|publishMovingFiles" dashboard/tests/*.spec.ts`),

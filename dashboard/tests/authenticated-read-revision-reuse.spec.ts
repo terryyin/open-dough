@@ -19,7 +19,9 @@ import {
   madeBy,
   modified,
   named,
+  newSeedEntry,
   newSeedPath,
+  newSeedText,
   otherProfilePath,
   otherSeedPath,
   planPath,
@@ -98,15 +100,11 @@ test.describe("authenticated read reuse at a newly named revision (dev launch mo
     const [a, b] = [named("a3"), named("b3")];
     const files = filesFor("changed");
     const published = await publishedAt(a, files);
-    const backlogAtB = backlogNaming(
-      "changed",
-      "- [New](seeds/SEED-303-new.md#new) — SEED-303#new\n",
-    );
+    const backlogAtB = backlogNaming("changed", newSeedEntry);
     const atB = {
       ...files,
       [backlogPath]: backlogAtB,
-      [newSeedPath]:
-        '# New\n\n<a id="new"></a>\n\n### New\n\n**Identity:** SEED-303#new\n',
+      [newSeedPath]: newSeedText,
       [addedDonePath]: `{"label":"added"}\n`,
       [planPath]: "# Plan changed, a slice done\n",
     };

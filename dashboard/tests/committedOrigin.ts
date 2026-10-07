@@ -25,7 +25,7 @@ import {
   type OriginAnswer,
 } from "./originAnswers.ts";
 import { directoryListingAnswer, type ListedPath } from "./listingAnswers.ts";
-import { comparisonIn } from "./comparisonAnswers.ts";
+import { asksContainment, comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
@@ -137,7 +137,7 @@ export function publishCommittedOrigin(
       return instead.get("main") ?? commitAnswer(published());
     }
     if (request.kind === "compare") {
-      if (request.perPage !== 1) return noConnection;
+      if (!asksContainment(call.argv)) return noConnection;
       compares.push(`${request.base}...${request.head}`);
       await held.get("compare");
       const overridden = instead.get("compare");

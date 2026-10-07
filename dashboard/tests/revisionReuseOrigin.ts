@@ -60,6 +60,12 @@ export const backlogNaming = (label: string, extra = "") => `# Product backlog
 - [Other ${label}](seeds/SEED-302-other.md#other) — SEED-302#other
 ${extra}`;
 
+// The backlog line naming the seed at `newSeedPath`, and that seed's text.
+export const newSeedEntry =
+  "- [New](seeds/SEED-303-new.md#new) — SEED-303#new\n";
+export const newSeedText =
+  '# New\n\n<a id="new"></a>\n\n### New\n\n**Identity:** SEED-303#new\n';
+
 export const seedText = (label: string) => `# Reuse fixture ${label}
 
 <a id="reuse"></a>

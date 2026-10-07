@@ -100,6 +100,14 @@ function isAncestor(repoDir: string, ancestor: string, commit: string) {
   }
 }
 
+// Whether `argv` asks GitHub's comparison only how the head relates to the
+// base (`--jq .status`), as the containment read does, rather than the
+// commits and files between.
+export function asksContainment(argv: readonly string[]): boolean {
+  const jq = argv.indexOf("--jq");
+  return jq !== -1 && argv[jq + 1] === ".status";
+}
+
 // The comparison as the repository's history answers it; GitHub's 404 when
 // either is not a commit there.
 export function comparisonIn(
