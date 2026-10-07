@@ -1,0 +1,204 @@
+---
+id: SEED-118
+status: active
+planted: 2026-10-07
+planted_during: Terry's follow-up review of dashboard GitHub responsiveness
+trigger_when: A temporary GitHub failure leaves the dashboard empty or incomplete, or repeated observations reread the same published facts
+scope: unknown
+---
+
+# SEED-118: Reliable dashboard reading after temporary GitHub failures
+
+## Why This Matters
+
+A developer observing published work needs the dashboard to recover from a
+temporary service failure without repeatedly reloading the page. Terry still
+sees the 30-second "Published work could not be read" message and reports
+occasional GitHub CLI 403 responses after most of the original responsiveness
+improvements have shipped.
+
+The review on 2026-10-07 found independent fact arrivals, shared outstanding
+reads, and reuse after publication in production. Consistent rate-limit
+recovery was implemented on a separate branch and is expected to land soon.
+That story, SEED-113#recover-consistently-from-rate-limits, explicitly excludes
+ordinary timeout and connection-failure recovery. These follow-ups preserve
+its cooldown and demand-admission behavior.
+
+The reported timeout happened before backlog membership appeared. Initial
+failure leaves no shown revision to drive refresh checks; failed details also
+remain missing when a later check finds an unchanged revision. Cache validation
+can compare revisions and read intervening commits before answering the backlog.
+Successful cached answers are held in memory and disappear on server replacement;
+separate dashboard processes do not share them. Cards render a shared snapshot,
+while collecting its profiles, histories, and other records still makes
+individual requests.
+
+One live GitHub ref read succeeded in 0.17 seconds and the running dashboard's
+initial endpoint succeeded in 0.36 seconds during the review. Those samples did
+not reproduce the earlier failure or establish a cold-load baseline. The
+failing response was not captured, and a generic 403 does not establish a rate
+limit. The selected work must distinguish observed causes from hypotheses.
+
+## Selected Stories
+
+<a id="recover-from-temporary-github-failures"></a>
+
+### Recover automatically from temporary GitHub failures
+
+**Identity:** SEED-118#recover-from-temporary-github-failures
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** A developer whose dashboard initially fails to read published
+work or leaves assignment, human-credit, or progress details unavailable after
+a temporary GitHub failure.
+
+**Goal:** Once GitHub answers again, the visible dashboard recovers the failed
+initial read or missing details without a reload or a new publication, while
+retaining successfully read facts and explaining any continuing failure.
+
+**Scope:**
+
+- Retry eligible timeouts, connection failures, and temporary server failures
+  with bounded attempts and backoff. Select the classification, timing, and
+  visibility policy during refinement.
+- Recover missing details at an unchanged revision; reuse successful answers
+  and keep each recovered fact pinned to the snapshot it describes.
+- Preserve the last successfully read snapshot during recovery. No failed read
+  establishes absence or supplies a fact from a different revision.
+- Respect the existing rate-limit cooldown, concurrency bound, and shared reads.
+  Authentication and permission failures need actionable explanations rather
+  than automatic retry loops; an unexplained 403 is not classified as transient.
+- Include safe diagnostics sufficient to distinguish request category, elapsed
+  time, HTTP status, GitHub request ID, and relevant rate-limit headers when
+  available. Keep credentials and raw CLI output out of the diagnostic record.
+
+**Key examples / evaluation:** A failed initial read is later answered and the
+cards appear without reload. A profile-history timeout is later answered at the
+same revision and its human credit and shared Take clock recover. Successful
+details are not requested again unnecessarily. A continuing outage stops or
+paces retries under the selected bound. A permission refusal does not enter a
+retry loop, and a rate-limit refusal follows the existing cooldown. Exercise
+these journeys through the dashboard's read boundary and observe the actual
+requests and diagnostic categories.
+
+**Open questions for refinement:** Which failures are retryable, what retry
+budget serves the developer, when hidden pages resume, and where bounded safe
+diagnostics are retained and inspected.
+
+**Depends on:** No blocking story prerequisite. Reuse and reconcile with the
+rate-limit recovery owner rather than introducing a competing recovery policy.
+
+**Safe stopping point:** Temporary failures heal without reload even if the
+initial reading path and request savings remain as they are.
+
+<a id="show-cards-before-expensive-cache-validation"></a>
+
+### Show basic story cards without waiting for expensive cache validation
+
+**Identity:** SEED-118#show-cards-before-expensive-cache-validation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** A developer opening or refreshing a dashboard whose published
+revision changed while comparison or commit-history requests are slow.
+
+**Goal:** Once the published revision and its backlog can be read, basic story
+membership and titles appear without waiting for comparison or history work
+used to validate reuse of later facts.
+
+**Scope:** Establish a prompt path to basic cards, with detail and reuse
+validation completing independently where their evidence allows. Preserve
+published revision provenance, explicit gaps, and the existing bounded request
+demand. Do not weaken evidence for unchanged assignment attribution or hide a
+failure by displaying another revision's facts. Refinement selects the reading
+strategy after measuring its latency and request-count tradeoff.
+
+**Key examples / evaluation:** The server holds records from revision A and the
+ref moves to B. Hold comparison or intervening-commit responses while answering
+B's backlog: B's basic cards appear, with unread detail labeled. Later answers
+complete only facts valid for B. A failed comparison does not prevent basic
+membership from being shown when the backlog itself is readable. Compare time
+to first cards and total upstream calls with the current route for unchanged
+planning records and changed assignments. Keep the actual ref or backlog being
+unavailable visibly distinct from slow enrichment.
+
+**Open questions for refinement:** The smallest basic-card facts, how to keep
+reuse validation off their critical path, and the acceptable extra-request
+tradeoff supported by measured journeys.
+
+**Depends on:** No blocking story prerequisite. Shared read machinery alone
+does not require the transient-recovery story to finish first.
+
+**Safe stopping point:** Basic published work appears promptly even if some
+details still fail or further request savings are deferred.
+
+<a id="reduce-repeated-reads-across-tabs-and-deployments"></a>
+
+### Reduce repeated GitHub reads across tabs and deployments
+
+**Identity:** SEED-118#reduce-repeated-reads-across-tabs-and-deployments
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** A developer observing the same published project in multiple
+tabs or continuing observation after the dashboard server is replaced.
+
+**Goal:** Repeated observation of the same published facts makes measurably
+fewer upstream requests while preserving useful publication freshness and
+trustworthy revision evidence.
+
+**Scope:** Measure staggered visible-tab checks and reads after server
+replacement, then improve the contributors whose avoidable cost is established.
+Consider sharing revision observation across tabs and retaining successful
+immutable answers across deployments. Select mechanisms and lifetime policies
+during refinement; no new storage service, Git mirror, or authentication model
+is prescribed. Preserve hidden-page behavior, access boundaries, and the
+rate-limit admission contract. Moving refs still need fresh evidence, and failed
+or missing answers must not become durable facts.
+
+**Key examples / evaluation:** Observe one tab and several staggered tabs on an
+unchanged project, then publish a change and compare request counts and time to
+visibility. Replace the server between reads of the same pinned revision and
+measure which immutable facts are reread. After the selected improvement,
+repeat those journeys and demonstrate the reduction without hiding changed
+membership or attribution. Count HTTP requests separately from primary-quota
+charges, since authenticated conditional 304 responses can avoid the latter.
+Use controlled replay for attribution of savings and bounded production
+observations to establish relevance.
+
+**Open questions for refinement:** Which contributor matters most after the
+earlier deliveries, observation-sharing lifetime, cache ownership and access
+invalidation across replacements, and whether the two contributions warrant
+separate stories once measured.
+
+**Depends on:** No blocking story prerequisite. Its lower priority reflects
+user value and learning order, not a required implementation dependency.
+
+**Safe stopping point:** A demonstrated reduction for the selected costly
+journey remains useful without expanding into all GitHub consumers or other
+machines.
+
+## Ordering and Scope Reduction
+
+Terry selected these as production backlog priorities 1–3 on 2026-10-07.
+Recovering from temporary failures comes first because the reported timeout can
+leave the page empty indefinitely. Faster basic cards comes next. Measured
+request savings follows and is the first work to defer if scope is reduced.
+Diagnostics belong to the recovery story, not a separate metrics product.
+
+These are queued stories awaiting refinement and approach selection. They are
+not executable plans or authorization to start implementation.
+
+## Breadcrumbs
+
+- Terry's screenshot and report of recurring timeout and CLI 403 messages,
+  follow-up review, and explicit selection of the three stories, 2026-10-07.
+- [Dashboard request accounting](../../dashboard/GITHUB-REQUESTS.md).
+- [Published reading contract](../../dashboard/PUBLISHED-OBSERVATION.md).
+- [Project visibility requirements](../../docs/project-visibility-requirements.md).
+- [GitHub API troubleshooting](https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api).
+- [GitHub API best practices](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api).
