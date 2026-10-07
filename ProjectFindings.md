@@ -314,7 +314,7 @@ running at the deadline, and it never started.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
-  - Evidence: run 37553117469 at `631484ee`. Shard 1's artifact held only three interrupted `agent-launch-preparation-*` tests' results. Run 37553839091, after the rename to `aaa-deadline-probe.spec.ts` in `2afb6ab1`, kept the probe's `trace.zip` and `error-context.md`. `dashboard/playwright.config.ts` sets `fullyParallel: true`.
+  - Evidence: run 37553117469 at `631484ee`. Shard 1's artifact held only three interrupted `agent-launch-preparation-*` tests' results. Run 37553839091, after the rename to `aaa-deadline-probe.spec.ts` in `2afb6ab1`, kept the probe's `trace.zip` and `error-context.md`. `dashboard/playwright.config.ts` sets `fullyParallel: true`. Plan: `6f0f4f78:.planning/slice-plans/265-retain-cancelled-ci-evidence/PLAN.md` (slice 2).
   - Observed effect: one extra probe commit and CI run, about 8 minutes from push to verdict.
   - Inference: Qualified. A local `--list` or `--workers=1` dry run of the shard would have shown the order before the push. The plan's probe recipe named the failing spec's placement but not how to make it run first.
 
