@@ -207,3 +207,13 @@ Correction: removes the `@media (prefers-reduced-motion: reduce)` rule from
 `moveTo` in `columnPaging.ts` never marks the row sliding under reduced
 motion; the slide comment there says that reduced motion is decided where
 the move is made. External behavior is unchanged.
+
+## Execution complete
+
+Product advice: no backlog change. The correction adds no feature promise.
+Wrap-up should align the correction story's scope wording (“names the column
+without a count”) with the shipped “Entry count incomplete” control name from
+398fd61a. Two pre-existing column representations remain outside the mark:
+`deletedEntryHome` in `pageSessions.ts` matches `.stage`/`.recently-done`, and
+`dashboard-columns.css` hides columns by `nth-child`. Both are worth moving to
+`dashboardColumnMark` only if a column is added.

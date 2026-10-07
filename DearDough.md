@@ -4,9 +4,9 @@ Retained material shared-process findings, reviewed 2026-10-06. Only an explicit
 queued follow-up is planned work; other entries are open and unqueued. A retained
 released response is not proof of effectiveness. Unknown provenance stays unknown.
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
-Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
+Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 252. Removed local codes are never reused.
+- Highest allocated local number: 253. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -198,14 +198,6 @@ Follow-up: Open, unqueued.
 
 ### Occurrences
 
-- Execution: `SEED-057#composable-refinement-styles` / plan 180, first related implementation commit `fba9ebb5`
-  - Timestamp: unknown (session date 2026-09-30; exact event times not recorded)
-  - Tool: Claude Code (coordinator and delegated agents)
-  - Model: claude-sonnet-5-5
-  - Open Dough release: modified; revision `7591380f`; base 0.3.47
-  - Evidence: coordinator conversation: refactor hand-backs for slice 1 (`Outcome: none — already clean`, 42,061 subagent tokens, 3 tool uses) and slice 2 (`Outcome: none — already clean`, 41,865 subagent tokens, 4 tool uses); changed paths `refinement-options.json`, a 5-line `SKILL.md` paragraph and one `install.sh` line.
-  - Observed effect: no edits, no rework; the passes restated an overlap (`default` versus the SKILL.md pointer sentence) that slice 1's implementer had already reported.
-  - Inference: Qualified. Cost only, about 84k subagent tokens across two passes; the step is mandatory and two samples cannot show whether a pass ever pays off on changes this small.
 - Execution: `SEED-069#review-dashboard-multi-tool-architecture` / plan 200, first related implementation commit `47ef4368`
   - Timestamp: unknown (2026-10-01, between `47ef4368` at 18:04 and `c63a1c0b` at 18:49 +08:00)
   - Tool: Claude Code (coordinator and delegated agents)
@@ -214,14 +206,6 @@ Follow-up: Open, unqueued.
   - Evidence: four refactor passes on documentation-only slices; slices 1–3 made only rewraps or one-phrase rewordings (about 56k, 78k and 49k subagent tokens); slice 4's pass found two wrong citations in the new seed (`src/launchWorkflow.ts:43,65` for a substitution that is in `src/StartLaunch.tsx:105-106`, and a misdescribed `src/agentTerminal.ts:3`).
   - Observed effect: three passes changed nothing of substance; one corrected story evidence before it was published.
   - Inference: Qualified counter-evidence: on a change whose text carries code citations, the pass can pay off even when no code changed.
-- Execution: `SEED-052#cursor-host-guide-attach` / plan 214, first related implementation commit `f84a7a56`
-  - Timestamp: unknown (2026-10-02, between the guide edit and commit `f84a7a56` at 14:13:42 +08:00)
-  - Tool: Cursor (coordinator and delegated agent)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
-  - Evidence: the slice changed one clause of `dashboard/AGENT-LAUNCH-HOSTS.md` ("Attach is supplied:") plus a rewrap; the fresh refactor agent reread the skill and references, rechecked the cited `cursorHost.ts:14` and `terminal.ts:30`, and returned `none — already clean` after about 2 minutes.
-  - Observed effect: no edits; it restated a pre-existing overlap with `dashboard/AGENT-LAUNCH-TERMINALS.md` lines 9–12 that the plan already excluded.
-  - Inference: Qualified. Cost only; the citation recheck matches plan 200's counter-evidence but found nothing here.
 - Execution: `SEED-056#state-refinement-decision` / plan 221, first related implementation commit `80043764` - Timestamp: unknown (2026-10-03, before commit `80043764` at 07:40:53+08:00) - Tool: Claude Code (coordinator and delegated agent) - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: the slice reworded two sections of `src/skills/dough-slice-planning/SKILL.md` (+38 words); the refactor pass (about 48k subagent tokens, 4 tool uses) edited nothing but reported that "Stay within the triggering instruction" restated the report contents without the new refinement decision line, so a planning-only report could omit it; the coordinator fixed both bullets in `80043764`. The plan had limited edits to the two sections although its premise search for `remaining concerns` matches those bullets - Observed effect: no rework; one coherence gap closed before commit, outside the plan's section limit - Inference: Qualified counter-evidence, like plan 200: on a tiny guidance change that restates nearby text, the pass can pay off
 - Execution: `SEED-103#attention-message-correction` / plan 249, first related implementation commit `ebb48d6e`
   - Timestamp: unknown (2026-10-05; slice 2 and 3 passes ran before commits `59ee1e70` and `5ebdef5e`)
@@ -239,6 +223,7 @@ Follow-up: Open, unqueued.
   - Evidence: refactor hand-back `none — already clean` (59,631 subagent tokens, 7 tool uses) for removing one helper and a try/catch, two guards, and four comment rewordings, plus one test wait.
   - Observed effect: no edits; it confirmed consumers and kept a now-redundant `signal.aborted` check in `revisionChecks.ts` on purpose.
   - Inference: Qualified. Cost only, on a small code-and-comment change.
+- Execution: `SEED-106#paged-columns-reveal-and-count-correction` / plan 259, first related implementation commit `74a48aee` - Timestamp: 2026-10-08 (+09:00), before commits `74a48aee` and `a41f9d57` - Tool: Claude Code (coordinator and delegated agents) - Model: claude-opus-5-5 - Open Dough release: 0.3.57 (installed `dough-update/VERSION`) - Evidence: refactor hand-backs `none — already clean` for slice 1 (a containment lookup, one mark on three regions, an extracted spec helper; 60,389 subagent tokens) and slice 3 (deleting a 5-line CSS rule plus a comment sentence; 48,076 subagent tokens) - Observed effect: no edits; both named only pre-existing neighbouring representations they left alone - Inference: Qualified. Cost only; the CSS-only pass fits the cluster on tiny non-logic changes
 
 ## ODF-200 — Story Branch delivery's `--target-ref` value had to be read from the script
 
@@ -996,3 +981,20 @@ Follow-up: Open, unqueued.
   - Evidence: `dashboard-columns-height.spec.ts:216` required the whole last card `toBeInViewport({ ratio: 1 })` in a 480px window; with Linux fonts the card is about 440px (macOS about 360px), ratio 0.989. Repair stress `…:173 --repeat-each=30 --workers=4` at `c9106b78` failed 16 of 30 (clamp read before cards settled). Repair `62b21604` asserts the card's end and waits with `expectSettledPage`.
   - Observed effect: one red CI run, one stash/repair/refactor/publish cycle (repair agent about 130k tokens, 49 minutes under machine load).
   - Inference: Qualified. Both slice acceptance and the refactor pass reran new journeys once; a short `--repeat-each` stress of newly written geometry tests, and asserting a reachable edge rather than a whole element against a small window, would likely have caught both.
+
+## DD-253 — A plan's code findings went stale on trunk with no signal before delegation
+
+Plan 259 was prepared from code read on 2026-10-06 before 12:36 +09:00. Its finding 2, finding 3 and slice 2 described `RecentlyDone.tsx` counting unread sessions as none and `ColumnSummary` living in `ColumnEdge.tsx`. Commit `398fd61a` (16:42 the same day, another story) had already changed both before the Take. The start's "Changed since readiness review" covers the story and plan documents, not the code their findings describe.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-106#paged-columns-reveal-and-count-correction` / plan 259, first related implementation commit `74a48aee`
+  - Timestamp: 2026-10-08 (+09:00), while slice 1 was delegated
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: `459959ff:dashboard/src/RecentlyDone.tsx` `recentlyDoneColumn` already returned an unknown count until sessions and done records were read; `dashboard/src/columnSummary.ts` came from `398fd61a`. The plan's slice 2 asked for a bare-name control, which would have changed the shipped "Entry count incomplete" wording. Slice 2 was recorded done with no change in `27cde622`.
+  - Observed effect: no rework. The coordinator noticed by reading the code while it waited, not through any startup or delegation check; the slice 1 agent independently reported finding 3 as out of date.
+  - Inference: Qualified, one sample. Rechecking a plan's code-level findings against the fetched trunk before delegating each slice would have caught it; without that, a slice could re-implement delivered behavior or regress its wording.
