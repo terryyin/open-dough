@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 245. Removed local codes are never reused.
+- Highest allocated local number: 247. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -120,6 +120,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-053#proportionate-local-verification` / plan 143, first related implementation commit `8cafa49d` - Timestamp: unknown (between Take `f510358e` committed 2026-09-28T16:46:40+08:00 and `8cafa49d` committed 2026-09-28T16:51:36+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `2b46e651` - Evidence: coordinator conversation: full reads of `execution-location.md`, `delegation.md`, `execution-decisions.md`, `wrap-up.md`, `finish-or-stop.md`, part of `trunk-publication.md` and `agent-commits.md`. The only slice added one 10-line paragraph. The coordinator skipped the required `ci-monitor.md` read before arming, and managed delivery attached the observer without it - Observed effect: same as above; no CI event, repair, stash, or rework occurred, and skipping `ci-monitor.md` caused no visible harm - Inference: Qualified. Third consecutive one-slice prose execution. The skipped read shows that "before arming observation" still names a read that managed delivery has made unnecessary on the normal path
 - Earlier occurrence details: 2 additional recorded rows, one in `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md` and one (`SEED-065#warning-free-lint`) in `80043764511288cf27c5f14b128c2820110a8b45:DearDough.md`; these are historical evidence, not new occurrences.
 - Execution: `SEED-088#review-changes-since-last-review` / plan 245, first related implementation commit `d754256c` - Timestamp: unknown (between Take `eb52e12a` committed 2026-10-05T13:30:54+09:00 and `d754256c` committed 2026-10-05T13:43:51+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: coordinator conversation: full reads of `established-start.md`, `execution-location.md`, `delegation.md`, `execution-decisions.md`, `wrap-up.md` + `ci-monitor.md` (31.4KB, persisted), `runtime-setup.md` + `ci-notify-hosts.md`, and parts of `trunk-publication.md`, `agent-commits.md`, `record-preparation.md` before the first delegation. This five-slice run then used `ci-monitor.md`'s failure handling twice. - Observed effect: no rework; much of the startup read covered paths the managed start and delivery commands own (probe, start, register). - Inference: Qualified. Unlike the one-slice rows, a multi-slice run with real CI failures used part of `ci-monitor.md`; the waste is in the observer setup and arming sections, not the failure handling.
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db` - Timestamp: unknown (2026-10-07, between Take `fb3a2201` and `11ddc3db`) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: coordinator conversation: `established-start.md`, then `execution-location.md` + `delegation.md` + `wrap-up.md` in one 35KB persisted read, then the publication section of `trunk-publication.md`, `finish-or-stop.md` and part of `agent-commits.md`, for one Structure slice (about 30 changed lines) - Observed effect: no rework; managed delivery attached the observer, so the arming sections were not used - Inference: Qualified. Same pattern as the other one-slice rows
 
 ## ODF-106 — Two plans planned concurrently on different checkouts both took number 132
 
@@ -228,6 +229,14 @@ Follow-up: Open, unqueued.
   - Evidence: four refactor passes on a test-and-admission correction. Slice 3's pass (a 5-line spec step, about 52k subagent tokens) edited nothing; slice 2's (fixture comments, about 48k) only rewrapped two comment paragraphs. Slice 1's (about 50k) replaced a new local `Mark as done` locator with the existing `markAsDone` helper; slice 4's (about 49k) retitled the admission test to name the new refusal.
   - Observed effect: two passes changed nothing of substance; two made small useful test edits.
   - Inference: Qualified. Same mixed pattern as plans 200 and 221: no-edit passes cluster on comment-only or single-step test changes.
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
+  - Timestamp: unknown (2026-10-07, before commit `11ddc3db`)
+  - Tool: Claude Code (coordinator and delegated agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: refactor hand-back `none — already clean` (59,631 subagent tokens, 7 tool uses) for removing one helper and a try/catch, two guards, and four comment rewordings, plus one test wait.
+  - Observed effect: no edits; it confirmed consumers and kept a now-redundant `signal.aborted` check in `revisionChecks.ts` on purpose.
+  - Inference: Qualified. Cost only, on a small code-and-comment change.
 
 ## ODF-200 — Story Branch delivery's `--target-ref` value had to be read from the script
 
@@ -803,8 +812,50 @@ Follow-up: Open, unqueued.
   - Evidence: slice 3's refactor return: "The first run of this command without `--reporter=line` cut off its output before the result, so I ran it again"; slice 4's refactor return: "The default reporter printed nothing on a pass, so I added `--reporter=list` to see the counts"; slice 4's implementation reported its whole-suite count from a `--reporter=dot` run.
   - Observed effect: at least two repeated focused runs (seconds to tens of seconds each); counts were reported for acceptance.
   - Inference: Qualified. The silence is the project's chosen contract for passing journeys; the cost is small but recurs per agent. Stating in the delegation which reporter yields a selection count would avoid the rerun.
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
+  - Timestamp: unknown (2026-10-07, before commit `11ddc3db`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: coordinator conversation: the plan's focused command `npm run test:dashboard -- <12 specs> --workers=2`, piped to `tail -8`, showed only the npm header; the coordinator reran it as `npx playwright test ... --reporter=line` to see `53 passed`.
+  - Observed effect: one repeated focused run (about 15 seconds).
+  - Inference: Qualified. The plan's literal proof command has the same gap as the delegation; naming a counting reporter in the plan's Proof section would avoid it.
 
-## DD-244 — Concurrent Playwright runs in one checkout delete each other's trace output
+## DD-244 — The coordinator spawned a no-op fork while waiting for a background agent
+
+Waiting for a background refactor agent, the coordinator launched a `fork` agent with the prompt `noop`. The fork inherited the whole conversation and returned after doing nothing. `delegation.md` "Await delegated results without empty calls" already forbids calls whose only purpose is waiting.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
+  - Timestamp: unknown (2026-10-07, during the slice 1 refactor pass)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: coordinator conversation: Agent call `description: placeholder`, `subagent_type: fork`, `prompt: noop`; its notification reported 107,482 subagent tokens, 0 tool uses, "I made no changes and ran nothing"; `git status` afterwards showed only the slice's edits.
+  - Observed effect: about 107k tokens spent with no output; no changes or rework.
+  - Inference: Qualified one-off model error, not a guidance gap. A fork costs the whole parent context even when it does nothing, so any accidental fork is expensive.
+
+## DD-245 — A background coordinator implemented its single slice itself
+
+`delegation.md` allows local implementation "only for a single interactive slice". This background session had one Structure slice of about 30 changed lines, and the coordinator implemented it without a delegated agent.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
+  - Timestamp: unknown (2026-10-07, before commit `11ddc3db`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: coordinator conversation: edits to `ghRead.ts`, `ghRevision.ts`, `containmentRead.ts` and three comment files by the coordinator's own scripted replacement; focused proof, typecheck and the whole suite were run by the coordinator; the refactor pass was delegated as required.
+  - Observed effect: no rework; the independent refactor pass found nothing to change, and proof was accepted from the coordinator's own runs.
+  - Inference: Qualified. A deviation from the stated condition. It saved one delegated agent's context, but implementation and proof acceptance were not independent. One sample does not show whether "interactive" should be relaxed for tiny Structure slices.
+
+## DD-246 — Concurrent Playwright runs in one checkout delete each other's trace output
 
 Two agents ran dashboard Playwright commands in the same execution checkout at
 the same time. Both used the default `dashboard/test-results` output folder, and
@@ -823,7 +874,7 @@ a private `--output` folder removed the noise.
   - Observed effect: one rerun per agent (minutes each); no false acceptance, because both agents read the error kind.
   - Inference: Qualified. The coordinator launched the two agents together without assigning output folders; delegation that runs tests concurrently in one checkout could name a private `--output` per agent.
 
-## DD-245 — Whole-suite runs under routine load reveal default-deadline polls on real process work one run at a time
+## DD-247 — Whole-suite runs under routine load reveal default-deadline polls on real process work one run at a time
 
 Whole dashboard suite runs on the developer machine (load average 25–35 from
 other work) failed in specs that pass alone. Each cause was a default 5 s

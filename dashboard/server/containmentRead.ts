@@ -74,7 +74,7 @@ export async function comparisonViaGh(
     ],
     signal,
   );
-  const answer = signal.aborted ? undefined : parseIncluded(stdout);
+  const answer = parseIncluded(stdout);
   if (answer?.status === 404) return undefined;
   if (error || answer?.status !== 200) {
     throw new GhFailure(
