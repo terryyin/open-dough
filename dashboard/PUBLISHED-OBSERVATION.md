@@ -118,13 +118,15 @@ more until that time, whichever page or project asks: each read asked meanwhile,
 and adding a project, is answered at once as limited, says it was not asked,
 and carries the whole seconds left, so it is never taken for a missing record. A
 read already at GitHub keeps GitHub's own answer, and a later directed time only
-extends the wait. A rate-limit refusal that directs no usable wait holds back
-reads the same way for one minute; when the first read after that wait is
-refused the same way, the wait doubles, up to one hour, and once a read
-succeeds the next such refusal waits one minute again. Its problem says GitHub
-named no wait and when reading resumes. When any wait ends, directed or not,
+extends the wait. A rate-limit refusal that directs no usable wait, including
+one naming a time already passed, holds back reads the same way for one
+minute; when the first read after that wait is refused the same way, the wait
+doubles, up to one hour, and once a read succeeds the next such refusal waits
+one minute again. Its problem says GitHub named no wait and when reading
+resumes. When any wait ends, directed or not,
 reading resumes with one read: the reads asked with it wait their turn until
-GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
+it ends, then proceed up to eight at once, whether GitHub answered it, was
+unreachable, its request left, or it timed out; if GitHub limits it again,
 they are answered as limited with the new resume time and only that read
 reached GitHub. A read waiting its turn when a wait starts is answered as
 limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
@@ -151,16 +153,18 @@ walked back to its addition are remembered once answered, so the walk asks
 only from the step the limit refused, once for the human and the clock that
 share it.
 Each withheld record file, profile set, human, clock, or done record is
-labeled with the limit's wording and that time, never as missing; a human
-whose profile history was withheld is unknown on its card, while its detail
-and the roster name the limit. Another tab, or the page reloaded, learns the
-same limit from its next request, which the process holds back without asking
-GitHub. The boundary passes on only the validated
-wait, or its own when GitHub directed none, at most one hour. The page's wait
-ends only at its time: a later check or read that succeeds clears the
-problem, unless the problem stands with its snapshot as described below, but
-no answer lifts the wait early. A record detail that
-could not be read for any reason but the limit stays labeled on its card
+labeled one way, never as missing: "GitHub's rate limit withheld" what was
+being read, and "Limited until" that time, whether GitHub refused the read,
+the process held it back, or the page did not ask; no label names a number of
+seconds. A human whose profile history was withheld is unknown on its card,
+while its detail and the roster give that label after "Human developer
+unknown." Another tab, or the page reloaded, learns the same limit from its
+next request, which the process holds back without asking GitHub. The
+boundary passes on only the validated wait, or its own when GitHub directed
+none, at most one hour. The page's wait ends only at its time: a later check
+or read that succeeds clears the problem, unless the problem stands with its
+snapshot as described below, but no answer lifts the wait early. A record
+detail that could not be read for any reason but the limit stays labeled on its card
 rather than borrowing an older one; checks that find the configured ref
 unchanged never read it again, so reload the page to read it again at the same
 revision. A fresh read after a limit asks it again with the rest, and it stays

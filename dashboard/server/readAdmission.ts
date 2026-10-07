@@ -3,9 +3,11 @@
 // (`./ghRead.ts`): the one record of a rate limit, whichever read met it and
 // whichever project or tab asks next, and the turns that bound how many reads
 // are under way at GitHub at once. After any wait, directed or backed off,
-// one read goes first: its answer reopens the turns, or a limit it meets
-// starts the wait again with nothing else asked. It lives in this process's
-// memory only, so a newly started process asks GitHub at once.
+// one read goes first: however it ends without a rate limit -- answered,
+// GitHub unreachable, its request gone, or at its own bound -- the turns
+// reopen, while a limit it meets starts the wait again with nothing else
+// asked. It lives in this process's memory only, so a newly started process
+// asks GitHub at once.
 
 import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
 import type { GhAnswer, GhPrintedFailure } from "./ghAnswer.ts";
@@ -37,8 +39,8 @@ export class ReadAdmission {
   private underWay = 0;
   private readonly waiting = new Set<() => void>();
 
-  // Whether a wait was set and no read asked since it ended has been
-  // answered without a limit: until then, one read at a time goes first.
+  // Whether a wait was set and no read asked once it was over has yet ended
+  // without a rate limit: until then, one read at a time goes first.
   private resuming = false;
 
   // `backoffBaseMs` is the wait after the first rate limit that directs none
@@ -104,22 +106,17 @@ export class ReadAdmission {
     };
   }
 
-  // Learns from one answer GitHub gave. A rate limit holds back every read
-  // until the wait GitHub directed, or, when it directed none, until this
-  // process's own backoff ends; a later time already standing stays. A read
-  // that succeeds ends the backoff's doubling. No answer lifts a wait; an
-  // answer GitHub gave without a limit to a read asked once the wait had
-  // ended reopens the turns.
+  // Learns how one `gh` call ended once it ran, answered by GitHub or not. A
+  // rate limit holds back every read until the wait GitHub directed, or, when
+  // it directed none, until this process's own backoff ends; a later time
+  // already standing stays. A read that succeeds ends the backoff's doubling.
+  // No answer lifts a wait; any other ending of a read asked once the wait
+  // had ended, whether or not GitHub answered it, reopens the turns.
   answered(answer: GhAnswer<GhPrintedFailure>, nowMs: number): GhAnswer {
     const { failure } = answer;
     if (failure?.kind !== "rate-limited") {
       if (succeeded(answer)) this.backoffStep = 0;
-      if (
-        answer.status !== undefined &&
-        Date.parse(answer.askedAt) >= this.resumesAtMs
-      ) {
-        this.resuming = false;
-      }
+      this.endedWithoutLimit(answer.askedAt);
       return { ...answer, failure };
     }
     this.resuming = true;
@@ -133,6 +130,18 @@ export class ReadAdmission {
       nowMs + limited.waitSeconds * 1000,
     );
     return { ...answer, failure: limited };
+  }
+
+  // Learns that a read asked at `askedAt` reached its own bound with no
+  // answer: like any ending without a rate limit, it reopens the turns.
+  timedOut(askedAt: string): void {
+    this.endedWithoutLimit(askedAt);
+  }
+
+  // A read asked once the wait had ended shows nothing of a continuing
+  // limit, so reading no longer resumes one read at a time.
+  private endedWithoutLimit(askedAt: string): void {
+    if (Date.parse(askedAt) >= this.resumesAtMs) this.resuming = false;
   }
 
   // A rate limit that directed no wait, given this process's own: the base

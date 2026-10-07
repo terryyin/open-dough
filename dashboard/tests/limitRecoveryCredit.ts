@@ -14,7 +14,6 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { limiting } from "./limitedReadingJourney.ts";
-import { readsBesideChecks } from "./originObservation.ts";
 import { untilReported } from "./support/directedWait.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
@@ -51,18 +50,6 @@ export const isCommit = (sha: string) => (request: GhRequest) =>
 
 const card = (page: Page, title: string) =>
   parts(page).taken.getByRole("article", { name: title });
-
-// What a recovery asks of GitHub, in the order it was asked, as
-// `readsBesideChecks` names it, with each commit by its sha.
-export function askedSince(page: Page, from: number): string[] {
-  return githubFor(page)
-    .calls.slice(from)
-    .map((call) =>
-      call.request.kind === "commit"
-        ? `commit ${call.request.sha}`
-        : (readsBesideChecks([call])[0] ?? call.request.kind),
-    );
-}
 
 // The plan last-commit time GitHub cannot answer, asked again by every fresh
 // read: a gap of its own, never the limit's.
@@ -116,13 +103,11 @@ export async function openedWithYumaWithheld(
     "Human developer unknown",
   );
   await expect(yumaCard).toContainText(
-    "Current slice time unavailable: GitHub limited the rate of the local GitHub CLI's requests",
+    "Current slice time unavailable: GitHub's rate limit withheld",
   );
   await expect(
     (await inspectedDetail(yumaCard)).locator(".owner-human"),
-  ).toContainText(
-    "Human developer unknown. GitHub limited the rate of the local GitHub CLI's requests",
-  );
+  ).toContainText("Human developer unknown. GitHub's rate limit withheld");
   await expect(parts(page).problem).toHaveCount(1);
   return { limitSeenAt, asked: githubFor(page).calls.length };
 }
@@ -158,7 +143,7 @@ export async function expectRecovered(page: Page, solaExplained: string) {
       "Current slice started",
     );
     await expect(page.locator("body")).not.toContainText(
-      "GitHub limited the rate",
+      "GitHub's rate limit withheld",
     );
     const { member, opener, back } = rosterParts(page);
     await opener("Yuma-chan").click();

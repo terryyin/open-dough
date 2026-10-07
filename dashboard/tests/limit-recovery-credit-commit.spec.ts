@@ -4,9 +4,8 @@
 // refusal are not asked again, and the human appears on its card, detail,
 // and roster, with its Take clock beside it (./limitRecoveryCredit.ts).
 
-import { expect, test } from "./dashboardTest.ts";
+import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
-  askedSince,
   expectRecovered,
   isCommit,
   openedWithYumaWithheld,
@@ -14,6 +13,7 @@ import {
   waitedOut,
   yumaAddition,
 } from "./limitRecoveryCredit.ts";
+import { readsBesideChecks } from "./originObservation.ts";
 import { pathChange } from "./pathHistoryAnswers.ts";
 import { takes } from "./sliceClockRecords.ts";
 
@@ -34,7 +34,7 @@ test("an addition commit limited during the walk is read once the wait ends, reu
     page,
     "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
   );
-  expect(askedSince(page, asked).sort()).toEqual(
+  expect(readsBesideChecks(githubFor(page).calls.slice(asked)).sort()).toEqual(
     ["ref main", `commit ${takes.Yuma.sha}`, unreadPlanTime].sort(),
   );
 });

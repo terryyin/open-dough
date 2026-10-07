@@ -102,45 +102,6 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
-## One owner admits reads to GitHub
-
-For [rate-limit recovery that waits, resumes, and labels as promised](seeds/SEED-113-dashboard-github-responsiveness.md#rate-limit-recovery-residue-correction),
-the local read boundary of one launched dashboard server owns what reaches
-GitHub. Its single `gh` invocation is the only place every tab, project, and
-kind of read passes, so the login's allowance has one owner there. Pages do not
-coordinate with one another, and nothing is stored outside that process's
-memory.
-
-- **Admission precedes a read.** A read reaches GitHub only when no cooldown
-  stands and a turn is free. Admission, reachability, and interpretation of the
-  answer stay with each dashboard request above it; a request refused there
-  takes no turn.
-- **A cooldown is one fact of the process**: the time before which nothing is
-  asked. Any read's rate-limit refusal sets it, from GitHub's direction or from
-  the backoff when GitHub directs none, and only ever later. It is not a
-  property of a page, a project, or a kind of read, and the page's own resume
-  time is only what the boundary told it.
-- **The direction is learned once.** How a refusal is recognized as a rate
-  limit, and what wait it directs, has one representation for every `gh` call,
-  generalizing what the revision check and commit comparison learn today.
-- **Turns bound demand.** One count of reads under way covers the process and
-  is the only rule for GitHub demand across groups, tabs, and projects. A
-  group's own pool still orders that group's requests and stops it at its
-  first failure. After a cooldown one read goes first; its answer reopens the
-  turns.
-- **Admission counts reads, not waiters.** Where one outstanding read serves
-  several requests under the topic above, it holds one turn, and a cooldown
-  refuses the read once for all of them. A request waiting for a turn is owned
-  as a waiting request is there: its disconnect and its 30-second bound end its
-  wait, and closing the server ends all of them.
-- **One recovery on the page.** A limited read, check, or detail reports the
-  same thing, a limit and a resume time, and the page has one way to show it
-  and to read again what was withheld.
-
-Proactive use of the remaining allowance, coordination beyond one process, and
-priority among kinds of read are not built ahead. Retire this topic when that
-correction is delivered.
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard

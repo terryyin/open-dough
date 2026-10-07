@@ -136,14 +136,21 @@ test.describe("authenticated read boundary revision check failures (dev launch m
     ).toMatchObject({ retryAfterSeconds: 3600 });
 
     // Headers that direct nothing usable direct no wait, so the process backs
-    // off its own first wait: an unreadable Retry-After, and a reset while
-    // allowance remains.
+    // off its own first wait: an unreadable Retry-After, a reset while
+    // allowance remains, and a time already passed -- a zero Retry-After, a
+    // past Retry-After date, or a past reset once allowance is spent.
     for (const headers of [
-      { "Retry-After": "soon" },
-      { "X-RateLimit-Remaining": "12", "X-RateLimit-Reset": "1" },
+      () => ({ "Retry-After": "soon" }),
+      () => ({ "X-RateLimit-Remaining": "12", "X-RateLimit-Reset": "1" }),
+      () => ({ "Retry-After": "0" }),
+      () => ({ "Retry-After": new Date(Date.now() - 5_000).toUTCString() }),
+      () => ({
+        "X-RateLimit-Remaining": "0",
+        "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) - 5),
+      }),
     ]) {
       const undirected = await refusedOnOwnServer(() =>
-        rateLimitedAnswer(403, headers),
+        rateLimitedAnswer(403, headers()),
       );
       expect(undirected.status).toBe(502);
       expect(undirected.body).toEqual({

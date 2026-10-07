@@ -155,7 +155,7 @@ test("reopening an unchanged project asks only which commits its ref and story b
         "ref main",
         `branch ${branch}`,
         "compare",
-        "commit",
+        `commit ${madeB.sha}`,
         `content ${backlogPath}@${revisionB}`,
         `content ${missingSeedPath}@${revisionB}`,
       ]),

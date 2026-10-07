@@ -159,13 +159,15 @@ async function spawnedGh(
         env: { ...process.env, GH_PROMPT_DISABLED: "1" },
       },
       (error, stdout, stderr) => {
+        // However the call ended, admission learns of it before the turn
+        // passes on, so a limit this answer starts holds back the read that
+        // takes the turn next, and an ending without one reopens the turns.
         if (signal.reason instanceof ReadBoundReached) {
+          admission.timedOut(askedAt);
           turnEnds();
           reject(new GhFailure({ kind: "timed-out" }));
           return;
         }
-        // Learned before the turn passes on, so a limit this answer starts
-        // holds back the read that takes the turn next.
         const answer = admission.answered(
           readAnswer(error, stdout, stderr, askedAt),
           Date.now(),

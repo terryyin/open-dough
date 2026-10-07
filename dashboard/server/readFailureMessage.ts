@@ -2,6 +2,7 @@
 // reports for a failed read, from the failure category `./ghRead.ts`
 // established: person-facing wording, and any wait a rate limit directed.
 
+import { notAskedOfGitHub } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { GhFailure, rateLimitStop, readTimeoutMs } from "./ghRead.ts";
 
@@ -49,7 +50,7 @@ function failureMessage(
       return `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(reason.status)}) while reading ${reading}. ${wait}`;
     }
     case "held-back":
-      return `GitHub limited the rate of the local GitHub CLI's requests, so ${reading} was not asked of GitHub. Reading resumes in ${String(reason.waitSeconds)} seconds.`;
+      return `${notAskedOfGitHub(reading)} Reading resumes in ${String(reason.waitSeconds)} seconds.`;
     case "no-commit":
       return `GitHub's answer for ${reading} did not name a commit.`;
     case "timed-out":

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ruuf-chan",
-  "email": "ruuf-chan@example.org",
-  "identity": "SEED-113#rate-limit-recovery-residue-correction",
-  "mode": "story-branch",
-  "branch": "claude/rate-limit-recovery-waits-resumes-and-labels-as",
-  "host": "claude"
-}

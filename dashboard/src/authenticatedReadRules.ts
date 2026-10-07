@@ -83,3 +83,10 @@ export function readingContainmentAt(
 ): string {
   return `whether ${revision} contains ${accepted}`;
 }
+
+// What a read GitHub's rate limit kept from being asked at all is told: by the
+// page while its limit stands, by the boundary while the process holds reads
+// back, and by a project addition's repository check.
+export function notAskedOfGitHub(what: string): string {
+  return `GitHub limited the rate of the local GitHub CLI's requests, so ${what} was not asked of GitHub.`;
+}

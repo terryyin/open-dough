@@ -66,7 +66,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     name: unreachableTitle,
   });
   await expect(withheldCard.locator(".card-preparation")).toContainText(
-    "GitHub limited the rate",
+    `GitHub's rate limit withheld ${withheldSeed} at ${revision}.`,
   );
   await expect(unreachableCard).toContainText(unreachableGap);
   await expect(problem).toContainText(
@@ -95,7 +95,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
       "First slice",
     );
     await expect(page.locator("body")).not.toContainText(
-      "GitHub limited the rate",
+      "GitHub's rate limit withheld",
     );
   });
 
