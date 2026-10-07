@@ -379,7 +379,7 @@ only a failure answers `noConnection`.
 ### 4. One process has at most eight reads under way at GitHub
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/authenticated-read-turns.spec.ts` at the boundary,
 a two-tab case through `dashboardTest.ts`, and the existing
 `authenticated-read-subprocess-lifecycle.spec.ts`,
@@ -414,6 +414,22 @@ assert the abandoned paths are absent from `server.github.calls` at the end.
 State the bound in `GITHUB-REQUESTS.md` and the reading contract.
 
 Safe stop: Further tabs and projects add waiting, not concurrent demand.
+
+Done: `ReadAdmission.turn(signal)` gives at most eight turns in arrival order.
+`spawnedGh` refuses on a standing cooldown, waits its turn, never runs a read
+whose signal ended meanwhile, refuses on a cooldown that started meanwhile
+(slice 5 proves it), runs, and passes its answer to `answered` before the turn
+ends; boundary close relies on that order because `execFile` calls back
+synchronously on abort. Fake GitHub gained `observeUnanswered` and
+`heldInTurn`. Accepted proof: `authenticated-read-turns.spec.ts` (twelve held
+reads with exactly eight unanswered at most, an abandoned waiter never asked, a
+short-bound waiter timed out unasked, close ending waiters) and
+`read-turns-across-tabs.spec.ts` (two contexts peak at eight and settle); a
+temporary limit of 100 failed both; whole suite green. Untested: a read's own
+bound reached while waiting (a sub-millisecond race behind the request bound),
+and a killed outstanding `gh` briefly overlapping the next turn. Learnings:
+assert arrival order by waiting for each arrival; one browser context shares
+six connections per host, so more page reads need a second context.
 
 ### 5. Reading resumes with one read first
 

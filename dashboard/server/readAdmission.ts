@@ -1,7 +1,8 @@
 // Whether this server process may ask GitHub now, for the one `gh`
 // invocation every authenticated read and project addition reaches
 // (`./ghRead.ts`): the one record of a rate limit, whichever read met it and
-// whichever project or tab asks next. It lives in this process's memory only,
+// whichever project or tab asks next, and the turns that bound how many reads
+// are under way at GitHub at once. It lives in this process's memory only,
 // so a newly started process asks GitHub at once.
 
 import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
@@ -9,6 +10,10 @@ import type { GhAnswer, GhPrintedFailure } from "./ghAnswer.ts";
 import type { GhFailureReason } from "./ghRead.ts";
 
 type RateLimited = Extract<GhFailureReason, { readonly kind: "rate-limited" }>;
+
+// How many reads one process has under way at GitHub at once, across every
+// tab and project; further reads wait their turn in arrival order.
+const readsUnderWayLimit = 8;
 
 // Whether GitHub answered the read itself: a success, or a `304` naming what
 // the conditional read already holds.
@@ -25,6 +30,11 @@ export class ReadAdmission {
   // succeeded: each one waits twice as long as the one before.
   private backoffStep = 0;
 
+  // How many reads hold a turn, and the reads waiting for one, in arrival
+  // order: each begins its read when given a turn.
+  private underWay = 0;
+  private readonly waiting = new Set<() => void>();
+
   // `backoffBaseMs` is the wait after the first rate limit that directs none
   // (`./ghRead.ts`'s `limitBackoffBaseMs`).
   constructor(private readonly backoffBaseMs: number) {}
@@ -36,6 +46,46 @@ export class ReadAdmission {
     return nowMs < this.resumesAtMs
       ? { kind: "held-back", waitSeconds: this.secondsLeft(nowMs) }
       : undefined;
+  }
+
+  // Waits for one of this process's turns at GitHub, resolving with the
+  // turn's end, which the read calls once it is over. A read whose `signal`
+  // ends while it waits leaves without a turn, rejected with that signal's
+  // reason, and the next read takes its place.
+  turn(signal: AbortSignal): Promise<() => void> {
+    if (signal.aborted) return Promise.reject(signal.reason as Error);
+    if (this.underWay < readsUnderWayLimit) {
+      this.underWay += 1;
+      return Promise.resolve(this.endOfTurn());
+    }
+    return new Promise((resolve, reject) => {
+      const begin = () => {
+        signal.removeEventListener("abort", leave);
+        resolve(this.endOfTurn());
+      };
+      const leave = () => {
+        this.waiting.delete(begin);
+        reject(signal.reason as Error);
+      };
+      this.waiting.add(begin);
+      signal.addEventListener("abort", leave, { once: true });
+    });
+  }
+
+  // A turn's end, which passes it to the read waiting longest, if any.
+  private endOfTurn(): () => void {
+    let over = false;
+    return () => {
+      if (over) return;
+      over = true;
+      const [next] = this.waiting;
+      if (next === undefined) {
+        this.underWay -= 1;
+        return;
+      }
+      this.waiting.delete(next);
+      next();
+    };
   }
 
   // Learns from one answer GitHub gave. A rate limit holds back every read

@@ -43,6 +43,12 @@ reading each record once. A finished ref, branch-head, or check answer is never
 reused, so a later load or check asks again; separately launched dashboards
 share nothing.
 
+One dashboard process has at most eight `gh` requests under way at GitHub at
+once, across every page, project, and project addition; a shared request counts
+once. Further requests wait their turn in the order they were asked, which adds
+waiting but never requests; a request whose page stops waiting before its turn
+is never asked, and waiting counts toward the 30-second bound.
+
 Once GitHub refuses any request with a rate limit, one dashboard process makes
 no `gh` request at all until the wait ends, for any page, project, or project
 addition: what is asked meanwhile is answered as limited and costs nothing. The

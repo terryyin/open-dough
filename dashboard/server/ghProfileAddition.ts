@@ -8,7 +8,8 @@
 // name never supplies the addition. How `gh` runs and fails is `./ghRead.ts`;
 // remembering answers per commit is `./pinnedTexts.ts`.
 
-import { GhFailure, runGh, usableCommitterDate } from "./ghRead.ts";
+import { GhFailure, runGh } from "./ghRead.ts";
+import { usableCommitterDate } from "./ghCommitTime.ts";
 import { usableAvatarSource } from "./avatarImages.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 

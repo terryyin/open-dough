@@ -1,6 +1,8 @@
 // One fake GitHub answer held back (./fakeGitHub.ts): `answer` answers every
 // request as `answerer` does, except each request `isHeld` picks, which is
-// answered only once `release` is called, or never when it is not.
+// answered only once `release` is called, or never when it is not. Or each
+// held answer released on its own, in the order its call arrived
+// (`heldInTurn`).
 
 import type { RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
@@ -35,4 +37,38 @@ export function holdingAnswer(
   isHeld: (request: GhRequest) => boolean,
 ): { readonly answer: RepositoryAnswerer; readonly release: () => void } {
   return holding(published, (call) => isHeld(call.request));
+}
+
+// Held `gh` answers released one at a time: each call whose request `isHeld`
+// picks waits until `releaseOldest` releases it, the longest-held first, or
+// until `releaseAll`, after which nothing is held.
+export function heldInTurn(
+  published: RepositoryAnswerer,
+  isHeld: (request: GhRequest) => boolean,
+): {
+  readonly answer: RepositoryAnswerer;
+  readonly held: () => number;
+  readonly releaseOldest: () => void;
+  readonly releaseAll: () => void;
+} {
+  const held: (() => void)[] = [];
+  let holding = true;
+  return {
+    answer: async (call) => {
+      if (holding && isHeld(call.request)) {
+        await new Promise<void>((resolve) => {
+          held.push(resolve);
+        });
+      }
+      return published(call);
+    },
+    held: () => held.length,
+    releaseOldest: () => {
+      held.shift()?.();
+    },
+    releaseAll: () => {
+      holding = false;
+      for (const release of held.splice(0)) release();
+    },
+  };
 }

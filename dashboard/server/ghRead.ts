@@ -3,10 +3,10 @@
 // line and headers included, read once (`./ghAnswer.ts`) -- a rate limit and
 // the wait GitHub directed, whichever read met it -- one call shared by every
 // request asking it while it is outstanding, admitted once for all of them
-// (`./readAdmission.ts`), and when one path was last committed as of a
-// resolved commit.
+// (`./readAdmission.ts`) and taking one of its turns at GitHub.
 // Which commit a ref or published branch names is asked in `./ghRevision.ts`;
-// content pinned to a resolved commit is read in `./ghContents.ts`. Each call
+// content pinned to a resolved commit is read in `./ghContents.ts`; when one
+// path was last committed, in `./ghCommitTime.ts`. Each call
 // has a fixed argument array -- never a shell string, and never a
 // caller-supplied repository. Kept apart from
 // `./localOrigin.ts`'s request-refusal concern: everything here already
@@ -110,19 +110,44 @@ function includedArgs(args: readonly string[]): readonly string[] {
 // answer is kept here.
 const outstandingGh = new OutstandingReads<GhAnswer>(readTimeoutMs());
 
-// Whether this process may ask GitHub now. Every call `outstandingGh` starts
-// is admitted here once, for all the requests waiting on it.
+// Whether this process may ask GitHub now, and its turns at GitHub. Every
+// call `outstandingGh` starts is admitted here once, for all the requests
+// waiting on it, and takes one turn however many wait on it.
 const admission = new ReadAdmission(limitBackoffBaseMs());
 
-function spawnedGh(
+// One call `outstandingGh` started: refused while a rate limit holds reads
+// back, otherwise run once it has a turn -- unless a limit met while it
+// waited holds it back then. Its bound runs from before its turn, so waiting
+// counts toward it; a call that ends while waiting never reaches GitHub.
+async function spawnedGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhAnswer> {
-  const askedAt = new Date().toISOString();
+  const refused = admission.heldBack(Date.now());
+  if (refused !== undefined) {
+    return unasked(refused);
+  }
+  let turnEnds: () => void;
+  try {
+    turnEnds = await admission.turn(signal);
+  } catch {
+    if (signal.reason instanceof ReadBoundReached) {
+      throw new GhFailure({ kind: "timed-out" });
+    }
+    return unasked({ kind: "failed" });
+  }
+  // A turn can pass to this call while every request is being ended, as
+  // when the boundary closes: a call already ended is never run.
+  if (signal.aborted) {
+    turnEnds();
+    return unasked({ kind: "failed" });
+  }
   const heldBack = admission.heldBack(Date.now());
   if (heldBack !== undefined) {
-    return Promise.resolve(unasked(heldBack, askedAt));
+    turnEnds();
+    return unasked(heldBack);
   }
+  const askedAt = new Date().toISOString();
   return new Promise((resolve, reject) => {
     execFile(
       "gh",
@@ -135,15 +160,18 @@ function spawnedGh(
       },
       (error, stdout, stderr) => {
         if (signal.reason instanceof ReadBoundReached) {
+          turnEnds();
           reject(new GhFailure({ kind: "timed-out" }));
           return;
         }
-        resolve(
-          admission.answered(
-            readAnswer(error, stdout, stderr, askedAt),
-            Date.now(),
-          ),
+        // Learned before the turn passes on, so a limit this answer starts
+        // holds back the read that takes the turn next.
+        const answer = admission.answered(
+          readAnswer(error, stdout, stderr, askedAt),
+          Date.now(),
         );
+        turnEnds();
+        resolve(answer);
       },
     );
   });
@@ -151,8 +179,11 @@ function spawnedGh(
 
 // An answer that never came from GitHub: held back, or -- `failed`, as
 // `execFile` answers a call aborted by its signal -- for a request that
-// stopped waiting.
-function unasked(failure: GhFailureReason, askedAt: string): GhAnswer {
+// stopped waiting, or a call that ended while waiting its turn.
+function unasked(
+  failure: GhFailureReason,
+  askedAt = new Date().toISOString(),
+): GhAnswer {
   return { status: undefined, headers: new Map(), body: "", failure, askedAt };
 }
 
@@ -174,7 +205,7 @@ export async function execGh(
     );
   } catch (error) {
     if (signal.aborted) {
-      return unasked({ kind: "failed" }, new Date().toISOString());
+      return unasked({ kind: "failed" });
     }
     throw error;
   }
@@ -206,44 +237,4 @@ export function isNotFound(error: unknown): boolean {
     error.reason.kind === "http" &&
     error.reason.status === 404
   );
-}
-
-// A committer date as GitHub spells one: an ISO 8601 instant.
-const committerDatePattern =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
-
-// When `path` was last committed in the history of `revision`: the
-// committer date of the newest commit GitHub's commit list names for that
-// path from that commit. A list naming no commit, or no usable date, is not
-// a commit time.
-export async function lastCommitTimeViaGh(
-  repository: string,
-  path: string,
-  revision: string,
-  signal: AbortSignal,
-): Promise<string> {
-  const committed = (
-    await runGh(
-      [
-        "api",
-        `repos/${repository}/commits?sha=${revision}&path=${encodeURIComponent(path)}&per_page=1`,
-        "--jq",
-        ".[0].commit.committer.date",
-      ],
-      signal,
-    )
-  ).trim();
-  const at = usableCommitterDate(committed);
-  if (at === null) {
-    throw new GhFailure({ kind: "no-commit" });
-  }
-  return at;
-}
-
-// A committer date GitHub named, as an ISO instant; null when it named none
-// in its own spelling.
-export function usableCommitterDate(date: unknown): string | null {
-  return typeof date === "string" && committerDatePattern.test(date)
-    ? new Date(date).toISOString()
-    : null;
 }

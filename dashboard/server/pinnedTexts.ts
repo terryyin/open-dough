@@ -9,7 +9,7 @@ import {
   readRepositoryFileViaGh,
   type ListedFile,
 } from "./ghContents.ts";
-import { lastCommitTimeViaGh } from "./ghRead.ts";
+import { lastCommitTimeViaGh } from "./ghCommitTime.ts";
 import {
   commitChangeViaGh,
   findAddition,

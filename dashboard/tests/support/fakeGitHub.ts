@@ -14,22 +14,15 @@
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
-  commitAnswer,
-  headsAnswer,
   noConnection,
-  rawFileAnswer,
   rawFileContentType,
   type OriginAnswer,
 } from "../originAnswers.ts";
-import { directoryListingAnswer, listedFiles } from "../listingAnswers.ts";
-import {
-  commitAnswerIn,
-  commitListIn,
-  type PathHistories,
-} from "../pathHistoryAnswers.ts";
 import { avatarsAt } from "../avatarAnswers.ts";
 import { asGhReply } from "./ghReply.ts";
 import { parseRequest, type GhRequest } from "./ghRequest.ts";
+
+export { publishes } from "./publishedRepository.ts";
 
 export type GhCall = {
   readonly argv: readonly string[];
@@ -66,6 +59,10 @@ export type FakeGitHub = {
   readonly calls: readonly GhCall[];
   // Every avatar image read's path and query, in arrival order.
   readonly avatarReads: readonly string[];
+  // Starts observing how many `gh` calls are unanswered at once: arrived
+  // here and neither answered nor given up by their `gh`. The function it
+  // returns reports the most there have been since.
+  observeUnanswered(): () => number;
   // Answers `repository` (or `everyRepository`) with `answerer` from now on.
   serve(repository: string, answerer: RepositoryAnswerer): void;
   // Answers avatar image reads with `answerer` from now on; until then every
@@ -81,72 +78,6 @@ export const hangs: RepositoryAnswerer = () =>
 // Fails as `gh` does, printing `stderr`.
 export function failsWith(stderr: string): RepositoryAnswerer {
   return () => Promise.resolve({ exitCode: 1, stderr });
-}
-
-// Answers `revision` for any ref, and as the only branch head `main` of a
-// head listing; for any content read, the named file in
-// `files` or else `backlog`; for a directory listing, the `files` in that
-// directory; and for a path's commit list, the commits `history` lists for
-// it, or else its time in `committed`, as many as it asks for, each listed
-// commit answering for its own change to that path; a published agent
-// profile nothing else dates was added by a commit of its own
-// (../pathHistoryAnswers.ts).
-export function publishes(published: {
-  readonly revision: string;
-  readonly defaultBranch?: string;
-  readonly backlog?: string;
-  readonly files?: Readonly<Record<string, string>>;
-  readonly committed?: Readonly<Record<string, Date>>;
-  readonly history?: PathHistories;
-}): RepositoryAnswerer {
-  return ({ request }) => {
-    if (request.kind === "repository")
-      return Promise.resolve({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          default_branch: published.defaultBranch ?? "main",
-        }),
-      });
-    const commitList =
-      request.kind === "commit-list"
-        ? commitListIn(published, request.path, request.perPage)
-        : undefined;
-    if (commitList !== undefined) {
-      return Promise.resolve(commitList);
-    }
-    if (request.kind === "commit") {
-      return Promise.resolve(
-        commitAnswerIn([published], request.sha) ?? noConnection,
-      );
-    }
-    if (request.kind === "ref") {
-      return Promise.resolve(commitAnswer(published.revision));
-    }
-    if (request.kind === "matching-refs") {
-      return Promise.resolve(headsAnswer({ main: published.revision }));
-    }
-    if (request.kind === "content") {
-      const { files, backlog } = published;
-      const body =
-        files !== undefined && Object.hasOwn(files, request.path)
-          ? files[request.path]
-          : backlog;
-      return Promise.resolve(rawFileAnswer(body ?? ""));
-    }
-    if (request.kind === "listing") {
-      return Promise.resolve(
-        directoryListingAnswer(
-          request.path,
-          listedFiles(published.files ?? {}),
-        ),
-      );
-    }
-    return Promise.resolve({
-      exitCode: 1,
-      stderr: "fake gh: unrecognized invocation\n",
-    });
-  };
 }
 
 // GitHub labels a file's raw bytes with the raw media type the read accepted,
@@ -167,6 +98,8 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
   const avatarReads: string[] = [];
   const served = new Map<string, RepositoryAnswerer>();
   let avatars = avatarsAt({});
+  let unanswered = 0;
+  const observers = new Set<{ most: number }>();
 
   const decide = (call: GhCall): Promise<OriginAnswer> => {
     const { request } = call;
@@ -203,6 +136,13 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
       ) as string[];
       const call: GhCall = { argv, request: parseRequest(argv) };
       calls.push(call);
+      unanswered += 1;
+      for (const observer of observers) {
+        observer.most = Math.max(observer.most, unanswered);
+      }
+      res.once("close", () => {
+        unanswered -= 1;
+      });
       void decide(call).then((answer) => {
         if (res.destroyed) {
           return;
@@ -229,6 +169,11 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
     url: `http://127.0.0.1:${String(port)}/`,
     calls,
     avatarReads,
+    observeUnanswered() {
+      const observer = { most: unanswered };
+      observers.add(observer);
+      return () => observer.most;
+    },
     serve(repository, answerer) {
       served.set(repository, answerer);
     },

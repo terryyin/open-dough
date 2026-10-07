@@ -57,7 +57,12 @@ A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it
 alike, so a page that joined it late can be told so sooner than 30 seconds
 after it asked; the failure is not kept, and the next request asks again,
-once any rate limit's wait has passed.
+once any rate limit's wait has passed. However many pages and projects ask, one
+dashboard process has at most eight reads under way at GitHub at once, a
+shared read counting once; further reads wait their turn in the order they
+were asked. A read whose page stops waiting before its turn never reaches
+GitHub, and time spent waiting counts toward the 30-second bound, so a read
+still waiting then fails as unanswered.
 
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done
