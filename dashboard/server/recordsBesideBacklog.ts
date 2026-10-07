@@ -6,12 +6,15 @@
 // are read the same way: only as the record files their directory's listing
 // names. The one project setting file the shared profile module names is
 // reachable only as part of the profile read, never by a client-supplied
-// path.
+// path. The done catalog (`../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs`)
+// sits among the done records, at the one path that module names; what it
+// admits is read in `./doneCatalogRead.ts`.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { resolveBesideFile } from "../src/repositoryPath.ts";
 import { rateLimitStop } from "./ghRead.ts";
-import type { ListedPath } from "./pinnedTexts.ts";
+import type { ProfileAddition } from "./ghProfileAddition.ts";
+import type { ListedPath, PinnedTexts } from "./pinnedTexts.ts";
 import type { PinnedLister, PinnedReader } from "./reachablePaths.ts";
 import {
   agentProfileDirectory,
@@ -22,6 +25,7 @@ import {
   doneRecordDirectory,
   isDoneRecordFileName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneCatalogPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 // Where a directory of published records named by the shared backlog
 // modules lives for this source: beside its backlog.
@@ -41,6 +45,11 @@ export function agentProfileDirectoryOf(source: PublishedSource): string {
 // Where done records live for this source: beside its backlog.
 export function doneRecordDirectoryOf(source: PublishedSource): string {
   return besideBacklog(source, doneRecordDirectory);
+}
+
+// Where the done catalog lives for this source: among its done records.
+export function doneCatalogPathOf(source: PublishedSource): string {
+  return besideBacklog(source, doneCatalogPath);
 }
 
 // Which records of a directory beside the backlog may be read at a pinned
@@ -88,7 +97,7 @@ export function listedDoneRecords(
 // Whether `requestedPath` is one of the agent profiles listed beside the
 // backlog at a pinned revision. The profile directory is listed only for a
 // path inside it.
-export async function isListedAgentProfile(
+async function isListedAgentProfile(
   source: PublishedSource,
   requestedPath: string,
   listPinned: PinnedLister,
@@ -99,6 +108,26 @@ export async function isListedAgentProfile(
   return (await listedAgentProfiles(source, listPinned)).some(
     ({ path }) => path === requestedPath,
   );
+}
+
+// Which commit added a profile's current allocation, asked only about a
+// profile the revision's directory listing names, as when profiles themselves
+// are read; undefined when it does not. The avatar read (`./avatarRead.ts`)
+// finds its account the same way.
+export async function listedProfileAddition(
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  { revision, path }: { readonly revision: string; readonly path: string },
+  signal: AbortSignal,
+): Promise<ProfileAddition | undefined> {
+  const listed = await isListedAgentProfile(
+    source,
+    path,
+    pinned.lister(source, revision, signal),
+  );
+  return listed
+    ? await pinned.adder(source, revision, signal)(path)
+    : undefined;
 }
 
 // The text of the project setting file at a pinned revision, or null when the

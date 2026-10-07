@@ -81,6 +81,8 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
         `${sharedSeedRead(revision)}&committed=last`,
         profilesRead,
         `&revision=${revision}&done=records`,
+        `&revision=${revision}&done=catalog`,
+        `&revision=${revision}&done=bodies&file=SEED-001_x.json`,
         `&revision=${revision}&path=${encodeURIComponent(".planning/agents/yui-chan.json")}&committed=added`,
         `&revision=${revision}&branch=story/one`,
         `&revision=${revision}&branch=story/one&head=${heads["story/one"] ?? ""}&path=${encodeURIComponent(sharedSeedPath)}`,

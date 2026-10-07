@@ -9,7 +9,8 @@
 // commit added one agent profile's current allocation, when, and who
 // committed it, at a pinned revision (`committed=added`); the records
 // published beside the backlog at a pinned revision
-// (`./listedRecordsRead.ts`); which commit a story branch recorded at a pinned revision names now (`branch`);
+// (`./listedRecordsRead.ts`), or the done catalog there and the records it
+// lists (`./doneCatalogRead.ts`); which commit a story branch recorded at a pinned revision names now (`branch`);
 // or one path, or its last commit, at a head of that branch (`branch` and
 // `head`); or whether a pinned revision contains an accepted one
 // (`contains`, `./containmentRead.ts`). Malformed or mixed parameters are
@@ -35,6 +36,10 @@ import {
   parseListedRecordsRead,
   type ListedRecordsRead,
 } from "./listedRecordsRead.ts";
+import {
+  parseDoneCatalogRead,
+  type DoneCatalogRead,
+} from "./doneCatalogRead.ts";
 import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // A story branch as a read names it: the branch, and the head commit this
@@ -52,6 +57,7 @@ export type RequestedRead =
     }
   | { readonly kind: "backlog-at"; readonly revision: string }
   | ListedRecordsRead
+  | DoneCatalogRead
   | {
       readonly kind: "addition-at";
       readonly revision: string;
@@ -203,6 +209,10 @@ export function parseRequestedRead(
   }
   if (branch !== null || params.get("head") !== null) {
     return parseBranchRead(params, branch);
+  }
+  const catalogRead = parseDoneCatalogRead(params);
+  if (catalogRead !== undefined) {
+    return catalogRead;
   }
   const listedRead = parseListedRecordsRead(params);
   if (listedRead !== undefined) {

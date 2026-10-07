@@ -5,14 +5,14 @@
 // source and what was being read when it failed. Reads on a story branch are
 // performed in `./performedBranchRead.ts`, revision checks in
 // `./performedRevisionCheck.ts`, the records listed beside the backlog in
-// `./listedRecordsRead.ts`, containment in `./containmentRead.ts`; what
+// `./listedRecordsRead.ts`, the done catalog and the records it lists in
+// `./doneCatalogRead.ts`, containment in `./containmentRead.ts`; what
 // a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
 import type { BranchHeads } from "./branchHeads.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
-import type { ProfileAddition } from "./ghProfileAddition.ts";
 import {
   performBranchHeadRead,
   performOnBranch,
@@ -27,9 +27,13 @@ import {
   performListedRecordsRead,
   readingListedRecordsOf,
 } from "./listedRecordsRead.ts";
+import {
+  performDoneCatalogRead,
+  readingDoneCatalogOf,
+} from "./doneCatalogRead.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
-import { isListedAgentProfile } from "./recordsBesideBacklog.ts";
+import { listedProfileAddition } from "./recordsBesideBacklog.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -49,26 +53,6 @@ export type Boundary = {
   readonly avatars: AvatarImages;
 };
 
-// Which commit added a profile's current allocation, asked only about a
-// profile the revision's directory listing names, as when profiles themselves
-// are read; undefined when it does not. The avatar read (`./avatarRead.ts`)
-// finds its account the same way.
-export async function listedProfileAddition(
-  pinned: PinnedTexts,
-  source: PublishedSource,
-  { revision, path }: { readonly revision: string; readonly path: string },
-  signal: AbortSignal,
-): Promise<ProfileAddition | undefined> {
-  const listed = await isListedAgentProfile(
-    source,
-    path,
-    pinned.lister(source, revision, signal),
-  );
-  return listed
-    ? await pinned.adder(source, revision, signal)(path)
-    : undefined;
-}
-
 // What a read failure names as being read when the request was made.
 function readingOf(source: PublishedSource, read: RequestedRead): string {
   switch (read.kind) {
@@ -87,6 +71,9 @@ function readingOf(source: PublishedSource, read: RequestedRead): string {
     case "agent-profiles-at":
     case "done-records-at":
       return readingListedRecordsOf(source, read);
+    case "done-catalog-at":
+    case "done-bodies-at":
+      return readingDoneCatalogOf(source, read);
     case "addition-at":
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":
@@ -105,6 +92,9 @@ export async function perform(
   read: RequestedRead,
 ): Promise<Outcome> {
   let reading = readingOf(source, read);
+  const naming = (now: string) => {
+    reading = now;
+  };
   try {
     return await withTrackedGh(req, tracked, async (signal) => {
       // The backlog at a resolved commit: one this process already read there
@@ -140,9 +130,16 @@ export async function perform(
             source,
             read,
             signal,
-            (now) => {
-              reading = now;
-            },
+            naming,
+          );
+        case "done-catalog-at":
+        case "done-bodies-at":
+          return await performDoneCatalogRead(
+            pinned,
+            source,
+            read,
+            signal,
+            naming,
           );
         case "addition-at": {
           const added = await listedProfileAddition(

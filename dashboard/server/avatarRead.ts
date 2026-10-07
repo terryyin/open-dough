@@ -9,9 +9,10 @@
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImage } from "./avatarImages.ts";
-import { listedProfileAddition, type Boundary } from "./performedRead.ts";
+import type { Boundary } from "./performedRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import { unreachable, type Outcome } from "./readOutcome.ts";
+import { listedProfileAddition } from "./recordsBesideBacklog.ts";
 import { parseAdditionRead } from "./requestedRead.ts";
 import { withTrackedGh } from "./trackedGh.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";

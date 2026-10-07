@@ -22,6 +22,14 @@ import {
   parseDoneRecordFile,
 } from "./product-backlog-done-record.mjs";
 
+/**
+ * A catalogued record: its file name, identity, completion time, and blob.
+ * @typedef {{ fileName: string, identity: string, completedAt: string, blob: string }} CataloguedDoneRecord
+ * A record file the catalog could not read: its file name and blob alone.
+ * @typedef {{ fileName: string, blob: string }} UnreadableDoneRecordEntry
+ * @typedef {{ records: CataloguedDoneRecord[], unreadable: UnreadableDoneRecordEntry[] }} DoneCatalog
+ */
+
 // The catalog sits among the records it indexes. Its leading "." keeps it
 // outside the names a done record can take.
 export const doneCatalogFileName = ".catalog.json";
@@ -126,6 +134,10 @@ function sorted(entries, order) {
 // { ok: false, error }. Anything other than what renderDoneCatalog writes —
 // another schema version, an extra fact, a repeated file name, or another
 // order — is refused rather than interpreted.
+/**
+ * @param {string} text
+ * @returns {{ ok: true, catalog: DoneCatalog } | { ok: false, error: string }}
+ */
 export function parseDoneCatalog(text) {
   let data;
   try {
@@ -170,7 +182,7 @@ export function parseDoneCatalog(text) {
  * beside the same backlog, or undefined when it describes exactly them: every
  * listed record file once, at the same blob hash, and nothing else. Only the
  * names a done record can take count as listed record files.
- * @param {{ records: object[], unreadable: object[] }} catalog
+ * @param {DoneCatalog} catalog
  * @param {{ fileName: string, blob: string }[]} listing
  */
 export function doneCatalogMismatch(catalog, listing) {

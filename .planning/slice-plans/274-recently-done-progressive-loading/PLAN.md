@@ -350,7 +350,7 @@ Accepted proof and learnings (2026-10-07, terry-chan):
 ### 2. Published done metadata admits only requested record details
 
 Type: Structure
-Status: planned
+Status: done
 Proof: run the Authenticated reads group, plus `npm run typecheck:dashboard`.
 At the real local read boundary, obtain catalog metadata at revision A; request
 a subset of its bodies and observe only those upstream requests. Prove path,
@@ -368,6 +368,32 @@ slice 3; do not duplicate validation or catalog ownership in that adapter.
 Safe stopping point: existing UI remains usable while the demand boundary is
 proved. This slice claims no initial-load savings. Slice 3 removes the eager
 browser call and updates its API/fixture consumers together.
+
+Accepted proof and learnings (2026-10-07, terry-chan):
+
+- Endpoint: `done=catalog` answers `{revision, catalog}` or `{revision, gap}`
+  after `dashboard/server/doneCatalogRead.ts` agrees the shared catalog with the
+  pinned listing (no record files → rendered empty catalog). `done=bodies&file=…`
+  (≤100 record file names) reads only names the agreeing catalog lists, through
+  `readListedTexts` in `listedRecordsRead.ts`; an unlisted name or a gap is a
+  404 with no record read, a bad shape a 400 before `gh`.
+- Client: `readDoneCatalogAt` and `readDoneRecordBodiesAt` in
+  `dashboard/src/authenticatedDoneRead.ts`; both check the answered revision.
+  The catalog is not windowed. Fixture helper `dashboard/tests/doneCatalogAnswers.ts`
+  (`withDoneCatalog`) renders genuine catalogs with real blob hashes.
+- Temporary eager adapter for slice 3 to retire: `readDoneRecordsAt`
+  (`done=records`, server kind `done-records-at`) used by `readDoneStories`;
+  `dashboard/tests/recentlyDoneRecords.ts` still publishes a placeholder catalog.
+- Proof: `npm run typecheck:dashboard`; the Authenticated reads group plus
+  `authenticated-read-done-catalog{,-gaps,-refusal}.spec.ts`,
+  `authenticated-avatar.spec.ts`, `authenticated-read-profile-addition.spec.ts`
+  (106 passed: exact recorded `gh` requests for catalog/subset bodies, later
+  revision and other project, five gaps, unlisted names with zero `gh`,
+  parameter refusals, cancellation, cache reuse, cooldown);
+  `recently-done-stories`/`-story-sessions`/`-read-latency` (6 passed);
+  `published-facts-isolation`, `authenticated-read-shared`,
+  `authenticated-read-directed-wait`, `authenticated-branch-read-boundary`,
+  `authenticated-read-agent-settings` (17 passed); catalog shell tests.
 
 ### 3. A short initial list reveals the next ten only when asked
 

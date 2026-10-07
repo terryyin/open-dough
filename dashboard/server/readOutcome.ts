@@ -1,7 +1,7 @@
 // What one performed read of the local authenticated read boundary
 // (`./authenticatedRead.ts`) comes to: an answer, a refusal, or a reported
 // failure. Shared by `./performedRead.ts`, `./performedBranchRead.ts`,
-// `./listedRecordsRead.ts`, and `./containmentRead.ts`.
+// `./listedRecordsRead.ts`, `./doneCatalogRead.ts`, and `./containmentRead.ts`.
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
@@ -41,7 +41,13 @@ type Answer =
       readonly profiles: readonly PinnedFile[];
       readonly settings: string | null;
     }
-  // The done records listed beside the backlog at a revision.
+  // The done catalog published beside the backlog at a revision, by its
+  // text, once it agrees with the record files listed there; or the gap that
+  // keeps it from being trusted (`./doneCatalogRead.ts`).
+  | { readonly revision: string; readonly catalog: string }
+  | { readonly revision: string; readonly gap: string }
+  // The done records listed beside the backlog at a revision, or those of
+  // them a read named from its catalog.
   | {
       readonly revision: string;
       readonly records: readonly PinnedFile[];

@@ -1,10 +1,12 @@
 // Reads of the records published beside the backlog at a pinned revision,
 // for the local authenticated read boundary (`./authenticatedRead.ts`): the
 // agent profiles (`agents=profiles`), with the project setting file's text,
-// or the done records (`done=records`). Each names only a pinned revision and
-// is refused here before any `gh` call otherwise. Which files are read is the
-// revision's listing of their directory (`./recordsBesideBacklog.ts`). Records are
-// read a few at a time, each only while no earlier read has kept the blob its
+// or every done record (`done=records`), which Recently done reads only until
+// it reads the records its shown entries need through the done catalog
+// (`./doneCatalogRead.ts`). Each names only a pinned revision and is refused
+// here before any `gh` call otherwise. Which files are read is the revision's
+// listing of their directory (`./recordsBesideBacklog.ts`). Records are read
+// a few at a time, each only while no earlier read has kept the blob its
 // listing names (`./pinnedTexts.ts`); a failure names the record whose read
 // failed (`./performedRead.ts`).
 
@@ -88,7 +90,13 @@ export function parseListedRecordsRead(
   );
   if (kind === undefined) return undefined;
   const named = listedReads[kind];
-  const others = ["path", "since", "committed", ...listedReadParameters];
+  const others = [
+    "path",
+    "since",
+    "committed",
+    "file",
+    ...listedReadParameters,
+  ];
   if (
     params.get(named.parameter) !== named.value ||
     others.some((name) => name !== named.parameter && params.get(name) !== null)
@@ -113,10 +121,43 @@ export function readingListedRecordsOf(
 // How many listed records are read from GitHub at once.
 const listedReadConcurrency = 4;
 
-// Reads every listed record at the pinned revision, a few at once, naming the
-// first record whose read fails so that the failure says which; a profile
-// read also answers the project setting file's text, null when the revision
-// has none.
+// Reads each listed file's text at the pinned revision, a few at once, each
+// only while no earlier read has kept the blob its listing names, naming the
+// first file whose read fails so that the failure says which. The done
+// catalog's selected record reads (`./doneCatalogRead.ts`) read the same way.
+export async function readListedTexts(
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  revision: string,
+  listed: readonly ListedPath[],
+  signal: AbortSignal,
+  naming: (reading: string) => void,
+  keptByPath = false,
+): Promise<PinnedFile[]> {
+  const readListed = pinned.blobReader(source, revision, signal);
+  let failed = false;
+  return mapPool(listed, listedReadConcurrency, async (record) => {
+    try {
+      const text = await readListed(record);
+      if (keptByPath) {
+        pinned.remember(source, revision, record.path, text);
+      }
+      return { path: record.path, text };
+    } catch (error) {
+      if (!failed) {
+        failed = true;
+        naming(readingPathAt(record.path, revision));
+      }
+      throw error;
+    }
+  });
+}
+
+// Reads every listed record at the pinned revision; a profile read also
+// answers the project setting file's text, null when the revision has none.
+// Every done record is read here only until Recently done asks for the
+// records its shown entries need through the done catalog
+// (`./doneCatalogRead.ts`).
 export async function performListedRecordsRead(
   pinned: PinnedTexts,
   source: PublishedSource,
@@ -125,31 +166,19 @@ export async function performListedRecordsRead(
   naming: (reading: string) => void,
 ): Promise<Outcome> {
   const readPinned = pinned.reader(source, revision, signal);
-  const readListed = pinned.blobReader(source, revision, signal);
   const { listed: listedIn, keptByPath } = listedReads[kind];
   const listed = await listedIn(
     source,
     pinned.lister(source, revision, signal),
   );
-  let failed = false;
-  const files: PinnedFile[] = await mapPool(
+  const files = await readListedTexts(
+    pinned,
+    source,
+    revision,
     listed,
-    listedReadConcurrency,
-    async (record) => {
-      try {
-        const text = await readListed(record);
-        if (keptByPath) {
-          pinned.remember(source, revision, record.path, text);
-        }
-        return { path: record.path, text };
-      } catch (error) {
-        if (!failed) {
-          failed = true;
-          naming(readingPathAt(record.path, revision));
-        }
-        throw error;
-      }
-    },
+    signal,
+    naming,
+    keptByPath,
   );
   if (kind === "done-records-at") {
     return answered({ revision, records: files });
