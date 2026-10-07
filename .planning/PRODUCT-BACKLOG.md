@@ -18,7 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Recover consistently from GitHub rate limits](seeds/SEED-113-dashboard-github-responsiveness.md#recover-consistently-from-rate-limits) — SEED-113#recover-consistently-from-rate-limits ([plan](slice-plans/264-rate-limit-recovery/PLAN.md))
 - [Refresh published work without rereading unchanged files](seeds/SEED-113-dashboard-github-responsiveness.md#reuse-unchanged-records-after-publication) — SEED-113#reuse-unchanged-records-after-publication ([plan](slice-plans/266-reuse-unchanged-records-after-publication/PLAN.md))
 - [A session that retired its own checkout closes as finished](seeds/SEED-117-finished-sessions-leave-no-blocked-job.md#finished-after-retirement) — SEED-117#finished-after-retirement
-- [A Claude Code session marked done is renamed without an open terminal](seeds/SEED-116-claude-done-rename.md#claude-done-rename) — SEED-116#claude-done-rename ([plan](slice-plans/267-claude-done-rename/PLAN.md))
 
 ## Backlog list
 
