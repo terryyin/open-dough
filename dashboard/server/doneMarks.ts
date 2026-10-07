@@ -15,7 +15,8 @@ import { machineFolder } from "./projectFolders.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-const stopWaitMs = 10_000;
+// The wait before Done reports a native stop or removal unconfirmed.
+const nativeWaitMs = 10_000;
 
 // Both reporting and explicit Done use this durable intent. Reporting keeps
 // the receipt's time and leaves later explicit Done/reopen intent independent.
@@ -81,7 +82,25 @@ async function finishNativeDone(
       );
     }
   };
-  if (host?.rename !== undefined) {
+  const manual =
+    intent === "manual" &&
+    terminals !== undefined &&
+    launches !== undefined &&
+    source !== undefined
+      ? { terminals, launches, source }
+      : undefined;
+  const sessionState =
+    manual === undefined
+      ? undefined
+      : (await manual.launches.stateOf(manual.source, record)).sessionState;
+  // An exited session has no process to stop, and its removed job no name left
+  // to show, so neither rename nor stop runs.
+  const removal =
+    sessionState?.kind === "available" &&
+    sessionState.availability === "retained"
+      ? host?.remove?.bind(host)
+      : undefined;
+  if (removal === undefined && host?.rename !== undefined) {
     await attempt("rename", async () => {
       if (intent === "reporting" && host.renameWhileReporting !== true)
         throw new HostOperationFailure(
@@ -94,18 +113,16 @@ async function finishNativeDone(
       );
     });
   }
-  if (
-    intent === "manual" &&
-    terminals !== undefined &&
-    launches !== undefined &&
-    source !== undefined
-  ) {
-    terminals.endAttachments(record.session);
-    const { sessionState } = await launches.stateOf(source, record);
+  if (manual !== undefined) {
+    manual.terminals.endAttachments(record.session);
     const stop = host?.stop?.bind(host);
-    if (sessionState.kind !== "unavailable" && stop !== undefined)
+    if (removal !== undefined)
+      await attempt("removal", () =>
+        removal(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
+      );
+    else if (sessionState?.kind !== "unavailable" && stop !== undefined)
       await attempt("stop", () =>
-        stop(record.session, folder, AbortSignal.timeout(stopWaitMs)),
+        stop(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
       );
   }
   const doneProblem =

@@ -133,7 +133,12 @@ read-only host query, unless noted.
 
 ### 1. Mark as done removes an exited Claude Code session's job
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts agent-launch-done-stop.spec.ts`
+(4 pass; "removes an exited session's job with claude rm, neither renaming nor
+stopping it" observes the `rm` call, no stop, no problem, listing without the
+id); after refactor, 82 spec files (every Mark as done, attach, terminal, and
+`*done*` consumer) 259 pass; typecheck and lint clean.
 Proof: `agent-launch-done-stop.spec.ts` extended with the exited case and removal assertions on its existing cases; `agent-launch-done.spec.ts`, `agent-launch-card-done.spec.ts`, `agent-terminal-done*.spec.ts`, `agent-launch-done-codex-races.spec.ts`, `agent-completion-binding.spec.ts`, `agent-completion-quiet.spec.ts` green; lint and `npm run typecheck:dashboard`.
 
 Behavior: a recorded Claude session is listed without `status` (its process
@@ -181,4 +186,9 @@ reuses the store helpers the done specs already use.
 
 ## Learnings
 
-None yet.
+- Removal ends dashboard attachments before `claude rm`, as the story's
+  required behavior says; `finishNativeDone` picks `removal` from the state
+  and skips rename when it is set.
+- The fake `claude`'s attach emulation now lives in
+  `dashboard/tests/fixtures/fake-claude-attach.cjs` (keeping the fake under
+  250 lines); `.cjs` fixtures are linted, extensionless ones are not.

@@ -2,10 +2,10 @@
 // `claude` argument array held here and run in the project folder:
 // `claude --bg` for a launch, whose name and instruction `./launch.ts`
 // supplies, Claude Code's own session listing, which confirms a launch and
-// answers each recorded session's state, `claude stop` for Mark as done
-// (`../../doneMarks.ts`), and `claude attach` through a PTY for the terminal
-// boundary (`../../agentTerminals.ts`), since `execFile` cannot host Claude
-// Code's interactive terminal. Raw stderr is never forwarded.
+// answers each recorded session's state, `claude stop` or, for an exited
+// session, `claude rm` for Mark as done (`../../doneMarks.ts`), and `claude
+// attach` through a PTY (`execFile` cannot host its interactive terminal) for
+// the terminal boundary (`../../agentTerminals.ts`). Raw stderr stays private.
 
 import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
@@ -104,6 +104,19 @@ export async function stopClaude(
   const result = await execClaude(["stop", shortId], folder, signal);
   if (result.error !== null || signal.aborted)
     throw new Error("The native stop could not be confirmed.");
+}
+
+// `claude rm <short id>` in the project folder, for an exited session Mark as
+// done removes from Claude Code's jobs. The short id alone: never a flag that
+// discards commits or removes a worktree.
+export async function removeClaude(
+  shortId: string,
+  folder: ProjectFolder,
+  signal: AbortSignal,
+): Promise<void> {
+  const result = await execClaude(["rm", shortId], folder, signal);
+  if (result.error !== null || signal.aborted)
+    throw new Error("The native removal could not be confirmed.");
 }
 
 // Claude Code's own session listing: `--all` includes sessions whose process

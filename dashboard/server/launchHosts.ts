@@ -123,6 +123,12 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ): Promise<void>;
+  // Removes an exited session's job from the host on Mark as done.
+  remove?(
+    session: HostSession,
+    folder: ProjectFolder,
+    signal: AbortSignal,
+  ): Promise<void>;
 };
 
 const hostRuntimes: Readonly<Record<HostIdentity, LaunchHost | undefined>> = {

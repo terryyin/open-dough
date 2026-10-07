@@ -1,13 +1,13 @@
 // Prepares one dashboard server's side of the local launch boundary: the
-// synthetic `claude` (../fixtures/fake-claude) in its own PATH directory, the
-// synthetic `osascript` (../fixtures/fake-osascript) before it, a
-// temporary HOME holding only the project folders a test chooses (inside a
-// machine directory the test owns, if it passes one), and the controls a test
-// uses to choose the fake's scenario and read back what it was asked. Nothing
-// here starts a server (./dashboardServer.ts does), and no test ever reaches
-// the real `claude` or `osascript`: every server puts these first on PATH, or,
-// to observe a missing one, a PATH holding none, so no test raises a real
-// notification.
+// synthetic `claude` (../fixtures/fake-claude, with its attach module) in its
+// own PATH directory, the synthetic `osascript` (../fixtures/fake-osascript)
+// before it, a temporary HOME holding only the project folders a test chooses
+// (inside a machine directory the test owns, if it passes one), and the
+// controls a test uses to choose the fake's scenario and read back what it was
+// asked. Nothing here starts a server (./dashboardServer.ts does), and no test
+// ever reaches the real `claude` or `osascript`: every server puts these first
+// on PATH, or, to observe a missing one, a PATH holding none, so no test
+// raises a real notification.
 
 import {
   mkdirSync,
@@ -80,10 +80,12 @@ export type FakeClaudeControls = ClaudeListingControls & {
   readonly home: string;
   claudeCalls(): ClaudeCall[];
   // The `claude --bg` launches alone, without the session listings, attaches,
-  // and stops the page also runs.
+  // stops, and removals the page also runs.
   claudeLaunchCalls(): ClaudeCall[];
   // The native `claude stop` calls alone, oldest first, whatever asked for them.
   claudeStopCalls(): ClaudeCall[];
+  // The native `claude rm` calls alone, oldest first.
+  claudeRemovalCalls(): ClaudeCall[];
   claudeScenario(scenario: FakeClaudeScenario): void;
   // Lets a `held` launch go on and launch its session.
   releaseHeldClaude(): void;
@@ -142,6 +144,7 @@ export function installFakeClaude(
   const stateDir = path.join(machine, "claude-state");
   const home = path.join(machine, "home");
   installFixtureExecutable("fake-claude", binDir, "claude");
+  installFixtureExecutable("fake-claude-attach.cjs", binDir, "attach.cjs");
   if (options.osascript !== "absent") {
     installFixtureExecutable("fake-osascript", osascriptBinDir, "osascript");
   }
@@ -195,6 +198,9 @@ export function installFakeClaude(
       },
       claudeStopCalls() {
         return claudeCalls().filter((call) => call.argv[0] === "stop");
+      },
+      claudeRemovalCalls() {
+        return claudeCalls().filter((call) => call.argv[0] === "rm");
       },
       claudeScenario(scenario) {
         writeFileSync(state("scenario"), scenario);

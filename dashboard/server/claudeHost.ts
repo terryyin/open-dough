@@ -8,6 +8,7 @@ import { launchClaude } from "./hosts/claude/launch.ts";
 import {
   attachClaude,
   observeClaudeSessions,
+  removeClaude,
   stopClaude,
 } from "./hosts/claude/runtime.ts";
 import { renameInClaudeCode } from "./hosts/claude/rename.ts";
@@ -35,4 +36,6 @@ export const claudeHost: LaunchHost = {
   rename: renameInClaudeCode,
   stop: (session, folder, signal) =>
     stopClaude(nativeAlias(session), folder, signal),
+  remove: (session, folder, signal) =>
+    removeClaude(nativeAlias(session), folder, signal),
 };
