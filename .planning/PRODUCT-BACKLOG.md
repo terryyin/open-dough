@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery
 - [Show the latest 10 done items and reveal older items on demand](seeds/SEED-119-recently-done-progressive-loading.md#recently-done-progressive-loading) — SEED-119#recently-done-progressive-loading
 - [Show basic story cards without waiting for expensive cache validation](seeds/SEED-118-dashboard-reading-reliability.md#show-cards-before-expensive-cache-validation) — SEED-118#show-cards-before-expensive-cache-validation
 - [Reduce repeated GitHub reads across tabs and deployments](seeds/SEED-118-dashboard-reading-reliability.md#reduce-repeated-reads-across-tabs-and-deployments) — SEED-118#reduce-repeated-reads-across-tabs-and-deployments
