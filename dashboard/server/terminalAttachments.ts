@@ -18,7 +18,11 @@ import {
 import type { HostSession } from "../src/agentLaunch.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { TerminalAttachmentUnopened } from "./hostLaunch.ts";
-import { launchHost, type DetachedIdle } from "./launchHosts.ts";
+import {
+  launchHost,
+  type DetachedIdle,
+  type ScreenReadiness,
+} from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import type { LaunchInstructionInput } from "./launchInstruction.ts";
@@ -123,14 +127,15 @@ export class TerminalAttachments {
 
   // Runs `use` against the newest open attachment to this session, which
   // stays open. With none, a private client is attached from `folder`, with
-  // no saved-workspace check, and `use` runs once its first screen has
-  // settled, unless `signal` ends the wait first; that client is hung up when
+  // no saved-workspace check, and `use` runs once the host’s prompt shows,
+  // unless `signal` ends the wait first; that client is hung up when
   // `use` settles.
   async withAttachment<T>(
     session: HostSession,
     folder: ProjectFolder,
     use: (type: (input: string) => void) => Promise<T>,
     signal: AbortSignal,
+    ready: ScreenReadiness,
   ): Promise<T> {
     const open = this.newestOpen(session);
     if (open !== undefined) {
@@ -138,7 +143,7 @@ export class TerminalAttachments {
         open.pty.write(input);
       });
     }
-    const client = await this.openPrivate(session, folder, signal);
+    const client = await this.openPrivate(session, folder, signal, ready);
     try {
       return await use((input) => {
         client.pty.write(input);
@@ -158,30 +163,17 @@ export class TerminalAttachments {
   }
 
   // A socketless client with no idle rule, tracked so `close()` hangs it up,
-  // once it has shown a settled screen before `signal` ends the wait.
+  // once it has shown the host’s prompt before `signal` ends the wait.
   private async openPrivate(
     session: HostSession,
     folder: ProjectFolder,
     signal: AbortSignal,
+    ready: ScreenReadiness,
   ): Promise<LiveTerminalClient> {
     const attached = nativeAttach(session, folder, true);
     if (!("pty" in attached)) throw new TerminalAttachmentUnopened();
     const client = this.watchClient(attached.pty, attached.options);
-    const settled = client.firstOutput.then(async (shown) => {
-      if (shown) await client.screenText();
-      return shown;
-    });
-    const shown = await new Promise<boolean>((resolve) => {
-      const ended = () => {
-        resolve(false);
-      };
-      if (signal.aborted) ended();
-      signal.addEventListener("abort", ended, { once: true });
-      void settled.then((value) => {
-        signal.removeEventListener("abort", ended);
-        resolve(value);
-      });
-    });
+    const shown = await client.waitForScreen(ready, signal);
     if (!shown || !this.clients.has(client.pty)) {
       client.hangup();
       throw new TerminalAttachmentUnopened();

@@ -85,7 +85,7 @@ export async function observeCompletionFaults(options: {
   };
   // Neither late writer may import the reserved but unapplied receipt.
   await Promise.all([
-    recordOperation(receiver, "keepRecord", ["open-dough", stale]),
+    recordOperation(receiver, "bindRecord", ["open-dough", stale]),
     recordOperation(receiver, "updateRecord", ["open-dough", stale]),
   ]);
   expect(stored(receiver.home)[0]?.completion).toBeUndefined();

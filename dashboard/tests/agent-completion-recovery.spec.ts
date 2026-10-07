@@ -154,7 +154,7 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
         expect(deleted.ok).toBe(false);
         expect(deleted.stdout).toBe("");
         await expect(
-          recordOperation(again, "keepRecord", ["open-dough", record]),
+          recordOperation(again, "bindRecord", ["open-dough", record]),
         ).rejects.toThrow("The reporting session was deleted");
         expect(stored(again.home)).toHaveLength(0);
         expect(readFileSync(git.log, "utf8")).toBe(gitBefore);

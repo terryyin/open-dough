@@ -7,65 +7,41 @@ import type { AgentTerminals } from "./agentTerminals.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
-import {
-  completedWithoutAttention,
-  doneAutomatically,
-} from "../src/completionReport.ts";
+import { completedWithoutAttention } from "../src/completionReport.ts";
 import { localFolder, machineFolder } from "./projectFolders.ts";
 import { configuredProject } from "./projectConfiguration.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { nativeDoneMarkPending } from "../src/doneMark.ts";
+import {
+  doneSessionRecord,
+  reportedNativeDonePending,
+} from "./doneSessionRecord.ts";
 import { sessionKey } from "../src/sessionReference.ts";
+
+export {
+  doneSessionRecord,
+  reportedNativeDonePending,
+} from "./doneSessionRecord.ts";
 
 // The wait before Done reports a native stop or removal unconfirmed.
 const nativeWaitMs = 10_000;
 
-// Both reporting and explicit Done use this durable intent. Reporting keeps
-// the receipt's time and leaves later explicit Done/reopen intent independent.
-export function doneSessionRecord(
-  record: LaunchRecord,
-  doneAt: string,
-): LaunchRecord {
-  return {
-    ...record,
-    doneAt,
-    doneProblem:
-      record.doneAt !== undefined && record.doneProblem === undefined
-        ? undefined
-        : nativeDoneMarkPending,
-  };
-}
-
-// A read-only query lets confirmed Done receipts be acknowledged without a
-// write lock. Pending native work is continued by `NativeDoneMarks` below.
-export function reportedNativeDonePending(
-  record: LaunchRecord | undefined,
-  receipt: CompletionReport,
-): record is LaunchRecord {
-  return (
-    record !== undefined &&
-    record.completion?.receipt === receipt.receipt &&
-    doneAutomatically(record) &&
-    record.doneProblem !== undefined
-  );
-}
-
 // The native Done of one mark: the developer's, which also stops the session,
 // or a quiet report's, which a closing server abandons.
-type NativeDone =
+type NativeDone = { readonly stopped: AbortSignal } & (
   | {
       readonly intent: "manual";
       readonly launches: AgentLaunches;
       readonly source: PublishedSource;
     }
-  | { readonly intent: "reporting"; readonly stopped: AbortSignal };
+  | { readonly intent: "reporting" }
+);
 
 // Runs the native Done each quiet report asks for once its receipt is sent,
 // outside the reporting locks, one at a time per session. The developer's
-// Done takes over a session's running one. Closing abandons their waits and
-// writes nothing, so the pending mark stays for Mark as done or a delivery
-// retry; no wait outlives its one bounded rename attempt.
+// Done takes over a session's running one. Closing abandons their waits:
+// reporting leaves the pending mark, while manual Done retains its rename
+// failure; no wait outlives its one bounded rename attempt.
 export class NativeDoneMarks {
   private readonly running = new Map<
     string,
@@ -93,14 +69,13 @@ export class NativeDoneMarks {
     if (this.closed || !reportedNativeDonePending(current, receipt)) return;
     const key = sessionKey(current.session);
     if (this.running.has(key)) return;
-    const stop = new AbortController();
-    await this.track(key, stop, () =>
+    await this.track(key, (stopped) =>
       finishNativeDone(
         sourceId,
         current,
         reportingFolder(sourceId),
         this.terminals,
-        { intent: "reporting", stopped: stop.signal },
+        { intent: "reporting", stopped },
       ),
     );
   }
@@ -117,23 +92,35 @@ export class NativeDoneMarks {
     const running = this.running.get(key);
     running?.stop.abort();
     await running?.settled;
-    return this.track(key, new AbortController(), () =>
-      markSessionDone(source, record, folder, launches, this.terminals),
+    return this.track(key, (stopped) =>
+      markSessionDone(
+        source,
+        record,
+        folder,
+        launches,
+        this.terminals,
+        stopped,
+      ),
     );
   }
 
-  close(): void {
+  close(): Promise<void> {
     this.closed = true;
     for (const { stop } of this.running.values()) stop.abort();
+    // Manual Done already wrote its mark; keep the server alive until its
+    // abandoned rename's problem is retained. Reported Done writes nothing.
+    return Promise.all(
+      [...this.running.values()].map(({ settled }) => settled),
+    ).then(() => {});
   }
 
   // Runs one Done of the session `key` as the one its next Done waits for.
   private async track<T>(
     key: string,
-    stop: AbortController,
-    done: () => Promise<T>,
+    done: (stopped: AbortSignal) => Promise<T>,
   ): Promise<T> {
-    const settled = done();
+    const stop = new AbortController();
+    const settled = done(stop.signal);
     this.running.set(key, { stop, settled: settled.catch(() => undefined) });
     try {
       return await settled;
@@ -187,10 +174,10 @@ async function finishNativeDone(
       await host.rename?.(
         record,
         folder,
-        (session, at, use, signal) =>
-          terminals.withAttachment(session, at, use, signal),
+        (session, at, use, signal, ready) =>
+          terminals.withAttachment(session, at, use, signal, ready),
         intent,
-        done.intent === "reporting" ? done.stopped : undefined,
+        done.stopped,
       );
     });
   }
@@ -227,6 +214,7 @@ async function markSessionDone(
   folder: ProjectFolder,
   launches: AgentLaunches,
   terminals: AgentTerminals,
+  stopped: AbortSignal,
 ): Promise<LaunchRecord> {
   const host = launchHost(record.session.host);
   const stop = host?.stop?.bind(host);
@@ -251,5 +239,6 @@ async function markSessionDone(
     intent: "manual",
     launches,
     source,
+    stopped,
   });
 }

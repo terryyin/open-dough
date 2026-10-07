@@ -66,7 +66,7 @@ export async function pendingInputOf(
   );
 }
 
-export { keepRecord } from "./launchRecordBinding.ts";
+export { bindRecord, keepRecord } from "./launchRecordBinding.ts";
 
 // Changes one kept session's record by `change`, answering the record as it
 // now is, or undefined when no such record is kept any more.

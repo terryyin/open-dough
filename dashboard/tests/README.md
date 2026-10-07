@@ -60,7 +60,9 @@ makes the listing fail. It records every call's argv and working directory
 terminal boundary's pseudo-terminal, it echoes each line entered, clears the
 line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
-(`claudeAttaches`); `claudeAttachesSilent` makes it print nothing. The
+(`claudeAttaches`); `claudeAttachesSilent` makes it print nothing.
+`claudeAttachPromptDelay(ms)` delays the bordered composer after the banner;
+keys before the prompt are discarded. The
 terminal boundary specs drive it over a raw socket
 (`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
 server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
