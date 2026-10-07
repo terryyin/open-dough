@@ -1,5 +1,6 @@
 # Browser spec durations from CI run 36847400904, attempt 1, at 995271db140a08403ba1eb91d7f09ba7ad7f7214 (2026-10-01).
 # Longest first; unlisted specs follow sorted, as scripts/test-jobs.sh does.
+deadline-probe.spec.ts
 agent-launch-preparation-codex-retry.spec.ts
 agent-launch-model.spec.ts
 agent-launch-ad-hoc.spec.ts
