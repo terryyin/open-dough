@@ -4,8 +4,12 @@
 // limit (`./readingLimit.ts`) withheld anything its latest read asked -- the
 // membership, when nothing is shown, or a detail of what is -- and a notice
 // said once when a new snapshot no longer lists the work that held focus.
+// Settled question outcomes for the active observation
+// (`./observationOutcomes.ts`) live here too: they clear with the project or
+// when membership lands at another revision.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { ObservationOutcomes } from "./observationOutcomes.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
 type Retrieval = {
@@ -28,11 +32,18 @@ const noRetrieval: Retrieval = {
 
 export function useSnapshotRetrieval() {
   const [retrieval, setRetrieval] = useState<Retrieval>(noRetrieval);
+  const outcomes = useRef(new ObservationOutcomes()).current;
   return {
     retrieval,
+    outcomes,
     // A read's newly read membership starts a new snapshot, saying `notice`;
     // its later progress, or moved progress, replaces the shown work only.
+    // Outcomes for another revision are abandoned; the same revision keeps
+    // them so recovery can retain answered and terminal questions.
     show: (work: PublishedWork, notice?: string) => {
+      if (notice !== undefined) {
+        outcomes.pinRevision(work.revision);
+      }
       setRetrieval((last) =>
         notice === undefined
           ? { ...last, work }
@@ -54,6 +65,7 @@ export function useSnapshotRetrieval() {
     },
     // Selecting another project shows nothing of the previous one.
     clear: () => {
+      outcomes.clear();
       setRetrieval(noRetrieval);
     },
   };

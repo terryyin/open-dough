@@ -3,10 +3,13 @@
 // never planted in fixtures.
 
 import { expectChangedQueuedAssociations } from "./queuedPlanGaps.ts";
-import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
+import {
+  passTimeUntilCheckedAfterSettled,
+  pausePageClock,
+} from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
@@ -59,7 +62,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
   const { project, source, backlog, taken, problem } = parts(page);
 
   await test.step("baseline membership arrives with supported preparation facts", async () => {
-    await expectMembership(page, {
+    await expectSettledPage(page, {
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],
     });
@@ -86,7 +89,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
   await test.step("a fresh published assessment clears changes for both recorded judgments", async () => {
     const next = publishFreshAssessment(openDough);
     openDoughOrigin.advanceTo(next);
-    await passTimeUntilChecked(page);
+    await passTimeUntilCheckedAfterSettled(page);
     await expect(source).toContainText(next);
     for (const [list, title, judgment] of [
       [taken, plannedReady.title, "Ready for execution"],

@@ -3,7 +3,8 @@ import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import {
   commitPaths,
@@ -43,8 +44,15 @@ export async function expectChangedQueuedAssociations(
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],
     });
+    // Settle detail before the next check: otherwise a later pass of page time
+    // can interrupt an in-flight detail ask and arm recovery that blocks checks.
+    await untilPageReadsAnswered(page);
     return revision;
   };
+  await expectSettledPage(page, {
+    taken: [plannedReady.title],
+    backlog: [unrefined.title, plannedBlocked.title],
+  });
   await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
   // Source links are in the story's detail, which stays open across the
   // snapshots below.

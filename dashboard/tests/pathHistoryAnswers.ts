@@ -9,7 +9,10 @@ import { createHash } from "node:crypto";
 import { onAvatarHost } from "./avatarAnswers.ts";
 import {
   commitListFor,
+  emptyCommitListAnswer,
   fixtureCommit,
+  noConnection,
+  type OriginAnswer,
   type RawAnswer,
 } from "./originAnswers.ts";
 
@@ -51,7 +54,7 @@ export function addedAt(n: number, committedAt: Date | null): PathChange {
 }
 
 // Each published path's history, newest first; null when its history is not
-// published, so its commit list fails.
+// published, so its commit list is answered as a lost connection.
 export type PathHistories = Readonly<
   Record<string, readonly PathChange[] | null>
 >;
@@ -128,20 +131,22 @@ function jsonAnswer(body: unknown): RawAnswer {
 }
 
 // The commit list for `path`, at most `perPage` commits of it: the commits
-// its history lists, or else its time in `committed`; undefined when neither
-// names it or its history is not published.
+// its history lists, or else its time in `committed`; GitHub's empty list when
+// neither names it (established absence); a lost connection when its history
+// is explicitly unpublished (`null`).
 export function commitListIn(
   published: PublishedHistories,
   path: string,
   perPage?: number,
-): RawAnswer | undefined {
+): OriginAnswer {
   const history = historyOf(published, path);
   if (history === null) {
-    return undefined;
+    return noConnection;
   }
-  return history === undefined
-    ? commitListFor(published.committed, path)
-    : jsonAnswer(history.slice(0, perPage).map(historyCommit));
+  if (history !== undefined) {
+    return jsonAnswer(history.slice(0, perPage).map(historyCommit));
+  }
+  return commitListFor(published.committed, path) ?? emptyCommitListAnswer();
 }
 
 // GitHub's answer for commit `sha` when a history of one of `publications`

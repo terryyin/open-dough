@@ -21,6 +21,10 @@ import { performRevisionCheck } from "./performedRevisionCheck.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
 import { withTrackedGh } from "./trackedGh.ts";
+import {
+  contextForAdmittedRead,
+  withReadDiagnosticContext,
+} from "./readDiagnostics.ts";
 import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import {
@@ -106,132 +110,135 @@ export async function perform(
 ): Promise<Outcome> {
   let reading = readingOf(source, read);
   try {
-    return await withTrackedGh(req, tracked, async (signal) => {
-      // The backlog at a resolved commit: one this process already read there
-      // is answered from the memo, which keeps it for the reachability checks
-      // of that revision's later detail reads. It is read at the revision
-      // itself; only those detail reads at a revision the ref names next are
-      // compared with the last one answered here (`./pinnedTexts.ts`).
-      const backlogAt = async (revision: string) => {
-        const backlog = await pinned.reader(
-          source,
-          revision,
-          signal,
-        )(source.backlogPath);
-        pinned.answeredBacklog(source, revision);
-        return backlog;
-      };
-      switch (read.kind) {
-        case "revision-check":
-          return await performRevisionCheck(
-            { pinned, checks, branches },
-            source,
-            read,
-            signal,
-          );
-        case "backlog-at":
-          return answered({
-            revision: read.revision,
-            backlog: await backlogAt(read.revision),
-          });
-        case "agent-profiles-at":
-        case "done-records-at":
-          return await performListedRecordsRead(
-            pinned,
-            source,
-            read,
-            signal,
-            (now) => {
-              reading = now;
-            },
-          );
-        case "addition-at": {
-          const added = await listedProfileAddition(
-            pinned,
-            source,
-            read,
-            signal,
-          );
-          if (added === undefined) {
-            return unreachable;
-          }
-          // The avatar source stays here: the page asks for the image
-          // through `./avatarRead.ts`, never from GitHub itself.
-          return answered({
-            revision: read.revision,
-            path: read.path,
-            added: added && {
-              commit: added.commit,
-              committerName: added.committerName,
-              committedAt: added.committedAt,
-              login: added.login,
-            },
-          });
-        }
-        case "containment-at":
-          return await performContainmentRead(source, read, signal);
-        case "branch-head-at":
-          return await performBranchHeadRead(
-            { pinned, branches },
-            source,
-            read,
-            signal,
-          );
-        case "commit-time-at":
-        case "file-at": {
-          if (read.onBranch !== undefined) {
-            return await performOnBranch(
-              { pinned, branches },
-              source,
-              read,
-              read.onBranch,
-              signal,
-            );
-          }
-          const { revision, path } = read;
-          const readPinned = pinned.reader(source, revision, signal);
-          if (
-            !(await pathReachableFromRevision(
+    return await withReadDiagnosticContext(
+      contextForAdmittedRead(source.id, read),
+      () =>
+        withTrackedGh(req, tracked, async (signal) => {
+          // The backlog at a resolved commit: one this process already read there
+          // is answered from the memo, which keeps it for the reachability checks
+          // of that revision's later detail reads. A revision the ref names next
+          // is compared with the last one answered here (`./pinnedTexts.ts`).
+          const backlogAt = async (revision: string) => {
+            const backlog = await pinned.reader(
               source,
               revision,
-              path,
-              readPinned,
-            ))
-          ) {
-            return unreachable;
-          }
-          return read.kind === "file-at"
-            ? answered({ revision, path, text: await readPinned(path) })
-            : answered({
-                revision,
-                path,
-                committedAt: await pinned.committer(
+              signal,
+            )(source.backlogPath);
+            pinned.answeredBacklog(source, revision);
+            return backlog;
+          };
+          switch (read.kind) {
+            case "revision-check":
+              return await performRevisionCheck(
+                { pinned, checks, branches },
+                source,
+                read,
+                signal,
+              );
+            case "backlog-at":
+              return answered({
+                revision: read.revision,
+                backlog: await backlogAt(read.revision),
+              });
+            case "agent-profiles-at":
+            case "done-records-at":
+              return await performListedRecordsRead(
+                pinned,
+                source,
+                read,
+                signal,
+                (now) => {
+                  reading = now;
+                },
+              );
+            case "addition-at": {
+              const added = await listedProfileAddition(
+                pinned,
+                source,
+                read,
+                signal,
+              );
+              if (added === undefined) {
+                return unreachable;
+              }
+              // The avatar source stays here: the page asks for the image
+              // through `./avatarRead.ts`, never from GitHub itself.
+              return answered({
+                revision: read.revision,
+                path: read.path,
+                added: added && {
+                  commit: added.commit,
+                  committerName: added.committerName,
+                  committedAt: added.committedAt,
+                  login: added.login,
+                },
+              });
+            }
+            case "containment-at":
+              return await performContainmentRead(source, read, signal);
+            case "branch-head-at":
+              return await performBranchHeadRead(
+                { pinned, branches },
+                source,
+                read,
+                signal,
+              );
+            case "commit-time-at":
+            case "file-at": {
+              if (read.onBranch !== undefined) {
+                return await performOnBranch(
+                  { pinned, branches },
+                  source,
+                  read,
+                  read.onBranch,
+                  signal,
+                );
+              }
+              const { revision, path } = read;
+              const readPinned = pinned.reader(source, revision, signal);
+              if (
+                !(await pathReachableFromRevision(
                   source,
                   revision,
-                  signal,
-                )(path),
+                  path,
+                  readPinned,
+                ))
+              ) {
+                return unreachable;
+              }
+              return read.kind === "file-at"
+                ? answered({ revision, path, text: await readPinned(path) })
+                : answered({
+                    revision,
+                    path,
+                    committedAt: await pinned.committer(
+                      source,
+                      revision,
+                      signal,
+                    )(path),
+                  });
+            }
+            case "ref": {
+              // When the ref was asked, by this server's clock, as launch
+              // attempts settle by it: a resolution this request joined answers
+              // when it was asked, never when this request arrived.
+              const { revision, askedAt } = await resolveRevisionViaGh(
+                source.repository,
+                source.ref,
+                signal,
+              );
+              pinned.namedByRef(source, revision);
+              reading = readingPathAt(source.backlogPath, revision);
+              // Only which commit the ref names can have changed.
+              return answered({
+                revision,
+                backlog: await backlogAt(revision),
+                askedAt,
               });
-        }
-        case "ref": {
-          // When the ref was asked, by this server's clock, as launch
-          // attempts settle by it: a resolution this request joined answers
-          // when it was asked, never when this request arrived.
-          const { revision, askedAt } = await resolveRevisionViaGh(
-            source.repository,
-            source.ref,
-            signal,
-          );
-          pinned.namedByRef(source, revision);
-          reading = readingPathAt(source.backlogPath, revision);
-          // Only which commit the ref names can have changed.
-          return answered({
-            revision,
-            backlog: await backlogAt(revision),
-            askedAt,
-          });
-        }
-      }
-    });
+            }
+          }
+        }),
+    );
   } catch (error) {
     return { kind: "failed", ...reportedFailure(error, source, reading) };
   }

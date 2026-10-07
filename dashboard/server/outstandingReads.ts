@@ -71,7 +71,9 @@ export class OutstandingReads<T> {
         outstanding.waiters -= 1;
         if (outstanding.waiters === 0) {
           this.ended(key, outstanding);
-          outstanding.controller.abort();
+          // Keep the waiter's reason (owned bound vs ordinary departure) so
+          // the shared call can classify its end without inventing one.
+          outstanding.controller.abort(waiter.reason);
         }
         reject(waiter.reason as Error);
       };

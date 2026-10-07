@@ -6,7 +6,7 @@
 // failure from what `gh` printed.
 
 import type { ExecException } from "node:child_process";
-import type { GhFailureReason } from "./ghRead.ts";
+import type { GhFailureReason } from "./ghFailure.ts";
 import { directedWaitSeconds } from "./rateLimitDirection.ts";
 
 // How one `gh` call failed, as it printed: a rate limit names a wait only

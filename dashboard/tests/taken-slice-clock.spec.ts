@@ -13,7 +13,7 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { isHeadsCheck } from "./originObservation.ts";
 import { publishFiles } from "./publishedOrigin.ts";
-import { callsSince, checksAskedWhilePassing } from "./autoRefreshJourney.ts";
+import { callsSince } from "./autoRefreshJourney.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import { noConnection } from "./originAnswers.ts";
 import { addedAt, pathChange } from "./pathHistoryAnswers.ts";
@@ -90,12 +90,13 @@ test("each Taken card's clock measures from the later of its last plan commit an
     );
   });
 
-  await test.step("a commit list that fails is a clock gap, and the bar stays", async () => {
+  await test.step("an empty plan commit list is a terminal clock gap, and the bar stays", async () => {
     await expect(card(timeUnread)).toContainText(
-      `Current slice time unavailable: The local GitHub CLI could not reach GitHub while reading the last commit of ${planPath("time-unread")} at ${revision}.`,
+      `Current slice time unavailable: GitHub's answer for the last commit of ${planPath("time-unread")} at ${revision} did not name a commit.`,
     );
     await expectBarStays(card(timeUnread));
     await expect(card(timeUnread)).not.toContainText("Current slice started");
+    // Established absence: labeled on the card; does not arm detail recovery.
     await expect(problem).toHaveCount(0);
   });
 
@@ -134,18 +135,30 @@ test("each Taken card's clock measures from the later of its last plan commit an
       );
   });
 
-  await test.step("60 s more of page time shows 13 min, asking GitHub nothing but revision checks", async () => {
+  await test.step("60 s more of page time shows 13 min; answered clocks ask nothing of their own", async () => {
     const from = githubFor(page).calls.length;
-    const checks = await checksAskedWhilePassing(page, 60_000);
+    // Empty plan history is terminal absence, so checks are not blocked by
+    // detail recovery while clocks tick.
+    await page.clock.runFor(60_000);
     await expect(card(afterTake)).toContainText(
       "Current slice started 13 min ago",
     );
     await expect(card(justTaken)).toContainText(
       "Current slice started 6 min ago",
     );
-    const calls = callsSince(page, from);
-    expect(checks).toBeGreaterThan(0);
-    expect(calls.filter((call) => !isHeadsCheck(call))).toEqual([]);
+    const content = callsSince(page, from).filter(
+      (call) => !isHeadsCheck(call),
+    );
+    // Answered clocks' plan commit lists stay settled for this pin.
+    expect(
+      content.filter(
+        (call) =>
+          call.request.kind === "commit-list" &&
+          (call.request.path === planPath("after-take") ||
+            call.request.path === planPath("just-taken") ||
+            call.request.path === planPath("before-profiles")),
+      ),
+    ).toEqual([]);
   });
 
   await test.step("a slice running for hours says hours and minutes, and after 26 hours says 1 d 2 h", async () => {

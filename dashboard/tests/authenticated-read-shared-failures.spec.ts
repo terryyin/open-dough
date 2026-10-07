@@ -78,6 +78,7 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
     expect(answers.map(({ status }) => status)).toEqual([502, 502]);
     expect(failed(answers[0]?.body ?? "")).toEqual({
       error: `GitHub answered HTTP 500 to the local GitHub CLI while reading ${sharedSeedPath} at ${revision}.`,
+      recovery: "transient",
     });
     expect(answers[1]?.body).toBe(answers[0]?.body);
 
@@ -204,6 +205,7 @@ test.describe("authenticated read boundary: a stalled shared read ends at its ow
 
       const timedOut = {
         error: `The local GitHub CLI did not answer within ${String(boundMs / 1000)} seconds while reading ${stall.reading(revision)}.`,
+        recovery: "transient",
       };
       expect([firstAnswer.status, lateAnswer.status]).toEqual([502, 502]);
       expect(failed(firstAnswer.body)).toEqual(timedOut);

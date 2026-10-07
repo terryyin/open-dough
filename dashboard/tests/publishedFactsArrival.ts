@@ -169,7 +169,13 @@ export async function heldFactGroups(
       }),
       ...moreDoneRecords(moreDone),
     },
-    committed,
+    // Bound-recovery journeys need every Taken clock answerable so an
+    // unrelated unread plan time does not keep scheduling detail recovery
+    // after the held preparation gap heals (./sliceClockRecords.ts omits it).
+    committed: {
+      ...committed,
+      [planPath("time-unread")]: minutesBefore(15),
+    },
     history: {
       ...history,
       [profilePath("Kirara")]: [

@@ -13,79 +13,23 @@
 // followed (`follows`): its `main` is then the published revision as each
 // request arrives, as GitHub follows pushes, and any commit of it is readable.
 
-import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
+  branchRefAnswer,
   commitAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
-import { directoryListingAnswer, type ListedPath } from "./listingAnswers.ts";
+import { directoryListingAnswer } from "./listingAnswers.ts";
 import { asksContainment, comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
-
-function showAt(repoDir: string, revision: string, repositoryPath: string) {
-  try {
-    return execFileSync(
-      "git",
-      ["-C", repoDir, "show", `${revision}:${repositoryPath}`],
-      // An absent path is a 404, not output.
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    );
-  } catch {
-    return undefined;
-  }
-}
-
-// The directory's paths at the revision, each with its object sha; undefined
-// once the journey's repository is gone, as it is for a request arriving
-// after the journey ends.
-function listedAt(
-  repoDir: string,
-  revision: string,
-  directory: string,
-): ListedPath[] | undefined {
-  try {
-    return execFileSync(
-      "git",
-      ["-C", repoDir, "ls-tree", revision, "--", `${directory}/`],
-      { encoding: "utf8" },
-    )
-      .split("\n")
-      .flatMap((line) => {
-        // `<mode> <type> <sha>\t<path>`
-        const [object, path] = line.split("\t");
-        const sha = object?.split(" ")[2];
-        return path === undefined || sha === undefined ? [] : [{ path, sha }];
-      });
-  } catch {
-    return undefined;
-  }
-}
-
-// The directory's paths at the revision, as `listedAt` lists them.
-function listAt(repoDir: string, revision: string, directory: string) {
-  return listedAt(repoDir, revision, directory)?.map(({ path }) => path);
-}
-
-// The commit `name` names in the repository, if it names one.
-function commitOf(repoDir: string, name: string): string | undefined {
-  try {
-    return execFileSync(
-      "git",
-      ["-C", repoDir, "rev-parse", "--verify", "--quiet", `${name}^{commit}`],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    ).trim();
-  } catch {
-    return undefined;
-  }
-}
+import { commitOf, listAt, listedAt, showAt } from "./committedOriginRepo.ts";
 
 export type CommittedOrigin = {
   readonly requests: ObservedRequest[];
@@ -148,15 +92,23 @@ export function publishCommittedOrigin(
       await held.get("main");
       return asHeadsListing(instead.get("main") ?? commitAnswer(published()));
     }
+    // A story branch head: published when the repository has that ref, else
+    // GitHub's 404 (established absence). A lost connection here would start
+    // project-local transient recovery and block revision checks.
+    if (request.kind === "branch") {
+      const head = commitOf(repoDir, `refs/heads/${request.branch}`);
+      return head === undefined
+        ? notFoundAnswer()
+        : branchRefAnswer(request.branch, head);
+    }
     if (request.kind === "listing" && readable(request.revision)) {
       const overridden = instead.get(request.path);
       if (overridden !== undefined) {
         return overridden;
       }
       const listed = listedAt(repoDir, request.revision, request.path);
-      return listed === undefined
-        ? noConnection
-        : directoryListingAnswer(request.path, listed);
+      // Absent directory: empty listing, not a temporary connection loss.
+      return directoryListingAnswer(request.path, listed ?? []);
     }
     // Each agent profile listed at the revision was added by a commit of its
     // own; these history reads are answered but not observed.
@@ -172,12 +124,10 @@ export function publishCommittedOrigin(
       if (options.realHistory === true) {
         return history.list(request.revision, request.path, request.perPage);
       }
-      return (
-        commitListIn(
-          profiles(request.revision),
-          request.path,
-          request.perPage,
-        ) ?? noConnection
+      return commitListIn(
+        profiles(request.revision),
+        request.path,
+        request.perPage,
       );
     }
     if (request.kind === "commit") {

@@ -191,7 +191,9 @@ test.describe("project read recovery", () => {
       await expect(problem).toContainText(
         "The local GitHub CLI did not answer within 2 seconds while reading main of terryyin/pygardon.",
       );
-      await expect(problem).toContainText("Reload the page to read again.");
+      await expect(problem).toContainText(
+        "This page reads the published work at",
+      );
       await expect(controlsBesideSessions(page)).toHaveCount(0);
       await expect(page.getByRole("article")).toHaveCount(0);
 

@@ -8,8 +8,9 @@
 // concurrently observed repositories.
 //
 // `publishOrigin` publishes only the ref and the backlog file, and
-// `publishMovingOrigin` also any record files a push names; any other file
-// gets no answer and is not observed, so detail reads fail as unavailable.
+// `publishMovingOrigin` also any record files a push names; any other content
+// path at a published revision is answered as not found (missing), not as a
+// lost connection.
 // Both list a published revision's directories from those files alone, so a
 // project without agent profiles lists none; listings are not observed.
 // `publishFiles` (./publishedFiles.ts) publishes fixed files at one revision,
@@ -34,6 +35,7 @@ import type { GhCall } from "./support/fakeGitHub.ts";
 export {
   commitAnswer,
   emptyBacklog,
+  httpErrorAnswer,
   noConnection,
   notFoundAnswer,
   notLoggedIn,
@@ -42,7 +44,11 @@ export {
   type OriginAnswer,
   type RawAnswer,
 } from "./originAnswers.ts";
-export { pathsRead, type ObservedRequest } from "./originObservation.ts";
+export {
+  detailContentPaths,
+  pathsRead,
+  type ObservedRequest,
+} from "./originObservation.ts";
 export { publishFiles } from "./publishedFiles.ts";
 
 // The project this dashboard opens by default. Callers that observe another
@@ -113,6 +119,16 @@ export function publishOrigin(
         listedFiles({ [backlogPath]: "body" in answer ? answer.body : "" }),
       );
     }
+    // Published at this revision with no such file: a missing record, not a
+    // temporary connection loss. Leave it unobserved so membership journeys
+    // that only publish ref+backlog still account only those two reads.
+    if (
+      request.kind === "content" &&
+      backlog !== undefined &&
+      request.revision === backlog.revision
+    ) {
+      return notFoundAnswer();
+    }
     return noConnection;
   });
   return Promise.resolve(observed);
@@ -168,6 +184,10 @@ export function publishMovingOrigin(
         await held.get(request.path);
         return rawFileAnswer(body);
       }
+      // Published at this revision with no such file: a missing record, not a
+      // temporary connection loss (those use answerWith / hold). Leave it
+      // unobserved so membership request accounting stays ref+backlog.
+      return notFoundAnswer();
     }
     if (request.kind === "listing") {
       const files = records.get(request.revision);

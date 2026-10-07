@@ -98,8 +98,8 @@ for (const { anchor, agent } of stories) {
   }
 }
 
-// When each plan was last committed at the revision. The unreadable story's
-// plan has no answer: its commit list fails.
+// When each plan was last committed at the revision. The unread story's plan
+// is omitted so GitHub's empty commit list answers (established absence).
 export const committed: Record<string, Date> = {
   [planPath("after-take")]: minutesBefore(12),
   [planPath("just-taken")]: minutesBefore(2 * 24 * 60),

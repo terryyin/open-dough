@@ -11,7 +11,7 @@
 
 import { longestDirectedWaitSeconds } from "../src/authenticatedReadRules.ts";
 import type { GhAnswer, GhPrintedFailure } from "./ghAnswer.ts";
-import type { GhFailureReason } from "./ghRead.ts";
+import type { GhFailureReason } from "./ghFailure.ts";
 
 type RateLimited = Extract<GhFailureReason, { readonly kind: "rate-limited" }>;
 

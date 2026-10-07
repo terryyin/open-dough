@@ -2,8 +2,10 @@
 // snapshot after membership is already known. Files are read at the same
 // revision through the local authenticated boundary
 // (`./repositoryFileReads.ts`). Plan text fetched for readiness is reused for
-// detail; opening already-read detail costs no extra request.
+// detail; opening already-read detail costs no extra request. Settled file
+// outcomes are retained on the observation's outcome owner.
 
+import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import {
   planAssociationConflict,
@@ -25,6 +27,7 @@ import {
 import type { WorkPlanSlices } from "./storyPlan.ts";
 import { dependenciesFor, type WorkDependencies } from "./storyDependencies.ts";
 import type { WorkPurpose } from "./storyPurpose.ts";
+import { unavailableGap, type GapCause } from "./readWaitBound.ts";
 
 type EntryFacts = {
   readonly preparation: WorkPreparation;
@@ -75,7 +78,7 @@ function peekEntries(
   entries: readonly WorkEntry[],
   canonicalPaths: ReadonlyMap<string, string>,
   canonicalText: ReadonlyMap<string, string>,
-  canonicalProblems: ReadonlyMap<string, string>,
+  canonicalProblems: ReadonlyMap<string, GapCause>,
 ): Peek[] {
   return entries.map((entry) => {
     const path = canonicalPaths.get(entry.identity);
@@ -95,7 +98,7 @@ function peekEntries(
       return {
         entry,
         path,
-        peek: { status: "unavailable", problem },
+        peek: unavailableGap(problem),
       };
     }
     const text = canonicalText.get(path);
@@ -120,12 +123,14 @@ function peekEntries(
   });
 }
 
-// Every file left unread, including one still unread when `signal` ends the
-// reads, carries its problem, so the enriched snapshot never keeps a loading
-// fact.
+// Every file left unread, including one still unread when the owned bound
+// ends the reads, carries its problem, so the enriched snapshot never keeps a
+// loading fact.
 export async function enrichPreparation(
   work: PublishedWork,
   signal: AbortSignal,
+  outcomes: ObservationOutcomes,
+  bound: AbortSignal,
 ): Promise<PublishedWork> {
   const { source, revision } = work;
   const entries = [...work.taken, ...work.backlog];
@@ -144,6 +149,8 @@ export async function enrichPreparation(
       [...new Set(canonicalPaths.values())],
       signal,
       "The canonical record could not be read for preparation facts.",
+      outcomes,
+      bound,
     );
 
   const peeks = peekEntries(
@@ -174,6 +181,8 @@ export async function enrichPreparation(
     [...planPaths],
     signal,
     "The associated plan could not be read for readiness facts.",
+    outcomes,
+    bound,
   );
 
   const byIdentity = new Map<string, EntryFacts>();

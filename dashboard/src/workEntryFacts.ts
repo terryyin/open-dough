@@ -10,6 +10,11 @@ import type { WorkEntry } from "./publishedWork.ts";
 import { planAssociationConflict } from "./planAssociation.ts";
 import { resolveBesideFile } from "./repositoryPath.ts";
 import {
+  unavailableGap,
+  type GapCause,
+  type UnavailableGap,
+} from "./readWaitBound.ts";
+import {
   interpretStoryState,
   peekRecordedApproach,
   type WorkPreparation,
@@ -52,7 +57,7 @@ export function recordedPlanPathFor(
 }
 
 type AssociatedPlanSource =
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   | {
       readonly status: "ready";
       readonly source: string;
@@ -64,7 +69,7 @@ function associatedPlanSource(
   planPath: string | undefined,
   canonicalText: ReadonlyMap<string, string>,
   planText: ReadonlyMap<string, string>,
-  planProblems: ReadonlyMap<string, string>,
+  planProblems: ReadonlyMap<string, GapCause>,
 ): AssociatedPlanSource {
   if (path === undefined) {
     return {
@@ -91,7 +96,7 @@ function associatedPlanSource(
   }
   const planProblem = planProblems.get(planPath);
   if (planProblem !== undefined) {
-    return { status: "unavailable", problem: planProblem };
+    return unavailableGap(planProblem);
   }
   const source = planText.get(planPath);
   if (source === undefined) {
@@ -107,7 +112,7 @@ export function purposeFor(
   path: string | undefined,
   entry: WorkEntry,
   canonicalText: ReadonlyMap<string, string>,
-  canonicalProblems: ReadonlyMap<string, string>,
+  canonicalProblems: ReadonlyMap<string, GapCause>,
 ): WorkPurpose {
   if (path === undefined) {
     return {
@@ -118,7 +123,7 @@ export function purposeFor(
   }
   const problem = canonicalProblems.get(path);
   if (problem !== undefined) {
-    return { status: "unavailable", problem };
+    return unavailableGap(problem);
   }
   const text = canonicalText.get(path);
   if (text === undefined) {
@@ -140,7 +145,7 @@ export function planSlicesFor(
   path: string | undefined,
   planPath: string | undefined,
   planText: ReadonlyMap<string, string>,
-  planProblems: ReadonlyMap<string, string>,
+  planProblems: ReadonlyMap<string, GapCause>,
   canonicalText: ReadonlyMap<string, string>,
 ): WorkPlanSlices {
   if (preparation.status === "unavailable") {
@@ -166,7 +171,7 @@ export function planSlicesFor(
     planProblems,
   );
   if (associated.status === "unavailable") {
-    return { status: "unavailable", problem: associated.problem };
+    return associated;
   }
   return interpretPlanSlices(associated.source);
 }
@@ -178,7 +183,7 @@ export function preparationForPeek(
   peek: ReturnType<typeof peekRecordedApproach>,
   canonicalText: ReadonlyMap<string, string>,
   planText: ReadonlyMap<string, string>,
-  planProblems: ReadonlyMap<string, string>,
+  planProblems: ReadonlyMap<string, GapCause>,
   backlogPath: string,
 ): WorkPreparation {
   if (peek.status !== "recorded") {
@@ -215,6 +220,8 @@ export function preparationForPeek(
     planProblems,
   );
   if (associated.status === "unavailable") {
+    // Assessment keeps today's problem text; the plan-file question's typed
+    // failure is retained on the observation's outcome owner.
     return recordedWithAssessment(peek, {
       status: "unavailable",
       problem: associated.problem,

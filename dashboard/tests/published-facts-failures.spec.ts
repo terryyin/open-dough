@@ -6,13 +6,7 @@
 
 import type { Page } from "@playwright/test";
 import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  callsSince,
-  contentReads,
-  expectSteadyPace,
-  headsChecks,
-  passTimeUntilChecked,
-} from "./autoRefreshJourney.ts";
+import { callsSince, contentReads, headsChecks } from "./autoRefreshJourney.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import { parts, rosterParts } from "./dashboardPage.ts";
@@ -102,6 +96,7 @@ test("an ordinary canonical failure keeps completed assignments and done stories
     "The associated plan could not be read for readiness facts.",
   );
   await expectNoOrphanReading(page);
+  // Terminal missing fact: labeled in place; does not arm detail recovery.
   await expect(problem).toHaveCount(0);
 });
 
@@ -167,7 +162,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
     "Done stories could not be read.",
   );
   await expect(parts(page).recentlyDone).toContainText(
-    "The local GitHub CLI could not reach GitHub",
+    "GitHub answered HTTP 404",
   );
   await expect(doneCard).toHaveCount(0);
   await expectCanonicalFacts(queuedCard);
@@ -181,7 +176,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
   await expect(problem).toHaveCount(0);
 });
 
-test("the existing 30-second core bound keeps assignments and done facts, leaves a standing preparation gap through unchanged checks, and reload closes it", async ({
+test("the existing 30-second core bound keeps assignments and done facts, leaves a standing preparation gap, and the page's recovery closes it without reload", async ({
   page,
 }) => {
   const { branchCard, queuedCard, doneCard, problem, release } =
@@ -203,9 +198,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expect(problem).toContainText(readAt);
   await expect(problem).toContainText("What is shown is what it read");
   await expect(problem).not.toContainText("added nothing");
-  await expect(problem).toContainText(
-    "Automatic checks continue every 15 seconds while this page is visible.",
-  );
+  await expect(problem).toContainText("this page reads it");
   await expect(branchCard.locator(".card-preparation")).toHaveText(
     preparationGap,
   );
@@ -219,18 +212,16 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expect(parts(page).source).toContainText(revision);
 
   const from = githubFor(page).calls.length;
-  expectSteadyPace(await passTimeUntilChecked(page));
-  expect(headsChecks(callsSince(page, from))).toHaveLength(1);
+  await page.clock.runFor(14_000);
+  expect(headsChecks(callsSince(page, from))).toHaveLength(0);
   expect(contentReads(callsSince(page, from))).toEqual([]);
   await expect(problem).toContainText(readAt);
-  await expect(parts(page).status).toHaveText("");
   await expect(branchCard).toContainText(preparationGap);
   await expectCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
 
   release("preparation");
-  const beforeReload = githubFor(page).calls.length;
-  await page.reload();
+  await page.clock.runFor(1_250);
   await expectCanonicalFacts(queuedCard);
   await expectCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
@@ -241,7 +232,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expectNoOrphanReading(page);
   await expect(problem).toHaveCount(0);
   await expect(parts(page).source).toContainText(revision);
-  expect(contentReads(callsSince(page, beforeReload))).toContain(
+  expect(contentReads(callsSince(page, from))).toContain(
     `${takenCanonicalPath}?ref=${revision}`,
   );
 });

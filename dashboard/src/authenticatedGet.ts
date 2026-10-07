@@ -11,7 +11,6 @@ import {
   authenticatedReadEndpoint,
   commitShaPattern,
   longestDirectedWaitSeconds,
-  notAskedOfGitHub,
 } from "./authenticatedReadRules.ts";
 import { ReadProblem } from "./readProblem.ts";
 import { noteLimit, noteWithheld, standingLimit } from "./readingLimit.ts";
@@ -33,12 +32,14 @@ const errorAnswer = z.object({
     .min(0)
     .max(longestDirectedWaitSeconds)
     .optional(),
+  // Eligibility for project-local transient recovery, as the boundary
+  // classified it; never inferred from this response's HTTP status.
+  recovery: z.literal("transient").optional(),
 });
 
 // While the page's limit stands (`./readingLimit.ts`), a read is answered as
 // limited here, never asked; a limited answer from the boundary sets or
-// extends that limit. Either limited problem carries `reading` and when
-// reading resumes.
+// extends that limit, and says when reading resumes.
 export async function authenticatedGet(
   query: string,
   reading: string,
@@ -47,10 +48,10 @@ export async function authenticatedGet(
   const standing = standingLimit();
   if (standing !== undefined) {
     noteWithheld();
-    throw new ReadProblem(notAskedOfGitHub(reading), {
-      reading,
-      resumesAt: standing,
-    });
+    throw new ReadProblem(
+      `GitHub limited the rate of the local GitHub CLI's requests, so ${reading} was not asked of GitHub.`,
+      { reading, resumesAt: standing },
+    );
   }
   let response: Response;
   try {
@@ -58,7 +59,13 @@ export async function authenticatedGet(
       signal,
     });
   } catch (error) {
-    if (signal.aborted) {
+    // Fetch may reject with AbortError before `signal.aborted` is visible;
+    // never rewrite that as a terminal reachability failure, or wait-bound
+    // gaps lose transient recovery eligibility.
+    if (
+      signal.aborted ||
+      (error instanceof Error && error.name === "AbortError")
+    ) {
       throw error;
     }
     throw new ReadProblem(
@@ -73,7 +80,7 @@ export async function authenticatedGet(
         `The local authenticated read answered HTTP ${response.status} while reading ${reading}.`,
       );
     }
-    const { error, retryAfterSeconds } = reported.data;
+    const { error, retryAfterSeconds, recovery } = reported.data;
     // An answer the page no longer waits for teaches it nothing.
     if (retryAfterSeconds !== undefined && !signal.aborted) {
       noteLimit(retryAfterSeconds);
@@ -83,6 +90,7 @@ export async function authenticatedGet(
     throw new ReadProblem(
       error,
       resumesAt === undefined ? undefined : { reading, resumesAt },
+      recovery,
     );
   }
   return body;

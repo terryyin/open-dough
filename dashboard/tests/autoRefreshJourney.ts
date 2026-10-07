@@ -17,6 +17,7 @@ import {
 import {
   givePageItsTurns,
   isCheck,
+  untilPageReadsAnswered,
   untilPageRequestsAnswered,
   whileNotingChecks,
 } from "./pageRequestNotes.ts";
@@ -125,6 +126,16 @@ export async function passTimeUntilChecked(
   const passed = await passTimeUntilAsked(page);
   expect((await answer).status()).toBe(answeredWith);
   return passed;
+}
+
+// Settles outstanding detail reads first: advancing page time while a detail
+// ask is still inside its wait bound arms detail recovery that blocks checks.
+export async function passTimeUntilCheckedAfterSettled(
+  page: Page,
+  answeredWith: 200 | 502 = 200,
+): Promise<number> {
+  await untilPageReadsAnswered(page);
+  return passTimeUntilChecked(page, answeredWith);
 }
 
 // Lets `ms` of page time pass in the same small steps, then waits, with page

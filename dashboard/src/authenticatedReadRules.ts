@@ -15,6 +15,12 @@ export const authenticatedReadEndpoint = "/__authenticated-read";
 // one listed agent profile at a pinned revision.
 export const authenticatedAvatarEndpoint = "/__authenticated-avatar";
 
+// Same-origin loopback inspection of this process's newest failed upstream
+// reads for one configured source (`../server/readDiagnostics.ts`). Asks
+// GitHub nothing.
+export const authenticatedReadDiagnosticsEndpoint =
+  "/__authenticated-read-diagnostics";
+
 // The longest wait, in whole seconds, the boundary ever passes on from a
 // GitHub rate limit's direction (`../server/rateLimitDirection.ts`): GitHub's
 // own primary rate-limit window. A header naming a later time is either wrong

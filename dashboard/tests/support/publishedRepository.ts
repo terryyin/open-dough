@@ -40,12 +40,12 @@ export function publishes(published: {
           default_branch: published.defaultBranch ?? "main",
         }),
       });
-    const commitList =
-      request.kind === "commit-list"
-        ? commitListIn(published, request.path, request.perPage)
-        : undefined;
-    if (commitList !== undefined) {
-      return Promise.resolve(commitList);
+    if (request.kind === "commit-list") {
+      // Absent history or commit time: empty list; explicit `null` history:
+      // lost connection (`commitListIn`).
+      return Promise.resolve(
+        commitListIn(published, request.path, request.perPage),
+      );
     }
     if (request.kind === "commit") {
       return Promise.resolve(

@@ -1,5 +1,4 @@
-import { expect, githubFor, test } from "./dashboardTest.ts";
-import { headsChecks } from "./autoRefreshJourney.ts";
+import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
@@ -53,6 +52,7 @@ const failedOpenings: {
     origin: { ref: noConnection },
     problem:
       "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
+    recovery: "This page reads the published work at",
   },
   {
     when: "GitHub limits the rate with HTTP 429",
@@ -105,9 +105,13 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
     await publishOrigin(page, origin);
     await page.goto("/");
     await expectProblemAndNoSnapshot(page, problem, undefined, recovery);
-    if (recovery !== undefined) {
+    if (recovery?.includes("asks GitHub nothing until")) {
       await expect(parts(page).problem).toContainText(
         "This page reads the published work then, or when it is next seen.",
+      );
+    } else if (recovery?.startsWith("This page reads the published work at")) {
+      await expect(parts(page).problem).toContainText(
+        "or when it is next seen.",
       );
     }
   });
@@ -140,71 +144,13 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expectSnapshotButtons(page, { backlogCards: 1, cards: 2 });
 });
 
-test("read failure and retry ends a stalled read as a read problem at the wait bound and reads again only on reload", async ({
-  page,
-}) => {
-  const opened = new Date("2026-09-20T08:30:00.000Z");
-  await page.clock.install({ time: opened });
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
-  const releaseRef = origin.hold("main");
-  await page.goto("/");
-  const { problem, status } = parts(page);
-  await expect(status).toHaveText("Reading published work…");
-  // The held ref request has reached GitHub through the local `gh`.
-  await expect.poll(() => pathsRead(origin)).toEqual(["main"]);
-  await page.clock.pauseAt(new Date(opened.getTime() + 5_000));
-
-  await test.step("before the bound the read is still awaited", async () => {
-    await page.clock.runFor(20_000);
-    await expect(status).toHaveText("Reading published work…");
-    await expect(problem).toHaveCount(0);
-  });
-
-  await test.step("at the bound the wait ends as a read problem", async () => {
-    await page.clock.runFor(10_000);
-    await expectProblemAndNoSnapshot(
-      page,
-      "GitHub did not answer within 30 seconds, so the read was given up.",
-    );
-  });
-
-  await test.step("nothing reads again by itself, and the late answer publishes nothing", async () => {
-    await page.clock.runFor("01:00:00");
-    await page.evaluate(
-      "window.dispatchEvent(new Event('focus')); window.dispatchEvent(new Event('online')); document.dispatchEvent(new Event('visibilitychange'))",
-    );
-    releaseRef();
-    await page.clock.runFor("00:10:00");
-    expect(pathsRead(origin)).toEqual(["main"]);
-    expect(headsChecks(githubFor(page).calls)).toEqual([]);
-    await expect(problem).toBeVisible();
-  });
-
-  await test.step("a reload reads once more and publishes the first snapshot", async () => {
-    await page.reload();
-    await inspectDashboardStory(page);
-    await expectWholeSnapshot(
-      page,
-      { revision: revisionA, titles: titlesOfA },
-      [],
-    );
-    await expect(problem).toHaveCount(0);
-    expect(pathsRead(origin)).toEqual([
-      "main",
-      "main",
-      `PRODUCT-BACKLOG.md?ref=${revisionA}`,
-    ]);
-  });
-});
-
 test("read failure and retry publishes the first snapshot and withdraws the failure when a reload succeeds after failed openings", async ({
   page,
 }) => {
   const firstFailure = new Date("2026-09-20T08:30:00.000Z");
-  const secondFailure = new Date("2026-09-20T08:31:00.000Z");
-  const retrievedA = new Date("2026-09-20T08:32:00.000Z");
-  await page.clock.setFixedTime(firstFailure);
+  const secondFailure = new Date("2026-09-20T08:30:01.000Z");
+  const retrievedA = new Date("2026-09-20T08:30:02.000Z");
+  await pausePageClockAt(page, firstFailure);
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, backlogA);
   const reconnect = origin.answerWith("main", noConnection);
@@ -212,8 +158,14 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   const { problem } = parts(page);
   const unreachable =
     "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.";
-  await expectProblemAndNoSnapshot(page, unreachable);
-  await expect(problem.locator("time")).toHaveAttribute(
+  const recoversOnItsOwn = "This page reads the published work at";
+  await expectProblemAndNoSnapshot(
+    page,
+    unreachable,
+    undefined,
+    recoversOnItsOwn,
+  );
+  await expect(problem.locator("time").nth(0)).toHaveAttribute(
     "datetime",
     firstFailure.toISOString(),
   );
@@ -221,11 +173,16 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   await test.step("a reload that fails too reports that attempt, still with no snapshot", async () => {
     await page.clock.setFixedTime(secondFailure);
     await page.reload();
-    await expect(problem.locator("time")).toHaveAttribute(
+    await expect(problem.locator("time").nth(0)).toHaveAttribute(
       "datetime",
       secondFailure.toISOString(),
     );
-    await expectProblemAndNoSnapshot(page, unreachable);
+    await expectProblemAndNoSnapshot(
+      page,
+      unreachable,
+      undefined,
+      recoversOnItsOwn,
+    );
   });
 
   reconnect();

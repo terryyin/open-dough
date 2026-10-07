@@ -136,6 +136,16 @@ export function fixtureCommit(
   };
 }
 
+// GitHub's commit list for a path when that path has no commits in the
+// named history: an empty array, not a lost connection.
+export function emptyCommitListAnswer(): RawAnswer {
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: "[]",
+  };
+}
+
 // GitHub's commit list for a path, newest first, as far as `per_page=1`
 // asks: the one commit that last changed it, committed at `committedAt`.
 function commitListAnswer(committedAt: Date): RawAnswer {
@@ -197,6 +207,19 @@ export function rateLimitedAnswer(
       documentation_url:
         "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting",
     }),
+  };
+}
+
+// GitHub's HTTP error body, with no rate-limit direction. Used for both
+// eligible transient statuses and unmarked access refusals.
+export function httpErrorAnswer(
+  status: number,
+  message = "GitHub error",
+): RawAnswer {
+  return {
+    status,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify({ message, status: String(status) }),
   };
 }
 

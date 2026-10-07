@@ -1,10 +1,22 @@
 // What the local authenticated read boundary (`./authenticatedRead.ts`)
 // reports for a failed read, from the failure category `./ghRead.ts`
-// established: person-facing wording, and any wait a rate limit directed.
+// established: person-facing wording, any wait a rate limit directed, and
+// whether the failure is safe for the page's transient recovery (not inferred
+// from the boundary's HTTP wrapper or rendered prose).
 
 import { notAskedOfGitHub } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { GhFailure, rateLimitStop, readTimeoutMs } from "./ghRead.ts";
+import {
+  GhFailure,
+  type GhFailureReason,
+  rateLimitStop,
+  readTimeoutMs,
+} from "./ghRead.ts";
+
+// Upstream HTTP statuses the page may recover from on its own. Validated here
+// from GitHub's included status (`./ghAnswer.ts`), never from the boundary's
+// generic 502 response status.
+const transientHttpStatuses = new Set([408, 500, 502, 503, 504]);
 
 export type ReportedFailure = {
   readonly message: string;
@@ -12,16 +24,39 @@ export type ReportedFailure = {
   // stopped the read: the wait it met, or what is left of it when the read
   // was held back.
   readonly retryAfterSeconds: number | undefined;
+  // Safe for the page's project-local transient recovery schedule; absent
+  // when the failure stays actionable (access, missing facts, unknown).
+  readonly recovery: "transient" | undefined;
 };
+
+// Whether this classified failure may enter the page's transient recovery.
+// Rate limits and held-back reads use rate-limit recovery instead.
+function recoveryOf(reason: GhFailureReason): "transient" | undefined {
+  switch (reason.kind) {
+    case "unreachable":
+    case "timed-out":
+      return "transient";
+    case "http":
+      return transientHttpStatuses.has(reason.status) ? "transient" : undefined;
+    default:
+      return undefined;
+  }
+}
+
+function failureReasonOf(error: unknown): GhFailureReason {
+  return error instanceof GhFailure ? error.reason : { kind: "failed" };
+}
 
 export function reportedFailure(
   error: unknown,
   source: PublishedSource,
   reading: string,
 ): ReportedFailure {
+  const reason = failureReasonOf(error);
   return {
-    message: failureMessage(error, source, reading),
+    message: failureMessage(reason, source, reading),
     retryAfterSeconds: rateLimitStop(error)?.waitSeconds,
+    recovery: recoveryOf(reason),
   };
 }
 
@@ -29,12 +64,10 @@ export function reportedFailure(
 // read, the category `./ghRead.ts` could establish, and what to do next.
 // Never anything `gh` itself printed.
 function failureMessage(
-  error: unknown,
+  reason: GhFailureReason,
   source: PublishedSource,
   reading: string,
 ): string {
-  const reason =
-    error instanceof GhFailure ? error.reason : { kind: "failed" as const };
   const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`;
   switch (reason.kind) {
     case "not-logged-in":

@@ -1,9 +1,9 @@
 // A visible dashboard recovers from failed automatic reads without misstating
-// what was published: a failed revision check, or a failed read of the
-// newly found commit's backlog, keeps the last successful snapshot with its
-// own revision and retrieval time and reports the failed attempt; checks go
-// on only at the steady pace; and a later scheduled check that succeeds
-// clears the failure. A shown revision's unread detail:
+// what was published: a failed revision check keeps the last successful
+// snapshot and continues checks at the steady pace; an eligible connection
+// failure reading a newly found commit's backlog keeps A, schedules
+// project-local recovery, and heals when GitHub answers without waiting for
+// the next check. A shown revision's unread detail:
 // ./auto-refresh-detail-recovery.spec.ts. A rate limit's directed wait:
 // ./auto-refresh-rate-limit.spec.ts. The page, its local authenticated read
 // boundary, the `gh` invocation, and the shared interpretation are the
@@ -29,6 +29,7 @@ import {
   recordsAt,
   headsChecks,
 } from "./autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { noConnection, type OriginAnswer } from "./publishedOrigin.ts";
 import {
   backlogB,
@@ -40,14 +41,13 @@ import {
   titlesOfA,
   titlesOfB,
 } from "./refreshJourney.ts";
-
 // `gh` fails in a way the boundary cannot put a category to.
 const unexplainedFailure: OriginAnswer = {
   exitCode: 1,
   stderr: "gh: unexplained failure\n",
 };
 
-test("auto refresh recovery: a failed check, then a failed read of B's backlog, keep A with its own revision and retrieval time and retry only at the steady pace, until the next scheduled check reads B and clears the failure", async ({
+test("auto refresh recovery: a failed check keeps A at the steady pace; an eligible backlog failure of B recovers on its own without a check", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
@@ -88,11 +88,12 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
   const restoreBacklogAtB = origin.answerWith(revisionB, noConnection);
   const beforeB = githubFor(page).calls.length;
 
-  await test.step("B is found at the steady pace, but its backlog cannot be read: A stays, and the failed read of B is reported", async () => {
+  await test.step("B is found at the steady pace, but its backlog cannot be read: A stays, and recovery is scheduled", async () => {
     expectSteadyPace(await passTimeUntilChecked(page));
     await expect(problem).toContainText(
       `The local GitHub CLI could not reach GitHub while reading .planning/PRODUCT-BACKLOG.md at ${revisionB}.`,
     );
+    await expect(problem).toContainText("this page reads it");
     await expect(problem.locator("time").nth(1)).toHaveAttribute(
       "datetime",
       retrievedA,
@@ -109,16 +110,17 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
     ]);
   });
 
-  await test.step("nothing is asked again sooner than the steady pace", async () => {
+  await test.step("nothing is asked again before the recovery wait, including no revision check", async () => {
     const quietFrom = githubFor(page).calls.length;
     expect(await checksAskedWhilePassing(page, 14_000)).toBe(0);
     expect(callsSince(page, quietFrom)).toEqual([]);
   });
 
-  await test.step("the next scheduled check finds B again, reads it whole, and clears the failure", async () => {
+  await test.step("due recovery reads B whole and clears the failure without a check", async () => {
     restoreBacklogAtB();
-    const passed = await passTimeUntilChecked(page);
-    expectSteadyPace(14_000 + passed);
+    const beforeRecovery = githubFor(page).calls.length;
+    await page.clock.runFor(1_250);
+    await untilPageReadsAnswered(page);
     await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
@@ -127,9 +129,9 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
     );
     await expect(retrievedAt).not.toHaveAttribute("datetime", retrievedA);
     await expect(problem).toHaveCount(0);
+    expect(headsChecks(callsSince(page, beforeRecovery))).toEqual([]);
   });
 });
-
 test("auto refresh recovery: a newly published backlog listing the same work twice keeps A whole, without taking focus or changing its controls, until a check finds the repaired B", async ({
   page,
 }) => {

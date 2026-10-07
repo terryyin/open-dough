@@ -121,6 +121,7 @@ test.describe("authenticated read boundary containment (dev launch mode)", () =>
       status: 502,
       body: {
         error: `The local GitHub CLI could not reach GitHub while reading ${reading}.`,
+        recovery: "transient",
       },
     });
     // An answer that names no comparison status is no answer.

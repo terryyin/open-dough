@@ -39,7 +39,8 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // `committed` gives that path, or with the commits `history` lists for it,
 // as many as it asks for, each of which answers for its own change to that
 // path; a published agent profile nothing else dates was added by a commit of
-// its own (./pathHistoryAnswers.ts); for any other path the connection fails.
+// its own (./pathHistoryAnswers.ts); for any other path GitHub's empty commit
+// list answers (established absence), not a lost connection.
 // Each of `branches` is a published branch head, answered and observed the
 // same way at its own revision; any other branch is not published. Each of
 // `unanswered` is listed in its directory, but reading it fails as a lost
@@ -52,8 +53,7 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // with every file it changed; joined through a move that names none, it
 // answers no connection. The reverse, from a later revision the ref named to
 // an earlier one, is answered behind, and any other comparison diverged, both
-// observed. While comparisons are held, each one asked is observed at once
-// and answered only once they are released.
+// observed.
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
@@ -119,30 +119,34 @@ export function publishMovingFiles(
   githubFor(page).serve(repository, async (call) => {
     const { request } = call;
     if (request.kind === "repository")
-      return {
+      return Promise.resolve({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ default_branch: ref }),
-      };
+      });
     if (request.kind === "ref" && request.ref === ref) {
       observe(requests, call);
-      return commitAnswer(trunk.revision);
+      return Promise.resolve(commitAnswer(trunk.revision));
     }
     if (request.kind === "matching-refs") {
       observe(requests, call);
-      return headsAnswer({
-        ...Object.fromEntries(
-          [...branches].map(([branch, at]) => [branch, at.revision]),
-        ),
-        [ref]: trunk.revision,
-      });
+      return Promise.resolve(
+        headsAnswer({
+          ...Object.fromEntries(
+            [...branches].map(([branch, at]) => [branch, at.revision]),
+          ),
+          [ref]: trunk.revision,
+        }),
+      );
     }
     if (request.kind === "branch") {
       observe(requests, call);
       const head = branches.get(request.branch);
-      return head === undefined
-        ? notFoundAnswer()
-        : branchRefAnswer(request.branch, head.revision);
+      return Promise.resolve(
+        head === undefined
+          ? notFoundAnswer()
+          : branchRefAnswer(request.branch, head.revision),
+      );
     }
     if (request.kind === "compare") {
       const { base, head } = request;
@@ -150,8 +154,8 @@ export function publishMovingFiles(
       if (forward?.some(({ by }) => by === undefined) === true) {
         return noConnection;
       }
-      observe(requests, call);
       await comparisonsHeld;
+      observe(requests, call);
       if (forward === undefined) {
         return compareAnswer(
           movesBetween(head, base) === undefined ? "diverged" : "behind",
@@ -170,41 +174,45 @@ export function publishMovingFiles(
       const made = madeCommits.get(request.sha);
       if (made !== undefined) {
         observe(requests, call);
-        return madeCommitAnswer(made);
+        return Promise.resolve(madeCommitAnswer(made));
       }
       const answer = commitAnswerIn(revisions, request.sha);
       if (answer === undefined) {
-        return noConnection;
+        return Promise.resolve(noConnection);
       }
       observe(requests, call);
-      return answer;
+      return Promise.resolve(answer);
     }
     if (request.kind === "unknown" || request.kind === "ref") {
-      return noConnection;
+      return Promise.resolve(noConnection);
     }
     const at = publishedAt(revisions, request.revision);
     if (at === undefined) {
-      return noConnection;
+      return Promise.resolve(noConnection);
     }
     observe(requests, call);
     if (request.kind === "commit-list") {
-      return commitListIn(at, request.path, request.perPage) ?? noConnection;
+      return Promise.resolve(commitListIn(at, request.path, request.perPage));
     }
     if (request.kind === "listing") {
-      return directoryListingAnswer(request.path, [
-        ...listedFiles(at.files).filter(
-          ({ path }) => at.unanswered?.includes(path) !== true,
-        ),
-        ...(at.unanswered ?? []).map(unansweredFile),
-      ]);
+      return Promise.resolve(
+        directoryListingAnswer(request.path, [
+          ...listedFiles(at.files).filter(
+            ({ path }) => at.unanswered?.includes(path) !== true,
+          ),
+          ...(at.unanswered ?? []).map(unansweredFile),
+        ]),
+      );
     }
     if (at.unanswered?.includes(request.path) === true) {
-      return noConnection;
+      return Promise.resolve(noConnection);
     }
     const body = Object.hasOwn(at.files, request.path)
       ? at.files[request.path]
       : undefined;
-    return body === undefined ? notFoundAnswer() : rawFileAnswer(body);
+    return Promise.resolve(
+      body === undefined ? notFoundAnswer() : rawFileAnswer(body),
+    );
   });
   return {
     requests,

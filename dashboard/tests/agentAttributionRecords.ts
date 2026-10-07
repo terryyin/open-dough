@@ -7,8 +7,9 @@
 // modification by a third; the Preparing profile's addition matches no
 // account; one account names an avatar off GitHub's avatar host; one
 // account's avatar cannot be fetched; one history reaches an older
-// allocation without an addition of its own; and one history is not
-// published. At the second revision the Taken agent was released and
+// allocation without an addition of its own; and one history is explicitly
+// unpublished (`null`, answered as a lost connection). At the second revision
+// the Taken agent was released and
 // allocated again by an account with another avatar, and the Preparing agent
 // by the first revision's credited account.
 

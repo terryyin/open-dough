@@ -82,11 +82,10 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     expect(github.calls.slice(asked)).toEqual([]);
   });
 
-  await test.step("seen again, it reads what the limit withheld beside the snapshot it shows, and the notice clears", async () => {
+  await test.step("seen again, it reads what the limit withheld beside the snapshot it shows, and the limit notice clears", async () => {
     await setPageVisibility(page, "visible");
     await page.clock.runFor(1);
     await expectSettledPage(page, titlesBesideUnreachable);
-    await expect(problem).toHaveCount(0);
     await expect(source).toContainText(revision);
     await expect(withheldCard.locator(".card-preparation")).toHaveText(
       "Not recorded",
@@ -97,6 +96,10 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     await expect(page.locator("body")).not.toContainText(
       "GitHub's rate limit withheld",
     );
+    // The unreachable seed stays an eligible gap and schedules its own
+    // project-local recovery beside the healed detail.
+    await expect(problem).toContainText("this page reads it");
+    await expect(unreachableCard).toContainText(unreachableGap);
   });
 
   await test.step("GitHub was asked which commit the ref names and for the withheld records, besides the record another failure keeps unread, which stays a gap", async () => {

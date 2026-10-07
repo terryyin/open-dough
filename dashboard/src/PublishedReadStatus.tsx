@@ -16,6 +16,7 @@ export function PublishedReadStatus({
   reading,
   work,
   withheld,
+  recoversAt,
   notice,
 }: {
   readonly attempt: ReturnType<typeof useObservationAttempt>["attempt"];
@@ -23,6 +24,7 @@ export function PublishedReadStatus({
   readonly work: PublishedWork | undefined;
   // Whether GitHub's rate limit withheld detail of the shown snapshot.
   readonly withheld: boolean;
+  readonly recoversAt: Date | undefined;
   readonly notice: string;
 }) {
   const limitedUntil = useStandingLimit();
@@ -60,20 +62,33 @@ export function PublishedReadStatus({
           attempt={attempt}
           work={work}
           limitedUntil={limitedUntil}
+          recoversAt={recoversAt}
           withheld={withheld}
         />
+      ) : limitedUntil ? (
+        <div role="alert" className="read-problem">
+          <h2>
+            <Icon icon={Hourglass} />
+            Reading waits for GitHub's rate limit
+          </h2>
+          <ReadingLimitNotice
+            until={limitedUntil}
+            work={work}
+            withheld={withheld}
+          />
+        </div>
       ) : (
-        limitedUntil && (
+        recoversAt &&
+        work !== undefined && (
           <div role="alert" className="read-problem">
             <h2>
               <Icon icon={Hourglass} />
-              Reading waits for GitHub's rate limit
+              Reading unanswered detail again
             </h2>
-            <ReadingLimitNotice
-              until={limitedUntil}
-              work={work}
-              withheld={withheld}
-            />
+            <p>
+              Detail still unread is labeled where it is shown; this page reads
+              it at <Moment at={recoversAt} />, or when it is next seen.
+            </p>
           </div>
         )
       )}

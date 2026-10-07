@@ -1,9 +1,13 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
-import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
+import {
+  passTimeUntilChecked,
+  passTimeUntilCheckedAfterSettled,
+} from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { commitPaths, recordState } from "./storyReadinessCli.ts";
 import {
   plannedBlocked,
@@ -24,6 +28,9 @@ export async function expectQueuedPlanFocusDuringEnrichment(
     .getByRole("region", { name: `Detail for ${plannedBlocked.title}` })
     .getByRole("link", { name: /^Slice plan / });
   await expect(plan).toBeVisible();
+  // Settle enrichment before advancing the paused clock: a still-pending
+  // detail ask would hit the wait bound and arm recovery that blocks checks.
+  await untilPageReadsAnswered(page);
 
   // Membership temporarily drops the derived link. While canonical reading is
   // held, a deliberate move away from fallback card wins over deferred focus.
@@ -49,6 +56,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
     releaseSeed();
     await expect(plan).toBeVisible();
     await expect(movedTo).toBeFocused();
+    await untilPageReadsAnswered(page);
   }
 
   // A truly removed association completes enrichment without a plan link and
@@ -65,7 +73,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   repo.advanceTo(revision);
   origin.advanceTo(revision);
   await plan.focus();
-  await passTimeUntilChecked(page);
+  await passTimeUntilCheckedAfterSettled(page);
   await expect(card.getByText("Planless", { exact: true })).toBeVisible();
   await expect(plan).toHaveCount(0);
   await expect(card).toBeFocused();

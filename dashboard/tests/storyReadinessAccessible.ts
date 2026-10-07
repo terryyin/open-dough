@@ -11,7 +11,10 @@ import {
   politeRegionsOfferedThenMarked,
   zoomedWindow,
 } from "./accessibleReading.ts";
-import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
+import {
+  passTimeUntilChecked,
+  passTimeUntilCheckedAfterSettled,
+} from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
@@ -78,6 +81,9 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   const queuedPlan = blockedCard
     .getByRole("region", { name: `Detail for ${plannedBlocked.title}` })
     .getByRole("link", { name: /^Slice plan / });
+  // Finish the opening snapshot's detail asks before the paused clock advances
+  // into a check; otherwise a wait-bound interruption arms recovery.
+  await untilPageRequestsAnswered(page);
   const keptRevision = publishDropUnrefined(openDough);
   origin.advanceTo(keptRevision);
   // Focus stays on the plan while the next snapshot is read, and its identity
@@ -178,7 +184,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await legend.getByRole("button", { name: "Close" }).click();
 
   const restore = origin.answerWith("main", noConnection);
-  await passTimeUntilChecked(page, 502);
+  await passTimeUntilCheckedAfterSettled(page, 502);
   const { problem, source } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await problem.scrollIntoViewIfNeeded();
@@ -186,7 +192,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await expect(source).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page);
   restore();
-  await passTimeUntilChecked(page);
+  await passTimeUntilCheckedAfterSettled(page);
   await expect(problem).toHaveCount(0);
 }
 

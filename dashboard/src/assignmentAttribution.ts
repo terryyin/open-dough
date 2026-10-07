@@ -21,12 +21,16 @@ import {
   type ProfilesRead,
 } from "./agentAssignments.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { detailGapProblem } from "./readWaitBound.ts";
+import {
+  gapCauseOf,
+  unavailableGap,
+  type UnavailableGap,
+} from "./readWaitBound.ts";
 
 export type HumanAttribution =
   | { readonly status: "loading" }
   // The addition could not be read.
-  | { readonly status: "unavailable"; readonly problem: string }
+  | UnavailableGap
   // The read profile history has no commit adding this allocation.
   | { readonly status: "no-addition" }
   // The addition was found, but its committer's name is not usable.
@@ -61,14 +65,16 @@ function attributionOf(
 }
 
 // One profile's attribution at the snapshot's revision; a failed or
-// abandoned read is its gap, and so is a walk still unanswered at the
-// snapshot's wait bound: the snapshot itself was read.
+// bound-interrupted read is its gap with typed failure meaning. Caller
+// departure does not settle the addition question (owned by
+// `profileAdditionsAt`).
 async function attributionAt(
   source: PublishedSource,
   profilePath: string,
   revision: string,
   additionOf: ProfileAdditions,
   signal: AbortSignal,
+  bound: AbortSignal,
 ): Promise<HumanAttribution> {
   try {
     return attributionOf(
@@ -76,15 +82,15 @@ async function attributionAt(
       profileAvatarUrl(source, profilePath, revision),
     );
   } catch (error) {
-    return {
-      status: "unavailable",
-      problem: detailGapProblem(
+    return unavailableGap(
+      gapCauseOf(
         error,
         signal,
+        bound,
         "the commit that added this agent profile",
         "The commit that added this agent profile could not be read.",
       ),
-    };
+    );
   }
 }
 
@@ -99,6 +105,7 @@ export async function readAttributedAssignments(
   profiles: ProfilesRead,
   additionOf: ProfileAdditions,
   signal: AbortSignal,
+  bound: AbortSignal,
   onAttributed?: (profiles: ProfileAssignments) => void,
 ): Promise<ProfilesRead> {
   if (profilesUnread(profiles)) {
@@ -113,6 +120,7 @@ export async function readAttributedAssignments(
         revision,
         additionOf,
         signal,
+        bound,
       );
       attributed = {
         ...attributed,

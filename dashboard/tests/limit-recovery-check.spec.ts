@@ -1,13 +1,15 @@
 // A page whose revision check met GitHub's rate limit, with nothing of its
 // snapshot withheld, makes its next check once the wait ends, as it does
-// after any failed check, and reads nothing else: a record that failed for
-// another reason stays a gap until a reload.
+// after any failed check, and reads nothing else: a record established as
+// missing stays a gap and is not asked again beside check recovery. An
+// eligible transient unread detail would schedule project-local recovery
+// instead and exclude checks while it stands (./transient-recovery-lifecycle.spec.ts).
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { limiting } from "./limitedReadingJourney.ts";
-import { noConnection } from "./originAnswers.ts";
+import { notFoundAnswer } from "./originAnswers.ts";
 import { untilReported } from "./support/directedWait.ts";
 import {
   filesBesideUnreachable,
@@ -31,7 +33,9 @@ test("after a limited check, with nothing withheld, the page makes its next chec
     page,
     (call) =>
       call.request.kind === "content" && call.request.path === unreachableSeed
-        ? Promise.resolve(noConnection)
+        ? // Terminal missing fact: stays a gap until reload, and must not arm
+          // project-local transient recovery that would block revision checks.
+          Promise.resolve(notFoundAnswer())
         : published(call),
     2,
   );

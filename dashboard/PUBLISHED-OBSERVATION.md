@@ -32,12 +32,10 @@ every published branch head, which GitHub answers with `304 Not Modified` when
 no branch moved, so an unchanged ref reads no backlog or record and changes
 neither the revision nor the retrieval time. When the configured ref names a new commit,
 the page reads exactly that commit, so newly published work appears within
-about 30 seconds. Its backlog is read there directly, so its cards appear
-without waiting on anything else, while the details that follow may reuse
-earlier answers. Only GitHub's own account of what changed lets those details
+about 30 seconds. Only GitHub's own account of what changed lets that read
 reuse anything: the dashboard process compares the new commit with the
 revision at which it last read the backlog and reads each commit between, and
-a record or record listing that neither the comparison's files nor
+a backlog, record, or record listing that neither the comparison's files nor
 any of those commits touched is answered from what it already read, as the
 new commit's own, as are the addition that credits a profile's human and a
 plan's last commit time when none of them touched that profile or plan;
@@ -48,7 +46,7 @@ even when the commit that changed it is a merge whose own change list does
 not name it, and one missing there stays missing. When the new commit does
 not descend from the earlier one, more than ten commits lie between, the
 comparison's or a commit's change list is not given whole (GitHub names at
-most 300 files), or the comparison fails other than by a rate limit, the new commit's details are read as a first visit reads them; a rate limit withholds the details it stopped, never the cards already shown. While the configured ref is unchanged, a story branch that a shown Taken
+most 300 files), or the comparison fails other than by a rate limit, the new commit is read as a first visit reads it; a rate limit withholds what it stopped. While the configured ref is unchanged, a story branch that a shown Taken
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
@@ -107,8 +105,15 @@ bound the local boundary shares) ends as a read problem, never as an empty or
 partial backlog. The snapshot read earlier stays shown with its own revision and
 retrieval time -- it is the last successful snapshot, not a claim that the configured ref
 still names it -- the problem says what failed and when, and how the page
-recovers: with a snapshot shown, automatic checks continue; with nothing
-shown, reloading the page reads again, or, when GitHub's rate limit stopped
+recovers: an eligible temporary failure -- a wait-bound timeout, a recognized
+lost connection, or GitHub's HTTP `408`, `500`, `502`, `503`, or `504` -- of
+the empty page or of detail on a shown snapshot is read again on its own 15,
+then 30, then 60 seconds after settlement, thereafter at most once a minute,
+while the page is visible; at an unchanged revision, successfully shown facts
+stay shown and only eligible unanswered questions are asked again; a rate limit
+still waits for GitHub's time; access, missing, invalid, or unknown failures
+stay until the page is reloaded and are not looped by another detail's
+recovery. When GitHub's rate limit stopped
 the read, the page reads on its own once the limit's time passes. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
 snapshot. While a snapshot is shown the page keeps checking, but only at the
@@ -120,15 +125,13 @@ more until that time, whichever page or project asks: each read asked meanwhile,
 and adding a project, is answered at once as limited, says it was not asked,
 and carries the whole seconds left, so it is never taken for a missing record. A
 read already at GitHub keeps GitHub's own answer, and a later directed time only
-extends the wait. A rate-limit refusal that directs no usable wait, including
-one naming a time already passed, holds back reads the same way for one
-minute; when the first read after that wait is refused the same way, the wait
-doubles, up to one hour, and once a read succeeds the next such refusal waits
-one minute again. Its problem says GitHub named no wait and when reading
-resumes. When any wait ends, directed or not,
+extends the wait. A rate-limit refusal that directs no usable wait holds back
+reads the same way for one minute; when the first read after that wait is
+refused the same way, the wait doubles, up to one hour, and once a read
+succeeds the next such refusal waits one minute again. Its problem says GitHub
+named no wait and when reading resumes. When any wait ends, directed or not,
 reading resumes with one read: the reads asked with it wait their turn until
-it ends, then proceed up to eight at once, whether GitHub answered it, was
-unreachable, its request left, or it timed out; if GitHub limits it again,
+GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
 they are answered as limited with the new resume time and only that read
 reached GitHub. A read waiting its turn when a wait starts is answered as
 limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
@@ -155,32 +158,43 @@ walked back to its addition are remembered once answered, so the walk asks
 only from the step the limit refused, once for the human and the clock that
 share it.
 Each withheld record file, profile set, human, clock, or done record is
-labeled one way, never as missing: "GitHub's rate limit withheld" what was
-being read, and "Limited until" that time, whether GitHub refused the read,
-the process held it back, or the page did not ask; no label names a number of
-seconds. A human whose profile history was withheld is unknown on its card,
-while its detail and the roster give that label after "Human developer
-unknown." Another tab, or the page reloaded, learns the same limit from its
-next request, which the process holds back without asking GitHub. The
-boundary passes on only the validated wait, or its own when GitHub directed
-none, at most one hour. The page's wait ends only at its time: a later check
-or read that succeeds clears the problem, unless the problem stands with its
-snapshot as described below, but no answer lifts the wait early. A record
-detail that could not be read for any reason but the limit stays labeled on its card
-rather than borrowing an older one; checks that find the configured ref
-unchanged never read it again, so reload the page to read it again at the same
-revision. A fresh read after a limit asks it again with the rest, and it stays
-a gap while GitHub still does not answer it. When the 30-second bound ends a read after the
-new commit's backlog was shown, each detail still unread is shown as such a gap
-on that snapshot, and the problem stands with it (a slice clock or credited
-human still unread is only its own gap): a check that finds the configured ref unchanged
-does not clear it, and only a later read that replaces that snapshot does.
-Selecting another project stays available throughout: a failed or still-reading
-project never blocks switching to another, and returning to a project starts a
-fresh read rather than replaying the failure. Switching projects abandons the
-previous project's read, detail reads, and revision check; a late answer from
-any of them changes nothing, and only the newly selected project is checked from
-then on.
+labeled with the limit's wording and that time, never as missing; a human
+whose profile history was withheld is unknown on its card, while its detail
+and the roster name the limit. Another tab, or the page reloaded, learns the
+same limit from its next request, which the process holds back without asking
+GitHub. The boundary passes on only the validated
+wait, or its own when GitHub directed none, at most one hour. The page's wait
+ends only at its time: a later check or read that succeeds clears the
+problem, unless the problem stands with its snapshot as described below, but
+no answer lifts the wait early. A record detail that
+could not be read for an access, missing, invalid, or unknown reason stays
+labeled on its card rather than borrowing an older one; checks that find the
+configured ref unchanged never read it again, and eligible recovery of another
+gap does not ask it again for that same pin -- reload the page to try it at the
+same revision after access is corrected. A fresh read after a limit asks it
+again with the rest, and it stays a gap while GitHub still does not answer it.
+When the 30-second bound ends a read after the new commit's backlog was shown,
+each detail still unread is shown as such a gap on that snapshot, and the
+problem stands with it (a slice clock or credited human still unread is only
+its own gap): a check that finds the configured ref unchanged does not clear
+it; an eligible unread detail is read again on the page's transient recovery
+schedule at that same revision, keeping successfully shown facts. A hidden
+page asks no recovery attempt and releases only its own outstanding recovery
+wait; another page waiting on the same shared read may finish it. The due time
+and backoff step are kept: when the page is seen again it recovers once if
+due, or waits for the remaining time, without replaying missed attempts or
+resetting the budget by toggling visibility. A standing GitHub rate-limit wait
+still takes precedence over a shorter transient backoff and is never shortened;
+ordinary transient failures do not start a login-wide cooldown. Launch
+reconciliation and periodic checks do not bypass an outstanding recovery wait;
+a due recovery still resolves the configured ref afresh and discovers
+publication. Switching projects clears that project's local recovery while a
+standing login limit remains, abandons the previous project's read, detail
+reads, and revision check, and leaves a late answer unable to change what is
+shown; only the newly selected project is checked from then on. Selecting
+another project stays available throughout: a failed or still-reading project
+never blocks switching to another, and returning to a project starts a fresh
+read rather than replaying the failure.
 
 If reading a project fails, the read problem names that project's repository
 and what the local `gh` could establish -- for example that it is not logged
@@ -190,3 +204,25 @@ Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, reload the page (or, with a snapshot shown, let the next check find it).
 The dashboard never logs in on its own.
+
+On the launching machine, a maintainer can inspect this process's newest failed
+upstream reads without a diagnostics screen or persistent storage. Same-origin
+loopback `GET /__authenticated-read-diagnostics?source=<configured-id>` returns
+that configured source's entries from the newest 100 failures kept in memory
+for this dashboard process (oldest dropped), and asks GitHub nothing. Unknown
+sources and disallowed origins or methods are refused before any GitHub call,
+under the same local-origin protections as the read boundary. Each shared `gh`
+invocation that failed contributes one entry, attributed to the admitted reader
+that started it — not one per waiter — with time, configured source id, fixed
+request category, pinned revision when the request already knew one, failure
+classification, elapsed time from when that invocation started, and, only when
+GitHub answered, HTTP status, GitHub request id, and validated rate-limit
+limit/remaining/reset/resource and Retry-After values. Each textual metadata
+field is at most 256 characters; numeric values are finite nonnegative safe
+integers. Credentials, request or response bodies, raw CLI output, arbitrary
+headers, and caller-supplied command or path text are never retained or
+returned. A read held back by admission stays identifiable in the ordinary
+limited response and does not invent an upstream diagnostic event; a local
+deadline or lost connection records its cause without inventing a GitHub status
+or request id. Ordinary waiter departure is not recorded as a retryable
+failure. A newly started dashboard has an empty history.

@@ -201,16 +201,14 @@ export function answerFrom(
       }
       if (request.kind === "commit-list") {
         const history = published.histories?.get(request.revision);
-        return (
-          commitListIn(
-            {
-              files,
-              committed: { [request.path]: new Date() },
-              ...(history !== undefined && { history }),
-            },
-            request.path,
-            request.perPage,
-          ) ?? noConnection
+        return commitListIn(
+          {
+            files,
+            committed: { [request.path]: new Date() },
+            ...(history !== undefined && { history }),
+          },
+          request.path,
+          request.perPage,
         );
       }
       const text = files[request.path];

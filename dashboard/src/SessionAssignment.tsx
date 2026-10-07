@@ -12,6 +12,7 @@ import {
 } from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
+import { ObservationOutcomes } from "./observationOutcomes.ts";
 import { withinReadWait } from "./readWaitBound.ts";
 import { HumanCreditBrief } from "./HumanCredit.tsx";
 import { RecordedFacts } from "./AssignmentRecords.tsx";
@@ -46,8 +47,17 @@ export function SessionAssignment({
     }
     const controller = new AbortController();
     setReading(true);
-    void withinReadWait(controller.signal, async (signal) => {
-      const profiles = await readAssignments(source, revision, signal);
+    void withinReadWait(controller.signal, async (untilEither, bound) => {
+      // Session credit is not the page observation; a local owner only
+      // satisfies the shared addition/assignment settle boundary.
+      const outcomes = new ObservationOutcomes();
+      const profiles = await readAssignments(
+        source,
+        revision,
+        untilEither,
+        outcomes,
+        bound,
+      );
       if (profilesUnread(profiles)) return undefined;
       const own = profiles.assignments.filter(
         (each) => each.agent === agent && each.identity === identity,
@@ -57,8 +67,9 @@ export function SessionAssignment({
         source,
         revision,
         { ...profiles, assignments: own },
-        profileAdditionsAt(source, revision, signal),
-        signal,
+        profileAdditionsAt(source, revision, untilEither, outcomes, bound),
+        untilEither,
+        bound,
       );
       return profilesUnread(attributed) ? undefined : attributed.assignments[0];
     }).then(
