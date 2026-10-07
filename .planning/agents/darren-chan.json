@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-116#claude-done-rename-readiness-correction",
+  "mode": "story-branch",
+  "branch": "codex/a-private-claude-code-rename-types-only-at-a-rea",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
