@@ -13,6 +13,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { appendedRecords } from "./appendedRecords.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 
 export const cursorSessionId = "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
@@ -71,10 +72,7 @@ function readOptional(file: string): string | undefined {
 }
 
 function readJsonl<T>(file: string): T[] {
-  return (readOptional(file) ?? "")
-    .split("\n")
-    .filter((line) => line !== "")
-    .map((line) => JSON.parse(line) as T);
+  return appendedRecords<T>(readOptional(file) ?? "");
 }
 
 export type CursorScreen =

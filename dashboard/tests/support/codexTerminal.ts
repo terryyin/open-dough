@@ -6,6 +6,7 @@ import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { terminalUrl, type Terminal } from "../agentTerminalBoundary.ts";
 import { processRunning } from "./processGroup.ts";
+import { appendedRecords } from "./appendedRecords.ts";
 
 export type CodexAttach = {
   pid: number;
@@ -24,11 +25,7 @@ function read(native: FakeCodex, name: string) {
   }
 }
 export const codexAttaches = (native: FakeCodex): CodexAttach[] =>
-  read(native, "attaches.jsonl")
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => JSON.parse(line) as CodexAttach);
+  appendedRecords<CodexAttach>(read(native, "attaches.jsonl"));
 export const codexEnded = (native: FakeCodex, pid: number) =>
   read(native, `${String(pid)}.ended`);
 // The attached codex recorded the hang-up and is gone. It records the reason
@@ -38,11 +35,7 @@ export async function expectCodexHungUp(native: FakeCodex, pid: number) {
   await expect.poll(() => processRunning(pid)).toBe(false);
 }
 export const codexLines = (native: FakeCodex, pid: number): string[] =>
-  read(native, `${String(pid)}.lines`)
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => JSON.parse(line) as string);
+  appendedRecords<string>(read(native, `${String(pid)}.lines`));
 export function codexTerminalMode(
   native: FakeCodex,
   mode: "ready" | "review" | "unready" | "fail" | "partial" | "workspace-loss",

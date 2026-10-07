@@ -1,6 +1,7 @@
 // Saved predecessor preconditions and passive-protocol assertions, shared by Codex observation journeys.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
 import type {
@@ -94,8 +95,7 @@ export function passive(calls: FakeCodex["calls"]) {
 }
 
 export function daemonStarts(native: FakeCodex): unknown[] {
-  return readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")
-    .trim()
-    .split("\n")
-    .map((line): unknown => JSON.parse(line));
+  return appendedRecords<unknown>(
+    readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8"),
+  );
 }

@@ -17,6 +17,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { appendedRecords } from "./appendedRecords.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import {
   fakeClaudeListing,
@@ -179,10 +180,7 @@ export function installFakeClaude(
     writeFileSync(state("osascript-mode"), options.osascript);
   }
   const jsonLines = <T>(file: string): T[] =>
-    (readState(state(file)) ?? "")
-      .split("\n")
-      .filter((line) => line !== "")
-      .map((line) => JSON.parse(line) as T);
+    appendedRecords<T>(readState(state(file)) ?? "");
   const claudeCalls = () => jsonLines<ClaudeCall>("calls.jsonl");
   return {
     env,
