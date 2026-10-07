@@ -24,7 +24,7 @@ the close were ignored.
 
 **Identity:** SEED-112#closed-terminal-stays-closed
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/269-closed-terminal-stays-closed/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0996c2f6d8f1e502fdf6da068dc6b9a7d13599a73799cc647eb4084da7f462f3","plan":"bc5bfcb62b8dc4099a6430eff3f520191d9dea5030350cdd2daed67045014747"}}
 ```
 
 **Beneficiary:** A developer who starts a session from the dashboard, opens
