@@ -190,6 +190,12 @@ test("choosing another project before the entries before it are read shows that 
   const { project, backlog } = parts(page);
   await view.markedDone(destination);
   await expect(view.done(destination)).toBeVisible();
+  // The demand's records have all been asked for, the held one still
+  // unanswered; leaving Open Dough abandons the read, which would otherwise
+  // stop asking part way through.
+  await expect
+    .poll(() => recordsAsked(view.github).toSorted())
+    .toEqual(storiesThrough(destination).toSorted());
   const pygardonChoice = project.getByRole("radio", { name: "Pygardon" });
   await pygardonChoice.check();
   await expect(backlog).toContainText("A Pygardon story");
