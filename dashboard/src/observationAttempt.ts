@@ -9,7 +9,7 @@
 // its failure stands until a later read replaces that snapshot: a check that
 // finds the ref unchanged never turns it into a settled read.
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ReadProblem } from "./readProblem.ts";
 
 export type FailedAttempt = {
@@ -55,15 +55,41 @@ const reading: Attempts = {
 
 export function useObservationAttempt() {
   const [attempts, setAttempts] = useState<Attempts>(reading);
+  // Latest attempt replaced by `startReading`, restored when a recovery wait
+  // is released on hide without settling a new failure.
+  const replacedAttempt = useRef<Attempt | undefined>(undefined);
 
   // A read is asked; what is shown stays until it lands.
   const startReading = () => {
-    setAttempts((last) => ({ ...last, latest: { status: "reading" } }));
+    setAttempts((last) => {
+      replacedAttempt.current = last.latest;
+      return { ...last, latest: { status: "reading" } };
+    });
   };
+
+  // Hiding cancelled an in-flight recovery: restore what reading replaced,
+  // without recording a new failure or advancing backoff.
+  const cancelReading = useCallback(() => {
+    setAttempts((last) => {
+      if (last.latest.status !== "reading") {
+        return last;
+      }
+      const prior = replacedAttempt.current;
+      replacedAttempt.current = undefined;
+      return {
+        ...last,
+        latest:
+          prior !== undefined && prior.status !== "reading"
+            ? prior
+            : (last.standing ?? { status: "read" }),
+      };
+    });
+  }, []);
 
   // A newly read membership replaces the shown snapshot, and with it any
   // failure the replaced snapshot was read by.
   const acceptMembership = () => {
+    replacedAttempt.current = undefined;
     setAttempts({ latest: { status: "read" }, standing: undefined });
   };
 
@@ -71,6 +97,7 @@ export function useObservationAttempt() {
   // membership leaves its failure standing.
   const fail = (error: unknown, afterMembership = false) => {
     const failed = failedAttempt(error, afterMembership);
+    replacedAttempt.current = undefined;
     setAttempts((last) => ({
       latest: failed,
       standing: afterMembership ? failed : last.standing,
@@ -91,12 +118,14 @@ export function useObservationAttempt() {
   // Another project is observed: nothing known of this one's attempts
   // carries over.
   const restart = () => {
+    replacedAttempt.current = undefined;
     setAttempts(reading);
   };
 
   return {
     attempt: attempts.latest,
     startReading,
+    cancelReading,
     acceptMembership,
     fail,
     findUnchanged,

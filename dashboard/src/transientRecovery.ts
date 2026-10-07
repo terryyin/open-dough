@@ -3,7 +3,9 @@
 // settlement of 15, 30, 60, then 60 seconds before the observation reads the
 // ref afresh again (`./limitRecovery.ts`). Distinct from the login-wide
 // rate-limit record (`./readingLimit.ts`): a standing GitHub wait takes
-// precedence and is never shortened. An unrelated success or unchanged check
+// precedence and is never shortened. Hiding cancels the pending recovery ask
+// and this page's wait without clearing the due time or step; revealing asks
+// once when due. An unrelated success, unchanged check, or visibility toggle
 // does not reset this unresolved failure's step; only healing every eligible
 // unanswered question, or leaving the project, clears it.
 
@@ -63,8 +65,10 @@ export function useTransientRecoveryPending(): boolean {
   return useSyncExternalStore(subscribe, () => pending);
 }
 
-// When the standing transient recovery ends, re-rendered when it does;
-// undefined when none stands or its wait has passed.
+// When the standing transient recovery is due, re-rendered when it becomes
+// due; undefined when none stands. The due Instant is kept while pending —
+// even after it has passed — so a hidden page still names when it reads, or
+// when it is next seen.
 export function useStandingTransientRecovery(): Date | undefined {
   const until = useRecoversUntil();
   const pendingNow = useTransientRecoveryPending();
@@ -83,5 +87,5 @@ export function useStandingTransientRecovery(): Date | undefined {
       clearTimeout(ending);
     };
   }, [until, pendingNow]);
-  return pendingNow && Date.now() < until ? new Date(until) : undefined;
+  return pendingNow && until > 0 ? new Date(until) : undefined;
 }

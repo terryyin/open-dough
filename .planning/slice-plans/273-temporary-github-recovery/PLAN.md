@@ -290,12 +290,15 @@ immediately preceding this Behavior because retaining outcomes is its real risk.
 
 ### 4. Recovery belongs to the current observation and obeys shared admission
 Type: Behavior
-Status: planned
-Proof: Add `transient-recovery-lifecycle.spec.ts`; use real page/boundary journeys
-and the fake's held answers/unanswered-call observer. Run visibility, project
+Status: done
+Proof: Add `transient-recovery-lifecycle.spec.ts` and
+`transient-recovery-currentness.spec.ts`; use real page/boundary journeys and
+the fake's held answers/unanswered-call observer. Run visibility, project
 isolation, branch movement, shared waiters/subprocess lifecycle, cooldown/turns/
 resumption, and limit-recovery consumers. Include affected responsive-session
-reconciliation/recovery consumers of observation completion.
+reconciliation/recovery consumers of observation completion. Accepted:
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2 --reporter=line transient-recovery-lifecycle.spec.ts transient-recovery-currentness.spec.ts auto-refresh-visibility.spec.ts auto-refresh-project-isolation.spec.ts limit-recovery-check.spec.ts transient-read-recovery.spec.ts transient-detail-recovery.spec.ts auto-refresh-recovery.spec.ts responsive-session-reconciliation.spec.ts`
+(23 passed) plus authenticated-read shared-waiters/subprocess/cooldown/turns/resumption retained from pre-refactor green, and `env -u NODE_ENV npm run typecheck:dashboard`.
 
 Behavior: Recovery is pending or under way → visibility, selected project,
 published revision/head or GitHub's cooldown changes → only a due, visible,

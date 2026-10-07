@@ -6,9 +6,12 @@
 // recovery is due on a visible page, it reads the ref afresh -- the project
 // when nothing is shown, or again beside the shown snapshot. A standing
 // GitHub wait takes precedence over a shorter transient backoff and is never
-// shortened. A hidden page waits until it is seen again. Until then no
-// revision check is asked in its place. One schedule owns both recoveries;
-// there is no second timer beside it.
+// shortened. A hidden page waits until it is seen again; hiding cancels that
+// page's pending recovery timer and outstanding recovery wait without ending
+// a shared upstream read, and retains the due time and step so reveal asks
+// once when due. Until then no revision check, launch-reconciliation fresh
+// read, or visibility toggle resets or bypasses the wait. One schedule owns
+// both recoveries; there is no second timer beside it.
 
 import { useEffect } from "react";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
@@ -34,7 +37,8 @@ export function recordSettledOutcomes(outcomes: ObservationOutcomes): void {
 }
 
 // Asks `readAfresh` once recovery is due, says whether revision checks may
-// be scheduled, and when the visible page next reads on its own.
+// be scheduled, when the visible page next reads on its own, and whether an
+// outstanding recovery or standing limit blocks other fresh reads.
 export function useLimitRecovery({
   withheld,
   readSettled,
@@ -48,6 +52,7 @@ export function useLimitRecovery({
 }): {
   readonly checksMayRun: boolean;
   readonly recoversAt: Date | undefined;
+  readonly blocksFreshRead: boolean;
 } {
   const standingLimit = useStandingLimit();
   const limitStands = standingLimit !== undefined;
@@ -55,12 +60,12 @@ export function useLimitRecovery({
   const transientPending = useTransientRecoveryPending();
   const limitRecoveryDue =
     withheld && readSettled && !limitStands && visibility !== "hidden";
-  const transientRecoveryDue =
+  const transientDue =
     transientPending &&
-    transientUntil === undefined &&
-    readSettled &&
-    !limitStands &&
-    visibility !== "hidden";
+    transientUntil !== undefined &&
+    Date.now() >= transientUntil.getTime();
+  const transientRecoveryDue =
+    transientDue && readSettled && !limitStands && visibility !== "hidden";
   useEffect(() => {
     if (limitRecoveryDue || transientRecoveryDue) readAfresh();
   }, [limitRecoveryDue, transientRecoveryDue]);
@@ -68,7 +73,10 @@ export function useLimitRecovery({
     // Settled reads exclude checks while withheld or while transient
     // recovery is still unresolved (empty page or unanswered detail).
     checksMayRun: readSettled && !withheld && !transientPending,
-    recoversAt:
-      standingLimit ?? (transientPending ? transientUntil : undefined),
+    recoversAt: standingLimit ?? transientUntil,
+    // Launch reconciliation must not bypass an outstanding recovery wait or
+    // the login-wide standing limit; due recovery asks through `readAfresh`
+    // above, not this gate.
+    blocksFreshRead: withheld || transientPending || limitStands,
   };
 }

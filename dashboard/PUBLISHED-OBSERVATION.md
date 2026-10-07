@@ -178,13 +178,23 @@ each detail still unread is shown as such a gap on that snapshot, and the
 problem stands with it (a slice clock or credited human still unread is only
 its own gap): a check that finds the configured ref unchanged does not clear
 it; an eligible unread detail is read again on the page's transient recovery
-schedule at that same revision, keeping successfully shown facts.
-Selecting another project stays available throughout: a failed or still-reading
-project never blocks switching to another, and returning to a project starts a
-fresh read rather than replaying the failure. Switching projects abandons the
-previous project's read, detail reads, and revision check; a late answer from
-any of them changes nothing, and only the newly selected project is checked from
-then on.
+schedule at that same revision, keeping successfully shown facts. A hidden
+page asks no recovery attempt and releases only its own outstanding recovery
+wait; another page waiting on the same shared read may finish it. The due time
+and backoff step are kept: when the page is seen again it recovers once if
+due, or waits for the remaining time, without replaying missed attempts or
+resetting the budget by toggling visibility. A standing GitHub rate-limit wait
+still takes precedence over a shorter transient backoff and is never shortened;
+ordinary transient failures do not start a login-wide cooldown. Launch
+reconciliation and periodic checks do not bypass an outstanding recovery wait;
+a due recovery still resolves the configured ref afresh and discovers
+publication. Switching projects clears that project's local recovery while a
+standing login limit remains, abandons the previous project's read, detail
+reads, and revision check, and leaves a late answer unable to change what is
+shown; only the newly selected project is checked from then on. Selecting
+another project stays available throughout: a failed or still-reading project
+never blocks switching to another, and returning to a project starts a fresh
+read rather than replaying the failure.
 
 If reading a project fails, the read problem names that project's repository
 and what the local `gh` could establish -- for example that it is not logged

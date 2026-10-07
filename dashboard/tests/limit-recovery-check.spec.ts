@@ -1,7 +1,9 @@
 // A page whose revision check met GitHub's rate limit, with nothing of its
 // snapshot withheld, makes its next check once the wait ends, as it does
-// after any failed check, and reads nothing else: a record that failed for
-// another reason stays a gap until a reload.
+// after any failed check, and reads nothing else: a record established as
+// missing stays a gap and is not asked again beside check recovery. An
+// eligible transient unread detail would schedule project-local recovery
+// instead and exclude checks while it stands (./transient-recovery-lifecycle.spec.ts).
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
