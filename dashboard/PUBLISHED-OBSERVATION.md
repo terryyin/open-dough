@@ -56,7 +56,8 @@ ref or branch-head answer is never reused: a later open or check asks again.
 A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it
 alike, so a page that joined it late can be told so sooner than 30 seconds
-after it asked; the failure is not kept, and the next request asks again.
+after it asked; the failure is not kept, and the next request asks again,
+once any wait GitHub directed has passed.
 
 The complete backlog is interpreted before its membership appears. Preparation
 facts, profile assignments (including queued preparers and the roster), and done
@@ -91,11 +92,19 @@ page reads again. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
 snapshot. While a snapshot is shown the page keeps checking, but only at the
 15-second pace, never at once: a new commit whose backlog could not be read is
-found again by the next check and read then. When GitHub answers a check with a
+found again by the next check and read then. When GitHub answers any read with a
 rate limit that says when to ask again (`Retry-After`, or `X-RateLimit-Reset`
-once `X-RateLimit-Remaining` is `0`), the page asks nothing more until that time
--- even when the page is seen again -- and the problem says when checks resume.
-The boundary passes on only the validated wait, at most one hour. A later check
+once `X-RateLimit-Remaining` is `0`), the dashboard process asks GitHub nothing
+more until that time, whichever page or project asks: each read asked meanwhile,
+and adding a project, is answered at once as limited, says it was not asked,
+and carries the whole seconds left, so it is never taken for a missing record. A
+read already at GitHub keeps GitHub's own answer, and a later directed time only
+extends the wait. A refusal that directs no wait, a `404`, a timeout, or an
+unreachable GitHub holds back nothing. The wait is kept in the process's memory,
+so a newly started dashboard asks at once. A page whose check was so limited
+asks nothing more until that time -- even when the page is seen again -- and the
+problem says when checks resume. The boundary passes on only the validated
+wait, at most one hour. A later check
 or read that succeeds lifts any such wait and clears the problem, unless the
 problem stands with its snapshot as described below. A record detail that
 could not be read stays labeled on its card rather than borrowing an older one;

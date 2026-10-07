@@ -43,6 +43,13 @@ reading each record once. A finished ref, branch-head, or check answer is never
 reused, so a later load or check asks again; separately launched dashboards
 share nothing.
 
+Once GitHub refuses any request with a rate limit that directs a wait, one
+dashboard process makes no `gh` request at all until that time, for any page,
+project, or project addition: what is asked meanwhile is answered as limited and
+costs nothing. A request already at GitHub when the limit was met is still
+answered and counted. A separately launched dashboard does not know of the wait
+and asks at once.
+
 A listed story whose latest launch on this machine settled, published at a
 revision other than the one shown, and is not yet reconciled on the page costs
 one comparison of the two commits per newly shown revision (a page that opens

@@ -2,8 +2,9 @@
 // (`./authenticatedRead.ts`): running one `gh api` call with GitHub's status
 // line and headers included, read once (`./ghAnswer.ts`) -- a rate limit and
 // the wait GitHub directed, whichever read met it -- one call shared by every
-// request asking it while it is outstanding, and when one path was last
-// committed as of a resolved commit.
+// request asking it while it is outstanding, admitted once for all of them
+// (`./readAdmission.ts`), and when one path was last committed as of a
+// resolved commit.
 // Which commit a ref or published branch names is asked in `./ghRevision.ts`;
 // content pinned to a resolved commit is read in `./ghContents.ts`. Each call
 // has a fixed argument array -- never a shell string, and never a
@@ -15,6 +16,7 @@ import { execFile, type ExecException } from "node:child_process";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { readAnswer, type GhAnswer } from "./ghAnswer.ts";
 import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
+import { ReadAdmission } from "./readAdmission.ts";
 
 // How long one boundary request may wait for its `gh` answers before it is
 // given up (`./trackedGh.ts`), and how long one `gh` call may run from its
@@ -45,6 +47,10 @@ export type GhFailureReason =
       // bounded, never a header value as GitHub sent it.
       readonly waitSeconds?: number;
     }
+  // Not asked of GitHub at all: a rate limit GitHub directed earlier still
+  // holds back every read of this process (`./readAdmission.ts`) for these
+  // whole seconds. Never GitHub's status, so never an absence either.
+  | { readonly kind: "held-back"; readonly waitSeconds: number }
   | { readonly kind: "unreachable" }
   | { readonly kind: "no-commit" }
   | { readonly kind: "timed-out" }
@@ -57,6 +63,22 @@ export class GhFailure extends Error {
     super(`gh did not answer: ${reason.kind}`);
     this.reason = reason;
   }
+}
+
+// A read GitHub's rate limit stopped: GitHub refused it, or a wait GitHub
+// directed earlier held it back unasked. Either says nothing of what was
+// asked, so it fails the read rather than standing for any answer.
+export type RateLimitStop = Extract<
+  GhFailureReason,
+  { readonly kind: "rate-limited" | "held-back" }
+>;
+
+export function rateLimitStop(error: unknown): RateLimitStop | undefined {
+  if (!(error instanceof GhFailure)) return undefined;
+  const { reason } = error;
+  return reason.kind === "rate-limited" || reason.kind === "held-back"
+    ? reason
+    : undefined;
 }
 
 // Every call asks for GitHub's status line and headers (`--include`), right
@@ -74,11 +96,25 @@ function includedArgs(args: readonly string[]): readonly string[] {
 // answer is kept here.
 const outstandingGh = new OutstandingReads<GhAnswer>(readTimeoutMs());
 
+// Whether this process may ask GitHub now. Every call `outstandingGh` starts
+// is admitted here once, for all the requests waiting on it.
+const admission = new ReadAdmission();
+
 function spawnedGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhAnswer> {
   const askedAt = new Date().toISOString();
+  const heldBack = admission.heldBack(Date.now());
+  if (heldBack !== undefined) {
+    return Promise.resolve({
+      status: undefined,
+      headers: new Map(),
+      body: "",
+      failure: heldBack,
+      askedAt,
+    });
+  }
   return new Promise((resolve, reject) => {
     execFile(
       "gh",
@@ -94,7 +130,12 @@ function spawnedGh(
           reject(new GhFailure({ kind: "timed-out" }));
           return;
         }
-        resolve(readAnswer(error, stdout, stderr, askedAt));
+        resolve(
+          admission.answered(
+            readAnswer(error, stdout, stderr, askedAt),
+            Date.now(),
+          ),
+        );
       },
     );
   });

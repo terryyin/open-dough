@@ -11,8 +11,19 @@ import {
   publishedProjects,
 } from "./projectConfiguration.ts";
 import { folderExists, localFolder } from "./projectFolders.ts";
-import { runGh } from "./ghRead.ts";
+import { rateLimitStop, runGh } from "./ghRead.ts";
 import { runGit } from "./gitRunner.ts";
+
+// What a repository check GitHub's rate limit stopped is told instead of
+// advice to check access: whether GitHub was asked at all, and how long to
+// wait when that is known.
+function limitedCheck(error: unknown, repository: string): string | undefined {
+  const stop = rateLimitStop(error);
+  if (stop === undefined) return undefined;
+  if (stop.kind === "held-back")
+    return `GitHub limited the rate of the local GitHub CLI's requests, so the repository ${repository} was not asked of GitHub. Try again in ${String(stop.waitSeconds)} seconds.`;
+  return `GitHub limited the rate of the local GitHub CLI's requests while checking the repository ${repository}. ${stop.waitSeconds === undefined ? "Try again later." : `Try again in ${String(stop.waitSeconds)} seconds.`}`;
+}
 
 export async function addProject(input: ProjectInput, signal: AbortSignal) {
   // Unreadable settings admit no writes or external validation.
@@ -73,11 +84,12 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
       signal,
       maxBuffer: 64 * 1024,
     });
-  } catch {
+  } catch (error) {
     if (signal.aborted) throw signal.reason;
     throw new ProjectInputProblem(
       "githubUrl",
-      `The repository ${repository} could not be read through the local GitHub CLI. Check gh access and try again.`,
+      limitedCheck(error, repository) ??
+        `The repository ${repository} could not be read through the local GitHub CLI. Check gh access and try again.`,
     );
   }
   signal.throwIfAborted();

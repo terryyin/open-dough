@@ -3,12 +3,13 @@
 // established: person-facing wording, and any wait a rate limit directed.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { GhFailure, readTimeoutMs } from "./ghRead.ts";
+import { GhFailure, rateLimitStop, readTimeoutMs } from "./ghRead.ts";
 
 export type ReportedFailure = {
   readonly message: string;
   // Whole seconds GitHub asked the local `gh` login to wait before asking
-  // again, when a refused answer said so.
+  // again, when a refused answer said so, or left of that wait when the read
+  // was held back.
   readonly retryAfterSeconds: number | undefined;
 };
 
@@ -17,11 +18,9 @@ export function reportedFailure(
   source: PublishedSource,
   reading: string,
 ): ReportedFailure {
-  const reason = error instanceof GhFailure ? error.reason : undefined;
   return {
     message: failureMessage(error, source, reading),
-    retryAfterSeconds:
-      reason?.kind === "rate-limited" ? reason.waitSeconds : undefined,
+    retryAfterSeconds: rateLimitStop(error)?.waitSeconds,
   };
 }
 
@@ -50,6 +49,8 @@ function failureMessage(
           : `GitHub asked to wait ${String(reason.waitSeconds)} seconds before asking again.`;
       return `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(reason.status)}) while reading ${reading}. ${wait}`;
     }
+    case "held-back":
+      return `GitHub limited the rate of the local GitHub CLI's requests, so ${reading} was not asked of GitHub. Reading resumes in ${String(reason.waitSeconds)} seconds.`;
     case "no-commit":
       return `GitHub's answer for ${reading} did not name a commit.`;
     case "timed-out":

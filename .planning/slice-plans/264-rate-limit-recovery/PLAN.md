@@ -268,7 +268,7 @@ slice 2, since slices 6–7 rely on "settled".
 ### 2. One cooldown holds back every read of the process
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/authenticated-read-cooldown.spec.ts` at the
 boundary, the specs O4 found relying on a read reaching GitHub after a directed
 refusal, and the existing `auto-refresh-rate-limit.spec.ts`,
@@ -313,6 +313,25 @@ is held back and it waits again, until slice 6.
 
 Safe stop: After a directed refusal the whole process leaves GitHub alone
 until the time GitHub named.
+
+Done: `ReadAdmission` (`server/readAdmission.ts`) is the admission owner;
+`spawnedGh` asks `heldBack` before running `gh` and passes every answer to
+`answered`. A held-back read is the `held-back` failure kind with whole
+seconds left; `rateLimitStop` (`server/ghRead.ts`) names "GitHub's limit
+stopped this read" for the failure wording, `RevisionChecks`, project addition,
+and the setting file, which now fails with a limit instead of answering
+absent. Accepted proof: `authenticated-read-cooldown.spec.ts` and
+`authenticated-read-cooldown-reach.spec.ts` (ten cases) with the reworked
+directed cases and the named regressions, and the typecheck. Whole-suite runs
+under load 30–45 failed different launch and Codex-observation specs each time
+at 5-second bounds; none meets a limit or runs `gh`, they pass alone and on the
+base, and CI is green on the base. Learnings: directed cases use
+`onServerOfItsOwn` or `ownRevisionCheckBoundary` and `untilReported`
+(`tests/support/directedWait.ts`); slices 3–5 may place new cases in either
+cooldown spec. Slice 3 must separate the undirected step of the setting-file
+case and the five O4 journeys, and `revision-check-failures`' first,
+undirected case on its shared server. A page journey sees a directed check
+time below the 15-second pace only after a reveal.
 
 ### 3. A limit that directs no wait backs off
 

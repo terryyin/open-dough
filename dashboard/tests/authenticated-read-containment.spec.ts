@@ -21,6 +21,7 @@ import {
   rateLimitedAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
+import { onServerOfItsOwn } from "./support/directedWait.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -96,8 +97,19 @@ test.describe("authenticated read boundary containment (dev launch mode)", () =>
 
   test("a failure or rate limit is reported as a read failure, with only the wait GitHub directs", async () => {
     const reading = `whether ${shown} contains ${accepted}`;
-    answer = rateLimitedAnswer(429, { "Retry-After": "120" });
-    expect(await contains()).toMatchObject({
+    const directed = await onServerOfItsOwn(async (own) => {
+      own.github.serve(everyRepository, () =>
+        Promise.resolve(rateLimitedAnswer(429, { "Retry-After": "120" })),
+      );
+      return rawRequest({
+        url: `${own.baseURL}/__authenticated-read?source=open-dough&revision=${shown}&contains=${accepted}`,
+        headers: { Origin: own.origin },
+      });
+    });
+    expect({
+      status: directed.status,
+      body: JSON.parse(directed.body) as unknown,
+    }).toEqual({
       status: 502,
       body: {
         error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading ${reading}. GitHub asked to wait 120 seconds before asking again.`,

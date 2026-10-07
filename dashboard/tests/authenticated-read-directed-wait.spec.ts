@@ -16,6 +16,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { onServerOfItsOwn } from "./support/directedWait.ts";
 import { everyRepository } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import {
@@ -98,32 +99,39 @@ test.describe("authenticated read boundary: every refused read reports the wait 
   });
 
   // Answers `kind`'s read at `revision` with `refusal` and everything else
-  // as published, and returns the boundary's answer.
+  // as published, and returns the boundary's answer: on this describe's
+  // server unless `on` names another.
   async function refusedRead(
     kind: ReadKind,
     revision: string,
     refusal: OriginAnswer,
+    on: DashboardServer = server,
   ) {
     const published = sharedReadsPublished(revision);
-    server.github.serve(everyRepository, (call) =>
+    on.github.serve(everyRepository, (call) =>
       kind.refused(call.request) ? Promise.resolve(refusal) : published(call),
     );
-    const before = server.github.calls.length;
-    const answer = await readAt(server, kind.query(revision));
+    const before = on.github.calls.length;
+    const answer = await readAt(on, kind.query(revision));
     expect(
-      server.github.calls
+      on.github.calls
         .slice(before)
         .some(({ request }) => kind.refused(request)),
     ).toBe(true);
     return { status: answer.status, body: JSON.parse(answer.body) as unknown };
   }
 
+  // `refusal` is made once that server has started.
+  const refusedOnItsOwnServer = (
+    kind: ReadKind,
+    revision: string,
+    refusal: () => OriginAnswer,
+  ) => onServerOfItsOwn((own) => refusedRead(kind, revision, refusal(), own));
+
   test("each kind of read refused with Retry-After reports that GitHub asked to wait, and the wait", async () => {
     for (const [index, kind] of readKinds.entries()) {
       const revision = revisionOf(`${String(index + 1)}a`);
-      const answer = await refusedRead(
-        kind,
-        revision,
+      const answer = await refusedOnItsOwnServer(kind, revision, () =>
         rateLimitedAnswer(index % 2 === 0 ? 403 : 429, {
           "Retry-After": "120",
         }),
@@ -146,13 +154,10 @@ test.describe("authenticated read boundary: every refused read reports the wait 
     const [content] = readKinds;
     if (content === undefined) throw new Error("no content read");
     const revision = revisionOf("6b");
-    const resetSeconds = Math.floor(Date.now() / 1000) + 90;
-    const answer = await refusedRead(
-      content,
-      revision,
+    const answer = await refusedOnItsOwnServer(content, revision, () =>
       rateLimitedAnswer(403, {
         "X-RateLimit-Remaining": "0",
-        "X-RateLimit-Reset": String(resetSeconds),
+        "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) + 90),
       }),
     );
     expect(answer.status).toBe(502);
