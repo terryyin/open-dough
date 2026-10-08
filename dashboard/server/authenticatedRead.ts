@@ -4,7 +4,9 @@
 // may instead name an already resolved revision to read that revision's
 // backlog, ask only whether the ref still names the revision shown and which
 // heads the story branches recorded there name now, read
-// the agent profiles its directory listing names beside the backlog, ask
+// the agent profiles its directory listing names beside the backlog, or the
+// done catalog published there and the done records it lists
+// (`./doneCatalogRead.ts`), ask
 // when one reachable record was last committed there, or which commit added
 // a listed profile, when, and who committed it (`./ghProfileAddition.ts`), or
 // resolve the story branch a Taken entry's profile records there and read

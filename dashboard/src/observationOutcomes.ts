@@ -17,7 +17,7 @@ export type ReadOperation =
   | "file"
   | "commit-time"
   | "profiles"
-  | "done-records"
+  | "done-catalog"
   | "addition"
   | "branch-head"
   | "branch-file";

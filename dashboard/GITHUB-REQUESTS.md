@@ -7,7 +7,9 @@ Each load of the dashboard makes one authenticated `gh` request resolving the
 configured ref, and one reading its backlog unless this dashboard process
 already read it at the resolved revision, plus one per record not already read
 at that revision for preparation and detail, and, once per revision, one listing of the done
-record directory plus one per done record listed there, one listing of the agent
+record directory and one read of its done catalog, plus one per done record
+Recently done shows and this dashboard process has not already read (older
+entries cost theirs only once shown), one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
 its addition (usually one). A history listing is remembered at its revision,

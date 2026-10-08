@@ -52,6 +52,7 @@ test("a story completed through the backlog command releases Akiho-chan and the 
     [
       "M\t.planning/PRODUCT-BACKLOG.md",
       "D\t.planning/agents/akiho-chan.json",
+      "A\t.planning/done/.catalog.json",
       "A\t.planning/done/SEED-A_a.json",
     ],
   );

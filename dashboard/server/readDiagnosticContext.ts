@@ -87,7 +87,8 @@ function categoryOf(read: RequestedRead): DiagnosticCategory {
       return "branch-head";
     case "agent-profiles-at":
       return "agents";
-    case "done-records-at":
+    case "done-catalog-at":
+    case "done-bodies-at":
       return "done";
     case "containment-at":
       return "containment";
@@ -107,7 +108,8 @@ function pinOf(read: RequestedRead): string | undefined {
     case "addition-at":
     case "branch-head-at":
     case "agent-profiles-at":
-    case "done-records-at":
+    case "done-catalog-at":
+    case "done-bodies-at":
     case "containment-at":
       return read.revision;
   }

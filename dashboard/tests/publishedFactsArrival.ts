@@ -15,7 +15,12 @@ import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
-import { doneRecordAt, executed } from "./recentlyDoneRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import {
+  doneDirectory,
+  doneRecordAt,
+  executed,
+} from "./recentlyDoneRecords.ts";
 import {
   afterTake,
   backlogPath,
@@ -49,7 +54,6 @@ const plan = files[planPath("after-take")] ?? "";
 const branch = "story/available-facts";
 const branchHead = "b4".repeat(20);
 const donePath = doneRecordAt(executed.identity);
-const doneDirectory = ".planning/done/";
 export const preparer = "Pat Preparer";
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
@@ -112,7 +116,7 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
   if (request.kind !== "content") return undefined;
   if (request.path === takenCanonicalPath) return "preparation";
   if (request.path === profilePath("Akiho")) return "profiles";
-  if (request.path.startsWith(doneDirectory)) return "done";
+  if (request.path.startsWith(`${doneDirectory}/`)) return "done";
   return undefined;
 };
 
@@ -143,32 +147,35 @@ export async function heldFactGroups(
   await pausePageClockAt(page, opened);
   const trunk = publishes({
     revision,
-    files: {
-      ...files,
-      ".planning/open-dough.json": "{}\n",
-      [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
-      [preparingPath]: assessed,
-      [planPath("preparing")]: plan,
-      [profilePath("Akiho")]: renderAgentProfile({
-        name: "Akiho",
-        identity: "SEED-091#after-take",
-        mode: "story-branch",
-        branch,
-        host: "claude",
-      }),
-      [profilePath("Kirara")]: renderAgentProfile({
-        name: "Kirara",
-        identity: preparingIdentity,
-        activity: "preparation",
-        host: "codex",
-      }),
-      [donePath]: renderDoneRecord({
-        ...executed,
-        completedAt: minutesBefore(60).toISOString(),
-        developer: "Terry Yin",
-      }),
-      ...moreDoneRecords(moreDone),
-    },
+    files: withDoneCatalog(
+      {
+        ...files,
+        ".planning/open-dough.json": "{}\n",
+        [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
+        [preparingPath]: assessed,
+        [planPath("preparing")]: plan,
+        [profilePath("Akiho")]: renderAgentProfile({
+          name: "Akiho",
+          identity: "SEED-091#after-take",
+          mode: "story-branch",
+          branch,
+          host: "claude",
+        }),
+        [profilePath("Kirara")]: renderAgentProfile({
+          name: "Kirara",
+          identity: preparingIdentity,
+          activity: "preparation",
+          host: "codex",
+        }),
+        [donePath]: renderDoneRecord({
+          ...executed,
+          completedAt: minutesBefore(60).toISOString(),
+          developer: "Terry Yin",
+        }),
+        ...moreDoneRecords(moreDone),
+      },
+      doneDirectory,
+    ),
     // Bound-recovery journeys need every Taken clock answerable so an
     // unrelated unread plan time does not keep scheduling detail recovery
     // after the held preparation gap heals (./sliceClockRecords.ts omits it).

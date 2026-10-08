@@ -38,6 +38,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-complete.mjs
   dough-product-backlog/scripts/product-backlog-direction.mjs
   dough-product-backlog/scripts/product-backlog-document.mjs
+  dough-product-backlog/scripts/product-backlog-done-catalog.mjs
   dough-product-backlog/scripts/product-backlog-done-record.mjs
   dough-product-backlog/scripts/product-backlog-git-aggregate.mjs
   dough-product-backlog/scripts/product-backlog-git-candidate.mjs

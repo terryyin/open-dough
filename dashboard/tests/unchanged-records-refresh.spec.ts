@@ -3,8 +3,8 @@
 // once the page showed revision A, the check that finds B has the local read
 // boundary read B's backlog, compare A with B, and read the one commit
 // between, and the page shows B with the same facts without any seed, plan,
-// profile, setting, or done-record text or listing, profile history, or last
-// commit time being read again. A
+// profile, setting, or done-record text or listing, done catalog, profile
+// history, or last commit time being read again. A
 // second tab costs what a reload does, and a restarted dashboard process reads
 // B in full. The fake GitHub only publishes the commits (./publishedFiles.ts);
 // the local read boundary, its memo, and the page decide what is asked and
@@ -19,6 +19,7 @@ import {
   atA,
   atB,
   backlogPath,
+  doneCatalogPath,
   donePath,
   expectSettledAt,
   opened,
@@ -51,6 +52,7 @@ test("a commit that changes no planning record is shown without reading the unch
       `content ${profilePath}@${revisionA}`,
       `content ${settingsPath}@${revisionA}`,
       `listing .planning/done@${revisionA}`,
+      `content ${doneCatalogPath}@${revisionA}`,
       `content ${donePath}@${revisionA}`,
     ]),
   );
@@ -108,6 +110,7 @@ test("a commit that changes no planning record is shown without reading the unch
           `listing .planning/agents@${revisionB}`,
           `content ${profilePath}@${revisionB}`,
           `listing .planning/done@${revisionB}`,
+          `content ${doneCatalogPath}@${revisionB}`,
           `content ${donePath}@${revisionB}`,
         ]),
       );

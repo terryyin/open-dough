@@ -42,10 +42,14 @@ export const sessionsOutsideDoneStories = (
       : record,
   );
 
-// The column's own entries, newest first, by accessible name: done cards and
-// sessions of no shown done story, not the sessions inside a card.
+// The column's own entries, newest first: done cards and sessions of no
+// shown done story, not the sessions inside a card.
+export const shownEntries = (recent: Locator) =>
+  recent.locator(":scope > ol > li > article");
+
+// The column's own entries by accessible name.
 export async function expectEntries(recent: Locator, names: readonly string[]) {
-  const entries = recent.locator(":scope > ol > li > article");
+  const entries = shownEntries(recent);
   await expect(entries).toHaveCount(names.length);
   for (const [index, name] of names.entries()) {
     await expect(entries.nth(index)).toHaveAccessibleName(name);

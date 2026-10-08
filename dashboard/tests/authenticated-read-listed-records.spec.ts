@@ -1,10 +1,11 @@
 // The records listed beside the backlog (done records, agent profiles) as the
 // local authenticated read boundary (../server/listedRecordsRead.ts) reads
-// them: several at once, and each only while GitHub's listing names a blob
-// the boundary has not read, so a later revision asks only for new or changed
-// records. A failed record read names that record. Tested directly against
-// real HTTP and a synthetic `gh` answering from the fake GitHub, observing
-// the `gh` calls that reach it.
+// them -- done records as their catalog names them
+// (../server/doneCatalogRead.ts): several at once, and each only while
+// GitHub's listing names a blob the boundary has not read, so a later
+// revision asks only for new or changed records. A failed record read names
+// that record. Tested directly against real HTTP and a synthetic `gh`
+// answering from the fake GitHub, observing the `gh` calls that reach it.
 
 import { expect, test } from "./support/pageTest.ts";
 import {
@@ -18,6 +19,7 @@ import {
   type RepositoryAnswerer,
 } from "./support/fakeGitHub.ts";
 import { rawRequest } from "./support/rawHttp.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -26,10 +28,12 @@ const knownSourceId = "open-dough";
 // remembers what it read for as long as the server runs.
 const revisionOf = (pair: string) => pair.repeat(20);
 const doneDirectory = ".planning/done";
+const catalogPath = `${doneDirectory}/.catalog.json`;
 const agentsDirectory = ".planning/agents";
 const settingsPath = ".planning/open-dough.json";
 
-// Done records named `SEED-<n>_x.json`, each holding text of its own.
+// Done records named `SEED-<n>_x.json`, each holding text of its own, which
+// their catalog lists as records it could not read.
 function doneRecords(
   label: string,
   count: number,
@@ -74,31 +78,43 @@ test.describe("authenticated listed records read (dev launch mode)", () => {
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&${query}`,
       headers: { Origin: server.origin },
     });
-  const doneAt = (revision: string) => listedAt(revision, "done=records");
+  // Every record of `files`, by the file names their catalog lists.
+  const fileOf = (path: string) =>
+    `&file=${encodeURIComponent(path.split("/").pop() ?? "")}`;
+  const doneAt = (revision: string, files: Readonly<Record<string, string>>) =>
+    listedAt(revision, `done=bodies${Object.keys(files).map(fileOf).join("")}`);
   const profilesAt = (revision: string) =>
     listedAt(revision, "agents=profiles");
 
   test("several done records are read from GitHub at once", async () => {
     const revision = revisionOf("a1");
     const files = doneRecords("together", 6);
-    const published = publishes({ revision, files });
+    const published = publishes({
+      revision,
+      files: withDoneCatalog(files, doneDirectory),
+    });
     let release: () => void = () => undefined;
     const released = new Promise<void>((resolve) => {
       release = resolve;
     });
     server.github.serve(everyRepository, async (call) => {
-      if (call.request.kind === "content") {
+      if (
+        call.request.kind === "content" &&
+        call.request.path !== catalogPath
+      ) {
         await released;
       }
       return published(call);
     });
 
-    const answered = doneAt(revision);
+    const answered = doneAt(revision, files);
     try {
       await expect
         .poll(
           () =>
-            contentReads(server.github.calls, doneDirectory, revision).length,
+            contentReads(server.github.calls, doneDirectory, revision).filter(
+              (path) => path !== catalogPath,
+            ).length,
           { timeout: 5_000 },
         )
         .toBeGreaterThan(1);
@@ -121,20 +137,30 @@ test.describe("authenticated listed records read (dev launch mode)", () => {
     const changed = `${doneDirectory}/SEED-003_x.json`;
     const later = { ...files, [changed]: '{"test":"changed"}\n' };
 
-    server.github.serve(everyRepository, publishes({ revision: first, files }));
-    expect((await doneAt(first)).status).toBe(200);
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision: first,
+        files: withDoneCatalog(files, doneDirectory),
+      }),
+    );
+    expect((await doneAt(first, files)).status).toBe(200);
 
     server.github.serve(
       everyRepository,
-      publishes({ revision: second, files: later }),
+      publishes({
+        revision: second,
+        files: withDoneCatalog(later, doneDirectory),
+      }),
     );
-    const response = await doneAt(second);
+    const response = await doneAt(second, later);
     expect(response.status).toBe(200);
     expect(JSON.parse(response.body)).toEqual({
       revision: second,
       records: Object.entries(later).map(([path, text]) => ({ path, text })),
     });
     expect(contentReads(server.github.calls, doneDirectory, second)).toEqual([
+      catalogPath,
       changed,
     ]);
   });
@@ -144,7 +170,10 @@ test.describe("authenticated listed records read (dev launch mode)", () => {
     const files = doneRecords("failing", 3);
     const failing = `${doneDirectory}/SEED-002_x.json`;
     const after = `${doneDirectory}/SEED-003_x.json`;
-    const published = publishes({ revision, files });
+    const published = publishes({
+      revision,
+      files: withDoneCatalog(files, doneDirectory),
+    });
     let failed: () => void = () => undefined;
     const answeredFailure = new Promise<void>((resolve) => {
       failed = resolve;
@@ -171,7 +200,7 @@ test.describe("authenticated listed records read (dev launch mode)", () => {
     };
     server.github.serve(everyRepository, answerer);
 
-    const response = await doneAt(revision);
+    const response = await doneAt(revision, files);
     expect(response.status).toBe(502);
     expect((JSON.parse(response.body) as { error: string }).error).toContain(
       `while reading ${failing} at ${revision}.`,

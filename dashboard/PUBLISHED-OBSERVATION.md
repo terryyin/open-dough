@@ -178,7 +178,10 @@ each detail still unread is shown as such a gap on that snapshot, and the
 problem stands with it (a slice clock or credited human still unread is only
 its own gap): a check that finds the configured ref unchanged does not clear
 it; an eligible unread detail is read again on the page's transient recovery
-schedule at that same revision, keeping successfully shown facts. A hidden
+schedule at that same revision, keeping successfully shown facts. Recently
+done's done catalog is such a detail; the done records its shown entries need
+are read apart from the snapshot and asked again by **Retry done stories**
+([Recently done range](AGENT-LAUNCH-HISTORY.md#recently-done-range)). A hidden
 page asks no recovery attempt and releases only its own outstanding recovery
 wait; another page waiting on the same shared read may finish it. The due time
 and backoff step are kept: when the page is seen again it recovers once if

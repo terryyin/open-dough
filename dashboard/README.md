@@ -7,9 +7,11 @@ Backlog card ask Claude Code on this machine to execute or refine the story
 (each launch dialog also offers a Model choice: Default, Fable, Opus, or Sonnet,
 and a story's dialog [Session choices](LAUNCH-START.md#session-choices): One-shot
 tracking, Default main with its existing changes, or Automatically land),
-**Recently done** lists the stories recently done, from the done records
-published beside the backlog, each holding this machine's marked-done sessions
-for it, with the other marked-done sessions, newest first. Open sessions whose
+**Recently done** lists the stories recently done, from the done catalog and
+records published beside the backlog, each holding this machine's marked-done
+sessions for it, with the other marked-done sessions, newest first: the latest
+ten, with older entries ten at a time on request and **Show latest 10** to
+return ([session history](AGENT-LAUNCH-HISTORY.md#recently-done-range)). Open sessions whose
 story is in Backlog or Taken appear only inside its card; all other open
 sessions appear in Taken after the published stories. The **Sessions**
 sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,

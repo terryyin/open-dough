@@ -6,9 +6,11 @@
 // when recorded; a record older than the shared 30-day window is left out. A
 // revision with no done records lists the sessions as before; a done-record
 // read that fails is said, and each malformed record is named by its file
-// with its problem, while the sessions are still listed.
+// with its problem, while the sessions are still listed. Which records there
+// are, and when each was done, is the done catalog published beside them;
+// only the records of the stories shown are read.
 // The fake GitHub only publishes files spelled by the shared done-record
-// renderer (./recentlyDoneRecords.ts) and lists their directory; the
+// renderer and catalog (./recentlyDoneRecords.ts) and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
 // local read boundary, the shared done-record reader, and the page decide
 // everything shown. That a done card holds its story's sessions is
@@ -20,6 +22,7 @@ import { publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
+  doneRecordAt,
   doneRecordFiles,
   executed,
   expired,
@@ -33,6 +36,7 @@ import {
   removedQueued,
   repository,
   revision,
+  uncataloguedRevision,
   unanswered,
   withMalformedRecordFiles,
 } from "./recentlyDoneRecords.ts";
@@ -99,7 +103,7 @@ test("Recently done lists published done stories among the sessions, newest firs
     await expect(done).not.toContainText(/-chan|Claude Code|Codex|Cursor/);
   });
 
-  await test.step("a record completed 31 days before is not shown, and only done records are read", async () => {
+  await test.step("a record completed 31 days before is not shown or read: only the done catalog and the shown stories' records are read", async () => {
     await expect(recent).not.toContainText(expired.title);
     await expect(recent).not.toContainText(/could not be read|unreadable/);
     const read = requests.flatMap(({ request }) =>
@@ -107,8 +111,13 @@ test("Recently done lists published done stories among the sessions, newest firs
         ? [request.path]
         : [],
     );
-    expect(read).toHaveLength(3);
-    expect(read).not.toContain(".planning/done/README.md");
+    expect(read.toSorted()).toEqual(
+      [
+        ".planning/done/.catalog.json",
+        doneRecordAt(executed.identity),
+        doneRecordAt(removedQueued.identity),
+      ].toSorted(),
+    );
   });
 });
 
@@ -134,11 +143,11 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expect(recent).not.toContainText(/could not be read|unreadable/);
   });
 
-  await test.step("a done-record read that fails: the column says done stories could not be read and still lists the sessions", async () => {
+  await test.step("a done catalog read that fails: the column says done stories could not be read and still lists the sessions, with its count incomplete", async () => {
     await publishFiles(page, {
       repository,
       revision: otherRevision,
-      files: publishedFiles(),
+      files: publishedFiles(doneRecordFiles(now)),
       unanswered: [unanswered],
     });
     await page.reload();
@@ -147,6 +156,40 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expectEntries(recent, [adHocEntry]);
     await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
+    await expect(recent.locator(".stage-count")).toHaveText(
+      "Entry count incomplete",
+    );
+  });
+
+  await test.step("done records published without a catalog: the column names the gap, reads no record, and still lists the sessions", async () => {
+    const records = doneRecordFiles(now);
+    const requests = await publishFiles(page, {
+      repository,
+      revision: uncataloguedRevision,
+      files: publishedFiles(
+        Object.fromEntries(
+          Object.entries(records).filter(
+            ([path]) => !path.endsWith("/.catalog.json"),
+          ),
+        ),
+      ),
+    });
+    await page.reload();
+    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expect(recent).toContainText(
+      "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records.",
+    );
+    await expectEntries(recent, [adHocEntry]);
+    await expect(recent.locator(".stage-count")).toHaveText(
+      "Entry count incomplete",
+    );
+    expect(
+      requests.filter(
+        ({ request }) =>
+          request.kind === "content" &&
+          request.path.startsWith(".planning/done/"),
+      ),
+    ).toEqual([]);
   });
 
   await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards and the sessions", async () => {

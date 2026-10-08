@@ -120,6 +120,11 @@ export function useColumnPaging(columns: number): ColumnPaging {
   // Where a slide started, whose columns stay until it ends.
   const [slidFrom, setSlidFrom] = useState(0);
   const leftmost = leftmostOf(position, columns, shown);
+  const hidden = hiddenFrom(
+    sliding ? [leftmost, slidFrom] : [leftmost],
+    shown,
+    columns,
+  );
   // Focus that landed in a hidden column, brought into sight once it shows.
   const focused = useRef<Element | undefined>(undefined);
 
@@ -167,8 +172,16 @@ export function useColumnPaging(columns: number): ColumnPaging {
       const from = leftmostOf(position, columns, fit);
       const to =
         column < from ? column : column >= from + fit ? column - fit + 1 : from;
+      // Focus can land in a column still hidden on the row while a wider page
+      // already fits it, as when the side panel closes: it too waits for the
+      // column's length.
+      const hiddenOnRow = (moved.dataset["hidden"] ?? "")
+        .split(" ")
+        .includes(String(column + 1));
+      if (event.type === "focusin" && (to !== from || hiddenOnRow)) {
+        focused.current = event.target;
+      }
       if (to === from) return;
-      if (event.type === "focusin") focused.current = event.target;
       moveTo(to, from);
     };
     for (const asked of ["focusin", showHolding]) {
@@ -187,8 +200,12 @@ export function useColumnPaging(columns: number): ColumnPaging {
   // shows it.
   useLayoutEffect(() => {
     const target = focused.current;
+    const moved = row.current;
+    if (target === undefined || moved === null) return;
+    const column = columnHolding(moved, target);
+    if (column !== undefined && hidden.includes(column)) return;
     focused.current = undefined;
-    if (target === undefined || target !== document.activeElement) return;
+    if (target !== document.activeElement) return;
     target.scrollIntoView({ block: "nearest", inline: "nearest" });
   });
 
@@ -196,10 +213,5 @@ export function useColumnPaging(columns: number): ColumnPaging {
     if (event.target === event.currentTarget) setSliding(false);
   }, []);
 
-  const hidden = hiddenFrom(
-    sliding ? [leftmost, slidFrom] : [leftmost],
-    shown,
-    columns,
-  );
   return { frame, row, shown, leftmost, move, sliding, slid, hidden };
 }

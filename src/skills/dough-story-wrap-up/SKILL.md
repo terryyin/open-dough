@@ -155,8 +155,9 @@ Mode before-cleanup publication — delete the selected work's spent history und
   remaining section is spent;
 - its **Taken** or **Backlog list** entry when one exists, through the
   [dough-product-backlog](../dough-product-backlog/SKILL.md) `complete` command,
-  which also deletes that work's agent profile, writes its done record, and
-  removes expired done records, all owned closure changes; and
+  which also deletes that work's agent profile, writes its done record,
+  removes expired done records, and rebuilds the done catalog beside them, all
+  owned closure changes; and
 - links whose sole purpose is preserving that history.
 
 Also remove the owned follow-up records selected for explicit drop above, after

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "identity": "SEED-119#recently-done-progressive-loading",
-  "mode": "story-branch",
-  "branch": "claude/show-the-latest-10-done-items-and-reveal-older-i",
-  "host": "claude"
-}

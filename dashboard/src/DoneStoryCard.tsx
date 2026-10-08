@@ -3,7 +3,10 @@
 // Taken card's scan line names its developer, the agent with its portrait,
 // the recorded developer's name, and the agent's host beside its mark, for
 // example "Yui-chan · Terry Yin · Claude Code". A record naming no agent shows
-// none. It is a story fact, published for every machine. Inside it are the
+// none. Until its record is read, the card holds its place in the list under
+// the identity and completion time the done catalog names, saying the record
+// is being read, or why it was not. It is a story fact, published for every
+// machine. Inside it, read or not, are the
 // marked-done sessions this machine keeps for the story, newest
 // first, each the entry Recently done shows (`./SessionEntry.tsx`); a machine
 // that keeps none shows none. The card holds the keyboard when the last of
@@ -17,7 +20,7 @@ import { RecordedHost } from "./AssignmentRecords.tsx";
 import type { DoneStory } from "./doneStories.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
-import { doneStoryMarks } from "./pageSessions.ts";
+import { doneStoryMarks } from "./pageEntries.ts";
 import { StorySessions } from "./SessionEntry.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";
@@ -33,15 +36,24 @@ function DoneAgent({ agent }: { agent: string }) {
 }
 
 export function DoneStoryCard({
+  identity,
+  completedAt,
   story,
+  said,
   sessions,
 }: {
-  readonly story: DoneStory;
+  // The story and when it was done, as its done catalog names it.
+  readonly identity: string;
+  readonly completedAt: string;
+  // What its record says, once read.
+  readonly story: DoneStory | undefined;
+  // Why the record's facts are not shown yet, until they are.
+  readonly said: { readonly words: string; readonly gap: boolean } | undefined;
   // This machine's sessions for the story, oldest first.
   readonly sessions: readonly LaunchWithState[];
 }) {
   const heading = useId();
-  const { title, identity, completedAt, developer, agent, host } = story;
+  const { developer, agent, host } = story ?? {};
   const facts = [
     ...(agent === undefined
       ? []
@@ -57,13 +69,17 @@ export function DoneStoryCard({
     <article
       className="done-story"
       aria-labelledby={heading}
+      aria-busy={said !== undefined && !said.gap}
       {...doneStoryMarks(identity)}
     >
-      <h3 id={heading}>{title}</h3>
-      <p className="card-identity">{identity}</p>
+      <h3 id={heading}>{story?.title ?? identity}</h3>
+      {story !== undefined && <p className="card-identity">{identity}</p>}
       <p>
         Done <Moment at={new Date(completedAt)} />
       </p>
+      {said !== undefined && (
+        <p className={said.gap ? "assignment-gap" : "quiet"}>{said.words}</p>
+      )}
       {facts.length > 0 && (
         <p className="card-owner">
           <span className="owner-line">

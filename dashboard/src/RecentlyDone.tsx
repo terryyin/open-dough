@@ -1,142 +1,137 @@
-import { sessionKey } from "./sessionReference.ts";
-// Recently done combines published stories by completion time and saved Done
-// sessions by launch time. Only closed sessions are nested in done cards;
-// unknown or failed published details leave their standalone access intact.
+// Recently done as the dashboard columns show it (`./recentlyDoneView.ts`
+// decides what it lists): the requested first entries newest first, each
+// done story's card holding its sessions, the gaps in what could be read, the
+// one action that shows the next ten older entries, and, beside the heading
+// while more than ten show, the one that shows only the latest ten again
+// (`./RecentlyDoneRangeActions.tsx`). The keyboard in the list keeps a useful
+// place across a refresh (`./recentlyDoneFocus.ts`).
 
-import {
-  launchRetentionDays,
-  storySessionsOf,
-  type LaunchWithState,
-} from "./agentLaunch.ts";
-import { entryCount, type ColumnSummary } from "./columnSummary.ts";
+import { useRef } from "react";
+import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { launchRetentionDays } from "./agentLaunch.ts";
+import { entryCount } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { dashboardColumnMark } from "./columnPaging.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
+import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
+import type { DoneDetail } from "./doneDetails.ts";
+import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import {
-  recentDoneStories,
-  type DoneStories,
-  type DoneStory,
-} from "./doneStories.ts";
-import type { CreationView } from "./launchCreation.ts";
+  recentlyDoneName,
+  type Listed,
+  type RecentlyDoneView,
+} from "./recentlyDoneView.ts";
 import { SessionEntry, SessionList } from "./SessionEntry.tsx";
+import { sessionKey } from "./sessionReference.ts";
 import "./agent-launch.css";
+import "./recently-done.css";
 
-type Listed =
-  | {
-      readonly at: number;
-      readonly story: DoneStory;
-      // The story's sessions, oldest first.
-      readonly sessions: readonly LaunchWithState[];
-    }
-  | { readonly at: number; readonly session: LaunchWithState };
-
-// Done stories by completion, each holding its sessions, and the sessions of
-// no shown done story by launch, newest first; sessions launched at one
-// moment keep their newest-first order.
-function newestFirst(
-  stories: readonly DoneStory[],
-  sessions: readonly LaunchWithState[],
-  sourceId: string,
-): readonly Listed[] {
-  const cards = stories.map((story) => ({
-    at: Date.parse(story.completedAt),
-    story,
-    sessions: storySessionsOf(sessions, sourceId, story.identity),
-  }));
-  const held = new Set(cards.flatMap((card) => card.sessions));
-  return [
-    ...cards,
-    ...sessions
-      .filter((session) => !held.has(session))
-      .toReversed()
-      .map((session) => ({ at: Date.parse(session.launchedAt), session })),
-  ].sort((one, other) => other.at - one.at);
-}
-
-function DoneReadGaps({ done }: { readonly done: DoneStories | undefined }) {
-  if (done?.status === "unavailable") {
-    return <p className="assignment-gap">{done.problem}</p>;
-  }
-  if (done?.status !== "read" || done.unreadable.length === 0) {
-    return null;
-  }
+function DoneReadGaps({ view }: { readonly view: RecentlyDoneView }) {
+  const { problem, unreadable, details } = view;
   return (
-    <ul aria-label="Unreadable done records">
-      {done.unreadable.map(({ file, problem }) => (
-        <li key={file} className="assignment-gap">
-          Done record {file} is unreadable: {problem}.
-        </li>
-      ))}
-    </ul>
+    <>
+      {problem !== undefined && <p className="assignment-gap">{problem}</p>}
+      {unreadable.length > 0 && (
+        <ul aria-label="Unreadable done records">
+          {unreadable.map(({ file, detail }) => (
+            <li key={file} className="assignment-gap">
+              {detail.status === "unreadable"
+                ? `Done record ${file} is unreadable: ${detail.problem}.`
+                : `Done record ${file} is unreadable.`}
+            </li>
+          ))}
+        </ul>
+      )}
+      {details.failed !== undefined && (
+        <div className="done-read-gap">
+          <p className="assignment-gap">{details.failed.problem}</p>
+          <button
+            type="button"
+            className="frame-button"
+            onClick={details.retry}
+          >
+            Retry done stories
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
-// Done stories and the selected project's closed sessions use one list for
-// rendering and counts. Unresolved creations remain recovery evidence only.
-export function recentlyDoneOf(
-  sourceId: string,
-  creations: readonly CreationView[],
-  records: readonly LaunchWithState[] | undefined,
-  done: DoneStories | undefined,
-  noneKept: boolean,
-) {
-  return {
-    creations: creations.filter((record) => record.request.source === sourceId),
-    records,
-    none: noneKept
-      ? "No sessions launched from this dashboard are kept."
-      : "No sessions are listed in Recently done.",
-    done,
-    listed: newestFirst(
-      recentDoneStories(done, new Date()),
-      records ?? [],
-      sourceId,
-    ),
-  };
+// What an entry's story card says until its record is read.
+function unreadWords(
+  detail: DoneDetail,
+  file: string,
+): { readonly words: string; readonly gap: boolean } | undefined {
+  switch (detail.status) {
+    case "read":
+      return undefined;
+    case "reading":
+      return { words: "Reading done story…", gap: false };
+    case "failed":
+      return { words: "This done story could not be read.", gap: true };
+    case "unreadable":
+      return {
+        words: `Done record ${file} is unreadable: ${detail.problem}.`,
+        gap: true,
+      };
+  }
 }
 
-const name = "Recently done";
-
-// Recently done as the dashboard columns name it: how many entries it lists
-// for the project.
-export function recentlyDoneColumn(
-  listed: ReturnType<typeof recentlyDoneOf>,
-): ColumnSummary {
-  return {
-    name,
-    entries:
-      listed.records === undefined ||
-      listed.done?.status !== "read" ||
-      listed.done.unreadable.length > 0
-        ? undefined
-        : listed.listed.length,
-  };
-}
-
-export function RecentlyDone({
-  view,
+function ListedEntry({
+  each,
+  detailOf,
 }: {
-  readonly view: ReturnType<typeof recentlyDoneOf>;
+  readonly each: Listed;
+  readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
 }) {
-  const { creations: listedCreations, records, none, listed, done } = view;
+  if (!("record" in each)) {
+    return <SessionEntry record={each.session} onCard={false} />;
+  }
+  const { record, sessions } = each;
+  const detail = detailOf(record);
+  return (
+    <DoneStoryCard
+      identity={record.identity}
+      completedAt={record.completedAt}
+      story={detail.status === "read" ? detail.story : undefined}
+      said={unreadWords(detail, record.fileName)}
+      sessions={sessions}
+    />
+  );
+}
+
+export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
+  const section = useRef<HTMLElement>(null);
+  const {
+    creations: listedCreations,
+    records,
+    none,
+    shown,
+    details,
+    column,
+  } = view;
+  const focus = useHeldEntryFocus(view, section);
   return (
     <section
+      ref={section}
       className="recently-done"
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
       {...dashboardColumnMark}
     >
       <header className="stage-header">
-        <h2 id="recently-done-heading">{name}</h2>
-        <p className="stage-count">
-          {entryCount(recentlyDoneColumn(view).entries)}
-        </p>
+        <h2 id="recently-done-heading">{recentlyDoneName}</h2>
+        <div className="stage-header-actions">
+          <p className="stage-count">{entryCount(column.entries)}</p>
+          <ShowLatest view={view} section={section} />
+        </div>
       </header>
       <p className="quiet">
         Recently done stories and sessions launched from this dashboard for this
         project, newest first. Sessions are kept on this machine.
       </p>
-      <DoneReadGaps done={done} />
+      <DoneReadGaps view={view} />
       {listedCreations.map((record) => (
         <CreationEntry key={record.launchedAt} record={record} />
       ))}
@@ -148,21 +143,22 @@ export function RecentlyDone({
           </p>
         )}
       </SessionList>
-      {listed.length > 0 && (
-        <ol>
-          {listed.map((each) =>
-            "story" in each ? (
-              <li key={`done ${each.story.identity}`}>
-                <DoneStoryCard story={each.story} sessions={each.sessions} />
-              </li>
-            ) : (
-              <li key={sessionKey(each.session.session)}>
-                <SessionEntry record={each.session} onCard={false} />
-              </li>
-            ),
-          )}
+      {shown.length > 0 && (
+        <ol {...focus}>
+          {shown.map((each) => (
+            <li
+              key={
+                "record" in each
+                  ? `done ${each.record.identity}`
+                  : sessionKey(each.session.session)
+              }
+            >
+              <ListedEntry each={each} detailOf={details.detailOf} />
+            </li>
+          ))}
         </ol>
       )}
+      <ShownRange view={view} />
     </section>
   );
 }
