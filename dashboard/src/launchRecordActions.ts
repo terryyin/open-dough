@@ -107,10 +107,23 @@ export function useLaunchRecordActions({
   const recoverSession = useCallback(
     async (record: LaunchRecord) => {
       const answer = await requestRecoverSession(record);
-      if (answer?.record !== undefined) replaceRecord(answer.record);
+      if (answer?.record !== undefined) {
+        // Cannot-load replacement changes the native session id. Match the
+        // entry the developer recovered, not only the answered key.
+        const previousKey = sessionKey(record.session);
+        const answered = answer.record;
+        setRecords((current) =>
+          current.map((entry) =>
+            sessionKey(entry.session) === previousKey ||
+            sessionKey(entry.session) === sessionKey(answered.session)
+              ? answered
+              : entry,
+          ),
+        );
+      }
       return answer;
     },
-    [replaceRecord],
+    [setRecords],
   );
 
   const readSession = useCallback(

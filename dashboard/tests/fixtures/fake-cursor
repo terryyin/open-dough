@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 "use strict";
-// Proof stand-in for cursor-agent. create-chat prints FAKE_CURSOR_SESSION_ID.
+// Proof stand-in for cursor-agent. create-chat prints FAKE_CURSOR_SESSION_ID,
+// or one shot from FAKE_CURSOR_NEXT_SESSION_FILE when that file has an id.
 // A resume with no prompt is the terminal client (attach log, modes, SIGHUP).
-// Working/waiting/trust/unrecognized/composer/exit modes paint fixed screens;
-// exit prints an unclassified sentence (not chat-cannot-load) and exits.
+// Working/waiting/trust/unrecognized/composer/exit/cannot-load modes paint
+// fixed screens; exit prints an unclassified sentence; cannot-load prints the
+// provisional chat-cannot-load sentence and exits.
 // FAKE_CURSOR_BECOME_READY repaints the follow-up prompt; paint delay and
 // split-paint env vars control delivery. models is logged apart from launch
 // argv. Launch/attach records carry ./fake-host-environment.cjs fields.
@@ -75,7 +77,19 @@ if (log && !attaching) {
   );
 }
 if (args[0] === "create-chat") {
-  const id = process.env.FAKE_CURSOR_SESSION_ID;
+  let id = process.env.FAKE_CURSOR_SESSION_ID;
+  const nextFile = process.env.FAKE_CURSOR_NEXT_SESSION_FILE;
+  if (nextFile) {
+    try {
+      const next = fs.readFileSync(nextFile, "utf8").trim();
+      if (next !== "") {
+        id = next;
+        fs.unlinkSync(nextFile);
+      }
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
   if (!id) {
     process.stderr.write("missing session id\n");
     process.exit(1);
@@ -97,6 +111,9 @@ if (attaching) {
   }
   const unclassifiedExit =
     "Cursor resume failed for an unclassified reason.\r\n";
+  const cannotLoadExit = `${
+    process.env.FAKE_CURSOR_CANNOT_LOAD ?? "Cursor could not load this chat."
+  }\r\n`;
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
     waiting:
@@ -111,6 +128,7 @@ if (attaching) {
     trust: "Do you trust this workspace?\r\n",
     composer: "→ Plan, search, build anything\r\n",
     exit: unclassifiedExit,
+    "cannot-load": cannotLoadExit,
   };
   const recordAttach = () => {
     if (!dir) return;
@@ -130,9 +148,19 @@ if (attaching) {
       })}\n`,
     );
   };
-  if (mode === "exit") {
+  if (mode === "exit" || mode === "cannot-load") {
     recordAttach();
-    process.stdout.write(unclassifiedExit);
+    process.stdout.write(
+      mode === "cannot-load" ? cannotLoadExit : unclassifiedExit,
+    );
+    // cannot-load is one-shot so a replacement attach paints the idle composer.
+    if (mode === "cannot-load" && modeFile) {
+      try {
+        fs.unlinkSync(modeFile);
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+      }
+    }
     process.exit(1);
   }
   const splitMs = Number(process.env.FAKE_CURSOR_SPLIT_PAINT_MS || 0);

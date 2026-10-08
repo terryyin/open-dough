@@ -2,14 +2,17 @@
 // does not hold. Observation never starts the runner; this action uses
 // cursorRunnerPort, which may. It resumes the recorded command, types one
 // continuation only when first input is already confirmed (LaunchInstruction
-// writes that only on the idle composer), and starts no replacement.
+// writes that only on the idle composer), and starts one replacement when
+// resume exits with the cannot-load sentence.
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
+import { showsCursorCannotLoad } from "../../../src/cursorCannotLoad.ts";
 import type { RecoverSessionAnswer } from "../../../src/sessionRecovery.ts";
 import type { AgentLaunches } from "../../agentLaunches.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { directoryState } from "../../sessionWorkspace.ts";
 import { cursorAgent } from "./exec.ts";
 import { cursorRecoveryContinuation } from "./recoveryContinuation.ts";
+import { replaceCannotLoadChat } from "./recoveryReplacement.ts";
 import {
   hangupCursorClient,
   keepCursorClient,
@@ -78,6 +81,9 @@ async function afterKeep(
   }
   if (kept.kind === "exited") {
     const text = kept.text.trim();
+    if (showsCursorCannotLoad(text)) {
+      return replaceCannotLoadChat(source, record, launches);
+    }
     return {
       kind: "failed",
       explanation:

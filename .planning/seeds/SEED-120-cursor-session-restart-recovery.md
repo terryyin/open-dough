@@ -143,8 +143,11 @@ workspace trust and never reaches resume. Not observed: a new process
 showing the prior conversation of a chat whose process is gone. Slice
 planning probes that with a native resume of such a chat and no new
 instruction. If the conversation is absent, resume is the failure path and
-the replacement agent is what delivers the goal. The probe also records the
-text that means the chat cannot be loaded, which this story does not invent.
+the replacement agent is what delivers the goal. Native probes on
+`cursor-agent 2026.10.01-e373342` never emitted cannot-load exit text
+(missing, deleted, and corrupted stores open an empty idle composer). On
+2026-10-08 the developer authorized the provisional contract sentence
+`Cursor could not load this chat.` until a native sentence is observed.
 
 **Key examples:**
 

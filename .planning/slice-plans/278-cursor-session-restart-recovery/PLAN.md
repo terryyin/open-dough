@@ -174,7 +174,8 @@ instruction's authority (ADR 0005).
 
 Behavior: Prior conversation appears when the store remains. Missing store
 opens an empty idle composer; no cannot-load exit sentence. Consequence:
-slice 2 proceeds; slice 3 stops until cannot-load text is recorded. Ships
+slice 2 proceeds; slice 3 waited until the developer authorized the
+provisional sentence `Cursor could not load this chat.` (2026-10-08). Ships
 nothing.
 
 ### 2. An unfinished Cursor session the runner does not hold can be resumed
@@ -211,27 +212,22 @@ slice 3.
 
 ### 3. A chat that cannot be loaded is replaced on the same launch
 Type: Behavior
-Status: planned
-Proof: Extend the fake with an exit mode that prints the sentence slice 1
-recorded, and extend `cursor-session-recovery.spec.ts`. The resume exits with
-that sentence; one `create-chat` runs in the recorded workspace; the stored
-record's session id and continuation change to that id before any instruction
-is written; the instruction contains the original prompt and the continuation
-facts; a completion POST naming the new id is accepted; the old id returns
-409 with "The report does not name this launch's recorded session." An
-unclassified exit, trust, a missing workspace, and an unreachable runner still
-start no agent. Run the slice 2 command again. Add the replacement paragraph
-to `AGENT-LAUNCH-HOSTS.md`.
+Status: done
+Proof: Fake `cannot-load` exit prints provisional
+`Cursor could not load this chat.`;
+`cursor-session-recovery.spec.ts` covers create-chat, session id swap,
+instruction (original prompt + continuation), completion 200/409. Stops
+cases stay green. Accepted with the slice 2 Playwright command (24 passed).
+`AGENT-LAUNCH-HOSTS.md` / `HISTORY` updated. Page replace matches the prior
+session key when the native id changes.
 
-Behavior: When resume's output is the probed cannot-load text, one new agent
+Behavior: When resume's output is the cannot-load sentence, one new agent
 starts in the same workspace on the same launch record. The record names the
 new chat before that agent is instructed. A completion report naming the new
 id is accepted, and one naming the old id is refused. The workspace is not
 recreated and the branch is not switched.
 
-Depends on slice 1 recording the cannot-load text. **Stopped after slice 1:**
-no cannot-load exit text observed; see slice 1 proof. Do not implement until
-that text is recorded; slice 2's other exits stay stopped.
+Used authorized provisional cannot-load sentence (native probe found none).
 
 ## Verification and sizing
 

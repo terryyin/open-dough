@@ -106,7 +106,9 @@ the card says so and shows no screen label. An unfinished recorded session the
 runner does not hold says "The agent is not running." and offers Recover on the
 session entry. A finished session the runner does not hold stays Activity
 unknown: Cursor has no passive status for this session. Recover is absent for
-held, done, and completed sessions.
+held, done, and completed sessions. When resume exits because the chat could
+not be loaded, Recover starts one replacement chat on that same launch record
+and updates the stored session id before instructing it.
 
 Working means active work. Typed native waits mean Needs input with a reason;
 a completed reply means Ready for review, including ordinary prose questions.
