@@ -22,7 +22,8 @@ import { launchWaitMs } from "./launchWait.ts";
 
 export { agentNotRunningLabel };
 
-// Ends the held attach and waits until the runner lists no held sessions.
+// Ends the held attach the way the runner does (SIGHUP) and waits until the
+// runner lists no held sessions. The fake client exits on SIGHUP, not SIGTERM.
 export async function endHeldClient(
   page: Page,
   cursor: FakeCursor,
@@ -30,7 +31,7 @@ export async function endHeldClient(
   const pid = cursor.attaches().at(-1)?.pid ?? 0;
   expect(pid).toBeGreaterThan(0);
   try {
-    process.kill(pid, "SIGTERM");
+    process.kill(pid, "SIGHUP");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
   }
