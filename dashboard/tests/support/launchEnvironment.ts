@@ -9,6 +9,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
+import { fakeClaudeHost } from "./fakeClaude.ts";
 
 export const passThroughMarker = "kept-from-the-dashboard";
 
@@ -57,14 +58,10 @@ export type FakeHostWiring = {
   readonly binDir: string;
   readonly wiring: string;
 };
-const fakeClaude: FakeHostWiring = {
-  binDir: "claude-bin",
-  wiring: "FAKE_CLAUDE_DIR",
-};
 
 export function expectDeveloperShellEnvironment(
   env: Readonly<Record<string, string>> | undefined,
-  host: FakeHostWiring = fakeClaude,
+  host: FakeHostWiring = fakeClaudeHost,
 ): void {
   expect(env).toBeDefined();
   const recorded = env ?? {};

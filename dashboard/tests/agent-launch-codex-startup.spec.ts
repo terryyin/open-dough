@@ -11,7 +11,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { installFakeCodex } from "./support/fakeCodex.ts";
+import { fakeCodexHost, installFakeCodex } from "./support/fakeCodex.ts";
 import {
   startDashboardServer,
   builtDashboardDir,
@@ -65,10 +65,10 @@ for (const mode of ["dev", "preview"] as const) {
       expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
       const daemonEnvironments = codexEnvironments(native, "app-server");
       expect(daemonEnvironments).toHaveLength(1);
-      expectDeveloperShellEnvironment(daemonEnvironments[0], {
-        binDir: "codex-bin",
-        wiring: "FAKE_CODEX_SOCKET",
-      });
+      expectDeveloperShellEnvironment(
+        daemonEnvironments[0],
+        fakeCodexHost("FAKE_CODEX_SOCKET"),
+      );
       expect(
         (await observationStates(server)).map(({ session, sessionState }) => [
           session.sessionId,

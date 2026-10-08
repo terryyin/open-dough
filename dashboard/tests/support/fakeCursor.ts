@@ -15,6 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
+import type { FakeHostWiring } from "./launchEnvironment.ts";
 
 export const cursorSessionId = "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
 
@@ -24,11 +25,19 @@ export const cursorModels = [
   { model: "gpt-5.2", name: "GPT-5.2\u200B" },
 ] as const;
 
+// The fake's directory and wiring, for reading its recorded environment.
+export const fakeCursorHost: FakeHostWiring = {
+  binDir: "cursor-bin",
+  wiring: "FAKE_CURSOR_LOG",
+};
+
 export type CursorInvocation = {
   readonly executable: string;
   readonly args: readonly string[];
   readonly cwd: string;
   readonly stored: string | null;
+  // The part of its environment ../fixtures/fake-host-environment.cjs records.
+  readonly env: Readonly<Record<string, string>>;
 };
 
 export type CursorAttach = {
@@ -40,6 +49,7 @@ export type CursorAttach = {
   readonly rows: number;
   readonly sessionId: string;
   readonly stored: string | null;
+  readonly env: Readonly<Record<string, string>>;
 };
 
 export type FakeCursor = {
@@ -86,13 +96,18 @@ export function installFakeCursor(options?: {
   readonly splitPaintMs?: number;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
-  const binDir = path.join(root, "bin");
+  const binDir = path.join(root, fakeCursorHost.binDir);
   const logPath = path.join(root, "argv.jsonl");
   const modelsPath = path.join(root, "models.txt");
   const modelsLogPath = path.join(root, "models.jsonl");
   const attachDir = path.join(root, "attach");
   const readyPath = path.join(root, "ready");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
+  installFixtureExecutable(
+    "fake-host-environment.cjs",
+    binDir,
+    "fake-host-environment.cjs",
+  );
   const attaches = (): CursorAttach[] =>
     readJsonl(path.join(attachDir, "attaches.jsonl"));
   const listModels: FakeCursor["listModels"] = (models) => {

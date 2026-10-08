@@ -8,9 +8,11 @@
 // leaves this process running, including when the screen is the follow-up
 // prompt, and a later terminal for the session joins it. A launch that
 // already kept a client is joined instead of started again. Closing the
-// dashboard does not hang this process up.
+// dashboard does not hang this process up. It runs in the developer's shell
+// environment (`../../developerShellEnvironment.ts`).
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
+import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 import { showsCursorComposer } from "./idleScreen.ts";
 
 export const cursorTerminalSize = { cols: 80, rows: 24 } as const;
@@ -34,6 +36,7 @@ export function spawnCursorPty(
   return spawnPty(command, [...args], {
     name: "xterm-256color",
     cwd,
+    env: developerShellEnvironment(process.env),
     cols: size.cols,
     rows: size.rows,
   });

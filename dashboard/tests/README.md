@@ -67,7 +67,11 @@ the same keys, with its `FAKE_CODEX_SOCKET` and `FAKE_CODEX_TERMINAL_ROOT`
 wiring, for each invocation in its own log named by `FAKE_CODEX_ENV_LOG`
 (`codexEnvironments` in `support/codexObservation.ts`, for the daemon start or
 `resume`), so its daemon-start log (`daemonStarts`) keeps only the working
-directory. The fake `claude stop <id>` lists that session stopped. Run as `claude attach` in the
+directory. The synthetic `cursor-agent` (`fixtures/fake-cursor`,
+`support/fakeCursor.ts`) records the same keys, with its `FAKE_CURSOR_LOG` and
+`FAKE_CURSOR_ATTACH_DIR` wiring, as `env` on each launch and attach record
+(`calls`, `attaches`); `cursor-runner-environment.spec.ts` starts a Cursor
+runner with the start-up additions itself, as an earlier deployment did. The fake `claude stop <id>` lists that session stopped. Run as `claude attach` in the
 terminal boundary's pseudo-terminal, it echoes each line entered, clears the
 line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it

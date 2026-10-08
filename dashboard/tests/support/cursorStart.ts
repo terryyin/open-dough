@@ -2,7 +2,8 @@
 // A spec sets `cursorScreen` to choose the attach screen the fixture paints,
 // and `cursorSplitPaintMs` to deliver each screen in two writes that far apart.
 // `keptRecord` reads the one session the dashboard kept for the project.
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { test as base } from "../dashboardTest.ts";
@@ -11,6 +12,10 @@ import {
   type CursorScreen,
   type FakeCursor,
 } from "./fakeCursor.ts";
+import {
+  deploymentLikeStart,
+  type DeploymentLikeStart,
+} from "./launchEnvironment.ts";
 import { launchWaitMs } from "./launchWait.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
@@ -59,6 +64,28 @@ test.use({ projectFolders: ["open-dough"], launchTimeoutMs: launchWaitMs });
 // not hung up as idle before the page's terminal joins it.
 export const workingCursorTest = test.extend({
   cursorScreen: "working",
+});
+
+// The same, from a server started as a deployment's is
+// (./launchEnvironment.ts): its PATH directories come before `cursor-agent`'s.
+export const deploymentCursorTest = workingCursorTest.extend<{
+  deployment: DeploymentLikeStart;
+}>({
+  // eslint-disable-next-line no-empty-pattern
+  deployment: async ({}, use) => {
+    const start = deploymentLikeStart(
+      mkdtempSync(path.join(tmpdir(), "dough-deployment-")),
+    );
+    start.create();
+    await use(start);
+    start.remove();
+  },
+  extraEnv: async ({ cursor, deployment }, use) => {
+    await use({ ...cursor.env, ...deployment.extraEnv });
+  },
+  pathPrefix: async ({ cursor, deployment }, use) => {
+    await use([...deployment.pathPrefix, cursor.binDir]);
+  },
 });
 
 export function keptRecord(home: string): LaunchRecord {

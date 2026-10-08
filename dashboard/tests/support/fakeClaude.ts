@@ -12,6 +12,7 @@
 import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
+import type { FakeHostWiring } from "./launchEnvironment.ts";
 import {
   fakeClaudeControls,
   type FakeClaudeControls,
@@ -63,6 +64,12 @@ function nodeOnlyBinDir(tempRoot: string): string {
 
 // The environment entries this server's launch boundary sees, given the
 // fake `gh` wiring's own PATH and bin directory, and the controls over it.
+// The fake's directory and wiring, for reading its recorded environment.
+export const fakeClaudeHost: FakeHostWiring = {
+  binDir: "claude-bin",
+  wiring: "FAKE_CLAUDE_DIR",
+};
+
 export function installFakeClaude(
   tempRoot: string,
   gh: { readonly binDir: string; readonly path: string },
@@ -71,7 +78,7 @@ export function installFakeClaude(
   readonly env: Record<string, string>;
   readonly controls: FakeClaudeControls;
 } {
-  const binDir = path.join(tempRoot, "claude-bin");
+  const binDir = path.join(tempRoot, fakeClaudeHost.binDir);
   const osascriptBinDir = path.join(tempRoot, "osascript-bin");
   const machine = options.machine ?? tempRoot;
   const stateDir = path.join(machine, "claude-state");

@@ -2,7 +2,11 @@
 // accepting connections, and stops it. The runner is its own process group,
 // so closing the dashboard server does not signal it. A runner that is
 // already accepting is left as it is, including one this process did not
-// start. Each home has its own runner.
+// start. Each home has its own runner. It runs in the developer's shell
+// environment (`../../developerShellEnvironment.ts`), as do the
+// `cursor-agent` processes it starts (./exec.ts, ./terminal.ts), which apply
+// that rule again so a runner an earlier deployment started still starts
+// them clean.
 import { spawn } from "node:child_process";
 import { closeSync, existsSync, openSync } from "node:fs";
 import { mkdir, open, readFile, rm } from "node:fs/promises";
@@ -10,6 +14,7 @@ import net from "node:net";
 import path from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
@@ -103,7 +108,7 @@ async function spawnRunner(home: string): Promise<boolean> {
     {
       detached: true,
       stdio: ["ignore", log, log],
-      env: process.env,
+      env: developerShellEnvironment(process.env),
       cwd: process.cwd(),
     },
   );

@@ -12,18 +12,27 @@ import { answerCodexControl } from "./fakeCodexControl.ts";
 import { closeCodexDaemon, listenForCodexDaemon } from "./fakeCodexDaemon.ts";
 import { passiveCodexFixture } from "./fakeCodexObservation.ts";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
+import type { FakeHostWiring } from "./launchEnvironment.ts";
 export type {
   CodexCall,
   FakeCodex,
   FakeCodexObservation,
 } from "./fakeCodexTypes.ts";
 
+const codexBinDir = "codex-bin";
+
+// The fake's directory and one variable wiring it, for reading its recorded
+// environment.
+export function fakeCodexHost(wiring: string): FakeHostWiring {
+  return { binDir: codexBinDir, wiring };
+}
+
 export async function installFakeCodex(
   tempRoot: string,
   searchPath: string,
   serve: boolean | "on-start",
 ): Promise<FakeCodex> {
-  const bin = path.join(tempRoot, "codex-bin");
+  const bin = path.join(tempRoot, codexBinDir);
   installFixtureExecutable("fake-codex", bin, "codex");
   installFixtureExecutable(
     "fake-host-environment.cjs",

@@ -178,7 +178,19 @@ beside `daemonStarts`.
 
 ### 3. The Cursor runner and the cursor-agent it starts get the same environment
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV ./node_modules/.bin/playwright test --config
+dashboard/playwright.config.ts agent-launch-ad-hoc-cursor.spec.ts
+production-cursor-runner.spec.ts cursor-runner-environment.spec.ts
+agent-launch-environment.spec.ts agent-launch-codex-startup.spec.ts
+agent-terminal.spec.ts agent-terminal-codex.spec.ts
+cursor-runner-sessions.spec.ts` → 26 passed; the 21 Cursor consumer specs →
+68 passed; typecheck passes. Red checks failed separately for the runner spawn
+(the runner's own environment, read with `ps eww` by `runnerEnvironment`),
+`execCursor`, and `spawnCursorPty`; `cursor-runner-environment.spec.ts` starts
+`runnerMain.ts` with the deployment's additions to prove a runner an earlier
+deployment started still starts clean clients. The fake's bin directory is
+`cursor-bin`, so the PATH check cannot pass on `/bin`.
 Proof: `npx playwright test agent-launch-ad-hoc-cursor.spec.ts
 production-cursor-runner.spec.ts`. The ad hoc journey gives its server the
 same markers and reads the fake `cursor-agent`'s recorded environment for

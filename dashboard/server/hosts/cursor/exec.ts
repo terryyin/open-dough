@@ -1,5 +1,7 @@
-// One finished `cursor-agent` run with its captured output.
+// One finished `cursor-agent` run with its captured output, in the
+// developer's shell environment (`../../developerShellEnvironment.ts`).
 import { execFile, type ExecException } from "node:child_process";
+import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 
 export const cursorAgent = "cursor-agent";
 
@@ -21,6 +23,7 @@ export function execCursor(
         [...args],
         {
           ...(cwd === undefined ? {} : { cwd }),
+          env: developerShellEnvironment(process.env),
           signal,
           maxBuffer: 8 * 1024 * 1024,
           encoding: "utf8",

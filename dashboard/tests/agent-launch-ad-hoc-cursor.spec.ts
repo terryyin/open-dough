@@ -8,7 +8,10 @@ import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts
 // specs and Codex's ad hoc spec stay the proofs of those hosts. The fixture
 // paints a working turn, so the client the launch kept is still running when
 // the page opens the terminal, however long that opening takes; an idle
-// screen would be hung up after its settle period and replaced.
+// screen would be hung up after its settle period and replaced. The server
+// starts as a deployment's does, and its Cursor runner, create-chat, and the
+// kept client run without its start-up additions
+// (./support/launchEnvironment.ts).
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -18,10 +21,13 @@ import { startSessionField, startedSession } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
+  deploymentCursorTest as test,
   expect,
   keptRecord,
-  workingCursorTest as test,
 } from "./support/cursorStart.ts";
+import { runnerEnvironment } from "./support/cursorRunnerJourney.ts";
+import { fakeCursorHost } from "./support/fakeCursor.ts";
+import { expectDeveloperShellEnvironment } from "./support/launchEnvironment.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -129,6 +135,7 @@ for (const text of ["", "why is the CI slow?"]) {
     expect(created.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
     expect(created.cwd).toBe(realpathSync(origin.project));
     expect(created.stored).toBeNull();
+    expectDeveloperShellEnvironment(created.env, fakeCursorHost);
     await expect.poll(() => cursor.attaches()).toHaveLength(1);
     const client = cursor.attaches()[0];
     if (client === undefined) {
@@ -141,6 +148,11 @@ for (const text of ["", "why is the CI slow?"]) {
       cursor.sessionId,
     ]);
     expect(client.cwd).toBe(realpathSync(origin.project));
+    expectDeveloperShellEnvironment(client.env, fakeCursorHost);
+    expectDeveloperShellEnvironment(
+      runnerEnvironment(dashboard.home),
+      fakeCursorHost,
+    );
     for (const flag of omitted) expect(client.args).not.toContain(flag);
     if (blank) {
       expect(cursor.input(client.pid)).toBe("");

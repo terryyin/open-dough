@@ -68,7 +68,9 @@ their values; everything else passes through unchanged. A session's `npm ci`
 then installs the locked dev dependencies, and its project commands resolve to
 the checkout's own tools rather than the dashboard deployment's. Claude applies
 it to `claude --bg` and `claude attach`; Codex's daemon start and resume and
-Cursor's runner and the `cursor-agent` processes it starts follow the same rule.
+Cursor's runner and the `cursor-agent` processes it starts follow the same rule;
+the runner applies it again at its own spawns, so a runner an earlier
+deployment started also starts clean clients.
 The dashboard's own helper processes (`git`, `gh`, `osascript`) are not
 sessions and keep its environment.
 

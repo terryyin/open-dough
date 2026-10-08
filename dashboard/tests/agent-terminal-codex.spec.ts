@@ -24,6 +24,7 @@ import {
 } from "./support/codexTerminal.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { codexEnvironments } from "./support/codexObservation.ts";
+import { fakeCodexHost } from "./support/fakeCodex.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
@@ -85,10 +86,10 @@ for (const mode of ["dev", "preview"] as const) {
       ]);
       const resumes = codexEnvironments(native, "resume");
       expect(resumes).toHaveLength(1);
-      expectDeveloperShellEnvironment(resumes[0], {
-        binDir: "codex-bin",
-        wiring: "FAKE_CODEX_TERMINAL_ROOT",
-      });
+      expectDeveloperShellEnvironment(
+        resumes[0],
+        fakeCodexHost("FAKE_CODEX_TERMINAL_ROOT"),
+      );
       terminal.send({ input: "answer\r" });
       expect(await shows(terminal, "echo answer")).toBe(true);
       terminal.send({ resize: { cols: 120, rows: 40 } });
