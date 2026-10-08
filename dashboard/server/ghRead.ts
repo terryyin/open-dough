@@ -135,7 +135,10 @@ async function spawnedGh(
         }
         // Ordinary departure or shutdown ended the call: not a retained
         // retryable failure, and not classified as an upstream answer.
+        // Admission still learns it ended without a limit so concurrent
+        // turns reopen after a wait (same reopen as a bound timeout).
         if (signal.aborted) {
+          admission.timedOut(askedAt);
           turnEnds();
           resolve(unasked({ kind: "failed" }, askedAt));
           return;
