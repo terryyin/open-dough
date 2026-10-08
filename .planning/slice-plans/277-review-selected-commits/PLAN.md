@@ -118,7 +118,7 @@ review.
 
 ### 2. A restatement is read even when a merge driver prints
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add to `story-review-since-trunk.spec.ts` a case whose fixture
 configures a merge driver that prints a line for `src/a.ts` (git config in
 the project plus a `.gitattributes` entry) before `integrateTrunk`; the
@@ -228,10 +228,4 @@ Use the [verification commands, affected consumers, and sizing context](CONTEXT.
 
 ## Accepted execution evidence
 
-1. Slice 1: first-parent rows, newest default, parent-to-commit files/diff,
-   rename/Hide, empty/unchanged/interim merge, and strict range admission
-   observed in `story-review-commits.spec.ts`; switch consumers updated.
-   After independent refactoring, `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR
-   npm run test:dashboard -- --workers=2 'dashboard/tests/story-review*.spec.ts'`
-   and `env -u NODE_ENV npm run typecheck:dashboard` passed.
-   Panel selection/feedback and commit CSS extracted; source/server proof preserved.
+See [accepted proof and deliveries](CONTEXT.md#accepted-execution-evidence).

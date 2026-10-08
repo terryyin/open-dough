@@ -85,3 +85,28 @@ No numeric slice target or hard limit was supplied. Slice 1 is the largest:
 one list read, one request with admission, one switch option, and one
 journey; slice 4 adds the two-ended choice and the restated case to the
 mechanism slice 3 prepared. Slices 2 and 5 each add cases to existing specs.
+
+## Accepted execution evidence
+
+1. Slice 1: first-parent rows, newest default, parent-to-commit files/diff,
+   rename/Hide, empty/unchanged/interim merge, and strict range admission
+   observed in `story-review-commits.spec.ts`; switch consumers updated.
+   After independent refactoring, `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR
+   npm run test:dashboard -- --workers=2 'dashboard/tests/story-review*.spec.ts'`
+   and `env -u NODE_ENV npm run typecheck:dashboard` passed.
+   Panel selection/feedback and commit CSS extracted; source/server proof preserved.
+
+2. Slice 2: printing-driver clean/conflicted cases in
+   `story-review-since-trunk.spec.ts` observe increased driver calls during review,
+   no unavailable mark, empty clean comparison, and flagged conflict counts/diff.
+   Full story-review command above and typecheck passed; after unchanged older-Git
+   fixture extraction, the same command restricted to
+   `dashboard/tests/story-review-since-trunk.spec.ts` and typecheck passed.
+   Isolated `18a159ee` baseline with its own npm ci failed both new printing cases
+   (clean: no snapshot; conflict: not-restated), proving the parser correction.
+   Initial clean setup failure was a second commit after an automatic merge;
+   returning after successful merge corrected the fixture.
+
+Published increment: slice 1 `18a159ee44760f09561fc6a6552aef51ded4ab13`;
+CI reused `/tmp/dough-ci-501/watch-XlowzV`, target the remote execution branch.
+Independent refactor thread reused after host refused a fresh thread.

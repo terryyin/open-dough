@@ -182,7 +182,10 @@ unchanged baseline the marked tree is compared directly and nothing is
 restated. Otherwise the marked tree is restated on the current baseline by
 `git merge-tree --write-tree --name-only -z --merge-base=<marked baseline>
 <marked tree> <current baseline>`, which writes a tree object and touches no
-index, worktree, or ref; its first field is the restated tree. A story slice
+index, worktree, or ref. A merge driver can print lines before the result;
+the first object ID among NUL- or newline-separated fields is the restated
+tree. Conflicted filenames after that tree remain NUL-separated, preserving
+newlines within their names. A story slice
 that landed on trunk after the mark is therefore not listed. Each file Git
 names as conflicted, one trunk and the story both changed in a way it cannot
 separate, is listed with its kind and diff from the marked tree to the
@@ -195,8 +198,9 @@ conflicted file's control's name, its row, and its diff heading say it
 mark's, the heading says “Trunk was integrated since the mark”, and with no
 file left the review says “Nothing changed since the review beyond what trunk
 now holds.”, since story work that reached trunk after the mark counts as
-trunk's. Only an exit of 1 whose first field is an object ID is a conflicted
-restatement. Restating needs Git 2.45 or later, which merges trees given with
+trunk's. Exit 0 is a clean restatement and exit 1 is a conflicted restatement
+when that object ID is present; other exits cannot restate the mark.
+Restating needs Git 2.45 or later, which merges trees given with
 `--merge-base`; when this machine's Git cannot restate the mark (an older one
 says the tree is not a commit), the review is not failed: the answer carries
 the mark and `markUncomparable: "not-restated"` in place of `since`, and the

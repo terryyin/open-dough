@@ -49,6 +49,27 @@ async function holdsMark(mark: ReviewMark, call: GitCall) {
 
 // The marked tree restated on the baseline, and the paths Git could not
 // merge; undefined when Git could not restate it at all.
+function restatementFrom(stdout: string) {
+  const fields = stdout.split("\0");
+  for (const [index, field] of fields.entries()) {
+    // Drivers may print lines before Git's tree. Once found, only NULs
+    // separate paths: a conflicted filename can itself contain newlines.
+    const tree = field
+      .split("\n")
+      .find((part) => objectIdSchema.safeParse(part).success);
+    if (tree === undefined) {
+      continue;
+    }
+    const paths = fields.slice(index + 1);
+    const end = paths.indexOf("");
+    return {
+      tree,
+      inseparable: new Set(end === -1 ? paths : paths.slice(0, end)),
+    };
+  }
+  return undefined;
+}
+
 async function restatedMark(mark: ReviewMark, baseline: string, call: GitCall) {
   const output = await runGit(
     [
@@ -62,22 +83,15 @@ async function restatedMark(mark: ReviewMark, baseline: string, call: GitCall) {
     ],
     call,
   ).catch((error: unknown) => {
-    // Only a conflicted merge exits 1 having printed its tree first.
-    const [first] = error instanceof GitFailure ? error.stdout.split("\0") : [];
-    if (exitedOne(error) && objectIdSchema.safeParse(first).success)
-      return error;
     if (call.signal?.aborted === true) throw error;
+    // A conflicted merge exits 1 with a tree, possibly after driver output.
+    if (exitedOne(error)) {
+      return error;
+    }
     return undefined;
   });
   if (output === undefined) return undefined;
-  // The tree, then the conflicted files' names up to an empty field, then
-  // Git's messages.
-  const [tree = "", ...rest] = output.stdout.split("\0");
-  const end = rest.indexOf("");
-  return {
-    tree,
-    inseparable: new Set(end === -1 ? rest : rest.slice(0, end)),
-  };
+  return restatementFrom(output.stdout);
 }
 
 const byPath = (a: ReviewedFile, b: ReviewedFile) =>
