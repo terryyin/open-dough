@@ -8,7 +8,8 @@ allocation (DD-NNN) and removed-finding recovery references. An occurrence in
 this repository alone does not make a cause project-specific. Original finding
 codes and occurrence evidence are retained.
 
-Reviewed on 2026-10-09 against `36ac46f63786fe8b814627e81bba63851e71009d`.
+Reviewed on 2026-10-09 against `36ac46f63786fe8b814627e81bba63851e71009d`;
+classification and current-source recheck against `2677ad0d`.
 Frequency counts distinct executions, not commands, retries, or repairs.
 Grouping related symptoms does not establish a shared cause or duplicate an
 execution. A repaired individual race does not resolve every suite failure.
@@ -16,8 +17,8 @@ execution. A repaired individual race does not resolve every suite failure.
 ## Priority assessment
 
 1. **Dashboard suite interference and load-sensitive results — first, already
-   queued.** Five distinct executions: plans 231 (DD-226), 238 (DD-224), 266
-   (DD-246), 257 (project DD-240), and 276 (DD-257). Lost traces, false failures,
+   queued.** Six distinct executions: plans 231 (DD-226), 238 (DD-224), 264
+   and 266 (DD-246), 257 (project DD-240), and 276 (DD-257). Lost traces, false failures,
    and whole-suite reruns cost minutes and leave causes unexplained. The
    configured shared output/build paths still exist; load is a qualified cause
    for DD-240/DD-257, not a reproduced explanation. Keep the existing first
@@ -119,6 +120,21 @@ a private `--output` folder removed the noise.
   - Observed effect: one rerun per agent (minutes each); no false acceptance, because both agents read the error kind.
   - Inference: Qualified. The coordinator launched the two agents together without assigning output folders; delegation that runs tests concurrently in one checkout could name a private `--output` per agent.
 
+**Additional occurrence moved from ODF-209 / former DD-221.** The concrete
+collision is the same project test-output mechanism as DD-246. The source’s
+general coordination concern remains in DearDough.md; this execution counts
+once in the project suite group, and does not prove that CPU load caused the
+other timeouts. Original observation and qualified inference:
+
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
+  - Timestamp: unknown (2026-10-07, while the refactor pass that preceded `823c1eda`, committed 2026-10-07T09:30:10+09:00, overlapped the CI repair delivered as `9935c040`)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION` after the merge at `fefab16d`)
+  - Evidence: the coordinator ran a CI repair (run 37545377335) and a refactor pass concurrently in the same execution checkout. The repair's `--repeat-each=10 --workers=8` Playwright run cleared the shared `dashboard/test-results`, so the refactor pass's `production-watcher-updates` stress failed 8 of 8 with trace `ENOENT`, and its first `shared-observer-reads`/`story-readiness` stress failed 8 of 48 with 30-second timeouts at load about 101. Both passed on rerun, the first with a private `--output`. Later delegations required a private `--output` for every Playwright run.
+  - Observed effect: two invalid stress runs and their diagnosis; no wrong verdict was accepted.
+  - Inference: Qualified. Same concurrency as the earlier row, plus a shared-output-directory collision that only arises when both run in one checkout.
+
 <a id="dd-240"></a>
 
 ### DD-240 — Claude completion and kept-start specs failed early in one full dashboard run and passed alone and in the next full run
@@ -201,7 +217,9 @@ Node suites passed and only CI's `dashboard` job failed.
   - Timestamp: 2026-10-01T03:16:46Z (CI run 36809768647)
   - Tool: Claude Code
   - Model: claude-opus-5-5
-  - Evidence: slice 5 changed `landWorktree`'s destructured parameters in `dough-land-test-fixtures.mjs`; its proof never ran `npm run typecheck:dashboard`, and `dashboard/tests/preparingJourney.ts` failed with TS2345 again; repair `716c933b`. Recorded in DearDough.md DD-191's plan 191 row, which keeps the delegation facet.
+  - Evidence: slice 5 changed `landWorktree`'s destructured parameters in `dough-land-test-fixtures.mjs`; its proof never ran `npm run typecheck:dashboard`, and `dashboard/tests/preparingJourney.ts` failed with TS2345 again; repair `716c933b`. Original delegation-facet evidence is recoverable in
+    `80043764511288cf27c5f14b128c2820110a8b45:DearDough.md` under DD-191
+    (plan 191); that entry is no longer in the active DearDough.md.
   - Observed effect: one red CI run and a stash-protocol repair cycle; the same file and error as plan 146.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
@@ -343,6 +361,12 @@ Recovery for both input files:
 `36ac46f63786fe8b814627e81bba63851e71009d:DearDough.md` and
 `36ac46f63786fe8b814627e81bba63851e71009d:ProjectFindings.md`.
 DD-243's unchanged occurrence evidence joins DD-216; DD-246 stays open.
+The second classification pass moves ODF-209 / former DD-221’s plan-264
+collision occurrence into DD-246 without allocating a new identity. Recovery:
+`2677ad0d:DearDough.md`. The six-execution suite group and two-execution local
+fixture-check group remain first and second; both already have queued stories.
+Their fixes belong to repository test tooling and documentation, rather than
+published skills or rules. No duplicate story or queue change is needed.
 
 Resolved or mitigated entries removed from the active findings on 2026-10-09:
 
