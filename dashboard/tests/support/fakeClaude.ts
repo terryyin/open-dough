@@ -21,6 +21,7 @@ export type {
   ClaudeCall,
   OsascriptCall,
   ClaudeAttach,
+  ClaudeEnvironment,
   FakeClaudeControls,
 } from "./fakeClaudeControls.ts";
 

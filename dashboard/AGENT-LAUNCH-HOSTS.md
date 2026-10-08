@@ -59,6 +59,19 @@ throughout stores, merging, page keys, focus and action lookup. Equal IDs in dif
 additionally retains its native attach/stop alias; Codex needs no fabricated
 alias. Predecessor actions without host address Claude only.
 
+Every process the dashboard starts for a session, on every host, runs in the
+developer's shell environment (`server/developerShellEnvironment.ts`): the
+dashboard's own environment without what its start added. That removes
+`NODE_ENV`, every `npm_*` variable, `INIT_CWD`, and the `PATH` entries that end
+in `node_modules/.bin` or npm's `@npmcli/run-script/lib/node-gyp-bin`, whatever
+their values; everything else passes through unchanged. A session's `npm ci`
+then installs the locked dev dependencies, and its project commands resolve to
+the checkout's own tools rather than the dashboard deployment's. Claude applies
+it to `claude --bg` and `claude attach`; Codex's daemon start and resume and
+Cursor's runner and the `cursor-agent` processes it starts follow the same rule.
+The dashboard's own helper processes (`git`, `gh`, `osascript`) are not
+sessions and keep its environment.
+
 Each dashboard server refuses an overlapping matching launch for every host,
 including ad hoc and workflows without an installed start. Matching uses project,
 host, workflow and story identity, or the exact instruction for ad hoc sessions,

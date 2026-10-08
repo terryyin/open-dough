@@ -6,6 +6,8 @@
 // session, `claude rm` for Mark as done (`../../doneMarks.ts`), and `claude
 // attach` through a PTY (`execFile` cannot host its interactive terminal) for
 // the terminal boundary (`../../agentTerminals.ts`). Raw stderr stays private.
+// Each runs in the developer's shell environment
+// (`../../developerShellEnvironment.ts`).
 
 import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
@@ -14,6 +16,7 @@ import {
   HostOperationFailure,
   type SessionObservation,
 } from "../../hostLaunch.ts";
+import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
 import { parsedListing, type ListedSession } from "./listing.ts";
 
@@ -36,6 +39,7 @@ function execClaude(
       [...args],
       {
         cwd: folder.path,
+        env: developerShellEnvironment(process.env),
         signal,
         maxBuffer: 8 * 1024 * 1024,
         encoding: "utf8",
@@ -88,6 +92,7 @@ export function attachClaude(
   return spawnPty("claude", ["attach", shortId], {
     name: "xterm-256color",
     cwd: folder.path,
+    env: developerShellEnvironment(process.env),
     cols: size.cols,
     rows: size.rows,
   });

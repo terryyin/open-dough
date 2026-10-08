@@ -111,7 +111,18 @@ PFE findings and choices:
 
 ### 1. Claude sessions and terminals start in the developer's shell environment
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV ./node_modules/.bin/playwright test --config
+dashboard/playwright.config.ts agent-launch-boundary.spec.ts
+agent-launch-environment.spec.ts agent-terminal.spec.ts` → 19 passed; the
+fake-claude record readers' specs (`agent-launch-done*`,
+`session-workspace-retirement-claude`, `session-instruction-voice`,
+`agent-terminal-boundary`, `agent-launch-card-problems`,
+`agent-launch-host-identity`) → 56 passed; dashboard typecheck passes. The
+deployment-like start lives in `support/launchEnvironment.ts`
+(`deploymentLikeStart`, `expectDeveloperShellEnvironment`), and the new
+boundary test sits in its own `agent-launch-environment.spec.ts` to keep the
+boundary spec within the file-size limit; slices 2 and 3 reuse both.
 Proof: `npx playwright test agent-launch-boundary.spec.ts agent-terminal.spec.ts`.
 A new boundary test in both modes starts its server with a
 `<temp>/node_modules/.bin` `pathPrefix` and `extraEnv` of

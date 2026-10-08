@@ -56,7 +56,12 @@ or exited (`done-exited`), `failed`, or `stopped`, replacing its whole state,
 status, and reason, or forgets it (`forgotten`), and `claudeListingFails`
 makes the listing fail. It records every call's argv and working directory
 (`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone), and
-`claude stop <id>` lists that session stopped. Run as `claude attach` in the
+the part of the environment it started with that the launch environment rule
+reads: `NODE_ENV`, `PATH`, every `npm_*` key, `INIT_CWD`, `FAKE_CLAUDE_DIR`,
+and the spec marker `DOUGH_SPEC_PASSTHROUGH` (`claudeLaunchEnvironments`, and
+`claudeAttachEnvironments` for each attach); `support/launchEnvironment.ts`
+starts a server as a deployment's `npm run` start does and checks that record.
+Its `claude stop <id>` lists that session stopped. Run as `claude attach` in the
 terminal boundary's pseudo-terminal, it echoes each line entered, clears the
 line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it

@@ -6,7 +6,8 @@
 // attach-prompt-delay-ms delays that prompt; keys before it are discarded.
 // Echoes typing and
 // `echo <line>`, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
-// on Ctrl+Z. Logs pid in attaches.jsonl, lines in attach.<pid>.lines, and
+// on Ctrl+Z. Logs pid and recorded environment (./fake-claude) in
+// attaches.jsonl, lines in attach.<pid>.lines, and
 // ending signal or Ctrl+Z in attach.<pid>.ended. `/rename <name>` updates the
 // listed name through `renameListed` and prints `Session renamed to: <name>`;
 // renames-ignored suppresses only the update.
@@ -14,11 +15,11 @@
 const fs = require("fs");
 const path = require("path");
 
-module.exports = function attach(dir, id, renameListed) {
+module.exports = function attach(dir, id, env, renameListed) {
   const size = () => `${process.stdout.columns}x${process.stdout.rows}`;
   fs.appendFileSync(
     path.join(dir, "attaches.jsonl"),
-    `${JSON.stringify({ pid: process.pid, id })}\n`,
+    `${JSON.stringify({ pid: process.pid, id, env })}\n`,
   );
   for (const signal of ["SIGHUP", "SIGTERM", "SIGINT"]) {
     process.on(signal, () => {

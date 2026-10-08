@@ -5,7 +5,8 @@
 // each failure answers failed or uncertain and keeps no record. Refused
 // requests are ./agent-launch-refusal.spec.ts, how long and where records are
 // kept is ./agent-launch-records.spec.ts, and a read of the machine's sessions
-// is ./agent-launch-session-listing.spec.ts. The synthetic `claude`
+// is ./agent-launch-session-listing.spec.ts, and the environment a launch
+// runs in is ./agent-launch-environment.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
 
