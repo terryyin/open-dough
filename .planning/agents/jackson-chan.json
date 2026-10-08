@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-119#done-catalog-currency-correction",
+  "mode": "story-branch",
+  "branch": "claude/done-catalog-stays-current-through-git-integrati",
+  "host": "claude"
+}
