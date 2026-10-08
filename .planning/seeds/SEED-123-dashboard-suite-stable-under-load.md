@@ -24,8 +24,9 @@ result locally and in CI.
 ### The dashboard Playwright suite gives the same result on a loaded developer machine as in CI
 
 **Identity:** SEED-123#dashboard-suite-stable-under-load
+**Slice plan:** [The dashboard suite gives the same result under local load](../slice-plans/282-dashboard-suite-stable-under-load/PLAN.md).
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/282-dashboard-suite-stable-under-load/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0eda82211fc9193f01f76d0a9287f1ea7cb54a5b5dd0a159145a8fdef19dc589","plan":"bf815a2a0fcf5ef9c0a0ce4ea0e4b452f31fea365abc356ed7db502d757e5032"}}
 ```
 
 **Beneficiary:** A developer or agent proving a dashboard change with local
@@ -51,10 +52,10 @@ and spend no rerun time on failures that unchanged code did not cause.
   their own complete result. Each run builds and serves its own production
   assets instead of the shared `dashboard/dist` (DD-226), so a shared-output
   collision stops being a candidate cause of a load failure.
-- **Reproduce under induced load, then fix the shown causes.** Under a CPU
-  load the reproduction itself produces and records, at default workers and
-  with the shared-output collision ruled out, reproduce the recorded failure
-  kinds: Vite not reporting its address within its start wait, the column
+- **Reproduce at default workers, then fix the shown causes.** By repeated
+  runs at default workers, with and without a CPU load the reproduction
+  itself produces and records, and with the shared-output collision ruled
+  out, reproduce the recorded failure kinds: Vite not reporting its address within its start wait, the column
   "row rests" wait, the empty Backlog heading, and the Claude completion
   poll timeouts and "did not finish within the wait" starts (DD-240,
   DD-257). Fix what the reproduction shows to cause them in the suite's
@@ -63,12 +64,15 @@ and spend no rerun time on failures that unchanged code did not cause.
   longer elapsed time alone.
 - **Load bound.** Loaded means a one-minute load average held at or above the
   machine's core count for the whole run by CPU-bound processes the
-  reproduction starts and stops. That is above the 7–8 on 16 cores at which
-  DD-257 failed. Default workers means Playwright's own local default, half
-  the cores.
-- **Done when** three consecutive full runs at default workers under that
-  load, on unchanged code, pass with no output, and CI's dashboard shards
-  pass on the same revision within their recorded deadline.
+  reproduction starts and stops. Default workers means Playwright's own
+  local default, half the cores. On 2026-10-08 the progressive-loading
+  failure reproduced once in eight runs of a 14-spec group at default
+  workers without induced load, and not under 16 CPU burners, so CPU load
+  alone is not the trigger: repetition at default workers is the
+  reproduction, and induced load is the acceptance condition.
+- **Done when** three consecutive full runs at default workers on unchanged
+  code pass with no output, one of them under that load, and CI's dashboard
+  shards pass on the same revision within their recorded deadline.
 - **Documentation.** The tests guide names where a failed run's evidence is
   kept and that the suite's result does not depend on local load.
 
@@ -93,10 +97,11 @@ Deferred, not rejected:
 
 **Key examples:**
 
-1. *Loaded machine, unchanged code.* On a 16-core machine, induced load holds
-   the one-minute load average at or above 16. `npm run test:dashboard` runs
-   three times in a row at default workers (8). Every run exits 0 and prints
-   nothing, exactly as CI on that revision.
+1. *Loaded machine, unchanged code.* On a 16-core machine,
+   `npm run test:dashboard` runs three times in a row at default workers
+   (8), once while induced load holds the one-minute load average at or
+   above 16. Every run exits 0 and prints nothing, exactly as CI on that
+   revision.
 2. *A real failure under load is still a real failure.* The same loaded run
    with one assertion deliberately broken in one spec fails that test only,
    naming it, and no other test fails.
