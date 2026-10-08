@@ -1,17 +1,10 @@
 // A story's review (`./storyReview.ts`) in the page's side panel
 // (`./PageFrame.tsx`), beside the dashboard, which stays usable. It
-// names the story and its project's identity, takes its snapshot when it
-// opens and shows it (`./StoryReviewSnapshotView.tsx`) unchanged until the
-// developer uses Refresh, which takes a new one in its place, keeps the
-// keyboard where it is, and announces when it is done. Beneath the header,
-// the snapshot's context line (`./StoryReviewContextLine.tsx`), the review's
-// one feedback region, and its marking controls stay in view above the
-// review's body; that the review is read-only is its accessible
-// description, never a visible line. Opening it, or asking
-// again for the review shown, places the keyboard in its named content
-// without holding it there; the panel's own controls (`./PanelControls.tsx`)
-// maximize or restore it and close it. Each opening is its own read, so a
-// read of the story the panel showed before can never answer this one.
+// names the story and project, keeping one snapshot until Refresh. Its
+// context, feedback and marking controls stay above the body. Opening
+// places the keyboard in the named content; Refresh preserves focus and
+// announces completion. Each opening owns its read, and read-only is the
+// accessible description. Panel controls maximize, restore and close it.
 // Mark reviewed marks the snapshot shown, never a newer state of the
 // worktree, and the review then says the snapshot is marked and when
 // (`./StoryReviewMark.tsx`); only that control marks. A marked story's
@@ -25,7 +18,8 @@
 // machine's Git cannot leave trunk's changes out of it -- is said beside all
 // changes, with Commits still available when the snapshot lists commits,
 // until Mark reviewed starts again. Commits lists the snapshot's first-parent
-// line and compares the selected commit's parent tree with its own tree.
+// line and compares a selected range from its oldest commit's parent tree
+// to its newest tree, leaving out intervening trunk integrations.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -91,8 +85,17 @@ export function StoryReviewPanel({
   const madeHere =
     made !== undefined && made.of === review ? made.answer : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const { commit, shown, since, range, comparison, tree, onSwitch, onSelect } =
-    useStoryReviewComparison({ source, identity, snapshot });
+  const {
+    selectedCommits,
+    trunkIntegrated,
+    shown,
+    since,
+    range,
+    comparison,
+    tree,
+    onSwitch,
+    onSelect,
+  } = useStoryReviewComparison({ source, identity, snapshot });
   // The mark the review states: one made on the review shown since it was
   // read, or the one it was read with unless the changes since the review
   // are headed by it.
@@ -193,7 +196,8 @@ export function StoryReviewPanel({
             snapshot={snapshot}
             shown={shown}
             onSwitch={onSwitch}
-            commit={commit}
+            selectedCommits={selectedCommits}
+            trunkIntegrated={trunkIntegrated}
             sinceReview={since !== undefined}
             stated={stated}
             busy={reading || marking}
@@ -216,10 +220,10 @@ export function StoryReviewPanel({
       <div ref={body} className="story-review-body" tabIndex={-1}>
         {snapshot !== undefined &&
           shown === "commits" &&
-          commit !== undefined && (
+          selectedCommits.length > 0 && (
             <CommitList
               commits={snapshot.commits}
-              selected={commit}
+              selected={selectedCommits}
               onSelect={onSelect}
             />
           )}

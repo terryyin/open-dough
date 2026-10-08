@@ -5,12 +5,16 @@
 // file diffs therefore all describe the same observation. Missing from
 // objects and unsupported restatement remain distinct; aborted responses
 // and Git failures outside restatement belong to the caller.
+// A selected range can also supply the listed points of its integrations:
+// their inseparable paths survive even if the outer from tree predates the
+// story edit or the resolution restores that tree's original content.
 
 import {
   objectIdSchema,
   type MarkUncomparable,
   type ReviewComparison,
   type ReviewedFile,
+  type ReviewIntegration,
 } from "../src/storyReview.ts";
 import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
 import { reviewPointObjects, type ReviewPoint } from "./storyReviewPoints.ts";
@@ -65,6 +69,9 @@ async function restatedPoint(
   baseline: string,
   call: GitCall,
 ) {
+  if (from.baseline === baseline) {
+    return { tree: from.tree, inseparable: new Set<string>() };
+  }
   const output = await runGit(
     [
       "merge-tree",
@@ -91,38 +98,86 @@ async function restatedPoint(
 const byPath = (a: ReviewedFile, b: ReviewedFile) =>
   a.path < b.path ? -1 : a.path > b.path ? 1 : 0;
 
+// Match a file's identity on either side of a rename, after Git has detected
+// that rename over the complete comparison rather than narrowed pathspecs.
+const touches = (file: ReviewedFile, paths: ReadonlySet<string>) =>
+  paths.has(file.path) || (file.kind === "renamed" && paths.has(file.oldPath));
+
 // The points' comparison, or why the from point cannot be compared.
 export async function compareReviewPoints(
   from: ReviewPoint,
   to: ReviewPoint,
   call: GitCall,
+  integrations: readonly ReviewIntegration[] = [],
 ): Promise<
   | { readonly kind: "comparison"; readonly comparison: ReviewComparison }
   | { readonly kind: "uncomparable"; readonly reason: MarkUncomparable }
 > {
   if (!(await holdsPoint(from, call)))
     return { kind: "uncomparable", reason: "unreadable" };
-  const restatement =
-    from.baseline === to.baseline
-      ? { tree: from.tree, inseparable: new Set<string>() }
-      : await restatedPoint(from, to.baseline, call);
+  const restatement = await restatedPoint(from, to.baseline, call);
   if (restatement === undefined)
     return { kind: "uncomparable", reason: "not-restated" };
   const { tree, inseparable } = restatement;
+  for (const integration of integrations) {
+    if (
+      !(await holdsPoint(
+        { tree: integration.fromTree, baseline: integration.fromBaseline },
+        call,
+      )) ||
+      !(await holdsPoint(
+        { tree: integration.fromTree, baseline: integration.baseline },
+        call,
+      ))
+    ) {
+      return { kind: "uncomparable", reason: "unreadable" };
+    }
+    const same =
+      integration.fromTree === from.tree &&
+      integration.fromBaseline === from.baseline &&
+      integration.baseline === to.baseline;
+    const integrated = same
+      ? restatement
+      : await restatedPoint(
+          { tree: integration.fromTree, baseline: integration.fromBaseline },
+          integration.baseline,
+          call,
+        );
+    if (integrated === undefined) {
+      return { kind: "uncomparable", reason: "not-restated" };
+    }
+    const conflicts = new Set(integrated.inseparable);
+    for (const conflict of conflicts) {
+      inseparable.add(conflict);
+    }
+    if (conflicts.size > 0) {
+      for (const target of [from.tree, to.tree]) {
+        const files = await changedFrom(integration.fromTree, target, call);
+        for (const file of files) {
+          if (file.kind === "renamed" && touches(file, conflicts)) {
+            inseparable.add(file.oldPath);
+            inseparable.add(file.path);
+          }
+        }
+      }
+    }
+  }
   const restated = await changedFrom(tree, to.tree, call);
   // A file renamed from an inseparable one is compared from the original from tree
   // with it, so its content is not hidden.
   const flaggedPaths = new Set(inseparable);
   for (const file of restated) {
-    if (file.kind === "renamed" && inseparable.has(file.oldPath)) {
+    if (touches(file, inseparable)) {
       flaggedPaths.add(file.path);
     }
   }
-  const separated = restated.filter((file) => !flaggedPaths.has(file.path));
+  const separated = restated.filter((file) => !touches(file, flaggedPaths));
   const fromOriginal =
     flaggedPaths.size === 0
       ? []
-      : await changedFrom(from.tree, to.tree, call, [...flaggedPaths]);
+      : (await changedFrom(from.tree, to.tree, call)).filter((file) =>
+          touches(file, flaggedPaths),
+        );
   // An inseparable file kept as it was is compared from the to baseline
   // instead, so its diff shows the story's version against trunk's.
   const differed = new Set(
@@ -130,11 +185,15 @@ export async function compareReviewPoints(
       file.kind === "renamed" ? [file.path, file.oldPath] : [file.path],
     ),
   );
-  const keptAsFrom = [...inseparable].filter((file) => !differed.has(file));
+  const keptAsFrom = new Set(
+    [...inseparable].filter((file) => !differed.has(file)),
+  );
   const fromBaseline =
-    keptAsFrom.length === 0
+    keptAsFrom.size === 0
       ? []
-      : await changedFrom(to.baseline, to.tree, call, keptAsFrom);
+      : (await changedFrom(to.baseline, to.tree, call)).filter((file) =>
+          touches(file, keptAsFrom),
+        );
   const flagged = [
     ...fromOriginal.map((file) => ({ ...file, includesTrunkFrom: from.tree })),
     ...fromBaseline.map((file) => ({

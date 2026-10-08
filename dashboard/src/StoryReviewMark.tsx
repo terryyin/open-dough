@@ -121,7 +121,8 @@ export function MarkingControls({
   stated,
   busy,
   onMark,
-  commit,
+  selectedCommits,
+  trunkIntegrated,
 }: {
   readonly snapshot: TakenStoryReview;
   readonly shown: ShownComparison;
@@ -132,7 +133,8 @@ export function MarkingControls({
   // Whether the review is being read or marked.
   readonly busy: boolean;
   readonly onMark: () => void;
-  readonly commit: ReviewCommit | undefined;
+  readonly selectedCommits: readonly ReviewCommit[];
+  readonly trunkIntegrated: boolean;
 }) {
   return (
     <div className="story-review-marking">
@@ -144,8 +146,11 @@ export function MarkingControls({
           commits={snapshot.commits.length > 0}
         />
       )}
-      {shown === "commits" && commit !== undefined && (
-        <CommitRangeHeading commit={commit} />
+      {shown === "commits" && selectedCommits.length > 0 && (
+        <CommitRangeHeading
+          selected={selectedCommits}
+          trunkIntegrated={trunkIntegrated}
+        />
       )}
       {sinceReview && snapshot.mark !== undefined && (
         <SinceTheReviewHeading

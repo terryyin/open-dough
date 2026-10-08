@@ -1,5 +1,5 @@
-// The snapshot's first-parent line, newest first. Until ranges across trunk
-// integrations are supported, only a single same-baseline commit is chosen.
+// The snapshot's first-parent line, newest first, with a contiguous range
+// chosen by its two ends. Every item within the range states its membership.
 import { Moment } from "./Moment.tsx";
 import type { ReviewCommit, ReviewRange } from "./storyReview.ts";
 import "./story-review-commits.css";
@@ -10,7 +10,7 @@ export function CommitList({
   onSelect,
 }: {
   readonly commits: readonly ReviewCommit[];
-  readonly selected: ReviewCommit | undefined;
+  readonly selected: readonly ReviewCommit[];
   readonly onSelect: (revision: string) => void;
 }) {
   return (
@@ -21,8 +21,9 @@ export function CommitList({
           <li key={commit.revision}>
             <button
               type="button"
-              aria-pressed={selected?.revision === commit.revision}
-              disabled={commit.fromBaseline !== commit.baseline}
+              aria-pressed={selected.some(
+                (item) => item.revision === commit.revision,
+              )}
               onClick={() => {
                 onSelect(commit.revision);
               }}
@@ -50,8 +51,8 @@ export function RangeFeedback({
 }) {
   return (
     <>
-      {range.reading && <p>Reading the chosen commit&apos;s changes…</p>}
-      {range.problem !== undefined && (
+      {range.reading && <p>Reading the chosen commits&apos; changes…</p>}
+      {!range.reading && range.problem !== undefined && (
         <p>The chosen commits could not be read: {range.problem}</p>
       )}
       {!range.reading && range.answer?.kind === "unavailable" && (
@@ -62,17 +63,33 @@ export function RangeFeedback({
 }
 
 export function CommitRangeHeading({
-  commit,
+  selected,
+  trunkIntegrated,
 }: {
-  readonly commit: ReviewCommit;
+  readonly selected: readonly ReviewCommit[];
+  readonly trunkIntegrated: boolean;
 }) {
+  const newest = selected[0];
+  const oldest = selected.at(-1);
+  if (newest === undefined || oldest === undefined) {
+    return null;
+  }
   return (
     <div className="story-review-since">
-      <h3>Changes in 1 commit</h3>
+      <h3>
+        Changes in {selected.length}{" "}
+        {selected.length === 1 ? "commit" : "commits"}
+      </h3>
       <p>
-        From <code>{commit.shortRevision}</code> {commit.subject} to{" "}
-        <code>{commit.shortRevision}</code> {commit.subject}.
+        From <code>{oldest.shortRevision}</code> {oldest.subject} to{" "}
+        <code>{newest.shortRevision}</code> {newest.subject}.
       </p>
+      {trunkIntegrated && (
+        <p>
+          Trunk was integrated within the range: changes that came only from
+          trunk are left out.
+        </p>
+      )}
     </div>
   );
 }

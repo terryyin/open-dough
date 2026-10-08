@@ -46,7 +46,13 @@ review supporting this plan.
   `{tree, baseline}` points the snapshot's list supplied, so the server's
   comparison is the restatement's own contract and the Uncommitted changes
   item is simply the point `{snapshot.tree, snapshot.baseline}` with the head's
-  tree as its _from_. The server never recomputes what the list said.
+  tree as its _from_. The optional integration-points array carries selected
+  merges' listed parent tree, parent baseline, and destination baseline as object
+  IDs. The server never recomputes what the list said. The shared restatement
+  also unions those integrations' inseparable paths before applying the existing
+  range-from-tree / destination-baseline flag and diff rules. Integration paths
+  follow Git's renames to both outer trees; complete rename-aware file records
+  are filtered after detection so old paths, kinds, counts, and diffs agree.
 - **The range answer is a `ReviewComparison`** (`from`, `files` with
   `includesTrunkFrom`) plus the _to_ tree and whether trunk was integrated
   within the range (`fromBaseline !== baseline`), read through `useReviewRead`
@@ -155,7 +161,7 @@ second restatement.
 
 ### 4. A range by two ends, across a trunk integration, leaves trunk out
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `story-review-commits.spec.ts`: a three-commit range's files
 and a diff; on `markedWorktree` with `integrateTrunk(…, "c story and trunk")`
 and no mark, the range from the first commit to the merge; the merge alone on
@@ -169,7 +175,9 @@ more is shown starts a range of one there. A range whose ends have different
 baselines → the oldest item's parent tree is restated on the newest item's
 baseline; only the story's files are listed, the heading says trunk was
 integrated within the range, and a file both changed inseparably is flagged
-and diffed from the parent tree. The merge alone → “The chosen commits
+and diffed from the parent tree. Carry selected merges' integration points to
+observe conflicts that the oldest parent itself cannot expose; reuse the same
+restatement, including original-content resolutions and clean disjoint edits. The merge alone → “The chosen commits
 changed nothing.”, or only the file whose conflict it resolved, flagged. An
 older Git → a range across the integration says this machine's Git cannot
 leave trunk's changes out across it and lists no files; a range below it

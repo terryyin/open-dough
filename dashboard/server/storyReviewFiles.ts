@@ -6,28 +6,17 @@
 import type { LineCounts, ReviewedFile } from "../src/storyReview.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 
-// A comparison's kinds and counts always come from these same two trees.
-// Paths, when supplied for inseparable files, are literal Git pathspecs.
+// Complete tree comparisons keep rename detection, kinds, and counts
+// coherent before callers select individual files.
 export async function changedFrom(
   from: string,
   to: string,
   call: GitCall,
-  paths: readonly string[] = [],
 ): Promise<ReviewedFile[]> {
   const changes = async (format: string) =>
     (
       await runGit(
-        [
-          "--literal-pathspecs",
-          "diff",
-          format,
-          "-M",
-          "-z",
-          from,
-          to,
-          "--",
-          ...paths,
-        ],
+        ["--literal-pathspecs", "diff", format, "-M", "-z", from, to, "--"],
         call,
       )
     ).stdout;

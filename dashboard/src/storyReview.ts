@@ -154,6 +154,14 @@ export const reviewCommitSchema = z.object({
 });
 export type ReviewCommit = z.infer<typeof reviewCommitSchema>;
 
+// A selected merge's listed parent point and its destination baseline.
+export const reviewIntegrationSchema = z.strictObject({
+  fromTree: objectIdSchema,
+  fromBaseline: objectIdSchema,
+  baseline: objectIdSchema,
+});
+export type ReviewIntegration = z.infer<typeof reviewIntegrationSchema>;
+
 export const reviewRangeSchema = z.discriminatedUnion("kind", [
   reviewComparisonSchema.extend({
     kind: z.literal("comparison"),

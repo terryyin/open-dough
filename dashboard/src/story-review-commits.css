@@ -36,11 +36,6 @@
   border-color: var(--edge);
 }
 
-.story-review-commits button:disabled {
-  opacity: 0.65;
-  cursor: default;
-}
-
 .story-review-commits time {
   color: var(--quiet);
   font-size: var(--text-sm);

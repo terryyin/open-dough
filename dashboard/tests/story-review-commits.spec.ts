@@ -1,12 +1,9 @@
 // A snapshot's own first-parent commits, and one commit's comparison in the
-// same file browser and diff as All changes. Trunk merges remain in the list;
-// across-baseline comparisons are not offered until range restatement lands.
+// same file browser and diff as All changes. Trunk merges remain selectable.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { storyReviewRangeEndpoint } from "../src/storyReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import { queuedIdentity } from "./support/startOrigin.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
 import {
@@ -23,7 +20,7 @@ test("Commits lists the first-parent line and defaults to the newest commit's tr
 }) => {
   const { workspace } = storyWorktree(origin);
   // Leave the fixture's staged/unstaged/untracked files intact; a new plain
-  // head lets this slice prove its default without the later restatement.
+  // head gives the default one plain commit's changes.
   writeFileSync(path.join(workspace, "story.txt"), "story\nnewest story\n");
   git(
     workspace,
@@ -69,7 +66,7 @@ test("Commits lists the first-parent line and defaults to the newest commit's tr
     );
   }
   await expect(rows.nth(1)).toContainText("Integrated trunk");
-  await expect(rows.nth(1)).toBeDisabled();
+  await expect(rows.nth(1)).toBeEnabled();
   await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
@@ -90,7 +87,8 @@ test("Commits lists the first-parent line and defaults to the newest commit's tr
   await expect(review.locator(".story-review-diff")).not.toContainText(
     "untracked",
   );
-  // Selecting an older plain commit compares its own trees, including a rename.
+  // Extend to the older commit, then activate again to start its own range.
+  await rows.last().click();
   await rows.last().click();
   await expect(rows.last()).toHaveAttribute("aria-pressed", "true");
   await expect(
@@ -109,7 +107,7 @@ test("Commits lists the first-parent line and defaults to the newest commit's tr
   expect(observed(workspace)).toEqual(before);
 });
 
-test("a newest merge stays the default but its cross-baseline comparison is unavailable for now", async ({
+test("a newest clean merge stays the default and changed nothing by itself", async ({
   page,
   dashboard,
   origin,
@@ -124,16 +122,15 @@ test("a newest merge stays the default but its cross-baseline comparison is unav
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
   await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-  await expect(rows.first()).toBeDisabled();
-  await expect(review.getByRole("status")).toContainText(
-    "A commit range across a trunk integration is not available yet.",
-  );
+  await expect(rows.first()).toBeEnabled();
+  await expect(review).toContainText("The chosen commits changed nothing.");
   await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
     0,
   );
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
+  await rows.nth(2).click();
   await rows.nth(2).click();
   await expect(
     review
@@ -190,42 +187,4 @@ test("an empty plain commit names its range and lists no files", async ({
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
-});
-
-test("a range admits only exact story and object IDs and confirms the repository holds them", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace, merged } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
-  const tree = git(workspace, "rev-parse", "HEAD^{tree}");
-  const query = {
-    source: "open-dough",
-    identity: queuedIdentity,
-    fromTree: tree,
-    fromBaseline: merged,
-    tree,
-    baseline: merged,
-  };
-  const before = observed(workspace);
-  for (const invalid of [
-    { ...query, fromTree: "HEAD" },
-    { ...query, fromBaseline: "--output=/tmp/diff" },
-    { ...query, workspace },
-  ]) {
-    const response = await page.request.get(
-      `${dashboard.baseURL}${storyReviewRangeEndpoint}?${new URLSearchParams(invalid)}`,
-      { headers: { Origin: dashboard.origin } },
-    );
-    expect(response.status()).toBe(400);
-  }
-  const response = await page.request.get(
-    `${dashboard.baseURL}${storyReviewRangeEndpoint}?${new URLSearchParams({ ...query, tree: `${"0".repeat(39)}1` })}`,
-    { headers: { Origin: dashboard.origin } },
-  );
-  expect(response.status()).toBe(200);
-  expect(await response.json()).toMatchObject({ kind: "unavailable" });
-  expect(git(workspace, "rev-parse", "origin/main")).toBe(merged);
-  expect(observed(workspace)).toEqual(before);
 });

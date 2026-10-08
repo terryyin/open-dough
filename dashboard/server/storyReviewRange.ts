@@ -6,11 +6,18 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import type { AdmittedReviewRange } from "./storyReviewAdmission.ts";
-import { changedFrom } from "./storyReviewFiles.ts";
+import { compareReviewPoints } from "./storyReviewComparison.ts";
 import { reviewPointObjects } from "./storyReviewPoints.ts";
 
 export async function storyReviewRangeResponse(
-  { established, fromTree, fromBaseline, tree, baseline }: AdmittedReviewRange,
+  {
+    established,
+    fromTree,
+    fromBaseline,
+    tree,
+    baseline,
+    integrations,
+  }: AdmittedReviewRange,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
   const body = await withResponseSignal(
@@ -22,23 +29,29 @@ export async function storyReviewRangeResponse(
         maxBuffer: 64 * 1024 * 1024,
       };
       try {
-        for (const object of [
-          ...reviewPointObjects({ tree: fromTree, baseline: fromBaseline }),
-          ...reviewPointObjects({ tree, baseline }),
-        ])
+        for (const object of reviewPointObjects({ tree, baseline })) {
           await runGit(["rev-parse", "--verify", "--quiet", object], call);
-        if (fromBaseline !== baseline)
+        }
+        const compared = await compareReviewPoints(
+          { tree: fromTree, baseline: fromBaseline },
+          { tree, baseline },
+          call,
+          integrations,
+        );
+        if (compared.kind === "uncomparable") {
           return {
             kind: "unavailable",
             explanation:
-              "A commit range across a trunk integration is not available yet. Choose a commit that did not integrate trunk.",
+              compared.reason === "not-restated"
+                ? "This machine's Git cannot leave out trunk's changes integrated within the chosen commits, so this range cannot be compared across them."
+                : "The chosen commits can no longer be read, so this range cannot be compared.",
           };
+        }
         return {
           kind: "comparison",
-          from: fromTree,
+          ...compared.comparison,
           tree,
-          trunkIntegrated: false,
-          files: await changedFrom(fromTree, tree, call),
+          trunkIntegrated: fromBaseline !== baseline,
         };
       } catch (error) {
         return {

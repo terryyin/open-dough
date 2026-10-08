@@ -13,6 +13,9 @@
 // points from the snapshot's list: `fromTree`, `fromBaseline`, `tree`, and
 // `baseline`, all hexadecimal object IDs. Its workspace is resolved by the
 // same rule; the range read confirms the repository holds those objects.
+// Optional `integrations` is a JSON array of selected merges' already-listed
+// `fromTree`, `fromBaseline`, and destination `baseline` object IDs. It
+// supplies integration conflicts without accepting paths or rereading history.
 
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -21,6 +24,8 @@ import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
   markReviewedRequestSchema,
   objectIdSchema,
+  reviewIntegrationSchema,
+  type ReviewIntegration,
   reviewWorkspaceOf,
 } from "../src/storyReview.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
@@ -58,6 +63,7 @@ export interface AdmittedReviewRange {
   readonly fromBaseline: string;
   readonly tree: string;
   readonly baseline: string;
+  readonly integrations: readonly ReviewIntegration[];
 }
 
 // The workspace the named story's review reads.
@@ -118,17 +124,39 @@ const rangeQuerySchema = z.object({
   fromBaseline: objectIdSchema,
   tree: objectIdSchema,
   baseline: objectIdSchema,
+  integrations: z.array(reviewIntegrationSchema),
 });
 
 export async function rangeRequest(url: URL): Promise<AdmittedReviewRange> {
   requireExactQuery(
     url,
-    ["source", "identity", "fromTree", "fromBaseline", "tree", "baseline"],
+    [
+      "source",
+      "identity",
+      "fromTree",
+      "fromBaseline",
+      "tree",
+      "baseline",
+      ...(url.searchParams.has("integrations") ? ["integrations"] : []),
+    ],
     "commit range",
   );
-  const query = rangeQuerySchema.safeParse(
-    Object.fromEntries(url.searchParams),
-  );
+  let integrations: unknown = [];
+  try {
+    const named = url.searchParams.get("integrations");
+    if (named !== null) {
+      integrations = JSON.parse(named) as unknown;
+    }
+  } catch {
+    throw new RefusedRequest(
+      400,
+      "The commit range names malformed integrations.",
+    );
+  }
+  const query = rangeQuerySchema.safeParse({
+    ...Object.fromEntries(url.searchParams),
+    integrations,
+  });
   if (!query.success)
     throw new RefusedRequest(400, "The commit range names a malformed object.");
   const { established } = await queriedWorkspace(url);

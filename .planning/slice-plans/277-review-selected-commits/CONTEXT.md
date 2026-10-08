@@ -120,3 +120,44 @@ Independent refactor thread reused after host refused a fresh thread.
 
 Published increment: slice 2 `6217c1402647e2fa638087840dab69d0466b9e4d`,
 accepted on the remote execution branch with the same observer reused.
+
+### Slice 4 comparison reassessment
+
+The unchanged conflicted-range assertion in `story-review-commit-trunk.spec.ts`
+failed: before-range tree c 5 restates cleanly onto c trunk even though the
+selected merge's parent c story conflicts. This invalidated the assumption that
+two outer points alone expose every integration conflict. A disposable real-Git
+probe also found forward and reverse outer restatements both clean when the
+conflict resolves back to c 5; the selected merge's parent still reports c.ts.
+Clean disjoint same-file edits report no conflict. Reverse restatement alone
+therefore cannot satisfy the flag promise.
+
+PFE search across dashboard and source guidance found one suitable mechanism:
+`storyReviewComparison.ts` owns restatement and inseparable paths; the snapshot
+already supplies each merge's parent point and destination baseline. Modularize
+that same mechanism to union selected integrations' paths, carrying only those
+object IDs in the range request. No new conflict engine, file paths from callers,
+marking behavior, persistence, story scope, or ADR decision. Source promises stay
+unchanged; slice 4 adds original-content resolution and clean disjoint-line proof,
+and slice 5's virtual item uses the same range contract.
+
+A bounded real-browser rename regression also failed: c.ts renamed to d.ts
+before the conflicted integration and to e.ts afterward produced unflagged e.ts
+instead of the required flagged rename. The fixture asserts the actual conflict
+and first-parent commits. Integration conflict names must follow Git's rename
+records to both outer trees; filtering complete rename-aware file records keeps
+oldPath/kind/counts coherent, whereas limiting a destination-only pathspec can
+lose the old side. Reuse `changedFrom` for that mapping and for the existing
+original-tree / baseline comparisons. This is the same moves/flag/diff promise.
+
+
+4. Slice 4: both-direction ranges, reset and comparison retention, clean and
+   conflicted integrations, original-content resolutions, clean disjoint edits,
+   older Git, strict integration admission, stale-answer suppression, and
+   conflicts across renames pass real-Git browser proof. The full story-review
+   command and typecheck above passed after freezing conflict sets and filtering
+   full rename-aware records. Independent refactoring removed an unused paths
+   parameter without changing Git arguments; typecheck passed again.
+
+Published increment: slice 3 `f5ebc9d05f091bc3f1082301cc946669ab5aef80`,
+accepted on the remote execution branch with the same observer reused.
