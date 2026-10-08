@@ -16,6 +16,8 @@ import {
   writeAt,
 } from "./support/storyReviewWorktree.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
+import { holdNextReviewResponse } from "./support/holdReviewResponse.ts";
+import { storyReviewFileEndpoint } from "../src/storyReview.ts";
 
 test("the first Commits default uses the current snapshot, then new commits and switching keep its anchored ends", async ({
   page,
@@ -28,32 +30,49 @@ test("the first Commits default uses the current snapshot, then new commits and 
   await keepLaunchRecord(dashboard, workspace);
   await openReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
+  const feedback = review.locator(".story-review-top").getByRole("status");
   writeAt(workspace, "second.txt", "second\n");
   commitAll(workspace, "second story commit");
   let refreshed = nextSnapshot(page);
   await review.getByRole("button", { name: "Refresh", exact: true }).click();
   const second = await refreshed;
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-  await expect(rows.first()).toContainText("second story commit");
-  await expect(
-    review
-      .getByRole("list", { name: "1 changed file", exact: true })
-      .getByRole("button", { name: "Added second.txt" }),
-  ).toBeVisible();
-  writeAt(workspace, "third.txt", "third\n");
-  commitAll(workspace, "third story commit");
-  refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  await refreshed;
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
-  await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(review.getByRole("status")).toHaveText(
-    "Review refreshed: 1 changed file in the chosen range.",
+  await expect(review.locator(".story-review-diff [role=status]")).toBeEmpty();
+  const held = await holdNextReviewResponse(
+    page,
+    dashboard.origin,
+    storyReviewFileEndpoint,
   );
+  try {
+    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+    await expect(rows.first()).toContainText("second story commit");
+    await expect(
+      review
+        .getByRole("list", { name: "1 changed file", exact: true })
+        .getByRole("button", { name: "Added second.txt" }),
+    ).toBeVisible();
+    expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
+    writeAt(workspace, "third.txt", "third\n");
+    commitAll(workspace, "third story commit");
+    refreshed = nextSnapshot(page);
+    await review.getByRole("button", { name: "Refresh", exact: true }).click();
+    await refreshed;
+    await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
+    await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
+    await expect(review.getByRole("status")).toHaveCount(2);
+    await expect(
+      review.locator(".story-review-diff").getByRole("status"),
+    ).toHaveText("Reading the file's diff…");
+    await expect(feedback).toHaveText(
+      "Review refreshed: 1 changed file in the chosen range.",
+    );
+  } finally {
+    held.release();
+    await held.delivery;
+  }
   await rows.last().click();
   await expect(
     review.getByRole("heading", { name: "Changes in 2 commits" }),
@@ -63,7 +82,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   refreshed = nextSnapshot(page);
   await review.getByRole("button", { name: "Refresh", exact: true }).click();
   await refreshed;
-  await expect(review.getByRole("status")).toHaveText(
+  await expect(feedback).toHaveText(
     "Review refreshed: 2 changed files in the chosen range.",
   );
   await expect(rows.nth(2)).toHaveAttribute("aria-pressed", "true");
@@ -87,7 +106,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   await expect(review.locator(".story-review-since")).toContainText(
     "fourth story commit to",
   );
-  await expect(review.getByRole("status")).toHaveText(
+  await expect(feedback).toHaveText(
     "Review refreshed: 1 changed file in the chosen range.",
   );
 });
@@ -101,6 +120,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
   await keepLaunchRecord(dashboard, workspace);
   const snapshot = await openReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
+  const feedback = review.locator(".story-review-top").getByRole("status");
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
@@ -109,21 +129,43 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     review.getByRole("list", { name: "3 changed files", exact: true }),
   ).toBeVisible();
   writeAt(workspace, "later.txt", "later virtual point\n");
-  let refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  const changed = await refreshed;
-  expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-  await expect
-    .poll(() =>
-      treeRows(
-        review.getByRole("list", { name: "4 changed files", exact: true }),
-      ),
-    )
-    .toEqual(["fresh", "  new.txt", "later.txt", "staged.txt", "unstaged.txt"]);
-  await expect(review.getByRole("status")).toHaveText(
-    "Review refreshed: 4 changed files in the chosen range.",
+  await expect(review.locator(".story-review-diff [role=status]")).toBeEmpty();
+  const held = await holdNextReviewResponse(
+    page,
+    dashboard.origin,
+    storyReviewFileEndpoint,
   );
+  let refreshed = nextSnapshot(page);
+  try {
+    await review.getByRole("button", { name: "Refresh", exact: true }).click();
+    const changed = await refreshed;
+    expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
+    expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
+    await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+    await expect
+      .poll(() =>
+        treeRows(
+          review.getByRole("list", { name: "4 changed files", exact: true }),
+        ),
+      )
+      .toEqual([
+        "fresh",
+        "  new.txt",
+        "later.txt",
+        "staged.txt",
+        "unstaged.txt",
+      ]);
+    await expect(review.getByRole("status")).toHaveCount(2);
+    await expect(
+      review.locator(".story-review-diff").getByRole("status"),
+    ).toHaveText("Reading the file's diff…");
+    await expect(feedback).toHaveText(
+      "Review refreshed: 4 changed files in the chosen range.",
+    );
+  } finally {
+    held.release();
+    await held.delivery;
+  }
   await rows.last().click();
   await expect(
     review.getByRole("heading", {
@@ -141,7 +183,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
-  await expect(review.getByRole("status")).toHaveText(
+  await expect(feedback).toHaveText(
     "Review refreshed: 4 changed files in the chosen range.",
   );
   writeAt(workspace, "again.txt", "new uncommitted changes\n");

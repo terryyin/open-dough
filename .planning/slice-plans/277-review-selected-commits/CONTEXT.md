@@ -199,3 +199,24 @@ already owns its response. The log reaches 1,000 physical lines (500-line warnin
 Product advice: preserve the sibling uncommitted-view and Trunk Mode priorities.
 At review, CI remains pending for this branch; execution owns the completion wait
 covering the subsequent records commit.
+
+## CI repair of Refresh proof
+
+Run `37733288150`, attempt 1, on accepted records revision `68b703fb` failed
+only dashboard shard 3/9; all other jobs passed. Both new Refresh assertions
+matched the review feedback and a concurrently pending file-diff status.
+Holding real file responses reproduced both strict-mode failures before the
+correction. Scope the feedback assertions to the existing review top region;
+retain range assertions and observe the actual pending diff alongside feedback.
+Product behavior remains unchanged. The affected retrospective conclusion is
+that Refresh proof now covers this overlap; no product correction is needed.
+
+After independent response-holding consolidation,
+`env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2
+dashboard/tests/story-review-commit-refresh.spec.ts
+dashboard/tests/story-review-commit-races.spec.ts` and
+`env -u NODE_ENV npm run typecheck:dashboard` passed to terminal exit 0.
+The shared helper fetches real answers; each journey retains its payload and
+UI assertions, including overlap and stale-answer suppression. Other accepted
+proof remains valid. Clean preservation record `dough-ci-repair-stash-cpY3v6`
+contains no stash entry or unfinished work.

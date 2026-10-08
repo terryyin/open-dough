@@ -6,6 +6,7 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
+import { holdNextReviewResponse } from "./support/holdReviewResponse.ts";
 
 test("an earlier pending range cannot answer the later chosen range", async ({
   page,
@@ -16,35 +17,14 @@ test("an earlier pending range cannot answer the later chosen range", async ({
   await keepLaunchRecord(dashboard, workspace);
   await openReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
-  let release: () => void = () => {
-    throw new Error("No range response is held.");
-  };
-  let captured: () => void = () => {
-    throw new Error("No range response was requested.");
-  };
-  let delivered: () => void = () => {
-    throw new Error("No range response was delivered.");
-  };
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const ready = new Promise<void>((resolve) => {
-    captured = resolve;
-  });
-  const delivery = new Promise<void>((resolve) => {
-    delivered = resolve;
-  });
-  let intercepted = false;
-  await page.route(`**${storyReviewRangeEndpoint}?*`, async (route) => {
-    if (intercepted) {
-      await route.continue();
-      return;
-    }
-    intercepted = true;
-    const response = await route.fetch({
-      headers: { ...route.request().headers(), Origin: dashboard.origin },
-    });
-    expect(response.status()).toBe(200);
+  const held = await holdNextReviewResponse(
+    page,
+    dashboard.origin,
+    storyReviewRangeEndpoint,
+  );
+  try {
+    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    const response = await held.ready;
     expect(await response.json()).toMatchObject({
       kind: "comparison",
       files: [
@@ -53,14 +33,6 @@ test("an earlier pending range cannot answer the later chosen range", async ({
         { kind: "modified", path: "unstaged.txt" },
       ],
     });
-    captured();
-    await held;
-    await route.fulfill({ response });
-    delivered();
-  });
-  try {
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
-    await ready;
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
@@ -81,8 +53,8 @@ test("an earlier pending range cannot answer the later chosen range", async ({
       .getByRole("button", { name: "Added story.txt", exact: true })
       .click();
     await expect(review.locator(".story-review-added")).toHaveText(["+story"]);
-    release();
-    await delivery;
+    held.release();
+    await held.delivery;
     await page.evaluate(
       () =>
         new Promise<void>((resolve) => {
@@ -105,6 +77,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
       "The chosen commits changed nothing.",
     );
   } finally {
-    release();
+    held.release();
+    await held.delivery;
   }
 });
