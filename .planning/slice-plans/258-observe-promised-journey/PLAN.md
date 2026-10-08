@@ -76,7 +76,7 @@ No Accepted ADR conflicts. No North Star topic is needed.
 | The readiness rule has one source (slice 2 edits one file) | `record-preparation.md` lines 70–93 hold the criteria table and blocking reasons; `dough-slice-plan-refinement/SKILL.md` lines 50 and 109 and slice planning's report section link to `#assess-readiness-at-preparation-completion` without restating the criteria. |
 | Tests pin anchors and phrases these edits must keep, not the wording they change | `refinement-outcome-guidance.test.mjs` lines 39–46 match the refinement SKILL's outcome section for `dough-slice-planning/SKILL.md#write-the-plan` and “no decisive premise”; `one-shot-guidance.test.mjs` lines 55–67 match `record-preparation.md` “### Accepted work and context-only quick execution” only. No test reads slice planning's SKILL.md (`grep -rl "dough-slice-planning" src --include='*.test.mjs'` → the two files above, link assertions only). Keep the `## Write the plan` heading, the phrase “decisive premise”, and the criteria heading. |
 | The walkthrough inputs exist as recorded (slices 1–2) | Pygardon `DearDough.md` line 24 (plan 313: test green with the cancel replaced by `pass`, loop teardown cancels leftovers); Open Dough `DearDough.md` “ODF-110 — A removal premise swept client names…” (plan 248: `server/sessionResultResponse.ts` branch, `sessionAdmission.ts` exception, `story-panel-replacement.spec.ts` fixture); Doughnut `DearDough.md` “ODF-110 — A plan's proof for a CLI key example…” (plan 004: no token route) and ODF-190 row for plan 008 (`scripts/isolated-cypress-spec-selection.mjs` refuses live specs in linked worktrees); Open Dough `DearDough.md` ODF-110 row for plan 254 (17 files naming `expectSettledPage`; `openStoryStagesJourney().settled` holds the read). |
-| The catalog's delivered-unreleased form (slice 3) | `finding-names.md` lines 85–88 (ODF-107): “**Follow-up:** delivered, unreleased: SEED-095#… ” and “**Response / limit:** Delivered on main, first containing release pending: …”, with a dated “Release verification” line using `git tag --contains`. ODF-074/110/190 currently read “queued, not resolved” (lines under `#odf-074`, `#odf-110`, `#odf-190`) and the three Open Dough `DearDough.md` entries carry the same “Follow-up: queued, not resolved” line. |
+| The catalog's delivered-unreleased form (slice 3) | `finding-names.md` lines 85–88 (ODF-107): “**Follow-up:** delivered, unreleased: SEED-095#… ” and “**Response / limit:** Delivered on main, first containing release pending: …”, with a dated “Release verification” line using `git tag --contains`. ODF-074/110/190 currently read “queued, not resolved” (lines under `#odf-074`, `#odf-110`, `#odf-190`) and the five Open Dough `DearDough.md` entries carry the same “Follow-up: queued, not resolved” line. |
 | Guidance changes are proved by behavior review, not a native host run | AGENTS.md “Behavior review” (walk one representative use: invocation context, required context, useful outcome); paid native runs are manual only in this repository. The story's Done when accepts naming an unrun native evaluation as unverified. |
 | Markdown edits need no lint pass of their own | `scripts/lint.mjs` runs eslint/prettier over script and JSON files (lines 100–113) and shellcheck/shfmt; no markdown link checker in `tests/` (`ls tests \| grep -i link` → `payload-declaration-links.sh`, which checks payload declarations, not prose links). Links are checked by reading. |
 | Next free plan number | `git ls-tree --name-only origin/main .planning/slice-plans/` → highest 257; sibling worktrees hold up to 257. Allocated 258. |
@@ -92,14 +92,15 @@ No Accepted ADR conflicts. No North Star topic is needed.
 | An inexpensive complete observation lets planning proceed | 1 | Example 4 walkthrough reaches `ready` |
 | Scratch observations stay in the owned workspace, reverted before recording; paid/credentialed/owner-held steps stay probe slices or decisions | 1 | Text review against the story's preserved constraints |
 | `ready` requires settled-by-result or probe-bounded premises; a presence result or out-of-checkout observation is a `not-ready` reason naming premise and operation | 2 | Example 5 walkthrough, both halves |
-| Existing links and pinned phrases survive | 1, 2 | `node --test src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs` |
-| Each addressed finding records the response commits and release pending | 3 | Reading the six entries; `git tag --contains <sha>` output recorded |
+| Existing links and pinned phrases survive | 1, 2 | `npm test -- src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs`, with the selected Node and Bash 5 first on PATH |
+| Each addressed finding records the response commits and release pending | 3 | Reading the eight entries; `git tag --contains <sha>` output recorded |
 
 ## Ordered slices
 
 ### 1. A premise is settled by the promised operation's result
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (2026-10-08): inspected the revised “Write the plan” result/consumer/proof/route/scratch paragraphs and walked seed examples 1–4: green without cancellation requires replacement proof; client grep requires server/fixture/HTTP consumers; refused selection/missing token route requires an available route or owner decision; a feature's scratch failure at its script step settles the moved-function premise. Invocation, required inputs, executing-agent audience, scratch reversion and human authority satisfy AGENTS.md behavior review. Refactor shortened equivalent wording in place to 250 lines; its fresh walkthrough preserves these outcomes. `PATH=/tmp/open-dough-node-24.21.0.B8hS2V/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs` passed; inspected “flawless is defined only by existing sizing, premise, and authority rules” assertions for the planning link and “no decisive premise”, whose setup reads refinement source rather than supplying planning behavior. `git diff --check` passed. Unchanged installation-path/declaration consumers are excluded; external example fixtures were not rerun and native Codex/Cursor/Claude behavior remains unverified.
 Proof: Behavior review per AGENTS.md on the revised “Write the plan” section:
 walk key examples 1 (Pygardon 313), 2 (Open Dough 248), 3 (Doughnut 004/008),
 and 4 (moved function run through its feature) and show, for each, the one
@@ -109,7 +110,7 @@ and example 4 records the run and its failure as the observation. Confirm
 the text names only the owned workspace for scratch edits, requires the
 revert before the record write, and leaves paid, credentialed, owner-held,
 and state-changing steps to probe slices or decisions. Then
-`node --test src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs`
+`npm test -- src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs`
 stays green (anchor `#write-the-plan` and “decisive premise” kept).
 
 Behavior: A planning agent tracing a key example meets a premise about who
@@ -151,7 +152,7 @@ probe slice that stops dependents, yields `ready` with no reason. Confirm
 the “not covered” replay rule and “clear a premise-based reason only with a
 fresh observation” survive, and that the text links to slice planning's
 definitions instead of restating them. Then
-`node --test src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs`
+`npm test -- src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs`
 stays green.
 
 Behavior: An agent recording readiness reads the plan's premise rows. Each
@@ -171,7 +172,7 @@ paragraph, and the observation paragraph (lines 70–93), referring to slice
 Type: Behavior
 Status: planned
 Proof: Read the ODF-074, ODF-110, and ODF-190 entries in
-`docs/maintainer/finding-names.md` and the three Open Dough `DearDough.md`
+`docs/maintainer/finding-names.md` and the five Open Dough `DearDough.md`
 entries linked from them. Each Follow-up reads “delivered, unreleased:
 SEED-108#observe-promised-journey” with the story link kept; each Response /
 limit names slices 1 and 2's commits and “first containing release pending”
@@ -185,7 +186,7 @@ for each of the three findings, the actual response commits, that the
 containing release is pending, and that the watch starts with later use, and
 sees the same on the Open Dough source entries.
 
-Deliver together: the six record edits and the dated verification line.
+Deliver together: the eight record edits and the dated verification line. Name story-branch delivery and pending main integration truthfully until wrap-up publishes the response on main.
 
 ## Current decisions
 
@@ -196,6 +197,33 @@ Deliver together: the six record edits and the dated verification line.
   gate, and it never runs in a default or shared checkout.
 - The recorder is unchanged; the judgment is carried in `--reason` text.
 
+## Execution context
+
+- Established execution: `SEED-108#observe-promised-journey`, publisher
+  `dashboard-territory.local-open-dough`, agent `chaifeng-chan`.
+- Mode: story-branch. Originating and execution checkout:
+  `/Users/terryyin/git/open-dough/.worktrees/observe-decisive-planning-premises-through-the-f`;
+  branch `codex/observe-decisive-planning-premises-through-the-f`. Reused
+  host-established linked worktree; no integration checkout supplied.
+- Claim published on `origin/main`:
+  `e21713d71fff100834ffe45e3764fe5f5759ff38`; starting revision
+  `b5b7de82e903e42a6e5d2f11f67942ff6bd804d2`. Increment target:
+  `origin/refs/heads/codex/observe-decisive-planning-premises-through-the-f`.
+- Checkout setup: corrected to `tests/native-setup.md` on 2026-10-08:
+  checksum-verified Node 24.21.0 in `/tmp/open-dough-node-24.21.0.B8hS2V/node-v24.21.0-darwin-arm64/bin`, followed by `/opt/homebrew/bin` for Bash 5, first on PATH.
+  `npm_config_include=dev node scripts/setup-native.mjs npm`, then the `browser` and `check` stages succeeded without lockfile changes; the runner proof above passed.
+- Replanning: retain the existing planning authority within this story;
+  no numeric slice budget or exception supplied, so judge cohesive boundedness.
+- Markdown has no formatter or generator in this project's lint contract;
+  selective formatting is a no-op for these paths, with `git diff --check`
+  checking whitespace. The staged check-only hook owns lint.
+- CI source: GitHub Actions, verified `ci.yml`, observing the authorized story
+  branch. Codex yielded stream cell `8`, session `69011`, mailbox
+  `/tmp/dough-ci-501/watch-015bQN`, PID `98741`, coordinator `chaifeng-chan`,
+  bound to the execution checkout above. Claim CI on trunk is unobserved;
+  this branch observer covers subsequent managed deliveries.
+
 ## Learnings
 
-None yet.
+- Current repository proof uses `tests/README.md`'s runner rather than the plan's original direct Node commands; those commands are aligned above. Earlier direct green observations are superseded by runner proof.
+- The plan counted three Open Dough source entries, but `rg -n 'SEED-108|observe-promised' DearDough.md` finds five; ODF-190 has no Open Dough source entry. Slice 3 now updates all five same-story occurrences and the three catalog entries within the original retained-source scope; external logs stay unchanged.
