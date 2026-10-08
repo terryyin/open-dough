@@ -1,7 +1,6 @@
 // The local dashboard server owns one saved project list for its launch mode.
 // Only ENOENT permits seeding; unreadable files stay untouched and admit no project.
 import { mkdirSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -9,6 +8,7 @@ import type { ProjectSettings } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
 import { productionSeedProjects } from "./projectConfigurationSeed.ts";
 import { replaceFile } from "./fileReplacement.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 export type ProjectEnvironment = "development" | "production";
 export type ConfiguredProject = PublishedSource & {
@@ -30,12 +30,7 @@ let projects: readonly ConfiguredProject[] = [];
 let problem: string | undefined;
 
 export function projectConfigurationFile(next: ProjectEnvironment): string {
-  return path.join(
-    homedir(),
-    ".open-dough",
-    "dashboard",
-    `projects-${next}.json`,
-  );
+  return machineDashboardPath(`projects-${next}.json`);
 }
 
 // Synchronous replacement serializes writes in this server, including startup.

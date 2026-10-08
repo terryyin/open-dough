@@ -89,6 +89,9 @@ export async function startDashboardServer(
     // The server's first wait after a rate limit that directs none
     // (`../../server/readAdmission.ts`); one minute when unset.
     readonly limitBackoffMs?: number | undefined;
+    // The byte budget of answers retained on this machine
+    // (`../../server/retainedAnswers.ts`); 64 MiB when unset.
+    readonly retainedAnswersBytes?: number | undefined;
     // The fake GitHub this server's `gh` asks; a fresh one, closed with the
     // server, when omitted.
     readonly github?: FakeGitHub;
@@ -148,6 +151,9 @@ export async function startDashboardServer(
   }
   if (options.limitBackoffMs !== undefined) {
     env["DOUGH_LIMIT_BACKOFF_MS"] = String(options.limitBackoffMs);
+  }
+  if (options.retainedAnswersBytes !== undefined) {
+    env["DOUGH_RETAINED_ANSWERS_BYTES"] = String(options.retainedAnswersBytes);
   }
 
   const serverArgs = [

@@ -20,6 +20,7 @@ import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
 import { ReadAdmission } from "./readAdmission.ts";
 import { recordFailedRead } from "./readDiagnostics.ts";
 import { GhFailure, type GhFailureReason } from "./ghFailure.ts";
+import { configuredLimit } from "./configuredLimit.ts";
 
 export {
   GhFailure,
@@ -30,29 +31,19 @@ export {
   type RateLimitStop,
 } from "./ghFailure.ts";
 
-// A duration a test may shorten through the environment, to observe it
-// without waiting out the production value, which stays whenever the
-// environment says nothing usable.
-function configuredMs(variable: string, productionMs: number): number {
-  const configured = Number(process.env[variable]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : productionMs;
-}
-
 // How long one boundary request may wait for its `gh` answers before its
 // wait is given up (`./trackedGh.ts`), and how long one `gh` call may run
 // from its start however many requests wait on it: the shared read wait bound
 // (`../src/authenticatedReadRules.ts`'s `readWaitLimitMs`).
 export function readTimeoutMs(): number {
-  return configuredMs("DOUGH_READ_TIMEOUT_MS", readWaitLimitMs);
+  return configuredLimit("DOUGH_READ_TIMEOUT_MS", readWaitLimitMs);
 }
 
 // How long this process first waits after a rate limit that directs no
 // wait (`./readAdmission.ts`), doubling while the limit continues: GitHub's
 // own guidance of at least one minute.
 function limitBackoffBaseMs(): number {
-  return configuredMs("DOUGH_LIMIT_BACKOFF_MS", 60_000);
+  return configuredLimit("DOUGH_LIMIT_BACKOFF_MS", 60_000);
 }
 
 // Every call asks for GitHub's status line and headers (`--include`), right

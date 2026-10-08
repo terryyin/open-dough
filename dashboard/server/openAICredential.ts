@@ -7,9 +7,9 @@ import {
   readFileSync,
   unlinkSync,
 } from "node:fs";
-import { homedir } from "node:os";
 import path from "node:path";
 import { replaceFile } from "./fileReplacement.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 // The local JSON admission allows 32 KiB; our canonical file adds one newline.
 // Both writes and reads bound the serialized UTF-8 bytes, not key characters.
@@ -17,7 +17,7 @@ const credentialLimitBytes = 32 * 1024 + 1;
 
 export class OpenAICredentialProblem extends Error {}
 export function openAICredentialFile(): string {
-  return path.join(homedir(), ".open-dough/dashboard/credentials/openai.json");
+  return machineDashboardPath("credentials", "openai.json");
 }
 
 function credentialDirectoryIsSafe(): void {

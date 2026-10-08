@@ -41,6 +41,9 @@ export async function performBranchHeadRead(
     return unrecordedBranch;
   }
   const head = await branches.resolve(source, read.branch, signal);
+  if (head !== undefined) {
+    pinned.heardNamed(source, head);
+  }
   return answered({
     revision: read.revision,
     branch: read.branch,

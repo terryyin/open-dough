@@ -33,6 +33,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
+import { RetainedAnswers } from "./retainedAnswers.ts";
+import { RevisionMemo } from "./revisionMemo.ts";
 import { RevisionChecks } from "./revisionChecks.ts";
 import { BranchHeads } from "./branchHeads.ts";
 import { AvatarImages } from "./avatarImages.ts";
@@ -166,7 +168,8 @@ export function installAuthenticatedReadMiddleware(
 ): () => void {
   const boundary: Boundary = {
     tracked: new Set<AbortController>(),
-    pinned: new PinnedTexts(),
+    // Answers at resolved commits outlive this process; nothing else here does.
+    pinned: new PinnedTexts(new RevisionMemo(new RetainedAnswers())),
     checks: new RevisionChecks(),
     branches: new BranchHeads(),
     avatars: new AvatarImages(),

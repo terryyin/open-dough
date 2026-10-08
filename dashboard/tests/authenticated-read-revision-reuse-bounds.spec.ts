@@ -2,8 +2,8 @@
 // (../server/pinnedTexts.ts, ../server/commitsBetween.ts): a revision behind
 // or diverged from the one last answered, more commits between than the
 // bound, a comparison or commit whose change list is not whole, a story
-// branch head, and a restarted dashboard process each read as before, asking
-// GitHub about the comparison or commits at most once
+// branch head, and a dashboard process on another machine home each read as
+// before, asking GitHub about the comparison or commits at most once
 // (./revisionReuseBoundary.ts).
 
 import { expect, test } from "./support/pageTest.ts";
@@ -17,7 +17,6 @@ import { rawRequest } from "./support/rawHttp.ts";
 import {
   answerFrom,
   backlogPath,
-  described,
   filesFor,
   madeBy,
   modified,
@@ -29,6 +28,7 @@ import {
   settingsPath,
   sourceId,
 } from "./revisionReuseOrigin.ts";
+import { described } from "./revisionReuseCalls.ts";
 import { revisionReuseBoundary } from "./revisionReuseBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -171,7 +171,7 @@ test.describe("authenticated read reuse bounds at a newly named revision (dev la
   });
 });
 
-test("a restarted dashboard process holds nothing, so B is read in full without a comparison", async () => {
+test("a dashboard process restarted on another machine home holds nothing, so B is read in full without a comparison", async () => {
   const [a, b] = [named("af"), named("bf")];
   const files = filesFor("restart");
   const published: Publication = {

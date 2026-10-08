@@ -4,7 +4,7 @@ What the [story dashboard](README.md) asks GitHub through the launching
 person's own `gh`, and so what it costs their GitHub API allowance.
 
 Each load of the dashboard makes one authenticated `gh` request resolving the
-configured ref, and one reading its backlog unless this dashboard process
+configured ref, and one reading its backlog unless a dashboard process on this machine
 already read it at the resolved revision, plus one per record not already read
 at that revision for preparation and detail, and, once per revision, one listing of the done
 record directory and one read of its done catalog, plus one per done record
@@ -26,10 +26,16 @@ its Take time coming from its agent profile's addition already read, and each
 Story Branch Mode entry adds one
 branch head request and one plan read on that branch. Only the ref and branch
 head requests are made on every load: content and history already read at a
-resolved revision or branch head are not asked again while the dashboard
-process runs, so a reload or a return to a project whose ref and branches are
-unchanged costs those requests plus one for each record GitHub answered as
-missing, or failed to answer, at that revision. These count against the
+resolved revision or branch head by any dashboard process of this user on this
+machine are not asked again, so a reload, a return to a project, a replaced
+production dashboard, or a second dashboard process at a ref and branches that
+are unchanged costs those requests plus one for each record GitHub answered as
+missing, or failed to answer, at that revision. Those answers are kept under
+`~/.open-dough/dashboard/retained-answers/`, readable only by this user,
+within 64 MiB: a write that takes them over it removes the answers least
+recently written or answered first, and a removed answer is asked again when
+next needed. Revoking GitHub access does not remove them; deleting the
+directory does, and costs only the requests it saved. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while
@@ -39,11 +45,11 @@ an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
 commit then costs, without resolving `main` again, one read of its backlog,
 which answers its membership without waiting on anything else; then, for its
-details, one comparison of it with the revision at which this dashboard
-process last read the backlog, one read of each commit between them (a commit
-already asked about is not asked again), and reads of only the records, done
-records, and record listings the comparison or those commits changed (a
-merge's own change list
+details, one comparison of it with the revision at which any dashboard
+process of this user on this machine last read the backlog, one read of each
+commit between them (a commit already asked about is not asked again), and
+reads of only the records, done records, and record listings the comparison or
+those commits changed (a merge's own change list
 names only what differs from its first parent, so the comparison's files
 name what differs between the two revisions), plus one history listing for
 each readable profile they touched and one last-commit-time request for each
@@ -69,7 +75,8 @@ it is outstanding share one `gh` request for it, whatever was asked: two tabs
 opening one project together cost what one costs, resolving the ref once and
 reading each record once. A finished ref, branch-head, or check answer is never
 reused, so a later load or check asks again; separately launched dashboards
-share nothing.
+share no ref, branch-head, or check answer, outstanding request, or rate-limit
+wait, only the content and history either already read.
 
 One dashboard process has at most eight `gh` requests under way at GitHub at
 once, across every page, project, and project addition; a shared request counts

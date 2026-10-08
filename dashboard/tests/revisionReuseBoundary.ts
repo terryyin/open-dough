@@ -14,17 +14,17 @@ import {
 import { everyRepository } from "./support/fakeGitHub.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import type { MadeCommit, PathHistories } from "./pathHistoryAnswers.ts";
-import { aheadBy } from "./comparisonAnswers.ts";
 import {
   answerFrom,
-  described,
   otherSeedPath,
   planPath,
   seedPath,
   sourceId,
+  moved,
   type Files,
   type Publication,
 } from "./revisionReuseOrigin.ts";
+import { described } from "./revisionReuseCalls.ts";
 
 export type Answer = { readonly status: number; readonly body: unknown };
 
@@ -148,17 +148,7 @@ export function revisionReuseBoundary() {
     }: { revision: string; files: Files; history?: PathHistories },
     by?: readonly MadeCommit[],
   ) => {
-    const { trunk } = published;
-    published.revisions.set(revision, files);
-    published.histories?.set(revision, history);
-    if (by !== undefined) {
-      published.compared.set(
-        `${trunk.revision}...${revision}`,
-        aheadBy(by.map(({ sha }) => sha)),
-      );
-      for (const made of by) published.made.set(made.sha, made);
-    }
-    trunk.revision = revision;
+    moved(published, revision, files, history, by);
     expect(await read(`&since=${since}`)).toMatchObject({
       status: 200,
       body: { revision, changed: true },

@@ -1,15 +1,24 @@
 // The bounded store behind the local authenticated read boundary's memo of
 // answers at resolved commits (`./pinnedMemo.ts`): in memory, per launched
 // server, holding at most `memoLimit` texts and letting the oldest kept go
-// first. Failures are never kept.
+// first, and retained for every dashboard process on this machine
+// (`./retainedAnswers.ts`), which answers what memory does not hold only when
+// the caller says the read may use it (`retained`). What it answers is never
+// held in memory, where a read that may not use it would find it. Failures
+// are never kept.
+
+import type { RetainedAnswers } from "./retainedAnswers.ts";
 
 const memoLimit = 500;
 
 export class RevisionMemo {
   private readonly texts = new Map<string, string>();
 
-  held(key: string): string | undefined {
-    return this.texts.get(key);
+  constructor(private readonly retained: RetainedAnswers) {}
+
+  held(key: string, retained: boolean): string | undefined {
+    const known = this.texts.get(key);
+    return known !== undefined || !retained ? known : this.retained.held(key);
   }
 
   kept(key: string, text: string): void {
@@ -21,6 +30,7 @@ export class RevisionMemo {
       }
       this.texts.delete(oldest);
     }
+    this.retained.kept(key, text);
   }
 
   // Keeps `text` under `key` as the newest kept, whatever it replaces.
@@ -30,8 +40,12 @@ export class RevisionMemo {
   }
 
   // What is kept under `key`, or else what `read` answers, then kept there.
-  async recalled(key: string, read: () => Promise<string>): Promise<string> {
-    const known = this.texts.get(key);
+  async recalled(
+    key: string,
+    retained: boolean,
+    read: () => Promise<string>,
+  ): Promise<string> {
+    const known = this.held(key, retained);
     if (known !== undefined) {
       return known;
     }

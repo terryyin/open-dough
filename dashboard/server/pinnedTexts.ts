@@ -63,7 +63,7 @@ export class PinnedTexts extends PinnedMemo {
   // same blob asks GitHub nothing for it.
   blobReader(source: PublishedSource, revision: string, signal: AbortSignal) {
     return ({ path, sha }: ListedPath): Promise<string> =>
-      this.blobRecalled(source, sha, () =>
+      this.blobRecalled(source, revision, sha, () =>
         readRepositoryFileViaGh(source.repository, path, revision, signal),
       );
   }
@@ -90,7 +90,7 @@ export class PinnedTexts extends PinnedMemo {
   // remembered record. So a walk a failure ended asks GitHub again only from
   // the step that failed, and a later revision's walk asks only for its list.
   adder(source: PublishedSource, revision: string, signal: AbortSignal) {
-    const recordOf = this.commitRecorder(source, signal);
+    const recordOf = this.commitRecorder(source, revision, signal);
     return (path: string): Promise<ProfileAddition> =>
       this.recalledOrUnchangedJson(
         source,
