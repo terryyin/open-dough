@@ -196,7 +196,13 @@ Safe stopping point: the regression is fixed; guidance is unchanged.
 ### 2. Publication guidance resumes adapter stops through the adapter and names a staged catalog
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: behavior review walked (a), (b), and (c) through the edited
+text; `tests/payload-declaration-links.sh` passed. The adapter CLI prints only
+the message, so the guidance names `catalog-uncommitted` by its report's
+"staged but not committed" wording and defers its commit to
+`merge-conflicts.md`; every stop sentence covers any adapter result that exits
+non-zero.
 Proof: AGENTS.md behavior review of the edited `publication-rebase-conflict.md`
 and `publish-the-candidate.md`: (a) a done record conflicts during the
 adapter's owned-suffix rebase → the text leads to resolving it, `git add`, and

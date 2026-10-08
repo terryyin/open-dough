@@ -94,10 +94,11 @@ Apply [Preconditions](#preconditions) before this sequence.
    `product-backlog-git-rebase.mjs rebase --onto <fetched-remote-target> --ref <previously-published-base> --branch <owned-branch> --cwd <owned-workspace>`,
    following
    [publication rebase conflicts](publication-rebase-conflict.md). After a
-   rewrite, the pre-rebase SHA is not the candidate. A conflict, refusal, or
-   disputed adapter result stops before the push and preserves the state Git
-   left. Do not rebase the default checkout's branch unless it is the owned
-   branch.
+   rewrite, the pre-rebase SHA is not the candidate. Every adapter result
+   that exits non-zero, including `catalog-uncommitted`, stops before the
+   push and preserves the state Git left; resume it as
+   [publication rebase conflicts](publication-rebase-conflict.md) describes.
+   Do not rebase the default checkout's branch unless it is the owned branch.
 4. Validate the candidate using the check the caller supplied for this
    suffix. An unchanged base does not invalidate accepted proof. A rebase
    onto a newer target invalidates only proof the combined changes affect;
@@ -156,9 +157,10 @@ retry one ordinary push:
    `git rebase`. Do not rebase from the rejected
    candidate, and do not rebase the default checkout unless it is the owned
    branch. Either mistake can drop the suffix or rewrite another writer's
-   commits. A conflict, refusal, or disputed adapter result stops here.
-   Preserve the refs, worktree, and index Git left, report that result, and
-   do not push.
+   commits. Every adapter result that exits non-zero, including
+   `catalog-uncommitted`, stops here. Preserve the refs, worktree, and index
+   Git left, report that result, and do not push; resume it as
+   [publication rebase conflicts](publication-rebase-conflict.md) describes.
 3. The rewritten owned-branch tip is the candidate. The rejected SHA is not.
    Do not move the default checkout onto it.
 4. Revalidate as in candidate step 4. The rebase invalidates only proof the
