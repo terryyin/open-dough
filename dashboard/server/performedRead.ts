@@ -116,8 +116,9 @@ export async function perform(
         withTrackedGh(req, tracked, async (signal) => {
           // The backlog at a resolved commit: one this process already read there
           // is answered from the memo, which keeps it for the reachability checks
-          // of that revision's later detail reads. A revision the ref names next
-          // is compared with the last one answered here (`./pinnedTexts.ts`).
+          // of that revision's later detail reads. It is read at the revision
+          // itself; only those detail reads at a revision the ref names next are
+          // compared with the last one answered here (`./pinnedTexts.ts`).
           const backlogAt = async (revision: string) => {
             const backlog = await pinned.reader(
               source,

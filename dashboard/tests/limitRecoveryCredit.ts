@@ -156,7 +156,7 @@ export async function expectRecovered(page: Page, solaExplained: string) {
       "Current slice started",
     );
     await expect(page.locator("body")).not.toContainText(
-      "GitHub limited the rate",
+      "GitHub's rate limit withheld",
     );
     const { member, opener, back } = rosterParts(page);
     await opener("Yuma-chan").click();

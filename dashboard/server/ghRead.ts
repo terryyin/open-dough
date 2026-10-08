@@ -124,27 +124,22 @@ async function spawnedGh(
         env: { ...process.env, GH_PROMPT_DISABLED: "1" },
       },
       (error, stdout, stderr) => {
-        if (endedAtReadBound(signal)) {
-          // Admission learns of the bound before the turn passes on, so a
-          // limit this ending starts holds back the read that takes it next.
-          admission.timedOut(askedAt);
-          turnEnds();
-          recordFailedRead({ cause: "timed-out", startedAtMs, askedAt });
-          reject(new GhFailure({ kind: "timed-out" }));
-          return;
-        }
-        // Ordinary departure or shutdown ended the call: not a retained
-        // retryable failure, and not classified as an upstream answer.
-        // Admission still learns it ended without a limit so concurrent
-        // turns reopen after a wait (same reopen as a bound timeout).
+        // However the call ended, admission learns of it before the turn
+        // passes on, so a limit this answer starts holds back the read that
+        // takes the turn next, and an ending without one reopens the turns.
         if (signal.aborted) {
-          admission.timedOut(askedAt);
+          admission.endedUnanswered(askedAt);
           turnEnds();
+          if (endedAtReadBound(signal)) {
+            recordFailedRead({ cause: "timed-out", startedAtMs, askedAt });
+            reject(new GhFailure({ kind: "timed-out" }));
+            return;
+          }
+          // Ordinary departure or shutdown ended the call: not a retained
+          // retryable failure, and not classified as an upstream answer.
           resolve(unasked({ kind: "failed" }, askedAt));
           return;
         }
-        // Learned before the turn passes on, so a limit this answer starts
-        // holds back the read that takes the turn next.
         const answer = admission.answered(
           readAnswer(error, stdout, stderr, askedAt),
           Date.now(),
@@ -165,7 +160,8 @@ async function spawnedGh(
 }
 
 // An answer that never came from GitHub: held back, or -- `failed` -- for a
-// call that ended while waiting its turn, which no request waits on any more.
+// call no request waits on any more, whether waiting its turn or already
+// asked.
 function unasked(
   failure: GhFailureReason,
   askedAt = new Date().toISOString(),

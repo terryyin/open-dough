@@ -108,6 +108,9 @@ async function expectCreditRecovered(
   await expect(page.locator("body")).not.toContainText(
     "GitHub limited the rate",
   );
+  await expect(page.locator("body")).not.toContainText(
+    "GitHub's rate limit withheld",
+  );
   const yumaCard = card(page, justTaken);
   await expect(yumaCard.locator(".card-owner")).toContainText(recoveredHuman);
   await expect(yumaCard).toContainText("Current slice started 5 min ago");

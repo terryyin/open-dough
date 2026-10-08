@@ -53,7 +53,8 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // with every file it changed; joined through a move that names none, it
 // answers no connection. The reverse, from a later revision the ref named to
 // an earlier one, is answered behind, and any other comparison diverged, both
-// observed.
+// observed. While comparisons are held, each one asked is observed at once
+// and answered only once they are released.
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
@@ -154,8 +155,8 @@ export function publishMovingFiles(
       if (forward?.some(({ by }) => by === undefined) === true) {
         return noConnection;
       }
-      await comparisonsHeld;
       observe(requests, call);
+      await comparisonsHeld;
       if (forward === undefined) {
         return compareAnswer(
           movesBetween(head, base) === undefined ? "diverged" : "behind",
