@@ -132,9 +132,10 @@ export class ReadAdmission {
     return { ...answer, failure: limited };
   }
 
-  // Learns that a read asked at `askedAt` reached its own bound with no
-  // answer: like any ending without a rate limit, it reopens the turns.
-  timedOut(askedAt: string): void {
+  // Learns that a read asked at `askedAt` ended with no answer -- at its own
+  // bound, or because no request waits on it any more: like any ending
+  // without a rate limit, it reopens the turns.
+  endedUnanswered(askedAt: string): void {
     this.endedWithoutLimit(askedAt);
   }
 

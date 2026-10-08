@@ -50,9 +50,10 @@ export function unavailableGap(cause: GapCause): UnavailableGap {
   };
 }
 
-// Why a read GitHub's rate limit stopped is a gap: the limit's own wording
-// and the time the page's limit ends (`./readingLimit.ts`), as its notice says
-// it; undefined when anything else stopped it.
+// Why a read GitHub's rate limit stopped is a gap, said one way whether
+// GitHub refused it, the server held it back, or the page did not ask: what
+// was being read and the time the page's limit ends (`./readingLimit.ts`), as
+// its notice says it; undefined when anything else stopped it.
 export function limitGapProblem(error: unknown): string | undefined {
   if (!(error instanceof ReadProblem) || error.limited === undefined) {
     return undefined;
