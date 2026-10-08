@@ -23,8 +23,15 @@ production preview needs no separate authentication setup.
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening, and reloading the page or returning to the project reads
 it again: GitHub is asked anew which commit the configured ref names and which
-head each recorded story branch names, while backlog and record text this
-dashboard process already read at those commits is not asked again. A record
+head each recorded story branch names, while backlog and record text, and
+history, that any dashboard process of this user on this machine already read
+at those commits is not asked again, so a production dashboard replaced at an
+unchanged revision shows the same cards after asking only the ref and branch
+heads. Only successful answers at a commit outlive a process; the ref, branch
+heads, checks, outstanding reads, and rate-limit waits stay with the process
+that asked, and another process's answers serve only a commit this process
+heard GitHub name in this run, as the ref, in a check, or as a branch head; a
+read at any other commit asks GitHub as before. A record
 GitHub answered as missing, or that could not be read, is asked for again. While a snapshot
 is shown and the page is visible, it also asks every 15 seconds whether the
 project's configured ref still names the shown revision -- one conditional listing of

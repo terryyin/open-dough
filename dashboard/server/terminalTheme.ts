@@ -2,18 +2,18 @@
 // machine's home so dev and preview share it. Read afresh for every use and
 // replaced atomically; it is not a secret.
 import { mkdirSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
 import path from "node:path";
 import {
   isTerminalThemeId,
   type TerminalThemeId,
 } from "../src/terminalThemes.ts";
 import { replaceFile } from "./fileReplacement.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 export class TerminalThemeProblem extends Error {}
 
 function terminalThemeFile(): string {
-  return path.join(homedir(), ".open-dough/dashboard/terminal-theme.json");
+  return machineDashboardPath("terminal-theme.json");
 }
 
 const unreadable =

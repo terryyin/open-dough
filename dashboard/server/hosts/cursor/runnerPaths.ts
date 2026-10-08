@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
+import { machineDashboardDirectory } from "../../machineHome.ts";
 
 const addressSchema = z.object({
   port: z.int().positive(),
@@ -14,7 +15,7 @@ const addressSchema = z.object({
 export type CursorRunnerAddress = z.infer<typeof addressSchema>;
 
 export function cursorRunnerDirectory(home = homedir()): string {
-  return path.join(home, ".open-dough", "dashboard");
+  return machineDashboardDirectory(home);
 }
 
 export function cursorRunnerAddressFile(home = homedir()): string {

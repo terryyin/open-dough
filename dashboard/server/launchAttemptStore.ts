@@ -13,8 +13,6 @@
 // all kept; the file is read afresh, replaced atomically, and moved aside when
 // unreadable as `./machineJsonStore.ts` describes.
 
-import { homedir } from "node:os";
-import path from "node:path";
 import { z } from "zod";
 import {
   launchAttemptSchema,
@@ -30,6 +28,7 @@ import {
   replaceMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
@@ -49,12 +48,7 @@ type StoredAttempts = z.infer<typeof storeSchema>;
 
 function attemptStore(): MachineJsonStore<StoredAttempts> {
   return {
-    file: path.join(
-      homedir(),
-      ".open-dough",
-      "dashboard",
-      "launch-attempts.json",
-    ),
+    file: machineDashboardPath("launch-attempts.json"),
     schema: storeSchema,
     empty: {},
   };

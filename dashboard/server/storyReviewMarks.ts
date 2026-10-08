@@ -10,8 +10,6 @@
 // story fact. The file is read afresh, replaced atomically, and moved aside
 // when unreadable as `./machineJsonStore.ts` describes.
 
-import { homedir } from "node:os";
-import path from "node:path";
 import { z } from "zod";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
@@ -27,6 +25,7 @@ import {
   replaceMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 const storeSchema = z.record(
   z.string(),
@@ -36,7 +35,7 @@ const storeSchema = z.record(
 type StoredMarks = z.infer<typeof storeSchema>;
 
 const markStore = (): MachineJsonStore<StoredMarks> => ({
-  file: path.join(homedir(), ".open-dough", "dashboard", "review-marks.json"),
+  file: machineDashboardPath("review-marks.json"),
   schema: storeSchema,
   empty: {},
 });

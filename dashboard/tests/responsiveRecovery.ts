@@ -99,7 +99,7 @@ export async function restartAfterPush(
 // Closes the server and restarts one on the same machine and port.
 export async function restart(
   dashboard: DashboardServer,
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "machine">,
   github: FakeGitHub,
 ): Promise<DashboardServer> {
   await dashboard.close();
@@ -109,7 +109,7 @@ export async function restart(
 // A server started on the closed `dashboard`'s machine and port.
 function restartedOn(
   dashboard: DashboardServer,
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "machine">,
   github: FakeGitHub,
 ): Promise<DashboardServer> {
   return startDashboardServer({

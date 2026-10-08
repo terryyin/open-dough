@@ -1,6 +1,5 @@
 // Explicit reports use an accepted launch's identity, never the newest story session.
 import { copyFile, mkdir, access } from "node:fs/promises";
-import { homedir } from "node:os";
 import path from "node:path";
 import type { IncomingMessage } from "node:http";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
@@ -14,6 +13,7 @@ import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 export const completionEndpoint = "/__agent-launch/completion";
 // Prepare a standalone installed script outside the launch workspace, which may retire.
@@ -40,13 +40,7 @@ export async function reportingContext(
   } catch {
     return undefined;
   }
-  const directory = path.join(
-    homedir(),
-    ".open-dough",
-    "dashboard",
-    "reporting",
-    attempt.id,
-  );
+  const directory = machineDashboardPath("reporting", attempt.id);
   await mkdir(directory, { recursive: true });
   const script = path.join(directory, "dashboard-completion.mjs");
   await copyFile(

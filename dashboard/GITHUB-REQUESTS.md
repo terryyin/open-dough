@@ -4,7 +4,7 @@ What the [story dashboard](README.md) asks GitHub through the launching
 person's own `gh`, and so what it costs their GitHub API allowance.
 
 Each load of the dashboard makes one authenticated `gh` request resolving the
-configured ref, and one reading its backlog unless this dashboard process
+configured ref, and one reading its backlog unless a dashboard process on this machine
 already read it at the resolved revision, plus one per record not already read
 at that revision for preparation and detail, and, once per revision, one listing of the done
 record directory plus one per done record listed there, one listing of the agent
@@ -24,10 +24,13 @@ its Take time coming from its agent profile's addition already read, and each
 Story Branch Mode entry adds one
 branch head request and one plan read on that branch. Only the ref and branch
 head requests are made on every load: content and history already read at a
-resolved revision or branch head are not asked again while the dashboard
-process runs, so a reload or a return to a project whose ref and branches are
-unchanged costs those requests plus one for each record GitHub answered as
-missing, or failed to answer, at that revision. These count against the
+resolved revision or branch head by any dashboard process of this user on this
+machine are not asked again, so a reload, a return to a project, a replaced
+production dashboard, or a second dashboard process at a ref and branches that
+are unchanged costs those requests plus one for each record GitHub answered as
+missing, or failed to answer, at that revision. Those answers are kept under
+`~/.open-dough/dashboard/retained-answers/`, readable only by this user;
+deleting it costs only the requests it saved. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while
@@ -67,7 +70,8 @@ it is outstanding share one `gh` request for it, whatever was asked: two tabs
 opening one project together cost what one costs, resolving the ref once and
 reading each record once. A finished ref, branch-head, or check answer is never
 reused, so a later load or check asks again; separately launched dashboards
-share nothing.
+share no ref, branch-head, or check answer, outstanding request, or rate-limit
+wait, only the content and history either already read.
 
 One dashboard process has at most eight `gh` requests under way at GitHub at
 once, across every page, project, and project addition; a shared request counts

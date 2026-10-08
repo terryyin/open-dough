@@ -73,10 +73,13 @@ boundary and binds nothing.
   comparison input only, since `namedByRef` then asks GitHub for the
   comparison. Nothing is ever retained for a branch head, a check, a wait,
   a failure, or a missing record.
-- **Revision gate.** The memo is consulted only through readers created for
-  a revision the boundary has resolved in this process (`authenticatedRead.ts`
-  resolves the ref or accepts a pinned revision a check named); this already
-  holds and is proved, not re-implemented.
+- **Revision gate.** The store answers only reads at a revision this process
+  heard GitHub name in this run: the ref, a revision check, or a branch head
+  (`server/heardRevisions.ts`, recorded by `PinnedMemo.heardNamed`). Every
+  memo read is gated by its read's revision, whatever key it reaches; a read
+  at any other revision uses process memory or GitHub as before, never
+  refused. (The planned premise that pinned reads were already gated was
+  false; see slice 1's learnings.)
 - **Synchronous miss path.** `RevisionMemo.held` is synchronous and
   `namedByRef` depends on it, so a miss reads one small file synchronously
   and a hit keeps the in-memory map as today; writes are atomic and may be
@@ -130,7 +133,7 @@ slice is required.
 
 ### 1. Answers read at a resolved commit survive the dashboard process
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `authenticated-read-retained-answers.spec.ts` (dev boundary for
 counts; one preview restart journey through `restart` from
 `responsiveRecovery.ts` for the page) and keep the revision-reuse,
@@ -156,6 +159,34 @@ this machine is not asked again; the ref, branch heads, checks, and
 rate-limit waits remain per process.
 
 Interim behavior: the store grows without bound until slice 3.
+
+Accepted proof: `authenticated-read-retained-answers.spec.ts` (same-machine
+second process asks `ref` and the branch head only, with equal answers and
+0700/0600 modes; a fresh machine reads as a first visit; missing, failed and
+429 answers asked again; logged-out `gh` fails at the ref, and a pinned read
+at a revision P2 never heard named asks GitHub and returns no retained text;
+removed, foreign, torn and unwritable stores are misses) and
+`authenticated-read-retained-answers-reload.spec.ts` (preview reload after
+`restart`: same cards, new retrieval time, only ref and branch head asked),
+with setup in `retainedAnswersJourney.ts`. Full dashboard suite 1258 passed;
+lint and typecheck clean.
+
+Learnings:
+- Pinned reads (`server/performedRead.ts`) accept any revision the browser
+  names, so the store needed its own gate to keep the story's rule that a
+  process never shows retained text for a revision it has not heard named;
+  without it a logged-out P2 answered a pinned read at A from the store.
+- The machine-home path is now one seam, `server/machineHome.ts`; specs that
+  list `~/.open-dough/dashboard` exactly must expect `retained-answers`.
+- Both documents still say the comparison is against the revision "this
+  dashboard process" last read; slice 2 owns that wording.
+- During refactoring, one run under load average 9 failed
+  `authenticated-read-revision-reuse-bounds.spec.ts:100` (no
+  `listing .planning/done@3b` recorded) beside two timeouts elsewhere; it
+  did not recur in `--repeat-each=4`, a 66-test batch, or the full suite.
+  Unexplained; the store cannot answer `3b` from another test, since each
+  server has its own HOME and revisions are unique per test.
+- The production 67/4 observation remains to run (not a local gate).
 
 Safe stopping point: production replacements and sibling processes stop
 paying first visits at an unchanged revision.

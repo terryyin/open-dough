@@ -15,8 +15,6 @@
 // replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.
 
-import { homedir } from "node:os";
-import path from "node:path";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { z } from "zod";
 import {
@@ -35,6 +33,7 @@ import {
   replaceMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
+import { machineDashboardPath } from "./machineHome.ts";
 
 export const startRecordSchema = z.object({
   identity: z.string().min(1),
@@ -77,12 +76,7 @@ export type StartsWorkflow = Extract<
 
 function startStore(workflow: StartsWorkflow): MachineJsonStore<StoredStarts> {
   return {
-    file: path.join(
-      homedir(),
-      ".open-dough",
-      "dashboard",
-      `${workflow}-starts.json`,
-    ),
+    file: machineDashboardPath(`${workflow}-starts.json`),
     schema: storeSchema,
     empty: {},
   };

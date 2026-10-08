@@ -13,7 +13,8 @@ import {
   touchedBetweenViaGh,
   unlessFailed,
 } from "./commitsBetween.ts";
-import { RevisionMemo, recalledAsJson } from "./revisionMemo.ts";
+import { HeardRevisions } from "./heardRevisions.ts";
+import { type RevisionMemo, recalledAsJson } from "./revisionMemo.ts";
 
 // File text at a commit never changes, so what one request already read at a
 // pinned revision can decide a later request's reachability (or answer it)
@@ -21,6 +22,11 @@ import { RevisionMemo, recalledAsJson } from "./revisionMemo.ts";
 // commit -- never a moving ref -- or a Git blob's sha, which names exactly one
 // text; only the revision a source's backlog was last answered at is kept by
 // source, deciding only what a revision the ref names next is compared with.
+// What other dashboard processes retained (`./retainedAnswers.ts`) answers
+// only reads at a revision this process heard GitHub name in this run -- by
+// the ref, a revision check, or a branch head -- whatever entry they reach;
+// a read at any other revision is answered as it would be without them
+// (`./heardRevisions.ts`).
 
 // Which revision a revision the configured ref named is compared with, kept
 // at that revision; what the commits between touched is kept beside it, under
@@ -28,7 +34,20 @@ import { RevisionMemo, recalledAsJson } from "./revisionMemo.ts";
 const sinceEntry = "\0since";
 
 export class PinnedMemo {
-  private readonly memo = new RevisionMemo();
+  private readonly heard = new HeardRevisions();
+
+  constructor(private readonly memo: RevisionMemo) {}
+
+  // Notes that GitHub named `revision` to this process, as the source's ref
+  // or a branch's head.
+  heardNamed(source: PublishedSource, revision: string): void {
+    this.heard.named(source, revision);
+  }
+
+  // Whether reads at `revision` may be answered from retained answers.
+  private retainedAt(source: PublishedSource, revision: string): boolean {
+    return this.heard.has(source, revision);
+  }
 
   private static key(source: PublishedSource, revision: string, path: string) {
     return `${source.repository}\0${revision}\0${path}`;
@@ -58,12 +77,13 @@ export class PinnedMemo {
   // the first revision it is compared with. A branch head is never named
   // here, so reads at one are never compared.
   namedByRef(source: PublishedSource, revision: string): void {
-    const base = this.memo.held(PinnedMemo.latestKey(source));
+    this.heardNamed(source, revision);
+    const base = this.memo.held(PinnedMemo.latestKey(source), true);
     const key = PinnedMemo.key(source, revision, sinceEntry);
     if (
       base === undefined ||
       base === revision ||
-      this.memo.held(key) !== undefined
+      this.memo.held(key, true) !== undefined
     ) {
       return;
     }
@@ -71,13 +91,18 @@ export class PinnedMemo {
   }
 
   // A listed file's text kept under its blob sha, or else what `read`
-  // answers, then kept there.
+  // answers, then kept there; listed at `revision`.
   protected blobRecalled(
     source: PublishedSource,
+    revision: string,
     sha: string,
     read: () => Promise<string>,
   ): Promise<string> {
-    return this.memo.recalled(PinnedMemo.blobKey(source, sha), read);
+    return this.memo.recalled(
+      PinnedMemo.blobKey(source, sha),
+      this.retainedAt(source, revision),
+      read,
+    );
   }
 
   remember(
@@ -98,7 +123,11 @@ export class PinnedMemo {
     entry: string,
     read: () => Promise<string>,
   ): Promise<string> {
-    return this.memo.recalled(PinnedMemo.key(source, revision, entry), read);
+    return this.memo.recalled(
+      PinnedMemo.key(source, revision, entry),
+      this.retainedAt(source, revision),
+      read,
+    );
   }
 
   // What is held under `entry` at the revision `revision` is compared with,
@@ -113,11 +142,15 @@ export class PinnedMemo {
     entry: string,
     signal: AbortSignal,
   ): Promise<string | undefined> {
-    const base = this.memo.held(PinnedMemo.key(source, revision, sinceEntry));
+    const retained = this.retainedAt(source, revision);
+    const base = this.memo.held(
+      PinnedMemo.key(source, revision, sinceEntry),
+      retained,
+    );
     const held =
       base === undefined
         ? undefined
-        : this.memo.held(PinnedMemo.key(source, base, entry));
+        : this.memo.held(PinnedMemo.key(source, base, entry), retained);
     if (base === undefined || held === undefined) {
       return undefined;
     }
@@ -126,7 +159,7 @@ export class PinnedMemo {
         touchedBetweenViaGh(
           source.repository,
           { base, head: revision },
-          this.commitRecorder(source, signal),
+          this.commitRecorder(source, revision, signal),
           signal,
         ),
       ),
@@ -183,11 +216,21 @@ export class PinnedMemo {
   // A commit's own record -- who committed it and every file it changed --
   // remembered under that commit with an entry that starts with NUL, which
   // no file path ever does. Whichever path or read asks, GitHub is asked
-  // about a commit once.
-  protected commitRecorder(source: PublishedSource, signal: AbortSignal) {
+  // about a commit once. Asked for a read at `revision`.
+  protected commitRecorder(
+    source: PublishedSource,
+    revision: string,
+    signal: AbortSignal,
+  ) {
     return (commit: string): Promise<CommitRecord> =>
-      this.recalledJson(source, commit, "\0commit", () =>
-        commitViaGh(source.repository, commit, signal),
+      recalledAsJson(
+        (text) =>
+          this.memo.recalled(
+            PinnedMemo.key(source, commit, "\0commit"),
+            this.retainedAt(source, revision),
+            text,
+          ),
+        () => commitViaGh(source.repository, commit, signal),
       );
   }
 }
