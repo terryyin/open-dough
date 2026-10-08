@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-106#paged-columns-reveal-and-count-correction",
+  "title": "Paged dashboard columns reveal by structure and count only what is read",
+  "completedAt": "2026-10-07T23:57:33.192Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "claude"
+}

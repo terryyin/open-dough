@@ -9,6 +9,7 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks } from "./workFocus.ts";
+import { dashboardColumnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { WorkCard } from "./WorkCard.tsx";
 import { entryCount, type ColumnSummary } from "./columnSummary.ts";
@@ -76,7 +77,12 @@ function Stage({
   } = view;
   const headingId = `stage-${name.toLowerCase()}`;
   return (
-    <section className="stage" aria-labelledby={headingId} tabIndex={-1}>
+    <section
+      className="stage"
+      aria-labelledby={headingId}
+      tabIndex={-1}
+      {...dashboardColumnMark}
+    >
       <header className="stage-header">
         <h2 id={headingId}>{name}</h2>
         <p className="stage-count">{entryCount(count)}</p>

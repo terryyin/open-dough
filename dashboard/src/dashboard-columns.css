@@ -40,15 +40,11 @@
 }
 
 /* A move by an edge control slides briefly, so the developer sees where the
-   columns went; a width change moves them at once. */
+   columns went; a width change moves them at once. Reduced motion is decided
+   where the move is made (`moveTo` in columnPaging.ts), which leaves
+   `data-sliding` off so such a move happens at once. */
 .dashboard-columns-row[data-sliding] {
   transition: transform 0.2s ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dashboard-columns-row[data-sliding] {
-    transition: none;
-  }
 }
 
 /* A hidden column, named by its place on the row (`data-hidden`), keeps its

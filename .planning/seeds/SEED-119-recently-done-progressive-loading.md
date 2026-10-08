@@ -243,10 +243,9 @@ format, or new prerequisite is selected by refinement. Dashboard ADR 0008
 remains Proposed, not a binding decision; no Accepted-ADR conflict was found.
 
 **Boundary:** This story changes the Recently done list's shown range and
-detail demand. Reconcile with the existing
-[column reveal and count correction](SEED-106-dashboard-paged-columns.md#paged-columns-reveal-and-count-correction)
-and the page length that follows the shown columns
-([dashboard README](../../dashboard/README.md)).
+detail demand. Reconcile with the paged columns' reveal by holding column,
+their incomplete entry counts while reading, and the page length that follows
+the shown columns ([dashboard README](../../dashboard/README.md)).
 Shared navigation and reading code does not establish a blocking prerequisite.
 Reconcile failure feedback with
 [temporary reading recovery](SEED-118-dashboard-reading-reliability.md#recover-from-temporary-github-failures)

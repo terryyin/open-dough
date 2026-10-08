@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ziqing-chan",
-  "email": "ziqing-chan@example.org",
-  "identity": "SEED-106#paged-columns-reveal-and-count-correction",
-  "mode": "story-branch",
-  "branch": "claude/paged-dashboard-columns-reveal-by-structure-and",
-  "host": "claude"
-}
