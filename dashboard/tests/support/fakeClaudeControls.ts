@@ -22,6 +22,11 @@ export type ClaudeCall = {
   readonly cwd: string;
 };
 
+// The part of its environment a `claude` call or attach recorded:
+// `NODE_ENV`, `PATH`, every `npm_*` key, `INIT_CWD`, `FAKE_CLAUDE_DIR`, and
+// the spec's pass-through marker `DOUGH_SPEC_PASSTHROUGH`, where set.
+export type ClaudeEnvironment = Readonly<Record<string, string>>;
+
 export type OsascriptCall = { readonly argv: readonly string[] };
 
 // One `claude attach` the fake ran: its pid, the short id it attached to,
@@ -45,6 +50,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   claudeStopCalls(): ClaudeCall[];
   // The native `claude rm` calls alone, oldest first.
   claudeRemovalCalls(): ClaudeCall[];
+  // The recorded environment of each `claude --bg` launch, oldest first.
+  claudeLaunchEnvironments(): ClaudeEnvironment[];
   // Whether the fake's `claude rm` fails, removing nothing.
   claudeRemovalFails(fails: boolean): void;
   claudeScenario(scenario: FakeClaudeScenario): void;
@@ -63,6 +70,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   heldClaudeEndedBy(): string | undefined;
   // Every `claude attach` run so far, oldest first.
   claudeAttaches(): ClaudeAttach[];
+  // The recorded environment of each `claude attach`, oldest first.
+  claudeAttachEnvironments(): ClaudeEnvironment[];
   // Every `osascript` the fake ran so far, oldest first.
   osascriptCalls(): OsascriptCall[];
   // Every start probe the server ran, apart from those calls.
@@ -90,9 +99,14 @@ export function fakeClaudeControls(
   const state = (file: string) => path.join(stateDir, file);
   const jsonLines = <T>(file: string): T[] =>
     appendedRecords<T>(readState(state(file)) ?? "");
-  const claudeCalls = () => jsonLines<ClaudeCall>("calls.jsonl");
-  const callsOf = (command: string) =>
-    claudeCalls().filter((call) => call.argv[0] === command);
+  type Recorded = { readonly env: ClaudeEnvironment };
+  const recordedCalls = () => jsonLines<ClaudeCall & Recorded>("calls.jsonl");
+  // Calls compare by argv and cwd alone; the environment has its own reader.
+  const asCall = ({ argv, cwd }: ClaudeCall): ClaudeCall => ({ argv, cwd });
+  const claudeCalls = () => recordedCalls().map(asCall);
+  const recordedCallsOf = (command: string) =>
+    recordedCalls().filter((call) => call.argv[0] === command);
+  const callsOf = (command: string) => recordedCallsOf(command).map(asCall);
   // Sets a control file whose presence alone changes how the fake answers.
   const flag = (file: string) => (on: boolean) => {
     if (on) writeFileSync(state(file), "");
@@ -109,6 +123,8 @@ export function fakeClaudeControls(
     claudeLaunchCalls: () => callsOf("--bg"),
     claudeStopCalls: () => callsOf("stop"),
     claudeRemovalCalls: () => callsOf("rm"),
+    claudeLaunchEnvironments: () =>
+      recordedCallsOf("--bg").map((call) => call.env),
     claudeRemovalFails: flag("removal-fails"),
     claudeScenario(scenario) {
       writeFileSync(state("scenario"), scenario);
@@ -148,5 +164,7 @@ export function fakeClaudeControls(
         }),
       );
     },
+    claudeAttachEnvironments: () =>
+      jsonLines<Recorded>("attaches.jsonl").map((attach) => attach.env),
   };
 }

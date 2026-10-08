@@ -1,5 +1,5 @@
 // Saved predecessor preconditions and passive-protocol assertions, shared by Codex observation journeys.
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
@@ -98,4 +98,21 @@ export function daemonStarts(native: FakeCodex): unknown[] {
   return appendedRecords<unknown>(
     readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8"),
   );
+}
+
+// The recorded environment of each `codex <command> ...` the fake ran, in
+// order: `NODE_ENV`, `PATH`, every `npm_*` key, `INIT_CWD`, its socket and
+// terminal wiring, and the spec's pass-through marker, where set.
+export function codexEnvironments(
+  native: FakeCodex,
+  command: "app-server" | "resume",
+): Readonly<Record<string, string>>[] {
+  const log = native.env["FAKE_CODEX_ENV_LOG"] ?? "";
+  if (!existsSync(log)) return [];
+  return appendedRecords<{
+    args: string[];
+    env: Readonly<Record<string, string>>;
+  }>(readFileSync(log, "utf8"))
+    .filter(({ args }) => args[0] === command)
+    .map(({ env }) => env);
 }

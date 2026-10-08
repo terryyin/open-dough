@@ -2,7 +2,8 @@
 "use strict";
 
 // Synthetic `claude`, first on PATH for one isolated dashboard server (see
-// ../support/fakeClaude.ts); no real sessions. Logs argv/cwd in calls.jsonl.
+// ../support/fakeClaude.ts); no real sessions. Logs argv/cwd and the
+// environment it was started with in calls.jsonl.
 // Launch prints the real `claude --bg` line with a colored short id and lists
 // a busy/working session with cwd and startedAt (epoch milliseconds). Listing
 // exposes status only for running processes; exited sessions need --all.
@@ -30,9 +31,13 @@ const args = process.argv.slice(2);
 const cwd = process.cwd();
 const agentsPath = path.join(dir, "agents.json");
 
+const env = require(path.join(__dirname, "fake-host-environment.cjs"))([
+  "FAKE_CLAUDE_DIR",
+]);
+
 fs.appendFileSync(
   path.join(dir, "calls.jsonl"),
-  `${JSON.stringify({ argv: args, cwd })}\n`,
+  `${JSON.stringify({ argv: args, cwd, env })}\n`,
 );
 
 function listed() {
@@ -119,7 +124,7 @@ if (args[0] === "agents") {
 if (args[0] === "attach") {
   // Beside this script, in fixtures/ or installed (../support/fakeClaude.ts).
   const attach = require(path.join(__dirname, "fake-claude-attach.cjs"));
-  attach(dir, args[1], (name) =>
+  attach(dir, args[1], env, (name) =>
     changeListed(args[1], (session) => {
       session.name = name;
     }),

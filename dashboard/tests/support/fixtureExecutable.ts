@@ -21,6 +21,7 @@ export function installFixtureExecutable(
     | "fake-gh"
     | "fake-claude"
     | "fake-claude-attach.cjs"
+    | "fake-host-environment.cjs"
     | "fake-osascript"
     | "fake-codex"
     | "fake-cursor",

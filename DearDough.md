@@ -600,6 +600,14 @@ Follow-up: Open, unqueued.
   - Evidence: main CI failed the same test on `00800bc2` (run 36972144306) and `cec1f243` (run 36974074034), both before the claim `aa6b795f`; `d04999c9` had added `launchedSessions` to every host's operations. Story-branch runs 36985568841, 36986717632, 36987804713 and 36988089177 each reported it. Classification took four `gh run view --log-failed` reads, a remote-branch and worktree ownership scan, and a scan of 25 failed runs for the intermittent `startup-host-words.spec.ts:24`. The developer then authorized repair `80ced7ef`.
   - Observed effect: repeated triage of the same non-owned failure across three slices, and two developer decisions before completion.
   - Inference: Qualified. One sample. A startup check of the target trunk's latest CI verdict, carried as a known baseline failure, would have let later notifications be matched to it rather than re-diagnosed.
+- Execution: `SEED-100#launched-session-development-environment` / plan 255, first related implementation commit `7d652000`
+  - Timestamp: 2026-10-08T00:34:25Z (first failing log line for `7d652000`, CI run 37708289068)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: main CI failed the same four tests (`limit-recovery-credit-{history,commit}`, `authenticated-read-resumption:193`, `transient-recovery-lifecycle:155`) on `b5b7de82` (run 37705922884), an ancestor of the claim's base `4be4617f`; main repaired them in `65b4fe05`/`ddc2072c`. Merge `1fa65ab1` brought the repair in.
+  - Observed effect: one failed-log read, one run listing and one comparison against main's failed run, then a merge; no developer decision.
+  - Inference: Qualified. Second sample, lower cost because main had already repaired it; the same startup baseline check would have shown the inherited red before the first publication.
 
 ## ODF-152 — An unconditional file-size check stopped a refactor with no conceptual candidate
 

@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Reduce repeated GitHub reads across tabs and deployments](seeds/SEED-118-dashboard-reading-reliability.md#reduce-repeated-reads-across-tabs-and-deployments) — SEED-118#reduce-repeated-reads-across-tabs-and-deployments ([plan](slice-plans/275-retained-answers-across-processes/PLAN.md))
 - [Observe decisive planning premises through the full promised journey](seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey ([plan](slice-plans/258-observe-promised-journey/PLAN.md))
-- [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment ([plan](slice-plans/255-launched-session-development-environment/PLAN.md))
 
 ## Backlog list
 

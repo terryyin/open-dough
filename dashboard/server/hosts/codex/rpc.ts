@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import { homedir } from "node:os";
 import WebSocket from "ws";
 import { z } from "zod";
+import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 
 const execute = promisify(execFile);
 const daemonSchema = z.object({ socketPath: z.string().min(1) });
@@ -33,6 +34,7 @@ export async function daemonEndpoint(signal: AbortSignal): Promise<string> {
   const { stdout } = await execute("codex", ["app-server", "daemon", "start"], {
     // The shared daemon outlives story worktrees, including their retirement.
     cwd: homedir(),
+    env: developerShellEnvironment(process.env),
     signal,
   });
   const { socketPath } = daemonSchema.parse(JSON.parse(stdout));

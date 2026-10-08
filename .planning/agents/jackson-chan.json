@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jackson-chan",
-  "email": "jackson-chan@example.org",
-  "identity": "SEED-100#launched-session-development-environment",
-  "mode": "story-branch",
-  "branch": "claude/a-session-the-dashboard-launches-prepares-its-ch",
-  "host": "claude"
-}

@@ -18,6 +18,9 @@
 // text follows its cleared screen. Input is answered after earlier writes.
 // It does not write a launch record or a workspace. `models` is logged apart
 // from launch argv and prints FAKE_CURSOR_MODELS; without that file it fails.
+// Launch and attach records carry the environment the launch environment rule
+// reads (./fake-host-environment.cjs), with the FAKE_CURSOR_LOG and
+// FAKE_CURSOR_ATTACH_DIR wiring.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -41,6 +44,10 @@ if (args[0] === "models") {
   process.exit(0);
 }
 const log = process.env.FAKE_CURSOR_LOG;
+const env = require(path.join(__dirname, "fake-host-environment.cjs"))([
+  "FAKE_CURSOR_LOG",
+  "FAKE_CURSOR_ATTACH_DIR",
+]);
 const home = process.env.HOME;
 let stored = null;
 if (home) {
@@ -77,6 +84,7 @@ if (log && !attaching) {
       args,
       cwd: process.cwd(),
       stored,
+      env,
     })}\n`,
   );
 }
@@ -201,6 +209,7 @@ if (attaching) {
         rows: process.stdout.rows,
         sessionId: resumed,
         stored,
+        env,
       })}\n`,
     );
   }

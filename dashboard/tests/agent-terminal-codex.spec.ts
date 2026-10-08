@@ -1,4 +1,5 @@
 // Actual HTTP/store/WS/PTY: substitute CLI supplies only native startup/transport output.
+// The dashboard starts as a deployment's does; resume runs in the developer's shell environment.
 import { writeFileSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { test as base, expect, stored } from "./support/codexLaunch.ts";
@@ -22,6 +23,12 @@ import {
   openCodexTerminal,
 } from "./support/codexTerminal.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { codexEnvironments } from "./support/codexObservation.ts";
+import { fakeCodexHost } from "./support/fakeCodex.ts";
+import {
+  deploymentLikeStart,
+  expectDeveloperShellEnvironment,
+} from "./support/launchEnvironment.ts";
 
 import {
   builtDashboardDir,
@@ -30,7 +37,11 @@ import {
 const test = base.extend<{ mode: "dev" | "preview" }>({
   mode: ["preview", { option: true }],
   dashboard: async ({ mode, github, machine, codexProtocol }, use) => {
+    const start = deploymentLikeStart(path.join(machine ?? "", "deployment"));
+    start.create();
     const server = await startDashboardServer({
+      pathPrefix: start.pathPrefix,
+      extraEnv: start.extraEnv,
       mode,
       prebuilt: builtDashboardDir,
       github,
@@ -73,6 +84,12 @@ for (const mode of ["dev", "preview"] as const) {
         "--no-alt-screen",
         native.threadId,
       ]);
+      const resumes = codexEnvironments(native, "resume");
+      expect(resumes).toHaveLength(1);
+      expectDeveloperShellEnvironment(
+        resumes[0],
+        fakeCodexHost("FAKE_CODEX_TERMINAL_ROOT"),
+      );
       terminal.send({ input: "answer\r" });
       expect(await shows(terminal, "echo answer")).toBe(true);
       terminal.send({ resize: { cols: 120, rows: 40 } });

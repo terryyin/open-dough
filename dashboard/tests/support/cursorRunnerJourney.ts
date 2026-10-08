@@ -1,5 +1,6 @@
 // Observations of the machine-local Cursor runner: its process group, how
-// many runners a home has, and a stand-in that occupies the runner's address.
+// many runners a home has, the environment it was started with, and a
+// stand-in that occupies the runner's address.
 import { mkdirSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import { spawnSync } from "node:child_process";
@@ -32,14 +33,40 @@ function runnerPids(): number[] {
   });
 }
 
+// A process's own command followed by its environment, as `ps eww` shows it.
+function commandAndEnvironment(pid: number): string {
+  return spawnSync("ps", ["eww", "-p", String(pid), "-o", "command="], {
+    encoding: "utf8",
+  }).stdout;
+}
+
 // A wide listing of every process drops the environment, so each runner's
 // own command is read back, which includes the home it was started with.
 export function runnersFor(home: string): number {
-  return runnerPids().filter((pid) =>
-    spawnSync("ps", ["eww", "-p", String(pid), "-o", "command="], {
-      encoding: "utf8",
-    }).stdout.includes(home),
-  ).length;
+  return runnerPids().filter((pid) => commandAndEnvironment(pid).includes(home))
+    .length;
+}
+
+// The environment this home's live runner was started with, read back word
+// by word after its command, so values holding spaces are cut short.
+export function runnerEnvironment(home: string): Record<string, string> {
+  const pid = readCursorRunnerAddress(home)?.pid;
+  const listing = pid === undefined ? "" : commandAndEnvironment(pid);
+  const command = listing.indexOf("runnerMain.ts");
+  if (command < 0) {
+    throw new Error("This home has no live Cursor runner to read.");
+  }
+  return Object.fromEntries(
+    listing
+      .slice(command)
+      .split(/\s+/)
+      .flatMap((word): [string, string][] => {
+        const match = /^([A-Za-z_]\w*)=(.*)$/.exec(word);
+        return match?.[1] === undefined || match[2] === undefined
+          ? []
+          : [[match[1], match[2]]];
+      }),
+  );
 }
 
 // The development server waits until this home's runner is accepting, so the

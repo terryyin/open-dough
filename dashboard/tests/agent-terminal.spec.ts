@@ -6,10 +6,13 @@
 // which keeps running; Close detaches only and returns the keyboard to the
 // control that opened the session; an entry whose story is in no list still
 // opens; and no page text offers `claude attach`. Origin alone still places
-// every story. The page's own dashboard server attaches the synthetic `claude`
+// every story. The dashboard starts as a deployment's does, and each attach
+// runs in the developer's shell environment. The page's own dashboard server attaches the synthetic `claude`
 // (./fixtures/fake-claude), which echoes what is typed; the real one is never
 // reached.
 
+import { tmpdir } from "node:os";
+import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -29,9 +32,22 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import {
+  deploymentLikeStart,
+  expectDeveloperShellEnvironment,
+} from "./support/launchEnvironment.ts";
 import { processRunning } from "./support/processGroup.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+// Named per worker at load; created before the page's server starts.
+const start = deploymentLikeStart(
+  path.join(tmpdir(), `dough-deployment-terminal-${String(process.pid)}`),
+);
+
+test.use({
+  projectFolders: ["open-dough"],
+  pathPrefix: start.pathPrefix,
+  extraEnv: start.extraEnv,
+});
 
 const shortId = (sessionId: string) => sessionId.slice(0, 8);
 
@@ -45,11 +61,13 @@ test.describe("the terminal beside the page", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
+    start.create();
     stagesJourney = await publishStoryStagesJourney();
   });
-  test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
-  );
+  test.afterAll(async () => {
+    await (stagesJourney as StoryStagesJourney | undefined)?.cleanup();
+    start.remove();
+  });
 
   test("a card or standalone Taken entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
     page,
@@ -197,9 +215,13 @@ test.describe("the terminal beside the page", () => {
       });
     });
 
-    // Every attach the page opened was to a session it launched.
+    // Every attach the page opened was to a session it launched, in the
+    // developer's shell environment.
     expect(
       new Set(dashboard.claudeAttaches().map((attach) => attach.id)),
     ).toEqual(new Set([shortId(first), shortId(second)]));
+    const attachEnvironments = dashboard.claudeAttachEnvironments();
+    expect(attachEnvironments.length).toBeGreaterThan(0);
+    for (const env of attachEnvironments) expectDeveloperShellEnvironment(env);
   });
 });

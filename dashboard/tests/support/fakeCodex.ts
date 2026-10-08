@@ -12,19 +12,33 @@ import { answerCodexControl } from "./fakeCodexControl.ts";
 import { closeCodexDaemon, listenForCodexDaemon } from "./fakeCodexDaemon.ts";
 import { passiveCodexFixture } from "./fakeCodexObservation.ts";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
+import type { FakeHostWiring } from "./launchEnvironment.ts";
 export type {
   CodexCall,
   FakeCodex,
   FakeCodexObservation,
 } from "./fakeCodexTypes.ts";
 
+const codexBinDir = "codex-bin";
+
+// The fake's directory and one variable wiring it, for reading its recorded
+// environment.
+export function fakeCodexHost(wiring: string): FakeHostWiring {
+  return { binDir: codexBinDir, wiring };
+}
+
 export async function installFakeCodex(
   tempRoot: string,
   searchPath: string,
   serve: boolean | "on-start",
 ): Promise<FakeCodex> {
-  const bin = path.join(tempRoot, "codex-bin");
+  const bin = path.join(tempRoot, codexBinDir);
   installFixtureExecutable("fake-codex", bin, "codex");
+  installFixtureExecutable(
+    "fake-host-environment.cjs",
+    bin,
+    "fake-host-environment.cjs",
+  );
   const terminalRoot = path.join(tempRoot, "codex-terminal");
   mkdirSync(terminalRoot, { recursive: true });
   writeFileSync(
@@ -46,6 +60,7 @@ export async function installFakeCodex(
       FAKE_CODEX_TERMINAL_ROOT: terminalRoot,
       FAKE_CODEX_CLI_LOG: path.join(tempRoot, "cli-resume.jsonl"),
       FAKE_CODEX_DAEMON_LOG: path.join(tempRoot, "daemon-start.jsonl"),
+      FAKE_CODEX_ENV_LOG: path.join(tempRoot, "codex-environments.jsonl"),
       PATH: [bin, searchPath].join(path.delimiter),
       ...(serve ? { FAKE_CODEX_SOCKET: socket } : {}),
       ...(serve === "on-start" ? { FAKE_CODEX_WAIT_FOR_SOCKET: "1" } : {}),
