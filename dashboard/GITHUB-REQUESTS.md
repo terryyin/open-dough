@@ -32,7 +32,8 @@ missing, or failed to answer, at that revision. Those answers are kept under
 `~/.open-dough/dashboard/retained-answers/`, readable only by this user,
 within 64 MiB: a write that takes them over it removes the answers least
 recently written or answered first, and a removed answer is asked again when
-next needed. Deleting it costs only the requests it saved. These count against the
+next needed. Revoking GitHub access does not remove them; deleting the
+directory does, and costs only the requests it saved. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
 and `main` is asked alone (at most four a minute per visible page, none while
