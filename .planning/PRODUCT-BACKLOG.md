@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery ([plan](slice-plans/278-cursor-session-restart-recovery/PLAN.md))
-- [Backlog Git adapters end edge outcomes in an actionable result](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-adapter-edge-results-correction) — SEED-119#done-catalog-adapter-edge-results-correction ([plan](slice-plans/279-done-catalog-adapter-edge-results/PLAN.md))
 
 ## Backlog list
 
