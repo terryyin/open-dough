@@ -16,9 +16,11 @@ executions, not commands, retries, or repairs.
 1. **Checks whose result depends on where or how they are run — first, not
    queued.** Open: a direct shell run under macOS Bash 3.2 (DD-162), a passing
    run that prints no count (DD-216), Playwright runs in one checkout that
-   share fixed output directories (DD-224, DD-226), and Claude completion
+   share fixed output directories (DD-224, DD-226), Claude completion
    specs that failed early in one full run (DD-240), and a progressive
    Recently done group that failed in unchanged code under load (DD-257).
+   DD-224, DD-226, DD-240, and DD-257 are queued first as
+   [SEED-123#dashboard-suite-stable-under-load](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load).
 2. **Local proof that leaves out what another CI job checks — second, not
    queued.** Two open findings. DD-171 recurred in plan 191 with the same
    error in the same file as plan 146, and no local gate yet types the
@@ -82,7 +84,7 @@ DD-164, DD-166 (2026-09-29, recovery `d68fcde4:ProjectFindings.md`); DD-158
 recovery `34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
 DearDough.md on 2026-09-29.
 
-## Checks whose result depends on where or how they are run (first priority, not queued)
+## Checks whose result depends on where or how they are run (first priority, partly queued)
 
 This repository's checks should give CI's result however they are run
 locally: directly or through `scripts/test.sh`, from any directory, in a session

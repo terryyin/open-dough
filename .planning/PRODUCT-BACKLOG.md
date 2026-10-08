@@ -20,6 +20,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load
+- [Backlog Git adapters end edge outcomes in an actionable result](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-adapter-edge-results-correction) — SEED-119#done-catalog-adapter-edge-results-correction
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
 - [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
