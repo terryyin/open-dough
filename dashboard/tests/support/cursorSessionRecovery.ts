@@ -8,6 +8,7 @@ import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
 import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { parts } from "../dashboardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
@@ -22,22 +23,23 @@ import { launchWaitMs } from "./launchWait.ts";
 
 export { agentNotRunningLabel };
 
-// Ends the held attach the way the runner does (SIGHUP) and waits until the
-// runner lists no held sessions. The fake client exits on SIGHUP, not SIGTERM.
+// Ends the held attach through the runner hangup path and waits until the
+// runner lists no held sessions. An out-of-band signal does not always clear
+// the runner's held list on CI.
 export async function endHeldClient(
   page: Page,
   cursor: FakeCursor,
+  home: string,
 ): Promise<void> {
   // Launch may paint the card before the attach log line is flushed.
   await expect
     .poll(() => cursor.attaches().at(-1)?.pid ?? 0, { timeout: 15_000 })
     .toBeGreaterThan(0);
-  const pid = cursor.attaches().at(-1)?.pid ?? 0;
-  try {
-    process.kill(pid, "SIGHUP");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
+  const [record] = keptRecords(home);
+  if (record?.session.host !== "cursor") {
+    throw new Error("Expected a Cursor session.");
   }
+  await hangupCursorClient(record.session, home);
   await expect
     .poll(
       () =>
@@ -59,12 +61,13 @@ export async function openStoppedCursorEntry(
   page: Parameters<typeof openTakenCursorSession>[0],
   origin: Parameters<typeof openTakenCursorSession>[1],
   cursor: FakeCursor,
+  home: string,
 ) {
   const recent = await openTakenCursorSession(page, origin);
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
-  await endHeldClient(page, cursor);
+  await endHeldClient(page, cursor, home);
   await page.reload();
   const entry = parts(page).taken.locator(".session-entry");
   await expect(entry).toHaveCount(1);

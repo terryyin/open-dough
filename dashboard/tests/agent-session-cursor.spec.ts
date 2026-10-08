@@ -207,11 +207,17 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
 
 test("a recorded session the runner does not hold shows the agent is not running and offers Recover", async ({
   page,
+  dashboard,
   origin,
   cursor,
 }) => {
   test.setTimeout(120_000);
-  const again = await openStoppedCursorEntry(page, origin, cursor);
+  const again = await openStoppedCursorEntry(
+    page,
+    origin,
+    cursor,
+    dashboard.home,
+  );
   await expect(again).not.toHaveClass(/needs-attention/);
   await expect(
     again.getByRole("button", { name: "Delete record…" }),
