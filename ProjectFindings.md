@@ -13,19 +13,11 @@ executions, not commands, retries, or repairs.
 
 ## Priority assessment
 
-1. **Checks whose result depends on where or how they are run — first,
-   queued.** Eight executions or sessions. The most frequent single cause is
-   DD-220: four sessions the dashboard launched (plans 228, 233, 240, and the
-   2026-10-05 findings review) inherited `NODE_ENV=production`, installed no
-   dev dependencies, and still passed their readiness check on another
-   checkout's tools. Each cost little only because someone noticed; when nobody
-   does, the proof runs on tool versions CI does not use. The fix is in the
-   dashboard's session launch.
-   Story: [A session the dashboard launches prepares its checkout as a developer shell would](.planning/seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment)
-   (DD-220).
-   Also open: a direct shell run under macOS Bash 3.2 (DD-162), a passing run that
-   prints no count (DD-216), and Playwright runs in one checkout that share
-   fixed output directories (DD-224, DD-226).
+1. **Checks whose result depends on where or how they are run — first, not
+   queued.** Open: a direct shell run under macOS Bash 3.2 (DD-162), a passing
+   run that prints no count (DD-216), Playwright runs in one checkout that
+   share fixed output directories (DD-224, DD-226), and Claude completion
+   specs that failed early in one full run (DD-240).
 2. **Local proof that leaves out what another CI job checks — second, not
    queued.** Two open findings. DD-171 recurred in plan 191 with the same
    error in the same file as plan 146, and no local gate yet types the
@@ -38,9 +30,17 @@ executions, not commands, retries, or repairs.
 
 Moved from DearDough.md on 2026-10-05 (recovery: `a5c0ded1:DearDough.md`):
 DD-220's plan 233 and 240 occurrences, which used the same code for the same
-cause seen from the readiness check, merged into DD-220 below; DD-224; and
+cause seen from the readiness check, merged into DD-220; DD-224; and
 DD-229, removed below as resolved. Returned to DearDough.md: DD-169 and DD-173,
 whose cause is a planning premise left to the developer (the ODF-074 class).
+
+Resolved and removed on 2026-10-08 (recovery: `49ca78ce:ProjectFindings.md`):
+DD-220 (sessions the dashboard launched inherited its `NODE_ENV=production`,
+`npm_*` variables and deployment `node_modules/.bin`, so `npm ci` installed no
+dev dependencies). Every session the dashboard starts now runs in the
+developer's shell environment (`dashboard/server/developerShellEnvironment.ts`,
+described in `dashboard/AGENT-LAUNCH-HOSTS.md`). The readiness check that
+still passed on another checkout's tools stays with ODF-087 in DearDough.md.
 
 Resolved and removed on 2026-10-05 (recovery: `941cf860:ProjectFindings.md`):
 DD-232 (dashboard specs failing CI on revisions that changed no code). Its
@@ -81,64 +81,13 @@ DD-164, DD-166 (2026-09-29, recovery `d68fcde4:ProjectFindings.md`); DD-158
 recovery `34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
 DearDough.md on 2026-09-29.
 
-## Checks whose result depends on where or how they are run (first priority, queued)
+## Checks whose result depends on where or how they are run (first priority, not queued)
 
 This repository's checks should give CI's result however they are run
 locally: directly or through `scripts/test.sh`, from any directory, in a session
 the dashboard launched, and alongside or after another run in the same checkout.
 Each finding below is a local run whose result or output depended on how it was
 started.
-
-**Follow-up:** queued second: [A session the dashboard launches prepares its checkout as a developer shell would](.planning/seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) (DD-220). DD-162, DD-216, DD-224, DD-226, and DD-240 have other causes and stay open.
-
-### DD-220 — A session the dashboard launches inherits its deployment's `NODE_ENV=production` and tools, so checkout preparation installs no dev dependencies and still passes
-
-An agent session the Open Dough dashboard launched inherited
-`NODE_ENV=production`, and its `PATH` reached the dashboard deployment's
-`node_modules/.bin`. In the execution worktree, `npm ci` exited 0 having
-installed nothing ("audited 1 package"). The readiness gate's project command
-then passed anyway, using the deployment's tools or the parent checkout's
-`node_modules`. The proof therefore ran without the checkout's locked dev
-dependencies. `dashboard/server/hosts/cursor/runnerProcess.ts` still passes
-`env: process.env` to the launched host, and the Claude, Codex, and terminal
-spawns under `dashboard/server` pass no `env` of their own.
-
-DearDough.md's DD-220 recorded plans 233 and 240 under the same code, from the
-readiness check's side. Those rows merged here on 2026-10-05.
-
-#### Occurrences
-
-- Execution: `SEED-088#prove-landed-slices-leave-the-review` / plan 228, first related implementation commit `1967ed3f`
-  - Timestamp: 2026-10-03T14:50:00+08:00 (checkout setup after Take `230e6b02` at 14:48:28+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.55 (this repository's installed copy)
-  - Evidence: `echo $NODE_ENV` printed `production`; `npm config get omit` printed `dev`; `which tsc` resolved to `~/.open-dough/dashboard/deployments/28cf3da8bc53-d7306v/node_modules/.bin/tsc`; `node_modules/.bin/tsc` was absent from the worktree. `NODE_ENV=development npm ci --include=dev` installed the locked tools, and the checks passed from them.
-  - Observed effect: the coordinator caught it only by checking for the worktree's own `tsc` after the cheap check passed, at a cost of one reinstall. Every later npm and npx command needed `NODE_ENV=development`.
-  - Inference: Qualified. The dashboard deployment runs under `npm run preview:dashboard` (`dashboard/server/productionDeployment.mjs`), and its terminal spawns appear to pass no `env`, so a launched host inherits the server's environment. Proof run with the deployment's tool versions can differ from CI's. This sits close to ODF-087 (a readiness check passing on a substitute), but here the cause and fix are in the dashboard's launch environment.
-- Execution: `SEED-093#expose-timing-races-locally` / plan 233, first related implementation commit `7b6ddcce`
-  - Timestamp: 2026-10-03T17:25:25+08:00 (`node_modules/.package-lock.json` write time of the first `npm ci`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
-  - Evidence: the first `npm ci` printed "audited 1 package", and the worktree's `node_modules` had 14 empty scope directories and no `.bin`; `npm config get omit` returned `dev` with `NODE_ENV=production`; `../../node_modules/.bin/eslint` exists. `npm ci --include=dev` then installed the locked dev tools, and lint and `npx playwright --version` ran from the worktree.
-  - Observed effect: the readiness gate passed on its first command. The coordinator caught the problem only because the install output looked odd, before delegating; four tool calls.
-  - Inference: Qualified. A nested worktree hides a missing local install whenever the parent checkout has one.
-- Execution: `SEED-091#review-and-terminal-share-side-panel` / plan 240, first related implementation commit `2c64ac94`
-  - Timestamp: unknown (readiness check at execution start, before `2c64ac94` committed 2026-10-03T23:09:50+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: plan 240 "Decisive premises" recorded `npm ci --include=dev --ignore-scripts` in this workspace for an earlier `codex/` branch name; the coordinator reused it and ran `env -u NODE_ENV npm run typecheck:dashboard`, which exited 0. The slice 1 agent then found the worktree's `node_modules` empty, no `./node_modules/.bin/playwright`, and that the typecheck had used the parent checkout's `tsc`; it ran `npm ci --include=dev --ignore-scripts` itself.
-  - Observed effect: the readiness gate passed without a local install; the implementation agent absorbed the setup, so the cost was small.
-  - Inference: Qualified. Planning-time install evidence that names the workspace does not prove the install is still there at execution.
-- Execution: ad hoc findings review (dashboard launch `bc0a59af-2abd-4f5c-a6e2-2ca07dde7871`), one-shot workspace `.worktrees/project-findings-triage`
-  - Timestamp: 2026-10-05 (checkout setup; exact time not recorded)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `echo $NODE_ENV` printed `production`, and `which tsc` resolved to `~/.open-dough/dashboard/deployments/14e9fc236d8a-XuQot9/node_modules/.bin/tsc`. Setup ran `unset NODE_ENV; npm ci` because a recorded developer reminder said to.
-  - Observed effect: no wrong proof, only because the reminder was applied.
 
 ### DD-162 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
 
