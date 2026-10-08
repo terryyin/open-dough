@@ -151,6 +151,7 @@ authorized publication.
 
 - **Git adapters** (slice 1): the plan 276 Git adapters group —
   `npm test -- tests/support/product-backlog-git-merge.test.mjs
+  tests/support/product-backlog-git-merge-ancestry.test.mjs
   tests/support/product-backlog-git-merge-conflict.test.mjs
   tests/support/product-backlog-git-merge-hook.test.mjs
   tests/support/product-backlog-git-merge-agent-credit.test.mjs
@@ -164,7 +165,7 @@ authorized publication.
 
 | Correction promise | Owning slice / observable proof |
 | --- | --- |
-| An already-contained merge ends in a structured stop, no stack, nothing changed | 1: real merge CLI case in `product-backlog-git-merge.test.mjs`, failing first |
+| An already-contained merge ends in a structured stop, no stack, nothing changed | 1: real merge CLI case in `product-backlog-git-merge-ancestry.test.mjs`, failing first |
 | Publication guidance resumes adapter stops through the adapter and treats `catalog-uncommitted` as a finished replay to commit | 2: behavior review of `publication-rebase-conflict.md` and `publish-the-candidate.md` |
 
 ## Slices
@@ -172,7 +173,13 @@ authorized publication.
 ### 1. Merging a ref the branch already contains stops with a structured report
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: the new real-CLI case failed first (exit 1, empty stdout,
+the `MERGE_HEAD` crash), then passed with an early `blocked` return in
+`mergeOperation`; the Git adapters group (with the ancestry file) passed and
+lint passed. The refactor split the case, with the fast-forward case, into
+`tests/support/product-backlog-git-merge-ancestry.test.mjs` (history-decided
+outcomes) to keep the merge test file within size.
 Proof: add a case to `tests/support/product-backlog-git-merge.test.mjs`: a
 branch two commits ahead of `main` runs `merge --ref main` through the real
 CLI → exit 1; stdout says the branch already contains `main` and nothing was

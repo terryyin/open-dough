@@ -3,8 +3,9 @@
 // is the Git-aware counterpart `product-backlog-merge.mjs` deliberately is
 // not: it obtains the ancestor and each side's real bytes from Git itself —
 // a validated fast-forward candidate when no reconciliation is needed at all,
-// or the shared resolver run by a self-registered custom merge driver for
-// every other case, clean or conflicted — and gates the actual result before
+// a stop when the current branch already contains the ref, or the shared
+// resolver run by a self-registered custom merge driver for every other
+// case, clean or conflicted — and gates the actual result before
 // it advances anything. A non-fast-forward merge stays uncommitted until its
 // result is accepted; a stopped merge is resumed only by an explicit human
 // decision, validated against this tool's own invariants and never re-run
@@ -109,16 +110,24 @@ async function commitAcceptedMerge(repoRoot, file, subject) {
 }
 
 // One authorized merge: fast-forward when Git's own history already makes
-// this a pure advance, or a real, possibly multi-file `git merge` gated by
-// the shared resolver (through the driver registered above) for everything
-// else. The merge is never committed by this call alone — only once this
-// path's own result is validated, and only if Git itself has nothing else
-// left unresolved.
+// this a pure advance, a stop when the branch already contains the ref, or
+// a real, possibly multi-file `git merge` gated by the shared resolver
+// (through the driver registered above) for everything else. The merge is
+// never committed by this call alone — only once this path's own result is
+// validated, and only if Git itself has nothing else left unresolved.
 export async function mergeOperation({ repoRoot, file, ref }) {
   const headSha = gitLine(["rev-parse", "HEAD"], repoRoot);
   const mergeBase = gitLine(["merge-base", headSha, ref], repoRoot);
   if (mergeBase === headSha) {
     return fastForward(repoRoot, file, ref);
+  }
+  if (mergeBase === gitLine(["rev-parse", `${ref}^{commit}`], repoRoot)) {
+    return {
+      status: "blocked",
+      message:
+        `The current branch already contains ${ref}; nothing was merged or ` +
+        `changed, and there is no merge to \`continue\`.`,
+    };
   }
 
   ensureDriverRegistered(repoRoot, file);
