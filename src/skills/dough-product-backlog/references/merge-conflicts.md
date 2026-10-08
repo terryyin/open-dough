@@ -35,7 +35,10 @@ file that adapter does not own), use
 Otherwise, run the operation actually being performed, supplying the
 backlog's real path with `--file` when it is not this project's default:
 
-- Merge: `product-backlog-git-merge.mjs merge --ref <ref> [--file <path>]`
+- Merge: `product-backlog-git-merge.mjs merge --ref <ref> [--file <path>]`.
+  A ref the current branch already contains, and is ahead of, stops as
+  `blocked` before any merge: nothing was merged or changed, and there is no
+  merge to `continue`.
 - Rebase: `product-backlog-git-rebase.mjs rebase --ref <upstream> [--onto <newbase>] [--branch <branch>] [--file <path>]`
   Without `--onto`, this rebases the current branch onto `--ref`, or the
   named `--branch` when that branch is not the one checked out. With

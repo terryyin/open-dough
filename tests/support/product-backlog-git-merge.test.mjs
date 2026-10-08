@@ -2,9 +2,10 @@
 // `product-backlog-git-merge.mjs`: a real merge Git resolves without any
 // conflict of its own, gated by the shared resolver's semantic checks before
 // acceptance — including the historical clean-duplicate case and a clean
-// direction dispute a plain text merge would combine silently — plus a
-// validated fast-forward candidate. The genuine-textual-conflict case and its
-// human-recovery journey live in `product-backlog-git-merge-conflict.test.mjs`.
+// direction dispute a plain text merge would combine silently. Outcomes Git's
+// history alone decides live in `product-backlog-git-merge-ancestry.test.mjs`;
+// the genuine-textual-conflict case and its human-recovery journey live in
+// `product-backlog-git-merge-conflict.test.mjs`.
 // Every case here performs a real `git merge` (or real plumbing that stands
 // in for one identically) in a scratch repository and asserts on real Git
 // and file-system state afterward: index stages, `MERGE_HEAD`, ref
@@ -195,43 +196,4 @@ test("merge stops a clean direction dispute a plain text merge would combine sil
     merged.stdout + merged.stderr,
     /"## Near-future direction": the versions give it different text/,
   );
-});
-
-test("merge validates a fast-forward candidate before advancing the managed target", async (t) => {
-  const ancestor = backlogOf([], [itemA]);
-  const repo = scratchRepo(t, ancestor);
-  commitBranch(repo, "ahead", backlogOf([], ["- Item A with no link"]));
-  const before = headSha(repo);
-
-  const refused = await run(repo, ["merge", "--ref", "ahead"]);
-
-  assert.equal(refused.code, 1);
-  assert.match(
-    refused.stdout + refused.stderr,
-    /is not a backlog this tool can read, so the current branch was not advanced/,
-  );
-  assert.equal(headSha(repo), before, "the managed target was not advanced");
-  assert.equal(
-    isMidMerge(repo),
-    false,
-    "a fast-forward candidate never enters a merge",
-  );
-
-  // Repair `ahead` with a valid candidate and retry: this is a pure
-  // fast-forward, so it advances once validated, and nothing was merged.
-  checkout(repo, "ahead");
-  repo.write(backlogOf([], [itemA, "- [Item B](seeds/B.md#b)"]));
-  repo.git(["commit", "-aq", "-m", "fix ahead"]);
-  const afterFix = repo.git(["rev-parse", "ahead"]).trim();
-  checkout(repo, "main");
-
-  const accepted = await run(repo, ["merge", "--ref", "ahead"]);
-
-  assert.equal(accepted.code, 0, accepted.stdout + accepted.stderr);
-  assert.equal(
-    headSha(repo),
-    afterFix,
-    "the managed target advanced to the validated candidate",
-  );
-  assert.equal(repo.read(), backlogOf([], [itemA, "- [Item B](seeds/B.md#b)"]));
 });

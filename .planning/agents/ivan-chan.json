@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ivan-chan",
-  "email": "ivan-chan@example.org",
-  "identity": "SEED-119#done-catalog-adapter-edge-results-correction",
-  "mode": "story-branch",
-  "branch": "claude/backlog-git-adapters-end-edge-outcomes-in-an-act",
-  "host": "claude"
-}

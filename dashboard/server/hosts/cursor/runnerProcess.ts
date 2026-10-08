@@ -9,7 +9,7 @@
 // them clean.
 import { spawn } from "node:child_process";
 import { closeSync, existsSync, openSync } from "node:fs";
-import { mkdir, open, readFile, rm } from "node:fs/promises";
+import { link, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { homedir } from "node:os";
@@ -67,13 +67,15 @@ async function cursorRunnerAccepting(home: string): Promise<boolean> {
 }
 
 // One starter wins the lock. A lock whose writer is gone is not a live start.
+// The lock appears already naming its holder, so another starter never reads
+// it empty and takes a live start for a gone one.
 async function takeStartLock(home: string): Promise<boolean> {
   const lock = cursorRunnerLockFile(home);
   await mkdir(path.dirname(lock), { recursive: true });
+  const claim = `${lock}.${String(process.pid)}.tmp`;
+  await writeFile(claim, String(process.pid), "utf8");
   try {
-    const handle = await open(lock, "wx");
-    await handle.writeFile(String(process.pid));
-    await handle.close();
+    await link(claim, lock);
     return true;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
@@ -82,6 +84,8 @@ async function takeStartLock(home: string): Promise<boolean> {
       await rm(lock, { force: true });
     }
     return false;
+  } finally {
+    await rm(claim, { force: true });
   }
 }
 
