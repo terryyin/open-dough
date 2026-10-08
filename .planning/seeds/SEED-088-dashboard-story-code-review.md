@@ -269,6 +269,47 @@ current one as trunk's, so story work that reaches trunk after the mark is
 left out and an otherwise empty review says nothing changed beyond what trunk
 now holds; recognizing the story's own commits there would let it list them.
 
+<a id="review-merged-one-shot-change"></a>
+
+### Review a story's merged one-shot change
+
+**Identity:** SEED-088#review-merged-one-shot-change
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer reviewing a story from the dashboard can review the
+change of one of its one-shot runs, such as a one-shot refinement, after that
+change has already merged to trunk, so they can check what the run did
+without finding its commit among trunk's history.
+
+**Scope:** Builds on the
+[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md); the merge-base
+baseline shows nothing once the one-shot change is on trunk. To be refined:
+how the dashboard recognizes a story's one-shot change on trunk, which
+one-shot runs the review offers, and how this relates to
+[a Trunk Mode story's own changes](#review-trunk-mode-story-changes).
+
+<a id="review-merged-story-branch-changes"></a>
+
+### Review a Story Branch Mode story's changes after they merge
+
+**Identity:** SEED-088#review-merged-story-branch-changes
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer reviewing a story executed in Story Branch Mode can
+review that story's combined changes after its branch has already merged to
+trunk, so they can check the delivered work after landing.
+
+**Scope:** Builds on the
+[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md) and
+[selected commits](#review-selected-commits); the merge-base baseline shows
+nothing once the story branch is on trunk. To be refined: how the dashboard
+finds the merged branch's changes when the branch or worktree is gone, and
+whether trunk changes integrated into the branch stay excluded.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
@@ -308,3 +349,7 @@ now holds; recognizing the story's own commits there would let it list them.
   `not-restated`. Terry chose two-ended ranges and Uncommitted changes as a
   listed item, narrowing the uncommitted-changes story to Trunk Mode and the
   check.
+- Terry's 2026-10-08 request: queue reviewing a story's one-shot change
+  (such as a refinement) after it merged to trunk at priority four, and
+  reviewing a Story Branch Mode story's changes after they merged at priority
+  five.
