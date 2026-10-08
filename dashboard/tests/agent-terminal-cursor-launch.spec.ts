@@ -62,8 +62,8 @@ for (const mode of ["dev", "preview"] as const) {
           expect(processRunning(pid)).toBe(true);
 
           const terminal = await openCursorTerminal(server, sessionId);
-          expect(await shows(terminal, "ctrl+c to stop")).toBe(true);
-          expect(terminal.output()).toContain("Add a follow-up");
+          expect(await shows(terminal, "Add a follow-up")).toBe(true);
+          expect(terminal.output()).not.toContain("ctrl+c to stop");
           expect(terminal.output()).not.toContain(notice);
           expect(cursor.attaches()).toHaveLength(1);
           terminal.send({ input: "later" });
@@ -74,7 +74,7 @@ for (const mode of ["dev", "preview"] as const) {
           await terminal.closed;
           expect(processRunning(pid)).toBe(true);
           const again = await openCursorTerminal(server, sessionId);
-          await expect.poll(() => again.output()).toContain("ctrl+c to stop");
+          await expect.poll(() => again.output()).toContain("Add a follow-up");
           expect(cursor.attaches()).toHaveLength(1);
           expect(cursor.attaches()[0]?.pid).toBe(pid);
           again.send({ input: "still" });
