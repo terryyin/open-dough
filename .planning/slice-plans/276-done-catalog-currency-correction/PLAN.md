@@ -238,7 +238,25 @@ guidance receives the AGENTS.md behavior review.
 ### 1. A merge through the backlog adapter leaves a current done catalog
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `tests/support/product-backlog-git-done-catalog.test.mjs`
+cases (a)–(e), a malformed incoming catalog, and history-preserving routing of
+a done-only tip; `run_offline_git_merge_proof` in
+`tests/helpers/product-backlog-payload-runtime.bash` from both roots; the Git
+adapters, Record production/delivery, and Publication and integration groups
+and `npm run typecheck:dashboard` pass.
+Learnings for slice 2: the shared pieces live in
+`scripts/product-backlog-git-done-catalog.mjs` (`doneDirectoryBeside`,
+`doneDirectoryChanged`, `ensureDoneCatalogDriverRegistered`,
+`stageRebuiltDoneCatalog`, whose returned `status` says whether catalog bytes
+changed), with the driver in `product-backlog-git-done-catalog-driver.mjs` and
+shared test helpers in `tests/support/product-backlog-git-done-catalog-fixture.mjs`.
+Catalog driver registration is not yet folded into `ensureDriverRegistered`, so
+rebase and cherry-pick keep today's stops until slice 2 registers it.
+`owned-suffix-reconciliation.mjs` avoids importing the backlog skill at load;
+import the done-path helper dynamically there or spell the pathspec. The
+rebuild reads the worktree, so a stray uncommitted record file would be
+catalogued; untested.
 Proof: add `tests/support/product-backlog-git-done-catalog.test.mjs` merge
 cases: (a) the incoming side adds two records without a catalog (the
 `origin/main` shape) and the merge commit's catalog lists all records at Git's

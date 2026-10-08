@@ -106,12 +106,15 @@ whole-operation aggregate to revisit afterward.
 
 ## Done records and the done catalog beside the backlog
 
-The adapters own only the backlog path. Done records under `done/` beside the
-backlog are one file per identity, so combine them as ordinary files: keep each
-side's added, replaced, or removed record, and preserve a real conflict in one
-record for the human who owns that work. The done catalog `done/.catalog.json`
-is derived from those records and is never combined by hand, even when Git
-merges it cleanly. Once the record files are final, run the installed
+The rebase and cherry-pick adapters own only the backlog path; the merge
+adapter also commits a done catalog rebuilt from the merged records whenever
+either side changed `done/`, and never stops on the catalog alone. Done records
+under `done/` beside the backlog are one file per identity, so combine them as
+ordinary files: keep each side's added, replaced, or removed record, and
+preserve a real conflict in one record for the human who owns that work. The
+done catalog `done/.catalog.json` is derived from those records and is never
+combined by hand, even when Git merges it cleanly. Once the record files are
+final, run the installed
 `scripts/product-backlog.mjs catalog-done [--file <path>]` from the same
 installed skill directory, stage the catalog it writes or removes, and continue
 through the same adapter. Do this whenever the operation changed any record
