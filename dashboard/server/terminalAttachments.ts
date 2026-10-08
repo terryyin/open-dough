@@ -89,7 +89,7 @@ export class TerminalAttachments {
     return settleKeep({
       existing: this.keptClient(key),
       pty,
-      launch,
+      ...(launch === undefined ? {} : { launch }),
       tracked: (client) => this.clients.has(client),
       start: () =>
         this.watchClient(pty, {

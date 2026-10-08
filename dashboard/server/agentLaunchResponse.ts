@@ -14,6 +14,7 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import type { RunningCursorSessions } from "../src/cursorRunnerSessions.ts";
+import type { RecoverSessionAnswer } from "../src/sessionRecovery.ts";
 import type { SessionResult } from "../src/sessionResult.ts";
 import type {
   MarkReviewedAnswer,
@@ -64,6 +65,7 @@ export type AgentLaunchAnswer =
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
   | { readonly status: number; readonly body: DeleteRecordAnswer }
+  | { readonly status: number; readonly body: RecoverSessionAnswer }
   | { readonly status: number; readonly body: { error: string } };
 
 export function respondToLaunch(

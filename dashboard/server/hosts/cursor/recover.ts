@@ -89,7 +89,9 @@ async function afterKeep(
   }
   const screen = kept.screen ?? "";
   if (showsTrust(screen)) {
-    await hangupCursorClient(record.session);
+    if (record.session.host === "cursor") {
+      await hangupCursorClient(record.session);
+    }
     return {
       kind: "failed",
       explanation:
