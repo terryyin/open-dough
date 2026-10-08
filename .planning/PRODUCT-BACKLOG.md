@@ -17,6 +17,7 @@ visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load
+- [Catch shared fixture signature breaks in the dashboard's local checks](seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally) — SEED-124#check-dashboard-fixture-consumers-locally
 - [Show Running Cursor sessions as a resizable sidebar section](seeds/SEED-122-running-cursor-sessions-sidebar-panel.md#running-cursor-sessions-sidebar-panel) — SEED-122#running-cursor-sessions-sidebar-panel
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
 - [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change

@@ -789,39 +789,6 @@ Follow-up: Open, unqueued. Proposal: give the Codex binding an explicit supporte
   - Observed effect: one additional mailbox/source inspection and explicit acknowledgment outside the prescribed Codex binding. The first completion receipt itself correctly retained the observer for the failed revision.
   - Inference: Qualified. Source inspection shows that a later green completion would still retain this mailbox for unread failures without acknowledgment. That later refusal was prevented, not observed; absence of progress does not by itself establish that a notification was delivered to the model.
 
-## DD-243 — The quiet passing reporter hides how many tests a focused run selected
-
-`npm run test:dashboard` prints nothing on a pass, so a delegated agent cannot see which or how many tests its filtered command selected, which proof acceptance asks it to report. Agents reran passing commands with `--reporter=line`, `--reporter=list`, or `--reporter=dot` to obtain the count.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-113#share-repeated-observer-reads` / plan 261, first related implementation commit `a1c593a9`
-  - Timestamp: unknown (slice 3 and slice 4 refactor returns, 2026-10-06, before `74f6904b` and `572faa6f`)
-  - Tool: Claude Code (delegated refactor agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: slice 3's refactor return: "The first run of this command without `--reporter=line` cut off its output before the result, so I ran it again"; slice 4's refactor return: "The default reporter printed nothing on a pass, so I added `--reporter=list` to see the counts"; slice 4's implementation reported its whole-suite count from a `--reporter=dot` run.
-  - Observed effect: at least two repeated focused runs (seconds to tens of seconds each); counts were reported for acceptance.
-  - Inference: Qualified. The silence is the project's chosen contract for passing journeys; the cost is small but recurs per agent. Stating in the delegation which reporter yields a selection count would avoid the rerun.
-- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
-  - Timestamp: unknown (2026-10-07, before commit `11ddc3db`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: coordinator conversation: the plan's focused command `npm run test:dashboard -- <12 specs> --workers=2`, piped to `tail -8`, showed only the npm header; the coordinator reran it as `npx playwright test ... --reporter=line` to see `53 passed`.
-  - Observed effect: one repeated focused run (about 15 seconds).
-  - Inference: Qualified. The plan's literal proof command has the same gap as the delegation; naming a counting reporter in the plan's Proof section would avoid it.
-- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
-  - Timestamp: unknown (refactor returns of slices 1, 3, 5, and 7, 2026-10-07)
-  - Tool: Claude Code (delegated agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 at claim `0edabd1c`; 0.3.57 after the merge at `fefab16d`
-  - Evidence: slice 1's refactor return: "the default reporter printed no summary", rerun with `--reporter=line`; slices 3, 5, and 7's refactor returns invoked `npx playwright test ... --reporter=line|list` directly "because the default reporter's output did not show".
-  - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
-  - Inference: Qualified; the same recurring cost, unchanged by the release.
-
 ## DD-245 — A background coordinator implemented its single slice itself
 
 `delegation.md` allows local implementation "only for a single interactive slice". This background session had one Structure slice of about 30 changed lines, and the coordinator implemented it without a delegated agent.
@@ -857,46 +824,6 @@ Follow-up: Open, unqueued.
     - The refactor pass was delegated, and it removed one redundant assertion.
   - Observed effect: no rework. Proof acceptance rested on the coordinator's own run, not on an independent return.
   - Inference: Qualified. A third sample of a tiny Structure slice done locally in a background run. It saved re-delegating after a premise stop that the coordinator had already analysed.
-
-## DD-246 — Concurrent Playwright runs in one checkout delete each other's trace output
-
-Two agents ran dashboard Playwright commands in the same execution checkout at
-the same time. Both used the default `dashboard/test-results` output folder, and
-one run's cleanup removed the other's `.playwright-artifacts-*` trace files, so
-passing tests were reported as failed with `ENOENT`. Giving each concurrent run
-a private `--output` folder removed the noise.
-
-### Occurrences
-
-- Execution: `SEED-113#reuse-unchanged-records-after-publication` / plan 266, first related implementation commit `945857c9`
-  - Timestamp: unknown (slice 3 implementation and the load-flake fix ran together, before `7d8319bc` at 2026-10-07T10:01:13+09:00)
-  - Tool: Claude Code (delegated implementation agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; installed guidance 0.3.56, updated to 0.3.57 by the mid-execution merge `8cc33280`
-  - Evidence: slice 3 return: first 42-file run "had 4 failures, all `ENOENT` on `dashboard/test-results/.playwright-artifacts-*` trace files"; flake-fix return: first run "failed both specs, but only with trace ENOENT errors"; both reran with `--output` and passed.
-  - Observed effect: one rerun per agent (minutes each); no false acceptance, because both agents read the error kind.
-  - Inference: Qualified. The coordinator launched the two agents together without assigning output folders; delegation that runs tests concurrently in one checkout could name a private `--output` per agent.
-
-## DD-247 — Whole-suite runs under routine load reveal default-deadline polls on real process work one run at a time
-
-Whole dashboard suite runs on the developer machine (load average 25–35 from
-other work) failed in specs that pass alone. Each cause was a default 5 s
-`expect.poll`, or an event-order assumption, over real work whose duration grows
-with load: a recursive checkout removal, a page read answered late after a
-reload, and a launch of about 85 sequential git subprocesses. Each ~15-minute
-whole-suite run exposed a different spec, so the fixes came one run apart.
-
-### Occurrences
-
-- Execution: `SEED-113#reuse-unchanged-records-after-publication` / plan 266, first related implementation commit `945857c9`
-  - Timestamp: unknown (whole-suite runs during slices 1 and 2, and after slice 3, before `0b2613f4` at 2026-10-07T10:27:38+09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; installed guidance 0.3.56, updated to 0.3.57 by the mid-execution merge `8cc33280`
-  - Evidence: slice 1 return (`production-watcher-updates.spec.ts:33`); slice 2 return (that spec again and `agent-launch-attention.spec.ts:80`, 22 expected reads, 21 seen); whole-suite log after slice 3 (four `agent-completion-binding.spec.ts:31` variants and `agent-completion-attention.spec.ts:31`, "Timeout 5000ms"); fixes `7d8319bc` and `0b2613f4`, each reproduced before the fix (delayed answer, slowed git on PATH).
-  - Observed effect: three extra diagnosis agents and at least one extra whole-suite run; story delivery was not blocked, because the failing specs did not reach the changed reads.
-  - Inference: Qualified. Neighbouring launch journeys already used 30 s bounds; a single audit for default-deadline polls on real-process work would likely find more than one flake per run.
-  - Note: the next whole-suite run failed `agent-launch-card-sessions.spec.ts:53` (1 in 6 repeated, 1 in 12 at the pre-story revision `c9e90018`). Its cause was a product defect, not a deadline: a read asked before the page was hidden settled the page's "seen again" state, so the prompt revision check waited 15 s (`pageVisibility.ts`, `publishedObservation.ts`). It was fixed in this execution. The diagnosis also found `expectSettledPage` returning before the agent-profile read lands, which can make call counts taken right after it flaky (`shared-observer-reads.spec.ts:232` failed once in 3 runs; not fixed).
 
 ## DD-248 — A refactor return's proof-effects section left reached consumers unrun, once on a wrong "type-only" claim
 
@@ -944,19 +871,6 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator `npm run format` printed "Format failed: unresolved findings or tool failures remain" for `@typescript-eslint/no-unused-expressions` on a bare `progressSource;` omit in `dashboard/src/progressSource.ts`, and earlier `agent-commit.mjs` returned `commit-failed` for an unused `_stale` binding in the same CI-repair edit; the lint-clean `delete cleared.progressSource` form then committed as `598cd884`.
   - Observed effect: at least two refused or format-failed commit attempts on one CI repair before the published SHA.
   - Inference: Qualified. Same coordinator pattern as the rate-limit execution: format/lint findings surface only at wrap-up, and piping or continuing past a failed format invites a refused commit.
-
-## DD-252 — New page-geometry assertions were accepted on single runs, then failed CI on font metrics and under repetition
-
-### Occurrences
-
-- Execution: `SEED-106#paged-columns-height-follows-shown` / plan 271, first related implementation commit `c9106b78`
-  - Timestamp: 2026-10-07T13:57:20Z (CI failure in run 37632417898, `dashboard (5/9)`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
-  - Evidence: `dashboard-columns-height.spec.ts:216` required the whole last card `toBeInViewport({ ratio: 1 })` in a 480px window; with Linux fonts the card is about 440px (macOS about 360px), ratio 0.989. Repair stress `…:173 --repeat-each=30 --workers=4` at `c9106b78` failed 16 of 30 (clamp read before cards settled). Repair `62b21604` asserts the card's end and waits with `expectSettledPage`.
-  - Observed effect: one red CI run, one stash/repair/refactor/publish cycle (repair agent about 130k tokens, 49 minutes under machine load).
-  - Inference: Qualified. Both slice acceptance and the refactor pass reran new journeys once; a short `--repeat-each` stress of newly written geometry tests, and asserting a reachable edge rather than a whole element against a small window, would likely have caught both.
 
 ## DD-253 — Managed story-branch delivery can stall after a successful agent-commit
 
