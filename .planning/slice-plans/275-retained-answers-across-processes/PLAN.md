@@ -233,7 +233,7 @@ Learnings:
 
 ### 3. The store stays within a fixed budget
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the same spec with a small `DOUGH_RETAINED_ANSWERS_BYTES`;
 assert the directory's size and which revision rereads.
 
@@ -247,6 +247,25 @@ pattern; no configuration screen. Record the default in the request
 accounting.
 
 Safe stopping point: the store is disposable and bounded on every machine.
+
+Accepted proof: `authenticated-read-retained-answers-bounded.spec.ts`: with a
+small `DOUGH_RETAINED_ANSWERS_BYTES`, reading a third revision keeps the
+directory within the budget, the newest revision costs only the ref and branch
+head, and the oldest rereads only removed entries (surviving entries keep
+their inodes); an answer a process used outlasts answers written after it and
+not used since. Consumers and the full suite (1263) passed; the shared
+`configuredLimit` reader is covered by the bounded, backoff and
+subprocess-lifecycle specs.
+
+Learnings:
+- Eviction goes to seven eighths of the budget so a full store does not
+  rescan on every write; each process counts its own writes after its last
+  scan, so concurrent writers can briefly exceed the budget until one rescans.
+- Reading a revision refreshes its comparison base's entries even when the
+  comparison then refuses reuse, so an LRU proof needs a chain A, B, C.
+- Four older copies of the environment-number rule (`launchRun.ts`,
+  `launchStart.ts`, `sessionAlerts.ts`, `hosts/claude/rename.ts`) were left
+  outside this change's subsystem.
 
 ## Verification, delivery and sizing
 

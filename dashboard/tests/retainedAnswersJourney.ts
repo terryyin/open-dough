@@ -199,13 +199,20 @@ export async function asked<T>(github: FakeGitHub, run: () => Promise<T>) {
   return { result, calls: github.calls.slice(before).map(described) };
 }
 
-// A dev-mode server on `machine`'s home asking `github`; closed after `use`.
+// A dev-mode server on `machine`'s home asking `github`, retaining at most
+// `retainedAnswersBytes` when given; closed after `use`.
 export async function onMachine<T>(
   machine: string,
   github: FakeGitHub,
   use: (server: DashboardServer) => Promise<T>,
+  retainedAnswersBytes?: number,
 ): Promise<T> {
-  const server = await startDashboardServer({ mode: "dev", github, machine });
+  const server = await startDashboardServer({
+    mode: "dev",
+    github,
+    machine,
+    retainedAnswersBytes,
+  });
   try {
     return await use(server);
   } finally {
