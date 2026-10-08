@@ -43,10 +43,11 @@ about 30 seconds. Its backlog is read there directly, so its cards appear
 without waiting on anything else, while the details that follow may reuse
 earlier answers. Only GitHub's own account of what changed lets those details
 reuse anything: the dashboard process compares the new commit with the
-revision at which it last read the backlog and reads each commit between, and
-a record or record listing that neither the comparison's files nor
-any of those commits touched is answered from what it already read, as the
-new commit's own, as are the addition that credits a profile's human and a
+revision at which any dashboard process of this user on this machine last read
+the backlog and reads each commit between, and a record or record listing that
+neither the comparison's files nor any of those commits touched is answered
+from what it already read, as the new commit's own, as are the addition that
+credits a profile's human and a
 plan's last commit time when none of them touched that profile or plan;
 identical text never stands in for that, so a profile removed and re-added
 credits the re-adding commit. A record the comparison or a commit between

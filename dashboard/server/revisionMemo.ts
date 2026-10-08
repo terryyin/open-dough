@@ -3,7 +3,9 @@
 // server, holding at most `memoLimit` texts and letting the oldest kept go
 // first, and retained for every dashboard process on this machine
 // (`./retainedAnswers.ts`), which answers what memory does not hold only when
-// the caller says the read may use it (`retained`). Failures are never kept.
+// the caller says the read may use it (`retained`). What it answers is never
+// held in memory, where a read that may not use it would find it. Failures
+// are never kept.
 
 import type { RetainedAnswers } from "./retainedAnswers.ts";
 
@@ -16,23 +18,10 @@ export class RevisionMemo {
 
   held(key: string, retained: boolean): string | undefined {
     const known = this.texts.get(key);
-    if (known !== undefined || !retained) {
-      return known;
-    }
-    const text = this.retained.held(key);
-    if (text !== undefined) {
-      this.inMemory(key, text);
-    }
-    return text;
+    return known !== undefined || !retained ? known : this.retained.held(key);
   }
 
   kept(key: string, text: string): void {
-    this.inMemory(key, text);
-    this.retained.kept(key, text);
-  }
-
-  // Holds `text` under `key` in this process only.
-  private inMemory(key: string, text: string): void {
     this.texts.set(key, text);
     while (this.texts.size > memoLimit) {
       const oldest = this.texts.keys().next().value;
@@ -41,6 +30,7 @@ export class RevisionMemo {
       }
       this.texts.delete(oldest);
     }
+    this.retained.kept(key, text);
   }
 
   // Keeps `text` under `key` as the newest kept, whatever it replaces.

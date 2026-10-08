@@ -193,7 +193,7 @@ paying first visits at an unchanged revision.
 
 ### 2. Reuse at a newer revision continues across processes
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `authenticated-read-retained-answers.spec.ts` with the
 moved-ref journey using `revisionReuseBoundary.ts`'s helpers; keep
 `authenticated-read-revision-reuse*.spec.ts` green.
@@ -212,6 +212,24 @@ the learning here.
 
 Safe stopping point: a replacement that coincides with a publication costs
 what the publication costs a running process.
+
+Accepted proof: `authenticated-read-retained-answers-moved.spec.ts`: P2 whose
+ref names B one commit after A asks exactly the ref, the backlog at B, the
+comparison, that commit, the touched seed and its history, and the branch
+head, with answers equal to a fresh machine's first visit; a pinned read at A,
+never named to P2, asks GitHub; a failed comparison and one with eleven
+commits between read B as a first visit. Consumers (retained-answers,
+revision-reuse, shared, production-watcher-updates) and the full suite (1261)
+passed.
+
+Learnings:
+- `latest` stays retained: it is only a comparison base, and a behind,
+  diverged or failed comparison reuses nothing, so concurrent processes
+  writing different bases are safe.
+- A store hit is never copied into process memory: a read at B may reach the
+  base A's entries, and caching them let a later pinned read at an unheard A
+  answer retained text. Every store hit rereads one small file; slice 3 can
+  refresh last use in `RetainedAnswers.held`.
 
 ### 3. The store stays within a fixed budget
 Type: Behavior

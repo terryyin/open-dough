@@ -6,7 +6,8 @@
 
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { restart } from "./responsiveRecovery.ts";
-import { backlogPath, described, named } from "./revisionReuseOrigin.ts";
+import { backlogPath, named } from "./revisionReuseOrigin.ts";
+import { described } from "./revisionReuseCalls.ts";
 import { expect, published, test } from "./retainedAnswersJourney.ts";
 
 test.describe("a page outliving its dashboard process (preview launch mode)", () => {

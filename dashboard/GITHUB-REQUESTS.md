@@ -40,11 +40,11 @@ an unchanged `304` as not counting against the primary allowance, but that has
 not been confirmed here, so count each check as a request. A newly published
 commit then costs, without resolving `main` again, one read of its backlog,
 which answers its membership without waiting on anything else; then, for its
-details, one comparison of it with the revision at which this dashboard
-process last read the backlog, one read of each commit between them (a commit
-already asked about is not asked again), and reads of only the records, done
-records, and record listings the comparison or those commits changed (a
-merge's own change list
+details, one comparison of it with the revision at which any dashboard
+process of this user on this machine last read the backlog, one read of each
+commit between them (a commit already asked about is not asked again), and
+reads of only the records, done records, and record listings the comparison or
+those commits changed (a merge's own change list
 names only what differs from its first parent, so the comparison's files
 name what differs between the two revisions), plus one history listing for
 each readable profile they touched and one last-commit-time request for each

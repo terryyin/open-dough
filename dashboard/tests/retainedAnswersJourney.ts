@@ -18,19 +18,25 @@ import { everyRepository, type FakeGitHub } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
-import { pathChange, type PathHistories } from "./pathHistoryAnswers.ts";
+import {
+  pathChange,
+  type MadeCommit,
+  type PathHistories,
+} from "./pathHistoryAnswers.ts";
 import {
   answerFrom,
-  described,
   filesFor,
+  moved,
   otherProfilePath,
   otherSeedPath,
   planPath,
   profilePath,
   seedPath,
   sourceId,
+  type Files,
   type Publication,
 } from "./revisionReuseOrigin.ts";
+import { described } from "./revisionReuseCalls.ts";
 
 export { expect };
 
@@ -59,7 +65,8 @@ export const entryFile = (machine: string, revision: string, entry: string) =>
 
 // Every history a page asks at a commit, each dated days before now, so a
 // clock shown from it reads the same however long the journey takes.
-const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
+export const daysAgo = (days: number) =>
+  new Date(Date.now() - days * 86_400_000);
 const history: PathHistories = {
   [profilePath]: [
     {
@@ -79,7 +86,8 @@ const history: PathHistories = {
 };
 
 // One project published at `revision`, with its Story Branch Mode entry's
-// branch at `head`; `failing` answers chosen requests otherwise.
+// branch at `head`; `failing` answers chosen requests otherwise. Its ref
+// moves on when `movedTo` says.
 export function published(
   label: string,
   revision: string,
@@ -103,6 +111,22 @@ export function published(
   };
   return {
     branch: `story/${label}`,
+    publication,
+    // The ref moves to `next`, publishing `files` there, by the commits `by`
+    // after the revision it named, each heading the history of every path it
+    // modified.
+    movedTo(next: string, files: Files, by: readonly MadeCommit[]) {
+      const histories: Record<string, PathHistories[string]> = { ...history };
+      for (const { files: changed, ...made } of by) {
+        for (const { filename } of changed) {
+          histories[filename] = [
+            { ...made, status: "modified" },
+            ...(histories[filename] ?? []),
+          ];
+        }
+      }
+      moved(publication, next, files, histories, by);
+    },
     serve(github: FakeGitHub, fails = failing) {
       github.serve(everyRepository, (call) =>
         Promise.resolve(fails(call.request) ?? answerFrom(publication, call)),
