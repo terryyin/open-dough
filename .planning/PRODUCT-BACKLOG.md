@@ -21,6 +21,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
 - [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
