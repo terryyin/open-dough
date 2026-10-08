@@ -206,6 +206,11 @@ marks the whole snapshot, which the next opening compares with.
 Safe stopping point: the list accounts for the whole snapshot, and the story
 is complete.
 
+## Execution complete
+
+Product advice: Keep the existing uncommitted-view and Trunk Mode stories in
+their current queue positions; this execution adds no new product work.
+
 ## Verification, delivery and sizing
 
 Use the [verification commands, affected consumers, and sizing context](CONTEXT.md#verification-delivery-and-sizing).
