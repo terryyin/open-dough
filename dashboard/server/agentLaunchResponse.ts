@@ -19,6 +19,7 @@ import type {
   MarkReviewedAnswer,
   ReviewedFileDiff,
   StoryReview,
+  ReviewRange,
 } from "../src/storyReview.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { hostOperations } from "./launchHosts.ts";
@@ -35,6 +36,7 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: LaunchHostOptions }
   | { readonly status: number; readonly body: SessionResult }
   | { readonly status: number; readonly body: StoryReview }
+  | { readonly status: number; readonly body: ReviewRange }
   | { readonly status: number; readonly body: ReviewedFileDiff }
   | { readonly status: number; readonly body: MarkReviewedAnswer }
   | { readonly status: number; readonly body: RunningCursorSessions }

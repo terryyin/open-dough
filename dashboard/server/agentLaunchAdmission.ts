@@ -19,13 +19,16 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewMarkEndpoint,
+  storyReviewRangeEndpoint,
 } from "../src/storyReview.ts";
 import {
   fileDiffRequest,
   markReviewedRequest,
   reviewRequest,
+  rangeRequest,
   type AdmittedFileDiff,
   type AdmittedReview,
+  type AdmittedReviewRange,
 } from "./storyReviewAdmission.ts";
 import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -78,6 +81,7 @@ export type Admitted =
     }
   | AdmittedResult
   | AdmittedReview
+  | AdmittedReviewRange
   | AdmittedFileDiff
   | AdmittedReviewMark
   | { readonly kind: "changed"; readonly attempt: string }
@@ -175,6 +179,7 @@ const exactReads = new Map<string, (url: URL) => Promise<Admitted>>([
   [sessionResultEndpoint, resultRequest],
   [storyReviewEndpoint, reviewRequest],
   [storyReviewFileEndpoint, fileDiffRequest],
+  [storyReviewRangeEndpoint, rangeRequest],
 ]);
 
 // Every path whose requests this boundary admits or refuses.

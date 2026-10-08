@@ -1,17 +1,10 @@
 // A story's review (`./storyReview.ts`) in the page's side panel
 // (`./PageFrame.tsx`), beside the dashboard, which stays usable. It
-// names the story and its project's identity, takes its snapshot when it
-// opens and shows it (`./StoryReviewSnapshotView.tsx`) unchanged until the
-// developer uses Refresh, which takes a new one in its place, keeps the
-// keyboard where it is, and announces when it is done. Beneath the header,
-// the snapshot's context line (`./StoryReviewContextLine.tsx`), the review's
-// one feedback region, and its marking controls stay in view above the
-// review's body; that the review is read-only is its accessible
-// description, never a visible line. Opening it, or asking
-// again for the review shown, places the keyboard in its named content
-// without holding it there; the panel's own controls (`./PanelControls.tsx`)
-// maximize or restore it and close it. Each opening is its own read, so a
-// read of the story the panel showed before can never answer this one.
+// names the story and project, keeping one snapshot until Refresh. Its
+// context, feedback and marking controls stay above the body. Opening
+// places the keyboard in the named content; Refresh preserves focus and
+// announces completion. Each opening owns its read, and read-only is the
+// accessible description. Panel controls maximize, restore and close it.
 // Mark reviewed marks the snapshot shown, never a newer state of the
 // worktree, and the review then says the snapshot is marked and when
 // (`./StoryReviewMark.tsx`); only that control marks. A marked story's
@@ -23,24 +16,27 @@
 // and each opening starts on the changes since the review. A mark that
 // cannot be compared -- its snapshot can no longer be read, or this
 // machine's Git cannot leave trunk's changes out of it -- is said beside all
-// changes, without the switch, until Mark reviewed starts again.
+// changes, with Commits still available when the snapshot lists commits,
+// until Mark reviewed starts again. Commits lists the snapshot's first-parent
+// line and compares a selected range from its oldest commit's parent tree
+// to its newest tree, leaving out intervening trunk integrations.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { PanelControls } from "./PanelControls.tsx";
-import { shortRevision } from "./publishedWork.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
   type MarkReviewedAnswer,
   type StoryReview,
 } from "./storyReview.ts";
-import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
-import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
+import { CommitList } from "./StoryReviewCommits.tsx";
+import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
+import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageReviews.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { SidePanelEdge } from "./SidePanelEdge.tsx";
@@ -85,17 +81,21 @@ export function StoryReviewPanel({
     readonly answer: MarkReviewedAnswer;
   }>();
   const [marking, setMarking] = useState(false);
-  // The comparison chosen; a review without changes since the review shows
-  // all changes whatever was chosen.
-  const [chosen, setChosen] = useState<ShownComparison>("since");
   const madeHere =
     made !== undefined && made.of === review ? made.answer : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const since = chosen === "since" ? snapshot?.since : undefined;
-  const comparison =
-    snapshot === undefined
-      ? undefined
-      : (since ?? { from: snapshot.baseline, files: snapshot.files });
+  const {
+    items,
+    selectedItems,
+    trunkIntegrated,
+    shown,
+    since,
+    range,
+    comparison,
+    tree,
+    onSwitch,
+    onSelect,
+  } = useStoryReviewComparison({ source, identity, snapshot });
   // The mark the review states: one made on the review shown since it was
   // read, or the one it was read with unless the changes since the review
   // are headed by it.
@@ -145,54 +145,34 @@ export function StoryReviewPanel({
         when the review opened or was last refreshed.
       </p>
       <div className="story-review-top">
-        {snapshot !== undefined && comparison !== undefined && (
+        {snapshot !== undefined && (
           <ContextLine
             snapshot={snapshot}
-            {...(comparison.files.length === 0 ? {} : { browser })}
+            {...(comparison === undefined || comparison.files.length === 0
+              ? {}
+              : { browser })}
             onShowBrowser={setBrowserShown}
           />
         )}
-        <div role="status">
-          {reading && review?.kind !== "snapshot" && (
-            <p>Reading the story&apos;s changes…</p>
-          )}
-          {reading && review?.kind === "snapshot" && (
-            <p>
-              Refreshing the review… What is shown is still the snapshot taken
-              earlier.
-            </p>
-          )}
-          {!reading &&
-            round > 0 &&
-            madeHere === undefined &&
-            snapshot !== undefined &&
-            (since === undefined ? (
-              <p>
-                Review refreshed: {changedFiles(snapshot.files.length)} against
-                baseline <code>{shortRevision(snapshot.baseline)}</code>.
-              </p>
-            ) : (
-              <p>
-                Review refreshed: {changedFiles(since.files.length)} since the
-                review.
-              </p>
-            ))}
-          {madeHere?.kind === "marked" && <p>Marked reviewed.</p>}
-          {madeHere?.kind === "unavailable" && <p>{madeHere.explanation}</p>}
-          {problem !== undefined && (
-            <p>The review could not be read: {problem}</p>
-          )}
-          {review?.kind === "unavailable" && (
-            <p>
-              {review.explanation} Worktree <code>{review.workspace}</code>.
-            </p>
-          )}
-        </div>
+        <ReviewFeedback
+          review={review}
+          reading={reading}
+          problem={problem}
+          range={range}
+          shown={shown}
+          comparison={comparison}
+          since={since}
+          round={round}
+          made={madeHere}
+        />
         {snapshot !== undefined && (
           <MarkingControls
             snapshot={snapshot}
-            shown={chosen}
-            onSwitch={setChosen}
+            shown={shown}
+            onSwitch={onSwitch}
+            selectedItems={selectedItems}
+            commitsAvailable={items.length > 0}
+            trunkIntegrated={trunkIntegrated}
             sinceReview={since !== undefined}
             stated={stated}
             busy={reading || marking}
@@ -213,16 +193,29 @@ export function StoryReviewPanel({
         )}
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
-        {snapshot !== undefined && comparison !== undefined && (
-          <SnapshotView
-            reviewed={{ sourceId: source, identity }}
-            snapshot={snapshot}
-            comparison={comparison}
-            sinceReview={since !== undefined}
-            headingId={headingId}
-            browser={browser}
-          />
-        )}
+        {snapshot !== undefined &&
+          shown === "commits" &&
+          selectedItems.length > 0 && (
+            <CommitList
+              items={items}
+              selected={selectedItems}
+              onSelect={onSelect}
+            />
+          )}
+        {snapshot !== undefined &&
+          comparison !== undefined &&
+          tree !== undefined && (
+            <SnapshotView
+              reviewed={{ sourceId: source, identity }}
+              snapshot={snapshot}
+              tree={tree}
+              commitsReview={shown === "commits"}
+              comparison={comparison}
+              sinceReview={since !== undefined}
+              headingId={headingId}
+              browser={browser}
+            />
+          )}
       </div>
     </section>
   );

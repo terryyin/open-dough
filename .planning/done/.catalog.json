@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-088_review-selected-commits.json",
+      "identity": "SEED-088#review-selected-commits",
+      "completedAt": "2026-10-08T12:11:34.549Z",
+      "blob": "7d75b7beed587879a07e72698c54434506012d8c"
+    },
+    {
+      "fileName": "SEED-119_done-catalog-currency-correction.json",
+      "identity": "SEED-119#done-catalog-currency-correction",
+      "completedAt": "2026-10-08T05:24:46.507Z",
+      "blob": "fdacb8c684196e1265777eb42ff9d5d212f616b2"
+    },
+    {
       "fileName": "SEED-108_observe-promised-journey.json",
       "identity": "SEED-108#observe-promised-journey",
       "completedAt": "2026-10-08T02:51:31.985Z",
@@ -12,6 +24,12 @@
       "identity": "SEED-100#launched-session-development-environment",
       "completedAt": "2026-10-08T02:25:11.961Z",
       "blob": "12f97f9551379191c87cc1f07c415137c5e6463d"
+    },
+    {
+      "fileName": "SEED-118_reduce-repeated-reads-across-tabs-and-deployments.json",
+      "identity": "SEED-118#reduce-repeated-reads-across-tabs-and-deployments",
+      "completedAt": "2026-10-08T02:22:17.273Z",
+      "blob": "8f501eb9fc77435a11ee242478f48a1ac4b3da59"
     },
     {
       "fileName": "SEED-119_recently-done-progressive-loading.json",

@@ -9,6 +9,15 @@
 // snapshot reviewed is a same-origin POST naming the project, the work
 // identity, and the snapshot's tree and baseline object IDs, its workspace
 // resolved by the same rule.
+// A commit range is a GET naming that same project and identity and two
+// points from the snapshot's list: `fromTree`, `fromBaseline`, `tree`, and
+// `baseline`, all hexadecimal object IDs. Its workspace is resolved by the
+// same rule; the range read confirms the repository holds those objects.
+// The Uncommitted changes item supplies the head tree as its from point and
+// the snapshot tree as its to point, both on the snapshot baseline.
+// Optional `integrations` is a JSON array of selected merges' already-listed
+// `fromTree`, `fromBaseline`, and destination `baseline` object IDs. It
+// supplies integration conflicts without accepting paths or rereading history.
 
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -17,6 +26,8 @@ import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
   markReviewedRequestSchema,
   objectIdSchema,
+  reviewIntegrationSchema,
+  type ReviewIntegration,
   reviewWorkspaceOf,
 } from "../src/storyReview.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
@@ -45,6 +56,16 @@ export interface AdmittedFileDiff {
   readonly path: string;
   // The path the file had at the baseline, for a rename.
   readonly oldPath?: string;
+}
+
+export interface AdmittedReviewRange {
+  readonly kind: "review-range";
+  readonly established: EstablishedContext;
+  readonly fromTree: string;
+  readonly fromBaseline: string;
+  readonly tree: string;
+  readonly baseline: string;
+  readonly integrations: readonly ReviewIntegration[];
 }
 
 // The workspace the named story's review reads.
@@ -99,6 +120,50 @@ const fileDiffQuerySchema = z.object({
   path: reviewedPathSchema,
   oldPath: reviewedPathSchema.optional(),
 });
+
+const rangeQuerySchema = z.object({
+  fromTree: objectIdSchema,
+  fromBaseline: objectIdSchema,
+  tree: objectIdSchema,
+  baseline: objectIdSchema,
+  integrations: z.array(reviewIntegrationSchema),
+});
+
+export async function rangeRequest(url: URL): Promise<AdmittedReviewRange> {
+  requireExactQuery(
+    url,
+    [
+      "source",
+      "identity",
+      "fromTree",
+      "fromBaseline",
+      "tree",
+      "baseline",
+      ...(url.searchParams.has("integrations") ? ["integrations"] : []),
+    ],
+    "commit range",
+  );
+  let integrations: unknown = [];
+  try {
+    const named = url.searchParams.get("integrations");
+    if (named !== null) {
+      integrations = JSON.parse(named) as unknown;
+    }
+  } catch {
+    throw new RefusedRequest(
+      400,
+      "The commit range names malformed integrations.",
+    );
+  }
+  const query = rangeQuerySchema.safeParse({
+    ...Object.fromEntries(url.searchParams),
+    integrations,
+  });
+  if (!query.success)
+    throw new RefusedRequest(400, "The commit range names a malformed object.");
+  const { established } = await queriedWorkspace(url);
+  return { kind: "review-range", established, ...query.data };
+}
 
 export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
   requireExactQuery(

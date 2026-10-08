@@ -64,10 +64,13 @@ function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
 function NoChanges({
   snapshot,
   sinceReview,
+  commitsReview,
 }: {
   readonly snapshot: TakenStoryReview;
   readonly sinceReview: boolean;
+  readonly commitsReview: boolean;
 }) {
+  if (commitsReview) return <p>The chosen commits changed nothing.</p>;
   if (!sinceReview)
     return (
       <p>
@@ -92,6 +95,8 @@ export function SnapshotView({
   sinceReview,
   headingId,
   browser,
+  tree: comparedTree,
+  commitsReview = false,
 }: {
   readonly reviewed: ReviewedStory;
   readonly snapshot: TakenStoryReview;
@@ -100,6 +105,8 @@ export function SnapshotView({
   readonly sinceReview: boolean;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
+  readonly tree: string;
+  readonly commitsReview?: boolean;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>();
   // Folders collapsed by path; every folder starts expanded on each opening,
@@ -144,7 +151,11 @@ export function SnapshotView({
   const { id: browserId } = browser;
   const diffHeadingId = `${headingId}-diff`;
   return selected === undefined ? (
-    <NoChanges snapshot={snapshot} sinceReview={sinceReview} />
+    <NoChanges
+      snapshot={snapshot}
+      sinceReview={sinceReview}
+      commitsReview={commitsReview}
+    />
   ) : (
     <div className="story-review-workarea">
       <section
@@ -185,10 +196,10 @@ export function SnapshotView({
         <FileDiff
           // A new comparison, snapshot, or file is a new read, never the
           // last one's.
-          key={`${from}:${snapshot.tree}:${selected.path}`}
+          key={`${from}:${comparedTree}:${selected.path}`}
           reviewed={reviewed}
           from={from}
-          tree={snapshot.tree}
+          tree={comparedTree}
           file={selected}
         />
       </section>

@@ -15,11 +15,8 @@
 // and Mark reviewed starts again from there; with an unchanged baseline
 // nothing is restated.
 
-import { execFileSync } from "node:child_process";
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
+import { olderGit } from "./support/storyReviewOlderGit.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import {
   expectSinceTheReview,
@@ -33,64 +30,78 @@ import {
   sixth,
 } from "./support/storyReviewTrunk.ts";
 import { writeAt } from "./support/storyReviewWorktree.ts";
+import { printingMergeDriver } from "./support/storyReviewMergeDriver.ts";
 
-test("after trunk was integrated, the changes since the review leave trunk's out and flag what cannot be separated", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { story, card, review, marked } = await markStoryReview(
+for (const printing of [false, true]) {
+  test(`after trunk was integrated, the changes since the review leave trunk's out and flag what cannot be separated${printing ? " with a printing merge driver" : ""}`, async ({
     page,
     dashboard,
     origin,
-  );
+  }) => {
+    const driver = printing ? printingMergeDriver(origin) : undefined;
+    const { story, card, review, marked } = await markStoryReview(
+      page,
+      dashboard,
+      origin,
+      driver?.prepare,
+    );
 
-  integrateTrunk(origin, story, "c story and trunk");
-  writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
-  const since = await reopenReview(page, card);
-  expect(since.baseline).not.toBe(marked.baseline);
-  expect(since.since?.from).not.toBe(marked.tree);
-  await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  await expect(review.locator(".story-review-since")).toContainText(
-    "Trunk was integrated since the mark",
-  );
+    integrateTrunk(origin, story, "c story and trunk");
+    const beforeReview = driver?.invocations();
+    writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
+    const since = await reopenReview(page, card);
+    if (driver !== undefined) {
+      expect(driver.invocations()).toBeGreaterThan(beforeReview ?? 0);
+    }
+    expect(since.markUncomparable).toBeUndefined();
+    expect(since.baseline).not.toBe(marked.baseline);
+    expect(since.since?.from).not.toBe(marked.tree);
+    await expectSinceTheReview(review, keptStoryAMark(dashboard));
+    await expect(review.locator(".story-review-since")).toContainText(
+      "Trunk was integrated since the mark",
+    );
 
-  // (a, d) Only the story's files: not trunk's, nor the landed slice.
-  const files = review.getByRole("list", { name: "2 changed files" });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["src", "  b.ts", "  c.ts includes trunk's changes"]);
-  expect(
-    since.since?.files.map(({ path: file, includesTrunkFrom }) => ({
-      file,
-      includesTrunkFrom,
-    })),
-  ).toEqual([
-    { file: "src/b.ts", includesTrunkFrom: undefined },
-    { file: "src/c.ts", includesTrunkFrom: marked.tree },
-  ]);
+    // (a, d) Only the story's files: not trunk's, nor the landed slice.
+    const files = review.getByRole("list", { name: "2 changed files" });
+    await expect
+      .poll(() => treeRows(files))
+      .toEqual(["src", "  b.ts", "  c.ts includes trunk's changes"]);
+    expect(
+      since.since?.files.map(({ path: file, includesTrunkFrom }) => ({
+        file,
+        includesTrunkFrom,
+      })),
+    ).toEqual([
+      { file: "src/b.ts", includesTrunkFrom: undefined },
+      { file: "src/c.ts", includesTrunkFrom: marked.tree },
+    ]);
 
-  // (b) The inseparable file is flagged, and diffed and counted from the
-  // marked snapshot.
-  const flagged = "Modified src/c.ts, includes trunk's changes";
-  await expect(
-    files
-      .getByRole("button", { name: flagged })
-      .locator(".story-review-line-counts"),
-  ).toHaveText("+1 −1", { useInnerText: true });
-  await files.getByRole("button", { name: flagged }).press("Enter");
-  const cDiff = review.getByRole("region", { name: flagged });
-  await expect(cDiff.locator(".story-review-removed")).toHaveText(["-c story"]);
-  await expect(cDiff.locator(".story-review-added")).toHaveText([
-    "+c story and trunk",
-  ]);
+    // (b) The inseparable file is flagged, and diffed and counted from the
+    // marked snapshot.
+    const flagged = "Modified src/c.ts, includes trunk's changes";
+    await expect(
+      files
+        .getByRole("button", { name: flagged })
+        .locator(".story-review-line-counts"),
+    ).toHaveText("+1 −1", { useInnerText: true });
+    await files.getByRole("button", { name: flagged }).press("Enter");
+    const cDiff = review.getByRole("region", { name: flagged });
+    await expect(cDiff.locator(".story-review-removed")).toHaveText([
+      "-c story",
+    ]);
+    await expect(cDiff.locator(".story-review-added")).toHaveText([
+      "+c story and trunk",
+    ]);
 
-  // (c) The separated file's diff holds only the story's edit.
-  await files.getByRole("button", { name: "Modified src/b.ts" }).press("Enter");
-  const bDiff = review.getByRole("region", { name: "Modified src/b.ts" });
-  await expect(bDiff.locator(".story-review-removed")).toHaveText(["-b 5"]);
-  await expect(bDiff.locator(".story-review-added")).toHaveText(["+b five"]);
-});
+    // (c) The separated file's diff holds only the story's edit.
+    await files
+      .getByRole("button", { name: "Modified src/b.ts" })
+      .press("Enter");
+    const bDiff = review.getByRole("region", { name: "Modified src/b.ts" });
+    await expect(bDiff.locator(".story-review-removed")).toHaveText(["-b 5"]);
+    await expect(bDiff.locator(".story-review-added")).toHaveText(["+b five"]);
+  });
+}
 
 test("a conflicted file the story kept as marked is flagged and diffed from the baseline", async ({
   page,
@@ -125,30 +136,39 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   await expect(cDiff.locator(".story-review-added")).toHaveText(["+c story"]);
 });
 
-test("after trunk was integrated with nothing else, nothing changed since the review beyond what trunk holds", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { story, card, review } = await markStoryReview(
+for (const printing of [false, true]) {
+  test(`after trunk was integrated with nothing else, nothing changed since the review beyond what trunk holds${printing ? " with a printing merge driver" : ""}`, async ({
     page,
     dashboard,
     origin,
-  );
+  }) => {
+    const driver = printing ? printingMergeDriver(origin, true) : undefined;
+    const { story, card, review } = await markStoryReview(
+      page,
+      dashboard,
+      origin,
+      driver?.prepare,
+    );
 
-  integrateTrunk(origin, story);
-  const since = await reopenReview(page, card);
-  expect(since.since?.files).toEqual([]);
-  await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  await expect(review.locator(".story-review-since")).toContainText(
-    "Trunk was integrated since the mark",
-  );
-  // (d) No file, not even the landed slice.
-  await expect(review).not.toContainText("landed.txt");
-  await expect(review).toContainText(
-    "Nothing changed since the review beyond what trunk now holds.",
-  );
-});
+    integrateTrunk(origin, story, printing ? "c trunk" : undefined);
+    const beforeReview = driver?.invocations();
+    const since = await reopenReview(page, card);
+    if (driver !== undefined) {
+      expect(driver.invocations()).toBeGreaterThan(beforeReview ?? 0);
+    }
+    expect(since.markUncomparable).toBeUndefined();
+    expect(since.since?.files).toEqual([]);
+    await expectSinceTheReview(review, keptStoryAMark(dashboard));
+    await expect(review.locator(".story-review-since")).toContainText(
+      "Trunk was integrated since the mark",
+    );
+    // (d) No file, not even the landed slice.
+    await expect(review).not.toContainText("landed.txt");
+    await expect(review).toContainText(
+      "Nothing changed since the review beyond what trunk now holds.",
+    );
+  });
+}
 
 test("a marked story whose baseline is unchanged does not say trunk was integrated", async ({
   page,
@@ -171,33 +191,6 @@ test("a marked story whose baseline is unchanged does not say trunk was integrat
     .toEqual(["src", "  b.ts"]);
 });
 
-// The dashboard's Git as one before 2.45: `merge-tree` refuses the marked
-// tree as not a commit; every other call reaches the real Git.
-const olderGit = test.extend({
-  // Playwright's fixture API requires the empty destructuring pattern.
-  // eslint-disable-next-line no-empty-pattern
-  pathPrefix: async ({}, use) => {
-    const bin = mkdtempSync(path.join(tmpdir(), "dough-older-git-"));
-    const realGit = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
-    const wrapper = path.join(bin, "git");
-    writeFileSync(
-      wrapper,
-      [
-        "#!/bin/sh",
-        'if [ "$1" = merge-tree ]; then',
-        '  echo "fatal: $6 is not a commit" >&2',
-        "  exit 128",
-        "fi",
-        `exec '${realGit}' "$@"`,
-        "",
-      ].join("\n"),
-    );
-    chmodSync(wrapper, 0o755);
-    await use([bin]);
-    rmSync(bin, { recursive: true, force: true });
-  },
-});
-
 olderGit(
   "a Git that cannot restate the mark shows all changes, says why, and marking starts again",
   async ({ page, dashboard, origin }) => {
@@ -207,7 +200,7 @@ olderGit(
       origin,
     );
 
-    // (a) All changes, why the earlier review cannot be compared, no switch.
+    // (a) All changes and Commits, why the earlier review cannot be compared.
     integrateTrunk(origin, story, "c story and trunk");
     writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
     const all = await reopenReview(page, card);
@@ -226,7 +219,10 @@ olderGit(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
     await expect(
-      review.getByRole("radiogroup", { name: "Comparison" }),
+      review.getByRole("radio", { name: "Commits", exact: true }),
+    ).toBeVisible();
+    await expect(
+      review.getByRole("radio", { name: "Since the review" }),
     ).toHaveCount(0);
     await expect(review).not.toContainText("since the review");
 

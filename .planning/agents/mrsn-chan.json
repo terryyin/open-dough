@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-088#review-selected-commits",
-  "mode": "story-branch",
-  "branch": "codex/review-the-combined-changes-of-selected-story-co",
-  "host": "codex"
-}

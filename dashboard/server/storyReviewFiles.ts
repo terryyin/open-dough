@@ -4,6 +4,27 @@
 // and removed line counts from `--numstat -M -z` over the same comparison.
 
 import type { LineCounts, ReviewedFile } from "../src/storyReview.ts";
+import { runGit, type GitCall } from "./gitRunner.ts";
+
+// Complete tree comparisons keep rename detection, kinds, and counts
+// coherent before callers select individual files.
+export async function changedFrom(
+  from: string,
+  to: string,
+  call: GitCall,
+): Promise<ReviewedFile[]> {
+  const changes = async (format: string) =>
+    (
+      await runGit(
+        ["--literal-pathspecs", "diff", format, "-M", "-z", from, to, "--"],
+        call,
+      )
+    ).stdout;
+  return reviewedFiles(
+    await changes("--name-status"),
+    await changes("--numstat"),
+  );
+}
 
 // The changed files `git diff --name-status -M -z` printed: a status field,
 // then the path, or for a rename the old path and then the new one.

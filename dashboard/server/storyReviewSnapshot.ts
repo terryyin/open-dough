@@ -13,7 +13,7 @@
 // there is no baseline without it.
 // A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it,
 // and the same snapshot compared with the marked tree restated on the
-// baseline (`./storyReviewSince.ts`): the changes since the review,
+// baseline (`./storyReviewComparison.ts`): the changes since the review,
 // leaving out what came only from trunk, each file's line counts read from
 // the same *from* tree as its kind and diff.
 // A mark whose snapshot the repository no longer holds, or that this
@@ -31,6 +31,7 @@ import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type {
   ReviewedFileDiff,
+  ReviewCommit,
   ReviewMark,
   StoryReview,
 } from "../src/storyReview.ts";
@@ -38,9 +39,9 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
-import { reviewedFiles } from "./storyReviewFiles.ts";
+import { changedFrom } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
-import { changesSinceReview } from "./storyReviewSince.ts";
+import { compareReviewPoints } from "./storyReviewComparison.ts";
 import type {
   AdmittedFileDiff,
   AdmittedReview,
@@ -108,33 +109,60 @@ async function storyReviewSnapshot(
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
-    // The files changed from one tree to the snapshot's, of the paths given
-    // or of all, each with its line counts from the same comparison.
-    const changedFrom = async (from: string, paths: readonly string[] = []) => {
-      const changes = (format: string) =>
-        printed([
-          "--literal-pathspecs",
-          "diff",
-          format,
-          "-M",
-          "-z",
-          from,
-          tree,
-          "--",
-          ...paths,
-        ]);
-      return reviewedFiles(
-        await changes("--name-status"),
-        await changes("--numstat"),
-      );
-    };
-    const files = await changedFrom(baseline);
-    const marked =
+    // Excluding everything reachable from trunk keeps the story's own
+    // first-parent line, including the commits before a trunk merge.
+    const commitLog = await printed([
+      "log",
+      "--first-parent",
+      "-z",
+      "--format=%H%x00%h%x00%P%x00%cI%x00%s%x00%T",
+      `${baseline}..${head}`,
+    ]);
+    const fields = commitLog.split("\0");
+    const commits: ReviewCommit[] = [];
+    for (let at = 0; at + 5 < fields.length; at += 6) {
+      const [
+        revision = "",
+        shortRevision = "",
+        parentList = "",
+        committedAt = "",
+        subject = "",
+        commitTree = "",
+      ] = fields.slice(at, at + 6);
+      const parents = parentList.split(" ");
+      const parent = parents[0] ?? "";
+      const [commitBaseline, fromBaseline, fromTree] = await Promise.all([
+        git(["merge-base", revision, `${remote}/${target}`]),
+        git(["merge-base", parent, `${remote}/${target}`]),
+        git(["rev-parse", `${parent}^{tree}`]),
+      ]);
+      commits.push({
+        kind: "commit",
+        revision,
+        shortRevision,
+        subject,
+        committedAt,
+        merge: parents.length > 1,
+        tree: commitTree,
+        baseline: commitBaseline,
+        fromTree,
+        fromBaseline,
+      });
+    }
+    const headTree = await git(["rev-parse", `${head}^{tree}`]);
+    const files = await changedFrom(baseline, tree, call);
+    const comparison =
       mark === undefined
+        ? undefined
+        : await compareReviewPoints(mark, { tree, baseline }, call);
+    const marked =
+      mark === undefined || comparison === undefined
         ? {}
         : {
             mark,
-            ...(await changesSinceReview(mark, baseline, changedFrom, call)),
+            ...(comparison.kind === "comparison"
+              ? { since: comparison.comparison }
+              : { markUncomparable: comparison.reason }),
           };
     return {
       kind: "snapshot",
@@ -146,6 +174,18 @@ async function storyReviewSnapshot(
       head,
       tree,
       files,
+      commits,
+      ...(tree === headTree
+        ? {}
+        : {
+            uncommitted: {
+              kind: "uncommitted",
+              tree,
+              baseline,
+              fromTree: headTree,
+              fromBaseline: baseline,
+            },
+          }),
       ...marked,
     };
   } catch (error) {

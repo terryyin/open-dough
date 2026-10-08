@@ -24,6 +24,7 @@ export const storyReviewEndpoint = "/__agent-launch/review";
 // (and old path for a rename), so any file diff the page opens reads the
 // same observation as the file list.
 export const storyReviewFileEndpoint = "/__agent-launch/review/file";
+export const storyReviewRangeEndpoint = "/__agent-launch/review/range";
 // Where a same-origin POST marks the snapshot shown as reviewed.
 export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
 
@@ -139,6 +140,51 @@ export const reviewComparisonSchema = z.object({
 });
 export type ReviewComparison = z.infer<typeof reviewComparisonSchema>;
 
+// Two repository points supplied by the snapshot's first-parent commit list.
+export const reviewCommitSchema = z.object({
+  kind: z.literal("commit"),
+  revision: objectIdSchema,
+  shortRevision: z.string().min(1),
+  subject: z.string(),
+  committedAt: z.iso.datetime({ offset: true }),
+  merge: z.boolean(),
+  tree: objectIdSchema,
+  baseline: objectIdSchema,
+  fromTree: objectIdSchema,
+  fromBaseline: objectIdSchema,
+});
+export type ReviewCommit = z.infer<typeof reviewCommitSchema>;
+
+// The virtual newest item has points, but no commit revision or timestamp.
+export const reviewUncommittedSchema = z.object({
+  kind: z.literal("uncommitted"),
+  tree: objectIdSchema,
+  baseline: objectIdSchema,
+  fromTree: objectIdSchema,
+  fromBaseline: objectIdSchema,
+});
+export type ReviewItem = ReviewCommit | z.infer<typeof reviewUncommittedSchema>;
+export const reviewItemId = (item: ReviewItem) =>
+  item.kind === "commit" ? item.revision : "uncommitted";
+
+// A selected merge's listed parent point and its destination baseline.
+export const reviewIntegrationSchema = z.strictObject({
+  fromTree: objectIdSchema,
+  fromBaseline: objectIdSchema,
+  baseline: objectIdSchema,
+});
+export type ReviewIntegration = z.infer<typeof reviewIntegrationSchema>;
+
+export const reviewRangeSchema = z.discriminatedUnion("kind", [
+  reviewComparisonSchema.extend({
+    kind: z.literal("comparison"),
+    tree: objectIdSchema,
+    trunkIntegrated: z.boolean(),
+  }),
+  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
+]);
+export type ReviewRange = z.infer<typeof reviewRangeSchema>;
+
 // Why the earlier review cannot be compared: the repository no longer holds
 // the mark's tree or baseline, or this machine's Git cannot restate the
 // marked tree on trunk's changes since.
@@ -162,6 +208,8 @@ export const storyReviewSchema = z.discriminatedUnion("kind", [
     // file's `includesTrunkFrom`.
     tree: objectIdSchema,
     files: z.array(reviewedFileSchema),
+    commits: z.array(reviewCommitSchema),
+    uncommitted: reviewUncommittedSchema.optional(),
     // The story's mark on this machine, when it has one.
     mark: reviewMarkSchema.optional(),
     // With a mark the repository holds, the same snapshot compared with it:

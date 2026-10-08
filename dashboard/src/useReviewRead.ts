@@ -3,6 +3,7 @@
 // answer, or why it could not be read. A new query or `round` reads again;
 // the last answer stays until the new one arrives, and `reading` says it is
 // not yet the answer to what was last asked.
+// A disabled read sends no request; enabling it reads the query then shown.
 
 import { useEffect, useState } from "react";
 import type { z } from "zod";
@@ -12,6 +13,7 @@ export function useReviewRead<Answer>(
   query: Readonly<Record<string, string>>,
   schema: z.ZodType<Answer>,
   round = 0,
+  enabled = true,
 ): {
   readonly answer?: Answer;
   readonly problem?: string;
@@ -25,6 +27,7 @@ export function useReviewRead<Answer>(
   const search = new URLSearchParams(query).toString();
   const of = `${search}#${String(round)}`;
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     void fetch(`${endpoint}?${search}`, {
       signal: controller.signal,
@@ -42,7 +45,7 @@ export function useReviewRead<Answer>(
       })
       .then(
         (answer) => {
-          setRead({ answer, of });
+          if (!controller.signal.aborted) setRead({ answer, of });
         },
         (error: unknown) => {
           if (!controller.signal.aborted)
@@ -55,10 +58,10 @@ export function useReviewRead<Answer>(
     return () => {
       controller.abort();
     };
-  }, [endpoint, search, schema, of]);
+  }, [endpoint, search, schema, of, enabled]);
   return {
     ...(read.answer === undefined ? {} : { answer: read.answer }),
     ...(read.problem === undefined ? {} : { problem: read.problem }),
-    reading: read.of !== of,
+    reading: enabled && read.of !== of,
   };
 }

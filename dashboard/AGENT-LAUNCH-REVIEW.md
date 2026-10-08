@@ -159,10 +159,12 @@ was taken is listed, even one written before the mark was made. When the
 snapshot equals the marked one, the review says “Nothing changed since the
 review.” Mark reviewed there marks the whole current snapshot, which the next
 review compares with. A marked story's review offers a **Comparison** switch,
-radios saying which is shown, “Since the review” or “All changes”, including
-when nothing changed since the review; an unmarked story's review offers none.
-Switching shows the other comparison of the same snapshot and reads nothing
-anew (`src/StoryReviewComparison.tsx`); while all changes are shown, the
+radios saying which is shown, “Since the review”, “All changes”, or “Commits”,
+including when nothing changed since the review. Commits is offered whenever
+the snapshot lists story commits; an unmarked story opens on All changes and
+offers Commits without Since the review. Switching between All changes and
+Since the review uses the same snapshot and reads nothing anew
+(`src/StoryReviewComparison.tsx`); while all changes are shown, the
 review says an earlier snapshot, or this one, is marked and when. Refresh
 keeps the comparison shown, of the new snapshot; every opening starts on the
 changes since the review. When the repository no longer holds the marked
@@ -170,16 +172,20 @@ tree or its baseline (the project was cloned anew, say; checked with
 `git rev-parse --verify --quiet` before restating), the earlier review cannot
 be compared: the answer carries the mark and `markUncomparable: "unreadable"`
 in place of `since`, and the review says an earlier snapshot is marked but can
-no longer be read, and shows all changes without the switch. Mark reviewed
+no longer be read, and shows all changes, with Commits still offered when the
+snapshot lists commits. Mark reviewed
 then starts again from the snapshot shown.
 
 Trunk merged into the story after the mark stays out of the changes since the
-review, as it does from all changes (`server/storyReviewSince.ts`). With an
+review, as it does from all changes (`server/storyReviewComparison.ts`). With an
 unchanged baseline the marked tree is compared directly and nothing is
 restated. Otherwise the marked tree is restated on the current baseline by
 `git merge-tree --write-tree --name-only -z --merge-base=<marked baseline>
 <marked tree> <current baseline>`, which writes a tree object and touches no
-index, worktree, or ref; its first field is the restated tree. A story slice
+index, worktree, or ref. A merge driver can print lines before the result;
+the first object ID among NUL- or newline-separated fields is the restated
+tree. Conflicted filenames after that tree remain NUL-separated, preserving
+newlines within their names. A story slice
 that landed on trunk after the mark is therefore not listed. Each file Git
 names as conflicted, one trunk and the story both changed in a way it cannot
 separate, is listed with its kind and diff from the marked tree to the
@@ -192,15 +198,20 @@ conflicted file's control's name, its row, and its diff heading say it
 mark's, the heading says “Trunk was integrated since the mark”, and with no
 file left the review says “Nothing changed since the review beyond what trunk
 now holds.”, since story work that reached trunk after the mark counts as
-trunk's. Only an exit of 1 whose first field is an object ID is a conflicted
-restatement. Restating needs Git 2.45 or later, which merges trees given with
+trunk's. Exit 0 is a clean restatement and exit 1 is a conflicted restatement
+when that object ID is present; other exits cannot restate the mark.
+Restating needs Git 2.45 or later, which merges trees given with
 `--merge-base`; when this machine's Git cannot restate the mark (an older one
 says the tree is not a commit), the review is not failed: the answer carries
 the mark and `markUncomparable: "not-restated"` in place of `since`, and the
 review says this machine's Git cannot leave out trunk's changes integrated
 since, so the earlier review cannot be compared across them, and shows all
-changes without the switch. Mark reviewed then starts again from the snapshot
+changes, with Commits still offered when the snapshot lists commits. Mark reviewed then starts again from the snapshot
 shown, on whose unchanged baseline the next review needs no restating. A
 restatement the closed response aborted still fails, and any Git failure
 outside restating still answers that the workspace's changes could not be
 read.
+
+The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
+first-parent commits and Uncommitted changes, compares a contiguous range,
+and preserves its chosen endpoints through Refresh.

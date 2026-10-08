@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-088#review-selected-commits",
+  "title": "Review the combined changes of selected story commits",
+  "completedAt": "2026-10-08T12:11:34.549Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "codex"
+}

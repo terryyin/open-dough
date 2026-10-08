@@ -48,8 +48,10 @@ export async function markStoryReview(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
+  prepare?: (workspace: string) => void,
 ) {
   const story = markedWorktree(origin);
+  prepare?.(story.workspace);
   await keepLaunchRecord(dashboard, story.workspace);
   const card = await openBacklog(page, origin);
   const marked = await openReview(page, card);
@@ -84,6 +86,7 @@ export function integrateTrunk(
   }
   try {
     git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
+    return;
   } catch {
     // `src/c.ts` conflicts; the story settles it.
   }

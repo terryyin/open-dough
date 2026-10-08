@@ -20,6 +20,7 @@ import {
 } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { defaultGitOutputLimit, gitProblem, runGit } from "./gitRunner.ts";
+import { reviewPointObjects } from "./storyReviewPoints.ts";
 import {
   readMachineJson,
   replaceMachineJson,
@@ -76,16 +77,6 @@ export interface AdmittedReviewMark {
   readonly baseline: string;
 }
 
-// The objects a mark names, as Git must find them in the story's
-// repository: its tree a tree and its baseline a commit.
-export const markObjects = ({
-  tree,
-  baseline,
-}: Pick<ReviewMark, "tree" | "baseline">) => [
-  `${tree}^{tree}`,
-  `${baseline}^{commit}`,
-];
-
 // Marks the named snapshot reviewed: the repository must hold its objects. The ref is set before the
 // mark is kept, so a kept mark's tree is always held. A write, so it runs to
 // its end even when the page leaves, within its bounded wait.
@@ -104,7 +95,7 @@ export async function markReviewedResponse({
       maxBuffer: defaultGitOutputLimit,
     });
   try {
-    for (const object of markObjects({ tree, baseline })) {
+    for (const object of reviewPointObjects({ tree, baseline })) {
       await git(["cat-file", "-e", object]);
     }
     await git(["update-ref", reviewedRef(identity), tree]);

@@ -144,7 +144,10 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
     review.getByRole("list", { name: "12 changed files" }),
   ).toBeVisible();
   await expect(
-    review.getByRole("radiogroup", { name: "Comparison" }),
+    review.getByRole("radio", { name: "Commits", exact: true }),
+  ).toBeVisible();
+  await expect(
+    review.getByRole("radio", { name: "Since the review" }),
   ).toHaveCount(0);
   await expect(review).not.toContainText("since the review");
 
