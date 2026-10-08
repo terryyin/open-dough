@@ -132,7 +132,7 @@ unfinished Cursor launch the current runner does not hold.
 | Held sessions do not assert the absence of Recover | Slice 2 must add that assertion | `expectCursorSessionActions` counts Open terminal and Delete record…, and the absence of Mark as done and rename. It is used for the held session in `agent-session-cursor.spec.ts`. | A Recover button would not fail that helper. The held entry needs an explicit absence check. |
 | Empty instruction would still type a return and confirm first input | Slice 2 omits the instruction instead of sending `""` | `LaunchInstruction` types `instruction` plus `\r` when the screen is ready, then `onEntered`. `confirmInstruction` sets `firstInput` to confirmed unless it already is. `keep` with no `launchInput` resolves `firstScreen` immediately. | Omission must still wait for a screen or exit, and must not type or confirm. |
 | Composer text is also a new empty chat | Slice 1; slice 2 does not treat the composer as loaded history | `idleScreen.ts` `composerPrompts` | `Add a follow-up` and `Plan, search, build anything`. |
-| Resume after the process is gone is unpaid | Slice 1 probe; slices 2 and 3 stop where the probe says | CLI help and stores, already in the story. Not observed: a new process showing the prior conversation, or the interactive text that means the chat cannot be loaded. `--print` with no prompt exits `No prompt provided for print mode` before any chat-not-found result. An untrusted directory stops at workspace trust. | Slice 1. Do not repeat those cheap observations as if they were the resume. |
+| Resume after the process is gone is unpaid | Slice 1 probe; slices 2 and 3 stop where the probe says | Paid native probe detail is under slice 1. CLI help/stores already in the story. Untrusted `/tmp` still stops at workspace trust without `--trust`/`--force`/`--yolo`. | Slice 1 recorded. Resume path proceeds. Slice 3 waits for cannot-load text. |
 | A mismatched completion session is refused | Slice 3, after the record's id changes | `reserveCompletion` and `previousCompletion`; `agent-completion-attention.spec.ts` posts `{session:"another-session"}` and expects 409 | 409, "The report does not name this launch's recorded session." The rule stays. The proof posts against the updated record. |
 | Fake cursor has no exit-with-text mode | Slice 2 adds an unclassified exit; slice 3 adds the probed sentence | `dashboard/tests/fixtures/fake-cursor` | Modes include working, waiting, trust, and composer. Resume with no prompt is the terminal client. Trust prints `Do you trust this workspace?`. |
 
@@ -158,28 +158,24 @@ is that evidence. Cursor evidence is not reused for Claude or Codex.
 
 ### 1. See whether a gone Cursor chat resumes, and what it says when it cannot
 Type: Behavior
-Status: planned
-Proof: Evidence in this plan, not a product change. On
-`cursor-agent` at execution time (planning saw `2026.10.01-e373342`), in a
-trusted disposable workspace, with no `--print`, `--trust`, `--force`, or
-`--yolo`: create a disposable chat, stop every process whose command line
-contains that id, then resume it with no new instruction. Record here whether
-the prior conversation appears, the screen text, and, if it exits, the exit
-text and code. Separately, resume an id that has no chat store, the same way,
-and record the text that means the chat cannot be loaded. Do not resume either
-dashboard Cursor session, and do not resume an id that still appears in a
-process command line.
+Status: done
+Proof: Evidence only; no product change. Observed on `cursor-agent`
+`2026.10.01-e373342` in a trusted disposable workspace under this checkout.
+Resume used no `--print`, `--trust`, `--force`, or `--yolo` (setup ask
+`--print` only wrote the prior turn). Gone process, store remains
+(`6a11b145-35e0-4239-b139-678c706b2636`): interactive
+`--workspace <probe> --resume <id>` showed `Loading conversation`, the prior
+user prompt and `PROBE_MARKER_91a2`, then `Add a follow-up`; process stayed
+running (probe ended it with SIGTERM). No chat store (fresh UUID; same id
+after deleting `~/.cursor/chats/.../<id>`): empty
+`Plan, search, build anything` composer, stayed running; no cannot-load exit
+text or code. Dashboard sessions were not resumed. Paid under the execution
+instruction's authority (ADR 0005).
 
-Behavior: A maintainer resumes a chat whose process is gone and whose store
-remains, and resumes an id that cannot be loaded. The plan records what
-appeared.
-
-If the prior conversation does not appear, stop slices 2 and 3 and revise
-this plan: resume is the failure path, and the replacement agent is what
-delivers the goal. If the conversation appears but no cannot-load text was
-observed, slice 2 proceeds and slice 3 stops until this plan records that
-text. Paid native runs need the execution instruction's authority (ADR 0005).
-This slice ships nothing.
+Behavior: Prior conversation appears when the store remains. Missing store
+opens an empty idle composer; no cannot-load exit sentence. Consequence:
+slice 2 proceeds; slice 3 stops until cannot-load text is recorded. Ships
+nothing.
 
 ### 2. An unfinished Cursor session the runner does not hold can be resumed
 Type: Behavior
@@ -234,33 +230,21 @@ new chat before that agent is instructed. A completion report naming the new
 id is accepted, and one naming the old id is refused. The workspace is not
 recreated and the branch is not switched.
 
-Depends on slice 1 recording the cannot-load text. Slice 2's other exits stay
-stopped.
+Depends on slice 1 recording the cannot-load text. **Stopped after slice 1:**
+no cannot-load exit text observed; see slice 1 proof. Do not implement until
+that text is recorded; slice 2's other exits stay stopped.
 
 ## Verification and sizing
 
-The focused Playwright command above is the local proof for slices 2 and 3.
-It covers the specs that assert the sentences and buttons this change
-touches. Hosted CI still runs the rest after publication. This workspace had
-no `node_modules`; the premise run used the integration checkout's install
-because the manifests match. Execution uses the dependencies of the workspace
-it runs in.
-
-No numeric slice target or hard limit was supplied. Slice 2 is the largest:
-one offer, one resume rule, and the cases of that rule in one spec. Slice 1
-is evidence only. Slice 3 adds the one replacement branch.
-
-Authorized execution applies its existing proof, refactoring, and delivery
-gates. Planning grants no Take, implementation, commit, push, landing, or
+The Playwright command above is local proof for slices 2 and 3; hosted CI
+runs the rest. Execution uses the workspace's dependencies (premise run
+linked the integration checkout's `node_modules`). No numeric slice target;
+slice 2 largest, slice 1 evidence only, slice 3 adds replacement.
+Authorized execution applies its proof, refactoring, and delivery gates.
+Planning grants no Take, implementation, commit, push, landing, or
 workspace retirement.
 
 ## Preparation review
 
-Cumulative design: one reading and one developer-requested action on the
-existing Cursor launch record. The examples are cases of who is offered
-recovery and what the resumed screen does, not separate recognizers. The
-cannot-load replacement is the same action's remaining branch, split so the
-resume path can stop before it and so its matching text stays unknown until
-the probe. Refinement of this plan was not needed: no slice fragments one
-result or combines an independent outcome, and every story promise above has
-an owner.
+One reading and one Recover action on the existing Cursor launch record.
+Examples are cases of that offer and resume rule; cannot-load replacement is the remaining branch, split so resume can stop first. No resplit needed.
