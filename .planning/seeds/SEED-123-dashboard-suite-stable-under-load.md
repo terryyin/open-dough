@@ -26,7 +26,7 @@ result locally and in CI.
 **Identity:** SEED-123#dashboard-suite-stable-under-load
 **Slice plan:** [The dashboard suite gives the same result under local load](../slice-plans/282-dashboard-suite-stable-under-load/PLAN.md).
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/282-dashboard-suite-stable-under-load/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0eda82211fc9193f01f76d0a9287f1ea7cb54a5b5dd0a159145a8fdef19dc589","plan":"bf815a2a0fcf5ef9c0a0ce4ea0e4b452f31fea365abc356ed7db502d757e5032"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/282-dashboard-suite-stable-under-load/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c50d6b28c4a97f23c06f5f44b017610292e6ec62b8e2b67eeb36169acc2450dc","plan":"ba1b3345a7599986b36d12a35003e91ee0dd0087ff27a5e06109ececb9015676"}}
 ```
 
 **Beneficiary:** A developer or agent proving a dashboard change with local
@@ -65,14 +65,38 @@ and spend no rerun time on failures that unchanged code did not cause.
 - **Load bound.** Loaded means a one-minute load average held at or above the
   machine's core count for the whole run by CPU-bound processes the
   reproduction starts and stops. Default workers means Playwright's own
-  local default, half the cores. On 2026-10-08 the progressive-loading
-  failure reproduced once in eight runs of a 14-spec group at default
-  workers without induced load, and not under 16 CPU burners, so CPU load
-  alone is not the trigger: repetition at default workers is the
-  reproduction, and induced load is the acceptance condition.
+  local default, half the cores. Repetition at default workers is the
+  reproduction, and induced load is the acceptance condition: the facts
+  below show CPU load alone is not the trigger.
+- **Facts the reproduction starts from** (observed 2026-10-08 and
+  2026-10-09 on the 16-core machine, 8 workers, the progressive-loading
+  group of about 20 specs, unchanged code):
+  - The recorded 5 s failure reproduces without induced load: 2 failing
+    runs in 21 (the plan's 1 in 8, this refinement's 1 in 13). Each was
+    the first group run of its session in a freshly prepared checkout;
+    every later run passed. Whether a first run is the trigger is a
+    hypothesis with two samples, for the reproduction to test.
+  - Under 16 CPU burners (load 19 to 37) the group passed 6 of 6 runs; with
+    an empty Playwright transform cache it passed 4 of 4.
+  - Eight preview servers started together report their address within
+    0.5 s unloaded and 0.75 s under the burners, so CPU load does not reach
+    the 20 s Vite bound; DD-257's silent Vite stays unexplained.
+  - The 2026-10-09 failing run kept three failures, all `toHaveAccessibleName`
+    at the 5 s plain `expect` bound: two entries still `aria-busy` while
+    their records were read, and one entry already read when the test
+    expected it still unread after a sibling's failed read. The third is an
+    ordering expectation, not a wait that a longer bound satisfies.
+  - DD-257's failures occurred at a load average of 7 to 8, below the bound
+    above, and CI on `main` had the same failure kind three times in its
+    last 40 runs (a 5 s `expect` while reads were under way), each repaired
+    by waiting for the reads the test depended on (`3595ae66`, `22b60e30`,
+    `64e4268c`). The suite's result is not yet load-independent in CI either;
+    CI is the reference result, not proof of a load-free suite.
 - **Done when** three consecutive full runs at default workers on unchanged
-  code pass with no output, one of them under that load, and CI's dashboard
-  shards pass on the same revision within their recorded deadline.
+  code pass with no output, one of them under that load and one of them the
+  first run in a freshly prepared checkout (its own dependency install, no
+  earlier suite run), and CI's dashboard shards pass on the same revision
+  within their recorded deadline.
 - **Documentation.** The tests guide names where a failed run's evidence is
   kept and that the suite's result does not depend on local load.
 
@@ -100,8 +124,8 @@ Deferred, not rejected:
 1. *Loaded machine, unchanged code.* On a 16-core machine,
    `npm run test:dashboard` runs three times in a row at default workers
    (8), once while induced load holds the one-minute load average at or
-   above 16. Every run exits 0 and prints nothing, exactly as CI on that
-   revision.
+   above 16, and once as the first run in a freshly prepared checkout.
+   Every run exits 0 and prints nothing, exactly as CI on that revision.
 2. *A real failure under load is still a real failure.* The same loaded run
    with one assertion deliberately broken in one spec fails that test only,
    naming it, and no other test fails.
@@ -112,16 +136,19 @@ Deferred, not rejected:
 4. *Two runs from one checkout.* A second `npm run test:dashboard` starts
    while the first is mid-run. Both finish, each with its own result; neither
    fails from the other's build or from a rebuilt asset directory.
-5. *Vite start under load.* Under the induced load, a page journey's preview
-   server takes longer than 20 seconds to report its address. The test waits
+5. *Vite start slower than its wait.* A page journey's preview server is
+   slower than the suite's wait to report its address (DD-257 recorded
+   20 s of silence; CPU load alone does not reproduce it). The test waits
    for the address or for Vite's exit, and passes once the address arrives;
-   a Vite that exits still fails the test with Vite's output.
+   a Vite that exits, or stays silent past the wait, fails the test with
+   Vite's output and keeps its evidence as in example 3.
 6. *Boundary: load far beyond the bound.* With the load average several times
    the core count, a run may fail. It fails naming the wait that ended, keeps
    its evidence as in example 3, and is not retried.
 
 **Evidence:** [ProjectFindings.md](../../ProjectFindings.md) DD-224, DD-226,
-DD-240, and DD-257.
+DD-240, and DD-257; CI runs 37708938920, 37536394813, and 37534699715 on
+`main` for the same failure kind in CI.
 
 ## Breadcrumbs
 

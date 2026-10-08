@@ -5,7 +5,9 @@
 **Prepared:** 2026-10-08, planning only, in the established preparation
 workspace `/Users/terryyin/git/open-dough/.worktrees/the-dashboard-playwright-suite-gives-the-same-re`
 on `claude/the-dashboard-playwright-suite-gives-the-same-re`, under the
-preparation assignment for `bastiaan-chan`. Publication target: `origin/main`;
+preparation assignment for `bastiaan-chan`. Refined in place on 2026-10-09
+in the same workspace under the assignment for `d.kanai-chan`, after the
+story's investigative refinement. Publication target: `origin/main`;
 integration checkout: `/Users/terryyin/git/open-dough`.
 
 ## Goal and boundaries
@@ -21,8 +23,9 @@ output; two runs from one checkout do not interfere; the recorded failure
 kinds are reproduced at default workers, with the shared build ruled out, and
 the suite's own causes in waits, shared outputs, or local worker selection are
 fixed; three consecutive full runs at default workers pass, one of them under
-induced CPU load; the tests guide records the kept location and the
-loaded-run expectation.
+induced CPU load and one of them the first run in a freshly prepared
+checkout (its own dependency install, no earlier suite run); the tests guide
+records the kept location and the loaded-run expectation.
 
 Material exclusions, from the story:
 
@@ -90,6 +93,15 @@ concurrent runs from one checkout, and reproducing the recorded failures.
 - Slice 4 changes only what slice 3 reaches. A finding outside the suite's
   waits, shared outputs, or worker selection is recorded as a bug report
   through the project's bug path, not fixed here.
+- A freshly prepared checkout, for the story's first-run condition, is a
+  new Git worktree of the revision under test with its own `npm ci` and no
+  suite run yet. The repeat script's `--fresh` makes one under the OS
+  temporary directory, runs the first repetition there, reports it like any
+  other, and removes the worktree afterwards; later repetitions of the same
+  invocation run in the invoking checkout. The script unsets `NODE_ENV` and
+  `npm_config_local_prefix` for its `npm ci` and suite runs, because a
+  session the dashboard launched carries both and `npm ci` then installs no
+  dev dependencies, into another prefix.
 
 ## Decisive premises and observations
 
@@ -104,6 +116,9 @@ concurrent runs from one checkout, and reproducing the recorded failures.
 | The recorded failures reproduce at default workers in unchanged code | Slice 3's shape | A 14-spec group from plan 276's proof (58 tests: `recently-done-*`, `authenticated-read-done-catalog*`, `authenticated-read-revision-reuse*`, `published-facts-failures`), `npm run test:dashboard -- <group>` at the default 8 workers on this 16-core machine. | 2026-10-08: six runs without induced load (one-minute load 3.8–19) — the first run failed 2 of 58 (both in `recently-done-progressive-loading.spec.ts`: `toHaveAccessibleName` timed out at 5000 ms while the first entry was still `aria-busy`, 18 s run), the next five passed in 15–17 s; that spec alone passed in 7 s. One run under 16 `yes` burners (load 19→32) passed in 22 s. One run with an empty Playwright transform cache (`PWTEST_CACHE_DIR`) passed. | Reproduced once in eight group runs. CPU load alone is not the trigger; the failing wait was a 5 s plain `expect` bound while the server's record reads were still under way. |
 | The record reads are a process storm | Slice 3's instrumentation | `dashboard/tests/fixtures/fake-gh` is a Node script, one process per `gh` call; `dashboard/server/readAdmission.ts` admits `readsUnderWayLimit = 8` reads per server; each worker runs its own Vite preview, fake GitHub, and Chromium. | 8 workers × up to 8 Node `gh` processes plus 24 long-lived processes start together at the head of a run. |
 | A full run at default workers | Slice 3's sizing | `npm run test:dashboard` once in this workspace, timed. | 2026-10-08, 8 workers, one-minute load 7 at start rising to 24 from the suite itself: 536 s, 941 of 951 tests passed; the 10 failures were every `production-*.spec.ts` test, each `Recursive option not enabled, cannot copy a directory: …/node_modules/`, because those specs copy the workspace's `node_modules`, which was a symbolic link only in this session. No timing failure. A full run is about nine minutes here. |
+| CPU load alone reaches the 20 s Vite address bound | Slice 3's candidates; story example 5 | 2026-10-09 refinement: eight `vite preview` starts at once on the built assets, three rounds unloaded and three under 16 `yes` burners (load 23–29). | Not reached: every start reported its address within 0.5 s unloaded and 0.75 s loaded. DD-257's 20 s silence has another cause; slice 3 keeps it as an unexplained kind. |
+| The first group run of a session is the trigger | Slice 3's shape | 2026-10-09 refinement, same group at 8 workers in this workspace with its own fresh `npm ci`: 13 runs (10 without load, 3 under the burners at load 26–37) and 3 with an empty `PWTEST_CACHE_DIR`. | The first run failed 3 (all `toHaveAccessibleName` at the 5 s bound; two entries still `aria-busy`, one entry already read where the test expected it unread after a sibling's failed read), the other 15 passed. With the plan's session that is 2 failing first runs in 21 group runs, so slice 3 starts each repetition series from a freshly prepared checkout as well as repeating in one. The kept failure is in the refinement job's temporary directory only; slice 3 reproduces it. |
+| A fresh worktree with its own `npm ci` runs the suite from this repository | Slice 3's `--fresh` and slice 4's first-run proof | 2026-10-09 refinement in this workspace, which had no `node_modules`: `npm ci` under the session's `NODE_ENV=production` and `npm_config_local_prefix` reported "up to date" and installed nothing here; `env -u NODE_ENV -u npm_config_local_prefix npm ci` added 162 packages in 0.8 s from the warm npm cache, and `npm run test:dashboard -- <group>` then ran (the failing first run above). Playwright's Chromium comes from the user cache, not the checkout. | Confirmed, with the two variables to unset. A fresh worktree costs seconds, so the first-run condition is cheap to repeat. |
 | CI's bound | Slice 4's constraint | `.github/workflows/ci.yml`: nine shards, 6-minute jobs, `OPEN_DOUGH_DASHBOARD_DEADLINE_MS` 320 s after job start; `playwright.config.ts` turns it into `globalTimeout`. | A fix that lengthens the suite must stay inside it; CI on the published revision is the observation. |
 
 ## Outside-in proof ownership
@@ -113,7 +128,7 @@ concurrent runs from one checkout, and reproducing the recorded failures.
 | Failure evidence outlives a rerun (3) | 1 | `quiet-reporter.spec.ts`: a failing substitute run leaves `report.txt` in its output directory holding the printed failure, names that directory last; a passing run leaves no directory. Then two real runs of `quiet-reporter.spec.ts` with a deliberate failure in the first: its stamped directory is still there after the second. |
 | Two runs from one checkout (4) | 2 | `tests/dashboard-concurrent-runs.sh`: two `npm run test:dashboard -- project-configuration-boundary.spec.ts` started together both exit 0 and print nothing, and `dashboard/dist` is untouched by either. |
 | Reproduce the recorded failure kinds (scope) | 3 | The repeat script's report over N full runs: failing locations, their waits and bounds, and kept directories. |
-| Loaded machine, unchanged code (1); Vite start under load (5) | 4 | Three consecutive full runs at default workers pass with no output, one under the burners, through the repeat script; CI green on the published revision. |
+| Loaded machine, unchanged code (1); Vite start slower than its wait (5) | 4 | Three consecutive full runs at default workers pass with no output, one under the burners and one the first run in a fresh worktree, through the repeat script; CI green on the published revision. |
 | A real failure under load is still a real failure (2) | 4 | One loaded run with one assertion deliberately broken fails that test only, naming it. |
 | Boundary: load far beyond the bound (6) | 1 and 4 | A run that fails names its wait and keeps its evidence; `retries` stays 0 in the config. |
 | Documentation (scope) | 5 | The tests guide names the kept location, the private build, the repeat script, and that the result does not depend on local load. |
@@ -162,21 +177,27 @@ import time in each worker, which reads the variable workers already carry.
 ### 3. The recorded failure kinds are reproduced and explained
 Type: Behavior
 Status: planned
-Proof: `scripts/dashboard-repeat.sh <repetitions> [--load] [spec…]` runs the
-suite that many times, under burners with `--load`, and prints per run: exit,
+Proof: `scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]`
+runs the suite that many times, under burners with `--load`, the first
+repetition in a fresh worktree with `--fresh`, and prints per run: exit,
 seconds, one-minute load before and after, failing locations from the quiet
 reporter's `FAIL:` lines, and the kept directory. Its own check,
-`tests/dashboard-repeat.sh`, proves the report format on a substitute
-command without starting Playwright. The slice's result is a learning in
-this plan: over at least five full runs without `--load` and three with it,
-which locations failed, which wait and bound each reached, and the timing
-evidence from the kept directories (trace timelines, server output).
+`tests/dashboard-repeat.sh`, proves the report format and the fresh-worktree
+setup and removal on a substitute command without starting Playwright. The
+slice's result is a learning in this plan: over at least five full runs
+without `--load`, three with it, and three `--fresh` series, which locations
+failed, which wait and bound each reached, and the timing evidence from the
+kept directories (trace timelines, server output).
 
 Behavior: A developer runs the script → each run's result is kept as slice 1
 provides, and the report names every failure → the plan records the causes
 reached. Expected candidates, from the observations: the 5 s plain `expect`
-bound while a server's `gh` reads are under way at the head of a run; the
-20 s Vite address bound; the shortened `DOUGH_START_TIMEOUT_MS` waits. If
+bound while a server's `gh` reads are under way at the head of a run; a
+read order the test assumes within a batch that contention changes (the
+entry read before its sibling's failed read); the 20 s Vite address bound,
+which CPU load alone does not reach; the shortened `DOUGH_START_TIMEOUT_MS`
+waits. Start at least one series from a freshly prepared checkout, since
+both recorded reproductions were a session's first group run. If
 five unloaded and three loaded full runs all pass, record that, and slice 4
 changes only the bounds the kept evidence from this session's one failure
 already implicates (the 5 s bound on record-dependent entries).
@@ -184,8 +205,9 @@ already implicates (the 5 s bound on record-dependent entries).
 ### 4. The suite's own causes are fixed and the loaded run passes
 Type: Behavior
 Status: planned
-Proof: Three consecutive `scripts/dashboard-repeat.sh 1` full runs pass with
-no output, then `scripts/dashboard-repeat.sh 1 --load` passes; one loaded run
+Proof: `scripts/dashboard-repeat.sh 1 --fresh`, then
+`scripts/dashboard-repeat.sh 1`, then `scripts/dashboard-repeat.sh 1 --load`
+each pass with no output, as three consecutive full runs; one loaded run
 with one assertion deliberately broken fails only that test; CI's nine shards
 pass on the published revision inside their deadline.
 
@@ -215,9 +237,12 @@ evidence is, how to repeat a run under load, and the result expectation.
 - Slices 1 and 2 are small and independent; each is one proof loop under an
   hour. Slice 1's focused check is `npm run test:dashboard -- quiet-reporter`
   (about 30 s). Slice 2's is the new shell check plus the two named specs.
-- Slice 3 is the probe: its wall time is dominated by the full runs (about nine minutes each on this machine, so eight runs are more than an hour)
-  and it changes no product or suite behavior. Run the repetitions in the
-  background with a log, per the project's long-run practice.
+- Slice 3 is the probe: its wall time is dominated by the full runs (about
+  nine minutes each on this machine, so eleven runs are close to two hours;
+  a fresh worktree adds seconds) and it changes no product or suite
+  behavior. Run the repetitions in the background with a log, per the
+  project's long-run practice. The group runs of the refinement (20 s each)
+  are the cheap first series before any full run.
 - Slice 4's size is unknown until slice 3 reports; it is bounded by the
   replanning rule in its Behavior.
 - Lint (`node scripts/lint.mjs`) at each commit, as the repository's hooks
@@ -230,11 +255,15 @@ evidence is, how to repeat a run under load, and the result expectation.
 
 ## Preparation review
 
-Refinement of the written plan was not needed: each slice owns one proof
-loop, the probe precedes the dependent fix, and no slice prepares beyond the
-next Behavior. No slice-specific concern remains. The one decisive premise
-this session could not settle cheaply, which waits the recorded failures
-reach, is bounded by the early probe in slice 3 (one failure in eight group
-runs; a full run passed; no reproduction under burners or a cold cache), and
-slice 4's replanning rule stops it from growing past the story's waits,
-shared outputs, and worker selection. Assessed ready on that basis.
+Refinement of the written plan was not needed on 2026-10-08: each slice owns
+one proof loop, the probe precedes the dependent fix, and no slice prepares
+beyond the next Behavior. On 2026-10-09 the plan was refined in place for the
+story's added first-run condition: slice 3 gains the fresh-worktree series
+and slice 4 the fresh first run, with the setup premise observed above. No
+slice-specific concern remains. The one decisive premise no session could
+settle cheaply, which waits the recorded failures reach, is bounded by the
+early probe in slice 3 (two failing first runs in 21 group runs; a full run
+passed; no reproduction under burners or a cold transform cache; Vite start
+under a second under load), and slice 4's replanning rule stops it from
+growing past the story's waits, shared outputs, and worker selection.
+Assessed ready on that basis.
