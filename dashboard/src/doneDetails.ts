@@ -11,8 +11,12 @@
 // change nothing shown. Each newly asked group of records is one read under
 // the shared wait bound (`./readWaitBound.ts`), so a failed or stalled read
 // leaves those records a gap, said once with the reason, while every record
-// already read stays shown. Nothing reads them again until the developer
-// retries, which asks again for exactly the failed records still needed.
+// already read stays shown. A failed read is known only at the revision it
+// was asked at: a newer revision of the same project asks again for the
+// failed records it still needs, while what read records and refused records
+// say keeps its blob reuse. At the same revision, nothing reads them again
+// until the developer retries, which asks again for exactly the failed
+// records still needed.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readDoneRecordBodiesAt } from "./authenticatedDoneRead.ts";
@@ -37,8 +41,28 @@ const keyOf = ({ fileName, blob }: NamedDoneRecord) => `${fileName} ${blob}`;
 
 type Known = {
   readonly sourceId: string;
+  // The revision the details were last settled at, which their failed reads
+  // belong to.
+  readonly revision: string;
   readonly details: ReadonlyMap<string, Settled>;
 };
+
+// What is known for the project and revision shown: nothing for another
+// project, and, at a newer revision, every record's detail except a failed
+// read, which the newer revision asks again.
+function detailsAt(
+  known: Known,
+  sourceId: string,
+  revision: string,
+): ReadonlyMap<string, Settled> {
+  if (known.sourceId !== sourceId) return new Map();
+  if (known.revision === revision) return known.details;
+  return withoutFailed(known.details);
+}
+
+// The details whose read did not fail, so their records are asked again.
+const withoutFailed = (details: ReadonlyMap<string, Settled>) =>
+  new Map([...details].filter(([, detail]) => detail.status !== "failed"));
 
 type Batch = {
   readonly keys: readonly string[];
@@ -52,10 +76,10 @@ export function useDoneDetails(
 ) {
   const [known, setKnown] = useState<Known>({
     sourceId: source.id,
+    revision,
     details: new Map(),
   });
-  const details =
-    known.sourceId === source.id ? known.details : new Map<string, Settled>();
+  const details = detailsAt(known, source.id, revision);
   // The records being read now, kept as they change so a read is never asked
   // twice.
   const batches = useRef(new Set<Batch>());
@@ -86,10 +110,9 @@ export function useDoneDetails(
       batches.current.add(batch);
       const settle = (each: (record: NamedDoneRecord) => Settled) => {
         setKnown((last) => {
-          const kept = last.sourceId === source.id ? last.details : new Map();
-          const next = new Map(kept);
+          const next = new Map(detailsAt(last, source.id, revision));
           for (const record of records) next.set(keyOf(record), each(record));
-          return { sourceId: source.id, details: next };
+          return { sourceId: source.id, revision, details: next };
         });
       };
       void withinReadWait(batch.abandon.signal, async (untilEither, bound) => {
@@ -129,14 +152,11 @@ export function useDoneDetails(
 
   // Asks again for the needed records whose read failed, and only those.
   const retry = useCallback(() => {
-    setKnown((last) => {
-      if (last.sourceId !== source.id) return last;
-      const next = new Map(last.details);
-      for (const [key, detail] of last.details) {
-        if (detail.status === "failed") next.delete(key);
-      }
-      return { sourceId: source.id, details: next };
-    });
+    setKnown((last) =>
+      last.sourceId === source.id
+        ? { ...last, details: withoutFailed(last.details) }
+        : last,
+    );
   }, [source.id]);
 
   return {

@@ -89,14 +89,18 @@ EOF
 
 # A real Git-aware adapter, run the same way: a genuine two-sided merge Git
 # cannot fast-forward, reconciled by the shared resolver through the
-# installed product-backlog-git-merge.mjs, its installed driver, and every
+# installed product-backlog-git-merge.mjs, its installed drivers, and every
 # module that chain transitively imports -- from a launch subdirectory and a
-# non-default --file.
+# non-default --file. Each side completes its work with the installed
+# `complete`, so both bring a done record and change the done catalog; the
+# merge commit carries a catalog listing both records at Git's blob hashes,
+# which the installed `catalog-done` leaves unchanged.
 run_offline_git_merge_proof() {
   local scripts_root=$1
   local claude_target=$2
   local git_project git_backlog_rel item_a item_b item_c
   local merge_output resulting_backlog expected_backlog parents
+  local merged_catalog record record_blob
 
   git_project="${claude_target}/git-project"
   mkdir -p -- "${git_project}/docs" "${git_project}/sub/nested"
@@ -124,13 +128,15 @@ run_offline_git_merge_proof() {
   git -C "${git_project}" commit --quiet -m ancestor
 
   git -C "${git_project}" checkout --quiet -b close-a
-  write_git_backlog "${item_b}" "${item_c}"
+  (cd -- "${git_project}/sub/nested" && node "${scripts_root}/product-backlog.mjs" \
+    complete --identity 'A#a' --file "../../${git_backlog_rel}") > /dev/null
   git -C "${git_project}" add -A
   git -C "${git_project}" commit --quiet -m close-a
   git -C "${git_project}" checkout --quiet main
 
   git -C "${git_project}" checkout --quiet -b close-b
-  write_git_backlog "${item_a}" "${item_c}"
+  (cd -- "${git_project}/sub/nested" && node "${scripts_root}/product-backlog.mjs" \
+    complete --identity 'B#b' --file "../../${git_backlog_rel}") > /dev/null
   git -C "${git_project}" add -A
   git -C "${git_project}" commit --quiet -m close-b
 
@@ -162,6 +168,21 @@ run_offline_git_merge_proof() {
   parents=$(git -C "${git_project}" rev-list --parents -n 1 HEAD | wc -w)
   if [[ "${parents}" -lt 3 ]]; then
     echo 'FAIL: HEAD is not a real two-parent merge commit.' >&2
+    return 1
+  fi
+  merged_catalog=$(git -C "${git_project}" show HEAD:docs/done/.catalog.json)
+  for record in A_a.json B_b.json; do
+    record_blob=$(git -C "${git_project}" rev-parse "HEAD:docs/done/${record}")
+    if [[ "${merged_catalog}" != *"\"blob\": \"${record_blob}\""* ]]; then
+      echo "FAIL: the merge commit's done catalog under ${scripts_root} does not list docs/done/${record} at its Git blob hash." >&2
+      printf '%s\n' "${merged_catalog}" >&2
+      return 1
+    fi
+  done
+  (cd -- "${git_project}/sub/nested" && node "${scripts_root}/product-backlog.mjs" \
+    catalog-done --file "../../${git_backlog_rel}") > /dev/null
+  if git -C "${git_project}" status --porcelain | grep -q .; then
+    echo "FAIL: installed catalog-done under ${scripts_root} changed the merge commit's done catalog." >&2
     return 1
   fi
 }

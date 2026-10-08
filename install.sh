@@ -46,6 +46,8 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-git-cherry-pick-stop.mjs
   dough-product-backlog/scripts/product-backlog-git-cherry-pick.mjs
   dough-product-backlog/scripts/product-backlog-git-cli.mjs
+  dough-product-backlog/scripts/product-backlog-git-done-catalog-driver.mjs
+  dough-product-backlog/scripts/product-backlog-git-done-catalog.mjs
   dough-product-backlog/scripts/product-backlog-git-driver.mjs
   dough-product-backlog/scripts/product-backlog-git-merge.mjs
   dough-product-backlog/scripts/product-backlog-git-operation-state.mjs

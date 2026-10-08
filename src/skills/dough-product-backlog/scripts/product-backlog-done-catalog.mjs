@@ -53,6 +53,19 @@ function byFileName(a, b) {
 }
 
 /**
+ * `catalog`'s two lists, sorted in place into the order a catalog is
+ * published in.
+ * @param {DoneCatalog} catalog
+ * @returns {DoneCatalog}
+ */
+export function inPublishedOrder({ records, unreadable }) {
+  return {
+    records: records.sort(catalogOrder),
+    unreadable: unreadable.sort(byFileName),
+  };
+}
+
+/**
  * The catalog of the record files `files` lists, each with its text and the
  * Git blob hash of that text.
  * @param {{ fileName: string, text: string, blob: string }[]} files
@@ -69,10 +82,7 @@ export function catalogDoneRecords(files) {
       unreadable.push({ fileName, blob });
     }
   }
-  return {
-    records: records.sort(catalogOrder),
-    unreadable: unreadable.sort(byFileName),
-  };
+  return inPublishedOrder({ records, unreadable });
 }
 
 /** @param {{ records: object[], unreadable: object[] }} catalog */

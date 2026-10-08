@@ -16,8 +16,11 @@ executions, not commands, retries, or repairs.
 1. **Checks whose result depends on where or how they are run — first, not
    queued.** Open: a direct shell run under macOS Bash 3.2 (DD-162), a passing
    run that prints no count (DD-216), Playwright runs in one checkout that
-   share fixed output directories (DD-224, DD-226), and Claude completion
-   specs that failed early in one full run (DD-240).
+   share fixed output directories (DD-224, DD-226), Claude completion
+   specs that failed early in one full run (DD-240), and a progressive
+   Recently done group that failed in unchanged code under load (DD-257).
+   DD-224, DD-226, DD-240, and DD-257 are queued first as
+   [SEED-123#dashboard-suite-stable-under-load](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load).
 2. **Local proof that leaves out what another CI job checks — second, not
    queued.** Two open findings. DD-171 recurred in plan 191 with the same
    error in the same file as plan 146, and no local gate yet types the
@@ -81,7 +84,7 @@ DD-164, DD-166 (2026-09-29, recovery `d68fcde4:ProjectFindings.md`); DD-158
 recovery `34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
 DearDough.md on 2026-09-29.
 
-## Checks whose result depends on where or how they are run (first priority, not queued)
+## Checks whose result depends on where or how they are run (first priority, partly queued)
 
 This repository's checks should give CI's result however they are run
 locally: directly or through `scripts/test.sh`, from any directory, in a session
@@ -172,6 +175,27 @@ and the next full run passed every test. The cause is unknown.
   - Evidence: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts --reporter=dot` reported 1091 passed and 7 failed in 9.0 min; the failures were in the dot line's first 20 marks. Rerunning the four files alone gave 10 passed, and a second full run gave 1098 passed in 6.5 min. Slice 3 changed the server's listed-record reads and the fake GitHub listings, not the completion or launch code. The job-local logs are not retained in the repository. No load average was recorded.
   - Observed effect: a second full run of about 6.5 minutes. The failure question is left without a cause.
   - Inference: Qualified. The longer first run and the early position point to contention at suite start (load, or the concurrent `dashboard/dist` rebuild of DD-226), but nothing retained shows which. One sample.
+
+### DD-257 — A twelve-spec dashboard group failed in unchanged code at default workers under load and passed at three workers
+
+Under a load average of 7–8, two runs of the same twelve-spec Recently done
+progressive group at default local workers each failed 3–4 tests, a different
+set each time, in code the change did not touch: Vite not reporting its
+address within 20000ms, the column "row rests" wait
+(`dashboard/tests/dashboardColumnsPage.ts:49`), and an empty Backlog heading
+(`dashboard/tests/dashboardPage.ts:137`). The failed specs passed alone, and
+the whole group passed at `--workers=3`. The cause is unknown.
+
+#### Occurrences
+
+- Execution: `SEED-119#done-catalog-currency-correction` / plan 276, first related implementation commit `24fb8d48`
+  - Timestamp: unknown (slice 4 refactor pass, between `f49e686f` committed 2026-10-08T12:21:15+09:00 and `e634f974` committed 2026-10-08T12:51:47+09:00)
+  - Tool: Claude Code (delegated refactor agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: `npm run test:dashboard -- recently-done-progressive-loading.spec.ts … dashboard-columns-height.spec.ts --reporter=line` (the plan's Progressive range group plus helper consumers) failed 4 then 3 tests; the failed files alone gave 9 passed; the same command with `--workers=3` gave 34 passed. Slice 4 changed `dashboard/src/doneDetails.ts` and test helpers, not Vite start, column scrolling, or the Backlog column. Plan 276 slice 4 records it; the run logs are not retained.
+  - Observed effect: a third run at reduced workers to obtain a green group; the failures stay unexplained.
+  - Inference: Qualified. Like DD-240, contention looks likely (the machine ran other workloads), but nothing retained separates load from a shared-output collision such as DD-226. One sample.
 
 ## Local proof that leaves out what another CI job checks (second priority, not queued)
 

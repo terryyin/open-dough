@@ -19,39 +19,35 @@ lies outside the initial list.
 
 ## Story
 
-<a id="done-catalog-currency-correction"></a>
+<a id="done-catalog-adapter-edge-results-correction"></a>
 
-### Done catalog stays current through Git integration and failed reads recover on refresh
+### Backlog Git adapters end edge outcomes in an actionable result
 
-**Identity:** SEED-119#done-catalog-currency-correction
+**Identity:** SEED-119#done-catalog-adapter-edge-results-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/276-done-catalog-currency-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca0701927d17a81cdc9f20c07c0558a78aee1b853e17a51a7f60fc4712094030","plan":"5c109ae33fdbb37c438c77f554c4b09fba5013dbc590cd320d99373608be93a9"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/279-done-catalog-adapter-edge-results/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ba13d3677c8591a8b010327a7a81a8634660474b6de9ef5288d00bb77d2f7928","plan":"c9c6dd2efde086c0cf1466f8d542d02d4282b31069436d4b28932545a980f482"}}
 ```
 
-**Goal:** A developer whose project integrates done records through Git keeps
-a done catalog that describes them, without a manual rebuild step, and a
-developer reading Recently done is told how to repair a catalog that does not,
-and sees a done record whose read failed asked again when a newer revision of
-the same project is shown. This corrects the Recently done progressive loading
-delivery (SEED-119#recently-done-progressive-loading, commits
-`62238f21..742e6b9a`); it adds no feature promise.
+**Goal:** A developer or agent integrating backlog and done-record changes
+through the product backlog's Git adapters gets a structured, actionable
+result at their edge outcomes instead of a crash or a misleading resume path:
+merging a ref the current branch already contains stops with a report saying
+so, and publication guidance resumes an adapter stop through that adapter and
+treats a finished replay whose rebuilt done catalog is staged but not
+committed as a commit to make, not a conflict to continue. This corrects the
+done catalog currency delivery
+(SEED-119#done-catalog-currency-correction, commits `24fb8d48..e634f974`); it
+adds no feature promise.
 
-**Scope:** The product backlog's Git merge, rebase, and cherry-pick
-operations, and the publication paths that route record-changing integration
-through them, leave a catalog matching the final record files, and a
-conflict in the derived catalog alone no longer stops them. The Recently done
-gap for a catalog that does not describe the published records names the
-`catalog-done` repair. A same-project refresh to a new revision asks again for
-done records whose read failed, while reusing records already read. A stale
-description of the retired eager done read goes. Every promise of the
-original story is preserved. Still open and Terry's: whether the dashboard
-keeps strict catalog mode or adds a compatibility path for projects without a
-current catalog, and the release ordering between the producer and the
-dashboard; until a release is installed, this repository's installed producer
-copies cannot rebuild the catalog. Automatic timed recovery stays with
-[temporary reading recovery](../../dashboard/PUBLISHED-OBSERVATION.md).
+**Scope:** The merge adapter's already-contained ref and the publication
+guidance for adapter stops, including done-record conflicts and the
+`catalog-uncommitted` result. Every promise of the done catalog currency
+correction and the original Recently done story is preserved. Still open and
+Terry's: strict catalog mode, release ordering between the producer and the
+dashboard, and whether an already-contained merge should instead report
+success with nothing to merge.
 
-**Plan:** [276-done-catalog-currency-correction](../slice-plans/276-done-catalog-currency-correction/PLAN.md)
+**Plan:** [279-done-catalog-adapter-edge-results](../slice-plans/279-done-catalog-adapter-edge-results/PLAN.md)
 
 ## Breadcrumbs
 

@@ -25,6 +25,11 @@ import {
 } from "./product-backlog-git-candidate.mjs";
 import { runGitOperationCli } from "./product-backlog-git-cli.mjs";
 import {
+  doneDirectoryChanged,
+  ensureDoneCatalogDriverRegistered,
+  stageRebuiltDoneCatalog,
+} from "./product-backlog-git-done-catalog.mjs";
+import {
   ensureDriverRegistered,
   git,
   gitLine,
@@ -66,10 +71,18 @@ function fastForward(repoRoot, file, ref) {
 
 // Commits a merge whose own path is now accepted, unless Git itself still
 // refuses because something unrelated is still unresolved — in which case
-// this gate leaves the merge exactly as it was, for a human to resolve. In an
-// agent's owned workspace the merge commit credits the developer like any
-// other agent commit, and an unusable developer leaves it uncommitted.
+// this gate leaves the merge exactly as it was, for a human to resolve. When
+// either side changed the done directory beside the backlog, the done catalog
+// rebuilt from the merged record files is staged first, so the merge commit
+// carries it. In an agent's owned workspace the merge commit credits the
+// developer like any other agent commit, and an unusable developer leaves it
+// uncommitted.
 async function commitAcceptedMerge(repoRoot, file, subject) {
+  const mergeHead = gitLine(["rev-parse", "MERGE_HEAD"], repoRoot);
+  const mergeBase = gitLine(["merge-base", "HEAD", mergeHead], repoRoot);
+  if (doneDirectoryChanged(repoRoot, file, mergeBase, ["HEAD", mergeHead])) {
+    stageRebuiltDoneCatalog(repoRoot, file);
+  }
   try {
     await creditMergeInProgress(repoRoot);
   } catch (error) {
@@ -109,6 +122,7 @@ export async function mergeOperation({ repoRoot, file, ref }) {
   }
 
   ensureDriverRegistered(repoRoot, file);
+  ensureDoneCatalogDriverRegistered(repoRoot, file);
   gitOutcome(["merge", "--no-commit", "--no-ff", ref], repoRoot);
 
   const unresolved = gitLine(["ls-files", "-u", "--", file], repoRoot);

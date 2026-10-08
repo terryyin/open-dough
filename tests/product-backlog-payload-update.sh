@@ -153,6 +153,8 @@ run_offline_ordinary_and_eisdir_proof "${scripts_root}" "${claude_target}"
 agents_scripts_root=$(cd "${temporary_dir}/cursor/.agents/skills/dough-product-backlog/scripts" && pwd -P)
 run_offline_done_catalog_proof "${agents_scripts_root}" "${temporary_dir}/cursor/catalog-project"
 run_offline_done_catalog_proof "${scripts_root}" "${claude_target}/catalog-project"
+# The Git merge adapter keeps the done catalog current from each root too.
+run_offline_git_merge_proof "${agents_scripts_root}" "${temporary_dir}/cursor"
 run_offline_git_merge_proof "${scripts_root}" "${claude_target}"
 run_offline_record_state_and_reader_proof \
   "${scripts_root}" \

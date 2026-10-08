@@ -80,10 +80,11 @@ catalog-done rebuilds ${doneCatalogPath} beside the backlog from the done record
 already there: each readable record's file name, identity, completion time, and
 Git blob hash, newest first, and each unreadable record file by name and hash
 alone. It changes no record and no backlog entry, prunes nothing, and writes no
-completion. Run it to publish a catalog for records written before catalogs
-existed, and after records arrive or change any other way, such as a merge,
-rebase, or cherry-pick; the catalog is derived from the records and never merged
-by hand.
+completion. complete and the Git-aware merge, rebase, and cherry-pick adapters
+keep the catalog current. Run catalog-done to publish a catalog for records
+written before catalogs existed, and after records arrive or change outside
+them, such as by raw Git, a hand edit, or an older installed copy of these
+scripts; the catalog is derived from the records and never merged by hand.
 
 refresh updates what one listed entry says about itself — its title, the
 canonical document it links, or the active plan it links — after that document

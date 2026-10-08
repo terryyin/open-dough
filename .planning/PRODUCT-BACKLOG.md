@@ -14,12 +14,13 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Done catalog stays current through Git integration and failed reads recover on refresh](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-currency-correction) — SEED-119#done-catalog-currency-correction ([plan](slice-plans/276-done-catalog-currency-correction/PLAN.md))
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits ([plan](slice-plans/277-review-selected-commits/PLAN.md))
 - [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery ([plan](slice-plans/278-cursor-session-restart-recovery/PLAN.md))
 
 ## Backlog list
 
+- [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load
+- [Backlog Git adapters end edge outcomes in an actionable result](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-adapter-edge-results-correction) — SEED-119#done-catalog-adapter-edge-results-correction
 - [Show Running Cursor sessions as a resizable sidebar section](seeds/SEED-122-running-cursor-sessions-sidebar-panel.md#running-cursor-sessions-sidebar-panel) — SEED-122#running-cursor-sessions-sidebar-panel
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
 - [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change

@@ -5,7 +5,7 @@ take `--ours` or `--theirs`, skip the commit, or continue Git blindly.
 
 The ordinary rebase in [Publish the candidate](publish-the-candidate.md#publish-the-candidate) step 3 is run through this project's
 installed product backlog rebase adapter, not a raw `git rebase`, whenever it touches the product backlog
-(often `PRODUCT-BACKLOG.md`); see [reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md)
+(often `PRODUCT-BACKLOG.md`) or the done records beside it; see [reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md)
 for how to resolve and run it. Its own `conflict`/`refused`/`blocked` result already identifies the real
 replayed commit, its parent, and the current destination from Git's own rebase state, never from
 ours/theirs labels. Resolve the backlog's own unmerged path following that reference, `git add` it, then

@@ -46,10 +46,14 @@ any observed Working despite saved Done.
 
 Recently done places its entries from the project's published done catalog,
 `done/.catalog.json` beside the backlog, which the product backlog's completion
-writes and its `catalog-done` rebuilds for records written before catalogs
-existed. The catalog must agree with the record files published at the shown
-revision; one that is missing, stale, or unreadable is the column's stated gap,
-never an empty list. The list shows the latest ten top-level entries and reads
+writes and its Git merge, rebase, and cherry-pick keep current; its
+`catalog-done` rebuilds it after changes outside them. The catalog must agree
+with the record files published at the shown revision; one that is missing,
+stale, or unreadable is the column's stated gap,
+never an empty list, naming its repair: run the product backlog's
+`catalog-done` to rebuild it from the done records, then publish the rebuilt
+catalog. A catalog read that fails says only that done stories could not be
+read, and why. The list shows the latest ten top-level entries and reads
 only the done records those show. **Show 10 of N older entries** (or **Show
 the N older entries**) after them is the only way to show more: scrolling,
 resizing, and column paging read nothing. While a batch reads, the entries
@@ -68,9 +72,10 @@ entries in the new revision's order, showing the last revision's list until
 the new catalog answers, and shows more only to keep the entry holding the
 keyboard, or a journey's destination still being read, included; when that
 entry is gone, the keyboard goes to the entry in its place. A record whose
-text is unchanged is not read again; a changed or newly shown one is read at
-the new revision, and an earlier revision's or another project's late answer
-changes nothing shown. A reload or another project starts again at ten unless
+unchanged text was read, or refused, keeps what it said; a changed or newly
+shown one, or one still shown whose earlier read failed, is read at the new
+revision, and an earlier revision's or another project's late answer changes
+nothing shown. A reload or another project starts again at ten unless
 a journey into it needs more. Opening or closing the sidebar or side panel,
 resizing the panel, and narrowing the page keep the range.
 
