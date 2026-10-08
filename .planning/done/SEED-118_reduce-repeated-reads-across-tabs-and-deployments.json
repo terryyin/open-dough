@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-118#reduce-repeated-reads-across-tabs-and-deployments",
+  "title": "Reduce repeated GitHub reads across tabs and deployments",
+  "completedAt": "2026-10-08T02:22:17.273Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "claude",
+  "model": "opus"
+}
