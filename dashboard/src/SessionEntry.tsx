@@ -21,7 +21,11 @@ import { LaunchSession } from "./LaunchSession.tsx";
 import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession } from "./pageEntries.ts";
 import { usePageSessions } from "./pageSessions.ts";
-import { DeleteRecord, MarkDone } from "./sessionRecordActions.tsx";
+import {
+  DeleteRecord,
+  MarkDone,
+  RecoverSession,
+} from "./sessionRecordActions.tsx";
 import { SessionAssignment } from "./SessionAssignment.tsx";
 import type { AgentAssignment } from "./agentAssignments.ts";
 import "./agent-launch.css";
@@ -133,6 +137,7 @@ export function SessionEntry({
         </p>
       )}
       <LaunchSession record={record} />
+      <RecoverSession record={record} say={say} />
       {(!markedDone || record.doneProblem !== undefined) && (
         <MarkDone record={record} say={say} />
       )}

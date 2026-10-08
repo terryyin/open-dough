@@ -14,12 +14,18 @@ import {
 import type { IncomingMessage } from "node:http";
 import { deleteRecordRequestSchema } from "../src/deleteRecord.ts";
 import { markDoneRequestSchema } from "../src/doneMark.ts";
+import {
+  recoverSessionRequestSchema,
+  sessionUnfinished,
+} from "../src/sessionRecovery.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { launchHost, type LaunchHost } from "./launchHosts.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 
 export function knownSource(id: string | null): PublishedSource {
   const source = id === null ? undefined : configuredProject(id);
@@ -146,6 +152,43 @@ export async function deleteRequest(
 ) {
   const { source, record } = await namedSession(req, launches, "delete");
   return { kind: "delete" as const, source, record };
+}
+
+// An unfinished Cursor session the runner does not hold, for Recover.
+export async function recoverRequest(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+) {
+  const parsed = recoverSessionRequestSchema.safeParse(await jsonBody(req));
+  if (!parsed.success) {
+    throw new RefusedRequest(400, "The recover request is malformed.");
+  }
+  if (parsed.data.host !== "cursor") {
+    throw new RefusedRequest(400, "Only a Cursor session can be recovered.");
+  }
+  const source = knownSource(parsed.data.source);
+  const session = { sessionId: parsed.data.session, host: parsed.data.host };
+  const recorded = await recordedSession(launches, source, session);
+  const { record } = recorded;
+  if (!sessionUnfinished(record)) {
+    throw new RefusedRequest(
+      400,
+      "This session is finished and cannot be recovered.",
+    );
+  }
+  const held = await heldCursorSessions();
+  if (
+    held.runner === "running" &&
+    held.sessions.some(
+      (item) => sessionKey(item.record.session) === sessionKey(record.session),
+    )
+  ) {
+    throw new RefusedRequest(
+      400,
+      "This session is already held by the Cursor runner.",
+    );
+  }
+  return { kind: "recover" as const, source, record };
 }
 
 // A kept session with its admitted passive final-report reader.

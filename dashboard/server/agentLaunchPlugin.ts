@@ -26,7 +26,9 @@
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
 // the record of one session it recorded while its host's observation still
-// leaves that session's state unknown. A same-origin WebSocket upgrade to
+// leaves that session's state unknown. A same-origin POST to
+// `/__agent-launch/recover` resumes an unfinished Cursor session the runner
+// does not hold (`./hosts/cursor/recover.ts`). A same-origin WebSocket upgrade to
 // `/__agent-terminal?source=&host=&session=` attaches to one session this boundary
 // recorded for that project (`./agentTerminals.ts`). Which requests are
 // admitted is decided in `./agentLaunchAdmission.ts`. While it runs it also

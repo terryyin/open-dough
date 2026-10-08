@@ -58,12 +58,16 @@ export class LiveTerminalClient {
   // has exited. Later screens can still accept the instruction. Already
   // resolved when this client has no launch instruction.
   readonly firstScreen: Promise<void>;
+  // Resolves with captured output once the process exits while tracked.
+  readonly processExit: Promise<string>;
   private readonly sockets: JoinedSockets;
   private readonly isTracked: () => boolean;
   private readonly untrack: () => boolean;
   private idle: DetachedIdleWatch | undefined;
   private size: { cols: number; rows: number };
   private readonly launch: LaunchInstruction | undefined;
+  private captured = "";
+  private resolveExit: (text: string) => void = () => {};
 
   constructor(input: LiveTerminalClientInput) {
     this.pty = input.pty;
@@ -119,12 +123,16 @@ export class LiveTerminalClient {
             },
           });
     this.firstScreen = this.launch?.firstScreen ?? Promise.resolve();
+    this.processExit = new Promise((resolve) => {
+      this.resolveExit = resolve;
+    });
   }
 
   // Registers process output and exit. Call once, after the registry tracks
   // this client, so an exit can still find it.
   watch(): void {
     this.pty.onData((output) => {
+      this.captured += output;
       this.idle?.write(output);
       this.launch?.write(output);
       if (!this.sockets.hasOpen() && !this.launch?.holdsIdle()) {
@@ -136,9 +144,14 @@ export class LiveTerminalClient {
     // kept client, because that client stays tracked.
     this.pty.onExit(() => {
       this.launch?.clientExited();
+      const text = this.captured;
       this.releaseIdle();
-      if (!this.untrack()) return;
+      if (!this.untrack()) {
+        this.resolveExit(text);
+        return;
+      }
       this.sockets.closeAll();
+      this.resolveExit(text);
     });
   }
 

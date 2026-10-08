@@ -14,7 +14,13 @@ const composerPrompts = [
 ] as const;
 
 export function showsCursorComposer(screen: string): boolean {
-  return composerPrompts.some((prompt) => screen.includes(prompt));
+  // A working screen still paints the follow-up line under `ctrl+c to stop`.
+  // That line is not the idle composer. A clarifying question is not either.
+  return (
+    composerPrompts.some((prompt) => screen.includes(prompt)) &&
+    !showsWorkingScreen(screen) &&
+    !screen.includes("Clarifying Questions")
+  );
 }
 
 function showsWorkingScreen(screen: string): boolean {
@@ -23,9 +29,8 @@ function showsWorkingScreen(screen: string): boolean {
 
 function showsFollowUpPrompt(screen: string): boolean {
   return (
-    composerPrompts.some((prompt) => screen.includes(`→ ${prompt}`)) &&
-    !showsWorkingScreen(screen) &&
-    !screen.includes("Clarifying Questions")
+    showsCursorComposer(screen) &&
+    composerPrompts.some((prompt) => screen.includes(`→ ${prompt}`))
   );
 }
 

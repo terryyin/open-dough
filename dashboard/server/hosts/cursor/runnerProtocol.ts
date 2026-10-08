@@ -26,7 +26,9 @@ export const cursorRunnerKeepRequest = z.object({
   rows: z.int().positive(),
   sourceId: z.string().min(1),
   session: hostSessionSchema,
-  instruction: z.string(),
+  // Absent when recovery resumes without typing. An empty string still types
+  // a return through LaunchInstruction, as launch already does.
+  instruction: z.string().optional(),
   // The page opens a terminal for this launch. The follow-up prompt keeps
   // that process.
   handoff: z.boolean().optional(),
@@ -34,8 +36,23 @@ export const cursorRunnerKeepRequest = z.object({
 
 export type CursorRunnerKeepRequest = z.infer<typeof cursorRunnerKeepRequest>;
 
-export const cursorRunnerKeepResult = z.object({
-  kind: z.enum(["kept", "missing", "failed"]),
+// Keep settles with a held screen (for trust and recovery) or exit text.
+// Held labels stay on /sessions; keep does not restate them.
+export const cursorRunnerKeepResult = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("kept"),
+    screen: z.string().optional(),
+  }),
+  z.object({ kind: z.literal("already-held") }),
+  z.object({ kind: z.literal("exited"), text: z.string() }),
+  z.object({ kind: z.literal("missing") }),
+  z.object({ kind: z.literal("failed") }),
+]);
+
+export type CursorRunnerKeepResult = z.infer<typeof cursorRunnerKeepResult>;
+
+export const cursorRunnerHangupRequest = z.object({
+  session: hostSessionSchema,
 });
 
 // One read of the clients this runner holds. It starts nothing.

@@ -69,6 +69,8 @@ export type FakeCursor = {
   sizes(pid: number): { readonly cols: number; readonly rows: number }[];
   // Repaint the ordinary follow-up prompt on the running terminal client.
   showReady(): void;
+  // Next resume/attach reads this mode (overrides FAKE_CURSOR_ATTACH_MODE).
+  setAttachMode(mode: CursorScreen | undefined): void;
   cleanup(): void;
 };
 
@@ -86,7 +88,10 @@ function readJsonl<T>(file: string): T[] {
 }
 
 export type CursorScreen =
-  "working" | "waiting" | "unrecognized" | "trust" | "composer";
+  "working" | "waiting" | "unrecognized" | "trust" | "composer" | "exit";
+
+export const unclassifiedCursorExit =
+  "Cursor resume failed for an unclassified reason.";
 
 export function installFakeCursor(options?: {
   readonly working?: boolean;
@@ -102,6 +107,7 @@ export function installFakeCursor(options?: {
   const modelsLogPath = path.join(root, "models.jsonl");
   const attachDir = path.join(root, "attach");
   const readyPath = path.join(root, "ready");
+  const attachModePath = path.join(root, "attach-mode");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
   installFixtureExecutable(
     "fake-host-environment.cjs",
@@ -139,6 +145,7 @@ export function installFakeCursor(options?: {
       FAKE_CURSOR_ATTACH_DIR: attachDir,
       FAKE_CURSOR_MODELS: modelsPath,
       FAKE_CURSOR_MODELS_LOG: modelsLogPath,
+      FAKE_CURSOR_ATTACH_MODE_FILE: attachModePath,
       ...(screen !== undefined ? { FAKE_CURSOR_ATTACH_MODE: screen } : {}),
       ...(options?.becomeReady === true
         ? { FAKE_CURSOR_BECOME_READY: readyPath }
@@ -169,6 +176,13 @@ export function installFakeCursor(options?: {
     },
     showReady() {
       writeFileSync(readyPath, "");
+    },
+    setAttachMode(mode) {
+      if (mode === undefined) {
+        rmSync(attachModePath, { force: true });
+        return;
+      }
+      writeFileSync(attachModePath, `${mode}\n`);
     },
     cleanup() {
       for (const attach of attaches()) {

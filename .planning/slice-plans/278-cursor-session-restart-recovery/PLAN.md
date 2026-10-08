@@ -179,21 +179,20 @@ nothing.
 
 ### 2. An unfinished Cursor session the runner does not hold can be resumed
 Type: Behavior
-Status: planned
-Proof: Add `dashboard/tests/cursor-session-recovery.spec.ts` on the fake
-cursor, and adjust `agent-session-cursor.spec.ts` only where the unfinished
-not-held reading changes. The continuation case starts execution from the
-story card with host Cursor, so the record has a workflow, an identity, a
-worktree, and a branch. Assert the held entry has no Recover button. Run:
+Status: done
+Proof: `dashboard/tests/cursor-session-recovery.spec.ts` and
+`cursor-session-recovery-stops.spec.ts` on the fake cursor;
+`agent-session-cursor.spec.ts` updated for the unfinished not-held reading and
+held no-Recover. Accepted command (23 passed, thrice):
 
 ```text
-env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts dashboard/tests/cursor-session-recovery.spec.ts dashboard/tests/agent-session-cursor.spec.ts dashboard/tests/cursor-runner-sessions.spec.ts dashboard/tests/agent-completion-cursor.spec.ts --reporter=line
+env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts dashboard/tests/cursor-session-recovery.spec.ts dashboard/tests/cursor-session-recovery-stops.spec.ts dashboard/tests/agent-session-cursor.spec.ts dashboard/tests/cursor-runner-sessions.spec.ts dashboard/tests/agent-completion-cursor.spec.ts dashboard/tests/cursor-runner-environment.spec.ts --reporter=line
 ```
 
-Update `AGENT-LAUNCH-HISTORY.md` and `AGENT-LAUNCH-HOSTS.md` for the offer,
-the three labels, and the resume action. The fake's unclassified exit is a
-new mode that prints a fixed sentence other than the trust phrase and exits.
-Do not treat that sentence as the chat-cannot-load text.
+`AGENT-LAUNCH-HISTORY.md` and `AGENT-LAUNCH-HOSTS.md` updated. Fake
+unclassified exit is not cannot-load text. Runner stop clears the address
+file and accepting reads require a live address pid (port reuse after stop
+was reading as running-with-empty-held).
 
 Behavior: An unfinished Cursor session the runner does not hold shows "The
 agent is not running.", or the existing runner-down or unreachable sentence,

@@ -93,7 +93,7 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
       },
       home,
     );
-    expect(kept).toEqual({ kind: "kept" });
+    expect(kept).toMatchObject({ kind: "kept" });
     await expect.poll(() => cursor.attaches()).toHaveLength(1);
     expectDeveloperShellEnvironment(cursor.attaches()[0]?.env, fakeCursorHost);
   } finally {

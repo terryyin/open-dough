@@ -179,7 +179,11 @@ export const launchCursor: LaunchHost["launch"] = async (
     kept,
     untilAbort(signal).then(() => "aborted" as const),
   ]);
-  if (outcome !== "aborted" && outcome.kind !== "kept") {
+  if (
+    outcome !== "aborted" &&
+    outcome.kind !== "kept" &&
+    outcome.kind !== "already-held"
+  ) {
     if (outcome.kind === "unreachable") {
       return runnerUnreachable();
     }

@@ -2,9 +2,14 @@
 // heldCursorSessions already performs. That read does not start the runner
 // or an agent. A held client is shown by its screen label. When the runner
 // is not running, or cannot be reached, every recorded Cursor session says
-// so and shows no screen label. A session the runner does not hold gets no
-// observation, so the card keeps the host's unknown wording.
+// so and shows no screen label. An unfinished session the runner does not
+// hold says the agent is not running. A finished session the runner does
+// not hold gets no observation, so the card keeps the host's unknown wording.
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
+import {
+  agentNotRunningLabel,
+  sessionUnfinished,
+} from "../../../src/sessionRecovery.ts";
 import { cursorRunnerSentence } from "../../../src/cursorRunnerSessions.ts";
 import { sessionKey } from "../../../src/sessionReference.ts";
 import type { SessionObservation } from "../../hostLaunch.ts";
@@ -25,7 +30,9 @@ export async function observeCursorSessions(
     const label = held.sessions.find(
       (item) => sessionKey(item.record.session) === sessionKey(record.session),
     )?.label;
-    return label === undefined ? [] : [labeledUnknown(record, label)];
+    if (label !== undefined) return [labeledUnknown(record, label)];
+    if (!sessionUnfinished(record)) return [];
+    return [labeledUnknown(record, agentNotRunningLabel)];
   });
 }
 

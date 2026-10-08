@@ -8,6 +8,7 @@ import { type AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
+import { recoverCursorSession } from "./hosts/cursor/recover.ts";
 import { hostOperations } from "./launchHosts.ts";
 import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -188,6 +189,15 @@ export async function answer(
         };
       case "delete":
         return { status: 200, body: await deleted(request, launches) };
+      case "recover":
+        return {
+          status: 200,
+          body: await recoverCursorSession(
+            request.source,
+            request.record,
+            launches,
+          ),
+        };
     }
   } catch (error) {
     if (error instanceof RefusedRequest) {

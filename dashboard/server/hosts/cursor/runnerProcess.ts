@@ -62,7 +62,7 @@ function portAccepting(port: number): Promise<boolean> {
 
 async function cursorRunnerAccepting(home: string): Promise<boolean> {
   const address = readCursorRunnerAddress(home);
-  if (address === undefined) return false;
+  if (address === undefined || !processAlive(address.pid)) return false;
   return portAccepting(address.port);
 }
 
@@ -162,12 +162,13 @@ export function ensureCursorRunner(home = homedir()): Promise<boolean> {
 }
 
 // The port of a runner that is already accepting connections. Undefined when
-// none is. This does not start a runner.
+// none is. This does not start a runner. The address pid must still be alive
+// so a reused port after stop is not mistaken for this home's runner.
 export async function acceptingCursorRunnerPort(
   home = homedir(),
 ): Promise<number | undefined> {
   const address = readCursorRunnerAddress(home);
-  if (address === undefined) return undefined;
+  if (address === undefined || !processAlive(address.pid)) return undefined;
   return (await portAccepting(address.port)) ? address.port : undefined;
 }
 
@@ -181,7 +182,8 @@ export async function cursorRunnerPort(
 }
 
 // Ends the runner and the processes it holds. A missing runner is already
-// stopped.
+// stopped. The address file is removed so a later process on the same port
+// is not read as this home's runner.
 export async function stopCursorRunner(home = homedir()): Promise<void> {
   const address = readCursorRunnerAddress(home);
   if (address === undefined) return;
@@ -202,4 +204,5 @@ export async function stopCursorRunner(home = homedir()): Promise<void> {
       // Already gone.
     }
   }
+  await rm(cursorRunnerAddressFile(home), { force: true });
 }

@@ -1,13 +1,8 @@
-// Local launch admission verifies dashboard origin and known projects for
-// launches, continuations, reconciliation, verification and session actions.
-// Delete, terminal attachment and native Done require an existing folder;
-// reported local Done and Mark as read of an unread report need only the
-// retained session. Mark reviewed needs the story's review workspace.
-// Launch options follow installed definitions and policy follows installed startup.
-// Reads cover attempts, sessions, reports, host choices, story reviews
-// with their file diffs (`./storyReviewAdmission.ts`), and the Cursor
-// runner's held sessions; only terminal admission reads native session
-// availability. The held-sessions read starts nothing.
+// Local launch admission for launches, continuations, reconciliation,
+// verification, recover, and session actions. Delete, terminal attach, and
+// native Done need a folder; Done/read marks need only the session. Reviews use
+// the review workspace. Reads cover attempts, sessions, reports, hosts,
+// reviews, and Cursor held sessions (terminal admission alone reads natives).
 
 import { completionEndpoint } from "./completionReporting.ts";
 import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
@@ -47,6 +42,7 @@ import {
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { agentReadEndpoint } from "../src/readMark.ts";
+import { agentRecoverEndpoint } from "../src/sessionRecovery.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
@@ -64,6 +60,7 @@ import {
   doneRequest,
   knownSource,
   readRequest,
+  recoverRequest,
   resultRequest,
   type AdmittedResult,
 } from "./sessionAdmission.ts";
@@ -103,6 +100,11 @@ export type Admitted =
     }
   | {
       readonly kind: "delete";
+      readonly source: PublishedSource;
+      readonly record: LaunchRecord;
+    }
+  | {
+      readonly kind: "recover";
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
     }
@@ -163,6 +165,7 @@ const postRequests = new Map<
   [agentDoneEndpoint, doneRequest],
   [agentReadEndpoint, readRequest],
   [agentDeleteEndpoint, deleteRequest],
+  [agentRecoverEndpoint, recoverRequest],
   [storyReviewMarkEndpoint, markReviewedRequest],
   [agentAcceptEndpoint, launchRequest],
   [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],

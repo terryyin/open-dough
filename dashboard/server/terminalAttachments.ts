@@ -18,25 +18,23 @@ import {
 import type { HostSession } from "../src/agentLaunch.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { TerminalAttachmentUnopened } from "./hostLaunch.ts";
-import {
-  launchHost,
-  type DetachedIdle,
-  type ScreenReadiness,
-} from "./launchHosts.ts";
+import { launchHost, type ScreenReadiness } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
-import type { LaunchInstructionInput } from "./launchInstruction.ts";
 import {
   LiveTerminalClient,
   type LiveTerminalClientOptions,
 } from "./liveTerminalClient.ts";
 import { nativeAttach } from "./nativeAttach.ts";
+import {
+  settleKeep,
+  type KeptLaunch,
+  type KeepOutcome,
+} from "./terminalKeep.ts";
 import { refuseWorkspace } from "./terminalSocketFrame.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 
-export type KeptLaunch = LaunchInstructionInput & {
-  readonly detachedIdle?: DetachedIdle;
-};
+export type { KeptLaunch, KeepOutcome };
 
 export class TerminalAttachments {
   private readonly clients = new Map<IPty, LiveTerminalClient>();
@@ -77,34 +75,38 @@ export class TerminalAttachments {
     this.watchClient(attached.pty, attached.options).attach(ws, session, false);
   }
 
-  // Starts one kept client before any socket. A later open joins it. The
-  // promise resolves when the first screen has been judged or the client
-  // has exited. The launch wait's abort does not reach this process.
-  keep(session: HostSession, pty: IPty, launch: KeptLaunch): Promise<void> {
+  // Starts one kept client before any socket. A later open joins it. With an
+  // instruction, the promise settles when the first screen has been judged
+  // or the client has exited. Without one, it waits for that screen or exit,
+  // types nothing, and reports the held label or exit text. When a client is
+  // already held, the extra PTY is dropped and that fact is reported.
+  keep(
+    session: HostSession,
+    pty: IPty,
+    launch?: KeptLaunch,
+  ): Promise<KeepOutcome> {
     const key = sessionKey(session);
-    if (this.keptClient(key) !== undefined) {
-      try {
-        pty.kill("SIGHUP");
-      } catch {
-        // The client already kept for this session is the one that stays.
-      }
-      return Promise.resolve();
-    }
-    const client = this.watchClient(pty, {
-      key,
-      hostName: launchHost(session.host)?.name ?? session.host,
-      keep: true,
-      session,
-      admitted: false,
-      size: { cols: pty.cols, rows: pty.rows },
-      readiness: launch.ready,
-      startupFailure: undefined,
-      ...(launch.detachedIdle === undefined
-        ? {}
-        : { detachedIdle: launch.detachedIdle }),
-      launchInput: launch,
+    return settleKeep({
+      existing: this.keptClient(key),
+      pty,
+      launch,
+      tracked: (client) => this.clients.has(client),
+      start: () =>
+        this.watchClient(pty, {
+          key,
+          hostName: launchHost(session.host)?.name ?? session.host,
+          keep: true,
+          session,
+          admitted: false,
+          size: { cols: pty.cols, rows: pty.rows },
+          readiness: launch?.ready,
+          startupFailure: undefined,
+          ...(launch?.detachedIdle === undefined
+            ? {}
+            : { detachedIdle: launch.detachedIdle }),
+          ...(launch === undefined ? {} : { launchInput: launch }),
+        }),
     });
-    return client.firstScreen;
   }
 
   // Tracks the client before `watch`, so an exit during startup can still
