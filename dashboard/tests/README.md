@@ -57,11 +57,17 @@ status, and reason, or forgets it (`forgotten`), and `claudeListingFails`
 makes the listing fail. It records every call's argv and working directory
 (`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone), and
 the part of the environment it started with that the launch environment rule
-reads: `NODE_ENV`, `PATH`, every `npm_*` key, `INIT_CWD`, `FAKE_CLAUDE_DIR`,
-and the spec marker `DOUGH_SPEC_PASSTHROUGH` (`claudeLaunchEnvironments`, and
+reads (`fixtures/fake-host-environment.cjs`): `NODE_ENV`, `PATH`, every
+`npm_*` key, `INIT_CWD`, the spec marker `DOUGH_SPEC_PASSTHROUGH`, and its
+`FAKE_CLAUDE_DIR` wiring (`claudeLaunchEnvironments`, and
 `claudeAttachEnvironments` for each attach); `support/launchEnvironment.ts`
 starts a server as a deployment's `npm run` start does and checks that record.
-Its `claude stop <id>` lists that session stopped. Run as `claude attach` in the
+The synthetic `codex` (`fixtures/fake-codex`, `support/fakeCodex.ts`) records
+the same keys, with its `FAKE_CODEX_SOCKET` and `FAKE_CODEX_TERMINAL_ROOT`
+wiring, for each invocation in its own log named by `FAKE_CODEX_ENV_LOG`
+(`codexEnvironments` in `support/codexObservation.ts`, for the daemon start or
+`resume`), so its daemon-start log (`daemonStarts`) keeps only the working
+directory. The fake `claude stop <id>` lists that session stopped. Run as `claude attach` in the
 terminal boundary's pseudo-terminal, it echoes each line entered, clears the
 line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it

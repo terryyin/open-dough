@@ -2,6 +2,18 @@
 "use strict";
 // Native daemon discovery and ordinary CLI/PTY transport substitute. RPC owns protocol;
 // neither substitute writes product launch records, workspaces or assignments.
+// Every invocation records its args and the part of its environment the launch
+// environment rule reads (./fake-host-environment.cjs) in FAKE_CODEX_ENV_LOG,
+// apart from the daemon-start log.
+if (process.env.FAKE_CODEX_ENV_LOG) {
+  const env = require(require("node:path").join(__dirname, "fake-host-environment.cjs"))(
+    ["FAKE_CODEX_SOCKET", "FAKE_CODEX_TERMINAL_ROOT"],
+  );
+  require("node:fs").appendFileSync(
+    process.env.FAKE_CODEX_ENV_LOG,
+    `${JSON.stringify({ args: process.argv.slice(2), env })}\n`,
+  );
+}
 if (process.argv[2] === "resume" && process.env.FAKE_CODEX_CLI_LOG) {
   require("node:fs").appendFileSync(
     process.env.FAKE_CODEX_CLI_LOG,

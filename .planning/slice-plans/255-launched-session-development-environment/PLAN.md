@@ -147,7 +147,19 @@ every host, and the fixture's recording in `dashboard/tests/README.md`.
 
 ### 2. Codex daemon start and resume get the same environment
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u NODE_ENV ./node_modules/.bin/playwright test --config
+dashboard/playwright.config.ts agent-launch-codex-startup.spec.ts
+agent-terminal-codex.spec.ts agent-launch-environment.spec.ts
+agent-terminal.spec.ts agent-launch-boundary.spec.ts` → 31 passed (without
+the rule, the 4 new Codex assertions failed on the `npm_*` check); the Codex
+and Cursor consumer specs → 144 passed; typecheck passes. `fake-codex` logs
+`{args, env}` to `FAKE_CODEX_ENV_LOG`, read by `codexEnvironments`; both fakes
+choose recorded keys through `fixtures/fake-host-environment.cjs`, which slice
+3's fake `cursor-agent` reuses. CI on slice 1 (run 37708289068) failed the
+four limit-recovery and read-resumption tests that already failed on `main` at
+b5b7de82, an ancestor of this branch's base; `main` repaired them in 65b4fe05
+and ddc2072c, so this branch merges `main` rather than repairing them.
 Proof: `npx playwright test agent-launch-codex-startup.spec.ts
 agent-terminal-codex.spec.ts`. The startup journey gives its server the same
 markers as slice 1 and reads the fake `codex`'s separate environment log for

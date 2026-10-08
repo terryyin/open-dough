@@ -25,6 +25,11 @@ export async function installFakeCodex(
 ): Promise<FakeCodex> {
   const bin = path.join(tempRoot, "codex-bin");
   installFixtureExecutable("fake-codex", bin, "codex");
+  installFixtureExecutable(
+    "fake-host-environment.cjs",
+    bin,
+    "fake-host-environment.cjs",
+  );
   const terminalRoot = path.join(tempRoot, "codex-terminal");
   mkdirSync(terminalRoot, { recursive: true });
   writeFileSync(
@@ -46,6 +51,7 @@ export async function installFakeCodex(
       FAKE_CODEX_TERMINAL_ROOT: terminalRoot,
       FAKE_CODEX_CLI_LOG: path.join(tempRoot, "cli-resume.jsonl"),
       FAKE_CODEX_DAEMON_LOG: path.join(tempRoot, "daemon-start.jsonl"),
+      FAKE_CODEX_ENV_LOG: path.join(tempRoot, "codex-environments.jsonl"),
       PATH: [bin, searchPath].join(path.delimiter),
       ...(serve ? { FAKE_CODEX_SOCKET: socket } : {}),
       ...(serve === "on-start" ? { FAKE_CODEX_WAIT_FOR_SOCKET: "1" } : {}),

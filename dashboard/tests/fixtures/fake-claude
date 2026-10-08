@@ -31,20 +31,9 @@ const args = process.argv.slice(2);
 const cwd = process.cwd();
 const agentsPath = path.join(dir, "agents.json");
 
-// What the launch environment rule reads: NODE_ENV, PATH, every npm_* key,
-// INIT_CWD, FAKE_CLAUDE_DIR, and the spec's pass-through marker.
-const recorded = [
-  "NODE_ENV",
-  "PATH",
-  "INIT_CWD",
+const env = require(path.join(__dirname, "fake-host-environment.cjs"))([
   "FAKE_CLAUDE_DIR",
-  "DOUGH_SPEC_PASSTHROUGH",
-];
-const env = Object.fromEntries(
-  Object.entries(process.env).filter(
-    ([key]) => recorded.includes(key) || key.startsWith("npm_"),
-  ),
-);
+]);
 
 fs.appendFileSync(
   path.join(dir, "calls.jsonl"),

@@ -1,4 +1,6 @@
-// Saved conversations survive machine restart; startup restores only the daemon.
+// Saved conversations survive machine restart; startup restores only the daemon,
+// in the developer's shell environment when the dashboard starts as a
+// deployment's does (./support/launchEnvironment.ts).
 import { test, expect } from "./support/pageTest.ts";
 import {
   mkdtempSync,
@@ -21,9 +23,14 @@ import {
   observed,
   passive,
   daemonStarts,
+  codexEnvironments,
 } from "./support/codexObservation.ts";
 import { openCodexTerminal, codexAttaches } from "./support/codexTerminal.ts";
 import { stored } from "./support/codexLaunch.ts";
+import {
+  deploymentLikeStart,
+  expectDeveloperShellEnvironment,
+} from "./support/launchEnvironment.ts";
 
 for (const mode of ["dev", "preview"] as const) {
   test(`saved Codex conversation reconnects after daemon loss at ${mode} startup`, async () => {
@@ -39,12 +46,16 @@ for (const mode of ["dev", "preview"] as const) {
     saveObservations({ home }, [saved]);
     observed(native, "saved-conversation", { type: "notLoaded" }, "completed");
     expect(existsSync(native.env["FAKE_CODEX_SOCKET"] ?? "")).toBe(false);
+    const start = deploymentLikeStart(path.join(machine, "deployment"));
+    start.create();
     const server = await startDashboardServer({
       mode,
       prebuilt: builtDashboardDir,
       machine,
       codexProtocol: native,
       projectFolders: ["open-dough"],
+      pathPrefix: start.pathPrefix,
+      extraEnv: start.extraEnv,
     });
     try {
       // No launch or HTTP read is needed to start the vendor service.
@@ -52,6 +63,12 @@ for (const mode of ["dev", "preview"] as const) {
         .poll(() => existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? ""))
         .toBe(true);
       expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
+      const daemonEnvironments = codexEnvironments(native, "app-server");
+      expect(daemonEnvironments).toHaveLength(1);
+      expectDeveloperShellEnvironment(daemonEnvironments[0], {
+        binDir: "codex-bin",
+        wiring: "FAKE_CODEX_SOCKET",
+      });
       expect(
         (await observationStates(server)).map(({ session, sessionState }) => [
           session.sessionId,

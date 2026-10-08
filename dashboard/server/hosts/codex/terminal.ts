@@ -2,6 +2,7 @@
 import { spawn as spawnPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 import { savedWorkspaceState } from "../../sessionWorkspace.ts";
+import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 
 export const attachCodex: NonNullable<LaunchHost["attach"]> = (
   ...[session, , size]
@@ -32,6 +33,7 @@ export const attachCodex: NonNullable<LaunchHost["attach"]> = (
       {
         name: "xterm-256color",
         cwd: continuation.workspace,
+        env: developerShellEnvironment(process.env),
         cols: size.cols,
         rows: size.rows,
       },

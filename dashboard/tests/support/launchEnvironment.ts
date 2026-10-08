@@ -2,14 +2,13 @@
 // `node_modules/.bin` directory and npm's `node-gyp-bin` first on its PATH,
 // npm's `npm_*` variables and `INIT_CWD`, and one pass-through marker. Vite
 // sets `NODE_ENV` inside the server itself, in both modes. The expectation
-// reads a host's recorded environment (`ClaudeEnvironment`) for the launch
-// environment rule (`../../server/developerShellEnvironment.ts`): every
-// start-up addition removed, the fake's own directory and the rest kept.
+// reads a fake host's recorded environment for the launch environment rule
+// (`../../server/developerShellEnvironment.ts`): every start-up addition
+// removed, the fake's own directory and the rest kept.
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import type { ClaudeEnvironment } from "./fakeClaude.ts";
 
 export const passThroughMarker = "kept-from-the-dashboard";
 
@@ -51,8 +50,21 @@ export function deploymentLikeStart(root: string): DeploymentLikeStart {
   };
 }
 
+// The fake host a record came from: the directory it is installed in, kept
+// on PATH, and the variable that wires it to its spec, kept too. The fake
+// `claude` (./fakeClaude.ts) by default.
+export type FakeHostWiring = {
+  readonly binDir: string;
+  readonly wiring: string;
+};
+const fakeClaude: FakeHostWiring = {
+  binDir: "claude-bin",
+  wiring: "FAKE_CLAUDE_DIR",
+};
+
 export function expectDeveloperShellEnvironment(
-  env: ClaudeEnvironment | undefined,
+  env: Readonly<Record<string, string>> | undefined,
+  host: FakeHostWiring = fakeClaude,
 ): void {
   expect(env).toBeDefined();
   const recorded = env ?? {};
@@ -67,8 +79,8 @@ export function expectDeveloperShellEnvironment(
   expect(
     entries.filter((entry) => entry.endsWith(`node_modules${path.sep}.bin`)),
   ).toEqual([]);
-  // The fake `claude`'s own directory (./fakeClaude.ts) stays on PATH.
-  expect(entries.map((entry) => path.basename(entry))).toContain("claude-bin");
+  // The fake's own directory stays on PATH.
+  expect(entries.map((entry) => path.basename(entry))).toContain(host.binDir);
   expect(recorded["DOUGH_SPEC_PASSTHROUGH"]).toBe(passThroughMarker);
-  expect(recorded["FAKE_CLAUDE_DIR"]).toEqual(expect.any(String));
+  expect(recorded[host.wiring]).toEqual(expect.any(String));
 }

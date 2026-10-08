@@ -82,6 +82,11 @@ export function installFakeClaude(
     binDir,
     "fake-claude-attach.cjs",
   );
+  installFixtureExecutable(
+    "fake-host-environment.cjs",
+    binDir,
+    "fake-host-environment.cjs",
+  );
   if (options.osascript !== "absent") {
     installFixtureExecutable("fake-osascript", osascriptBinDir, "osascript");
   }
