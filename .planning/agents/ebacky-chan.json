@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-088#review-merged-one-shot-change",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
