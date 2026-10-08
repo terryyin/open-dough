@@ -54,6 +54,53 @@ The behavior has been released since 0.3.27, so this is retroactive acceptance.
   setup and command markers more strictly. None invalidates the earlier host
   judgments.
 
+<a id="bound-managed-git-transport"></a>
+
+### Managed delivery stops a stalled Git transport with a recoverable result
+
+**Identity:** SEED-008#bound-managed-git-transport
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** A coordinator publishing an increment and a developer waiting
+for its remote visibility and CI verdict.
+
+**Outcome:** A fetch or push that stops responding reaches a bounded, explicit
+transport failure with the committed candidate and observed publication facts
+preserved. The coordinator can safely retry the same publication without an
+hour-long wait or a guessed successful push.
+
+**Bounded scope:** Existing managed-delivery Git fetch/push boundaries, their
+failure receipts and retry guidance. Preserve no-force publication, unrelated
+work, candidate revalidation, and CI registration after verified acceptance.
+If a push times out after remote acceptance, establish the actual remote tip
+before retrying. No observer transport retry, dashboard redesign, or general
+shell timeout framework. ODF-222's unlocated stage is a separate investigation;
+do not assume this response fixes it.
+
+**Evaluation:** An isolated real-Git journey stalls fetch, stalls push before
+acceptance, and loses the push response after acceptance. Each finishes with
+honest publication/coverage facts and preserves the candidate; retry publishes
+at most once and registers the accepted revision with its owner. An ordinary
+slow but responsive transport still succeeds within the chosen bound. Select
+the bound from the actual workflow during refinement, not from an arbitrary
+story slice budget.
+
+**Supporting finding:** [ODF-184](../../docs/maintainer/finding-names.md#odf-184).
+The catalog retains the two proven SSH transport executions and separately
+qualified ODF-222. No prior transport-bound response is demonstrated.
+
+**Completion criterion:** Delivered transport behavior and focused proof meet
+the outcome; record the actual response commits and first containing release
+on ODF-184. Keep its effectiveness unverified until matching released use.
+
+**Depends on:** None. Observer ownership is separate queued work and does not
+block bounding transport.
+
+**Safe stopping point:** A stalled publication leaves an actionable result and
+recoverable candidate even if CI or other delivery improvements are deferred.
+
 ## Publication delivery boundaries
 
 **Parent problem:** Developers executing concurrent work need reliable shared
