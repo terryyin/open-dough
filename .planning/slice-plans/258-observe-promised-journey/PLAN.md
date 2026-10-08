@@ -141,7 +141,8 @@ the executing agent.
 
 ### 2. Readiness names the unreached operation
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (2026-10-08): inspected `record-preparation.md` “Criteria” and its linked planning definition; example 5's helper grep and unobserved CI shard each yield `not-ready` with a reason naming the premise and unreached operation. Fresh result-bearing named-checkout observations allow `ready`; observed cheap parts plus a permitted paid-remainder probe also allow it, while missing cheap observations, outside-checkout substitutes and replay “not covered” remain blockers. `PATH=/tmp/open-dough-node-24.21.0.B8hS2V/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs` passed; inspected “record-preparation names both one-shot start locations without a claim”, whose setup reads the unchanged quick-execution section and asserts its start-location contract. This is compatibility proof; the walkthrough proves Criteria behavior. `git diff --check` passed. Refactor: none, already clean; both source files remain 250 lines. Native host behavior remains unverified.
 Proof: Behavior review on the revised “Criteria” in
 `record-preparation.md`: walk key example 5. A plan whose premise table
 records “grep found the 17 files naming the helper; none holds the read” and
@@ -222,6 +223,7 @@ Deliver together: the eight record edits and the dated verification line. Name s
   `/tmp/dough-ci-501/watch-015bQN`, PID `98741`, coordinator `chaifeng-chan`,
   bound to the execution checkout above. Claim CI on trunk is unobserved;
   this branch observer covers subsequent managed deliveries.
+- Accepted slice 1 revision on the increment target: `3d148f25a9a6cb308894dc72277b3ccd6faf6452`.
 
 ## Learnings
 
