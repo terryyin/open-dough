@@ -120,6 +120,9 @@ async function openedWithHeldDoneRecord(
     .poll(() => github.calls.some(({ request }) => isHeld(request)))
     .toBe(true);
   const { taken, recentlyDone, problem } = parts(page);
+  // Every Taken card's detail has answered, so the held read is the only one
+  // a run to the wait bound can leave unanswered.
+  await expect(taken.getByText(/^Reading .*…$/)).toHaveCount(0);
   return {
     card: taken.getByRole("article", { name: afterTake }),
     recent: recentlyDone,
