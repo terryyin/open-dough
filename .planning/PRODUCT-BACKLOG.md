@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Done catalog stays current through Git integration and failed reads recover on refresh](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-currency-correction) — SEED-119#done-catalog-currency-correction ([plan](slice-plans/276-done-catalog-currency-correction/PLAN.md))
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits ([plan](slice-plans/277-review-selected-commits/PLAN.md))
-- [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery ([plan](slice-plans/278-cursor-session-restart-recovery/PLAN.md))
 
 ## Backlog list
 
