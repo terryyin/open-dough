@@ -243,3 +243,15 @@ workspace retirement.
 
 One reading and one Recover action on the existing Cursor launch record.
 Examples are cases of that offer and resume rule; cannot-load replacement is the remaining branch, split so resume can stop first. No resplit needed.
+
+## Execution complete
+
+Product advice: no correction. Delivered Recover matches the story under the
+developer-authorized provisional cannot-load sentence. Native `cursor-agent`
+`2026.10.01-e373342` still opens an empty idle composer for missing, deleted,
+or corrupted stores and never exits with cannot-load text, so real missing
+chats take the resume-plus-continuation path; replacement stays on the
+provisional exit sentence (and the fake) until a native sentence is observed
+and the shared constant is swapped. Hosted CI green on tip
+`1094e36c8c2eab2b175d5672b4477c9d7cb24829`. Deferred Claude/Codex recovery and
+restart notification stay deferred. No backlog change from this review.
