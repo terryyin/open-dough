@@ -17,6 +17,7 @@ import { unfinishedIntention } from "./sessionShown.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
+import type { RecoverSessionAnswer } from "./sessionRecovery.ts";
 
 // A request about one session the page shows: its launch record, joined with
 // its state where the operation needs it, and the control that asked, which
@@ -55,6 +56,11 @@ export type DeleteSessionRecord = SessionOperation<
   Promise<DeleteRecordOutcome>
 >;
 
+// Recovers an unfinished Cursor session the runner does not hold.
+export type RecoverSession = SessionOperation<
+  Promise<RecoverSessionAnswer | undefined>
+>;
+
 // The page's operations that session entries ask, and the session its
 // panel shows, if any, from which every entry derives its current-session mark.
 export type PageSessions = {
@@ -69,6 +75,7 @@ export type PageSessions = {
   readonly markDone: MarkSessionDone;
   readonly markRead: MarkSessionRead;
   readonly deleteRecord: DeleteSessionRecord;
+  readonly recoverSession: RecoverSession;
 };
 
 export const SessionsOnPage = createContext<PageSessions | undefined>(

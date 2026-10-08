@@ -11,7 +11,10 @@ import {
   useDoneMark,
   usePageSessions,
 } from "./pageSessions.ts";
+import { sessionRecoverable } from "./sessionRecovery.ts";
 import { AskInPlace } from "./AskInPlace.tsx";
+import { useFrameDescription } from "./protectedFrame.ts";
+import { useState } from "react";
 
 // A card entry's Mark as done, whenever its session can be marked done, an
 // unread report included. Once marked done, the entry leaves the card. On a
@@ -91,5 +94,48 @@ export function DeleteRecord({
         });
       }}
     />
+  );
+}
+
+const notRecovered = "The session could not be recovered.";
+
+// Recover for an unfinished Cursor session the runner does not hold. It sits
+// outside `.session-state` on the same entry surfaces as Delete record.
+export function RecoverSession({
+  record,
+  say,
+}: {
+  readonly record: LaunchWithState;
+  readonly say: (words: string | undefined) => void;
+}) {
+  const { recoverSession } = usePageSessions();
+  const described = useFrameDescription();
+  const [recovering, setRecovering] = useState(false);
+  if (!sessionRecoverable(record)) return null;
+  return (
+    <p className="launch-open">
+      <button
+        type="button"
+        disabled={recovering}
+        aria-describedby={described}
+        onClick={(event) => {
+          say(undefined);
+          setRecovering(true);
+          void recoverSession({
+            record,
+            control: event.currentTarget,
+          }).then((answer) => {
+            setRecovering(false);
+            if (answer === undefined) {
+              say(notRecovered);
+              return;
+            }
+            if (answer.kind === "failed") say(answer.explanation);
+          });
+        }}
+      >
+        Recover
+      </button>
+    </p>
   );
 }

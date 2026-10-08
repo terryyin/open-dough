@@ -39,6 +39,25 @@ follow-up prompt — `→ Add a follow-up` or
 instruction has been entered, as does a working, waiting, or unrecognized
 screen. Stop is not supplied, so
 Mark as done stays absent.
+An unfinished Cursor session the runner does not hold — including when the
+runner is not running or cannot be reached — offers Recover on the session
+entry. Observation never starts the runner or an agent. Recover resumes the
+recorded `cursor-agent` continuation in the recorded worktree through the
+runner (which may start). When the resulting screen is the idle composer and
+first input is already confirmed, it types one continuation naming the
+recorded workflow, identity, worktree, and branch, plus the reporting command
+when present, and tells the agent to continue from the worktree's state
+without opening another assignment; it does not paste the original first
+prompt. Working, waiting, unconfirmed first input, and blank not-requested
+type nothing. When resume exits with the cannot-load sentence
+(`Cursor could not load this chat.` — provisional until native cursor-agent
+emits an observed sentence), Recover starts one replacement chat in the same
+workspace on the same launch record, updates the stored session id before
+instructing that agent, and sends the original prompt plus the continuation
+facts (blank not-requested sends only the continuation facts). Missing
+workspace, workspace trust, an unreachable runner, or any other exit explains
+the reason, leaves no agent running, and starts no replacement. Held, done,
+and completed sessions offer no Recover.
 Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
 setting)": each `<id> - <name>` line, with no efforts and no configured model.
 An unreadable list is explained with Retry, and Default stays startable.

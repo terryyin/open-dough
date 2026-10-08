@@ -156,6 +156,16 @@ export async function setRecordReportRead(
 
 export { deleteRecord } from "./launchRecordDeletion.ts";
 
+// Replaces one kept session's record, matching the previous session key so the
+// native conversation id may change (Cursor cannot-load replacement).
+export async function replaceKeptSession(
+  sourceId: string,
+  previous: SessionReference,
+  next: LaunchRecord,
+): Promise<LaunchRecord | undefined> {
+  return changeSessionRecord(sourceId, previous, () => next);
+}
+
 // Lifecycle updates never recreate evidence the developer has deleted.
 export async function updateRecord(
   sourceId: string,

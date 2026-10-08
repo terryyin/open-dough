@@ -15,8 +15,10 @@ import {
   requestDeleteRecord,
   requestMarkDone,
   requestMarkRead,
+  requestRecoverSession,
   type DeleteRecordOutcome,
 } from "./sessionRecordRequests.ts";
+import type { RecoverSessionAnswer } from "./sessionRecovery.ts";
 
 export type LaunchRecordActions = {
   // Marks a recorded session done, and answers whether the boundary marked
@@ -30,6 +32,10 @@ export type LaunchRecordActions = {
   // before the deletion; a session the boundary finds known keeps its record,
   // now with that state.
   readonly deleteRecord: (record: LaunchRecord) => Promise<DeleteRecordOutcome>;
+  // Recovers an unfinished Cursor session the runner does not hold.
+  readonly recoverSession: (
+    record: LaunchRecord,
+  ) => Promise<RecoverSessionAnswer | undefined>;
   // Reads a recorded session again at once.
   readonly readSession: (record: LaunchRecord) => Promise<void>;
 };
@@ -98,6 +104,28 @@ export function useLaunchRecordActions({
     [replaceRecord, setRecords, deletedAt],
   );
 
+  const recoverSession = useCallback(
+    async (record: LaunchRecord) => {
+      const answer = await requestRecoverSession(record);
+      if (answer?.record !== undefined) {
+        // Cannot-load replacement changes the native session id. Match the
+        // entry the developer recovered, not only the answered key.
+        const previousKey = sessionKey(record.session);
+        const answered = answer.record;
+        setRecords((current) =>
+          current.map((entry) =>
+            sessionKey(entry.session) === previousKey ||
+            sessionKey(entry.session) === sessionKey(answered.session)
+              ? answered
+              : entry,
+          ),
+        );
+      }
+      return answer;
+    },
+    [setRecords],
+  );
+
   const readSession = useCallback(
     async (record: LaunchRecord) => {
       const kept = await readMachineSessions();
@@ -112,5 +140,5 @@ export function useLaunchRecordActions({
     [replaceRecord, setFacts],
   );
 
-  return { markDone, markRead, deleteRecord, readSession };
+  return { markDone, markRead, deleteRecord, recoverSession, readSession };
 }

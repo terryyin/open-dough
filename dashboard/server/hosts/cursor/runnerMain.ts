@@ -5,12 +5,11 @@ import http from "node:http";
 import { existsSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { WebSocketServer } from "ws";
-import type { CursorSession } from "../../../src/launchRecord.ts";
 import type { TerminalSession } from "../../agentTerminals.ts";
-import { keptSession, updateRecord } from "../../launchRecordStore.ts";
 import { TerminalAttachments } from "../../terminalAttachments.ts";
 import { execCursor } from "./exec.ts";
 import { cursorSessionLabel } from "./idleScreen.ts";
+import { answerHangup, answerKeep } from "./runnerKeep.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
@@ -19,9 +18,7 @@ import {
 import {
   cursorRunnerAttachSession,
   cursorRunnerExecRequest,
-  cursorRunnerKeepRequest,
 } from "./runnerProtocol.ts";
-import { cursorKeptTerminal, spawnCursorPty } from "./terminal.ts";
 
 const attachments = new TerminalAttachments();
 const directory = cursorRunnerDirectory();
@@ -51,19 +48,6 @@ function sendJson(
     "content-length": Buffer.byteLength(payload),
   });
   res.end(payload);
-}
-
-async function confirmInstruction(
-  sourceId: string,
-  session: CursorSession,
-  instruction: string,
-): Promise<void> {
-  const kept = await keptSession(sourceId, session);
-  if (kept === undefined || kept.firstInput?.state === "confirmed") return;
-  await updateRecord(sourceId, {
-    ...kept,
-    firstInput: { state: "confirmed", instruction },
-  });
 }
 
 async function publishAddress(port: number): Promise<void> {
@@ -145,44 +129,19 @@ async function answer(
     sendJson(res, 200, { kind: "kept" });
     return;
   }
+  if (url.pathname === "/hangup") {
+    answerHangup(await readJson(req), attachments, (status, body) => {
+      sendJson(res, status, body);
+    });
+    return;
+  }
   if (url.pathname !== "/keep") {
     sendJson(res, 404, { kind: "failed" });
     return;
   }
-  const body = cursorRunnerKeepRequest.parse(await readJson(req));
-  if (body.session.host !== "cursor") {
-    sendJson(res, 400, { kind: "failed" });
-    return;
-  }
-  let pty;
-  try {
-    pty = spawnCursorPty(body.command, body.args, body.cwd, {
-      cols: body.cols,
-      rows: body.rows,
-    });
-  } catch (error) {
-    sendJson(res, 200, {
-      kind:
-        (error as NodeJS.ErrnoException).code === "ENOENT"
-          ? "missing"
-          : "failed",
-    });
-    return;
-  }
-  const session = body.session;
-  try {
-    await attachments.keep(session, pty, {
-      instruction: body.instruction,
-      ...cursorKeptTerminal,
-      ...(body.handoff === true ? { handoff: true } : {}),
-      onEntered: () =>
-        confirmInstruction(body.sourceId, session, body.instruction),
-    });
-  } catch {
-    sendJson(res, 200, { kind: "failed" });
-    return;
-  }
-  sendJson(res, 200, { kind: "kept" });
+  await answerKeep(await readJson(req), attachments, (status, body) => {
+    sendJson(res, status, body);
+  });
 }
 
 const sockets = new WebSocketServer({

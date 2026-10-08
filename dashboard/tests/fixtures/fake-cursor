@@ -1,26 +1,14 @@
 #!/usr/bin/env node
 "use strict";
-// Proof stand-in for cursor-agent. Prints the configured create-chat id.
-// The launch argv log is create-chat. A resume with no prompt argument is
-// the terminal client, including `--model <id>` and no prompt: it is
-// recorded as an attach, prints the ordinary finished prompt
-// `→ Add a follow-up`, and exits on SIGHUP as cursor-agent does. Working
-// mode also prints `ctrl+c to stop`. Waiting mode prints the observed
-// clarifying question. Trust mode prints a non-ready screen. Unrecognized
-// mode prints neither the prompt nor a question. Composer mode prints
-// `→ Plan, search, build anything` with the cursor hidden and no
-// synchronized-update frame. Each mode redraws its
-// screen on SIGWINCH. FAKE_CURSOR_BECOME_READY, once that file exists,
-// repaints the ordinary prompt. FAKE_CURSOR_PAINT_DELAY_MS waits that long
-// before the first paint. FAKE_CURSOR_SPLIT_PAINT_MS delivers each screen in
-// two writes that far apart, as a terminal can deliver one screen in separate
-// reads: a synchronized frame's end follows its content, and a paste chip's
-// text follows its cleared screen. Input is answered after earlier writes.
-// It does not write a launch record or a workspace. `models` is logged apart
-// from launch argv and prints FAKE_CURSOR_MODELS; without that file it fails.
-// Launch and attach records carry the environment the launch environment rule
-// reads (./fake-host-environment.cjs), with the FAKE_CURSOR_LOG and
-// FAKE_CURSOR_ATTACH_DIR wiring.
+// Proof stand-in for cursor-agent. create-chat prints FAKE_CURSOR_SESSION_ID,
+// or one shot from FAKE_CURSOR_NEXT_SESSION_FILE when that file has an id.
+// A resume with no prompt is the terminal client (attach log, modes, SIGHUP).
+// Working/waiting/trust/unrecognized/composer/exit/cannot-load modes paint
+// fixed screens; exit prints an unclassified sentence; cannot-load prints the
+// provisional chat-cannot-load sentence and exits.
+// FAKE_CURSOR_BECOME_READY repaints the follow-up prompt; paint delay and
+// split-paint env vars control delivery. models is logged apart from launch
+// argv. Launch/attach records carry ./fake-host-environment.cjs fields.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -89,7 +77,19 @@ if (log && !attaching) {
   );
 }
 if (args[0] === "create-chat") {
-  const id = process.env.FAKE_CURSOR_SESSION_ID;
+  let id = process.env.FAKE_CURSOR_SESSION_ID;
+  const nextFile = process.env.FAKE_CURSOR_NEXT_SESSION_FILE;
+  if (nextFile) {
+    try {
+      const next = fs.readFileSync(nextFile, "utf8").trim();
+      if (next !== "") {
+        id = next;
+        fs.unlinkSync(nextFile);
+      }
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
   if (!id) {
     process.stderr.write("missing session id\n");
     process.exit(1);
@@ -100,6 +100,20 @@ if (attaching) {
   const pid = process.pid;
   const dir = process.env.FAKE_CURSOR_ATTACH_DIR;
   let mode = process.env.FAKE_CURSOR_ATTACH_MODE;
+  const modeFile = process.env.FAKE_CURSOR_ATTACH_MODE_FILE;
+  if (modeFile) {
+    try {
+      const next = fs.readFileSync(modeFile, "utf8").trim();
+      if (next !== "") mode = next;
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  const unclassifiedExit =
+    "Cursor resume failed for an unclassified reason.\r\n";
+  const cannotLoadExit = `${
+    process.env.FAKE_CURSOR_CANNOT_LOAD ?? "Cursor could not load this chat."
+  }\r\n`;
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
     waiting:
@@ -113,8 +127,42 @@ if (attaching) {
     unrecognized: "Cursor Agent\r\n",
     trust: "Do you trust this workspace?\r\n",
     composer: "→ Plan, search, build anything\r\n",
+    exit: unclassifiedExit,
+    "cannot-load": cannotLoadExit,
   };
-  if (dir) fs.mkdirSync(dir, { recursive: true });
+  const recordAttach = () => {
+    if (!dir) return;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(
+      path.join(dir, "attaches.jsonl"),
+      `${JSON.stringify({
+        pid,
+        executable: process.argv[1],
+        cwd: process.cwd(),
+        args,
+        cols: process.stdout.columns,
+        rows: process.stdout.rows,
+        sessionId: resumed,
+        stored,
+        env,
+      })}\n`,
+    );
+  };
+  if (mode === "exit" || mode === "cannot-load") {
+    recordAttach();
+    process.stdout.write(
+      mode === "cannot-load" ? cannotLoadExit : unclassifiedExit,
+    );
+    // cannot-load is one-shot so a replacement attach paints the idle composer.
+    if (mode === "cannot-load" && modeFile) {
+      try {
+        fs.unlinkSync(modeFile);
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+      }
+    }
+    process.exit(1);
+  }
   const splitMs = Number(process.env.FAKE_CURSOR_SPLIT_PAINT_MS || 0);
   let writes = Promise.resolve();
   // Writes one screen's parts in order, apart only in split mode.
@@ -186,7 +234,7 @@ if (attaching) {
       return;
     }
     const stripped = text.endsWith("\r") ? text.slice(0, -1) : text;
-    if (stripped.includes("\n") && stripped.length > 800) {
+    if (stripped.includes("\n") || stripped.length > 800) {
       pendingPaste = stripped;
       const lines = (stripped.match(/\n/g) ?? []).length + 1;
       emit(
@@ -197,22 +245,7 @@ if (attaching) {
     }
     if (dir) fs.appendFileSync(path.join(dir, `${pid}.input`), chunk);
   });
-  if (dir) {
-    fs.appendFileSync(
-      path.join(dir, "attaches.jsonl"),
-      `${JSON.stringify({
-        pid,
-        executable: process.argv[1],
-        cwd: process.cwd(),
-        args,
-        cols: process.stdout.columns,
-        rows: process.stdout.rows,
-        sessionId: resumed,
-        stored,
-        env,
-      })}\n`,
-    );
-  }
+  recordAttach();
   const delay = Number(process.env.FAKE_CURSOR_PAINT_DELAY_MS || 0);
   if (delay > 0) setTimeout(paint, delay);
   else paint();

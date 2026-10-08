@@ -13,6 +13,11 @@ import {
 } from "./deleteRecord.ts";
 import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
 import { agentReadEndpoint, markReadAnswerSchema } from "./readMark.ts";
+import {
+  agentRecoverEndpoint,
+  recoverSessionAnswerSchema,
+  type RecoverSessionAnswer,
+} from "./sessionRecovery.ts";
 
 // What names a recorded session to the boundary.
 const sessionReference = (record: LaunchRecord) => ({
@@ -88,5 +93,30 @@ export async function requestDeleteRecord(
     return answer.success ? answer.data : { kind: "failed", reason: undefined };
   } catch {
     return { kind: "failed", reason: undefined };
+  }
+}
+
+// Asks the boundary to recover an unfinished Cursor session the runner does
+// not hold.
+export async function requestRecoverSession(
+  record: LaunchRecord,
+): Promise<RecoverSessionAnswer | undefined> {
+  try {
+    const response = await postJson(
+      agentRecoverEndpoint,
+      sessionReference(record),
+    );
+    if (!response.ok) {
+      const refused = refusal.safeParse(
+        await response.json().catch(() => undefined),
+      );
+      return refused.success
+        ? { kind: "failed", explanation: refused.data.error }
+        : undefined;
+    }
+    const answer = recoverSessionAnswerSchema.safeParse(await response.json());
+    return answer.success ? answer.data : undefined;
+  } catch {
+    return undefined;
   }
 }

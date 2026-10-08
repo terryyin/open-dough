@@ -1,16 +1,14 @@
 // A launched Cursor session's entry shows the screen the runner holds.
 // Those words stay the runner's labels. A runner that is not running, or
-// cannot be reached, says so and shows no screen label. A recorded session
-// the runner does not hold keeps Cursor's unknown wording. Stop and rename
-// stay absent. Delete record remains. This read starts no agent.
+// cannot be reached, says so and shows no screen label. An unfinished
+// recorded session the runner does not hold says the agent is not running
+// and offers Recover. Stop and rename stay absent. Delete record remains.
+// This read starts no agent.
 import {
   cursorHeldLabel,
   type CursorHeldLabel,
 } from "../src/cursorHeldLabel.ts";
-import {
-  cursorRunnerSentence,
-  cursorRunnerSessionsEndpoint,
-} from "../src/cursorRunnerSessions.ts";
+import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launchHost } from "../server/launchHosts.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
@@ -33,8 +31,11 @@ import {
   openTakenCursorSession,
   projectedSessions,
   readLog,
-  unknownWords,
 } from "./support/cursorSessionReading.ts";
+import {
+  agentNotRunningLabel,
+  openStoppedCursorEntry,
+} from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import type { CursorScreen } from "./support/fakeCursor.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
@@ -58,6 +59,7 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
   await expectNoBorrowedActivity(recent);
   await expectCursorSessionActions(page, recent);
+  await expect(recent.getByRole("button", { name: "Recover" })).toHaveCount(0);
 
   const answer = await projectedSessions(page);
   expect(answer.hostOperations.cursor).toEqual({
@@ -203,44 +205,26 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   }
 });
 
-test("a recorded session the runner does not hold shows no screen label", async ({
+test("a recorded session the runner does not hold shows the agent is not running and offers Recover", async ({
   page,
+  dashboard,
   origin,
   cursor,
 }) => {
   test.setTimeout(120_000);
-  const recent = await openTakenCursorSession(page, origin);
-  await expectHeldLabel(recent, cursorHeldLabel.followUp);
-  const calls = agentCalls(cursor);
-  const pid = cursor.attaches()[0]?.pid ?? 0;
-  expect(pid).toBeGreaterThan(0);
-  try {
-    process.kill(pid, "SIGTERM");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
-  }
-  await expect
-    .poll(
-      () =>
-        page.evaluate(async (endpoint) => {
-          const response = await fetch(endpoint);
-          if (!response.ok) throw new Error("The runner could not be read.");
-          const body = (await response.json()) as {
-            runner: string;
-            sessions: readonly unknown[];
-          };
-          return { runner: body.runner, count: body.sessions.length };
-        }, cursorRunnerSessionsEndpoint),
-      { timeout: 15_000 },
-    )
-    .toEqual({ runner: "running", count: 0 });
-  await page.reload();
-  const again = parts(page).taken.locator(".session-entry");
-  await expect(again).toHaveCount(1);
-  await expectReadingWithoutScreenLabel(again, unknownWords);
+  const again = await openStoppedCursorEntry(
+    page,
+    origin,
+    cursor,
+    dashboard.home,
+  );
+  await expect(again).not.toHaveClass(/needs-attention/);
+  await expect(
+    again.getByRole("button", { name: "Delete record…" }),
+  ).toHaveCount(1);
   const answer = await projectedSessions(page);
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",
+    label: agentNotRunningLabel,
   });
-  expect(agentCalls(cursor)).toEqual(calls);
 });

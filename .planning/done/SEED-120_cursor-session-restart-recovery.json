@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-120#cursor-session-restart-recovery",
+  "title": "Recover a Cursor session after the computer restarts",
+  "completedAt": "2026-10-08T13:28:07.957Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -1,9 +1,5 @@
-// The dashboard's calls into the Cursor runner: a finished cursor-agent run,
-// a kept terminal client, one browser socket bridged to that client, release
-// of a launch handoff when this server closes, and a read of the sessions
-// that runner holds. The read does not start a runner or an agent. Starting
-// and stopping the runner process lives in runnerProcess.ts. Callers outside
-// this host still reach those operations here.
+// Dashboard calls into the Cursor runner: exec, keep, hangup, bridge, handoff
+// release, and a sessions read that starts nothing (see runnerProcess.ts).
 import http from "node:http";
 import { homedir } from "node:os";
 import { WebSocket, type RawData } from "ws";
@@ -17,6 +13,7 @@ import {
   cursorRunnerSessionsResult,
   type CursorRunnerExec,
   type CursorRunnerKeepRequest,
+  type CursorRunnerKeepResult,
   type CursorRunnerSessionsResult,
 } from "./runnerProtocol.ts";
 import {
@@ -30,9 +27,7 @@ import { cursorRunnerAttachUrl } from "./runnerAttach.ts";
 export type { CursorRunnerExec };
 export { ensureCursorRunner, stopCursorRunner };
 
-// Drops launch handoffs on this server's way out. A detached follow-up
-// prompt keeps that process. This does not start a runner, and it does
-// not signal one the runner itself is keeping for another reason.
+// Drops launch handoffs on this server's way out without starting a runner.
 export async function releaseCursorHandoffs(home = homedir()): Promise<void> {
   const port = await acceptingCursorRunnerPort(home);
   if (port === undefined) return;
@@ -43,17 +38,13 @@ export async function releaseCursorHandoffs(home = homedir()): Promise<void> {
   }
 }
 
-// The wire request, narrowed to a Cursor session. The runner rejects any
-// other host.
+// Wire keep request narrowed to a Cursor session.
 export type CursorKeepRequest = Omit<CursorRunnerKeepRequest, "session"> & {
   readonly session: CursorSession;
 };
 
 export type CursorKeepResult =
-  | { readonly kind: "kept" }
-  | { readonly kind: "unreachable" }
-  | { readonly kind: "missing" }
-  | { readonly kind: "failed" };
+  CursorRunnerKeepResult | { readonly kind: "unreachable" };
 
 function postJson(
   port: number,
@@ -148,9 +139,7 @@ function getJson(port: number, pathname: string): Promise<unknown> {
   });
 }
 
-// The sessions a runner that is already up is holding. A missing runner is
-// not running. A runner that accepts a connection and does not answer this
-// read cannot be reached. Neither case starts a runner or an agent.
+// Sessions a running runner holds. Missing or silent runners start nothing.
 export async function readCursorRunnerSessions(
   home = homedir(),
 ): Promise<CursorRunnerSessionsRead> {
@@ -184,9 +173,20 @@ export async function keepCursorClient(
   }
 }
 
-// Forwards one admitted browser socket to the runner. The runner's own
-// terminal registry owns the client. Closing this socket drops the join and
-// does not hang the client up.
+// Hangs up one kept client when recovery must leave none.
+export async function hangupCursorClient(
+  session: CursorSession,
+  home = homedir(),
+): Promise<void> {
+  const port = await acceptingCursorRunnerPort(home);
+  if (port === undefined) return;
+  try {
+    await postJson(port, "/hangup", { session });
+  } catch {
+    // The runner is already gone.
+  }
+}
+
 export async function bridgeCursorTerminal(
   browser: WebSocket,
   session: TerminalSession,

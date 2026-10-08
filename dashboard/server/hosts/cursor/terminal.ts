@@ -13,12 +13,14 @@
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
-import { showsCursorComposer } from "./idleScreen.ts";
+import { showsFollowUpLine } from "./idleScreen.ts";
 
 export const cursorTerminalSize = { cols: 80, rows: 24 } as const;
 
+// Launch types when the follow-up line is present, including under a working
+// paint. Recovery passes idleComposer on keep to require the idle composer.
 export function cursorReady(screen: string): boolean {
-  return showsCursorComposer(screen);
+  return showsFollowUpLine(screen);
 }
 
 // Attach and an instructed launch share this declaration. The empty composer

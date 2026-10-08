@@ -107,10 +107,12 @@ export async function occupyRunner(home: string): Promise<() => Promise<void>> {
   if (address === null || typeof address === "string") {
     throw new Error("The stand-in runner did not bind a port.");
   }
-  // Not a live runner. Cleanup must not signal this pid.
+  // Accepting port with this test's live pid: observation treats a live
+  // address pid as present, then /sessions fails → unreachable. Cleanup must
+  // not signal this pid as if it were the runner.
   writeFileSync(
     cursorRunnerAddressFile(home),
-    JSON.stringify({ port: address.port, pid: 2_147_483_646 }),
+    JSON.stringify({ port: address.port, pid: process.pid }),
   );
   return () =>
     new Promise((resolve) => {

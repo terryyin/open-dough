@@ -13,6 +13,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { cursorCannotLoadChat } from "../../src/cursorCannotLoad.ts";
 import { appendedRecords } from "./appendedRecords.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import type { FakeHostWiring } from "./launchEnvironment.ts";
@@ -69,6 +70,10 @@ export type FakeCursor = {
   sizes(pid: number): { readonly cols: number; readonly rows: number }[];
   // Repaint the ordinary follow-up prompt on the running terminal client.
   showReady(): void;
+  // Next resume/attach reads this mode (overrides FAKE_CURSOR_ATTACH_MODE).
+  setAttachMode(mode: CursorScreen | undefined): void;
+  // Next create-chat prints this id once, then returns to sessionId.
+  queueCreateChatId(sessionId: string): void;
   cleanup(): void;
 };
 
@@ -86,7 +91,18 @@ function readJsonl<T>(file: string): T[] {
 }
 
 export type CursorScreen =
-  "working" | "waiting" | "unrecognized" | "trust" | "composer";
+  | "working"
+  | "waiting"
+  | "unrecognized"
+  | "trust"
+  | "composer"
+  | "exit"
+  | "cannot-load";
+
+export const unclassifiedCursorExit =
+  "Cursor resume failed for an unclassified reason.";
+
+export { cursorCannotLoadChat };
 
 export function installFakeCursor(options?: {
   readonly working?: boolean;
@@ -102,6 +118,8 @@ export function installFakeCursor(options?: {
   const modelsLogPath = path.join(root, "models.jsonl");
   const attachDir = path.join(root, "attach");
   const readyPath = path.join(root, "ready");
+  const attachModePath = path.join(root, "attach-mode");
+  const nextSessionPath = path.join(root, "next-session-id");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
   installFixtureExecutable(
     "fake-host-environment.cjs",
@@ -139,6 +157,9 @@ export function installFakeCursor(options?: {
       FAKE_CURSOR_ATTACH_DIR: attachDir,
       FAKE_CURSOR_MODELS: modelsPath,
       FAKE_CURSOR_MODELS_LOG: modelsLogPath,
+      FAKE_CURSOR_ATTACH_MODE_FILE: attachModePath,
+      FAKE_CURSOR_NEXT_SESSION_FILE: nextSessionPath,
+      FAKE_CURSOR_CANNOT_LOAD: cursorCannotLoadChat,
       ...(screen !== undefined ? { FAKE_CURSOR_ATTACH_MODE: screen } : {}),
       ...(options?.becomeReady === true
         ? { FAKE_CURSOR_BECOME_READY: readyPath }
@@ -169,6 +190,16 @@ export function installFakeCursor(options?: {
     },
     showReady() {
       writeFileSync(readyPath, "");
+    },
+    setAttachMode(mode) {
+      if (mode === undefined) {
+        rmSync(attachModePath, { force: true });
+        return;
+      }
+      writeFileSync(attachModePath, `${mode}\n`);
+    },
+    queueCreateChatId(sessionId) {
+      writeFileSync(nextSessionPath, `${sessionId}\n`);
     },
     cleanup() {
       for (const attach of attaches()) {
