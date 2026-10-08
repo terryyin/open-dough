@@ -14,13 +14,14 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Show the latest 10 done items and reveal older items on demand](seeds/SEED-119-recently-done-progressive-loading.md#recently-done-progressive-loading) — SEED-119#recently-done-progressive-loading ([plan](slice-plans/274-recently-done-progressive-loading/PLAN.md))
 - [Reduce repeated GitHub reads across tabs and deployments](seeds/SEED-118-dashboard-reading-reliability.md#reduce-repeated-reads-across-tabs-and-deployments) — SEED-118#reduce-repeated-reads-across-tabs-and-deployments ([plan](slice-plans/275-retained-answers-across-processes/PLAN.md))
 - [Observe decisive planning premises through the full promised journey](seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey ([plan](slice-plans/258-observe-promised-journey/PLAN.md))
 - [A session the dashboard launches prepares its checkout as a developer shell would](seeds/SEED-100-project-checks-trustworthy.md#launched-session-development-environment) — SEED-100#launched-session-development-environment ([plan](slice-plans/255-launched-session-development-environment/PLAN.md))
 
 ## Backlog list
 
+- [Done catalog stays current through Git integration and failed reads recover on refresh](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-currency-correction) — SEED-119#done-catalog-currency-correction
+- [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
 - [Recover a Cursor session after the computer restarts](seeds/SEED-120-cursor-session-restart-recovery.md#cursor-session-restart-recovery) — SEED-120#cursor-session-restart-recovery
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes

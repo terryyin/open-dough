@@ -8,7 +8,8 @@ import { githubFor } from "./dashboardTest.ts";
 import { sharedStoryIdentity } from "./doughnutProject.ts";
 import { noConnection } from "./originAnswers.ts";
 import { commitAnswerIn } from "./pathHistoryAnswers.ts";
-import { doneRecordAt } from "./recentlyDoneRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { doneDirectory, doneRecordAt } from "./recentlyDoneRecords.ts";
 import { opened, profilePath, repository } from "./sliceClockRecords.ts";
 import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
@@ -39,8 +40,9 @@ export function factsAt(revision: string, label: "A" | "B") {
   const purpose = `Canonical purpose published at ${label}.`;
   const doneTitle = `Completed story published at ${label}`;
   const developer = `Developer at ${label}`;
-  const files = {
-    [backlogPath]: `# Product backlog
+  const files = withDoneCatalog(
+    {
+      [backlogPath]: `# Product backlog
 
 ## Near-future direction
 
@@ -54,8 +56,8 @@ Direction published at ${label}.
 
 - [${queuedTitle}](seeds/SEED-777-shared.md#${queuedAnchor}) — ${queuedIdentity}
 `,
-    ".planning/open-dough.json": "{}\n",
-    [canonicalPath]: `<a id="shared-story"></a>
+      ".planning/open-dough.json": "{}\n",
+      [canonicalPath]: `<a id="shared-story"></a>
 
 ### ${takenTitle}
 
@@ -75,7 +77,7 @@ Direction published at ${label}.
 
 **Goal:** Queued purpose published at ${label}.
 `,
-    [planPath]: `# Plan published at ${label}
+      [planPath]: `# Plan published at ${label}
 
 ## Slices
 
@@ -89,28 +91,30 @@ Type: Behavior
 Status: planned
 Proof: Observe the current publication.
 `,
-    [profilePath(owner)]: renderAgentProfile({
-      name: owner,
-      identity: sharedStoryIdentity,
-      mode: "trunk",
-      branch: "origin/main",
-      host: "codex",
-      model: `model-at-${label}`,
-    }),
-    [profilePath(preparer)]: renderAgentProfile({
-      name: preparer,
-      identity: queuedIdentity,
-      activity: "preparation",
-      host: "claude",
-      model: `preparer-at-${label}`,
-    }),
-    [donePath]: renderDoneRecord({
-      identity: doneIdentity,
-      title: doneTitle,
-      developer,
-      completedAt: new Date(opened.getTime() - 60_000).toISOString(),
-    }),
-  };
+      [profilePath(owner)]: renderAgentProfile({
+        name: owner,
+        identity: sharedStoryIdentity,
+        mode: "trunk",
+        branch: "origin/main",
+        host: "codex",
+        model: `model-at-${label}`,
+      }),
+      [profilePath(preparer)]: renderAgentProfile({
+        name: preparer,
+        identity: queuedIdentity,
+        activity: "preparation",
+        host: "claude",
+        model: `preparer-at-${label}`,
+      }),
+      [donePath]: renderDoneRecord({
+        identity: doneIdentity,
+        title: doneTitle,
+        developer,
+        completedAt: new Date(opened.getTime() - 60_000).toISOString(),
+      }),
+    },
+    doneDirectory,
+  );
   return {
     revision,
     label,
@@ -118,6 +122,7 @@ Proof: Observe the current publication.
     preparer,
     purpose,
     queuedTitle,
+    doneIdentity,
     doneTitle,
     developer,
     files,

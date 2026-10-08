@@ -39,8 +39,10 @@ const changedPaths = async (origin, sha) =>
     .trim()
     .split("\n")
     .sort();
-// The done record B's backlog completion writes beside the backlog.
+// The done record B's backlog completion writes beside the backlog, and the
+// done catalog that completion rebuilds beside it.
 const doneRecordB = ".planning/done/SEED-B_b.json";
+const doneCatalog = ".planning/done/.catalog.json";
 
 test("a queued story's result and spent records reach remote trunk as one commit, siblings intact", async (t) => {
   const trunk = await createSiblingTrunk();
@@ -72,7 +74,7 @@ test("a queued story's result and spent records reach remote trunk as one commit
   ]);
   assert.deepEqual(
     await changedPaths(trunk.origin, result),
-    [backlogFile, doneRecordB, seedB, planB, "feature.txt"].sort(),
+    [backlogFile, doneCatalog, doneRecordB, seedB, planB, "feature.txt"].sort(),
   );
   assert.deepEqual(await remoteLists(trunk), {
     taken: [],
@@ -166,7 +168,7 @@ test("a queued no-change conclusion retains its closure for review until an expl
   ]);
   assert.deepEqual(
     await changedPaths(trunk.origin, cleanup),
-    [backlogFile, doneRecordB, seedB, planB].sort(),
+    [backlogFile, doneCatalog, doneRecordB, seedB, planB].sort(),
   );
   assert.deepEqual((await remoteLists(trunk)).queued, ["SEED-A#a", identityB2]);
 });

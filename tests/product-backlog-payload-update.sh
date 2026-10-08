@@ -10,7 +10,8 @@
 # of an edited or missing managed file and its --force restore belong to the
 # shared installation and update checks, not to this payload. The
 # offline "actually run the installed copy" proof (an ordinary op, a real
-# Git-aware merge, the bounded EISDIR refusal, and installed
+# Git-aware merge, the bounded EISDIR refusal, done catalog adoption and
+# completion from both the .agents and .claude roots, and installed
 # record-state/read-state producing published bytes the shared reader
 # observes) lives in the product-backlog-payload runtime helpers, run at the
 # end of this file against the Claude Code root once the release source is
@@ -147,6 +148,11 @@ if [[ -e "${fixture}" ]]; then
 fi
 
 run_offline_ordinary_and_eisdir_proof "${scripts_root}" "${claude_target}"
+# The done catalog is rebuilt and completed from each platform's own root:
+# Codex and Cursor share the .agents root, Claude Code reads the .claude root.
+agents_scripts_root=$(cd "${temporary_dir}/cursor/.agents/skills/dough-product-backlog/scripts" && pwd -P)
+run_offline_done_catalog_proof "${agents_scripts_root}" "${temporary_dir}/cursor/catalog-project"
+run_offline_done_catalog_proof "${scripts_root}" "${claude_target}/catalog-project"
 run_offline_git_merge_proof "${scripts_root}" "${claude_target}"
 run_offline_record_state_and_reader_proof \
   "${scripts_root}" \

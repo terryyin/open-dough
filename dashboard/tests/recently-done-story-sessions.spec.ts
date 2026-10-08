@@ -18,6 +18,7 @@ import { doneStorySessions } from "./recentlyDoneSessions.ts";
 import {
   executed,
   at,
+  doneDirectory,
   doneRecordAt,
   expired,
   lastWeek,
@@ -30,6 +31,7 @@ import {
   revision,
   withLastWeekRecordFiles,
 } from "./recentlyDoneRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import {
   adHocEntry,
   expectEntries,
@@ -197,14 +199,19 @@ test("an active story owns its open session even with a matching done card, whos
   await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles({
-      [doneRecordAt(queuedIdentity)]: renderDoneRecord({
-        identity: queuedIdentity,
-        title: queuedTitle,
-        completedAt: at(now, placed.executedDone),
-        developer: "Terry Yin",
-      }),
-    }),
+    files: publishedFiles(
+      withDoneCatalog(
+        {
+          [doneRecordAt(queuedIdentity)]: renderDoneRecord({
+            identity: queuedIdentity,
+            title: queuedTitle,
+            completedAt: at(now, placed.executedDone),
+            developer: "Terry Yin",
+          }),
+        },
+        doneDirectory,
+      ),
+    ),
   });
   await page.setViewportSize({ width: 54 * rem, height: 900 });
   await page.goto("/");

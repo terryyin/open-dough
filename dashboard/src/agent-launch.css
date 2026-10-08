@@ -1,7 +1,8 @@
 /* Launch actions and session entries on cards or in Taken/Recently done.
-   The dialog's layout is ./launch-dialog.css. Text carries meaning: a noted
-   Start keeps the accent and dashed edge with its tooltip (./icon-control.css);
-   quiet gray means a disabled Start. */
+   The dialog's layout is ./launch-dialog.css; Recently done's own is
+   ./recently-done.css. Text carries meaning: a noted Start keeps the accent
+   and dashed edge with its tooltip (./icon-control.css); quiet gray means a
+   disabled Start. */
 
 /* In the card's launch group (stages.css), a Start's answer takes a line of
    its own right below it, before the next Start. */
@@ -95,24 +96,6 @@
   margin-top: 0.35rem;
 }
 
-.recently-done {
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem 1rem;
-  background: var(--panel);
-}
-
-.recently-done > p {
-  margin-top: 0.25rem;
-}
-
-.recently-done ol {
-  list-style: none;
-  display: grid;
-  gap: 0.6rem;
-  margin-top: 0.75rem;
-}
-
 .session-entry {
   border: 1px dashed var(--edge);
   border-radius: 0.35rem;
@@ -131,12 +114,6 @@
   padding: 0.5rem 0.8rem;
   background: var(--surface);
   font-size: 0.9rem;
-}
-
-/* A done story's sessions, inside its card as a card's sessions are. */
-.recently-done .done-story-sessions {
-  gap: 0.45rem;
-  margin-top: 0.2rem;
 }
 
 .session-state {
@@ -215,34 +192,4 @@
 
 .card-startup-note {
   font-size: 0.9rem;
-}
-
-/* Startup recovery: the project's startups that need reconciliation, beside
-   its actions and outside every protected card. Each entry is static: no
-   indicator moves, since nothing is known to progress. */
-.startup-recovery {
-  margin-top: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px dashed var(--line);
-  border-radius: 6px;
-}
-
-.startup-recovery h2 {
-  font-size: 1rem;
-  margin: 0 0 0.25rem;
-}
-
-.startup-recovery-entry h3 {
-  font-size: 0.95rem;
-  margin: 0.5rem 0 0.15rem;
-}
-
-.startup-recovery-entry p {
-  margin: 0.2rem 0;
-}
-
-.startup-recovery-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }

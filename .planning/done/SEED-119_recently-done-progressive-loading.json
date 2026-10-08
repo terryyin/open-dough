@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-119#recently-done-progressive-loading",
+  "title": "Show the latest 10 done items and reveal older items on demand",
+  "completedAt": "2026-10-08T00:11:09.658Z",
+  "developer": "Terry Yin",
+  "agent": "terry-chan",
+  "host": "claude"
+}

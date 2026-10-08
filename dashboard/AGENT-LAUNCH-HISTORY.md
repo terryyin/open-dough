@@ -42,6 +42,38 @@ clearing Done remain authoritative; refused marking or native reopening keeps
 the existing placement, and native stop/rename problems remain visible beside
 any observed Working despite saved Done.
 
+<a id="recently-done-range"></a>
+
+Recently done places its entries from the project's published done catalog,
+`done/.catalog.json` beside the backlog, which the product backlog's completion
+writes and its `catalog-done` rebuilds for records written before catalogs
+existed. The catalog must agree with the record files published at the shown
+revision; one that is missing, stale, or unreadable is the column's stated gap,
+never an empty list. The list shows the latest ten top-level entries and reads
+only the done records those show. **Show 10 of N older entries** (or **Show
+the N older entries**) after them is the only way to show more: scrolling,
+resizing, and column paging read nothing. While a batch reads, the entries
+already shown stay usable and each unread story keeps its place under its
+identity; a failed read says so and **Retry done stories** asks again for only
+the failed records. While more than ten show, **Show latest 10** beside the
+heading shows the latest ten again, reading nothing, brings the heading into
+view with the keyboard at the start of Recently done, and supersedes any
+pending reveal or journey. A journey ending on a done entry beyond those shown
+-- Mark as done, closing a terminal or report, or a Sessions sidebar choice
+resolving to a done entry, such as a Running Cursor sessions row -- extends the
+list exactly through that entry, never shortening it, and lands there once
+the entries through it are read; the developer's own move or another project
+meanwhile wins. A refresh of the same project keeps the requested number of
+entries in the new revision's order, showing the last revision's list until
+the new catalog answers, and shows more only to keep the entry holding the
+keyboard, or a journey's destination still being read, included; when that
+entry is gone, the keyboard goes to the entry in its place. A record whose
+text is unchanged is not read again; a changed or newly shown one is read at
+the new revision, and an earlier revision's or another project's late answer
+changes nothing shown. A reload or another project starts again at ten unless
+a journey into it needs more. Opening or closing the sidebar or side panel,
+resizing the panel, and narrowing the page keep the range.
+
 Heading and edge counts use the same top-level entries: each story counts once,
 each standalone session once, and nested sessions add nothing. Unread machine
 records or done details leave counts explicitly incomplete and never establish

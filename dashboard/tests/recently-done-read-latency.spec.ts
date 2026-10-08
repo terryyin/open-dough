@@ -1,10 +1,15 @@
 // Done stories are a later detail of the published read: a slow or stalled
 // done-record read never holds back or fails the Taken cards' owners,
-// preparation, and slice clocks. Done cards fill in when their read answers;
-// a read still unanswered at the wait bound is the Recently done column's
-// gap, not the project's read problem. The fake GitHub only publishes the
-// slice clock records (sliceClockRecords.ts) with two done records spelled by
-// the shared done-record renderer, holding one record's content read; the
+// preparation, and slice clocks. The done catalog places each done story,
+// with this machine's sessions for it, before its record is read; its card
+// fills in when that read answers. A record read still unanswered at the wait
+// bound is the Recently done column's gap, not the project's read problem, and
+// the story keeps its place and its sessions; a done catalog read still
+// unanswered then is the column's gap too, read again on the page's detail
+// recovery schedule. The fake GitHub only publishes the slice clock records
+// (sliceClockRecords.ts) with two done records spelled by the shared
+// done-record renderer and their catalog, holding one record's or the
+// catalog's content read; the
 // synthetic `claude` lists this machine's sessions; the page clock is paused,
 // and the local read boundary and the page decide everything shown.
 
@@ -28,10 +33,12 @@ import {
   stories,
 } from "./sliceClockRecords.ts";
 import {
+  doneDirectory,
   doneRecordAt,
   executed,
   removedQueued,
 } from "./recentlyDoneRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import {
   adHocEntry,
   expectEntries,
@@ -42,8 +49,12 @@ import {
 const hour = 60 * 60_000;
 // The done record whose content read GitHub answers only once released.
 const heldRecord = doneRecordAt(executed.identity);
-const isHeld = (request: GhRequest) =>
+const isHeldRecord = (request: GhRequest) =>
   request.kind === "content" && request.path === heldRecord;
+// The done catalog, whose content read GitHub answers only once released.
+const isHeldCatalog = (request: GhRequest) =>
+  request.kind === "content" &&
+  request.path === `${doneDirectory}/.catalog.json`;
 const doneRecords = {
   [heldRecord]: renderDoneRecord({
     ...executed,
@@ -60,6 +71,7 @@ const doneRecords = {
 async function openedWithHeldDoneRecord(
   page: Page,
   dashboard: DashboardServer,
+  isHeld: (request: GhRequest) => boolean = isHeldRecord,
 ) {
   const closedId = dashboard.claudeListsSession({
     name: executed.title,
@@ -91,7 +103,7 @@ async function openedWithHeldDoneRecord(
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
-    files: { ...files, ...doneRecords },
+    files: withDoneCatalog({ ...files, ...doneRecords }, doneDirectory),
     committed,
     history,
   });
@@ -103,7 +115,7 @@ async function openedWithHeldDoneRecord(
     taken: stories.map(({ title }) => title),
     backlog: [],
   });
-  // The held done record's read has reached GitHub through the local `gh`.
+  // The held read has reached GitHub through the local `gh`.
   await expect
     .poll(() => github.calls.some(({ request }) => isHeld(request)))
     .toBe(true);
@@ -124,7 +136,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
   const { card, recent, closed, problem, release } =
     await openedWithHeldDoneRecord(page, dashboard);
 
-  await test.step("while a done record's read is held, the Taken card shows its owner, preparation, and clock, and no done card shows", async () => {
+  await test.step("while a done record's read is held, the Taken card shows its owner, preparation, and clock, and each done story holds its place and sessions under its identity", async () => {
     await expect(card.locator(".owner-line")).toContainText(
       "Akiho-chan · Fixture Committer · Claude Code",
     );
@@ -132,11 +144,22 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
       card.getByRole("img", { name: "1 of 2 slices recorded complete" }),
     ).toBeVisible();
     await expect(card).toContainText("Current slice started 12 min ago");
-    await expect(recent.locator(".done-story")).toHaveCount(0);
-    await expect(recent.locator(".stage-count")).toHaveText(
-      "Entry count incomplete",
-    );
+    await expectEntries(recent, [
+      adHocEntry,
+      executed.identity,
+      queuedEntry,
+      removedQueued.identity,
+    ]);
+    await expect(
+      recent.getByRole("article", { name: executed.identity }),
+    ).toContainText("Reading done story…");
+    await expect(recent.locator(".stage-count")).toHaveText("4 entries");
     await expect(closed).toHaveCount(1);
+    await expect(
+      recent
+        .getByRole("article", { name: executed.identity })
+        .locator(".session-entry"),
+    ).toHaveCount(1);
     await expect(
       closed.getByRole("button", { name: "Open terminal" }),
     ).toBeEnabled();
@@ -162,7 +185,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
   });
 });
 
-test("a done-record read still unanswered at the wait bound is the Recently done column's gap, with detail recovery scheduled", async ({
+test("a done-record read still unanswered at the wait bound is the Recently done column's gap, not the project's read problem", async ({
   page,
   dashboard,
 }) => {
@@ -175,11 +198,43 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   await expect(recent).toContainText(
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done records.",
   );
+  await expect(
+    recent.getByRole("button", { name: "Retry done stories" }),
+  ).toBeVisible();
   await expectEntries(recent, [
     adHocEntry,
+    executed.identity,
     queuedEntry,
-    `Execution session for ${executed.title}`,
+    removedQueued.identity,
   ]);
+  const unread = recent.getByRole("article", { name: executed.identity });
+  await expect(unread).toContainText("This done story could not be read.");
+  await expect(unread.locator(".session-entry")).toHaveCount(1);
+  await expect(
+    closed.getByRole("button", { name: "Open terminal" }),
+  ).toBeEnabled();
+  await expect(card.locator(".owner-line")).toContainText(
+    "Akiho-chan · Fixture Committer · Claude Code",
+  );
+  await expect(card).toContainText("Current slice started 12 min ago");
+  // The record was read for the entries shown; its retry asks it again.
+  await expect(problem).toHaveCount(0);
+});
+
+test("a done catalog read still unanswered at the wait bound is the Recently done column's gap, with detail recovery scheduled", async ({
+  page,
+  dashboard,
+}) => {
+  const { card, recent, closed, problem } = await openedWithHeldDoneRecord(
+    page,
+    dashboard,
+    isHeldCatalog,
+  );
+  await expect(card).toContainText("Current slice started 12 min ago");
+  await page.clock.runFor(30_000);
+  await expect(recent).toContainText(
+    "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done catalog.",
+  );
   await expect(
     closed.getByRole("button", { name: "Open terminal" }),
   ).toBeEnabled();

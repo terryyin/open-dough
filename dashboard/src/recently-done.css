@@ -1,0 +1,64 @@
+/* Recently done as the dashboard columns show it (./RecentlyDone.tsx): its
+   frame, the heading's count and range action, the list, and what shows of
+   it. Its session entries and done story cards read as ./agent-launch.css
+   sets them. */
+
+.recently-done {
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+  background: var(--panel);
+}
+
+/* The count and the action that shows only the latest ten, together at the
+   end of the heading. The action is as compact as the count and reaches into
+   the heading's padding, so offering it never moves the entries below. */
+.recently-done .stage-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recently-done .stage-header-actions .frame-button {
+  min-height: 1.5rem;
+  margin-block: calc(var(--space-1) * -1);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+}
+
+.recently-done > p {
+  margin-top: 0.25rem;
+}
+
+.recently-done ol {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+/* How much of Recently done shows, with the action that shows older
+   entries, and a failed read with its retry: each below what it is about. */
+.recently-done-range,
+.done-read-gap {
+  display: grid;
+  justify-items: start;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+/* The reveal action while older entries read: still focusable, so the
+   keyboard stays on it, and quiet as a disabled button. */
+.recently-done-range .frame-button[aria-disabled="true"] {
+  border-color: var(--line);
+  color: var(--quiet);
+  background: var(--surface);
+  cursor: default;
+}
+
+/* A done story's sessions, inside its card as a card's sessions are. */
+.recently-done .done-story-sessions {
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}

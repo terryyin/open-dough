@@ -112,13 +112,11 @@ export async function openedWithYumaWithheld(
     "Human developer unknown",
   );
   await expect(yumaCard).toContainText(
-    "Current slice time unavailable: GitHub limited the rate of the local GitHub CLI's requests",
+    "Current slice time unavailable: GitHub's rate limit withheld",
   );
   await expect(
     (await inspectedDetail(yumaCard)).locator(".owner-human"),
-  ).toContainText(
-    "Human developer unknown. GitHub limited the rate of the local GitHub CLI's requests",
-  );
+  ).toContainText("Human developer unknown. GitHub's rate limit withheld");
   await expect(parts(page).problem).toHaveCount(1);
   return { limitSeenAt, asked: githubFor(page).calls.length };
 }
@@ -158,7 +156,7 @@ export async function expectRecovered(page: Page, solaExplained: string) {
       "Current slice started",
     );
     await expect(page.locator("body")).not.toContainText(
-      "GitHub limited the rate",
+      "GitHub's rate limit withheld",
     );
     const { member, opener, back } = rosterParts(page);
     await opener("Yuma-chan").click();

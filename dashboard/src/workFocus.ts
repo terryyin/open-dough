@@ -111,22 +111,45 @@ export function keepInView(element: Element): () => void {
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   };
+  // The page's size as the part was brought into view; only a change from it
+  // moves the page again, including one already made when observing first
+  // reports it, as when a hidden column shows.
+  const sizeOf = () => {
+    const { width, height } = document.body.getBoundingClientRect();
+    return `${String(width)} ${String(height)}`;
+  };
+  let size = sizeOf();
   show();
-  let observed = false;
   const resized = new ResizeObserver(() => {
-    // Observing reports the page's size once; only later changes move it.
-    if (observed) show();
-    observed = true;
+    const now = sizeOf();
+    if (now === size) return;
+    size = now;
+    show();
   });
   resized.observe(document.body);
-  const stop = () => {
+  const stop = untilOwnMove(() => {
     resized.disconnect();
+  });
+  return () => {
+    resized.disconnect();
+    stop();
+  };
+}
+
+// Calls `moved` once the developer scrolls, points, or types, unless the
+// returned stop is called first.
+export function untilOwnMove(moved: () => void): () => void {
+  const stop = () => {
     for (const move of ownMoves) {
-      window.removeEventListener(move, stop, true);
+      window.removeEventListener(move, heard, true);
     }
   };
+  const heard = () => {
+    stop();
+    moved();
+  };
   for (const move of ownMoves) {
-    window.addEventListener(move, stop, true);
+    window.addEventListener(move, heard, true);
   }
   return stop;
 }

@@ -18,7 +18,7 @@ export async function selectSettledDoughnut(page: Page) {
   origin.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   const { project, backlog, source } = parts(page);
   // This fixture has no assignments or Taken plans, so its profile and done
-  // responses finish every independent read beside preparation. Observe them
+  // catalog responses finish every independent read beside preparation. Observe them
   // before selecting: preparation alone can finish before either request has
   // even reached gh, and a following switch must not count that older work.
   const independentReads = Promise.all(
@@ -30,7 +30,7 @@ export async function selectSettledDoughnut(page: Page) {
           url.searchParams.get("source") === "doughnut" &&
           url.searchParams.get("revision") === revisionDoughnut &&
           url.searchParams.get(group) ===
-            (group === "agents" ? "profiles" : "records")
+            (group === "agents" ? "profiles" : "catalog")
         );
       }),
     ),

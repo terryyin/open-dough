@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 254. Removed local codes are never reused.
+- Highest allocated local number: 256. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -812,23 +812,6 @@ Follow-up: Open, unqueued.
   - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
   - Inference: Qualified; the same recurring cost, unchanged by the release.
 
-## DD-244 — The coordinator spawned a no-op fork while waiting for a background agent
-
-Waiting for a background refactor agent, the coordinator launched a `fork` agent with the prompt `noop`. The fork inherited the whole conversation and returned after doing nothing. `delegation.md` "Await delegated results without empty calls" already forbids calls whose only purpose is waiting.
-
-Follow-up: Open, unqueued.
-
-### Occurrences
-
-- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
-  - Timestamp: unknown (2026-10-07, during the slice 1 refactor pass)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: coordinator conversation: Agent call `description: placeholder`, `subagent_type: fork`, `prompt: noop`; its notification reported 107,482 subagent tokens, 0 tool uses, "I made no changes and ran nothing"; `git status` afterwards showed only the slice's edits.
-  - Observed effect: about 107k tokens spent with no output; no changes or rework.
-  - Inference: Qualified one-off model error, not a guidance gap. A fork costs the whole parent context even when it does nothing, so any accidental fork is expensive.
-
 ## DD-245 — A background coordinator implemented its single slice itself
 
 `delegation.md` allows local implementation "only for a single interactive slice". This background session had one Structure slice of about 30 changed lines, and the coordinator implemented it without a delegated agent.
@@ -980,6 +963,7 @@ Follow-up: Open, unqueued.
   - Evidence: local HEAD was `598cd884` with a clean tree while `origin/cursor/recover-automatically-from-temporary-github-fail` remained at `ded67152`; the deliver shell (pid 36319) was still listed running; killing it and re-invoking deliver accepted publication of `598cd884` in ~12s.
   - Observed effect: CI and completion waited on an unpublished repair tip; a second deliver was required.
   - Inference: Qualified. The commit step and the publish/register step are separable; an unobserved stall after commit leaves the branch behind without a failing exit.
+- Execution: `SEED-119#recently-done-progressive-loading` / plan 274, first related implementation commit `62238f21` - Timestamp: unknown (slice 3 delivery of `a6dbc253`, committed 2026-10-08T01:54:24+09:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.57 (installed `dough-update/VERSION`) - Evidence: the first `deliver` returned `publication: reconciled, status: needs-validation` with `remoteTip` equal to the previously published base `988d0267`. The retry with `--validated-candidate` ran over 10 minutes, and `ps` showed `git fetch origin` / `ssh … git-upload-pack` alive for 15 minutes. After that fetch was killed, a manual fetch took 2 s and the retry was accepted. - Observed effect: about 25 minutes of delivery delay. The coordinator also truncated the first result with `cut -c1-300`, which lost its diagnostic fields. - Inference: Qualified. Same hang, here traced to `git fetch` over SSH with no time bound; a transient network stall; a bounded fetch/push with a named timeout result would have turned the hang into an explicit, retryable stop.
 
 ## DD-254 — A plan's code findings went stale on trunk with no signal before delegation
 
@@ -997,3 +981,10 @@ Follow-up: Open, unqueued.
   - Evidence: `459959ff:dashboard/src/RecentlyDone.tsx` `recentlyDoneColumn` already returned an unknown count until sessions and done records were read; `dashboard/src/columnSummary.ts` came from `398fd61a`. The plan's slice 2 asked for a bare-name control, which would have changed the shipped "Entry count incomplete" wording. Slice 2 was recorded done with no change in `27cde622`.
   - Observed effect: no rework. The coordinator noticed by reading the code while it waited, not through any startup or delegation check; the slice 1 agent independently reported finding 3 as out of date.
   - Inference: Qualified, one sample. Rechecking a plan's code-level findings against the fetched trunk before delegating each slice would have caught it; without that, a slice could re-implement delivered behavior or regress its wording.
+
+## DD-255 — A CI repair fixed one spec's race and left the same race in a sibling spec from the same slice
+
+A repair for a timing race in a new test fixed only the reported spec. A sibling spec written in the same slice had the same pattern: it switched projects while demanded reads were still in flight, then asserted an exact set of asked records. That sibling then failed CI separately.
+
+### Occurrences
+- Execution: `SEED-119#recently-done-progressive-loading` / plan 274, first related implementation commit `62238f21` - Timestamp: 2026-10-08T06:30:48+09:00 (repair `d04890e8`); second repair `fbab9e3a` at 2026-10-08T06:43:54+09:00 - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.57 (installed `dough-update/VERSION`) - Evidence: CI run 37687776071 on `c98b364c` failed `recently-done-progressive-navigation.spec.ts` ("choosing another project…"); the coordinator's brief asked only for that test, and repair `d04890e8` added a wait to it. `recently-done-progressive-navigation-cursor.spec.ts` (also slice 4) then asked records twice in the slice 5 refactor sweep and failed CI runs 37689968037 (`d04890e8`) and 37691024378 (`670b27fa`); `fbab9e3a` applied the same wait. - Observed effect: two more failed CI runs, a second diagnosis agent (about 97k subagent tokens), and a second repair commit. - Inference: Qualified. The first diagnosis named a general cause: a project switch cancels in-flight reads and `recordsAsked` counts cancelled asks. Searching the same slice's specs for project switches after demanded reads would likely have found the sibling in the same repair.

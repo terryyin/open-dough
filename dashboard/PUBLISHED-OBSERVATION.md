@@ -32,10 +32,12 @@ every published branch head, which GitHub answers with `304 Not Modified` when
 no branch moved, so an unchanged ref reads no backlog or record and changes
 neither the revision nor the retrieval time. When the configured ref names a new commit,
 the page reads exactly that commit, so newly published work appears within
-about 30 seconds. Only GitHub's own account of what changed lets that read
+about 30 seconds. Its backlog is read there directly, so its cards appear
+without waiting on anything else, while the details that follow may reuse
+earlier answers. Only GitHub's own account of what changed lets those details
 reuse anything: the dashboard process compares the new commit with the
 revision at which it last read the backlog and reads each commit between, and
-a backlog, record, or record listing that neither the comparison's files nor
+a record or record listing that neither the comparison's files nor
 any of those commits touched is answered from what it already read, as the
 new commit's own, as are the addition that credits a profile's human and a
 plan's last commit time when none of them touched that profile or plan;
@@ -46,7 +48,7 @@ even when the commit that changed it is a merge whose own change list does
 not name it, and one missing there stays missing. When the new commit does
 not descend from the earlier one, more than ten commits lie between, the
 comparison's or a commit's change list is not given whole (GitHub names at
-most 300 files), or the comparison fails other than by a rate limit, the new commit is read as a first visit reads it; a rate limit withholds what it stopped. While the configured ref is unchanged, a story branch that a shown Taken
+most 300 files), or the comparison fails other than by a rate limit, the new commit's details are read as a first visit reads them; a rate limit withholds the details it stopped, never the cards already shown. While the configured ref is unchanged, a story branch that a shown Taken
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
@@ -125,13 +127,15 @@ more until that time, whichever page or project asks: each read asked meanwhile,
 and adding a project, is answered at once as limited, says it was not asked,
 and carries the whole seconds left, so it is never taken for a missing record. A
 read already at GitHub keeps GitHub's own answer, and a later directed time only
-extends the wait. A rate-limit refusal that directs no usable wait holds back
-reads the same way for one minute; when the first read after that wait is
-refused the same way, the wait doubles, up to one hour, and once a read
-succeeds the next such refusal waits one minute again. Its problem says GitHub
-named no wait and when reading resumes. When any wait ends, directed or not,
+extends the wait. A rate-limit refusal that directs no usable wait, including
+one naming a time already passed, holds back reads the same way for one
+minute; when the first read after that wait is refused the same way, the wait
+doubles, up to one hour, and once a read succeeds the next such refusal waits
+one minute again. Its problem says GitHub named no wait and when reading
+resumes. When any wait ends, directed or not,
 reading resumes with one read: the reads asked with it wait their turn until
-GitHub answers it, then proceed up to eight at once; if GitHub limits it again,
+it ends, then proceed up to eight at once, whether GitHub answered it, was
+unreachable, its request left, or it timed out; if GitHub limits it again,
 they are answered as limited with the new resume time and only that read
 reached GitHub. A read waiting its turn when a wait starts is answered as
 limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
@@ -158,16 +162,18 @@ walked back to its addition are remembered once answered, so the walk asks
 only from the step the limit refused, once for the human and the clock that
 share it.
 Each withheld record file, profile set, human, clock, or done record is
-labeled with the limit's wording and that time, never as missing; a human
-whose profile history was withheld is unknown on its card, while its detail
-and the roster name the limit. Another tab, or the page reloaded, learns the
-same limit from its next request, which the process holds back without asking
-GitHub. The boundary passes on only the validated
-wait, or its own when GitHub directed none, at most one hour. The page's wait
-ends only at its time: a later check or read that succeeds clears the
-problem, unless the problem stands with its snapshot as described below, but
-no answer lifts the wait early. A record detail that
-could not be read for an access, missing, invalid, or unknown reason stays
+labeled one way, never as missing: "GitHub's rate limit withheld" what was
+being read, and "Limited until" that time, whether GitHub refused the read,
+the process held it back, or the page did not ask; no label names a number of
+seconds. A human whose profile history was withheld is unknown on its card,
+while its detail and the roster give that label after "Human developer
+unknown." Another tab, or the page reloaded, learns the same limit from its
+next request, which the process holds back without asking GitHub. The
+boundary passes on only the validated wait, or its own when GitHub directed
+none, at most one hour. The page's wait ends only at its time: a later check
+or read that succeeds clears the problem, unless the problem stands with its
+snapshot as described below, but no answer lifts the wait early. A record
+detail that could not be read for an access, missing, invalid, or unknown reason stays
 labeled on its card rather than borrowing an older one; checks that find the
 configured ref unchanged never read it again, and eligible recovery of another
 gap does not ask it again for that same pin -- reload the page to try it at the
@@ -178,7 +184,10 @@ each detail still unread is shown as such a gap on that snapshot, and the
 problem stands with it (a slice clock or credited human still unread is only
 its own gap): a check that finds the configured ref unchanged does not clear
 it; an eligible unread detail is read again on the page's transient recovery
-schedule at that same revision, keeping successfully shown facts. A hidden
+schedule at that same revision, keeping successfully shown facts. Recently
+done's done catalog is such a detail; the done records its shown entries need
+are read apart from the snapshot and asked again by **Retry done stories**
+([Recently done range](AGENT-LAUNCH-HISTORY.md#recently-done-range)). A hidden
 page asks no recovery attempt and releases only its own outstanding recovery
 wait; another page waiting on the same shared read may finish it. The due time
 and backoff step are kept: when the page is seen again it recovers once if

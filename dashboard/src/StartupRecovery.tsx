@@ -35,6 +35,7 @@ import type {
   StartupRecoveryItem,
 } from "./startupRecoveries.ts";
 import "./agent-launch.css";
+import "./startup-recovery.css";
 
 // What the startup is of: its story, or the project's ad hoc session.
 function subjectOf(request: AgentLaunchRequest): string {

@@ -7,6 +7,7 @@ import { expect } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { slicePlan } from "./branchProgressRecords.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
@@ -23,6 +24,7 @@ export const planPath = ".planning/slice-plans/271-refresh/PLAN.md";
 export const profilePath = ".planning/agents/akiho-chan.json";
 export const settingsPath = ".planning/open-dough.json";
 export const donePath = ".planning/done/SEED-270_done.json";
+export const doneCatalogPath = ".planning/done/.catalog.json";
 
 export const takenTitle = "Refresh without rereading";
 export const queuedTitle = "Queued beside it";
@@ -56,21 +58,26 @@ export const seed = `# Refresh fixture
 **Identity:** SEED-271#queued
 `;
 
-export const files: Record<string, string> = {
-  [backlogPath]: backlog,
-  [seedPath]: seed,
-  [planPath]: slicePlan(5, 2),
-  [profilePath]: renderAgentProfile({
-    name: "Akiho",
-    identity: "SEED-271#refresh",
-    mode: "trunk",
-    branch: "main",
-    host: "claude",
-    model: undefined,
-  }),
-  [settingsPath]: "{}\n",
-  [donePath]: `{"note":"an earlier story's done record"}\n`,
-};
+// The done record is published with the done catalog beside it, which lists
+// it as a record it could not read.
+export const files: Record<string, string> = withDoneCatalog(
+  {
+    [backlogPath]: backlog,
+    [seedPath]: seed,
+    [planPath]: slicePlan(5, 2),
+    [profilePath]: renderAgentProfile({
+      name: "Akiho",
+      identity: "SEED-271#refresh",
+      mode: "trunk",
+      branch: "main",
+      host: "claude",
+      model: undefined,
+    }),
+    [settingsPath]: "{}\n",
+    [donePath]: `{"note":"an earlier story's done record"}\n`,
+  },
+  ".planning/done",
+);
 
 export const atA: PublishedRevision = {
   revision: revisionA,

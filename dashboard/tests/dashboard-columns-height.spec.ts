@@ -5,7 +5,8 @@
 // of it reachable again; a vertical position the new columns cannot hold
 // stops at their bottom, and one they can hold stays. An opened inspection
 // lengthens the page and closing it shortens it again, while content arriving
-// in a hidden column adds nothing. That focus and a Sessions sidebar choice
+// in a hidden column adds nothing. Recently done shows its latest ten entries
+// until its older ones are revealed. That focus and a Sessions sidebar choice
 // reveal a hidden column whole is ./dashboard-columns-paging.spec.ts and
 // ./dashboard-columns-paging-sessions-sidebar.spec.ts.
 
@@ -39,8 +40,11 @@ import {
   wheelTo,
 } from "./dashboardColumnsPage.ts";
 import { heldFactGroups, moreDoneTitle } from "./publishedFactsArrival.ts";
+import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { revealAction } from "./recentlyDoneProgressivePage.ts";
 import {
   at,
+  doneDirectory,
   doneRecordAt,
   publishedFiles,
   queuedTitle as inspectedTitle,
@@ -76,7 +80,7 @@ test.describe("in a two-column page", () => {
       repository,
       revision,
       files: {
-        ...publishedFiles(doneRecords),
+        ...publishedFiles(withDoneCatalog(doneRecords, doneDirectory)),
         ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md": `<a id="planning-workspace-procedure"></a>
 
 ### ${inspectedTitle}
@@ -94,7 +98,21 @@ test.describe("in a two-column page", () => {
     const lastDone = recentlyDone.getByRole("article", {
       name: doneTitle(doneCount),
     });
-    await expect(lastDone).toHaveCount(1);
+    await test.step("Recently done revealed to its oldest entry is long, then hidden again", async () => {
+      await showColumn(page, "Recently done");
+      const reveal = revealAction(recentlyDone);
+      for (const offered of [
+        "Show 10 of 30 older entries",
+        "Show 10 of 20 older entries",
+        "Show the 10 older entries",
+      ]) {
+        await expect(reveal).toHaveText(offered);
+        await reveal.click();
+      }
+      await expect(reveal).toHaveCount(0);
+      await expect(lastDone).toHaveCount(1);
+      await showColumn(page, "Backlog");
+    });
     await expectView(page, ["Backlog", "Taken"], ["Recently done 40 entries"]);
 
     await test.step("read to its end, the page ends with Backlog and Taken", async () => {
@@ -160,12 +178,16 @@ test.describe("in a two-column page", () => {
     await expectEndsWithShown(page, ["Backlog", "Taken"]);
 
     release("done");
+    // The latest ten show: the journeys' own done story, then nine more.
     const lastDone = recentlyDone.getByRole("article", {
-      name: moreDoneTitle(moreDone),
+      name: moreDoneTitle(9),
     });
     await expect(lastDone).toHaveCount(1);
     await expect(doneCard).toHaveCount(1);
-    await expectLongerThanThePage(lastDone);
+    await expect(revealAction(recentlyDone)).toHaveText(
+      "Show 10 of 31 older entries",
+    );
+    await expectLongerThanThePage(revealAction(recentlyDone));
     expect(await extentOf(page)).toBe(before);
     await expectEndsWithShown(page, ["Backlog", "Taken"]);
   });

@@ -165,3 +165,63 @@ run_offline_git_merge_proof() {
     return 1
   fi
 }
+
+# The done catalog, produced only by one platform root's installed copies:
+# catalog-done adopts a record written before catalogs existed without
+# changing its bytes or the backlog's, and a completion then rebuilds the
+# catalog to list both records, each at the blob hash Git itself computes.
+run_offline_done_catalog_proof() {
+  local scripts_root=$1
+  local project=$2
+  local backlog done_dir legacy record_before backlog_before catalog
+  local legacy_blob completed completed_blob
+
+  backlog="${project}/plans/BACKLOG.md"
+  done_dir="${project}/plans/done"
+  legacy="${done_dir}/OLD_legacy.json"
+  mkdir -p -- "${done_dir}" "${project}/work"
+  cat > "${backlog}" << 'BACKLOG'
+# Product backlog
+
+## Taken
+
+## Backlog list
+
+- [Finish catalog proof](seeds/CAT.md#finish) — CAT#finish
+BACKLOG
+  printf '%s\n' '{' '  "schemaVersion": 1,' '  "identity": "OLD#legacy",' \
+    '  "title": "Written before catalogs",' \
+    '  "completedAt": "2026-10-01T00:00:00.000Z"' '}' > "${legacy}"
+  record_before=$(cat "${legacy}")
+  backlog_before=$(cat "${backlog}")
+
+  (cd -- "${project}/work" && node "${scripts_root}/product-backlog.mjs" \
+    catalog-done --file ../plans/BACKLOG.md) > /dev/null
+  catalog="${done_dir}/.catalog.json"
+  legacy_blob=$(git hash-object --no-filters "${legacy}")
+  if [[ ! -f "${catalog}" ]] || ! grep -Fq "\"blob\": \"${legacy_blob}\"" "${catalog}"; then
+    echo "FAIL: installed catalog-done under ${scripts_root} did not list the existing record at its Git blob hash." >&2
+    cat "${catalog}" >&2 || true
+    return 1
+  fi
+  if [[ "$(cat "${legacy}")" != "${record_before}" || "$(cat "${backlog}")" != "${backlog_before}" ]]; then
+    echo "FAIL: installed catalog-done under ${scripts_root} changed a record or the backlog." >&2
+    return 1
+  fi
+
+  (cd -- "${project}/work" && DOUGH_BACKLOG_COMPLETION_TIME=2026-10-06T00:00:00.000Z \
+    node "${scripts_root}/product-backlog.mjs" complete \
+    --identity 'CAT#finish' --file ../plans/BACKLOG.md) > /dev/null
+  completed="${done_dir}/CAT_finish.json"
+  completed_blob=$(git hash-object --no-filters "${completed}")
+  if ! grep -Fq "\"blob\": \"${completed_blob}\"" "${catalog}" \
+    || ! grep -Fq "\"blob\": \"${legacy_blob}\"" "${catalog}"; then
+    echo "FAIL: an installed completion under ${scripts_root} did not rebuild the catalog with both records." >&2
+    cat "${catalog}" >&2
+    return 1
+  fi
+  if grep -Fq 'Written before catalogs' "${catalog}"; then
+    echo "FAIL: the installed catalog carried a record's title." >&2
+    return 1
+  fi
+}
