@@ -3,8 +3,8 @@
 **Identity:** SEED-119#done-catalog-adapter-edge-results-correction
 **Source:** [correction story](../../seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-adapter-edge-results-correction),
 from the execution retrospective of
-SEED-119#done-catalog-currency-correction (plan
-[276](../276-done-catalog-currency-correction/PLAN.md)).
+SEED-119#done-catalog-currency-correction (plan 276, recoverable at
+`a19f7186:.planning/slice-plans/276-done-catalog-currency-correction/PLAN.md`).
 **Prepared:** 2026-10-08, planning only, in the execution checkout
 `/Users/terryyin/git/open-dough/.worktrees/done-catalog-stays-current-through-git-integrati`
 on `claude/done-catalog-stays-current-through-git-integrati` at `e634f974`,

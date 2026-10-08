@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-119#done-catalog-currency-correction",
+  "title": "Done catalog stays current through Git integration and failed reads recover on refresh",
+  "completedAt": "2026-10-08T05:24:46.507Z",
+  "developer": "Terry Yin",
+  "agent": "jackson-chan",
+  "host": "claude"
+}

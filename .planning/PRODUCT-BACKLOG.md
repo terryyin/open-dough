@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Reduce repeated GitHub reads across tabs and deployments](seeds/SEED-118-dashboard-reading-reliability.md#reduce-repeated-reads-across-tabs-and-deployments) — SEED-118#reduce-repeated-reads-across-tabs-and-deployments ([plan](slice-plans/275-retained-answers-across-processes/PLAN.md))
 - [Observe decisive planning premises through the full promised journey](seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey ([plan](slice-plans/258-observe-promised-journey/PLAN.md))
-- [Done catalog stays current through Git integration and failed reads recover on refresh](seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-currency-correction) — SEED-119#done-catalog-currency-correction ([plan](slice-plans/276-done-catalog-currency-correction/PLAN.md))
 
 ## Backlog list
 
