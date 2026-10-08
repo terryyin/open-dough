@@ -216,3 +216,16 @@ journey addition.
 - Local proof is the focused journeys named per slice plus the dashboard
   typecheck; the commit hook runs lint. Hosted CI runs the full dashboard
   suite after publication.
+
+## Execution complete
+
+Product advice: no correction. All seven session spawn sites (Claude launch
+and attach, Codex daemon start and resume, Cursor runner, `create-chat` and
+kept client) read the one `developerShellEnvironment` rule, and the
+dashboard's helpers keep their environment as the story defers. The rule's
+edge cases (a trailing slash, a relative `node_modules/.bin`) are covered only
+by reading, not by a test; that costs little while every real entry is
+absolute. Once this reaches the deployment, the first session it launches
+shows the outcome in the field: its `npm ci` installs dev dependencies
+without `env -u NODE_ENV`. The deferred readiness-guidance facet stays with
+ODF-087.
