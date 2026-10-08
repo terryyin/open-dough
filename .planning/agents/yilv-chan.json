@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yilv-chan",
-  "email": "yilv-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-121#retain-execution-observer-owner",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
