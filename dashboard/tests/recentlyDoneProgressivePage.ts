@@ -53,6 +53,7 @@ export async function opened(
     at = revision,
     open,
     also,
+    beside,
   }: {
     readonly nestedIn?: number;
     readonly answering?: Answering;
@@ -61,6 +62,8 @@ export async function opened(
     // (`keepProgressiveSessions`).
     readonly open?: readonly number[];
     readonly also?: (now: number) => readonly LaunchRecord[];
+    // Files published beside the list's (`publishedWithCatalog`).
+    readonly beside?: Readonly<Record<string, string>>;
   } = {},
 ) {
   const now = Date.now();
@@ -72,7 +75,10 @@ export async function opened(
   github.serve(
     repository,
     answering(
-      publishes({ revision: at, files: publishedWithCatalog(now, list) }),
+      publishes({
+        revision: at,
+        files: publishedWithCatalog(now, list, beside),
+      }),
     ),
   );
   await page.goto("/");

@@ -66,7 +66,9 @@ export const newest = laterStory(
 
 // `main` names the first publication until `publish` moves it; `answering`
 // wraps the first publication's answers (`opened`'s option of that name).
-export function movingMain() {
+// Each later publication keeps the files `beside` names beside its list
+// (`publishedWithCatalog`), as the first does when opened with them.
+export function movingMain(beside: Readonly<Record<string, string>> = {}) {
   const published = new Map<string, RepositoryAnswerer>();
   let head = firstRevision;
   let count = 0;
@@ -90,7 +92,10 @@ export function movingMain() {
       head = String(count).padStart(2, "0").repeat(20);
       published.set(
         head,
-        publishes({ revision: head, files: publishedWithCatalog(now, list) }),
+        publishes({
+          revision: head,
+          files: publishedWithCatalog(now, list, beside),
+        }),
       );
       return head;
     },

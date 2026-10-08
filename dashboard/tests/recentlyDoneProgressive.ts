@@ -92,11 +92,13 @@ export function progressiveEntries(
 export const placedAt = (now: number, place: number) =>
   new Date(now - place * hour - 30 * 60_000).toISOString();
 
-// The published files: the backlog, each story's done record, and the done
-// catalog the real `catalog-done` builds from them.
+// The published files: the backlog, each story's done record, the files
+// `beside` names by repository path, and the done catalog the real
+// `catalog-done` builds from them.
 export function publishedWithCatalog(
   now: number,
   entries: readonly ProgressiveEntry[],
+  beside: Readonly<Record<string, string>> = {},
 ): Record<string, string> {
   const project = mkdtempSync(join(tmpdir(), "open-dough-progressive-"));
   try {
@@ -114,6 +116,9 @@ export function publishedWithCatalog(
           developer: "Terry Yin",
         }),
       );
+    }
+    for (const [path, text] of Object.entries(beside)) {
+      writeFileSync(join(project, path), text);
     }
     if (entries.some(({ kind }) => kind === "story")) {
       execFileSync(

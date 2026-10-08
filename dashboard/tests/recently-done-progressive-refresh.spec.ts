@@ -6,9 +6,11 @@
 // not read again. When the entry holding the keyboard is gone, the keyboard
 // goes to the entry in its place, and a shorter page keeps the scroll within
 // it. What a refresh and other moves keep or start again:
-// ./recently-done-progressive-reset.spec.ts. Publications and refreshes:
-// ./recentlyDoneRefresh.ts; the `gh` calls reaching the fake GitHub show
-// which records were read, and at which revision.
+// ./recently-done-progressive-reset.spec.ts; what it asks again after a
+// failed read: ./recently-done-progressive-failed-read-refresh.spec.ts.
+// Publications and refreshes: ./recentlyDoneRefresh.ts; the `gh` calls
+// reaching the fake GitHub show which records were read, and at which
+// revision.
 
 import { expect, test } from "./dashboardTest.ts";
 import { rem } from "./dashboardColumnsPage.ts";

@@ -72,9 +72,10 @@ entries in the new revision's order, showing the last revision's list until
 the new catalog answers, and shows more only to keep the entry holding the
 keyboard, or a journey's destination still being read, included; when that
 entry is gone, the keyboard goes to the entry in its place. A record whose
-text is unchanged is not read again; a changed or newly shown one is read at
-the new revision, and an earlier revision's or another project's late answer
-changes nothing shown. A reload or another project starts again at ten unless
+unchanged text was read, or refused, keeps what it said; a changed or newly
+shown one, or one still shown whose earlier read failed, is read at the new
+revision, and an earlier revision's or another project's late answer changes
+nothing shown. A reload or another project starts again at ten unless
 a journey into it needs more. Opening or closing the sidebar or side panel,
 resizing the panel, and narrowing the page keep the range.
 

@@ -354,7 +354,24 @@ Safe stopping point: a developer meeting the strict-mode gap knows the repair.
 ### 4. A new revision asks again for done records whose read failed
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/recently-done-progressive-failed-read-refresh.spec.ts`
+(an unchanged revision asks nothing; at a newer revision the browser's
+`done=bodies` requests name exactly the still-shown failed records plus the new
+entry, read and refused records are not asked, a repeated failure shows Retry,
+and a later revision shows the cards); it fails with the previous
+`doneDetails.ts`. The Progressive range group (plus helper consumers), the Done
+projection group, and `npm run typecheck:dashboard` pass; `readOutcome.ts`
+describes the catalogued read, and `dashboard/AGENT-LAUNCH-HISTORY.md#recently-done-range`
+states the per-revision demand.
+Learnings: the failing read sits in the second ten, because the first ten and
+the refused record are read as one group of up to 100. GitHub calls understate
+page demand (the boundary reuses blobs and stops at a group's first failure),
+so the proof observes the page's requests. Under a load average of 7–8 the
+twelve-spec progressive run at default workers failed in unchanged code (Vite
+start within 20000ms, `dashboardColumnsPage.ts:49` row rest,
+`dashboardPage.ts:137` backlog heading), a different set each run; the
+failures passed alone and the whole run passed at `--workers=3`.
 Proof: extend `recently-done-progressive-refresh.spec.ts`, using
 `dashboard/tests/recentlyDoneRefresh.ts` (`movingMain`, `refreshedTo`,
 `recordsAskedAt`) with `answeringFirst(…, isRecord(…), noConnection)`: a

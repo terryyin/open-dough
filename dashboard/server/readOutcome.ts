@@ -46,8 +46,9 @@ type Answer =
   // keeps it from being trusted (`./doneCatalogRead.ts`).
   | { readonly revision: string; readonly catalog: string }
   | { readonly revision: string; readonly gap: string }
-  // The done records listed beside the backlog at a revision, or those of
-  // them a read named from its catalog.
+  // The texts of the done record files a read named from the revision's
+  // agreed done catalog, each at the blob the catalog names for it
+  // (`./doneCatalogRead.ts`).
   | {
       readonly revision: string;
       readonly records: readonly PinnedFile[];
