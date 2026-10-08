@@ -3,7 +3,7 @@
 **Identity:** SEED-119#done-catalog-currency-correction
 **Source:** [correction story](../../seeds/SEED-119-recently-done-progressive-loading.md#done-catalog-currency-correction),
 from the execution retrospective of
-[SEED-119#recently-done-progressive-loading](../../seeds/SEED-119-recently-done-progressive-loading.md#recently-done-progressive-loading).
+SEED-119#recently-done-progressive-loading (story section at `e74fabcc:.planning/seeds/SEED-119-recently-done-progressive-loading.md`).
 **Prepared:** 2026-10-08, planning only, in the established execution checkout
 `/Users/terryyin/git/open-dough/.worktrees/show-the-latest-10-done-items-and-reveal-older-i`
 on `claude/show-the-latest-10-done-items-and-reveal-older-i` at `742e6b9a`,
@@ -13,7 +13,7 @@ authorized: `origin/main`. This plan grants no execution or publication.
 ## Provenance
 
 - Original contract: the story section and
-  [plan 274](../274-recently-done-progressive-loading/PLAN.md) as they stand at
+  plan 274 (`e74fabcc:.planning/slice-plans/274-recently-done-progressive-loading/PLAN.md`) as they stand at
   `742e6b9a`. Their promises, decisions 1–8, and attribution are unchanged.
 - Reviewed manifest: `62238f21` (catalog producer), `988d0267` (catalog and
   named-record reads), `a6dbc253` (short list and reveal), `c98b364c`
