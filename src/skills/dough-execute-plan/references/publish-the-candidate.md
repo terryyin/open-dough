@@ -56,7 +56,7 @@ merge commit is one: for example, run
 `git merge --no-ff --no-commit <published-tip>`, then commit the in-progress
 merge through `agent-commit.mjs`; `-F "$(git rev-parse --git-path MERGE_MSG)"`
 keeps Git's prepared message. When the merge
-touches the product backlog, run
+touches the product backlog or the done records beside it, run
 `product-backlog-git-merge.mjs merge --ref <published-tip> --cwd <owned-workspace>`
 rather than a raw `git merge`, following
 [reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md);
@@ -88,7 +88,8 @@ Apply [Preconditions](#preconditions) before this sequence.
    in the owned workspace. The range is commits after the previously published
    base on the owned branch:
    `git -C <owned-workspace> rebase --onto <fetched-remote-target> <previously-published-base> <owned-branch>`.
-   When that replay touches the product backlog, run the same range through
+   When that replay touches the product backlog or the done records beside
+   it, run the same range through
    the installed rebase adapter instead of that raw `git rebase`:
    `product-backlog-git-rebase.mjs rebase --onto <fetched-remote-target> --ref <previously-published-base> --branch <owned-branch> --cwd <owned-workspace>`,
    following
@@ -149,9 +150,10 @@ retry one ordinary push:
    [candidate step 3](#publish-the-candidate), using the base retained in
    step 5 as the cutoff: only commits after that base, onto that fetched target.
    A history-preserving merge recomputes that merge onto the fetched target
-   instead of rebasing, through the merge adapter when the backlog is touched.
-   When an unpublished suffix touches the product backlog, that replay is the
-   rebase adapter, not a raw `git rebase`. Do not rebase from the rejected
+   instead of rebasing, through the merge adapter when the backlog or its done
+   records are touched. When an unpublished suffix touches the product backlog
+   or its done records, that replay is the rebase adapter, not a raw
+   `git rebase`. Do not rebase from the rejected
    candidate, and do not rebase the default checkout unless it is the owned
    branch. Either mistake can drop the suffix or rewrite another writer's
    commits. A conflict, refusal, or disputed adapter result stops here.

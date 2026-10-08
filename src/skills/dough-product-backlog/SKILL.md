@@ -182,15 +182,19 @@ and Git blob hash, newest first, and names each unreadable record file with its
 hash and no completion time, so a reader can order the records and read only
 the ones it needs. Titles, developers, agents, hosts, and models stay in the
 records. The catalog is derived from the record files: never edit or merge it
-by hand. Rebuild it with the installed `scripts/product-backlog.mjs
-catalog-done [--file <backlog>]` and commit the result when:
+by hand. `complete` and the installed merge, rebase, and cherry-pick adapters
+in [merge conflicts](references/merge-conflicts.md) keep it current: an
+operation through an adapter that changes records also leaves a catalog
+rebuilt from the resulting record files. Rebuild it with the installed
+`scripts/product-backlog.mjs catalog-done [--file <backlog>]` and commit the
+result when:
 
 - done records exist beside the backlog with no catalog, because they were
   written before catalogs existed;
-- record files were added, removed, or changed other than by `complete`, such
-  as by a merge, rebase, cherry-pick, hand edit, or an older installed copy of
+- record files were added, removed, or changed outside `complete` and those
+  adapters, such as by raw Git, a hand edit, or an older installed copy of
   these scripts; or
-- Git reports a conflict in `done/.catalog.json`: settle the record files
+- raw Git reports a conflict in `done/.catalog.json`: settle the record files
   first, then rebuild and stage the catalog.
 
 `catalog-done` changes no record and no backlog entry, prunes nothing, and

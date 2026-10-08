@@ -221,8 +221,8 @@ integrated SHA. Its publication uses [Preserve published history](../dough-execu
 from the owned execution workspace, excluding any default checkout's
 unrelated commits and pending human edit.
 
-When the merge touches the product backlog, use the owned workspace's installed
-merge adapter as that procedure requires, preserving
+When the merge touches the product backlog or its done records, use the owned
+workspace's installed merge adapter as that procedure requires, preserving
 [follow-up priority](references/follow-up-disposition.md#preserve-follow-up-priority-during-reconciliation).
 A stopped result stays as Git left it.
 Resolve it through [a real conflict](../dough-product-backlog/references/merge-conflicts.md#a-real-conflict-resolve-by-hand-then-continue-through-the-same-adapter).

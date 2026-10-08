@@ -282,7 +282,24 @@ documented manual rebuild, which the guidance continues to state.
 ### 2. Rebases and cherry-picks through the backlog adapters end with a current done catalog
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `tests/support/product-backlog-git-done-catalog-replay.test.mjs`
+(rebase and cherry-pick onto an upstream with and without a catalog, both
+sides changing the catalog, a record conflict then `continue`, a disputed
+rebase) and `tests/support/product-backlog-git-done-catalog-agent-credit.test.mjs`
+(credited catalog commit; refused credit leaves the catalog staged as
+`catalog-uncommitted`); owned-suffix routing in
+`execution-increment-publication-reconciliation.test.mjs`; the Git adapters,
+Record production/delivery, and Publication and integration groups, plus the
+racing-suffix, one-shot, agent-commit, and native-evidence-identity consumers,
+pass. Guidance behavior review done.
+Learnings: a failed catalog commit after an accepted replay reports the new
+failing status `catalog-uncommitted` (nothing to `continue`). When both sides
+change the catalog the driver's provisional rows already equal the rebuild, so
+no extra commit is added. Untested: a multi-commit cherry-pick `continue`
+(reads `sequencer/head`) and a hook refusing the catalog commit. Changing
+`product-backlog-git-rebase.mjs` and `publish-the-candidate.md` leaves recorded
+native closure evidence stale; refreshing it is a paid manual run.
 Proof: extend `product-backlog-git-done-catalog.test.mjs` with rebase and
 cherry-pick cases: a replayed suffix completing work onto an upstream that
 added records (with and without its own catalog) ends with a catalog listing
