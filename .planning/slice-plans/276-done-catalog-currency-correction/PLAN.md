@@ -401,3 +401,19 @@ Slices 3–4 change one sentence's producer and one demand owner. Each slice own
 one observable outcome and its focused proof. Refinement was not needed: no
 slice combines independent outcomes or depends on an unproved structure, and
 no numeric slice target was supplied.
+
+## Execution complete
+
+Product advice: release the producer payload (`complete`, `catalog-done`, and
+the Git adapters) soon, then update this repository's installed copies and
+commit one `catalog-done` adoption; keep strict catalog mode, which the named
+repair now makes recoverable. Both remain Terry's decisions. Published catalogs
+are stale today: `origin/main` `d78b5aa6` lists no
+`SEED-118_reduce-repeated-reads-across-tabs-and-deployments.json`, and this
+branch lists no `SEED-100_launched-session-development-environment.json`,
+because the installed producer has no catalog code. The retrospective planned
+[SEED-119#done-catalog-adapter-edge-results-correction](../279-done-catalog-adapter-edge-results/PLAN.md)
+for the merge adapter crash on an already-contained ref (a regression from
+slice 1) and the publication guidance for adapter stops. Recorded native
+closure evidence that hashes `product-backlog-git-rebase.mjs` and
+`publish-the-candidate.md` is stale; refreshing it is a paid manual run.
