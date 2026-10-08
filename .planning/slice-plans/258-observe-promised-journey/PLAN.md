@@ -171,7 +171,8 @@ paragraph, and the observation paragraph (lines 70–93), referring to slice
 
 ### 3. The addressed findings record this response
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (2026-10-08): read catalog ODF-074/110/190 Follow-up and Response / limit lines 34–35, 119–120, 295–296 and all five Open Dough Follow-ups at `DearDough.md` lines 73, 85, 454, 491, 655. Each records delivered/unreleased story-branch response, actual commits `3d148f25` / `ac02ee79`, pending main integration and first containing release, native evaluation unverified, and a later-use watch not yet started. `git tag --contains 3d148f25a9a6cb308894dc72277b3ccd6faf6452` and `git tag --contains ac02ee798b090b5feb6b55ea681c4be26a932376` each exited 0 with no tags. Inspected diffs retain prior failed responses, assessments, occurrences, evidence, and external links; `git diff --check` passed. Refactor: none, already clean; scoped maintained-record preservation takes precedence over unrelated restructuring under the generic file-size guideline. Catalog/log physical line counts stay 564/999; no external log is edited.
 Proof: Read the ODF-074, ODF-110, and ODF-190 entries in
 `docs/maintainer/finding-names.md` and the five Open Dough `DearDough.md`
 entries linked from them. Each Follow-up reads “delivered, unreleased:
@@ -224,8 +225,10 @@ Deliver together: the eight record edits and the dated verification line. Name s
   bound to the execution checkout above. Claim CI on trunk is unobserved;
   this branch observer covers subsequent managed deliveries.
 - Accepted slice 1 revision on the increment target: `3d148f25a9a6cb308894dc72277b3ccd6faf6452`.
+- Accepted slice 2 revision on the increment target: `ac02ee798b090b5feb6b55ea681c4be26a932376`.
 
 ## Learnings
 
 - Current repository proof uses `tests/README.md`'s runner rather than the plan's original direct Node commands; those commands are aligned above. Earlier direct green observations are superseded by runner proof.
 - The plan counted three Open Dough source entries, but `rg -n 'SEED-108|observe-promised' DearDough.md` finds five; ODF-190 has no Open Dough source entry. Slice 3 now updates all five same-story occurrences and the three catalog entries within the original retained-source scope; external logs stay unchanged.
+- CI scope decision pending: registered slice 1 run `37707692043` and slice 2 run `37707968478` report failures in dashboard shards 1–4. Slice 1 job logs `/tmp/open-dough-ci-113085888801.log`, `-113085888710.log`, `-113085888806.log`, and `-113085888920.log` show request-resumption expecting 3 requests but observing 1, and three stale rate-limit message expectations in `authenticated-read-resumption.spec.ts`, `transient-recovery-lifecycle.spec.ts`, and the shared `limitRecoveryCredit.ts` used by two specs. Dashboard paths are unchanged by this execution; the message expectations predate it. The source's explicit exclusion of product implementation fixes prevents extending this work to those repairs without a human decision, requested asynchronously. All slice writers are quiescent; records can be delivered independently. No execution-complete record, retrospective completion, or successful CI verdict is claimed while this stop remains unresolved. Observer shutdown/receipt stays in the execution conversation.
