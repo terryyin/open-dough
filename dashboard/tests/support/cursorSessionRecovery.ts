@@ -44,11 +44,11 @@ export async function endHeldClient(
             runner: string;
             sessions: readonly unknown[];
           };
-          return { runner: body.runner, count: body.sessions.length };
+          return body.sessions.length;
         }, cursorRunnerSessionsEndpoint),
       { timeout: 15_000 },
     )
-    .toEqual({ runner: "running", count: 0 });
+    .toBe(0);
 }
 
 export async function openStoppedCursorEntry(

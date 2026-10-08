@@ -25,7 +25,9 @@ for (const mode of ["dev", "preview"] as const) {
     test.describe.configure({ timeout: 120_000 });
 
     test("an instructed launch shows that client and accepts typing", async () => {
-      const cursor = installFakeCursor({ screen: "working" });
+      // Idle composer (not working): working still paints a follow-up line but
+      // is not ready for the first instruction.
+      const cursor = installFakeCursor();
       await withInstructedCursor(
         mode,
         cursor,
@@ -205,7 +207,6 @@ for (const mode of ["dev", "preview"] as const) {
 
     test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
       const cursor = installFakeCursor({
-        screen: "working",
         paintDelayMs: 3_000,
       });
       await withInstructedCursor(
