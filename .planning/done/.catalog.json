@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-108_observe-promised-journey.json",
+      "identity": "SEED-108#observe-promised-journey",
+      "completedAt": "2026-10-08T02:51:31.985Z",
+      "blob": "d1a3c19e5b0a8bd17ecd574edd607b80eb0845f8"
+    },
+    {
+      "fileName": "SEED-100_launched-session-development-environment.json",
+      "identity": "SEED-100#launched-session-development-environment",
+      "completedAt": "2026-10-08T02:25:11.961Z",
+      "blob": "12f97f9551379191c87cc1f07c415137c5e6463d"
+    },
+    {
       "fileName": "SEED-119_recently-done-progressive-loading.json",
       "identity": "SEED-119#recently-done-progressive-loading",
       "completedAt": "2026-10-08T00:11:09.658Z",

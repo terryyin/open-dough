@@ -14,6 +14,7 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { limiting } from "./limitedReadingJourney.ts";
+import { limitedUntil } from "./limitNotice.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import { untilReported } from "./support/directedWait.ts";
 import { publishes } from "./support/fakeGitHub.ts";
@@ -107,16 +108,21 @@ export async function openedWithYumaWithheld(
   await page.goto("/");
   await expectSettledPage(page);
   const limitSeenAt = answers.lift();
+  const until = await limitedUntil(
+    page,
+    opened.getTime() + directedSeconds * 1_000,
+  );
+  const withheld = `GitHub's rate limit withheld the commit that added ${profilePath("Yuma")} at ${revision}. ${until}`;
   const yumaCard = card(page, justTaken);
   await expect(yumaCard.locator(".card-owner .owner-human-gap")).toHaveText(
     "Human developer unknown",
   );
   await expect(yumaCard).toContainText(
-    "Current slice time unavailable: GitHub's rate limit withheld",
+    `Current slice time unavailable: ${withheld}`,
   );
   await expect(
     (await inspectedDetail(yumaCard)).locator(".owner-human"),
-  ).toContainText("Human developer unknown. GitHub's rate limit withheld");
+  ).toHaveText(`Human developer unknown. ${withheld}`);
   await expect(parts(page).problem).toHaveCount(1);
   return { limitSeenAt, asked: githubFor(page).calls.length };
 }
@@ -142,7 +148,7 @@ export async function expectRecovered(page: Page, solaExplained: string) {
     // Rate-limit notice is gone; an unrelated empty/missing plan history
     // stays a terminal gap and does not arm project-local recovery.
     await expect(page.locator("body")).not.toContainText(
-      "GitHub limited the rate",
+      "GitHub's rate limit withheld",
     );
     const yumaCard = card(page, justTaken);
     await expect(yumaCard.locator(".card-owner")).toContainText(recoveredHuman);
