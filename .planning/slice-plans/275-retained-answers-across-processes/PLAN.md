@@ -309,3 +309,13 @@ second cache, no per-kind retention rules, no new boundary endpoint. The
 examples exercise one rule (immutable answers keyed by sha survive the
 process) with a bound. Refinement was not needed: no slice fragments one
 result or combines independent outcomes, and every promise has an owner.
+
+## Execution complete
+
+Product advice: No backlog change. After this story lands, run the plan's one
+bounded production observation (count `gh` invocations across one watcher
+replacement against the 67 first-visit / 4 reload baseline) and record the
+result as the story's relevance evidence; the Taken recovery sibling (plan
+273), when it executes, should treat a second dashboard process on the same
+machine directory as now reusing retained answers in any request-count spec
+that restarts a server.
