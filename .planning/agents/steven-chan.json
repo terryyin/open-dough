@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "identity": "SEED-120#cursor-session-restart-recovery",
+  "mode": "story-branch",
+  "branch": "cursor/recover-a-cursor-session-after-the-computer-rest",
+  "host": "cursor",
+  "model": "auto"
+}
