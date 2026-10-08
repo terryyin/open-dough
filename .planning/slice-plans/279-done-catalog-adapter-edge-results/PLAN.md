@@ -221,6 +221,13 @@ staged catalog is committed before publication continues.
 Safe stopping point: the correction is complete; retain this story and plan
 for wrap-up.
 
+## Execution complete
+
+Product advice: no correction. `merge-conflicts.md` groups `blocked` with
+results resolved by hand and then `continue`d; the already-contained merge
+stop has nothing to continue, which its own message says. Terry's open choice
+of reporting that case as a non-failing result would remove the mismatch.
+
 ## Cumulative review
 
 Slice 1 adds one early return beside the existing fast-forward branch of the
