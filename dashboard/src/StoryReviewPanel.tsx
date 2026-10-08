@@ -25,7 +25,6 @@ import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { PanelControls } from "./PanelControls.tsx";
-import { shortRevision } from "./publishedWork.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -33,10 +32,10 @@ import {
   type StoryReview,
 } from "./storyReview.ts";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
-import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
-import { CommitList, RangeFeedback } from "./StoryReviewCommits.tsx";
+import { CommitList } from "./StoryReviewCommits.tsx";
+import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageReviews.ts";
 import { useReviewRead } from "./useReviewRead.ts";
@@ -86,7 +85,8 @@ export function StoryReviewPanel({
     made !== undefined && made.of === review ? made.answer : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const {
-    selectedCommits,
+    items,
+    selectedItems,
     trunkIntegrated,
     shown,
     since,
@@ -154,49 +154,24 @@ export function StoryReviewPanel({
             onShowBrowser={setBrowserShown}
           />
         )}
-        <div role="status">
-          {shown === "commits" && <RangeFeedback range={range} />}
-          {reading && review?.kind !== "snapshot" && (
-            <p>Reading the story&apos;s changes…</p>
-          )}
-          {reading && review?.kind === "snapshot" && (
-            <p>
-              Refreshing the review… What is shown is still the snapshot taken
-              earlier.
-            </p>
-          )}
-          {!reading &&
-            round > 0 &&
-            madeHere === undefined &&
-            snapshot !== undefined &&
-            (since === undefined ? (
-              <p>
-                Review refreshed: {changedFiles(snapshot.files.length)} against
-                baseline <code>{shortRevision(snapshot.baseline)}</code>.
-              </p>
-            ) : (
-              <p>
-                Review refreshed: {changedFiles(since.files.length)} since the
-                review.
-              </p>
-            ))}
-          {madeHere?.kind === "marked" && <p>Marked reviewed.</p>}
-          {madeHere?.kind === "unavailable" && <p>{madeHere.explanation}</p>}
-          {problem !== undefined && (
-            <p>The review could not be read: {problem}</p>
-          )}
-          {review?.kind === "unavailable" && (
-            <p>
-              {review.explanation} Worktree <code>{review.workspace}</code>.
-            </p>
-          )}
-        </div>
+        <ReviewFeedback
+          review={review}
+          reading={reading}
+          problem={problem}
+          range={range}
+          shown={shown}
+          comparison={comparison}
+          since={since}
+          round={round}
+          made={madeHere}
+        />
         {snapshot !== undefined && (
           <MarkingControls
             snapshot={snapshot}
             shown={shown}
             onSwitch={onSwitch}
-            selectedCommits={selectedCommits}
+            selectedItems={selectedItems}
+            commitsAvailable={items.length > 0}
             trunkIntegrated={trunkIntegrated}
             sinceReview={since !== undefined}
             stated={stated}
@@ -220,10 +195,10 @@ export function StoryReviewPanel({
       <div ref={body} className="story-review-body" tabIndex={-1}>
         {snapshot !== undefined &&
           shown === "commits" &&
-          selectedCommits.length > 0 && (
+          selectedItems.length > 0 && (
             <CommitList
-              commits={snapshot.commits}
-              selected={selectedCommits}
+              items={items}
+              selected={selectedItems}
               onSelect={onSelect}
             />
           )}

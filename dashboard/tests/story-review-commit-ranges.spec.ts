@@ -24,14 +24,14 @@ test("two ends select three commits in either direction, reset to one, and survi
     .getByRole("button");
   await rows.last().click();
   await rows.last().click();
-  await rows.nth(1).press("Enter");
+  await rows.nth(2).press("Enter");
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
   await expect(review.locator(".story-review-since")).toContainText(
     `From ${snapshot.commits[3]?.shortRevision} rename with a small edit to ${snapshot.commits[1]?.shortRevision} delete a file and redraw the image.`,
   );
-  for (const at of [1, 2, 3]) {
+  for (const at of [2, 3, 4]) {
     await expect(rows.nth(at)).toHaveAttribute("aria-pressed", "true");
   }
   await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
@@ -51,11 +51,11 @@ test("two ends select three commits in either direction, reset to one, and survi
   );
 
   // Starting from the newer end selects the same three commits.
-  await rows.nth(1).click();
+  await rows.nth(2).click();
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
-  await expect(rows.nth(2)).toHaveAttribute("aria-pressed", "false");
+  await expect(rows.nth(3)).toHaveAttribute("aria-pressed", "false");
   await rows.last().click();
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
@@ -88,6 +88,8 @@ olderGit(
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
+    await rows.nth(1).click();
+    await rows.nth(1).click();
     await rows.last().click();
     await expect(
       review.getByRole("heading", { name: "Changes in 4 commits" }),
@@ -99,7 +101,7 @@ olderGit(
       review.getByRole("list", { name: /changed file/ }),
     ).toHaveCount(0);
     await rows.last().click();
-    await rows.nth(1).click();
+    await rows.nth(2).click();
     await expect(
       review.getByRole("heading", { name: "Changes in 3 commits" }),
     ).toBeVisible();

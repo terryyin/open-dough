@@ -47,7 +47,11 @@ test("an earlier pending range cannot answer the later chosen range", async ({
     expect(response.status()).toBe(200);
     expect(await response.json()).toMatchObject({
       kind: "comparison",
-      files: [],
+      files: [
+        { kind: "added", path: "fresh/new.txt" },
+        { kind: "modified", path: "staged.txt" },
+        { kind: "modified", path: "unstaged.txt" },
+      ],
     });
     captured();
     await held;
@@ -60,8 +64,8 @@ test("an earlier pending range cannot answer the later chosen range", async ({
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
-    await rows.nth(2).click();
-    await rows.nth(2).click();
+    await rows.nth(3).click();
+    await rows.nth(3).click();
     const heading = review.getByRole("heading", {
       name: "Changes in 1 commit",
     });

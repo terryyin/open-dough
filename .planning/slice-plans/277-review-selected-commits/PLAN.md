@@ -187,7 +187,7 @@ Safe stopping point: the story's promise is delivered for committed work.
 
 ### 5. Uncommitted changes is the newest item; Refresh and the mark fit the range
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `story-review-commits.spec.ts` on `storyWorktree`: Uncommitted
 changes alone and with the oldest commit; a commit in the worktree then
 Refresh; committing the uncommitted files while Uncommitted changes is an

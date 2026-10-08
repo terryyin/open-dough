@@ -6,6 +6,7 @@ import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import {
   storyReviewRangeEndpoint,
   reviewRangeSchema,
+  reviewItemId,
   type ReviewRange,
   type TakenStoryReview,
 } from "./storyReview.ts";
@@ -22,21 +23,41 @@ export function useStoryReviewComparison({
 }) {
   const [chosen, onSwitch] = useState<ShownComparison>("since");
   const [ends, setEnds] = useState<readonly [string, string]>();
-  const commits = snapshot?.commits ?? [];
+  const items = [
+    ...(snapshot?.uncommitted === undefined ? [] : [snapshot.uncommitted]),
+    ...(snapshot?.commits ?? []),
+  ];
   const indexes = ends?.map((end) =>
-    commits.findIndex((item) => item.revision === end),
+    items.findIndex((item) => reviewItemId(item) === end),
   );
-  const selectedCommits =
+  const first = items[0];
+  const resolvedEnds =
     indexes !== undefined && indexes.every((index) => index >= 0)
-      ? commits.slice(Math.min(...indexes), Math.max(...indexes) + 1)
-      : commits.slice(0, 1);
-  const newest = selectedCommits[0];
-  const oldest = selectedCommits.at(-1);
-  const onSelect = (revision: string) => {
+      ? ends
+      : first === undefined
+        ? undefined
+        : ([reviewItemId(first), reviewItemId(first)] as const);
+  // Anchor when Commits is first shown; thereafter each snapshot reconciles
+  // vanished ends permanently, while stable items keep their refreshed points.
+  if ((chosen === "commits" || ends !== undefined) && ends !== resolvedEnds)
+    setEnds(resolvedEnds);
+  const selectedIndexes = resolvedEnds?.map((end) =>
+    items.findIndex((item) => reviewItemId(item) === end),
+  );
+  const selectedItems =
+    selectedIndexes === undefined
+      ? []
+      : items.slice(
+          Math.min(...selectedIndexes),
+          Math.max(...selectedIndexes) + 1,
+        );
+  const newest = selectedItems[0];
+  const oldest = selectedItems.at(-1);
+  const onSelect = (id: string) => {
     setEnds(
-      selectedCommits.length === 1 && newest !== undefined
-        ? [newest.revision, revision]
-        : [revision, revision],
+      selectedItems.length === 1 && newest !== undefined
+        ? [reviewItemId(newest), id]
+        : [id, id],
     );
   };
   const shown: ShownComparison =
@@ -56,8 +77,8 @@ export function useStoryReviewComparison({
       tree: newest?.tree ?? "",
       baseline: newest?.baseline ?? "",
       integrations: JSON.stringify(
-        selectedCommits
-          .filter((commit) => commit.merge)
+        selectedItems
+          .filter((item) => item.kind === "commit" && item.merge)
           .map(({ fromTree, fromBaseline, baseline }) => ({
             fromTree,
             fromBaseline,
@@ -81,7 +102,8 @@ export function useStoryReviewComparison({
         : (since ?? { from: snapshot.baseline, files: snapshot.files });
   const tree = shown === "commits" ? rangeComparison?.tree : snapshot?.tree;
   return {
-    selectedCommits,
+    items,
+    selectedItems,
     shown,
     since,
     range,

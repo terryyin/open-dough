@@ -137,6 +137,7 @@ async function storyReviewSnapshot(
         git(["rev-parse", `${parent}^{tree}`]),
       ]);
       commits.push({
+        kind: "commit",
         revision,
         shortRevision,
         subject,
@@ -148,6 +149,7 @@ async function storyReviewSnapshot(
         fromBaseline,
       });
     }
+    const headTree = await git(["rev-parse", `${head}^{tree}`]);
     const files = await changedFrom(baseline, tree, call);
     const comparison =
       mark === undefined
@@ -173,6 +175,17 @@ async function storyReviewSnapshot(
       tree,
       files,
       commits,
+      ...(tree === headTree
+        ? {}
+        : {
+            uncommitted: {
+              kind: "uncommitted",
+              tree,
+              baseline,
+              fromTree: headTree,
+              fromBaseline: baseline,
+            },
+          }),
       ...marked,
     };
   } catch (error) {

@@ -1,36 +1,42 @@
 // The snapshot's first-parent line, newest first, with a contiguous range
 // chosen by its two ends. Every item within the range states its membership.
 import { Moment } from "./Moment.tsx";
-import type { ReviewCommit, ReviewRange } from "./storyReview.ts";
+import { reviewItemId, type ReviewItem } from "./storyReview.ts";
 import "./story-review-commits.css";
 
 export function CommitList({
-  commits,
+  items,
   selected,
   onSelect,
 }: {
-  readonly commits: readonly ReviewCommit[];
-  readonly selected: readonly ReviewCommit[];
-  readonly onSelect: (revision: string) => void;
+  readonly items: readonly ReviewItem[];
+  readonly selected: readonly ReviewItem[];
+  readonly onSelect: (id: string) => void;
 }) {
   return (
     <section className="story-review-commits" aria-label="Story commits">
       <h3>Story commits</h3>
       <ul aria-label="Story commits">
-        {commits.map((commit) => (
-          <li key={commit.revision}>
+        {items.map((item) => (
+          <li key={reviewItemId(item)}>
             <button
               type="button"
               aria-pressed={selected.some(
-                (item) => item.revision === commit.revision,
+                (selectedItem) =>
+                  reviewItemId(selectedItem) === reviewItemId(item),
               )}
               onClick={() => {
-                onSelect(commit.revision);
+                onSelect(reviewItemId(item));
               }}
             >
-              <code>{commit.shortRevision}</code> {commit.subject}{" "}
-              <Moment at={new Date(commit.committedAt)} />
-              {commit.merge && <span> · Integrated trunk</span>}
+              <ReviewItemName item={item} />
+              {item.kind === "commit" && (
+                <>
+                  {" "}
+                  <Moment at={new Date(item.committedAt)} />
+                  {item.merge && <span> · Integrated trunk</span>}
+                </>
+              )}
             </button>
           </li>
         ))}
@@ -39,34 +45,11 @@ export function CommitList({
   );
 }
 
-// Range feedback is rendered in the panel's one status region.
-export function RangeFeedback({
-  range,
-}: {
-  readonly range: {
-    readonly reading: boolean;
-    readonly problem?: string;
-    readonly answer?: ReviewRange;
-  };
-}) {
-  return (
-    <>
-      {range.reading && <p>Reading the chosen commits&apos; changes…</p>}
-      {!range.reading && range.problem !== undefined && (
-        <p>The chosen commits could not be read: {range.problem}</p>
-      )}
-      {!range.reading && range.answer?.kind === "unavailable" && (
-        <p>{range.answer.explanation}</p>
-      )}
-    </>
-  );
-}
-
 export function CommitRangeHeading({
   selected,
   trunkIntegrated,
 }: {
-  readonly selected: readonly ReviewCommit[];
+  readonly selected: readonly ReviewItem[];
   readonly trunkIntegrated: boolean;
 }) {
   const newest = selected[0];
@@ -74,15 +57,23 @@ export function CommitRangeHeading({
   if (newest === undefined || oldest === undefined) {
     return null;
   }
+  const count = selected.filter((item) => item.kind === "commit").length;
+  const uncommitted = selected.some((item) => item.kind === "uncommitted");
   return (
     <div className="story-review-since">
       <h3>
-        Changes in {selected.length}{" "}
-        {selected.length === 1 ? "commit" : "commits"}
+        {count === 0 ? (
+          "Uncommitted changes"
+        ) : (
+          <>
+            Changes in {count} {count === 1 ? "commit" : "commits"}
+            {uncommitted && " and Uncommitted changes"}
+          </>
+        )}
       </h3>
       <p>
-        From <code>{oldest.shortRevision}</code> {oldest.subject} to{" "}
-        <code>{newest.shortRevision}</code> {newest.subject}.
+        From <ReviewItemName item={oldest} /> to{" "}
+        <ReviewItemName item={newest} />.
       </p>
       {trunkIntegrated && (
         <p>
@@ -91,5 +82,15 @@ export function CommitRangeHeading({
         </p>
       )}
     </div>
+  );
+}
+
+function ReviewItemName({ item }: { readonly item: ReviewItem }) {
+  return item.kind === "uncommitted" ? (
+    <>Uncommitted changes</>
+  ) : (
+    <>
+      <code>{item.shortRevision}</code> {item.subject}
+    </>
   );
 }

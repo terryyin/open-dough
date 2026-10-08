@@ -13,6 +13,8 @@
 // points from the snapshot's list: `fromTree`, `fromBaseline`, `tree`, and
 // `baseline`, all hexadecimal object IDs. Its workspace is resolved by the
 // same rule; the range read confirms the repository holds those objects.
+// The Uncommitted changes item supplies the head tree as its from point and
+// the snapshot tree as its to point, both on the snapshot baseline.
 // Optional `integrations` is a JSON array of selected merges' already-listed
 // `fromTree`, `fromBaseline`, and destination `baseline` object IDs. It
 // supplies integration conflicts without accepting paths or rereading history.

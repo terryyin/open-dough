@@ -26,7 +26,7 @@ import {
   trunkIntegratedSince,
   type ReviewMark,
   type TakenStoryReview,
-  type ReviewCommit,
+  type ReviewItem,
 } from "./storyReview.ts";
 
 // Asks the boundary to mark the snapshot named reviewed: the story's mark,
@@ -121,8 +121,9 @@ export function MarkingControls({
   stated,
   busy,
   onMark,
-  selectedCommits,
+  selectedItems,
   trunkIntegrated,
+  commitsAvailable,
 }: {
   readonly snapshot: TakenStoryReview;
   readonly shown: ShownComparison;
@@ -133,22 +134,23 @@ export function MarkingControls({
   // Whether the review is being read or marked.
   readonly busy: boolean;
   readonly onMark: () => void;
-  readonly selectedCommits: readonly ReviewCommit[];
+  readonly selectedItems: readonly ReviewItem[];
+  readonly commitsAvailable: boolean;
   readonly trunkIntegrated: boolean;
 }) {
   return (
     <div className="story-review-marking">
-      {(snapshot.since !== undefined || snapshot.commits.length > 0) && (
+      {(snapshot.since !== undefined || commitsAvailable) && (
         <ComparisonSwitch
           shown={shown}
           onSwitch={onSwitch}
           since={snapshot.since !== undefined}
-          commits={snapshot.commits.length > 0}
+          commits={commitsAvailable}
         />
       )}
-      {shown === "commits" && selectedCommits.length > 0 && (
+      {shown === "commits" && selectedItems.length > 0 && (
         <CommitRangeHeading
-          selected={selectedCommits}
+          selected={selectedItems}
           trunkIntegrated={trunkIntegrated}
         />
       )}

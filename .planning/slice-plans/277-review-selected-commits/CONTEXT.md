@@ -161,3 +161,17 @@ original-tree / baseline comparisons. This is the same moves/flag/diff promise.
 
 Published increment: slice 3 `f5ebc9d05f091bc3f1082301cc946669ab5aef80`,
 accepted on the remote execution branch with the same observer reused.
+
+5. Slice 5: staged/unstaged/untracked virtual-item files and diffs, ignored-file
+   exclusion, whole-range equality with All changes, uncommitted-only snapshots,
+   default timing/anchoring, retained and vanished endpoints, refreshed virtual
+   points, no vanished-range resurrection, chosen-range announcements, and
+   whole-snapshot marking/reopening pass the real-Git browser journeys in
+   `story-review-commit-worktree.spec.ts` and `story-review-commit-refresh.spec.ts`.
+   The stale-response proof now holds a real virtual-item answer. After independent
+   label/availability consolidation and feedback/documentation extraction, the
+   full story-review command and typecheck above passed. All changed files fit
+   the formatted 250-line limit.
+
+Published increment: slice 4 `bf1f48f076a5473814409b58f1f3da06be32d943`,
+accepted on the remote execution branch with the same observer reused.

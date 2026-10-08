@@ -13,7 +13,7 @@ import {
   unchangedWorktree,
 } from "./support/storyReviewWorktree.ts";
 
-test("Commits lists the first-parent line and defaults to the newest commit's trees", async ({
+test("Commits lists the first-parent line below Uncommitted changes and shows a chosen commit's trees", async ({
   page,
   dashboard,
   origin,
@@ -55,19 +55,22 @@ test("Commits lists the first-parent line and defaults to the newest commit's tr
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await expect(rows).toHaveCount(5);
+  await expect(rows).toHaveCount(6);
   for (const [at, commit] of snapshot.commits.entries()) {
-    await expect(rows.nth(at)).toContainText(
+    await expect(rows.nth(at + 1)).toContainText(
       `${commit.shortRevision} ${commit.subject}`,
     );
-    await expect(rows.nth(at).locator("time")).toHaveAttribute(
+    await expect(rows.nth(at + 1).locator("time")).toHaveAttribute(
       "datetime",
       new Date(commit.committedAt).toISOString(),
     );
   }
-  await expect(rows.nth(1)).toContainText("Integrated trunk");
-  await expect(rows.nth(1)).toBeEnabled();
+  await expect(rows.nth(2)).toContainText("Integrated trunk");
+  await expect(rows.nth(2)).toBeEnabled();
+  await expect(rows.first()).toHaveText("Uncommitted changes");
   await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+  await rows.nth(1).click();
+  await rows.nth(1).click();
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
@@ -107,7 +110,7 @@ test("Commits lists the first-parent line and defaults to the newest commit's tr
   expect(observed(workspace)).toEqual(before);
 });
 
-test("a newest clean merge stays the default and changed nothing by itself", async ({
+test("a clean merge selected alone changed nothing by itself", async ({
   page,
   dashboard,
   origin,
@@ -121,7 +124,9 @@ test("a newest clean merge stays the default and changed nothing by itself", asy
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+  await rows.nth(1).click();
+  await rows.nth(1).click();
+  await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.first()).toBeEnabled();
   await expect(review).toContainText("The chosen commits changed nothing.");
   await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
@@ -130,8 +135,8 @@ test("a newest clean merge stays the default and changed nothing by itself", asy
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
-  await rows.nth(2).click();
-  await rows.nth(2).click();
+  await rows.nth(3).click();
+  await rows.nth(3).click();
   await expect(
     review
       .getByRole("list", { name: "1 changed file", exact: true })

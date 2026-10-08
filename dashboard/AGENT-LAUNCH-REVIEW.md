@@ -212,39 +212,6 @@ restatement the closed response aborted still fails, and any Git failure
 outside restating still answers that the workspace's changes could not be
 read.
 
-The snapshot also lists the story's commits after its baseline along the
-first-parent line, newest first (`server/storyReviewSnapshot.ts`). Commits
-shows each by short revision, subject, and committer time, with merges saying
-“Integrated trunk”. The newest item alone is selected initially; its heading
-names the count and both ends. While one item is selected, choosing another
-extends the contiguous range to it in either direction. With two or more
-selected, choosing an item starts a new range of one there. Every selected
-item states its membership. Its file browser, counts, and diff compare the
-oldest commit's first parent's tree with the newest commit's tree, so
-uncommitted files and later commits stay out. Hide files
-keeps its diff visible. A commit that changes no files says “The chosen commits
-changed nothing.” A snapshot with no commits and no changes offers no Commits.
-
-The range read is a GET to `/__agent-launch/review/range`, naming `source`,
-`identity`, `fromTree`, `fromBaseline`, `tree`, and `baseline`; the four objects
-are supplied by the snapshot's list and verified in the resolved repository
-(`server/storyReviewAdmission.ts`, `server/storyReviewRange.ts`). Its answer is
-the comparison's `from`, `files`, and destination `tree`, or why it is
-unavailable. Each chosen range reads its own two points; an earlier pending
-read never supplies a later choice. Across a trunk integration, the shared
-point comparison restates the oldest parent's tree onto the newest baseline
-and leaves trunk's changes out. An optional `integrations` JSON array carries
-selected merges' listed `fromTree`, `fromBaseline`, and destination `baseline`
-object IDs, validated and verified in that repository. The same restatement
-finds their inseparable paths and unions them with the outer comparison's,
-so a conflict remains flagged even when the oldest parent's tree predates
-the story edit or its resolution restores that original content. Git's rename
-records map those conflicts to both outer trees. File kinds, old paths, and
-counts come from complete comparisons before flagged files are selected, so
-an intervening rename keeps its original old path and its flag. The server
-accepts no paths and recomputes no commit history. Its heading says trunk was integrated within
-the range. A clean merge alone changed nothing; a conflicted merge alone
-shows the file its resolution changed, including trunk's changes. Older Git
-that cannot restate the range says why in the feedback region and lists no
-files; ranges below the integration still show. The Uncommitted changes item
-follows in the remaining story work.
+The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
+first-parent commits and Uncommitted changes, compares a contiguous range,
+and preserves its chosen endpoints through Refresh.
