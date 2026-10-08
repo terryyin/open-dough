@@ -29,6 +29,9 @@ export const cursorRunnerKeepRequest = z.object({
   // Absent when recovery resumes without typing. An empty string still types
   // a return through LaunchInstruction, as launch already does.
   instruction: z.string().optional(),
+  // Recovery: type only on the idle composer, not a working paint that still
+  // shows the follow-up line. Launch omits this and uses the broader ready.
+  idleComposer: z.boolean().optional(),
   // The page opens a terminal for this launch. The follow-up prompt keeps
   // that process.
   handoff: z.boolean().optional(),

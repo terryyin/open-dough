@@ -13,14 +13,19 @@ const composerPrompts = [
   "Plan, search, build anything",
 ] as const;
 
-export function showsCursorComposer(screen: string): boolean {
-  // A working screen still paints the follow-up line under `ctrl+c to stop`.
-  // That line is not the idle composer. A clarifying question is not either.
+// Follow-up line present (launch may type). A working paint still includes
+// that line under `ctrl+c to stop`.
+export function showsFollowUpLine(screen: string): boolean {
   return (
     composerPrompts.some((prompt) => screen.includes(prompt)) &&
-    !showsWorkingScreen(screen) &&
     !screen.includes("Clarifying Questions")
   );
+}
+
+// Idle composer only. Recovery types a continuation only on this screen, not
+// while the agent is working or asking a clarifying question.
+export function showsCursorComposer(screen: string): boolean {
+  return showsFollowUpLine(screen) && !showsWorkingScreen(screen);
 }
 
 function showsWorkingScreen(screen: string): boolean {

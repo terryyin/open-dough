@@ -141,7 +141,7 @@ export async function recoverCursorSession(
     rows: cursorTerminalSize.rows,
     sourceId: source.id,
     session: record.session,
-    ...(instruction === undefined ? {} : { instruction }),
+    ...(instruction === undefined ? {} : { instruction, idleComposer: true }),
   });
   return afterKeep(source, record, launches, kept);
 }

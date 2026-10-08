@@ -7,6 +7,7 @@ import {
   cursorRunnerHangupRequest,
   cursorRunnerKeepRequest,
 } from "./runnerProtocol.ts";
+import { showsCursorComposer } from "./idleScreen.ts";
 import { cursorKeptTerminal, spawnCursorPty } from "./terminal.ts";
 
 async function confirmInstruction(
@@ -69,7 +70,10 @@ export async function answerKeep(
         ? await attachments.keep(session, pty)
         : await attachments.keep(session, pty, {
             instruction,
-            ...cursorKeptTerminal,
+            ready:
+              parsed.idleComposer === true
+                ? showsCursorComposer
+                : cursorKeptTerminal.ready,
             ...(parsed.handoff === true ? { handoff: true } : {}),
             onEntered: () =>
               confirmInstruction(parsed.sourceId, session, instruction),

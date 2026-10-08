@@ -25,9 +25,7 @@ for (const mode of ["dev", "preview"] as const) {
     test.describe.configure({ timeout: 120_000 });
 
     test("an instructed launch shows that client and accepts typing", async () => {
-      // Idle composer (not working): working still paints a follow-up line but
-      // is not ready for the first instruction.
-      const cursor = installFakeCursor();
+      const cursor = installFakeCursor({ screen: "working" });
       await withInstructedCursor(
         mode,
         cursor,
@@ -62,8 +60,8 @@ for (const mode of ["dev", "preview"] as const) {
           expect(processRunning(pid)).toBe(true);
 
           const terminal = await openCursorTerminal(server, sessionId);
-          expect(await shows(terminal, "Add a follow-up")).toBe(true);
-          expect(terminal.output()).not.toContain("ctrl+c to stop");
+          expect(await shows(terminal, "ctrl+c to stop")).toBe(true);
+          expect(terminal.output()).toContain("Add a follow-up");
           expect(terminal.output()).not.toContain(notice);
           expect(cursor.attaches()).toHaveLength(1);
           terminal.send({ input: "later" });
@@ -74,7 +72,7 @@ for (const mode of ["dev", "preview"] as const) {
           await terminal.closed;
           expect(processRunning(pid)).toBe(true);
           const again = await openCursorTerminal(server, sessionId);
-          await expect.poll(() => again.output()).toContain("Add a follow-up");
+          await expect.poll(() => again.output()).toContain("ctrl+c to stop");
           expect(cursor.attaches()).toHaveLength(1);
           expect(cursor.attaches()[0]?.pid).toBe(pid);
           again.send({ input: "still" });
@@ -207,6 +205,7 @@ for (const mode of ["dev", "preview"] as const) {
 
     test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
       const cursor = installFakeCursor({
+        screen: "working",
         paintDelayMs: 3_000,
       });
       await withInstructedCursor(
