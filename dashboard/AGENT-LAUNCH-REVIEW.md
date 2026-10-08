@@ -177,7 +177,7 @@ snapshot lists commits. Mark reviewed
 then starts again from the snapshot shown.
 
 Trunk merged into the story after the mark stays out of the changes since the
-review, as it does from all changes (`server/storyReviewSince.ts`). With an
+review, as it does from all changes (`server/storyReviewComparison.ts`). With an
 unchanged baseline the marked tree is compared directly and nothing is
 restated. Otherwise the marked tree is restated on the current baseline by
 `git merge-tree --write-tree --name-only -z --merge-base=<marked baseline>

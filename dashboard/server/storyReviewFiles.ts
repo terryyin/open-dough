@@ -4,6 +4,38 @@
 // and removed line counts from `--numstat -M -z` over the same comparison.
 
 import type { LineCounts, ReviewedFile } from "../src/storyReview.ts";
+import { runGit, type GitCall } from "./gitRunner.ts";
+
+// A comparison's kinds and counts always come from these same two trees.
+// Paths, when supplied for inseparable files, are literal Git pathspecs.
+export async function changedFrom(
+  from: string,
+  to: string,
+  call: GitCall,
+  paths: readonly string[] = [],
+): Promise<ReviewedFile[]> {
+  const changes = async (format: string) =>
+    (
+      await runGit(
+        [
+          "--literal-pathspecs",
+          "diff",
+          format,
+          "-M",
+          "-z",
+          from,
+          to,
+          "--",
+          ...paths,
+        ],
+        call,
+      )
+    ).stdout;
+  return reviewedFiles(
+    await changes("--name-status"),
+    await changes("--numstat"),
+  );
+}
 
 // The changed files `git diff --name-status -M -z` printed: a status field,
 // then the path, or for a rename the old path and then the new one.

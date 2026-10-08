@@ -13,7 +13,7 @@
 // there is no baseline without it.
 // A snapshot answers the story's mark (`./storyReviewMarks.ts`) with it,
 // and the same snapshot compared with the marked tree restated on the
-// baseline (`./storyReviewSince.ts`): the changes since the review,
+// baseline (`./storyReviewComparison.ts`): the changes since the review,
 // leaving out what came only from trunk, each file's line counts read from
 // the same *from* tree as its kind and diff.
 // A mark whose snapshot the repository no longer holds, or that this
@@ -39,9 +39,9 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
-import { reviewedFiles } from "./storyReviewFiles.ts";
+import { changedFrom } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
-import { changesSinceReview } from "./storyReviewSince.ts";
+import { compareReviewPoints } from "./storyReviewComparison.ts";
 import type {
   AdmittedFileDiff,
   AdmittedReview,
@@ -148,33 +148,19 @@ async function storyReviewSnapshot(
         fromBaseline,
       });
     }
-    // The files changed from one tree to the snapshot's, of the paths given
-    // or of all, each with its line counts from the same comparison.
-    const changedFrom = async (from: string, paths: readonly string[] = []) => {
-      const changes = (format: string) =>
-        printed([
-          "--literal-pathspecs",
-          "diff",
-          format,
-          "-M",
-          "-z",
-          from,
-          tree,
-          "--",
-          ...paths,
-        ]);
-      return reviewedFiles(
-        await changes("--name-status"),
-        await changes("--numstat"),
-      );
-    };
-    const files = await changedFrom(baseline);
-    const marked =
+    const files = await changedFrom(baseline, tree, call);
+    const comparison =
       mark === undefined
+        ? undefined
+        : await compareReviewPoints(mark, { tree, baseline }, call);
+    const marked =
+      mark === undefined || comparison === undefined
         ? {}
         : {
             mark,
-            ...(await changesSinceReview(mark, baseline, changedFrom, call)),
+            ...(comparison.kind === "comparison"
+              ? { since: comparison.comparison }
+              : { markUncomparable: comparison.reason }),
           };
     return {
       kind: "snapshot",

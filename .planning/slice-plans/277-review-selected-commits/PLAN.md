@@ -140,7 +140,7 @@ runs.
 
 ### 3. The restatement compares any two points
 Type: Structure
-Status: planned
+Status: done
 Proof: `story-review-since*.spec.ts`, `story-review-mark.spec.ts`,
 `story-review-comparison*.spec.ts`, and slice 1's spec stay green;
 `env -u NODE_ENV npm run typecheck:dashboard`.

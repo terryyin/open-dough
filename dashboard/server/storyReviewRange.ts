@@ -3,10 +3,11 @@
 import type { ServerResponse } from "node:http";
 import type { ReviewRange } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
-import { gitProblem, runGit } from "./gitRunner.ts";
+import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import type { AdmittedReviewRange } from "./storyReviewAdmission.ts";
-import { reviewedFiles } from "./storyReviewFiles.ts";
+import { changedFrom } from "./storyReviewFiles.ts";
+import { reviewPointObjects } from "./storyReviewPoints.ts";
 
 export async function storyReviewRangeResponse(
   { established, fromTree, fromBaseline, tree, baseline }: AdmittedReviewRange,
@@ -15,39 +16,29 @@ export async function storyReviewRangeResponse(
   const body = await withResponseSignal(
     res,
     async (signal): Promise<ReviewRange> => {
-      const git = async (args: readonly string[]) =>
-        (
-          await runGit(args, {
-            cwd: established.workspace,
-            signal,
-            maxBuffer: 64 * 1024 * 1024,
-          })
-        ).stdout;
+      const call: GitCall = {
+        cwd: established.workspace,
+        signal,
+        maxBuffer: 64 * 1024 * 1024,
+      };
       try {
         for (const object of [
-          `${fromTree}^{tree}`,
-          `${fromBaseline}^{commit}`,
-          `${tree}^{tree}`,
-          `${baseline}^{commit}`,
+          ...reviewPointObjects({ tree: fromTree, baseline: fromBaseline }),
+          ...reviewPointObjects({ tree, baseline }),
         ])
-          await git(["rev-parse", "--verify", "--quiet", object]);
+          await runGit(["rev-parse", "--verify", "--quiet", object], call);
         if (fromBaseline !== baseline)
           return {
             kind: "unavailable",
             explanation:
               "A commit range across a trunk integration is not available yet. Choose a commit that did not integrate trunk.",
           };
-        const changes = (format: string) =>
-          git(["diff", format, "-M", "-z", fromTree, tree, "--"]);
         return {
           kind: "comparison",
           from: fromTree,
           tree,
           trunkIntegrated: false,
-          files: reviewedFiles(
-            await changes("--name-status"),
-            await changes("--numstat"),
-          ),
+          files: await changedFrom(fromTree, tree, call),
         };
       } catch (error) {
         return {

@@ -110,3 +110,13 @@ mechanism slice 3 prepared. Slices 2 and 5 each add cases to existing specs.
 Published increment: slice 1 `18a159ee44760f09561fc6a6552aef51ded4ab13`;
 CI reused `/tmp/dough-ci-501/watch-XlowzV`, target the remote execution branch.
 Independent refactor thread reused after host refused a fresh thread.
+
+3. Slice 3: explicit two-point comparison, file listing, and point-object rules
+   shared by snapshot/mark/range; unchanged mark failure mapping and temporary
+   cross-baseline restriction. Full story-review command and typecheck above
+   passed (since-trunk clean/conflict/original/baseline/printing/older-Git,
+   since/mark/switch/refresh, and commit rename assertions). Independent refactor
+   found no candidate and reused proof without rerunning tests.
+
+Published increment: slice 2 `6217c1402647e2fa638087840dab69d0466b9e4d`,
+accepted on the remote execution branch with the same observer reused.
