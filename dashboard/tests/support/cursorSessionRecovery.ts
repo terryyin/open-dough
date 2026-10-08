@@ -28,8 +28,11 @@ export async function endHeldClient(
   page: Page,
   cursor: FakeCursor,
 ): Promise<void> {
+  // Launch may paint the card before the attach log line is flushed.
+  await expect
+    .poll(() => cursor.attaches().at(-1)?.pid ?? 0, { timeout: 15_000 })
+    .toBeGreaterThan(0);
   const pid = cursor.attaches().at(-1)?.pid ?? 0;
-  expect(pid).toBeGreaterThan(0);
   try {
     process.kill(pid, "SIGHUP");
   } catch (error) {
