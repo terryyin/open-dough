@@ -7,8 +7,9 @@
 // revision with no done records lists the sessions as before; a done-record
 // read that fails is said, and each malformed record is named by its file
 // with its problem, while the sessions are still listed. Which records there
-// are, and when each was done, is the done catalog published beside them;
-// only the records of the stories shown are read.
+// are, and when each was done, is the done catalog published beside them; a
+// catalog that does not describe them is said with its `catalog-done` repair,
+// and only the records of the stories shown are read.
 // The fake GitHub only publishes files spelled by the shared done-record
 // renderer and catalog (./recentlyDoneRecords.ts) and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
@@ -18,10 +19,11 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { publishFiles } from "./publishedOrigin.ts";
+import { publishFiles, type ObservedRequest } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
+  doneDirectory,
   doneRecordAt,
   doneRecordFiles,
   executed,
@@ -36,15 +38,29 @@ import {
   removedQueued,
   repository,
   revision,
+  staleCatalogRevision,
+  uncataloguedFile,
   uncataloguedRevision,
   unanswered,
   withMalformedRecordFiles,
+  withUncataloguedRecordFile,
 } from "./recentlyDoneRecords.ts";
 import {
   adHocEntry,
   expectEntries,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
+
+// The done record files read, apart from their catalog.
+function doneRecordsRead(requests: readonly ObservedRequest[]): string[] {
+  return requests.flatMap(({ request }) =>
+    request.kind === "content" &&
+    request.path.startsWith(`${doneDirectory}/`) &&
+    !request.path.endsWith("/.catalog.json")
+      ? [request.path]
+      : [],
+  );
+}
 
 // Keeps this machine's two sessions, listed by the synthetic `claude`.
 async function keepSessions(dashboard: DashboardServer, now: number) {
@@ -153,6 +169,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await page.reload();
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
     await expect(recent).toContainText("Done stories could not be read.");
+    await expect(recent).not.toContainText("catalog-done");
     await expectEntries(recent, [adHocEntry]);
     await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
@@ -161,7 +178,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     );
   });
 
-  await test.step("done records published without a catalog: the column names the gap, reads no record, and still lists the sessions", async () => {
+  await test.step("done records published without a catalog: the column names the gap and its repair, reads no record, and still lists the sessions", async () => {
     const records = doneRecordFiles(now);
     const requests = await publishFiles(page, {
       repository,
@@ -177,19 +194,29 @@ test("a revision with no done records lists the sessions as before, and one whos
     await page.reload();
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
     await expect(recent).toContainText(
-      "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records.",
+      "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records. Run the product backlog's `catalog-done` to rebuild it from the done records, then publish the rebuilt catalog.",
     );
     await expectEntries(recent, [adHocEntry]);
     await expect(recent.locator(".stage-count")).toHaveText(
       "Entry count incomplete",
     );
-    expect(
-      requests.filter(
-        ({ request }) =>
-          request.kind === "content" &&
-          request.path.startsWith(".planning/done/"),
-      ),
-    ).toEqual([]);
+    expect(doneRecordsRead(requests)).toEqual([]);
+  });
+
+  await test.step("a done record published beside a catalog that does not list it: the column names the stale catalog and the same repair, reads no record, and still lists the sessions", async () => {
+    const requests = await publishFiles(page, {
+      repository,
+      revision: staleCatalogRevision,
+      files: publishedFiles(withUncataloguedRecordFile(now)),
+    });
+    await page.reload();
+    await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    await expect(recent).toContainText(
+      `Done stories could not be read. The done catalog does not describe the published done records: done catalog does not list done/${uncataloguedFile}. Run the product backlog's \`catalog-done\` to rebuild it from the done records, then publish the rebuilt catalog.`,
+    );
+    await expectEntries(recent, [adHocEntry]);
+    await expect(recent.locator(".done-story")).toHaveCount(0);
+    expect(doneRecordsRead(requests)).toEqual([]);
   });
 
   await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards and the sessions", async () => {

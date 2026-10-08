@@ -116,17 +116,21 @@ export function doneRecordFiles(now: number): Record<string, string> {
   return withDoneCatalog(recordFiles(now), doneDirectory);
 }
 
+// The story done last week's record file, as `complete` would publish it.
+function lastWeekRecordFile(now: number): Record<string, string> {
+  return {
+    [doneRecordAt(lastWeek.identity)]: renderDoneRecord({
+      ...lastWeek,
+      completedAt: at(now, placed.lastWeekDone),
+      developer: "Terry Yin",
+    }),
+  };
+}
+
 // The done records, with the story done last week's beside them.
 export function withLastWeekRecordFiles(now: number): Record<string, string> {
   return withDoneCatalog(
-    {
-      ...recordFiles(now),
-      [doneRecordAt(lastWeek.identity)]: renderDoneRecord({
-        ...lastWeek,
-        completedAt: at(now, placed.lastWeekDone),
-        developer: "Terry Yin",
-      }),
-    },
+    { ...recordFiles(now), ...lastWeekRecordFile(now) },
     doneDirectory,
   );
 }
@@ -148,6 +152,20 @@ export const uncataloguedRevision = "d3".repeat(20);
 
 // Another revision still, whose reads the local boundary has not remembered.
 export const malformedRevision = "d2".repeat(20);
+
+// Another revision, whose catalog was published before the story done last
+// week's record was added beside it, as a merge outside the backlog's Git
+// adapters would leave it.
+export const staleCatalogRevision = "d5".repeat(20);
+export const uncataloguedFile = basename(doneRecordPath(lastWeek.identity));
+
+// The done records with their catalog, and the story done last week's record
+// beside them that the catalog does not list.
+export function withUncataloguedRecordFile(
+  now: number,
+): Record<string, string> {
+  return { ...doneRecordFiles(now), ...lastWeekRecordFile(now) };
+}
 
 // Done record files the shared reader refuses, by file name: one in a later
 // format, and one whose text names another identity than its file.

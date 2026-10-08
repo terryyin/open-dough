@@ -74,6 +74,11 @@ export type DoneStories =
 
 const doneUnreadProblem = "Done stories could not be read.";
 
+// How the developer repairs a catalog that does not describe the published
+// records: the product backlog rebuilds it from the record files.
+const doneCatalogRepair =
+  "Run the product backlog's `catalog-done` to rebuild it from the done records, then publish the rebuilt catalog.";
+
 function doneCatalogQuestion(
   source: PublishedSource,
   revision: string,
@@ -86,7 +91,8 @@ function doneCatalogQuestion(
 }
 
 // What the catalog says: its records, or the gap of a catalog that does not
-// describe the published records, which no read again can close.
+// describe the published records, which no read again can close, naming its
+// repair.
 async function cataloguedAt(
   source: PublishedSource,
   revision: string,
@@ -96,7 +102,7 @@ async function cataloguedAt(
   return catalog.status === "gap"
     ? {
         status: "unavailable",
-        problem: `${doneUnreadProblem} The done catalog does not describe the published done records: ${catalog.problem}.`,
+        problem: `${doneUnreadProblem} The done catalog does not describe the published done records: ${catalog.problem}. ${doneCatalogRepair}`,
       }
     : {
         status: "catalogued",

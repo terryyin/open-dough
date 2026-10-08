@@ -325,7 +325,16 @@ a release.
 ### 3. A catalog that does not describe the records names its repair
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `recently-done-stories.spec.ts` asserts the full repair
+sentence for a missing catalog and for a stale catalog (a record it does not
+list), and that a failed catalog read names no `catalog-done`; malformed and
+unsupported catalogs reach the same sentence through the shared gap path,
+classified in `authenticated-read-done-catalog-gaps.spec.ts`. The Done
+projection and catalog reads group, `published-facts-failures`,
+`published-facts-reading`, `recently-done-progressive-loading`, and
+`npm run typecheck:dashboard` pass. `dashboard/AGENT-LAUNCH-HISTORY.md#recently-done-range`
+states the adapters' currency and the named repair.
 Proof: update the "done records published without a catalog" step of
 `recently-done-stories.spec.ts` to the new sentence and add a stale-catalog
 publication (a record the catalog does not list) showing the same repair;

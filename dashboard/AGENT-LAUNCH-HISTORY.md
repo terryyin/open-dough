@@ -46,10 +46,14 @@ any observed Working despite saved Done.
 
 Recently done places its entries from the project's published done catalog,
 `done/.catalog.json` beside the backlog, which the product backlog's completion
-writes and its `catalog-done` rebuilds for records written before catalogs
-existed. The catalog must agree with the record files published at the shown
-revision; one that is missing, stale, or unreadable is the column's stated gap,
-never an empty list. The list shows the latest ten top-level entries and reads
+writes and its Git merge, rebase, and cherry-pick keep current; its
+`catalog-done` rebuilds it after changes outside them. The catalog must agree
+with the record files published at the shown revision; one that is missing,
+stale, or unreadable is the column's stated gap,
+never an empty list, naming its repair: run the product backlog's
+`catalog-done` to rebuild it from the done records, then publish the rebuilt
+catalog. A catalog read that fails says only that done stories could not be
+read, and why. The list shows the latest ten top-level entries and reads
 only the done records those show. **Show 10 of N older entries** (or **Show
 the N older entries**) after them is the only way to show more: scrolling,
 resizing, and column paging read nothing. While a batch reads, the entries
