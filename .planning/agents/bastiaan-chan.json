@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-123#dashboard-suite-stable-under-load",
+  "host": "claude",
+  "model": "fable"
+}
