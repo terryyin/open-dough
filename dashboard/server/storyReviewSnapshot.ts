@@ -31,6 +31,7 @@ import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type {
   ReviewedFileDiff,
+  ReviewCommit,
   ReviewMark,
   StoryReview,
 } from "../src/storyReview.ts";
@@ -108,6 +109,45 @@ async function storyReviewSnapshot(
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
+    // Excluding everything reachable from trunk keeps the story's own
+    // first-parent line, including the commits before a trunk merge.
+    const commitLog = await printed([
+      "log",
+      "--first-parent",
+      "-z",
+      "--format=%H%x00%h%x00%P%x00%cI%x00%s%x00%T",
+      `${baseline}..${head}`,
+    ]);
+    const fields = commitLog.split("\0");
+    const commits: ReviewCommit[] = [];
+    for (let at = 0; at + 5 < fields.length; at += 6) {
+      const [
+        revision = "",
+        shortRevision = "",
+        parentList = "",
+        committedAt = "",
+        subject = "",
+        commitTree = "",
+      ] = fields.slice(at, at + 6);
+      const parents = parentList.split(" ");
+      const parent = parents[0] ?? "";
+      const [commitBaseline, fromBaseline, fromTree] = await Promise.all([
+        git(["merge-base", revision, `${remote}/${target}`]),
+        git(["merge-base", parent, `${remote}/${target}`]),
+        git(["rev-parse", `${parent}^{tree}`]),
+      ]);
+      commits.push({
+        revision,
+        shortRevision,
+        subject,
+        committedAt,
+        merge: parents.length > 1,
+        tree: commitTree,
+        baseline: commitBaseline,
+        fromTree,
+        fromBaseline,
+      });
+    }
     // The files changed from one tree to the snapshot's, of the paths given
     // or of all, each with its line counts from the same comparison.
     const changedFrom = async (from: string, paths: readonly string[] = []) => {
@@ -146,6 +186,7 @@ async function storyReviewSnapshot(
       head,
       tree,
       files,
+      commits,
       ...marked,
     };
   } catch (error) {

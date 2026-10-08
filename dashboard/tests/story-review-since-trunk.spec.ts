@@ -207,7 +207,7 @@ olderGit(
       origin,
     );
 
-    // (a) All changes, why the earlier review cannot be compared, no switch.
+    // (a) All changes and Commits, why the earlier review cannot be compared.
     integrateTrunk(origin, story, "c story and trunk");
     writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
     const all = await reopenReview(page, card);
@@ -226,7 +226,10 @@ olderGit(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
     await expect(
-      review.getByRole("radiogroup", { name: "Comparison" }),
+      review.getByRole("radio", { name: "Commits", exact: true }),
+    ).toBeVisible();
+    await expect(
+      review.getByRole("radio", { name: "Since the review" }),
     ).toHaveCount(0);
     await expect(review).not.toContainText("since the review");
 

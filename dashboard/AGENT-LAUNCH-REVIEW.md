@@ -159,10 +159,12 @@ was taken is listed, even one written before the mark was made. When the
 snapshot equals the marked one, the review says “Nothing changed since the
 review.” Mark reviewed there marks the whole current snapshot, which the next
 review compares with. A marked story's review offers a **Comparison** switch,
-radios saying which is shown, “Since the review” or “All changes”, including
-when nothing changed since the review; an unmarked story's review offers none.
-Switching shows the other comparison of the same snapshot and reads nothing
-anew (`src/StoryReviewComparison.tsx`); while all changes are shown, the
+radios saying which is shown, “Since the review”, “All changes”, or “Commits”,
+including when nothing changed since the review. Commits is offered whenever
+the snapshot lists story commits; an unmarked story opens on All changes and
+offers Commits without Since the review. Switching between All changes and
+Since the review uses the same snapshot and reads nothing anew
+(`src/StoryReviewComparison.tsx`); while all changes are shown, the
 review says an earlier snapshot, or this one, is marked and when. Refresh
 keeps the comparison shown, of the new snapshot; every opening starts on the
 changes since the review. When the repository no longer holds the marked
@@ -170,7 +172,8 @@ tree or its baseline (the project was cloned anew, say; checked with
 `git rev-parse --verify --quiet` before restating), the earlier review cannot
 be compared: the answer carries the mark and `markUncomparable: "unreadable"`
 in place of `since`, and the review says an earlier snapshot is marked but can
-no longer be read, and shows all changes without the switch. Mark reviewed
+no longer be read, and shows all changes, with Commits still offered when the
+snapshot lists commits. Mark reviewed
 then starts again from the snapshot shown.
 
 Trunk merged into the story after the mark stays out of the changes since the
@@ -199,8 +202,30 @@ says the tree is not a commit), the review is not failed: the answer carries
 the mark and `markUncomparable: "not-restated"` in place of `since`, and the
 review says this machine's Git cannot leave out trunk's changes integrated
 since, so the earlier review cannot be compared across them, and shows all
-changes without the switch. Mark reviewed then starts again from the snapshot
+changes, with Commits still offered when the snapshot lists commits. Mark reviewed then starts again from the snapshot
 shown, on whose unchanged baseline the next review needs no restating. A
 restatement the closed response aborted still fails, and any Git failure
 outside restating still answers that the workspace's changes could not be
 read.
+
+The snapshot also lists the story's commits after its baseline along the
+first-parent line, newest first (`server/storyReviewSnapshot.ts`). Commits
+shows each by short revision, subject, and committer time, with merges saying
+“Integrated trunk”. The newest item alone is selected initially; its heading
+names the count and both ends. Choosing another item selects that single
+commit. Its file browser, counts, and diff compare its first parent's tree
+with its own tree, so uncommitted files and later commits stay out. Hide files
+keeps its diff visible. A commit that changes no files says “The chosen commits
+changed nothing.” A snapshot with no commits and no changes offers no Commits.
+
+The range read is a GET to `/__agent-launch/review/range`, naming `source`,
+`identity`, `fromTree`, `fromBaseline`, `tree`, and `baseline`; the four objects
+are supplied by the snapshot's list and verified in the resolved repository
+(`server/storyReviewAdmission.ts`, `server/storyReviewRange.ts`). Its answer is
+the comparison's `from`, `files`, and destination `tree`, or why it is
+unavailable. Each chosen commit reads its own range; an earlier pending read
+never supplies a later choice. At this stage only one commit whose points
+share a baseline can be selected. A merge across a trunk integration stays
+listed but is disabled; if it is the newest item the default says its range is
+not available yet and lists no files. Combined ranges, trunk restatement, and
+the Uncommitted changes item follow in the remaining story work.

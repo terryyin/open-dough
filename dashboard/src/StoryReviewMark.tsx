@@ -11,6 +11,7 @@
 
 import { postJson, refusal } from "./agentLaunchClient.ts";
 import { Moment } from "./Moment.tsx";
+import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
 import {
   ComparisonSwitch,
   type ShownComparison,
@@ -25,6 +26,7 @@ import {
   trunkIntegratedSince,
   type ReviewMark,
   type TakenStoryReview,
+  type ReviewCommit,
 } from "./storyReview.ts";
 
 // Asks the boundary to mark the snapshot named reviewed: the story's mark,
@@ -119,6 +121,7 @@ export function MarkingControls({
   stated,
   busy,
   onMark,
+  commit,
 }: {
   readonly snapshot: TakenStoryReview;
   readonly shown: ShownComparison;
@@ -129,11 +132,20 @@ export function MarkingControls({
   // Whether the review is being read or marked.
   readonly busy: boolean;
   readonly onMark: () => void;
+  readonly commit: ReviewCommit | undefined;
 }) {
   return (
     <div className="story-review-marking">
-      {snapshot.since !== undefined && (
-        <ComparisonSwitch shown={shown} onSwitch={onSwitch} />
+      {(snapshot.since !== undefined || snapshot.commits.length > 0) && (
+        <ComparisonSwitch
+          shown={shown}
+          onSwitch={onSwitch}
+          since={snapshot.since !== undefined}
+          commits={snapshot.commits.length > 0}
+        />
+      )}
+      {shown === "commits" && commit !== undefined && (
+        <CommitRangeHeading commit={commit} />
       )}
       {sinceReview && snapshot.mark !== undefined && (
         <SinceTheReviewHeading

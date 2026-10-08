@@ -5,7 +5,7 @@
 // of a new snapshot; each opening starts on the changes since the review.
 // Each comparison's files are in ./story-review-comparison-files.spec.ts. With no later change the review says nothing
 // changed since the review, without Hide files, and offers the same switch;
-// an unmarked story's review opens on all its changes and offers none.
+// an unmarked story's review opens on all its changes and offers Commits.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -158,7 +158,7 @@ test("a marked story with no later change says nothing changed since the review 
   await expect(review).toContainText("This snapshot is marked reviewed,");
 });
 
-test("an unmarked story's review opens on all its changes and offers no comparison switch", async ({
+test("an unmarked story's review opens on all its changes and offers Commits", async ({
   page,
   dashboard,
   origin,
@@ -174,6 +174,11 @@ test("an unmarked story's review opens on all its changes and offers no comparis
   ).toBeVisible();
   await expect(review).not.toContainText("since the review");
   await expect(review.locator("time")).toHaveCount(0);
-  await expect(comparison(review)).toHaveCount(0);
-  await expect(review.getByRole("radio")).toHaveCount(0);
+  await expectShown(review, "All changes");
+  await expect(
+    comparison(review).getByRole("radio", { name: "Commits", exact: true }),
+  ).toBeVisible();
+  await expect(
+    comparison(review).getByRole("radio", { name: "Since the review" }),
+  ).toHaveCount(0);
 });

@@ -1,0 +1,47 @@
+/* The first-parent commit list in the review body (./StoryReviewCommits.tsx). */
+.story-review-commits {
+  flex: none;
+  max-height: 30%;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.story-review-commits h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.story-review-commits ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-review-commits button {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  text-align: start;
+  color: inherit;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.story-review-commits button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: var(--edge);
+}
+
+.story-review-commits button:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.story-review-commits time {
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}

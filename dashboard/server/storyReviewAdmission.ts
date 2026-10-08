@@ -9,6 +9,10 @@
 // snapshot reviewed is a same-origin POST naming the project, the work
 // identity, and the snapshot's tree and baseline object IDs, its workspace
 // resolved by the same rule.
+// A commit range is a GET naming that same project and identity and two
+// points from the snapshot's list: `fromTree`, `fromBaseline`, `tree`, and
+// `baseline`, all hexadecimal object IDs. Its workspace is resolved by the
+// same rule; the range read confirms the repository holds those objects.
 
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -45,6 +49,15 @@ export interface AdmittedFileDiff {
   readonly path: string;
   // The path the file had at the baseline, for a rename.
   readonly oldPath?: string;
+}
+
+export interface AdmittedReviewRange {
+  readonly kind: "review-range";
+  readonly established: EstablishedContext;
+  readonly fromTree: string;
+  readonly fromBaseline: string;
+  readonly tree: string;
+  readonly baseline: string;
 }
 
 // The workspace the named story's review reads.
@@ -99,6 +112,28 @@ const fileDiffQuerySchema = z.object({
   path: reviewedPathSchema,
   oldPath: reviewedPathSchema.optional(),
 });
+
+const rangeQuerySchema = z.object({
+  fromTree: objectIdSchema,
+  fromBaseline: objectIdSchema,
+  tree: objectIdSchema,
+  baseline: objectIdSchema,
+});
+
+export async function rangeRequest(url: URL): Promise<AdmittedReviewRange> {
+  requireExactQuery(
+    url,
+    ["source", "identity", "fromTree", "fromBaseline", "tree", "baseline"],
+    "commit range",
+  );
+  const query = rangeQuerySchema.safeParse(
+    Object.fromEntries(url.searchParams),
+  );
+  if (!query.success)
+    throw new RefusedRequest(400, "The commit range names a malformed object.");
+  const { established } = await queriedWorkspace(url);
+  return { kind: "review-range", established, ...query.data };
+}
 
 export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
   requireExactQuery(

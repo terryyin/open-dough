@@ -1,0 +1,87 @@
+# Planning background for selected commit review
+
+Supporting context for [the executable plan](PLAN.md).
+
+## Published baseline and integration context
+
+Origin was inspected at the fetched `origin/main` on 2026-10-08 (this
+workspace is at its tip, `60e5ec79`). Plans 274 and 275 are allocated and
+unexecuted; neither touches the story review. 276 was free immediately before
+this write; after this plan was written and before it was published, trunk took 276 for a
+correction, so this plan is 277. The review's current behavior is documented in
+[AGENT-LAUNCH-REVIEW.md](../../../dashboard/AGENT-LAUNCH-REVIEW.md), which
+every Behavior slice below keeps current.
+
+## Existing solutions and selected approach
+
+PFE across the dashboard review:
+
+| Need | Finding |
+| --- | --- |
+| Leaving trunk out of a comparison whose ends have different baselines | **Modularize** `dashboard/server/storyReviewSince.ts`: `changesSinceReview` restates one _from_ point, the mark's `{tree, baseline}`, on the snapshot's baseline and compares with the snapshot tree. A range is the same operation with the oldest item's first-parent tree and that parent's baseline as the _from_ point and the newest item's tree and baseline as the _to_ point; the mark and the snapshot are one such pair. One restatement, two callers; no second implementation. |
+| The two comparisons of one snapshot | **Change** `dashboard/src/StoryReviewPanel.tsx` and `StoryReviewComparison.tsx`: `ShownComparison` gains `commits`; the panel's `comparison` comes from the range read instead of the snapshot when Commits is shown. `SnapshotView` already takes any `ReviewComparison` and a `tree`; the range's _to_ tree is passed as that `tree`. |
+| Reading one file's diff from any two trees | **Reuse** `storyReviewFileEndpoint` and `fileDiffRequest` (`storyReviewAdmission.ts`): they already admit any hexadecimal `baseline` and `tree`. `FileDiff` receives the range's _to_ tree where it receives `snapshot.tree` today. |
+| Listing the story's commits | **Gap:** nothing lists commits. Add to the snapshot (`storyReviewSnapshot.ts`) a `git log --first-parent -z` read from the baseline to the head, each item with its object ID, short revision, subject, committer time, whether it is a merge, its tree, and its _from_ point: its first parent's tree and that parent's baseline (`git merge-base <parent> <remote>/<target>`). A non-merge commit's baseline is its first parent's, so only merges and the oldest commit need `merge-base`; execution may take that shortcut or call `merge-base` per item. |
+| Admitting a range request | **Reuse** the admission pattern of `fileDiffRequest`: exact query, `objectIdSchema` for every object ID, the workspace from `reviewWorkspaceOf`, never a path. The request names the project, the work identity, the _from_ point (`fromTree`, `fromBaseline`) and the _to_ point (`tree`, `baseline`); the server confirms the repository holds them with `rev-parse --verify --quiet` as `holdsMark` does. |
+| Where the list and the range sit in the panel | **Change** `StoryReviewMark.tsx`'s `MarkingControls`, which owns the switch and the since-the-review heading: the switch is offered when `since` exists or the list is non-empty, and a range heading takes the since heading's place while Commits is shown. The list itself is a new component in the review's body beside the browser; its exact placement is execution's. |
+| Proof harness | **Reuse** `dashboard/tests/support/storyReviewWorktree.ts` (`storyWorktree`: three story commits, a `--no-ff` trunk merge, later trunk, and staged, unstaged, and untracked files) and `storyReviewTrunk.ts` (`markedWorktree`, `integrateTrunk` with a settled conflict), with `openReview`, `reopenReview`, `nextSnapshot`, `markReviewed`, `treeRows`, and the older-Git `pathPrefix` fixture of `story-review-since-trunk.spec.ts`. |
+
+Established structure and Accepted decisions support the work (ADR 0000:
+feature-local design kept in the seed and this plan; ADR 0002: one
+representation of the restatement). No North Star topic is needed; the
+Proposed ADRs 0008 and 0009 inform the first-parent boundary and bind nothing.
+
+## Decisive premises and observations
+
+| Premise | Consumed by | Observation | Result |
+| --- | --- | --- | --- |
+| Restating a pre-merge tree on the merged trunk and diffing against the merge's tree leaves only the story's own changes | Slices 3 and 4's approach | On this repository: `git merge-tree --write-tree --name-only -z --merge-base=459959ff 9af4215e 56e7b894`, then `git diff --name-status <restated> b5b7de82` (2026-10-08, Git 2.50.1) | Exit 1, one file, `DearDough.md`, whose conflict the merge resolved; the plain diff from `9af4215e` to `b5b7de82` lists 118 files |
+| A merge driver's standard output lands in `merge-tree`'s output before the tree | Slice 2 | Throwaway repository with `merge.noisy.driver` printing a line: `git merge-tree --write-tree --name-only -z --merge-base=<base> <story> <trunk>` | Exit 0 output is `driver says hello\n<tree>\0`: the first NUL field is not an object ID. On this repository the product-backlog driver did the same on exit 1 |
+| The existing parser requires the first NUL field to be the tree | Slice 2's change | `dashboard/server/storyReviewSince.ts:64-79` | On exit 1 a non-ID first field answers `not-restated`; on exit 0 the first field is used as the tree unchecked |
+| `fileDiffRequest` admits any hexadecimal `baseline` and `tree` | Slices 1 and 4's file diffs | `storyReviewAdmission.ts:97-130`, `objectIdSchema` | Confirmed; `FileDiff` takes `from` and `tree` props (`StoryReviewFileDiff.tsx`, `StoryReviewSnapshotView.tsx:189-194`) |
+| `SnapshotView` renders any `ReviewComparison` and selects from `comparison.files` | Slice 1 | `StoryReviewSnapshotView.tsx:98-120` | Confirmed; `sinceReview` only chooses the empty message |
+| The switch is rendered only when `snapshot.since` exists | Slice 1's switch change | `StoryReviewMark.tsx:134-137`; `StoryReviewComparison.tsx` lists `["since", "all"]` | Confirmed |
+| `git log --first-parent` names merges by their parent count and the line can be read NUL-separated | Slice 1's list read | `git log --first-parent --format='%H%x1f%h%x1f%P%x1f%cI%x1f%s' 459959ff..b5b7de82` | Two merges with two parents each, one plain commit; `%cI` is ISO time |
+| `storyWorktree` holds three story commits, a `--no-ff` trunk merge, and uncommitted files, so one fixture covers the list, a range across a merge, and Uncommitted changes | Slices 1, 3, 4 | `tests/support/storyReviewWorktree.ts:67-123` | Confirmed; `merged` is the baseline after the merge, and the three commits before it have the earlier trunk commit as baseline |
+| The since-trunk proof, its older-Git fixture included, runs here | Named proof command | `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/story-review-since-trunk.spec.ts --workers=2 --reporter=line` after `env -u NODE_ENV npm ci` (2026-10-08) | 5 passed in 25.1 s |
+
+No decisive premise needs a paid or state-changing observation; no probe
+slice is required.
+
+## Preparation review
+
+Cumulative design: one restatement with two callers, one comparison type for
+all three views, one admission pattern, and one list read beside the snapshot;
+the examples exercise one rule, a comparison of two points of the story's
+line, with Uncommitted changes as one more point. Refinement was not needed:
+no slice fragments one result or combines independent outcomes, slice 2's
+independence is a correction the mechanism depends on, and every promise has
+an owner.
+
+## Verification, delivery and sizing
+
+All proof enters the existing Playwright Chromium suite on real bare origins
+and worktrees; no credentialed or paid dependency. Run from the execution
+checkout with inherited variables unset:
+
+```sh
+env -u NODE_ENV npm ci
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=2 <owning-and-affected-specs>
+env -u NODE_ENV npm run typecheck:dashboard
+```
+
+Affected consumers: every `story-review-*.spec.ts` that opens the switch or
+reads `snapshot.since` (`story-review-since*.spec.ts`,
+`story-review-mark.spec.ts`, `story-review-comparison*.spec.ts`,
+`story-review-refresh.spec.ts`, `story-review-nothing.spec.ts`); before
+changing a message, search its exact words in `dashboard/tests` and
+`dashboard/tests/support`. Slice 2 changes no message.
+
+Authorized execution applies its existing proof, refactoring, and delivery
+gates, including post-change refactoring. Planning grants no Take,
+implementation, commit, push, landing, or workspace retirement.
+
+No numeric slice target or hard limit was supplied. Slice 1 is the largest:
+one list read, one request with admission, one switch option, and one
+journey; slice 4 adds the two-ended choice and the restated case to the
+mechanism slice 3 prepared. Slices 2 and 5 each add cases to existing specs.
