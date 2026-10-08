@@ -228,6 +228,13 @@ results resolved by hand and then `continue`d; the already-contained merge
 stop has nothing to continue, which its own message says. Terry's open choice
 of reporting that case as a non-failing result would remove the mismatch.
 
+CI repair: run 37778797507 on `f630ffeb` failed the dashboard spec "two
+development servers leave one runner in its own process group" (two runners).
+The Cursor runner start lock was created before its holder's pid was written,
+so a concurrent starter read it empty, judged it stale, and started a second
+runner; the lock is now linked into place already naming its holder. Proof: a
+widened create-to-write window failed 3/3 before the fix and passed after.
+
 ## Cumulative review
 
 Slice 1 adds one early return beside the existing fast-forward branch of the
