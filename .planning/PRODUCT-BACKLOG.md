@@ -17,6 +17,7 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep reported gaps owned through the story's remaining slices](seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned ([plan](slice-plans/283-keep-reported-gaps-owned/PLAN.md))
 - [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load ([plan](slice-plans/282-dashboard-suite-stable-under-load/PLAN.md))
 - [Keep unchanged dashboard stories steady while story information reloads](seeds/SEED-126-steady-dashboard-refresh.md#steady-dashboard-refresh) — SEED-126#steady-dashboard-refresh ([plan](slice-plans/284-steady-dashboard-refresh/PLAN.md))
+- [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change ([plan](slice-plans/281-review-merged-one-shot-change/PLAN.md))
 
 ## Backlog list
 
@@ -25,7 +26,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Catch shared fixture signature breaks in the dashboard's local checks](seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally) — SEED-124#check-dashboard-fixture-consumers-locally
 - [Show Running Cursor sessions as a resizable sidebar section](seeds/SEED-122-running-cursor-sessions-sidebar-panel.md#running-cursor-sessions-sidebar-panel) — SEED-122#running-cursor-sessions-sidebar-panel
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
-- [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change
 - [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes

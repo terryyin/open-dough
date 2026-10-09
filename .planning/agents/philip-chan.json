@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "philip-chan",
+  "email": "philip-chan@example.org",
+  "identity": "SEED-088#review-merged-one-shot-change",
+  "mode": "story-branch",
+  "branch": "codex/review-a-story-s-merged-one-shot-change",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
