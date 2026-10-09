@@ -169,7 +169,19 @@ CI keeps its HTML report folder unchanged.
 
 ### 2. Two runs from one checkout each build and serve their own assets
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm test -- tests/dashboard-concurrent-runs.sh` passes in
+about 2 s (two concurrent runs silent, exit 0, `dashboard/dist` state
+unchanged, no `dough-dashboard-build-*` left in its `TMPDIR`); the same check
+fails on the previous global setup. `npm run test:dashboard --
+project-configuration-boundary.spec.ts agent-launch-environment.spec.ts` and
+`-- quiet-reporter` pass. CI's dashboard shards have no `dashboard/dist`, so
+every page journey there observes workers serving the private build.
+Learnings: the teardown is global setup's returned function, not a separate
+`globalTeardown` file, so it removes exactly the directory setup made; a
+failed build removes it before rethrowing. The `dashboard/dist` fallback is
+only evaluated in the runner process, which imports `dashboardServer.ts`
+before setup and serves nothing; no standalone preview imports it.
 Proof: New `tests/dashboard-concurrent-runs.sh` starts two
 `npm run test:dashboard -- project-configuration-boundary.spec.ts` at once
 and requires both to exit 0 with no output while `dashboard/dist` keeps its
