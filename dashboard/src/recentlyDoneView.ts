@@ -75,23 +75,25 @@ const holdsEntry = (each: Listed, held: HeldEntry) =>
 
 type ShownDone = {
   readonly sourceId: string;
-  readonly revision: string;
   readonly done: PublishedWork["done"];
 };
 
-// The done stories shown, and the revision whose catalog places them: the
-// work's own once its catalog answers, else, while a newer revision of the
-// same project reads its catalog, the last revision's.
-function useShownDone(sourceId: string, work: PublishedWork): ShownDone {
-  const { revision, done } = work;
-  const current = { sourceId, revision, done };
+// The done stories shown: the work's own once its catalog answers, else,
+// while a newer revision of the same project reads its catalog, the last
+// revision's.
+function useShownDone(
+  sourceId: string,
+  work: PublishedWork,
+): PublishedWork["done"] {
+  const { done } = work;
+  const current = { sourceId, done };
   const [last, setLast] = useState<ShownDone>(current);
   if (done?.status !== "loading" && last.done !== done) setLast(current);
   return done?.status === "loading" &&
     last.sourceId === sourceId &&
     last.done?.status === "catalogued"
-    ? last
-    : current;
+    ? last.done
+    : done;
 }
 
 // Answers the page's destination in this project once the list can place it:
@@ -148,7 +150,10 @@ export function useRecentlyDone({
   readonly noneKept: boolean;
 }) {
   const range = usePageRange();
-  const { done, revision } = useShownDone(sourceId, work);
+  const done = useShownDone(sourceId, work);
+  // Records are read at the revision whose catalog lists them.
+  const revision =
+    done?.status === "catalogued" ? done.revision : work.revision;
   const listed = newestFirst(
     recentDoneRecords(done, new Date()),
     records ?? [],

@@ -191,7 +191,7 @@ above 0. A viewport tuned to one machine's fonts is not a margin.
 
 ### 2. The done catalog names the revision it was read at
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/recently-done-progressive-refresh.spec.ts` and the done specs
 (`tests/*done*.spec.ts`) green; `npm run typecheck:dashboard`.
 
@@ -200,6 +200,14 @@ was read at; `RecentlyDone` and `doneDetails` read records at that revision
 instead of the snapshot's. `useShownDone` keeps its behavior for now. This
 enables slice 3 to carry the done list through the same rule as every other
 part, without reading one revision's records at another.
+
+Accepted proof: `npm run typecheck:dashboard`; recently-done-*, every
+`*done*` spec, authenticated-read-done-catalog*, and auto-refresh* green.
+Catalogued `DoneStories` carries `revision` (set in `cataloguedAt`);
+`useRecentlyDone` reads records at it, else at `work.revision`;
+`useShownDone` now returns only the list. For slice 3: removing
+`useShownDone` leaves `const done = work.done`; the done list starts as
+`{status: "loading"}` in `publishedWorkDetails.ts`, where the carry applies.
 
 ### 3. Unchanged cards keep content and place while a new revision is read
 Type: Behavior

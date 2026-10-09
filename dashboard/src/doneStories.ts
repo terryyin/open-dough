@@ -60,7 +60,8 @@ export type NamedDoneRecord = {
 
 // The done records at the snapshot's revision, as their catalog says, until
 // any is read: catalogued, newest completion first, with the record files the
-// catalog could not read; loading until the catalog answers; or unavailable,
+// catalog could not read and the revision the catalog was read at, which its
+// records are read at too; loading until the catalog answers; or unavailable,
 // with the reason, when it could not be read or does not describe the
 // published records.
 export type DoneStories =
@@ -68,6 +69,7 @@ export type DoneStories =
   | UnavailableGap
   | {
       readonly status: "catalogued";
+      readonly revision: string;
       readonly records: readonly CataloguedDoneRecord[];
       readonly unreadable: readonly NamedDoneRecord[];
     };
@@ -106,6 +108,7 @@ async function cataloguedAt(
       }
     : {
         status: "catalogued",
+        revision,
         records: catalog.records,
         unreadable: catalog.unreadable,
       };
