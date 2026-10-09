@@ -1,9 +1,10 @@
 // The browser suite's reporter (./support/quietReporter.ts), proven by
 // running Playwright itself on a temporary config whose specs are the
-// substitutes in ./fixtures/quiet-reporter: a passing run prints nothing,
-// a failure is named with its error and trace, output from a passing
-// spec or from the run itself fails the run, and a run that reaches its
-// deadline names it while keeping what completed.
+// substitutes in ./fixtures/quiet-reporter: a passing run prints nothing
+// and leaves no output directory, a failure is named with its error and
+// trace and its report is kept in the run's output directory, output from
+// a passing spec or from the run itself fails the run, and a run that
+// reaches its deadline names it while keeping what completed.
 
 import { expect, test } from "./support/pageTest.ts";
 import { spawn } from "node:child_process";
@@ -11,6 +12,7 @@ import {
   existsSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -127,6 +129,7 @@ test("a passing run prints nothing and succeeds", async () => {
   const run = await runSubstitute({ spec: "passing.proof.ts" });
 
   expect(run).toMatchObject({ status: 0, stdout: "", stderr: "" });
+  expect(existsSync(run.outputDir)).toBe(false);
 });
 
 test("a failing spec is named with its error and keeps its trace", async () => {
@@ -138,6 +141,14 @@ test("a failing spec is named with its error and keeps its trace", async () => {
   expect(run.stdout).toContain("the substitute's deliberate mismatch");
   expect(run.stdout).toContain("trace.zip");
   expect(retainedTraces(run.outputDir)).toHaveLength(1);
+});
+
+test("a failed run keeps what it printed in its output directory and names that directory last", async () => {
+  const run = await runSubstitute({ spec: "failing.proof.ts" });
+
+  const report = readFileSync(path.join(run.outputDir, "report.txt"), "utf8");
+  expect(report).toContain("compares the wrong sum");
+  expect(run.stdout).toBe(`${report}Kept: ${run.outputDir}\n`);
 });
 
 test("a passing spec that prints fails the run and shows its output", async () => {

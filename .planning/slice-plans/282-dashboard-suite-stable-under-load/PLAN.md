@@ -137,7 +137,19 @@ concurrent runs from one checkout, and reproducing the recorded failures.
 
 ### 1. A failed run's report and retained files survive a rerun
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- quiet-reporter` passes (6 tests);
+`quiet-reporter.spec.ts` "a passing run prints nothing and succeeds" asserts
+no output directory remains, and "a failed run keeps what it printed in its
+output directory and names that directory last" asserts `report.txt` holds the
+printed failure and stdout ends `Kept: <outputDir>`. By hand: a failing run
+kept `dashboard/test-results/<stamp>/` with `report.txt`, `trace.zip`, and
+`error-context.md`; the next passing run left it in place. Learnings: the
+runner sets `OPEN_DOUGH_DASHBOARD_RUN_STAMP` where `TEST_WORKER_INDEX` is
+unset and workers reuse it; Playwright writes `.last-run.json` during `onEnd`,
+before `onExit`, so a passing run's directory is removed outright (no
+`passed` marker); a global-setup failure still reaches the reporter's
+`onBegin(config)` from `onEnd`, so it keeps its report too.
 Proof: `quiet-reporter.spec.ts` gains: a failing run writes `report.txt` in its
 output directory with the same text it printed and prints
 `Kept: <directory>` last; a passing run prints nothing and leaves no output
