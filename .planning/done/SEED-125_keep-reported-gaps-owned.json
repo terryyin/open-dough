@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-125#keep-reported-gaps-owned",
+  "title": "Keep reported gaps owned through the story's remaining slices",
+  "completedAt": "2026-10-09T23:18:58.943Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

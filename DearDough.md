@@ -69,7 +69,7 @@ Former local code: DD-126.
 
 A required later-slice check recorded as a plan learning is omitted from that slice's delegation and acceptance.
 
-Follow-up: queued, not resolved: [Keep reported gaps owned through the story's remaining slices](https://github.com/terryyin/open-dough/blob/main/.planning/seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned.
+Follow-up: implemented, unreleased; release verification and watch pending: [Keep reported gaps owned through the story's remaining slices](https://github.com/terryyin/open-dough/blob/ac8bdb6ca16dd347189867ef1df60a2ccd078c93/.planning/seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned.
 
 Evidence and response: [ODF-156](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-156).
 
