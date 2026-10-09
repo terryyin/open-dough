@@ -85,6 +85,11 @@ export async function openTakenCursorSession(
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const recent = parts(page).taken.locator(".session-entry");
   await expect(recent).toHaveCount(1);
+  // Start session opens the terminal. Its socket joins the runner's client
+  // once a screen shows; a join after a hangup would start another client.
+  await expect(
+    page.getByRole("region", { name: "Terminal" }).locator(".xterm-rows"),
+  ).toContainText(/\S/u);
   return recent;
 }
 

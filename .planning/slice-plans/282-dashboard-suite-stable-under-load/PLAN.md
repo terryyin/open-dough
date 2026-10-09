@@ -201,6 +201,17 @@ import time in each worker, which reads the variable workers already carry.
 ### 3. The recorded failure kinds are reproduced and explained
 Type: Behavior
 Status: planned
+CI repair during this slice: run 37888054794 (8e5533ea, dashboard 9/9)
+failed `cursor-session-recovery-stops.spec.ts:25` at `endHeldClient`'s
+15 s wait. Cause: `openTakenCursorSession` returned before the Terminal's
+socket joined the runner, so a join after the hangup started a second
+client (CI trace: socket upgrade 91 ms after the hangup). Not caused by
+slices 1–2. Fixed by waiting for the Terminal's screen; `--repeat-each 24`
+failed 2 of 24 before and passed 24 of 24 after, at load 39–67. A separate
+flake in `cursor-session-recovery.spec.ts` ("idle composer with confirmed
+first input", 2 of about 66 under load; Recover reports "waiting for an
+answer" read before the host repaints) remains unfixed and looks like
+product timing.
 Proof: `scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]`
 runs the suite that many times, under burners with `--load`, the first
 repetition in a fresh worktree with `--fresh`, and prints per run: exit,
