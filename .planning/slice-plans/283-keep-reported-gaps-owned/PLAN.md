@@ -74,7 +74,7 @@ Entry format, one `###` entry per obligation under `## Story obligations`:
 ```markdown
 ### G1. Holdings panel omits the source
 Reported: slice 4 — "The Holdings page panel (`HoldingsExitSettingsResults.tsx`) renders the same response but does not show the source."
-Story clause: "Holding exit settings name their source."
+Story clause: "Each signal and exit row names that source"
 Disposition: return
 ```
 
@@ -83,6 +83,15 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
 `no user cost "<goal quote>": <reason>`; `proved by slice <N>: <proof location>`.
 
 ## Current decisions
+
+- Established execution: Story Branch, this worktree, branch `codex/keep-reported-gaps-owned-through-the-story-s-rem`, publisher `dashboard-territory.local-open-dough`, agent `dbs-chan`.
+  Claim `f3c18be67af7ae97f30df57c1e720e087ad2d30c` accepted on `origin/main`; starting revision `48ffeb9f0564382092b30b5caf3ac91f500b783f`. Checkout existed before this session.
+  Integration checkout `/Users/terryyin/git/open-dough`; increments publish to this execution branch on `origin`. Planning authority permits within-story refinement; no numeric hard limit supplied.
+- Setup passed here: official Node 24.21.0, locked npm/browser acquisition, `node scripts/setup-native.mjs check`, Chromium 153.0.8010.12.
+  Inherited `NODE_ENV=production` initially omitted dev dependencies; acquisition succeeded with `NODE_ENV=development`.
+  Command prefix: `PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH`.
+- CI: verified GitHub push workflow `ci.yml`, repository `terryyin/open-dough`, target this execution branch. Codex observer cell 15, session 36414, directory `/tmp/dough-ci-501/watch-Hk4eD4`, PID 69146, coordinator `dbs-chan`.
+  Runtime `.agents/skills/dough-execute-plan` here. The earlier trunk claim is unobserved by this branch observer; delivery registers increments.
 
 - **Every named gap gets an entry, judged against the story.** Each entry
   needs a `Story clause:` quote that must appear in the story's section. The
@@ -113,7 +122,7 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
 | A new `src/skills/*/scripts/*.test.mjs` runs in the suite without registration | Slices 1–3 proof | `tests/node-test-files` holds `src/skills/*/scripts/*.test.mjs`; `scripts/test-jobs.sh` schedules each match. | Confirmed. |
 | A new installed script must be added to `managed_files`, and guidance links must reach declared files | Slice 3 | ADR 0003's Promoted row; commit `493187cc` added `applicable-candidate-proof.mjs` with its `install.sh` line; `tests/payload-declaration-links.sh` checks every relative link in declared Markdown against `managed_files`. | Confirmed. |
 | Seed story text wraps across lines, so a raw substring check fails on real quotes | Decision on normalization | The SEED-125 story section in this workspace wraps every sentence at about 78 columns. | Confirmed. |
-| The three replay sources are recoverable locally | Slices 1–2 fixtures; slice 4 | `git cat-file -t` in `~/git/pygardon` for `a4673f7b6` and `f93f2014b`, and in `~/git/doughnut` for `0662bac730`: all `commit`. Plan 303 at `a4673f7b6` links `SEED-078-…#story-auto-trading-same-basis` and states "Holding exit settings name their source." | Confirmed. Fixtures copy the decisive story sentences and return quotes into this repository; tests never read the other repositories. |
+| The three replay sources are recoverable locally | Slices 1–2 fixtures; slice 4 | `git cat-file -t` in `~/git/pygardon` for `a4673f7b6` and `f93f2014b`, and in `~/git/doughnut` for `0662bac730`: all `commit`. Plan 303 at `a4673f7b6` links `SEED-078-…#story-auto-trading-same-basis`. Execution read the seed: its clause is "Each signal and exit row names that source"; "Holding exit settings name their source." is plan-only. | Confirmed with corrected authoritative quote. Fixtures copy the decisive story sentences and return quotes into this repository; tests never read the other repositories. |
 | A coordinator given the guidance and script records and acts on the obligations | Story evaluation | Only a native host run observes it, and those cost money. | Bounded by slice 4, developer-run, after the free proof. |
 
 ## Outside-in proof ownership
@@ -133,8 +142,9 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
 
 ### 1. A slice cannot be committed while a reported gap lacks a story-backed disposition
 Type: Behavior
-Status: planned
-Proof: `node --test src/skills/dough-execute-plan/scripts/story-obligations.test.mjs`
+Status: done
+Accepted: `node --test src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs tests/support/product-backlog-plan-reader.test.mjs tests/support/product-backlog-plan-reader-bold.test.mjs tests/support/product-backlog-plan-completion.test.mjs` — 28 passed. CLI assertions reject false scope, learning-only gaps, absent story quotes, invalid ownership and malformed records; genuine exclusions/owner changes pass. Fixtures supply records only. Independent refactor shared fence visibility and split test cases; inspected boundaries remain unchanged. Refactor agent ran an early formatter contrary to coordinator ownership; coordinator retained delivery formatting.
+Proof: `node --test src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs`
 with fixtures from plans 303, 280, and a genuine-exclusion story; each
 refusal asserts its reason code and the named entry.
 
@@ -151,7 +161,7 @@ A plan without the section passes with zero entries.
 ### 2. Obligations reach the slices that receive or depend on them, and completion waits for them
 Type: Behavior
 Status: planned
-Proof: the same test file, with fixtures from plans 296 and 008:
+Proof: `node --test src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs`, with fixtures from plans 296 and 008:
 `list --slice 8` and `list --slice 3` output, the last-dependent-slice
 refusal, the dangling refusal after slice 8 is removed, and
 `check --completion` refusing while a `return`, `receiving slice`, or
