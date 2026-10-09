@@ -55,7 +55,8 @@ or high browser zoom.
 
 **Near-future direction** starts collapsed below the banner, opposite the
 **Preparation badge legend** help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction
-explanation), then activate it again to collapse. A new read of the same project
+explanation) beneath the whole row, under Start session and the help, which
+stay in place; activate it again to collapse. A new read of the same project
 preserves this choice, including after a failed read; selecting another project
 starts collapsed. Opening or closing it makes no source request.
 

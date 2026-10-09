@@ -9,6 +9,7 @@ import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
   const status = page.getByRole("status");
+  const direction = page.getByRole("region", { name: "Near-future direction" });
   return {
     banner: page.getByRole("banner"),
     sourceEvidence: page.getByLabel(/^Source evidence for /),
@@ -16,8 +17,12 @@ export function parts(page: Page) {
     stages,
     backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
     taken: stages.getByRole("region", { name: "Taken", exact: true }),
-    direction: page.getByRole("region", { name: "Near-future direction" }),
+    direction,
     directionToggle: page.locator(".direction summary"),
+    // The direction's text, shown only while the direction is open.
+    directionText: direction.locator("p"),
+    // The row holding the direction, Start session, and the help.
+    projectActions: page.locator(".project-actions"),
     preparationHelp: page.getByRole("button", {
       name: "Preparation badge legend",
     }),
@@ -246,5 +251,34 @@ export async function expectProblemAndNoSnapshot(
 // Expand through the actual control before claiming direction is readable.
 export async function openDirection(page: Page) {
   await parts(page).directionToggle.click();
-  await expect(parts(page).direction.locator("p")).toBeVisible();
+  await expect(parts(page).directionText).toBeVisible();
+}
+
+const laidOut = async (part: Locator) => {
+  const box = await part.boundingBox();
+  if (!box) throw new Error("not laid out");
+  return box;
+};
+
+// The opened direction reads beneath everything on the project actions row,
+// from the row's left edge to its right edge, while the row's own parts stay
+// where they were before it opened.
+export async function expectDirectionOpensAcrossRow(page: Page) {
+  const { directionToggle, directionText, projectActions } = parts(page);
+  const rowParts = [
+    directionToggle,
+    projectActions.locator(".project-actions-end"),
+  ];
+  const closed = await Promise.all(rowParts.map(laidOut));
+  await openDirection(page);
+  const opened = await Promise.all(rowParts.map(laidOut));
+  expect(opened).toEqual(closed);
+  const [panel, across] = await Promise.all([
+    laidOut(directionText),
+    laidOut(projectActions),
+  ]);
+  expect(Math.abs(panel.x - across.x)).toBeLessThan(1);
+  expect(Math.abs(panel.width - across.width)).toBeLessThan(1);
+  for (const part of opened)
+    expect(panel.y).toBeGreaterThanOrEqual(part.y + part.height);
 }
