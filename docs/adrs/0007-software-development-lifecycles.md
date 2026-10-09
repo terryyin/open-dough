@@ -106,7 +106,7 @@ flowchart TD
 
 Story isolation reduces coordination interruptions but delays integration
 feedback; sequential related work limits that cost. This differs from
-[ADR 0002, principle 2](./0002-software-development-lifecycle-principles-accepted.md),
+[ADR 0002, principle 3](./0002-software-development-lifecycle-principles-accepted.md),
 which requires continuous integration into a shared trunk. Until a human
 resolves that conflict through acceptance with reconciliation or an explicit
 exception, follow ADR 0002. This proposal does not supersede it.

@@ -6,30 +6,23 @@
 
 **Date:** 2026-09-06
 
-**Revised:** 2026-10-02, at Terry Yin's direction, to clarify internal solution
-dependencies and exceptional blocking sequences.
-
 **Decision makers:** Terry Yin
 
-**Consulted:** Terry Yin supplied the clarifications and accepted this revision.
+**Consulted:** Terry Yin supplied the goals, principles, and clarifications.
 
 ## Context
 
 Open Dough's products are agent rules and skills that help AI agents participate
 in software development. These instructions express practical ways of working
-with current models. As models evolve, instructions that help today can become
-unnecessary or counterproductive, potentially within the next one or two model
-generations.
+with current models. As models evolve, useful instructions can become unnecessary
+or counterproductive, potentially within the next one or two model generations.
 
-We treat the beliefs in this ADR as enduring first principles against which
-processes, rules, and skills are judged across model generations. Current
-practices are provisional choices for serving those principles efficiently.
+These enduring first principles guide how we judge processes, rules, and skills
+across model generations. Current practices are provisional choices for serving
+those principles efficiently.
 
-Many of the ideas in this ADR come directly or indirectly from
-[LeSS (Large-Scale Scrum)](https://less.works/).
+Many of these ideas come from [LeSS (Large-Scale Scrum)](https://less.works/).
 
-This decision preserves the original two optimization goals and seven principles,
-with clarifications accepted in the September 11 discussion.
 These are internal Open Dough principles for developing and judging our product
 and guidance. They may influence published guidance, but are not decisions
 imposed on projects using it or required runtime dependencies.
@@ -39,237 +32,214 @@ imposed on projects using it or required runtime dependencies.
 ### Optimization goals
 
 - **Have the ability to deliver the highest user value first.** This requires
-  both identifying the highest user value and being able to deliver it ahead
-  of less valuable work. The goal does not prescribe a delivery speed or
-  volume: when capacity is limited, we should be able to identify a smaller
-  valuable outcome and deliver the highest-value outcome within reach, with
-  a transaction cost low enough to keep selecting, completing, and delivering
-  small pieces of work practical. Users receive value early, and delivery
-  creates an opportunity to learn from actual use and feedback. Learning is
-  the most important outcome of this process, not an incidental byproduct.
-  It informs what we understand to be valuable and enables us to reconsider
-  priorities and direction.
+  identifying the highest user value and delivering it ahead of less valuable
+  work. The goal does not prescribe speed or volume: when capacity is limited,
+  identify smaller outcomes and deliver the highest-value one within reach. Keep
+  transaction costs low enough to make selecting, completing, and delivering
+  small pieces of work practical. Delivery gives users value early and lets us
+  learn from actual use and feedback. Learning is the most important outcome:
+  it informs what we understand to be valuable and lets us reconsider direction
+  and priorities.
 - **Have the ability to change direction at extremely low cost.** This goal
-  reinforces the first: learning from delivery has limited practical value
-  if acting on it requires abandoning a large investment or undertaking
-  expensive rework. A rigid plan can create this problem, for example by
-  building infrastructure ahead of the features that will demonstrate its
-  value, committing effort to a direction that later learning may challenge.
-  Our current approach includes just-in-time work: make commitments and build
-  supporting capabilities when they are needed for the value being delivered.
-  Fast feedback from unit tests, end-to-end tests, and other relevant checks
-  exposes mistakes and regressions quickly, supporting inexpensive changes.
-  Do not assume every story in a decomposition will eventually be implemented.
-  Each stopping point should leave useful software without complexity whose
-  benefit depends on unfinished future work. Necessary current domain coherence
-  is part of delivering today's value, even when it requires substantial work;
-  it is not speculative preparation merely because it crosses components.
+  reinforces the first: learning has limited value if acting on it requires
+  abandoning a large investment or undertaking expensive rework. Building
+  infrastructure ahead of the features that demonstrate its value can commit
+  effort to a direction that later learning challenges. Our current approach
+  includes just-in-time work: make commitments and build supporting capabilities
+  when the value being delivered needs them. Fast feedback from unit tests,
+  end-to-end tests, and other relevant checks supports inexpensive changes.
+  Do not assume every story in a decomposition will be implemented. Each stopping
+  point should leave useful software without complexity whose benefit depends on
+  unfinished future work. Necessary current domain coherence is part of today's
+  value, even when substantial work across components is required.
 
 ### Principles
 
 We believe coordination cost is a major cause of the productivity paradox:
-gains in individual productivity from programming practices and technological
-breakthroughs, including AI-augmented programming, do not reliably scale into
-better product outcomes. As a product's size and complexity require more
-participants to understand the problem and construct a solution, coordination
-can absorb those gains.
+individual gains from programming practices and technological breakthroughs,
+including AI-augmented programming, do not reliably scale into better product
+outcomes. As size and complexity require more participants to understand the
+problem and construct a solution, coordination can absorb those gains.
 
 #### 1. Centralized product focus and customer view
 
-The problem definition and customer view are centralized. All participants,
-including developers and AI agents, need access to a whole-product view while
-solving problems, even when a particular task requires only part of that
-context. Everyone must deeply understand customer needs, current business
-goals, and top items in the product backlog to the same depth. A view confined
-to an assigned component is insufficient.
+The problem definition and customer view are centralized. Everyone, including
+developers and AI agents, must deeply understand customer needs, current
+business goals, and top items in the product backlog to the same depth. This
+shared view defines and prioritizes work by external customer value.
 
-#### 2. Decentralized coordination through continuous integration of user-centric work
+#### 2. Whole product focus
 
-Solution construction and coordination are decentralized. Each team,
-developer, or agent pursues a story's external user value while keeping its
-implementation cohesive with the whole product. Internal solution dependencies
-between stories are encouraged where they support cohesion (principle 4).
-Story boundaries do not require isolated implementations.
+Typically, principle 1 bounds work by external customer value. Within that
+scope, develop with a whole-product view and consider all parts needed
+for a cohesive result. Component and story boundaries must not limit a
+necessary solution. The user value scope keeps cognitive load and workload
+manageable while allowing the solution to span the product.
 
-Shared product understanding gives solutions their purpose and bounds.
-Well-considered, proportionate upfront design can establish a common
-architectural direction; PFE and reconciliation during integration bring
-independently developed work into one cohesive solution. Use either approach
-or both as needed.
+High cohesion gives this focus its structure. Keep together parts that need
+one another to be useful; keep unrelated responsibilities apart. The domain
+model in principle 5 identifies which concepts and responsibilities belong
+together. Related parts reduce the cost of understanding, completing, and
+delivering value; separating unrelated parts limits the cost of changing
+direction. Both serve the optimization goals.
 
-Participants must build in small increments, pulling the work needed for
-their story just in time and continuously integrating their changes into the
-same shared branch or trunk.
-
-Integration exposes shared decisions when they become relevant. A conflict
-in code or solution choices indicates a decision the affected participants
-must resolve directly so their respective stories form a cohesive system.
-They coordinate just in time, using those stories and shared product goals
-as context, while unaffected participants continue working. Delayed
-integration undermines this coordination model.
-
-Blocking story-level dependencies are exceptional. Require sequencing only
-when proceeding without it would cause serious implementation disorder that
-shared design and ongoing reconciliation cannot reasonably address. Shared
-code or modest convenience alone does not justify blocking. Better
-decentralized collaboration should reduce these waits while enabling more
-shared internal solutions.
-
-Delegated judgment includes considering supporting evidence and consequences
-for affected work, established domain meaning, and Accepted ADRs. It does not
-transfer human-owned domain or ADR decisions to agents. The current assignment
-of planning, execution, and coordination duties belongs in workflow guidance.
-
-#### 3. Use a clear domain model and map directly to it throughout the solution
-
-We believe a clear domain model, expressed through ubiquitous language, is
-critical to a shared understanding of the problem and solution. Every layer
-of the solution, including database structures, internal implementation,
-API design, tests, and documentation, must map directly to its concepts and
-meanings, with no translation or the minimum necessary. Keep these aligned
-as the product evolves, so readers can move between layers without
-translating vocabularies or reconstructing the domain model from different
-representations. This mapping does not mean that the domain model determines
-one unique implementation structure. Judgment is required. Ordinary technical
-mechanisms can retain honest technical names without invented business-domain
-counterparts; they must not hide or redefine domain rules.
-
-System boundaries can require a special case: a data transfer object (DTO)
-may pass only a subset of the domain data. It should preserve the domain
-concepts and meanings while keeping necessary translation to a minimum.
-
-Story membership, refinement, slice planning, execution readiness, and slice
-progress are distinct domain facts. Workflow operations maintain one
-authoritative repository record per fact; dashboards derive their views from
-published records. Ready for execution is the preparing agent's recorded
-assessment that no unresolved concern prevents the selected approach, including
-planless execution. It requires no additional human approval and grants no
-execution permission. Changes invalidating the assessment require reassessment.
-
-#### 4. High cohesion
-
-We believe high cohesion is critical to the health of the system. Things that
-belong together must stay together: parts that need one another to be useful
-should stay close to one another. Parts that have little need for each other,
-or are not used together, should be kept apart so that they do not dilute the
-focus of what belongs together.
-
-The domain model in principle 3 helps identify which concepts and
-responsibilities belong together, guiding the solution's organization.
-
-High cohesion serves both optimization goals. Keeping related parts together
-reduces the transaction cost of understanding, completing, and delivering
-valuable work. Keeping unrelated parts separate reduces the cost of changing
-direction by limiting how much of the system must be understood and changed
-for a particular purpose.
-
-High cohesion also means that each conceptual solution has exactly one
-representation in the entire system. Duplication is the simplest violation
-of this principle. A subtler violation is duplicated abstract solutions:
-different abstractions can express the same conceptual solution even when
-their names, structure, or implementation differ.
+Each conceptual solution has exactly one representation in the system.
+Duplication violates cohesion, including different abstractions that express
+the same solution despite different names, structures, or implementations.
 
 Find and use suitable existing solutions across the whole product, including
 across process boundaries when relevant. PFE, Proudly Found Elsewhere, names
-this preference over NIH, Not Invented Here. Domain meaning determines whether
-a solution fits, not superficial code similarity. Improved modularization can
-expose a suitable part while preserving the original purpose. Do not force
-unrelated responsibilities together simply to reduce duplicated code. Distinguish
-confidence in domain meaning from confidence in a proposed restructuring.
+this preference over NIH, Not Invented Here. Domain meaning determines fit,
+not superficial code similarity. Modularization may expose a suitable part
+while preserving its original purpose. Do not combine unrelated responsibilities
+merely to reduce duplicated code. Distinguish confidence in domain meaning
+from confidence in a proposed restructuring.
 
-#### 5. Reduce the judgment left in the repository
+<a id="2-decentralized-coordination-through-continuous-integration-of-user-centric-work"></a>
 
-Judgment is the ability of a human or AI agent to use intelligence and context
-to make decisions. Exercising judgment is an essential and welcome part of
-solving a problem. The repository, however, holds the output of that work and
-becomes the working material and input for future problem solving.
+#### 3. Decentralized coordination through continuous integration of user-centric work
 
-Use judgment while building to resolve the current problem and leave as
-little further judgment as possible in the result. Simple, highly cohesive
-code with clear intentions embodies decisions already made. Open choices,
-interpretation, and flexibility for hypothetical future needs pass that work
-to future humans and agents.
+Solution construction and coordination are decentralized. Participants build
+small increments, pull supporting work just in time, and continuously integrate
+changes into the same shared branch or trunk. Internal solution dependencies
+between stories are encouraged where they support cohesion.
 
-For example, a log still requires someone to interpret it and decide what to
-do with it before it becomes useful. A simple unit test makes clear what it
-protects and directly reports whether that expectation holds. Its author has
-already decided the expected behavior, so checking it requires no repeated
-interpretation of the evidence.
+Proportionate upfront design can establish a common architectural direction.
+PFE and reconciliation during integration bring independent work into a cohesive
+solution. Use either approach or both as needed.
 
-A solution with fewer parts, and fewer moving parts, leaves less judgment
-for future work. When the user need can be met without a part or additional
-code, there is no judgment burden from that absent part. In this sense,
+Integration exposes shared decisions when they become relevant. Conflicts in
+code or solution choices prompt the independent reconciliation described in
+principle 4, using affected stories and shared product goals as context.
+Unaffected participants continue working. Delayed integration undermines this
+coordination model.
+
+Blocking story-level dependencies are exceptional. Require sequencing only
+when proceeding without it would cause serious implementation disorder that
+shared design and ongoing reconciliation cannot reasonably address. Shared code
+or modest convenience alone does not justify blocking.
+
+#### 4. Cross-functional
+
+Equip all AI agents with the same capabilities and skill set, without narrow
+domain specialization. We also seek to avoid narrow specialization among people.
+Participants may temporarily take a role to focus on a particular perspective
+within a particular context. A role directs attention without restricting
+capability or responsibility for the outcome.
+
+Multiple agents may work in parallel with overlapping roles, collaborating
+through continuous integration. Collaboration proceeds through independent
+action and informing others: any agent can broaden its temporary role and
+extend its context to understand affected work, make a coherent decision,
+integrate the result, and inform the others. Discussion among agents is not
+the mechanism for resolving these decisions.
+
+Independent judgment considers evidence, consequences for affected work,
+established domain meaning, and Accepted ADRs. It does not transfer human-owned
+domain or ADR decisions to agents or replace the human advice process in
+[ADR 0000](./0000-use-adrs-accepted.md). Assignments of planning, execution, and
+coordination duties remain workflow choices.
+
+#### 5. Use a clear domain model and map directly to it throughout the solution
+
+A clear domain model, expressed through ubiquitous language, is critical to
+shared understanding. Every layer, including database structures, implementation,
+APIs, tests, and documentation, must map directly to its concepts and meanings,
+with the minimum necessary translation. Keep these aligned as the product
+evolves so readers need not reconstruct the model between layers. The model
+does not determine one unique implementation structure; judgment is required.
+Ordinary technical mechanisms can retain honest technical names without
+invented domain counterparts; they must not hide or redefine domain rules.
+
+System boundaries may require a data transfer object (DTO) carrying only a
+subset of domain data. Preserve domain concepts and meanings while minimizing
+necessary translation.
+
+Story membership, refinement, slice planning, execution readiness, and slice progress
+are distinct domain facts, each with one authoritative repository record.
+Dashboards derive views from published records. Readiness records the preparing
+agent's assessment that no unresolved concern prevents the selected approach,
+including planless execution. It requires no additional human approval, grants
+no execution permission, and needs reassessment when invalidated by changes.
+
+#### 6. Reduce the judgment left in the repository
+
+Judgment is essential to problem solving: it uses intelligence and context to
+make decisions. The repository holds the result as input for future work.
+
+Use judgment while building to resolve the current problem and leave as little
+further judgment as possible in the result. Simple, cohesive code with clear
+intentions embodies decisions already made. Open choices, interpretation, and
+flexibility for hypothetical needs pass that work to future humans and agents.
+
+A log still needs interpretation and a decision; a simple unit test states
+expected behavior and directly reports whether it holds.
+
+Fewer parts, and fewer moving parts, leave less judgment for future work.
+Meeting a need without additional code avoids its judgment burden:
 **no code is the best code**.
 
 Choose the least complexity that delivers the current outcome while preserving
-understood domain meaning and agreed direction. Specific examples demonstrate
-required behavior; they do not themselves justify rejecting other cases.
-Generalize as evidence and current needs justify it, not as a target that must
-increase with each story. Do not add conditions to narrow a naturally simple
-solution, or build extra structure solely for anticipated future benefit.
+understood domain meaning and agreed direction. Examples demonstrate required
+behavior; they do not justify rejecting other cases. Generalize as evidence and
+current needs justify it, not as a target that must increase with each story.
+Do not narrow a naturally simple solution or build structure solely for future benefit.
 
-Temporary architectural direction can reduce repeated reasoning. Internally,
-we treat a North Star as a disposable decision cache: record only consequential
-direction for relevant upcoming work that has supporting evidence. Keep
-uncertainty explicit rather than turning a possibility into a constraint.
-Retire the record when it is substantially realized or no longer useful.
-Preserve lasting rules before retiring temporary records, using the document
-ownership defined in [ADR 0000](./0000-use-adrs-accepted.md). This cache and
-effort/token rationale is maintainer-only; public guidance describes the required
-behavior and lifecycle. Actor permissions and update procedures remain workflow choices.
+Internally, a North Star is a disposable decision cache for consequential,
+evidenced direction in relevant upcoming work. Keep uncertainty explicit rather
+than treating possibilities as constraints.
+Retire it when substantially realized or no longer useful, preserving lasting
+rules under the document ownership in [ADR 0000](./0000-use-adrs-accepted.md).
+The cache and effort/token rationale is maintainer-only; public guidance describes
+behavior and lifecycle. Permissions and update procedures remain workflow choices.
 
-We measure the total weight of our payload—the codebase—by the total amount
-of judgment-intensive work it leaves for the future. Reducing that burden
-supports both inexpensive delivery and changes of direction.
+We measure the weight of our payload—the codebase—by the judgment-intensive work
+it leaves for the future. Reducing that burden supports both optimization goals.
 
-#### 6. Stop and fix
+#### 7. Stop and fix
 
 When something is wrong, stop. Continuing to produce creates more waste,
 even though pressure for output can make stopping difficult in practice.
 
-The response must be systematic. First analyze what caused the stop and
-determine whether it is a special cause or a general cause:
+Analyze the cause and determine whether it is a special cause or a general cause:
 
 - **Special cause:** Address the cause associated with the specific instance
   and fix that instance.
 - **General cause:** Address the underlying system or process that produces
   the problem, putting a systematic fix in place to prevent recurrence.
 
-In either case, put the proper fix in place and verify that it addresses the
-identified cause before restarting the cycle.
+Put the proper fix in place and verify that it addresses the identified cause
+before restarting the cycle. This follows a more fundamental belief:
+**hasty work leads to low quality, which leads to rework that slows a software
+project down.**
 
-This follows a more fundamental belief: **hasty work leads to low quality,
-which leads to rework that slows a software project down.**
+#### 8. Empiricism and continuous improvement toward perfection
 
-#### 7. Empiricism and continuous improvement toward perfection
+Improvement must be based on experience. Use the process we have, observe what
+happens, gather feedback, and improve in response to a current need. Repeat with
+the improved process. Stop and fix is one way an observed problem prompts a step.
 
-We believe improvement must be based on experience. Start from where we are:
-use the process we have, observe what happens, gather feedback, and improve
-in response to a currently observed need. Repeat this cycle with the improved
-process. Stop and fix is one way that an observed problem prompts a step.
-
-Our vision of perfection gives these improvements their direction. That
-vision is expressed in large part by the optimization goals and principles
-in this document, and extends beyond what is captured here. Choose solutions
-that address the observed need and move us closer to that vision; reject
-those that solve the immediate problem while moving us further away. We
-approach perfection through these successive improvements and fixes, without
-expecting to achieve it all at once.
+Our vision of perfection, expressed in large part by these goals and principles,
+gives improvements their direction and extends beyond this document. Choose
+solutions that address the observed need and move us closer to that vision;
+reject those that move us further away. Approach perfection through successive
+improvements and fixes without expecting to achieve it all at once.
 
 Keep a guidance mechanism only while observed benefit justifies its maintenance
 and interruption cost. Simplify or retire it when experience shows otherwise.
-Use actual work to assess benefits and unnecessary stops; do not require new
-measurement machinery merely to justify the mechanism. The North Star is one
-such experiment, not a reason to make its current workflow permanent.
+Use actual work to assess it; do not require new measurement machinery merely
+to justify the mechanism. The North Star is one such experiment, not a reason
+to make its current workflow permanent.
 
 ## Consequences
 
 - Output volume and adherence to a plan are insufficient evidence of success.
-- Maintaining Open Dough includes continually observing how current AI models
-  use its tools and rules, and assessing whether they serve these goals and
-  principles in the most efficient way. Model changes prompt reassessment.
-  Alongside adding or improving guidance, revise, simplify, or retire practices
-  that obstruct the goals or add cost without sufficient benefit.
+- Work is organized around customer value with whole-product responsibility.
+  Temporary roles permit independent reconciliation across overlapping work.
+- Maintaining Open Dough includes observing how current models use its tools
+  and rules, and whether they serve these goals and principles efficiently.
+  Model changes prompt reassessment. Revise, simplify, or retire practices that
+  obstruct the goals or add cost without sufficient benefit.
 - Concrete workflows, tools, evaluation methods, and review cadence remain
   practical choices to develop separately.
 
