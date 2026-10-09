@@ -2,11 +2,9 @@
 
 **Identity:** SEED-125#keep-reported-gaps-owned
 **Source:** [refined story](../../seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned).
-**Prepared:** 2026-10-09, planning only, in the established preparation
-workspace `/Users/terryyin/git/open-dough/.worktrees/keep-reported-gaps-owned-through-the-story-s-rem`
-on `claude/keep-reported-gaps-owned-through-the-story-s-rem`, under the
-preparation assignment for `jacked-chan`. Publication target: `origin/main`;
-integration checkout: `/Users/terryyin/git/open-dough`.
+**Prepared:** 2026-10-09, planning only, in this established worktree,
+on `claude/keep-reported-gaps-owned-through-the-story-s-rem`, assigned to `jacked-chan`.
+Publication target `origin/main`; integration checkout `/Users/terryyin/git/open-dough`.
 
 ## Goal and boundaries
 
@@ -87,11 +85,11 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
 - Established execution: Story Branch, this worktree, branch `codex/keep-reported-gaps-owned-through-the-story-s-rem`, publisher `dashboard-territory.local-open-dough`, agent `dbs-chan`.
   Claim `f3c18be67af7ae97f30df57c1e720e087ad2d30c` accepted on `origin/main`; starting revision `48ffeb9f0564382092b30b5caf3ac91f500b783f`. Checkout existed before this session.
   Integration checkout `/Users/terryyin/git/open-dough`; increments publish to this execution branch on `origin`. Planning authority permits within-story refinement; no numeric hard limit supplied.
-  Latest accepted increment before slice 3: `9ab257c12fc4abfe0f8586fdbf00e5d53d5a3aaa`, same remote execution branch; managed delivery reused the observer below.
+  Latest accepted increment before slice 4: `ce0aaa3caed8325e839e40c13417dc30a2f9ed3b`, same remote execution branch; its CI run 37888897589 passed.
 - Setup passed here: official Node 24.21.0, locked npm/browser acquisition, `node scripts/setup-native.mjs check`, Chromium 153.0.8010.12.
   Inherited `NODE_ENV=production` initially omitted dev dependencies; acquisition succeeded with `NODE_ENV=development`.
   Command prefix: `PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH`.
-- CI: verified GitHub push workflow `ci.yml`, repository `terryyin/open-dough`, target this execution branch. Codex observer cell 15, session 36414, directory `/tmp/dough-ci-501/watch-Hk4eD4`, PID 69146, coordinator `dbs-chan`.
+- CI: verified GitHub push workflow `ci.yml`, repository `terryyin/open-dough`, target this execution branch. Old observer `/tmp/dough-ci-501/watch-Hk4eD4` stopped with zero unread events and confirmed process exit. Resumed Codex observer cell 5, session 74052, directory `/tmp/dough-ci-501/watch-P07DWx`, PID 339, coordinator `dbs-chan`.
   Runtime `.agents/skills/dough-execute-plan` here. The earlier trunk claim is unobserved by this branch observer; delivery registers increments.
 
 - **Every named gap gets an entry, judged against the story.** Each entry
@@ -109,9 +107,7 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
   commit and before the execution-complete record, as it runs other
   installed entry points. It reports one JSON line and exits non-zero on a
   refusal. No Git hook is added.
-- **Host replay is developer-run.** Native host runs cost money (project
-  policy), so slice 4 needs the developer to start it. The free fixture proof
-  in slices 1–3 does not depend on it.
+- **Host replay authorized:** developer instructed “run slice 4” on 2026-10-10. Three isolated Claude Code sessions use the existing native supervisor's 3,600-second default per case; preparation/coverage/assessment/confirmation split 10/60/20/10. The free fixture proof remains accepted; native prompts carry historical context without expected answers.
 
 ## Decisive premises and observations
 
@@ -205,14 +201,16 @@ Wording follows ADR 0006: no maintainer vocabulary.
 
 ### 4. A native host coordinator keeps the three replayed gaps owned (developer-run)
 Type: Behavior
-Status: planned
-Proof: the developer runs one Claude Code execution coordinator per replay of
-examples 1–3 against a scratch project built from the slice 1–2 fixtures,
-with this branch's payload installed. The run supplies the recorded
-implementation return at the named slice. Observed: the entry and
-disposition it writes, whether `check` blocked the commit, and what the next
-delegation carried. Results, host, model, and payload revision are recorded
-here.
+Status: done
+Accepted: 2026-10-10, Claude Code 2.1.296, configured default `claude-opus-5-5`, installed payload `ce0aaa3caed8325e839e40c13417dc30a2f9ed3b`; three isolated projects, five accepted native calls, all exit 0/complete success. Actual Skill invocations, installed reference reads, native plan writes, CLI outputs and written handoffs were inspected; response-only claims were not accepted.
+Proof command: existing `native_run_owned` supervisor (3,600 seconds per case, 15-second grace), `claude --print --dangerously-skip-permissions --output-format stream-json --verbose --session-id <UUID> <prompt>`; later stages use `--resume <same UUID>`. Installer: `bash install.sh --target <scratch project> --source <this checkout> --platform claude`; decisive installed payload bytes matched source.
+
+- 303, session `3534f2f4-1f24-46f0-a93b-bcb600b32802`: native G1 `return`, actual `check --plan .planning/PLAN.md --slice 4` refused `open-obligation`/exit 1; correction handoff requires the omitted panel's source and rendered proof. Slice 4 stays planned, earlier proof retained.
+- 296, session `58bbd47a-9474-41b0-bea1-91880ff4babe`: native `receiving slice 8`; slice 6 check passed, completion refused. Same-session continuation runs `list --slice 8` and writes a handoff carrying full G1, live-fault terminal state, previous usable data and next daily occurrence proof. Gate 8 refusal remains owned by free tests; no implementation agent was launched.
+- 008, session `7cfdeea8-410f-486b-bca0-765abd3d8bd7`: native `interim until slices 2, 3`; gate 1 passed, completion refused, list 2 included the interim. Later wrong-result facts caused direct plan re-reading, original text/clause retained, owner 3 `return`, and actual gate 3 refusal/exit 1. Earlier done slices 1–2 stayed accepted. No pre-conversion list 3 is claimed.
+
+Two initial 296/008 attempts kept current-slice returns open but lacked retained acceptance/ownership and full story constraints; diagnosed fixture corrections preceded fresh sessions, not guidance edits. Slice 8's expanded lifecycle text represents the archived `(slice 8)` ownership, not a verbatim archived plan; the replay proves retained ownership carry, not spontaneous deferral from the incomplete first fixture.
+008's handoff also offered hiding Record until Stop finished; that alternative is not accepted as a product solution against the story's no-rejection constraint. Only the observed ownership, re-reading and gate outcomes are accepted. No product source changed; spent artifacts were deleted after acceptance under ADR 0005, and all native/supervisor processes ended. Independent refactor: none; accepted boundaries unchanged.
 
 Behavior: Given the recorded return text of plans 303 (slice 4), 296
 (slice 6 → 8), and 008 (slice 1 → 3), the coordinator records `return`,
@@ -226,7 +224,7 @@ case, the fix is recorded here and the replay of that example is repeated.
 ### G1. Native coordinator follow-through remains unproved
 Reported: slice 3 — "Native coordinator follow-through remains unproved and belongs to developer-run slice 4; no paid host launch was started."
 Story clause: "The executing-host replay of those cases, observing the coordinator record and act on each obligation, is a manual, developer-run check because host runs cost money."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: accepted native coordinator observations above
 
 ## Verification and sizing
 
@@ -236,8 +234,7 @@ Disposition: receiving slice 4
   test and the two payload shell checks (seconds each). The full shell suite
   is not a local gate; CI runs it on publication.
 - The check-only lint hook at each commit; checks use `npm test -- <paths>` per `tests/README.md` rather than invoking checks directly.
-- Slice 4 waits for the developer's authorization for paid host runs. The
-  coordinator stops there and asks; it does not start them.
+- Slice 4's paid host runs were authorized and accepted; no further native run is needed.
 - Wrap-up records the response commits and, once released, the first
   containing release on ODF-139, ODF-156, and ODF-185, per the story's
   completion criterion.
