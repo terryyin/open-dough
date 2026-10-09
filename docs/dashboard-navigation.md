@@ -81,7 +81,9 @@ widths and browser zoom.
 
 Below the banner, show **Near-future direction** as an initially collapsed
 disclosure. Activation reveals its full published text or the existing
-no-direction explanation; activation again collapses it. Preserve the choice
+no-direction explanation across the full width of the direction's line,
+beneath its title and the controls opposite it, which stay in place;
+activation again collapses it. Preserve the choice
 across same-project reads and start collapsed on project changes. Replace
 the expanded **Preparation badges** legend with a compact question-mark help
 control on the same line, opposite the direction disclosure, named Preparation

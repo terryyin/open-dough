@@ -157,30 +157,40 @@ main {
   margin-top: 0.15rem;
 }
 
-.direction {
-  flex: 1;
-  min-width: 0;
-  max-width: 60rem;
-}
-
 /* While the agent roster is shown, the stories and their direction stay in
    place behind it, keeping what was open. */
 .project-actions[hidden] {
   display: none;
 }
 
+/* The direction's heading and Start session share the first row; the opened
+   direction reads across the whole row beneath both. The direction and its
+   disclosure lend their parts to this grid, the opened content included. */
 .project-actions {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-3);
+  align-items: start;
+}
+
+.direction,
+.direction details,
+.direction details[open]::details-content {
+  display: contents;
+}
+
+.direction summary {
+  grid-row: 1;
+  grid-column: 1;
 }
 
 /* Start session and the help, at the end opposite the direction. */
 .project-actions-end {
+  grid-row: 1;
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-left: auto;
 }
 
 /* A launch problem beside Start session reads on the row, not across it. */
@@ -189,13 +199,15 @@ main {
   margin: 0;
 }
 
-/* The direction opens below its heading as a quiet panel of its own. */
 .direction summary h2 {
   font-size: var(--text-lg);
   font-weight: var(--weight-strong);
 }
 
+/* The direction opens below the row as a quiet panel of its own. */
 .direction details > p {
+  grid-row: 2;
+  grid-column: 1 / -1;
   margin-top: var(--space-2);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);

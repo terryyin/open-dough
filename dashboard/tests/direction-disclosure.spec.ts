@@ -1,6 +1,10 @@
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { openDirection, parts } from "./dashboardPage.ts";
+import {
+  expectDirectionOpensAcrossRow,
+  openDirection,
+  parts,
+} from "./dashboardPage.ts";
 import {
   emptyBacklog,
   pathsRead,
@@ -32,8 +36,12 @@ test("direction starts collapsed and opens by pointer and keyboard without readi
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, withDirection(fullDirection));
   await page.goto("/");
-  const { direction, directionToggle, source } = parts(page);
-  const body = direction.locator("p");
+  const {
+    direction,
+    directionToggle,
+    directionText: body,
+    source,
+  } = parts(page);
   await expect(source).toContainText(revisionA);
   await expect(directionToggle).toBeVisible();
   await expect(body).toBeHidden();
@@ -61,6 +69,26 @@ test("direction starts collapsed and opens by pointer and keyboard without readi
   ]);
 });
 
+test("the opened direction reads across the whole project actions row beneath Start session, which stays in place, and closing restores the row", async ({
+  page,
+}) => {
+  const origin = await publishMovingOrigin(page);
+  origin.push(revisionA, withDirection(fullDirection));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const { directionText, directionToggle, projectActions, source } =
+    parts(page);
+  await expect(source).toContainText(revisionA);
+  const closedHeight = (await projectActions.boundingBox())?.height;
+
+  await expectDirectionOpensAcrossRow(page);
+  await expect(directionText).toHaveText(fullDirection);
+
+  await directionToggle.click();
+  await expect(directionText).toBeHidden();
+  expect((await projectActions.boundingBox())?.height).toBe(closedHeight);
+});
+
 test("same-project refresh retains expanded and collapsed choices through loading, replacement, and failure", async ({
   page,
 }) => {
@@ -68,8 +96,13 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   origin.push(revisionA, withDirection(fullDirection));
   await pausePageClock(page);
   await page.goto("/");
-  const { direction, directionToggle, source, reading, problem } = parts(page);
-  const body = direction.locator("p");
+  const {
+    directionText: body,
+    directionToggle,
+    source,
+    reading,
+    problem,
+  } = parts(page);
   await openDirection(page);
 
   origin.push(revisionB, withDirection("The next published direction."));
@@ -108,7 +141,13 @@ test("changing projects removes previous direction while reading and starts each
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   doughnut.push(revisionB, emptyBacklog);
   await page.goto("/");
-  const { direction, project, source, reading } = parts(page);
+  const {
+    direction,
+    directionText: body,
+    project,
+    source,
+    reading,
+  } = parts(page);
   await openDirection(page);
 
   const release = doughnut.hold("main");
@@ -118,9 +157,8 @@ test("changing projects removes previous direction while reading and starts each
   await expect(page.getByText(fullDirection)).toHaveCount(0);
   release();
   await expect(source).toContainText(revisionB);
-  const body = direction.locator("p");
   await expect(body).toBeHidden();
-  await openDirection(page);
+  await expectDirectionOpensAcrossRow(page);
   await expect(body).toHaveText("No near-future direction is recorded.");
   expect(pathsRead(doughnut)).toHaveLength(2);
 

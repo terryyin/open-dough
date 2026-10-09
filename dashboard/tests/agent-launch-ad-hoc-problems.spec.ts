@@ -6,7 +6,11 @@
 // the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import {
+  cardSessions,
+  expectDirectionOpensAcrossRow,
+  parts,
+} from "./dashboardPage.ts";
 import type { Page } from "@playwright/test";
 import {
   openTakenBacklog,
@@ -67,7 +71,7 @@ for (const { scenario, words } of failures) {
     dashboard.claudeScenario(scenario);
     const { card } = await openTakenBacklog(page, journey);
     const button = startSession(page, "Open Dough");
-    const row = page.locator(".project-actions");
+    const row = parts(page).projectActions;
 
     await startAdHoc(page);
 
@@ -82,6 +86,7 @@ for (const { scenario, words } of failures) {
     await expect(page.locator(".launch-problem")).toHaveCount(1);
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
+    await expectDirectionOpensAcrossRow(page);
 
     dashboard.claudeScenario("launched");
     await startAdHoc(page);

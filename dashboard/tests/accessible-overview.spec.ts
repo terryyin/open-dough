@@ -43,7 +43,8 @@ test("accessible overview reflows long published work for a narrow window and pa
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await page.goto("/");
-  const { backlog, taken, recentlyDone, direction, source } = parts(page);
+  const { backlog, taken, recentlyDone, direction, directionToggle, source } =
+    parts(page);
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
 
@@ -72,9 +73,9 @@ test("accessible overview reflows long published work for a narrow window and pa
   });
 
   await test.step("the page reads direction, then Backlog alone, and its edge control brings Taken", async () => {
-    await expectStackedInOrder([direction, backlog]);
+    await expectStackedInOrder([directionToggle, backlog]);
     await showColumn(page, "Taken");
-    await expectStackedInOrder([direction, taken]);
+    await expectStackedInOrder([directionToggle, taken]);
     await expectNoSidewaysScrollAndWholeText(page);
   });
 
@@ -137,15 +138,15 @@ test("accessible overview keeps empty groups readable in a narrow window", async
     backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
   });
   await page.goto("/");
-  const { backlog, taken, direction, source } = parts(page);
+  const { backlog, taken, direction, directionText, source } = parts(page);
 
   await expect(
     backlog.getByText("No Backlog entries are recorded."),
   ).toBeVisible();
   await openDirection(page);
-  await expectStackedInOrder([direction, backlog]);
+  await expectStackedInOrder([directionText, backlog]);
   await showColumn(page, "Taken");
-  await expectStackedInOrder([direction, taken]);
+  await expectStackedInOrder([directionText, taken]);
   await expect(taken.getByText("No Taken entries are recorded.")).toBeVisible();
   await expect(
     direction.getByText("No near-future direction is recorded."),
