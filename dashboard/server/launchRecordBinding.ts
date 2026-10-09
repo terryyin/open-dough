@@ -85,6 +85,7 @@ export async function bindRecord(
           {
             ...bound,
             completion: reported,
+            landing: existing?.landing ?? attempt?.landing ?? record.landing,
             dispositionChangedAt:
               existing?.dispositionChangedAt ?? record.dispositionChangedAt,
             reportRead: existing?.reportRead ?? record.reportRead,

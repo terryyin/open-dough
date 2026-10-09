@@ -2,6 +2,14 @@
 // One classification shared by execution and preparation. Installed guidance
 // is the agent's contract for recovery.
 import {
+  isAncestor,
+  validateRetainedComparison,
+} from "./publication-comparison.mjs";
+import {
+  retainLandingComparison,
+  captureAcceptedLanding,
+} from "./dashboard-landing.mjs";
+import {
   git,
   inspectDefaultCheckoutMaintenance,
   originTrackingRef,
@@ -10,15 +18,6 @@ import {
 } from "./publication-git.mjs";
 
 const defaultTargetRef = "refs/heads/main";
-
-async function isAncestor(workspace, ancestor, descendant) {
-  try {
-    await git(workspace, "merge-base", "--is-ancestor", ancestor, descendant);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function hasReceipt(observer, sha, targetRef) {
   return (
@@ -54,26 +53,6 @@ function appendIdentity(publishedRevisions, sha) {
   return false;
 }
 
-// A retained comparison is optional for legacy callers. When supplied, both
-// ends must be fixed commit IDs and the base must belong to that candidate's
-// history. Validate before fetch, push, or registration; never infer a base
-// from the accepted tip's parent or today's target.
-async function validateRetainedComparison(workspace, candidateSha, suffixBase) {
-  if (suffixBase === undefined) return;
-  for (const sha of [suffixBase, candidateSha]) {
-    if (
-      typeof sha !== "string" ||
-      !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i.test(sha) ||
-      (await git(workspace, "cat-file", "-t", sha)).stdout.trim() !== "commit"
-    ) {
-      throw new Error("retained comparison requires full commit IDs");
-    }
-  }
-  if (!(await isAncestor(workspace, suffixBase, candidateSha))) {
-    throw new Error("retained suffix base is not an ancestor of the candidate");
-  }
-}
-
 // Classifies the retained candidate and completes the first unfinished
 // publication obligation. Does not commit, refresh the default checkout,
 // or remove a workspace. `candidateSha` is the SHA retained immediately
@@ -95,6 +74,7 @@ export async function resumeInterruptedPublication({
   targetRef = defaultTargetRef,
   remote = "origin",
   onFetchedTarget,
+  landingContext,
 }) {
   if (supersededShas.includes(candidateSha)) {
     throw new Error(
@@ -104,6 +84,15 @@ export async function resumeInterruptedPublication({
 
   await validateRetainedComparison(ownedWorkspace, candidateSha, suffixBase);
   const comparison = suffixBase === undefined ? {} : { suffixBase };
+  const captureLanding = () =>
+    landingContext
+      ? captureAcceptedLanding(landingContext, {
+          base: suffixBase,
+          revision: candidateSha,
+          remote,
+          target: targetRef,
+        })
+      : undefined;
 
   const remoteTarget = originTrackingRef(targetRef, remote);
   const preserved = await ownedCommitIdentity(ownedWorkspace);
@@ -123,11 +112,18 @@ export async function resumeInterruptedPublication({
         ...comparison,
         held,
       };
+    if (landingContext)
+      await retainLandingComparison(
+        landingContext,
+        { candidate: candidateSha, suffixBase },
+        { remote, targetRef },
+      );
     await pushExactRef(ownedWorkspace, candidateSha, remote, targetRef);
     await git(ownedWorkspace, "fetch", remote);
     if (!(await isAncestor(ownedWorkspace, candidateSha, remoteTarget))) {
       throw new Error("push did not accept the retained candidate");
     }
+    const landing = await captureLanding();
     assertOwnedCommitsPreserved(
       preserved,
       await ownedCommitIdentity(ownedWorkspace),
@@ -142,6 +138,7 @@ export async function resumeInterruptedPublication({
     );
     return {
       classification: "not-on-remote",
+      ...(landing === undefined ? {} : { landing }),
       completedObligation: "publish",
       pushCount: 1,
       acceptedSha: candidateSha,
@@ -162,6 +159,7 @@ export async function resumeInterruptedPublication({
     }
   }
 
+  const landing = await captureLanding();
   assertOwnedCommitsPreserved(
     preserved,
     await ownedCommitIdentity(ownedWorkspace),
@@ -174,6 +172,7 @@ export async function resumeInterruptedPublication({
     targetRef,
   );
   const published = {
+    ...(landing === undefined ? {} : { landing }),
     classification: "already-published",
     pushCount: 0,
     acceptedSha: candidateSha,

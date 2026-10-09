@@ -5,6 +5,11 @@ import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import { admitted, type Admitted } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { type AgentLaunchAnswer } from "./agentLaunchResponse.ts";
+import {
+  landingEndpoint,
+  landingPrepareEndpoint,
+  submitLanding,
+} from "./oneShotLandingReporting.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
@@ -89,6 +94,10 @@ export async function answer(
   alerts: SessionAlerts,
 ): Promise<AgentLaunchAnswer> {
   try {
+    if (url.pathname === landingPrepareEndpoint)
+      return { status: 200, body: await submitLanding(req, true) };
+    if (url.pathname === landingEndpoint)
+      return { status: 200, body: await submitLanding(req) };
     if (url.pathname === completionEndpoint)
       return { status: 200, body: await submitCompletion(req, doneMarks) };
     const request = await admitted(req, url, launches);

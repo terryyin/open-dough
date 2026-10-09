@@ -69,7 +69,12 @@ or push again.
 
 ## Publish the candidate
 
-Apply [Preconditions](#preconditions) before this sequence.
+Apply [Preconditions](#preconditions) before this sequence. For an established
+one-shot launch with supplied dashboard landing context, wire that context into
+the installed publisher before step 5 under the shared
+[landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-one-shot-landing).
+It retains each final pair before push and captures accepted evidence at step 6;
+a later explicit landing uses the original launch's context.
 
 1. Fetch the authorized remote for the target branch from the owned workspace.
 2. Reconcile in that workspace from the fetched remote target, not from the

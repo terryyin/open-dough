@@ -4,10 +4,17 @@
 // the review workspace. Reads cover attempts, sessions, reports, hosts,
 // reviews, and Cursor held sessions (terminal admission alone reads natives).
 
+import {
+  landingEndpoint,
+  landingPrepareEndpoint,
+} from "./oneShotLandingReporting.ts";
 import { completionEndpoint } from "./completionReporting.ts";
-import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
+import {
+  admitLaunchSettings,
+  hostOptionsRequest,
+  type AdmittedHostOptions,
+} from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
-import { sessionHostSchema } from "../src/sessionReference.ts";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
 import {
@@ -52,11 +59,7 @@ import type { AgentLaunches } from "./agentLaunches.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import {
-  projectFolder,
-  folderExists,
-  type ProjectFolder,
-} from "./projectFolders.ts";
+import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
   deleteRequest,
@@ -71,11 +74,7 @@ import {
 export type Admitted =
   | { readonly kind: "sessions" }
   | { readonly kind: "cursor-sessions" }
-  | {
-      readonly kind: "host-options";
-      readonly cwd?: string;
-      readonly host: NonNullable<ReturnType<typeof launchHost>>;
-    }
+  | AdmittedHostOptions
   | AdmittedResult
   | AdmittedReview
   | AdmittedReviewRange
@@ -188,6 +187,8 @@ const exactReads = new Map<string, (url: URL) => Promise<Admitted>>([
 // Every path whose requests this boundary admits or refuses.
 export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
+  landingEndpoint,
+  landingPrepareEndpoint,
   launchHostOptionsEndpoint,
   agentLaunchEndpoint,
   agentChangedEndpoint,
@@ -218,25 +219,8 @@ export async function admitted(
   if (req.method !== "GET") {
     throw new RefusedRequest(405, "Only GET is accepted here.");
   }
-  if (url.pathname === launchHostOptionsEndpoint) {
-    const source = knownSource(url.searchParams.get("source"));
-    const identity = sessionHostSchema.safeParse(url.searchParams.get("host"));
-    const host = identity.success ? launchHost(identity.data) : undefined;
-    if (host?.options === undefined)
-      throw new RefusedRequest(400, "This host cannot offer startup choices.");
-    if (!(await folderExists(projectFolder(source))))
-      throw new RefusedRequest(
-        404,
-        "The project folder is not available on this machine.",
-      );
-    return {
-      kind: "host-options",
-      host,
-      ...(url.searchParams.get("context") === "project"
-        ? { cwd: projectFolder(source).path }
-        : {}),
-    };
-  }
+  if (url.pathname === launchHostOptionsEndpoint)
+    return hostOptionsRequest(url);
   if (url.pathname === cursorRunnerSessionsEndpoint) {
     return { kind: "cursor-sessions" };
   }

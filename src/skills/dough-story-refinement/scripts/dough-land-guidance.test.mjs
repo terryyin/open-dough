@@ -102,7 +102,11 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
   // Land retires under the shared lifecycle's work-scoped rule by link,
   // through its installed command rather than raw Git steps. Its intro names
   // ownership beside containment, so containment alone never reads as enough.
-  const retire = land.slice(land.indexOf("## Retire the worktree"));
+  assert.match(
+    land,
+    /\[owned worktree retirement\]\(references\/worktree-retirement\.md\)/,
+  );
+  const retire = read("dough-land/references/worktree-retirement.md");
   const intro = retire.slice(0, retire.indexOf("Before removing anything"));
   assert.match(intro, /both gates/);
   assert.match(intro, /contains its work/);
@@ -110,16 +114,23 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
   assert.match(intro, /Containment alone\s+does not make/);
   assert.doesNotMatch(land, /containment as the safety test/);
   assert.match(
-    land,
-    /\[own a temporary exploration workspace\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md\)\s+"Close or retain it"/,
+    retire,
+    /\[own a temporary exploration workspace\]\(\.\.\/\.\.\/dough-manual-testing\/references\/exploration-workspace\.md\)\s+"Close or retain it"/,
   );
   assert.match(
-    land,
+    retire,
     /node <installed>\/dough-land\/scripts\/worktree-retirement\.mjs retire/,
   );
-  assert.match(land, /\[--remote-branch <remote branch> --contained <sha>\]/);
-  assert.doesNotMatch(land, /git worktree remove|git branch -d|push --delete/);
-  assert.doesNotMatch(land, /session-created|this\s+session\s+created/);
+  assert.match(retire, /\[--remote-branch <remote branch> --contained <sha>\]/);
+  const landingGuidance = `${land}\n${retire}`;
+  assert.doesNotMatch(
+    landingGuidance,
+    /git worktree remove|git branch -d|push --delete/,
+  );
+  assert.doesNotMatch(
+    landingGuidance,
+    /session-created|this\s+session\s+created/,
+  );
   // Land takes ownership from the shared lifecycle's creation-record rule by
   // link.
   assert.match(

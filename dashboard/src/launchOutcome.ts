@@ -8,6 +8,10 @@ import {
   agentLaunchRequestSchema,
   type StoryLaunchRequest,
 } from "./launchRequest.ts";
+import {
+  landingRepositorySchema,
+  oneShotLandingSchema,
+} from "./oneShotLanding.ts";
 import { completionReceiptSchema } from "./completionReport.ts";
 import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
@@ -131,8 +135,14 @@ export const launchAttemptSchema = z.object({
   id: z.uuid(),
   reportingOrigin: z.url().optional(),
   reportingDeletedAt: z.iso.datetime().optional(),
+  reportingDeletedSession: z
+    .object({ host: sessionHostSchema, sessionId: z.string().min(1) })
+    .optional(),
   reporting: reportingContextSchema.optional(),
   completion: completionSchema.optional(),
+  landingRepository: landingRepositorySchema.optional(),
+  landingPreparations: z.array(oneShotLandingSchema).optional(),
+  landing: oneShotLandingSchema.optional(),
   completionReceipts: z.array(completionReceiptSchema).optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),
@@ -152,41 +162,11 @@ export const attemptObservationSchema = launchAttemptSchema.extend({
 
 export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
 
-// Whether an accepted attempt needs reconciliation before its story's
-// startup is known: unsettled while no server runs it, or settled while its
-// session or its publication may or may not exist. Elapsed time never
-// settles it; recheck or continuation does.
-export function needsReconciliation(attempt: AttemptObservation): boolean {
-  return attempt.outcome === undefined
-    ? !attempt.owned
-    : attempt.outcome.kind === "uncertain" ||
-        attempt.publication.kind === "unknown";
-}
-
-export const laterAttempt = (
-  one: AttemptObservation | undefined,
-  other: AttemptObservation,
-): AttemptObservation =>
-  one === undefined || one.acceptedAt < other.acceptedAt ? other : one;
-
-// A story's unresolved attempt among its attempts on this machine (`ofStory`),
-// which no fresh start of that story may duplicate and only its own
-// continuation resumes: one a server runs now, else one that never settled
-// and no server runs, else its latest attempt when that needs reconciliation.
-export function unresolvedAttempt(
-  ofStory: readonly AttemptObservation[],
-): AttemptObservation | undefined {
-  const unsettled = ofStory.filter((attempt) => attempt.outcome === undefined);
-  const latest = ofStory.reduce<AttemptObservation | undefined>(
-    laterAttempt,
-    undefined,
-  );
-  return (
-    unsettled.find((attempt) => attempt.owned) ??
-    unsettled[0] ??
-    (latest !== undefined && needsReconciliation(latest) ? latest : undefined)
-  );
-}
+export {
+  needsReconciliation,
+  laterAttempt,
+  unresolvedAttempt,
+} from "./launchAttemptSelection.ts";
 
 // A page asks here to note that a settled attempt reconciled with the
 // published state it shows, naming its project and attempt as a continuation

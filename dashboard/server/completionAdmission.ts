@@ -40,7 +40,7 @@ export function isReportingRecord(
 
 export function reportingAttempt(
   attempts: readonly LaunchAttemptRecord[] | undefined,
-  report: CompletionSubmission,
+  report: Pick<CompletionSubmission, "source" | "host" | "reference">,
   origin: string,
 ): LaunchAttemptRecord {
   const attempt = attempts?.find(

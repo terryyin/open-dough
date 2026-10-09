@@ -43,6 +43,7 @@ export async function resumeManagedExecutionIncrement(request) {
     suffixBase,
     targetRef,
     repo,
+    remote = "origin",
     supersededShas = [],
     publishedRevisions = [],
     defaultCheckout,
@@ -51,6 +52,7 @@ export async function resumeManagedExecutionIncrement(request) {
     root,
     storage,
     oneShotIdentity,
+    landingContext,
   } = request;
 
   for (const field of ["workspace", "candidateSha", "targetRef", "repo"]) {
@@ -98,7 +100,9 @@ export async function resumeManagedExecutionIncrement(request) {
     publishedRevisions,
     observer,
     targetRef,
+    remote,
     onFetchedTarget,
+    landingContext,
   });
   const comparison =
     published.suffixBase === undefined
@@ -127,6 +131,7 @@ export async function resumeManagedExecutionIncrement(request) {
     pushCount: published.pushCount,
     completedObligation: published.completedObligation,
     classification: published.classification,
+    ...(published.landing === undefined ? {} : { landing: published.landing }),
     receipt: {
       sha: published.acceptedSha,
       target: targetRef,
@@ -146,7 +151,7 @@ export async function resumeManagedExecutionIncrement(request) {
 function argumentsOf(argv) {
   if (argv[0] !== "resume") {
     throw new Error(
-      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID]",
+      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--remote NAME] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID] [--landing-context PATH]",
     );
   }
   const result = { supersededShas: [], publishedRevisions: [] };

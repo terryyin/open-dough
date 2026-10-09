@@ -181,7 +181,7 @@ test("missing observation attachment recovers matching live owner without anothe
   );
 });
 
-test("the installed resume CLI accepts the explicitly retained base and exposes its accepted comparison", async (t) => {
+test("the installed resume CLI accepts the retained comparison and its named remote", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
   const delivered = await fixture.deliverManagedExecutionIncrement({
@@ -192,11 +192,14 @@ test("the installed resume CLI accepts the explicitly retained base and exposes 
     targetRef: trunkTarget,
     repo,
   });
+  await git(fixture.execution, "remote", "rename", "origin", "landing-origin");
   const { stdout } = await exec(
     process.execPath,
     [
       join(fixture.skill, "scripts/execution-increment-resume.mjs"),
       "resume",
+      "--remote",
+      "landing-origin",
       "--workspace",
       fixture.execution,
       "--candidate-sha",

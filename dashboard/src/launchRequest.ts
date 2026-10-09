@@ -173,6 +173,7 @@ export const reportingContextSchema = z.object({
   origin: z.url(),
   reference: z.uuid(),
   command: z.string().min(1),
+  landingContext: z.string().min(1).optional(),
 });
 export type ReportingContext = z.infer<typeof reportingContextSchema>;
 

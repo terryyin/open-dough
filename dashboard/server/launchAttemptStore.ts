@@ -128,7 +128,15 @@ function withAttempt(
                 reporting: entry.reporting ?? attempt.reporting,
                 reportingDeletedAt:
                   entry.reportingDeletedAt ?? attempt.reportingDeletedAt,
+                reportingDeletedSession:
+                  entry.reportingDeletedSession ??
+                  attempt.reportingDeletedSession,
                 completion: entry.completion ?? attempt.completion,
+                landingRepository:
+                  entry.landingRepository ?? attempt.landingRepository,
+                landing: entry.landing ?? attempt.landing,
+                landingPreparations:
+                  entry.landingPreparations ?? attempt.landingPreparations,
                 completionReceipts:
                   entry.completionReceipts ?? attempt.completionReceipts,
               }

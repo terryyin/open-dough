@@ -89,7 +89,7 @@ the new comparison handoff is available, with no review promise exposed yet.
 
 ### 2. Retain an accepted one-shot landing against its own launch
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `dashboard/tests/one-shot-landing-capture.spec.ts`: real dashboard
 one-shot start, installed source delivery/handoff and reporting CLI, real local
 bare origin, production receiver and saved launch record. Observe a successful

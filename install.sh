@@ -118,6 +118,7 @@ managed_files=(
   dough-land/SKILL.md
   dough-land/references/completion-attention.md
   dough-land/references/dashboard-completion.md
+  dough-land/references/worktree-retirement.md
   dough-land/scripts/retirement-checks.mjs
   dough-land/scripts/worktree-retirement.mjs
   dough-land/scripts/queued-closure-check.mjs
@@ -127,6 +128,7 @@ managed_files=(
   dough-pfe/SKILL.md
   dough-slice-plan-refinement/SKILL.md
   dough-execute-plan/scripts/dashboard-completion.mjs
+  dough-execute-plan/scripts/dashboard-landing.mjs
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
@@ -146,6 +148,7 @@ managed_files=(
   dough-execute-plan/references/finish-or-stop.md
   dough-execute-plan/references/maintain-default-checkout.md
   dough-execute-plan/references/one-shot.md
+  dough-execute-plan/references/one-shot-escalation.md
   dough-execute-plan/references/oversized-slice.md
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
@@ -155,6 +158,8 @@ managed_files=(
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
+  dough-execute-plan/scripts/reconciled-candidate-proof.mjs
+  dough-execute-plan/scripts/publication-comparison.mjs
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs

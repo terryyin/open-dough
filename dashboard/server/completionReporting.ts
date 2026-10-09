@@ -1,7 +1,13 @@
 // Explicit reports use an accepted launch's identity, never the newest story session.
-import { copyFile, mkdir, access } from "node:fs/promises";
+import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { IncomingMessage } from "node:http";
+import {
+  isEstablishedOneShot,
+  type EstablishedContext,
+} from "../src/launchRecord.ts";
+import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
+import { replaceAttempts } from "./launchAttemptStore.ts";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
 import { installedSkillPath } from "./launchHosts.ts";
@@ -21,6 +27,7 @@ export const completionEndpoint = "/__agent-launch/completion";
 export async function reportingContext(
   attempt: LaunchAttemptRecord,
   folder: ProjectFolder,
+  established?: EstablishedContext,
 ): Promise<ReportingContext | undefined> {
   if (
     attempt.reportingOrigin === undefined ||
@@ -48,9 +55,69 @@ export async function reportingContext(
     path.join(directory, "ci-direct-entry.mjs"),
   );
   await copyFile(installed, script);
+  let landingContext: string | undefined;
+  const landingModule = path.join(
+    path.dirname(installed),
+    "dashboard-landing.mjs",
+  );
+  // Only absence of this optional installed module permits legacy fallback.
+  let capturesLanding = false;
+  try {
+    await access(landingModule);
+    capturesLanding = true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+  if (capturesLanding)
+    await copyFile(
+      landingModule,
+      path.join(directory, "dashboard-landing.mjs"),
+    );
+  if (
+    capturesLanding &&
+    established !== undefined &&
+    isEstablishedOneShot(established)
+  ) {
+    const repository = (
+      await runGit(
+        ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+        {
+          cwd: established.workspace,
+          maxBuffer: defaultGitOutputLimit,
+        },
+      )
+    ).stdout.trim();
+    const authority = {
+      repository,
+      workspace: established.workspace,
+      branch: established.branch,
+      identity: established.identity,
+      remote: established.remote,
+      target: `refs/heads/${established.target}`,
+    };
+    await replaceAttempts((kept) => ({
+      ...kept,
+      [attempt.request.source]: (kept[attempt.request.source] ?? []).map(
+        (entry) =>
+          entry.id === attempt.id
+            ? {
+                ...entry,
+                landingRepository: entry.landingRepository ?? authority,
+              }
+            : entry,
+      ),
+    }));
+    landingContext = path.join(directory, "landing-context.json");
+    await writeFile(
+      landingContext,
+      `${JSON.stringify({ origin: attempt.reportingOrigin, source: attempt.request.source, host: attempt.request.host, reference: attempt.id, identity: authority.identity, remote: authority.remote, target: authority.target }, null, 2)}\n`,
+      { mode: 0o600 },
+    );
+  }
   return {
     origin: attempt.reportingOrigin,
     reference: attempt.id,
+    ...(landingContext === undefined ? {} : { landingContext }),
     command: shellCommand([
       "node",
       script,

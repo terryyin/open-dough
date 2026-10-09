@@ -9,16 +9,13 @@
 // conflict or a second rejection preserves recoverable Git state. Stash,
 // checkout refresh and observer startup stay with their owners; managed
 // observation belongs to execution-increment-delivery.mjs.
+import { reconcileAndRequireProof } from "./reconciled-candidate-proof.mjs";
 import {
-  ensureApplicableProof,
-  fetchedTargetStop,
-  proofGateResult,
-  stopped,
-} from "./applicable-candidate-proof.mjs";
-import {
-  defaultBacklogPath,
-  reconcileOwnedSuffix,
-} from "./owned-suffix-reconciliation.mjs";
+  retainLandingComparison,
+  captureAcceptedLanding,
+} from "./dashboard-landing.mjs";
+import { fetchedTargetStop, stopped } from "./applicable-candidate-proof.mjs";
+import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import {
   fetchedTarget,
   git,
@@ -28,87 +25,6 @@ import {
   revParse,
   tryPushExactRef,
 } from "./publication-git.mjs";
-
-// Reconcile the owned suffix onto onto, then require applicable proof before
-// any push. Shared by the initial remote-advance path and the one retry.
-async function reconcileAndRequireProof({
-  workspace,
-  onto,
-  upstream,
-  branch,
-  backlogPath,
-  candidateFallback,
-  preRebaseSha,
-  previouslyPublishedBase,
-  priorSuffixBase,
-  validate,
-  validatedCandidate,
-  reconciliations,
-  retry = false,
-}) {
-  const replay = await reconcileOwnedSuffix({
-    workspace,
-    onto,
-    upstream,
-    branch,
-    backlogPath,
-  });
-  const nextReconciliations = reconciliations + 1;
-  if (!replay.ok) {
-    return {
-      ok: false,
-      result: stopped("conflict", {
-        candidate: await revParse(workspace, branch).catch(
-          () => candidateFallback,
-        ),
-        preRebaseSha,
-        remoteTip: onto,
-        previouslyPublishedBase,
-        ...(retry ? { suffixBase: priorSuffixBase } : {}),
-        reconciliations: nextReconciliations,
-        replay,
-      }),
-    };
-  }
-  const candidate = await revParse(workspace, branch);
-  if (!retry && candidate === preRebaseSha && !validatedCandidate) {
-    throw new Error("rebase left the pre-rebase SHA as the candidate");
-  }
-  // Held proof is judged only after rewrite; a further remote advance needs
-  // renewed applicable proof even when a prior validatedCandidate was supplied.
-  const gate = await ensureApplicableProof({
-    validate,
-    candidate,
-    context: {
-      preRebaseSha,
-      remoteTip: onto,
-      previouslyPublishedBase,
-      suffixBase: onto,
-      ...(retry ? { retry: true } : {}),
-    },
-    proofAlreadyHeld:
-      !retry && Boolean(validatedCandidate) && candidate === validatedCandidate,
-  });
-  if (!gate.ok) {
-    return {
-      ok: false,
-      result: proofGateResult(gate, {
-        candidate,
-        preRebaseSha,
-        remoteTip: onto,
-        previouslyPublishedBase,
-        suffixBase: onto,
-        reconciliations: nextReconciliations,
-      }),
-    };
-  }
-  return {
-    ok: true,
-    candidate,
-    suffixBase: onto,
-    reconciliations: nextReconciliations,
-  };
-}
 
 export async function publishExecutionIncrement({
   workspace,
@@ -123,6 +39,7 @@ export async function publishExecutionIncrement({
   backlogPath = defaultBacklogPath,
   beforeRetryPush,
   beforePush,
+  landingContext,
   onFetchedTarget,
 }) {
   await git(workspace, "fetch", remote);
@@ -193,9 +110,16 @@ export async function publishExecutionIncrement({
     if (stop) return stop;
   }
 
-  if (beforePush) {
-    await beforePush({ attempt: 0, candidate, suffixBase });
-  }
+  const preparePush = async (attempt) => {
+    const comparison = { candidate, suffixBase };
+    if (landingContext)
+      await retainLandingComparison(landingContext, comparison, {
+        remote,
+        targetRef,
+      });
+    await beforePush?.({ attempt, ...comparison });
+  };
+  await preparePush(0);
   let push = await tryPushExactRef(workspace, candidate, remote, targetRef);
   if (push.rejected) {
     await git(workspace, "fetch", remote);
@@ -208,9 +132,7 @@ export async function publishExecutionIncrement({
     if (beforeRetryPush) {
       await beforeRetryPush();
     }
-    if (beforePush) {
-      await beforePush({ attempt: 1, candidate, suffixBase });
-    }
+    await preparePush(1);
     push = await tryPushExactRef(workspace, candidate, remote, targetRef);
     if (push.rejected) {
       return stopped("persistent-contention", {
@@ -230,6 +152,14 @@ export async function publishExecutionIncrement({
     throw new Error("remote did not accept the candidate");
   }
   const receipt = { sha: candidate, target: targetRef };
+  const landing = landingContext
+    ? await captureAcceptedLanding(landingContext, {
+        base: suffixBase,
+        revision: candidate,
+        remote,
+        target: targetRef,
+      })
+    : undefined;
   register?.(receipt);
   const maintenance = await inspectDefaultCheckoutMaintenance(
     workspace,
@@ -240,6 +170,7 @@ export async function publishExecutionIncrement({
   return {
     ok: true,
     publication: "accepted",
+    ...(landing === undefined ? {} : { landing }),
     receipt,
     preRebaseSha,
     remoteTip: acceptedTip,

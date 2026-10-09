@@ -163,7 +163,10 @@ export async function replaceKeptSession(
   previous: SessionReference,
   next: LaunchRecord,
 ): Promise<LaunchRecord | undefined> {
-  return changeSessionRecord(sourceId, previous, () => next);
+  return changeSessionRecord(sourceId, previous, (record) => ({
+    ...next,
+    landing: record.landing ?? next.landing,
+  }));
 }
 
 // Lifecycle updates never recreate evidence the developer has deleted.
@@ -185,6 +188,7 @@ export async function updateRecord(
       return {
         ...record,
         completion: entry.completion ?? record.completion,
+        landing: entry.landing ?? record.landing,
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
