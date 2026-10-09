@@ -25,7 +25,7 @@ is harder to read than the room on the page allows.
 
 **Identity:** SEED-127#full-width-near-future-direction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"21681cb48c095eacd6cbe03a7bb62182740ed66c2b040d4075ca9e51bc66b3c6"}}
 ```
 
 **Beneficiary:** A developer reading the selected project's near-future
