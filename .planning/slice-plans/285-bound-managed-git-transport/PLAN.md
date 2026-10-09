@@ -215,7 +215,7 @@ Learnings for slices 2–4:
 
 ### 2. Managed delivery reports a stalled transport as a recoverable stop
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `execution-increment-managed-delivery-transport.test.mjs` on
 `createManagedFixture` plus the stall fixture, bound lowered: examples 1, 2,
 4, and 5 as the proof table maps them, each followed by the retry; the
@@ -231,6 +231,25 @@ it surfaces other stops, keeping the established observation directory as it
 does for other `!ok` results; the workspace is as it was. The same `deliver`
 run again on a responsive transport continues the ordinary sequence.
 `trunk-publication.md` names the stop and its retry.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-transport.test.mjs`
+(examples 1, 1 through the CLI with exit 1, 2, 4, 5); the managed-delivery,
+publication, delivery, wrap-up, and refinement consumers and the payload-update
+shell tests green.
+
+Learnings for slices 3–4:
+- A tip read after a second rejection stops with the added stage
+  `contention-tip`.
+- `publishExecutionIncrement` wraps each remote step in a `transport(stage,
+  operation)` closure returning `{ stop | value }`; slice 3's recognition sits
+  right after the first `fetchTarget("fetch")`. Slice 4 may lift the closure
+  into a shared module for the resume path.
+- `reconcileAndRequireProof` moved to `execution-increment-reconciliation.mjs`,
+  declared in `install.sh` `managed_files`; a new runtime module needs that
+  declaration.
+- The managed transport tests share `execution-increment-managed-delivery-transport-test-fixtures.mjs`
+  (trunk-mode `createManagedFixture` plus the stall, 2 s bound);
+  `deliverThroughCli` needs the bound and `CLAUDE_CODE_SESSION_ID` in its `env`.
 
 ### 3. A retried delivery recognizes a candidate the remote already accepted
 Type: Behavior

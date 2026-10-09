@@ -57,6 +57,12 @@ the remote does not hold that base, such as when the developer has their own
 unpublished commits in the default checkout: report that work for the
 developer to resolve, and never choose a different base to get past it.
 
+A `transport-timeout` stop means a fetch, push, or remote-tip read did not
+answer within the transport bound and was ended; its `stage` names which. The
+stop rewrites nothing, so the committed candidate it names is preserved. Run
+the same `deliver` again to retry. When `pushIssued` is true, whether the
+remote accepted the candidate stays unknown until the retry's fetch settles it.
+
 ## Preconditions
 
 Apply [publish the candidate's preconditions](publish-the-candidate.md#preconditions).
