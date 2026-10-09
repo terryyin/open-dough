@@ -113,6 +113,22 @@ test("an auto-landed default-checkout result lands all checkout content, reconci
   );
   assert.equal(delivered?.ok, true, stderr);
   const accepted = delivered.receipt.sha;
+  assert.equal(delivered.suffixBase, advanced);
+  assert.deepEqual(
+    (
+      await git(checkout, "diff", "--name-only", delivered.suffixBase, accepted)
+    ).stdout
+      .trim()
+      .split("\n"),
+    [
+      "added.txt",
+      "edited.txt",
+      "feature.txt",
+      "kept.txt",
+      "staged.txt",
+      "untracked.txt",
+    ],
+  );
   assert.equal(await lsRemoteSha(trunk.origin, trunkTarget), accepted);
   const landed = await remoteCommitsSince(trunk.origin, advanced);
   assert.equal(landed.length, 2, "the local commit and the result");

@@ -141,6 +141,7 @@ test("a lost push response of an auto-landed result resumes the retained candida
     ...fixture.requestBase,
     workspace: started.workspace,
     candidateSha: result,
+    suffixBase: base,
     targetRef: trunkTarget,
     repo: "owner/project",
     publishedRevisions: [],
@@ -150,6 +151,7 @@ test("a lost push response of an auto-landed result resumes the retained candida
   assert.equal(resumed.ok, true, JSON.stringify(resumed));
   assert.equal(resumed.pushCount, 0);
   assert.equal(resumed.receipt.sha, result);
+  assert.equal(resumed.suffixBase, base);
   assert.deepEqual(await remoteCommitsSince(trunk.origin, trunk.trunkSha), [
     result,
   ]);

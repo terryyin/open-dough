@@ -5,11 +5,9 @@ with no Taken entry or agent profile, and no story or plan left behind. It runs
 in an owned isolated workspace, or in the default checkout when that is
 selected, and stops with its verified result retained there for review; only
 an explicit request to land it, or automatic landing selected with it,
-publishes that result to remote trunk. It tracks work without a separate
-execution path: planless execution,
-verification, refactoring, delivery, and closure stay as they are. It grants
-no permission beyond the current instruction: implementing findings,
-publishing drafts, and widening scope still need their own authority.
+publishes that result to remote trunk. It uses ordinary planless execution,
+verification, refactoring, delivery and closure. Implementing findings,
+publishing drafts and widening scope still need their own authority.
 
 ## Decide whether one-shot applies
 
@@ -109,23 +107,20 @@ until the developer asks to land the result. The default checkout always stays i
 
 ## Land the retained result
 
-When the developer explicitly asks to land the retained result, in this session
-or a later one that names its workspace, deliver it from that workspace through
-[increment publication](trunk-publication.md#publish-an-execution-increment-or-repair)
-with `previouslyPublishedBase` set to the retained `startingRevision` (otherwise
-the merge base of the workspace branch and fetched trunk) and the target set to
-remote trunk (`--target-ref refs/heads/<trunk>`), even in Story Branch Mode:
-one-shot work has no execution branch or claim to deliver to. In Story Branch
-Mode, declare that landing with `--mode story-branch --tracking one-shot`; in
-Trunk Mode, pass `--mode trunk`. That request is the authority to publish it. After
-acceptance, refresh the default checkout and complete CI observation as for any
-trunk publication. A default-checkout result is delivered from that checkout,
-with `previouslyPublishedBase` set to the merge base of its HEAD and fetched
-trunk, because its earlier local commits are part of the result; it is the
-default checkout itself, so supply no separate one to refresh. If the delivery
-result is lost or interrupted,
-[resume the interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
-with the candidate you retained, never by committing or pushing again.
+An explicit landing request in this session, or a later one naming the workspace,
+authorizes [increment publication](trunk-publication.md#publish-an-execution-increment-or-repair)
+from that workspace to remote trunk (`--target-ref refs/heads/<trunk>`).
+In Story Branch Mode use `--mode story-branch --tracking one-shot`; in Trunk
+Mode use `--mode trunk`. One-shot work has no claim or execution-branch target.
+Set `previouslyPublishedBase` to retained `startingRevision`, otherwise the
+merge base of the workspace branch and fetched trunk. For a default-checkout
+result, use the merge base of its HEAD and fetched trunk so earlier local commits
+are included; supply no separate default checkout to refresh.
+Retain the candidate and actual `suffixBase` together before every push under
+[candidate step 5](publish-the-candidate.md#publish-the-candidate); its receipt
+and base are the delivered comparison. After acceptance, finish default-checkout
+refresh and CI observation. If interrupted, [resume](trunk-publication.md#resume-an-interrupted-publication)
+with the retained candidate and `--suffix-base`, which preserves that comparison.
 
 ## Land automatically when selected
 
@@ -144,8 +139,7 @@ Land only once the focused verification passes, the post-change refactor pass
 is done, and no product, scope, or architecture decision remains open. Then
 deliver the committed result as [Land the retained result](#land-the-retained-result)
 describes, without waiting for a landing request: a queued story's closure
-lands in the same commit, with `--one-shot-identity`. In the default checkout,
-all checkout content is committed together and delivered from that checkout.
+lands in the same commit, with `--one-shot-identity`.
 Report the accepted SHA and target, and the default checkout's refresh and CI
 observation as their own results: remote acceptance alone completes neither.
 
@@ -155,8 +149,7 @@ goes to the developer), or delivery stops: `ownership-changed`, a
 reconciliation `conflict`, a failed recheck of a reconciled candidate, or a
 second rejection. Push nothing more after such a stop. A lost or interrupted
 delivery result resumes the retained candidate as described above. After the
-landing, [retire the workspace](#retire-the-workspace); the default checkout
-stays.
+landing, follow [workspace retirement](#retire-the-workspace).
 
 ## Complete a queued story in the same commit
 

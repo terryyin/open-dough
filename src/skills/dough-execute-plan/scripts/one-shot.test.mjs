@@ -184,6 +184,7 @@ test("a lost push response resumes the one-shot result without a duplicate commi
     ...delivery.requestBase,
     workspace,
     candidateSha: result,
+    suffixBase: started.receipt.startingRevision,
     targetRef: trunkTarget,
     repo,
     publishedRevisions: [],
@@ -192,6 +193,21 @@ test("a lost push response resumes the one-shot result without a duplicate commi
   assert.equal(resumed.ok, true, JSON.stringify(resumed));
   assert.equal(resumed.pushCount, 0);
   assert.equal(resumed.receipt.sha, result);
+  assert.equal(resumed.suffixBase, started.receipt.startingRevision);
+  assert.deepEqual(
+    (
+      await git(
+        workspace,
+        "diff",
+        "--name-only",
+        resumed.suffixBase,
+        resumed.receipt.sha,
+      )
+    ).stdout
+      .trim()
+      .split("\n"),
+    ["feature.txt"],
+  );
   assert.equal(
     await messageCount(trunk.origin, "main", "lost-response result"),
     1,

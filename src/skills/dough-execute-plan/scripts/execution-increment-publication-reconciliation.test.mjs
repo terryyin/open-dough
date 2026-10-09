@@ -89,15 +89,20 @@ test("Trunk Mode increment returns needs-validation when another writer advances
   assertCheckoutUnchanged(before, await captureCheckout(integration));
 });
 
-test("Trunk Mode increment publishes a validated reconciled candidate and not the pre-rebase SHA", async (t) => {
+test("Trunk Mode retains a multi-commit comparison before publishing its validated reconciled candidate", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
     await createCleanTrunkFixture();
   t.after(cleanup);
 
+  writeFileSync(join(execution, "second-increment.txt"), "second increment\n");
+  await git(execution, "add", "second-increment.txt");
+  await git(execution, "commit", "-m", "second verified increment");
+  const multiCommitCandidate = await revParse(execution, "HEAD");
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
   const before = await captureCheckout(integration);
   const observer = receiptsOf();
   const validated = [];
+  const retained = [];
 
   const published = await publishExecutionIncrement({
     workspace: execution,
@@ -109,11 +114,37 @@ test("Trunk Mode increment publishes a validated reconciled candidate and not th
       validated.push({ candidate, ...context });
       return { ok: true };
     },
+    beforePush: async (comparison) => {
+      retained.push(comparison);
+      assert.equal(await lsRemoteSha(origin, trunkTarget), disjointSha);
+      assert.deepEqual(
+        (
+          await git(
+            execution,
+            "diff",
+            "--name-only",
+            comparison.suffixBase,
+            comparison.candidate,
+          )
+        ).stdout
+          .trim()
+          .split("\n"),
+        ["increment.txt", "second-increment.txt"],
+      );
+    },
   });
 
   assert.equal(published.ok, true);
   assert.notEqual(published.receipt.sha, candidateSha);
-  assert.equal(published.preRebaseSha, candidateSha);
+  assert.equal(published.preRebaseSha, multiCommitCandidate);
+  assert.equal(published.suffixBase, disjointSha);
+  assert.deepEqual(retained, [
+    {
+      attempt: 0,
+      candidate: published.receipt.sha,
+      suffixBase: disjointSha,
+    },
+  ]);
   assert.equal(validated[0].candidate, published.receipt.sha);
   assert.equal(validated[0].remoteTip, disjointSha);
   assert.deepEqual(published.receipt, {
@@ -129,9 +160,11 @@ test("Trunk Mode increment publishes a validated reconciled candidate and not th
   assert.equal(await lsRemoteSha(origin, "refs/heads/exec/story"), "");
   assert.equal(await lsRemoteSha(origin, recordedStoryBranch), "");
   assert.equal(
-    (
-      await git(execution, "log", "--format=%P", "-1", published.receipt.sha)
-    ).stdout.trim(),
+    await revParse(execution, `${published.receipt.sha}~2`),
+    disjointSha,
+  );
+  assert.notEqual(
+    await revParse(execution, `${published.receipt.sha}^`),
     disjointSha,
   );
   assert.equal(await ancestor(execution, candidateSha, "origin/main"), false);

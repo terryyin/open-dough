@@ -1,14 +1,14 @@
-// Git mechanics for one validated execution increment or owned repair.
-// The caller supplies the owned workspace, the owned unpublished suffix,
-// the authorized remote target, and how the accepted result is registered.
+// Git mechanics for a validated execution increment or owned repair, with its
+// owned workspace/suffix, authorized target and acceptance registration.
 // A previously published base that no fetched remote ref holds stops at once.
 // `onFetchedTarget` may stop on each fetched target tip before anything is
 // rewritten. When another writer advances the target, only that owned suffix
 // is reconciled; a changed candidate requires applicable proof before any
-// push. One reconciliation retry recovers a racing push; conflict or a second
-// rejection preserves recoverable Git state. Stash, checkout refresh, and
-// observer startup stay with their own owners, managed observation with
-// execution-increment-delivery.mjs. Installed guidance is the agent's contract.
+// push. `beforePush` retains candidate and suffixBase together before each
+// push, including after reconciliation. One retry recovers a racing push;
+// conflict or a second rejection preserves recoverable Git state. Stash,
+// checkout refresh and observer startup stay with their owners; managed
+// observation belongs to execution-increment-delivery.mjs.
 import {
   ensureApplicableProof,
   fetchedTargetStop,
@@ -194,7 +194,7 @@ export async function publishExecutionIncrement({
   }
 
   if (beforePush) {
-    await beforePush({ attempt: 0, candidate });
+    await beforePush({ attempt: 0, candidate, suffixBase });
   }
   let push = await tryPushExactRef(workspace, candidate, remote, targetRef);
   if (push.rejected) {
@@ -209,7 +209,7 @@ export async function publishExecutionIncrement({
       await beforeRetryPush();
     }
     if (beforePush) {
-      await beforePush({ attempt: 1, candidate });
+      await beforePush({ attempt: 1, candidate, suffixBase });
     }
     push = await tryPushExactRef(workspace, candidate, remote, targetRef);
     if (push.rejected) {

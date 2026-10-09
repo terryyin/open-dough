@@ -116,8 +116,8 @@ the owned unpublished increment or repair through
 As each obligation finishes, retain the current delivery boundary in the
 execution conversation with the owned unfinished paths, accepted proof and its
 boundary, applicable implementation or refactor return, exact observer
-identity when present, and the unpublished candidate, previously published
-base, and accepted revision and target after any rewrite. On recovery,
+identity when present, and the unpublished candidate with its final `suffixBase`,
+previously published base, and accepted revision and target after any rewrite. On recovery,
 reconcile this focused record with actual Git, agent, and observer state under
 [execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary).
 Classify the increment or repair with
