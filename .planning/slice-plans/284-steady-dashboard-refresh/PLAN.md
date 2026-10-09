@@ -181,6 +181,14 @@ inner `.read-status-line` span and spoken whole (`tests/pageLayout.ts`
 existing `.visually-hidden` rule. `dashboard-columns-height.spec.ts` was
 split (`dashboard-columns-clamp.spec.ts`) to stay under 250 lines.
 
+CI repair (run 38003440839, attempt 1, on 5accd572): the edge control grows
+with its label, and its "Entry count incomplete" label is longer under the
+Linux runners' fonts (~515 px end vs ~495 px locally), so
+`dashboard-columns-height.spec.ts`'s no-blank-tail test now uses 864×600;
+`agent-launch-ad-hoc-terminal.spec.ts` compared scroll 0 with 0 on a page
+that could not scroll, and now sets 1280×480 and asserts the kept scroll is
+above 0. A viewport tuned to one machine's fonts is not a margin.
+
 ### 2. The done catalog names the revision it was read at
 Type: Structure
 Status: planned

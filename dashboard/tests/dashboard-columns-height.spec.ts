@@ -156,7 +156,12 @@ test.describe("in a two-column page", () => {
   test("done stories arriving in a hidden Recently done add no blank tail below Backlog and Taken", async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 54 * rem, height: 500 });
+    // Read at the page's top, the edge control starts below the page header
+    // and is as tall as its "Entry count incomplete" label, whose length
+    // differs by font: about 320 px on macOS and 340 px on Linux, ending near
+    // 495 and 515 px. The window leaves room for a label far longer, and
+    // stays shorter than Backlog and Taken, so the page still ends with them.
+    await page.setViewportSize({ width: 54 * rem, height: 600 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     const moreDone = 40;
     const { release, doneCard } = await heldFactGroups(page, { moreDone });
