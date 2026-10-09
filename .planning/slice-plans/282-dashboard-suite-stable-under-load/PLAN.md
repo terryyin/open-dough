@@ -200,7 +200,40 @@ import time in each worker, which reads the variable workers already carry.
 
 ### 3. The recorded failure kinds are reproduced and explained
 Type: Behavior
-Status: planned
+Status: in progress — script delivered; full-run probe unfinished; awaiting
+decision on the causes below before slice 4
+Delivered: `scripts/dashboard-repeat.sh` and its check
+`tests/dashboard-repeat.sh` (stand-in suite and install commands; fresh
+worktree setup, move of the kept directory and removal; burners per core and
+their stop; a crash's last output; TERM stopping the whole process tree; bad
+count). `npm test -- tests/dashboard-repeat.sh` passes in about 3 s, and fails
+when the burner stop, EXIT cleanup, or tree kill is removed.
+Probe learning (2026-10-09, default 8 workers, the group now matching 20
+files): fresh first group runs failed in 3 of 4 series; no later run in a
+series and no run under burners failed. Full runs: one fresh run passed
+(511 s); one unloaded run ran 4628 s with 45 failures while the machine's
+one-minute load reached 150–190 with swap full, mostly from other work; the
+remaining full series were stopped. Kept evidence:
+`dashboard/test-results/2026-10-09T05-24-28.845Z`, `05-28-24.911Z`,
+`05-30-26.139Z`, `05-41-58.332Z`.
+- A, the recorded failure: `expectEntries` (`recentlyDoneColumn.ts:55`, the
+  plain 5 s bound) on entry 1 in `recently-done-progressive-loading.spec.ts:55`
+  and `recently-done-progressive-failed-read-refresh.spec.ts:84`. In every
+  failing trace the page's `done=bodies` request leaves before
+  `/__agent-launch` (saved sessions) answers, so Recently done picks its first
+  ten without the sessions at 2, 7 and 11 and reads stories 12 and 13 in the
+  first batch; 13 is the record the tests hold or fail. No bound can fix it.
+  This is either a suite ordering assumption or a product defect (reading
+  records outside the shown ten before the session list is known).
+- B, whole-machine overload: the story's exclusion; one possible suite cause
+  seen there, an ENOTEMPTY in `startOrigin.ts:244` cleanup.
+- C, leaked processes: orphaned `vite preview` and
+  `dashboard/server/hosts/cursor/runnerMain.ts` processes survived runs, some
+  hours old, adding load to later runs. Independent of A.
+- Not reached: the 20 s Vite address bound and the shortened
+  `DOUGH_START_TIMEOUT_MS` waits.
+Slice 4's rule applies: more than one independent cause and a possible
+product defect, so slice 4 waits for a replanning decision.
 CI repair during this slice: run 37888054794 (8e5533ea, dashboard 9/9)
 failed `cursor-session-recovery-stops.spec.ts:25` at `endHeldClient`'s
 15 s wait. Cause: `openTakenCursorSession` returned before the Terminal's
