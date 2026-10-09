@@ -115,6 +115,22 @@ main {
   margin-top: 0;
 }
 
+/* The read status keeps one line of room whenever it says something, shown
+   or spoken, so a read starting or ending moves nothing below it. */
+.page-header > .read-status:not(:empty) {
+  position: relative;
+  min-height: 1lh;
+}
+
+/* A read under way too long for that line is cut short in sight and still
+   spoken whole. */
+.read-status-line {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Said to assistive technology and not shown: still rendered and still in
    the accessibility tree, clipped to a single pixel out of the page's flow so
    that it takes no room. Kept on one line so that it is spoken as a sentence,

@@ -110,11 +110,9 @@ cannot outlive the attempt.
   and `useShownDone` is removed. Without that revision, carrying A's catalog
   into B's snapshot would read A's records at B (`doneDetails.ts` reads at
   the snapshot's revision), which is why the precedent kept its own state.
-- **Local test runs.** `npm ci` in this worktree reported "up to date" and
-  installed nothing (observed twice); a symlink `node_modules ->
-  /Users/terryyin/git/open-dough/node_modules` (identical lock file) runs
-  the suite. The symlink is not covered by `.gitignore`'s `node_modules/`
-  and shows as untracked, so remove it before any commit or landing.
+- **Local test runs.** `npm ci` in the execution worktree installs the
+  locked dependencies (observed at execution start: 162 packages added);
+  run the suite from there.
 
 ## Decisive premises and observations
 
@@ -148,7 +146,7 @@ cannot outlive the attempt.
 
 ### 1. The read under way is said in reserved room
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/steady-refresh.spec.ts` first test: A settled,
 B pushed, `passTimeUntilChecked`; the Backlog column's `box().y` while the
 status says "Reading published work…" equals the value before the check and
@@ -161,6 +159,27 @@ read afresh, or a recovery read) → the status region says the reading
 sentence inside room the header already reserves; the columns and cards do
 not move when the read starts or ends. Spoken text and sentences are
 unchanged.
+
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+tests/steady-refresh.spec.ts` — "the read of a new revision is said without
+moving the columns" at 1280 px and on a phone's width (320 px): the Backlog
+column's `box().y` is equal before the check, while `parts(page).reading`
+shows the full sentence, and after `expectSettledPage`. It failed before
+the change (137 → 173 px). Consumers green: published-facts-reading,
+accessible-overview-keyboard, published-work, settled-page, transient-*,
+auto-refresh*, dashboard-columns-*, dashboard-header, read-failure,
+frame-*-look; full dashboard suite run once locally.
+
+Learnings: the reserved line makes the settled header about 20 px taller.
+Two specs whose promises are about scroll, focus, and page tail, not about
+an edge control fitting unscrolled, used an 864×480 viewport with no margin;
+they now use 864×500 (`published-facts-reading.spec.ts`,
+`dashboard-columns-height.spec.ts`). The room is one line at every width:
+on a narrow page the shown reading sentence is cut with an ellipsis on its
+inner `.read-status-line` span and spoken whole (`tests/pageLayout.ts`
+`notReadWhole` would flag the paragraph itself). The read result uses the
+existing `.visually-hidden` rule. `dashboard-columns-height.spec.ts` was
+split (`dashboard-columns-clamp.spec.ts`) to stay under 250 lines.
 
 ### 2. The done catalog names the revision it was read at
 Type: Structure
