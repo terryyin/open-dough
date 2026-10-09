@@ -249,6 +249,18 @@ flake in `cursor-session-recovery.spec.ts` ("idle composer with confirmed
 first input", 2 of about 66 under load; Recover reports "waiting for an
 answer" read before the host repaints) remains unfixed and looks like
 product timing.
+Second CI repair: run 38001471149 (f07842f3, dashboard 1/9) failed
+`cursor-session-recovery.spec.ts:106` ("Recover on a working screen types
+nothing"), as main did before this story (run 37855736413). Cause, in the
+product: `LaunchInstruction` judged readiness inside an unfinished `?2026`
+update, so a working paint split at its line break looked like the idle
+composer and Recover pasted onto a working screen. Fixed by not judging
+while the frame is open (the page's own rule); regression spec
+`cursor-recover-split-paint.spec.ts` fails 10 of 10 without the guard. Still
+open: line 58's "at the follow-up prompt" race (the label is read while the
+paste chip is still on screen), fixed in neither repair; it needs a product
+choice between holding the announcement until the chip clears and
+re-reading a held label sooner.
 Proof: `scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]`
 runs the suite that many times, under burners with `--load`, the first
 repetition in a fresh worktree with `--fresh`, and prints per run: exit,

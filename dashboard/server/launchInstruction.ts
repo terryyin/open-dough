@@ -1,5 +1,6 @@
 // Enters one launch instruction into a kept client once its server-side
-// screen is ready, and holds idle hangup until that write. A ready screen
+// screen is ready, and holds idle hangup until that write. A screen inside
+// an unfinished synchronized update is not judged. A ready screen
 // settles the launch wait even when no synchronized frame arrived, except
 // that a pasted instruction settles it only once its chip is submitted or a
 // later frame finished showing neither that chip nor the empty composer. A
@@ -86,6 +87,9 @@ export class LaunchInstruction {
       this.announce();
       return;
     }
+    // Inside a synchronized update the screen can be part of one paint, such
+    // as a working screen's follow-up line before its working marker.
+    if (screen.frameOpen()) return;
     const ready = this.launch.ready(screen.text(), screen.cursorVisible());
     const pastedChip = showsPasteChip(screen.text());
     if (!this.entered && this.pasted) {

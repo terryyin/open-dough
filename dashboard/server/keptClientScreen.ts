@@ -69,16 +69,22 @@ export class KeptClientScreen {
     return this.cursorOn;
   }
 
-  // A synchronized update (`?2026`) has finished and none is open. The page
-  // reports readiness on that same boundary.
+  // A synchronized update (`?2026`) has started and not finished, so the
+  // screen can still be part of one paint. The page reports readiness only
+  // outside such an update.
+  frameOpen(): boolean {
+    return this.framePending;
+  }
+
+  // A synchronized update has finished since its frame was last taken.
   completedFrame(): boolean {
-    return this.completedFrameScreen() !== undefined;
+    return this.frameEnd !== undefined;
   }
 
   // The screen that finished frame showed. Later output can already have
   // changed the screen since.
   completedFrameScreen(): FrameScreen | undefined {
-    return this.framePending ? undefined : this.frameEnd;
+    return this.frameEnd;
   }
 
   takeFrame(): void {
