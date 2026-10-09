@@ -173,7 +173,7 @@ facts; nothing else about the sequence changes.
 
 ### 1. Remote transport commands end within a bound that ends their process tree
 Type: Structure
-Status: planned
+Status: done
 Proof: new `publication-transport-bound.test.mjs`: with
 `OPEN_DOUGH_GIT_TRANSPORT_BOUND_MS=300`, a fetch and a push against the
 stalling stand-in reject within about the bound with
@@ -191,6 +191,27 @@ enables slice 2 to turn an expired bound into a publication stop. Test
 support: `publication-stall-test-fixtures.mjs` with the ssh stand-in, its
 mode file, call log, and PID record, and cleanup that ends a sleeping
 stand-in.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/publication-transport-bound.test.mjs`
+(5 tests: stalled fetch, stalled push, pre- and post-receive hook stalls, slow
+responsive transport, bound setting); every `*.test.mjs` under the four script
+directories green via `bash scripts/test.sh` (Bash 5). `tests/native-setup.sh`
+fails locally only on the machine's Node 24.5.0 versus `.node-version`, the same
+on an untouched checkout.
+
+Learnings for slices 2–4:
+- Lower the bound only after fixture setup (setup's own pushes are bounded) and
+  use 1–2 s, not 300 ms: Git, the node stand-in, receive-pack, and hooks need
+  start-up room on a loaded machine.
+- `installTransportStall({ fixture, workspace, origin })` returns `pass`,
+  `stall({ service, call })`, `stallBeforeAcceptance`, `stallAfterAcceptance`,
+  `removeHooks`, `calls`, `hookPids`, `alive`, and `cleanup`. The re-pointed
+  `origin` lives in shared repository config, so integration-checkout pushes
+  through `origin` count as calls; advance trunk with the bare remote path.
+- The bound applies when the subcommand is the first argument to `git()`;
+  managed callers already name it first.
+- `boundedTransport` carries a JSDoc result type: dashboard TypeScript tests
+  import `lsRemoteSha` and lint fails on an untyped result.
 
 ### 2. Managed delivery reports a stalled transport as a recoverable stop
 Type: Behavior
