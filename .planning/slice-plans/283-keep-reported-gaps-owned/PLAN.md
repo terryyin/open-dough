@@ -87,6 +87,7 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
 - Established execution: Story Branch, this worktree, branch `codex/keep-reported-gaps-owned-through-the-story-s-rem`, publisher `dashboard-territory.local-open-dough`, agent `dbs-chan`.
   Claim `f3c18be67af7ae97f30df57c1e720e087ad2d30c` accepted on `origin/main`; starting revision `48ffeb9f0564382092b30b5caf3ac91f500b783f`. Checkout existed before this session.
   Integration checkout `/Users/terryyin/git/open-dough`; increments publish to this execution branch on `origin`. Planning authority permits within-story refinement; no numeric hard limit supplied.
+  Latest accepted increment before slice 2: `43ef3b9b304b2ffb7ac64238f8c7c6d46ca676a3`, same remote execution branch; managed delivery reused the observer below.
 - Setup passed here: official Node 24.21.0, locked npm/browser acquisition, `node scripts/setup-native.mjs check`, Chromium 153.0.8010.12.
   Inherited `NODE_ENV=production` initially omitted dev dependencies; acquisition succeeded with `NODE_ENV=development`.
   Command prefix: `PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH`.
@@ -160,8 +161,9 @@ A plan without the section passes with zero entries.
 
 ### 2. Obligations reach the slices that receive or depend on them, and completion waits for them
 Type: Behavior
-Status: planned
-Proof: `node --test src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs`, with fixtures from plans 296 and 008:
+Status: done
+Accepted: `npm test -- src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs tests/support/product-backlog-plan-reader.test.mjs tests/support/product-backlog-plan-reader-bold.test.mjs tests/support/product-backlog-plan-completion.test.mjs tests/support/product-backlog-home-reader.test.mjs` passed. Cross-slice/completion/interim-return CLI assertions inspect full listings, dropped recipients/dependencies, final dependency by plan order, every open completion refusal, and proved closure preserving earlier done slices. Refactor shared the done-or-committing predicate; the obligation suite passed again. Converting an interim to return updates `Reported`'s slice to the current owner and retains the reported text/story clause; slice 3 must document this.
+Proof: `npm test -- src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs`, with fixtures from plans 296 and 008:
 `list --slice 8` and `list --slice 3` output, the last-dependent-slice
 refusal, the dangling refusal after slice 8 is removed, and
 `check --completion` refusing while a `return`, `receiving slice`, or
@@ -180,8 +182,8 @@ Status: planned
 Proof: new `story-obligations-guidance.test.mjs` (documented entry example
 parses with the script reader; `delegation.md`, `wrap-up.md`, and
 `finish-or-stop.md` name the `list` and `check` steps at their points);
-`tests/payload-declaration-links.sh`; `tests/install-public-payload.sh`;
-`node scripts/lint.mjs`. Behavior review per `AGENTS.md`: walk example 1
+`npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh`;
+the check-only commit lint hook. Behavior review per `AGENTS.md`: walk example 1
 through the edited Accept proof.
 
 Behavior: The executing coordinator reads its guidance:
@@ -224,7 +226,7 @@ case, the fix is recorded here and the replay of that example is repeated.
 - Slice 3 is guidance and declaration; its focused checks are the guidance
   test and the two payload shell checks (seconds each). The full shell suite
   is not a local gate; CI runs it on publication.
-- `node scripts/lint.mjs` at each commit, as the repository hooks require.
+- The check-only lint hook at each commit; checks use `npm test -- <paths>` per `tests/README.md` rather than invoking checks directly.
 - Slice 4 waits for the developer's authorization for paid host runs. The
   coordinator stops there and asks; it does not start them.
 - Wrap-up records the response commits and, once released, the first
