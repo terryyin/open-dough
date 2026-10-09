@@ -62,6 +62,13 @@ and spend no rerun time on failures that unchanged code did not cause.
   waits, shared outputs, or local worker selection. The fix for each wait
   ends on an observable event or the real failure signal, not a shorter or
   longer elapsed time alone.
+- **Fix the product causes the reproduction showed** (authorized
+  2026-10-10 after the probe). Recently done chooses which done records to
+  read before the saved-session list answers, so a fresh first run reads
+  records outside the shown ten and holds or fails the tests' first batch;
+  Recently done waits for that list before choosing what to read. Runs leave
+  `vite preview` and Cursor `runnerMain` processes alive after they end,
+  adding load to later runs; a run ends every process it started.
 - **Load bound.** Loaded means a one-minute load average held at or above the
   machine's core count for the whole run by CPU-bound processes the
   reproduction starts and stops. Default workers means Playwright's own
@@ -115,8 +122,8 @@ Deferred, not rejected:
 - A result under load that leaves the suite no CPU at all, far above the
   core count, is not proved here; the suite stays truthful (it fails naming
   the wait) rather than passing by retry.
-- A product defect the reproduction uncovers in the dashboard server or app
-  gets its own bug report; this story fixes the suite's own causes.
+- A product defect the reproduction uncovers in the dashboard server or app,
+  other than the two causes above, gets its own bug report.
 - Making the local full run faster is not a promise; only its result is.
 
 **Key examples:**

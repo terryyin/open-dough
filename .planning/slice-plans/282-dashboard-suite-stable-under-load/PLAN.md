@@ -33,7 +33,9 @@ Material exclusions, from the story:
   truthful there: it fails naming the wait, keeps its evidence, and is not
   retried.
 - A product defect in the dashboard server or app that the reproduction
-  uncovers gets its own bug report; this story fixes the suite.
+  uncovers gets its own bug report, except the two the probe showed
+  (Recently done's read order and processes left running), which the story
+  took into scope on 2026-10-10.
 - A faster local full run. Only its result is promised.
 - `retries` stays 0. Waits end on an observable event or the real failure
   signal; a raised bound is acceptable only on a wait that already ends on
@@ -90,9 +92,9 @@ concurrent runs from one checkout, and reproducing the recorded failures.
   load average recorded before and after. It is the story's loaded
   condition. It did not by itself reproduce the failures (observations
   below); it stays the acceptance condition, not the suspected cause.
-- Slice 4 changes only what slice 3 reaches. A finding outside the suite's
-  waits, shared outputs, or worker selection is recorded as a bug report
-  through the project's bug path, not fixed here.
+- Slices 4 and 5 change only the two causes slice 3 showed. Another
+  finding outside the suite's waits, shared outputs, or worker selection is
+  recorded as a bug report through the project's bug path, not fixed here.
 - A freshly prepared checkout, for the story's first-run condition, is a
   new Git worktree of the revision under test with its own `npm ci` and no
   suite run yet. The repeat script's `--fresh` makes one under the OS
@@ -128,10 +130,12 @@ concurrent runs from one checkout, and reproducing the recorded failures.
 | Failure evidence outlives a rerun (3) | 1 | `quiet-reporter.spec.ts`: a failing substitute run leaves `report.txt` in its output directory holding the printed failure, names that directory last; a passing run leaves no directory. Then two real runs of `quiet-reporter.spec.ts` with a deliberate failure in the first: its stamped directory is still there after the second. |
 | Two runs from one checkout (4) | 2 | `tests/dashboard-concurrent-runs.sh`: two `npm run test:dashboard -- project-configuration-boundary.spec.ts` started together both exit 0 and print nothing, and `dashboard/dist` is untouched by either. |
 | Reproduce the recorded failure kinds (scope) | 3 | The repeat script's report over N full runs: failing locations, their waits and bounds, and kept directories. |
-| Loaded machine, unchanged code (1); Vite start slower than its wait (5) | 4 | Three consecutive full runs at default workers pass with no output, one under the burners and one the first run in a fresh worktree, through the repeat script; CI green on the published revision. |
-| A real failure under load is still a real failure (2) | 4 | One loaded run with one assertion deliberately broken fails that test only, naming it. |
-| Boundary: load far beyond the bound (6) | 1 and 4 | A run that fails names its wait and keeps its evidence; `retries` stays 0 in the config. |
-| Documentation (scope) | 5 | The tests guide names the kept location, the private build, the repeat script, and that the result does not depend on local load. |
+| Recently done reads only what it shows, after the sessions are known (scope) | 4 | A Recently done journey whose saved-session listing answers after the catalog: the first batch reads only the ten shown, none beyond. |
+| A run ends every process it started (scope) | 5 | After a passing and a failing run, no `vite preview` or `runnerMain.ts` process from that run remains. |
+| Loaded machine, unchanged code (1); Vite start slower than its wait (5) | 6 | Three consecutive full runs at default workers pass with no output, one under the burners and one the first run in a fresh worktree, through the repeat script; CI green on the published revision. |
+| A real failure under load is still a real failure (2) | 6 | One loaded run with one assertion deliberately broken fails that test only, naming it. |
+| Boundary: load far beyond the bound (6) | 1 and 6 | A run that fails names its wait and keeps its evidence; `retries` stays 0 in the config. |
+| Documentation (scope) | 7 | The tests guide names the kept location, the private build, the repeat script, and that the result does not depend on local load. |
 
 ## Ordered slices
 
@@ -200,8 +204,8 @@ import time in each worker, which reads the variable workers already carry.
 
 ### 3. The recorded failure kinds are reproduced and explained
 Type: Behavior
-Status: in progress — script delivered; full-run probe unfinished; awaiting
-decision on the causes below before slice 4
+Status: done (the unfinished full-run series moves to slice 6's acceptance
+runs, on a machine that is not swapping)
 Delivered: `scripts/dashboard-repeat.sh` and its check
 `tests/dashboard-repeat.sh` (stand-in suite and install commands; fresh
 worktree setup, move of the kept directory and removal; burners per core and
@@ -232,8 +236,8 @@ remaining full series were stopped. Kept evidence:
   hours old, adding load to later runs. Independent of A.
 - Not reached: the 20 s Vite address bound and the shortened
   `DOUGH_START_TIMEOUT_MS` waits.
-Slice 4's rule applies: more than one independent cause and a possible
-product defect, so slice 4 waits for a replanning decision.
+Decision 2026-10-10 (Terry): widen the story to fix both A in the product
+and C, replanning slice 4 into slices 4–6.
 CI repair during this slice: run 37888054794 (8e5533ea, dashboard 9/9)
 failed `cursor-session-recovery-stops.spec.ts:25` at `endHeldClient`'s
 15 s wait. Cause: `openTakenCursorSession` returned before the Terminal's
@@ -270,25 +274,57 @@ five unloaded and three loaded full runs all pass, record that, and slice 4
 changes only the bounds the kept evidence from this session's one failure
 already implicates (the 5 s bound on record-dependent entries).
 
-### 4. The suite's own causes are fixed and the loaded run passes
+### 4. Recently done reads only the records it shows, once the sessions are known
+Type: Behavior
+Status: planned
+Proof: A Recently done journey whose fake `/__agent-launch` saved-session
+listing answers only after the done catalog has arrived observes that the
+first batch reads exactly the ten shown stories, never one beyond them (the
+held or failed record 13 of the existing progressive specs is not requested
+in the first batch). Unchanged on the old code: fails, reading 12 and 13.
+Focused: the `recently-done-*` group via
+`scripts/dashboard-repeat.sh 3 --fresh recently-done- authenticated-read-done-catalog authenticated-read-revision-reuse published-facts-failures`.
+
+Behavior: The page loads Recently done while the saved-session listing is
+still under way → it does not choose or read done records until it knows
+which entries are sessions → the first batch reads only the shown ten, and
+`recently-done-progressive-loading` and `-failed-read-refresh` pass on a
+fresh first run. Locate where the client (or server) builds the first batch;
+the fix is in product code. If the evidence shows the order is a test fake
+artefact rather than real product behavior, stop and report.
+
+### 5. A run ends every process it started
+Type: Behavior
+Status: planned
+Proof: A check that runs a small dashboard selection that starts a Cursor
+runner and preview servers, once passing and once with a deliberate failure
+(including a test timeout), and then finds no `vite preview` or
+`dashboard/server/hosts/cursor/runnerMain.ts` process descended from or
+belonging to that run. Unchanged code: at least one remains.
+
+Behavior: A test, passing, failing, or timed out, ends → the preview server
+and its Cursor runner it started stop → later runs do not carry the load of
+earlier ones. First find which owner fails to stop them (test fixture
+teardown, the server's exit handling, or the runner's lifetime); fix the
+owner. A product defect beyond the server stopping its own runner is a bug
+report.
+
+### 6. The loaded run passes
 Type: Behavior
 Status: planned
 Proof: `scripts/dashboard-repeat.sh 1 --fresh`, then
 `scripts/dashboard-repeat.sh 1`, then `scripts/dashboard-repeat.sh 1 --load`
-each pass with no output, as three consecutive full runs; one loaded run
-with one assertion deliberately broken fails only that test; CI's nine shards
-pass on the published revision inside their deadline.
+each pass with no output, as three consecutive full runs on a machine that
+is not otherwise swapping; one loaded run with one assertion deliberately
+broken fails only that test; CI's nine shards pass on the published revision
+inside their deadline.
 
 Behavior: The suite runs at default workers while the machine runs other
-work → every wait slice 3 implicated ends on its observable event or the real
-failure signal within a bound derived from one stated place (the config's
-`expect.timeout` and `timeout`, or the test's own timeout for Vite's address
-wait, in place of scattered constants) → the run's result matches CI. Keep
-`retries: 0`. Do not lower CI's worker count. If slice 3 implicates more
-than one independent cause, or a product defect, stop and replan under the
-story's exclusions before changing more than the waits.
+work → the run's result matches CI. Any further wait the runs implicate ends
+on its observable event or the real failure signal. Keep `retries: 0`. Do
+not lower CI's worker count. A new independent cause stops for replanning.
 
-### 5. The tests guide records the kept location and the loaded-run expectation
+### 7. The tests guide records the kept location and the loaded-run expectation
 Type: Behavior
 Status: planned
 Proof: `tests/README.md` and `dashboard/tests/README.md` name
@@ -311,8 +347,8 @@ evidence is, how to repeat a run under load, and the result expectation.
   behavior. Run the repetitions in the background with a log, per the
   project's long-run practice. The group runs of the refinement (20 s each)
   are the cheap first series before any full run.
-- Slice 4's size is unknown until slice 3 reports; it is bounded by the
-  replanning rule in its Behavior.
+- Slices 4 and 5 are each one proof loop; slice 6 is about half an hour of
+  full runs when the machine is not swapping.
 - Lint (`node scripts/lint.mjs`) at each commit, as the repository's hooks
   require. The whole shell suite is not a local gate for these slices; CI
   runs it on publication. The new shell checks count toward CI's time budget
