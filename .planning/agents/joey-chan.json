@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#bound-managed-git-transport",
-  "host": "claude",
-  "model": "fable"
-}
