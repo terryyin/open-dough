@@ -6,7 +6,8 @@
 // on it and the shown entries stay where they are; scrolling, resizing, and
 // paging the columns read nothing. A failed older read keeps the shown list,
 // says so, and its retry asks again only for what was not read. Fewer than
-// ten entries, and none at all, read as before.
+// ten entries, and none at all, read as before. Records wait for the saved
+// sessions: ./recently-done-progressive-after-sessions.spec.ts.
 // The fake GitHub publishes done records spelled by the shared renderer and
 // the catalog the real backlog CLI's `catalog-done` builds from them
 // (./recentlyDoneProgressive.ts); the synthetic `claude` lists the kept

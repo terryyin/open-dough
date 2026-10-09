@@ -288,7 +288,17 @@ already implicates (the 5 s bound on record-dependent entries).
 
 ### 4. Recently done reads only the records it shows, once the sessions are known
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `recently-done-progressive-after-sessions.spec.ts`: with the
+sessions read held after the catalog answered, no `done=bodies` request
+leaves, then only the ten shown entries' stories are read (fails on the old
+code with stories 12 and 13 read); with the sessions read aborted, the ten
+stories shown without them are read. `--repeat-each 10` passes; the
+`recently-done-` group and 62 related specs pass; three `--fresh` group
+series passed 9 of 9 runs with the change applied (3 of 4 fresh first runs
+failed before). Fix: `useDoneDetails` reads only when `readable`;
+`DashboardColumns` passes `attemptEvidence !== "unread"`, so an unanswered
+sessions read still lets the shown stories be read.
 Proof: A Recently done journey whose fake `/__agent-launch` saved-session
 listing answers only after the done catalog has arrived observes that the
 first batch reads exactly the ten shown stories, never one beyond them (the
