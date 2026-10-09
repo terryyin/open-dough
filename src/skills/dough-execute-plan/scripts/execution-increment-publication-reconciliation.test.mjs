@@ -139,6 +139,31 @@ test("Trunk Mode increment publishes a validated reconciled candidate and not th
   assertCheckoutUnchanged(before, await captureCheckout(integration));
 });
 
+test("an unpublished candidate already on the advanced target refuses a no-op rebase and pushes nothing", async (t) => {
+  const { origin, execution, trunkSha, cleanup } =
+    await createCleanTrunkFixture();
+  t.after(cleanup);
+  const advancedTip = await advanceOriginFromAnotherWriter(origin);
+  // The branch already sits on the advanced tip while the caller still names
+  // the older base, so reconciling leaves the candidate unchanged.
+  await git(execution, "fetch", "origin");
+  await git(execution, "rebase", "origin/main");
+  const candidate = await revParse(execution, "exec/story");
+
+  await assert.rejects(
+    publishExecutionIncrement({
+      workspace: execution,
+      branch: "exec/story",
+      previouslyPublishedBase: trunkSha,
+      targetRef: trunkTarget,
+      validate: async () => ({ ok: true }),
+    }),
+    /rebase left the pre-rebase SHA as the candidate/,
+  );
+  assert.equal(await lsRemoteSha(origin, trunkTarget), advancedTip);
+  assert.equal(await revParse(execution, "exec/story"), candidate);
+});
+
 test("Trunk Mode increment replays a suffix changing only done records through the backlog adapter, publishing a current catalog", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);

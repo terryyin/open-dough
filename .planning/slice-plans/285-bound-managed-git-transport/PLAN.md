@@ -253,7 +253,7 @@ Learnings for slices 3–4:
 
 ### 3. A retried delivery recognizes a candidate the remote already accepted
 Type: Behavior
-Status: planned
+Status: done
 Proof: same file, example 3 as mapped: after the lost-answer stop, `deliver`
 again returns accepted with `reconciliations: 0`, no second receive-pack in
 the stand-in's log, the SHA registered to the live owner once, and
@@ -266,6 +266,20 @@ Behavior: the first fetch answers and the candidate (the validated candidate
 when supplied, else the branch tip) is already an ancestor of the fetched
 target → publication is accepted without reconciliation or push; the receipt
 is registered and the default checkout inspected as after a push.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-transport*.test.mjs`
+(example 3 in the `-push` file beside example 2);
+`execution-increment-publication.test.mjs` (direct already-published) and
+`execution-increment-publication-reconciliation.test.mjs` (a no-op rebase of an
+unpublished candidate still throws); every `*.test.mjs` under the four script
+directories green.
+
+Learnings for slice 4:
+- Recognition excludes an empty suffix (candidate equals the previously
+  published base): admitted completion publishes one to move onto current
+  trunk, and it still reconciles onto the fetched tip.
+- Recognition runs before `held(0)`, the order resume already uses.
+- `receivePacks(stall)` lives in the transport test fixtures.
 
 ### 4. Resume reports a stalled transport the same way
 Type: Behavior

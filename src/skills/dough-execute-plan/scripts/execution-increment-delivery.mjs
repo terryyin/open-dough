@@ -154,6 +154,10 @@ export async function deliverManagedExecutionIncrement(request) {
     ok: true,
     publication: "accepted",
     report: "accepted",
+    // A retry whose candidate the remote already held pushed nothing.
+    ...(published.classification && {
+      classification: published.classification,
+    }),
     receipt: published.receipt,
     preRebaseSha: published.preRebaseSha,
     remoteTip: published.remoteTip,

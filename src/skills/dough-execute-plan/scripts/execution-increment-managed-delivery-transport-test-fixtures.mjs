@@ -82,6 +82,10 @@ export function assertNoTransportTimeout(delivered) {
   assert.doesNotMatch(JSON.stringify(delivered), /transport-timeout/);
 }
 
+// How many pushes reached the remote, stalled or not.
+export const receivePacks = (stall) =>
+  stall.calls().filter(({ service }) => service === "receive-pack").length;
+
 export function assertCoveredOnce(delivered, sha) {
   assert.deepEqual(
     readRevisionCoverage(delivered.observation.directory).map(

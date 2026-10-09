@@ -1,5 +1,5 @@
-// Managed delivery over a stalled Git transport: a fetch or push that outlasts
-// the bound stops with a recoverable `transport-timeout` result naming the
+// Managed delivery over a stalled Git transport: a fetch that outlasts the
+// bound stops with a recoverable `transport-timeout` result naming the
 // stage, the workspace is left as it was, and the same `deliver` run again on
 // a responsive transport continues the ordinary sequence.
 import assert from "node:assert/strict";
@@ -10,6 +10,7 @@ import {
   assertNoTransportTimeout,
   assertTransportStop,
   boundMs,
+  receivePacks,
   stalledDeliveryFixture,
   timed,
   trunkTarget,
@@ -62,10 +63,7 @@ test("a stalled fetch stops before any push and the same deliver then publishes 
     await lsRemoteSha(fixture.origin, trunkTarget),
     fixture.candidateSha,
   );
-  assert.equal(
-    stall.calls().filter(({ service }) => service === "receive-pack").length,
-    1,
-  );
+  assert.equal(receivePacks(stall), 1);
   assertCoveredOnce(retried, fixture.candidateSha);
 });
 
@@ -112,47 +110,6 @@ test("the deliver command prints a stalled fetch's stop as JSON and exits 1", as
     await lsRemoteSha(fixture.origin, trunkTarget),
     fixture.candidateSha,
   );
-});
-
-test("a push stalled before acceptance stops with the push issued and the retry pushes once", async (t) => {
-  const { fixture, stall, deliver } = await stalledDeliveryFixture(t);
-  stall.stallBeforeAcceptance();
-  const before = await workspaceState(fixture.execution);
-
-  const { result: stoppedRun, elapsed } = await timed(() => deliver());
-
-  assertTransportStop(stoppedRun, elapsed, {
-    stage: "push",
-    pushIssued: true,
-    candidate: fixture.candidateSha,
-    preRebaseSha: fixture.candidateSha,
-    previouslyPublishedBase: fixture.trunkSha,
-    suffixBase: fixture.trunkSha,
-    remoteTip: fixture.trunkSha,
-    reconciliations: 0,
-  });
-  assert.equal(
-    await lsRemoteSha(fixture.origin, trunkTarget),
-    fixture.trunkSha,
-  );
-  assert.deepEqual(await workspaceState(fixture.execution), before);
-
-  stall.removeHooks();
-  const retried = await deliver();
-
-  assert.equal(retried.ok, true);
-  assert.equal(retried.publication, "accepted");
-  assert.equal(retried.receipt.sha, fixture.candidateSha);
-  assert.equal(retried.reconciliations, 0);
-  assert.equal(
-    await lsRemoteSha(fixture.origin, trunkTarget),
-    fixture.candidateSha,
-  );
-  assert.equal(
-    stall.calls().filter(({ service }) => service === "receive-pack").length,
-    2,
-  );
-  assertCoveredOnce(retried, fixture.candidateSha);
 });
 
 test("a fetch stalled after a rejected push stops with the rejected candidate and the retry reconciles", async (t) => {

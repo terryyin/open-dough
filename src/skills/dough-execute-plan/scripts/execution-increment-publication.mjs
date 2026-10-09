@@ -3,9 +3,11 @@
 // the authorized remote target, and how the accepted result is registered.
 // A previously published base that no fetched remote ref holds stops at once.
 // `onFetchedTarget` may stop on each fetched target tip before anything is
-// rewritten. When another writer advances the target, only that owned suffix
-// is reconciled; a changed candidate requires applicable proof before any
-// push. One reconciliation retry recovers a racing push; conflict or a second
+// rewritten. A candidate the fetched target already contains, as after a push
+// whose answer was lost, is accepted without reconciliation or push. When
+// another writer advances the target, only that owned suffix is reconciled; a
+// changed candidate requires applicable proof before any push. One
+// reconciliation retry recovers a racing push; conflict or a second
 // rejection preserves recoverable Git state. A fetch, push, or remote-tip read
 // that outlasts the transport bound stops with the attempt's facts and
 // rewrites nothing. Stash, checkout refresh, and observer startup stay with
@@ -25,6 +27,7 @@ import {
   revParse,
   tryPushExactRef,
 } from "./publication-git.mjs";
+import { isAncestor } from "./workspace-publication-ownership.mjs";
 
 export async function publishExecutionIncrement({
   workspace,
@@ -90,6 +93,29 @@ export async function publishExecutionIncrement({
   const readTip = (stage) =>
     transport(stage, () => lsRemoteSha(remote, targetRef, workspace));
 
+  // Registers the accepted candidate and inspects the default checkout.
+  const accept = async (acceptedTip, classification) => {
+    const receipt = { sha: candidate, target: targetRef };
+    register?.(receipt);
+    const maintenance = await inspectDefaultCheckoutMaintenance(
+      workspace,
+      defaultCheckout,
+      remote,
+      targetRef,
+    );
+    return {
+      ok: true,
+      publication: "accepted",
+      ...(classification && { classification }),
+      receipt,
+      preRebaseSha,
+      remoteTip: acceptedTip,
+      suffixBase,
+      reconciliations,
+      maintenance,
+    };
+  };
+
   const fetched = await fetchTarget("fetch");
   if (fetched.stop) return fetched.stop;
   // Commits under a base the remote does not hold are not this suffix: pushing
@@ -145,6 +171,17 @@ export async function publishExecutionIncrement({
     candidate = validatedCandidate;
   }
 
+  // As resume classifies it: the remote already holds this candidate, so this
+  // delivery only reports and registers that acceptance. An empty suffix has
+  // nothing to deliver and still moves onto the fetched tip below.
+  if (
+    remoteTip &&
+    candidate !== previouslyPublishedBase &&
+    (await isAncestor(workspace, candidate, remoteTip))
+  ) {
+    return accept(remoteTip, "already-published");
+  }
+
   const heldFirst = await held(0);
   if (heldFirst) return heldFirst;
   // Validated resume supplies previouslyPublishedBase as the tip the candidate
@@ -193,26 +230,8 @@ export async function publishExecutionIncrement({
   if (confirming.stop) return confirming.stop;
   const confirmed = await readTip("confirmation-tip");
   if (confirmed.stop) return confirmed.stop;
-  const acceptedTip = confirmed.value;
-  if (acceptedTip !== candidate) {
+  if (confirmed.value !== candidate) {
     throw new Error("remote did not accept the candidate");
   }
-  const receipt = { sha: candidate, target: targetRef };
-  register?.(receipt);
-  const maintenance = await inspectDefaultCheckoutMaintenance(
-    workspace,
-    defaultCheckout,
-    remote,
-    targetRef,
-  );
-  return {
-    ok: true,
-    publication: "accepted",
-    receipt,
-    preRebaseSha,
-    remoteTip: acceptedTip,
-    suffixBase,
-    reconciliations,
-    maintenance,
-  };
+  return accept(confirmed.value);
 }
