@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-123#dashboard-suite-stable-under-load",
+  "mode": "story-branch",
+  "branch": "claude/the-dashboard-playwright-suite-gives-the-same-re",
+  "host": "claude",
+  "model": "opus"
+}

@@ -15,12 +15,12 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep reported gaps owned through the story's remaining slices](seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned ([plan](slice-plans/283-keep-reported-gaps-owned/PLAN.md))
+- [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load ([plan](slice-plans/282-dashboard-suite-stable-under-load/PLAN.md))
 
 ## Backlog list
 
 - [Keep unchanged dashboard stories steady while story information reloads](seeds/SEED-126-steady-dashboard-refresh.md#steady-dashboard-refresh) — SEED-126#steady-dashboard-refresh
 - [Managed delivery stops a stalled Git transport with a recoverable result](seeds/SEED-008-worktree-branch-trunk-sync.md#bound-managed-git-transport) — SEED-008#bound-managed-git-transport
-- [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load
 - [Catch shared fixture signature breaks in the dashboard's local checks](seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally) — SEED-124#check-dashboard-fixture-consumers-locally
 - [Show Running Cursor sessions as a resizable sidebar section](seeds/SEED-122-running-cursor-sessions-sidebar-panel.md#running-cursor-sessions-sidebar-panel) — SEED-122#running-cursor-sessions-sidebar-panel
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
