@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 257. Removed local codes are never reused.
+- Highest allocated local number: 258. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -69,7 +69,7 @@ Former local code: DD-126.
 
 A required later-slice check recorded as a plan learning is omitted from that slice's delegation and acceptance.
 
-Follow-up: queued, not resolved: [Keep reported gaps owned through the story's remaining slices](https://github.com/terryyin/open-dough/blob/main/.planning/seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned.
+Follow-up: implemented, unreleased; release verification and watch pending: [Keep reported gaps owned through the story's remaining slices](https://github.com/terryyin/open-dough/blob/ac8bdb6ca16dd347189867ef1df60a2ccd078c93/.planning/seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned.
 
 Evidence and response: [ODF-156](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-156).
 
@@ -333,3 +333,20 @@ A CI repair fixes only the reported spec although a sibling written by the same 
 Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-221](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-221).
+
+## DD-258 — Native replay fixtures changed the retained acceptance checkpoint
+
+Slice 4's first receiving-slice and interim fixtures supplied a fresh acceptance
+checkpoint with absent product proof, rather than the historical retained
+acceptance. They also omitted later ownership and the dictation story's
+no-rejection constraint. Both native coordinators kept the gap open as a
+current-slice return, leaving the intended later-slice journeys unobserved.
+
+### Occurrences
+- Execution: `SEED-125#keep-reported-gaps-owned` / plan 283, first implementation `43ef3b9b`.
+  - Timestamp: unknown (2026-10-10, first native replay attempts, before slice 4 delivery).
+  - Tool: Codex coordinator; native Claude Code 2.1.296 / `claude-opus-5-5`.
+  - Open Dough release: modified; replay payload `ce0aaa3c`, base 0.3.57.
+  - Evidence: plan 283 slice 4 accepted proof and limits, recoverable at `5bd862746d2789e9c34d05276a507f908d141bc7:.planning/slice-plans/283-keep-reported-gaps-owned/PLAN.md`; initial native sessions `a9c48f45-a2f1-4d43-a226-a44e7dcc0a27` and `53ee6bf5-8400-4825-b8e1-65cfe4f47160`. Both recorded `return` and observed `open-obligation`; prompts supplied no expected disposition. Diagnosed fixture corrections preceded two fresh sessions with same-session dependent checkpoints. Spent artifacts were deleted after assessment under ADR 0005.
+  - Observed effect: two inconclusive paid calls (native CLI reported about $0.72 combined), fixture reconstruction and two replacement sessions; no product guidance change or false passing claim.
+  - Inference: qualified to this execution. Review a native fixture against the exact retained checkpoint, independently accepted proof, relevant whole-story constraints and ownership facts before launch. Distinguish archived text from replay construction; keep the expected record out of prompts.
