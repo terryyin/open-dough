@@ -87,7 +87,7 @@ Dispositions: `return`; `receiving slice <N>`; `interim until slices <N>, …`;
 - Established execution: Story Branch, this worktree, branch `codex/keep-reported-gaps-owned-through-the-story-s-rem`, publisher `dashboard-territory.local-open-dough`, agent `dbs-chan`.
   Claim `f3c18be67af7ae97f30df57c1e720e087ad2d30c` accepted on `origin/main`; starting revision `48ffeb9f0564382092b30b5caf3ac91f500b783f`. Checkout existed before this session.
   Integration checkout `/Users/terryyin/git/open-dough`; increments publish to this execution branch on `origin`. Planning authority permits within-story refinement; no numeric hard limit supplied.
-  Latest accepted increment before slice 2: `43ef3b9b304b2ffb7ac64238f8c7c6d46ca676a3`, same remote execution branch; managed delivery reused the observer below.
+  Latest accepted increment before slice 3: `9ab257c12fc4abfe0f8586fdbf00e5d53d5a3aaa`, same remote execution branch; managed delivery reused the observer below.
 - Setup passed here: official Node 24.21.0, locked npm/browser acquisition, `node scripts/setup-native.mjs check`, Chromium 153.0.8010.12.
   Inherited `NODE_ENV=production` initially omitted dev dependencies; acquisition succeeded with `NODE_ENV=development`.
   Command prefix: `PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH`.
@@ -178,7 +178,8 @@ refuses when the last slice an open interim names is marked done.
 
 ### 3. Execution guidance records gaps as obligations and runs the check
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `npm test -- src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh tests/install.sh tests/install-refuses-unsafe-topology.sh tests/story-payload-update.sh tests/execution-payload-update.sh tests/install-repeat-force-public-payload.sh tests/install-all-tools.sh tests/install-omits-internal.sh tests/update-adds-new-payload-skill.sh tests/update-refuses-unverifiable.sh tests/update-force-restores-latest.sh tests/update-removes-dropped-files.sh tests/update-skip-verified.sh tests/pin-and-inspect.sh` passed. Generic example adjustment rechecked guidance, links, public install, story and execution update checks. Reader/CLI assertions prove documented format and refusals; static tests prove boundary wiring only. Example 1 walkthrough reads actual seed, refuses plan-only exclusion and open return, requires corrected Holdings panel proof. Independent refactor: none, no rerun. Native follow-through remains slice 4.
 Proof: new `story-obligations-guidance.test.mjs` (documented entry example
 parses with the script reader; `delegation.md`, `wrap-up.md`, and
 `finish-or-stop.md` name the `list` and `check` steps at their points);
@@ -199,6 +200,7 @@ Behavior: The executing coordinator reads its guidance:
 - `oversized-slice.md` carries a quick attempt's reported gaps into the new
   plan.
 - `install.sh` declares `story-obligations.mjs`.
+The focused `story-obligations.md` reference owns the format/dispositions; it and `story-obligation-reader.mjs` are also declared. Planning links that home instead of duplicating it.
 Wording follows ADR 0006: no maintainer vocabulary.
 
 ### 4. A native host coordinator keeps the three replayed gaps owned (developer-run)
@@ -219,6 +221,13 @@ returned at slice 3. None is filed as a learning or accepted against the plan.
 This slice changes no product file unless it shows a guidance defect. In that
 case, the fix is recorded here and the replay of that example is repeated.
 
+## Story obligations
+
+### G1. Native coordinator follow-through remains unproved
+Reported: slice 3 — "Native coordinator follow-through remains unproved and belongs to developer-run slice 4; no paid host launch was started."
+Story clause: "The executing-host replay of those cases, observing the coordinator record and act on each obligation, is a manual, developer-run check because host runs cost money."
+Disposition: receiving slice 4
+
 ## Verification and sizing
 
 - Slices 1 and 2 are pure Node over text fixtures, each one proof loop well
@@ -235,11 +244,5 @@ case, the fix is recorded here and the replay of that example is repeated.
 
 ## Preparation review
 
-Refinement was not needed: each slice owns one proof loop. Slice 1 builds
-the reader and per-slice refusals, slice 2 adds the cross-slice listing and
-completion rules on the same reader, slice 3 wires guidance once the CLI
-contract exists, and slice 4 is the host evaluation the story requires. No
-slice prepares beyond its next Behavior, and the dispositions share one
-model, not per-case recognizers. No slice-specific concern remains. The one
-premise no free observation settles, actual host follow-through, is bounded
-by the developer-run slice 4 after the free proof.
+Each slice owns one proof loop on a shared disposition model; no refinement concern remained. Actual host follow-through is bounded by developer-run slice 4 after the free proof.
+CI run [37887952132](https://github.com/terryyin/open-dough/actions/runs/37887952132), attempt 1, on `9ab257c1` failed Cursor working-screen input and held-client shutdown assertions. Recovery paths are unchanged here; baseline run 37855736413 already failed working recovery, though its precise failure differed. Active harness writer `ruuf-chan`, SEED-123, independently has the same `endHeldClient:57` shutdown failure in run 37888054794. Preserve coordination; precise product-versus-harness causes/ownership remain unresolved. No dashboard repair or CI waiver was made.

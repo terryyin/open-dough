@@ -150,11 +150,14 @@ managed_files=(
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/runtime-setup.md
+  dough-execute-plan/references/story-obligations.md
   dough-execute-plan/references/trunk-publication.md
   dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
+  dough-execute-plan/scripts/story-obligation-reader.mjs
+  dough-execute-plan/scripts/story-obligations.mjs
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
