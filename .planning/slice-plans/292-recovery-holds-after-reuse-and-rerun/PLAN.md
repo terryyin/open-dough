@@ -23,6 +23,9 @@ beside any coverage gap, sibling observers untouched, existing CLI forms, and
 `ambiguous` meaning several live observers. No new record field, owner model,
 or CLI flag. Product changes stay in `src/skills/`.
 
+Decided by the developer on 2026-10-10: `request.json` keeps the `identity`
+field plan 291 added; slice 1 builds on it.
+
 ## Current findings
 
 Reviewed at `7e27929f`.
@@ -40,13 +43,6 @@ Reviewed at `7e27929f`.
 
 Outside this plan until decided; each names what the answer changes.
 
-- **The `identity` field.** Plan 291 said "No new owner model, schema, or CLI
-  flag"; slice 1 added `identity` to `request.json` because Git keeps no trace
-  of a removed worktree and `stop <directory>` is not told the retired path.
-  The independent review found no field-free rule that still refuses an
-  unrelated repository. Recommended: accept the field; slice 1 below builds on
-  it. Rejecting it removes slice 1 and returns `stop` to refusing a removed
-  worktree's observer.
 - **One ended covering observer beside a live one that does not cover.**
   `finish` selects the ended one, as before plan 291, and may retire on its
   receipt while the live observer runs to its budget. With several ended ones
@@ -56,8 +52,15 @@ Outside this plan until decided; each names what the answer changes.
   worktree is removed `stop` cannot reach them, as before, and a `finish`
   rerun no longer reaches them through the retired path. Recommended: no
   change, since such an observer ends within its eight-hour budget.
-- **Ambient `finish` rerun after retirement** and **native closure cases**,
-  carried unchanged from plan 291.
+- **Ambient `finish` rerun after retirement.** Such a rerun with no covering
+  observer registers on, completes, and stops the caller's one live observer
+  of the target, as it already did while the worktree existed. Recommended:
+  keep it, since that observer is this coordinator's own, and pin it with a
+  test.
+- **Native closure cases.** On Claude Code and Cursor they prove only that
+  `finish` establishes its own observer, and the assessor has no signal for
+  an absent `--session-json` or for `notifies`. Recommended: add those two
+  assessor signals when the next paid run is authorized.
 
 ## Observed premises
 
@@ -139,15 +142,40 @@ formatting and delivery. Paid native runs are manual only.
 
 ## Pending native evidence
 
-Carried from plan 291 under ADR 0005, unchanged, with one addition: the
-fixture stop in `tests/support/native-harness-observation.sh` now reads the
-recorded identity, and that file is hashed into the story-branch-closure
-evidence identity as well as the trunk-closure and git-publication ones. No
-native run exists for any of these; each run is paid and needs the
-developer's authorization.
+Carried from the delivered ownership story and its corrections under ADR 0005.
+No native run exists for any of these; substitute and replay results are not
+native acceptance, and each run is paid and needs the developer's
+authorization.
+
+- Cursor and Claude Code: concurrent `deliver`, repair, and completion with the
+  ambient session identity; `resume` and `finish` with ambient identity or
+  `--session-json`.
+- Codex: arm the documented cell with `COORDINATOR` set, confirm
+  `<directory>/owner` after the first yielded output, run `deliver` with
+  `--coordinator` and `--observer-directory`, and expect
+  `observation.state: "reused"` on that directory; repeat with a second
+  coordinator's stream live on the same target. Then `resume` and `finish` with
+  the same inputs.
+- Claude Code subagent coordinator: whether its Bash tool carries its parent's
+  `CLAUDE_CODE_SESSION_ID` and whether it can state its own `agent_id` are
+  unobserved. On the developer's decision of 2026-10-10 the guidance and
+  receipt state only that the variable names the session alone and that an
+  observer claimed with an `agent_id` is named by `--session-json` with both.
+- Trunk-closure harness, every case
+  `tests/git-publication-native.sh --native HOST --case trunk-closure/...`
+  after its arming change: on Claude Code and Cursor one `finish` without
+  `--session-json` whose receipt's `notifies` names the tool's variable; on
+  Codex one `finish` carrying the note's coordinator and stream directory with
+  `observation.state: "reused"`. `tests/native-publication.md` records the
+  commands.
+- Retained trunk-closure and git-publication evidence identities changed with
+  the hashed modules.
+- The fixture stop in `tests/support/native-harness-observation.sh` reads the
+  recorded identity; that file is hashed into the story-branch-closure
+  evidence identity as well as the trunk-closure and git-publication ones.
 
 ## Sequence review and sizing
 
 No slice target or limit was supplied. Each slice owns one outcome with its
-proof. Slice 1 depends on the developer's first decision above; slices 2 and 3
-do not.
+proof. No concern remains inside this plan; the developer decisions above stay
+outside it.

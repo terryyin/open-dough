@@ -52,7 +52,7 @@ recovery-edges correction left; it adds no feature promise.
 
 **Identity:** SEED-121#recovery-holds-after-reuse-and-rerun
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md","assessment":"not-ready","reasons":["Slice 1 builds on the identity field in request.json, which plan 291 added against its own boundary; the developer has not accepted it"],"basis":{"document":"6741898d54f51258fa8946c39d3d86698e36b6ab0814592288fb982121586410","plan":"5f61825a60d5f32b67ba347f60974091eef3354a140d0298dec43f5ae89285e5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5d2cac935977cff87e667072c36d6bb8dae8b2ff5611c7b162fede08c25590e9","plan":"cebb64a26820c321211ceddfc5b06b6e5c93db09b74a70ae1203956352c4f43f"}}
 ```
 **Slice plan:** [Recovery holds after a path is reused and after finish reruns](../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md).
 
@@ -70,7 +70,7 @@ recovery-steps correction left; it adds no feature promise.
   final closure, one of which completed it, repeats completion on that one.
 - The guidance rows and tests the recovery-steps correction left inexact or
   tied to wording.
-- Excluded: whether `request.json` keeps the `identity` field, which observer
+- Excluded: which observer
   `finish` prefers when one ended observer covers the closure beside a live
   one that does not, which observer an ambient-identity `finish` rerun may use
   after retirement, and what the native closure cases assert. Each waits for a
