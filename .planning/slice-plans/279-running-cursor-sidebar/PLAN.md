@@ -203,6 +203,11 @@ spacing sits on the header's margin, not a row gap. The 8rem floor and equal
 share held at 1440×900. Use `expectNoSidewaysScrollAndWholeText` (not
 `expectNoSidewaysScrollIn`) on the sidebar. Shared fixtures live in
 `runningCursorSessionsPage.ts`; crowded held rows need UUID `sessionId`s.
+CI repair (run 38010086816, `dashboard (3/9)`): `published-work.spec.ts`'s
+no-live-claim check reads the whole body's text, hidden sidebar included;
+moving the section header below the list exposed “Running” at a word boundary.
+The check now sets the Sessions sidebar's text aside as it does Recently done.
+Consumer searches for sidebar changes must include whole-body text checks.
 Proof: Add `cursor-sidebar-panels.spec.ts` and a focused feedback-transition
 case to the existing runner proof. Run the runner and complete sidebar suites,
 the two progressive Cursor consumers, and the frame/paging/header consumers

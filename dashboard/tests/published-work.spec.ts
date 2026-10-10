@@ -165,12 +165,17 @@ test("published overview shows Backlog and Taken work read at one revision", asy
 
   await test.step("membership makes no live or completion claim", async () => {
     await expectOwnersNotRecorded(page);
-    // Only the Recently done column, which names finished work, may say done.
+    // Only the Recently done column, which names finished work, may say done,
+    // and only the Sessions sidebar, which names this machine's local
+    // sessions, may say running.
     await expect
       .poll(async () => {
         const column = await parts(page).recentlyDone.textContent();
+        const sidebar = await page.locator("#session-sidebar").textContent();
         const body = await page.locator("body").textContent();
-        return (body ?? "").replace(column ?? "", "");
+        return (body ?? "")
+          .replace(column ?? "", "")
+          .replace(sidebar ?? "", "");
       })
       .not.toMatch(claimsBeyondMembership);
     await expect(page.getByRole("alert")).toHaveCount(0);
