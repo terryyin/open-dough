@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 265. Removed local codes are never reused.
+- Highest allocated local number: 266. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -120,6 +120,13 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Model: `claude-opus-5-5`.
   - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
   - Evidence: CI repair `f64da99b` changed nine lines of one spec (`published-work.spec.ts`); its delegated refactor pass reported no edits (about 48.6k subagent tokens, 38 s). The second repair's pass (`722a7b36`) did find and remove a duplication, so the pass is not always empty on a small repair.
+  - Observed effect: one full refactor delegation with no change.
+- Execution: `SEED-128#continue-refinement-to-slice-planning` / plan 287, first implementation `a0d57653`.
+  - Timestamp: 2026-10-10T17:31:56+09:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `91d8439e`; base 0.3.57
+  - Evidence: slice 2 (`909da1ef`) changed six lines of ADR 0007 that no test reads; its delegated refactor pass reported `none — already clean` (about 50k subagent tokens, 29 s). The same execution's slice 1 pass did find a 250-line file-size breach and duplicated rule text, so the pass earned its cost there.
   - Observed effect: one full refactor delegation with no change.
 
 
@@ -563,3 +570,21 @@ outcome and acceptance from the checkout.
     interrupted Task as incomplete until the coordinator re-establishes proof
     from the checkout; do not assume the agent return will arrive.
 
+
+## DD-266 — A plan offered a temporary `node_modules` link for proof although execution setup forbids linked installs
+
+A slice plan prepared in a worktree whose Node did not match `.node-version`
+recorded a temporary `node_modules` symlink to the integration checkout as an
+accepted way to run its dashboard proof. Execution location requires the
+project's locked install in the selected checkout and rules out a copied or
+linked installation, so execution had to obtain the selected Node first.
+
+### Occurrences
+- Execution: SEED-128#continue-refinement-to-slice-planning (plan 287, first implementation commit a0d57653)
+  - Timestamp: 2026-10-10T17:31:56+09:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `91d8439e`; base 0.3.57
+  - Evidence: plan 287 "Published baseline and integration context" and its last Current decision (`91d8439e:.planning/slice-plans/287-continue-refinement-into-slice-planning/PLAN.md`); `dough-execute-plan/references/execution-location.md` ("Do not copy or symlink mutable installation from another checkout"); the machine had Node 24.5.0 against `.node-version` 24.21.0 and no version manager.
+  - Observed effect: the coordinator downloaded the official Node 24.21.0 archive into a job temporary directory, verified its checksum, and ran `setup-native.mjs npm`, `browser`, and `check` in the worktree before delegating; every delegated command needed that `PATH` prefix.
+  - Inference: preparation had observed its premise through the link, so the conflict with execution setup was not visible when the plan was assessed ready. The selected Node is absent machine-wide, so each new session repeats the download unless it is installed durably.

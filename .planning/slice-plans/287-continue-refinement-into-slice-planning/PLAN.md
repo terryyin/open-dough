@@ -261,6 +261,13 @@ preparation journey reference; the mermaid edge `B --> P` carries the
 condition; the "Revised" line is updated. No index change in
 `docs/adrs/README.md`.
 
+## Execution complete
+
+Product advice: no backlog change. The two sibling stories in SEED-128 keep
+their order; the landing sibling extends `preparation-journey.md` and must
+shorten or split `dough-slice-planning/SKILL.md` (at its 250-line limit) to
+add to it.
+
 ## Current decisions
 
 - The refine-only flag is an ordinary entry in `options`, not a new category:
