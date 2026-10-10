@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-121_recovery-steps-reach-their-observer.json",
+      "identity": "SEED-121#recovery-steps-reach-their-observer",
+      "completedAt": "2026-10-10T12:04:28.479Z",
+      "blob": "178f1483cff7ca813b78eb43c66ffd67a138d70c"
+    },
+    {
       "fileName": "SEED-121_settle-observer-owner-edges.json",
       "identity": "SEED-121#settle-observer-owner-edges",
       "completedAt": "2026-10-10T10:45:51.891Z",

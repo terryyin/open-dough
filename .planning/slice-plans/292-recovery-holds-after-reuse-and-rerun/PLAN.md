@@ -5,9 +5,9 @@
 written by the execution retrospective of plan 291 on 2026-10-10.
 **Provenance:** SEED-121#recovery-steps-reach-their-observer, whose story and
 plan are at
-`7e27929ff5d147631bb1c3ed4d6a576070caa457:.planning/seeds/SEED-121-execution-observer-ownership.md`
+`481f15a3a4e41f55e2915590320b549a754237ca:.planning/seeds/SEED-121-execution-observer-ownership.md`
 (anchor `recovery-steps-reach-their-observer`) and
-`7e27929ff5d147631bb1c3ed4d6a576070caa457:.planning/slice-plans/291-recovery-steps-reach-their-observer/PLAN.md`;
+`481f15a3a4e41f55e2915590320b549a754237ca:.planning/slice-plans/291-recovery-steps-reach-their-observer/PLAN.md`;
 reviewed commits `f8baebc9`, `85c8fb51`, `7e27929f` on
 `origin/claude/recovery-steps-reach-the-observer-they-name` after claim
 `48ec2ca9`. Planning only; this plan grants no Take, execution, or
