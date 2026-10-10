@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "steven-chan",
-  "email": "steven-chan@example.org",
-  "identity": "SEED-123#dashboard-suite-passes-loaded-acceptance",
-  "mode": "story-branch",
-  "branch": "claude/the-full-dashboard-suite-passes-three-consecutiv",
-  "host": "claude"
-}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-123_dashboard-suite-passes-loaded-acceptance.json",
+      "identity": "SEED-123#dashboard-suite-passes-loaded-acceptance",
+      "completedAt": "2026-10-10T21:38:19.872Z",
+      "blob": "e1b47fbe7d325d0e6f9fc3b12e69de38b4fe5cb6"
+    },
+    {
       "fileName": "SEED-128_continue-refinement-to-slice-planning.json",
       "identity": "SEED-128#continue-refinement-to-slice-planning",
       "completedAt": "2026-10-10T08:54:08.087Z",
