@@ -23,34 +23,109 @@ without piecing together individual commits or session outputs.
 
 **Identity:** SEED-088#review-trunk-mode-story-worktree
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
 **Goal:** A developer on the machine where a Trunk Mode story's agent works
 can open the story review on that agent's worktree, although no dashboard
 launch started it, so they can check its unpublished and uncommitted work in
-progress.
+progress as they would a launched story's.
 
-**Scope:** The dashboard starts executions only in Story Branch Mode
-(`mode: "story-branch"` in `dashboard/server/executionStart.ts` and the launch
-record schema), and the review reads only a kept launch record's workspace
-(`reviewWorkspaceOf`), so a story started with `--trunk` in a terminal offers
-no Review changes. Once its worktree is named, the existing
-[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md) is expected to serve it
-unchanged: the local branch sits on trunk after each publication, so All
-changes is the unpublished commits plus the uncommitted files, and Uncommitted
-changes in [Commits](../../dashboard/STORY-REVIEW-COMMITS.md) is the
-uncommitted files alone. That expectation is a hypothesis; no Trunk Mode
-worktree was available to observe. The direction to refine: resolve the
-worktree from local Git, matching the agent the story's trunk profile names
-with the worktree whose per-worktree author config names that agent
-(`workspace-agent-authorship.mjs`), since a Trunk Mode launch from the
-dashboard would not cover stories started in a terminal. The Proposed
+**Scope:** Builds on the [story review](../../dashboard/AGENT-LAUNCH-REVIEW.md),
+which today offers Review changes only from a kept launch record's workspace
+(`reviewWorkspaceOf`), and on the dashboard's local view of the project (its
+Local path, [project configuration](../../dashboard/PROJECT-CONFIGURATION.md)).
+The user is the developer at the dashboard on the machine that holds the
+project's checkout, whose agent took the story with `--trunk` in a terminal:
+the dashboard starts no Trunk Mode execution, so this machine keeps no launch
+record for it, while the published Taken profile names the agent and records
+Trunk Mode ([assignments](../../dashboard/AGENT-ASSIGNMENTS.md)). Terry's
+direction (2026-10-10): resolve the worktree from local Git by the agent's
+per-worktree authorship (`workspace-agent-authorship.mjs`), which every owned
+execution or preparation worktree configures.
+
+Required:
+
+- A Taken card without a launch workspace on this machine offers Review
+  changes when the project's local checkout lists a linked worktree whose
+  per-worktree author config names the card's agent and that holds this
+  story's claim. A worktree the same agent name left from an earlier story is
+  not mistaken for this one. When this machine still cannot tell which of
+  several worktrees is the story's, Review changes opens a review that says so
+  and names them, listing no files, rather than guessing.
+- The review opened there is the existing review, unchanged in what it shows
+  and does: its snapshot, file diffs, Commits ranges, Refresh, Mark reviewed and
+  Since the review all read the one resolved worktree, and the context line
+  names its branch and worktree as it does for a launched workspace. The
+  baseline is the merge-base of the worktree's head and freshly fetched
+  `<remote>/<target>`. A Trunk Mode head sits on trunk after each publication,
+  so All changes is the unpublished commits plus the uncommitted files, Commits
+  lists the unpublished commits with Uncommitted changes above them, and the
+  Uncommitted changes item alone is the uncommitted files.
+- A story with a kept launch record naming a workspace keeps reading it as
+  today; the local match serves stories without one.
+- Without such a worktree on this machine, another machine's dashboard or one
+  where the worktree is already retired, the card offers no Review changes, as
+  a never-launched story offers none today, and its published progress and
+  Inspect story detail stay as they are.
+
+Deferred, not built or verified here:
+
+- Reviewing only the story's own changes once they reached trunk, the
+  [sibling story](#review-trunk-mode-story-changes); this story names the
+  worktree that sibling also needs.
+- Starting a Trunk Mode execution from the dashboard.
+- A worktree that is not a linked worktree of the project's local checkout,
+  such as one in a separate clone.
+- A Story Branch Mode story taken in a terminal: the match reads no mode, so
+  such a story is served the same way; this story verifies Trunk Mode only.
+
+**Key examples:**
+
+- Yui-chan holds `SEED-X#story` in Trunk Mode; the project's checkout lists
+  `.worktrees/story` authored by Yui-chan, its head one commit past
+  `origin/main` with an untracked `notes.md`; this machine has no launch record
+  for the story → the Taken card offers Review changes → the review opens on
+  All changes listing the commit's files and `notes.md`; Commits lists
+  Uncommitted changes above the one commit; the context line names
+  `exec/story` and `.worktrees/story`.
+- The agent publishes that commit, so the head equals `origin/main`, and
+  `notes.md` is still untracked → Refresh → All changes lists `notes.md`
+  alone, and Commits offers Uncommitted changes with no commit beneath it.
+- The developer activates Mark reviewed, the agent then edits `a.ts` → Refresh
+  → Since the review lists `a.ts`, as for a launched workspace.
+- The same story seen from another developer's machine, whose checkout lists no
+  worktree authored by Yui-chan → the Taken card shows Yui-chan · Trunk Mode on
+  Inspect story and no Review changes.
+- The checkout also lists a worktree Yui-chan authored for a story closed last
+  week, still on that story's claim → the review reads `.worktrees/story`
+  alone.
+- Two worktrees authored by Yui-chan both hold this story's claim → Review
+  changes opens a review saying which worktrees qualify and that it cannot
+  choose; no files are listed and nothing is marked.
+- A story launched from the dashboard in Story Branch Mode whose agent also
+  appears in author config → the review keeps reading the launch record's
+  workspace.
+
+**UI:** Nothing new on the card: Review changes appears where it does for a
+launched story, and its review is the same panel. The ambiguous case is one
+explanation in the review's feedback region naming the worktrees, in the
+place an unreadable trunk is explained today.
+
+**Architecture:** The dashboard gains one more machine-local reading beside
+its kept launch records: the project's local checkout's worktree list and each
+worktree's per-worktree author config, which the Proposed
 [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
-keeps worktree locations in machine-local evidence and the Proposed
-[ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md) describes
-Trunk Mode's local branch; neither binds. Naming the worktree is also the
-first need of [reviewing only the story's own changes](#review-trunk-mode-story-changes).
+places in the local operational view, never on origin. The resolution is one
+shared rule on the local boundary, where the launch-record rule lives, so the
+snapshot, file, range and mark requests all read the same worktree, and the
+page learns a story's reviewable workspace from that boundary rather than from
+kept launch records alone. Set aside: recording the worktree path in the
+published profile (a machine path on origin, against that placement);
+matching by the profile's branch, since a Trunk Mode profile records the
+remote trunk (`origin/main`), not the local execution branch (observed
+2026-10-11 on a fixture claim); and writing a launch record by hand for a
+terminal start. No Accepted ADR applies.
 
 <a id="review-trunk-mode-story-changes"></a>
 
@@ -157,3 +232,12 @@ assertions go.
   by default. Set aside: making the check the snapshot's extent, which would
   allow marking committed work alone but would show a mark's uncommitted work
   as removed in Since the review while the check is off.
+- 2026-10-11 refinement of the Trunk Mode worktree story: a fixture Trunk
+  Mode claim showed the owned worktree listed by `git worktree list` from the
+  integration checkout with its local execution branch, its per-worktree
+  `author.name` set to the agent, its profile's `branch` recording
+  `origin/main`, and its head equal to `origin/main` right after
+  publication, so the merge-base baseline leaves only unpublished commits and
+  uncommitted files in All changes. Chosen: resolve the worktree on the local
+  boundary by agent authorship and the story's claim, offer Review changes only
+  where a worktree is found, and explain rather than guess between several.
