@@ -145,7 +145,7 @@ wall time under load showed no reliable difference.
 ### G1. Observers armed before the change stay unreachable after removal
 Reported: slice 1 — "Observers armed before this change carry no `identity` and behave as before (unreachable after their worktree is removed)."
 Story clause: "the stop command reaches an observer armed from a worktree that is now gone"
-Disposition: no user cost "A coordinator that follows a coverage gap's recovery step can carry it out": such an observer was armed by a runtime older than this correction and ends within its eight-hour budget; every observer armed after delivery records the identity.
+Disposition: no user cost "A coordinator that follows a coverage gap's recovery step can carry it out": such an observer was armed by a runtime older than this correction and ends within its eight-hour budget; every observer armed after delivery records the identity. The retrospective found the report inexact: a `finish` rerun reached such an observer through the retired path before this slice and no longer does, within the same budget.
 
 ### G2. Only stop is proven through the CLI on a removed worktree
 Reported: slice 1 — "Only `stop` is proven through the CLI on a removed worktree's observer. `register-push`, `acknowledge`, `await-revision` and `complete-revision` share the same `readMailbox` rule but have no removed-worktree case of their own."
@@ -166,6 +166,14 @@ Disposition: proved by slice 2: `execution-increment-observation-gaps.test.mjs`,
 Reported: slice 3 — "Cursor armed from the default checkout no longer has an end-to-end case."
 Story clause: "The closure rerun proofs keep one host for rules that do not differ by host."
 Disposition: proved by slice 3: `trunk-closure-owner.test.mjs` keeps the Cursor session field in its execution-worktree rerun and the default-checkout arming in the Claude Code rerun; the arming checkout reaches product code only through `checkoutIdentity`, which reads no host.
+
+## Execution complete
+
+Product advice: no backlog change. The retrospective wrote one follow-up
+correction, [SEED-121#recovery-holds-after-reuse-and-rerun](../292-recovery-holds-after-reuse-and-rerun/PLAN.md),
+unqueued. Decide first whether `request.json` keeps the `identity` field this
+execution added against "No new owner model, schema, or CLI flag"; the
+follow-up's first slice builds on it.
 
 ## Verification and gates
 

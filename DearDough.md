@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 270. Removed local codes are never reused.
+- Highest allocated local number: 272. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -135,6 +135,13 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
   - Evidence: slice 2 (`56203263`) changed one fixture value in one spec and slice 3 (`2f070f91`) two lines of a test-support close; both delegated refactor passes reported `none — already clean` (about 50k and 59k subagent tokens, 33 s and 37 s). Slice 1's pass (`f365eb2b`) renamed the gate and extracted a duplicated spec fixture, so it earned its cost.
   - Observed effect: two full refactor delegations with no change.
+- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
+  - Timestamp: unknown (2026-10-10, between 20:02 and 20:44 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
+  - Evidence: slice 3 (`7e27929f`) changed nine lines of one test file; its delegated refactor pass reported `none — already clean` (about 55k subagent tokens, 34 s). Slice 1's pass extracted a fixture three tests share and split an oversized test file, and slice 2's removed test-only exports, so both earned their cost.
+  - Observed effect: one full refactor delegation with no change.
 
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
@@ -681,3 +688,40 @@ the wording.
   - Evidence: `fc795844` adds to `trunk-publication.md` and `ci-notify-hosts.md` that a Claude Code subagent coordinator's "Bash tool carries its parent's `CLAUDE_CODE_SESSION_ID`" and that it passes "its own `agent_id`"; `execution-increment-managed-delivery-recipient.test.mjs` sets both itself. The implementation return listed both as "not observable without a native run". The coordinator accepted the slice and added a pending-native-evidence line to plan 288 (`2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`). The independent product review raised it as its first finding, with `docs/maintainer/finding-names.md` recording a Cursor coordinator that could not read its own `conversation_id`. The premise entered as plan 288's fourth finding, marked observed by read-only review.
   - Observed effect: unobserved host behavior is published as fact; a subagent that cannot read its `agent_id` has no taught way to follow the step. On the developer's instruction the wording was reduced to observed facts in `80ab062f`.
   - Inference: qualified. ADR 0005's pending-evidence list covered acceptance of the tests but not the wording of what was published.
+
+## DD-271 — A plan's boundary ruled out the only fact its slice could use, and its premise was observed with an input the command never receives
+
+A correction plan forbade a new schema and told its slice to replace a list of
+access roots with one rule. Its premise showed a removed worktree's mailbox
+readable "through the list `[removed path, <repo>/.git]`", but the command the
+slice had to fix is given only the mailbox directory, and Git keeps no trace
+of a removed worktree. May be the same problem as ODF-110 (a premise observed
+short of the promised journey); recorded separately because here the boundary,
+not only the premise, was what execution could not satisfy.
+
+### Occurrences
+- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
+  - Timestamp: unknown (2026-10-10, slice 1 return, between 20:02 +09:00 and `f8baebc9`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
+  - Evidence: plan 291 "Goal and boundaries" ("No new owner model, schema, or CLI flag") and its first Observed premise (`48ec2ca9:.planning/slice-plans/291-recovery-steps-reach-their-observer/PLAN.md`); `f8baebc9` adds `identity` to `request.json` in `ci-mailbox-location.mjs`; the implementation return opened with "One design choice needs your acceptance" and named the replan alternative; plan 291 slice 1 Learning.
+  - Observed effect: the background coordinator read "schema" as the owner model and CLI, accepted the field without the developer, and recorded the reading in the plan; the retrospective's independent review called it literal drift with no field-free alternative and left acceptance to the developer.
+  - Inference: qualified. Observing the premise through the installed `stop` from the default checkout would have shown at planning that the command lacks the removed path. The stop-for-human-judgment rule lists "structure constraining later work" but a background session weighs a stop against an unattended wait, and nothing told it which side a disputed boundary word falls on.
+
+## DD-272 — A correction's journey test stopped at the first successful rerun, and the slice's own promise failed one rerun later
+
+A slice promised that `finish` settles after several ended observers. Its
+journey proved the gap, the next `deliver`, and one successful rerun with
+retirement. The rerun the guidance promises after retirement was not run, and
+the selection the slice had just changed refuses it.
+
+### Occurrences
+- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
+  - Timestamp: unknown (2026-10-10, slice 2 acceptance before `85c8fb51`; found by the retrospective about 21:00 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
+  - Evidence: `85c8fb51` `trunk-closure-observer.mjs` `ownedObservers.select` (an ended covering observer is selected only when it is the one covering observer); `trunk-closure-owner-gaps.test.mjs` journey ends at `cleanup.worktree: "removed"`; `wrap-up-closure-publication.md` "repeats completion on this coordinator's observer that covers it"; a scratch copy of the journey with one more installed `finish` from the management context returned `step: "observation"`, `ownership: "ended"`, "3 of its observers each registered this revision and none is live". The same review found the access rule of slice 1 refused again once the removed path was recreated.
+  - Observed effect: both behavior slices were accepted and published with an adjacent state of the same rule unproved; follow-up plan 292 was written. The coordinator's acceptance listed the candidate-order cases by reading and did not run the state the journey leaves behind.
+  - Inference: the independent outcome review, given the code and questions instead of the coordinator's conclusions, found both by probing; acceptance inspected the proof named for the promise and not what the changed rule does to states the same journey produces.

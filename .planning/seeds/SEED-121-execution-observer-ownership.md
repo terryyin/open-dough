@@ -46,6 +46,36 @@ recovery-edges correction left; it adds no feature promise.
   retirement, and what the native closure cases assert. Each waits for a
   developer decision recorded in the plan.
 
+<a id="recovery-holds-after-reuse-and-rerun"></a>
+
+### Recovery holds after a path is reused and after finish reruns
+
+**Identity:** SEED-121#recovery-holds-after-reuse-and-rerun
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md","assessment":"not-ready","reasons":["Slice 1 builds on the identity field in request.json, which plan 291 added against its own boundary; the developer has not accepted it"],"basis":{"document":"6741898d54f51258fa8946c39d3d86698e36b6ab0814592288fb982121586410","plan":"5f61825a60d5f32b67ba347f60974091eef3354a140d0298dec43f5ae89285e5"}}
+```
+**Slice plan:** [Recovery holds after a path is reused and after finish reruns](../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md).
+
+**Goal:** A coordinator recovering an ended observer keeps reaching it when
+the removed worktree's path exists again, and a `finish` rerun settles on the
+observer that already completed the final closure. This corrects residue the
+recovery-steps correction left; it adds no feature promise.
+
+**Scope:**
+
+- A mailbox that recorded its arming identity is read by that identity
+  whatever its recorded path has become, and a different repository at that
+  path is refused.
+- A `finish` rerun whose coordinator holds several ended observers of the
+  final closure, one of which completed it, repeats completion on that one.
+- The guidance rows and tests the recovery-steps correction left inexact or
+  tied to wording.
+- Excluded: whether `request.json` keeps the `identity` field, which observer
+  `finish` prefers when one ended observer covers the closure beside a live
+  one that does not, which observer an ambient-identity `finish` rerun may use
+  after retirement, and what the native closure cases assert. Each waits for a
+  developer decision recorded in the plan.
+
 ## Breadcrumbs
 
 - Terry's reported misregistration and explicit request to queue confirmed
