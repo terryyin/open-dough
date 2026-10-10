@@ -15,10 +15,10 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Continue completed refinement into slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#continue-refinement-to-slice-planning) — SEED-128#continue-refinement-to-slice-planning ([plan](slice-plans/287-continue-refinement-into-slice-planning/PLAN.md))
+- [Settle observer ownership at its recovery edges](seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges) — SEED-121#settle-observer-owner-edges ([plan](slice-plans/288-observer-owner-edges/PLAN.md))
 
 ## Backlog list
 
-- [Settle observer ownership at its recovery edges](seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges) — SEED-121#settle-observer-owner-edges
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance
 - [Recently done waits for an added project's sessions](seeds/SEED-123-dashboard-suite-stable-under-load.md#recently-done-waits-for-added-project-sessions) — SEED-123#recently-done-waits-for-added-project-sessions
 - [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions
