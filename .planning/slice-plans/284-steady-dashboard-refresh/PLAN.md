@@ -262,7 +262,7 @@ B; the story requires that carried facts not outlive the attempt.
 
 ### 4. A carried part gives way to the gap when its read is given up
 Type: Behavior
-Status: planned
+Status: done
 Proof: `steady-refresh.spec.ts` last test: queue story's record held at B;
 `page.clock.runFor(30_000)`; the card showed A's facts until then, then
 shows the preparation gap text, and the problem says the read was given up
@@ -271,6 +271,26 @@ after reading the published work at B.
 Behavior: A carried part's read at B is still unanswered when the wait bound
 ends → the part shows today's gap presentation and the existing notice and
 recovery schedule apply; nothing of A is shown for that part afterwards.
+
+Accepted proof: `steady-refresh-bound.spec.ts` — "a story's shown facts
+give way to the gap when the read of its record at B is given up" (proof
+only: passed before any change; seen failing when the carry was made to
+replace gaps), and "…when a hidden page lets go of its recovery read of B"
+(failed before the change: the card kept "as published at A" under B).
+Consumers green: steady-refresh*, published-facts-*, transient-*,
+auto-refresh*, read-failure, recently-done-progressive*, limit-recovery;
+full dashboard suite passed locally.
+
+Learnings: detail readers turn their own errors into gaps, so a details read
+rejects after membership only on an unexpected error, which no fixture
+triggers; a hidden page letting go of a recovery read was the reproducible
+way a carried fact outlived its read. `PublishedWorkProgress` now delivers
+each snapshot with and without carried facts; `carryOutRead` shows the
+answered-only snapshot when a read fails or is let go of, and the final
+snapshot is never carried. After a let-go the revealed page shows "Reading …"
+for unanswered parts while its re-read runs, as before the carry.
+`recently-done-progressive-failed-read-refresh.spec.ts:120` failed once
+under load and passed 8/8 alone.
 
 ## Verification and sizing
 

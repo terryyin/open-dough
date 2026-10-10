@@ -4,8 +4,9 @@
 // it (`./publishedWorkDetails.ts` applies this to every snapshot the read
 // shows). Membership and order are always the new revision's. Only a part
 // still loading takes a carried fact; an answered part, a part recorded as
-// absent, and a gap are never replaced. Every reader settles its part by the
-// read's wait bound, so nothing carried outlives the read.
+// absent, and a gap are never replaced. Nothing carried outlives the read:
+// the snapshot a read lands with, and the one a read that fails or is let go
+// of leaves shown (`./requestedRead.ts`), hold only what the read answered.
 
 import type { AgentAssignment, EntryAssignments } from "./agentAssignments.ts";
 import type { AgentRoster } from "./assignmentRoster.ts";

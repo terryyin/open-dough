@@ -83,7 +83,10 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   // The snapshot shown, for a read of moved branches' progress to start from.
   const shownWork = useRef<PublishedWork | undefined>(undefined);
   shownWork.current = retrieval.work;
+  // Letting go of the current read leaves shown only what it answered.
+  const letGoOfRead = useRef<() => void>(() => {});
   const onRecoveryReleased = useCallback(() => {
+    letGoOfRead.current();
     setReadSettled(true);
     cancelReading();
   }, [cancelReading]);
@@ -96,7 +99,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     const unbind = bindRead(reading);
     const limitMet = limitsMetSince();
     const askedAsOf = visibilityChanges();
-    carryOutRead(
+    letGoOfRead.current = carryOutRead(
       readRequest,
       source,
       shownWork.current,

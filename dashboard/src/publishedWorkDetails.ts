@@ -42,7 +42,7 @@ export async function readPublishedDetails(
     sameRevision && work.done !== undefined && work.done.status !== "loading"
       ? work.done
       : { status: "loading" };
-  const assembled = (): PublishedWork => {
+  const answered = (): PublishedWork => {
     // Trunk's plan facts do not establish a Taken entry's progress until
     // its profiles can say where that progress is published.
     const current = progress ?? {
@@ -57,14 +57,14 @@ export async function readPublishedDetails(
       credited === undefined ? current : withAssignments(current, credited);
     // Owners from `credited` can heal before `progress` is rewritten; keep
     // trunk-copy labels aligned (or cleared) with the owners now shown.
-    return withCarriedFacts(
-      { ...withKnownProgressSources(withOwners), done },
-      carriedFrom,
-    );
+    return { ...withKnownProgressSources(withOwners), done };
+  };
+  const shownWith = (read: PublishedWork) => {
+    onPartial?.(withCarriedFacts(read, carriedFrom), read);
   };
   const show = () => {
     if (!signal.aborted) {
-      onPartial?.(assembled());
+      shownWith(answered());
     }
   };
   // Establish the pending observation before any detail can answer.
@@ -180,10 +180,11 @@ export async function readPublishedDetails(
   try {
     const [, , snapshotUnread] = await Promise.all(details);
     signal.throwIfAborted();
-    const enriched = assembled();
+    // Every part is answered or a gap by now, so nothing is carried.
+    const enriched = answered();
     // Finish every started read before the final promise establishes
     // completion, even when a bound left explicit gaps in the view.
-    onPartial?.(enriched);
+    onPartial?.(enriched, enriched);
     if (snapshotUnread) {
       bound.throwIfAborted();
     }
