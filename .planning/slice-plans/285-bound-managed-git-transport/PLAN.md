@@ -283,7 +283,7 @@ Learnings for slice 4:
 
 ### 4. Resume reports a stalled transport the same way
 Type: Behavior
-Status: planned
+Status: done
 Proof: same file, example 6 as mapped, for a stalled fetch and for a stalled
 push on the not-on-remote path; `publication-resume*.test.mjs` and
 `execution-increment-managed-delivery-resume*.test.mjs` green.
@@ -292,6 +292,19 @@ Behavior: a fetch or push in `resumeInterruptedPublication` exceeds the bound
 → `resume` returns `stopped` / `transport-timeout` with `stage`, `pushCount:
 0`, the candidate, and the recovered observation, as it returns `held` stops;
 nothing is pushed or rewritten.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-transport.test.mjs`
+(example 6 and a stalled push on the not-on-remote path, each with its retry);
+every `*.test.mjs` under the four script directories green.
+
+Learnings:
+- `resumeInterruptedPublication` annotates and rethrows the timeout (stages
+  `fetch`, `push`, `confirmation-fetch`); only `execution-increment-resume.mjs`
+  turns it into the stop, so wrap-up's closure settlement keeps seeing a thrown
+  failure.
+- A stalled resume push reports `pushCount: 0` with `pushIssued: true`:
+  `pushCount` counts answered pushes, and acceptance stays unknown until the
+  retry's fetch.
 
 ## Verification and sizing
 
