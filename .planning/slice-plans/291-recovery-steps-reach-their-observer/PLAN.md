@@ -34,13 +34,6 @@ Reviewed at `8f348077`.
 
 Outside this plan until decided; each names what the answer changes.
 
-- **Subagent coordinator identity.** `trunk-publication.md`, `ci-notify-hosts.md`,
-  and `ci-host-bridge.mjs` state that a Claude Code subagent's Bash tool
-  carries its parent's `CLAUDE_CODE_SESSION_ID` and tell it to pass its
-  `agent_id`. Neither fact has been observed, and nothing says where a
-  subagent reads its `agent_id`. Recommended: authorize one paid native
-  observation; until then a follow-up rewords the guidance to what is
-  observed.
 - **Ambient `finish` rerun after retirement.** Such a rerun with no covering
   observer registers on, completes, and stops the caller's one live observer
   of the target, as it already did while the worktree existed. Recommended:
@@ -127,4 +120,4 @@ formatting and delivery. Paid native runs are manual only.
 ## Sequence review and sizing
 
 No slice target or limit was supplied. Each slice owns one outcome with its
-proof. No concern remains inside this plan; the three developer decisions above stay outside it.
+proof. No concern remains inside this plan; the two developer decisions above stay outside it.

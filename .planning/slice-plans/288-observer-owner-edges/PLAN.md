@@ -240,10 +240,10 @@ starts with `--`. `deliver` reads the table only for several live observers.
 
 Product advice: no backlog change recommended. The review left one bounded
 follow-up, [Recovery steps reach the observer they name](../291-recovery-steps-reach-their-observer/PLAN.md),
-written and unqueued, and three decisions it records for the developer: what
-a Claude Code subagent coordinator passes as its identity, which observer an
-ambient-identity `finish` rerun may use after retirement, and what the native
-closure cases assert. Queueing the follow-up is the developer's choice.
+queued first by the developer at wrap-up. The developer had the subagent
+identity guidance reworded to what is observed. Two decisions stay recorded
+in that plan: which observer an ambient-identity `finish` rerun may use after
+retirement, and what the native closure cases assert.
 
 ## Verification and gates
 
@@ -270,9 +270,11 @@ each run is paid and needs the developer's authorization.
   `observation.state: "reused"` on that directory; repeat with a second
   coordinator's stream live on the same target. Then `resume` and `finish` with
   the same inputs.
-- Claude Code subagent coordinator: confirm its Bash tool carries its parent's
-  `CLAUDE_CODE_SESSION_ID`, that it can state its own `agent_id`, and that
-  `deliver` with both in `--session-json` reuses the observer it claimed.
+- Claude Code subagent coordinator: whether its Bash tool carries its parent's
+  `CLAUDE_CODE_SESSION_ID` and whether it can state its own `agent_id` are
+  unobserved. On the developer's decision of 2026-10-10 the guidance and
+  receipt state only that the variable names the session alone and that an
+  observer claimed with an `agent_id` is named by `--session-json` with both.
 - Trunk-closure harness, every case
   `tests/git-publication-native.sh --native HOST --case trunk-closure/...`
   after its arming change: on Claude Code and Cursor one `finish` without

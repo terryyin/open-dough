@@ -69,10 +69,9 @@ recovery-edges correction left; it adds no feature promise.
 - Each gap reason `deliver`, `resume`, and `finish` can print ends in a
   recovery step, and `ownership` values keep one meaning per command.
 - The closure rerun proofs keep one host for rules that do not differ by host.
-- Excluded: what a Claude Code subagent coordinator passes as its identity,
-  which observer an ambient-identity `finish` rerun may use after retirement,
-  and what the native closure cases assert. Each waits for a developer
-  decision recorded in the plan.
+- Excluded: which observer an ambient-identity `finish` rerun may use after
+  retirement, and what the native closure cases assert. Each waits for a
+  developer decision recorded in the plan.
 
 ## Breadcrumbs
 

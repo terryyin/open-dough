@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Recovery steps reach the observer they name](seeds/SEED-121-execution-observer-ownership.md#recovery-steps-reach-their-observer) — SEED-121#recovery-steps-reach-their-observer
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance
 - [Recently done waits for an added project's sessions](seeds/SEED-123-dashboard-suite-stable-under-load.md#recently-done-waits-for-added-project-sessions) — SEED-123#recently-done-waits-for-added-project-sessions
 - [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions
