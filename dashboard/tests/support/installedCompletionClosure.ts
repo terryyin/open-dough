@@ -6,6 +6,10 @@ import path from "node:path";
 import { expect } from "@playwright/test";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import { completionCi } from "./completionCi.ts";
+import {
+  claimCompletionObserver,
+  completionCoordinator,
+} from "./completionObserverClaim.ts";
 
 const exec = promisify(execFile);
 export type CompletionClosure =
@@ -73,6 +77,8 @@ export async function withInstalledCompletionClosure(
         directory: string;
       }
     ).directory;
+    if (closure === "Trunk Wrap Up")
+      await claimCompletionObserver(installed, workspace, observer, ci.env);
   }
   try {
     if (closure === "Story Branch Wrap Up" && ci !== undefined) {
@@ -156,7 +162,9 @@ export async function withInstalledCompletionClosure(
               "--repo",
               "terryyin/open-dough",
               "--host",
-              "codex",
+              "cursor",
+              "--session-json",
+              JSON.stringify(completionCoordinator),
               "--repository",
               repository,
               "--identity",

@@ -1,33 +1,26 @@
 // Codex managed delivery: the yielded stream the coordinator armed at
-// execution start is the observer every delivery reuses. Without a live
-// stream, delivery keeps publication and names arming that stream.
+// execution start and retained is the observer every delivery registers on.
+// Without it, delivery keeps publication and names arming that stream.
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { promisify } from "node:util";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
-import { createCodexReplay } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import {
   createManagedFixture,
   git,
   watchCount,
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
+import {
+  installedStream,
+  retained,
+} from "./execution-increment-managed-delivery-codex-test-fixtures.mjs";
 
-// The installed stream command a Codex coordinator runs in its yielded cell.
-function codexStream(fixture) {
-  return createCodexReplay(fixture.teardown, fixture.env, {
-    command: [
-      join(fixture.skill, "scripts/ci-mailbox.mjs"),
-      "stream",
-      "--execution",
-      "owner/project",
-      "main",
-      "60000",
-    ],
-  });
-}
+const coordinator = "coordinator";
 
 async function commitIncrement(fixture, name) {
   writeFileSync(join(fixture.execution, name), `${name}\n`);
@@ -41,12 +34,13 @@ const shas = (directory) =>
 test("a Codex coordinator's start-time stream is the observer its increment and repair deliveries reuse", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
-  const stream = codexStream(fixture);
+  const stream = installedStream(fixture, { coordinator });
   const { directory } = await stream.setup();
 
   const increment = await deliverThroughCli(fixture, {
     host: "codex",
     base: fixture.trunkSha,
+    extra: retained(coordinator, directory),
   });
   assert.equal(increment.code, 0);
   assert.equal(increment.delivered.publication, "accepted");
@@ -58,6 +52,7 @@ test("a Codex coordinator's start-time stream is the observer its increment and 
   const repair = await deliverThroughCli(fixture, {
     host: "codex",
     base: increment.delivered.receipt.sha,
+    extra: retained(coordinator, directory),
   });
   assert.equal(repair.delivered.publication, "accepted");
   assert.equal(repair.delivered.observation.state, "reused");
@@ -74,7 +69,7 @@ test("a Codex coordinator's start-time stream is the observer its increment and 
   assert.equal(watchCount(fixture.storage), 1);
 });
 
-test("a Codex delivery without a live stream keeps publication and names arming the yielded stream; the next delivery after arming reuses it", async (t) => {
+test("a Codex delivery before any stream is armed keeps publication and names arming the yielded stream; the next delivery with the armed stream's receipt reuses it", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
 
@@ -86,17 +81,18 @@ test("a Codex delivery without a live stream keeps publication and names arming 
   assert.equal(unarmed.delivered.observation.state, "unobserved");
   assert.match(
     unarmed.delivered.observation.reason,
-    /ci-mailbox\.mjs stream --execution owner\/project main/,
+    /ci-mailbox\.mjs stream --execution owner\/project main --coordinator <value>/,
   );
   assert.match(unarmed.delivered.observation.reason, /ci-notify-codex\.md/);
   assert.equal(existsSync(fixture.storage), false);
 
-  const stream = codexStream(fixture);
+  const stream = installedStream(fixture, { coordinator });
   const { directory } = await stream.setup();
   await commitIncrement(fixture, "after-arming.txt");
   const armed = await deliverThroughCli(fixture, {
     host: "codex",
     base: unarmed.delivered.receipt.sha,
+    extra: retained(coordinator, directory),
   });
   assert.equal(armed.delivered.publication, "accepted");
   assert.equal(armed.delivered.observation.state, "reused");
@@ -129,4 +125,27 @@ test("deliver rejects --codex-bridge-available as an unknown flag", async (t) =>
     fixture.trunkSha,
   );
   assert.equal(existsSync(fixture.storage), false);
+});
+
+test("stream refuses --coordinator without a value and arms nothing", async (t) => {
+  const fixture = await createManagedFixture();
+  t.after(fixture.cleanup);
+
+  for (const tail of [["--coordinator"], ["--coordinator", "--other"]]) {
+    const result = await promisify(execFile)(
+      process.execPath,
+      [
+        join(fixture.skill, "scripts/ci-mailbox.mjs"),
+        "stream",
+        "--execution",
+        "owner/project",
+        "main",
+        ...tail,
+      ],
+      { env: fixture.env },
+    ).catch((error) => error);
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /Expected --coordinator VALUE/);
+  }
+  assert.equal(watchCount(fixture.storage), 0);
 });

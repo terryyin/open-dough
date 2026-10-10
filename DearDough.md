@@ -304,6 +304,16 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-100](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-100).
 
+### Occurrences
+- Execution: `SEED-121#retain-execution-observer-owner` / plan 280, first implementation `8014c2f8`.
+  - Timestamp: 2026-10-10T15:43:16+09:00 (commit time of slice 3 `9ac9ae4b`, made after the refused attempt).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; installed 0.3.57 payload at `f9ddf723`.
+  - Evidence: coordinator tool history of session `01e39ef7-8591-4203-bd69-8b13ec52fd00`. One command ran `npm run --silent format | grep | tail`, a plan edit, `git add`, `agent-commit.mjs`, and `deliver` joined so that the formatter's "Format failed" (five `no-unused-vars` errors) did not stop it. The hook refused the commit (`commit-failed`); `deliver` still ran, re-accepted the unchanged tip `8d2bbee8`, and started observer `/tmp/dough-ci-501/watch-BGGSnX`. Slice 1's format step had also surfaced shellcheck SC2089/SC2090 from the implementation return.
+  - Observed effect: one refused commit, one delivery of an unchanged tip, and a rerun of format, focused proof, commit, and delivery; nothing unvalidated was published.
+  - Inference: the pipeline masked the formatter's status as in the earlier rows, and here a publication step also followed the refused commit. Implementation and refactor agents do not run hook-owned lint, so both findings first appeared at the coordinator's format step.
+
 ## ODF-097 — A failed format result was followed by a commit attempt
 
 Former local code: DD-251 (plan 273 only).

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ziqing-chan",
-  "email": "ziqing-chan@example.org",
-  "identity": "SEED-121#retain-execution-observer-owner",
-  "mode": "story-branch",
-  "branch": "claude/register-trunk-delivery-with-its-own-execution-o",
-  "host": "claude"
-}

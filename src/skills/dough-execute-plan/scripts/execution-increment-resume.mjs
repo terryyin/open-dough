@@ -1,7 +1,8 @@
 // Resume an accepted managed delivery without duplicate push or guessed
-// observation. Verifies remote acceptance, recovers only a matching live
-// owner, and reports an actionable gap when coverage cannot be restored. A
-// fetch or push that outlasts the transport bound stops as held stops do.
+// observation. Verifies remote acceptance, recovers only the live observer
+// its retained owner evidence names, and reports an actionable gap when
+// coverage cannot be restored. A fetch or push that outlasts the transport
+// bound stops as held stops do.
 import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import {
@@ -10,7 +11,7 @@ import {
   registerPushedRevision,
 } from "./ci-mailbox.mjs";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
-import { recoverObservationForResume } from "./execution-increment-observation.mjs";
+import { recoverObservationForResume } from "./execution-increment-observation-recovery.mjs";
 import { stopped } from "./applicable-candidate-proof.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
 import { targetBranchName } from "./publication-git.mjs";
@@ -50,6 +51,10 @@ export async function resumeManagedExecutionIncrement(request) {
     defaultCheckout,
     host = "cursor",
     preferredAlias,
+    session,
+    coordinator,
+    observerDirectory,
+    env = process.env,
     root,
     storage,
     oneShotIdentity,
@@ -72,15 +77,20 @@ export async function resumeManagedExecutionIncrement(request) {
   const observerRoot = root ?? runtime.checkout;
   const observerStorage = storage ?? mailboxRoot;
   const targetBranch = targetBranchName(targetRef);
-  const recovered = recoverObservationForResume({
+  const observation = recoverObservationForResume({
     repo,
     branch: targetBranch,
+    host,
+    session,
+    coordinator,
+    observerDirectory,
+    env,
     root: observerRoot,
     storage: observerStorage,
   });
 
   const liveDirectory =
-    recovered.ownership.kind === "live" ? recovered.ownership.directory : null;
+    observation.state === "recovered" ? observation.directory : null;
   const observer = liveDirectory
     ? observerAdapter(liveDirectory, targetRef)
     : null;
@@ -121,7 +131,7 @@ export async function resumeManagedExecutionIncrement(request) {
       target: targetRef,
       candidate: candidateSha,
       remoteTip: error.remoteTip,
-      observation: recovered.observation,
+      observation,
     });
   }
   const comparison =
@@ -135,7 +145,7 @@ export async function resumeManagedExecutionIncrement(request) {
       classification: published.classification,
       ...comparison,
       ...published.held.fields,
-      observation: recovered.observation,
+      observation,
     });
 
   // Ensure the accepted SHA is on the recovered live owner when resume's
@@ -157,7 +167,7 @@ export async function resumeManagedExecutionIncrement(request) {
       target: targetRef,
     },
     ...comparison,
-    observation: recovered.observation,
+    observation,
     runtime: {
       alias: runtime.alias,
       skillRoot: runtime.skillRoot,
@@ -171,7 +181,7 @@ export async function resumeManagedExecutionIncrement(request) {
 function argumentsOf(argv) {
   if (argv[0] !== "resume") {
     throw new Error(
-      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--remote NAME] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID] [--landing-context PATH]",
+      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--remote NAME] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--session-json JSON] [--coordinator VALUE --observer-directory PATH] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID] [--landing-context PATH]",
     );
   }
   const result = { supersededShas: [], publishedRevisions: [] };
@@ -188,6 +198,11 @@ function argumentsOf(argv) {
       .slice(2)
       .replace(/-[a-z]/g, (match) => match[1].toUpperCase());
     result[key] = argv[++index];
+  }
+  // Malformed session JSON stops resume; no other identity stands in for it.
+  if (result.sessionJson) {
+    result.session = JSON.parse(result.sessionJson);
+    delete result.sessionJson;
   }
   return result;
 }

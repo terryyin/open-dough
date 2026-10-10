@@ -173,6 +173,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs
   dough-execute-plan/scripts/ci-mailbox-match.mjs
+  dough-execute-plan/scripts/ci-observer-owner.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
   dough-execute-plan/scripts/ci-mailbox-store.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
@@ -188,6 +189,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
+  dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
@@ -234,6 +236,7 @@ managed_files=(
   dough-execution-retrospective/references/process-review-of-a-run.md
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/references/follow-up-disposition.md
+  dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )

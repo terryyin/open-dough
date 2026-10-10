@@ -1,7 +1,7 @@
 // An interrupted Trunk Mode `finish` is rerun as the agent reruns it: the same
 // installed command in a child process. Each rerun continues from the first
 // unfinished step: an accepted final closure is not pushed again, completion is
-// reused or repeated on the observer that covers it, and cleanup completes or
+// reused or repeated on its own observer that covers it, and cleanup completes or
 // reports itself already done. An unpublished final closure the target moved
 // past is rebased and published once, keeping the worktree until the receipt.
 import assert from "node:assert/strict";

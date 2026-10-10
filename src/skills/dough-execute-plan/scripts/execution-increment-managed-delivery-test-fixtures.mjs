@@ -43,27 +43,9 @@ export function deploySkill(project, platform = ".agents") {
   return skill;
 }
 
-async function importDelivery(skill) {
-  return import(
-    pathToFileURL(join(skill, "scripts/execution-increment-delivery.mjs")).href
-  );
-}
-
-async function importResume(skill) {
-  return import(
-    pathToFileURL(join(skill, "scripts/execution-increment-resume.mjs")).href
-  );
-}
-
-async function importCheckoutRuntime(skill) {
-  return import(
-    pathToFileURL(join(skill, "scripts/ci-checkout-runtime.mjs")).href
-  );
-}
-
-async function importMailbox(skill) {
-  return import(pathToFileURL(join(skill, "scripts/ci-mailbox.mjs")).href);
-}
+// One installed script of the deployed skill, as that install loads it.
+const importScript = (skill, name) =>
+  import(pathToFileURL(join(skill, "scripts", name)).href);
 
 function writeAdapter(fixture, releasePath, callsPath) {
   const adapter = join(fixture, "adapter.mjs");
@@ -147,14 +129,32 @@ export async function installManagedDelivery(
   const deferStop = (directory) => {
     if (directory) deferObserverStop(teardown, observer(directory));
   };
-  const delivery = await importDelivery(skill);
-  const resume = await importResume(skill);
-  const { resolveCheckoutRuntime } = await importCheckoutRuntime(skill);
-  const mailbox = await importMailbox(skill);
+  const delivery = await importScript(
+    skill,
+    "execution-increment-delivery.mjs",
+  );
+  const resume = await importScript(skill, "execution-increment-resume.mjs");
+  const { resolveCheckoutRuntime } = await importScript(
+    skill,
+    "ci-checkout-runtime.mjs",
+  );
+  const mailbox = await importScript(skill, "ci-mailbox.mjs");
   const session = {
     conversation_id: "managed-coordinator",
     session_id: "managed-coordinator",
     generation_id: "managed-turn",
+  };
+  const attempt = {
+    runId: "run:opaque/managed",
+    attemptId: "attempt:opaque/first",
+    url: "https://ci.example.test/run/managed",
+  };
+  // The adapter reads the release as soon as it exists; publish it whole so
+  // discovery never parses a created but unwritten file.
+  let released = [];
+  const release = (attempts) => {
+    released = attempts;
+    publishJson(fixture, releaseName, { attempts });
   };
   const requestBase = {
     mode: "trunk",
@@ -190,20 +190,20 @@ export async function installManagedDelivery(
       return directory;
     },
     releaseFailure(sha, branch = "main") {
-      // The adapter reads the release as soon as it exists; publish it whole
-      // so discovery never parses a created but unwritten file.
-      publishJson(fixture, releaseName, {
-        attempts: [
-          {
-            runId: "run:opaque/managed",
-            attemptId: "attempt:opaque/first",
-            sha,
-            outcome: "failure",
-            url: "https://ci.example.test/run/managed",
-          },
-        ],
-      });
+      release([{ ...attempt, sha, outcome: "failure" }]);
       return { sha, branch };
+    },
+    // Adds a passing run of `sha` to what the provider already reports.
+    releaseSuccess(sha) {
+      release([
+        ...released,
+        {
+          ...attempt,
+          runId: `${attempt.runId}/passing`,
+          sha,
+          outcome: "success",
+        },
+      ]);
     },
     // Resolves once the real `stop` command exits; await it before retiring
     // the workspace whose installed launcher runs that command.

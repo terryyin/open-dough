@@ -60,7 +60,7 @@ test("documented Codex host binding notifies pre-yield events after yield, then 
   assert.equal(launches.length, 1);
   assert.equal(
     launches[0].cmd,
-    "node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stream --execution OWNER/REPO BRANCH",
+    "node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs stream --execution OWNER/REPO BRANCH --coordinator COORDINATOR",
   );
   assert.equal(launches[0].workdir, "/ABSOLUTE/VERIFIED/CHECKOUT_ROOT");
   assert.equal(launches[0].tty, true);

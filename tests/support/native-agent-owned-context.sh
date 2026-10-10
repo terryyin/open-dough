@@ -14,7 +14,7 @@
 # through the admission substitute's recorder and sets ${response}.
 # NATIVE_OWNED_WORKSPACE, _BRANCH and _IDENTITY carry the journey's workspace,
 # branch and story; TRUNK_CLOSURE_CANDIDATE_SHA and _IDENTITY the final
-# closure's.
+# closure's, and TRUNK_CLOSURE_SESSION_JSON its observer's owner session.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -76,10 +76,14 @@ native_owned_context_prepare_and_land() {
 }
 
 # The before-cleanup commit is already on trunk; the installed `finish`
-# publishes the final closure on the fixture's live observer, completes it,
-# and retires the worktree and its branch.
+# publishes the final closure on the fixture's live observer, naming the
+# coordinator session that owns it, completes it, and retires the worktree and
+# its branch.
 native_owned_context_close_trunk() {
   local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} branch base
+  local owner=()
+  [[ -z ${TRUNK_CLOSURE_SESSION_JSON:-} ]] \
+    || owner=(--session-json "${TRUNK_CLOSURE_SESSION_JSON}")
   branch=$(git -C "${workspace}" branch --show-current)
   admission_run git fetch -q origin
   base=$(git -C "${workspace}" rev-parse origin/main)
@@ -87,7 +91,7 @@ native_owned_context_close_trunk() {
     --workspace "${workspace}" --branch "${branch}" --before-cleanup "${base}" \
     --final "${sha}" --previously-published-base "${base}" \
     --target-ref refs/heads/main --repo owner/project --host "${host}" \
-    --identity "${TRUNK_CLOSURE_IDENTITY}"
+    --identity "${TRUNK_CLOSURE_IDENTITY}" "${owner[@]}"
 }
 
 # Dough Land's installed retirement, from skills $1, of ${workspace} on branch
