@@ -46,10 +46,10 @@ function effectiveCoverage(coverage) {
   return { evidence };
 }
 
-// The outcome `directory`'s own record already holds for `sha`, which awaiting
-// it there returns whether or not its observer still runs: its verdict, or
-// the reason it stays unresolved. Undefined while the record resolves nothing.
-export function recordedOutcome(directory, sha) {
+// The CI verdict `directory`'s own record already holds for `sha`, which
+// awaiting it there returns whether or not its observer still runs. Undefined
+// while the record holds none: nothing yet, or an attempt that was cancelled.
+export function recordedVerdict(directory, sha) {
   let coverage;
   try {
     coverage = readRevisionCoverage(directory).find(
@@ -58,8 +58,7 @@ export function recordedOutcome(directory, sha) {
   } catch {
     return undefined;
   }
-  const outcome = coverage && effectiveCoverage(coverage).outcome;
-  return outcome && (outcome.verdict ?? outcome.unresolvedReason);
+  return coverage && effectiveCoverage(coverage).outcome?.verdict;
 }
 
 function terminalObservation(directory) {

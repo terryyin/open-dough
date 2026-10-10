@@ -14,15 +14,31 @@ const classifier = readFileSync(
   new URL("./ci-mailbox-match.mjs", import.meta.url),
   "utf8",
 ).match(/\nfunction classifyObservers\(.*?\n}\n/s)[0];
-const ownerGapKinds = [
-  ...new Set(Array.from(classifier.matchAll(/kind: "([^"]+)"/g), ([, k]) => k)),
-];
-const terminal = { status: "stopped", coverage: { reason: "worker exited" } };
-const owned = (kind) => ({
-  kind,
+// Each kind with the fields that function returns beside it, and no others: a
+// reason may read only what its kind's classification carries.
+const ownerGapFields = new Map(
+  Array.from(
+    classifier.matchAll(/return \{\s*kind: "([^"]+)"([^}]*)\}/g),
+    ([, kind, rest]) => [
+      kind,
+      rest
+        .split(",")
+        .map((field) => field.split(":")[0].trim())
+        .filter(Boolean),
+    ],
+  ),
+);
+const ownerGapKinds = [...ownerGapFields.keys()];
+const fieldValues = {
   directory: "/observers/one",
   directories: ["/observers/one", "/observers/two"],
-  terminal,
+  terminal: { status: "stopped", coverage: { reason: "worker exited" } },
+};
+const owned = (kind) => ({
+  kind,
+  ...Object.fromEntries(
+    ownerGapFields.get(kind).map((field) => [field, fieldValues[field]]),
+  ),
 });
 const reasonFor = (command, kind, extra = {}) =>
   ownerGapReason(command, {
@@ -57,8 +73,21 @@ const commandReasons = (kind) => {
   }));
 };
 
-test("the kinds are every classification of a coordinator's observers", () => {
+test("the kinds are every classification of a coordinator's observers, each with only the fields its classification carries", () => {
+  assert.equal(
+    ownerGapKinds.length,
+    Array.from(classifier.matchAll(/kind: "/g)).length,
+    classifier,
+  );
   assert.ok(ownerGapKinds.length > 1, classifier);
+  const fields = [...ownerGapFields.values()];
+  // Every field read here has a value, and no kind carries them all.
+  for (const field of fields.flat()) assert.ok(field in fieldValues, field);
+  assert.ok(
+    fields.every((own) => own.length < Object.keys(fieldValues).length),
+    JSON.stringify([...ownerGapFields]),
+  );
+  assert.ok(fields.some((own) => own.length === 0));
 });
 
 test("every kind's reason for deliver, resume, and finish ends in a step naming a command to run", () => {

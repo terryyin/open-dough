@@ -14,7 +14,7 @@ import {
   missingIdentityReason,
   resolveHostSession,
 } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
-import { recordedOutcome } from "../../dough-execute-plan/scripts/ci-mailbox-await.mjs";
+import { recordedVerdict } from "../../dough-execute-plan/scripts/ci-mailbox-await.mjs";
 import {
   classifyOwnedObservation,
   listOwnedMailboxes,
@@ -51,17 +51,18 @@ function hostClassification({ target, host, owner }) {
 }
 
 // The one of `ended` observers to repeat completion of `sha` on: the first
-// whose record holds its outcome, when every record that holds one holds the
-// same. Records that differ identify none to trust.
+// whose record holds its CI verdict, when every record that holds one holds
+// the same. A record that holds none identifies no observer and counts
+// against none; verdicts that differ identify none to trust.
 function completedObserver(ended, sha) {
-  const resolved = ended
+  const decided = ended
     .map((directory) => ({
       directory,
-      outcome: recordedOutcome(directory, sha),
+      verdict: recordedVerdict(directory, sha),
     }))
-    .filter(({ outcome }) => outcome);
-  return new Set(resolved.map(({ outcome }) => outcome)).size === 1
-    ? [resolved[0].directory]
+    .filter(({ verdict }) => verdict);
+  return new Set(decided.map(({ verdict }) => verdict)).size === 1
+    ? [decided[0].directory]
     : [];
 }
 
