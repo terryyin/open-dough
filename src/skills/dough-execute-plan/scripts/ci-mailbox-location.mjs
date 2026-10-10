@@ -1,6 +1,5 @@
 import { execFileSync } from "node:child_process";
 import {
-  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -45,14 +44,13 @@ export function checkoutIdentity(root) {
   return gitCommonDir(root) ?? resolve(root);
 }
 
-// The identity of the checkout that armed a mailbox. While that checkout
-// exists it is read from it; once it was removed, the identity recorded when
-// it armed the mailbox stands for it, so the repository's other worktrees
-// still reach the observer and an unrelated repository still does not.
+// The identity of the checkout that armed a mailbox: the one recorded when it
+// was armed, whatever its path has become since, so the repository's other
+// worktrees still reach the observer after that worktree is removed and
+// another repository created at its path does not. A mailbox that recorded
+// none is identified by the checkout now at its path.
 function armingIdentity(request) {
-  return existsSync(request.root)
-    ? checkoutIdentity(request.root)
-    : (request.identity ?? resolve(request.root));
+  return request.identity ?? checkoutIdentity(request.root);
 }
 
 // `root` is the checkout reading the mailbox.

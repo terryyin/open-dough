@@ -85,9 +85,18 @@ changed.
 
 ### 1. A mailbox is read by the identity it recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `ci-mailbox-removed-worktree.test.mjs` through the installed
 `stop` after the removed path exists again.
+Accepted proof: `npm test -- src/skills/dough-execute-plan/scripts/ci-mailbox-removed-worktree.test.mjs`,
+four tests through the installed `stop`: the removed path recreated empty, a
+different repository created at it refused with no `stop` file while the
+arming repository still stops the observer, and a mailbox stripped of its
+`identity` read through its arming checkout. Consumers run green: the
+`ci-*`, `watch-ci-*`, `execution-increment-*`, `trunk-closure*`, and
+`closure-*` suites, `tests/git-publication-native.sh` and its owned-context,
+evidence-identity, and assessor checks. The `ci-notify-hosts.md` sentence is
+exact and unchanged.
 
 Behavior: An observer recorded its arming identity and its worktree was
 removed → the path is recreated, empty or as another repository → `stop` from
@@ -131,6 +140,34 @@ step and no `undefined` without copying each phrase, cover every kind the
 classifier returns, and pass `registered` only for `finish`.
 
 Safe stopping point: the correction is complete.
+
+## Story obligations
+
+### G1. A mailbox without an identity after its worktree is removed is unasserted
+Reported: slice 1 — "A no-identity mailbox after its worktree is removed (refused from the default checkout, as before plan 291) is not asserted; it is covered only by the code equivalence above."
+Story clause: "A mailbox that recorded its arming identity is read by that identity"
+Disposition: no user cost "A coordinator recovering an ended observer keeps reaching it when the removed worktree's path exists again": the goal covers mailboxes that recorded an identity; one without it keeps the behavior it had, and `checkoutIdentity` returns the resolved path for a missing root exactly as the removed branch did
+
+### G2. A non-repository arming directory that later becomes a repository is refused
+Reported: slice 1 — "a mailbox armed from a directory that was not a Git toplevel (identity = its path) that later becomes a Git repository at the same path is now refused to that repository, where before the live read matched."
+Story clause: "whatever its recorded path has become, and a different repository at that"
+Disposition: no user cost "A coordinator recovering an ended observer keeps reaching it when the removed worktree's path exists again": observers are armed from an execution checkout, which is a Git worktree; the refusal is the recorded-identity rule the scope states, applied to a case no coordinator reaches
+
+### G3. Only `stop` is driven after the path is reused
+Reported: slice 1 — "Only `stop` is exercised through the reused path; other readers (`register-push`, `await-revision`, `complete-revision`, `acknowledge`, hooks) share the same `readMailbox` rule and are not separately driven after path reuse."
+Story clause: "A mailbox that recorded its arming identity is read by that identity"
+Disposition: no user cost "A coordinator recovering an ended observer keeps reaching it when the removed worktree's path exists again": `readMailbox` is the only caller of `armingIdentity` and every reader goes through it, so the one driven reader exercises the rule the others share
+
+## Execution resume context
+
+- Mode: Story Branch; workspace
+  `.worktrees/recovery-holds-after-a-path-is-reused-and-after`, branch
+  `claude/recovery-holds-after-a-path-is-reused-and-after`, remote `origin`,
+  trunk `main`; agent `dbs-chan`.
+- Claim `4364af24b74ceeea423c4fd833fb55be363a8f1a` accepted on `origin/main`,
+  starting revision `34d496c21a5b32655bb5f9ae307d65bb5adb7ede`.
+- CI source: GitHub Actions `ci.yml` on the execution branch, observed
+  through managed delivery.
 
 ## Verification and gates
 
