@@ -97,9 +97,12 @@ root, `observerAccess` returns one root, and `ownerRoot` is gone.
 
 ### 2. Every gap reason ends in a step
 Type: Behavior
-Status: planned
-Proof: A table-wide unit proof, and `trunk-closure-owner-gaps.test.mjs` for
-the several-ended case.
+Status: done
+Proof: `execution-increment-observation-gaps.test.mjs` over every kind and
+command of the table; `trunk-closure-owner-gaps.test.mjs` for the
+several-ended journey through the installed `finish`, its rerun, and
+retirement; `trunk-closure-observer-selection.test.mjs` for a live observer
+that has yet to register the closure.
 
 Behavior: `finish` finds several of its coordinator's observers that each
 registered the final closure and none live → its gap names that state with the
@@ -111,6 +114,13 @@ reason any command can print ends in `undefined`.
 Start from the observed journey above as the failing test.
 
 Safe stopping point: one vocabulary, each entry with a step.
+
+Learning: An observer the next `deliver` establishes after the closure was
+accepted registers it, and the earlier selection already chose it; only the
+`ambiguous` label and the missing step were wrong on that path. A live
+observer not yet told of the closure was passed over, and is now selected
+beside several ended ones. `ownerGapReason` takes the several ended observers
+as `registered`.
 
 ### 3. Rerun proofs keep one host for host-independent rules
 Type: Structure
@@ -134,6 +144,16 @@ Disposition: no user cost "A coordinator that follows a coverage gap's recovery 
 Reported: slice 1 — "Only `stop` is proven through the CLI on a removed worktree's observer. `register-push`, `acknowledge`, `await-revision` and `complete-revision` share the same `readMailbox` rule but have no removed-worktree case of their own."
 Story clause: "The mailbox commands a recovery step names read an observer of the repository whichever of its worktrees armed it, also after that worktree was removed."
 Disposition: proved by slice 1: the recovery step names `stop`, proved in `ci-mailbox-removed-worktree.test.mjs`; registration and completion on a retired worktree's observer run through the same `readMailbox` in the retire-and-rerun journeys of `trunk-closure-owner.test.mjs` and `trunk-closure-resume.test.mjs`.
+
+### G3. Mixed ended and lost observers report the first classification
+Reported: slice 2 — "Mixed states (one ended, one lost) report the first classification plus the `N of its observers…` clause; only the both-ended case is tested."
+Story clause: "`ownership` values keep one meaning per command"
+Disposition: no user cost "A coordinator that follows a coverage gap's recovery step can carry it out": `ended`, `lost`, and `unavailable` end in the same step for each command, and the reason lists every such observer.
+
+### G4. The deliver step for kinds that are not live has only the unit proof
+Reported: slice 2 — "The deliver step for not-live kinds has only the unit proof, since no `deliver` path prints it."
+Story clause: "Each gap reason `deliver`, `resume`, and `finish` can print ends in a"
+Disposition: proved by slice 2: `execution-increment-observation-gaps.test.mjs`, "every kind's reason for deliver, resume, and finish ends in a step naming a command to run"; no installed `deliver` path reaches those kinds.
 
 ## Verification and gates
 

@@ -134,6 +134,54 @@ test("finish without the owner's identity, as another coordinator, or after the 
   journey.assertSiblingUntouched(4);
 });
 
+test("finish whose coordinator's ended observers each registered the final closure reports them ended with the deliver step; its rerun after that deliver completes on the new observer and retires", async (t) => {
+  const journey = await closureBesideSibling(t, "claude");
+  const { fixture, publisher } = journey;
+  const beforeCleanup = await acceptedIncrement(fixture);
+  const final = await commitFinalClosure(fixture);
+  const finish = () =>
+    journey.finish({ beforeCleanup, final, extra: ["--created-for-work"] });
+  // Each of the owner's observers is told of the final closure, then ends.
+  const established = async () => {
+    const { delivered } = await journey.deliver(beforeCleanup);
+    assert.equal(delivered.receipt.sha, final);
+    return delivered.observation;
+  };
+  assert.equal((await established()).directory, publisher);
+  await fixture.stopObserver(publisher);
+  const second = (await established()).directory;
+  assert.notEqual(second, publisher);
+  await journey.resume(final);
+  await fixture.stopObserver(second);
+  for (const ended of [publisher, second])
+    assert.deepEqual(coverage(ended), [final]);
+
+  const several = await finish();
+  await assertUnresolvedCoverage(fixture, several, {
+    final,
+    ownership: "ended",
+    reason:
+      /ended \(.*2 of its observers each registered this revision and none is live.*next `deliver` from the execution worktree establishes its own.*rerunning this finish/,
+  });
+  assert.deepEqual(
+    several.result.observation.directories.toSorted(),
+    [publisher, second].toSorted(),
+  );
+
+  const own = await established();
+  assert.equal(own.state, "attached", own.reason);
+  releaseCi(fixture, { [final]: "success" });
+  const rerun = await finish();
+  assert.equal(rerun.code, 0, rerun.stderr);
+  assert.equal(rerun.result.observation.directory, own.directory);
+  assert.deepEqual(coverage(own.directory), [final]);
+  assert.equal(rerun.result.completion.verdict, "success");
+  assert.equal(rerun.result.completion.shutdown.status, "confirmed");
+  assert.equal(rerun.result.cleanup.worktree, "removed");
+  // Each establishing delivery added its readiness probe and its observer.
+  journey.assertSiblingUntouched(6);
+});
+
 test("finish chooses none of several live observers its coordinator owns for an accepted closure neither covers", async (t) => {
   const journey = await closureBesideSibling(t, "cursor");
   const { fixture, publisher } = journey;

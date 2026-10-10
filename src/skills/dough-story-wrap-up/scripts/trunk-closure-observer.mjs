@@ -28,25 +28,25 @@ import { ownerGapReason } from "../../dough-execute-plan/scripts/execution-incre
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 
 // Why none of a host coordinator's observers carries the final closure, by
-// their classification. Several `candidates` that are not its several live
-// observers each registered the final closure and are no longer live.
-function hostGap({ target, host, owner, candidates }) {
+// their classification. Several `registered` it and are no longer live.
+function hostGap({ target, host, owner, registered }) {
   const owned = classifyOwnedObservation({ ...target, owner });
-  if (candidates.length > 1 && owned.kind !== "ambiguous") {
-    return coverageGap(
-      `this coordinator owns ${candidates.length} observers of ${target.repo} ${target.branch} that could carry the final closure (${candidates.join(", ")}); none is chosen for it`,
-      { ownership: "ambiguous", directories: candidates },
-    );
-  }
-  return coverageGap(ownerGapReason("finish", { ...target, host, owned }), {
-    ownership: owned.kind,
-    directories: owned.directories ?? (owned.directory && [owned.directory]),
-  });
+  return coverageGap(
+    ownerGapReason("finish", { ...target, host, owned, registered }),
+    {
+      ownership: owned.kind,
+      directories:
+        registered.length > 1
+          ? registered
+          : (owned.directories ?? (owned.directory && [owned.directory])),
+    },
+  );
 }
 
 // `directories` are the owner's observers in any state. `select` returns the
-// one that covers `sha`, preferring a live one; else the owner's one live
-// observer, which has yet to register it; otherwise the coverage `gap`.
+// one that covers `sha`, preferring a live one, then the only one that ended;
+// else the owner's one live observer, which has yet to register it; otherwise
+// the coverage `gap`, given the several ended observers that cover `sha`.
 // `notifies` is the host session that receives a selected observer's events.
 function ownedObservers(directories, target, gap, notifies) {
   return {
@@ -61,12 +61,12 @@ function ownedObservers(directories, target, gap, notifies) {
       const candidates =
         [
           covering.filter((directory) => live.includes(directory)),
-          covering,
-          covering.length ? [] : live,
+          covering.length === 1 ? covering : [],
+          live,
         ].find((found) => found.length > 0) ?? [];
       return candidates.length === 1
         ? { directory: candidates[0], ...(notifies && { notifies }) }
-        : { gap: gap(candidates) };
+        : { gap: gap(live.length ? [] : covering) };
     },
   };
 }
@@ -125,7 +125,7 @@ export function closureObservers({
   return ownedObservers(
     listOwnedMailboxes({ ...target, owner }),
     target,
-    (candidates) => hostGap({ target, host, owner, candidates }),
+    (registered) => hostGap({ target, host, owner, registered }),
     eventRecipient({ host, session, env }),
   );
 }
