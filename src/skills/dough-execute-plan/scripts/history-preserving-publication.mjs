@@ -2,10 +2,12 @@
 // Git mechanics for publish-the-candidate.md "Preserve published history".
 // One owned workspace merges an already-published tip onto fetched trunk,
 // pushes that candidate SHA through pushExactRef, and recomputes the merge
-// once after a rejected push. With a launch's landing context, each attempt's
-// candidate and the fetched tip it was built on are retained before its push,
-// and the accepted pair is recorded as that launch's landing. Installed
-// guidance is the agent's contract.
+// once after a rejected push. A conflicted merge is preserved for the agent
+// to resolve and commit; the next run publishes that commit as the candidate.
+// With a launch's landing context, each attempt's candidate and the fetched
+// tip it was built on are retained before its push, and the accepted pair is
+// recorded as that launch's landing. Installed guidance is the agent's
+// contract.
 import { existsSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
@@ -122,7 +124,7 @@ export async function publishHistoryPreservingCandidate({
       publishedTip,
       backlogPath,
     );
-    mergeCount += 1;
+    if (!prepared.resolved) mergeCount += 1;
     if (prepared.adapterStatus) {
       adapterStatuses.push(prepared.adapterStatus);
     }
@@ -131,6 +133,9 @@ export async function publishHistoryPreservingCandidate({
         classification: "preserved",
         reason: prepared.reason ?? "conflict",
         ...(prepared.error && { error: prepared.error }),
+        ...(prepared.conflictedPaths && {
+          conflictedPaths: prepared.conflictedPaths,
+        }),
         mergeCount,
         pushCount: 0,
         rejectedPushCount,

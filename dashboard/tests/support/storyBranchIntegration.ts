@@ -58,6 +58,16 @@ export async function claimedStoryBranchLaunch(
   return { record, start, reporting, landingContext };
 }
 
+// Another writer's own clone of the origin.
+export function anotherWriterClone(origin: StartOrigin, name: string) {
+  const writer = path.join(origin.machine, `writer-${name}`);
+  mkdirSync(writer);
+  git(writer, "clone", "--quiet", origin.origin, ".");
+  git(writer, "config", "user.name", "Another Writer");
+  git(writer, "config", "user.email", "writer@example.test");
+  return writer;
+}
+
 // Another writer's trunk commit, landed through its own clone, with whatever
 // else `alsoChanging` changes there.
 export function trunkCommitFromAnotherWriter(
@@ -65,11 +75,7 @@ export function trunkCommitFromAnotherWriter(
   name: string,
   alsoChanging?: (writer: string) => void,
 ) {
-  const writer = path.join(origin.machine, `writer-${name}`);
-  mkdirSync(writer);
-  git(writer, "clone", "--quiet", origin.origin, ".");
-  git(writer, "config", "user.name", "Another Writer");
-  git(writer, "config", "user.email", "writer@example.test");
+  const writer = anotherWriterClone(origin, name);
   writeFileSync(path.join(writer, name), `${name}\n`);
   alsoChanging?.(writer);
   git(writer, "add", "-A");

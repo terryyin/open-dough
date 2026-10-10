@@ -41,3 +41,26 @@ export async function commitFile(workspace, file, body, message) {
 export async function remoteCommitCount(remote, ref = trunkTarget) {
   return Number((await git(remote, "rev-list", "--count", ref)).stdout.trim());
 }
+
+// A published Story Branch tip and another writer's trunk commit that both
+// change `shared.txt`, so integrating that tip stops on a conflict.
+export async function publishStoryConflictingWithTrunk(origin, execution) {
+  const closureSha = await commitFile(
+    execution,
+    "shared.txt",
+    "story\n",
+    "story closure",
+  );
+  await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);
+  const trunkSha = await advanceOriginFromAnotherWriter(origin, {
+    file: "shared.txt",
+    body: "trunk\n",
+  });
+  return { closureSha, trunkSha };
+}
+
+// Stages `body` as the resolution of that conflict, leaving the commit.
+export async function stageSharedResolution(workspace, body) {
+  writeFileSync(join(workspace, "shared.txt"), body);
+  await git(workspace, "add", "shared.txt");
+}

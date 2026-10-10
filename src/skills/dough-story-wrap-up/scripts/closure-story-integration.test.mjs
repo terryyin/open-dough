@@ -36,6 +36,7 @@ import {
   observeClosureDependency,
 } from "./closure-dependency-test-fixtures.mjs";
 
+import "./closure-story-conflict-cases.mjs";
 import "./closure-story-fast-forward-cases.mjs";
 
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);

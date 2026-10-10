@@ -96,9 +96,24 @@ these rows name are unchanged between the two revisions; no product file changed
 
 ### 1. A resolved conflicted integration is published and recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: The node test and spec journey above; `closure-story-integration*.test.mjs`
 and `closure-story-branch-cleanup.test.mjs` stay green.
+
+Accepted proof: `closure-story-conflict-cases.mjs` (run by
+`closure-story-integration.test.mjs`: the plain conflict through the CLI with
+exit 1 and its printed result, the unresolved rerun, trunk moved between runs,
+and a backlog conflict finished through the merge adapter's `continue`);
+`closure-story-integration-agent-credit.test.mjs` (the resolution committed
+through `agent-commit.mjs -F MERGE_MSG`); `story-branch-landing-conflict.spec.ts`
+against the real receiver (the recorded pair, and a pair retained before a
+rejected push giving way to the resolved merge's pair).
+
+Learnings: the receiver journeys live in the sibling
+`story-branch-landing-conflict.spec.ts`, because the capture spec would pass
+250 lines; a taken resolved `HEAD` reports `mergeCount: 0`; a rerun with
+unmerged paths answers `preserved` in place; `publish-the-candidate.md` is at
+250 lines, so slice 4's split is still wanted.
 
 Behavior: A claimed launch holds a landing context; the published tip
 conflicts with fetched trunk → `integrate` prints `preserved` with its reason
@@ -150,3 +165,40 @@ declarations and `publish-the-candidate.md` on a cohesive seam so neither sits
 at the limit. Owned directly by this correction (finding 4).
 
 Safe stopping point: no behavior changes.
+
+## Story obligations
+
+### G1. A resolved merge with reversed parents is untested
+Reported: slice 1 — "Resolved `HEAD` with the parents in reverse order is accepted by code and untested."
+Story clause: "contended stories do not land with an evidence gap"
+Disposition: no user cost "contended stories do not land with an evidence gap": Git and the merge adapter write the fetched trunk tip first, and either order is the same merge of the same two tips.
+
+### G2. An unresolved rerun after trunk moved keeps the old conflict
+Reported: slice 1 — "A rerun with unmerged paths after trunk moved answers `preserved` with the old conflict in place; it does not recompute until the agent commits or aborts."
+Story clause: "reports a conflict as a preserved result"
+Disposition: proved by slice 1: `closure-story-conflict-cases.mjs`, the trunk-moved step of "a conflicted integration is preserved as Git left it, and its resolved merge commit is published as the candidate", recomputes once that merge is committed.
+
+### G3. Unrelated unmerged paths answer preserved
+Reported: slice 1 — "Any unmerged paths in the workspace, even from an unrelated operation, now answer `preserved` / `conflict` rather than exit 2."
+Story clause: "reports a conflict as a preserved result"
+Disposition: no user cost "contended stories do not land with an evidence gap": such a workspace was refused before with exit 2 and no result; it is now refused with the paths named and nothing changed.
+
+### G4. Adapter failures without unmerged paths print an empty list
+Reported: slice 1 — "`conflictedPaths` for adapter `blocked` or `refused` results, where it may be empty or name a non-backlog path, is not asserted."
+Story clause: "reports a conflict as a preserved result"
+Disposition: no user cost "contended stories do not land with an evidence gap": those results keep their adapter status, which names the reason; the list adds no instruction to follow.
+
+### G5. The identity-refused rerun was not re-examined
+Reported: slice 1 — "A `developer-identity-refused` rerun (merge in progress, no unmerged paths) is unchanged and was not re-examined."
+Story clause: "contended stories do not land with an evidence gap"
+Disposition: no user cost "contended stories do not land with an evidence gap": that path has no unmerged paths and no merge `HEAD`, so it runs the code it ran before this slice.
+
+### G6. Combined conditions are proved separately
+Reported: slice 1 — "A backlog-adapter conflict under a landing context or in an agent-configured workspace is not combined in one test."
+Story clause: "The `integrate` command publishes a merge the agent resolved by hand"
+Disposition: proved by slice 1: `closure-story-conflict-cases.mjs` (adapter `continue`), `closure-story-integration-agent-credit.test.mjs` (agent commit) and `story-branch-landing-conflict.spec.ts` (landing context) each take the same resolved-`HEAD` path, which reads only the commit's parents.
+
+### G7. The guidance has no native run
+Reported: slice 1 — "The guidance prose has no behavioural test beyond the observed command, and no paid native run."
+Story clause: "The `integrate` command publishes a merge the agent resolved by hand"
+Disposition: no user cost "contended stories do not land with an evidence gap": the two steps the guidance names are each observed by the tests above; native host runs are paid and manual in this project.

@@ -16,6 +16,10 @@ If the adapter and that reference are unavailable, report the gap and leave the
 conflict. Stop when no coherent resolution is justified. Selected-work cleanup
 alone does not prove a sibling backlog change survived.
 
+A `preserved` integration result with a `conflict` reason takes two steps:
+resolve and commit the stopped merge in the owned workspace, then run the same
+integration command again, which publishes that commit and returns the receipt.
+
 Require that procedure's accepted receipt before resource cleanup. The receipt
 is the accepted candidate SHA and the remote trunk ref. A superseded candidate
 is not the receipt. Unresolved integration preserves the execution resources
