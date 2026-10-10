@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-129#bounded-cursor-launch-wait",
+  "title": "A Cursor launch or recover wait ends within a bound with a clear message",
+  "completedAt": "2026-10-10T07:27:33.620Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "cursor",
+  "model": "auto"
+}

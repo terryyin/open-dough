@@ -388,7 +388,7 @@ before the agent returns its proof report, leaving the coordinator to recover
 outcome and acceptance from the checkout.
 
 ### Occurrences
-- Execution: SEED-129#bounded-cursor-launch-wait / plan 283, first related
+- Execution: SEED-129#bounded-cursor-launch-wait (spent plan recoverable at `05ef17b797308daa7569db430b52952507c6f3e1:.planning/slice-plans/283-bounded-cursor-launch-wait/PLAN.md`), first related
   implementation commit `3f761b36`
   - Timestamp: unknown (2026-10-10, after slice-1 Task start ~15:04 +09:00 and
     before slice-1 post-change refactor ~15:35 +09:00)
