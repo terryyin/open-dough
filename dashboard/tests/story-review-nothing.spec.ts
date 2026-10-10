@@ -3,14 +3,18 @@
 // trunk shows its context line and no changes against the named baseline,
 // the line staying in place while a short panel scrolls that explanation; a
 // worktree whose folder was removed with no landing captured explains that
-// evidence gap, still offering Refresh and Close, and no Git runs; a trunk that cannot
-// be fetched names its remote and target, shows no file list, and Refresh
-// reads the review again once trunk is reachable; and a story whose kept
-// launch record names no workspace offers no review at all, which the launch
-// boundary also refuses.
+// evidence gap, still offering Refresh and Close, and no Git runs; a launch
+// with its worktree is no landed run until Refresh finds that worktree gone,
+// and a later opening reads the same gap; a trunk that cannot be fetched
+// names its remote and target, shows no file list, and Refresh reads the
+// review again once trunk is reachable; and a story whose kept launch record
+// names no workspace offers no review at all, which the launch boundary also
+// refuses.
 
+import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import type { Locator, Page } from "@playwright/test";
+import { storyReviewEndpoint, storyReviewSchema } from "../src/storyReview.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -36,6 +40,17 @@ import {
 } from "./support/storyLaunchRecord.ts";
 
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
+const gapExplanation =
+  "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.";
+
+// The review the server answers once `control` is activated.
+async function reviewAfter(page: Page, control: Locator) {
+  const answer = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === storyReviewEndpoint,
+  );
+  await control.click();
+  return storyReviewSchema.parse(await (await answer).json());
+}
 
 test("a worktree straight off trunk has no changes against the named baseline", async ({
   page,
@@ -77,9 +92,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Review changes" });
   const status = reviewFeedback(review);
-  await expect(status).toHaveText(
-    "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
-  );
+  await expect(status).toHaveText(gapExplanation);
   await expect(
     review.getByRole("radio", { name: "Landed runs", exact: true }),
   ).toBeChecked();
@@ -99,6 +112,77 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
     review.getByRole("button", { name: "Close", exact: true }),
   ).toBeVisible();
   expect(fetchedTrunk()).toBe(merged);
+});
+
+test("a launch with its worktree is no landed run, and once Refresh finds the worktree gone the review lists that run's gap and no files, as a later opening does", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { workspace } = storyWorktree(origin);
+  const record = storyALaunchRecord(workspace);
+  const reference = randomUUID();
+  record.request.reporting = {
+    origin: dashboard.origin,
+    reference,
+    command: "report",
+  };
+  await keepLaunchRecords(dashboard, [record]);
+  const card = await openBacklog(page, origin);
+  const open = card.getByRole("button", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Review changes" });
+  const live = await reviewAfter(page, open);
+  expect(live.kind).toBe("snapshot");
+  expect(live.runs).toBeUndefined();
+  await expect(review.getByRole("list")).not.toHaveCount(0);
+  await expect(review.getByRole("radio", { name: "Landed runs" })).toHaveCount(
+    0,
+  );
+
+  // The worktree is removed with nothing captured for the launch.
+  rmSync(workspace, { recursive: true, force: true });
+  git(origin.project, "worktree", "prune");
+  const gap = await reviewAfter(
+    page,
+    review.getByRole("button", { name: "Refresh" }),
+  );
+  expect(gap).toMatchObject({
+    kind: "landing-unavailable",
+    selectedRun: reference,
+    explanation: gapExplanation,
+    runs: [
+      {
+        key: reference,
+        workflow: "execution",
+        launchedAt: record.launchedAt,
+        remote: "origin",
+        target: "main",
+      },
+    ],
+  });
+  expect(gap.runs?.[0]?.comparison).toBeUndefined();
+  await expect(reviewFeedback(review)).toHaveText(gapExplanation);
+  await expect(
+    review.getByRole("radio", { name: "Landed runs", exact: true }),
+  ).toBeChecked();
+  await expect(
+    review.getByRole("listbox", { name: "Landed run" }).getByRole("option"),
+  ).toHaveText([/^Execution — .+ — No captured comparison$/]);
+  await expect(review).toContainText("Execution launched");
+  await expect(review).toContainText("target origin/main");
+  await expect(reviewBody(review)).toBeEmpty();
+  await expect(review.getByRole("list")).toHaveCount(0);
+  await expect(
+    review.getByRole("button", { name: "Mark reviewed" }),
+  ).toHaveCount(0);
+
+  // A later opening reads the same gap.
+  await review.getByRole("button", { name: "Close", exact: true }).click();
+  expect(await reviewAfter(page, open)).toMatchObject({
+    kind: "landing-unavailable",
+    selectedRun: reference,
+  });
+  await expect(review.getByRole("list")).toHaveCount(0);
 });
 
 test("a trunk that cannot be fetched names its remote and target and shows no list until Refresh reaches it", async ({

@@ -153,9 +153,20 @@ Safe stopping point: capture of the first landing is unchanged.
 
 ### 3. One spec proves the removed-worktree gap
 Type: Structure
-Status: planned
+Status: done
 Proof: `story-review-nothing.spec.ts` with the moved assertions; the landed
 and capture specs stay green.
+
+Accepted proof: `story-review-nothing.spec.ts`, "a launch with its worktree is
+no landed run, and once Refresh finds the worktree gone the review lists that
+run's gap and no files, as a later opening does", on a kept record carrying a
+reporting reference; five product mutations each failed a moved assertion.
+
+Learnings: `story-review-nothing.spec.ts` is at 250 lines. Its local
+`reviewAfter(page, control)` is the general form of `readReview` and of three
+inline Refresh waits (`story-review-story-branch-landed.spec.ts`,
+`story-review-one-shot-unavailable.spec.ts`, `story-review-one-shot.spec.ts`);
+slice 4 gives them one home when it moves `readReview`.
 
 Internal change: move the unique assertions of
 `story-review-story-branch-unavailable.spec.ts` onto the kept-record fixture
@@ -228,3 +239,13 @@ Disposition: no user cost "contended stories do not land with an evidence gap": 
 Reported: slice 2 — "A later publication made while the first landing is accepted but still `unacknowledged` is not exercised."
 Story clause: "the launch instruction and landing handoff say that a launch's later trunk publications take no landing context"
 Disposition: no user cost "contended stories do not land with an evidence gap": the instruction keys on trunk accepting the first publication, so the later one carries no context, and the first pair is recorded by the reporting-only retry that existed before this slice.
+
+### J1. The gap is no longer shown on a record the installed start wrote
+Reported: slice 3 — "The gap is no longer shown for a record produced by the installed start (codex host, server-issued reporting reference and `launchedAt`)."
+Story clause: "the removed-worktree gap keeps one inexpensive spec"
+Disposition: no user cost "still gets the landed review": the rule reads only the record's fields and the directory state, and real claimed records feed the same run listing in `story-review-story-branch-landed.spec.ts` and `story-branch-landing-capture.spec.ts`.
+
+### J2. The gap is opened from the Backlog card, not a Taken card
+Reported: slice 3 — "No spec now observes the uncaptured claimed-launch gap from a Taken card."
+Story clause: "the removed-worktree gap keeps one inexpensive spec"
+Disposition: no user cost "still gets the landed review": the card supplies only the story identity to the same review request, and `story-review-story-branch-landed.spec.ts` opens the landed review from a Taken card and a done card.
