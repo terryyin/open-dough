@@ -14,9 +14,7 @@ import {
   reviewedWorkspace,
   queriedWorkspace,
 } from "./storyReviewWorkspaceAdmission.ts";
-import { queriedRun, reviewedRunFile } from "./storyReviewRunAdmission.ts";
-import { type ReviewOneShotRun } from "../src/storyReviewOneShot.ts";
-import { directoryState } from "./sessionWorkspace.ts";
+import { reviewedRunFile } from "./storyReviewRunAdmission.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import type { EstablishedContext } from "../src/launchRecord.ts";
@@ -25,28 +23,11 @@ import {
   objectIdSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
-  reviewWorkspaceOf,
 } from "../src/storyReview.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { projectFolder } from "./projectFolders.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
 import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
-
-interface AdmittedWorkspaceReview {
-  readonly kind: "review";
-  readonly sourceId: string;
-  readonly identity: string;
-  readonly established: EstablishedContext;
-  // The workspace as the page shows it.
-  readonly shown: string;
-  readonly fallback?: ReviewOneShotRun;
-}
-
-export type AdmittedReview =
-  | AdmittedWorkspaceReview
-  | { readonly kind: "review"; readonly run: ReviewOneShotRun };
 
 export interface AdmittedFileDiff {
   readonly kind: "review-file";
@@ -68,49 +49,6 @@ export interface AdmittedReviewRange {
   readonly tree: string;
   readonly baseline: string;
   readonly integrations: readonly ReviewIntegration[];
-}
-
-export async function reviewRequest(url: URL): Promise<AdmittedReview> {
-  requireExactQuery(
-    url,
-    [
-      "source",
-      "identity",
-      ...(url.searchParams.has("reference") ? ["reference"] : []),
-    ],
-    "review",
-  );
-  const found = await queriedRun(url);
-  if (found.run !== undefined) return { kind: "review", run: found.run };
-  const fallback =
-    found.runs.find(({ record }) => record.landing !== undefined) ??
-    found.runs[0];
-  const workspace = reviewWorkspaceOf(
-    found.records,
-    found.source.id,
-    found.identity,
-  );
-  if (
-    workspace === undefined ||
-    directoryState(workspace.established.workspace).kind !== "available"
-  ) {
-    if (fallback !== undefined) return { kind: "review", run: fallback };
-  }
-  if (workspace === undefined)
-    throw new RefusedRequest(
-      404,
-      "This story has no launch workspace to review.",
-    );
-  const { source, identity } = found;
-  const { established } = workspace;
-  return {
-    kind: "review",
-    sourceId: source.id,
-    identity,
-    established,
-    shown: shownStartWorkspace(projectFolder(source), established.workspace),
-    ...(fallback === undefined ? {} : { fallback }),
-  };
 }
 
 const reviewedPathSchema = z
@@ -234,3 +172,5 @@ export async function markReviewedRequest(
     baseline: parsed.data.baseline,
   };
 }
+
+export { reviewRequest, type AdmittedReview } from "./storyReviewRequest.ts";

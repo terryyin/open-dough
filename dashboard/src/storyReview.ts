@@ -9,7 +9,10 @@
 
 import { z } from "zod";
 import { objectIdSchema, reviewedFileSchema } from "./storyReviewFiles.ts";
-import { landedReviewContextSchema } from "./storyReviewOneShot.ts";
+import {
+  landedReviewContextSchema,
+  reviewRunChoiceSchema,
+} from "./storyReviewOneShot.ts";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
@@ -25,6 +28,13 @@ export const storyReviewFileEndpoint = "/__agent-launch/review/file";
 export const storyReviewRangeEndpoint = "/__agent-launch/review/range";
 // Where a same-origin POST marks the snapshot shown as reviewed.
 export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
+
+// Saved landings retain full branch refs; workspace targets use short names.
+export const reviewTargetName = ({
+  remote,
+  target,
+}: Pick<EstablishedContext, "remote" | "target">) =>
+  `${remote}/${target.replace(/^refs\/heads\//, "")}`;
 
 // The kept launch record a story's review reads, with what it established:
 // the most recent by `launchedAt` of the story's records whose start or
@@ -156,55 +166,62 @@ export type ReviewRange = z.infer<typeof reviewRangeSchema>;
 export const markUncomparableSchema = z.enum(["unreadable", "not-restated"]);
 export type MarkUncomparable = z.infer<typeof markUncomparableSchema>;
 
-export const storyReviewSchema = z.discriminatedUnion("kind", [
-  z.object({
-    kind: z.literal("landed"),
-    landing: landedReviewContextSchema,
-    baseline: objectIdSchema,
-    tree: objectIdSchema,
-    files: z.array(reviewedFileSchema),
-  }),
-  z.object({
-    kind: z.literal("landing-unavailable"),
-    reference: z.uuid().optional(),
-    explanation: z.string().min(1),
-  }),
-  z.object({
-    kind: z.literal("snapshot"),
-    // The workspace as the page shows the project's folders.
-    workspace: z.string().min(1),
-    branch: z.string().min(1),
-    remote: z.string().min(1),
-    target: z.string().min(1),
-    // The merge-base of `head` and the freshly fetched `<remote>/<target>`.
-    baseline: objectIdSchema,
-    head: objectIdSchema,
-    // The workspace's files as observed, written as a tree object: every
-    // file diff of this snapshot compares the *from* tree of the comparison
-    // shown with it: `baseline` for `files`; for `since`, its `from` or the
-    // file's `includesTrunkFrom`.
-    tree: objectIdSchema,
-    files: z.array(reviewedFileSchema),
-    commits: z.array(reviewCommitSchema),
-    uncommitted: reviewUncommittedSchema.optional(),
-    // The story's mark on this machine, when it has one.
-    mark: reviewMarkSchema.optional(),
-    // With a mark the repository holds, the same snapshot compared with it:
-    // the changes since the review. Its `from` is the marked tree restated on `baseline`, leaving
-    // out what came only from trunk -- the marked tree itself while
-    // `baseline` is the mark's -- and its file diffs compare `from`, or a
-    // file's `includesTrunkFrom`, with `tree`. Trunk was integrated since the
-    // mark exactly when the mark's baseline differs from `baseline`.
-    since: reviewComparisonSchema.optional(),
-    // With a mark that cannot be compared, in place of `since`: why.
-    markUncomparable: markUncomparableSchema.optional(),
-  }),
-  z.object({
-    kind: z.literal("unavailable"),
-    workspace: z.string().min(1),
-    explanation: z.string().min(1),
-  }),
-]);
+export const storyReviewSchema = z
+  .discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("landed"),
+      landing: landedReviewContextSchema,
+      baseline: objectIdSchema,
+      tree: objectIdSchema,
+      files: z.array(reviewedFileSchema),
+    }),
+    z.object({
+      kind: z.literal("landing-unavailable"),
+      reference: z.uuid().optional(),
+      explanation: z.string().min(1),
+    }),
+    z.object({
+      kind: z.literal("snapshot"),
+      // The workspace as the page shows the project's folders.
+      workspace: z.string().min(1),
+      branch: z.string().min(1),
+      remote: z.string().min(1),
+      target: z.string().min(1),
+      // The merge-base of `head` and the freshly fetched `<remote>/<target>`.
+      baseline: objectIdSchema,
+      head: objectIdSchema,
+      // The workspace's files as observed, written as a tree object: every
+      // file diff of this snapshot compares the *from* tree of the comparison
+      // shown with it: `baseline` for `files`; for `since`, its `from` or the
+      // file's `includesTrunkFrom`.
+      tree: objectIdSchema,
+      files: z.array(reviewedFileSchema),
+      commits: z.array(reviewCommitSchema),
+      uncommitted: reviewUncommittedSchema.optional(),
+      // The story's mark on this machine, when it has one.
+      mark: reviewMarkSchema.optional(),
+      // With a mark the repository holds, the same snapshot compared with it:
+      // the changes since the review. Its `from` is the marked tree restated on `baseline`, leaving
+      // out what came only from trunk -- the marked tree itself while
+      // `baseline` is the mark's -- and its file diffs compare `from`, or a
+      // file's `includesTrunkFrom`, with `tree`. Trunk was integrated since the
+      // mark exactly when the mark's baseline differs from `baseline`.
+      since: reviewComparisonSchema.optional(),
+      // With a mark that cannot be compared, in place of `since`: why.
+      markUncomparable: markUncomparableSchema.optional(),
+    }),
+    z.object({
+      kind: z.literal("unavailable"),
+      workspace: z.string().min(1),
+      explanation: z.string().min(1),
+    }),
+  ])
+  .and(
+    z.object({
+      runs: z.array(reviewRunChoiceSchema).optional(),
+      selectedRun: z.string().min(1).optional(),
+    }),
+  );
 export type StoryReview = z.infer<typeof storyReviewSchema>;
 // A review whose snapshot was taken.
 export type TakenStoryReview = Extract<StoryReview, { kind: "snapshot" }>;

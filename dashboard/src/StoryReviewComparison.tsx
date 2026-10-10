@@ -20,11 +20,15 @@ export function ComparisonSwitch({
   onSwitch,
   since,
   commits,
+  landed = false,
+  workspace = true,
 }: {
-  readonly shown: ShownComparison;
-  readonly onSwitch: (shown: ShownComparison) => void;
+  readonly shown: ShownComparison | "landed";
+  readonly onSwitch: (shown: ShownComparison | "landed") => void;
   readonly since: boolean;
   readonly commits: boolean;
+  readonly landed?: boolean;
+  readonly workspace?: boolean;
 }) {
   const name = useId();
   return (
@@ -34,9 +38,10 @@ export function ComparisonSwitch({
       aria-label="Comparison"
     >
       {[
-        ...(since ? ["since" as const] : []),
-        "all" as const,
+        ...(workspace && since ? ["since" as const] : []),
+        ...(workspace ? ["all" as const] : []),
         ...(commits ? ["commits" as const] : []),
+        ...(landed ? ["landed" as const] : []),
       ].map((option) => (
         <label key={option}>
           <input
@@ -48,7 +53,9 @@ export function ComparisonSwitch({
               onSwitch(option);
             }}
           />{" "}
-          {comparisonWords[option]}
+          {option === "landed"
+            ? "Landed one-shot runs"
+            : comparisonWords[option]}
         </label>
       ))}
     </div>

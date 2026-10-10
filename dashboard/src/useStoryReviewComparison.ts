@@ -16,12 +16,15 @@ export function useStoryReviewComparison({
   source,
   identity,
   snapshot,
+  chosen,
+  active,
 }: {
   readonly source: string;
   readonly identity: string;
   readonly snapshot: TakenStoryReview | undefined;
+  readonly chosen: ShownComparison;
+  readonly active: boolean;
 }) {
-  const [chosen, onSwitch] = useState<ShownComparison>("since");
   const [ends, setEnds] = useState<readonly [string, string]>();
   const items = [
     ...(snapshot?.uncommitted === undefined ? [] : [snapshot.uncommitted]),
@@ -88,7 +91,7 @@ export function useStoryReviewComparison({
     },
     reviewRangeSchema,
     0,
-    shown === "commits",
+    active && shown === "commits",
   );
   const rangeComparison =
     !range.reading && range.answer?.kind === "comparison"
@@ -109,7 +112,6 @@ export function useStoryReviewComparison({
     range,
     comparison,
     tree,
-    onSwitch,
     onSelect,
     trunkIntegrated: rangeComparison?.trunkIntegrated === true,
   };

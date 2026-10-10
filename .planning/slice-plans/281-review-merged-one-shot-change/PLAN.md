@@ -159,7 +159,7 @@ The newest captured run is initially shown; slice 4 adds the full choice.
 
 ### 4. Choose retained runs alongside the live workspace review
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `dashboard/tests/story-review-one-shot-choice.spec.ts`: two captured
 one-shot runs, one older uncaptured run and a newer standard launch. By keyboard
 choose each run; assert workflow/time/revision/target, exact files/diffs, one

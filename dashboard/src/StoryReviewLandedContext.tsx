@@ -1,6 +1,8 @@
 // Historical context names the fixed accepted pair, without workspace or marking semantics.
 import type { LandedReviewContext } from "./storyReviewOneShot.ts";
 import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
+import { launchKindName } from "./launchWorkflow.ts";
+import { reviewTargetName } from "./storyReview.ts";
 export function LandedContext({
   landing,
   browser,
@@ -14,16 +16,11 @@ export function LandedContext({
     <div>
       <h3>Landed one-shot run</h3>
       <p>
-        {landing.workflow === "refinement" ? "Refinement" : "Execution"}{" "}
-        launched{" "}
+        {launchKindName(landing.workflow)} launched{" "}
         <time dateTime={landing.launchedAt}>
           {new Date(landing.launchedAt).toLocaleString()}
         </time>
-        , delivered to{" "}
-        <code>
-          {landing.remote}/{landing.target.replace(/^refs\/heads\//, "")}
-        </code>
-        .
+        , delivered to <code>{reviewTargetName(landing)}</code>.
       </p>
       <p>
         From <code>{landing.base}</code> to <code>{landing.revision}</code>.

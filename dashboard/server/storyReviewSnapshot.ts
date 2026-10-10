@@ -25,6 +25,7 @@
 // path.
 
 import { landedStoryReview } from "./storyReviewLanded.ts";
+import { reviewRunChoice, reviewRunKey } from "../src/storyReviewOneShot.ts";
 import { mkdtemp, realpath, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
@@ -55,14 +56,22 @@ export async function storyReviewResponse(
   request: AdmittedReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
+  const choices =
+    request.runs.length === 0
+      ? {}
+      : { runs: request.runs.map(reviewRunChoice) };
   if ("run" in request)
     return {
       status: 200,
-      body: await withResponseSignal(
-        res,
-        (signal) => landedStoryReview(request.run, signal),
-        reviewWaitMs,
-      ),
+      body: {
+        ...(await withResponseSignal(
+          res,
+          (signal) => landedStoryReview(request.run, signal),
+          reviewWaitMs,
+        )),
+        ...choices,
+        selectedRun: reviewRunKey(request.run.record),
+      },
     };
   const { sourceId, identity, established, shown } = request;
   const mark = await reviewMark(sourceId, identity);
@@ -76,12 +85,15 @@ export async function storyReviewResponse(
         signal,
       );
       return snapshot.kind === "unavailable" && request.fallback !== undefined
-        ? landedStoryReview(request.fallback, signal)
+        ? {
+            ...(await landedStoryReview(request.fallback, signal)),
+            selectedRun: reviewRunKey(request.fallback.record),
+          }
         : snapshot;
     },
     reviewWaitMs,
   );
-  return { status: 200, body };
+  return { status: 200, body: { ...body, ...choices } };
 }
 
 async function storyReviewSnapshot(

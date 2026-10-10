@@ -216,22 +216,6 @@ The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
 first-parent commits and Uncommitted changes, compares a contiguous range,
 and preserves its chosen endpoints through Refresh.
 
-A retained one-shot run can also be reviewed after its workspace and local branch
-are retired. When the latest launch workspace cannot be read, Review changes opens the
-newest retained captured run. The heading names **Landed one-shot run**, its
-workflow and launch time, authorized remote target, and exact captured base and
-accepted revision. The existing file browser, counts, rename detection, binary
-explanation and file moves compare those two commits. Refresh and restart read
-that same pair even when trunk has advanced or reverted the result. Historical
-reads use the original saved common Git repository and write no ref, index or
-checkout content; they neither fetch trunk nor replace the workspace review mark.
-There is no Mark reviewed control for a landed run.
-
-A valid empty comparison says that this run's delivered comparison is empty.
-A retained one-shot run without capture explains its evidence gap; missing or
-unreadable saved repository or objects explain why the comparison is unavailable.
-None of these states guesses a baseline or lists substitute files from today's
-trunk. Requests to the same review/file boundary name the project, story and
-retained launch reference. File reads must name that captured pair and one of its
-literal changed paths, including the exact old path for a rename. No request
-can supply a repository or workspace path.
+The [Landed one-shot runs comparison](STORY-REVIEW-ONE-SHOT.md) offers every
+retained refinement or execution run alongside the workspace comparisons, using
+each run's fixed delivered pair after retirement.

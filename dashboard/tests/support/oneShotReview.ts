@@ -27,7 +27,7 @@ export async function startReviewRun(dashboard: DashboardServer) {
     host: "codex",
   });
   expect(JSON.parse(response.body)).toMatchObject({ kind: "launched" });
-  const record = stored(dashboard.home)[0];
+  const record = stored(dashboard.home).at(-1);
   if (record === undefined) throw new Error("No real launch");
   return { record, ...context(record) };
 }

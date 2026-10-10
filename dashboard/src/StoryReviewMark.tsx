@@ -6,16 +6,12 @@
 // the changes since the review, the mark they compare with and when it was
 // made, and whether trunk was integrated since: its baseline is not the
 // snapshot's. The review's marking controls gather these, with its
-// comparison switch (`./StoryReviewComparison.tsx`) and Mark reviewed, in
-// its fixed top beneath the context line.
+// Mark reviewed beside the panel's comparison switch, in its fixed top.
 
 import { postJson, refusal } from "./agentLaunchClient.ts";
 import { Moment } from "./Moment.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
-import {
-  ComparisonSwitch,
-  type ShownComparison,
-} from "./StoryReviewComparison.tsx";
+import { type ShownComparison } from "./StoryReviewComparison.tsx";
 import {
   markReviewedAnswerSchema,
   markUnavailable,
@@ -110,24 +106,20 @@ export function SinceTheReviewHeading({
   );
 }
 
-// A snapshot's marking controls: the comparison switch while the changes
-// since the review are offered, their heading while shown, the mark stated,
-// and Mark reviewed, which marks the snapshot shown.
+// A snapshot's marking controls: its chosen comparison's heading, the mark
+// stated, and Mark reviewed, which marks the snapshot shown.
 export function MarkingControls({
   snapshot,
   shown,
-  onSwitch,
   sinceReview,
   stated,
   busy,
   onMark,
   selectedItems,
   trunkIntegrated,
-  commitsAvailable,
 }: {
   readonly snapshot: TakenStoryReview;
   readonly shown: ShownComparison;
-  readonly onSwitch: (shown: ShownComparison) => void;
   // Whether the changes since the review are shown.
   readonly sinceReview: boolean;
   readonly stated: ReviewMark | undefined;
@@ -135,19 +127,10 @@ export function MarkingControls({
   readonly busy: boolean;
   readonly onMark: () => void;
   readonly selectedItems: readonly ReviewItem[];
-  readonly commitsAvailable: boolean;
   readonly trunkIntegrated: boolean;
 }) {
   return (
     <div className="story-review-marking">
-      {(snapshot.since !== undefined || commitsAvailable) && (
-        <ComparisonSwitch
-          shown={shown}
-          onSwitch={onSwitch}
-          since={snapshot.since !== undefined}
-          commits={commitsAvailable}
-        />
-      )}
       {shown === "commits" && selectedItems.length > 0 && (
         <CommitRangeHeading
           selected={selectedItems}

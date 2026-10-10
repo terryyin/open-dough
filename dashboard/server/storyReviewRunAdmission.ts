@@ -1,7 +1,10 @@
 // Resolve historical choices from retained launch identity, never caller paths.
 import { z } from "zod";
 import { workIdentitySchema } from "../src/launchRequest.ts";
-import { reviewOneShotRunsOf } from "../src/storyReviewOneShot.ts";
+import {
+  reviewOneShotRunsOf,
+  reviewRunKey,
+} from "../src/storyReviewOneShot.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
@@ -18,6 +21,16 @@ export async function queriedRun(url: URL) {
   const records = await keptRecords(source.id);
   const runs = reviewOneShotRunsOf(records, source.id, identity.data);
   const reference = url.searchParams.get("reference");
+  const key = url.searchParams.get("run");
+  if (key !== null) {
+    const run = runs.find(({ record }) => reviewRunKey(record) === key);
+    if (run === undefined)
+      throw new RefusedRequest(
+        404,
+        "This story has no retained one-shot run with that identity.",
+      );
+    return { source, identity: identity.data, records, runs, run };
+  }
   if (reference !== null) {
     if (!z.uuid().safeParse(reference).success)
       throw new RefusedRequest(
