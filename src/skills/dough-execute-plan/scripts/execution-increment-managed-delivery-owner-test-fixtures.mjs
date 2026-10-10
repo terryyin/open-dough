@@ -2,7 +2,14 @@
 // checkouts of one repository with their own installed runtimes, real
 // observers as starting conditions, and each host's installed hook and
 // `deliver` as its coordinator invokes them.
-import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  chmodSync,
+  existsSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { invokeHostHook } from "./ci-host-bridge.mjs";
 import { readRevisionCoverage, receiptPrefix } from "./ci-mailbox.mjs";
@@ -17,6 +24,7 @@ import {
   cursorHookInput,
   deliverThroughCli,
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
+import { revParse } from "./publication-test-fixtures.mjs";
 import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 
 export const trunkTarget = "refs/heads/main";
@@ -132,4 +140,52 @@ export async function commitIncrement(fixture, name) {
   writeFileSync(join(fixture.execution, `${name}.txt`), `${name}\n`);
   await git(fixture.execution, "add", `${name}.txt`);
   await git(fixture.execution, "commit", "-m", `${name} increment`);
+}
+
+// An increment the remote target already accepted and no observer was told
+// about: the starting condition of an interrupted registration.
+export async function acceptedIncrement(fixture) {
+  await git(fixture.execution, "push", "-q", "origin", `HEAD:${trunkTarget}`);
+  return revParse(fixture.execution, "HEAD");
+}
+
+// Counts the pushes the fixture's bare remote receives from now on.
+export async function countPushes(fixture) {
+  const hooks = join(fixture.origin, "hooks");
+  const log = join(fixture.fixture, "pushes.log");
+  await git(fixture.origin, "config", "core.hooksPath", hooks);
+  const hook = join(hooks, "post-receive");
+  writeFileSync(hook, `#!/bin/sh\necho push >> '${log}'\n`);
+  chmodSync(hook, 0o700);
+  return () =>
+    existsSync(log) ? readFileSync(log, "utf8").trim().split("\n").length : 0;
+}
+
+// Leaves on `directory` only the claim an earlier hook wrote for a Claude Code
+// agent: the repository's common Git directory, host, session, and child
+// identity, with no binding of the current hook.
+export async function writeLegacyClaim(fixture, directory, session) {
+  const commonDirectory = realpathSync(
+    (
+      await git(
+        fixture.integration,
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir",
+      )
+    ).stdout.trim(),
+  );
+  writeFileSync(
+    join(directory, "owner"),
+    createHash("sha256")
+      .update(
+        JSON.stringify([
+          commonDirectory,
+          "claude",
+          session.session_id,
+          session.agent_id,
+        ]),
+      )
+      .digest("hex"),
+  );
 }

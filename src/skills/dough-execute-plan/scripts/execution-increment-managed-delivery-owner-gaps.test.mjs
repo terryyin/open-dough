@@ -3,14 +3,10 @@
 // the installed host hook's own owner claims, and real workers. Observers are
 // starting conditions only; every registration below is a product outcome.
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { existsSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  git,
-  watchCount,
-} from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { watchCount } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import {
   commitIncrement,
   coverage,
@@ -20,6 +16,7 @@ import {
   siblingCheckouts,
   startReceipt,
   trunkTarget,
+  writeLegacyClaim,
 } from "./execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
 
@@ -94,29 +91,7 @@ test("explicit session JSON selects the observer its owner claimed from another 
   // only the claim an earlier hook wrote: the repository's common Git
   // directory, host, session, and child identity.
   const retained = await startObserver("sibling");
-  const commonDirectory = realpathSync(
-    (
-      await git(
-        fixture.integration,
-        "rev-parse",
-        "--path-format=absolute",
-        "--git-common-dir",
-      )
-    ).stdout.trim(),
-  );
-  writeFileSync(
-    join(retained, "owner"),
-    createHash("sha256")
-      .update(
-        JSON.stringify([
-          commonDirectory,
-          "claude",
-          explicit.session_id,
-          explicit.agent_id,
-        ]),
-      )
-      .digest("hex"),
-  );
+  await writeLegacyClaim(fixture, retained, explicit);
 
   const { delivered } = await deliver(fixture.trunkSha, session, [
     "--session-json",

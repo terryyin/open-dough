@@ -282,7 +282,7 @@ Learnings for remaining slices:
 
 ### 3. Interrupted delivery recovers only the retained owner
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend installed resume proofs with two owner-bound live mailboxes,
 an accepted but unregistered SHA, and owner-specific ended/lost/ambiguous or
 legacy cases. Observe zero extra pushes for accepted work, exactly one coverage
@@ -304,6 +304,34 @@ the delivery consumers of the shared selector.
 
 Safe stopping point: Delivery and interrupted registration preserve their owner
 across hosts; the closure consumer is still pending slice 4.
+
+Accepted proof: `npm test -- src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-owner-gaps.test.mjs`
+through the installed `resume` CLI; setup in
+`execution-increment-managed-delivery-resume-owner-test-fixtures.mjs` supplies
+only observers, claims, and a directly pushed accepted SHA. The slice 1
+consumer sets passed again. Resume has no direct observation of Codex `lost`,
+`unavailable`, `wrong-target`, `detached`, or `missing` (delivery's classifier,
+proved for `deliver` in slice 2), of host `unavailable`, or of a Codex stream
+resumed from another worktree. The new tests were not run against pre-change
+code.
+
+Learnings for slice 4:
+
+- `recoverObservationForResume` in `execution-increment-observation-recovery.mjs`
+  takes `{repo, branch, host, session, coordinator, observerDirectory, env,
+  root, storage}` and returns `state: "recovered"` or a gap. Closure can call
+  it with a `root` whose `checkoutIdentity` still resolves after retirement.
+- `trunk-closure-settlement.mjs` (`listMatchingMailboxes` with
+  `isLiveMatchingMailbox`) is the only remaining owner-free selector.
+  `classifyMatchingObservationOwnership` is deleted.
+- Owner-first filtering makes an unclaimed observer `missing` whatever its
+  target, so an older mismatch test can pass without proving its mismatch.
+- `resume` takes `--session-json`, or `--coordinator` with
+  `--observer-directory`; `trunk-publication.md` teaches its synopsis. Native
+  Cursor, Claude Code, and Codex evidence for those inputs is pending.
+- The observer `/tmp/dough-ci-501/watch-wFMV4Y` ended on 2026-10-10 when GitHub
+  became unreachable; CI for `8014c2f8` and `8d2bbee8` on the execution branch
+  was unobserved from then.
 
 ### 4. Closure consumes the same owner through completion and retirement
 Type: Behavior

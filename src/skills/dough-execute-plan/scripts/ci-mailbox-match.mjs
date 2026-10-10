@@ -134,26 +134,11 @@ function workerMode(directory) {
   }
 }
 
-// Classify resume ownership without starting a replacement observer.
-// Live coverage requires exactly one live match; ended/lost/ambiguous stop.
-export function classifyMatchingObservationOwnership({
-  repo,
-  branch,
-  root = checkoutRoot,
-  storage = mailboxRoot,
-} = {}) {
-  return classifyObservers(
-    listMatchingMailboxes({ repo, branch, root, storage }),
-    { repo, branch, root, storage },
-  );
-}
-
+// Exactly one live observer is usable. Several live ones are ambiguous;
+// otherwise an explicit ended terminal, then a lost worker, describes the gap.
 function classifyObservers(matches, { repo, branch, root, storage }) {
   if (matches.length === 0) {
-    return {
-      kind: "missing",
-      reason: "no matching execution observer for resume",
-    };
+    return { kind: "missing" };
   }
 
   const live = matches.filter((directory) =>
@@ -163,41 +148,23 @@ function classifyObservers(matches, { repo, branch, root, storage }) {
     return { kind: "live", directory: live[0] };
   }
   if (live.length > 1) {
-    return {
-      kind: "ambiguous",
-      reason: "ambiguous matching live observers for resume",
-      directories: live,
-    };
+    return { kind: "ambiguous", directories: live };
   }
 
   // Prefer an explicit ended terminal over inventing worker-loss language.
   for (const directory of matches) {
     const terminal = readMailboxTerminal(directory);
     if (terminal && terminal.coverage?.state !== "lost") {
-      return {
-        kind: "ended",
-        directory,
-        terminal,
-        reason: `matching observer ended (${terminal.status})`,
-      };
+      return { kind: "ended", directory, terminal };
     }
   }
 
   for (const directory of matches) {
     const lost = mailboxWorkerLoss(directory);
     if (lost) {
-      return {
-        kind: "lost",
-        directory,
-        terminal: lost,
-        reason: lost.coverage?.reason ?? "matching observer lost its worker",
-      };
+      return { kind: "lost", directory, terminal: lost };
     }
   }
 
-  return {
-    kind: "unavailable",
-    reason: "matching observer is not live for resume",
-    directories: matches,
-  };
+  return { kind: "unavailable", directories: matches };
 }

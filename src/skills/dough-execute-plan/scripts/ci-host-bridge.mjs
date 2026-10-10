@@ -36,11 +36,11 @@ export function resolveHostSession({ host, session, env = process.env }) {
   return ambient ? { [identity.field]: ambient } : session;
 }
 
-function missingIdentityReason(host) {
+export function missingIdentityReason(host, command = "deliver") {
   const identity = hostIdentity[host];
   if (!identity)
     return "host session identity is required to verify the notification bridge";
-  return `${identity.name} identity is unavailable: ${identity.variable} is unset and no --session-json was supplied; run deliver from the coordinator's own ${identity.tool} tool or pass --session-json with its ${identity.field}`;
+  return `${identity.name} identity is unavailable: ${identity.variable} is unset and no --session-json was supplied; run ${command} from the coordinator's own ${identity.tool} tool or pass --session-json with its ${identity.field}`;
 }
 
 function hookInput(host, session, receipt = "") {

@@ -190,6 +190,33 @@ registration: a published SHA absent from the existing observer's coverage or
 before any observer is armed there is unobserved coverage, not a missing
 registration; see [Own one observer](ci-monitor.md#own-one-observer).
 
+For an execution increment or repair, run the installed resume from the owned
+workspace with the candidate SHA retained before the push and the owner input
+`deliver` takes:
+
+```text
+node <installed>/dough-execute-plan/scripts/execution-increment-resume.mjs resume \
+  --workspace <owned workspace> --candidate-sha <retained candidate SHA> \
+  --target-ref <authorized target ref> --repo <owner/repo> --host <host> \
+  [--session-json <json>] [--coordinator <value> --observer-directory <directory>] \
+  [--default-checkout <path>] [--superseded-sha <pre-rebase SHA>]... \
+  [--one-shot-identity <identity>]
+```
+
+It verifies remote acceptance, pushes only a candidate the remote lacks, and
+registers the accepted SHA once on this coordinator's live observer. Keep
+that owner input for the whole execution. On Claude Code and Cursor, run it
+through the coordinator's own Bash or Shell tool, or pass the `--session-json`
+that names the session whose observer this execution retained; malformed
+session JSON stops resume. On Codex, pass the observer note's coordinator and
+exact stream directory. Resume starts no observer and registers on no other
+coordinator's observer. When this coordinator's observer is absent, ended,
+lost, or one of several, or its owner input is missing, the receipt keeps
+`publication: "accepted"` beside an unobserved `observation` whose `ownership`
+and `reason` name that state and the input or step that recovers it: report
+the coverage gap with the publication, follow that step, and rerun the same
+resume to register the SHA.
+
 Workspace or environment-preparation failure after a confirmed claim
 publication keeps that published SHA and reuses the claim and any verified
 workspace: see [Preserve remaining state](#preserve-remaining-state) and
