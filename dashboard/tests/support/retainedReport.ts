@@ -11,6 +11,7 @@ import { expect, stored } from "./codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
+import { completionReport } from "./completionReport.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -59,6 +60,34 @@ export async function retained(
   });
   save(dashboard.home, records);
   return { record: { ...record, session: record.session }, workspace };
+}
+// A Claude launch of the not-refined story recorded with a prepared workspace
+// that still exists, for a journey to retire, and a completion report saying
+// `message`; the session has exited.
+export async function recordedClaude(
+  dashboard: DashboardServer,
+  message = report,
+) {
+  await launch(dashboard, {
+    ...refinementRequest,
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+  });
+  const record = stored(dashboard.home)[0];
+  if (record === undefined) throw new Error("Missing Claude launch");
+  const workspace = path.join(dashboard.home, "retired-claude-workspace");
+  mkdirSync(workspace);
+  record.preparation = {
+    identity: notRefinedIdentity,
+    workspace,
+    branch: "claude/retired",
+    remote: "origin",
+    target: "main",
+  };
+  record.completion = completionReport({ message });
+  dashboard.claudeSessionBecomes(record.session.sessionId, "done-exited");
+  save(dashboard.home, [record]);
+  return { record, workspace };
 }
 export function passive(native: FakeCodex, since: number) {
   expect(

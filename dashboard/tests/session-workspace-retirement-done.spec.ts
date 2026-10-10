@@ -30,7 +30,8 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   if (native === undefined) throw new Error("Missing protocol fixture");
   const { workspace } = await retained(dashboard, native, true);
   const since = native.calls.length;
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryStagesJourney(page, journey);
+  await settled();
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("availability could not be established");
   await expect(entry).not.toContainText("workspace is missing");
@@ -66,6 +67,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   expect(doneAt).toBeDefined();
   await machineSessions(dashboard);
   await reloadUntilRead(page);
+  await settled();
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });

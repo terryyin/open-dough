@@ -32,6 +32,32 @@ execution. A repaired individual race does not resolve every suite failure.
    bypassed the documented runner; the paid-run refusal belongs to the host's
    permission boundary. Neither justifies changing public Open Dough guidance
    or adding a second high-priority story.
+4. **Dashboard specs can lose a mouse press to a reflow — open, unqueued.**
+   DD-278 has two CI failures in one execution on sound revisions, each
+   repaired for its own spec family. The shared journey helpers still let a
+   spec press before the page settles.
+
+## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
+
+<a id="dd-278"></a>
+
+### DD-278 — Two dashboard specs lost a mouse press to a reflow between press and release, on two CI runs in one day
+
+A late read answer changed the page's height while Playwright's click was
+between pointer press and release, so the press and release met different
+elements and no click reached the control. Each spec then waited on a page
+that had asked for nothing.
+
+#### Occurrences
+
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first related implementation commit `3354d72b`
+  - Timestamp: 2026-10-10T14:43Z (run 38060703770, story branch) and 2026-10-10T22:04Z (run 38089795734, `main` at `bf901b72`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `8c54b825`; base 0.3.58
+  - Evidence: run 38060703770 failed `story-review-commit-ranges.spec.ts:80` (the range answer changed the status height above the commit list; trace shows no fourth range request); run 38089795734 failed `session-workspace-retirement-claude.spec.ts:162` (the seed, plan and agent-profile reads shortened the page; trace shows no `POST /__agent-launch/done`). Both parents of `bf901b72` passed the workflow. Repairs: `57b2af6e` (`support/storyReviewCommitChoice.ts`) and the commit that adds “a Recently done entry's Mark as done stays where a settled page shows it”.
+  - Observed effect: two failed CI runs on revisions whose code was sound, each costing a diagnosis and a repair commit before completion could proceed.
+  - Inference: qualified. Each repair covers its own spec family. `openStoryStagesJourney` returns after the published-work read alone, and `markDone` treats “no mark noted” as answered, so any spec that mouse-presses before the page settles has the same roughly 30 ms exposure. The loaded-suite acceptance story is closed, so this exposure has no owner.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
 

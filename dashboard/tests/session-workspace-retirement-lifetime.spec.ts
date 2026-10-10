@@ -48,7 +48,8 @@ test("a disposed attachment cannot redirect or write into a current retry of the
     if (new URL(request.url()).pathname === "/__agent-launch/result")
       resultReads++;
   });
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryStagesJourney(page, journey);
+  await settled();
   await cardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();

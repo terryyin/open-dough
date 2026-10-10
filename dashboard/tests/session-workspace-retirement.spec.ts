@@ -134,7 +134,8 @@ test("changing or closing selection cancels a held report and never shows its te
     await held;
     await route.fulfill({ response }).catch(() => undefined);
   });
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryStagesJourney(page, journey);
+  await settled();
   const entries = cardSessions(card(notRefinedStory));
   const first = entries.filter({
     has: page.locator(`code:text-is("${record.session.sessionId}")`),
