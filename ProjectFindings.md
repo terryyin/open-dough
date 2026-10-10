@@ -36,6 +36,9 @@ execution. A repaired individual race does not resolve every suite failure.
    DD-278 has two CI failures in one execution on sound revisions, each
    repaired for its own spec family. The shared journey helpers still let a
    spec press before the page settles.
+5. **Dashboard shards run at their time ceiling — open, unqueued.** DD-279
+   has one deadline failure, repaired by refreshing `longest-first` from
+   measured durations. Nothing refreshes that list as specs are added.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -58,6 +61,23 @@ that had asked for nothing.
   - Evidence: run 38060703770 failed `story-review-commit-ranges.spec.ts:80` (the range answer changed the status height above the commit list; trace shows no fourth range request); run 38089795734 failed `session-workspace-retirement-claude.spec.ts:162` (the seed, plan and agent-profile reads shortened the page; trace shows no `POST /__agent-launch/done`). Both parents of `bf901b72` passed the workflow. Repairs: `57b2af6e` (`support/storyReviewCommitChoice.ts`) and the commit that adds “a Recently done entry's Mark as done stays where a settled page shows it”.
   - Observed effect: two failed CI runs on revisions whose code was sound, each costing a diagnosis and a repair commit before completion could proceed.
   - Inference: qualified. Each repair covers its own spec family. `openStoryStagesJourney` returns after the published-work read alone, and `markDone` treats “no mark noted” as answered, so any spec that mouse-presses before the page settles has the same roughly 30 ms exposure. The loaded-suite acceptance story is closed, so this exposure has no owner.
+
+## Dashboard shards run at their time ceiling (open, unqueued)
+
+<a id="dd-279"></a>
+
+### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
+
+#### Occurrences
+
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first related implementation commit `3354d72b`
+  - Timestamp: 2026-10-10T22:24Z (run 38091252477, `main` at `8df6248b`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `8c54b825`; base 0.3.58
+  - Evidence: shard 2/9 failed with “Timed out waiting 305.392s for the test suite to run”. Its job took 310 s on the passing run 38089450687 and 270 s to 306 s across shards of run 38089179190. `longest-first` dated from 2026-10-01 and listed 163 of 443 specs; the per-spec durations in run 38089179190's nine reports put 965 test-seconds in share 1 and 582 in share 6. The refreshed list (200 specs) predicts 786 and 669.
+  - Observed effect: a records-and-tests repair commit failed CI on time alone, costing a third diagnosis during one wrap-up.
+  - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
 
