@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-122#running-cursor-sessions-sidebar-panel",
+  "mode": "story-branch",
+  "branch": "claude/show-running-cursor-sessions-as-a-resizable-side",
+  "host": "claude"
+}
