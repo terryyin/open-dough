@@ -126,9 +126,11 @@ test.describe("a kept preparation start", () => {
   }
 
   test("a start that outlasts the wait is kept and its continuation resumes it with one profile", async () => {
-    await serve(1000);
+    // Both starts share this wait. Hold the first push until it expires,
+    // leaving the ordinary continuation enough time for real Git work.
+    await serve(5000);
     server.claudeScenario("launched");
-    installHook("sleep 3\n");
+    const push = origin.holdPushes();
     const first = await ask();
     expect(first).toMatchObject({ kind: "uncertain", reason: "timed-out" });
     expect(first.explanation).toContain(
@@ -140,6 +142,8 @@ test.describe("a kept preparation start", () => {
       workspace: path.join(origin.project, ".worktrees", slug),
       branch: `claude/${slug}`,
     });
+    expect(push.isHeld()).toBe(true);
+    push.release();
     // The script was left to finish; the announcement lands.
     await expect.poll(preparing, { timeout: 20_000 }).toHaveLength(1);
     // Its continuation is refused while the script still runs.
