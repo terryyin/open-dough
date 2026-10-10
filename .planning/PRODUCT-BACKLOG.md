@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Settle observer ownership at its recovery edges](seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges) — SEED-121#settle-observer-owner-edges ([plan](slice-plans/288-observer-owner-edges/PLAN.md))
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance ([plan](slice-plans/289-dashboard-suite-passes-loaded-acceptance/PLAN.md))
-- [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions ([plan](slice-plans/290-land-planning-without-coordinator-questions/PLAN.md))
 
 ## Backlog list
 

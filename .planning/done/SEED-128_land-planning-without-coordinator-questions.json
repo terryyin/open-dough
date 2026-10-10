@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-128#land-planning-without-coordinator-questions",
+  "title": "Automatically land completed slice planning when no coordinator question remains",
+  "completedAt": "2026-10-10T11:36:53.515Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "claude"
+}

@@ -126,7 +126,7 @@ still named by its identity at the 5 s timeout). The cause is unknown.
   - Model: claude-opus-5-5
   - Open Dough release: modified; revision `650918e4`; base 0.3.58
   - Evidence: slice 3's run of the eleven dashboard specs that read the source refinement options (74 tests) failed `frame-launch-look.spec.ts:101` once at `expectNoSidewaysScrollAndWholeText` (`pageLayout.ts:127`); the file alone then passed three times (4/4 each). The test opens the roster view and no options dialog. The log is not retained.
-  - Observed effect: three reruns to separate it from the change; recorded in plan 290 slice 3.
+  - Observed effect: three reruns to separate it from the change; recorded in plan 290 slice 3 (`34b9b429:.planning/slice-plans/290-land-planning-without-coordinator-questions/PLAN.md`).
   - Inference: Qualified. Other agent sessions were running on the machine; cause still unknown.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
