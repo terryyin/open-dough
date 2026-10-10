@@ -1,4 +1,8 @@
 #!/bin/sh
-# Refuse a commit whose staged files fail lint. Check-only: never formats,
+# Refuse a commit whose staged files fail lint, then one that stages a script
+# file while the dashboard typecheck fails. Check-only: never builds, formats,
 # restages, or stashes.
-exec npm run --silent lint -- --staged
+npm run --silent lint -- --staged || exit
+staged_scripts=$(git diff --cached --name-only --diff-filter=ACMR -- \
+  '*.js' '*.cjs' '*.mjs' '*.jsx' '*.ts' '*.mts' '*.tsx') || exit
+[ -z "${staged_scripts}" ] || exec npm run --silent typecheck:dashboard

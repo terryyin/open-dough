@@ -13,9 +13,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import {
   copyFiles,
-  copyRepositoryFiles,
   env,
-  excludeLinkedDependencies,
   git,
   gitWith,
   gitOk,
@@ -23,59 +21,14 @@ import {
   violation,
   write,
 } from "./lint-runner-fixture.mjs";
+import { head, hookFixture, stage } from "./pre-commit-hook-fixture.mjs";
 
 const unformatted = "export const  drift = {a:1};\n";
-
-const fixtureFiles = [
-  "scripts/lint.mjs",
-  "eslint.config.mjs",
-  "eslint.ignores.mjs",
-  ".gitignore",
-  ".prettierignore",
-  ".prettierrc.json",
-  ".editorconfig",
-  ".shellcheckrc",
-  ".githooks/pre-commit",
-  "scripts/install-hooks.mjs",
-];
-
-// A committed repository with this repository's lint runner, configs, and
-// tracked hook; the fixture sets core.hooksPath directly. Without linked
-// dependencies it has no node_modules, like a fresh worktree.
-function hookFixture(t, { dependencies = true, install = false } = {}) {
-  const fixture = mkdtempSync(join(tmpdir(), "pre-commit-lint-hook-"));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  (dependencies ? copyRepositoryFiles : copyFiles)(fixture, fixtureFiles);
-  write(
-    join(fixture, "package.json"),
-    '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs","prepare":"node scripts/install-hooks.mjs"}}\n',
-  );
-  write(
-    join(fixture, "tsconfig.json"),
-    '{"compilerOptions":{"strict":true,"module":"esnext","target":"esnext"},"include":["src"]}\n',
-  );
-  write(join(fixture, "src/ok.mjs"), "export const ok = 1;\n");
-  gitOk(fixture, "init", "--quiet");
-  if (dependencies) {
-    excludeLinkedDependencies(fixture);
-  }
-  gitOk(fixture, "add", ".");
-  gitOk(fixture, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture");
-  if (!install) {
-    gitOk(fixture, "config", "core.hooksPath", ".githooks");
-  }
-  return fixture;
-}
-
-function head(cwd) {
-  return gitOk(cwd, "rev-parse", "HEAD").trim();
-}
 
 test("a staged lint violation refuses the commit with the finding and format pointer", (t) => {
   const fixture = hookFixture(t);
   const before = head(fixture);
-  write(join(fixture, "src/bad.mjs"), violation);
-  gitOk(fixture, "add", "src/bad.mjs");
+  stage(fixture, "src/bad.mjs", violation);
 
   const commit = git(fixture, "commit", "-m", "bad");
 
@@ -87,9 +40,7 @@ test("a staged lint violation refuses the commit with the finding and format poi
 
 test("staged formatting drift is refused and nothing is changed", (t) => {
   const fixture = hookFixture(t);
-  const file = join(fixture, "src/drift.mjs");
-  write(file, unformatted);
-  gitOk(fixture, "add", "src/drift.mjs");
+  stage(fixture, "src/drift.mjs", unformatted);
   const stagedDiff = gitOk(fixture, "diff", "--cached");
 
   const commit = git(fixture, "commit", "-m", "drift");
@@ -97,7 +48,10 @@ test("staged formatting drift is refused and nothing is changed", (t) => {
   assert.notEqual(commit.status, 0, commit.output);
   assert.match(commit.output, /src\/drift\.mjs/);
   assert.match(commit.output, /npm run format/);
-  assert.equal(readFileSync(file, "utf8"), unformatted);
+  assert.equal(
+    readFileSync(join(fixture, "src/drift.mjs"), "utf8"),
+    unformatted,
+  );
   assert.equal(gitOk(fixture, "diff", "--cached"), stagedDiff);
   assert.equal(gitOk(fixture, "diff"), "");
 });
@@ -114,8 +68,7 @@ const shellToolsMissing =
 function commitsCleanFilesUnchanged(t, contents) {
   const fixture = hookFixture(t);
   for (const [file, content] of Object.entries(contents)) {
-    write(join(fixture, file), content);
-    gitOk(fixture, "add", file);
+    stage(fixture, file, content);
   }
 
   const commit = git(fixture, "commit", "-m", "clean");
@@ -147,8 +100,7 @@ test(
 test("an unstaged violating file does not block a clean staged commit", (t) => {
   const fixture = hookFixture(t);
   write(join(fixture, "src/untracked-bad.mjs"), violation);
-  write(join(fixture, "src/ok.mjs"), "export const ok = 2;\n");
-  gitOk(fixture, "add", "src/ok.mjs");
+  stage(fixture, "src/ok.mjs", "export const ok = 2;\n");
 
   const commit = git(fixture, "commit", "-m", "clean change");
 
@@ -174,9 +126,8 @@ function toolless(t) {
 test("a records-only commit succeeds without lint tools", (t) => {
   const gitToolless = toolless(t);
   const fixture = hookFixture(t, { dependencies: false });
-  write(join(fixture, ".planning/agents/x.json"), '{"a":  1}\n');
-  write(join(fixture, ".planning/seeds/SEED-1.md"), "# Seed\n");
-  gitOk(fixture, "add", ".planning");
+  stage(fixture, ".planning/agents/x.json", '{"a":  1}\n');
+  stage(fixture, ".planning/seeds/SEED-1.md", "# Seed\n");
 
   const commit = gitToolless(fixture, "commit", "-m", "records");
 
@@ -196,8 +147,7 @@ test("a staged file whose tool is missing is refused naming the tool and npm ci"
   ]) {
     const fixture = hookFixture(t, { dependencies: false });
     const before = head(fixture);
-    write(join(fixture, file), content);
-    gitOk(fixture, "add", file);
+    stage(fixture, file, content);
 
     const commit = gitToolless(fixture, "commit", "-m", "needs tool");
 
@@ -215,11 +165,6 @@ function prepare(cwd) {
     encoding: "utf8",
   });
   assert.equal(result.status, 0, result.stdout + result.stderr);
-}
-
-function stageViolation(cwd) {
-  write(join(cwd, "src/bad.mjs"), violation);
-  gitOk(cwd, "add", "src/bad.mjs");
 }
 
 function linkedWorktree(t, fixture, name) {
@@ -250,7 +195,7 @@ test("prepare enables the hook in the checkout and a linked worktree, and a repe
   const worktree = linkedWorktree(t, fixture, "with-hook");
   for (const cwd of [fixture, worktree]) {
     const before = head(cwd);
-    stageViolation(cwd);
+    stage(cwd, "src/bad.mjs", violation);
     const commit = git(cwd, "commit", "-m", "bad");
     assert.notEqual(commit.status, 0, commit.output);
     assert.match(commit.output, /src\/bad\.mjs[\s\S]*no-var/);
@@ -264,7 +209,7 @@ test("a linked worktree on a revision without the hook commits as before", (t) =
   gitOk(fixture, "commit", "-qm", "drop the hook");
   prepare(fixture);
   const worktree = linkedWorktree(t, fixture, "no-hook");
-  stageViolation(worktree);
+  stage(worktree, "src/bad.mjs", violation);
 
   const commit = git(worktree, "commit", "-m", "bad");
 

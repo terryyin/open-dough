@@ -116,7 +116,20 @@ the test file in the same slice (`tests/time-budget.md`).
 
 ### 1. The pre-commit hook refuses a staged script change that fails the dashboard typecheck
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm test -- tests/support/pre-commit-lint-hook.test.mjs
+tests/support/pre-commit-typecheck-hook.test.mjs` exit 0, 13 tests (10
+existing, 3 new), and `npm run format` clean. The refactor pass moved
+`hookFixture`, `head`, and `stage` to `tests/support/pre-commit-hook-fixture.mjs`
+and the three new tests to `tests/support/pre-commit-typecheck-hook.test.mjs`,
+which runs as its own job; it also moved the README's native host streams
+section to `tests/native-host-streams.md` for the file-size check. Red
+check: the new tests against the previous hook fail (a) and (c) only.
+Timing, five interleaved pairs of the hook proof under load (before/after
+seconds): 10.6/16.5, 9.3/25.2, 14.9/23.2, 20.8/19.9, 12.5/25.4; ratio of sums
+1.62 projects the job at 24.8 s (ceiling 71) and the shares at 382.1, 363.8,
+364.8 (ceiling 470); the worst pair (2.71) projects 398.8 at most. No split
+for budget.
 Proof: `npm test -- tests/support/pre-commit-lint-hook.test.mjs` (every test,
 existing and new) and `npm run lint`. New tests in that file, on the
 extended `hookFixture`: (a) the fixture's `src/fixture.mjs` default removed
@@ -187,4 +200,8 @@ committed or published.
 
 ## Learnings
 
-None yet.
+- A parameter destructured in plain JavaScript infers as `any`, so the
+  wrong-argument-type example needs a TypeScript-typed function; the fixture
+  module can show only the missing-property break.
+- "Default restored and staged" equals HEAD unless the break was committed,
+  so the restored-signature test commits the break with `--no-verify` first.
