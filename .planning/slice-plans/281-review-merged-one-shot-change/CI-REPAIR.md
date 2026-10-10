@@ -117,4 +117,12 @@ env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR PATH="/tmp/open-dough-node-24.21.0/no
 ```
 
 No behavior gap or ADR conflict. Slice statuses remain1–5done/6planned; no
-readiness renewal. Repair delivery and restoration pending.
+readiness renewal. Agent commit `5a7e236706df4b349b546f1071de907acfe58d9e`
+passed the check-only hook. Managed delivery accepted the same SHA at
+`refs/heads/codex/review-a-story-s-merged-one-shot-change`, suffix base
+`1e6fecc06ac0fa2bc6594f76d2f521f7001e59ac`, no reconciliation, maintenance not
+applicable, observation explicitly unobserved. This is the next published base.
+Installed `ci-repair-stash.mjs restore --record` the exact retained record
+returned `resumed`, oid null, applied false, dropped null. There was no saved
+entry to restore. Known failures are repaired; slice6 can begin. No hosted
+verdict is claimed for this or later unobserved publications.

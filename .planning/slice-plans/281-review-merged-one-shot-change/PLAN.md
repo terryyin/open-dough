@@ -215,7 +215,7 @@ landing/reporting interruptions without duplicate publication.
 
 ### 6. Review a completed one-shot execution from Recently done
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `dashboard/tests/recently-done-one-shot-review.spec.ts`: perform an
 installed queued one-shot execution, include earlier pending/default-checkout
 content, close its backlog/story/plan with the installed workflow, then land

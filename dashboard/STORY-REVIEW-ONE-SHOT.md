@@ -2,6 +2,17 @@
 
 The retained run comparison extends the [story review](AGENT-LAUNCH-REVIEW.md).
 
+Queued refinement results remain reachable from their active story card. A
+completed one-shot execution offers the same **Review changes** on its Recently
+done card, using the published done identity and title even after the story seed,
+plan, workspace and branch are gone. Review reads all kept launches for that
+story, independently of the marked-done sessions nested in the card: an open
+session with an unfinished attention report can still supply the landed run.
+While done details are unread or failed, the catalog identity supplies the card
+and review title; reading the record supplies its title for later openings.
+Closing the review returns the keyboard to the card's review action and keeps
+Recently done's shown range and entry counts.
+
 A retained one-shot run can also be reviewed after its workspace and local branch
 are retired. The Comparison switch offers **Landed one-shot runs** beside the
 workspace's All changes, Since the review and Commits choices. Its bounded native

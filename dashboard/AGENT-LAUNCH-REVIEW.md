@@ -3,11 +3,15 @@
 The [agent launch contract](AGENT-LAUNCH.md#story-review) links here for a
 story's read-only review of its workspace or retained one-shot change in the side panel.
 
-A card whose story has a kept launch record naming a workspace or a retained one-shot run offers **Review
-changes** beside **Inspect story**: a read-only review of what that workspace
-would add to trunk now. It leads with a compare icon and ends with an arrow
+A story with a kept launch record naming a workspace or retained one-shot run
+offers **Review changes** on its active card beside **Inspect story**, or on
+its Recently done card. It opens a read-only review, defaulting to the readable
+workspace's change against trunk; otherwise it opens the newest captured one-shot
+run, or the retained run's evidence gap. The [landed comparison](STORY-REVIEW-ONE-SHOT.md)
+uses its fixed delivered pair after workspace retirement. The action leads with
+a compare icon and ends with an arrow
 toward the side panel where the review opens; both are decorative, so its name
-stays “Review changes”. The most recent such record by `launchedAt`, whether
+stays “Review changes”. For a workspace review, the most recent record by `launchedAt`, whether
 it names a start or a preparation, picks the workspace (`reviewWorkspaceOf` in
 `src/storyReview.ts`, shared by the card and the boundary). The review
 compares a snapshot of the workspace with the merge-base of its head and

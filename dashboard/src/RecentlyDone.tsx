@@ -15,6 +15,7 @@ import { dashboardColumnMark } from "./columnPaging.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
+import type { LaunchRecord } from "./launchRecord.ts";
 import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import {
   recentlyDoneName,
@@ -81,9 +82,13 @@ function unreadWords(
 function ListedEntry({
   each,
   detailOf,
+  sourceId,
+  launchRecords,
 }: {
   readonly each: Listed;
   readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
+  readonly sourceId: string;
+  readonly launchRecords: readonly LaunchRecord[] | undefined;
 }) {
   if (!("record" in each)) {
     return <SessionEntry record={each.session} onCard={false} />;
@@ -97,11 +102,21 @@ function ListedEntry({
       story={detail.status === "read" ? detail.story : undefined}
       said={unreadWords(detail, record.fileName)}
       sessions={sessions}
+      sourceId={sourceId}
+      launchRecords={launchRecords}
     />
   );
 }
 
-export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
+export function RecentlyDone({
+  view,
+  sourceId,
+  launchRecords,
+}: {
+  readonly view: RecentlyDoneView;
+  readonly sourceId: string;
+  readonly launchRecords: readonly LaunchRecord[] | undefined;
+}) {
   const section = useRef<HTMLElement>(null);
   const {
     creations: listedCreations,
@@ -153,7 +168,12 @@ export function RecentlyDone({ view }: { readonly view: RecentlyDoneView }) {
                   : sessionKey(each.session.session)
               }
             >
-              <ListedEntry each={each} detailOf={details.detailOf} />
+              <ListedEntry
+                each={each}
+                detailOf={details.detailOf}
+                sourceId={sourceId}
+                launchRecords={launchRecords}
+              />
             </li>
           ))}
         </ol>

@@ -11,9 +11,12 @@
 // first, each the entry Recently done shows (`./SessionEntry.tsx`); a machine
 // that keeps none shows none. The card holds the keyboard when the last of
 // them is deleted (`deletedEntryHome`).
+// Review changes uses the full retained launch read, independently of these
+// nested Done sessions and whether the done details or native state are readable.
 
 import { useId } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
+import type { LaunchRecord } from "./launchRecord.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { RecordedHost } from "./AssignmentRecords.tsx";
@@ -22,6 +25,7 @@ import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
 import { StorySessions } from "./SessionEntry.tsx";
+import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";
 
@@ -41,6 +45,8 @@ export function DoneStoryCard({
   story,
   said,
   sessions,
+  sourceId,
+  launchRecords,
 }: {
   // The story and when it was done, as its done catalog names it.
   readonly identity: string;
@@ -51,8 +57,12 @@ export function DoneStoryCard({
   readonly said: { readonly words: string; readonly gap: boolean } | undefined;
   // This machine's sessions for the story, oldest first.
   readonly sessions: readonly LaunchWithState[];
+  // Full retained launches, independently of which sessions are marked done.
+  readonly launchRecords: readonly LaunchRecord[] | undefined;
+  readonly sourceId: string;
 }) {
   const heading = useId();
+  const title = story?.title ?? identity;
   const { developer, agent, host } = story ?? {};
   const facts = [
     ...(agent === undefined
@@ -72,7 +82,7 @@ export function DoneStoryCard({
       aria-busy={said !== undefined && !said.gap}
       {...doneStoryMarks(identity)}
     >
-      <h3 id={heading}>{story?.title ?? identity}</h3>
+      <h3 id={heading}>{title}</h3>
       {story !== undefined && <p className="card-identity">{identity}</p>}
       <p>
         Done <Moment at={new Date(completedAt)} />
@@ -96,6 +106,11 @@ export function DoneStoryCard({
         sessions={sessions}
         className="done-story-sessions"
         onCard={false}
+      />
+      <StoryReviewAction
+        sourceId={sourceId}
+        records={launchRecords}
+        work={{ identity, title }}
       />
     </article>
   );

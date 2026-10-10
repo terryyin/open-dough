@@ -167,3 +167,30 @@ git diff --check
 ```
 
 No unresolved gap or ADR conflict. Coordinator formatter `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run format > /tmp/dough-seed088-s5-format.log 2>&1` exited0; only whitespace changed and accepted proof applies. Plan edits do not renew seed readiness. Agent commit `1e6fecc06ac0fa2bc6594f76d2f521f7001e59ac` passed the check-only hook; managed delivery accepted it at the recorded story-branch target, suffix base `2ea792df655cdda3d1803ab7b2abd17d473233fc`, no reconciliation, maintenance not applicable. Observation was explicitly unobserved because the Codex stream had ended. Recovery of its exact identity and all six owned failed jobs precedes slice6; [CI repair proof](CI-REPAIR.md) retains that evidence and disposition.
+
+## Slice 6 — implementation proof accepted 2026-10-10
+
+DashboardColumns supplies the existing full retained machine read and project ID to RecentlyDone/DoneStoryCard, whose shared StoryReviewAction uses the published identity and loaded title, or identity while details are unread/failed. Nested marked-Done sessions and list/count projection remain unchanged. Native availability, completion attention and removed canonical source do not gate review. No new reader, state grammar or runtime payload dependency.
+
+Coordinator inspected those three presentation owners; `support/oneShotExecutionReview.ts`'s actual queued installed start/read-state/complete, spent seed/plan removal, deliberate merge of earlier unpublished and pending default-checkout content, installed publication with queued-closure guard, copied reporting receiver and real retirement; `committedOrigin.ts`'s actual accepted Git bytes; and both new tests' exact pair/file-list/count/diff assertions. Setup supplies external native/GitHub answers and intended result edits, never done/landing/completion facts. Product CLI/storage/publication creates those outcomes. Completed journey observes one nested session, published title/identity, unchanged one-entry heading/edge, no deleted seed read and Close/focus. Attention journey observes an actual unfinished open session outside the done card, native unavailable, captured review during held/failed detail read, title after retry, Close/focus in all three states, and preserved original landing/message/receipt/open intent. Full file list equals real accepted Git diff; earlier/pending/result additions and deleted source/plan appear in the same fixed pair.
+
+Literal terminal commands all exited0 with configured strict reporter:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run test:dashboard -- --workers=1 --max-failures=3 dashboard/tests/recently-done-one-shot-review.spec.ts
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run test:dashboard -- --workers=1 --max-failures=3 dashboard/tests/recently-done dashboard/tests/dashboard-columns-paging dashboard/tests/dashboard-columns-height.spec.ts dashboard/tests/story-review-action.spec.ts
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run typecheck:dashboard
+git diff --check
+```
+
+Proof logs: `/tmp/dough-seed088-s6-owned.log` (2 journeys), `s6-consumers.log` (38 tests in18 files), `s6-typecheck.log`, `s6-selected.log` under the same prefix. Selection covers every Recently done suite, progressive reads/range/navigation, ordinary nesting/counts, page/column paging/height, read gaps/recovery/late answers/project switching, held focus/report/Cursor navigation and the shared action. Consumer search includes all RecentlyDone/DoneStoryCard and role/count/Review changes/doc callers. Historical backend, selectors and panel geometry retain unchanged earlier proof; both journeys use their real endpoints. Initial failures were test expectations for existing Working-after-Done and Unfinished work wording; corrected assertions preserve product behavior. All eight slice files raw/projected≤225; no installer rerun or new paid/native-agent claim. Maintained history/review docs state active/Recently done availability and live versus fixed opening defaults. Independent refactor/delivery pending.
+
+Fresh refactor returned `## REFACTOR COMPLETE`: one local title owns the done-card heading and shared review action fallback. Coordinator inspected both consumers; broad Recently done/columns/action, historical backend/selection/panel and genuine closure/reporting/retirement setups remain unchanged. Both journeys re-observe the quiet and progressive attention title/focus consumers. Literal commands all exited0:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run test:dashboard -- --workers=1 --max-failures=3 dashboard/tests/recently-done-one-shot-review.spec.ts > /tmp/dough-seed088-refactor6-review.log 2>&1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run typecheck:dashboard > /tmp/dough-seed088-refactor6-typecheck.log 2>&1
+git diff --check
+```
+
+Coordinator formatter `/tmp/dough-seed088-s6-format.log` exited1 on the existing fixture parameter-property lint contract. A local alias preserves the same native fixture and readError setup. Retry `env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR PATH="/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH" npm run format > /tmp/dough-seed088-s6-format-retry.log 2>&1` exited0. Formatting is whitespace only; accepted proof applies. No unresolved behavior/ADR gap. All current paths satisfy250 lines. Slice status does not renew readiness. Delivery pending.
