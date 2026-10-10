@@ -137,6 +137,14 @@ changes the index, and it checks each staged file's working-tree copy. Staged
 paths that every applicable tool ignores, such as `.planning/` records, need no
 tool, so a records-only commit works in a worktree without `node_modules`;
 otherwise a missing tool is reported by name with `npm ci` as the remedy.
+When the commit stages a JavaScript or TypeScript file and lint passes, the
+hook then runs `npm run typecheck:dashboard` and refuses the commit when it
+fails, printing the TypeScript diagnostics. That catches a shared JavaScript
+module whose changed signature breaks a dashboard consumer, whatever tests
+were run. Any staged script file triggers the whole typecheck, rather than a
+list of fixture paths, so a module the dashboard newly imports is covered
+without upkeep. A commit that stages no such file runs no typecheck, so a
+records-only commit still needs no tool.
 `npm ci` runs the `prepare` script, which sets the repository's `core.hooksPath`
 to `.githooks` once. That setting is shared by the checkout and every worktree
 of the repository, and each worktree runs the hook only when its revision

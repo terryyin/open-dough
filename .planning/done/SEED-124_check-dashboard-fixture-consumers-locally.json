@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-124#check-dashboard-fixture-consumers-locally",
+  "title": "Catch shared fixture signature breaks in the dashboard's local checks",
+  "completedAt": "2026-10-10T05:10:21.265Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "claude"
+}
