@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "YeongSheng-chan",
-  "email": "yeongsheng-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-129#bounded-cursor-launch-wait",
-  "host": "cursor",
-  "model": "auto"
-}

@@ -11,18 +11,25 @@ scope: story
 
 ## Why This Matters
 
-When the dashboard starts or recovers a Cursor session, the server waits for
-Cursor's screen to show that the instruction was taken. That wait has no time
-limit. It ends when a ready screen or a finished synchronized frame arrives,
-or when the Cursor client exits. A client that stays alive and silent holds
-the wait, and the developer's Start or Recover never answers.
+When the dashboard starts or recovers a Cursor session, the machine-local
+Cursor runner's keep path waits on `LaunchInstruction` until a ready screen,
+a finished synchronized frame that answers a submitted paste chip, or client
+exit (`dashboard/server/launchInstruction.ts`,
+`dashboard/server/terminalKeep.ts`). That wait itself has no deadline.
 
-No occurrence is recorded. The wait became reachable on one more path on
-2026-10-10: a pasted instruction now settles on Cursor's answer to its
-submitted paste chip instead of on the Enter keystroke
-(`dashboard/server/launchInstruction.ts`, commit `d1aec794`), which removed a
-stale "waiting for an answer" label after Recover. The not-ready path already
-waited the same way.
+Start already races the keep call against the shared launch wait
+(`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s in `dashboard/server/launchRun.ts`).
+When that abort wins while keep is still open, Cursor Start today returns
+`launched` rather than an uncertain timed-out answer
+(`dashboard/server/hosts/cursor/launch.ts`). Developer-requested Recover
+(`dashboard/server/hosts/cursor/recover.ts` via `/__agent-launch/recover`)
+awaits the same keep with no deadline, so a silent live client holds Recover
+indefinitely.
+
+No occurrence of an unbounded Recover wait is recorded. The paste-chip settle
+path became reachable on 2026-10-10 (`d1aec794`): a pasted instruction settles
+only after Cursor answers the submitted chip, which lengthens the keep wait on
+an already-confirmed first-input record when the client stays silent.
 
 ## Story
 
@@ -31,33 +38,85 @@ waited the same way.
 ### A Cursor launch or recover wait ends within a bound with a clear message
 
 **Identity:** SEED-129#bounded-cursor-launch-wait
+
+**Slice plan:** [A Cursor launch or recover wait ends within a bound with a clear message](../slice-plans/283-bounded-cursor-launch-wait/PLAN.md).
+
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/283-bounded-cursor-launch-wait/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"021a4e17408b8399334408b143089331bcf5f1cd50769429d47bfe46635605f6","plan":"59732934d1644e427934b1d09d11861f4c68d153e8825cae0baf9505517d4842"}}
 ```
 
 **Beneficiary:** A developer who starts or recovers a Cursor session from the
 Open Dough dashboard.
 
 **Goal:** When Cursor stays alive but never shows that it took the launch or
-recovery instruction, the dashboard's Start or Recover answers within a known
-bound with a message that says the instruction's delivery is unconfirmed and
-what the developer can do next, instead of waiting indefinitely. A Cursor
-that answers in ordinary time starts or recovers exactly as today.
+recovery instruction, the dashboard's Start or Recover answers within the
+existing shared launch wait bound with a message that says Cursor did not show
+it took the instruction in time and what the developer can do next (open the
+kept session's terminal, or continue from the recorded resume / try Recover
+again), instead of waiting indefinitely or treating an expired keep wait as an
+ordinary successful launch. A Cursor that answers in ordinary time starts or
+recovers exactly as today.
 
-**Scope (to refine):**
+**Scope:**
 
-- Both waiting paths in the launch instruction: a screen that is not ready
-  yet, and a pasted instruction whose paste chip was submitted.
-- The bound's value, the message's wording, and what happens to the held
-  client and its launch record when the bound expires are open for
-  refinement.
+- Both Cursor keep waits that today block on `LaunchInstruction.firstScreen`:
+  a screen that is never ready, and a pasted instruction whose paste chip was
+  submitted (Enter written) but never answered by a later paint or exit.
+- Bound: the existing shared launch wait (`DOUGH_LAUNCH_TIMEOUT_MS`, default
+  30 seconds). Start already uses it; Recover must use the same bound.
+- Start: when that bound expires before the keep settles, answer `uncertain`
+  with reason `timed-out` and an explanation that Cursor did not show it took
+  the instruction in time, that the session remains kept when the runner holds
+  it, and how to continue (terminal or recorded resume). Do not answer
+  `launched` for that expiry.
+- Recover: when that bound expires before the keep settles, answer `failed`
+  with the same class of explanation (Recover's answer shape has no
+  `uncertain`). Do not leave the Recover HTTP wait open past the bound.
+- Held client: expiry does not hang up or kill the Cursor client; the launch
+  wait's abort already leaves it running.
+- Launch record: expiry does not invent or revoke first-input state. An
+  instruction not yet written stays uncertain; a paste chip whose Enter was
+  already written may already be confirmed and stays that way. Acceptance of a
+  later screen after Start returned remains as today.
+- Deferred: changing when paste-chip Enter confirms first input; bounding
+  non-Cursor hosts; a dashboard control to stop the runner; new ADR work.
 
-**Key examples / evaluation (to refine):**
+**Key examples:**
 
-- A Cursor client that accepts Enter on the paste chip and then never
-  repaints and never exits → Start or Recover answers within the bound with
-  the unconfirmed-delivery message.
-- A Cursor client that is never ready and never exits → the same answer
-  within the bound.
-- A Cursor client that repaints in ordinary time → the session starts or
-  recovers as today, with no such message.
+1. A Cursor client accepts Enter on the paste chip and then never repaints and
+   never exits → Start answers within the launch wait bound as `uncertain` /
+   `timed-out` with the unconfirmed-delivery explanation; the client stays
+   kept; first input remains whatever was already recorded (confirmed after
+   Enter). Recover on the same silent keep answers `failed` with the same
+   class of explanation within the same bound.
+2. A Cursor client is never ready and never exits → Start and Recover answer
+   the same way within the bound; first input stays uncertain when nothing was
+   written.
+3. A Cursor client becomes ready and shows it took the instruction in ordinary
+   time → Start returns `launched` and Recover returns `recovered` as today,
+   with no such timed-out or failed expiry message.
+
+**Investigation (facts vs hypotheses):**
+
+| Claim | Status | Source / observation |
+| --- | --- | --- |
+| `LaunchInstruction` / keep has no internal deadline | Fact | `launchInstruction.ts` settles only via announce paths; `terminalKeep.ts` awaits `firstScreen` with no timer |
+| Start applies a shared launch wait (default 30s) | Fact | `launchRun.ts` `launchTimeoutMs()` / `DOUGH_LAUNCH_TIMEOUT_MS` |
+| Start abort during an open Cursor keep returns `launched` | Fact | `hosts/cursor/launch.ts` races keep vs abort; `"aborted"` falls through to `launched` |
+| Recover keep wait is unbounded | Fact | `recoverCursorSession` → `keepCursorClient` with no signal or timer; `postJson` for `/keep` has no request timeout |
+| Abort does not kill the kept client | Fact | `hosts/cursor/launch.ts` header comment; `AGENT-LAUNCH-HOSTS.md` |
+| Paste-chip Enter confirms first input before keep settles | Fact | `onEntered` runs on chip submit; announce waits for a later answering paint |
+| Exact developer-facing sentence beyond the timed-out class | Settled in scope | Match existing Cursor timed-out wording pattern (`Cursor did not answer in time…` / kept session + continue), specialized to instruction delivery |
+
+**Architecture:**
+
+No new consequential architecture. Relevant records:
+
+- [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md) (Accepted) —
+  keep existing launch vocabulary (`uncertain`, `timed-out`, kept session).
+- [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+  (Proposed, non-binding) — launch remains local operational evidence and does
+  not settle story state; this story only bounds that local wait's answer.
+
+No Accepted ADR conflicts with bounding the Cursor keep wait or answering
+expiry as uncertain/failed while leaving the client kept.
