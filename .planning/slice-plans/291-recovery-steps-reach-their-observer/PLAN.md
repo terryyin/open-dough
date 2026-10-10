@@ -70,9 +70,11 @@ Observed on 2026-10-10 at `8f348077`; no product file changed.
 
 ### 1. The stop command reaches an observer armed from a removed worktree
 Type: Behavior
-Status: planned
-Proof: Extend the mailbox CLI suite through the installed `stop` from the
-default checkout after `git worktree remove`.
+Status: done
+Proof: `npm test -- src/skills/dough-execute-plan/scripts/ci-mailbox-removed-worktree.test.mjs`
+runs the installed `stop` from the default checkout after `git worktree remove`
+against a live worker: confirmed terminal receipt, and an unrelated
+repository's mailbox refused while it exists and after it is deleted.
 
 Behavior: An observer was armed from a worktree that no longer exists → its
 coordinator runs `ci-mailbox.mjs stop <directory>` from another checkout of
@@ -84,6 +86,14 @@ worktree's observer in place of the list `observerAccess` builds. Run the
 mailbox, hook, closure, and managed-delivery consumers.
 
 Safe stopping point: the stop step works wherever guidance sends a caller.
+
+Learning: Git keeps no trace of a removed worktree, and `stop <directory>` is
+not told the retired path, so the one access rule needs a recorded fact:
+`createMailbox` writes the arming checkout's identity as `identity` in
+`request.json`, and `readMailbox` uses it once the recorded root is gone. The
+coordinator read "no new schema" as the owner model and CLI, which are
+unchanged; the developer may revisit that reading. `readMailbox` takes one
+root, `observerAccess` returns one root, and `ownerRoot` is gone.
 
 ### 2. Every gap reason ends in a step
 Type: Behavior
@@ -112,6 +122,18 @@ difference, the session field, where it is asserted. Name the surviving
 coverage for each removed case.
 
 Safe stopping point: the correction is complete.
+
+## Story obligations
+
+### G1. Observers armed before the change stay unreachable after removal
+Reported: slice 1 — "Observers armed before this change carry no `identity` and behave as before (unreachable after their worktree is removed)."
+Story clause: "the stop command reaches an observer armed from a worktree that is now gone"
+Disposition: no user cost "A coordinator that follows a coverage gap's recovery step can carry it out": such an observer was armed by a runtime older than this correction and ends within its eight-hour budget; every observer armed after delivery records the identity.
+
+### G2. Only stop is proven through the CLI on a removed worktree
+Reported: slice 1 — "Only `stop` is proven through the CLI on a removed worktree's observer. `register-push`, `acknowledge`, `await-revision` and `complete-revision` share the same `readMailbox` rule but have no removed-worktree case of their own."
+Story clause: "The mailbox commands a recovery step names read an observer of the repository whichever of its worktrees armed it, also after that worktree was removed."
+Disposition: proved by slice 1: the recovery step names `stop`, proved in `ci-mailbox-removed-worktree.test.mjs`; registration and completion on a retired worktree's observer run through the same `readMailbox` in the retire-and-rerun journeys of `trunk-closure-owner.test.mjs` and `trunk-closure-resume.test.mjs`.
 
 ## Verification and gates
 

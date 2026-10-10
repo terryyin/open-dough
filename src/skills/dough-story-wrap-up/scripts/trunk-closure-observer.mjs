@@ -8,7 +8,6 @@
 // its worktrees shared, names the same owner from the recorded management
 // context, and reaches that owner's observer whichever worktree armed it.
 import { existsSync, realpathSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
 import {
   eventRecipient,
   hostSessionOwner,
@@ -72,26 +71,19 @@ function ownedObservers(directories, target, gap, notifies) {
   };
 }
 
-// Where closure reads its observers from and computes their owner. While the
-// execution checkout exists, both are that checkout, as in delivery. Once it
-// is gone, `repository`'s common Git directory stands for the identity it
-// shared with the repository's other worktrees: observers are read through
-// it and through the retired path, which is its own identity now and still
-// the root of the observers started there.
+// The checkout closure reads its observers through and computes their owner
+// from. While the execution checkout exists it is that checkout, as in
+// delivery. Once it is gone, `repository`'s common Git directory stands for
+// the identity it shared with the repository's other worktrees, which is the
+// identity the observers started there recorded.
 export async function observerAccess(workspace, repository) {
-  if (existsSync(workspace)) {
-    const root = realpathSync(workspace);
-    return { root, ownerRoot: root };
-  }
-  // The retired path's parent still resolves as it did for its observers.
-  const retired = join(realpathSync(dirname(workspace)), basename(workspace));
-  const ownerRoot = realpathSync(await managementContext(repository));
-  return { root: [retired, ownerRoot], ownerRoot };
+  return realpathSync(
+    existsSync(workspace) ? workspace : await managementContext(repository),
+  );
 }
 
 // The observers of `repo` and target `branch` this execution's owner evidence
-// names, read through `root` and claimed for `ownerRoot` as `observerAccess`
-// gives them.
+// names, read through and claimed for `root` as `observerAccess` gives it.
 export function closureObservers({
   repo,
   branch,
@@ -101,14 +93,12 @@ export function closureObservers({
   observerDirectory,
   env,
   root,
-  ownerRoot,
   storage,
 }) {
   const target = { repo, branch, root, storage };
   if (host === "codex") {
     const stream = retainedStream({
       ...target,
-      ownerRoot,
       coordinator,
       observerDirectory,
       command: "finish",
@@ -123,7 +113,7 @@ export function closureObservers({
   const owner = hostSessionOwner({
     host,
     session: resolveHostSession({ host, session, env }),
-    root: ownerRoot,
+    root,
   });
   if (!owner) {
     return ownedObservers([], target, () =>

@@ -173,7 +173,7 @@ test("closure names an observer its coordinator claimed after its observers were
     branch: "main",
     host: "cursor",
     session: { conversation_id: "late-coordinator" },
-    ...(await observerAccess(fixture.execution)),
+    root: await observerAccess(fixture.execution),
     storage: fixture.storage,
   });
   assert.deepEqual(observers.directories, []);

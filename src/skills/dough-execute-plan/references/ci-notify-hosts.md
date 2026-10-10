@@ -76,7 +76,9 @@ The mailbox is claimed by checkout, host, conversation, and worker identity.
 A Git worktree of the same repository counts as the same checkout for that
 claim when each path is its Git toplevel and both share
 `git rev-parse --git-common-dir`; an unrelated repository remains another
-checkout. Probe and start still use the execution checkout's own installed
+checkout. An observer keeps the identity of the worktree that armed it after
+that worktree is removed, so the repository's other worktrees still reach it
+with the mailbox commands. Probe and start still use the execution checkout's own installed
 runtime. Cursor additionally binds to the coordinator's `generation_id` because its
 children can share the conversation ID, and `beforeSubmitPrompt` updates that
 binding on a new user message; arbitrary child tool calls cannot rebind it, and

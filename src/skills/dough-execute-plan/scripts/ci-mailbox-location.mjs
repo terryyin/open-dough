@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -44,8 +45,17 @@ export function checkoutIdentity(root) {
   return gitCommonDir(root) ?? resolve(root);
 }
 
-// `root` is the checkout reading the mailbox, or the several access roots a
-// reader accepts once its own checkout is gone.
+// The identity of the checkout that armed a mailbox. While that checkout
+// exists it is read from it; once it was removed, the identity recorded when
+// it armed the mailbox stands for it, so the repository's other worktrees
+// still reach the observer and an unrelated repository still does not.
+function armingIdentity(request) {
+  return existsSync(request.root)
+    ? checkoutIdentity(request.root)
+    : (request.identity ?? resolve(request.root));
+}
+
+// `root` is the checkout reading the mailbox.
 export function readMailbox(
   directory,
   root = checkoutRoot,
@@ -60,8 +70,7 @@ export function readMailbox(
   const request = JSON.parse(
     readFileSync(join(directory, "request.json"), "utf8"),
   );
-  const accepted = [root].flat().map(checkoutIdentity);
-  if (!accepted.includes(checkoutIdentity(request.root)))
+  if (checkoutIdentity(root) !== armingIdentity(request))
     throw new Error("CI mailbox belongs to another checkout");
   return request;
 }
@@ -74,7 +83,7 @@ export function createMailbox(
   const directory = mkdtempSync(join(storage, "watch-"));
   writeFileSync(
     join(directory, "request.json"),
-    JSON.stringify({ ...request, root }),
+    JSON.stringify({ ...request, root, identity: checkoutIdentity(root) }),
     { mode: 0o600 },
   );
   mkdirSync(join(directory, "events"), { mode: 0o700 });
