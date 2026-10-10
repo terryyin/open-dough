@@ -16,7 +16,8 @@ export function sidebarParts(page: Page) {
     badge: page.getByRole("banner").getByRole("img", {
       name: /^\d+ sessions? needs? attention$/,
     }),
-    entries: sidebar.getByRole("listitem"),
+    // The session list's entries, apart from Running Cursor sessions' rows.
+    entries: sidebar.locator("li.sidebar-entry"),
     // The control of the entry for the story with this title.
     entry: (title: string) => sidebar.getByRole("button", { name: title }),
     // The card's attention sentence, which the sidebar never shows.

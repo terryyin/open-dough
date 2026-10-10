@@ -10,6 +10,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
+import { watchPageErrors } from "./pageErrors.ts";
 import {
   doughnutProject,
   expectSelectedProject,
@@ -27,12 +28,6 @@ const expectAtBacklog = (page: Page) =>
   expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
 const expectAtTaken = (page: Page) =>
   expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
-
-function watchPageErrors(page: Page): Error[] {
-  const errors: Error[] = [];
-  page.on("pageerror", (error) => errors.push(error));
-  return errors;
-}
 
 async function chooseProject(page: Page, label: string) {
   await parts(page)

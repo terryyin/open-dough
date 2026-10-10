@@ -113,6 +113,16 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-141).
 
+### Occurrences
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
+  - Timestamp: unknown (2026-10-10, between 09:43 and 13:31 +09:00).
+  - Tool: Claude Code coordinator and delegated agents.
+  - Model: `claude-opus-5-5`.
+  - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
+  - Evidence: CI repair `f64da99b` changed nine lines of one spec (`published-work.spec.ts`); its delegated refactor pass reported no edits (about 48.6k subagent tokens, 38 s). The second repair's pass (`722a7b36`) did find and remove a duplication, so the pass is not always empty on a small repair.
+  - Observed effect: one full refactor delegation with no change.
+
+
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
 Former local code: DD-200.
@@ -364,6 +374,17 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-221](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-221).
 
+### Occurrences
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
+  - Timestamp: 2026-10-10T13:49:58+09:00 (repair commit `722a7b36`).
+  - Tool: Claude Code coordinator and delegated agents.
+  - Model: `claude-opus-5-5`.
+  - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
+  - Evidence: run 38024406264 `dashboard (4/9)` failed `agent-launch-done-prompt.spec.ts:44`; the repair report named four older specs with the same wall-clock rename deadline and wider margins (`agent-launch-done.spec.ts`, `-rename-wait`, `-question`, `agent-completion-quiet-claude.spec.ts`) and left them, as the delegation's scope said.
+  - Observed effect: the diagnosed class of race remains in sibling specs; none has failed yet. The siblings predate this execution, unlike the original finding's same-slice sibling.
+  - Inference: matching is by cause, with that difference; the retrospective recommended a follow-up story rather than widening the repair.
+
+
 ## DD-258 — Native replay fixtures changed the retained acceptance checkpoint
 
 Slice 4's first receiving-slice and interim fixtures supplied a fresh acceptance
@@ -380,3 +401,39 @@ current-slice return, leaving the intended later-slice journeys unobserved.
   - Evidence: plan 283 slice 4 accepted proof and limits, recoverable at `5bd862746d2789e9c34d05276a507f908d141bc7:.planning/slice-plans/283-keep-reported-gaps-owned/PLAN.md`; initial native sessions `a9c48f45-a2f1-4d43-a226-a44e7dcc0a27` and `53ee6bf5-8400-4825-b8e1-65cfe4f47160`. Both recorded `return` and observed `open-obligation`; prompts supplied no expected disposition. Diagnosed fixture corrections preceded two fresh sessions with same-session dependent checkpoints. Spent artifacts were deleted after assessment under ADR 0005.
   - Observed effect: two inconclusive paid calls (native CLI reported about $0.72 combined), fixture reconstruction and two replacement sessions; no product guidance change or false passing claim.
   - Inference: qualified to this execution. Review a native fixture against the exact retained checkpoint, independently accepted proof, relevant whole-story constraints and ownership facts before launch. Distinguish archived text from replay construction; keep the expected record out of prompts.
+
+## DD-259 — A slice's consumer search followed selectors and helpers and missed a spec that reads the whole page's text
+
+Slice 1 moved the Sessions sidebar's “Running Cursor sessions” header below the
+session list. Its consumer search grepped class names, helper imports and the
+section's name, and ran 42 then 51 specs. `published-work.spec.ts` matches none
+of those: it checks the whole `body` text, hidden sidebar included, against a
+word-boundary pattern, and the reorder put a boundary before “Running”.
+
+### Occurrences
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
+  - Timestamp: 2026-10-10T09:43:50+09:00 (CI failure; slice commit `426c42fb` at 09:40:36).
+  - Tool: Claude Code coordinator and delegated agents.
+  - Model: `claude-opus-5-5`.
+  - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
+  - Evidence: run 38010086816 `dashboard (3/9)`, `published-work.spec.ts:175`; repair `f64da99b`; plan 279 slice 1 learnings. The plan's verification section says the hosted dashboard checks are not an extra local all-suite gate.
+  - Observed effect: one CI failure on a published slice, one stash/repair/refactor/publish cycle while slice 2 was in progress.
+  - Inference: qualified to this execution. A change to where text sits in the page reaches assertions over a container's whole text; a search by selector cannot find them. Possibly the same family as ODF-110, whose rows concern plan premises rather than a slice's own search.
+
+## DD-260 — A CI repair stash was taken while a failed agent's test run was still observing the tree
+
+The slice 2 implementation agent stopped on an API error. Before the repair
+stash the coordinator checked the checkout's processes, saw only fixture
+servers (`vite preview`, the Cursor runner) and no editor, and stashed. The
+resumed agent later reported that its first full run overlapped the stash,
+took 3.1 hours of wall-clock and showed 24 failures on a mixed tree.
+
+### Occurrences
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
+  - Timestamp: unknown (2026-10-10, between 09:43 and 13:31 +09:00).
+  - Tool: Claude Code coordinator and delegated agents.
+  - Model: `claude-opus-5-5`.
+  - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
+  - Evidence: coordinator process listing before `ci-repair-stash.mjs save` (pids 40093/40099, 46072/46432, 71730/71948); the slice 2 return's “Invalidated run (not counted)” section; the same three server pairs, started 10:58, 11:47 and 11:52, were still alive after the last delivery at 14:10.
+  - Observed effect: no lost work and no false proof — the agent discarded the run and reran all 46 specs (112 passed). One full suite run was wasted, and orphaned fixture servers outlived their runs until the coordinator ended them by pid.
+  - Inference: qualified. The pause contract's quiescence check names write-capable commands; a read-only suite is not a writer, yet a stash under it invalidates its result. Live fixture servers were a visible sign of a run in flight. Whether the orphans came from the interrupted run or from fixture teardown is not established.

@@ -54,38 +54,23 @@
 }
 
 /* The edge that resizes the panel (./SidePanelEdge.tsx): a strip across the
-   panel's left border, wide enough to grab, with a grip at its middle that
-   takes the accent while pointed at or holding the keyboard. */
+   panel's left border, wide enough to grab, with its grip
+   (./resize-edge.css) at its middle. */
 .side-panel-edge {
-  position: absolute;
   top: 0;
   bottom: 0;
   left: -0.4rem;
   z-index: 2;
   width: 0.8rem;
   cursor: col-resize;
-  touch-action: none;
 }
 
 .side-panel-edge::after {
-  content: "";
-  position: absolute;
   top: 50%;
   left: calc(50% - 2px);
   width: 4px;
   height: 2.5rem;
-  border-radius: var(--radius-pill);
-  background: var(--edge);
   transform: translateY(-50%);
-}
-
-.side-panel-edge:hover::after,
-.side-panel-edge:focus-visible::after {
-  background: var(--accent);
-}
-
-.side-panel-edge:focus-visible {
-  outline-offset: -3px;
 }
 
 /* The panel's header: the shown session's or story's title and identity on

@@ -7,9 +7,12 @@
 // entry. The terminal's connection is held, so attaching does not reopen the
 // session meanwhile. The runner and cursor-agent are the fixture
 // ./cursor-runner-sessions.spec.ts uses; the publication and the other
-// sessions are ./recentlyDoneProgressiveJourney.ts's.
+// sessions are ./recentlyDoneProgressiveJourney.ts's. The page reads this
+// machine's sessions before the project's done catalog, so the first ten
+// entries are read once, merged.
 
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { parts, standaloneSessionName } from "./dashboardPage.ts";
 import { rem } from "./dashboardColumnsPage.ts";
@@ -64,77 +67,107 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
   );
   await recordReveals(page);
-  const view = await openedWithHeldStory(page, dashboard, {
-    open: [],
-    elsewhere: true,
-    also: (now) => [
-      {
-        ...held,
-        launchedAt: placedAt(now, destination),
-        doneAt: new Date(now - 10 * 60_000).toISOString(),
-      },
-    ],
+  // The project's done catalog answers only once this machine's sessions
+  // are read into the sidebar.
+  let releaseCatalog: () => void = () => undefined;
+  const catalogHeld = new Promise<void>((resolve) => {
+    releaseCatalog = resolve;
   });
-  const { github, recent } = view;
-  const { project, backlog } = parts(page);
-  const entry = recent.getByRole("article", { name: entryName });
-  await expect(entry).toHaveCount(0);
-  // The first ten entries' records are read before Pygardon is chosen:
-  // leaving Open Dough abandons a read still under way, which returning
-  // would otherwise ask for again.
-  await expectEntries(recent, names(10));
-  expect(recordsAsked(github).toSorted()).toEqual(
-    storiesThrough(10).toSorted(),
+  await page.route(
+    (url) =>
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("done") === "catalog",
+    async (route) => {
+      await catalogHeld;
+      await route.fallback();
+    },
   );
-  await project.getByRole("radio", { name: "Pygardon" }).check();
-  await expect(backlog).toContainText("A Pygardon story");
-
-  const { sidebar, button } = sidebarParts(page);
-  await button.click();
-  const region = sidebar.getByRole("region", {
-    name: "Running Cursor sessions",
-  });
-  await region.getByRole("button", { name: "Running Cursor sessions" }).click();
-  const row = region.getByRole("button", { name: /Open Dough/ });
-  await expect(row).toContainText("Ad hoc");
-  const before = (await revealsOf(page)).length;
-  await row.click();
-
-  await test.step("Open Dough's Recently done lists entries through 27 at once, asking only for their records, and brings none into view while the held one is read", async () => {
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
-    await expect(view.heldCard).toContainText("Reading done story…");
-    await expect(entry).toBeVisible();
-    await expect(shownEntries(recent)).toHaveCount(destination);
-    await expect
-      .poll(() => recordsAsked(github).toSorted())
-      .toEqual(storiesThrough(destination).toSorted());
-    expect((await revealsOf(page)).slice(before)).toEqual([]);
-  });
-
-  await test.step("once it is read, the entry is brought into view at once, and nothing older is read", async () => {
-    view.release();
-    await expect
-      .poll(async () => (await revealsOf(page)).length)
-      .toBeGreaterThan(before);
-    await expectRevealsSince(page, before, entryName, "auto");
-    await expect(entry).toBeInViewport();
-    await expect(shownEntries(recent)).toHaveCount(destination);
-    await expect(
-      shownEntries(recent).nth(destination - 2),
-    ).toHaveAccessibleName(names(destination - 1).at(-1) ?? "");
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(destination).toSorted(),
+  let release: () => void = releaseCatalog;
+  try {
+    const view = await openedWithHeldStory(page, dashboard, {
+      open: [],
+      elsewhere: true,
+      also: (now) => [
+        {
+          ...held,
+          launchedAt: placedAt(now, destination),
+          doneAt: new Date(now - 10 * 60_000).toISOString(),
+        },
+      ],
+    });
+    release = () => {
+      releaseCatalog();
+      view.release();
+    };
+    await expect(page.locator("#session-sidebar")).toContainText(
+      "No sessions launched from this dashboard are open.",
     );
-  });
+    releaseCatalog();
+    const { github, recent } = view;
+    const { project, backlog } = parts(page);
+    const entry = recent.getByRole("article", { name: entryName });
+    await expect(entry).toHaveCount(0);
+    // The first ten entries' records are read before Pygardon is chosen:
+    // leaving Open Dough abandons a read still under way, which returning
+    // would otherwise ask for again.
+    await expectEntries(recent, names(10));
+    expect(recordsAsked(github).toSorted()).toEqual(
+      storiesThrough(10).toSorted(),
+    );
+    await project.getByRole("radio", { name: "Pygardon" }).check();
+    await expect(backlog).toContainText("A Pygardon story");
 
-  await test.step("with the row hidden, closing its terminal returns the keyboard to the entry", async () => {
+    const { sidebar, button } = sidebarParts(page);
     await button.click();
-    await expect(row).toHaveCount(0);
-    const terminal = page.getByRole("region", { name: "Terminal" });
-    await terminal.getByRole("button", { name: "Close" }).click();
-    await expect(terminal).toHaveCount(0);
-    await expect(entry).toBeFocused();
-  });
+    const region = sidebar.getByRole("region", {
+      name: "Running Cursor sessions",
+    });
+    await region
+      .getByRole("button", { name: "Running Cursor sessions" })
+      .click();
+    const row = region.getByRole("button", { name: /Open Dough/ });
+    await expect(row).toContainText("Ad hoc");
+    const before = (await revealsOf(page)).length;
+    await row.click();
+
+    await test.step("Open Dough's Recently done lists entries through 27 at once, asking only for their records, and brings none into view while the held one is read", async () => {
+      await expect(
+        project.getByRole("radio", { name: "Open Dough", exact: true }),
+      ).toBeChecked();
+      await expect(view.heldCard).toContainText("Reading done story…");
+      await expect(entry).toBeVisible();
+      await expect(shownEntries(recent)).toHaveCount(destination);
+      await expect
+        .poll(() => recordsAsked(github).toSorted())
+        .toEqual(storiesThrough(destination).toSorted());
+      expect((await revealsOf(page)).slice(before)).toEqual([]);
+    });
+
+    await test.step("once it is read, the entry is brought into view at once, and nothing older is read", async () => {
+      view.release();
+      await expect
+        .poll(async () => (await revealsOf(page)).length)
+        .toBeGreaterThan(before);
+      await expectRevealsSince(page, before, entryName, "auto");
+      await expect(entry).toBeInViewport();
+      await expect(shownEntries(recent)).toHaveCount(destination);
+      await expect(
+        shownEntries(recent).nth(destination - 2),
+      ).toHaveAccessibleName(names(destination - 1).at(-1) ?? "");
+      expect(recordsAsked(github).toSorted()).toEqual(
+        storiesThrough(destination).toSorted(),
+      );
+    });
+
+    await test.step("with the row hidden, closing its terminal returns the keyboard to the entry", async () => {
+      await button.click();
+      await expect(row).toHaveCount(0);
+      const terminal = page.getByRole("region", { name: "Terminal" });
+      await terminal.getByRole("button", { name: "Close" }).click();
+      await expect(terminal).toHaveCount(0);
+      await expect(entry).toBeFocused();
+    });
+  } finally {
+    release();
+  }
 });

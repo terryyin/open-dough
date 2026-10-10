@@ -16,7 +16,31 @@ as it does for the project arrows below. Toggling leaves the keyboard where it
 is, except that closing the sidebar while the keyboard is inside it returns
 the keyboard to the Sessions button. The sidebar stays open or closed as left
 across project switches, views, the terminal, and reloads; it is disposable
-per-browser state and starts closed when none is kept. Opening a sidebar entry
+per-browser state and starts closed when none is kept. Below the session list,
+the sidebar's **Running Cursor sessions** section starts collapsed on each page
+load, its header alone below the list, which fills the rest of the sidebar.
+Expanding it with the mouse or keyboard gives the session list and the
+section's content an equal share of the room the heading and headers leave,
+each scrolling on its own; collapsing returns that room to the session list
+and leaves the keyboard on the header. The edge between the two lists is a
+focusable, horizontal separator named **Resize Running Cursor sessions** that
+says the section's content height in pixels and its bounds: dragging it, or
+Up (taller) and Down (shorter) by 2rem while it holds the keyboard, changes
+one preferred height, and a drag ends when released, wherever the pointer is,
+or when the browser cancels it. Each list keeps at least 8rem, room to read
+and choose an entry and the runner's status, so the maximum is the room less
+the session list's 8rem. Expansion and the preferred height last across
+collapsing, project switches, views, and closing the sidebar within the page.
+The preferred height alone is also local to this browser and disposable: after
+a reload the section starts collapsed, and expanding it recovers that height.
+Where the browser keeps none, refuses storage, or keeps an unusable value, the
+two lists start at an equal share and still resize for the page's lifetime.
+Where the window is too short or zoomed for
+both lists to keep 8rem, the edge offers no range, and the sidebar itself
+scrolls, keeping both lists and the header in reach; a height the room
+imposes never replaces the preferred one, so more room recovers it. Expanding,
+collapsing, or resizing it is page state only.
+Opening a sidebar entry
 shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
 terminal with the keyboard there, or opens the read-only final report when a

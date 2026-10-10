@@ -21,15 +21,24 @@ import { sessionKey } from "./sessionReference.ts";
 // switches, views, the terminal, and reloads, and without it, as when storage
 // cannot be used, the sidebar starts closed. Toggling it, or opening an entry,
 // is page state only: it changes no story fact, stage, or session. Entries are
-// local evidence of launches, not story facts. The open sidebar also offers
-// Running Cursor sessions (`./RunningCursorSessions.tsx`): whether the Cursor
-// runner is running, and each session it holds, as working, waiting for an
-// answer, or at the follow-up prompt. Choosing one opens that terminal. When
-// the runner is down or unreachable, the list says so and shows nothing. That
-// list is live process status, not story progress.
+// local evidence of launches, not story facts. Below the session list, the
+// open sidebar also offers Running Cursor sessions
+// (`./RunningCursorSessions.tsx`) as a section that starts collapsed on each
+// page load, its header alone below the list, which fills the rest of the
+// sidebar. Expanded, the session list and the section's content share the
+// room the heading and headers leave, each scrolling on its own, equally until
+// the developer resizes them with the edge between them
+// (`./runningCursorHeight.ts`); collapsing gives that room back to the session
+// list. Whether it is expanded, and the chosen split, survive project and view
+// changes and closing the sidebar; a reload keeps only the split. The section
+// says whether the Cursor runner is running, and each session it holds, as
+// working, waiting for an answer, or at the follow-up prompt. Choosing one
+// opens that terminal. When the runner is down or unreachable, the list says
+// so and shows nothing. That list is live process status, not story progress.
 
 import {
   createContext,
+  type CSSProperties,
   useCallback,
   useContext,
   useEffect,
@@ -43,10 +52,12 @@ import {
 } from "./agentLaunch.ts";
 import { PanelLeft } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
+import { ResizeEdge } from "./ResizeEdge.tsx";
 import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { keep, readKept } from "./keptPreference.ts";
+import { useRunningCursorHeight } from "./runningCursorHeight.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import { attentionCount, attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
@@ -167,36 +178,70 @@ export function SessionSidebar({
   readonly onOpen: OpenSidebarEntry;
 }) {
   const sessions = openSessionsOf(records);
+  // Unkept: each page load starts with Running Cursor sessions collapsed.
+  const [cursorOpen, setCursorOpen] = useState(false);
+  const aside = useRef<HTMLElement>(null);
+  const { height, range } = useRunningCursorHeight(aside, open && cursorOpen);
   return (
     <aside
+      ref={aside}
       id={sidebarId}
-      className="session-sidebar"
+      className={
+        cursorOpen ? "session-sidebar running-cursor-open" : "session-sidebar"
+      }
+      style={
+        height === undefined
+          ? undefined
+          : ({
+              "--running-cursor-height": `${String(height)}px`,
+            } as CSSProperties)
+      }
       aria-labelledby="session-sidebar-heading"
       hidden={!open}
     >
       <h2 id="session-sidebar-heading">Sessions</h2>
-      <RunningCursorSessions shown={open} records={records} onOpen={onOpen} />
-      {open && alerts?.available === false && (
-        <p className="quiet">Alerts unavailable: {alerts.reason}</p>
-      )}
-      <SessionList
-        sessions={sessions}
-        {...(records !== undefined && records.length > 0
-          ? { none: "No sessions launched from this dashboard are open." }
-          : {})}
-      >
-        {(listed) => (
-          <ol>
-            {listed.map((record) => (
-              <SidebarEntry
-                key={sessionKey(record.session)}
-                record={record}
-                onOpen={onOpen}
-              />
-            ))}
-          </ol>
+      <div className="sidebar-sessions">
+        {open && alerts?.available === false && (
+          <p className="quiet">Alerts unavailable: {alerts.reason}</p>
         )}
-      </SessionList>
+        <SessionList
+          sessions={sessions}
+          {...(records !== undefined && records.length > 0
+            ? { none: "No sessions launched from this dashboard are open." }
+            : {})}
+        >
+          {(listed) => (
+            <ol>
+              {listed.map((record) => (
+                <SidebarEntry
+                  key={sessionKey(record.session)}
+                  record={record}
+                  onOpen={onOpen}
+                />
+              ))}
+            </ol>
+          )}
+        </SessionList>
+      </div>
+      <RunningCursorSessions
+        shown={open}
+        open={cursorOpen}
+        onToggle={() => {
+          setCursorOpen((current) => !current);
+        }}
+        records={records}
+        onOpen={onOpen}
+        edge={
+          <ResizeEdge
+            orientation="horizontal"
+            label="Resize Running Cursor sessions"
+            title="Drag, or use Up and Down, to resize Running Cursor sessions"
+            valueText={(size) => `${String(size)} pixels tall`}
+            className="running-cursor-edge"
+            range={range}
+          />
+        }
+      />
     </aside>
   );
 }

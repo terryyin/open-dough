@@ -23,6 +23,7 @@ import { sessionShown } from "./sessionShown.ts";
 import { elapsedWords } from "./sidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 import { usePageSessions, type SessionOperation } from "./pageSessions.ts";
+import "./sidebar-entry.css";
 
 // Often enough that a shown minute is never more than half a minute stale.
 const sidebarTickMs = 30_000;

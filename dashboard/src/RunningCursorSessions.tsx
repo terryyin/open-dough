@@ -1,10 +1,13 @@
-// Running Cursor sessions, opened from the Sessions sidebar without opening
-// a terminal. It says whether the Cursor runner is running. Each row is one
-// session that runner holds: the project, what was started, and one label
-// from that client's current screen. Choosing a row opens that session's
-// terminal. When the runner is not running, or cannot be reached, the list
-// says so, shows no sessions, and offers nothing that starts an agent.
-import { useEffect, useId, useState } from "react";
+// Running Cursor sessions, a collapsible section of the Sessions sidebar
+// below its session list (`./SessionSidebar.tsx`, which keeps whether it is
+// expanded), opened without opening a terminal. Expanded, the sidebar's edge
+// that resizes it lies along its top, its content scrolls on its own, and it
+// says whether the Cursor runner is running. Each row is one session that
+// runner holds: the project, what was started, and one label from that
+// client's current screen. Choosing a row opens that session's terminal. When
+// the runner is not running, or cannot be reached, the list says so, shows no
+// sessions, and offers nothing that starts an agent.
+import { useEffect, useId, useState, type ReactNode } from "react";
 import {
   launchKindName,
   type LaunchRecord,
@@ -44,17 +47,24 @@ function openable(
 
 export function RunningCursorSessions({
   shown,
+  open,
+  onToggle,
   records,
   onOpen,
+  edge,
 }: {
   // Whether the Sessions sidebar itself is open. The list is read only then.
   readonly shown: boolean;
+  // Whether the section is expanded; the list is read only then.
+  readonly open: boolean;
+  readonly onToggle: () => void;
   readonly records: readonly LaunchWithState[] | undefined;
   readonly onOpen: OpenSidebarEntry;
+  // The edge between this section and the session list, while expanded.
+  readonly edge: ReactNode;
 }) {
   const projects = useProjects();
   const panelId = useId();
-  const [open, setOpen] = useState(false);
   const [listed, setListed] = useState<Listed | undefined>();
   useEffect(() => {
     if (!shown || !open) return;
@@ -84,6 +94,7 @@ export function RunningCursorSessions({
       className="running-cursor-sessions"
       aria-label="Running Cursor sessions"
     >
+      {open && edge}
       <button
         type="button"
         className="running-cursor-toggle"
@@ -91,13 +102,13 @@ export function RunningCursorSessions({
         aria-controls={panelId}
         onClick={() => {
           setListed(undefined);
-          setOpen((current) => !current);
+          onToggle();
         }}
       >
         Running Cursor sessions
       </button>
       {open && (
-        <div id={panelId}>
+        <div id={panelId} className="running-cursor-body">
           <p className="quiet">{runnerSentence(listed)}</p>
           {sessions.length > 0 && (
             <ul>

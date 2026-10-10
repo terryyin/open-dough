@@ -6,7 +6,6 @@
 // attaches the synthetic `claude` (./fixtures/fake-claude); the real one is
 // never reached.
 
-import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
   cardSessionOf,
@@ -23,6 +22,7 @@ import {
   takenStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
+import { watchPageErrors } from "./pageErrors.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
@@ -32,12 +32,6 @@ const queued = {
   taken: [],
   backlog: [takenStory, readyStory, notRefinedStory],
 };
-
-function watchPageErrors(page: Page): Error[] {
-  const errors: Error[] = [];
-  page.on("pageerror", (error) => errors.push(error));
-  return errors;
-}
 
 test.describe("the Sessions sidebar as left", () => {
   let stagesJourney: StoryStagesJourney;
