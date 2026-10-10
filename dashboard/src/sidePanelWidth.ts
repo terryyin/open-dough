@@ -22,6 +22,7 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 import { keep, readKept } from "./keptPreference.ts";
+import { shareOfRoom, sizeWithin } from "./sharedRoom.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
 // (`./session-sidebar.css`) and the panel stacks above it.
@@ -54,9 +55,6 @@ function readPreferredWidth(): number | undefined {
   return Number.isFinite(kept) && kept > 0 ? kept : undefined;
 }
 
-const clamp = (value: number, minimum: number, maximum: number) =>
-  Math.min(Math.max(value, minimum), maximum);
-
 // The panel's arrangement and width, in CSS px, in the room the page and the
 // panel share, for the preferred width, if one was chosen.
 function sidePanelLayout(
@@ -65,16 +63,14 @@ function sidePanelLayout(
   rem: number,
   narrow: boolean,
 ): SidePanelLayout {
-  const minimum = Math.ceil(panelMinimum * rem);
-  const maximum = Math.floor(room - pageMinimum * rem);
-  if (narrow || maximum < minimum) return { arrangement: "stacked" };
-  return {
-    arrangement: "split",
-    width: Math.round(clamp(preferred ?? room / 2, minimum, maximum)),
-    minimum,
-    maximum,
+  const share = shareOfRoom(room, preferred, {
+    floor: panelMinimum * rem,
+    otherFloor: pageMinimum * rem,
     step: keyStep * rem,
-  };
+  });
+  if (narrow || share === undefined) return { arrangement: "stacked" };
+  const { size: width, minimum, maximum, step } = share;
+  return { arrangement: "split", width, minimum, maximum, step };
 }
 
 const narrowQuery = () => window.matchMedia(narrowWindow);
@@ -149,7 +145,7 @@ export function useSidePanelWidth(
   const choose = useCallback(
     (width: number) => {
       if (minimum === undefined || maximum === undefined) return;
-      const chosen = Math.round(clamp(width, minimum, maximum));
+      const chosen = sizeWithin(width, minimum, maximum);
       setPreferred(chosen);
       keep(preferredWidthKey, String(chosen));
     },

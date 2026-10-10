@@ -256,7 +256,24 @@ disclosure and all existing session actions remain usable.
 
 ### 2. Resize the two panels with the mouse or keyboard
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `cursor-sidebar-resize.spec.ts` (mid-drag heights, off-edge
+release, cancellation, both bounds with each list in reach, separator name and
+values, focus, Up/Down), `cursor-sidebar-resize-lasting.spec.ts` (too-short
+fallback with a disabled edge, recovery of the chosen split, 320×256 reach;
+split kept across collapse, project, System settings and sidebar toggle), and
+the final-report resize step in `story-panel-replacement.spec.ts`. 46 consumer
+specs passed (112 tests) before refactoring; the 13 specs the refactor
+reached passed after it (27 tests); typecheck clean.
+Learnings for slice 3: the preference is `preferred` in
+`useRunningCursorHeight` (`runningCursorHeight.ts`); `choose`, called only by
+pointer and key handlers, is its one writer and stores the value clamped to
+the bounds at that moment, as `sidePanelWidth.ts` does. Room measurements
+never write it. Initialise it from `readKept` and `keep` inside `choose`.
+`sharedRoom.ts` holds the arithmetic both policies share; the 8rem floor is
+read from `--sidebar-list-floor`. The room is fractional, so tests derive
+`aria-valuemax` with `Math.floor`. Helpers: `cursorSidebarResizePage.ts`.
+`SessionSidebar.tsx` is near the 250-line limit.
 Proof: Add `cursor-sidebar-resize.spec.ts`, keeping slice 1's proof green.
 Observe geometry during movement, independent scrolling at bounds, off-edge
 release and cancellation, focus and named accessible values, and small-height

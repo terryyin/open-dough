@@ -6,11 +6,21 @@
 // review opens never answers the new one; reading the report neither continues
 // nor marks its session done, and reopening a review reads a fresh snapshot.
 // Asking again for the review shown takes the keyboard to it and keeps its
-// snapshot; the real `claude` is never reached.
+// snapshot; the real `claude` is never reached. The final report's edge
+// resizes the panel as the terminal's and a review's do
+// (./side-panel-width.spec.ts).
 
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { box } from "./pageLayout.ts";
+import {
+  dragEdge,
+  expectEdgeSays,
+  expectWidth,
+  keyStep,
+  resizeEdge,
+} from "./sidePanelWidthPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
@@ -122,6 +132,16 @@ test("a review, another story's review, and a final report replace each other in
     await expect(report).toContainText(storyBReport);
     await expect(items).toHaveCount(1);
     await expect(review).toHaveCount(0);
+    // The report's edge resizes the panel with the mouse and the keyboard.
+    const before = Math.round((await box(report)).width);
+    await dragEdge(page, -100);
+    await expectWidth(report, before + 100);
+    await expectEdgeSays(page, before + 100);
+    await resizeEdge(page).focus();
+    await page.keyboard.press("ArrowRight");
+    await expectWidth(report, before + 100 - keyStep);
+    await expectEdgeSays(page, before + 100 - keyStep);
+    await expect(report).toContainText(storyBReport);
     const reads = reviewReads.length;
     await reviewOf(cardB).click();
     await expect(

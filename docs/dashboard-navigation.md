@@ -22,11 +22,20 @@ load, its header alone below the list, which fills the rest of the sidebar.
 Expanding it with the mouse or keyboard gives the session list and the
 section's content an equal share of the room the heading and headers leave,
 each scrolling on its own; collapsing returns that room to the session list
-and leaves the keyboard on the header. Expansion lasts across project
-switches, views, and closing the sidebar within the page, but is not kept
-across reloads. Where the window is too short or zoomed for each list to keep
-room to read and choose an entry, the sidebar itself scrolls, keeping both
-lists and the header in reach. Expanding or collapsing it is page state only.
+and leaves the keyboard on the header. The edge between the two lists is a
+focusable, horizontal separator named **Resize Running Cursor sessions** that
+says the section's content height in pixels and its bounds: dragging it, or
+Up (taller) and Down (shorter) by 2rem while it holds the keyboard, changes
+one preferred height, and a drag ends when released, wherever the pointer is,
+or when the browser cancels it. Each list keeps at least 8rem, room to read
+and choose an entry and the runner's status, so the maximum is the room less
+the session list's 8rem. Expansion and the preferred height last across
+collapsing, project switches, views, and closing the sidebar within the page,
+but are not kept across reloads. Where the window is too short or zoomed for
+both lists to keep 8rem, the edge offers no range, and the sidebar itself
+scrolls, keeping both lists and the header in reach; a height the room
+imposes never replaces the preferred one, so more room recovers it. Expanding,
+collapsing, or resizing it is page state only.
 Opening a sidebar entry
 shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the

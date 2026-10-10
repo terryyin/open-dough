@@ -7,102 +7,29 @@
 // Choosing a held row and keeping expansion across page changes are
 // ./cursor-sidebar-panels-navigation.spec.ts's. The crowded lists' saved
 // sessions and runner answers are preconditions only.
-import type { Locator, Page } from "@playwright/test";
-import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
+import type { Locator } from "@playwright/test";
 import {
   box,
   expectEveryControlReachable,
+  expectInside,
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import {
+  answerCrowd,
   changesAsked,
+  crowd,
+  expectLastInReach,
   holdSession,
+  keepCrowd,
+  listFloor,
   runningCursorParts,
+  scrollTopOf,
   showPage,
+  wheelToEnd,
 } from "./runningCursorSessionsPage.ts";
 import { expect, keptRecord, test } from "./support/cursorStart.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
-
-const rem = 16;
-const floor = 8 * rem;
-const crowd = 30;
 
 test.use({ cursorScreen: "working" });
-
-// Many saved sessions beside the held one, for the session list to overflow.
-async function keepCrowd(dashboard: DashboardServer, held: LaunchRecord) {
-  const now = Date.now();
-  const saved = Array.from(Array(crowd).keys(), (index): LaunchRecord => {
-    const name = `Crowded session ${String(index + 1)}`;
-    const launchedAt = new Date(now - (index + 1) * 60_000).toISOString();
-    const sessionId = dashboard.claudeListsSession({
-      name,
-      cwd: dashboard.home,
-      startedAt: Date.parse(launchedAt),
-    });
-    return {
-      request: {
-        source: "open-dough",
-        workflow: "ad-hoc",
-        title: name,
-        host: "claude",
-      },
-      session: {
-        host: "claude",
-        sessionId,
-        shortId: sessionId.slice(0, 8),
-        name,
-      },
-      launchedAt,
-    };
-  });
-  await keepLaunchRecords(dashboard, [held, ...saved]);
-}
-
-// The runner answers with as many held sessions, for its list to overflow.
-async function answerCrowd(page: Page, held: LaunchRecord) {
-  const sessions = Array.from(Array(crowd).keys(), (index) => ({
-    record: {
-      ...held,
-      session: {
-        ...held.session,
-        sessionId: `6f1e8c2a-9b34-4d5e-8f70-${String(index).padStart(12, "0")}`,
-      },
-    },
-    label: "working",
-  }));
-  await page.route(
-    (url) => url.pathname === cursorRunnerSessionsEndpoint,
-    (route) => route.fulfill({ json: { runner: "running", sessions } }),
-  );
-}
-
-const scrollTopOf = (area: Locator) => area.evaluate((at) => at.scrollTop);
-
-// Scrolls the area with the mouse wheel until it can scroll no further.
-async function wheelToEnd(page: Page, area: Locator) {
-  const at = await box(area);
-  await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
-  await expect
-    .poll(async () => {
-      await page.mouse.wheel(0, 600);
-      return area.evaluate(
-        (element) =>
-          element.scrollTop + element.clientHeight >= element.scrollHeight - 1,
-      );
-    })
-    .toBe(true);
-}
-
-async function expectInside(inner: Locator, outer: Locator) {
-  const [shown, around] = await Promise.all([box(inner), box(outer)]);
-  expect(shown.y).toBeGreaterThanOrEqual(around.y - 1);
-  expect(shown.y + shown.height).toBeLessThanOrEqual(
-    around.y + around.height + 1,
-  );
-}
 
 // The bottom of the sidebar's content, inside its padding.
 const contentBottom = (sidebar: Locator) =>
@@ -166,7 +93,7 @@ test("collapsed below the session list, expanded into two lists sharing the room
       shownHeader.y + shownHeader.height,
     );
     expect(Math.abs(listed.height - content.height)).toBeLessThanOrEqual(1);
-    expect(listed.height).toBeGreaterThanOrEqual(floor);
+    expect(listed.height).toBeGreaterThanOrEqual(listFloor);
     expect(listed.height).toBeLessThan(collapsedList);
     expect(content.y + content.height).toBeCloseTo(
       await contentBottom(sidebar),
@@ -223,20 +150,13 @@ test("collapsed below the session list, expanded into two lists sharing the room
     // An entry's title is cut by design (./session-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [".sidebar-title"]);
     for (const area of [list, body]) {
-      expect((await box(area)).height).toBeGreaterThanOrEqual(floor - 1);
+      expect((await box(area)).height).toBeGreaterThanOrEqual(listFloor - 1);
     }
     await expectEveryControlReachable(sidebar);
-    for (const [area, last] of [
+    await expectLastInReach([
       [list, entries.last()],
       [body, heldRows.last()],
-    ] as const) {
-      await area.evaluate((element) => {
-        element.scrollTo(0, element.scrollHeight);
-      });
-      await last.scrollIntoViewIfNeeded();
-      await expectInside(last, area);
-      await expect(last).toBeInViewport();
-    }
+    ]);
     await header.scrollIntoViewIfNeeded();
     await expect(header).toBeInViewport();
     await header.focus();

@@ -1,0 +1,32 @@
+/* An edge that resizes an area (./ResizeEdge.tsx): a strip its caller places
+   across the area's border, wide enough to grab, with a grip at its middle
+   that takes the accent while pointed at or holding the keyboard. Where it
+   offers no range, it has no grip and takes no pointer. */
+.resize-edge {
+  position: absolute;
+  touch-action: none;
+}
+
+.resize-edge::after {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-pill);
+  background: var(--edge);
+}
+
+.resize-edge:hover::after,
+.resize-edge:focus-visible::after {
+  background: var(--accent);
+}
+
+.resize-edge:focus-visible {
+  outline-offset: -3px;
+}
+
+.resize-edge[aria-disabled="true"] {
+  pointer-events: none;
+}
+
+.resize-edge[aria-disabled="true"]::after {
+  display: none;
+}

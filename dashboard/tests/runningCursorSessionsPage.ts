@@ -2,14 +2,18 @@
 // specs share: one session the Cursor runner holds, launched as the page
 // would, and the page showing the published Open Dough project. The held
 // client and the cursor-agent are the fixture ./support/cursorStart.ts uses.
-import type { Page, Request } from "@playwright/test";
+import type { Locator, Page, Request } from "@playwright/test";
+import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { box, expectInside } from "./pageLayout.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
+import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 
 export const instruction = "hold this session";
 
@@ -60,6 +64,10 @@ export function runningCursorParts(page: Page) {
     // The two areas that scroll on their own.
     list: sidebar.locator(".sidebar-sessions"),
     body: region.locator(".running-cursor-body"),
+    // The edge between them, while expanded.
+    edge: sidebar.getByRole("separator", {
+      name: "Resize Running Cursor sessions",
+    }),
   };
 }
 
@@ -79,4 +87,95 @@ export function changesAsked(page: Page): readonly string[] {
     if (request.method() !== "GET") asked.push(request.url());
   });
   return asked;
+}
+
+// How many entries each crowded list holds beyond its room.
+export const crowd = 30;
+
+// Each list's usable floor (8rem), in CSS px.
+export const listFloor = 8 * 16;
+
+// Many saved sessions beside the held one, for the session list to overflow.
+export async function keepCrowd(
+  dashboard: DashboardServer,
+  held: LaunchRecord,
+) {
+  const now = Date.now();
+  const saved = Array.from(Array(crowd).keys(), (index): LaunchRecord => {
+    const name = `Crowded session ${String(index + 1)}`;
+    const launchedAt = new Date(now - (index + 1) * 60_000).toISOString();
+    const sessionId = dashboard.claudeListsSession({
+      name,
+      cwd: dashboard.home,
+      startedAt: Date.parse(launchedAt),
+    });
+    return {
+      request: {
+        source: "open-dough",
+        workflow: "ad-hoc",
+        title: name,
+        host: "claude",
+      },
+      session: {
+        host: "claude",
+        sessionId,
+        shortId: sessionId.slice(0, 8),
+        name,
+      },
+      launchedAt,
+    };
+  });
+  await keepLaunchRecords(dashboard, [held, ...saved]);
+}
+
+// The runner answers with as many held sessions, for its list to overflow.
+// The answer is a precondition only; the held client is the one session's.
+export async function answerCrowd(page: Page, held: LaunchRecord) {
+  const sessions = Array.from(Array(crowd).keys(), (index) => ({
+    record: {
+      ...held,
+      session: {
+        ...held.session,
+        sessionId: `6f1e8c2a-9b34-4d5e-8f70-${String(index).padStart(12, "0")}`,
+      },
+    },
+    label: "working",
+  }));
+  await page.route(
+    (url) => url.pathname === cursorRunnerSessionsEndpoint,
+    (route) => route.fulfill({ json: { runner: "running", sessions } }),
+  );
+}
+
+export const scrollTopOf = (area: Locator) =>
+  area.evaluate((at) => at.scrollTop);
+
+// Scrolls the area with the mouse wheel until it can scroll no further.
+export async function wheelToEnd(page: Page, area: Locator) {
+  const at = await box(area);
+  await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
+  await expect
+    .poll(async () => {
+      await page.mouse.wheel(0, 600);
+      return area.evaluate(
+        (element) =>
+          element.scrollTop + element.clientHeight >= element.scrollHeight - 1,
+      );
+    })
+    .toBe(true);
+}
+
+// Each area's last entry is in reach, inside its area and the window, by the
+// area's and the sidebar's own scrolling.
+export async function expectLastInReach(
+  areas: readonly (readonly [area: Locator, last: Locator])[],
+) {
+  for (const [area, last] of areas) {
+    await area.evaluate((element) => {
+      element.scrollTo(0, element.scrollHeight);
+    });
+    await last.scrollIntoViewIfNeeded();
+    await expectInside(last, area);
+    await expect(last).toBeInViewport();
+  }
 }
