@@ -1,4 +1,4 @@
-// One side panel selects a live workspace comparison or retained one-shot run.
+// One side panel selects a live workspace comparison or a landed run.
 // Refresh preserves selection; the common body and frame keep navigation and focus.
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -127,7 +127,7 @@ export function StoryReviewPanel({
       <p id={descriptionId} hidden>
         {review?.kind !== "landed" && review?.kind !== "landing-unavailable"
           ? "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed."
-          : "Read-only: this one-shot run's fixed delivered change from its captured base to its accepted revision."}
+          : "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."}
       </p>
       <div className="story-review-top">
         {(runs.length > 0 ||

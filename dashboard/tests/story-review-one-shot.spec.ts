@@ -58,7 +58,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   ]);
   const review = page.getByRole("region", { name: "Review changes" });
   await expect(
-    review.getByRole("heading", { name: "Landed one-shot run" }),
+    review.getByRole("heading", { name: "Landed run" }),
   ).toBeVisible();
   await expect(review).toContainText(receipt.base);
   await expect(review).toContainText(receipt.revision);

@@ -72,9 +72,7 @@ function NoChanges({
 }) {
   if (snapshot === undefined)
     return (
-      <p>
-        No changes: this landed one-shot run has an empty delivered comparison.
-      </p>
+      <p>No changes: this landed run has an empty delivered comparison.</p>
     );
   if (commitsReview) return <p>The chosen commits changed nothing.</p>;
   if (!sinceReview)

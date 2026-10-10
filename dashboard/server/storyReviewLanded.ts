@@ -22,7 +22,7 @@ export async function landedStoryReview(
   const landing = record.landing;
   if (landing === undefined)
     return unavailable(
-      "This one-shot run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
+      "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
     );
   if (directoryState(landing.repository).kind !== "available")
     return unavailable(
@@ -50,7 +50,7 @@ export async function landedStoryReview(
     const files = await changedFrom(landing.base, landing.revision, call);
     const workflow = record.request.workflow;
     if (workflow !== "execution" && workflow !== "refinement")
-      return unavailable("This launch has no one-shot review workflow.");
+      return unavailable("This launch's workflow has no landed review.");
     return {
       kind: "landed",
       landing: landedReviewContextSchema.parse({

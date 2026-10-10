@@ -90,12 +90,23 @@ export function captureReviewRun(
   expect(existsSync(path.join(origin.machine, "review-mailboxes"))).toBe(false);
   return result.landing.receipt;
 }
-export function retireReviewRun(
+export const retireReviewRun = (
   run: Awaited<ReturnType<typeof startReviewRun>>,
   origin: StartOrigin,
   revision: string,
+) => retireLaunchWorkspace(run.established, origin, revision);
+// Retires a launch's owned worktree and branch with the installed retirement.
+export function retireLaunchWorkspace(
+  established: {
+    readonly workspace: string;
+    readonly branch: string;
+    readonly identity: string;
+  },
+  origin: StartOrigin,
+  revision: string,
+  // The branch as separately published on the remote, removed with it.
+  remoteBranch?: string,
 ) {
-  const { established } = run;
   const repository = git(
     established.workspace,
     "rev-parse",
@@ -126,6 +137,9 @@ export function retireReviewRun(
         "--created-for-work",
         "--contained",
         revision,
+        ...(remoteBranch === undefined
+          ? []
+          : ["--remote-branch", remoteBranch]),
       ],
       { cwd: origin.machine, encoding: "utf8" },
     ),

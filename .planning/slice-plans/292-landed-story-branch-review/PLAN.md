@@ -267,7 +267,7 @@ Learnings for slice 4:
 
 ### 4. The review shows a landed Story Branch integration
 Type: Behavior
-Status: planned
+Status: done
 Proof: New spec `story-review-story-branch-landed.spec.ts` continuing slice
 3's journey: retire the worktree and branches with
 `dough-land/scripts/worktree-retirement.mjs`, publish a done record for the
@@ -295,6 +295,24 @@ gap. Words: selector “Landed runs”, context heading “Landed run”
 the claimed-launch capture and the general prepare rule.
 
 Safe stopping point: the story's outcome is delivered.
+
+Delivered: `reviewLandedRunsOf` lists every one-shot launch and a claimed
+launch that holds a landing or whose workspace directory is missing (an
+unreadable but present workspace stays with the workspace review). A removed
+claimed worktree with no landing now shows the evidence gap in place of “The
+worktree is missing”. Refresh of an open workspace review whose workspace has
+gone follows the run the answer opened on. Words: “Landed runs”, “Landed
+run”, “This run has no captured landing comparison…”, “This story has no
+landed run with that identity.” The four dashboard documents state the general
+capture, the prepare rule and these words.
+Accepted proof: `story-review-story-branch-landed.spec.ts` (done-card review
+T→M after a real `integrate` and retirement, with a mid-execution trunk merge:
+trunk-only files absent, the shared file's story line against trunk's at T,
+both landed runs newest first, the same pair after trunk moved, no Mark
+reviewed); `story-review-story-branch-unavailable.spec.ts` (a removed claimed
+worktree with no landing shows the gap); the
+story-review, Recently done, one-shot landing, panel, overview and
+launch-record specs; typecheck.
 
 ## Story obligations
 
@@ -331,4 +349,29 @@ Disposition: proved by slice 3: `src/skills/dough-story-wrap-up/scripts/closure-
 ### G7. Dashboard documents still describe one-shot-only capture
 Reported: slice 3 — "`dashboard/AGENT-LAUNCH-COMPLETION.md` and its siblings still describe the old prepare rule and one-shot-only capture"
 Story clause: "the selector and context wording name both one-shot runs and story-branch integrations with one term per fact"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/STORY-REVIEW-ONE-SHOT.md`, `dashboard/AGENT-LAUNCH-REVIEW.md`, `dashboard/AGENT-LAUNCH-HISTORY.md` and `dashboard/AGENT-LAUNCH-COMPLETION.md` read at delivery; no automated check reads these documents
+
+### G8. One mid-execution trunk merge is driven, not three
+Reported: slice 4 — "The story says trunk advanced three times and was merged each time. The spec drives one mid-execution merge plus one further trunk advance before integration."
+Story clause: "Trunk advanced three times during that execution and each time was merged"
+Disposition: proved by slice 4: `dashboard/tests/story-review-story-branch-landed.spec.ts`, the done-card journey's merged trunk file absent and the shared file's diff against trunk's at T; a further merge adds only ancestors of T, which the fixed pair already excludes
+
+### G9. The fast-forward comparison is not opened in the review panel
+Reported: slice 4 — "Example 3 (fast-forward) is not observed in the review panel; it rests on slice 3's record-level proof."
+Story clause: "the comparison is from T to B, the same files the workspace review showed before landing"
+Disposition: proved by slice 3: `dashboard/tests/story-branch-landing-capture.spec.ts`, the fast-forward case's recorded base T and revision B; the review reads any recorded pair through the path slice 4's spec drives
+
+### G10. The retried record and the review are not joined in one journey
+Reported: slice 4 — "Example 7 is not joined end to end."
+Story clause: "the review shows the comparison once the retry is acknowledged"
+Disposition: proved by slice 3: `dashboard/tests/story-branch-landing-capture.spec.ts`, the reporting-only retry recording base T and revision M; the review reads that record through the path slice 4's spec drives
+
+### G11. A claimed refinement preparation's landing is listed without its own spec
+Reported: slice 4 — "A claimed refinement preparation with a captured landing is not separately proved."
+Story clause: "The review lists that integration among the story's retained runs"
+Disposition: no user cost "A developer reviewing a story executed in Story Branch Mode": the story's execution integration is proved; a refinement preparation's landing reaches the list by the same record fact, and the one-shot refinement in slice 4's spec proves the refinement row's rendering
+
+### G12. Each earlier claimed launch with a gone workspace and no landing is listed as a gap
+Reported: slice 4 — "Earlier claimed launches of the same story whose workspace is gone and that hold no landing each appear under \"Landed runs\" as \"No captured comparison\"."
+Story clause: "the review explains that this run's delivered comparison"
+Disposition: proved by slice 4: `dashboard/tests/story-review-story-branch-unavailable.spec.ts`, the removed claimed worktree with no landing explaining the gap and listing no files; the newest captured run still opens first

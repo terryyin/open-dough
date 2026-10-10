@@ -22,8 +22,8 @@ test("Refresh preserves a selected run after a new capture and reconciles deleti
   );
   await openCapturedReview(page, origin);
   const review = page.getByRole("region", { name: "Review changes" });
-  await review.getByRole("radio", { name: "Landed one-shot runs" }).check();
-  const select = review.getByRole("listbox", { name: "One-shot run" });
+  await review.getByRole("radio", { name: "Landed runs" }).check();
+  const select = review.getByRole("listbox", { name: "Landed run" });
   await select.selectOption(first.key);
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",

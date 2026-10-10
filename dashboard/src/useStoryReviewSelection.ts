@@ -40,11 +40,12 @@ export function useStoryReviewSelection(
     !workspaceRead.reading
   ) {
     const fallback = preferredReviewRun(runs, (run) => run.comparison);
+    // A first answer, or a workspace choice whose workspace is gone, follows
+    // the run the answer opened on.
     const run =
-      selection.of === undefined
+      selection.run === undefined
         ? answer.selectedRun
-        : selection.run !== undefined &&
-            !runs.some((run) => run.key === selection.run)
+        : !runs.some((run) => run.key === selection.run)
           ? fallback?.key
           : selection.run;
     setSelection({

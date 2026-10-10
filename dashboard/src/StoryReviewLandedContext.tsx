@@ -14,7 +14,7 @@ export function LandedContext({
 }) {
   return (
     <div>
-      <h3>Landed one-shot run</h3>
+      <h3>Landed run</h3>
       <p>
         {launchKindName(landing.workflow)} launched{" "}
         <time dateTime={landing.launchedAt}>

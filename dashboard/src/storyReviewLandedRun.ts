@@ -1,4 +1,7 @@
-// Retained one-shot runs belong to their launch, independently of live workspace selection.
+// Landed runs belong to their launch, independently of live workspace selection:
+// every retained one-shot launch, and a claimed launch once it holds a captured
+// landing or its workspace is gone (then as its evidence gap). A claimed launch
+// with a workspace and no landing has not landed.
 import { z } from "zod";
 import { isEstablishedOneShot, type LaunchRecord } from "./launchRecord.ts";
 import { launchSubject } from "./launchWorkflow.ts";
@@ -9,15 +12,20 @@ export function reviewLandedRunsOf<Kept extends LaunchRecord>(
   records: readonly Kept[] | undefined,
   source: string,
   identity: string,
+  workspaceGone: (workspace: string) => boolean,
 ) {
   return (records ?? [])
     .flatMap((record) => {
       const established = record.start ?? record.preparation;
       if (
         established === undefined ||
-        !isEstablishedOneShot(established) ||
         record.request.source !== source ||
-        launchSubject(record.request).identity !== identity
+        launchSubject(record.request).identity !== identity ||
+        !(
+          isEstablishedOneShot(established) ||
+          record.landing !== undefined ||
+          workspaceGone(established.workspace)
+        )
       )
         return [];
       return [{ record, established }];

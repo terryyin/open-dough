@@ -23,8 +23,8 @@ test("delayed run and file responses leave the later run selected through narrow
   );
   const { card } = await openCapturedReview(page, origin);
   const review = page.getByRole("region", { name: "Review changes" });
-  const radio = review.getByRole("radio", { name: "Landed one-shot runs" });
-  const select = review.getByRole("listbox", { name: "One-shot run" });
+  const radio = review.getByRole("radio", { name: "Landed runs" });
+  const select = review.getByRole("listbox", { name: "Landed run" });
   const heldRun = await holdNextReviewResponse(
     page,
     dashboard.origin,

@@ -1,7 +1,7 @@
 // A story's card action that opens its story review (`./storyReview.ts`) in
 // the page's side panel (`./StoryReviewPanel.tsx`), in place of whatever the
 // panel showed: offered from a kept launch workspace, including a retired
-// one-shot's captured result, by the boundary's same selection rule. Closing the
+// landed run's captured result, by the boundary's same selection rule. Closing the
 // review returns the keyboard to this action. It leads with a review glyph
 // and ends with an arrow toward the panel, both decorative.
 

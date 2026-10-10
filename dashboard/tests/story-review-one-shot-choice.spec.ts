@@ -37,12 +37,12 @@ test("keyboard choices show each retained captured or legacy run beside the live
     review.getByRole("radio", { name: "Since the review", exact: true }),
   ).toBeChecked();
   const radio = review.getByRole("radio", {
-    name: "Landed one-shot runs",
+    name: "Landed runs",
     exact: true,
   });
   await radio.focus();
   await page.keyboard.press("Space");
-  const select = review.getByRole("listbox", { name: "One-shot run" });
+  const select = review.getByRole("listbox", { name: "Landed run" });
   await expect(select).toHaveValue(choices.second.key);
   for (const [index, run] of [choices.second, choices.first].entries()) {
     await select.focus();
