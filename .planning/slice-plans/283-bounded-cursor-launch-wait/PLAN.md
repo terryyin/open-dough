@@ -105,3 +105,13 @@ Behavior: Developer Recover on a Cursor session whose keep has not settled when 
 - Quiet reporter treats Node `FORCE_COLOR`/`NO_COLOR` warnings as stray PRINTED output (non-zero exit); run focused dashboard Playwright with those env vars unset.
 - Start and Recover share one instruction-delivery timed-out sentence via `hosts/cursor/instructionDelivery.ts`.
 - Claude Mark-as-done rename proofs under shard load need `DOUGH_DONE_RENAME_WAIT_MS=30000` (CI repair on this branch); unrelated to Cursor keep-wait product change.
+
+## Execution complete
+
+Product advice: Reasoned no-change to backlog priorities or new stories from
+this execution. Contract delivered; deferred scope stays deferred. Claude
+Mark-as-done rename wait under shard load is suite-load debt already owned by
+Taken SEED-123#dashboard-suite-stable-under-load — treat the branch CI repair
+as evidence for that story, not a new queue item. Wrap-up may keep plan
+learnings (settle-capable launchTimeoutMs overrides; shared
+instruction-delivery module).

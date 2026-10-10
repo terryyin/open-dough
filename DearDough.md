@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 260. Removed local codes are never reused.
+- Highest allocated local number: 261. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -380,3 +380,29 @@ current-slice return, leaving the intended later-slice journeys unobserved.
   - Evidence: plan 283 slice 4 accepted proof and limits, recoverable at `5bd862746d2789e9c34d05276a507f908d141bc7:.planning/slice-plans/283-keep-reported-gaps-owned/PLAN.md`; initial native sessions `a9c48f45-a2f1-4d43-a226-a44e7dcc0a27` and `53ee6bf5-8400-4825-b8e1-65cfe4f47160`. Both recorded `return` and observed `open-obligation`; prompts supplied no expected disposition. Diagnosed fixture corrections preceded two fresh sessions with same-session dependent checkpoints. Spent artifacts were deleted after assessment under ADR 0005.
   - Observed effect: two inconclusive paid calls (native CLI reported about $0.72 combined), fixture reconstruction and two replacement sessions; no product guidance change or false passing claim.
   - Inference: qualified to this execution. Review a native fixture against the exact retained checkpoint, independently accepted proof, relevant whole-story constraints and ownership facts before launch. Distinguish archived text from replay construction; keep the expected record out of prompts.
+
+## DD-261 — An interrupted Cursor Task left slice work without an agent return
+
+A Cursor Task for slice implementation can be interrupted after edits land and
+before the agent returns its proof report, leaving the coordinator to recover
+outcome and acceptance from the checkout.
+
+### Occurrences
+- Execution: SEED-129#bounded-cursor-launch-wait / plan 283, first related
+  implementation commit `3f761b36`
+  - Timestamp: unknown (2026-10-10, after slice-1 Task start ~15:04 +09:00 and
+    before slice-1 post-change refactor ~15:35 +09:00)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: modified; revision `141523cb`; base 0.3.57
+  - Evidence: coordinator transcript
+    `1c2bb728-d395-4342-9910-b15665a34c15` (after Task for “Slice 1 Start
+    keep-wait”: “interrupted slice-1 delegation”; “edits are present but the
+    agent return was interrupted”); implementation Task
+    `ada3831a-1de4-4323-bb80-c4409f49b2b2`. Distinct from ODF-204 (agent did
+    not commit/push) and ODF-059 (not a refactor pass).
+  - Observed effect: coordinator inspected the uncommitted diff, re-ran focused
+    Cursor launch proof, then continued refactor and delivery for slice 1.
+  - Inference: qualified to Cursor Task interruption in this host. Treat an
+    interrupted Task as incomplete until the coordinator re-establishes proof
+    from the checkout; do not assume the agent return will arrive.
