@@ -17,7 +17,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep reported gaps owned through the story's remaining slices](seeds/SEED-125-story-gap-acceptance.md#keep-reported-gaps-owned) — SEED-125#keep-reported-gaps-owned ([plan](slice-plans/283-keep-reported-gaps-owned/PLAN.md))
 - [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load ([plan](slice-plans/282-dashboard-suite-stable-under-load/PLAN.md))
 - [Keep unchanged dashboard stories steady while story information reloads](seeds/SEED-126-steady-dashboard-refresh.md#steady-dashboard-refresh) — SEED-126#steady-dashboard-refresh ([plan](slice-plans/284-steady-dashboard-refresh/PLAN.md))
-- [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change ([plan](slice-plans/281-review-merged-one-shot-change/PLAN.md))
 
 ## Backlog list
 
