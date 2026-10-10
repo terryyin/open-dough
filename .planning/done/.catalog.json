@@ -2,6 +2,78 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-128_continue-refinement-to-slice-planning.json",
+      "identity": "SEED-128#continue-refinement-to-slice-planning",
+      "completedAt": "2026-10-10T08:54:08.087Z",
+      "blob": "7ab4f6d5e52d9c913c0c86598ab26cdb5e0c3210"
+    },
+    {
+      "fileName": "SEED-121_retain-execution-observer-owner.json",
+      "identity": "SEED-121#retain-execution-observer-owner",
+      "completedAt": "2026-10-10T07:37:16.533Z",
+      "blob": "deb3beb8f7efc87385b34f9653b7cd0f9025370f"
+    },
+    {
+      "fileName": "SEED-129_bounded-cursor-launch-wait.json",
+      "identity": "SEED-129#bounded-cursor-launch-wait",
+      "completedAt": "2026-10-10T07:27:33.620Z",
+      "blob": "9c91dd370ee8c0ef70c41748de70dc3b48819d4d"
+    },
+    {
+      "fileName": "SEED-123_dashboard-suite-stable-under-load.json",
+      "identity": "SEED-123#dashboard-suite-stable-under-load",
+      "completedAt": "2026-10-10T07:15:28.338Z",
+      "blob": "28c70b4dbbb0df8d329249d8606997d1c1d27f9a"
+    },
+    {
+      "fileName": "SEED-088_review-merged-one-shot-change.json",
+      "identity": "SEED-088#review-merged-one-shot-change",
+      "completedAt": "2026-10-10T06:00:40.847Z",
+      "blob": "0dad7eb91fda7ded549e2b79506bab1ef66b2a38"
+    },
+    {
+      "fileName": "SEED-122_running-cursor-sessions-sidebar-panel.json",
+      "identity": "SEED-122#running-cursor-sessions-sidebar-panel",
+      "completedAt": "2026-10-10T05:30:10.170Z",
+      "blob": "edfe79e7911a5c31b4dcc8b6bf3e644a531e23a8"
+    },
+    {
+      "fileName": "SEED-124_check-dashboard-fixture-consumers-locally.json",
+      "identity": "SEED-124#check-dashboard-fixture-consumers-locally",
+      "completedAt": "2026-10-10T05:10:21.265Z",
+      "blob": "5f2895aeb18e698ecb869b735e37427113fb32ca"
+    },
+    {
+      "fileName": "SEED-008_bound-managed-git-transport.json",
+      "identity": "SEED-008#bound-managed-git-transport",
+      "completedAt": "2026-10-10T05:00:45.059Z",
+      "blob": "adf91ae8e505316427a0da33e457b4173667dea3"
+    },
+    {
+      "fileName": "SEED-126_steady-dashboard-refresh.json",
+      "identity": "SEED-126#steady-dashboard-refresh",
+      "completedAt": "2026-10-10T04:46:33.383Z",
+      "blob": "aa0d0504a0031d859191e8df4aac98b6a4f5f5f4"
+    },
+    {
+      "fileName": "SEED-125_keep-reported-gaps-owned.json",
+      "identity": "SEED-125#keep-reported-gaps-owned",
+      "completedAt": "2026-10-09T23:18:58.943Z",
+      "blob": "4a32eb124d56593a0f4ed58142c8909eb557a79b"
+    },
+    {
+      "fileName": "SEED-127_full-width-near-future-direction.json",
+      "identity": "SEED-127#full-width-near-future-direction",
+      "completedAt": "2026-10-09T23:16:07.850Z",
+      "blob": "64dbbb3503a3f87cab033037b7c62f78e4186488"
+    },
+    {
+      "fileName": "SEED-120_cursor-session-restart-recovery.json",
+      "identity": "SEED-120#cursor-session-restart-recovery",
+      "completedAt": "2026-10-08T13:28:07.957Z",
+      "blob": "1da6fd77a7f37aaee0c407717e76149fbf6e8d35"
+    },
+    {
       "fileName": "SEED-119_done-catalog-adapter-edge-results-correction.json",
       "identity": "SEED-119#done-catalog-adapter-edge-results-correction",
       "completedAt": "2026-10-08T13:26:38.146Z",
