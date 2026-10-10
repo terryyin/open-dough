@@ -238,7 +238,7 @@ Changes:
 
 ### 2. ADR 0007 describes the combined preparation journey and its explicit stop
 Type: Behavior
-Status: planned
+Status: done
 Proof: read `docs/adrs/0007-software-development-lifecycles.md` against the
 story scope: the Story Branch Mode steps say that refinement continues into
 slice planning in the same owned workspace unless a coordinator question or an
@@ -302,3 +302,5 @@ to `origin/claude/continue-completed-refinement-into-slice-plannin`.
   split that file to add to it.
 - The journey reference also says a story that already has a plan continues
   with that plan, extending the existing next-step rule to the continuation.
+- Slice 2 proof accepted by reading the ADR 0007 diff against its proof
+  paragraph; no test or check reads that file.

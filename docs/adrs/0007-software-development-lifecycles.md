@@ -4,7 +4,7 @@
 
 **Date:** 2026-09-13
 
-**Revised:** 2026-09-28, at Terry Yin's direction.
+**Revised:** 2026-10-10, at Terry Yin's direction.
 
 **Decision makers:** Terry Yin
 
@@ -64,6 +64,10 @@ neither execution nor publication authority.
    corrections. Reuse a suitable story, plan, session, or host workspace.
    Reading and discussion require none. Follow the
    [workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
+   Story refinement continues into slice planning in the same owned workspace
+   unless a coordinator question or an explicit refine-only instruction stops
+   it, following the
+   [preparation journey](../../src/skills/dough-story-refinement/references/preparation-journey.md).
 2. Leave drafts in that workspace for review without reserving the shared
    integration checkout. Publish draft results only on an explicit keep
    instruction; honor no-publish and discard instructions through the
@@ -82,7 +86,7 @@ neither execution nor publication authority.
 ```mermaid
 flowchart TD
     A["main: manage shared backlog"] --> B["Owned workspace: decompose and refine story"]
-    B --> P["Owned workspace: slice planning and refinement"]
+    B -->|Refined, unless coordinator question or refine-only instruction| P["Owned workspace: slice planning and refinement"]
     P -->|Resplit needed| R["Owned workspace: resplit story and map plans"]
     R --> B
     P -->|Explicit keep instruction| K["Reconcile and publish retained preparation to main"]
