@@ -17,6 +17,8 @@ export type LaunchInstructionInput = {
   readonly instruction: string;
   readonly ready: ScreenReadiness;
   readonly onEntered: () => Promise<void>;
+  // Recovery must judge the complete paint before deciding a composer is idle.
+  readonly completePaint?: true;
   // The page's terminal is part of this launch. Idle waits until that socket
   // joins, or the dashboard releases the handoff.
   readonly handoff?: boolean;
@@ -53,15 +55,17 @@ export class LaunchInstruction {
     return this.holding;
   }
 
-  write(output: string): void {
+  // Resolves once this output has been parsed and its readiness judged.
+  write(output: string): Promise<void> {
     const screen = this.screen;
-    if (screen === undefined) return;
+    if (screen === undefined) return Promise.resolve();
     screen.write(output);
     this.chain = this.chain
       .then(() => this.evaluate(screen))
       .catch(() => {
         this.announce();
       });
+    return this.chain;
   }
 
   resize(cols: number, rows: number): void {
@@ -86,6 +90,8 @@ export class LaunchInstruction {
       this.announce();
       return;
     }
+    // A PTY chunk may end after the composer and before its working marker.
+    if (this.launch.completePaint === true && screen.frameInProgress()) return;
     const ready = this.launch.ready(screen.text(), screen.cursorVisible());
     const pastedChip = showsPasteChip(screen.text());
     if (!this.entered && this.pasted) {

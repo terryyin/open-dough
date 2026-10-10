@@ -134,7 +134,7 @@ export class LiveTerminalClient {
     this.pty.onData((output) => {
       this.captured += output;
       this.idle?.write(output);
-      this.launch?.write(output);
+      void this.launch?.write(output);
       if (!this.sockets.hasOpen() && !this.launch?.holdsIdle()) {
         this.idle?.watch();
       }

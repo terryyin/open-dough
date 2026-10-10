@@ -69,6 +69,11 @@ export class KeptClientScreen {
     return this.cursorOn;
   }
 
+  // A ready-looking prefix can still be followed by working or question text.
+  frameInProgress(): boolean {
+    return this.framePending;
+  }
+
   // A synchronized update (`?2026`) has finished and none is open. The page
   // reports readiness on that same boundary.
   completedFrame(): boolean {

@@ -74,6 +74,7 @@ export async function answerKeep(
               parsed.idleComposer === true
                 ? showsCursorComposer
                 : cursorKeptTerminal.ready,
+            ...(parsed.idleComposer === true ? { completePaint: true } : {}),
             ...(parsed.handoff === true ? { handoff: true } : {}),
             onEntered: () =>
               confirmInstruction(parsed.sourceId, session, instruction),

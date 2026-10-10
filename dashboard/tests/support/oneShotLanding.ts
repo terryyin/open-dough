@@ -15,7 +15,7 @@ export const capturedPublicationSchema = z.looseObject({
   }),
 });
 export const git = (cwd: string, ...args: string[]) =>
-  execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+  execFileSync("git", args, { cwd, encoding: "utf8", stdio: "pipe" }).trim();
 export const scripts = (workspace: string, skill = "dough-execute-plan") =>
   path.join(workspace, ".agents/skills", skill, "scripts");
 export function commit(workspace: string, name: string) {
