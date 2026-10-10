@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-128#continue-refinement-to-slice-planning",
+  "host": "claude",
+  "model": "fable"
+}
