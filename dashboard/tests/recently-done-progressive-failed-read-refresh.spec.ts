@@ -138,15 +138,21 @@ test("a newer revision asks once again for the failed records still shown, not f
     const revisionB = main.publish(now, atB);
     expect(revisionB).toBe(failingAgainAt);
     await refreshedTo(page, revisionB);
+    // The first revision's failure still shows until the newer read answers,
+    // so the failed record's read reaching GitHub is what this step waits on.
+    await expect
+      .poll(() => recordsAskedAt(github, revisionB))
+      .toContain(failingPath);
     await expect(failed).toContainText("This done story could not be read.");
     await expect(recent).toContainText("Done stories could not be read.");
     await expect(retry).toBeVisible();
     await expect(recent).toContainText(refusal);
+    const askedAtB = [newest.path, ...storiesFrom(11, 19)].toSorted();
+    await expect
+      .poll(() => demanded.at(revisionB).toSorted())
+      .toEqual(askedAtB);
     await settle(page);
-    expect(demanded.at(revisionB).toSorted()).toEqual(
-      [newest.path, ...storiesFrom(11, 19)].toSorted(),
-    );
-    expect(recordsAskedAt(github, revisionB)).toContain(failingPath);
+    expect(demanded.at(revisionB).toSorted()).toEqual(askedAtB);
   });
 
   const atC = [newer, ...atB];

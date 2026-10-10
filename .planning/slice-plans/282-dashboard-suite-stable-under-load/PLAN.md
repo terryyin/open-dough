@@ -390,6 +390,14 @@ exits → the answer's label is the settled screen's. Terry chose this on
 2026-10-10 over a sooner re-read; launch's first screen may shift by one
 repaint.
 
+CI repair after slice 6: run 38025462249 (ef27acdf, dashboard 9/9) failed
+`recently-done-progressive-failed-read-refresh.spec.ts:84` at line 149: the
+fake GitHub had not yet been asked at revision B. A test defect from before
+this story (another branch failed it without slice 4): step B's UI waits were
+already satisfied by revision A's failure. Step B now polls for the read to
+reach GitHub; a 2 s delay on revision B's request failed it before and passes
+after. No sibling progressive spec has the same pattern.
+
 ### 7. The loaded run passes
 Type: Behavior
 Status: planned
