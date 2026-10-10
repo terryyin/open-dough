@@ -320,7 +320,7 @@ Former local code: DD-253 (Claude Code plan 274 only).
 
 An SSH fetch or push has no time bound, leaving managed delivery waiting without a terminal failure while the remote tip remains unpublished.
 
-Follow-up: queued, not resolved: [Managed delivery stops a stalled Git transport with a recoverable result](https://github.com/terryyin/open-dough/blob/main/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#bound-managed-git-transport) — SEED-008#bound-managed-git-transport.
+Follow-up: delivered, unreleased: [Managed delivery stops a stalled Git transport with a recoverable result](https://github.com/terryyin/open-dough/blob/d1aec79453b64587f51e47140b4b4e5ef89b1bd1/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#bound-managed-git-transport) — SEED-008#bound-managed-git-transport.
 
 Evidence and response: [ODF-184](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-184).
 

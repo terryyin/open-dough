@@ -23,6 +23,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [A Cursor launch or recover wait ends within a bound with a clear message](seeds/SEED-129-bounded-cursor-launch-wait.md#bounded-cursor-launch-wait) — SEED-129#bounded-cursor-launch-wait
 - [Catch shared fixture signature breaks in the dashboard's local checks](seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally) — SEED-124#check-dashboard-fixture-consumers-locally
 - [Show Running Cursor sessions as a resizable sidebar section](seeds/SEED-122-running-cursor-sessions-sidebar-panel.md#running-cursor-sessions-sidebar-panel) — SEED-122#running-cursor-sessions-sidebar-panel
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner
