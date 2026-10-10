@@ -206,6 +206,50 @@ first run in a freshly prepared checkout, as CI does on that revision.
    a Vite that exits, or stays silent past the wait, fails the test with
    Vite's output and keeps its evidence as in the first story's example 2.
 
+<a id="recently-done-waits-for-added-project-sessions"></a>
+
+### Correction: Recently done waits for an added project's sessions
+
+**Identity:** SEED-123#recently-done-waits-for-added-project-sessions
+**Slice plan:** [Recently done waits for an added project's sessions](../slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md).
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md"}
+```
+
+**Source:** execution retrospective of
+[the first story](#dashboard-suite-stable-under-load) (plan 282, commits
+`210b335d`..`83d75f3e`, slice 4 `f01ea795`).
+
+**Goal:** Recently done reads only the stories its first entries show, once
+that project's saved sessions are known, for a project added while the page
+is open as for the first project shown.
+
+**Scope:** Slice 4 gates reading on the page's first sessions read ending
+(`DashboardColumns.tsx`, `launches.attemptEvidence !== "unread"`); in
+`agentLaunches.ts` that state never returns to unread, while a change of
+projects asks a new sessions read (the server answers sessions only for
+configured projects). A project added in the page therefore places and reads
+its first ten without its sessions. Gate on a sessions read asked after the
+current project list, keeping the existing fallback: a read that ends
+unanswered still lets the shown stories be read. Also, from the same review:
+the file-wide `cursorSubmitPaintMs: 1_000` in
+`cursor-session-recovery.spec.ts` shortens to the smallest delay that still
+arrives as a separate write (the fix waits on an event), and
+`dashboardServer.ts` withdraws its at-exit runner stop on close for a
+fixture's machine as it does for its own.
+
+**Key examples:**
+
+1. A page shows project A; project B, with saved sessions at its entries 2,
+   7 and 11, is added. Until the sessions read asked after B was added ends,
+   no done record of B is read; then only B's ten shown stories are.
+2. That read fails: B's ten stories shown without sessions are read.
+3. `cursor-session-recovery.spec.ts` still reproduces the chip race on the
+   pre-slice-6 `launchInstruction.ts` with the shorter delay.
+
+**Preserved:** slice 4's first-project behaviour and its two specs; no
+change to when sessions are read.
+
 ## Breadcrumbs
 
 - [Tests](../../tests/README.md) and [native setup](../../tests/native-setup.md).

@@ -477,3 +477,24 @@ passed; no reproduction under burners or a cold transform cache; Vite start
 under a second under load), and slice 4's replanning rule stops it from
 growing past the story's waits, shared outputs, and worker selection.
 Assessed ready on that basis.
+
+## Execution complete
+
+Product advice:
+- Take SEED-123#dashboard-suite-passes-loaded-acceptance next (queued first):
+  the fresh run's first published-work read and the loaded plan-slices wait
+  are the two failure kinds left between this suite and "local equals CI".
+- The retrospective planned the correction
+  SEED-123#recently-done-waits-for-added-project-sessions (plan 288): slice
+  4's read gate opens once per page, so a project added in the page reads its
+  first ten before its sessions are known. Not queued; wrap-up decides.
+- SEED-129#bounded-cursor-launch-wait (plan 283 on trunk) bounds the Cursor
+  keep waits. This story changed `LaunchInstruction` to settle only after the
+  submitted chip clears, which makes that bound more important; whichever
+  lands second reconciles the two in `launchInstruction.ts`.
+- Accepted trade-off to state at wrap-up: Recently done's first done reads
+  now wait for the page's first sessions read, which on a just-started
+  server can include each host's saved-session preparation (up to 10 s per
+  host).
+- `ProjectFindings.md` DD-224, DD-226 and DD-246 are addressed by this story;
+  DD-240 and DD-257 are partly explained and continue in the follow-up.
