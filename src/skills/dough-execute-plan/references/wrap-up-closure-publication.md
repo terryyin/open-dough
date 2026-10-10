@@ -60,22 +60,22 @@ does not. Pass `--identity` and `--created-for-work` as that section says; `--ho
 `--session-json`, `--coordinator`, `--observer-directory`, and `--remote` mean
 what they mean for `deliver`. On Cursor and Claude Code the coordinator's own
 tool supplies its identity, and `--session-json` names that same coordinator
-from a call that lacks it, a subagent coordinator's with its `agent_id`; on
+from a call that lacks it, with the `agent_id` its observer was claimed with; on
 Codex pass the observer note's coordinator and exact stream directory.
 `finish` registers on, completes, and stops only the observer that owner
 claimed. It prints one JSON line, exits 1 when `ok` is not true and 2 on a
 usage error:
 
-| Result | Act on it |
-| --- | --- |
-| `ok: true` | Keep `acceptedSha`, the `completion` receipt, `refresh`, and `cleanup` as operational facts; apply [completion attention](../../dough-land/SKILL.md#completion-attention) |
-| `step: "before-cleanup"` | Nothing was published. Publish the before-cleanup commit through `deliver` first |
-| `step: "context"` | The worktree is gone. Follow its `recovery`: rerun with `--repository`, rerun with an earlier result's `acceptedSha` as `--final`, or report the unpublished final closure |
-| `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery` |
-| `step: "observation"` | The final closure is accepted and none of this coordinator's observers covers it. Follow `observation.reason`: rerun with this coordinator's own owner input, or as a session that replaces the coordinator stop the recorded observer, run `deliver` to establish its own, and rerun; otherwise report lost coverage. Resources stay |
-| `step: "completion"` | Report the receipt: a CI failure or retained or unconfirmed shutdown keeps the worktree and branch |
-| `step: "retire"` | Act on `cleanup` as Dough Land's retirement result table says |
-| `step: "git"` | Report `error` as the unfinished step; nothing after it ran |
+| Result                            | Act on it                                                                                                                                                                                                                                                                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ok: true`                        | Keep `acceptedSha`, the `completion` receipt, `refresh`, and `cleanup` as operational facts; apply [completion attention](../../dough-land/SKILL.md#completion-attention)                                                                                                                                                             |
+| `step: "before-cleanup"`          | Nothing was published. Publish the before-cleanup commit through `deliver` first                                                                                                                                                                                                                                                      |
+| `step: "context"`                 | The worktree is gone. Follow its `recovery`: rerun with `--repository`, rerun with an earlier result's `acceptedSha` as `--final`, or report the unpublished final closure                                                                                                                                                            |
+| `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery`                                                                                                                                                                                                                                |
+| `step: "observation"`             | The final closure is accepted and none of this coordinator's observers covers it. Follow `observation.reason`: rerun with this coordinator's own owner input, or as a session that replaces the coordinator stop the recorded observer, run `deliver` to establish its own, and rerun; otherwise report lost coverage. Resources stay |
+| `step: "completion"`              | Report the receipt: a CI failure or retained or unconfirmed shutdown keeps the worktree and branch                                                                                                                                                                                                                                    |
+| `step: "retire"`                  | Act on `cleanup` as Dough Land's retirement result table says                                                                                                                                                                                                                                                                         |
+| `step: "git"`                     | Report `error` as the unfinished step; nothing after it ran                                                                                                                                                                                                                                                                           |
 
 After an interruption, rerun the same command with the same owner input. Once
 the worktree is gone, run it from an installed skills directory that still

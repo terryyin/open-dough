@@ -14,18 +14,18 @@ const defaultHook = fileURLToPath(
 // Explicit session input is authoritative, metadata included. Without it, a
 // Claude Code or Cursor coordinator is identified by its own host's session
 // variable from the supplied environment; no host uses another host's variable.
-// `fields` are what --session-json carries to name that same coordinator. A
-// Claude Code subagent's variable names its parent session, so only its
-// `agent_id` names the subagent coordinator.
+// `fields` are what --session-json carries to name that same coordinator.
+// Claude Code's variable names the session alone, so only explicit input
+// names the owner of an observer claimed with an `agent_id`.
 const hostIdentity = {
   claude: {
     name: "Claude Code session",
     variable: "CLAUDE_CODE_SESSION_ID",
     field: "session_id",
     fields:
-      "its session_id, and its agent_id when it is a subagent coordinator",
-    subagent:
-      "a subagent coordinator receives its events only by passing --session-json with that session_id and its agent_id",
+      "its session_id, and the agent_id its observer was claimed with, if any",
+    agentOwned:
+      "an observer claimed with an agent_id is named only by --session-json with that session_id and agent_id",
     tool: "Bash",
   },
   cursor: {
@@ -79,7 +79,7 @@ export function eventRecipient({ host, session, env }) {
   const named = `${identity.name} ${id}${child ? ` agent ${child}` : ""}`;
   if (session !== undefined && session !== null)
     return `${named}, named by --session-json; a caller that is not that coordinator receives none of this observer's events`;
-  return `${named}, named by ${identity.variable}${identity.subagent ? `; ${identity.subagent}` : ""}`;
+  return `${named}, named by ${identity.variable}${identity.agentOwned ? `; ${identity.agentOwned}` : ""}`;
 }
 
 function hookInput(host, session, receipt = "") {

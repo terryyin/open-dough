@@ -118,9 +118,9 @@ coordinator's identity from its `CLAUDE_CODE_SESSION_ID` and `--host cursor`
 from its `CURSOR_CONVERSATION_ID`; do not probe, start, or build session JSON
 for it. `--session-json` names that same coordinator from a call that lacks its
 identity, with its `session_id` on Claude Code or its `conversation_id` on
-Cursor. A Claude Code subagent coordinator is such a caller: its Bash tool
-carries its parent's `CLAUDE_CODE_SESSION_ID`, so it passes `--session-json`
-with that `session_id` and its own `agent_id` on every `deliver`, `resume`, and
+Cursor. On Claude Code that variable names the session alone; an observer
+claimed with an `agent_id` belongs to that session and agent, and only
+`--session-json` with both names its owner to `deliver`, `resume`, and
 `finish`. Explicit session JSON is authoritative, and malformed session JSON
 stops delivery instead of falling back to another identity. That identity
 selects the observer: every increment and repair reuses the live observer this
@@ -222,8 +222,8 @@ Resume verifies remote acceptance, pushes only a candidate the remote lacks,
 and registers the accepted SHA once on this coordinator's live observer. Keep
 that owner input for the whole execution: on Claude Code and Cursor the
 coordinator's own Bash or Shell tool, or from a call that lacks its identity
-the `--session-json` `deliver` takes for this same coordinator, a subagent
-coordinator's with its `agent_id`; on Codex the observer note's coordinator and
+the `--session-json` `deliver` takes for this same coordinator, with the
+`agent_id` its observer was claimed with; on Codex the note's coordinator and
 exact stream directory. Malformed session JSON stops resume. Resume starts no
 observer and registers on no other coordinator's observer. When this
 coordinator's observer is absent, ended, lost, or one of several, or its owner

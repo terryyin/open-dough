@@ -30,7 +30,7 @@ const hosts = flat(read("ci-notify-hosts.md"));
 const publish = flat(section(trunk, "## Publish the candidate"));
 const resume = flat(section(trunk, "## Resume an interrupted publication"));
 
-test("session JSON names the calling coordinator, with a subagent coordinator's agent_id, and never an earlier session", () => {
+test("session JSON names the calling coordinator, with the agent_id its observer was claimed with, and never an earlier session", () => {
   for (const guidance of [publish, resume, closure, hosts]) {
     assert.doesNotMatch(
       guidance,
@@ -43,11 +43,15 @@ test("session JSON names the calling coordinator, with a subagent coordinator's 
   );
   assert.match(
     publish,
-    /subagent coordinator[\s\S]+parent's `CLAUDE_CODE_SESSION_ID`[\s\S]+`--session-json`[\s\S]+`session_id`[\s\S]+`agent_id`[\s\S]+`deliver`, `resume`, and `finish`/,
+    /names the session alone[\s\S]+claimed with an `agent_id`[\s\S]+`--session-json` with both[\s\S]+`deliver`, `resume`, and `finish`/,
   );
   assert.match(publish, /malformed session JSON stops delivery/);
   for (const guidance of [resume, closure, hosts]) {
-    assert.match(guidance, /subagent coordinator[\s\S]+`agent_id`/);
+    assert.match(
+      guidance,
+      /claimed with[\s\S]*`agent_id`|`agent_id` its observer was claimed with/,
+    );
+    assert.doesNotMatch(guidance, /subagent coordinator|parent's/);
   }
 });
 

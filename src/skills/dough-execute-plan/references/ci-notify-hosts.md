@@ -82,10 +82,10 @@ children can share the conversation ID, and `beforeSubmitPrompt` updates that
 binding on a new user message; arbitrary child tool calls cannot rebind it, and
 missing generation identity fails the readiness probe. Claude Code isolates
 instead by `session_id` plus `agent_id`/`subagent_id`, so a sub-agent sharing
-the coordinator's session cannot consume its notification. A Claude Code
-subagent coordinator owns its observer the same way: its Bash tool carries its
-parent's session, so it names itself to `deliver`, `resume`, and `finish` with
-`--session-json` carrying that `session_id` and its `agent_id`.
+the coordinator's session cannot consume its notification. An observer
+claimed with an `agent_id` belongs to that session and agent:
+`CLAUDE_CODE_SESSION_ID` names the session alone, so `deliver`, `resume`, and
+`finish` reach it only with `--session-json` carrying both.
 
 An observer's events reach only the session that claimed it. Keep the same
 coordinator session when resuming. A session that replaces a coordinator

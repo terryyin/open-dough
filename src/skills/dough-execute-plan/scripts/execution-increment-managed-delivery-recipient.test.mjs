@@ -1,8 +1,8 @@
 // A managed-delivery receipt names the session whose tool calls receive its
 // observer's events, through the installed `deliver` and Claude Code hook
 // with real workers and a controlled CI provider: a caller naming another
-// session receives none of that observer's events, and a Claude Code subagent
-// coordinator keeps its observer by naming its `agent_id`.
+// session receives none of that observer's events, and an observer claimed
+// with an `agent_id` is kept only by a caller naming that agent.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -70,10 +70,10 @@ test("a delivery that names another session reuses that session's observer, says
   assert.match(named.hookSpecificOutput.additionalContext, /CI_FAILURE/);
 });
 
-test("a Claude Code subagent coordinator that names its agent_id keeps one observer whose failure reaches it alone; without it the receipt names that input and its observer stays unused", async (t) => {
+test("a Claude Code caller that names an agent_id keeps one observer whose failure reaches that agent alone; without it the receipt names the session alone and that observer stays unused", async (t) => {
   const fixture = await createManagedFixture({ platforms: [".claude"] });
   t.after(fixture.cleanup);
-  // A subagent's Bash tool carries its parent's session.
+  // The ambient variable names the session without an agent.
   const env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: "parent-session" };
   const child = { session_id: "parent-session", agent_id: "child-agent" };
   const named = ["--session-json", JSON.stringify(child)];
@@ -122,7 +122,7 @@ test("a Claude Code subagent coordinator that names its agent_id keeps one obser
   assert.notEqual(ambient.observation.directory, own);
   assert.match(
     ambient.observation.notifies,
-    /^Claude Code session parent-session, named by CLAUDE_CODE_SESSION_ID; a subagent coordinator receives its events only by passing --session-json with that session_id and its agent_id/,
+    /^Claude Code session parent-session, named by CLAUDE_CODE_SESSION_ID; an observer claimed with an agent_id is named only by --session-json with that session_id and agent_id/,
   );
   assert.deepEqual(
     coverage(own),

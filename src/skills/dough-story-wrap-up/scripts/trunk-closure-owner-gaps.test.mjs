@@ -71,7 +71,7 @@ test("finish without the owner's identity, as another coordinator, or after the 
     final,
     ownership: "missing",
     reason:
-      /holds no observer of owner\/project main.*--session-json with its session_id, and its agent_id when it is a subagent coordinator.*replaced the coordinator.*receives none of its events.*ci-mailbox\.mjs stop <recorded directory>.*next `deliver` from the execution worktree establishes its own.*rerunning this finish/,
+      /holds no observer of owner\/project main.*--session-json with its session_id, and the agent_id its observer was claimed with, if any.*replaced the coordinator.*receives none of its events.*ci-mailbox\.mjs stop <recorded directory>.*next `deliver` from the execution worktree establishes its own.*rerunning this finish/,
   });
   assert.doesNotMatch(stranger.result.observation.reason, /naming the session/);
   for (const directory of [publisher, sibling])
