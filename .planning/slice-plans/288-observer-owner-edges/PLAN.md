@@ -2,9 +2,13 @@
 
 **Identity:** SEED-121#settle-observer-owner-edges
 **Source:** [correction story](../../seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges),
-written by the execution retrospective of
-[plan 280](../280-execution-observer-ownership/PLAN.md) on 2026-10-10.
-**Provenance:** SEED-121#retain-execution-observer-owner, reviewed commits
+written by the execution retrospective of plan 280 on 2026-10-10.
+**Provenance:** SEED-121#retain-execution-observer-owner, whose story and plan
+are recoverable at
+`eaf7af7e8466d1c25b2a3da7350b266bb6802aea:.planning/seeds/SEED-121-execution-observer-ownership.md`
+(anchor `retain-execution-observer-owner`) and
+`eaf7af7e8466d1c25b2a3da7350b266bb6802aea:.planning/slice-plans/280-execution-observer-ownership/PLAN.md`;
+reviewed commits
 `8014c2f8`, `8d2bbee8`, `9ac9ae4b`, `2da88b86` on
 `origin/claude/register-trunk-delivery-with-its-own-execution-o` after claim
 `f9ddf723`. Planning only; this plan grants no Take, execution, or publication.

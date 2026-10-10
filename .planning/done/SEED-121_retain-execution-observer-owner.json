@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-121#retain-execution-observer-owner",
+  "title": "Register trunk delivery with its own execution observer",
+  "completedAt": "2026-10-10T07:37:16.533Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "claude"
+}
