@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 273. Removed local codes are never reused.
+- Highest allocated local number: 274. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -239,6 +239,14 @@ Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: slice 2's refactor return: the slice took `src/skills/dough-execute-plan/references/trunk-publication.md` from 250 to 262 lines, and the pass removed three sentences that predate the slice and sit outside its hunks "only to reach the limit" (`git show fc795844 -- src/skills/dough-execute-plan/references/trunk-publication.md`). Slice 4's pass collapsed an unrelated guard in `execution-increment-delivery.mjs` (252 lines, 255 before the slice) to reach 250. The coordinator's delegation briefs also told agents that files over 250 lines "fail a check"; slice 4's agent found no such check.
   - Observed effect: published guidance lost three restatements unrelated to the story, each rule still stated elsewhere in the file; three references now sit at exactly 250 lines, so the next addition repeats the trade.
   - Inference: qualified. No rule was lost, but the threshold, not the change's concept, chose what to delete, and the coordinator turned a refactor check into a hard limit in its briefs.
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first implementation `3354d72b`.
+  - Timestamp: unknown (2026-10-10, slice 3 refactor pass, between `f86c0dae` at 22:40 +09:00 and `6207064d` at 23:04 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `8c54b825`; base 0.3.58
+  - Evidence: slice 3's refactor return: to keep `install.sh` at exactly 250 lines after declaring two new payload files, the pass folded two explanatory comments onto their shellcheck directive lines (`git show 6207064d -- install.sh`, lines 2 and 13), and `publish-the-candidate.md` reached exactly 250 with one sentence run to about 150 columns (line 77). The same pass made two cohesive splits (`history-preserving-candidate.mjs`, `dough-story-wrap-up/references/story-branch-integration.md`). Its report lists six files now at exactly 250 lines.
+  - Observed effect: two files were compressed without a seam; the retrospective's outcome review flagged both, and correction plan 293 slice 4 owns the split.
+  - Inference: qualified. shellcheck still passes and no rule was lost; the threshold again selected the edit, and the cost is one planned Structure slice.
 
 ## ODF-209 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
@@ -749,3 +757,20 @@ the selection the slice had just changed refuses it.
   - Evidence: `85c8fb51` `trunk-closure-observer.mjs` `ownedObservers.select` (an ended covering observer is selected only when it is the one covering observer); `trunk-closure-owner-gaps.test.mjs` journey ends at `cleanup.worktree: "removed"`; `wrap-up-closure-publication.md` "repeats completion on this coordinator's observer that covers it"; a scratch copy of the journey with one more installed `finish` from the management context returned `step: "observation"`, `ownership: "ended"`, "3 of its observers each registered this revision and none is live". The same review found the access rule of slice 1 refused again once the removed path was recreated.
   - Observed effect: both behavior slices were accepted and published with an adjacent state of the same rule unproved; follow-up plan 292 was written. The coordinator's acceptance listed the candidate-order cases by reading and did not run the state the journey leaves behind.
   - Inference: the independent outcome review, given the code and questions instead of the coordinator's conclusions, found both by probing; acceptance inspected the proof named for the promise and not what the changed rule does to states the same journey produces.
+
+## DD-274 — A reported limitation was dispositioned as costless without tracing which guided path produces it
+
+An implementation return named a state as arising when “trunk came to contain
+the tip by other means”. The coordinator recorded it as a story obligation
+with `no user cost` on that description. The wrap-up guidance itself directs a
+path into that state: resolve a conflicted integration by hand and push it.
+
+### Occurrences
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first implementation `3354d72b`.
+  - Timestamp: unknown (2026-10-10, slice 3 acceptance before `6207064d` at 23:04 +09:00; found by the retrospective about 23:40 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `8c54b825`; base 0.3.58
+  - Evidence: plan 292 `## Story obligations` G5 (`no user cost`, reasoning that no pair was retained so the evidence gap is the story's own rule); slice 3's return listed it under gaps with that one cause; the independent outcome review traced `constructCandidate` (`history-preserving-candidate.mjs`, always `checkout --detach` then merge) and `story-branch-integration.md`'s conflict step to the same state; a scratch repository with a content conflict gave exit 2 and, after a hand resolution, the same conflict again (plan 293, Observed premises).
+  - Observed effect: slice 3 was accepted and published with the story's Required clause “once remote trunk accepts the integrated SHA the handoff records the pair” unmet for a conflicted integration; correction plan 293 was written.
+  - Inference: the story-obligations check validates the entry's structure and quotes, and the disposition rested on the return's stated cause. Asking which paths the guidance directs into the reported state, a few minutes of reading, would have made it a `return`. One sample.

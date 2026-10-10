@@ -190,6 +190,30 @@ applies to the guidance change, and the Proposed
 distinction between story-branch progress and trunk integration without binding
 it.
 
+<a id="landing-capture-after-integration-conflict"></a>
+
+### A conflicted Story Branch integration still records its landing
+
+**Identity:** SEED-088#landing-capture-after-integration-conflict
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/293-landing-capture-after-integration-conflict/PLAN.md","assessment":"not-ready","reasons":["Slice 2's premise, that a second comparison after an accepted landing is refused before its push, was read in the code and not observed against the receiver.","What a removed worktree that never landed says under Landed runs awaits the developer's decision; the plan leaves it unchanged."],"basis":{"document":"464e30e5437bbedddc0470938aff8d86145368841f48a1aa0006da2ff230aeea","plan":"1baf1516e1a9ceeddf63197bdff17ce6e590ad8e80572ca3a852312f3bf90aed"}}
+```
+**Slice plan:** [A conflicted Story Branch integration still records its landing](../slice-plans/293-landing-capture-after-integration-conflict/PLAN.md).
+
+**Goal:** A developer reviewing a Story Branch Mode story whose trunk
+integration met a merge conflict, or whose launch published to trunk again
+after integrating, still gets the landed review that
+[the reviewed story](#review-merged-story-branch-changes) delivers, so
+contended stories do not land with an evidence gap. A bounded correction from
+that story's execution retrospective; it adds no feature promise.
+
+**Scope:** The `integrate` command publishes a merge the agent resolved by
+hand and reports a conflict as a preserved result; the launch instruction and
+landing handoff say that a launch's later trunk publications take no landing
+context; the removed-worktree gap keeps one inexpensive spec; the landed-run
+document and shared test support carry the general name. Unchanged: what a
+removed worktree that never landed says, which awaits a product decision.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).

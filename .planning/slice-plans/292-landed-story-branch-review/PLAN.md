@@ -314,6 +314,31 @@ worktree with no landing shows the gap); the
 story-review, Recently done, one-shot landing, panel, overview and
 launch-record specs; typecheck.
 
+## Execution complete
+
+Product advice: The landed review now covers a Story Branch Mode story whose
+integration merged cleanly or fast-forwarded. The retrospective found the
+story's Required clause unmet for a conflicted integration, and wrote
+[correction plan 293](../293-landing-capture-after-integration-conflict/PLAN.md)
+(story `SEED-088#landing-capture-after-integration-conflict`, unqueued,
+recorded not-ready). Recommendations for wrap-up:
+
+- Queue that correction ahead of the sibling stories: contended integrations
+  are the landings most worth reviewing, and today they land with the evidence
+  gap.
+- Decide what a claimed launch whose worktree was removed without landing
+  says. It now reads as a landed run with “no captured landing comparison”,
+  which cannot tell a story landed before this capability from abandoned
+  work. Recommended: one sentence that claims neither, such as “This run's
+  workspace is gone and no landing comparison was captured.”
+- Observe once, natively, that a Story Wrap Up session started as its own
+  dashboard launch receives the execution launch's landing context. The specs
+  drive `integrate` with the claimed launch's context directly; which launch a
+  separately started wrap-up reports through was not observed.
+- The sibling [Trunk Mode story](../../seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes)
+  can reuse this capture; it needs a list of landings per launch where this
+  keeps one.
+
 ## Story obligations
 
 ### G1. A claimed launch's context has no consumer yet
