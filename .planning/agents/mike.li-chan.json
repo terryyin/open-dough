@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-088#review-uncommitted-changes",
+  "mode": "story-branch",
+  "branch": "claude/review-only-a-story-s-uncommitted-changes",
+  "host": "claude"
+}
