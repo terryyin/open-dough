@@ -199,7 +199,16 @@ specs stay green; nothing prints. Enables slice 4.
 
 ### 4. An owned cause of the slow first read is removed
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (2026-10-10, pinned Node, fresh worktrees of `c7d728e6` taken
+back to back, traced head-of-run as in slice 3): the six head pages' first
+`?source=open-dough` read took 981–1399 ms in the browser (`gh` 975–1392 ms,
+about 10–13 times the later tests' 75–116 ms) without the change at load
+43.2 → 30.3, and 107–343 ms (`gh` 97–320 ms, the later tests' 141–275 ms
+level) with it at load 34.1 → 44.0. The read-boundary and first-open group,
+`quiet-reporter`, and the full suite (605 s, load 22.8 → 17.8) exit 0 with
+no output. Evidence outside the repository:
+`~/.claude/jobs/4afde9c0/tmp/slice4-observation/`.
 Cause from slice 3: the synthetic `gh`'s first execution in a fresh checkout.
 The suite's global setup (`dashboard/tests/support/globalSetup.ts`) runs the
 fixture executable once before any worker starts, so no page's read pays it.
@@ -287,6 +296,21 @@ Reported: slice 3 — "The header on avatar and diagnostics answers is not asser
 Story clause: "Find what the first reads of a freshly prepared checkout wait on, from the repeat script's `--fresh` run and its kept trace and timings"
 Disposition: proved by slice 3: the recorded preview-server trace lines in Learnings show the header on `/__authenticated-read` answers, the only answers the finding reads
 
+### G10. The paid first run has no test in the suite
+Reported: slice 4 — "No regression test for "first-run assessment already paid". I found no honest event-based observation: the refusal leaves no trace by design, and only wall-clock time shows the effect. The evidence is the before/after above."
+Story clause: "Tests wait for an observable event, never for elapsed wall time"
+Disposition: no user cost "passes three consecutive full runs on unchanged code with no output": the effect is only elapsed time, which the story's own rule keeps out of assertions; losing the call would slow a fresh run's head reads by about a second, inside the wait slice 1 gave them, and fail no run.
+
+### G11. The codex and cursor fixtures are not run once
+Reported: slice 4 — "Left out on purpose: `fake-codex`, `fake-cursor` and `fake-cursor-attach` have no immediate refusal path with an empty environment, so they are not the same harmless mechanism. Their first-run cost in a fresh checkout is not removed."
+Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
+Disposition: interim until slices 6
+
+### G12. The global setup's fixture runs are unproved on Linux
+Reported: slice 4 — "Linux CI not run. There the call is three plain execs via `/usr/bin/env node`; it is unproved until the published revision runs."
+Story clause: "CI's dashboard shards then pass on the published revision within their recorded deadline."
+Disposition: interim until slices 6
+
 ## Learnings
 
 - Slice 1: the page reads its project list (`/__project-configuration`)
@@ -352,6 +376,12 @@ Disposition: proved by slice 3: the recorded preview-server trace lines in Learn
   largest read here was 0.97 s); the split between the two `gh` calls; loads
   were not matched between the fresh and warm runs. Evidence outside the
   repository: `~/.claude/jobs/4afde9c0/tmp/fresh-observation/`.
+
+- Slice 4: the first-run assessment is per file, not per hard link or
+  process: one run from the global setup covers every server's link in the
+  workers, and its cost grows with load (about 1.0–1.4 s on the head reads at
+  load 30–44 against 0.5–1.0 s at 21–31). A warm pass of the three fixtures
+  costs 71–113 ms per suite run.
 
 ## Verification and sizing
 
