@@ -349,3 +349,15 @@ launch instruction now waits for an open `?2026` update to finish; the
 progressive done-read refresh spec asserted before the revision-B reads were
 answered, so it now waits for those answers. Both were reproduced with injected
 delays and pass repeated runs.
+
+Local flake repair after that: other `cursor-session-recovery.spec.ts` tests
+failed intermittently on a loaded machine. A pasted launch settled when Enter
+was written on the paste chip, so Recover read the chip screen and showed
+"waiting for an answer" until the next periodic read; it now settles on the
+client's answer to the submit. `openTakenCursorSession` returned before the
+presented terminal joined the held client, so a later hangup could be followed
+by a fresh attach; it now waits for the terminal to show the screen. Still
+open, unreproduced: `cursor-session-recovery-stops.spec.ts:121` failed once in
+20 under 24 workers with empty captured exit text; and
+`detachedIdleWatch.ts` judges screens without waiting for an open `?2026`
+update, unobserved as a failure.

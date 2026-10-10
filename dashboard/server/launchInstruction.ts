@@ -2,11 +2,11 @@
 // screen is ready, and holds idle hangup until that write. A screen inside a
 // synchronized update still arriving is not judged until that update
 // finishes. A ready screen settles the launch wait even when no synchronized
-// frame arrived, except that a pasted instruction settles it only once its
-// chip is submitted or a later frame finished showing neither that chip nor
-// the empty composer. A screen that is not ready still waits for a completed
-// frame. The client exiting also settles the wait. A later screen can still
-// accept the instruction.
+// frame arrived, except that a pasted instruction settles it only once the
+// client answered its submitted chip, or a later frame finished showing
+// neither that chip nor the empty composer. A screen that is not ready still
+// waits for a completed frame. The client exiting also settles the wait. A
+// later screen can still accept the instruction.
 import type { ScreenReadiness } from "./launchHosts.ts";
 import { KeptClientScreen } from "./keptClientScreen.ts";
 
@@ -94,9 +94,12 @@ export class LaunchInstruction {
     const pastedChip = showsPasteChip(screen.text());
     if (!this.entered && this.pasted) {
       // A paste chip is not the empty composer and has no synchronized frame.
-      // Submit it before the not-ready wait would return.
+      // Submit it before the not-ready wait would return. The wait settles
+      // on the client's answer to that submit, a later finished frame or
+      // ready screen, so the screen read after the launch is not the chip.
       if (pastedChip) {
         this.entered = true;
+        screen.takeFrame();
         if (!this.client.writeInstruction("\r")) {
           this.entered = false;
           this.announce();
@@ -108,7 +111,6 @@ export class LaunchInstruction {
         } catch {
           // The instruction was entered. A failed save leaves the uncertain record.
         }
-        this.announce();
         return;
       }
       // The client has not answered the paste while its screen still shows
@@ -147,9 +149,9 @@ export class LaunchInstruction {
           this.announce();
           return;
         }
-        // The wait settles once the chip is submitted, or a later frame
-        // finished showing neither chip nor empty composer, so the launch
-        // never returns before that answer.
+        // The wait settles once the client answered the submitted chip, or a
+        // later frame finished showing neither chip nor empty composer, so
+        // the launch never returns before that answer.
         return;
       } else {
         this.entered = true;
