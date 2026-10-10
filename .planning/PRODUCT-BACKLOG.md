@@ -17,10 +17,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance ([plan](slice-plans/289-dashboard-suite-passes-loaded-acceptance/PLAN.md))
 - [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution ([plan](slice-plans/291-execution-handoff-in-preparation-worktree/PLAN.md))
 - [Recovery holds after a path is reused and after finish reruns](seeds/SEED-121-execution-observer-ownership.md#recovery-holds-after-reuse-and-rerun) — SEED-121#recovery-holds-after-reuse-and-rerun ([plan](slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md))
+- [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes ([plan](slice-plans/292-landed-story-branch-review/PLAN.md))
 
 ## Backlog list
 
-- [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
