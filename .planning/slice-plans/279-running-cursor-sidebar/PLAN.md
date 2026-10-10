@@ -208,6 +208,12 @@ no-live-claim check reads the whole body's text, hidden sidebar included;
 moving the section header below the list exposed “Running” at a word boundary.
 The check now sets the Sessions sidebar's text aside as it does Recently done.
 Consumer searches for sidebar changes must include whole-body text checks.
+CI repair (run 38024406264, `dashboard (4/9)`): unrelated timing flake in
+`agent-launch-done-prompt.spec.ts`. Its succeeding rename had to fit an 800 ms
+composer delay, 600 ms of key pauses and process start-up inside one 2 s
+deadline (`server/hosts/claude/rename.ts`); it now uses its own server with a
+30 s wait, which success never waits out. Other done specs with short waits
+and a successful rename keep wider, still wall-clock, margins.
 Proof: Add `cursor-sidebar-panels.spec.ts` and a focused feedback-transition
 case to the existing runner proof. Run the runner and complete sidebar suites,
 the two progressive Cursor consumers, and the frame/paging/header consumers
