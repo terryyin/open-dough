@@ -12,6 +12,7 @@ import {
   exec,
   git,
   identityC,
+  linkC,
   refineStoryC,
   revParse,
   seedC,
@@ -20,7 +21,6 @@ import {
 const repository = resolve(
   fileURLToPath(new URL("../../../..", import.meta.url)),
 );
-const linkC = "seeds/C.md#c";
 let installation, assignmentCli, backlogCli;
 
 // Installs the payload before the file's cases and removes it after them.

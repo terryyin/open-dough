@@ -141,14 +141,21 @@ in slice 3 and keep their status.
 
 ### 1. A landed preparation worktree continues as the execution workspace
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-story-refinement/scripts/preparation-handoff-execution.test.mjs`
 passes: for Story Branch Mode, the chain observed above ends `published`,
 `created: false`, `startingRevision` at the landed tip, the branch on origin
 at `publishedSha`, the story Taken, the `created-for` ref present, and the
 worktree clean; for Trunk Mode, the same except no remote branch. A scratch
-change of the start's `--workspace` to a new path makes the Story Branch
-assertion `created: false` fail before it is reverted.
+change of the start's `--workspace` to a new path with a new branch makes
+both modes' `created: false` assertion fail before it is reverted.
+
+Accepted 2026-10-10 on Node v24.21.0: 2 tests pass; the whole
+`node --test` suite (1064 tests) passes with the fixture's shared `linkC`.
+Learning for slice 2's recovery wording: a start that names the preparation
+branch with a different workspace path is refused `setup-failed` ("a branch
+named ... already exists") while that branch is checked out in the
+preparation worktree; it creates no second worktree.
 
 Behavior: A preparation worktree that `start` created at fetched trunk, with
 a refined story and a `ready` plan and its release staged → `landWorktree`
