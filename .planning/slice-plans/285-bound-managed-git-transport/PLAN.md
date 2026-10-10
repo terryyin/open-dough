@@ -330,3 +330,14 @@ is placed immediately before them; slices 2, 3, and 4 each own one behavior
 and one proof loop at the delivery boundary; the stall fixture is shared, not
 per-example machinery; and the retry rule in slice 3 is the existing resume
 classification applied once more. No slice-specific concern remains.
+
+## Execution complete
+
+Product advice: no new product work. The four slices meet the story's goal and
+key examples; wrap-up records the response commits (`4d2cf148`, `6954baa2`,
+`b87bcde7`, `b308c2ac`) and first containing release on ODF-184, and ODF-222
+stays open as the story says. Two small observations stay unqueued: the
+transport-stop guidance names `deliver` as the retry, while a stop from
+`resume` retries with the same `resume`; and `publication-resume.mjs` keeps a
+private `isAncestor` that treats any Git error as "not an ancestor", unlike the
+exported one delivery now uses.
