@@ -155,7 +155,7 @@ below one second; no timing step is needed (`tests/time-budget.md`).
 
 ### 1. Refinement continues into slice planning in the same workspace unless a coordinator question or `--refine-only` stops it
 Type: Behavior
-Status: planned
+Status: done
 Proof: `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-story-refinement/scripts/preparation-journey-guidance.test.mjs src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs src/skills/dough-story-refinement/scripts/established-preparation-guidance.test.mjs src/skills/dough-story-refinement/scripts/one-shot-refinement-guidance.test.mjs tests/payload-declaration-links.sh`
 and `npm run lint`; then, with this worktree's dependencies installed or
 linked as the baseline section says,
@@ -277,6 +277,28 @@ condition; the "Revised" line is updated. No index change in
   `tests/native-setup.md` or the temporary `node_modules` link named above,
   removed before the commit.
 
+## Execution
+
+Story Branch Mode in `/Users/terryyin/git/open-dough/.worktrees/continue-completed-refinement-into-slice-plannin`
+on `claude/continue-completed-refinement-into-slice-plannin`, agent
+`DavidKo-chan`; claim `91d8439e` accepted on `origin/main`. Increments publish
+to `origin/claude/continue-completed-refinement-into-slice-plannin`.
+
 ## Learnings
 
-None yet.
+- Slice 1 proof accepted on the named guidance command (exit 0), the two named
+  dashboard specs (8 passed) plus the other `agent-launch-options-*` and
+  `agent-launch-codex-options` specs (48 passed), and the install checks
+  `tests/install.sh`, `install-public-payload.sh`,
+  `update-adds-new-payload-skill.sh`, `update-removes-dropped-files.sh`,
+  `install-omits-internal.sh`.
+- The dependencies were installed in this worktree with `tests/native-setup.md`
+  after selecting Node 24.21.0 from the official archive; no `node_modules`
+  link was used.
+- `src/skills/dough-slice-planning/SKILL.md` sits at its 250-line limit, so the
+  continuation is folded into the planning-only case under "Stay within the
+  triggering instruction", and the report contents live only in the journey
+  reference's "Report once at the end". The landing sibling must shorten or
+  split that file to add to it.
+- The journey reference also says a story that already has a plan continues
+  with that plan, extending the existing next-step rule to the continuation.

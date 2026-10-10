@@ -4,7 +4,10 @@ One-shot refinement refines one story queued in the **Backlog list** without
 publishing a Preparing assignment. It works in an owned workspace at fetched
 trunk, or in the default checkout when that is selected, records the story's
 preparation facts there, and stops with the committed result retained for
-review, or lands it when automatic landing is also selected. Use it only when the developer or parent
+review, or lands it when automatic landing is also selected. It ends at that
+review or landing and no plan follows it; the
+[preparation journey](preparation-journey.md) covers refinement that continues
+into slice planning. Use it only when the developer or parent
 instruction explicitly selects one-shot (`--one-shot` or a clear equivalent)
 for refining that story; never infer it from apparent smallness. Without that
 selection, refine under

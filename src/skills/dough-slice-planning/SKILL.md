@@ -227,10 +227,10 @@ replace the triggering instruction's execution authority.
 After writing and reporting the plan, the next action remains within the
 triggering human or parent-agent instruction:
 
-- Planning-only request: report the plan path, ordered slices,
-  considered-but-excluded additions, the refinement decision and concern
-  report, and the recorded readiness assessment, then stop. Do
-  not implement and do not invoke execution.
+- Planning-only request, or a continuation from story refinement under the
+  [preparation journey](../dough-story-refinement/references/preparation-journey.md#report-once-at-the-end):
+  report the plan path, ordered slices, considered-but-excluded additions, the refinement decision and
+  concern report, and the recorded readiness assessment, then stop. Do not implement and do not invoke execution.
 - Parent-agent delegation that asks only for slice planning: return the plan,
   the refinement decision and concern report, and the recorded readiness
   assessment to the parent. The parent's broader implementation task

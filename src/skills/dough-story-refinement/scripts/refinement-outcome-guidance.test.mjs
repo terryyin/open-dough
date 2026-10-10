@@ -1,7 +1,8 @@
 // Refinement outcome guidance: each refined story ends with exactly one of
-// three outcomes; ready outcomes give a link, workspace, and next step without
-// a question; engagement lists each expected response; the reported outcome
-// records nothing and grants no planless authority.
+// three outcomes; ready outcomes give a link and workspace, then continue into
+// slice planning, or give a next step when the invocation ends at refinement;
+// engagement lists each expected response; the reported outcome records
+// nothing and grants no planless authority.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -45,24 +46,36 @@ test("flawless is defined only by existing sizing, premise, and authority rules"
   assert.match(outcome, /Flawless grants no/);
 });
 
-test("a ready outcome gives link, workspace, and one next step without a recap or question", () => {
+test("a ready outcome gives link and workspace, then continues into slice planning without a recap or question", () => {
   assert.match(outcome, /story link/);
   assert.match(
     outcome,
     /where the draft is \(its\s+workspace, and its result commit once committed\)/,
   );
+  assert.match(outcome, /Do not recap/);
+  assert.match(
+    outcome,
+    /continue into slice planning under\s+\[preparation journey\]\(references\/preparation-journey\.md\) without a question or\s+approval request/,
+  );
+});
+
+test("an invocation that ends at refinement gives one next step without a question", () => {
+  assert.match(
+    outcome,
+    /ends at the refinement result, on an explicit refine-only\s+instruction \(`--refine-only`\) or under\s+\[one-shot refinement\]\(references\/one-shot-refinement\.md\)/,
+  );
   assert.match(outcome, /one concrete next step/);
+  assert.match(outcome, /slice planning in that workspace/);
   assert.match(outcome, /explicit instruction to skip\s+slice planning/);
   assert.match(
     outcome,
-    /next step\s+uses that plan instead of creating another/,
+    /next step uses that plan instead\s+of creating another/,
   );
   assert.match(
     outcome,
-    /Preparing assignment as information, not as a request to keep/,
+    /Preparing assignment as\s+information, not as a request to keep/,
   );
-  assert.match(outcome, /Do not\s+recap/);
-  assert.match(outcome, /without a question or approval request/);
+  assert.match(outcome, /end without a question or\s+approval request/);
 });
 
 test("needs human engagement lists each expected response and its causes", () => {

@@ -100,6 +100,7 @@ managed_files=(
   dough-story-refinement/references/planning.md
   dough-story-refinement/references/preparation-assignment.md
   dough-story-refinement/references/preparation-disposition.md
+  dough-story-refinement/references/preparation-journey.md
   dough-story-refinement/references/preparation-lost-workspace.md
   dough-story-refinement/references/preparation-workspace.md
   dough-story-refinement/references/refinement-options.json
