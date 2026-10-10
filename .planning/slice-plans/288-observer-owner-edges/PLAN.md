@@ -168,7 +168,7 @@ only. `trunk-publication.md` is at the 250-line limit,
 
 ### 3. The native closure harness arms observers as the guidance teaches
 Type: Behavior
-Status: planned
+Status: done
 Proof: The substitute `trunk-closure` cases for each host through
 `tests/git-publication-native*.sh`; assess native evidence under ADR 0005.
 
@@ -184,6 +184,26 @@ native commands; run none without the developer's authorization.
 
 Safe stopping point: every offered native closure case can pass with inputs a
 real agent is taught.
+
+Accepted proof: `tests/git-publication-native-owned-context.sh` runs the
+substitute `trunk-closure/owned-context` case on Claude Code, Cursor, and
+Codex through the controller and the installed `finish`; with it
+`tests/git-publication-native.sh`, `tests/native-evidence-identity.sh`, and
+the two `tests/native-assessor-counterexample*` checks.
+
+Decision: on Claude Code and Cursor the fixture arms no observer, because only
+the launched session's own tool carries the coordinator's identity; its
+`finish` establishes the observer and the controller follows the one that
+holds the final closure's coverage record. Only the Codex fixture arms and
+records one. The native host cases therefore no longer exercise reuse of an
+observer armed earlier; `trunk-closure-owner*.test.mjs` keeps that proof.
+Plan 280's statement about Codex closure survives only in Git history.
+
+Learnings: `finish` establishes a host coordinator's observer through managed
+delivery when it holds none and the final closure is unpublished. The
+`source` and `ignored-only` closure scenarios have no committed substitute.
+The owned-context check now runs the closure three times; compare it with
+`bash scripts/ci-test-times.sh` after CI reports.
 
 ### 4. One gap vocabulary and session-input parser
 Type: Structure
@@ -225,6 +245,13 @@ each run is paid and needs the developer's authorization.
 - Claude Code subagent coordinator: confirm its Bash tool carries its parent's
   `CLAUDE_CODE_SESSION_ID`, that it can state its own `agent_id`, and that
   `deliver` with both in `--session-json` reuses the observer it claimed.
+- Trunk-closure harness, every case
+  `tests/git-publication-native.sh --native HOST --case trunk-closure/...`
+  after its arming change: on Claude Code and Cursor one `finish` without
+  `--session-json` whose receipt's `notifies` names the tool's variable; on
+  Codex one `finish` carrying the note's coordinator and stream directory with
+  `observation.state: "reused"`. `tests/native-publication.md` records the
+  commands.
 - Retained trunk-closure and git-publication evidence identities changed with
   the hashed modules.
 

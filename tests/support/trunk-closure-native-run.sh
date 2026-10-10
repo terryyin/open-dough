@@ -34,6 +34,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/native-completion-observation.sh \
     tests/support/native-observation.sh \
     tests/support/trunk-closure-native-fixture.sh \
+    tests/support/trunk-closure-native-arming.sh \
     tests/support/trunk-closure-native-owned-context.sh \
     tests/support/native-harness-observation.sh \
     tests/support/native-harness-login-shell.sh \
@@ -45,6 +46,7 @@ trunk_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/trunk-publication.md \
     src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
+    src/skills/dough-execute-plan/references/ci-notify-codex.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
     src/skills/dough-execute-plan/references/publish-the-candidate.md \
     src/skills/dough-story-wrap-up/SKILL.md
@@ -71,8 +73,9 @@ trunk_closure_controller() {
   wait_for publication "${trunk_closure_wait_limit}" \
     "[[ \$(git ls-remote '${trunk_closure_origin}' refs/heads/main | awk '{print \$1}') == '${trunk_closure_candidate_sha}' ]]" || return
   printf 'publication\n' >> "${trunk_closure_control_log}"
+  # The product's registration names the observer the later steps follow.
   wait_for registration "${trunk_closure_wait_limit}" \
-    "[[ \$(native_completion_registered '${trunk_closure_mailbox}' '${trunk_closure_candidate_sha}') == true ]]" || return
+    "trunk_closure_find_observer && [[ \$(native_completion_registered \"\${trunk_closure_mailbox}\" '${trunk_closure_candidate_sha}') == true ]]" || return
   printf 'registration\n' >> "${trunk_closure_control_log}"
   coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
   if [[ ${scenario} == source ]]; then
@@ -112,8 +115,16 @@ trunk_closure_run_journey() {
   local root harness prompt controller_pid run_status=0 stop_status=0
   root=$(mktemp -d)
   harness=$(mktemp -d)
-  trunk_closure_create_fixture "${source_dir}" "${host}" "${scenario}" \
-    "${root}" "${harness}"
+  # No session is launched against a fixture whose observer did not arm.
+  if ! trunk_closure_create_fixture "${source_dir}" "${host}" "${scenario}" \
+    "${root}" "${harness}"; then
+    git_publication_assess_status=fail
+    git_publication_assess_reason='the closure fixture did not arm its observer'
+    printf 'error: %s\n' "${git_publication_assess_reason}" >&2
+    trunk_closure_cleanup_fixture
+    rm -rf -- "${root}" "${harness}"
+    return 1
+  fi
   prompt=$(trunk_closure_prompt_for "${scenario}")
   native_case_host=${host}
   native_case_id="trunk-closure/${scenario}"
@@ -133,7 +144,10 @@ trunk_closure_run_journey() {
   controller_pid=$!
   git_publication_run_native_command || run_status=$?
   wait "${controller_pid}" || run_status=1
-  # Observe product shutdown before any fixture cleanup/stop.
+  # Observe product shutdown before any fixture cleanup/stop. The controller
+  # found the observer in its own shell; an unregistered closure has none.
+  trunk_closure_find_observer \
+    || trunk_closure_mailbox="${trunk_closure_storage}/unregistered"
   trunk_closure_observe "${scenario}" "${host}" "${transcript}" "${output_file}" \
     > "${harness}/observations.txt"
   native_harness_stop_observers "${source_dir}" "${trunk_closure_storage}" \
