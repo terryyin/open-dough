@@ -230,6 +230,19 @@ step 3 → "then create its feature branch and worktree, or continue the
 preparation workspace and branch when the session hands off to execution",
 with the flowchart edge "Execution startup" unchanged. Both stay Proposed.
 
+## Execution complete
+
+Product advice: no backlog change. The review found no defect, residue, or
+correction to plan. Two points for wrap-up:
+
+- The story's scope says the handoff is the keep sequence's "third entry" and
+  "one landing concept with three entries"; the delivered guidance lists four
+  keep sources, because the sibling story added the journey default first.
+  Assimilate the delivered count, not the story's.
+- No agent has yet performed the handoff in a native host session. The chain
+  is proved by `preparation-handoff-execution.test.mjs` and the guidance by
+  wording tests; a native run costs money and stays a manual observation.
+
 ## Considered and excluded
 
 - A refinement option such as `--execute`: the trigger is the execution
