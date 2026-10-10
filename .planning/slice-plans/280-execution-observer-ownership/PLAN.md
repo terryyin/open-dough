@@ -223,7 +223,7 @@ Learnings for remaining slices:
 
 ### 2. Codex delivery retains its coordinator's yielded stream
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `execution-increment-managed-delivery-codex.test.mjs` through the
 installed stream and delivery commands, with two live streams and retained
 coordinator/directory receipts. Use controlled-provider results for one delayed
@@ -245,6 +245,40 @@ stream/lifecycle/completion, supported-host/guidance, and affected CLI suites.
 
 Safe stopping point: Normal delivery and repairs for all supported hosts use
 verified owners. Interrupted recovery remains unfinished until slice 3.
+
+Accepted proof: `npm test -- src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-codex.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-codex-owner.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-codex-owner-gaps.test.mjs`
+at the installed `stream`, `deliver`, `acknowledge`, and `complete-revision`
+boundaries with the documented yielded cell; setup in
+`execution-increment-managed-delivery-codex-test-fixtures.mjs` supplies only
+armed streams and the retained inputs. The slice 1 consumer sets passed again.
+The `lost` and `unavailable` stream gaps have no direct observation.
+
+Learnings for remaining slices:
+
+- `stream --coordinator VALUE` claims the mailbox before its receipt;
+  `deliver --host codex` requires `--coordinator` and `--observer-directory`
+  and verifies them through `classifyRetainedStream` in `ci-mailbox-match.mjs`
+  with `codexStreamOwner`. `findLiveMatchingMailbox` is removed.
+- `resume --host codex` and closure `finish --host codex` still select by
+  repository and branch. `finish --host codex` forwards only host and session,
+  so a Codex closure delivery reports an `unidentified` gap until slice 4
+  passes the coordinator and directory through, including its rerun path and
+  the `finish` synopsis in `wrap-up-closure-publication.md`.
+- The native trunk-closure fixture pre-starts a detached observer; a Codex
+  closure journey needs a `stream --coordinator` fixture and note fields.
+- `ci-mailbox.mjs`, `execution-increment-observation.mjs`, and
+  `execution-increment-delivery.mjs` are within a few lines of the 250-line
+  limit, and each new payload module needs an `install.sh` entry.
+- Native evidence pending for this slice: retained Codex process evidence
+  (plan 203's observer note; ODF-202 occurrences in
+  `docs/maintainer/near-term-watch-list.md`) shows a real coordinator keeping
+  its stream directory and a self-chosen coordinator value in the note. No
+  native Codex run of `stream --coordinator`, of `deliver --coordinator
+  --observer-directory`, or of concurrent delivery exists. The manual probe:
+  arm the documented cell with `COORDINATOR` set, confirm `<directory>/owner`
+  after the first yielded output, deliver with both inputs, expect
+  `observation.state: "reused"` on that directory, then repeat with a second
+  coordinator's stream live on the same target.
 
 ### 3. Interrupted delivery recovers only the retained owner
 Type: Behavior

@@ -204,8 +204,9 @@ and continue that unfinished obligation only.
    and the observation result (attached, reused, or an explicit coverage gap).
    Do not run a separate observer probe, start, or `register-push` for this
    managed path, and do not copy mailbox directories by hand. A Codex
-   coordinator's yielded stream armed at execution start is the observer this
-   delivery reuses. A pending human edit on that checkout stays out of the
+   coordinator passes its observer note's coordinator and stream directory as
+   `--coordinator` and `--observer-directory`; that stream, armed at execution
+   start, is the observer this delivery registers on. A pending human edit on that checkout stays out of the
    published commit.
    When the selected checkout is the default checkout, follow its
    [direct edit](maintain-default-checkout.md#direct-edit) checks before

@@ -23,6 +23,8 @@ export async function deliverManagedExecutionIncrement(request) {
     host = "cursor",
     preferredAlias,
     session,
+    coordinator,
+    observerDirectory,
     authority = "publish",
     remote = "origin",
     maxDurationMs = executionBudgetMs,
@@ -72,6 +74,8 @@ export async function deliverManagedExecutionIncrement(request) {
     branch: targetBranch,
     host,
     session,
+    coordinator,
+    observerDirectory,
     workspace,
     runtime,
     maxDurationMs,
@@ -109,14 +113,13 @@ export async function deliverManagedExecutionIncrement(request) {
     onFetchedTarget,
   });
 
-  let observation = established.observation;
+  // Started but unbound: keep the directory for recovery context without
+  // claiming live coverage.
+  const observation =
+    established.directory && established.observation.state === "unobserved"
+      ? { ...established.observation, directory: established.directory }
+      : established.observation;
   if (!published.ok) {
-    if (established.directory && observation.state === "unobserved") {
-      observation = {
-        ...observation,
-        directory: established.directory,
-      };
-    }
     // Live owner is kept for later validated resume; no SHA registered yet.
     return {
       ok: false,
@@ -143,13 +146,6 @@ export async function deliverManagedExecutionIncrement(request) {
 
   if (observation.directory && observation.state !== "unobserved") {
     registerPushedRevision(observation.directory, published.receipt.sha);
-  } else if (established.directory && observation.state === "unobserved") {
-    // Started but unbound: keep the directory for recovery context without
-    // claiming live coverage.
-    observation = {
-      ...observation,
-      directory: established.directory,
-    };
   }
 
   return {
@@ -195,7 +191,7 @@ function requestRefusal(request) {
 }
 
 const usage =
-  "usage: execution-increment-delivery.mjs deliver --mode trunk|story-branch --workspace PATH --branch NAME --previously-published-base SHA --target-ref refs/heads/<branch> --repo OWNER/REPO [--tracking one-shot] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--validated-candidate SHA] [--default-checkout PATH] [--one-shot-identity ID]";
+  "usage: execution-increment-delivery.mjs deliver --mode trunk|story-branch --workspace PATH --branch NAME --previously-published-base SHA --target-ref refs/heads/<branch> --repo OWNER/REPO [--tracking one-shot] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--coordinator VALUE --observer-directory PATH] [--max-duration-ms MS] [--validated-candidate SHA] [--default-checkout PATH] [--one-shot-identity ID]";
 
 function argumentsOf(argv) {
   if (argv[0] !== "deliver") throw new Error(usage);

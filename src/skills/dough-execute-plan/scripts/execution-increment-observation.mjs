@@ -3,9 +3,10 @@
 // readiness, start, and coordinator binding. A Cursor or Claude Code
 // coordinator's owner is resolved before any observer is considered, so a
 // sibling's observer of the same repository and target is never reused.
-// Codex is observed only by the yielded stream its coordinator armed at
-// execution start. Resume recovers only an unambiguous live owner; it never
-// starts a replacement.
+// Codex is observed only by the yielded stream its coordinator armed and
+// retained: delivery verifies that exact directory against the coordinator's
+// claim and never selects a stream by repository and target. Resume recovers
+// only an unambiguous live owner; it never starts a replacement.
 import {
   bindHostObserver,
   hostSessionOwner,
@@ -16,8 +17,9 @@ import { receiptPrefix, startExecutionMailbox } from "./ci-mailbox.mjs";
 import {
   classifyMatchingObservationOwnership,
   classifyOwnedObservation,
-  findLiveMatchingMailbox,
+  classifyRetainedStream,
 } from "./ci-mailbox-match.mjs";
+import { codexStreamOwner } from "./ci-observer-owner.mjs";
 
 function coverageGap(reason, extras = {}) {
   return {
@@ -69,10 +71,65 @@ export function recoverObservationForResume({
   };
 }
 
-// Managed delivery never starts a Codex observer: the coordinator's own
-// yielded stream is the one it reuses.
-function codexStreamMissingReason({ repo, branch }) {
-  return `no live Codex yielded stream observes ${repo} ${branch}; arm \`ci-mailbox.mjs stream --execution ${repo} ${branch}\` in a yielded cell as references/ci-notify-codex.md describes, and later deliveries reuse it`;
+// Managed delivery never starts, adopts, or replaces a Codex observer: the
+// stream this coordinator armed and retained is the only one it registers on.
+// Each gap names the input that recovers observation.
+function codexArming({ repo, branch }) {
+  return `arm \`ci-mailbox.mjs stream --execution ${repo} ${branch} --coordinator <value>\` in a yielded cell as references/ci-notify-codex.md describes, retain its receipt directory in the observer note, and the next deliver registers on it`;
+}
+
+const retainedStreamGaps = {
+  missing: (directory) => `${directory} is not a CI observer`,
+  foreign: (directory) =>
+    `${directory} belongs to another coordinator or repository`,
+  "wrong-target": (directory, { observed }) =>
+    `${directory} observes ${observed.repo ?? "no repository"} ${observed.branch ?? ""}`.trimEnd(),
+  detached: (directory) => `${directory} is not a yielded stream`,
+  unclaimed: (directory) =>
+    `the stream at ${directory} was armed without --coordinator, so its owner cannot be verified; consume its delivered failures and stop it before rearming`,
+  ended: (directory, { terminal }) =>
+    `this coordinator's stream at ${directory} ended (${terminal.status})`,
+  lost: (directory) =>
+    `this coordinator's stream at ${directory} lost its worker`,
+  unavailable: (directory) =>
+    `this coordinator's stream at ${directory} is not live`,
+};
+
+function retainedStreamObservation({
+  repo,
+  branch,
+  coordinator,
+  observerDirectory,
+  root,
+  storage,
+}) {
+  const target = { repo, branch };
+  const absent = [
+    ["--coordinator", coordinator],
+    ["--observer-directory", observerDirectory],
+  ]
+    .filter(([, value]) => !value)
+    .map(([flag]) => flag);
+  if (absent.length > 0) {
+    return coverageGap(
+      `Codex delivery registers only on the stream this coordinator retained, and ${absent.join(" and ")} ${absent.length > 1 ? "were" : "was"} not supplied; pass --coordinator <value> and --observer-directory <directory> from the observer note, or without a retained stream ${codexArming(target)}`,
+      { ownership: "unidentified" },
+    );
+  }
+  const stream = classifyRetainedStream({
+    directory: observerDirectory,
+    owner: codexStreamOwner({ root, coordinator }),
+    ...target,
+    root,
+    storage,
+  });
+  if (stream.kind === "live")
+    return observationAttached(stream.directory, { reused: true });
+  return coverageGap(
+    `${retainedStreamGaps[stream.kind](observerDirectory, stream)}, not this coordinator's live stream of ${repo} ${branch}; pass the --observer-directory its observer note retained with its --coordinator, or without one ${codexArming(target)}`,
+    // Only this coordinator's own stream carries a directory.
+    { ownership: stream.kind, directory: stream.directory },
+  );
 }
 
 // One coordinator holding several live observers of a target cannot say which
@@ -86,6 +143,8 @@ export async function establishObservation({
   branch,
   host,
   session,
+  coordinator,
+  observerDirectory,
   workspace,
   runtime,
   maxDurationMs,
@@ -93,14 +152,16 @@ export async function establishObservation({
   root,
   storage,
 }) {
-  // A Codex stream is found by repository and target; it carries no host
-  // session claim.
   if (host === "codex") {
-    const stream = findLiveMatchingMailbox({ repo, branch, root, storage });
     return {
-      observation: stream
-        ? observationAttached(stream, { reused: true })
-        : coverageGap(codexStreamMissingReason({ repo, branch })),
+      observation: retainedStreamObservation({
+        repo,
+        branch,
+        coordinator,
+        observerDirectory,
+        root,
+        storage,
+      }),
       startReceipt: null,
     };
   }

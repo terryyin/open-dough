@@ -3,7 +3,7 @@
 // is discovery; only a verified claim selects an observer for its coordinator.
 // Ended or dead workers are not reusable owners.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   checkoutRoot,
   mailboxRoot,
@@ -31,6 +31,10 @@ function matchesExecutionContext(
   } catch {
     return false;
   }
+  return observesTarget(request, { repo, branch });
+}
+
+function observesTarget(request, { repo, branch }) {
   if (request.probe) return false;
   if (request.mode !== "execution") return false;
   return request.repo === repo && request.branch === branch;
@@ -57,17 +61,6 @@ export function isLiveMatchingMailbox(
     return false;
   }
   return checkMailboxWorkerLiveness(identity, directory) === "alive";
-}
-
-export function findLiveMatchingMailbox({
-  repo,
-  branch,
-  root = checkoutRoot,
-  storage = mailboxRoot,
-} = {}) {
-  return listMailboxDirectories(storage).find((directory) =>
-    isLiveMatchingMailbox(directory, { repo, branch, root, storage }),
-  );
 }
 
 // Matching execution observers in any state: live, ended, or lost.
@@ -99,6 +92,46 @@ export function classifyOwnedObservation({
     listOwnedMailboxes({ repo, branch, owner, root, storage }),
     { repo, branch, root, storage },
   );
+}
+
+// Classify the exact yielded stream a Codex coordinator retained. The
+// directory must be an observer of this repository and target that a stream
+// command runs and `owner` claimed; only then is its liveness read. A sibling
+// stream, a detached worker, or a stream armed without a coordinator is never
+// classified live for this owner.
+export function classifyRetainedStream({
+  directory,
+  owner,
+  repo,
+  branch,
+  root = checkoutRoot,
+  storage = mailboxRoot,
+} = {}) {
+  const retained = resolve(directory);
+  let request;
+  try {
+    request = readMailbox(retained, root, storage);
+  } catch (error) {
+    return { kind: error.code === "ENOENT" ? "missing" : "foreign" };
+  }
+  if (!observesTarget(request, { repo, branch }))
+    return { kind: "wrong-target", observed: request };
+  if (workerMode(retained) !== "stream") return { kind: "detached" };
+  const claim = readOwnerClaim(retained);
+  if (claim === undefined) return { kind: "unclaimed" };
+  if (claim !== owner) return { kind: "foreign" };
+  return {
+    ...classifyObservers([retained], { repo, branch, root, storage }),
+    directory: retained,
+  };
+}
+
+function workerMode(directory) {
+  try {
+    return readWorkerIdentity(directory).mode;
+  } catch {
+    return undefined;
+  }
 }
 
 // Classify resume ownership without starting a replacement observer.

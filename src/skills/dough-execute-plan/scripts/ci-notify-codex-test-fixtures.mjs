@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { once } from "node:events";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
@@ -102,17 +103,21 @@ export async function runDocumentedCodexStopBinding({
 }
 
 const resolvedSkill = fileURLToPath(new URL("..", import.meta.url));
-const documentedPlaceholders = { "OWNER/REPO": "owner/repo", BRANCH: "main" };
+const documentedPlaceholders = {
+  "OWNER/REPO": "owner/repo",
+  BRANCH: "main",
+  COORDINATOR: "coordinator",
+};
 
 // The arguments `node` receives for a documented cell's command line, with
-// its placeholders resolved to this skill and the fixture repository.
-function documentedNodeArguments(cmd) {
+// its placeholders resolved to `skill` and the fixture's `placeholders`.
+function documentedNodeArguments(cmd, skill, placeholders) {
   const [program, ...words] = cmd.split(" ");
   assert.equal(program, "node");
   return words.map(
     (word) =>
-      documentedPlaceholders[word] ??
-      word.replace("/ABSOLUTE/RESOLVED/SKILL/", resolvedSkill),
+      placeholders[word] ??
+      word.replace("/ABSOLUTE/RESOLVED/SKILL/", join(skill, "/")),
   );
 }
 
@@ -122,8 +127,16 @@ function documentedNodeArguments(cmd) {
 // consume/deliver/store logic runs against real bytes. Any other command runs
 // to completion under `env` and is listed in `commands`. After
 // `stopReading()`, the host stops returning that session's output, as when the
-// coordinator no longer reads it; the child keeps running.
-export function processBackedCodexTools({ env, startStream }) {
+// coordinator no longer reads it; the child keeps running. `skill` is the
+// resolved skill the cell runs, this source by default, and `placeholders`
+// replaces the fixture values the cell's placeholders resolve to.
+export function processBackedCodexTools({
+  env,
+  startStream,
+  skill = resolvedSkill,
+  placeholders,
+}) {
+  const resolved = { ...documentedPlaceholders, ...placeholders };
   let child;
   let closed = false;
   let reading = true;
@@ -151,7 +164,7 @@ export function processBackedCodexTools({ env, startStream }) {
     },
     tools: {
       exec_command: async ({ cmd }) => {
-        const nodeArguments = documentedNodeArguments(cmd);
+        const nodeArguments = documentedNodeArguments(cmd, skill, resolved);
         if (nodeArguments[1] !== "stream") {
           commands.push(nodeArguments.slice(1));
           const { stdout, stderr } = await run(

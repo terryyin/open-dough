@@ -91,7 +91,8 @@ node <installed>/dough-execute-plan/scripts/execution-increment-delivery.mjs del
   --previously-published-base <previously published base SHA> \
   --target-ref <authorized target ref> --repo <owner/repo> --host <host> \
   --authority <publish|local-only> [--tracking one-shot] \
-  [--session-json <json>] [--default-checkout <path>] [--one-shot-identity <identity>]
+  [--session-json <json>] [--coordinator <value> --observer-directory <directory>] \
+  [--default-checkout <path>] [--one-shot-identity <identity>]
 ```
 
 Story Branch Mode passes `--mode story-branch` with
@@ -127,10 +128,15 @@ reports an `ambiguous` gap naming their directories: keep the one this
 execution retained, [stop](ci-notify-hosts.md#stop-for-cancellation) the
 others, and the next `deliver` reuses it.
 On Codex, the yielded stream armed at execution start under
-[ci-notify-codex.md](ci-notify-codex.md) is the observer `--host codex`
-reuses for every increment and repair. Without a live stream, the receipt
-reports an unobserved gap naming that arming step; once the stream is armed,
-the next `deliver` reuses it.
+[ci-notify-codex.md](ci-notify-codex.md) is the observer of every increment
+and repair: pass `--host codex` with the observer note's coordinator as
+`--coordinator` and its exact stream directory as `--observer-directory`.
+Only that stream receives the registration, from any worktree of the
+repository. Without both inputs, or when the directory is not this
+coordinator's live stream of the target, the receipt reports an unobserved gap
+naming the input to supply while publication acceptance stands; the next
+`deliver` with the retained inputs, after arming when no stream is retained,
+registers on it.
 A pre-rebase unpublished SHA is not the receipt. After confirmation of a
 publication whose target is remote trunk, attempt a refresh under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).

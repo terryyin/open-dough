@@ -27,6 +27,13 @@ export function hostInputOwner(input, host, root) {
   });
 }
 
+// The owner of a Codex yielded stream: the coordinator value its arming cell
+// passed, which that coordinator retains in its observer note.
+export function codexStreamOwner({ root, coordinator }) {
+  if (!coordinator) return undefined;
+  return observerOwner({ root, host: "codex", session: coordinator });
+}
+
 export function readOwnerClaim(directory) {
   try {
     return readFileSync(join(directory, "owner"), "utf8");

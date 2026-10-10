@@ -101,7 +101,7 @@ test("Cursor and Codex delivery never adopt the ambient Claude session", async (
   assert.equal(codex.observation.state, "unobserved");
   assert.match(
     codex.observation.reason,
-    /no live Codex yielded stream observes owner\/project main/,
+    /--coordinator and --observer-directory were not supplied/,
   );
   assert.equal(existsSync(fixture.storage), false);
 });
