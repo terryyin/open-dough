@@ -3,10 +3,12 @@
 // coordinator's session, or a Codex coordinator's retained stream. That owner
 // filters the observers before coverage or liveness is read, so closure never
 // registers on, completes, or stops another coordinator's observer. The owner
-// is computed from the repository's common Git directory, the identity every
-// worktree of it shares, so a rerun after the execution worktree was retired
-// names the same owner from the recorded management context.
-import { realpathSync } from "node:fs";
+// is computed from the execution checkout as delivery computes it. Once that
+// worktree was retired, the repository's common Git directory, the identity
+// its worktrees shared, names the same owner from the recorded management
+// context, and reaches that owner's observer whichever worktree armed it.
+import { existsSync, realpathSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 import {
   hostSessionOwner,
   missingIdentityReason,
@@ -80,12 +82,27 @@ function ownedObservers(directories, target, gap) {
   };
 }
 
+// Where closure reads its observers from and computes their owner. While the
+// execution checkout exists, both are that checkout, as in delivery. Once it
+// is gone, `repository`'s common Git directory stands for the identity it
+// shared with the repository's other worktrees: observers are read through
+// it and through the retired path, which is its own identity now and still
+// the root of the observers started there.
+export async function observerAccess(workspace, repository) {
+  if (existsSync(workspace)) {
+    const root = realpathSync(workspace);
+    return { root, ownerRoot: root };
+  }
+  // The retired path's parent still resolves as it did for its observers.
+  const retired = join(realpathSync(dirname(workspace)), basename(workspace));
+  const ownerRoot = realpathSync(await managementContext(repository));
+  return { root: [retired, ownerRoot], ownerRoot };
+}
+
 // The observers of `repo` and target `branch` this execution's owner evidence
-// names. `inspection` is the execution worktree, or the recorded management
-// context once that worktree is gone; `root` is the checkout the observers
-// were started for.
-export async function closureObservers({
-  inspection,
+// names, read through `root` and claimed for `ownerRoot` as `observerAccess`
+// gives them.
+export function closureObservers({
   repo,
   branch,
   host,
@@ -94,12 +111,10 @@ export async function closureObservers({
   observerDirectory,
   env,
   root,
+  ownerRoot,
   storage,
 }) {
   const target = { repo, branch, root, storage };
-  // A path that is not a checkout is its own identity, so the common Git
-  // directory names the owner its worktrees' observers were claimed for.
-  const ownerRoot = realpathSync(await managementContext(inspection));
   if (host === "codex") {
     const stream = retainedStream({
       ...target,

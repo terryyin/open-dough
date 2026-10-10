@@ -88,7 +88,7 @@ a bare remote. No product file changed.
 
 ### 1. A closure rerun after retirement reaches its owner's observer
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `trunk-closure-owner.test.mjs` and `trunk-closure-codex-owner.test.mjs`
 through installed `finish` with the publisher's observer armed from the default
 checkout and the execution worktree retired, and add the accepted-closure rerun
@@ -108,6 +108,23 @@ consumers of the changed helpers.
 
 Safe stopping point: closure reruns no longer depend on which worktree armed
 the observer.
+
+Accepted proof, through the installed `finish`, `deliver`, hook, and `stream`
+with real observer workers, a bare remote, and a controlled CI adapter:
+`trunk-closure-owner.test.mjs` and `trunk-closure-codex-owner.test.mjs` run
+the retired rerun with the owner's observer armed from its execution worktree
+and from the default checkout, and stop a stranger's input;
+`trunk-closure-below-toplevel.test.mjs` runs the rerun for a project below its
+Git toplevel. Command: `npm test --` with every
+`src/skills/dough-story-wrap-up/scripts/trunk-closure*.test.mjs`.
+
+Learnings for later slices: closure reads observers through
+`observerAccess` in `trunk-closure-observer.mjs`, which returns the execution
+checkout while it exists and the retired path plus the common Git directory
+afterwards; `readMailbox` accepts that list. After retirement a coordinator
+that reruns `finish` on its ambient identity alone can now reach its own
+observer armed from the default checkout, as it already could while the
+worktree existed. `trunk-closure.mjs` is 248 lines against the 250-line limit.
 
 ### 2. Recovery guidance names the observer that can notify the caller
 Type: Behavior

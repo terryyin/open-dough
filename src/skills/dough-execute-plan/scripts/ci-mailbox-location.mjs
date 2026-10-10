@@ -44,6 +44,8 @@ export function checkoutIdentity(root) {
   return gitCommonDir(root) ?? resolve(root);
 }
 
+// `root` is the checkout reading the mailbox, or the several access roots a
+// reader accepts once its own checkout is gone.
 export function readMailbox(
   directory,
   root = checkoutRoot,
@@ -58,7 +60,8 @@ export function readMailbox(
   const request = JSON.parse(
     readFileSync(join(directory, "request.json"), "utf8"),
   );
-  if (checkoutIdentity(request.root) !== checkoutIdentity(root))
+  const accepted = [root].flat().map(checkoutIdentity);
+  if (!accepted.includes(checkoutIdentity(request.root)))
     throw new Error("CI mailbox belongs to another checkout");
   return request;
 }

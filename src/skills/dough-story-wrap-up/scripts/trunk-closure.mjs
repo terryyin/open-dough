@@ -24,10 +24,8 @@ import {
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { retireWorktree } from "../../dough-land/scripts/worktree-retirement.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
-import {
-  observerRoot,
-  settleFinalClosure,
-} from "./trunk-closure-settlement.mjs";
+import { observerAccess } from "./trunk-closure-observer.mjs";
+import { settleFinalClosure } from "./trunk-closure-settlement.mjs";
 
 const recoveries = {
   "before-cleanup":
@@ -99,7 +97,7 @@ export async function finishTrunkClosure({
       reason: `${tracking} does not contain the before-cleanup commit`,
     });
   }
-  const root = observerRoot(workspace);
+  const { root, ownerRoot } = await observerAccess(workspace, repository);
   const published = await settleFinalClosure({
     workspace,
     inspection,
@@ -116,6 +114,7 @@ export async function finishTrunkClosure({
     observerDirectory,
     preferredAlias,
     root,
+    ownerRoot,
     storage,
     env,
   });
