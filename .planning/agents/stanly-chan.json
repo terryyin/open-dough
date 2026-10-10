@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-124#check-dashboard-fixture-consumers-locally",
-  "host": "claude",
-  "model": "fable"
-}
