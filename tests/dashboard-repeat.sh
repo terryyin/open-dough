@@ -28,16 +28,22 @@ git -C "${repository}" -c user.name=t -c user.email=t@example.com \
 repository=$(cd -P -- "${repository}" && pwd)
 
 # The suite stand-in logs where it ran, NODE_ENV and npm_config_local_prefix,
-# its arguments, and its parent's `yes` burners, then plays the next line of
-# `scenario`: `pass`; `fail` (keeps a stamped directory, prints FAIL, PRINTED,
-# ERROR, and Kept lines, exits 1); `crash` (prints and exits 3); or `hang`
-# (waits until stopped on a process of its own, named in `below`).
+# its arguments, and its parent's `yes` burners, waiting up to 20 seconds for
+# FAKE_BURNERS of them (default none): a burner forked just before the run may
+# not have become `yes` yet. It then plays the next line of `scenario`:
+# `pass`; `fail` (keeps a stamped directory, prints FAIL, PRINTED, ERROR, and
+# Kept lines, exits 1); `crash` (prints and exits 3); or `hang` (waits until
+# stopped on a process of its own, named in `below`).
 cat > "${fake}/suite" << 'STANDIN'
 #!/usr/bin/env bash
 set -euo pipefail
 count=$(($(grep -c '^run ' "${FAKE}/calls" || true) + 1))
 printf 'run %s %s %s\n' "$(pwd -P)" "${NODE_ENV-unset}/${npm_config_local_prefix-unset}" "$*" >> "${FAKE}/calls"
-pgrep -P "${PPID}" -x yes > "${FAKE}/burners-${count}" || true
+for ((try = 0; try < 200; try++)); do
+  pgrep -P "${PPID}" -x yes > "${FAKE}/burners-${count}" || true
+  (($(wc -l < "${FAKE}/burners-${count}") < ${FAKE_BURNERS:-0})) || break
+  sleep 0.1
+done
 case $(sed -n "${count}p" "${FAKE}/scenario") in
   pass) ;;
   fail)
@@ -151,13 +157,13 @@ expect_no_worktree fresh
 
 # load: one burner per core runs during the run and none after it.
 printf 'pass\n' > "${fake}/scenario"
-run_repeat load 1 --load
+cores=$(getconf _NPROCESSORS_ONLN)
+FAKE_BURNERS=${cores} run_repeat load 1 --load
 expect_report load 0 << 'REPORT'
 Run 1 under burners: exit 0, <s> s, load <l> -> <l>
 Passed 1 of 1 runs.
 REPORT
 burners=$(wc -l < "${fake}/burners-1")
-cores=$(getconf _NPROCESSORS_ONLN)
 if ((burners != cores)); then
   printf 'FAIL: %s burners ran, not one per core.\n' "${burners}" >&2
   exit 1
