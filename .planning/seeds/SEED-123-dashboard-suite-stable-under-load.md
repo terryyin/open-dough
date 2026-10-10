@@ -69,6 +69,11 @@ and spend no rerun time on failures that unchanged code did not cause.
   Recently done waits for that list before choosing what to read. Runs leave
   `vite preview` and Cursor `runnerMain` processes alive after they end,
   adding load to later runs; a run ends every process it started.
+  Recover on Cursor's idle composer reported its label from the screen that
+  still showed the submitted paste chip ("waiting for an answer"); its wait
+  settles only once a later screen no longer shows that chip, or the client
+  exits, so the label it reports is the settled one (authorized
+  2026-10-10).
 - **Load bound.** Loaded means a one-minute load average held at or above the
   machine's core count for the whole run by CPU-bound processes the
   reproduction starts and stops. Default workers means Playwright's own
@@ -123,7 +128,7 @@ Deferred, not rejected:
   core count, is not proved here; the suite stays truthful (it fails naming
   the wait) rather than passing by retry.
 - A product defect the reproduction uncovers in the dashboard server or app,
-  other than the two causes above, gets its own bug report.
+  other than the causes above, gets its own bug report.
 - Making the local full run faster is not a promise; only its result is.
 
 **Key examples:**

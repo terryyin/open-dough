@@ -132,10 +132,11 @@ concurrent runs from one checkout, and reproducing the recorded failures.
 | Reproduce the recorded failure kinds (scope) | 3 | The repeat script's report over N full runs: failing locations, their waits and bounds, and kept directories. |
 | Recently done reads only what it shows, after the sessions are known (scope) | 4 | A Recently done journey whose saved-session listing answers after the catalog: the first batch reads only the ten shown, none beyond. |
 | A run ends every process it started (scope) | 5 | After a passing and a failing run, no `vite preview` or `runnerMain.ts` process from that run remains. |
-| Loaded machine, unchanged code (1); Vite start slower than its wait (5) | 6 | Three consecutive full runs at default workers pass with no output, one under the burners and one the first run in a fresh worktree, through the repeat script; CI green on the published revision. |
-| A real failure under load is still a real failure (2) | 6 | One loaded run with one assertion deliberately broken fails that test only, naming it. |
-| Boundary: load far beyond the bound (6) | 1 and 6 | A run that fails names its wait and keeps its evidence; `retries` stays 0 in the config. |
-| Documentation (scope) | 7 | The tests guide names the kept location, the private build, the repeat script, and that the result does not depend on local load. |
+| Recover reports the settled label (scope) | 6 | A delayed repaint after Enter still yields "at the follow-up prompt". |
+| Loaded machine, unchanged code (1); Vite start slower than its wait (5) | 7 | Three consecutive full runs at default workers pass with no output, one under the burners and one the first run in a fresh worktree, through the repeat script; CI green on the published revision. |
+| A real failure under load is still a real failure (2) | 7 | One loaded run with one assertion deliberately broken fails that test only, naming it. |
+| Boundary: load far beyond the bound (6) | 1 and 7 | A run that fails names its wait and keeps its evidence; `retries` stays 0 in the config. |
+| Documentation (scope) | 8 | The tests guide names the kept location, the private build, the repeat script, and that the result does not depend on local load. |
 
 ## Ordered slices
 
@@ -350,7 +351,25 @@ teardown, the server's exit handling, or the runner's lifetime); fix the
 owner. A product defect beyond the server stopping its own runner is a bug
 report.
 
-### 6. The loaded run passes
+### 6. Recover reports the label of the settled screen
+Type: Behavior
+Status: planned
+Proof: A Recover on the idle composer with confirmed first input, whose fake
+Cursor repaints the follow-up prompt only after a delay following Enter,
+reports "at the follow-up prompt", never "waiting for an answer" read from
+the submitted paste chip (`cursor-session-recovery.spec.ts:58`'s case,
+failing on the old code for the right reason). `cursor-session-recovery*`,
+`agent-session-cursor`, `agent-terminal-cursor-launch`, and
+`cursor-recover-split-paint` pass with `--repeat-each`.
+
+Behavior: Recover pastes the confirmed instruction and presses Enter → its
+wait (`LaunchInstruction`, `dashboard/server/launchInstruction.ts`) settles
+only once a later screen no longer shows the submitted chip, or the client
+exits → the answer's label is the settled screen's. Terry chose this on
+2026-10-10 over a sooner re-read; launch's first screen may shift by one
+repaint.
+
+### 7. The loaded run passes
 Type: Behavior
 Status: planned
 Proof: `scripts/dashboard-repeat.sh 1 --fresh`, then
@@ -365,7 +384,7 @@ work → the run's result matches CI. Any further wait the runs implicate ends
 on its observable event or the real failure signal. Keep `retries: 0`. Do
 not lower CI's worker count. A new independent cause stops for replanning.
 
-### 7. The tests guide records the kept location and the loaded-run expectation
+### 8. The tests guide records the kept location and the loaded-run expectation
 Type: Behavior
 Status: planned
 Proof: `tests/README.md` and `dashboard/tests/README.md` name
