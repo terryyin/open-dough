@@ -49,6 +49,10 @@ for (const mode of ["dev", "preview"] as const) {
     page,
     github,
   }) => {
+    // The dev server serves the app as some three hundred separate modules,
+    // and this journey loads the page six times, so on a CI runner it takes
+    // 19 to 31 seconds where the preview takes 12 to 19.
+    if (mode === "dev") test.setTimeout(60_000);
     const browserRequests: string[] = [];
     const responseBodies: string[] = [];
     page.on("request", (request) => {

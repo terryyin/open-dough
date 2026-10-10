@@ -33,6 +33,14 @@ export const reviewRegion = (page: Page) =>
 export const comparison = (review: Locator) =>
   review.getByRole("radiogroup", { name: "Comparison" });
 
+// The check that leaves uncommitted changes out of all changes, among the
+// marking controls, and the line they show while it is off.
+export const uncommittedCheck = (review: Locator) =>
+  review.getByRole("checkbox", { name: "Include uncommitted changes" });
+
+export const uncommittedLeftOut =
+  "Uncommitted changes are left out. Mark reviewed still marks the whole snapshot.";
+
 // The snapshot the page's next review read answers.
 export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
   const response = await page.waitForResponse(

@@ -3,7 +3,7 @@
    (./side-panel.css). Beneath the header, the review's fixed top holds the
    context line, the review's feedback, and its marking controls: the
    comparison switch, the changes since the review's heading, and Mark
-   reviewed. The rest of the panel's height is
+   reviewed (./story-review-marking.css). The rest of the panel's height is
    the work area: the file browser beside the selected file's diff, each
    scrolling on its own while the top stays in view and the body beneath it
    never scrolls as a whole. The diff's heading stays above its code, which
@@ -195,27 +195,6 @@
   .story-review-diff {
     flex: 1 1 0;
   }
-}
-
-/* The marking controls sit beneath the feedback, above the body. */
-.story-review-marking {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.4rem 1rem;
-  border-bottom: 1px solid var(--line);
-}
-
-.story-review-mark {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.75rem;
-}
-
-.story-review-since h3 {
-  margin: 0 0 0.2rem;
-  font-size: 1rem;
 }
 
 /* A marked story's comparison switch: its choices side by side. */

@@ -7,7 +7,11 @@
 // made, and whether trunk was integrated since: its baseline is not the
 // snapshot's. The review's marking controls gather these, with its
 // Mark reviewed beside the panel's comparison switch, in its fixed top.
+// While all changes of a snapshot holding uncommitted changes are shown, the
+// controls offer to leave those out, and say in words that they are and that
+// Mark reviewed still marks the whole snapshot.
 
+import { useId } from "react";
 import { postJson, refusal } from "./agentLaunchClient.ts";
 import { Moment } from "./Moment.tsx";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
@@ -24,6 +28,7 @@ import {
   type TakenStoryReview,
   type ReviewItem,
 } from "./storyReview.ts";
+import "./story-review-marking.css";
 
 // Asks the boundary to mark the snapshot named reviewed: the story's mark,
 // or why it could not be marked.
@@ -106,8 +111,42 @@ export function SinceTheReviewHeading({
   );
 }
 
-// A snapshot's marking controls: its chosen comparison's heading, the mark
-// stated, and Mark reviewed, which marks the snapshot shown.
+// Whether all changes include the snapshot's uncommitted changes: a native
+// checkbox, described by the line that says they are left out.
+function UncommittedCheck({
+  included,
+  onInclude,
+}: {
+  readonly included: boolean;
+  readonly onInclude: (included: boolean) => void;
+}) {
+  const leftOutId = useId();
+  return (
+    <div className="story-review-uncommitted">
+      <label>
+        <input
+          type="checkbox"
+          checked={included}
+          {...(included ? {} : { "aria-describedby": leftOutId })}
+          onChange={(event) => {
+            onInclude(event.target.checked);
+          }}
+        />{" "}
+        Include uncommitted changes
+      </label>
+      {!included && (
+        <p id={leftOutId}>
+          Uncommitted changes are left out. Mark reviewed still marks the whole
+          snapshot.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// A snapshot's marking controls: its chosen comparison's heading, the check
+// that leaves uncommitted changes out of all changes, the mark stated, and
+// Mark reviewed, which marks the snapshot shown.
 export function MarkingControls({
   snapshot,
   shown,
@@ -117,6 +156,7 @@ export function MarkingControls({
   onMark,
   selectedItems,
   trunkIntegrated,
+  uncommitted,
 }: {
   readonly snapshot: TakenStoryReview;
   readonly shown: ShownComparison;
@@ -128,6 +168,11 @@ export function MarkingControls({
   readonly onMark: () => void;
   readonly selectedItems: readonly ReviewItem[];
   readonly trunkIntegrated: boolean;
+  // Whether uncommitted changes are included, while they can be left out.
+  readonly uncommitted?: {
+    readonly included: boolean;
+    readonly onInclude: (included: boolean) => void;
+  };
 }) {
   return (
     <div className="story-review-marking">
@@ -143,6 +188,7 @@ export function MarkingControls({
           baseline={snapshot.baseline}
         />
       )}
+      {uncommitted !== undefined && <UncommittedCheck {...uncommitted} />}
       <div className="story-review-mark">
         <MarkStatement
           mark={stated}

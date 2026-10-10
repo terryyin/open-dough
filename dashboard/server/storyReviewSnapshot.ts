@@ -19,6 +19,8 @@
 // A mark whose snapshot the repository no longer holds, or that this
 // machine's Git cannot restate on the baseline, cannot be compared: the
 // answer says why beside all changes.
+// A snapshot holding uncommitted changes also answers its committed work
+// alone: the files from the baseline to the head's tree.
 // A file diff of the snapshot is Git's unified diff of that file from its
 // *from* tree in the comparison shown -- the baseline, the restated, or the
 // marked tree -- to the snapshot's tree, detecting a rename against its old
@@ -31,15 +33,12 @@ import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
-import type {
-  ReviewCommit,
-  ReviewMark,
-  StoryReview,
-} from "../src/storyReview.ts";
+import type { ReviewMark, StoryReview } from "../src/storyReview.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
+import { storyCommits } from "./storyReviewCommits.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
 import { compareReviewPoints } from "./storyReviewComparison.ts";
@@ -105,15 +104,13 @@ async function storyReviewSnapshot(
 ): Promise<StoryReview> {
   const { workspace, branch, remote, target } = established;
   const call: GitCall = { cwd: workspace, signal, maxBuffer: outputLimit };
-  // What Git printed, as printed.
-  const printed = async (
-    args: readonly string[],
-    env?: Readonly<Record<string, string>>,
-  ) => (await runGit(args, env === undefined ? call : { ...call, env })).stdout;
   const git = async (
     args: readonly string[],
     env?: Readonly<Record<string, string>>,
-  ) => (await printed(args, env)).trim();
+  ) =>
+    (
+      await runGit(args, env === undefined ? call : { ...call, env })
+    ).stdout.trim();
   const unavailable = (explanation: string): StoryReview => ({
     kind: "unavailable",
     workspace: shown,
@@ -151,48 +148,23 @@ async function storyReviewSnapshot(
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
-    // Excluding everything reachable from trunk keeps the story's own
-    // first-parent line, including the commits before a trunk merge.
-    const commitLog = await printed([
-      "log",
-      "--first-parent",
-      "-z",
-      "--format=%H%x00%h%x00%P%x00%cI%x00%s%x00%T",
-      `${baseline}..${head}`,
-    ]);
-    const fields = commitLog.split("\0");
-    const commits: ReviewCommit[] = [];
-    for (let at = 0; at + 5 < fields.length; at += 6) {
-      const [
-        revision = "",
-        shortRevision = "",
-        parentList = "",
-        committedAt = "",
-        subject = "",
-        commitTree = "",
-      ] = fields.slice(at, at + 6);
-      const parents = parentList.split(" ");
-      const parent = parents[0] ?? "";
-      const [commitBaseline, fromBaseline, fromTree] = await Promise.all([
-        git(["merge-base", revision, `${remote}/${target}`]),
-        git(["merge-base", parent, `${remote}/${target}`]),
-        git(["rev-parse", `${parent}^{tree}`]),
-      ]);
-      commits.push({
-        kind: "commit",
-        revision,
-        shortRevision,
-        subject,
-        committedAt,
-        merge: parents.length > 1,
-        tree: commitTree,
-        baseline: commitBaseline,
-        fromTree,
-        fromBaseline,
-      });
-    }
+    const commits = await storyCommits(
+      baseline,
+      head,
+      `${remote}/${target}`,
+      call,
+    );
     const headTree = await git(["rev-parse", `${head}^{tree}`]);
     const files = await changedFrom(baseline, tree, call);
+    // The committed work alone, when the snapshot holds more than it.
+    const committed =
+      tree === headTree
+        ? undefined
+        : {
+            from: baseline,
+            tree: headTree,
+            files: await changedFrom(baseline, headTree, call),
+          };
     const comparison =
       mark === undefined
         ? undefined
@@ -217,9 +189,10 @@ async function storyReviewSnapshot(
       tree,
       files,
       commits,
-      ...(tree === headTree
+      ...(committed === undefined
         ? {}
         : {
+            committed,
             uncommitted: {
               kind: "uncommitted",
               tree,

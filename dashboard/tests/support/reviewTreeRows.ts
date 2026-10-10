@@ -5,7 +5,7 @@
 // the folder is collapsed and the list hidden. A file's line counts are left
 // out (../story-review-line-counts.spec.ts reads them).
 
-import type { Locator } from "@playwright/test";
+import { expect, type Locator } from "@playwright/test";
 
 export const treeRows = (list: Locator) =>
   list.evaluate((root) => {
@@ -32,6 +32,30 @@ export const treeFolder = (review: Locator, name: string) =>
     .getByRole("listitem")
     .getByRole("button", { name, exact: true })
     .and(review.locator("button[aria-expanded]"));
+
+// A file's control in the review's file browser, by its accessible name: its
+// kind and name, as in “Added story.txt”.
+export const fileRow = (review: Locator, name: string) =>
+  review
+    .locator(".story-review-files")
+    .getByRole("button", { name, exact: true });
+
+// The file's line counts as its row shows them, as in “+1 −0”.
+export const expectLineCounts = (
+  review: Locator,
+  name: string,
+  shown: string,
+) =>
+  expect(fileRow(review, name).locator(".story-review-line-counts")).toHaveText(
+    shown,
+    { useInnerText: true },
+  );
+
+// The file is the one selected: its row says so and its diff is shown.
+export async function expectFileSelected(review: Locator, name: string) {
+  await expect(fileRow(review, name)).toHaveAttribute("aria-pressed", "true");
+  await expect(review.getByRole("region", { name })).toBeVisible();
+}
 
 // The rows of the nested worktree's review (./storyReviewWorktree.ts) with
 // every folder expanded; the rename's old folder shows nothing for it.

@@ -61,7 +61,8 @@ export function ReviewFeedback({
           )
         ) : since === undefined ? (
           <p>
-            Review refreshed: {changedFiles(snapshot.files.length)} against
+            Review refreshed:{" "}
+            {changedFiles((comparison ?? snapshot).files.length)} against
             baseline <code>{shortRevision(snapshot.baseline)}</code>.
           </p>
         ) : (
