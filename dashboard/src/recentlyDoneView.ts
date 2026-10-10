@@ -9,6 +9,9 @@
 // (`./recentlyDoneRange.ts`), and only the records of the
 // stories shown are read (`./doneDetails.ts`); a story shown before its
 // record answers keeps its place, with its sessions, under its identity.
+// The saved sessions decide which stories the first entries hold, so no
+// record is read before the page's first read of them ends; a read that ends
+// unanswered lets the stories shown without them be read.
 // A refresh of the project keeps the list the last revision's catalog placed
 // until the new revision's catalog answers, since the snapshot carries it
 // (`./carriedFacts.ts`), so the list neither empties nor loses the keyboard
@@ -120,12 +123,16 @@ export function useRecentlyDone({
   creations,
   records,
   noneKept,
+  sessionsSettled,
 }: {
   readonly sourceId: string;
   readonly work: PublishedWork;
   readonly creations: readonly CreationView[];
   readonly records: readonly LaunchWithState[] | undefined;
   readonly noneKept: boolean;
+  // Whether the page's first read of the machine's sessions has ended,
+  // answered or not.
+  readonly sessionsSettled: boolean;
 }) {
   const range = usePageRange();
   // While a newer revision reads its catalog, the snapshot carries the
@@ -153,11 +160,17 @@ export function useRecentlyDone({
   const { shown, older } = shownPrefix(listed, requested);
   const unreadable = done?.status === "catalogued" ? done.unreadable : [];
   // The records of the stories shown, and of the record files the catalog
-  // could not read, whose problem only their text says.
-  const details = useDoneDetails(work.source, revision, [
-    ...shown.flatMap((each) => ("record" in each ? [each.record] : [])),
-    ...unreadable,
-  ]);
+  // could not read, whose problem only their text says, read once the
+  // sessions have placed the stories.
+  const details = useDoneDetails(
+    work.source,
+    revision,
+    [
+      ...shown.flatMap((each) => ("record" in each ? [each.record] : [])),
+      ...unreadable,
+    ],
+    sessionsSettled,
+  );
   useDestinationAnswer(range, sourceId, records, done, listed, (each) =>
     "record" in each
       ? details.detailOf(each.record).status !== "reading"

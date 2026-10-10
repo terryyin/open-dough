@@ -5,10 +5,12 @@ This directory holds the dashboard's one Playwright suite, run with
 `support/repositoryRoot.ts`, not the working directory, so
 `npx playwright test` from `dashboard/`, or with `--config
 <repository>/dashboard/playwright.config.ts` from anywhere, gives the same
-result and builds only into `dashboard/dist`; lint refuses a `process.cwd()`
-call in test code. Every run builds the app once;
-each page journey (`dashboardTest.ts`) then serves that build from its own
-preview server with a synthetic `gh` on its PATH (`fixtures/fake-gh`)
+result; lint refuses a `process.cwd()` call in test code. Every run builds the
+app once, into its own temporary directory that it removes at the end, so two
+runs from one checkout never rebuild each other's assets and the production
+build in `dashboard/dist` is left alone; each page journey
+(`dashboardTest.ts`) then serves that build from its own preview server with
+a synthetic `gh` on its PATH (`fixtures/fake-gh`)
 that answers from the test's own fake GitHub (`support/fakeGitHub.ts`,
 published through `publishedOrigin.ts` or
 `committedOrigin.ts`), which can also fail, hold, or rate-limit an
@@ -157,10 +159,35 @@ suite's `tests/time-budget`, the 320 seconds and the job's `timeout-minutes`
 are a reviewed ceiling: a shard that reaches the deadline is made faster or
 rebalanced, not given more time.
 
-A passing run prints nothing (`support/quietReporter.ts`). A failing
+A passing run prints nothing (`support/quietReporter.ts`) and leaves no
+output directory. A failing
 spec is shown with its error, output, and retained trace; a passing spec that
 writes output, or output from the run itself such as global setup, fails the
-run and is shown. Keep specs and their helpers silent.
+run and is shown. Keep specs and their helpers silent. A failed run keeps what
+it showed, as `report.txt`, beside its traces and other retained files in
+`dashboard/test-results/<start time>/`, and its last line, `Kept: <directory>`,
+names that directory. A later run never removes an earlier run's directory;
+remove kept runs yourself once read. Every worker, when it exits, ends each
+process its tests started, passing, failing, or timed out
+(`support/processGroup.ts`), so a run does not leave servers or runners to
+load the next; only a worker killed outright runs no such cleanup.
+
+A dashboard failure on unchanged code is a defect to find and fix, never a
+reason to rerun until green; the suite keeps `retries: 0`. Repeat the run and
+read the kept evidence:
+
+```sh
+bash scripts/dashboard-repeat.sh 3 --load agent-terminal
+```
+
+`scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]` runs
+the suite (or the named specs) that many times, one after another, at the
+local worker count. `--load` runs one busy burner per online core during each
+run; `--fresh` runs the first repetition in a new worktree of `HEAD` after its
+own `npm ci`. For each run it prints the exit status, seconds, load average
+before and after, each failing location, and the kept directory, and it exits
+0 only when every run passed. A run under other load can still fail where an
+idle one passes; such a failure is a defect of the same kind.
 
 The automatic-freshness journeys (`auto-refresh*.spec.ts`) pause the
 page's clock and step it with the helpers in `autoRefreshJourney.ts`, so

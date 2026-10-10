@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 262. Removed local codes are never reused.
+- Highest allocated local number: 264. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -323,6 +323,14 @@ Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: the coordinator ran `npm run format … | grep …; <plan edit>; git add … && agent-commit.mjs` as one command; the formatter printed `'origin' is assigned a value but never used` and `Format failed`, and the commit still ran and was refused by the check-only hook (`commit-failed`).
   - Observed effect: no bad commit; one extra hook run, then a one-line fix, formatter rerun, and commit.
   - Inference: chaining format, staging, and commit with `;` after a filtered pipeline lets a failed format reach the commit; the hook was the only gate.
+- Execution: SEED-123#dashboard-suite-stable-under-load (plan 282, first implementation commit 210b335d)
+  - Timestamp: unknown (between 2026-10-10T13:00+09:00 and the ef27acdf commit at 2026-10-10T13:50:19+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: coordinator chained `npm run format … | tail -1; git add … && agent-commit … && deliver` for the Vite port repair; output "Format failed: unresolved findings or tool failures remain."
+  - Observed effect: staging and the agent commit still ran; the commit hook refused it (`@typescript-eslint/unbound-method` in `dashboard/tests/support/viteAddress.ts:63`), and a no-op delivery re-confirmed the previous SHA c51ab4b0.
+  - Inference: the `;` after the formatter let a visible failure through; the hook was the only gate, so no bad commit landed.
 
 ## ODF-222 — Managed story-branch delivery can stall after a successful agent-commit
 
@@ -480,3 +488,41 @@ remains separate, and no tooling or guidance change is implemented here.
   - Evidence: [accepted proof commands](https://github.com/terryyin/open-dough/blob/88fed85b902c4d86599fb06ef9c8bab7b6abf533/.planning/slice-plans/281-review-merged-one-shot-change/PROOF.md) used `--reporter=line`. `dashboard/playwright.config.ts` instead configures `tests/support/quietReporter.ts`, which rejects passing tests that print output. [CI repair record](https://github.com/terryyin/open-dough/blob/88fed85b902c4d86599fb06ef9c8bab7b6abf533/.planning/slice-plans/281-review-merged-one-shot-change/CI-REPAIR.md) accounts for runs38005633984,38007783610,38010280032: legacy capture and retired-review tests passed assertions but failed the configured reporter on uncaptured Git push stderr. The unchanged-HEAD strict red reproduced both; repair `5a7e2367` captured subprocess stdio and strict proof passed. Slice6 retained the configured reporter and used `--list` separately.
   - Observed effect: five CI jobs rejected output hidden by local proof; one shared helper repair and independent delivery were required. The sixth job was a separately diagnosed Cursor frame race, not explained by the override.
   - Inference: the override weakened acceptance evidence. Its original motivation and net time cost are not established by the retained record.
+
+## DD-263 — CI-repair delegation asked for a temporary reproduction, so repairs returned without a permanent regression test
+
+Originally DD-258 in SEED-123 branch history; reassigned during integration to avoid a concurrent allocation.
+
+The coordinator's repair prompt asked each agent to prove the defect "in a
+temporary spec you delete afterwards". Two product repairs came back with
+only deleted reproductions, and each needed a second delegation round to add
+a lasting regression test.
+
+### Occurrences
+- Execution: SEED-123#dashboard-suite-stable-under-load (plan 282, first implementation commit 210b335d)
+  - Timestamp: 2026-10-10T08:21:23+09:00 (51a8d14f) and 2026-10-10T13:50:19+09:00 (ef27acdf)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: repair returns for CI runs 38001471149 (split-paint guard; follow-up added `cursor-recover-split-paint.spec.ts`) and 38009827597 (Vite port collision; follow-up added `chosen-port.spec.ts`).
+  - Observed effect: two extra resume rounds of the repair agents before refactoring and delivery.
+  - Inference: the prompt wording, not the agents, removed the proof; ci-monitor.md asks for "a minimal observable test failing for the right reason" without saying it must remain.
+
+## DD-264 — A long full-run probe started on a shared machine without a headroom check
+
+Originally DD-259 in SEED-123 branch history; reassigned during integration to avoid a concurrent allocation.
+
+Slice 3's probe ran hours of full dashboard runs while other work loaded the
+machine. One unloaded full run took 4,628 s with 45 failures at load 150–190
+and swap full; the series was stopped and the probe returned partial after
+about 4.2 hours of agent time.
+
+### Occurrences
+- Execution: SEED-123#dashboard-suite-stable-under-load (plan 282, first implementation commit 210b335d)
+  - Timestamp: 2026-10-09T05:41:58Z (the overloaded run's kept directory)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: plan 282 slice 3 learning (`1b365ce0:.planning/slice-plans/282-dashboard-suite-stable-under-load/PLAN.md`); probe agent duration 15,127 s.
+  - Observed effect: most of the planned full-run series never completed; its evidence for slice 4 came from the 20 s group runs.
+  - Inference: part of the load came from the suite's own leaked processes (fixed in slice 5); a load and swap check before each full run would have stopped the series hours earlier. Slice 7's agent did check before starting.

@@ -3,6 +3,19 @@ import { defineConfig, devices } from "@playwright/test";
 import { remainingSuiteTime } from "./tests/support/suiteDeadline.mjs";
 import { dashboardTestMatch } from "./tests/support/testFiles.mjs";
 
+// Each run keeps its retained files in its own directory, named by its start
+// time, because Playwright empties a run's output directory before it starts:
+// a later run from the same checkout then removes only its own
+// (tests/support/quietReporter.ts keeps a failed run's directory and removes
+// a passing one's). Workers load this config again; they inherit the
+// runner's environment, so they read the runner's stamp instead of making
+// their own.
+const runStampVariable = "OPEN_DOUGH_DASHBOARD_RUN_STAMP";
+if (process.env["TEST_WORKER_INDEX"] === undefined) {
+  process.env[runStampVariable] = new Date().toISOString().replace(/:/g, "-");
+}
+const runStamp = process.env[runStampVariable] ?? "";
+
 const suiteTime = remainingSuiteTime(
   process.env["OPEN_DOUGH_DASHBOARD_DEADLINE_MS"],
 );
@@ -17,7 +30,7 @@ export default defineConfig({
         ),
       }
     : {}),
-  outputDir: "./test-results",
+  outputDir: `./test-results/${runStamp}`,
   fullyParallel: true,
   // Playwright's default uses half the cores. Each CI dashboard shard job must
   // finish within the CI verdict target, so there it uses every core; local

@@ -14,12 +14,13 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load ([plan](slice-plans/282-dashboard-suite-stable-under-load/PLAN.md))
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner ([plan](slice-plans/280-execution-observer-ownership/PLAN.md))
 - [A Cursor launch or recover wait ends within a bound with a clear message](seeds/SEED-129-bounded-cursor-launch-wait.md#bounded-cursor-launch-wait) — SEED-129#bounded-cursor-launch-wait ([plan](slice-plans/283-bounded-cursor-launch-wait/PLAN.md))
 
 ## Backlog list
 
+- [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance
+- [Recently done waits for an added project's sessions](seeds/SEED-123-dashboard-suite-stable-under-load.md#recently-done-waits-for-added-project-sessions) — SEED-123#recently-done-waits-for-added-project-sessions
 - [Continue completed refinement into slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#continue-refinement-to-slice-planning) — SEED-128#continue-refinement-to-slice-planning
 - [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions
 - [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution

@@ -3,7 +3,8 @@
 // name and Git blob its catalog names (`./doneStories.ts`), at the revision
 // that catalog was read at, through the local boundary's catalogued record
 // read (`./authenticatedDoneRead.ts`). Records nobody asked for are never
-// read.
+// read, and needed records wait, still reading, until the caller says they
+// may be read (`readable`).
 //
 // What a record says stays known for as long as the project is shown: a
 // record's text is the blob it is kept by, so a later revision listing the
@@ -74,6 +75,7 @@ export function useDoneDetails(
   source: PublishedSource,
   revision: string,
   needed: readonly NamedDoneRecord[],
+  readable: boolean,
 ) {
   const [known, setKnown] = useState<Known>({
     sourceId: source.id,
@@ -97,6 +99,7 @@ export function useDoneDetails(
 
   const neededKey = needed.map(keyOf).join("\n");
   useEffect(() => {
+    if (!readable) return;
     const asking = new Set([...batches.current].flatMap(({ keys }) => keys));
     const unread = needed.filter((record) => {
       const key = keyOf(record);
@@ -140,7 +143,7 @@ export function useDoneDetails(
         }
       });
     }
-  }, [source.id, revision, neededKey, known]);
+  }, [source.id, revision, neededKey, known, readable]);
 
   const detailOf = (record: NamedDoneRecord): DoneDetail => {
     const key = keyOf(record);

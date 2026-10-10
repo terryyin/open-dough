@@ -4,17 +4,24 @@
 // passing test, or from the run itself (global setup, workers between
 // tests), fails the run and is shown, locally and in CI alike.
 //
+// Whatever it shows is also written to `report.txt` in the run's output
+// directory, which its last line names (`Kept: <dir>`), so a later run does
+// not replace the only record. A run that shows nothing removes its own
+// output directory when it exits.
+//
 // Global setup runs in this runner process and writes straight to its
 // stdout/stderr, which no reporter event carries, so the reporter watches
 // those streams itself from the moment it is created until the run ends.
 
 import type {
+  FullConfig,
   FullResult,
   Reporter,
   TestCase,
   TestError,
   TestResult,
 } from "@playwright/test/reporter";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 type Write = typeof process.stdout.write;
@@ -38,6 +45,8 @@ export default class QuietReporter implements Reporter {
   private readonly writeOut: Write;
   private readonly writeErr: Write;
   private readonly strayRunOutput: string[] = [];
+  private readonly printed: string[] = [];
+  private outputDir: string | undefined;
   private failed = false;
   private watching = true;
 
@@ -51,6 +60,10 @@ export default class QuietReporter implements Reporter {
   // The reporter itself writes the console; no default reporter is added.
   printsToStdio(): boolean {
     return true;
+  }
+
+  onBegin(config: FullConfig): void {
+    this.outputDir = config.projects[0]?.outputDir;
   }
 
   // Output a test wrote arrives with its result; anything else is the run's.
@@ -117,11 +130,18 @@ export default class QuietReporter implements Reporter {
     if (nothingShown) {
       this.print(`The test run ended ${result.status}.\n`);
     }
+    this.keepReport();
     return Promise.resolve({ status: "failed" });
   }
 
+  // Playwright writes its own `.last-run.json` into the output directory
+  // during `onEnd`, before `onExit`, so a run that showed nothing leaves no
+  // directory behind.
   onExit(): Promise<void> {
     this.stopWatching();
+    if (this.printed.length === 0 && this.outputDir) {
+      rmSync(this.outputDir, { recursive: true, force: true });
+    }
     return Promise.resolve();
   }
 
@@ -137,7 +157,20 @@ export default class QuietReporter implements Reporter {
   }
 
   private print(message: string): void {
+    this.printed.push(message);
     this.writeOut(message);
+  }
+
+  private keepReport(): void {
+    if (!this.outputDir) {
+      return;
+    }
+    mkdirSync(this.outputDir, { recursive: true });
+    writeFileSync(
+      path.join(this.outputDir, "report.txt"),
+      this.printed.join(""),
+    );
+    this.print(`Kept: ${shown(this.outputDir)}\n`);
   }
 
   private watch(original: Write): Write {

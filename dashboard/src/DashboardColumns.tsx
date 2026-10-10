@@ -44,6 +44,7 @@ export function DashboardColumns({
     creations: launches.creations,
     records: sessions.done,
     noneKept: sessions.noneKept,
+    sessionsSettled: launches.attemptEvidence !== "unread",
   });
   const columns: readonly ColumnSummary[] = [
     ...stages.map(({ column }) => column),

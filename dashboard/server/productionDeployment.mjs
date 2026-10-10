@@ -6,6 +6,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import { command, ownedProcess, stopProcess } from "./productionProcess.mjs";
+import { startOnChosenPort } from "./chosenPort.mjs";
 /**
  * @typedef {{origin: string, commit: string}} PublishedCommit
  */
@@ -185,6 +186,10 @@ export async function stageDeployment(options) {
 /** @param {{directory: string, port?: number, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
 export async function startDeploymentPreview(options) {
   const port = options.port ?? 4173;
+  return startOnChosenPort(port, () => startPreviewOn(port, options));
+}
+/** @param {number} port @param {{directory: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
+async function startPreviewOn(port, options) {
   const process = ownedProcess(
     "npm",
     [
@@ -204,14 +209,10 @@ export async function startDeploymentPreview(options) {
     },
   );
   let ended = false;
-  void process.exited.then(
-    () => {
-      ended = true;
-    },
-    () => {
-      ended = true;
-    },
-  );
+  const end = () => {
+    ended = true;
+  };
+  void process.exited.then(end, end);
   const deadline = Date.now() + 20_000;
   try {
     while (Date.now() < deadline && !ended) {

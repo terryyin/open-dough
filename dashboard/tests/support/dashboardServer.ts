@@ -9,13 +9,14 @@
 // closed server had. The Cursor runner listens from that HOME and is not in
 // this server's process group, so closing the server leaves it. When this
 // helper owns the machine directory, close stops that runner before the
-// directory is removed.
+// directory is removed. A runner still running when the test process exits,
+// because a teardown past its timeout never reached close or a test kept it,
+// is stopped then, as is the server's own group (./processGroup.ts).
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
-import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -27,16 +28,14 @@ import {
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { endGroup, spawnGroupLeader } from "./processGroup.ts";
-import { listenArgs, ownAddress } from "./viteAddress.ts";
+import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
+import { endAtExit } from "./processGroup.ts";
+import { listenArgs, spawnVite, startOnOwnAddress } from "./viteAddress.ts";
 import { configureDevelopmentProjects } from "./projectConfiguration.ts";
-import { repoRoot } from "./repositoryRoot.ts";
+import { buildDashboardTo } from "./dashboardBuild.ts";
 
-const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
-
-// Built once per suite run by ./globalSetup.ts; every preview server that is
-// not asked to build its own serves it read-only.
-export const builtDashboardDir = path.join(repoRoot, "dashboard", "dist");
+// Callers find the run's build where they find the server that serves it.
+export { builtDashboardDir } from "./dashboardBuild.ts";
 
 export type DashboardServer = {
   readonly baseURL: string;
@@ -56,25 +55,6 @@ export type DashboardServer = {
   ghExitedBy(): string | undefined;
   close(): Promise<void>;
 } & FakeClaudeControls;
-
-// Builds into `outDir` rather than the shared `dashboard/dist`, which other
-// tests' preview servers may be serving concurrently (`fullyParallel: true`).
-export function buildDashboardTo(outDir: string): void {
-  const result = spawnSync(
-    "npm",
-    ["run", "build:dashboard", "--", "--outDir", outDir],
-    {
-      cwd: repoRoot,
-      stdio: "pipe",
-      encoding: "utf8",
-    },
-  );
-  if (result.status !== 0) {
-    throw new Error(
-      `npm run build:dashboard failed:\n${result.stdout}\n${result.stderr}`,
-    );
-  }
-}
 
 export async function startDashboardServer(
   options: FakeClaudeOptions & {
@@ -175,18 +155,23 @@ export async function startDashboardServer(
     args = ["preview", ...serverArgs, "--outDir", outDir];
   }
 
-  // Its own process group, so closing can wait for every `gh` it launched.
-  const child = spawnGroupLeader(viteBin, args, { cwd: repoRoot, env });
-  const output: Buffer[] = [];
-  const collect = (chunk: Buffer) => {
-    output.push(chunk);
-  };
-  child.stdout.on("data", collect);
-  child.stderr.on("data", collect);
-  const outputText = () => Buffer.concat(output).toString("utf8");
+  const home = claude.controls.home;
+  // SIGTERM hangs up the runner's clients and exits it.
+  const withdrawRunnerStopAtExit = endAtExit(() => {
+    const runner = readCursorRunnerAddress(home);
+    if (runner === undefined) return;
+    try {
+      process.kill(runner.pid, "SIGTERM");
+    } catch {
+      // Already gone.
+    }
+  });
 
   const closeOwned = async () => {
-    if (ownsMachine) await stopCursorRunner(claude.controls.home);
+    if (ownsMachine) {
+      await stopCursorRunner(home);
+      withdrawRunnerStopAtExit();
+    }
     if (options.codexProtocol === undefined) await codex.close();
     if (ownsGitHub) {
       await github.close();
@@ -194,26 +179,23 @@ export async function startDashboardServer(
     rmSync(tempRoot, { recursive: true, force: true });
   };
 
-  let baseURL: string;
-  try {
-    baseURL = await ownAddress(child, outputText, 20_000);
-  } catch (error) {
-    await endGroup(child);
+  const { launched: vite, url: baseURL } = await startOnOwnAddress(
+    options.port,
+    () => spawnVite(args, env),
+    `The ${options.mode} server this test started could not start`,
+  ).catch(async (error: unknown) => {
     await closeOwned();
-    throw new Error(
-      `The ${options.mode} server this test started could not start:\n${outputText()}`,
-      { cause: error },
-    );
-  }
+    throw error;
+  });
 
   return {
     baseURL,
     origin: baseURL,
-    pid: child.pid ?? 0,
+    pid: vite.child.pid ?? 0,
     outDir,
     github,
     codex,
-    output: outputText,
+    output: vite.output,
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },
@@ -229,7 +211,7 @@ export async function startDashboardServer(
     },
     ...claude.controls,
     async close() {
-      await endGroup(child);
+      await vite.stop();
       await closeOwned();
     },
   };

@@ -6,9 +6,10 @@
 // Working/waiting/trust/unrecognized/composer/exit/cannot-load modes paint
 // fixed screens; exit prints an unclassified sentence; cannot-load prints the
 // provisional chat-cannot-load sentence and exits.
-// FAKE_CURSOR_BECOME_READY repaints the follow-up prompt; paint delay and
-// split-paint env vars control delivery. models is logged apart from launch
-// argv. Launch/attach records carry ./fake-host-environment.cjs fields.
+// FAKE_CURSOR_BECOME_READY repaints the follow-up prompt; paint delay,
+// split-paint, and submit-paint env vars control delivery. models is logged
+// apart from launch argv. Launch/attach records carry
+// ./fake-host-environment.cjs fields.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -216,7 +217,9 @@ if (attaching) {
   process.stdin.resume();
   // A long multiline chunk is an unsent paste chip. A later Enter submits
   // that chip, including when the terminal delivers it joined to the paste's
-  // last chunk. A return folded into the first chunk does not.
+  // last chunk. A return folded into the first chunk does not. The submitted
+  // chip stays on screen for FAKE_CURSOR_SUBMIT_PAINT_MS before the repaint.
+  const submitPaintMs = Number(process.env.FAKE_CURSOR_SUBMIT_PAINT_MS || 0);
   let pendingPaste = "";
   process.stdin.on("data", (chunk) => {
     const text = chunk.toString("utf8");
@@ -230,7 +233,8 @@ if (attaching) {
         fs.appendFileSync(path.join(dir, `${pid}.input`), `${pendingPaste}\r`);
       }
       pendingPaste = "";
-      paint();
+      if (submitPaintMs > 0) setTimeout(paint, submitPaintMs);
+      else paint();
       return;
     }
     const stripped = text.endsWith("\r") ? text.slice(0, -1) : text;
