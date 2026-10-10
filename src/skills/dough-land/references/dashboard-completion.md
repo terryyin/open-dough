@@ -84,5 +84,10 @@ without completing the story, setting Done or stopping a native session.
 For a later explicit landing, reuse the original retained context, not a new
 session's completion channel. A different accepted comparison cannot overwrite
 this launch's fixed landing fact. A deleted/expired launch refuses capture and
-retry without recreating its record. The final completion report above remains
+retry without recreating its record. Its bound launch keeps the original capture
+authority and prepared pair for that record's existing lifetime, even after its
+startup attempt expires; this extends no retention period. Receipt recovery keeps
+the original delivery and comparison, including after native binding or a newer
+completion report. If deletion reports failed pin cleanup, retry that deletion;
+capture stays refused while cleanup is pending. The final completion report above remains
 the final operation after all required duties and wording settle.

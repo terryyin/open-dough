@@ -166,6 +166,7 @@ export async function replaceKeptSession(
   return changeSessionRecord(sourceId, previous, (record) => ({
     ...next,
     landing: record.landing ?? next.landing,
+    landingReporting: record.landingReporting ?? next.landingReporting,
   }));
 }
 
@@ -189,6 +190,7 @@ export async function updateRecord(
         ...record,
         completion: entry.completion ?? record.completion,
         landing: entry.landing ?? record.landing,
+        landingReporting: entry.landingReporting ?? record.landingReporting,
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,

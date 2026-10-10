@@ -83,3 +83,17 @@ its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a
 report reads Done, with native Working as its note. A receipt claims no native shutdown. Direct Land/Wrap Up
 without supplied context makes no dashboard contact. Other workflows receive the channel without gaining automatic completion.
+
+One-shot landing capture is a separate launch-bound fact. Before each push the
+installed publication handoff retains the final candidate and delivery base,
+including a reconciled pair, outside the workspace. Accepted publication survives
+recording failure; resume verifies the retained pair without another push, and
+the copied reporting command retries only that original input after retirement.
+Preparation and acceptance retain one immutable comparison receipt. Capture
+before native binding follows that launch into its bound record; late native
+writers and newer completion, read and Done intent preserve it.
+The original capture authority follows a kept bound record after its startup
+attempt normally expires, without extending either lifetime. Premature attempt
+loss, unreadable attempt evidence and deleted or expired records refuse capture.
+If explicit deletion fails to remove its pins after attempt expiry, its retained
+deletion intent keeps capture refused and the same deletion can retry cleanup.

@@ -26,6 +26,7 @@ export async function deliverRetainedReport(
   submission,
   operation,
   matchesReceipt,
+  retryScript = fileURLToPath(import.meta.url),
 ) {
   const origin = loopbackReportingOrigin(submission.origin);
   const landing = operation !== "completion";
@@ -54,13 +55,7 @@ export async function deliverRetainedReport(
     return receipt;
   } catch (error) {
     const flags = landing ? ["--operation", operation] : [];
-    const retry = [
-      process.execPath,
-      fileURLToPath(import.meta.url),
-      ...flags,
-      "--retry",
-      pending,
-    ]
+    const retry = [process.execPath, retryScript, ...flags, "--retry", pending]
       .map(quote)
       .join(" ");
     throw new Error(

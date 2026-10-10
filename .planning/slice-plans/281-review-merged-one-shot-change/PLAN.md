@@ -186,7 +186,7 @@ without replacing the live review's meaning or mark.
 
 ### 5. Recover landing evidence without repeating accepted work
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `dashboard/tests/one-shot-landing-recovery.spec.ts` using production
 receiver, real filesystem fault/acknowledgment-loss seams and the copied CLI.
 Lose a push response after reconciliation and use the retained candidate/base

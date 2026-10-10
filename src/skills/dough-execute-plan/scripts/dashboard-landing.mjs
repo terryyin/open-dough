@@ -116,6 +116,9 @@ export async function submitLandingInput(
         ? ["prepared", "recorded"]
         : ["recorded", "pending-native-session"]
       ).includes(receipt.state),
+    // Publication imports this module from the checkout; its retained input
+    // belongs beside the surviving dashboard-prepared reporting executable.
+    path.join(path.dirname(pending), "dashboard-completion.mjs"),
   );
 }
 export async function captureAcceptedLanding(

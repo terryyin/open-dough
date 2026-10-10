@@ -49,8 +49,34 @@ export async function deleteRecord(
     // Durable intent prevents late writers before removing refs; a failed deletion can retry.
     const repository =
       record?.landing?.repository ??
+      record?.landingReporting?.authority.repository ??
       attempts?.find((entry) => entry.id === reference)?.landingRepository
         ?.repository;
+    const retainedCleanup = record?.landingReporting !== undefined;
+    if (retainedCleanup) {
+      // Retain intent and repository in this same record until pin cleanup
+      // succeeds, even if the startup attempt expires before retry.
+      await replaceRecords((kept) => ({
+        ...kept,
+        [sourceId]: (kept[sourceId] ?? []).map((entry) =>
+          "session" in entry &&
+          entry.request.reporting?.reference === reference &&
+          entry.landingReporting !== undefined
+            ? {
+                ...entry,
+                landingReporting: {
+                  ...entry.landingReporting,
+                  deletedAt:
+                    entry.landingReporting.deletedAt ??
+                    new Date().toISOString(),
+                },
+              }
+            : entry,
+        ),
+      }));
+      if (reference !== undefined && repository !== undefined)
+        await removeLandingPins(repository, reference);
+    }
     let deleted = false;
     await replaceRecords((kept) => {
       const records = kept[sourceId];
@@ -65,8 +91,8 @@ export async function deleteRecord(
       deleted = remaining.length < records.length;
       return { ...kept, [sourceId]: remaining };
     });
-    // Metadata removal is durable first; intent and repository survive a failed pin cleanup.
-    if (reference !== undefined && repository !== undefined)
+    // Older records recover their repository through the retained attempt.
+    if (!retainedCleanup && reference !== undefined && repository !== undefined)
       await removeLandingPins(repository, reference);
     return deleted;
   });
