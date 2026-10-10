@@ -182,6 +182,14 @@ classifier returns, and pass `registered` only for `finish`.
 
 Safe stopping point: the correction is complete.
 
+## Execution complete
+
+Product advice: no backlog change. The correction and its review findings are
+delivered within this plan; nothing new is recommended for the queue. Six
+developer decisions stay open under "Decisions for the developer", each with
+a recommendation, and the paid native runs under "Pending native evidence"
+still need authorization.
+
 ## Story obligations
 
 ### G1. A mailbox without an identity after its worktree is removed is unasserted

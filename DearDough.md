@@ -732,6 +732,14 @@ not only the premise, was what execution could not satisfy.
   - Evidence: plan 291 "Goal and boundaries" ("No new owner model, schema, or CLI flag") and its first Observed premise (`48ec2ca9:.planning/slice-plans/291-recovery-steps-reach-their-observer/PLAN.md`); `f8baebc9` adds `identity` to `request.json` in `ci-mailbox-location.mjs`; the implementation return opened with "One design choice needs your acceptance" and named the replan alternative; plan 291 slice 1 Learning.
   - Observed effect: the background coordinator read "schema" as the owner model and CLI, accepted the field without the developer, and recorded the reading in the plan; the retrospective's independent review called it literal drift with no field-free alternative and left acceptance to the developer.
   - Inference: qualified. Observing the premise through the installed `stop` from the default checkout would have shown at planning that the command lacks the removed path. The stop-for-human-judgment rule lists "structure constraining later work" but a background session weighs a stop against an unattended wait, and nothing told it which side a disputed boundary word falls on.
+- Execution: `SEED-121#recovery-holds-after-reuse-and-rerun` / plan 292, first implementation `cb844420`.
+  - Timestamp: unknown (2026-10-10, slice 2 return, between `cb844420` and `36a74722`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `4364af24`; base 0.3.58
+  - Evidence: plan 292 "Goal and boundaries" ("No new record field, owner model, or CLI flag") and slice 2 ("one completed it … repeats completion on that observer") at `4364af24:.planning/slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md`; the slice 2 return's first line ("\"completed\" is inferred, not recorded"); `36a74722` `completedObserver` in `trunk-closure-observer.mjs`; plan 292 slice 2 Learning.
+  - Observed effect: no record says which observer completed a closure, so the implementation read it from the coverage record. The background coordinator returned the slice once to also settle several agreeing records and accepted the result without the developer; the retrospective's independent review then found that the widened rule counts a cancelled attempt's `incomplete` as a result, and the coordinator returned the slice a second time before completion.
+  - Inference: qualified. The plan's premise was observed through the installed `finish`, but it showed the symptom, not what would identify the completing observer; the same boundary wording as plan 291 met the same missing fact.
 
 ## DD-273 — A correction's journey test stopped at the first successful rerun, and the slice's own promise failed one rerun later
 
@@ -749,3 +757,11 @@ the selection the slice had just changed refuses it.
   - Evidence: `85c8fb51` `trunk-closure-observer.mjs` `ownedObservers.select` (an ended covering observer is selected only when it is the one covering observer); `trunk-closure-owner-gaps.test.mjs` journey ends at `cleanup.worktree: "removed"`; `wrap-up-closure-publication.md` "repeats completion on this coordinator's observer that covers it"; a scratch copy of the journey with one more installed `finish` from the management context returned `step: "observation"`, `ownership: "ended"`, "3 of its observers each registered this revision and none is live". The same review found the access rule of slice 1 refused again once the removed path was recreated.
   - Observed effect: both behavior slices were accepted and published with an adjacent state of the same rule unproved; follow-up plan 292 was written. The coordinator's acceptance listed the candidate-order cases by reading and did not run the state the journey leaves behind.
   - Inference: the independent outcome review, given the code and questions instead of the coordinator's conclusions, found both by probing; acceptance inspected the proof named for the promise and not what the changed rule does to states the same journey produces.
+- Execution: `SEED-121#recovery-holds-after-reuse-and-rerun` / plan 292, first implementation `cb844420`.
+  - Timestamp: unknown (2026-10-10, slice 2 acceptance before `36a74722`; found by the retrospective about 21:45 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `4364af24`; base 0.3.58
+  - Evidence: the coordinator's return of slice 2 naming one adjacent history (several ended observers each holding the result); `trunk-closure-observer-selection.test.mjs` drives `success` and `failure` only; a scratch selection test at `31fd11c6` selected an observer over two `incomplete` records and returned the `ended` gap for `success` beside `incomplete`; plan 292 slice 2 Learning and obligation G8.
+  - Observed effect: acceptance probed one neighbouring state of the changed rule and returned the slice for it, then accepted the widened rule with its other record states undriven. The implementation return had listed "Agreement on `incomplete`" as untested, and the coordinator dispositioned it `no user cost` (plan 292 G6 at `31fd11c6`).
+  - Inference: the untested list named the state; the disposition was written from what the helper returns, not from what `finish` does with it. One returned gap did not replace an independent read of the rule.
