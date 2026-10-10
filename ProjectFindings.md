@@ -181,6 +181,29 @@ the whole group passed at `--workers=3`. The cause is unknown.
   - Observed effect: a third run at reduced workers to obtain a green group; the failures stay unexplained.
   - Inference: Qualified. Like DD-240, contention looks likely (the machine ran other workloads), but nothing retained separates load from a shared-output collision such as DD-226. One sample.
 
+<a id="dd-259"></a>
+
+### DD-259 — Unchanged dashboard specs failed once in a full local suite and passed alone
+
+During one execution's full local dashboard runs, specs the change did not
+touch failed once each and then passed when run alone or repeated:
+`tests/cursor-session-recovery.spec.ts:168` (session state "at the follow-up
+prompt" instead of "Activity unknown…"; also `:106` once),
+`tests/frame-launch-look.spec.ts:101`, and
+`tests/recently-done-progressive-failed-read-refresh.spec.ts:120` (first entry
+still named by its identity at the 5 s timeout). The cause is unknown.
+
+#### Occurrences
+
+- Execution: `SEED-126#steady-dashboard-refresh` / plan 284, first related implementation commit `5accd572`
+  - Timestamp: unknown (full local runs between 2026-10-10T08:14:20+09:00 and 2026-10-10T11:51:41+09:00)
+  - Tool: Claude Code (delegated implementation agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: slice 1's full run failed `cursor-session-recovery.spec.ts:168`, which then failed 1 of 3 alone and passed `--repeat-each 5` at the coordinator; slice 3's full run (1380/1384) failed `cursor-session-recovery:106` and `frame-launch-look:101`, both passing alone (4/4 for the latter); slice 4's consumer group failed `recently-done-progressive-failed-read-refresh:120` once, then passed in the rerun and 8/8 alone. Slice 4's full run passed. Plan 284 slices 1, 3, and 4 record them; logs are not retained.
+  - Observed effect: extra reruns in three slices to separate these from the change; no CI failure observed for them.
+  - Inference: Qualified. Matches the load-sensitive pattern SEED-123 owns (other workloads ran on the machine), but nothing retained separates load from a timing race in these specs.
+
 ## Local checks miss the dashboard's typed fixture imports (second priority, queued)
 
 **Follow-up:** queued, not resolved:
@@ -308,6 +331,35 @@ Ubuntu runner did not.
   - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
+
+## Layout thresholds fitted to macOS fonts (open, unqueued)
+
+**Follow-up:** open, unqueued. DD-227 (a one-line layout check fitted to
+macOS fonts) was repaired with `expectOnOneLineWhenRoom`; DD-258 is the same
+class in viewport sizing, not a recurrence of that repaired check.
+
+<a id="dd-258"></a>
+
+### DD-258 — A short test viewport was raised to the lowest height that passed on macOS and failed on CI's Linux fonts
+
+A header that grew about 20 px pushed an edge control out of two specs'
+864×480 views. The viewports were raised to 500 px because 494 was the lowest
+height that passed locally. On CI the control's long "Entry count incomplete"
+label wraps taller under Linux fonts, so `dashboard-columns-height.spec.ts`
+still failed at 500. In the same run, `agent-launch-ad-hoc-terminal.spec.ts`
+compared a kept scroll of 0 with 0 locally because its page could not scroll,
+and failed on CI once the Linux page could.
+
+#### Occurrences
+
+- Execution: `SEED-126#steady-dashboard-refresh` / plan 284, first related implementation commit `5accd572`
+  - Timestamp: unknown (CI run 38003440839 on `5accd572`, committed 2026-10-10T08:14:20+09:00; repaired by `e1058c67`, committed 2026-10-10T08:32:01+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
+  - Evidence: CI `dashboard (3/9)`: `dashboard-columns-height.spec.ts:156` `toBeInViewport` ratio 0.9566 at 864×500; `dashboard (2/9)`: `agent-launch-ad-hoc-terminal.spec.ts:129` expected 18, received 0. Repair `e1058c67` uses 864×600 with the measured needs (≈495 px macOS, ≈515 px Linux) and a 1280×480 window plus `expect(scroll).toBeGreaterThan(0)`. The coordinator had asked for the viewport to be raised "minimally".
+  - Observed effect: one CI repair cycle (stash of slice 2's work, diagnosis agent, refactor pass, publication).
+  - Inference: Qualified. A threshold measured on one machine's fonts is not a margin; `published-facts-reading.spec.ts` stays at 500 with about 7 px to spare and would be next to fail if header fonts change.
 
 ## Local native-run prerequisites and host permission handoff (low priority, unqueued)
 

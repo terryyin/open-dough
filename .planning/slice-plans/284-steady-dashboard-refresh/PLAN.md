@@ -314,3 +314,25 @@ its own promise; slice 2 is the structure slice 3 depends on and is placed
 immediately before it; slice 3 owns one rule for every part; slice 4 proves
 the failure boundary of that rule. The parts share one carry rule, not
 per-part recognizers. No slice-specific concern remains.
+
+## Execution complete
+
+Product advice:
+- SEED-127#full-width-near-future-direction (next in the backlog) adds height
+  under the project actions, where the reserved read-status line now sits.
+  Keep that line's room. `published-facts-reading.spec.ts` checks an edge
+  control at 864×500 with about 7 px to spare and will need room derived from
+  measurement, not the lowest passing height (ProjectFindings DD-258).
+- SEED-123#dashboard-suite-stable-under-load (Taken) can use DD-259's named
+  specs that failed once under full local load and passed alone.
+- No correction planned. The `workFocus.ts` focus deferral ("a deliberate
+  move wins over deferred focus") lost its only refresh-driven test, because a
+  same-identity link no longer vanishes during a new-revision read; it is
+  reachable only from a shown snapshot whose preparation was still loading.
+  Wrap-up may decide whether to cover or remove it; no story promise depends on it.
+
+CI on `c40db72b` (run 38023927537): every job passed except `dashboard (1/9)`,
+where `cursor-session-recovery.spec.ts:106` and `:128` failed (Recover typed
+onto a working screen). This execution did not touch that code; SEED-123's
+execution owns the repair (`51a8d14f` on its story branch, plan 282), so no
+second repair was made here.

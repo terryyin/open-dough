@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 257. Removed local codes are never reused.
+- Highest allocated local number: 259. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -299,6 +299,16 @@ Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/mai
 Former local code: DD-253 (Cursor plan 273 only).
 
 Managed delivery remains alive after a successful commit while its remote story-branch tip remains behind; the blocking subprocess is not located.
+
+### Occurrences
+- Execution: SEED-126#steady-dashboard-refresh / plan 284, first related implementation commit `5accd572`
+  - Timestamp: unknown (after `c40db72b`, committed 2026-10-10T11:51:41+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57
+  - Evidence: one coordinator command ran format, `agent-commit.mjs` (committed `c40db72b`), then `execution-increment-delivery.mjs deliver`; it exceeded the 300 s tool bound and moved to the background, then exited printing nothing from `deliver`. The remote story-branch tip stayed `f4494b42`; the observer then reported `CI_MONITOR_UNAVAILABLE` ("error connecting to api.github.com"). Rerunning the same `deliver` published `c40db72b` with a new observer.
+  - Observed effect: an unpublished slice discovered only by checking `git ls-remote`, and one manual retry.
+  - Inference: Qualified. A transient GitHub connection failure is a likely cause; the receipt-less exit was not diagnosed, so this neither confirms nor rules out a stalled subprocess.
 
 Follow-up: Open, unqueued.
 
