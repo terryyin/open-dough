@@ -400,7 +400,18 @@ after. No sibling progressive spec has the same pattern.
 
 ### 7. The loaded run passes
 Type: Behavior
-Status: planned
+Status: moved — split on 2026-10-10 (Terry) to
+SEED-123#dashboard-suite-passes-loaded-acceptance, queued first
+Attempt 2026-10-10 at 8511d0cb, default workers: `--fresh` failed 3 (664 s,
+load 7→21): the first `/__authenticated-read` of three pages at the run's
+head took 4.9 s and the 5 s `expect` after `page.goto` ended
+(`accessible-overview.spec.ts:38`, `:131`,
+`accessible-overview-keyboard.spec.ts:144`); unloaded passed (535 s);
+`--load` failed 1 (837 s, load 14→58, partly other work):
+`reopened-project-reads.spec.ts:87` kept "Reading plan slices…" 5 s after
+its reads answered, and 24 loaded repeats passed. The deliberate break in
+`published-work.spec.ts:213` under load failed only that test, naming it.
+`retries` is 0.
 Proof: `scripts/dashboard-repeat.sh 1 --fresh`, then
 `scripts/dashboard-repeat.sh 1`, then `scripts/dashboard-repeat.sh 1 --load`
 each pass with no output, as three consecutive full runs on a machine that
@@ -415,7 +426,13 @@ not lower CI's worker count. A new independent cause stops for replanning.
 
 ### 8. The tests guide records the kept location and the loaded-run expectation
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `dashboard/tests/README.md` names the kept `report.txt` and
+`Kept:` line, cleanup of processes at worker exit, the repeat script, and
+that a failure on unchanged code is a defect, not a rerun; it states that a
+loaded run can still fail (load independence moved to the follow-up story).
+`tests/README.md` points there; `tests/native-setup.md` no longer says runs
+rebuild `dashboard/dist`. `node scripts/lint.mjs` passes.
 Proof: `tests/README.md` and `dashboard/tests/README.md` name
 `dashboard/test-results/<stamp>/report.txt`, the private build, the repeat
 script, and that a dashboard failure in unchanged code is a defect to fix,

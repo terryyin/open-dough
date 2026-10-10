@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance
 - [Keep unchanged dashboard stories steady while story information reloads](seeds/SEED-126-steady-dashboard-refresh.md#steady-dashboard-refresh) — SEED-126#steady-dashboard-refresh
 - [Managed delivery stops a stalled Git transport with a recoverable result](seeds/SEED-008-worktree-branch-trunk-sync.md#bound-managed-git-transport) — SEED-008#bound-managed-git-transport
 - [Catch shared fixture signature breaks in the dashboard's local checks](seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally) — SEED-124#check-dashboard-fixture-consumers-locally

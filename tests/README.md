@@ -74,6 +74,13 @@ location and other failed job with its failed-repetition count; it exits 0 only
 when every repetition passed. Each also runs `lint` and `test`, so run it on
 demand only. Its header lists its settings; `tests/ci-repeat.sh` proves it.
 
+A dashboard failure on unchanged code, on CI or locally, is likewise a defect
+to find and fix, not a reason to rerun until green. To repeat the dashboard
+suite on this machine, idle, under load, or from a fresh worktree, use
+`scripts/dashboard-repeat.sh`; the
+[dashboard tests guide](../dashboard/tests/README.md) describes it and where a
+failed run keeps its report and traces.
+
 ## Runner
 
 The runner is the suite's one scheduler. Its jobs are each `tests/*.sh`
