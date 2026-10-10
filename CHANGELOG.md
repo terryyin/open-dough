@@ -1,3 +1,18 @@
+## 0.3.58 - 2026-10-10
+
+- Keep dashboard cards and keyboard focus steady during refreshes, show basic story facts before expensive validation, size paged columns to their visible content, and open Near-future direction across the full project actions row.
+- Load the latest ten Recently done entries first, reveal older entries on request, preserve the chosen range through refreshes, and publish a rebuildable completion catalog that stays current through backlog merges, rebases, and cherry-picks.
+- Review individual story commits, contiguous ranges, and uncommitted snapshots; retain refreshed comparison choices; and review completed one-shot changes from captured landing evidence after their original workspace is retired.
+- Reduce repeated GitHub reads across tabs and dashboard processes with bounded retained answers and path-aware reuse, limit concurrent requests, honor directed rate-limit waits, and recover temporary failures without discarding facts already shown.
+- Recover unfinished Cursor sessions after dashboard restarts, replace chats that Cursor can no longer load, settle pasted instructions only after submission completes, and bound Start and Recover waits with recoverable timeout results.
+- Put Running Cursor sessions in a collapsible Sessions sidebar section with independent scrolling, mouse and keyboard resizing, and a saved preferred split; launch Claude Code, Codex, and Cursor in the developer's shell environment.
+- Preserve terminal choices made during startup, finish sessions that retire their own checkout, rename completed Claude Code sessions through a private idle attachment, remove exited Claude jobs, and retain actionable causes when completion cleanup needs retrying.
+- Keep execution deliveries and closure on the coordinator's retained CI observer, recover interrupted registration through its original owner, preserve accepted comparisons through publication and resume, and stop stalled managed Git transports with recoverable results.
+- Require result-bearing observations for planning premises and keep reported story gaps assigned through receiving slices, dependent slices, and completion, with explicit story-backed dispositions before acceptance.
+- Isolate dashboard test builds and reports per run, stop processes owned by departing workers, retain diagnostics when a suite reaches its deadline, add repeatable runs under load, and reject staged script changes when dashboard typechecking fails.
+
+Native acceptance was explicitly skipped for `0.3.58` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed dashboard loading, review, GitHub reading, session lifecycle, host environment, Cursor recovery, execution delivery, planning, story-obligation, and test-runner behavior, together with previously pending requirements, remains pending and is not reported as passing. The full credential-free deterministic suite, lint, dashboard typecheck, and self-installation check passed.
+
 ## 0.3.57 - 2026-10-07
 
 - Renovate the dashboard frame, settings, launch dialogs, agent roster, Sessions sidebar, and story cards into a denser information radiator with credited-human avatars, clearer tool and model identity, and action icons and tooltips that explain what they do.

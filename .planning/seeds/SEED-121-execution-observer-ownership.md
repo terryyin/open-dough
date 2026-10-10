@@ -25,7 +25,7 @@ owner.
 
 **Identity:** SEED-121#settle-observer-owner-edges
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/288-observer-owner-edges/PLAN.md","assessment":"not-ready","reasons":["Slice 1's proof for a project below its Git toplevel depends on whether closure supports that layout; that premise is unobserved"],"basis":{"document":"c31d068e415f6a8814dbe6a2aa0988f75060a3353f12b475ff7a64a8eee519c3","plan":"07952eed6d80252ac3fc8e46ea02b651be6382afaa255879a58dad7b4b51ce8f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/288-observer-owner-edges/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c31d068e415f6a8814dbe6a2aa0988f75060a3353f12b475ff7a64a8eee519c3","plan":"41667b7d56df8dfa9980b936671f2a81bcaa2fc412d2949641fa77b1143aeb7d"}}
 ```
 **Slice plan:** [Observer ownership holds at its recovery edges](../slice-plans/288-observer-owner-edges/PLAN.md).
 

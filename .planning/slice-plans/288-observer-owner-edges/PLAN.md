@@ -25,7 +25,8 @@ Preserve plan 280's delivered promises: owner-first selection, no owner-free
 fallback, accepted publication reported beside any coverage gap, sibling
 observers untouched, existing CLI forms, and Story Branch Mode target binding.
 Exclude dashboard-owned CI monitoring, CI discovery or transport, repair
-scheduling, hook rebinding of an observer to a different session, and release.
+scheduling, hook rebinding of an observer to a different session, retiring a
+worktree whose project lies below its Git toplevel, and release.
 Modify published guidance in `src/skills/` only.
 
 ## Current findings
@@ -35,7 +36,7 @@ Observed by the retrospective's read-only review at `2da88b86`.
 | Finding | Evidence | Impact |
 | --- | --- | --- |
 | A closure rerun after retirement cannot read its owner's observer armed from another worktree | `trunk-closure-settlement.mjs` `observerRoot` returns the retired path; `ci-mailbox-location.mjs` `readMailbox` compares checkout identities; a scratch repository showed the retired worktree's identity is its own path while a sibling checkout's is `<repo>/.git` | A rerun that only finishes retirement stops at `step: "observation"`; a host observer reads `missing` and a Codex stream reads `foreign` ("belongs to another coordinator or repository") |
-| Closure derives the owner from the common Git directory; the hook, delivery, and resume derive it from the checkout root | `trunk-closure-observer.mjs` `closureObservers`; `ci-host-hook.mjs`; `execution-increment-delivery.mjs`; the scratch check gave the same hash for worktree, main checkout, and common directory, and a different one for a project root below the Git toplevel | Two derivations of one rule; a project below its Git toplevel gets `missing` on any accepted-closure rerun |
+| Closure derives the owner from the common Git directory; the hook, delivery, and resume derive it from the checkout root | `trunk-closure-observer.mjs` `closureObservers`; `ci-host-hook.mjs`; `execution-increment-delivery.mjs`; the scratch check gave the same hash for worktree, main checkout, and common directory, and a different one for a project root below the Git toplevel; the installed commands reproduced it, see [observed premises](#observed-premises) | Two derivations of one rule; a project below its Git toplevel gets `missing` on an accepted-closure rerun although its first `finish` reused that observer |
 | Gap reasons and guidance steer a later session to name the earlier one with `--session-json` | `execution-increment-observation-recovery.mjs` `ownedGaps.missing`; `trunk-closure-observer.mjs` `hostGap`; `trunk-publication.md` resume paragraph; `wrap-up-closure-publication.md` rerun paragraph; `ci-host-hook.mjs` delivers only through the invoking session's `owner-<hash>/` bindings; `ci-notify-hosts.md` tells a replacing session to stop the old observers and start its own | `deliver` or `resume` reports `reused` or `recovered` while that observer's failure events never reach the caller |
 | A Claude Code subagent coordinator's ambient identity names its parent session | `ci-host-bridge.mjs` ambient session carries no child; `ci-observer-owner.mjs` `hostInputOwner` claims with `agent_id` | Its own armed observer reads `missing` and delivery starts a second one bound to the parent; no guidance names `agent_id` in `--session-json` |
 | The native trunk-closure harness supplies inputs no guidance teaches, and its Codex case cannot pass | `tests/support/trunk-closure-native-fixture.sh` pre-starts a detached observer for every host, leaves Codex unclaimed, and writes `Observer owner session:`; `tests/support/trunk-closure-native-run.sh` waits for registration on that mailbox; `tests/git-publication-native.sh` offers `trunk-closure/*` for Codex; `trunk-publication.md` tells Claude Code not to build session JSON | A manual Codex closure run times out; a native host run that omits the flag fails the harness while the product succeeds |
@@ -58,12 +59,26 @@ Observed by the retrospective's read-only review at `2da88b86`.
   are not native acceptance.
 - No new owner model, schema, or CLI flag.
 
+## Observed premises
+
+Observed on 2026-10-10 at `17c33bd2` through the installed `deliver` and
+`finish` of a scratch fixture built from `createCleanTrunkFixture`,
+`installManagedDelivery`, `installClosureSkills`, `siblingCheckouts`,
+`deliverThroughCli`, and `finishThroughCli`, with a controlled CI adapter and
+a bare remote. No product file changed.
+
+| Premise | Consumed by | Observation | Result |
+| --- | --- | --- | --- |
+| Closure reaches observation for a project below its Git toplevel | Slice 1's one-derivation proof | Skills installed in `<worktree>/proj/.claude`; `deliver --workspace <worktree>/proj` as a Claude Code session, a final closure commit, then `finish --workspace <worktree>/proj --created-for-work` twice | `deliver` accepted and attached an observer it claimed. The first `finish` published once, reported that observer `reused`, completed with shutdown `confirmed`, and stopped at `step: "retire"`, `cleanup.reason: "ambiguous checkout"`, worktree preserved. The rerun stopped at `step: "observation"`, `ownership: "missing"` |
+| Closure retires that layout | Slice 1's boundary | The same fixture; also `deliver` and `finish` with `--workspace <worktree>` | Retirement refuses the project path as `ambiguous checkout`. Naming the Git toplevel stops both commands with "CI runtime is missing from selected checkout". No rerun after retirement exists for this layout, so slice 1 proves its derivation with the worktree present |
+| A retired-worktree rerun cannot read the owner's observer armed from the default checkout | Slice 1's rerun proof | `siblingCheckouts` for Claude Code; observer started from the default checkout and claimed by the publisher through the installed hook; `deliver`, an accepted final closure, `finish --created-for-work`, then the rerun from the default checkout with `--repository` | `deliver` reused that observer; the first `finish` reported it `recovered`, completed, and removed the worktree and branch; the rerun stopped at `step: "observation"`, `ownership: "missing"` |
+
 ## Outside-in proof ownership
 
 | Promise | Owner and observable proof |
 | --- | --- |
 | Retired-worktree rerun reaches the owner's observer from any worktree | Slice 1: installed `finish` rerun from the management context with the observer armed from the default checkout, for a host session and a Codex stream; completion reused, cleanup `already-absent`, zero pushes, sibling untouched |
-| One owner derivation | Slice 1: the closure rerun for a project below its Git toplevel recovers the observer its `deliver` claimed, or the plan records that closure does not support that layout with the observation that shows it |
+| One owner derivation | Slice 1: installed `finish` rerun on an accepted closure for a project below its Git toplevel reports the observer its `deliver` claimed and stops at `step: "retire"` with `cleanup.reason: "ambiguous checkout"`, as its first `finish` does, instead of `step: "observation"` with `ownership: "missing"` |
 | Recovery guidance matches notification routing | Slice 2: installed `deliver`, `resume`, and `finish` gap reasons; the installed hook delivers a failure to the named session and nothing to the caller; guidance tests |
 | Subagent coordinator keeps its observer | Slice 2: installed `deliver` with `--session-json` carrying `agent_id` reuses the observer that child claimed; without it the receipt names the input |
 | Native closure harness uses taught inputs | Slice 3: substitute `trunk-closure` family for Claude Code, Cursor, and Codex through `tests/git-publication-native*.sh` |
@@ -76,7 +91,8 @@ Type: Behavior
 Status: planned
 Proof: Extend `trunk-closure-owner.test.mjs` and `trunk-closure-codex-owner.test.mjs`
 through installed `finish` with the publisher's observer armed from the default
-checkout and the execution worktree retired.
+checkout and the execution worktree retired, and add the accepted-closure rerun
+for a project below its Git toplevel.
 
 Behavior: The execution worktree is gone and the owner's observer was armed
 from another worktree of the repository → `finish` reruns from the management
@@ -84,7 +100,9 @@ context with the retained owner input → it reads that observer, reuses or
 repeats completion, and reports retirement. A stranger's input still stops.
 
 Derive the owner through the function delivery uses and read the observer
-through the shared repository identity. Remove the misleading `foreign` reason
+through the shared repository identity. A project below its Git toplevel keeps
+its own path as that identity while its worktree exists; its retirement stays
+refused as today. Remove the misleading `foreign` reason
 for the owner's own stream. Run all closure suites and the managed-delivery
 consumers of the changed helpers.
 
@@ -174,6 +192,7 @@ each run is paid and needs the developer's authorization.
 
 No slice target or limit was supplied. Slices 1–3 each own one journey with
 its proof; slice 4 consolidates only representations the first three touch.
-Refinement was not needed. Remaining concern: slice 1's proof for a project
-below its Git toplevel depends on whether closure supports that layout, which
-this review did not observe.
+Refinement was not needed. The earlier concern about a project below its Git
+toplevel is settled under [observed premises](#observed-premises): slice 1
+proves the shared derivation at the accepted-closure rerun, and retiring that
+layout stays outside this correction.
