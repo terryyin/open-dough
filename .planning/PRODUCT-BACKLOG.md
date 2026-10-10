@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance ([plan](slice-plans/289-dashboard-suite-passes-loaded-acceptance/PLAN.md))
 - [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution ([plan](slice-plans/291-execution-handoff-in-preparation-worktree/PLAN.md))
-- [Recovery holds after a path is reused and after finish reruns](seeds/SEED-121-execution-observer-ownership.md#recovery-holds-after-reuse-and-rerun) — SEED-121#recovery-holds-after-reuse-and-rerun ([plan](slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md))
 
 ## Backlog list
 
