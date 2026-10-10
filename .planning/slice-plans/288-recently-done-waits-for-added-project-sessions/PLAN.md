@@ -157,7 +157,16 @@ It owns the retrospective finding directly; no behaviour changes.
 
 ### 3. The server fixture withdraws its runner stop on every close
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `closeOwned` in `dashboard/tests/support/dashboardServer.ts`
+withdraws the stop whoever owns the machine; `npx playwright test --config
+dashboard/playwright.config.ts dashboard/tests/run-processes
+dashboard/tests/agent-terminal-cursor-runner dashboard/tests/cursor-` (43
+tests, exit 0) and the remaining Cursor-runner and fixture-machine specs (77
+tests, exit 0).
+Learnings: on a fixture's machine, a worker that dies after the server's
+close and before the test's own `stopCursorRunner` now leaves the detached
+runner running; the lingering stop used to cover that window.
 Proof: `dashboardServer.ts` withdraws the at-exit runner stop on close for
 a fixture's machine as for its own; `run-processes`,
 `agent-terminal-cursor-runner`, and `cursor-` specs pass.
@@ -202,4 +211,14 @@ Disposition: proved by slice 2: `dashboard/tests/cursor-session-recovery.spec.ts
 Reported: slice 2 — "The reproduction is the reinstated `announce()` line on the current file, not the literal old file."
 Story clause: "fails on the chip label against"
 Disposition: proved by slice 2: `dashboard/server/launchInstruction.ts` `evaluate`, `pastedChip` branch, with the `this.announce();` that 97e0e442 removed; the literal old file no longer runs against `KeptClientScreen`.
+
+### G6. No direct observation of the at-exit set
+Reported: slice 3 — "No direct observation of Example 4."
+Story clause: "closed leaves no runner stop to run at process exit"
+Disposition: proved by slice 3: `dashboard/tests/support/dashboardServer.ts` `closeOwned` calls `withdrawRunnerStopAtExit()` unconditionally, the withdrawal `endAtExit` returns (`dashboard/tests/support/processGroup.ts`); the set is module-private and the plan names inspection with the passing specs as the proof.
+
+### G7. A runner kept past close has no at-exit stop
+Reported: slice 3 — "On a fixture's machine, if the worker dies after `server.close()` but before the fixture's own `stopCursorRunner`, nothing stops the runner at exit any more."
+Story clause: "withdraws its at-exit runner stop on every close, for a fixture's machine as for its own"
+Disposition: no user cost "has Recently done read that project's done stories as it reads": the window is the scope's own consequence in test support, outside the goal; it is reported to the developer at completion.
 
