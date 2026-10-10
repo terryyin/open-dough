@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-121#finish-prefers-live-observer",
+  "mode": "story-branch",
+  "branch": "claude/finish-prefers-its-coordinator-s-live-observer-o",
+  "host": "claude"
+}
