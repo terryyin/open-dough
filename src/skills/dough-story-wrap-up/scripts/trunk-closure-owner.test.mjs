@@ -30,6 +30,13 @@ import {
 
 const main = "refs/heads/main";
 
+// Where each host's rerun journey arms its publisher's observer. The arming
+// checkout reaches an observer's owner and access only through the identity
+// the repository's worktrees share, which no host changes, so one host arms
+// from the default checkout. Each host names its coordinator by its own
+// session field from its execution worktree.
+const rerunArming = { claude: ["publisher", "sibling"], cursor: ["publisher"] };
+
 // The before-cleanup commit accepted through the publisher's own `deliver`.
 async function deliverBeforeCleanup(journey) {
   const { delivered } = await journey.deliver(journey.fixture.trunkSha);
@@ -69,8 +76,8 @@ for (const host of Object.keys(hosts)) {
     journey.assertSiblingUntouched();
   });
 
-  for (const [armedFrom, where] of Object.entries(armingCheckouts)) {
-    test(`a ${host} finish registers a final closure the target already holds once without pushing on its own observer armed from ${where}, and a rerun from the management context after retirement reuses that ended observer for its owner only`, async (t) => {
+  for (const armedFrom of rerunArming[host]) {
+    test(`a ${host} finish registers a final closure the target already holds once without pushing on its own observer armed from ${armingCheckouts[armedFrom]}, and a rerun from the management context after retirement reuses that ended observer for its owner only`, async (t) => {
       const journey = await closureBesideSibling(t, host, armedFrom);
       const { fixture, publisher } = journey;
       const beforeCleanup = await deliverBeforeCleanup(journey);

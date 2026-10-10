@@ -98,7 +98,7 @@ export async function finishTrunkClosure({
       reason: `${tracking} does not contain the before-cleanup commit`,
     });
   }
-  const { root, ownerRoot } = await observerAccess(workspace, repository);
+  const root = await observerAccess(workspace, repository);
   const published = await settleFinalClosure({
     workspace,
     inspection,
@@ -115,7 +115,6 @@ export async function finishTrunkClosure({
     observerDirectory,
     preferredAlias,
     root,
-    ownerRoot,
     storage,
     env,
   });

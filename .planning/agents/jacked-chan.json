@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jacked-chan",
-  "email": "jacked-chan@example.org",
-  "identity": "SEED-121#recovery-steps-reach-their-observer",
-  "mode": "story-branch",
-  "branch": "claude/recovery-steps-reach-the-observer-they-name",
-  "host": "claude"
-}

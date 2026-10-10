@@ -1,53 +1,16 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import {
-  cpSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  realpathSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
-import {
-  deferObserverStop,
-  blockingGithubCommandDirectory,
-} from "./watch-ci-test-fixtures.mjs";
+import { installedCheckouts } from "./ci-installed-checkouts-test-fixtures.mjs";
+import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 const exec = promisify(execFile);
-const source = fileURLToPath(new URL("../", import.meta.url));
 const cursorHooks = JSON.parse(
   readFileSync(new URL("../assets/cursor-hooks.json", import.meta.url)),
 ).hooks;
-
-function deployRuntime(root) {
-  const skill = join(root, ".agents/skills/dough-execute-plan");
-  mkdirSync(skill, { recursive: true });
-  cpSync(join(source, "scripts"), join(skill, "scripts"), {
-    recursive: true,
-    filter: (path) => !/test|fixture/.test(path.slice(source.length)),
-  });
-  return skill;
-}
-
-async function git(root, ...args) {
-  return exec("git", args, { cwd: root });
-}
-
-async function initCheckout(root) {
-  mkdirSync(root, { recursive: true });
-  await git(root, "init", "-b", "main");
-  await git(root, "config", "user.name", "Worktree Hook");
-  await git(root, "config", "user.email", "worktree-hook@example.test");
-  writeFileSync(join(root, "README"), "checkout\n");
-  await git(root, "add", "README");
-  await git(root, "commit", "-m", "init");
-}
 
 function runOriginatingCursorHook(originating, stdin, env) {
   const command = cursorHooks.postToolUse[0].command;
@@ -71,33 +34,19 @@ function cursorShellInput(stdout) {
 }
 
 test("originating Cursor hook attaches READY then start from a same-repo worktree probe", async (t) => {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "ci-worktree-hook-")),
-  );
-  const teardown = fixtureTeardown(fixture);
-  t.after(teardown.cleanup);
-  const originating = join(fixture, "originating");
-  const execution = join(fixture, "execution");
-  const unrelated = join(fixture, "unrelated");
-  await initCheckout(originating);
-  await git(originating, "worktree", "add", execution, "-b", "exec/story");
-  await initCheckout(unrelated);
-  deployRuntime(originating);
-  const executionSkill = deployRuntime(execution);
-  const unrelatedSkill = deployRuntime(unrelated);
-  const storage = join(fixture, "mailboxes");
-  const env = {
-    ...process.env,
-    DOUGH_CI_MAILBOX_ROOT: storage,
-    CI_TEST_ROOT: fixture,
-    PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,
-  };
+  const {
+    teardown,
+    checkout: originating,
+    worktree: execution,
+    unrelated,
+    launchers,
+    env,
+  } = await installedCheckouts(t, "ci-worktree-hook-");
 
-  const probed = await exec(
-    process.execPath,
-    [join(executionSkill, "scripts/ci-mailbox.mjs"), "probe"],
-    { cwd: execution, env },
-  );
+  const probed = await exec(process.execPath, [launchers.worktree, "probe"], {
+    cwd: execution,
+    env,
+  });
   const probeReceipt = JSON.parse(probed.stdout.slice("CI_OBSERVER ".length));
   const probeRequest = JSON.parse(
     readFileSync(join(probeReceipt.directory, "request.json"), "utf8"),
@@ -123,19 +72,12 @@ test("originating Cursor hook attaches READY then start from a same-repo worktre
 
   const started = await exec(
     process.execPath,
-    [
-      join(executionSkill, "scripts/ci-mailbox.mjs"),
-      "start",
-      "--execution",
-      "owner/repo",
-      "main",
-      "60000",
-    ],
+    [launchers.worktree, "start", "--execution", "owner/repo", "main", "60000"],
     { cwd: execution, env },
   );
   const startReceipt = JSON.parse(started.stdout.slice("CI_OBSERVER ".length));
   deferObserverStop(teardown, {
-    launcher: join(executionSkill, "scripts/ci-mailbox.mjs"),
+    launcher: launchers.worktree,
     directory: startReceipt.directory,
     cwd: execution,
     env,
@@ -161,11 +103,10 @@ test("originating Cursor hook attaches READY then start from a same-repo worktre
     /CI observer attached to this coordinator/,
   );
 
-  const foreign = await exec(
-    process.execPath,
-    [join(unrelatedSkill, "scripts/ci-mailbox.mjs"), "probe"],
-    { cwd: unrelated, env },
-  );
+  const foreign = await exec(process.execPath, [launchers.unrelated, "probe"], {
+    cwd: unrelated,
+    env,
+  });
   await assert.rejects(
     () =>
       runOriginatingCursorHook(

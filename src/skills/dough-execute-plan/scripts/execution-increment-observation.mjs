@@ -71,15 +71,13 @@ const retainedStreamGaps = {
 };
 
 // Classifies the stream a Codex coordinator retained, with the `gap` to
-// report when `command` cannot use it. The owner is computed from
-// `ownerRoot`, which may outlive the checkout `root` the stream was armed in.
+// report when `command` cannot use it.
 export function retainedStream({
   repo,
   branch,
   coordinator,
   observerDirectory,
   root,
-  ownerRoot = root,
   storage,
   command = "deliver",
 }) {
@@ -102,7 +100,7 @@ export function retainedStream({
   }
   const stream = classifyRetainedStream({
     directory: observerDirectory,
-    owner: codexStreamOwner({ root: ownerRoot, coordinator }),
+    owner: codexStreamOwner({ root, coordinator }),
     ...target,
     root,
     storage,

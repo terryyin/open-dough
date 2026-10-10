@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-121_recovery-steps-reach-their-observer.json",
+      "identity": "SEED-121#recovery-steps-reach-their-observer",
+      "completedAt": "2026-10-10T12:04:28.479Z",
+      "blob": "178f1483cff7ca813b78eb43c66ffd67a138d70c"
+    },
+    {
       "fileName": "SEED-128_land-planning-without-coordinator-questions.json",
       "identity": "SEED-128#land-planning-without-coordinator-questions",
       "completedAt": "2026-10-10T11:36:53.515Z",

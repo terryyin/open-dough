@@ -63,8 +63,8 @@ native_harness_restore() {
 
 # Fixture fallback: stops every observer in mailbox storage $2 the session
 # left running, through candidate source $1's mailbox stop bound to the
-# checkout each mailbox recorded, and appends each receipt to $3, which
-# exists only when a stop was needed.
+# checkout identity each mailbox recorded, and appends each receipt to $3,
+# which exists only when a stop was needed.
 native_harness_stop_observers() {
   local source_dir=$1 storage=$2 forced_stop_file=$3 directory
   for directory in "${storage}"/*; do
@@ -75,8 +75,8 @@ native_harness_stop_observers() {
       import { readFileSync } from "node:fs";
       const [module, directory] = process.argv.slice(1);
       const { stopMailbox } = await import(module);
-      const { root } = JSON.parse(readFileSync(`${directory}/request.json`, "utf8"));
-      process.stdout.write(`${JSON.stringify(await stopMailbox(directory, { root }))}\n`);
+      const { identity } = JSON.parse(readFileSync(`${directory}/request.json`, "utf8"));
+      process.stdout.write(`${JSON.stringify(await stopMailbox(directory, { root: identity }))}\n`);
     ' "file://${source_dir}/src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs" \
       "${directory}" >> "${forced_stop_file}" || return
   done

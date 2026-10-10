@@ -7,6 +7,8 @@ import { ownObserverRecovery } from "./ci-host-bridge.mjs";
 // A host coordinator's observer is established only by its own `deliver`,
 // which does so itself wherever `resume` and `finish` report these gaps.
 const establishesOwn = {
+  deliver:
+    "this coordinator's next `deliver` establishes its own and registers the accepted revision on it",
   resume:
     "resume starts no observer: this coordinator's next `deliver` establishes its own, and rerunning this resume then registers the accepted revision on it",
   finish:
@@ -59,11 +61,17 @@ const ownerGaps = {
 
 // Why `command` leaves the target `repo` `branch` unobserved when `owned`
 // classifies its `host` coordinator's observers. `others` counts the
-// observers of that target the coordinator does not own.
+// observers of that target the coordinator does not own. `registered` are
+// the several of its observers that each registered the revision `command`
+// closes and are no longer live, so none of them is chosen for it.
 export function ownerGapReason(
   command,
-  { repo, branch, host, owned, others = 0 },
+  { repo, branch, host, owned, others = 0, registered = [] },
 ) {
   const { reason, recovery } = ownerGaps[owned.kind];
-  return `${reason({ repo, branch, host, owned, others, command })}; ${recovery(command)}`;
+  const several =
+    registered.length > 1
+      ? `; ${registered.length} of its observers each registered this revision and none is live (${registered.join(", ")})`
+      : "";
+  return `${reason({ repo, branch, host, owned, others, command })}${several}; ${recovery(command)}`;
 }
