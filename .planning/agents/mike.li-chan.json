@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mike.li-chan",
-  "email": "mike.li-chan@example.org",
-  "identity": "SEED-126#steady-dashboard-refresh",
-  "mode": "story-branch",
-  "branch": "claude/keep-unchanged-dashboard-stories-steady-while-st",
-  "host": "claude"
-}
