@@ -59,7 +59,10 @@ export function expectReportingBlock(
       ),
     );
     expect(lines[5]).toContain(
-      `For this launch, supply --landing-context ${quote(context.landingContext)} to the installed publication command that lands on trunk`,
+      `For this launch, supply --landing-context ${quote(context.landingContext)} to the installed publication command that first lands this launch's work on trunk`,
+    );
+    expect(lines[5]).toContain(
+      "After trunk accepts that publication, this launch's later trunk publications, such as a CI repair, take no landing context.",
     );
     expect(lines[5]).not.toContain("one-shot");
     expect(lines[5]).toContain("before each push");

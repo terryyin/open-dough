@@ -128,8 +128,19 @@ Safe stopping point: clean integrations behave as today.
 
 ### 2. A launch's later trunk publication takes no landing context
 Type: Behavior
-Status: planned
+Status: done
 Proof: The spec above; today's refusal is recorded under Observed premises.
+
+Accepted proof: `story-branch-landing-later-publication.spec.ts` against the
+real receiver (with the context: refused before the push; without it:
+`published`, origin `main` holds the repair, the record's `landing` equals the
+first pair); `reportingInputAssertions.ts` `expectReportingBlock` asserts both
+instruction sentences, run by the specs that reach it.
+
+Learnings: the journey lives in its own sibling spec, because the capture spec
+would pass 250 lines; `publish-the-candidate.md` and
+`story-branch-integration.md` carry one clause each so they agree with the
+handoff.
 
 Behavior: A launch's integration is recorded → the same launch publishes a
 later trunk commit → the instruction (`reportingInstruction.ts`) and the
@@ -202,3 +213,18 @@ Disposition: proved by slice 1: `closure-story-conflict-cases.mjs` (adapter `con
 Reported: slice 1 — "The guidance prose has no behavioural test beyond the observed command, and no paid native run."
 Story clause: "The `integrate` command publishes a merge the agent resolved by hand"
 Disposition: no user cost "contended stories do not land with an evidence gap": the two steps the guidance names are each observed by the tests above; native host runs are paid and manual in this project.
+
+### H1. No native run shows an agent omitting the context
+Reported: slice 2 — "The guidance prose has no behavioural test beyond the observed command; there is no native run showing an agent actually omits the context on a repair."
+Story clause: "the launch instruction and landing handoff say that a launch's later trunk publications take no landing context"
+Disposition: no user cost "contended stories do not land with an evidence gap": the instruction's words are asserted and the publication they direct is observed accepted; native host runs are paid and manual in this project.
+
+### H2. Other publication routes are not exercised for a later publication
+Reported: slice 2 — "A later trunk publication through `execution-increment-delivery.mjs deliver` without context after a recorded one-shot landing is not exercised."
+Story clause: "the launch instruction and landing handoff say that a launch's later trunk publications take no landing context"
+Disposition: no user cost "contended stories do not land with an evidence gap": a publication made without the context never reaches the receiver on any route, so the recorded pair cannot change; the consumer-resolution route named in `story-branch-integration.md` is the same case.
+
+### H3. A later publication before the first landing is acknowledged
+Reported: slice 2 — "A later publication made while the first landing is accepted but still `unacknowledged` is not exercised."
+Story clause: "the launch instruction and landing handoff say that a launch's later trunk publications take no landing context"
+Disposition: no user cost "contended stories do not land with an evidence gap": the instruction keys on trunk accepting the first publication, so the later one carries no context, and the first pair is recorded by the reporting-only retry that existed before this slice.

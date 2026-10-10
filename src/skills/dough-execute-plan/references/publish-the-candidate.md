@@ -79,8 +79,8 @@ candidate, and computes the merge again when the target moved meanwhile.
 
 ## Publish the candidate
 
-Apply [Preconditions](#preconditions) before this sequence. When it lands a
-launch's work on trunk and that launch supplied a dashboard landing context,
+Apply [Preconditions](#preconditions) before this sequence. When it first lands
+a launch's work on trunk and that launch supplied a dashboard landing context,
 wire that context into the installed publisher before step 5 under the shared
 [landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing).
 It retains each final pair before push and captures accepted evidence at step 6;

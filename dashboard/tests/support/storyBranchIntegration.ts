@@ -109,33 +109,34 @@ export async function claimedLaunchWithStoryCommit(
   const trunkTip = trunkAdvanced
     ? trunkCommitFromAnotherWriter(origin, "trunk-only.txt", journey.trunkWork)
     : (await origin.originGit("rev-parse", "main")).trim();
-  const command = [
-    process.execPath,
-    path.join(
-      installedSkillPath(
-        host,
-        { path: workspace, shown: workspace },
-        "dough-execute-plan",
-        "scripts",
+  const command = (publishedTip: string, context: readonly string[]) =>
+    [
+      process.execPath,
+      path.join(
+        installedSkillPath(
+          host,
+          { path: workspace, shown: workspace },
+          "dough-execute-plan",
+          "scripts",
+        ),
+        "history-preserving-publication.mjs",
       ),
-      "history-preserving-publication.mjs",
-    ),
-    "integrate",
-    "--workspace",
-    workspace,
-    "--published-tip",
-    storyTip,
-    "--branch",
-    branch,
-    "--target-ref",
-    "refs/heads/main",
-    "--landing-context",
-    landingContext,
-  ]
-    .map(quote)
-    .join(" ");
+      "integrate",
+      "--workspace",
+      workspace,
+      "--published-tip",
+      publishedTip,
+      "--branch",
+      branch,
+      "--target-ref",
+      "refs/heads/main",
+      ...context,
+    ]
+      .map(quote)
+      .join(" ");
+  const landingContextFlag = ["--landing-context", landingContext];
   const integrate = (env = process.env) =>
-    reportingChild(command, origin.machine, env);
+    reportingChild(command(storyTip, landingContextFlag), origin.machine, env);
   return {
     record,
     start,
@@ -147,6 +148,20 @@ export async function claimedLaunchWithStoryCommit(
     storyTip,
     trunkTip,
     integrate,
+    // A later commit made in the workspace and pushed to the story branch, and
+    // its trunk publication with or without the launch's landing context.
+    laterTrunkPublication: (name: string) => {
+      commit(workspace, name);
+      const tip = git(workspace, "rev-parse", "HEAD");
+      git(workspace, "push", "origin", `HEAD:refs/heads/${branch}`);
+      const publish = (context: readonly string[]) =>
+        reportingChild(command(tip, context), origin.machine);
+      return {
+        tip,
+        withContext: () => publish(landingContextFlag),
+        withoutContext: () => publish([]),
+      };
+    },
     // The printed result of an integration that exited successfully.
     integrated: async (env = process.env): Promise<unknown> => {
       const ran = await integrate(env);

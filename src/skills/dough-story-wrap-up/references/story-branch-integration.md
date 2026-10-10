@@ -27,5 +27,6 @@ and blocks completion. Do not force-push.
 
 After accepted Story Branch supplier integration, [resolve and publish consumers](../../dough-product-backlog/references/supplier-dependencies.md#apply-and-publish-a-direct-resolution)
 through the same closure publication/completion procedure before retirement, using
-the resulting accepted SHA and shutdown receipt. Finish or explicitly retain
+the resulting accepted SHA and shutdown receipt. That later publication takes no
+dashboard landing context. Finish or explicitly retain
 unresolved dependency work and evidence in existing active context; report gaps.
