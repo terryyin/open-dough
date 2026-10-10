@@ -24,13 +24,13 @@
 // marked tree -- to the snapshot's tree, detecting a rename against its old
 // path.
 
-import { mkdtemp, rm } from "node:fs/promises";
+import { landedStoryReview } from "./storyReviewLanded.ts";
+import { mkdtemp, realpath, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type {
-  ReviewedFileDiff,
   ReviewCommit,
   ReviewMark,
   StoryReview,
@@ -42,10 +42,7 @@ import { directoryState } from "./sessionWorkspace.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
 import { compareReviewPoints } from "./storyReviewComparison.ts";
-import type {
-  AdmittedFileDiff,
-  AdmittedReview,
-} from "./storyReviewAdmission.ts";
+import type { AdmittedReview } from "./storyReviewAdmission.ts";
 
 const outputLimit = 64 * 1024 * 1024;
 
@@ -55,13 +52,33 @@ const reviewWaitMs = 60_000;
 // The admitted review's snapshot, abandoned when the caller leaves or its
 // bounded wait expires.
 export async function storyReviewResponse(
-  { sourceId, identity, established, shown }: AdmittedReview,
+  request: AdmittedReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
+  if ("run" in request)
+    return {
+      status: 200,
+      body: await withResponseSignal(
+        res,
+        (signal) => landedStoryReview(request.run, signal),
+        reviewWaitMs,
+      ),
+    };
+  const { sourceId, identity, established, shown } = request;
   const mark = await reviewMark(sourceId, identity);
   const body = await withResponseSignal(
     res,
-    (signal) => storyReviewSnapshot(established, shown, mark, signal),
+    async (signal) => {
+      const snapshot = await storyReviewSnapshot(
+        established,
+        shown,
+        mark,
+        signal,
+      );
+      return snapshot.kind === "unavailable" && request.fallback !== undefined
+        ? landedStoryReview(request.fallback, signal)
+        : snapshot;
+    },
     reviewWaitMs,
   );
   return { status: 200, body };
@@ -92,6 +109,19 @@ async function storyReviewSnapshot(
   });
   if (directoryState(workspace).kind === "missing")
     return unavailable("The worktree is missing. It was removed or retired.");
+  try {
+    if (
+      (await realpath(await git(["rev-parse", "--show-toplevel"]))) !==
+      (await realpath(workspace))
+    )
+      return unavailable(
+        "The saved directory is no longer this launch's Git workspace.",
+      );
+  } catch (error) {
+    return unavailable(
+      `The workspace's changes could not be read: ${gitProblem(error)}`,
+    );
+  }
   try {
     await git(["fetch", "--quiet", remote, target], {
       GIT_TERMINAL_PROMPT: "0",
@@ -197,43 +227,4 @@ async function storyReviewSnapshot(
   }
 }
 
-// The admitted file's diff within its snapshot, bounded and abandoned like
-// the snapshot itself.
-export async function storyReviewFileResponse(
-  { established, baseline, tree, path: file, oldPath }: AdmittedFileDiff,
-  res: ServerResponse,
-): Promise<AgentLaunchAnswer> {
-  return {
-    status: 200,
-    body: await withResponseSignal(
-      res,
-      async (signal): Promise<ReviewedFileDiff> => {
-        try {
-          const { stdout } = await runGit(
-            [
-              "--literal-pathspecs",
-              "diff",
-              "--no-color",
-              "--no-ext-diff",
-              "--no-textconv",
-              "-M",
-              baseline,
-              tree,
-              "--",
-              ...(oldPath === undefined ? [] : [oldPath]),
-              file,
-            ],
-            { cwd: established.workspace, signal, maxBuffer: outputLimit },
-          );
-          return { kind: "diff", printed: stdout };
-        } catch (error) {
-          return {
-            kind: "unavailable",
-            explanation: `The file's diff could not be read: ${gitProblem(error)}`,
-          };
-        }
-      },
-      reviewWaitMs,
-    ),
-  };
-}
+export { storyReviewFileResponse } from "./storyReviewFileResponse.ts";

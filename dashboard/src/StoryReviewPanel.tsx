@@ -1,11 +1,12 @@
 // A story's review (`./storyReview.ts`) in the page's side panel
 // (`./PageFrame.tsx`), beside the dashboard, which stays usable. It
-// names the story and project, keeping one snapshot until Refresh. Its
+// names the story and project, keeping one comparison until Refresh. Its
 // context, feedback and marking controls stay above the body. Opening
 // places the keyboard in the named content; Refresh preserves focus and
 // announces completion. Each opening owns its read, and read-only is the
 // accessible description. Panel controls maximize, restore and close it.
-// Mark reviewed marks the snapshot shown, never a newer state of the
+// A landed run shares the browser and diff without marking. Mark reviewed
+// marks the workspace snapshot shown, never a newer state of the
 // worktree, and the review then says the snapshot is marked and when
 // (`./StoryReviewMark.tsx`); only that control marks. A marked story's
 // review opens on the changes since the review, headed by what it compares
@@ -32,6 +33,7 @@ import {
   type StoryReview,
 } from "./storyReview.ts";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
+import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { CommitList } from "./StoryReviewCommits.tsx";
@@ -83,6 +85,7 @@ export function StoryReviewPanel({
   const [marking, setMarking] = useState(false);
   const madeHere =
     made !== undefined && made.of === review ? made.answer : undefined;
+  const landed = review?.kind === "landed" ? review : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const {
     items,
@@ -141,10 +144,18 @@ export function StoryReviewPanel({
         </div>
       </header>
       <p id={descriptionId} hidden>
-        Read-only: what this story&apos;s worktree would add to trunk, as it was
-        when the review opened or was last refreshed.
+        {review?.kind !== "landed" && review?.kind !== "landing-unavailable"
+          ? "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed."
+          : "Read-only: this one-shot run's fixed delivered change from its captured base to its accepted revision."}
       </p>
       <div className="story-review-top">
+        {landed !== undefined && (
+          <LandedContext
+            landing={landed.landing}
+            {...(landed.files.length === 0 ? {} : { browser })}
+            onShowBrowser={setBrowserShown}
+          />
+        )}
         {snapshot !== undefined && (
           <ContextLine
             snapshot={snapshot}
@@ -193,6 +204,21 @@ export function StoryReviewPanel({
         )}
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
+        {landed !== undefined && (
+          <SnapshotView
+            key={landed.landing.reference}
+            reviewed={{
+              sourceId: source,
+              identity,
+              reference: landed.landing.reference,
+            }}
+            comparison={{ from: landed.baseline, files: landed.files }}
+            tree={landed.tree}
+            sinceReview={false}
+            headingId={headingId}
+            browser={browser}
+          />
+        )}
         {snapshot !== undefined &&
           shown === "commits" &&
           selectedItems.length > 0 && (

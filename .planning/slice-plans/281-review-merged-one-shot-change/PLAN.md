@@ -129,7 +129,7 @@ and can recover its reporting input even after the workspace is gone.
 
 ### 3. Inspect a captured run after its workspace and branch are retired
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `dashboard/tests/story-review-one-shot.spec.ts`, starting with
 capture through slice 2's real CLI rather than writing landing metadata into
 the store. Retire worktree/branch, open Review changes, assert heading/pair,

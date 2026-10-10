@@ -38,15 +38,16 @@ export function ReviewFeedback({
   return (
     <div role="status">
       {shown === "commits" && <RangeFeedback range={range} />}
-      {reading && review?.kind !== "snapshot" && (
+      {reading && review?.kind !== "snapshot" && review?.kind !== "landed" && (
         <p>Reading the story&apos;s changes…</p>
       )}
-      {reading && review?.kind === "snapshot" && (
-        <p>
-          Refreshing the review… What is shown is still the snapshot taken
-          earlier.
-        </p>
-      )}
+      {reading &&
+        (review?.kind === "snapshot" || review?.kind === "landed") && (
+          <p>
+            Refreshing the review… What is shown is still the snapshot taken
+            earlier.
+          </p>
+        )}
       {!reading &&
         round > 0 &&
         made === undefined &&
@@ -69,6 +70,13 @@ export function ReviewFeedback({
             review.
           </p>
         ))}
+      {!reading && round > 0 && review?.kind === "landed" && (
+        <p>
+          Review refreshed: {changedFiles(review.files.length)} in the captured
+          landed comparison.
+        </p>
+      )}
+      {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
       {made?.kind === "marked" && <p>Marked reviewed.</p>}
       {made?.kind === "unavailable" && <p>{made.explanation}</p>}
       {problem !== undefined && <p>The review could not be read: {problem}</p>}

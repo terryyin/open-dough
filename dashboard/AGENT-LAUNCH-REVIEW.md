@@ -1,9 +1,9 @@
 # Dashboard story review
 
 The [agent launch contract](AGENT-LAUNCH.md#story-review) links here for a
-story's read-only review of its workspace and how the side panel shows it.
+story's read-only review of its workspace or retained one-shot change in the side panel.
 
-A card whose story has a kept launch record naming a workspace offers **Review
+A card whose story has a kept launch record naming a workspace or a retained one-shot run offers **Review
 changes** beside **Inspect story**: a read-only review of what that workspace
 would add to trunk now. It leads with a compare icon and ends with an arrow
 toward the side panel where the review opens; both are decorative, so its name
@@ -215,3 +215,23 @@ read.
 The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
 first-parent commits and Uncommitted changes, compares a contiguous range,
 and preserves its chosen endpoints through Refresh.
+
+A retained one-shot run can also be reviewed after its workspace and local branch
+are retired. When the latest launch workspace cannot be read, Review changes opens the
+newest retained captured run. The heading names **Landed one-shot run**, its
+workflow and launch time, authorized remote target, and exact captured base and
+accepted revision. The existing file browser, counts, rename detection, binary
+explanation and file moves compare those two commits. Refresh and restart read
+that same pair even when trunk has advanced or reverted the result. Historical
+reads use the original saved common Git repository and write no ref, index or
+checkout content; they neither fetch trunk nor replace the workspace review mark.
+There is no Mark reviewed control for a landed run.
+
+A valid empty comparison says that this run's delivered comparison is empty.
+A retained one-shot run without capture explains its evidence gap; missing or
+unreadable saved repository or objects explain why the comparison is unavailable.
+None of these states guesses a baseline or lists substitute files from today's
+trunk. Requests to the same review/file boundary name the project, story and
+retained launch reference. File reads must name that captured pair and one of its
+literal changed paths, including the exact old path for a rename. No request
+can supply a repository or workspace path.
