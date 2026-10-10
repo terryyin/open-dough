@@ -25,9 +25,9 @@ import { revParse } from "../../dough-execute-plan/scripts/publication-test-fixt
 const skills = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 export const session = "trunk-closure-coordinator";
 
-function install(fixture, name, checkout = fixture.execution) {
+function install(name, checkout, platform) {
   const source = join(skills, name);
-  const skill = join(checkout, ".claude/skills", name);
+  const skill = join(checkout, platform, "skills", name);
   mkdirSync(skill, { recursive: true });
   cpSync(source, skill, {
     recursive: true,
@@ -35,13 +35,13 @@ function install(fixture, name, checkout = fixture.execution) {
   });
 }
 
-// The execution worktree stays clean: installed skills and the project's CI
-// configuration are ignored as a project would commit or ignore them.
-export async function createTrunkClosureFixture(t) {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
-  t.after(fixture.cleanup);
-  install(fixture, "dough-story-wrap-up");
-  install(fixture, "dough-land");
+// Installs story wrap-up and Dough Land beside execute-plan in the fixture's
+// execution worktree. The worktree stays clean: installed skills and the
+// project's CI configuration are ignored as a project would commit or ignore
+// them.
+export async function installClosureSkills(fixture, platform = ".claude") {
+  install("dough-story-wrap-up", fixture.execution, platform);
+  install("dough-land", fixture.execution, platform);
   const common = (
     await git(
       fixture.execution,
@@ -52,18 +52,24 @@ export async function createTrunkClosureFixture(t) {
   ).stdout.trim();
   appendFileSync(
     join(common, "info/exclude"),
-    ".claude/\n.planning/open-dough.json\n",
+    `${platform}/\n.planning/open-dough.json\n`,
   );
+}
+
+export async function createTrunkClosureFixture(t) {
+  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  t.after(fixture.cleanup);
+  await installClosureSkills(fixture);
   fixture.env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: session };
   return fixture;
 }
 
 // Installs the closure skills in the default checkout too, as a project that
 // installs them per checkout has them there once the worktree is gone.
-export function installInIntegration(fixture) {
-  deploySkill(fixture.integration, ".claude");
-  install(fixture, "dough-story-wrap-up", fixture.integration);
-  install(fixture, "dough-land", fixture.integration);
+export function installInIntegration(fixture, platform = ".claude") {
+  deploySkill(fixture.integration, platform);
+  install("dough-story-wrap-up", fixture.integration, platform);
+  install("dough-land", fixture.integration, platform);
 }
 
 // Returns an environment whose `git` records every push it runs, and a reader
@@ -108,7 +114,8 @@ export function releaseCi(fixture, outcomes) {
   });
 }
 
-// Runs the installed `finish`; the observer it reports stops at teardown.
+// Runs the installed `finish` of `host`'s `platform` install in `checkout`;
+// the observer it reports stops at teardown.
 export async function finishThroughCli(
   fixture,
   {
@@ -119,11 +126,14 @@ export async function finishThroughCli(
     extra = [],
     env = fixture.env,
     checkout = fixture.execution,
+    host = "claude",
+    platform = ".claude",
   },
 ) {
   const script = join(
     checkout,
-    ".claude/skills/dough-story-wrap-up/scripts/trunk-closure.mjs",
+    platform,
+    "skills/dough-story-wrap-up/scripts/trunk-closure.mjs",
   );
   const args = [
     "finish",
@@ -142,7 +152,7 @@ export async function finishThroughCli(
     "--repo",
     "owner/project",
     "--host",
-    "claude",
+    host,
     ...extra,
   ];
   const { stdout, stderr, code } = await promisify(execFile)(

@@ -231,6 +231,7 @@ managed_files=(
   dough-execution-retrospective/references/process-review-of-a-run.md
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/references/follow-up-disposition.md
+  dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )

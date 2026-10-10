@@ -1,6 +1,6 @@
 // Trunk Mode wrap-up closure through the installed `finish` command, run as a
 // child process after the before-cleanup commit was accepted: the final
-// closure is published and registered on the matching observer, one
+// closure is published and registered on the coordinator's observer, one
 // completion receipt covers it, and only a receipt with confirmed shutdown
 // retires the worktree and branch. Every stop preserves both closure commits.
 import assert from "node:assert/strict";

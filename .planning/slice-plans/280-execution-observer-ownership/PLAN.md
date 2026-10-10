@@ -335,7 +335,7 @@ Learnings for slice 4:
 
 ### 4. Closure consumes the same owner through completion and retirement
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the existing installed `finish` suites with sibling observers,
 including an accepted closure missing registration, already-ended successful
 completion, rebased final SHA, and a rerun from management context after the
@@ -358,6 +358,38 @@ those inputs and their observations/counterexamples when needed.
 
 Safe stopping point: All source promises and known shared consumers have owned
 proof. Execution completion still follows the normal execute-plan workflow.
+
+Accepted proof: `npm test -- src/skills/dough-story-wrap-up/scripts/trunk-closure-owner.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-owner-gaps.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-codex-owner.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-rebased-rerun.test.mjs`
+through the installed `finish`, `deliver`, `stream`, hook, and
+`complete-revision`; setup in `trunk-closure-owner-test-fixtures.mjs` and the
+Codex test supplies only observers, claims or armed streams, and directly
+pushed accepted SHAs. The slice 1 consumer sets, `npm run typecheck:dashboard`,
+and the dashboard `agent-completion-quiet` and `agent-completion-recovery`
+specs passed on the final tree.
+
+Unobserved at `finish`: Codex `ended`, `lost`, `unavailable`, `wrong-target`,
+`detached`, and `unclaimed` (delivery's classifier, proved in slice 2); host
+`lost` and `unavailable`; a `finish` that rebases with a sibling present (the
+rebased rerun is proved for Claude Code); a retained stream that stops between
+classification and selection; CI failure with a sibling present.
+
+Learnings:
+
+- `trunk-closure-observer.mjs` computes the owner from the repository's common
+  Git directory, so a rerun after retirement names the same owner. Mailbox
+  access on that rerun still uses the retired checkout path: an owner's
+  observer armed from a different worktree reads as `missing` there.
+- The dashboard completion fixture's Trunk closure now claims its observer
+  through the installed Cursor hook and runs `finish --host cursor
+  --session-json`; it previously ran `--host codex` on an unclaimed observer.
+- No delivery, resume, or closure path selects an observer by repository and
+  branch, order, liveness, or sibling coverage. `listMatchingMailboxes` remains
+  for the count in resume's `missing` reason.
+- Native evidence pending: Cursor and Claude Code closure with ambient
+  identity or `--session-json` from the note, and Codex closure with the
+  retained inputs. No harness case exercises Codex closure, so no
+  `stream --coordinator` closure fixture exists. Retained trunk-closure
+  evidence identities changed with the hashed modules.
 
 ## Verification, native evidence, and execution gates
 

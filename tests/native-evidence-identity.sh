@@ -132,6 +132,7 @@ closure_journey_inputs=(
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
   src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
+  src/skills/dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
   src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs'
   'story_closure_write_evidence_identity|

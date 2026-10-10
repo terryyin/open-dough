@@ -72,7 +72,7 @@ export function listMatchingMailboxes({ repo, branch, root, storage }) {
 
 // Matching execution observers `owner` holds the claim on, in any state. An
 // unclaimed observer, or one another coordinator claimed, is never returned.
-function listOwnedMailboxes({ repo, branch, owner, root, storage }) {
+export function listOwnedMailboxes({ repo, branch, owner, root, storage }) {
   if (!owner) return [];
   return listMatchingMailboxes({ repo, branch, root, storage }).filter(
     (directory) => readOwnerClaim(directory) === owner,

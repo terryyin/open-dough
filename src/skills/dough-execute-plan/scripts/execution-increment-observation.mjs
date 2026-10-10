@@ -37,14 +37,14 @@ function observationAttached(directory, { reused = false } = {}) {
   };
 }
 
-// Neither `deliver` nor `resume` starts, adopts, or replaces a Codex observer:
-// the stream this coordinator armed and retained is the only one either
-// registers on. Each gap names the input that recovers observation.
+// `deliver`, `resume`, and `finish` never start, adopt, or replace a Codex
+// observer: the stream this coordinator armed and retained is the only one
+// any of them registers on. Each gap names the input that recovers observation.
 function codexArming({ repo, branch }, command) {
   return `arm \`ci-mailbox.mjs stream --execution ${repo} ${branch} --coordinator <value>\` in a yielded cell as references/ci-notify-codex.md describes, retain its receipt directory in the observer note, and the next ${command} registers on it`;
 }
 
-const activities = { deliver: "delivery", resume: "resume" };
+const activities = { deliver: "delivery", resume: "resume", finish: "closure" };
 
 const retainedStreamGaps = {
   missing: (directory) => `${directory} is not a CI observer`,
@@ -61,14 +61,21 @@ const retainedStreamGaps = {
     `this coordinator's stream at ${directory} lost its worker`,
   unavailable: (directory) =>
     `this coordinator's stream at ${directory} is not live`,
+  // Classified live, then found without a live worker by its caller.
+  live: (directory) =>
+    `this coordinator's stream at ${directory} stopped during this command`,
 };
 
-export function retainedStreamObservation({
+// Classifies the stream a Codex coordinator retained, with the `gap` to
+// report when `command` cannot use it. The owner is computed from
+// `ownerRoot`, which may outlive the checkout `root` the stream was armed in.
+export function retainedStream({
   repo,
   branch,
   coordinator,
   observerDirectory,
   root,
+  ownerRoot = root,
   storage,
   command = "deliver",
 }) {
@@ -80,25 +87,38 @@ export function retainedStreamObservation({
     .filter(([, value]) => !value)
     .map(([flag]) => flag);
   if (absent.length > 0) {
-    return coverageGap(
-      `Codex ${activities[command]} registers only on the stream this coordinator retained, and ${absent.join(" and ")} ${absent.length > 1 ? "were" : "was"} not supplied; pass --coordinator <value> and --observer-directory <directory> from the observer note, or without a retained stream ${codexArming(target, command)}`,
-      { ownership: "unidentified" },
-    );
+    return {
+      kind: "unidentified",
+      gap: () =>
+        coverageGap(
+          `Codex ${activities[command]} registers only on the stream this coordinator retained, and ${absent.join(" and ")} ${absent.length > 1 ? "were" : "was"} not supplied; pass --coordinator <value> and --observer-directory <directory> from the observer note, or without a retained stream ${codexArming(target, command)}`,
+          { ownership: "unidentified" },
+        ),
+    };
   }
   const stream = classifyRetainedStream({
     directory: observerDirectory,
-    owner: codexStreamOwner({ root, coordinator }),
+    owner: codexStreamOwner({ root: ownerRoot, coordinator }),
     ...target,
     root,
     storage,
   });
-  if (stream.kind === "live")
-    return observationAttached(stream.directory, { reused: true });
-  return coverageGap(
-    `${retainedStreamGaps[stream.kind](observerDirectory, stream)}, not this coordinator's live stream of ${repo} ${branch}; pass the --observer-directory its observer note retained with its --coordinator, or without one ${codexArming(target, command)}`,
-    // Only this coordinator's own stream carries a directory.
-    { ownership: stream.kind, directory: stream.directory },
-  );
+  return {
+    ...stream,
+    gap: () =>
+      coverageGap(
+        `${retainedStreamGaps[stream.kind](observerDirectory, stream)}, not this coordinator's live stream of ${repo} ${branch}; pass the --observer-directory its observer note retained with its --coordinator, or without one ${codexArming(target, command)}`,
+        // Only this coordinator's own stream carries a directory.
+        { ownership: stream.kind, directory: stream.directory },
+      ),
+  };
+}
+
+export function retainedStreamObservation(request) {
+  const stream = retainedStream(request);
+  return stream.kind === "live"
+    ? observationAttached(stream.directory, { reused: true })
+    : stream.gap();
 }
 
 // One coordinator holding several live observers of a target cannot say which
