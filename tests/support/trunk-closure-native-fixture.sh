@@ -23,6 +23,33 @@ trunk_closure_git() {
     -c user.email='trunk-closure@example.invalid' "$@"
 }
 
+# Claims the observer whose start printed receipt $2 for the coordinator that
+# armed it, through host $1's installed hook at skill root $3, and exports that
+# coordinator's session for closure delivery. A Codex stream has no such claim.
+trunk_closure_claim_observer() {
+  local host=$1 receipt=$2 hook="$3/scripts/ci-host-hook.mjs" input
+  case ${host} in
+    claude)
+      TRUNK_CLOSURE_SESSION_JSON=$(jq -n -c '{session_id:"trunk-closure-coordinator"}')
+      input=$(jq -n -c --arg receipt "${receipt}" \
+        '{session_id:"trunk-closure-coordinator",hook_event_name:"PostToolUse",tool_name:"Bash",tool_response:{stdout:($receipt + "\n")}}')
+      ;;
+    cursor)
+      TRUNK_CLOSURE_SESSION_JSON=$(jq -n -c \
+        '{conversation_id:"trunk-closure-coordinator",generation_id:"trunk-closure-turn"}')
+      input=$(jq -n -c --arg receipt "${receipt}" \
+        '{conversation_id:"trunk-closure-coordinator",generation_id:"trunk-closure-turn",cursor_version:"1.0.0",hook_event_name:"postToolUse",tool_name:"Shell",tool_output:({output:($receipt + "\n"),exitCode:0} | tojson)}')
+      ;;
+    *)
+      unset TRUNK_CLOSURE_SESSION_JSON
+      return 0
+      ;;
+  esac
+  export TRUNK_CLOSURE_SESSION_JSON
+  (cd "${trunk_closure_workspace}" && node "${hook}" "${host}" <<< "${input}") \
+    | grep -Fq 'CI observer attached to this coordinator'
+}
+
 trunk_closure_write_gh() {
   local destination=$1
   # shellcheck disable=SC2016 # Variables belong to the generated shim.
@@ -137,6 +164,7 @@ trunk_closure_create_fixture() {
   receipt=$(cd "${trunk_closure_workspace}" \
     && node "${trunk_closure_launcher}" start --execution owner/project main 600000)
   trunk_closure_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
+  trunk_closure_claim_observer "${host}" "${receipt}" "${skill_root}"
   if [[ ${scenario} == owned-context ]]; then
     trunk_closure_owned_context_state "${root}"
   else
@@ -147,6 +175,7 @@ trunk_closure_create_fixture() {
       "Final closure candidate: ${trunk_closure_candidate_sha}" \
       "Observer mailbox: ${trunk_closure_mailbox}" \
       "Observer launcher: ${trunk_closure_launcher}" \
+      "Observer owner session: ${TRUNK_CLOSURE_SESSION_JSON:-none}" \
       "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk, created by this execution" \
       "Default checkout: ${trunk_closure_integration}" \
       'Applicable CI: pending' \

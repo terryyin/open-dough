@@ -1,16 +1,21 @@
-// Establish or reuse matching CI observation for managed delivery: live
-// mailbox match, host-bridge readiness, start, and coordinator binding.
+// Establish or reuse the publishing coordinator's CI observation for managed
+// delivery: its owner, the live observer that owner claimed, host-bridge
+// readiness, start, and coordinator binding. A Cursor or Claude Code
+// coordinator's owner is resolved before any observer is considered, so a
+// sibling's observer of the same repository and target is never reused.
 // Codex is observed only by the yielded stream its coordinator armed at
 // execution start. Resume recovers only an unambiguous live owner; it never
 // starts a replacement.
 import {
   bindHostObserver,
+  hostSessionOwner,
   resolveHostSession,
   verifyHostBridge,
 } from "./ci-host-bridge.mjs";
 import { receiptPrefix, startExecutionMailbox } from "./ci-mailbox.mjs";
 import {
   classifyMatchingObservationOwnership,
+  classifyOwnedObservation,
   findLiveMatchingMailbox,
 } from "./ci-mailbox-match.mjs";
 
@@ -70,6 +75,12 @@ function codexStreamMissingReason({ repo, branch }) {
   return `no live Codex yielded stream observes ${repo} ${branch}; arm \`ci-mailbox.mjs stream --execution ${repo} ${branch}\` in a yielded cell as references/ci-notify-codex.md describes, and later deliveries reuse it`;
 }
 
+// One coordinator holding several live observers of a target cannot say which
+// one a registration belongs on; none is chosen for it.
+function ambiguousOwnerReason({ repo, branch }, directories) {
+  return `this coordinator owns ${directories.length} live observers of ${repo} ${branch} (${directories.join(", ")}); keep the one whose directory it retained, stop the others with \`ci-mailbox.mjs stop <directory>\`, and the next deliver reuses it`;
+}
+
 export async function establishObservation({
   repo,
   branch,
@@ -82,31 +93,47 @@ export async function establishObservation({
   root,
   storage,
 }) {
-  const existing = findLiveMatchingMailbox({
+  // A Codex stream is found by repository and target; it carries no host
+  // session claim.
+  if (host === "codex") {
+    const stream = findLiveMatchingMailbox({ repo, branch, root, storage });
+    return {
+      observation: stream
+        ? observationAttached(stream, { reused: true })
+        : coverageGap(codexStreamMissingReason({ repo, branch })),
+      startReceipt: null,
+    };
+  }
+
+  // One resolved owner for selection, readiness, and binding.
+  const hostSession = resolveHostSession({ host, session, env });
+  const owner = hostSessionOwner({ host, session: hostSession, root });
+  const owned = classifyOwnedObservation({
     repo,
     branch,
+    owner,
     root,
     storage,
   });
-  if (existing) {
+  if (owned.kind === "live") {
     return {
-      observation: observationAttached(existing, { reused: true }),
+      observation: observationAttached(owned.directory, { reused: true }),
+      startReceipt: null,
+    };
+  }
+  if (owned.kind === "ambiguous") {
+    return {
+      observation: coverageGap(
+        ambiguousOwnerReason({ repo, branch }, owned.directories),
+        { ownership: owned.kind, directories: owned.directories },
+      ),
       startReceipt: null,
     };
   }
 
-  if (host === "codex") {
-    return {
-      observation: coverageGap(codexStreamMissingReason({ repo, branch })),
-      startReceipt: null,
-    };
-  }
-
-  // One resolved owner for both readiness and binding.
-  const owner = resolveHostSession({ host, session, env });
   const bridge = await verifyHostBridge({
     host,
-    session: owner,
+    session: hostSession,
     workspace,
     hookPath: runtime.hookEntrypoint,
     env,
@@ -115,7 +142,10 @@ export async function establishObservation({
   });
   if (!bridge.ready) {
     return {
-      observation: coverageGap(bridge.reason ?? "host bridge unavailable"),
+      observation: coverageGap(
+        bridge.reason ?? "host bridge unavailable",
+        owner ? {} : { ownership: "unidentified" },
+      ),
       startReceipt: null,
     };
   }
@@ -132,7 +162,7 @@ export async function establishObservation({
   const startReceipt = `${receiptPrefix}${JSON.stringify({ directory })}\n`;
   const binding = await bindHostObserver({
     host,
-    session: owner,
+    session: hostSession,
     receipt: startReceipt,
     workspace,
     hookPath: runtime.hookEntrypoint,

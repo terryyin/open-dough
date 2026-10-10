@@ -50,6 +50,7 @@ trunk_closure_owned_context_state() {
     "Final closure candidate: ${trunk_closure_candidate_sha}" \
     "Observer mailbox: ${trunk_closure_mailbox}" \
     "Observer launcher: ${trunk_closure_launcher}" \
+    "Observer owner session: ${TRUNK_CLOSURE_SESSION_JSON:-none}" \
     "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk" \
     'Default checkout: none' \
     'Applicable CI: pending' \

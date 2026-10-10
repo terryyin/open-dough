@@ -5,6 +5,7 @@ import { once } from "node:events";
 import { fileURLToPath } from "node:url";
 import { managedDeliveryGeneration } from "./ci-mailbox-location.mjs";
 import { probeMailbox, receiptPrefix } from "./ci-mailbox.mjs";
+import { hostInputOwner } from "./ci-observer-owner.mjs";
 
 const defaultHook = fileURLToPath(
   new URL("./ci-host-hook.mjs", import.meta.url),
@@ -63,6 +64,14 @@ function hookInput(host, session, receipt = "") {
       ? { cursor_version: session.cursor_version ?? "0.0.0" }
       : {}),
   };
+}
+
+// The owner the installed hook claims for this session's managed hook input,
+// so selection and binding name the same coordinator. Undefined without the
+// host's session identity.
+export function hostSessionOwner({ host, session, root }) {
+  if (!session) return undefined;
+  return hostInputOwner(hookInput(host, session), host, root);
 }
 
 function bridgeContext(output) {

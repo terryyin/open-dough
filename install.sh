@@ -169,6 +169,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs
   dough-execute-plan/scripts/ci-mailbox-match.mjs
+  dough-execute-plan/scripts/ci-observer-owner.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
   dough-execute-plan/scripts/ci-mailbox-store.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs

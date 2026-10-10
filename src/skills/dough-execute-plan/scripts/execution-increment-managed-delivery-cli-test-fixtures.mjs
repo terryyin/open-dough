@@ -5,6 +5,7 @@ import { execFile } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { invokeHostHook } from "./ci-host-bridge.mjs";
+import { receiptPrefix } from "./ci-mailbox-location.mjs";
 
 // Runs the taught `deliver` for one increment of the fixture's execution
 // branch, or of the supplied `workspace` and `branch`, with only the supplied
@@ -58,6 +59,24 @@ export async function deliverThroughCli(
     : null;
   fixture.stopAtTeardown(delivered?.observation?.directory);
   return { delivered, stdout, stderr, code: code ?? 0 };
+}
+
+// Runs the installed `complete-revision` for `sha` on the observer at
+// `directory` and returns its receipt.
+export async function completeThroughCli(fixture, directory, sha) {
+  const { stdout } = await promisify(execFile)(
+    process.execPath,
+    [
+      join(fixture.skill, "scripts/ci-mailbox.mjs"),
+      "complete-revision",
+      directory,
+      sha,
+    ],
+    { cwd: fixture.execution, env: fixture.env },
+  );
+  return JSON.parse(
+    stdout.trim().split("\n").at(-1).slice(receiptPrefix.length),
+  );
 }
 
 export const claudeHookInput = (session_id, extra = {}) => ({

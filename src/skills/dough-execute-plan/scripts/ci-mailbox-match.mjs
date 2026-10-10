@@ -1,5 +1,7 @@
-// Locate a live execution observer that already matches repository, target
-// branch, and checkout. Ended or dead workers are not reusable owners.
+// Locate execution observers that match repository, target branch, and
+// checkout, and select among them by the coordinator's owner claim. Matching
+// is discovery; only a verified claim selects an observer for its coordinator.
+// Ended or dead workers are not reusable owners.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -10,6 +12,7 @@ import {
   readWorkerIdentity,
 } from "./ci-mailbox.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import { readOwnerClaim } from "./ci-observer-owner.mjs";
 
 export function listMailboxDirectories(storage = mailboxRoot) {
   if (!existsSync(storage)) return [];
@@ -74,6 +77,30 @@ export function listMatchingMailboxes({ repo, branch, root, storage }) {
   );
 }
 
+// Matching execution observers `owner` holds the claim on, in any state. An
+// unclaimed observer, or one another coordinator claimed, is never returned.
+function listOwnedMailboxes({ repo, branch, owner, root, storage }) {
+  if (!owner) return [];
+  return listMatchingMailboxes({ repo, branch, root, storage }).filter(
+    (directory) => readOwnerClaim(directory) === owner,
+  );
+}
+
+// Classify one coordinator's observation: its claim filters the candidates
+// before any liveness is read, so a live sibling never stands in for it.
+export function classifyOwnedObservation({
+  repo,
+  branch,
+  owner,
+  root = checkoutRoot,
+  storage = mailboxRoot,
+} = {}) {
+  return classifyObservers(
+    listOwnedMailboxes({ repo, branch, owner, root, storage }),
+    { repo, branch, root, storage },
+  );
+}
+
 // Classify resume ownership without starting a replacement observer.
 // Live coverage requires exactly one live match; ended/lost/ambiguous stop.
 export function classifyMatchingObservationOwnership({
@@ -82,7 +109,13 @@ export function classifyMatchingObservationOwnership({
   root = checkoutRoot,
   storage = mailboxRoot,
 } = {}) {
-  const matches = listMatchingMailboxes({ repo, branch, root, storage });
+  return classifyObservers(
+    listMatchingMailboxes({ repo, branch, root, storage }),
+    { repo, branch, root, storage },
+  );
+}
+
+function classifyObservers(matches, { repo, branch, root, storage }) {
   if (matches.length === 0) {
     return {
       kind: "missing",

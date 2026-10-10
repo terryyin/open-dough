@@ -9,6 +9,17 @@ branch `codex/register-trunk-delivery-with-its-own-execution-o`, Preparing agent
 `d78b5aa6601f237eb4018c11c4eb3674016cb1bb`. Publication destination when authorized:
 `origin/main`; integration checkout: `/Users/terryyin/git/open-dough`.
 
+## Execution
+
+Story Branch Mode, taken by `ziqing-chan` (Claude Code). Execution checkout
+`/Users/terryyin/git/open-dough/.worktrees/register-trunk-delivery-with-its-own-execution-o`
+on branch `claude/register-trunk-delivery-with-its-own-execution-o`, published
+to `origin` at that branch; trunk `main`. Claim `f9ddf723` on `origin/main`,
+starting revision `0a846541`. Replanning follows existing planning authority.
+Commands run with Node `24.21.0` from
+`/private/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin` and
+`/opt/homebrew/bin` first on `PATH`. CI source: GitHub Actions `ci.yml`.
+
 ## Goal and boundaries
 
 An execution registers each accepted trunk increment or authorized repair on
@@ -156,7 +167,7 @@ consumers. Do not count their substitute/replay runs as fresh native evidence.
 
 ### 1. Host-session delivery registers on its coordinator's observer
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend installed managed-delivery concurrency proof for Cursor and Claude
 Code, using real owner claims and a controlled provider. Observe accepted SHA
 registration, host failure delivery/acknowledgment, repair reuse after target
@@ -179,6 +190,36 @@ hook/process, and affected host lifecycle suites, not only the new case.
 Safe stopping point: Cursor/Claude delivery is owner-aware with its regression
 proof green. Codex's existing discovery gap is explicitly unfinished until
 slice 2; do not claim the story complete.
+
+Accepted proof: `npm test -- src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-owner.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-owner-gaps.test.mjs`
+(six tests at the installed `deliver`, hook, and `complete-revision` boundaries;
+setup in `execution-increment-managed-delivery-owner-test-fixtures.mjs` supplies
+only starting observers and claims). Consumers passed: every
+`dough-execute-plan`, `dough-story-wrap-up`, `dough-manual-testing`, and
+`dough-land` script suite, and `tests/*.sh tests/support/*.test.mjs`.
+
+Learnings for remaining slices:
+
+- `ci-observer-owner.mjs` holds the one owner meaning: `observerOwner({root,
+  host, session, child})`, `hostInputOwner`, `readOwnerClaim`, `claimMailbox`.
+  `classifyOwnedObservation` in `ci-mailbox-match.mjs` filters by claim, then
+  returns the resume classifier's kinds. The Codex branch of
+  `establishObservation` is the last `findLiveMatchingMailbox` caller.
+- The owner hash includes `checkoutIdentity(root)`. Slice 4's rerun after
+  worktree retirement computes it from retained repository context.
+- Delivery receipts gained `observation.ownership` (`unidentified`,
+  `ambiguous`) and `observation.directories`.
+- A claim written without the hook's `owner-<hash>/` binding is selectable by
+  delivery but receives no hook notifications; reuse does not rebind.
+- The native trunk-closure fixture now claims its pre-started observer for a
+  fixture coordinator session and records `Observer owner session:`; its
+  substitute passes that as `--session-json` to `finish`. Slice 4 owns whether
+  a native agent can supply that input.
+- Native evidence pending for this slice: no native Cursor or Claude Code run
+  of concurrent delivery, repair, and completion exists, and retained
+  trunk-closure and git-publication evidence identities changed with the
+  hashed modules. Taught inputs for these hosts are unchanged. Native runs are
+  paid and manually triggered only.
 
 ### 2. Codex delivery retains its coordinator's yielded stream
 Type: Behavior

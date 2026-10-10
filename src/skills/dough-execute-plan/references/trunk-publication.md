@@ -34,9 +34,9 @@ stash, and restore stay in
 [CI observation](ci-monitor.md#handle-a-notification); do not add a second
 repair push.
 
-Managed delivery resolves this checkout's CI runtime, establishes or reuses the
-matching live observer for the authorized target, publishes the candidate, and
-attaches the accepted SHA. Do not run a separate probe, start, or `register-push`
+Managed delivery resolves this checkout's CI runtime, establishes or reuses
+this coordinator's own live observer of the authorized target, publishes the
+candidate, and attaches the accepted SHA. Do not run a separate probe, start, or `register-push`
 for ordinary increments or already-authorized repairs. Retain the delivery
 receipt's observation directory when present; do not transcribe mailbox handles
 by hand. An unavailable host bridge returns `pendingCi: unobserved` (or an
@@ -114,10 +114,18 @@ On Cursor, `--host cursor` takes that coordinator's identity from its
 `CURSOR_CONVERSATION_ID` in the same way.
 An explicit `--session-json` stays authoritative when a caller must name a
 different owner, and malformed session JSON stops delivery instead of falling
-back to another identity. If no identity is available, the receipt reports an
+back to another identity. That identity selects the observer: every increment
+and repair reuses the live observer this coordinator claimed, from any
+worktree of the repository, and a coordinator without one establishes its
+own. Observers other coordinators hold for the same repository and target
+stay theirs. If no identity is available, the receipt reports an
 unobserved coverage gap naming the missing source while publication acceptance
 stands; the next `deliver` from the coordinator's own tool, or with its
-`--session-json`, attaches observation without a manual observer start.
+`--session-json`, attaches observation without a manual observer start. If
+this coordinator holds more than one live observer of the target, the receipt
+reports an `ambiguous` gap naming their directories: keep the one this
+execution retained, [stop](ci-notify-hosts.md#stop-for-cancellation) the
+others, and the next `deliver` reuses it.
 On Codex, the yielded stream armed at execution start under
 [ci-notify-codex.md](ci-notify-codex.md) is the observer `--host codex`
 reuses for every increment and repair. Without a live stream, the receipt
