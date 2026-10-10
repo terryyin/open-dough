@@ -11,37 +11,14 @@ import {
   coverage,
   startReceipt,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
-import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { closureBesideSibling } from "./trunk-closure-owner-test-fixtures.mjs";
 import {
-  branchSha,
+  assertUnresolvedCoverage,
+  closureBesideSibling,
+} from "./trunk-closure-owner-test-fixtures.mjs";
+import {
   commitFinalClosure,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
-
-const main = "refs/heads/main";
-
-// The accepted final closure stands unobserved with everything preserved.
-async function assertUnresolvedCoverage(
-  fixture,
-  { result, code },
-  { final, ownership, reason },
-) {
-  assert.equal(code, 1);
-  assert.equal(result.ok, false);
-  assert.equal(result.step, "observation");
-  assert.equal(result.publication, "accepted");
-  assert.equal(result.acceptedSha, final);
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
-  assert.equal(result.observation.state, "unobserved");
-  assert.equal(result.observation.pendingCi, "unobserved");
-  assert.equal(result.observation.ownership, ownership);
-  assert.match(result.observation.reason, reason);
-  assert.equal(result.completion, null);
-  assert.equal(result.cleanup, "not-performed");
-  assert.equal(existsSync(fixture.execution), true);
-  assert.equal(await branchSha(fixture), final);
-}
 
 test("finish without the owner's identity, as another coordinator, or after the owner's observer ended reports the accepted closure unobserved, keeps the worktree, and leaves the live sibling alone; a replacing session that follows the gap completes on its own observer", async (t) => {
   const journey = await closureBesideSibling(t, "claude");

@@ -31,8 +31,12 @@ import {
   installManagedDelivery,
   watchCount,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
-import { createCleanTrunkFixture } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  createCleanTrunkFixture,
+  lsRemoteSha,
+} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import {
+  branchSha,
   commitFinalClosure,
   finishThroughCli,
   installClosureSkills,
@@ -171,6 +175,28 @@ export function assertCompletedAndStopped(result, observer, final) {
   assert.equal(result.completion.verdict, "success");
   assert.equal(result.completion.shutdown.status, "confirmed");
   assertObserverEnded(observer);
+}
+
+// The accepted final closure stands unobserved with everything preserved.
+export async function assertUnresolvedCoverage(
+  fixture,
+  { result, code },
+  { final, ownership, reason },
+) {
+  assert.equal(code, 1);
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "observation");
+  assert.equal(result.publication, "accepted");
+  assert.equal(result.acceptedSha, final);
+  assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), final);
+  assert.equal(result.observation.state, "unobserved");
+  assert.equal(result.observation.pendingCi, "unobserved");
+  assert.equal(result.observation.ownership, ownership);
+  assert.match(result.observation.reason, reason);
+  assert.equal(result.completion, null);
+  assert.equal(result.cleanup, "not-performed");
+  assert.equal(existsSync(fixture.execution), true);
+  assert.equal(await branchSha(fixture), final);
 }
 
 // A Claude Code project in a directory below its execution worktree's Git

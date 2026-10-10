@@ -127,3 +127,20 @@ test("finish over several ended observers that each registered the revision keep
   );
   assert.doesNotMatch(reason, /live observers|undefined/);
 });
+
+test("finish over one ended observer that registered the revision keeps the ended meaning and step, and names it with its record holding no CI verdict", () => {
+  const { meaning, step } = commandReasons("ended").find(
+    ({ command }) => command === "finish",
+  );
+  const reason = naming(
+    "finish",
+    reasonFor("finish", "ended", { registered: ["/observers/one"] }),
+  );
+  assert.ok(reason.startsWith(meaning), reason);
+  assert.ok(reason.endsWith(`; ${step}`), reason);
+  assert.equal(
+    reason.slice(meaning.length, -`; ${step}`.length),
+    "; its observer at /observers/one registered this revision and its record holds no CI verdict for it",
+  );
+  assert.doesNotMatch(reason, /live observers|undefined/);
+});

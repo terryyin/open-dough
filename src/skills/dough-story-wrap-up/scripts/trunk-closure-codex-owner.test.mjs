@@ -28,10 +28,10 @@ import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-f
 import {
   armingCheckouts,
   assertObserverEnded,
+  assertUnresolvedCoverage,
   siblingWitness,
 } from "./trunk-closure-owner-test-fixtures.mjs";
 import {
-  branchSha,
   commitFinalClosure,
   finishThroughCli,
   installClosureSkills,
@@ -168,22 +168,15 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
     ],
     [retained("another", publisher.directory), "foreign", /another coordina/],
   ]) {
-    const { result, code } = await journey.finish(
-      { beforeCleanup, final },
-      owner,
-    );
-    assert.equal(code, 1);
-    assert.equal(result.step, "observation");
-    assert.equal(result.publication, "accepted");
-    assert.equal(result.acceptedSha, final);
-    assert.equal(result.observation.state, "unobserved");
-    assert.equal(result.observation.ownership, ownership);
-    assert.equal(result.observation.directory, undefined);
-    assert.match(result.observation.reason, reason);
-    assert.match(result.observation.reason, /the next finish registers on it/);
-    assert.equal(result.completion, null);
-    assert.equal(existsSync(fixture.execution), true);
-    assert.equal(await branchSha(fixture), final);
+    const unowned = await journey.finish({ beforeCleanup, final }, owner);
+    const { observation } = unowned.result;
+    await assertUnresolvedCoverage(fixture, unowned, {
+      final,
+      ownership,
+      reason,
+    });
+    assert.equal(observation.directory, undefined);
+    assert.match(observation.reason, /the next finish registers on it/);
     assert.deepEqual(coverage(publisher.directory), []);
     journey.assertSiblingUntouched();
   }
@@ -205,5 +198,35 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
   assertObserverEnded(publisher.directory);
   assert.equal(result.cleanup.worktree, "removed");
   assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  journey.assertSiblingUntouched();
+});
+
+test("a Codex finish whose retained stream registered the final closure and ended with no CI verdict for it reports that stream ended and keeps the worktree and branch", async (t) => {
+  const journey = await closureBesideSiblingStream(t);
+  const { fixture, publisher } = journey;
+  const owner = retained(publisher.coordinator, publisher.directory);
+  const beforeCleanup = await acceptedIncrement(fixture);
+  const final = await commitFinalClosure(fixture);
+  const { delivered } = await deliverThroughCli(fixture, {
+    host: "codex",
+    base: beforeCleanup,
+    extra: owner,
+  });
+  assert.equal(delivered.receipt.sha, final);
+  assert.equal(delivered.observation.directory, publisher.directory);
+  // Stopped before CI released a verdict for the final closure.
+  await fixture.stopObserver(publisher.directory);
+  assert.deepEqual(coverage(publisher.directory), [final]);
+
+  const ended = await journey.finish({ beforeCleanup, final }, owner);
+
+  await assertUnresolvedCoverage(fixture, ended, {
+    final,
+    ownership: "ended",
+    reason: new RegExp(
+      `stream at ${publisher.directory} ended \\(stopped\\), not this coordinator's live stream of owner/project main.*arm \`ci-mailbox\\.mjs stream.*the next finish registers on it`,
+    ),
+  });
+  assert.equal(ended.result.observation.directory, publisher.directory);
   journey.assertSiblingUntouched();
 });

@@ -133,7 +133,7 @@ changed in its header comment.
 
 ### 2. A sole ended observer settles the closure only by its recorded verdict
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new journey in `trunk-closure-owner-gaps.test.mjs`: the owner's one
 observer registered the final closure and was stopped before CI released;
 `finish` is asserted through `assertUnresolvedCoverage` with
@@ -163,12 +163,29 @@ several.
 
 Safe stopping point: the whole story holds.
 
+Accepted proof (2026-10-11): the journey in
+`trunk-closure-owner-ended-record.test.mjs` ("finish whose coordinator's one
+observer registered the final closure and ended with only a cancelled attempt
+reports it ended with the deliver step and retires nothing; its rerun after
+that deliver completes on the new observer and retires"); the sole and mixed
+ended selections in `trunk-closure-observer-ended-selection.test.mjs`; the
+one-registered clause in `execution-increment-observation-gaps.test.mjs`; and
+a Codex journey in `trunk-closure-codex-owner.test.mjs` for a retained stream
+that ended with no verdict. Run with the `trunk-closure*`, `closure-*`, and
+`execution-increment*` suites, both guidance suites, and both identity checks.
+
+Learnings: the one-registered `ended` gap lists the observer that registered
+the closure in `observation.directories`. `assertUnresolvedCoverage` is an
+export of `trunk-closure-owner-test-fixtures.mjs`. A Codex coordinator's
+closure goes through the same selection; its `ended` gap keeps the stream's
+own wording and arm step.
+
 ## Story obligations
 
 ### G1. A sole ended observer with a cancelled attempt still retires
 Reported: slice 1 — "a sole ended observer with only a cancelled attempt and none live still retires."
 Story clause: "A record that holds only a cancelled attempt identifies no observer, alone as among several"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `trunk-closure-owner-ended-record.test.mjs` "finish whose coordinator's one observer registered the final closure and ended with only a cancelled attempt reports it ended with the deliver step and retires nothing; its rerun after that deliver completes on the new observer and retires"
 
 ### G2. Several live observers beside one ended covering observer
 Reported: slice 1 — "with several live observers, none covering, beside one ended covering observer, `finish` used to select the ended one and now reports `ambiguous`."
@@ -189,6 +206,16 @@ Disposition: excluded "each run is paid and needs the developer's authorization"
 Reported: slice 1 — "the settlement comment edit adds `trunk-closure-settlement.mjs` to the hashed modules whose retained native evidence identities change."
 Story clause: "No native run exists for any of these"
 Disposition: excluded "No native run exists for any of these; substitute and replay results are not native acceptance"
+
+### G6. The Codex ended gap keeps the stream's wording
+Reported: slice 2 — "the Codex reason says only that the stream ended. It does not say the stream registered the closure without a verdict, because `retainedStream`'s gap ignores `registered`."
+Story clause: "and the existing recovery, the next `deliver` from the execution worktree establishing the coordinator's own observer"
+Disposition: no user cost "the closure is observed by the observer that is actually running": the Codex gap names the one stream its coordinator retained and the arm step Codex already follows, since its `deliver` starts no observer; `trunk-closure-codex-owner.test.mjs` pins that nothing is retired
+
+### G7. Lost coverage after the worktree is gone is not journeyed
+Reported: slice 2 — "a sole ended non-verdict observer once the worktree is gone is not journeyed. It rests on the unchanged step text and the selection test."
+Story clause: "or lost coverage once that worktree is gone"
+Disposition: proved by slice 2: `execution-increment-observation-gaps.test.mjs` "finish over one ended observer that registered the revision keeps the ended meaning and step, and names it with its record holding no CI verdict" asserts the reason ends with the classifier's `finish` step, which names the lost coverage
 
 ## Current decisions
 

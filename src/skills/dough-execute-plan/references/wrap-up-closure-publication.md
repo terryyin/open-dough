@@ -72,7 +72,7 @@ usage error:
 | `step: "before-cleanup"`          | Nothing was published. Publish the before-cleanup commit through `deliver` first                                                                                                                                                                                                                                                      |
 | `step: "context"`                 | The worktree is gone. Follow its `recovery`: rerun with `--repository`, rerun with an earlier result's `acceptedSha` as `--final`, or report the unpublished final closure                                                                                                                                                            |
 | `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery`                                                                                                                                                                                                                                |
-| `step: "observation"`             | The final closure is accepted and `finish`, which completes it on this coordinator's live observer before any ended one, completed it on none of this coordinator's observers: its owner was not named, it holds no live observer and its ended ones leave none to repeat completion on (for example, none registered the closure, or of several that did none recorded a CI verdict for it or their verdicts differ), or it holds several live ones. Follow the step `observation.reason` names: rerun, with this coordinator's own owner input when that was missing; keep the retained one of several live observers, stop the others, and rerun; as a session that replaces the coordinator stop the recorded observer; when this coordinator's observers have ended, run `deliver` from the execution worktree to establish its own, and rerun; otherwise report lost coverage. Resources stay |
+| `step: "observation"`             | The final closure is accepted and `finish`, which completes it on this coordinator's live observer before any ended one, completed it on none of this coordinator's observers: its owner was not named, it holds no live observer and its ended ones leave none to repeat completion on (for example, none registered the closure, or those that did, whether one or several, recorded no CI verdict for it or verdicts that differ), or it holds several live ones. Follow the step `observation.reason` names: rerun, with this coordinator's own owner input when that was missing; keep the retained one of several live observers, stop the others, and rerun; as a session that replaces the coordinator stop the recorded observer; when this coordinator's observers have ended, run `deliver` from the execution worktree to establish its own, and rerun; otherwise report lost coverage. Resources stay |
 | `step: "completion"`              | Report the receipt: a CI failure or retained or unconfirmed shutdown keeps the worktree and branch                                                                                                                                                                                                                                    |
 | `step: "retire"`                  | Act on `cleanup` as Dough Land's retirement result table says                                                                                                                                                                                                                                                                         |
 | `step: "git"`                     | Report `error` as the unfinished step; nothing after it ran                                                                                                                                                                                                                                                                           |
@@ -87,14 +87,14 @@ for the rerun, and afterwards it reports the closure's coverage as lost. The
 rerun continues from the first unfinished step: a final closure the target
 already holds is not pushed again and is registered once on this
 coordinator's live observer when that lacks it, completion is repeated on
-this coordinator's live observer, else on its ended observer that covers the
-closure, and cleanup already done is reported as `already-absent`. Among
-several ended observers that cover it, completion is repeated on one whose
-record holds a CI verdict for the closure, success or failure, when every such
-record holds the same verdict, whatever the others recorded; when none holds a
-verdict or the verdicts differ, the rerun reports `step: "observation"`. A
-final closure the target has moved past without conflict is rebased and
-published once.
+this coordinator's live observer, else on its ended observer whose record
+holds a CI verdict for the closure, and cleanup already done is reported as
+`already-absent`. An ended observer settles the closure only by that recorded
+verdict, whether one covers it or several: completion is repeated on one whose
+record holds a verdict, success or failure, when every such record holds the
+same verdict, whatever the others recorded; when none holds a verdict or the
+verdicts differ, the rerun reports `step: "observation"`. A final closure the
+target has moved past without conflict is rebased and published once.
 
 Retain the exact published closure SHAs, the receipt, remaining coverage, the
 owner input, and `repository`, the management context a later rerun uses, in
