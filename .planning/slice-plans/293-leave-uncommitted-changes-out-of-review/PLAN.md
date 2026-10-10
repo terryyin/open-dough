@@ -184,6 +184,13 @@ CI repair: run 38091599194 on slice 1's revision lost a Mark as done press in
 `8df6248b` and rebalanced for in `3b2b446a`. The branch merged trunk at
 `2783ca92` instead of repeating those repairs.
 
+CI repair: run 38092275056 on that merge timed out the dev launch mode case
+of `authenticated-project-overview.spec.ts` at the 30-second default. Its
+trace shows every step passed with the journey still running; the case takes
+19 to 28 seconds on passing CI runs and this runner was about 1.4 times
+slower. The dev case now has a 60-second budget; a CPU-throttled local run
+failed at 30 seconds before the change and passed with it.
+
 ## Story obligations
 
 ### G1. File moves are unasserted with the check off
