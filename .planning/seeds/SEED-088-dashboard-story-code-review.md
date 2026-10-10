@@ -174,7 +174,7 @@ now holds; recognizing the story's own commits there would let it list them.
 
 **Identity:** SEED-088#landing-capture-after-integration-conflict
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md","assessment":"not-ready","reasons":["Slice 2's premise, that a second comparison after an accepted landing is refused before its push, was read in the code and not observed against the receiver."],"basis":{"document":"fc18198d9e33344a26e99e729e6966413f29ed27a20041b1159a55de6a7b2fe8","plan":"524388f483413b137b49fbb141012c919638901a2cfec8ccdf7100ee8f86aa6b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc18198d9e33344a26e99e729e6966413f29ed27a20041b1159a55de6a7b2fe8","plan":"472f44d749bb13fefb68ab79369f9fed384ad41565440486a379dc9ade137ab1"}}
 ```
 **Slice plan:** [A conflicted Story Branch integration still records its landing](../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md).
 
