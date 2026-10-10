@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes ([plan](slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md))
 - [A conflicted Story Branch integration still records its landing](seeds/SEED-088-dashboard-story-code-review.md#landing-capture-after-integration-conflict) — SEED-088#landing-capture-after-integration-conflict ([plan](slice-plans/294-landing-capture-after-integration-conflict/PLAN.md))
 
 ## Backlog list

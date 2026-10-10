@@ -149,7 +149,7 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
   - Evidence: slice 3 (`7e27929f`) changed nine lines of one test file; its delegated refactor pass reported `none — already clean` (about 55k subagent tokens, 34 s). Slice 1's pass extracted a fixture three tests share and split an oversized test file, and slice 2's removed test-only exports, so both earned their cost.
   - Observed effect: one full refactor delegation with no change.
-- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first implementation `5f539d6a`.
+- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first implementation `5f539d6a`; plan recoverable at `7aa2238582b58277e227394d6d07037c1967ed55:.planning/slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md`.
   - Timestamp: 2026-10-10T22:50Z
   - Tool: Claude Code
   - Model: claude-opus-5-5

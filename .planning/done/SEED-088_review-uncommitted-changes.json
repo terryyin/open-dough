@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-088#review-uncommitted-changes",
+  "title": "Review only a story's uncommitted changes",
+  "completedAt": "2026-10-10T23:32:38.330Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "claude"
+}
