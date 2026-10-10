@@ -33,7 +33,8 @@ import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Cursor repaints a while after Enter on a paste chip, so a continuation's
 // answer can read the submitted chip unless Recover waits for that repaint.
-test.use({ cursorSubmitPaintMs: 1_000 });
+// A shorter delay reaches the first test's read only some of the time.
+test.use({ cursorSubmitPaintMs: 300 });
 
 test("an unfinished not-held Cursor session says the agent is not running, offers Recover, and starts no agent", async ({
   page,

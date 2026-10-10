@@ -9,6 +9,7 @@ import {
   createPreparationTrunk,
   createWorkspace,
   identityC,
+  linkC,
   lsRemoteSha,
   profileOf,
   publishAssignment,
@@ -22,8 +23,6 @@ import {
   seedC,
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
-
-const link = "seeds/C.md#c";
 
 test("landing a refinement releases only its own assignment in the same snapshot and keeps the story queued with recorded facts", async (t) => {
   const trunk = await createPreparationTrunk();
@@ -59,7 +58,7 @@ test("landing a refinement releases only its own assignment in the same snapshot
     "--identity",
     identityC,
     "--link",
-    link,
+    linkC,
     "--refinement",
     "refined",
     "--approach",
@@ -67,7 +66,7 @@ test("landing a refinement releases only its own assignment in the same snapshot
   );
   const recorded = read(workspace, seedC);
   const recordedState = JSON.parse(
-    await recorder(workspace, "read-state", "--link", link),
+    await recorder(workspace, "read-state", "--link", linkC),
   );
 
   const release = await releasePreparation(workspace, identityC);
@@ -100,7 +99,7 @@ test("landing a refinement releases only its own assignment in the same snapshot
 
   // The published facts are the recorder's, read back from landed trunk.
   const published = JSON.parse(
-    await recorder(trunk.integration, "read-state", "--link", link),
+    await recorder(trunk.integration, "read-state", "--link", linkC),
   );
   assert.equal(landing.refresh.result, "advanced");
   assert.deepEqual(published, recordedState);

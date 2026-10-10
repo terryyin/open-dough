@@ -209,7 +209,7 @@ documentation, rather than published skills or rules. No duplicate story or
 queue change is needed.
 
 Resolved and removed from the active findings on 2026-10-11 (recovery:
-`3ff299c0b146cbe4562328a124d00cd97e5ca21c:ProjectFindings.md`):
+`3a0086f3b73b542b276cc53a5076e461c6db0e91:ProjectFindings.md`):
 
 - **DD-240, DD-257, DD-260:** the dashboard suite passed a fresh, a warm and
   a loaded full run in order on unchanged code. A journey's checks now start

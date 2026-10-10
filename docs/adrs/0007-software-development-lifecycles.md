@@ -22,7 +22,8 @@ Mode boundaries; skills supply the procedures.
 
 Before preparing or executing an existing queued story, publish its activity and developer assignment to remote trunk, then attempt safe default
 checkout refresh under [ADR 0009](./0009-git-branching-and-integration.md).
-Keep unfinished drafts isolated; announcing work does not authorize landing them.
+Keep unfinished drafts isolated. The announcement's publication authority
+covers landing completed preparation on the same remote trunk.
 
 Retain the assignment across pauses. End it automatically when that activity's
 completion is confirmed on trunk, or publish its end after explicit abandonment.
@@ -54,8 +55,8 @@ apply.
 
 Slice planning includes conditional plan refinement before its final readiness
 assessment when concerns can be resolved within the understood outcome and
-scope; unresolved human-owned decisions remain explicit, and preparation grants
-neither execution nor publication authority.
+scope; unresolved human-owned decisions remain explicit. Completed preparation
+lands on remote trunk by default; landing grants no execution authority.
 
 ### Story Branch Mode
 
@@ -69,14 +70,20 @@ neither execution nor publication authority.
    it, following the
    [preparation journey](../../src/skills/dough-story-refinement/references/preparation-journey.md).
 2. Leave drafts in that workspace for review without reserving the shared
-   integration checkout. Publish draft results only on an explicit keep
+   integration checkout. Land completed preparation of an announced queued
+   story on `main`, whatever its readiness assessment; the story stays queued.
+   An open coordinator question, `--retain`, or an ordinary-language
+   instruction to leave landing for later keeps the draft and its assignment
+   in the workspace. Publish other draft results, such as
+   a decomposition or a session ending at refinement, on an explicit keep
    instruction; honor no-publish and discard instructions through the
    [disposition procedure](../../src/skills/dough-story-refinement/references/preparation-disposition.md).
    A pause or continued discussion is no disposition decision.
 3. At execution startup, move the story to **Taken** on `main`, then create its
-   feature branch and worktree. Manage these resources for the developer.
-   Run implementation and retrospective in that branch without integrating
-   with `main` until wrap-up.
+   feature branch and worktree, or continue the preparation workspace and
+   branch when the session hands off to execution. Manage these resources for
+   the developer. Run implementation and retrospective in that branch without
+   integrating with `main` until wrap-up.
 4. At wrap-up, finalize closure in the story branch and merge the completed
    change, findings, and learning into `main`. Use that learning for subsequent
    decomposition and backlog decisions.
@@ -89,9 +96,11 @@ flowchart TD
     B -->|Refined, unless coordinator question or refine-only instruction| P["Owned workspace: slice planning and refinement"]
     P -->|Resplit needed| R["Owned workspace: resplit story and map plans"]
     R --> B
-    P -->|Explicit keep instruction| K["Reconcile and publish retained preparation to main"]
+    P -->|Completed, no open coordinator question or opt-out| K["Reconcile and publish preparation to main"]
+    P -->|Open coordinator question or opt-out| W["Owned workspace: draft and assignment retained"]
+    W -->|Explicit keep instruction| K
     K --> A
-    K --> C["main: move story to Taken"]
+    K -->|Execution startup| C["main: move story to Taken"]
     C --> D["Story branch: execute slices and retrospective"]
     D --> I["Wrap-up: close story and merge change, findings, and learning to main"]
     I --> A

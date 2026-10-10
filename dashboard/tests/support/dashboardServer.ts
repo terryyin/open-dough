@@ -9,9 +9,10 @@
 // closed server had. The Cursor runner listens from that HOME and is not in
 // this server's process group, so closing the server leaves it. When this
 // helper owns the machine directory, close stops that runner before the
-// directory is removed. A runner still running when the test process exits,
-// because a teardown past its timeout never reached close or a test kept it,
-// is stopped then, as is the server's own group (./processGroup.ts).
+// directory is removed; a test that owns the directory stops the runner
+// itself. A runner still running when the test process exits, because a
+// teardown past its timeout never reached close, is stopped then, as is the
+// server's own group (./processGroup.ts). A closed server leaves no such stop.
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
@@ -168,10 +169,8 @@ export async function startDashboardServer(
   });
 
   const closeOwned = async () => {
-    if (ownsMachine) {
-      await stopCursorRunner(home);
-      withdrawRunnerStopAtExit();
-    }
+    if (ownsMachine) await stopCursorRunner(home);
+    withdrawRunnerStopAtExit();
     if (options.codexProtocol === undefined) await codex.close();
     if (ownsGitHub) {
       await github.close();

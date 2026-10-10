@@ -14,15 +14,13 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Settle observer ownership at its recovery edges](seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges) — SEED-121#settle-observer-owner-edges ([plan](slice-plans/288-observer-owner-edges/PLAN.md))
+- [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes ([plan](slice-plans/292-landed-story-branch-review/PLAN.md))
 
 ## Backlog list
 
-- [Recently done waits for an added project's sessions](seeds/SEED-123-dashboard-suite-stable-under-load.md#recently-done-waits-for-added-project-sessions) — SEED-123#recently-done-waits-for-added-project-sessions
-- [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions
-- [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution
-- [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes
+- [Finish prefers its coordinator's live observer over an ended one](seeds/SEED-121-execution-observer-ownership.md#finish-prefers-live-observer) — SEED-121#finish-prefers-live-observer
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
+- [A Trunk Mode story started outside the dashboard offers Review changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-worktree) — SEED-088#review-trunk-mode-story-worktree
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options

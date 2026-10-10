@@ -40,6 +40,7 @@ export const backlogCli = fileURLToPath(
 
 export const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 export const identityC = "SEED-C#c";
+export const linkC = "seeds/C.md#c";
 export const seedC = ".planning/seeds/C.md";
 export const planC = ".planning/slice-plans/C/PLAN.md";
 
@@ -65,7 +66,7 @@ export async function createPreparationTrunk(options = {}) {
       "--title",
       "Story C",
       "--link",
-      "seeds/C.md#c",
+      linkC,
       "--position",
       "last",
     ],

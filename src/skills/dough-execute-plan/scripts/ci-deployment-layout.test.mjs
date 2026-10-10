@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import {
-  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -15,19 +14,10 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { requireSelectedRuntimeEntrypoint } from "./ci-checkout-runtime.mjs";
+import { deployRuntime } from "./ci-installed-checkouts-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const source = fileURLToPath(new URL("../", import.meta.url));
-
-function deployRuntime(root, platform = ".agents") {
-  const skill = join(root, platform, "skills", "dough-execute-plan");
-  mkdirSync(skill, { recursive: true });
-  cpSync(join(source, "scripts"), join(skill, "scripts"), {
-    recursive: true,
-    filter: (path) => !/test|fixture/.test(path.slice(source.length)),
-  });
-  return skill;
-}
 
 async function probeSelectedRuntime(selectedRoot, skill, storage) {
   const entrypoint = requireSelectedRuntimeEntrypoint(selectedRoot, skill);

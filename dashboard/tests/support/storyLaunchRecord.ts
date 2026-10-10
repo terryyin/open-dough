@@ -42,17 +42,19 @@ export function storyALaunchRecord(
   };
 }
 
-// The project's kept launch records, written into the machine store.
+// The kept launch records of the project `source`, written into the machine
+// store.
 export async function keepLaunchRecords(
   dashboard: DashboardServer,
   records: readonly LaunchRecord[],
+  source = "open-dough",
 ) {
   const store = path.join(
     dashboard.home,
     ".open-dough/dashboard/agent-launches.json",
   );
   await mkdir(path.dirname(store), { recursive: true });
-  await writeFile(store, JSON.stringify({ "open-dough": records }));
+  await writeFile(store, JSON.stringify({ [source]: records }));
 }
 
 // Story A's kept launch record, its start naming the worktree.

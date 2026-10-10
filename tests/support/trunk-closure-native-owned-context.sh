@@ -38,19 +38,19 @@ trunk_closure_owned_context_worktree() {
   git -C "${trunk_closure_workspace}" update-ref "${created_for}" HEAD
 }
 
-# Writes the execution state beside the worktree, so the worktree stays clean.
+# Writes the execution state for host $2 beside the worktree, so the worktree
+# stays clean, and exports its path as TRUNK_CLOSURE_STATE for the substitute.
 trunk_closure_owned_context_state() {
-  local root=$1
+  local root=$1 host=$2
   trunk_closure_owned_context_state_file="${root}/execution-state.txt"
+  export TRUNK_CLOSURE_STATE=${trunk_closure_owned_context_state_file}
   printf '%s\n' \
     'Execution mode: Trunk Mode' \
     "Selected story: ${TRUNK_CLOSURE_IDENTITY}" \
     'Authorized target: remote origin, branch main (GitHub owner/project)' \
     "Before-cleanup commit: ${trunk_closure_base_sha}, accepted on remote trunk" \
     "Final closure candidate: ${trunk_closure_candidate_sha}" \
-    "Observer mailbox: ${trunk_closure_mailbox}" \
-    "Observer launcher: ${trunk_closure_launcher}" \
-    "Observer owner session: ${TRUNK_CLOSURE_SESSION_JSON:-none}" \
+    "$(trunk_closure_observer_record "${host}")" \
     "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk" \
     'Default checkout: none' \
     'Applicable CI: pending' \

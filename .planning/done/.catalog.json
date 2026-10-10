@@ -8,6 +8,42 @@
       "blob": "e1b47fbe7d325d0e6f9fc3b12e69de38b4fe5cb6"
     },
     {
+      "fileName": "SEED-121_recovery-holds-after-reuse-and-rerun.json",
+      "identity": "SEED-121#recovery-holds-after-reuse-and-rerun",
+      "completedAt": "2026-10-10T13:31:08.962Z",
+      "blob": "f4cffb5c40a9bf0bc0665c2bbab9a97917d0e092"
+    },
+    {
+      "fileName": "SEED-128_publish-dirty-preparation-before-execution.json",
+      "identity": "SEED-128#publish-dirty-preparation-before-execution",
+      "completedAt": "2026-10-10T12:57:24.598Z",
+      "blob": "36ba767869f482e393f7f72aebbe0f9bc16c0150"
+    },
+    {
+      "fileName": "SEED-121_recovery-steps-reach-their-observer.json",
+      "identity": "SEED-121#recovery-steps-reach-their-observer",
+      "completedAt": "2026-10-10T12:04:28.479Z",
+      "blob": "178f1483cff7ca813b78eb43c66ffd67a138d70c"
+    },
+    {
+      "fileName": "SEED-128_land-planning-without-coordinator-questions.json",
+      "identity": "SEED-128#land-planning-without-coordinator-questions",
+      "completedAt": "2026-10-10T11:36:53.515Z",
+      "blob": "4b5247361c7ab80ee5ad62ac67283df2d5b05b1a"
+    },
+    {
+      "fileName": "SEED-121_settle-observer-owner-edges.json",
+      "identity": "SEED-121#settle-observer-owner-edges",
+      "completedAt": "2026-10-10T10:45:51.891Z",
+      "blob": "7e98aaef23daeaec6901a5f3eb2083320d7a3784"
+    },
+    {
+      "fileName": "SEED-123_recently-done-waits-for-added-project-sessions.json",
+      "identity": "SEED-123#recently-done-waits-for-added-project-sessions",
+      "completedAt": "2026-10-10T09:57:45.937Z",
+      "blob": "dbfd1a7ab8db92fe1e43347a15a33a7b59104aa0"
+    },
+    {
       "fileName": "SEED-128_continue-refinement-to-slice-planning.json",
       "identity": "SEED-128#continue-refinement-to-slice-planning",
       "completedAt": "2026-10-10T08:54:08.087Z",

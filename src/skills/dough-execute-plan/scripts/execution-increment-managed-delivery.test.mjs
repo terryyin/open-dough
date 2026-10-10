@@ -103,7 +103,7 @@ test("Story Branch managed delivery observes the recorded execution branch targe
   );
 });
 
-test("a second managed delivery reuses the matching live observer", async (t) => {
+test("a second managed delivery reuses its coordinator's live observer", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
 

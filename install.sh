@@ -126,6 +126,7 @@ managed_files=(
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-planning/references/architectural-thinking.md
+  dough-slice-planning/references/settle-decisive-premises.md
   dough-pfe/SKILL.md
   dough-slice-plan-refinement/SKILL.md
   dough-execute-plan/scripts/dashboard-completion.mjs
@@ -190,6 +191,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
+  dough-execute-plan/scripts/execution-increment-observation-gaps.mjs
   dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs

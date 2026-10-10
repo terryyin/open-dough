@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Credential-free proof for the owned-context journeys, where the repository
 # has no default checkout: startup in a new owned workspace, preparation
-# landed through Dough Land, and Trunk Mode closure. Each runs once through a
-# substitute host and the shared supervisor/stream/retention path, followed by
-# its assessor counterexamples. Their live counterparts run through
+# landed through Dough Land, and Trunk Mode closure. Startup and preparation
+# each run once through a substitute host, and the closure once on each host,
+# whose coordinator owns its CI observer differently; all through the shared
+# supervisor/stream/retention path, followed by their assessor
+# counterexamples. Their live counterparts run through
 #   tests/git-publication-native.sh --native HOST --case publication/startup-owned-context
 #   tests/git-publication-native.sh --native HOST --case publication/preparation-land
 #   tests/git-publication-native.sh --native HOST --case trunk-closure/owned-context

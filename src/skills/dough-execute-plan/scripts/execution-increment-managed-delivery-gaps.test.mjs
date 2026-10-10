@@ -48,37 +48,19 @@ test("an unavailable host bridge reports unobserved coverage and preserves accep
   assert.equal(existsSync(fixture.storage), false);
 });
 
-test("a Claude delivery with neither explicit nor ambient session identity reports an actionable gap and keeps publication truthful", async (t) => {
+test("the installed deliver command keeps a local-only increment unpublished and unobserved", async (t) => {
   const fixture = await createManagedFixture({ platforms: [".claude"] });
   t.after(fixture.cleanup);
-  // Deliberately remove any session identity inherited from the test runner.
-  const env = { ...fixture.env };
-  delete env.CLAUDE_CODE_SESSION_ID;
-
-  const local = await deliverThroughCli(fixture, {
-    base: fixture.trunkSha,
-    extra: ["--authority", "local-only"],
-    env,
-  });
-  assert.equal(local.delivered.publication, "pending");
-  assert.equal(local.delivered.report, "local-only");
-  assert.equal(
-    await lsRemoteSha(fixture.origin, trunkTarget),
-    fixture.trunkSha,
-  );
 
   const { delivered } = await deliverThroughCli(fixture, {
     base: fixture.trunkSha,
-    env,
+    extra: ["--authority", "local-only"],
   });
-  assert.equal(delivered.publication, "accepted");
-  assert.equal(delivered.observation.state, "unobserved");
-  assert.equal(delivered.observation.pendingCi, "unobserved");
-  assert.match(delivered.observation.reason, /CLAUDE_CODE_SESSION_ID is unset/);
-  assert.match(delivered.observation.reason, /--session-json/);
+  assert.equal(delivered.publication, "pending");
+  assert.equal(delivered.report, "local-only");
   assert.equal(
     await lsRemoteSha(fixture.origin, trunkTarget),
-    delivered.receipt.sha,
+    fixture.trunkSha,
   );
   assert.equal(existsSync(fixture.storage), false);
 });

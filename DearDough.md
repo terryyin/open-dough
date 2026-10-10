@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 266. Removed local codes are never reused.
+- Highest allocated local number: 273. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -128,6 +128,27 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: modified; revision `91d8439e`; base 0.3.57
   - Evidence: slice 2 (`909da1ef`) changed six lines of ADR 0007 that no test reads; its delegated refactor pass reported `none — already clean` (about 50k subagent tokens, 29 s). The same execution's slice 1 pass did find a 250-line file-size breach and duplicated rule text, so the pass earned its cost there.
   - Observed effect: one full refactor delegation with no change.
+- Execution: `SEED-123#recently-done-waits-for-added-project-sessions` / plan 288, first implementation `f365eb2b`.
+  - Timestamp: unknown (2026-10-10, between 18:10 and 18:37 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
+  - Evidence: slice 2 (`56203263`) changed one fixture value in one spec and slice 3 (`2f070f91`) two lines of a test-support close; both delegated refactor passes reported `none — already clean` (about 50k and 59k subagent tokens, 33 s and 37 s). Slice 1's pass (`f365eb2b`) renamed the gate and extracted a duplicated spec fixture, so it earned its cost.
+  - Observed effect: two full refactor delegations with no change.
+- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`.
+  - Timestamp: unknown (2026-10-10, between 19:45 and 20:25 +09:00).
+  - Tool: Claude Code coordinator and delegated agents.
+  - Model: `claude-opus-5-5`.
+  - Open Dough release: modified; revision `650918e4`; base 0.3.58.
+  - Evidence: slice 1 (`89ca7d25`) moved 51 lines byte-identically into a reference and declared the file; slice 3 (`08d914ad`) added one options entry, one clause and one test. Both delegated refactor passes returned "none — already clean" (about 59.9k tokens and 54 s; about 57.0k tokens and 52 s). The passes on slices 2 and 4 of the same execution did edit: a contradictory report order, a retired authority sentence, a duplicate pin, and a diagram label that read as its opposite.
+  - Observed effect: two of four full refactor delegations changed nothing.
+- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
+  - Timestamp: unknown (2026-10-10, between 20:02 and 20:44 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
+  - Evidence: slice 3 (`7e27929f`) changed nine lines of one test file; its delegated refactor pass reported `none — already clean` (about 55k subagent tokens, 34 s). Slice 1's pass extracted a fixture three tests share and split an oversized test file, and slice 2's removed test-only exports, so both earned their cost.
+  - Observed effect: one full refactor delegation with no change.
 
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
@@ -150,6 +171,16 @@ Concrete only-caller and host-state premises enter a plan without inspection, fo
 Follow-up: delivered, unreleased: [Observe decisive planning premises through the full promised journey](https://github.com/terryyin/open-dough/blob/c1875574c4f0b5a6703d7a3e45e981e5e9cd9227/.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey.
 
 Evidence and response: [ODF-074](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-074).
+
+### Occurrences
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10; the plan was published not-ready in `17c33bd2` and made ready in `c6aa657b` at 17:16 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: `17c33bd2:.planning/slice-plans/288-observer-owner-edges/PLAN.md` ends "Remaining concern: slice 1's proof for a project below its Git toplevel depends on whether closure supports that layout, which this review did not observe", and the seed's state block records `not-ready` for it. The developer's next instruction was "Why is the plan not ready for running? Please make it ready for running." Two scratch runs of the installed `deliver` and `finish` on existing fixtures (1–2 s each) settled it; "Observed premises" in `2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`.
+  - Observed effect: a planned correction waited for a developer round trip and a second preparation session over a premise the existing closure fixtures could run.
+  - Inference: qualified. The plan was written by an execution retrospective, which may have treated the observation as outside a review's read-only limits; an unpaid scratch run outside the checkout changes no product file.
 
 ## ODF-110 — A plan's consumer premise for an admission rule swept function callers, missing specs that relaunch the same story
 
@@ -200,6 +231,14 @@ Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: slice 1's refactor return, decision 3: the slice's eight-line fixtures paragraph took `tests/README.md` from 250 to 258 lines, and the pass moved the unrelated "Native host streams" section to a new `tests/native-host-streams.md`, stating the move "is outside the slice's concept and was done only because the file-size check is unconditional" (`git show b78500a4 -- tests/README.md tests/native-host-streams.md`). Slice 2's refactor return, decision 6, met the same check on `ProjectFindings.md` (457 lines, shrunk from 475 by the change) and left it as a reported gap.
   - Observed effect: one documentation move unrelated to the story entered a behavior commit, and the same check produced opposite dispositions in two passes of one execution.
   - Inference: qualified. The move is harmless here (one link, no other reference to the section), but the size threshold, not a concept the change implicated, selected it.
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10, slice 2 and slice 4 refactor passes, between `1ff314d3` at 17:44 +09:00 and `8f348077` at 18:52 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: slice 2's refactor return: the slice took `src/skills/dough-execute-plan/references/trunk-publication.md` from 250 to 262 lines, and the pass removed three sentences that predate the slice and sit outside its hunks "only to reach the limit" (`git show fc795844 -- src/skills/dough-execute-plan/references/trunk-publication.md`). Slice 4's pass collapsed an unrelated guard in `execution-increment-delivery.mjs` (252 lines, 255 before the slice) to reach 250. The coordinator's delegation briefs also told agents that files over 250 lines "fail a check"; slice 4's agent found no such check.
+  - Observed effect: published guidance lost three restatements unrelated to the story, each rule still stated elsewhere in the file; three references now sit at exactly 250 lines, so the next addition repeats the trade.
+  - Inference: qualified. No rule was lost, but the threshold, not the change's concept, chose what to delete, and the coordinator turned a refactor check into a hard limit in its briefs.
 
 ## ODF-209 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
@@ -589,9 +628,153 @@ linked installation, so execution had to obtain the selected Node first.
   - Observed effect: the coordinator downloaded the official Node 24.21.0 archive into a job temporary directory, verified its checksum, and ran `setup-native.mjs npm`, `browser`, and `check` in the worktree before delegating; every delegated command needed that `PATH` prefix.
   - Inference: preparation had observed its premise through the link, so the conflict with execution setup was not visible when the plan was assessed ready. The selected Node is absent machine-wide, so each new session repeats the download unless it is installed durably.
 
-## DD-274 — A plan counted the sites needing a wait from one navigation call and missed reloads and the page's earlier read
+## DD-267 — Checkout setup passed on a Node patch other than the project's pinned one
 
-Numbered above the trunk log's DD-273 (`origin/main` at 2026-10-10), which this branch's log does not yet hold, to avoid a concurrent allocation.
+Execution setup resolved the locked install from `package.json` and the
+contributor guide, ran `npm ci` and the dashboard typecheck, and crossed the
+readiness gate. The project also pins an exact Node patch in `.node-version`
+and names `scripts/setup-native.mjs` as its setup in `tests/native-setup.md`;
+neither was read, and none of the commands run refuses another patch.
+
+### Occurrences
+- Execution: SEED-123#recently-done-waits-for-added-project-sessions (plan 288, first implementation commit f365eb2b)
+  - Timestamp: unknown (2026-10-10, setup before 18:10 +09:00; found about 18:35 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
+  - Evidence: `.node-version` 24.21.0 against the machine's Node 24.5.0; `tests/native-setup.md` "First setup or changed lockfile"; `dough-execute-plan/references/execution-location.md` ("Resolve the required setup from this project's checked-in conventions"). The mismatch surfaced only when the retrospective read DD-266's row for the same machine.
+  - Observed effect: all three slices were implemented, proved and published with Node 24.5.0. The coordinator then fetched the official 24.21.0 archive, verified its checksum, ran `setup-native.mjs npm`, `browser` and `check`, and reran each slice's passing proof on it (183, 30 and 43 tests passed); slice 2's failing reproduction on the old behaviour was not rerun.
+  - Inference: `npm ci`, the typecheck and Playwright accept any Node in the `engines` range, so only `setup-native.mjs check` would have refused. The setup rule names lockfiles and `npm ci` as its example, which the coordinator matched without looking for a runtime pin.
+
+## DD-268 — A plan stated that a test would fail before its fix in a form that passes on the unfixed code
+
+A slice's proof said both of its new tests "fail on the current code". The
+second, as written, aborted the sessions read outright, and the unfixed code
+reads the same ten stories either way. The plan also named a mechanism (ask
+numbers noted in an effect) that would have opened the gate one render late.
+
+### Occurrences
+- Execution: SEED-123#recently-done-waits-for-added-project-sessions (plan 288, first implementation commit f365eb2b)
+  - Timestamp: unknown (2026-10-10, between 17:50 and 18:10 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
+  - Evidence: plan 288 slice 1 Proof and Behavior, and its premise row "Holds by reading; the slice's spec reproduces it before the fix" (`fba8d90c:.planning/slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md`); slice 1's Learnings in the delivered plan (`84ee16fa:` same path); `dashboard/tests/recently-done-progressive-added-project.spec.ts` second test.
+  - Observed effect: the implementation agent wrote the specs first, saw the outright-abort form pass on the unfixed code, and changed the test to hold the read, assert nothing is read, then abort; it keyed the gate on the project list instead of ask numbers. No rework followed and the coordinator accepted both deviations.
+  - Inference: the delegation's requirement to observe each new test failing before the fix is what caught it; the cost was small. The premise was settled by reading for the first example only.
+- Execution: `SEED-128#publish-dirty-preparation-before-execution` / plan 291, first implementation `e5183b6c`
+  - Timestamp: unknown (2026-10-10, slice 1 return before `e5183b6c` at 21:16 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `cffb354b`; base 0.3.58
+  - Evidence: plan 291 slice 1 Proof, "A scratch change of the start's `--workspace` to a new path makes the Story Branch assertion `created: false` fail" (`cffb354b:.planning/slice-plans/291-execution-handoff-in-preparation-worktree/PLAN.md`); slice 1's return (the start answered `setup-failed`, "a branch named 'claude/story-c' already exists", failing at `receipt.ok` instead); the corrected Proof and Accepted note in the delivered plan (`e5183b6c:` same path). The plan's scratch chain had observed the passing run only.
+  - Observed effect: the implementation agent ran the named scratch change, reported the different failure, and added a new-path-and-new-branch variant that fails at `created: false`. The coordinator corrected the plan's wording and carried the `setup-failed` refusal into slice 2's recovery guidance. No rework followed.
+  - Inference: here the claim concerned a discriminating scratch change, not a pre-fix failure; the same cause applies, a failure stated from reading. The delegation's requirement to run the check caught it at small cost.
+
+## DD-269 — A ready refinement named execution as its next step while its result was unpublished
+
+Refinement reported a ready plan with execution as the one next step, but the
+readiness lived in an uncommitted draft, execution start reads the published
+preparation, and keeping a draft needs an explicit instruction.
+
+### Occurrences
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10, between the readiness record and the keep commit `c6aa657b` at 17:16 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: the refinement report ended "Next step: in that workspace, run `/dough-execute-plan …`" beside "Draft: uncommitted"; the developer answered "ok. Do the next step"; `execution-start.mjs start` "checks the published selected source and preparation" (`dough-execute-plan/SKILL.md`), and `preparation-disposition.md` counts only an explicit instruction as keep. The coordinator landed the draft as `c6aa657b` on that reply, then reused the preparation worktree for execution instead of retiring it as Dough Land describes.
+  - Observed effect: the coordinator inferred a keep and a workspace reuse that neither reference grants, and said so in its report; the developer did not object.
+  - Inference: qualified to a ready outcome followed by execution in the same session. The outcome wording offers a step the workflow cannot take without a second, unstated decision.
+
+## DD-270 — Guidance stating an unobserved host fact was accepted with the gap filed as pending native evidence
+
+A slice published guidance and receipt text that state how a host behaves,
+proved only by a test whose setup supplies that behavior, and acceptance
+recorded the missing observation as pending native evidence instead of holding
+the wording.
+
+### Occurrences
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10, slice 2 acceptance, before `fc795844` at 18:04 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: `fc795844` adds to `trunk-publication.md` and `ci-notify-hosts.md` that a Claude Code subagent coordinator's "Bash tool carries its parent's `CLAUDE_CODE_SESSION_ID`" and that it passes "its own `agent_id`"; `execution-increment-managed-delivery-recipient.test.mjs` sets both itself. The implementation return listed both as "not observable without a native run". The coordinator accepted the slice and added a pending-native-evidence line to plan 288 (`2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`). The independent product review raised it as its first finding, with `docs/maintainer/finding-names.md` recording a Cursor coordinator that could not read its own `conversation_id`. The premise entered as plan 288's fourth finding, marked observed by read-only review.
+  - Observed effect: unobserved host behavior is published as fact; a subagent that cannot read its `agent_id` has no taught way to follow the step. On the developer's instruction the wording was reduced to observed facts in `80ab062f`.
+  - Inference: qualified. ADR 0005's pending-evidence list covered acceptance of the tests but not the wording of what was published.
+
+## DD-271 — A plan added a file and assertions without checking the declaration and size limit they would meet
+
+A plan's first slice created a reference file and said "No script changes"; a
+later slice placed all its new assertions in an existing test file. The
+project declares payload files in its installer and limits files to 250
+lines, and the plan settled neither as a premise.
+
+### Occurrences
+- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`
+  - Timestamp: unknown (2026-10-10, between 19:45 and 20:10 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `650918e4`; base 0.3.58
+  - Evidence: plan 290 "Goal and boundaries" ("No script changes") and its proof-ownership table naming `preparation-journey-guidance.test.mjs` (`650918e4:.planning/slice-plans/290-land-planning-without-coordinator-questions/PLAN.md`); `tests/payload-declaration-links.sh` ("declared dough-slice-planning/SKILL.md links to undeclared references/settle-decisive-premises.md"); slice 1's `install.sh` line in `89ca7d25`; slice 2's return (journey test at 328 lines, split into `preparation-landing-guidance.test.mjs`) and slice 2's Accepted note in the delivered plan (`34b9b429:` same path).
+  - Observed effect: slice 1's agent found the failing payload check through its consumer search and added the declaration; slice 2's agent split the test file, after which the plan's proof table and slice 3's proof command named the wrong file until the coordinator corrected them. No rework or failed delivery followed.
+  - Inference: the delegation's consumer-search requirement caught both; the cost was small. The plan's premise table covered the skill's own line limit but not the limit on the test file it would grow or the declaration a new file needs.
+
+## DD-272 — A plan's boundary ruled out the only fact its slice could use, and its premise was observed with an input the command never receives
+
+A correction plan forbade a new schema and told its slice to replace a list of
+access roots with one rule. Its premise showed a removed worktree's mailbox
+readable "through the list `[removed path, <repo>/.git]`", but the command the
+slice had to fix is given only the mailbox directory, and Git keeps no trace
+of a removed worktree. May be the same problem as ODF-110 (a premise observed
+short of the promised journey); recorded separately because here the boundary,
+not only the premise, was what execution could not satisfy.
+
+### Occurrences
+- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
+  - Timestamp: unknown (2026-10-10, slice 1 return, between 20:02 +09:00 and `f8baebc9`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
+  - Evidence: plan 291 "Goal and boundaries" ("No new owner model, schema, or CLI flag") and its first Observed premise (`48ec2ca9:.planning/slice-plans/291-recovery-steps-reach-their-observer/PLAN.md`); `f8baebc9` adds `identity` to `request.json` in `ci-mailbox-location.mjs`; the implementation return opened with "One design choice needs your acceptance" and named the replan alternative; plan 291 slice 1 Learning.
+  - Observed effect: the background coordinator read "schema" as the owner model and CLI, accepted the field without the developer, and recorded the reading in the plan; the retrospective's independent review called it literal drift with no field-free alternative and left acceptance to the developer.
+  - Inference: qualified. Observing the premise through the installed `stop` from the default checkout would have shown at planning that the command lacks the removed path. The stop-for-human-judgment rule lists "structure constraining later work" but a background session weighs a stop against an unattended wait, and nothing told it which side a disputed boundary word falls on.
+- Execution: `SEED-121#recovery-holds-after-reuse-and-rerun` / plan 292, first implementation `cb844420`.
+  - Timestamp: unknown (2026-10-10, slice 2 return, between `cb844420` and `36a74722`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `4364af24`; base 0.3.58
+  - Evidence: plan 292 "Goal and boundaries" ("No new record field, owner model, or CLI flag") and slice 2 ("one completed it … repeats completion on that observer") at `4364af24:.planning/slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md`; the slice 2 return's first line ("\"completed\" is inferred, not recorded"); `36a74722` `completedObserver` in `trunk-closure-observer.mjs`; plan 292 slice 2 Learning (`bfd40e76:.planning/slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md`).
+  - Observed effect: no record says which observer completed a closure, so the implementation read it from the coverage record. The background coordinator returned the slice once to also settle several agreeing records and accepted the result without the developer; the retrospective's independent review then found that the widened rule counts a cancelled attempt's `incomplete` as a result, and the coordinator returned the slice a second time before completion.
+  - Inference: qualified. The plan's premise was observed through the installed `finish`, but it showed the symptom, not what would identify the completing observer; the same boundary wording as plan 291 met the same missing fact.
+
+## DD-273 — A correction's journey test stopped at the first successful rerun, and the slice's own promise failed one rerun later
+
+A slice promised that `finish` settles after several ended observers. Its
+journey proved the gap, the next `deliver`, and one successful rerun with
+retirement. The rerun the guidance promises after retirement was not run, and
+the selection the slice had just changed refuses it.
+
+### Occurrences
+- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
+  - Timestamp: unknown (2026-10-10, slice 2 acceptance before `85c8fb51`; found by the retrospective about 21:00 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
+  - Evidence: `85c8fb51` `trunk-closure-observer.mjs` `ownedObservers.select` (an ended covering observer is selected only when it is the one covering observer); `trunk-closure-owner-gaps.test.mjs` journey ends at `cleanup.worktree: "removed"`; `wrap-up-closure-publication.md` "repeats completion on this coordinator's observer that covers it"; a scratch copy of the journey with one more installed `finish` from the management context returned `step: "observation"`, `ownership: "ended"`, "3 of its observers each registered this revision and none is live". The same review found the access rule of slice 1 refused again once the removed path was recreated.
+  - Observed effect: both behavior slices were accepted and published with an adjacent state of the same rule unproved; follow-up plan 292 was written. The coordinator's acceptance listed the candidate-order cases by reading and did not run the state the journey leaves behind.
+  - Inference: the independent outcome review, given the code and questions instead of the coordinator's conclusions, found both by probing; acceptance inspected the proof named for the promise and not what the changed rule does to states the same journey produces.
+- Execution: `SEED-121#recovery-holds-after-reuse-and-rerun` / plan 292, first implementation `cb844420`.
+  - Timestamp: unknown (2026-10-10, slice 2 acceptance before `36a74722`; found by the retrospective about 21:45 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `4364af24`; base 0.3.58
+  - Evidence: the coordinator's return of slice 2 naming one adjacent history (several ended observers each holding the result); `trunk-closure-observer-selection.test.mjs` drives `success` and `failure` only; a scratch selection test at `31fd11c6` selected an observer over two `incomplete` records and returned the `ended` gap for `success` beside `incomplete`; plan 292 slice 2 Learning and obligation G8 (`bfd40e76:.planning/slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md`).
+  - Observed effect: acceptance probed one neighbouring state of the changed rule and returned the slice for it, then accepted the widened rule with its other record states undriven. The implementation return had listed "Agreement on `incomplete`" as untested, and the coordinator dispositioned it `no user cost` (plan 292 G6 at `31fd11c6`).
+  - Inference: the untested list named the state; the disposition was written from what the helper returns, not from what `finish` does with it. One returned gap did not replace an independent read of the rule.
+
+## DD-274 — A plan counted the sites needing a wait from one navigation call and missed reloads and the page's earlier read
 
 Slice 1's plan named 21 journeys whose first expectation after
 `page.goto("/")` was a plain `expect`, and a wait on the page's

@@ -35,6 +35,9 @@ type ReadSessions = {
   readonly hostOperations: MachineAnswer["hostOperations"];
   // Records oldest first per project, with latest observations; unread until supplied.
   readonly records: readonly LaunchWithState[] | undefined;
+  // Whether a read asked after the latest change of the project list has
+  // ended, answered or not: until then what is known predates the list.
+  readonly sessionsSettled: boolean;
   // Alert capability at the latest read; unread until supplied.
   readonly alerts: Alerts | undefined;
   // A kept start without a session, if present at the latest read.
@@ -111,6 +114,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   // How many reads were asked so far.
   const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
+  // The project list under which the latest ended read was asked.
+  const [settledFor, setSettledFor] = useState<typeof projects>();
   const [offersReading, setOffersReading] = useState(false);
   const [requested, setRequested] = useState(0);
   const lastRequested = useRef(0);
@@ -162,6 +167,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
         everRead.current = true;
         settleRevealed();
         setReadsSettled((settled) => settled + 1);
+        setSettledFor(projects);
       });
     };
     if (
@@ -202,6 +208,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       reread();
     },
     records: readAnswered ? configuredKnown : undefined,
+    sessionsSettled: settledFor === projects,
     creations,
     hostOperations: sessions.hostOperations,
     alerts,

@@ -144,6 +144,9 @@ export function publishedWithCatalog(
 // unless its place is among `open`, which Taken then lists instead; for the
 // story at `nestedIn`, three of its sessions marked done, each launched long
 // before the story was done, which its card holds; and `also`, as given.
+// They are the sessions of the project `source`, which the synthetic `claude`
+// lists under `checkout`: the first project and the machine's home unless
+// given.
 export async function keepProgressiveSessions(
   dashboard: DashboardServer,
   now: number,
@@ -152,15 +155,19 @@ export async function keepProgressiveSessions(
   {
     open = [],
     also = [],
+    source = "open-dough",
+    checkout = dashboard.home,
   }: {
     readonly open?: readonly number[];
     readonly also?: readonly LaunchRecord[];
+    readonly source?: string;
+    readonly checkout?: string;
   } = {},
 ) {
   const listed = (name: string, launchedAt: string) => {
     const sessionId = dashboard.claudeListsSession({
       name,
-      cwd: dashboard.home,
+      cwd: checkout,
       startedAt: Date.parse(launchedAt),
     });
     return {
@@ -177,7 +184,7 @@ export async function keepProgressiveSessions(
       return [
         {
           request: {
-            source: "open-dough",
+            source,
             workflow: "ad-hoc",
             title: entry.title,
             host: "claude",
@@ -194,7 +201,7 @@ export async function keepProgressiveSessions(
         const launchedAt = placedAt(now, 60 + index);
         return {
           request: {
-            source: "open-dough",
+            source,
             identity: entry.identity,
             title: entry.title,
             workflow,
@@ -207,5 +214,5 @@ export async function keepProgressiveSessions(
       },
     );
   });
-  await keepLaunchRecords(dashboard, [...records, ...also]);
+  await keepLaunchRecords(dashboard, [...records, ...also], source);
 }

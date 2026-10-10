@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Disposable Trunk Mode closure fixture with an independently released CI run.
-# The observer is real; the fixture never writes coverage or terminal evidence.
+# The observer is real; the fixture never writes coverage or terminal evidence,
+# and trunk-closure-native-arming.sh gives its coordinator the observer each
+# host's guidance does.
 # The owned workspace is a worktree created for this execution at trunk, whose
 # base commit stands for the accepted before-cleanup commit, so the installed
 # `finish` command publishes, completes, and retires it. A watcher records the
@@ -12,6 +14,9 @@
 # shellcheck source=tests/support/trunk-closure-native-owned-context.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-owned-context.sh"
+# shellcheck source=tests/support/trunk-closure-native-arming.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-arming.sh"
 # shellcheck source=tests/support/native-harness-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
@@ -21,33 +26,6 @@ trunk_closure_git() {
   shift
   git -C "${cwd}" -c user.name='Trunk Closure Fixture' \
     -c user.email='trunk-closure@example.invalid' "$@"
-}
-
-# Claims the observer whose start printed receipt $2 for the coordinator that
-# armed it, through host $1's installed hook at skill root $3, and exports that
-# coordinator's session for closure delivery. A Codex stream has no such claim.
-trunk_closure_claim_observer() {
-  local host=$1 receipt=$2 hook="$3/scripts/ci-host-hook.mjs" input
-  case ${host} in
-    claude)
-      TRUNK_CLOSURE_SESSION_JSON=$(jq -n -c '{session_id:"trunk-closure-coordinator"}')
-      input=$(jq -n -c --arg receipt "${receipt}" \
-        '{session_id:"trunk-closure-coordinator",hook_event_name:"PostToolUse",tool_name:"Bash",tool_response:{stdout:($receipt + "\n")}}')
-      ;;
-    cursor)
-      TRUNK_CLOSURE_SESSION_JSON=$(jq -n -c \
-        '{conversation_id:"trunk-closure-coordinator",generation_id:"trunk-closure-turn"}')
-      input=$(jq -n -c --arg receipt "${receipt}" \
-        '{conversation_id:"trunk-closure-coordinator",generation_id:"trunk-closure-turn",cursor_version:"1.0.0",hook_event_name:"postToolUse",tool_name:"Shell",tool_output:({output:($receipt + "\n"),exitCode:0} | tojson)}')
-      ;;
-    *)
-      unset TRUNK_CLOSURE_SESSION_JSON
-      return 0
-      ;;
-  esac
-  export TRUNK_CLOSURE_SESSION_JSON
-  (cd "${trunk_closure_workspace}" && node "${hook}" "${host}" <<< "${input}") \
-    | grep -Fq 'CI observer attached to this coordinator'
 }
 
 trunk_closure_write_gh() {
@@ -76,7 +54,7 @@ trunk_closure_create_fixture() {
   local scenario=$3
   local root=$4
   local harness=$5
-  local skill_root receipt
+  local skill_root
   trunk_closure_origin="${root}/remote.git"
   trunk_closure_integration="${root}/integration"
   trunk_closure_workspace="${root}/owned"
@@ -161,21 +139,16 @@ trunk_closure_create_fixture() {
   export TRUNK_CLOSURE_SCENARIO="${scenario}"
   export TRUNK_CLOSURE_RELEASE="${trunk_closure_release}"
   export TRUNK_CLOSURE_GH_LOG="${trunk_closure_gh_log}"
-  receipt=$(cd "${trunk_closure_workspace}" \
-    && node "${trunk_closure_launcher}" start --execution owner/project main 600000)
-  trunk_closure_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
-  trunk_closure_claim_observer "${host}" "${receipt}" "${skill_root}"
+  trunk_closure_arm_observer "${host}" "${harness}" || return
   if [[ ${scenario} == owned-context ]]; then
-    trunk_closure_owned_context_state "${root}"
+    trunk_closure_owned_context_state "${root}" "${host}"
   else
     printf '%s\n' \
       'Execution mode: Trunk Mode' \
       'Authorized target: owner/project main' \
       "Before-cleanup commit: ${trunk_closure_base_sha}, accepted on remote trunk" \
       "Final closure candidate: ${trunk_closure_candidate_sha}" \
-      "Observer mailbox: ${trunk_closure_mailbox}" \
-      "Observer launcher: ${trunk_closure_launcher}" \
-      "Observer owner session: ${TRUNK_CLOSURE_SESSION_JSON:-none}" \
+      "$(trunk_closure_observer_record "${host}")" \
       "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk, created by this execution" \
       "Default checkout: ${trunk_closure_integration}" \
       'Applicable CI: pending' \
@@ -184,11 +157,12 @@ trunk_closure_create_fixture() {
   trunk_closure_watch_cleanup "${harness}"
 }
 
-# Records into harness directory $1 the observer's state when the worktree
-# disappears.
+# Records into harness directory $1 the state, when the worktree disappears,
+# of the observer the final closure is registered on.
 trunk_closure_watch_cleanup() {
   (
     while [[ -d ${trunk_closure_workspace} ]]; do sleep 0.05; done
+    trunk_closure_find_observer || true
     jq -r .status "${trunk_closure_mailbox}/result.json" 2> /dev/null \
       > "$1/cleanup-observer-state" || echo missing > "$1/cleanup-observer-state"
     printf 'cleanup\n' >> "${trunk_closure_control_log}"
@@ -206,10 +180,11 @@ trunk_closure_stop_watch() {
 
 trunk_closure_cleanup_fixture() {
   trunk_closure_stop_watch
+  trunk_closure_end_stream
   native_harness_restore
   unset DOUGH_CI_MAILBOX_ROOT TRUNK_CLOSURE_BASE_SHA
   unset TRUNK_CLOSURE_CANDIDATE_SHA TRUNK_CLOSURE_SCENARIO
   unset TRUNK_CLOSURE_RELEASE
   unset TRUNK_CLOSURE_GH_LOG
-  unset TRUNK_CLOSURE_IDENTITY
+  unset TRUNK_CLOSURE_IDENTITY TRUNK_CLOSURE_STATE
 }

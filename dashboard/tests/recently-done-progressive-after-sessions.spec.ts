@@ -12,17 +12,15 @@ import { agentLaunchEndpoint } from "../src/launchRequest.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
-import { entryName, progressiveEntries } from "./recentlyDoneProgressive.ts";
+import { entryName } from "./recentlyDoneProgressive.ts";
 import { opened, recordsAsked, settle } from "./recentlyDoneProgressivePage.ts";
-
-// 14 entries, ad hoc sessions at 2, 7 and 11: with them, the first ten hold
-// eight stories; without them, the ten stories through the thirteenth entry.
-const entries = progressiveEntries(14, [2, 7, 11]);
-const storiesOf = (shown: typeof entries) =>
-  shown.flatMap((entry) => (entry.kind === "story" ? [entry.path] : []));
-const storiesOnly = entries.filter((entry) => entry.kind === "story");
-const thirteenth = storiesOnly.find((entry) => entry.place === 13);
-if (thirteenth === undefined) throw new Error("No story at 13");
+import {
+  entries,
+  firstTen,
+  shownWithoutSessions,
+  storiesOf,
+  thirteenth,
+} from "./recentlyDoneSessionPlaced.ts";
 
 test("while the saved sessions are still being read after the done catalog answered, no done record is read, and once they answer only the ten shown entries' stories are", async ({
   page,
@@ -48,7 +46,6 @@ test("while the saved sessions are still being read after the done catalog answe
     expect(bodiesAsked).toEqual([]);
 
     sessions.answer();
-    const firstTen = entries.slice(0, 10);
     await expectEntries(recent, firstTen.map(entryName));
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesOf(firstTen).toSorted(),
@@ -76,8 +73,9 @@ test("when the saved sessions cannot be read, the ten done stories shown without
     },
   );
   const { github, recent } = await opened(page, dashboard, entries);
-  const shown = storiesOnly.slice(0, 10);
-  await expectEntries(recent, shown.map(entryName));
+  await expectEntries(recent, shownWithoutSessions.map(entryName));
   await expect(recent).toContainText("Reading sessions…");
-  expect(recordsAsked(github).toSorted()).toEqual(storiesOf(shown).toSorted());
+  expect(recordsAsked(github).toSorted()).toEqual(
+    storiesOf(shownWithoutSessions).toSorted(),
+  );
 });
