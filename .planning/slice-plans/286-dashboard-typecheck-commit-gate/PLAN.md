@@ -214,3 +214,10 @@ committed or published.
   module can show only the missing-property break.
 - "Default restored and staged" equals HEAD unless the break was committed,
   so the restored-signature test commits the break with `--no-verify` first.
+
+## Execution complete
+
+Product advice: no change. The commit gate covers DD-171's mechanism at the
+repository level, and no supported learning changes the queue or the story's
+deferred items (a precise typecheck reach, other TypeScript programs, CI's
+job layout).

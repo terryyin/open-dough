@@ -174,6 +174,16 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-152).
 
+### Occurrences
+- Execution: `SEED-124#check-dashboard-fixture-consumers-locally` / plan 286, first implementation `b78500a4`.
+  - Timestamp: unknown (2026-10-10, slice 1 and slice 2 refactor passes).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: slice 1's refactor return, decision 3: the slice's eight-line fixtures paragraph took `tests/README.md` from 250 to 258 lines, and the pass moved the unrelated "Native host streams" section to a new `tests/native-host-streams.md`, stating the move "is outside the slice's concept and was done only because the file-size check is unconditional" (`git show b78500a4 -- tests/README.md tests/native-host-streams.md`). Slice 2's refactor return, decision 6, met the same check on `ProjectFindings.md` (457 lines, shrunk from 475 by the change) and left it as a reported gap.
+  - Observed effect: one documentation move unrelated to the story entered a behavior commit, and the same check produced opposite dispositions in two passes of one execution.
+  - Inference: qualified. The move is harmless here (one link, no other reference to the section), but the size threshold, not a concept the change implicated, selected it.
+
 ## ODF-209 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
 Former local code: DD-221.
