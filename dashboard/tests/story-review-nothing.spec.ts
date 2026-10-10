@@ -13,9 +13,9 @@
 
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
-import type { Locator, Page } from "@playwright/test";
-import { storyReviewEndpoint, storyReviewSchema } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReview.ts";
 import { cardSessions } from "./dashboardPage.ts";
+import { reviewAfter } from "./support/launchLandingReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   contextLine,
@@ -42,15 +42,6 @@ import {
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 const gapExplanation =
   "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.";
-
-// The review the server answers once `control` is activated.
-async function reviewAfter(page: Page, control: Locator) {
-  const answer = page.waitForResponse(
-    (response) => new URL(response.url()).pathname === storyReviewEndpoint,
-  );
-  await control.click();
-  return storyReviewSchema.parse(await (await answer).json());
-}
 
 test("a worktree straight off trunk has no changes against the named baseline", async ({
   page,

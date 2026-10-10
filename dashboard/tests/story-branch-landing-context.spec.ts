@@ -10,8 +10,8 @@ import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import { keptAttempts } from "./acceptedAttempts.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { git } from "./support/oneShotLanding.ts";
-import { slug, startPreview } from "./support/oneShotLaunch.ts";
+import { git } from "./support/launchLanding.ts";
+import { slug, startPreview } from "./support/launchPreview.ts";
 import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 import {
   queuedIdentity,

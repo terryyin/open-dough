@@ -176,9 +176,25 @@ Safe stopping point: no behavior changes.
 
 ### 4. The landed-run document and shared test support are named for any launch
 Type: Structure
-Status: planned
+Status: done
 Proof: typecheck; the specs importing the moved helpers; a search for the old
 names and paths returns only one-shot-specific uses.
+
+Accepted proof: typecheck; the 24 specs that reach a changed support module
+(47 passed); the whole `npm test` suite; 53 relative links around the renamed
+and split documents resolve.
+
+Delivered: `dashboard/STORY-REVIEW-LANDED-RUNS.md`; support modules
+`launchLanding.ts`, `launchLandingFault.ts`, `launchLandingReview.ts`
+(`reviewAfter`, `readReview`, `refreshReview`) and `launchPreview.ts`
+(with `requestFor`); `references/preserve-published-history.md` split from
+`publish-the-candidate.md` (221 lines); `install.sh` at 244 lines.
+
+Learnings: `install.sh` was relieved by moving request checking into the
+sourced `src/install/open-dough-install-request.sh`, not by splitting
+`managed_files`: release tooling, fixtures, `docs/installation-and-updates.md`
+and ADR 0003 read that declaration from `install.sh` itself, so moving it is a
+decision this correction does not own. About six more payload entries fit.
 
 Internal change: rename `dashboard/STORY-REVIEW-ONE-SHOT.md` with its inbound
 links (dashboard documents, spec comments, planning records), move the helpers
@@ -249,3 +265,13 @@ Disposition: no user cost "still gets the landed review": the rule reads only th
 Reported: slice 3 — "No spec now observes the uncaptured claimed-launch gap from a Taken card."
 Story clause: "the removed-worktree gap keeps one inexpensive spec"
 Disposition: no user cost "still gets the landed review": the card supplies only the story identity to the same review request, and `story-review-story-branch-landed.spec.ts` opens the landed review from a Taken card and a done card.
+
+### K1. The payload declaration stays inline in `install.sh`
+Reported: slice 4 — "`install.sh` was relieved by moving request handling out, not by splitting the `managed_files` list, because the list cannot leave `install.sh` without a consequential decision"
+Story clause: "the landed-run document and shared test support carry the general name"
+Disposition: no user cost "still gets the landed review": both comments are back on their own lines and the file is under the limit; where the declaration lives is an installer decision outside this story's goal, reported to the developer at completion.
+
+### K2. Stored native closure evidence is not refreshed
+Reported: slice 4 — "Adding the new reference to the story-branch closure identity changes that identity. Paid native runs were not run, as instructed."
+Story clause: "the landed-run document and shared test support carry the general name"
+Disposition: no user cost "still gets the landed review": the identity names the guidance a native run exercised, so it must change with that guidance; native host runs are paid and manual in this project.

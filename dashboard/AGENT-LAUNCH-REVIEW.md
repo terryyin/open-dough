@@ -7,7 +7,7 @@ A story with a kept launch record naming a workspace or landed run
 offers **Review changes** on its active card beside **Inspect story**, or on
 its Recently done card. It opens a read-only review, defaulting to the readable
 workspace's change against trunk; otherwise it opens the newest captured landed
-run, or the newest landed run's evidence gap. The [landed comparison](STORY-REVIEW-ONE-SHOT.md)
+run, or the newest landed run's evidence gap. The [landed comparison](STORY-REVIEW-LANDED-RUNS.md)
 uses its fixed delivered pair after workspace retirement. The action leads with
 a compare icon and ends with an arrow
 toward the side panel where the review opens; both are decorative, so its name
@@ -220,7 +220,7 @@ The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
 first-parent commits and Uncommitted changes, compares a contiguous range,
 and preserves its chosen endpoints through Refresh.
 
-The [Landed runs comparison](STORY-REVIEW-ONE-SHOT.md) offers every landed
+The [Landed runs comparison](STORY-REVIEW-LANDED-RUNS.md) offers every landed
 refinement or execution run, one-shot or a claimed Story Branch Mode launch's
 trunk integration, alongside the workspace comparisons, using each run's fixed
 delivered pair after retirement.

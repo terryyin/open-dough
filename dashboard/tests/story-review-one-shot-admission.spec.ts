@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { test, expect } from "./support/codexStart.ts";
-import { commit } from "./support/oneShotLanding.ts";
+import { commit } from "./support/launchLanding.ts";
 import {
   startReviewRun,
   captureReviewRun,

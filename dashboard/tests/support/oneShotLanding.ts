@@ -1,29 +1,11 @@
 // Capture setup goes through the installed publisher and real reporting receiver.
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { landingReceiptSchema } from "../../src/launchLanding.ts";
-import { z } from "zod";
+import { capturedPublicationSchema, git, scripts } from "./launchLanding.ts";
 
-// Keep the CLI envelope intact while typing its existing public landing receipt.
-export const capturedPublicationSchema = z.looseObject({
-  landing: z.object({
-    state: z.literal("recorded"),
-    receipt: landingReceiptSchema,
-  }),
-});
-export const git = (cwd: string, ...args: string[]) =>
-  execFileSync("git", args, { cwd, encoding: "utf8", stdio: "pipe" }).trim();
-export const scripts = (workspace: string, skill = "dough-execute-plan") =>
-  path.join(workspace, ".agents/skills", skill, "scripts");
-export function commit(workspace: string, name: string) {
-  writeFileSync(path.join(workspace, name), `${name}\n`);
-  git(workspace, "add", name);
-  git(workspace, "commit", "-m", `Result ${name}`);
-  return git(workspace, "rev-parse", "HEAD");
-}
 export function checkout(workspace: string) {
   return {
     head: git(workspace, "rev-parse", "HEAD"),
@@ -44,8 +26,6 @@ export function checkout(workspace: string) {
     seed: readFileSync(path.join(workspace, ".planning/seeds/A.md"), "utf8"),
   };
 }
-export const refs = (workspace: string) =>
-  git(workspace, "for-each-ref", "--format=%(refname) %(objectname)");
 export function context(record: LaunchRecord) {
   const established = record.start ?? record.preparation;
   const reporting = record.request.reporting;

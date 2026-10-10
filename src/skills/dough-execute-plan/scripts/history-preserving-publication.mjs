@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Git mechanics for publish-the-candidate.md "Preserve published history".
+// Git mechanics for references/preserve-published-history.md.
 // One owned workspace merges an already-published tip onto fetched trunk,
 // pushes that candidate SHA through pushExactRef, and recomputes the merge
 // once after a rejected push. A conflicted merge is preserved for the agent

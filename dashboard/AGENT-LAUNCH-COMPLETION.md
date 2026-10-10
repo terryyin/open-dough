@@ -93,7 +93,7 @@ including a reconciled pair, outside the workspace. The dashboard prepares a
 candidate that is the launch workspace's `HEAD` and contains its branch tip: a
 one-shot tip, a fast-forwarded story tip, or a detached integration merge of that
 tip onto fetched trunk; the base is the fetched trunk tip the candidate is
-published onto. The [story review](STORY-REVIEW-ONE-SHOT.md) lists a launch with
+published onto. The [story review](STORY-REVIEW-LANDED-RUNS.md) lists a launch with
 a captured landing as a landed run. Accepted publication survives
 recording failure; resume verifies the retained pair without another push, and
 the copied reporting command retries only that original input after retirement.

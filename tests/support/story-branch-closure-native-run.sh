@@ -100,7 +100,8 @@ story_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
-    src/skills/dough-execute-plan/references/publish-the-candidate.md
+    src/skills/dough-execute-plan/references/publish-the-candidate.md \
+    src/skills/dough-execute-plan/references/preserve-published-history.md
   git_publication_closing_input_hash_lines \
     src/skills/dough-execute-plan/scripts/ci-mailbox.mjs \
     src/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs

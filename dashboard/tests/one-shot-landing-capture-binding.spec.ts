@@ -5,17 +5,18 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { launch, accept } from "./agentLaunchBoundary.ts";
-import { requestFor, oneShot } from "./support/oneShotLaunch.ts";
-import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
-import { reportingChild } from "./support/completionRecovery.ts";
-import { acceptanceSchema, launchResultSchema } from "../src/launchOutcome.ts";
-import { completionReceiptSchema } from "../src/completionReport.ts";
+import { oneShot } from "./support/oneShotLaunch.ts";
+import { requestFor } from "./support/launchPreview.ts";
 import {
   git,
   scripts,
   commit,
   capturedPublicationSchema,
-} from "./support/oneShotLanding.ts";
+} from "./support/launchLanding.ts";
+import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
+import { reportingChild } from "./support/completionRecovery.ts";
+import { acceptanceSchema, launchResultSchema } from "../src/launchOutcome.ts";
+import { completionReceiptSchema } from "../src/completionReport.ts";
 test("a landing accepted before native binding imports only that original launch's comparison", async ({
   dashboard,
   origin,

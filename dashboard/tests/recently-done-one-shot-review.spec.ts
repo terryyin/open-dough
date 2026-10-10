@@ -3,8 +3,8 @@
 import type { Locator, Page } from "@playwright/test";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { completedExecution } from "./support/oneShotExecutionReview.ts";
-import { readReview } from "./support/oneShotReview.ts";
-import { git } from "./support/oneShotLanding.ts";
+import { readReview } from "./support/launchLandingReview.ts";
+import { git } from "./support/launchLanding.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { showColumn, edgeControl, rem } from "./dashboardColumnsPage.ts";

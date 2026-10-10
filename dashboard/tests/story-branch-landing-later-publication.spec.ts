@@ -9,8 +9,8 @@
 
 import { expect, test } from "./support/pageTest.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { capturedPublicationSchema, git } from "./support/oneShotLanding.ts";
-import { startPreview } from "./support/oneShotLaunch.ts";
+import { capturedPublicationSchema, git } from "./support/launchLanding.ts";
+import { startPreview } from "./support/launchPreview.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,

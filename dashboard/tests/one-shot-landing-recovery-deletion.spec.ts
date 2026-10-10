@@ -1,8 +1,11 @@
 // Existing record retention owns reporting continuity; no history lifetime is extended.
 import { test, expect, stored } from "./support/codexStart.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { requestFor, oneShot } from "./support/oneShotLaunch.ts";
-import { context, commit, git } from "./support/oneShotLanding.ts";
+import { oneShot } from "./support/oneShotLaunch.ts";
+import { requestFor } from "./support/launchPreview.ts";
+import { commit, git } from "./support/launchLanding.ts";
+import { landingGitFault } from "./support/launchLandingFault.ts";
+import { context } from "./support/oneShotLanding.ts";
 import { captureReviewRun, retireReviewRun } from "./support/oneShotReview.ts";
 import {
   builtDashboardDir,
@@ -12,10 +15,7 @@ import {
   reportingChild,
   recordOperation,
 } from "./support/completionRecovery.ts";
-import {
-  retainedLanding,
-  landingGitFault,
-} from "./support/oneShotLandingRecovery.ts";
+import { retainedLanding } from "./support/oneShotLandingRecovery.ts";
 import {
   landingRetentionClock,
   dropExpiredAttempts,

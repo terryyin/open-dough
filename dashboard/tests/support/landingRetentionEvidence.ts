@@ -7,7 +7,8 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { completionSchema } from "../../src/completionReport.ts";
 import { storyReviewMarkEndpoint } from "../../src/storyReview.ts";
-import { context, git } from "./oneShotLanding.ts";
+import { context } from "./oneShotLanding.ts";
+import { git } from "./launchLanding.ts";
 import { reportingChild, quote } from "./completionRecovery.ts";
 
 export async function retainedLandingEvidence(

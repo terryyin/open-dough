@@ -10,12 +10,8 @@ import { expect, test } from "./support/pageTest.ts";
 import { keptStarts, launch } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
-import {
-  oneShot,
-  originState,
-  requestFor,
-  startPreview,
-} from "./support/oneShotLaunch.ts";
+import { oneShot, originState } from "./support/oneShotLaunch.ts";
+import { requestFor, startPreview } from "./support/launchPreview.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 
 test.describe("a policy the installation or tracking cannot take", () => {

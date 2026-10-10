@@ -4,7 +4,9 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { requestFor, oneShot } from "./support/oneShotLaunch.ts";
+import { oneShot } from "./support/oneShotLaunch.ts";
+import { requestFor } from "./support/launchPreview.ts";
+import { git, scripts, commit, refs } from "./support/launchLanding.ts";
 import { keptAttempts } from "./acceptedAttempts.ts";
 import {
   reportingChild,
@@ -12,15 +14,7 @@ import {
   recordOperation,
 } from "./support/completionRecovery.ts";
 import { landingReceiptSchema } from "../src/launchLanding.ts";
-import {
-  git,
-  scripts,
-  commit,
-  checkout,
-  refs,
-  context,
-  publish,
-} from "./support/oneShotLanding.ts";
+import { checkout, context, publish } from "./support/oneShotLanding.ts";
 for (const workflow of ["refinement", "execution"] as const) {
   test(`${workflow} retains its accepted comparison through actual retirement and GC, without completing its launch`, async ({
     dashboard,

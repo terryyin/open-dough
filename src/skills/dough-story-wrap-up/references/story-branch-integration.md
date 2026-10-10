@@ -3,7 +3,7 @@
 Save the final-closure tip already published on the remote execution branch.
 Follow [Story Branch integration observation](../../dough-execute-plan/references/wrap-up-closure-publication.md#observe-story-branch-integration)
 for the target transition, publication, and shared completion on the accepted
-integrated SHA. Its publication uses [Preserve published history](../../dough-execute-plan/references/publish-the-candidate.md#preserve-published-history)
+integrated SHA. Its publication uses [Preserve published history](../../dough-execute-plan/references/preserve-published-history.md)
 from the owned execution workspace, excluding any default checkout's
 unrelated commits and pending human edit.
 

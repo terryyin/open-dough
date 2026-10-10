@@ -8,8 +8,8 @@ import { installedSkillPath } from "../../server/launchHosts.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { quote, reportingChild } from "./completionRecovery.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { commit, git } from "./oneShotLanding.ts";
-import { requestFor } from "./oneShotLaunch.ts";
+import { commit, git } from "./launchLanding.ts";
+import { requestFor } from "./launchPreview.ts";
 import { expect } from "./pageTest.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 

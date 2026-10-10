@@ -36,7 +36,7 @@ card. Closed sessions without a shown done card remain standalone, including
 those whose story is active. An expired published card releases its closed
 sessions to standalone entries for their remaining local retention window.
 Unread or failed done details retain closed-session access until regrouping.
-Each done-story card also offers [Review changes](STORY-REVIEW-ONE-SHOT.md)
+Each done-story card also offers [Review changes](STORY-REVIEW-LANDED-RUNS.md)
 from the full retained launch read, including an open session listed in Taken:
 a landed run, one-shot or a claimed Story Branch Mode launch's trunk
 integration, stays reviewable there after its workspace and branches are retired.
