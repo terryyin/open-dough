@@ -338,6 +338,13 @@ recorded not-ready). Recommendations for wrap-up:
 - The sibling [Trunk Mode story](../../seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes)
   can reuse this capture; it needs a list of landings per launch where this
   keeps one.
+- CI run 38060703770 failed `story-review-commit-ranges.spec.ts` on the
+  records-only completion commit: a commit-row click was lost when the range
+  answer changed the status height above the list between pointer press and
+  release. The commit-review specs now wait for the settled status before
+  each click (`support/storyReviewCommitChoice.ts`); the race predates this
+  story. A reader can lose a click the same way; reserving the status space
+  is a design choice left for the developer.
 
 ## Story obligations
 

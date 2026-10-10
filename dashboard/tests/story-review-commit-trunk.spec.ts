@@ -1,5 +1,6 @@
 // Ranges and individual merges leave trunk out and expose conflict resolutions.
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
@@ -55,7 +56,7 @@ for (const conflicted of [false, true]) {
       ).toHaveCount(0);
     }
 
-    await rows.last().click();
+    await chooseCommit(review, rows.last());
     await expect(
       review.getByRole("heading", { name: "Changes in 2 commits" }),
     ).toBeVisible();
@@ -99,7 +100,7 @@ test("an integration resolved back to the oldest parent stays flagged and is dif
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   await expect(
     review.getByRole("heading", { name: "Changes in 2 commits" }),
   ).toBeVisible();
@@ -147,7 +148,7 @@ test("a clean integration of disjoint changes in one file shows only the story e
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();

@@ -1,6 +1,7 @@
 // A range read owns the chosen points; delivering an earlier real answer
 // after a newer range has settled cannot change its heading, files or diff.
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../src/storyReview.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
@@ -37,7 +38,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
     await rows.nth(3).click();
-    await rows.nth(3).click();
+    await chooseCommit(review, rows.nth(3));
     const heading = review.getByRole("heading", {
       name: "Changes in 1 commit",
     });

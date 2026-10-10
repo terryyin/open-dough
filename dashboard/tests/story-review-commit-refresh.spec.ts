@@ -1,6 +1,7 @@
 // Anchored range identities survive new heads and refreshed virtual points;
 // vanished endpoints reset permanently to the latest default.
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
@@ -73,7 +74,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
     held.release();
     await held.delivery;
   }
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   await expect(
     review.getByRole("heading", { name: "Changes in 2 commits" }),
   ).toBeVisible();
@@ -166,7 +167,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     held.release();
     await held.delivery;
   }
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   await expect(
     review.getByRole("heading", {
       name: "Changes in 4 commits and Uncommitted changes",

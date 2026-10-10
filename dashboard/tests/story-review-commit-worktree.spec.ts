@@ -1,6 +1,7 @@
 // The virtual newest item accounts for the whole snapshot without pretending
 // to be a commit, and Mark reviewed always marks that whole snapshot.
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../src/storyReview.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
@@ -74,7 +75,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
   const rangeRead = page.waitForResponse(
     (response) => new URL(response.url()).pathname === storyReviewRangeEndpoint,
   );
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   expect(await (await rangeRead).json()).toMatchObject({
     kind: "comparison",
     files: snapshot.files,
@@ -142,8 +143,8 @@ test("a marked review opens on Since the review and marking from Commits marks t
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await rows.nth(1).click();
-  await rows.nth(1).click();
+  await chooseCommit(review, rows.nth(1));
+  await chooseCommit(review, rows.nth(1));
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
