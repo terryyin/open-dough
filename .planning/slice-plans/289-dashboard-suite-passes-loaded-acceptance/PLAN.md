@@ -176,7 +176,7 @@ slice 6's loaded run.
 
 ### 3. Where a fresh run's first seconds go is recorded
 Type: Structure
-Status: in progress — the header is delivered; the fresh-run observation remains
+Status: done
 Accepted proof of the header (2026-10-10, pinned Node): `npm run --silent
 test:dashboard -- authenticated-read-turns` (five tests in two files; the
 timing test in `authenticated-read-turns-timing.spec.ts` holds eight reads
@@ -199,7 +199,10 @@ specs stay green; nothing prints. Enables slice 4.
 
 ### 4. An owned cause of the slow first read is removed
 Type: Behavior
-Status: planned, conditional on slice 3
+Status: planned
+Cause from slice 3: the synthetic `gh`'s first execution in a fresh checkout.
+The suite's global setup (`dashboard/tests/support/globalSetup.ts`) runs the
+fixture executable once before any worker starts, so no page's read pays it.
 Proof: In a fresh run after the change, the same breakdown shows the owned
 share gone, relative to slice 3's under comparable load; the boundary specs
 and the group of slice 1 pass.
@@ -327,6 +330,28 @@ Disposition: proved by slice 3: the recorded preview-server trace lines in Learn
   on purpose needs `--trace on --reporter=dot`, and the breakdown is read
   from each `trace.zip`'s `*.network` records (`resource-snapshot` entries
   whose URL has `/__authenticated-read?`, header `server-timing`).
+
+- Slice 3, the finding (2026-10-10 at `47c5b2fa`, pinned Node):
+  `scripts/dashboard-repeat.sh 1 --fresh` printed `Run 1 (fresh worktree):
+  exit 0, 696 s, load 8.24 -> 25.72` and `Passed 1 of 1 runs.` A traced fresh
+  head-of-run in a second new worktree (load 20.7 → 30.7) showed the six
+  head pages' first `?source=open-dough` read taking 493–972 ms in the
+  browser, of which `gh` (2 calls) was 477–962 ms, `admission` 0–1 ms, `rest`
+  1–3 ms, and time outside the handler 7–14 ms. The same six tests in the
+  then-warm worktree (load 21.4 → 15.4): 108–119 ms, `gh` 91–104 ms. From
+  the seventh page on, the fresh run was at steady state. Cause: the
+  synthetic `gh`'s first execution in a fresh checkout (a new file's
+  first-run assessment on macOS, as `dashboard/tests/support/
+  fixtureExecutable.ts` already describes for copies): a direct probe in two
+  new worktrees measured the first exec of `dashboard/tests/fixtures/fake-gh`
+  at 344 ms, then 20–23 ms; twelve concurrent first execs 130–139 ms each.
+  It is a cause in the suite, paid once per checkout by the head reads.
+  Admission never queued (at most 8 ms anywhere) and the server's own work on
+  a project's first read is 1–3 ms, so no server cause is supported. Not
+  proved: that the same cost stretches to the 4.9 s seen at `8511d0cb` (the
+  largest read here was 0.97 s); the split between the two `gh` calls; loads
+  were not matched between the fresh and warm runs. Evidence outside the
+  repository: `~/.claude/jobs/4afde9c0/tmp/fresh-observation/`.
 
 ## Verification and sizing
 
