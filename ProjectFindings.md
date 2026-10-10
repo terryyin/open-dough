@@ -120,6 +120,14 @@ still named by its identity at the 5 s timeout). The cause is unknown.
   - Evidence: slice 1's full run failed `cursor-session-recovery.spec.ts:168`, which then failed 1 of 3 alone and passed `--repeat-each 5` at the coordinator; slice 3's full run (1380/1384) failed `cursor-session-recovery:106` and `frame-launch-look:101`, both passing alone (4/4 for the latter); slice 4's consumer group failed `recently-done-progressive-failed-read-refresh:120` once, then passed in the rerun and 8/8 alone. Slice 4's full run passed. Plan 284 slices 1, 3, and 4 record them; logs are not retained.
   - Observed effect: extra reruns in three slices to separate these from the change; no CI failure observed for them.
   - Inference: Qualified. Matches the load-sensitive pattern SEED-123 owns (other workloads ran on the machine), but nothing retained separates load from a timing race in these specs.
+- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`
+  - Timestamp: unknown (2026-10-10, between 20:10 and 20:18 +09:00)
+  - Tool: Claude Code (delegated implementation agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `650918e4`; base 0.3.58
+  - Evidence: slice 3's run of the eleven dashboard specs that read the source refinement options (74 tests) failed `frame-launch-look.spec.ts:101` once at `expectNoSidewaysScrollAndWholeText` (`pageLayout.ts:127`); the file alone then passed three times (4/4 each). The test opens the roster view and no options dialog. The log is not retained.
+  - Observed effect: three reruns to separate it from the change; recorded in plan 290 slice 3.
+  - Inference: Qualified. Other agent sessions were running on the machine; cause still unknown.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
 

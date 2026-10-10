@@ -235,6 +235,18 @@ Story Branch Mode step 2 names `main`, the opt-out, and the open coordinator
 question; the flow gains a retained-draft node. The "Revised" line already
 carried 2026-10-10. ADR 0009 needed no change.
 
+## Execution complete
+
+Product advice: no backlog change. The next queued story,
+SEED-128#publish-dirty-preparation-before-execution, can enter the same keep
+sequence through the journey's end, so its priority stands. Agents and the
+dashboard dialog get the landing default and "Retain for review" from the
+installed copies, which change at the next release. One sentence outside
+this plan's files still reads as the old rule and can be aligned with any
+later edit there: `preparation-workspace.md`, "Pause and resume a preparation
+session", ends "for what only an explicit instruction can trigger" while
+disposition now names three keep sources.
+
 ## Story obligations
 
 ### G1. `--retain` is named before the options file defines it
