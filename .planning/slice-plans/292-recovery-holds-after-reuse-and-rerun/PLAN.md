@@ -41,7 +41,11 @@ Reviewed at `7e27929f`.
 
 ## Decisions for the developer
 
-Outside this plan until decided; each names what the answer changes.
+The developer accepted every recommendation below on 2026-10-10. The
+ambient rerun is pinned by `trunk-closure-owner.test.mjs` "an ambient rerun
+after worktree removal…"; the live-observer preference and the sole ended
+observer's `incomplete` record are queued as
+SEED-121#finish-prefers-live-observer, which also carries the native items.
 
 - **One ended covering observer beside a live one that does not cover.**
   `finish` selects the ended one, as before plan 291, and may retire on its

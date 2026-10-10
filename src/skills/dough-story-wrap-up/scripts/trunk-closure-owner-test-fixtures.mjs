@@ -103,6 +103,17 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
     await hook("sibling", "sibling-coordinator", startReceipt(sibling)),
     attached,
   );
+  // The installed `finish` of `closure` rerun from the management context
+  // once the execution worktree is retired, as `coordinator`'s host runs it.
+  const rerun = (closure, coordinator, extra = []) =>
+    finishThroughCli(fixture, {
+      host,
+      platform,
+      env: env(coordinator),
+      checkout: fixture.integration,
+      ...closure,
+      extra: ["--created-for-work", "--repository", repository, ...extra],
+    });
   return {
     fixture,
     hook,
@@ -122,21 +133,17 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
         env: env(coordinator),
         ...options,
       }),
-    // The installed `finish` of `closure` rerun from the management context
-    // once the execution worktree is retired. It names `session` as its owner
-    // where the ambient identity is the sibling's.
+    // That rerun with no `--session-json`: its owner is `coordinator`'s
+    // ambient session, or none when `coordinator` is null.
+    ambientRerunFromManagement: (closure, coordinator = publisherCoordinator) =>
+      rerun(closure, coordinator),
+    // That rerun naming `session` as its owner where the ambient identity is
+    // the sibling's.
     rerunFromManagement: (closure, session) =>
-      finishThroughCli(fixture, {
-        host,
-        platform,
-        env: env("sibling-coordinator"),
-        checkout: fixture.integration,
-        ...closure,
-        extra: [
-          ...["--created-for-work", "--repository", repository],
-          ...["--session-json", JSON.stringify({ [sessionField]: session })],
-        ],
-      }),
+      rerun(closure, "sibling-coordinator", [
+        "--session-json",
+        JSON.stringify({ [sessionField]: session }),
+      ]),
     assertSiblingUntouched: siblingWitness(fixture, sibling),
   };
 }

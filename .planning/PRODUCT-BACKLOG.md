@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Finish prefers its coordinator's live observer over an ended one](seeds/SEED-121-execution-observer-ownership.md#finish-prefers-live-observer) — SEED-121#finish-prefers-live-observer
 - [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes
