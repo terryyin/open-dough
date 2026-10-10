@@ -125,11 +125,17 @@ the wording. No Accepted ADR conflicts; this plan adds no topic.
 
 ### 1. Slice planning's premise-settling procedure moves to a reference
 Type: Structure
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-story-refinement/scripts/preparation-journey-guidance.test.mjs`
 passes unchanged; `wc -l src/skills/dough-slice-planning/SKILL.md` is at most
-200; every link into `#write-the-plan` (record-preparation.md, planning.md)
-still resolves to an existing heading.
+200; every link into `#write-the-plan` (record-preparation.md and the
+story-refinement SKILL.md) still resolves to an existing heading.
+
+Accepted: the journey test passes unchanged (9); the skill is 200 lines; the
+moved text is byte-identical in the reference. Learning: a new reference file
+is a payload file, so `install.sh` `managed_files` declares it
+(`tests/payload-declaration-links.sh` refuses an undeclared link target); the
+`managed_files` consumers under `tests/` pass. Slices 2 to 4 add no file.
 
 Structure: Move the paragraphs from "A decisive premise is a factual claim"
 through "Such a plan can be `ready`; the probe's observation keeps its
