@@ -3,9 +3,10 @@
 **Identity:** SEED-088#resolved-integration-survives-reruns
 **Source:** [correction story](../../seeds/SEED-088-dashboard-story-code-review.md#resolved-integration-survives-reruns),
 written 2026-10-11 by the execution retrospective of
-`SEED-088#landing-capture-after-integration-conflict`
-([story](../../seeds/SEED-088-dashboard-story-code-review.md#landing-capture-after-integration-conflict),
-[plan 294](../294-landing-capture-after-integration-conflict/PLAN.md); commits
+`SEED-088#landing-capture-after-integration-conflict` (story and plan 294
+recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373`:
+`.planning/seeds/SEED-088-dashboard-story-code-review.md#landing-capture-after-integration-conflict` and
+`.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`; commits
 `9aa4ec9f`, `f4cbf529`, `5f6ab04c`, `a5c55a56` on
 `claude/a-conflicted-story-branch-integration-still-reco`). Planning only; this
 plan grants no Take, execution, or publication.

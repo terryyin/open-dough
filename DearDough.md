@@ -729,7 +729,7 @@ lines, and the plan settled neither as a premise.
   - Observed effect: slice 1's agent found the failing payload check through its consumer search and added the declaration; slice 2's agent split the test file, after which the plan's proof table and slice 3's proof command named the wrong file until the coordinator corrected them. No rework or failed delivery followed.
   - Inference: the delegation's consumer-search requirement caught both; the cost was small. The plan's premise table covered the skill's own line limit but not the limit on the test file it would grow or the declaration a new file needs.
 
-- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294, first implementation `9aa4ec9f`
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
   - Timestamp: unknown (2026-10-11, between the Take `aa5bcb17` and `a5c55a56` at 08:16 +09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -859,7 +859,7 @@ path into that state: resolve a conflicted integration by hand and push it.
   - Evidence: plan 292 `## Story obligations` G5 (`no user cost`, reasoning that no pair was retained so the evidence gap is the story's own rule); slice 3's return listed it under gaps with that one cause; the independent outcome review traced `constructCandidate` (`history-preserving-candidate.mjs`, always `checkout --detach` then merge) and `story-branch-integration.md`'s conflict step to the same state; a scratch repository with a content conflict gave exit 2 and, after a hand resolution, the same conflict again (plan 294, Observed premises).
   - Observed effect: slice 3 was accepted and published with the story's Required clause “once remote trunk accepts the integrated SHA the handoff records the pair” unmet for a conflicted integration; correction plan 294 was written.
   - Inference: the story-obligations check validates the entry's structure and quotes, and the disposition rested on the return's stated cause. Asking which paths the guidance directs into the reported state, a few minutes of reading, would have made it a `return`. One sample.
-- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294, first implementation `9aa4ec9f`
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
   - Timestamp: unknown (2026-10-11, slice 1 acceptance before `9aa4ec9f` at 07:44 +09:00; found by the retrospective about 08:25 +09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -876,7 +876,7 @@ made a merge the agent resolved by hand the candidate. Untouched code still
 returned to the branch when landing retention failed.
 
 ### Occurrences
-- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294, first implementation `9aa4ec9f`
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
   - Timestamp: unknown (2026-10-11, slice 1 delivered at 07:44 +09:00; found by the retrospective about 08:25 +09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5

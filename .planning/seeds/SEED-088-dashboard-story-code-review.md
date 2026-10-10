@@ -168,30 +168,6 @@ current one as trunk's, so story work that reaches trunk after the mark is
 left out and an otherwise empty review says nothing changed beyond what trunk
 now holds; recognizing the story's own commits there would let it list them.
 
-<a id="landing-capture-after-integration-conflict"></a>
-
-### A conflicted Story Branch integration still records its landing
-
-**Identity:** SEED-088#landing-capture-after-integration-conflict
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc18198d9e33344a26e99e729e6966413f29ed27a20041b1159a55de6a7b2fe8","plan":"472f44d749bb13fefb68ab79369f9fed384ad41565440486a379dc9ade137ab1"}}
-```
-**Slice plan:** [A conflicted Story Branch integration still records its landing](../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md).
-
-**Goal:** A developer reviewing a Story Branch Mode story whose trunk
-integration met a merge conflict, or whose launch published to trunk again
-after integrating, still gets the landed review that
-the reviewed story (`SEED-088#review-merged-story-branch-changes`, at
-`1d2de5da4b38eb379caa25da45e9254c42949795:.planning/seeds/SEED-088-dashboard-story-code-review.md`) delivers, so
-contended stories do not land with an evidence gap. A bounded correction from
-that story's execution retrospective; it adds no feature promise.
-
-**Scope:** The `integrate` command publishes a merge the agent resolved by
-hand and reports a conflict as a preserved result; the launch instruction and
-landing handoff say that a launch's later trunk publications take no landing
-context; the removed-worktree gap keeps one inexpensive spec; the landed-run
-document and shared test support carry the general name.
-
 <a id="resolved-integration-survives-reruns"></a>
 
 ### A resolved integration survives a failed or early rerun

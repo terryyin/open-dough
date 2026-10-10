@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-088#landing-capture-after-integration-conflict",
+  "title": "A conflicted Story Branch integration still records its landing",
+  "completedAt": "2026-10-10T23:34:59.315Z",
+  "developer": "Terry Yin",
+  "agent": "philip-chan",
+  "host": "claude"
+}
