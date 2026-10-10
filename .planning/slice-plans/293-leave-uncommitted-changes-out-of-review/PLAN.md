@@ -148,7 +148,7 @@ the Refresh announcement, the doc rules, and the proof.
 
 ### 2. The check keeps its state across Refresh and comparison switches
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases in `story-review-uncommitted-check.spec.ts` (or a sibling
 `story-review-uncommitted-check-refresh.spec.ts` if the file grows past its
 neighbours' size) for the Refresh and switching rows of the proof table; the
@@ -170,29 +170,63 @@ below that name this slice.
 
 Safe stopping point: the story's outcome is delivered.
 
+Accepted proof: `dashboard/tests/story-review-uncommitted-check-refresh.spec.ts`
+(3 tests on `storyWorktree`) observes the Refresh and switching proof rows and
+obligations G1 to G4; the panel-opening suite passed, 102 tests, with
+`npm run typecheck:dashboard` clean. Reverting the reset or the announcement
+each failed the Refresh test.
+
+Learning: the reset reads the snapshot's own `committed`; the comparison
+hook's is scoped to All changes and would reset the check on every switch.
+
+CI repair: run 38091599194 on slice 1's revision lost a Mark as done press in
+`session-workspace-retirement-claude.spec.ts`, the defect trunk repaired in
+`8df6248b` and rebalanced for in `3b2b446a`. The branch merged trunk at
+`2783ca92` instead of repeating those repairs.
+
 ## Story obligations
 
 ### G1. File moves are unasserted with the check off
 Reported: slice 1 — "Previous file / Next file and collapsed-folder counts with the check off. They read `comparison` unchanged; only the list and total are asserted."
 Story clause: "Turned off, the file browser, counts, total, diffs and file moves compare the baseline with the head's tree"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `story-review-uncommitted-check-refresh.spec.ts`, “with the check off the file moves stay within the committed files…”: Previous file and Next file end, disabled, at the first and last committed file
 
 ### G2. Refresh announces the whole snapshot's count with the check off
 Reported: slice 1 — "with the check off, Refresh still announces the whole snapshot's count"
 Story clause: "Refresh keeps its state while the new snapshot still holds uncommitted changes"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `story-review-uncommitted-check-refresh.spec.ts`, “Refresh keeps the check off while uncommitted changes remain…”: the feedback announces 5 changed files while the snapshot holds 7
 
 ### G3. The check's absence outside All changes is unasserted
 Reported: slice 1 — "that the check is absent in Since the review, Commits or a landed comparison"
 Story clause: "shown only for All changes"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `story-review-uncommitted-check-refresh.spec.ts`, “Since the review and Commits offer no check…”: no checkbox in either
 
 ### G4. A binary file's committed-only diff is unasserted
 Reported: slice 1 — "a binary or renamed file's committed-only diff; only `story.txt`'s text diff is"
 Story clause: "file diffs use the existing file read"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `story-review-uncommitted-check-refresh.spec.ts`, “with the check off the file moves stay within the committed files…”: the `image.png` file read names `committed.tree` and shows the binary notice
 
 ### G5. The check's appearance was not looked at
 Reported: slice 1 — "the check's visual appearance in a browser; the CSS is small and unreviewed by eye"
 Story clause: "The check belongs with the review's marking controls in its fixed top"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: screenshots of the fixed top with the check on, off, focused and after Mark reviewed, read by the implementation agent and the coordinator: the check and its line sit above Mark reviewed, aligned with the comparison radios; no defect found; the dashboard has no dark scheme
+
+### G6. Collapsed-folder counts are unasserted with the check off
+Reported: slice 2 — "this second half of slice 1's G1 note is still unasserted. The committed fixture has no folders"
+Story clause: "Turned off, the file browser, counts, total, diffs and file moves compare the baseline with the head's tree"
+Disposition: no user cost "can leave its uncommitted changes (staged, unstaged and untracked) out of the full review": a folder's counts are summed by the file browser from the files it lists, whichever comparison supplies them, and the committed list and its per-file counts are asserted.
+
+### G7. A renamed file's committed-only diff is unasserted
+Reported: slice 2 — "`Renamed old.txt → new.txt` is only selected via Next file"
+Story clause: "file diffs use the existing file read"
+Disposition: no user cost "can leave its uncommitted changes (staged, unstaged and untracked) out of the full review": the committed-only diff is the existing file read with the head's tree, observed for a text and a binary file; that read's rename handling is unchanged and takes any tree.
+
+### G8. An unreadable refreshed snapshot leaves the check's state as it is
+Reported: slice 2 — "If Refresh fails or the workspace becomes unavailable, the state is left as is. That case is untested."
+Story clause: "Refresh keeps its state while the new snapshot still holds uncommitted changes"
+Disposition: no user cost "can leave its uncommitted changes (staged, unstaged and untracked) out of the full review": a review that cannot be read shows no files and no check, and the next readable snapshot either still holds uncommitted changes, where the kept state and its line show, or holds none, where the state resets.
+
+### G9. The check's absence on a landed comparison is unasserted
+Reported: slice 2 — "the check's absence there is untested"
+Story clause: "the check in Since the review or on a landed comparison"
+Disposition: excluded "the check in Since the review or on a landed comparison"

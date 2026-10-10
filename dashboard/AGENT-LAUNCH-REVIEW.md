@@ -177,8 +177,7 @@ tree or its baseline (the project was cloned anew, say; checked with
 be compared: the answer carries the mark and `markUncomparable: "unreadable"`
 in place of `since`, and the review says an earlier snapshot is marked but can
 no longer be read, and shows all changes, with Commits still offered when the
-snapshot lists commits. Mark reviewed
-then starts again from the snapshot shown.
+snapshot lists commits. Mark reviewed then starts again from the snapshot shown.
 
 While All changes is shown and the snapshot holds uncommitted changes
 (staged, unstaged or untracked), the marking controls offer a native checkbox,
@@ -198,7 +197,13 @@ this worktree is uncommitted.” and the check stays to turn back on. A snapshot
 without uncommitted changes carries no `committed` and offers no check, as
 Commits lists no Uncommitted changes item then; neither do Since the review,
 Commits or a landed comparison (`src/useStoryReviewComparison.ts`,
-`src/StoryReviewMark.tsx`).
+`src/StoryReviewMark.tsx`). The check's state is the panel's
+(`src/StoryReviewPanel.tsx`): Refresh keeps it while the new snapshot still
+holds uncommitted changes, and a snapshot that holds none resets it to on, so
+uncommitted changes appearing later are included again. Switching to Since the
+review, Commits or a landed run and back to All changes keeps it. Refresh
+announces the file count of the comparison shown, so with the check off it
+announces the committed files' (`src/StoryReviewFeedback.tsx`).
 
 Trunk merged into the story after the mark stays out of the changes since the
 review, as it does from all changes (`server/storyReviewComparison.ts`). With an
@@ -233,8 +238,7 @@ since, so the earlier review cannot be compared across them, and shows all
 changes, with Commits still offered when the snapshot lists commits. Mark reviewed then starts again from the snapshot
 shown, on whose unchanged baseline the next review needs no restating. A
 restatement the closed response aborted still fails, and any Git failure
-outside restating still answers that the workspace's changes could not be
-read.
+outside restating still answers that the workspace's changes could not be read.
 
 The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
 first-parent commits and Uncommitted changes, compares a contiguous range,

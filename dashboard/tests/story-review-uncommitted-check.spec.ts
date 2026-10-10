@@ -12,7 +12,7 @@
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
   storyReviewMarkEndpoint,
@@ -34,18 +34,14 @@ import {
   markReviewed,
   openReview,
   reviewRegion,
+  uncommittedCheck as check,
+  uncommittedLeftOut as leftOut,
 } from "./support/storyReviewMark.ts";
 import {
   nestedWorktree,
   storyWorktree,
   unchangedWorktree,
 } from "./support/storyReviewWorktree.ts";
-
-const leftOut =
-  "Uncommitted changes are left out. Mark reviewed still marks the whole snapshot.";
-
-const check = (review: Locator) =>
-  review.getByRole("checkbox", { name: "Include uncommitted changes" });
 
 // Story A's worktree with its committed story file edited again, uncommitted.
 function storyWorktreeEditedAgain(origin: StartOrigin) {

@@ -54,6 +54,10 @@ export function StoryReviewPanel({
     onWorkspace,
     onRun,
   } = useStoryReviewSelection(source, identity, round);
+  // A snapshot without uncommitted changes offers no check; the next that
+  // holds some offers it on.
+  if (!includeUncommitted && workspace !== undefined && !workspace.committed)
+    setIncludeUncommitted(true);
   // Mark reviewed's answer for the review it marked, and whether a mark is
   // still being made.
   const [made, setMade] = useState<{
