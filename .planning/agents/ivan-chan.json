@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-128#land-planning-without-coordinator-questions",
+  "mode": "story-branch",
+  "branch": "claude/automatically-land-completed-slice-planning-when",
+  "host": "claude"
+}
