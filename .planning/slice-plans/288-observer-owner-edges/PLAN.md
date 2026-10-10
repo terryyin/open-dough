@@ -128,7 +128,7 @@ worktree existed. `trunk-closure.mjs` is 248 lines against the 250-line limit.
 
 ### 2. Recovery guidance names the observer that can notify the caller
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the installed owner-gap and resume-owner proofs and the hook
 boundary; align the guidance tests.
 
@@ -145,6 +145,26 @@ hook, and guidance suites.
 
 Safe stopping point: no gap reason or guidance steers a caller to an observer
 whose events it cannot receive.
+
+Accepted proof, through the installed `deliver`, `resume`, `finish`, and host
+hook: `execution-increment-managed-delivery-recipient.test.mjs` (a named
+session's failure reaches that session's hook and never the caller's; a
+subagent coordinator naming its `agent_id` keeps one observer),
+`execution-increment-managed-delivery-resume-owner.test.mjs` and
+`-resume-owner-gaps.test.mjs` (gap wording, recipient, and a replacing
+session's journey on both hosts), `trunk-closure-owner-gaps.test.mjs` (the
+same for `finish` on Claude Code), and `observer-owner-guidance.test.mjs`.
+
+Learnings for later slices: host receipts carry `observation.notifies`, the
+session that receives the observer's events and the input that named it; a
+harness can assert it. The shared recovery sentence and session fields live in
+`ci-host-bridge.mjs` (`ownObserverRecovery`, `eventRecipient`,
+`hostIdentity.fields`); each gap table appends its own command step.
+`eventRecipient` needs the raw explicit session to tell `--session-json` from
+the ambient identity, so one parser keeps that distinction. The named-session
+hook proof and the `finish` replacing-session journey run for Claude Code
+only. `trunk-publication.md` is at the 250-line limit,
+`execution-increment-observation.mjs` at 245, `trunk-closure.mjs` at 248.
 
 ### 3. The native closure harness arms observers as the guidance teaches
 Type: Behavior
@@ -202,6 +222,9 @@ each run is paid and needs the developer's authorization.
   `observation.state: "reused"` on that directory; repeat with a second
   coordinator's stream live on the same target. Then `resume` and `finish` with
   the same inputs.
+- Claude Code subagent coordinator: confirm its Bash tool carries its parent's
+  `CLAUDE_CODE_SESSION_ID`, that it can state its own `agent_id`, and that
+  `deliver` with both in `--session-json` reuses the observer it claimed.
 - Retained trunk-closure and git-publication evidence identities changed with
   the hashed modules.
 

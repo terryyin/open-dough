@@ -33,7 +33,7 @@ const recoveries = {
   context:
     "rerun finish with --repository set to the management context an earlier finish result reported",
   observation:
-    "rerun finish with the owner input observation.reason names, or report the lost coverage; the worktree and branch stay until a completion receipt confirms shutdown",
+    "follow observation.reason and rerun finish, or report the lost coverage; the worktree and branch stay until a completion receipt confirms shutdown",
   completion:
     "report the completion receipt; the worktree and branch stay for diagnosis or a later completion",
 };

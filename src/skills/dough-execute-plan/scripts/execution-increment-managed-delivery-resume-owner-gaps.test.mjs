@@ -113,7 +113,7 @@ test("a resume recovers an older observer by the owner claim its session input v
   assertCoverageGap(
     unverified,
     "missing",
-    /holds no observer of owner\/project main.*4 unclaimed or other coordinators' observers.*not adopted.*--session-json naming the session that armed/,
+    /holds no observer of owner\/project main.*4 unclaimed or other coordinators' observers.*not adopted.*--session-json with its session_id, and its agent_id when it is a subagent coordinator.*replaced the coordinator/,
   );
   assert.equal(unverified.resumed.observation.directory, undefined);
   for (const directory of [legacy, unclaimed, publisher])

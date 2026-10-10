@@ -53,7 +53,7 @@ async function resumeAcceptedClosure({
     acceptedSha: accepted,
     pushCount: resumed.pushCount,
     observation: found.directory
-      ? { state: "recovered", directory: found.directory, reused: true }
+      ? { state: "recovered", ...found, reused: true }
       : found.gap,
     startReceipt: null,
   };

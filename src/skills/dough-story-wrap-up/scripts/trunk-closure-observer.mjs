@@ -10,8 +10,10 @@
 import { existsSync, realpathSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import {
+  eventRecipient,
   hostSessionOwner,
   missingIdentityReason,
+  ownObserverRecovery,
   resolveHostSession,
 } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
 import {
@@ -34,7 +36,7 @@ const notLive = {
 
 // Why none of a host coordinator's observers carries the final closure.
 // `candidates` are the several that could, when the choice is ambiguous.
-function hostGap({ target, owner, candidates }) {
+function hostGap({ target, host, owner, candidates }) {
   const where = `${target.repo} ${target.branch}`;
   if (candidates.length > 1) {
     return coverageGap(
@@ -45,7 +47,7 @@ function hostGap({ target, owner, candidates }) {
   const owned = classifyOwnedObservation({ ...target, owner });
   if (owned.kind === "missing") {
     return coverageGap(
-      `this coordinator holds no observer of ${where}; pass --session-json naming the session that armed this execution's observer when that is not this one`,
+      `this coordinator holds no observer of ${where}; ${ownObserverRecovery(host)}; this coordinator's next \`deliver\` from the execution worktree establishes its own, and rerunning this finish then completes the final closure on it; once that worktree is gone, report the final closure's coverage as lost`,
       { ownership: "missing" },
     );
   }
@@ -59,7 +61,8 @@ function hostGap({ target, owner, candidates }) {
 // `directories` are the owner's observers in any state. `select` returns the
 // one that covers `sha`, preferring a live one; else the owner's one live
 // observer, which has yet to register it; otherwise the coverage `gap`.
-function ownedObservers(directories, target, gap) {
+// `notifies` is the host session that receives a selected observer's events.
+function ownedObservers(directories, target, gap, notifies) {
   return {
     directories,
     select(sha) {
@@ -76,7 +79,7 @@ function ownedObservers(directories, target, gap) {
           covering.length ? [] : live,
         ].find((found) => found.length > 0) ?? [];
       return candidates.length === 1
-        ? { directory: candidates[0] }
+        ? { directory: candidates[0], ...(notifies && { notifies }) }
         : { gap: gap(candidates) };
     },
   };
@@ -145,6 +148,7 @@ export function closureObservers({
   return ownedObservers(
     listOwnedMailboxes({ ...target, owner }),
     target,
-    (candidates) => hostGap({ target, owner, candidates }),
+    (candidates) => hostGap({ target, host, owner, candidates }),
+    eventRecipient({ host, session, env }),
   );
 }

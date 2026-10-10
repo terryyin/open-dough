@@ -54,6 +54,7 @@ test("a finish rerun on an accepted closure for a project below its Git toplevel
     state: "recovered",
     directory: observer,
     reused: true,
+    notifies: delivered.observation.notifies,
   });
   assert.deepEqual(coverage(observer), revisions(beforeCleanup, final));
   assert.equal(again.result.completion.requestedSha, final);

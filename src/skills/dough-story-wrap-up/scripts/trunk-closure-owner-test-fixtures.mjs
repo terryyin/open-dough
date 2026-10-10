@@ -110,8 +110,8 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
     sibling,
     // Counts the pushes the bare remote receives from now on.
     pushes: () => countPushes(fixture),
-    deliver: (base, extra = []) =>
-      checkouts.deliver(base, publisherCoordinator, extra),
+    deliver: (base, extra = [], coordinator = publisherCoordinator) =>
+      checkouts.deliver(base, coordinator, extra),
     // The installed `finish` as `coordinator`'s host runs it.
     finish: (options, coordinator = publisherCoordinator) =>
       finishThroughCli(fixture, {

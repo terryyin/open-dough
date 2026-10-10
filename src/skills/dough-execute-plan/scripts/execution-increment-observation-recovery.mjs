@@ -6,8 +6,10 @@
 // ambiguous. Resume never starts or adopts an observer; each gap names what
 // recovers observation.
 import {
+  eventRecipient,
   hostSessionOwner,
   missingIdentityReason,
+  ownObserverRecovery,
   resolveHostSession,
 } from "./ci-host-bridge.mjs";
 import {
@@ -20,10 +22,12 @@ import {
   retainedStreamObservation,
 } from "./execution-increment-observation.mjs";
 
-const recovered = (directory) => ({
+// `notifies` is the host session that receives this observer's events.
+const recovered = (directory, notifies) => ({
   state: "recovered",
   directory,
   reused: true,
+  ...(notifies && { notifies }),
 });
 
 // A host coordinator's observer is established only by its own `deliver`.
@@ -31,12 +35,12 @@ const hostRecovery =
   "resume starts no observer: this coordinator's next `deliver` establishes its own, and rerunning this resume then registers the accepted revision on it";
 
 const ownedGaps = {
-  missing: ({ target: { repo, branch }, others }) =>
+  missing: ({ target: { repo, branch }, host, others }) =>
     `this coordinator holds no observer of ${repo} ${branch}${
       others > 0
         ? `, and the ${others} unclaimed or other coordinators' observer${others > 1 ? "s" : ""} of it ${others > 1 ? "are" : "is"} not adopted`
         : ""
-    }; pass --session-json naming the session that armed this execution's observer when that is not this one; otherwise ${hostRecovery}`,
+    }; ${ownObserverRecovery(host)}; ${hostRecovery}`,
   ended: ({ owned: { directory, terminal } }) =>
     `this coordinator's observer at ${directory} ended (${terminal.status}); ${hostRecovery}`,
   lost: ({ owned: { directory, terminal } }) =>
@@ -82,13 +86,14 @@ export function recoverObservationForResume({
     });
   }
   const owned = classifyOwnedObservation({ ...target, owner, root, storage });
-  if (owned.kind === "live") return recovered(owned.directory);
+  if (owned.kind === "live")
+    return recovered(owned.directory, eventRecipient({ host, session, env }));
   const others =
     owned.kind === "missing"
       ? listMatchingMailboxes({ ...target, root, storage }).length
       : 0;
   // Only this coordinator's own observers are named.
-  return coverageGap(ownedGaps[owned.kind]({ target, owned, others }), {
+  return coverageGap(ownedGaps[owned.kind]({ target, host, owned, others }), {
     ownership: owned.kind,
     directory: owned.directory,
     directories: owned.directories,

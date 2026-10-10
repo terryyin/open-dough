@@ -14,17 +14,25 @@ const defaultHook = fileURLToPath(
 // Explicit session input is authoritative, metadata included. Without it, a
 // Claude Code or Cursor coordinator is identified by its own host's session
 // variable from the supplied environment; no host uses another host's variable.
+// `fields` are what --session-json carries to name that same coordinator. A
+// Claude Code subagent's variable names its parent session, so only its
+// `agent_id` names the subagent coordinator.
 const hostIdentity = {
   claude: {
     name: "Claude Code session",
     variable: "CLAUDE_CODE_SESSION_ID",
     field: "session_id",
+    fields:
+      "its session_id, and its agent_id when it is a subagent coordinator",
+    subagent:
+      "a subagent coordinator receives its events only by passing --session-json with that session_id and its agent_id",
     tool: "Bash",
   },
   cursor: {
     name: "Cursor conversation",
     variable: "CURSOR_CONVERSATION_ID",
     field: "conversation_id",
+    fields: "its conversation_id",
     tool: "Shell",
   },
 };
@@ -40,7 +48,30 @@ export function missingIdentityReason(host, command = "deliver") {
   const identity = hostIdentity[host];
   if (!identity)
     return "host session identity is required to verify the notification bridge";
-  return `${identity.name} identity is unavailable: ${identity.variable} is unset and no --session-json was supplied; run ${command} from the coordinator's own ${identity.tool} tool or pass --session-json with its ${identity.field}`;
+  return `${identity.name} identity is unavailable: ${identity.variable} is unset and no --session-json was supplied; run ${command} from the coordinator's own ${identity.tool} tool or pass --session-json with ${identity.fields}`;
+}
+
+// What recovers a host coordinator that holds no observer of its own, before
+// each command's own next step. The hook delivers an observer's events only
+// to the session that claimed it, so --session-json names this coordinator
+// and never an earlier session's observer.
+export function ownObserverRecovery(host) {
+  return `a call that lacks this coordinator's own identity passes --session-json with ${hostIdentity[host].fields}; a session that replaced the coordinator that armed an observer receives none of its events and stops it with \`ci-mailbox.mjs stop <recorded directory>\``;
+}
+
+// The session whose tool calls receive the events of the observer `session`
+// owns, and the input that named it; `session` is the explicit input, if any.
+// Undefined without the host's session identity.
+export function eventRecipient({ host, session, env }) {
+  const identity = hostIdentity[host];
+  const resolved = resolveHostSession({ host, session, env });
+  const id = resolved?.session_id ?? resolved?.conversation_id;
+  if (!identity || !id) return undefined;
+  const child = resolved.agent_id ?? resolved.subagent_id;
+  const named = `${identity.name} ${id}${child ? ` agent ${child}` : ""}`;
+  if (session !== undefined && session !== null)
+    return `${named}, named by --session-json; a caller that is not that coordinator receives none of this observer's events`;
+  return `${named}, named by ${identity.variable}${identity.subagent ? `; ${identity.subagent}` : ""}`;
 }
 
 function hookInput(host, session, receipt = "") {

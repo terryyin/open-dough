@@ -89,11 +89,16 @@ for (const host of Object.keys(hosts)) {
 
       assert.equal(code, 0, stderr);
       assert.equal(result.pushCount, 0);
-      assert.deepEqual(result.observation, {
+      const { notifies, ...observation } = result.observation;
+      assert.deepEqual(observation, {
         state: "recovered",
         directory: publisher,
         reused: true,
       });
+      assert.match(
+        notifies,
+        new RegExp(`${journey.owner}, named by ${hosts[host].variable}`),
+      );
       assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
       assert.equal(result.completion.requestedSha, final);
       assert.equal(result.completion.verdict, "success");
@@ -132,6 +137,10 @@ for (const host of Object.keys(hosts)) {
       assert.equal(again.code, 0, again.stderr);
       assert.equal(again.result.pushCount, 0);
       assert.equal(again.result.observation.directory, publisher);
+      assert.match(
+        again.result.observation.notifies,
+        new RegExp(`${journey.owner}, named by --session-json`),
+      );
       assert.equal(again.result.completion.verdict, "success");
       assert.equal(again.result.completion.shutdown.status, "confirmed");
       assert.deepEqual(

@@ -16,6 +16,7 @@ import { closureBesideSibling } from "./trunk-closure-owner-test-fixtures.mjs";
 import {
   branchSha,
   commitFinalClosure,
+  releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
 
 const main = "refs/heads/main";
@@ -42,7 +43,7 @@ async function assertUnresolvedCoverage(
   assert.equal(await branchSha(fixture), final);
 }
 
-test("finish without the owner's identity, as another coordinator, or after the owner's observer ended reports the accepted closure unobserved, keeps the worktree, and leaves the live sibling alone", async (t) => {
+test("finish without the owner's identity, as another coordinator, or after the owner's observer ended reports the accepted closure unobserved, keeps the worktree, and leaves the live sibling alone; a replacing session that follows the gap completes on its own observer", async (t) => {
   const journey = await closureBesideSibling(t, "claude");
   const { fixture, publisher, sibling } = journey;
   const beforeCleanup = await acceptedIncrement(fixture);
@@ -67,8 +68,10 @@ test("finish without the owner's identity, as another coordinator, or after the 
   await assertUnresolvedCoverage(fixture, stranger, {
     final,
     ownership: "missing",
-    reason: /holds no observer of owner\/project main.*--session-json/,
+    reason:
+      /holds no observer of owner\/project main.*--session-json with its session_id, and its agent_id when it is a subagent coordinator.*replaced the coordinator.*receives none of its events.*ci-mailbox\.mjs stop <recorded directory>.*next `deliver` from the execution worktree establishes its own.*rerunning this finish/,
   });
+  assert.doesNotMatch(stranger.result.observation.reason, /naming the session/);
   for (const directory of [publisher, sibling])
     assert.doesNotMatch(
       stranger.result.observation.reason,
@@ -89,6 +92,42 @@ test("finish without the owner's identity, as another coordinator, or after the 
   assert.deepEqual(coverage(publisher), []);
   assert.equal(pushes(), 1);
   journey.assertSiblingUntouched();
+
+  // The session that replaced that coordinator follows the gap reason: the
+  // recorded observer is stopped, its `deliver` establishes its own without a
+  // second push, and its rerun completes there.
+  const { delivered } = await journey.deliver(
+    beforeCleanup,
+    [],
+    "third-coordinator",
+  );
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.receipt.sha, final);
+  assert.equal(
+    delivered.observation.state,
+    "attached",
+    delivered.observation.reason,
+  );
+  const own = delivered.observation.directory;
+  assert.match(
+    delivered.observation.notifies,
+    /^Claude Code session third-coordinator, named by CLAUDE_CODE_SESSION_ID/,
+  );
+  releaseCi(fixture, { [final]: "success" });
+  const replaced = await finish("third-coordinator");
+  assert.equal(replaced.code, 0, replaced.stderr);
+  assert.equal(replaced.result.observation.directory, own);
+  assert.equal(
+    replaced.result.observation.notifies,
+    delivered.observation.notifies,
+  );
+  assert.equal(replaced.result.completion.verdict, "success");
+  assert.equal(replaced.result.completion.shutdown.status, "confirmed");
+  assert.equal(replaced.result.cleanup.worktree, "removed");
+  assert.deepEqual(coverage(publisher), []);
+  assert.equal(pushes(), 1);
+  // That delivery added its readiness probe and its observer; finish none.
+  journey.assertSiblingUntouched(4);
 });
 
 test("finish chooses none of several live observers its coordinator owns for an accepted closure neither covers", async (t) => {

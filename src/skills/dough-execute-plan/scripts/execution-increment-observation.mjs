@@ -9,6 +9,7 @@
 // registration recovers through execution-increment-observation-recovery.mjs.
 import {
   bindHostObserver,
+  eventRecipient,
   hostSessionOwner,
   resolveHostSession,
   verifyHostBridge,
@@ -29,11 +30,13 @@ export function coverageGap(reason, extras = {}) {
   };
 }
 
-function observationAttached(directory, { reused = false } = {}) {
+// `notifies` is the host session that receives this observer's events.
+function observationAttached(directory, { reused = false, notifies } = {}) {
   return {
     state: reused ? "reused" : "attached",
     directory,
     reused,
+    ...(notifies && { notifies }),
   };
 }
 
@@ -169,9 +172,13 @@ export async function establishObservation({
     root,
     storage,
   });
+  const notifies = eventRecipient({ host, session, env });
   if (owned.kind === "live") {
     return {
-      observation: observationAttached(owned.directory, { reused: true }),
+      observation: observationAttached(owned.directory, {
+        reused: true,
+        notifies,
+      }),
       startReceipt: null,
     };
   }
@@ -232,7 +239,7 @@ export async function establishObservation({
     };
   }
   return {
-    observation: observationAttached(directory),
+    observation: observationAttached(directory, { notifies }),
     startReceipt,
   };
 }
