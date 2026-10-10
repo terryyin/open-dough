@@ -130,7 +130,20 @@ post-add sessions wait, so the first-open specs keep their calls.
 
 ### 2. The Cursor recovery spec keeps the shortest delay that reproduces the chip race
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: at 300 ms, with `this.announce();` reinstated after the
+`onEntered()` try/catch of the `pastedChip` branch in
+`dashboard/server/launchInstruction.ts`, the first test failed on the chip
+label ("waiting for an answer" for "at the follow-up prompt") in 11 of 11
+runs; on the current file `cursor-session-recovery.spec.ts --repeat-each 5`
+passed (30), with `cursor-recover-submitted-chip.spec.ts` and
+`cursor-recover-split-paint.spec.ts` (2).
+Learnings: 150 ms failed the first test in only 2 of 5 runs (load average
+15 to 21); 200 and 250 ms failed it 6 of 6, so 300 ms keeps a margin. The
+literal pre-`97e0e442` file calls `screen.frameOpen()`, which
+`KeptClientScreen` no longer has, so the removed announce was reinstated on
+the current file instead. "Recover on the idle composer…" failed at every
+delay down to 5 ms (34 of 34 runs).
 Proof: With `cursorSubmitPaintMs` lowered (start at 150 ms), temporarily
 restoring the pre-`97e0e442` `dashboard/server/launchInstruction.ts` still
 fails the first test of `cursor-session-recovery.spec.ts` on the chip label;
@@ -179,3 +192,14 @@ Disposition: no user cost "has Recently done read that project's done stories as
 Reported: slice 1 — "Not checked under load or with repeats."
 Story clause: "the loaded acceptance runs with"
 Disposition: excluded "the loaded acceptance runs with"
+
+### G4. The first test reproduces the race by timing
+Reported: slice 2 — "Under heavier load that read may come later and a 300 ms delay could let the first test pass on old code."
+Story clause: "fails on the chip label against"
+Disposition: proved by slice 2: `dashboard/tests/cursor-session-recovery.spec.ts` "Recover on the idle composer…" failed on the chip label at every delay tried, 34 of 34 runs, and the first test in 11 of 11 at 300 ms.
+
+### G5. The reproduction reinstates the removed announce on the current file
+Reported: slice 2 — "The reproduction is the reinstated `announce()` line on the current file, not the literal old file."
+Story clause: "fails on the chip label against"
+Disposition: proved by slice 2: `dashboard/server/launchInstruction.ts` `evaluate`, `pastedChip` branch, with the `this.announce();` that 97e0e442 removed; the literal old file no longer runs against `KeptClientScreen`.
+
