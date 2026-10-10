@@ -115,7 +115,10 @@ running `start` again. The default checkout always stays in place.
 When the developer or parent instruction also selects automatic landing
 (`--auto-land` or a clear equivalent), that selection is the developer's
 advance keep instruction for this refinement's result, so it does not wait for
-review. It is independent of the workspace choice. A confirmation that
+review. This section is the one-shot entry into
+[Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result),
+with `recheck` as its candidate check and no assignment to release. The
+selection is independent of the workspace choice. A confirmation that
 existing default-checkout changes may join the result lets them be committed
 with it; it never selects automatic landing. Add `--auto-land
 --push-authorized` to the start: its `prepared` receipt then also carries

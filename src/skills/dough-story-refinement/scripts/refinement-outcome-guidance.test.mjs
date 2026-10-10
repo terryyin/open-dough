@@ -1,6 +1,7 @@
 // Refinement outcome guidance: each refined story ends with exactly one of
 // three outcomes; ready outcomes give a link and workspace, then continue into
-// slice planning, or give a next step when the invocation ends at refinement;
+// slice planning and the landing at the end of preparation, or give a next
+// step when the invocation ends at refinement;
 // engagement lists each expected response; the reported outcome records
 // nothing and grants no planless authority.
 import assert from "node:assert/strict";
@@ -16,15 +17,12 @@ const read = (path) => readFileSync(join(skill, path), "utf8");
 const skillText = read("SKILL.md");
 const outcome = section(skillText, "## Report the refinement outcome");
 
-test("refinement reports through the outcome section and keeps its disposition step", () => {
+test("refinement reports through the outcome section, continues a ready story into planning, and lands at the end of preparation", () => {
   assert.match(
     skillText,
-    /Report each selected story under\s+\[report the refinement outcome\]\(#report-the-refinement-outcome\)/,
+    /Report each selected story under\s+\[report the refinement outcome\]\(#report-the-refinement-outcome\) below, then\s+continue a ready story into slice planning under\s+\[preparation journey\]\(references\/preparation-journey\.md\) unless an open\s+coordinator question or an explicit refine-only instruction \(`--refine-only`\)\s+stops it\. When this session ends, follow\s+\[land at the end of preparation\]\(references\/preparation-journey\.md#land-at-the-end-of-preparation\),\s+then close or retain the workspace\./,
   );
-  assert.match(
-    skillText,
-    /keep or discard decision, then close or retain the workspace/,
-  );
+  assert.doesNotMatch(skillText, /keep or\s+discard decision/);
   assert.doesNotMatch(skillText, /unresolved decisions/);
 });
 

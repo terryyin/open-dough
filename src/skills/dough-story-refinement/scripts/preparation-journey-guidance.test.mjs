@@ -1,7 +1,7 @@
 // Preparation journey guidance: a ready refinement continues into slice
 // planning in the same workspace, branch, session, and assignment; an open
-// coordinator question or an explicit refine-only instruction stops it; the
-// journey authorizes planning only and ends with the planning report.
+// coordinator question or an explicit refine-only instruction stops it. The
+// journey's end is pinned in preparation-landing-guidance.test.mjs.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -30,22 +30,14 @@ test("refinement's workflow sends a ready story into slice planning", () => {
   );
 });
 
-test("a refinement invocation authorizes planning and nothing after it", () => {
+test("a refinement invocation authorizes planning and landing, never execution", () => {
   assert.doesNotMatch(skillText, /does not authorize planning/);
   assert.doesNotMatch(skillText, /only for a requested handoff/);
   const workflow = section(skillText, "## Choose the workflow");
   assert.match(
     workflow,
-    /A refinement invocation authorizes slice planning of its story/,
+    /A refinement invocation authorizes slice planning of its story and landing the completed preparation under \[preparation journey\]\(references\/preparation-journey\.md\); it authorizes no execution\./,
   );
-  assert.match(workflow, journeyLink);
-  assert.match(workflow, /authorizes no execution and no publication/);
-  const authority = section(journey, "## Stay within planning authority");
-  assert.match(authority, /authorizes slice planning of its story/);
-  assert.match(authority, /no execution, no commit, and no push/);
-  assert.match(authority, /stays uncommitted in the owned workspace/);
-  assert.match(authority, /\(preparation-disposition\.md\)/);
-  assert.match(authority, /explicit keep/);
 });
 
 test("the journey continues both ready outcomes for the story the invocation names", () => {
@@ -91,15 +83,6 @@ test("an open coordinator question or a refine-only instruction stops before pla
   assert.match(stops, /\(one-shot-refinement\.md\)/);
 });
 
-test("the final report is the planning report carrying the refinement outcome", () => {
-  const report = section(journey, "## Report once at the end");
-  assert.match(report, /final report is slice planning's report/);
-  assert.match(report, /refinement outcome/);
-  assert.match(report, /plan path/);
-  assert.match(report, /recorded readiness assessment/);
-  assert.match(report, /pending draft and Preparing assignment as information/);
-});
-
 test("the options file defines refine-only once among the options", () => {
   const definition = JSON.parse(read("references/refinement-options.json"));
   const flagged = (entries) =>
@@ -119,14 +102,41 @@ test("the options file defines refine-only once among the options", () => {
   );
 });
 
-test("slice planning treats the continuation as a planning-only request", () => {
+test("the options file defines retain once as an ungrouped option after refine-only", () => {
+  const definition = JSON.parse(read("references/refinement-options.json"));
+  const flags = definition.options.map(({ flag }) => flag);
+  const at = flags.indexOf("--retain");
+  assert.equal(at, flags.indexOf("--refine-only") + 1);
+  assert.equal(flags.lastIndexOf("--retain"), at);
+  assert.ok(definition.focuses.every(({ flag }) => flag !== "--retain"));
+  const { label, summary, instruction } = definition.options[at];
+  assert.equal(label, "Retain for review");
+  assert.match(summary, /Finish preparation[^.]+for an explicit keep\.$/);
+  assert.match(
+    instruction,
+    /^Finish the authorized preparation as usual, applying every other selected option and focus, and record its readiness assessment\. Then retain the result in its workspace with its Preparing assignment/,
+  );
+  assert.match(
+    instruction,
+    /Report where the result is and an explicit keep as the next step, and say that others still see the story as Preparing\.$/,
+  );
+  assert.ok(
+    (definition.groups ?? []).every(({ flags }) => !flags.includes("--retain")),
+  );
+  assert.match(
+    definition.selection,
+    /Retain for review composes with every option and focus: finish the preparation the others select, then retain its result\. With Refine only, the invocation ends at the refinement result, which waits in its workspace for slice planning\./,
+  );
+});
+
+test("slice planning treats the continuation as a planning-only request whose report is the journey's one final report", () => {
   const stay = section(
     read("../dough-slice-planning/SKILL.md"),
     "## Stay within the triggering instruction",
   );
   assert.match(
     stay,
-    /Planning-only request, or a continuation from story refinement under the \[preparation journey\]\(\.\.\/dough-story-refinement\/references\/preparation-journey\.md#report-once-at-the-end\): report the plan path[^:]+then stop\. Do not implement and do not invoke execution\./,
+    /- Planning-only request, or a continuation from story refinement: do not implement and do not invoke execution\. The report carries the plan path[^:]+recorded readiness assessment, given under the preparation journey's \[report once at the end\]\(\.\.\/dough-story-refinement\/references\/preparation-journey\.md#report-once-at-the-end\)\. - Parent-agent delegation/,
   );
 });
 

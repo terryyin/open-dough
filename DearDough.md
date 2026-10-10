@@ -135,7 +135,13 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
   - Evidence: slice 2 (`56203263`) changed one fixture value in one spec and slice 3 (`2f070f91`) two lines of a test-support close; both delegated refactor passes reported `none — already clean` (about 50k and 59k subagent tokens, 33 s and 37 s). Slice 1's pass (`f365eb2b`) renamed the gate and extracted a duplicated spec fixture, so it earned its cost.
   - Observed effect: two full refactor delegations with no change.
-
+- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`.
+  - Timestamp: unknown (2026-10-10, between 19:45 and 20:25 +09:00).
+  - Tool: Claude Code coordinator and delegated agents.
+  - Model: `claude-opus-5-5`.
+  - Open Dough release: modified; revision `650918e4`; base 0.3.58.
+  - Evidence: slice 1 (`89ca7d25`) moved 51 lines byte-identically into a reference and declared the file; slice 3 (`08d914ad`) added one options entry, one clause and one test. Both delegated refactor passes returned "none — already clean" (about 59.9k tokens and 54 s; about 57.0k tokens and 52 s). The passes on slices 2 and 4 of the same execution did edit: a contradictory report order, a retired authority sentence, a duplicate pin, and a diagram label that read as its opposite.
+  - Observed effect: two of four full refactor delegations changed nothing.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -681,3 +687,20 @@ the wording.
   - Evidence: `fc795844` adds to `trunk-publication.md` and `ci-notify-hosts.md` that a Claude Code subagent coordinator's "Bash tool carries its parent's `CLAUDE_CODE_SESSION_ID`" and that it passes "its own `agent_id`"; `execution-increment-managed-delivery-recipient.test.mjs` sets both itself. The implementation return listed both as "not observable without a native run". The coordinator accepted the slice and added a pending-native-evidence line to plan 288 (`2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`). The independent product review raised it as its first finding, with `docs/maintainer/finding-names.md` recording a Cursor coordinator that could not read its own `conversation_id`. The premise entered as plan 288's fourth finding, marked observed by read-only review.
   - Observed effect: unobserved host behavior is published as fact; a subagent that cannot read its `agent_id` has no taught way to follow the step. On the developer's instruction the wording was reduced to observed facts in `80ab062f`.
   - Inference: qualified. ADR 0005's pending-evidence list covered acceptance of the tests but not the wording of what was published.
+
+## DD-271 — A plan added a file and assertions without checking the declaration and size limit they would meet
+
+A plan's first slice created a reference file and said "No script changes"; a
+later slice placed all its new assertions in an existing test file. The
+project declares payload files in its installer and limits files to 250
+lines, and the plan settled neither as a premise.
+
+### Occurrences
+- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`
+  - Timestamp: unknown (2026-10-10, between 19:45 and 20:10 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `650918e4`; base 0.3.58
+  - Evidence: plan 290 "Goal and boundaries" ("No script changes") and its proof-ownership table naming `preparation-journey-guidance.test.mjs` (`650918e4:.planning/slice-plans/290-land-planning-without-coordinator-questions/PLAN.md`); `tests/payload-declaration-links.sh` ("declared dough-slice-planning/SKILL.md links to undeclared references/settle-decisive-premises.md"); slice 1's `install.sh` line in `89ca7d25`; slice 2's return (journey test at 328 lines, split into `preparation-landing-guidance.test.mjs`) and slice 2's Accepted note in the delivered plan (`34b9b429:` same path).
+  - Observed effect: slice 1's agent found the failing payload check through its consumer search and added the declaration; slice 2's agent split the test file, after which the plan's proof table and slice 3's proof command named the wrong file until the coordinator corrected them. No rework or failed delivery followed.
+  - Inference: the delegation's consumer-search requirement caught both; the cost was small. The plan's premise table covered the skill's own line limit but not the limit on the test file it would grow or the declaration a new file needs.

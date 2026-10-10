@@ -29,12 +29,19 @@ test("SKILL.md and the workspace rule point a supplied block away from their own
   assert.match(workspace, /established preparation[\s\S]+skip this selection/);
 });
 
-test("the reference skips workspace and start, keeps the fields, and leaves the no-block path", () => {
+test("the reference skips workspace and start, keeps the fields, continues to the journey's end, and leaves the no-block path", () => {
   assert.match(reference, /Skip the workspace selection/);
   assert.match(reference, /`start` call/);
   assert.match(reference, /no second announcement or workspace/i);
   assert.match(reference, /named workspace and branch/);
-  assert.match(reference, /`release` or `abandon`/);
+  assert.match(
+    reference,
+    /for the later `release` or `abandon` commands and the\s+landing\./,
+  );
+  assert.match(
+    reference,
+    /Continue with refinement and the record write, through to\s+\[land at the end of preparation\]\(preparation-journey\.md#land-at-the-end-of-preparation\)\./,
+  );
   assert.match(reference, /`continued`/);
   for (const field of [
     "identity",

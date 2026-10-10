@@ -71,6 +71,10 @@ test("selected automatic landing lands the refinement as a keep after an ownersh
   const review = section(reference, "## Stop for review");
   assert.match(review, /Unless automatic landing was selected/);
   const auto = section(reference, "## Land automatically when selected");
+  assert.match(
+    auto,
+    /advance keep instruction for this refinement's result[\s\S]+This section is the one-shot entry into\s+\[Keep and publish the retained result\]\(preparation-disposition\.md#keep-and-publish-the-retained-result\),\s+with `recheck` as its candidate check and no assignment to release\./,
+  );
   assert.match(auto, /`--auto-land\s+--push-authorized`/);
   assert.match(auto, /`landing: "auto-land"`/);
   assert.match(auto, /never selects automatic landing/);

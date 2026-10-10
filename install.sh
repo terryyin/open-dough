@@ -126,6 +126,7 @@ managed_files=(
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-planning/references/architectural-thinking.md
+  dough-slice-planning/references/settle-decisive-premises.md
   dough-pfe/SKILL.md
   dough-slice-plan-refinement/SKILL.md
   dough-execute-plan/scripts/dashboard-completion.mjs
