@@ -114,7 +114,7 @@ Follow-up: Open, unqueued.
 Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-141).
 
 ### Occurrences
-- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`.
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
   - Timestamp: unknown (2026-10-10, between 09:43 and 13:31 +09:00).
   - Tool: Claude Code coordinator and delegated agents.
   - Model: `claude-opus-5-5`.
@@ -345,7 +345,7 @@ Follow-up: Open, unqueued.
 Evidence and response: [ODF-221](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-221).
 
 ### Occurrences
-- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`.
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
   - Timestamp: 2026-10-10T13:49:58+09:00 (repair commit `722a7b36`).
   - Tool: Claude Code coordinator and delegated agents.
   - Model: `claude-opus-5-5`.
@@ -381,7 +381,7 @@ of those: it checks the whole `body` text, hidden sidebar included, against a
 word-boundary pattern, and the reorder put a boundary before “Running”.
 
 ### Occurrences
-- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`.
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
   - Timestamp: 2026-10-10T09:43:50+09:00 (CI failure; slice commit `426c42fb` at 09:40:36).
   - Tool: Claude Code coordinator and delegated agents.
   - Model: `claude-opus-5-5`.
@@ -399,7 +399,7 @@ resumed agent later reported that its first full run overlapped the stash,
 took 3.1 hours of wall-clock and showed 24 failures on a mixed tree.
 
 ### Occurrences
-- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`.
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
   - Timestamp: unknown (2026-10-10, between 09:43 and 13:31 +09:00).
   - Tool: Claude Code coordinator and delegated agents.
   - Model: `claude-opus-5-5`.

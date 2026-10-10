@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-122#running-cursor-sessions-sidebar-panel",
+  "title": "Show Running Cursor sessions as a resizable sidebar section",
+  "completedAt": "2026-10-10T05:30:10.170Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "claude"
+}
