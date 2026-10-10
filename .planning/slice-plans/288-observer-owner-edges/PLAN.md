@@ -148,6 +148,24 @@ formatting and delivery. Shared helper changes run the managed-delivery,
 resume, closure, and `tests/*.sh` consumers because distributed fixtures load
 them. Paid native runs are manual only.
 
+## Pending native evidence
+
+Carried from the delivered ownership story under ADR 0005. No native run exists
+for any of these; substitute and replay results are not native acceptance, and
+each run is paid and needs the developer's authorization.
+
+- Cursor and Claude Code: concurrent `deliver`, repair, and completion with the
+  ambient session identity; `resume` and `finish` with ambient identity or
+  `--session-json`.
+- Codex: arm the documented cell with `COORDINATOR` set, confirm
+  `<directory>/owner` after the first yielded output, run `deliver` with
+  `--coordinator` and `--observer-directory`, and expect
+  `observation.state: "reused"` on that directory; repeat with a second
+  coordinator's stream live on the same target. Then `resume` and `finish` with
+  the same inputs.
+- Retained trunk-closure and git-publication evidence identities changed with
+  the hashed modules.
+
 ## Sequence review and sizing
 
 No slice target or limit was supplied. Slices 1–3 each own one journey with

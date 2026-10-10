@@ -24,6 +24,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Settle observer ownership at its recovery edges](seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges) — SEED-121#settle-observer-owner-edges
 - [Continue completed refinement into slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#continue-refinement-to-slice-planning) — SEED-128#continue-refinement-to-slice-planning
 - [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions
 - [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution
