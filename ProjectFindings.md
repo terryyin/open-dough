@@ -25,26 +25,18 @@ execution. A repaired individual race does not resolve every suite failure.
    story, [SEED-123#dashboard-suite-stable-under-load](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load),
    unchanged. Its scope already covers retained failure output, concurrent
    builds, and the named load failures. No duplicate is queued.
-2. **Local checks miss the dashboard's typed fixture imports — second,
-   queued.** DD-171 recurred in two executions (plans 146 and 191), each
-   producing a red dashboard CI job and a repair cycle after focused Node
-   proof passed. Both signature errors were repaired, but no local gate
-   connects shared fixture changes to the dashboard typecheck. Queue
-   [SEED-124#check-dashboard-fixture-consumers-locally](.planning/seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally)
-   second. This is a repository tooling gap; generic proof selection remains
-   with ODF-150 in DearDough.md.
-3. **Quiet passing checks obscure the selected proof — open, unqueued.**
+2. **Quiet passing checks obscure the selected proof — open, unqueued.**
    DD-216 and the later DD-243 reports describe the same reporter behavior in
    four executions (plans 217, 261, 263, 264). Extra runs cost seconds to
    minutes, with no observed false acceptance. Retain one finding with both
    codes; the repository deliberately requires silent passing runs, so a
    response must preserve that contract.
-4. **Shell observations can invert a result on Linux — open, unqueued.**
+3. **Shell observations can invert a result on Linux — open, unqueued.**
    DD-187 has one demonstrated SIGPIPE repair cycle. The reported observer
    was fixed, but the same early-exit pipeline shape remains in two test
    helpers. Those sites are a confirmed residual risk, not additional
-   observed failures. Lower priority than DD-171's two CI failures.
-5. **Local native-run prerequisites and host permission handoff — low,
+   observed failures.
+4. **Local native-run prerequisites and host permission handoff — low,
    unqueued.** DD-162 and DD-161 each have one execution. The Bash failure
    bypassed the documented runner; the paid-run refusal belongs to the host's
    permission boundary. Neither justifies changing public Open Dough guidance
@@ -180,47 +172,6 @@ the whole group passed at `--workers=3`. The cause is unknown.
   - Evidence: `npm run test:dashboard -- recently-done-progressive-loading.spec.ts … dashboard-columns-height.spec.ts --reporter=line` (the plan's Progressive range group plus helper consumers) failed 4 then 3 tests; the failed files alone gave 9 passed; the same command with `--workers=3` gave 34 passed. Slice 4 changed `dashboard/src/doneDetails.ts` and test helpers, not Vite start, column scrolling, or the Backlog column. Plan 276 slice 4 records it; the run logs are not retained.
   - Observed effect: a third run at reduced workers to obtain a green group; the failures stay unexplained.
   - Inference: Qualified. Like DD-240, contention looks likely (the machine ran other workloads), but nothing retained separates load from a shared-output collision such as DD-226. One sample.
-
-## Local checks miss the dashboard's typed fixture imports (second priority, queued)
-
-**Follow-up:** queued, not resolved:
-[Catch shared fixture signature breaks in the dashboard's local checks](.planning/seeds/SEED-124-dashboard-fixture-consumer-checks.md#check-dashboard-fixture-consumers-locally)
-— SEED-124#check-dashboard-fixture-consumers-locally (DD-171).
-
-**Project boundary:** `dashboard/tests/preparingJourney.ts` imports the
-repository's JavaScript Land fixture, and `dashboard/tsconfig.node.json`
-includes these tests with `allowJs`. CI runs `npm run typecheck:dashboard`;
-`npm test` and the check-only pre-commit hook do not. The proposed response
-belongs to this repository's local check tooling and test documentation.
-The general obligation to select consumer proof stays in DearDough.md.
-
-<a id="dd-171"></a>
-
-### DD-171 — A Land test-fixture signature change failed only the dashboard's TypeScript check
-
-`dashboard/tests/preparingJourney.ts` imports `landWorktree` from
-`src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs`, so the
-dashboard's `tsc --build` types that JavaScript fixture from its destructuring
-defaults. Slice 1 added a required-looking `identity` parameter; the focused
-Node suites passed and only CI's `dashboard` job failed.
-
-#### Occurrences
-
-- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`
-  - Timestamp: 2026-09-29T09:20:42+08:00 (`aa4fd510`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: CI run `36507473752` job `dashboard (1/2)`: TS2345 at `preparingJourney.ts(88,38)`; repair `de81cb96` (`identity = undefined`), then `npm run typecheck:dashboard` and `backlog-preparing.spec.ts` passed.
-  - Observed effect: one red CI run, a repair stash cycle, and one repair commit.
-  - Inference: Qualified. A consumer search limited to `src/skills` misses the dashboard's typed imports; running `npm run typecheck:dashboard` when a shared fixture's signature changes would catch it locally.
-- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5`
-  - Timestamp: 2026-10-01T03:16:46Z (CI run 36809768647)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Evidence: slice 5 changed `landWorktree`'s destructured parameters in `dough-land-test-fixtures.mjs`; its proof never ran `npm run typecheck:dashboard`, and `dashboard/tests/preparingJourney.ts` failed with TS2345 again; repair `716c933b`. Original delegation-facet evidence is recoverable in
-    `80043764511288cf27c5f14b128c2820110a8b45:DearDough.md` under DD-191
-    (plan 191); that entry is no longer in the active DearDough.md.
-  - Observed effect: one red CI run and a stash-protocol repair cycle; the same file and error as plan 146.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
 
@@ -363,10 +314,41 @@ Recovery for both input files:
 DD-243's unchanged occurrence evidence joins DD-216; DD-246 stays open.
 The second classification pass moves ODF-209 / former DD-221’s plan-264
 collision occurrence into DD-246 without allocating a new identity. Recovery:
-`2677ad0d:DearDough.md`. The six-execution suite group and two-execution local
-fixture-check group remain first and second; both already have queued stories.
-Their fixes belong to repository test tooling and documentation, rather than
-published skills or rules. No duplicate story or queue change is needed.
+`2677ad0d:DearDough.md`. The six-execution suite group remains first and
+already has a queued story. Its fix belongs to repository test tooling and
+documentation, rather than published skills or rules. No duplicate story or
+queue change is needed.
+
+Resolved and removed from the active findings on 2026-10-10 (recovery:
+`b78500a4e0753e4560f255ff917144d0e4340350:ProjectFindings.md`):
+
+<a id="dd-171"></a>
+
+- **DD-171:** a Land test-fixture signature change failed only the
+  dashboard's TypeScript check, in two executions (plans 146 and 191), each
+  with a red CI `dashboard` job and a repair cycle after focused Node proof
+  passed. Delivered check: the `.githooks/pre-commit` typecheck step, which
+  runs `npm run typecheck:dashboard` after the staged lint passes whenever a
+  commit stages a JavaScript or TypeScript file. Implementation revision
+  `b78500a4e0753e4560f255ff917144d0e4340350`
+  (`SEED-124#check-dashboard-fixture-consumers-locally`, plan 286).
+  Red, on that revision with a clean checkout: removing the default from
+  `landWorktree`'s `identity` parameter in
+  `src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs`,
+  staging that file, and running `git commit` was refused with exit 1 and
+  HEAD unchanged; after the passing lint lines the hook printed:
+
+  ```text
+  dashboard/tests/preparingJourney.ts(101,38): error TS2345: Argument of type '{ worktree: string; branch: string; defaultCheckout: string; message: string; beforePush: undefined; }' is not assignable to parameter of type '{ worktree: any; branch: any; defaultCheckout: any; remote?: string | undefined; target?: string | undefined; identity: any; createdForWork?: boolean | undefined; message?: string | undefined; beforePush: any; onFetchedTarget?: undefined; }'.
+    Property 'identity' is missing in type '{ worktree: string; branch: string; defaultCheckout: string; message: string; beforePush: undefined; }' but required in type '{ worktree: any; branch: any; defaultCheckout: any; remote?: string | undefined; target?: string | undefined; identity: any; createdForWork?: boolean | undefined; message?: string | undefined; beforePush: any; onFetchedTarget?: undefined; }'.
+  ```
+
+  Green: with the default restored, `npm run typecheck:dashboard` exits 0;
+  the implementation revision's own commit staged script files and passed
+  the gate; and CI run `38025090499` on that revision completed the
+  `dashboard (9/9)` job's "Type-check the dashboard" step with success. The
+  general obligation to select consumer proof stays with ODF-150 in
+  DearDough.md.
 
 Resolved or mitigated entries removed from the active findings on 2026-10-09:
 

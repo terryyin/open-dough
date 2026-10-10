@@ -164,7 +164,16 @@ real green pass through the new gate.
 
 ### 2. DD-171 records the repository-level red and green evidence and is resolved
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: on `b78500a4` with a clean checkout, the staged default
+removal in `dough-land-test-fixtures.mjs` was refused by `git commit` (exit
+1) with `dashboard/tests/preparingJourney.ts(101,38): error TS2345` naming
+the missing `identity` property; HEAD unchanged; the file restored and
+`git status --porcelain` empty; `npm run typecheck:dashboard` exit 0 after
+the restore. Green: slice 1's commit `b78500a4` passed the gate, and CI run
+`38025090499` completed the `dashboard (9/9)` job's type-check step with
+success. `ProjectFindings.md` holds the resolved entry under the kept
+`dd-171` anchor, with recovery reference `b78500a4`.
 Proof: in this workspace, after slice 1 is committed: remove the default from
 `landWorktree`'s `identity` parameter, stage the file, run `git commit`
 (expected: refused; output holds
