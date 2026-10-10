@@ -236,6 +236,15 @@ selection or the receipt schema, and no test reaches it. The three commands
 keep their own flag loops, which differ on a `--session-json` value that
 starts with `--`. `deliver` reads the table only for several live observers.
 
+## Execution complete
+
+Product advice: no backlog change recommended. The review left one bounded
+follow-up, [Recovery steps reach the observer they name](../291-recovery-steps-reach-their-observer/PLAN.md),
+written and unqueued, and three decisions it records for the developer: what
+a Claude Code subagent coordinator passes as its identity, which observer an
+ambient-identity `finish` rerun may use after retirement, and what the native
+closure cases assert. Queueing the follow-up is the developer's choice.
+
 ## Verification and gates
 
 Run focused suites through `npm test -- <paths>` with the Node in

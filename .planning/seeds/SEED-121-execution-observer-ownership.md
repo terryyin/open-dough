@@ -46,6 +46,34 @@ delivered ownership story left; it adds no feature promise.
 - Delivery, resume, and closure share one gap vocabulary and one session-input
   parser; wording that still describes repository-and-branch matching goes.
 
+<a id="recovery-steps-reach-their-observer"></a>
+
+### Recovery steps reach the observer they name
+
+**Identity:** SEED-121#recovery-steps-reach-their-observer
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/291-recovery-steps-reach-their-observer/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ab7989767bd7b2dde84e54745b3ac337d1a838d8c5a05e4a837cad610bc10a0b","plan":"94d8584b1ef972f58d66a42a6b7696fc2cae25aa69a093b56a99c3429fee855c"}}
+```
+**Slice plan:** [Recovery steps reach the observer they name](../slice-plans/291-recovery-steps-reach-their-observer/PLAN.md).
+
+**Goal:** A coordinator that follows a coverage gap's recovery step can carry
+it out: the stop command reaches an observer armed from a worktree that is now
+gone, and every gap reason ends in a step. This corrects residue the
+recovery-edges correction left; it adds no feature promise.
+
+**Scope:**
+
+- The mailbox commands a recovery step names read an observer of the
+  repository whichever of its worktrees armed it, also after that worktree was
+  removed.
+- Each gap reason `deliver`, `resume`, and `finish` can print ends in a
+  recovery step, and `ownership` values keep one meaning per command.
+- The closure rerun proofs keep one host for rules that do not differ by host.
+- Excluded: what a Claude Code subagent coordinator passes as its identity,
+  which observer an ambient-identity `finish` rerun may use after retirement,
+  and what the native closure cases assert. Each waits for a developer
+  decision recorded in the plan.
+
 ## Breadcrumbs
 
 - Terry's reported misregistration and explicit request to queue confirmed
