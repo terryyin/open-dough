@@ -3,8 +3,12 @@
 **Identity:** SEED-121#recovery-steps-reach-their-observer
 **Source:** [correction story](../../seeds/SEED-121-execution-observer-ownership.md#recovery-steps-reach-their-observer),
 written by the execution retrospective of plan 288 on 2026-10-10.
-**Provenance:** SEED-121#settle-observer-owner-edges and its
-[plan](../288-observer-owner-edges/PLAN.md); reviewed commits `1ff314d3`,
+**Provenance:** SEED-121#settle-observer-owner-edges, whose story and plan are
+recoverable at
+`2d373a2e015ff37d99a575232fe33abd71516349:.planning/seeds/SEED-121-execution-observer-ownership.md`
+(anchor `settle-observer-owner-edges`) and
+`2d373a2e015ff37d99a575232fe33abd71516349:.planning/slice-plans/288-observer-owner-edges/PLAN.md`;
+reviewed commits `1ff314d3`,
 `fc795844`, `b058ab61`, `8f348077` on
 `origin/claude/settle-observer-ownership-at-its-recovery-edges` after claim
 `6d19d738`. Planning only; this plan grants no Take, execution, or
@@ -116,6 +120,37 @@ Run focused suites through `npm test -- <paths>` with the Node in
 [tests/README.md](../../../tests/README.md). Each slice includes proof
 acceptance, independent post-change refactoring, and coordinator-owned
 formatting and delivery. Paid native runs are manual only.
+
+## Pending native evidence
+
+Carried from the delivered ownership story and its recovery-edges correction
+under ADR 0005. No native run exists
+for any of these; substitute and replay results are not native acceptance, and
+each run is paid and needs the developer's authorization.
+
+- Cursor and Claude Code: concurrent `deliver`, repair, and completion with the
+  ambient session identity; `resume` and `finish` with ambient identity or
+  `--session-json`.
+- Codex: arm the documented cell with `COORDINATOR` set, confirm
+  `<directory>/owner` after the first yielded output, run `deliver` with
+  `--coordinator` and `--observer-directory`, and expect
+  `observation.state: "reused"` on that directory; repeat with a second
+  coordinator's stream live on the same target. Then `resume` and `finish` with
+  the same inputs.
+- Claude Code subagent coordinator: whether its Bash tool carries its parent's
+  `CLAUDE_CODE_SESSION_ID` and whether it can state its own `agent_id` are
+  unobserved. On the developer's decision of 2026-10-10 the guidance and
+  receipt state only that the variable names the session alone and that an
+  observer claimed with an `agent_id` is named by `--session-json` with both.
+- Trunk-closure harness, every case
+  `tests/git-publication-native.sh --native HOST --case trunk-closure/...`
+  after its arming change: on Claude Code and Cursor one `finish` without
+  `--session-json` whose receipt's `notifies` names the tool's variable; on
+  Codex one `finish` carrying the note's coordinator and stream directory with
+  `observation.state: "reused"`. `tests/native-publication.md` records the
+  commands.
+- Retained trunk-closure and git-publication evidence identities changed with
+  the hashed modules.
 
 ## Sequence review and sizing
 
