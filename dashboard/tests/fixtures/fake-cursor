@@ -2,13 +2,9 @@
 "use strict";
 // Proof stand-in for cursor-agent. create-chat prints FAKE_CURSOR_SESSION_ID,
 // or one shot from FAKE_CURSOR_NEXT_SESSION_FILE when that file has an id.
-// A resume with no prompt is the terminal client (attach log, modes, SIGHUP).
-// Working/waiting/trust/unrecognized/composer/exit/cannot-load modes paint
-// fixed screens; exit prints an unclassified sentence; cannot-load prints the
-// provisional chat-cannot-load sentence and exits.
-// FAKE_CURSOR_BECOME_READY repaints the follow-up prompt; paint delay and
-// split-paint env vars control delivery. models is logged apart from launch
-// argv. Launch/attach records carry ./fake-host-environment.cjs fields.
+// A resume with no prompt is the terminal client (./fake-cursor-attach).
+// models is logged apart from launch argv. Launch/attach records carry
+// ./fake-host-environment.cjs fields.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -97,168 +93,13 @@ if (args[0] === "create-chat") {
   process.stdout.write(`${id}\n`);
 }
 if (attaching) {
-  const pid = process.pid;
-  const dir = process.env.FAKE_CURSOR_ATTACH_DIR;
-  let mode = process.env.FAKE_CURSOR_ATTACH_MODE;
-  const modeFile = process.env.FAKE_CURSOR_ATTACH_MODE_FILE;
-  if (modeFile) {
-    try {
-      const next = fs.readFileSync(modeFile, "utf8").trim();
-      if (next !== "") mode = next;
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
-  }
-  const unclassifiedExit =
-    "Cursor resume failed for an unclassified reason.\r\n";
-  const cannotLoadExit = `${
-    process.env.FAKE_CURSOR_CANNOT_LOAD ?? "Cursor could not load this chat."
-  }\r\n`;
-  const screens = {
-    working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
-    waiting:
-      [
-        "│ Clarifying Questions",
-        "│ 1. Which do you choose?",
-        "│   › [ ] Red",
-        "│     [ ] Blue",
-        "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
-      ].join("\r\n") + "\r\n",
-    unrecognized: "Cursor Agent\r\n",
-    trust: "Do you trust this workspace?\r\n",
-    composer: "→ Plan, search, build anything\r\n",
-    exit: unclassifiedExit,
-    "cannot-load": cannotLoadExit,
-  };
-  const recordAttach = () => {
-    if (!dir) return;
-    fs.mkdirSync(dir, { recursive: true });
-    fs.appendFileSync(
-      path.join(dir, "attaches.jsonl"),
-      `${JSON.stringify({
-        pid,
-        executable: process.argv[1],
-        cwd: process.cwd(),
-        args,
-        cols: process.stdout.columns,
-        rows: process.stdout.rows,
-        sessionId: resumed,
-        stored,
-        env,
-      })}\n`,
-    );
-  };
-  if (mode === "exit" || mode === "cannot-load") {
-    recordAttach();
-    process.stdout.write(
-      mode === "cannot-load" ? cannotLoadExit : unclassifiedExit,
-    );
-    // cannot-load is one-shot so a replacement attach paints the idle composer.
-    if (mode === "cannot-load" && modeFile) {
-      try {
-        fs.unlinkSync(modeFile);
-      } catch (error) {
-        if (error.code !== "ENOENT") throw error;
-      }
-    }
-    process.exit(1);
-  }
-  const splitMs = Number(process.env.FAKE_CURSOR_SPLIT_PAINT_MS || 0);
-  let writes = Promise.resolve();
-  // Writes one screen's parts in order, apart only in split mode.
-  const emit = (...parts) => {
-    if (splitMs <= 0) {
-      process.stdout.write(parts.join(""));
-      return;
-    }
-    parts.forEach((part, index) => {
-      writes = writes.then(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(
-              () => {
-                process.stdout.write(part);
-                resolve();
-              },
-              index === 0 ? 0 : splitMs,
-            );
-          }),
-      );
-    });
-  };
-  const paint = () => {
-    const body = screens[mode] ?? "→ Add a follow-up\r\n";
-    if (mode === "composer") {
-      emit(`\x1b[?25l\x1b[2J\x1b[H${body}`);
-      return;
-    }
-    emit(`\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${body}`, "\x1b[?2026l");
-  };
-  process.on("SIGHUP", () => {
-    if (dir) fs.appendFileSync(path.join(dir, `${pid}.signals`), "SIGHUP\n");
-    process.exit(0);
+  // Beside this script, in fixtures/ or installed (../support/fakeCursor.ts).
+  require(path.join(__dirname, "fake-cursor-attach"))({
+    args,
+    resumed,
+    stored,
+    env,
   });
-  process.on("SIGWINCH", () => {
-    if (dir) {
-      fs.appendFileSync(
-        path.join(dir, `${pid}.sizes`),
-        `${JSON.stringify({
-          cols: process.stdout.columns,
-          rows: process.stdout.rows,
-        })}\n`,
-      );
-    }
-    paint();
-  });
-  process.stdin.on("error", () => {});
-  process.stdout.on("error", () => {});
-  if (process.stdin.isTTY) process.stdin.setRawMode(true);
-  process.stdin.resume();
-  // A long multiline chunk is an unsent paste chip. A later Enter submits
-  // that chip, including when the terminal delivers it joined to the paste's
-  // last chunk. A return folded into the first chunk does not.
-  let pendingPaste = "";
-  process.stdin.on("data", (chunk) => {
-    const text = chunk.toString("utf8");
-    if (pendingPaste !== "" && !/[\r\n]$/.test(text)) {
-      pendingPaste += text;
-      return;
-    }
-    if (pendingPaste !== "") {
-      pendingPaste += text.slice(0, -1);
-      if (dir) {
-        fs.appendFileSync(path.join(dir, `${pid}.input`), `${pendingPaste}\r`);
-      }
-      pendingPaste = "";
-      paint();
-      return;
-    }
-    const stripped = text.endsWith("\r") ? text.slice(0, -1) : text;
-    if (stripped.includes("\n") || stripped.length > 800) {
-      pendingPaste = stripped;
-      const lines = (stripped.match(/\n/g) ?? []).length + 1;
-      emit(
-        "\x1b[?25l\x1b[2J\x1b[H",
-        `→ [Pasted text #1 +${lines} lines]\r\n`,
-      );
-      return;
-    }
-    if (dir) fs.appendFileSync(path.join(dir, `${pid}.input`), chunk);
-  });
-  recordAttach();
-  const delay = Number(process.env.FAKE_CURSOR_PAINT_DELAY_MS || 0);
-  if (delay > 0) setTimeout(paint, delay);
-  else paint();
-  const readyFile = process.env.FAKE_CURSOR_BECOME_READY;
-  if (readyFile) {
-    const timer = setInterval(() => {
-      if (fs.existsSync(readyFile)) {
-        clearInterval(timer);
-        mode = "";
-        paint();
-      }
-    }, 20);
-  }
 } else if (resumed !== undefined) {
   process.stderr.write("a prompt argument is not a terminal client\n");
   process.exit(2);

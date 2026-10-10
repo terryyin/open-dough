@@ -87,8 +87,8 @@ unchanged.
 
 ### 1. Start keep-wait expiry answers uncertain timed-out
 Type: Behavior
-Status: planned
-Proof: Focused Cursor launch specs under `dashboard/tests/agent-terminal-cursor-launch.spec.ts` (dev and preview as that file already does): (a) never-ready / delayed paint with launch wait shorter than paint — launch body is `uncertain` / `timed-out` with the instruction-delivery explanation, client process still running, first input still uncertain at return, and a later ready paint still confirms; (b) long multiline paste whose chip is submitted then held silent — launch body the same timed-out shape within the bound, first input remains confirmed after Enter, client still running. Ordinary ready launch in the same file still returns launched and confirms. Command: the project's usual focused Playwright invocation for that spec file (same pattern as neighboring Cursor launch proofs).
+Status: done
+Proof: Accepted. Command: `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-terminal-cursor-launch.spec.ts dashboard/tests/agent-terminal-cursor-launch-wait.spec.ts` (pass, 18 tests). Wait-expiry observations live in `agent-terminal-cursor-launch-wait.spec.ts` (dev/preview): (a) delayed paint with launch wait shorter than paint — body `uncertain`/`timed-out` with instruction-delivery explanation, client running, first input uncertain at return, later paint confirms; (b) paste chip submitted then held silent (`holdAfterPaste`) — same timed-out body, first input remains confirmed, client running. Ordinary ready launch in `agent-terminal-cursor-launch.spec.ts` still returns `launched`. Product: `launch.ts` abort → `timedOut(session)`; `launchTimeoutMs()` exported from `launchRun.ts`.
 
 Behavior: Cursor keep has not settled (never ready, or paste chip submitted then silent) and the shared launch wait ends → Start answers `uncertain` / `timed-out` naming unconfirmed instruction delivery and how to continue; the client stays kept; first-input state is unchanged; a Cursor that settles before the bound still launches as today.
 
@@ -101,4 +101,5 @@ Behavior: Developer Recover on a Cursor session whose keep has not settled when 
 
 ## Learnings
 
-None yet.
+- Ordinary Cursor launch proofs that shortened `launchTimeoutMs` below keep settle time were accidentally green under the old abort→`launched` bug; with correct timed-out abort they need a settle-capable wait (or no override).
+- Quiet reporter treats Node `FORCE_COLOR`/`NO_COLOR` warnings as stray PRINTED output (non-zero exit); run focused dashboard Playwright with those env vars unset.

@@ -30,7 +30,8 @@ import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
 const defaultLaunchWaitMs = 30_000;
 
 // A bounded launch wait; test configuration may shorten it.
-function launchTimeoutMs(): number {
+// Start and Recover share this rule (`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s).
+export function launchTimeoutMs(): number {
   const configured = Number(process.env["DOUGH_LAUNCH_TIMEOUT_MS"]);
   return Number.isFinite(configured) && configured > 0
     ? configured

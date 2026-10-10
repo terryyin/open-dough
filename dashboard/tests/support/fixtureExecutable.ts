@@ -24,7 +24,8 @@ export function installFixtureExecutable(
     | "fake-host-environment.cjs"
     | "fake-osascript"
     | "fake-codex"
-    | "fake-cursor",
+    | "fake-cursor"
+    | "fake-cursor-attach",
   binDir: string,
   command: string,
 ): void {

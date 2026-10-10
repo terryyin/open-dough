@@ -6,13 +6,14 @@
 // screen is ready for one. The record stays uncertain until that write, and
 // the client exiting does not accept it. The launch returns once the client
 // is running and the first screen has been judged, or the launch wait
-// aborts; that abort does not kill the client. Acceptance of a later screen
-// is recorded after the return. An unattached session with no instruction
-// still keeps the id and starts no client. The stored resume command never
-// carries `--model`, and Default omits it. A blank start with a chosen
-// model is refused before create-chat: no run would apply it. No worktree,
-// trust, or approval flag is passed. When the runner cannot be reached, no
-// `cursor-agent` is started.
+// aborts while keep is still open — that abort answers uncertain/timed-out
+// for unconfirmed instruction delivery and does not kill the client.
+// Acceptance of a later screen is recorded after the return. An unattached
+// session with no instruction still keeps the id and starts no client. The
+// stored resume command never carries `--model`, and Default omits it. A
+// blank start with a chosen model is refused before create-chat: no run
+// would apply it. No worktree, trust, or approval flag is passed. When the
+// runner cannot be reached, no `cursor-agent` is started.
 
 import { z } from "zod";
 import { launchSubject } from "../../../src/agentLaunch.ts";
@@ -62,14 +63,17 @@ function noSessionId(): HostLaunch {
 }
 
 function timedOut(session: CursorSession | undefined): HostLaunch {
-  const kept =
-    session === undefined
-      ? "No session id was printed."
-      : `Session ${session.sessionId} is kept. Continue with \`${shellCommand(session.continuation.args)}\`.`;
+  if (session === undefined) {
+    return {
+      kind: "uncertain",
+      reason: "timed-out",
+      explanation: "Cursor did not answer in time. No session id was printed.",
+    };
+  }
   return {
     kind: "uncertain",
     reason: "timed-out",
-    explanation: `Cursor did not answer in time. ${kept}`,
+    explanation: `Cursor did not show it took the instruction in time. Session ${session.sessionId} is kept. Continue with \`${shellCommand(session.continuation.args)}\`.`,
   };
 }
 
@@ -179,11 +183,10 @@ export const launchCursor: LaunchHost["launch"] = async (
     kept,
     untilAbort(signal).then(() => "aborted" as const),
   ]);
-  if (
-    outcome !== "aborted" &&
-    outcome.kind !== "kept" &&
-    outcome.kind !== "already-held"
-  ) {
+  if (outcome === "aborted") {
+    return timedOut(session);
+  }
+  if (outcome.kind !== "kept" && outcome.kind !== "already-held") {
     if (outcome.kind === "unreachable") {
       return runnerUnreachable();
     }
