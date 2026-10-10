@@ -28,6 +28,9 @@ When the block is present:
   landing.
 - Continue with refinement and the record write, through to
   [land at the end of preparation](preparation-journey.md#land-at-the-end-of-preparation).
+  The session may instead end through
+  [hand off to execution in the same session](preparation-journey.md#hand-off-to-execution-in-the-same-session)
+  when an execution instruction for this story arrives before that landing.
 
 A later skill in the same session that runs `start` for this story in this
 workspace gets `continued`, not a second assignment.

@@ -77,7 +77,10 @@ continue a ready story into slice planning under
 coordinator question or an explicit refine-only instruction (`--refine-only`)
 stops it. When this session ends, follow
 [land at the end of preparation](references/preparation-journey.md#land-at-the-end-of-preparation),
-then close or retain the workspace.
+then close or retain the workspace. An execution instruction for this story
+that arrives while its preparation is unlanded follows
+[hand off to execution in the same session](references/preparation-journey.md#hand-off-to-execution-in-the-same-session)
+instead.
 
 ## Report the refinement outcome
 

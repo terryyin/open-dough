@@ -116,6 +116,10 @@ When this session ends, follow
 [land at the end of preparation](../dough-story-refinement/references/preparation-journey.md#land-at-the-end-of-preparation),
 then close or retain the workspace under
 [preparation workspace](../dough-story-refinement/references/preparation-workspace.md#close-or-retain-the-workspace).
+An execution instruction for this story that arrives while its preparation is
+unlanded follows
+[hand off to execution in the same session](../dough-story-refinement/references/preparation-journey.md#hand-off-to-execution-in-the-same-session)
+instead.
 End with:
 
 `## SLICE PLAN REFINED`

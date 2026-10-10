@@ -662,6 +662,14 @@ numbers noted in an effect) that would have opened the gate one render late.
   - Evidence: plan 288 slice 1 Proof and Behavior, and its premise row "Holds by reading; the slice's spec reproduces it before the fix" (`fba8d90c:.planning/slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md`); slice 1's Learnings in the delivered plan (`84ee16fa:` same path); `dashboard/tests/recently-done-progressive-added-project.spec.ts` second test.
   - Observed effect: the implementation agent wrote the specs first, saw the outright-abort form pass on the unfixed code, and changed the test to hold the read, assert nothing is read, then abort; it keyed the gate on the project list instead of ask numbers. No rework followed and the coordinator accepted both deviations.
   - Inference: the delegation's requirement to observe each new test failing before the fix is what caught it; the cost was small. The premise was settled by reading for the first example only.
+- Execution: `SEED-128#publish-dirty-preparation-before-execution` / plan 291, first implementation `e5183b6c`
+  - Timestamp: unknown (2026-10-10, slice 1 return before `e5183b6c` at 21:16 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `cffb354b`; base 0.3.58
+  - Evidence: plan 291 slice 1 Proof, "A scratch change of the start's `--workspace` to a new path makes the Story Branch assertion `created: false` fail" (`cffb354b:.planning/slice-plans/291-execution-handoff-in-preparation-worktree/PLAN.md`); slice 1's return (the start answered `setup-failed`, "a branch named 'claude/story-c' already exists", failing at `receipt.ok` instead); the corrected Proof and Accepted note in the delivered plan (`e5183b6c:` same path). The plan's scratch chain had observed the passing run only.
+  - Observed effect: the implementation agent ran the named scratch change, reported the different failure, and added a new-path-and-new-branch variant that fails at `created: false`. The coordinator corrected the plan's wording and carried the `setup-failed` refusal into slice 2's recovery guidance. No rework followed.
+  - Inference: here the claim concerned a discriminating scratch change, not a pre-fix failure; the same cause applies, a failure stated from reading. The delegation's requirement to run the check caught it at small cost.
 
 ## DD-269 — A ready refinement named execution as its next step while its result was unpublished
 

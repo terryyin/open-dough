@@ -80,9 +80,10 @@ lands on remote trunk by default; landing grants no execution authority.
    [disposition procedure](../../src/skills/dough-story-refinement/references/preparation-disposition.md).
    A pause or continued discussion is no disposition decision.
 3. At execution startup, move the story to **Taken** on `main`, then create its
-   feature branch and worktree. Manage these resources for the developer.
-   Run implementation and retrospective in that branch without integrating
-   with `main` until wrap-up.
+   feature branch and worktree, or continue the preparation workspace and
+   branch when the session hands off to execution. Manage these resources for
+   the developer. Run implementation and retrospective in that branch without
+   integrating with `main` until wrap-up.
 4. At wrap-up, finalize closure in the story branch and merge the completed
    change, findings, and learning into `main`. Use that learning for subsequent
    decomposition and backlog decisions.

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "pyo-chan",
-  "email": "pyo-chan@example.org",
-  "identity": "SEED-128#publish-dirty-preparation-before-execution",
-  "mode": "story-branch",
-  "branch": "claude/land-unpublished-preparation-before-starting-exe",
-  "host": "claude"
-}

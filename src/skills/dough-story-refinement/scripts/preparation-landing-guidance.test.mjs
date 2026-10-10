@@ -133,14 +133,14 @@ test("the landing validates the workspace first and its stops keep disposition's
   );
 });
 
-test("disposition names three keep sources, each with its candidate check", () => {
+test("disposition names four keep sources, each with its candidate check", () => {
   const decide = section(
     disposition,
     "## Decide what happens to the written result",
   );
   assert.match(
     decide,
-    /Three sources supply a keep instruction, each with the candidate check its landing runs:/,
+    /Four sources supply a keep instruction, each with the candidate check its landing runs:/,
   );
   assert.match(
     decide,
@@ -152,7 +152,11 @@ test("disposition names three keep sources, each with its candidate check", () =
   );
   assert.match(
     decide,
-    /- one-shot refinement's selected \[automatic landing\]\(one-shot-refinement\.md#land-automatically-when-selected\) \(`--auto-land`\)\. Candidate check: `recheck`, with no assignment to release\./,
+    /- one-shot refinement's selected \[automatic landing\]\(one-shot-refinement\.md#land-automatically-when-selected\) \(`--auto-land`\)\. Candidate check: `recheck`, with no assignment to release;/,
+  );
+  assert.match(
+    decide,
+    /- the execution handoff, \[hand off to execution in the same session\]\(preparation-journey\.md#hand-off-to-execution-in-the-same-session\), for an execution instruction in the session that holds the story's Preparing workspace with unlanded preparation\. Candidate check: `release` staging\./,
   );
   assert.match(
     decide,
