@@ -102,7 +102,7 @@ test("the end names its opt-out and the no-publish instruction", () => {
   );
   assert.match(
     end,
-    /keep the result with its Preparing assignment for an explicit keep/,
+    /leave landing for later: finish preparation and record the assessment, then keep the result with its Preparing assignment for an explicit keep/,
   );
   assert.match(
     end,
@@ -192,7 +192,7 @@ test("the one final report carries the landing result, and the dashboard complet
   );
   assert.match(
     report,
-    /For a retained or stopped result it carries the draft's workspace, the Preparing assignment others still see, and the expected response/,
+    /For a retained or stopped result it carries the draft's workspace, the Preparing assignment others still see, and the expected response, which for a result the opt-out retained is an explicit keep\./,
   );
   assert.match(
     report,

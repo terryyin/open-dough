@@ -102,6 +102,33 @@ test("the options file defines refine-only once among the options", () => {
   );
 });
 
+test("the options file defines retain once as an ungrouped option after refine-only", () => {
+  const definition = JSON.parse(read("references/refinement-options.json"));
+  const flags = definition.options.map(({ flag }) => flag);
+  const at = flags.indexOf("--retain");
+  assert.equal(at, flags.indexOf("--refine-only") + 1);
+  assert.equal(flags.lastIndexOf("--retain"), at);
+  assert.ok(definition.focuses.every(({ flag }) => flag !== "--retain"));
+  const { label, summary, instruction } = definition.options[at];
+  assert.equal(label, "Retain for review");
+  assert.match(summary, /Finish preparation[^.]+for an explicit keep\.$/);
+  assert.match(
+    instruction,
+    /^Finish the authorized preparation as usual, applying every other selected option and focus, and record its readiness assessment\. Then retain the result in its workspace with its Preparing assignment/,
+  );
+  assert.match(
+    instruction,
+    /Report where the result is and an explicit keep as the next step, and say that others still see the story as Preparing\.$/,
+  );
+  assert.ok(
+    (definition.groups ?? []).every(({ flags }) => !flags.includes("--retain")),
+  );
+  assert.match(
+    definition.selection,
+    /Retain for review composes with every option and focus: finish the preparation the others select, then retain its result\. With Refine only, the invocation ends at the refinement result, which waits in its workspace for slice planning\./,
+  );
+});
+
 test("slice planning treats the continuation as a planning-only request whose report is the journey's one final report", () => {
   const stay = section(
     read("../dough-slice-planning/SKILL.md"),

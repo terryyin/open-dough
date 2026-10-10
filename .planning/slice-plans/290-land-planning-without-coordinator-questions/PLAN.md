@@ -188,7 +188,7 @@ in the journey test.
 
 ### 3. `--retain` keeps the result for an explicit keep
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-story-refinement/scripts/preparation-journey-guidance.test.mjs`
 with a test that the options file defines `--retain` once with label "Retain
 for review", a summary naming an explicit keep, an instruction that finishes
@@ -203,6 +203,14 @@ assignment; the report gives the result's location and an explicit keep as
 the next step, and says others still see the story as Preparing. The option
 joins `refinement-options.json` after `--refine-only`; `--refine-only` is
 unchanged and never lands.
+
+Accepted: the journey test's "the options file defines retain once as an
+ungrouped option after refine-only" and the landing test's opt-out and
+final-report pins pass within the suite (98); removing the entry fails the
+former. The eleven dashboard specs that read the source options file pass
+their option and dialog checks (73 of 74); `frame-launch-look.spec.ts:101`,
+a roster layout test with no options dialog, failed once in that run and
+passed three times alone, the flake `ProjectFindings.md` already records.
 
 ### 4. ADR 0007 states the default and its opt-out
 Type: Behavior
@@ -225,7 +233,7 @@ Proposed.
 ### G1. `--retain` is named before the options file defines it
 Reported: slice 2 — "the journey end names `--retain` and links `refinement-options.json`, which does not define it yet. Only the ordinary-language opt-out works until slice 3."
 Story clause: "which the dashboard offers automatically, or an ordinary-language"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `preparation-journey-guidance.test.mjs` "the options file defines retain once as an ungrouped option after refine-only"
 
 ### G2. ADR 0007 still states the explicit-keep default
 Reported: slice 2 — "`docs/adrs/0007-software-development-lifecycles.md:72` still says 'Publish draft results only on an explicit keep'. Left for slice 4."
@@ -241,6 +249,11 @@ Disposition: no user cost "the agent lands the retained preparation on remote ma
 Reported: slice 2 — "All of this is guidance-text proof; no agent run observed an actual landing."
 Story clause: "existing keep sequence and Dough Land"
 Disposition: no user cost "existing keep sequence and Dough Land": the story changes guidance only; `release` staging and Dough Land keep their own passing script tests, and an agent run is a paid native host run, which this project keeps manual.
+
+### G5. The dashboard dialog offers `--retain` after the next release
+Reported: slice 3 — "it offers 'Retain for review' only after the next release updates the installed copies."
+Story clause: "which the dashboard offers automatically, or an ordinary-language"
+Disposition: no user cost "the agent lands the retained preparation on remote main through the": the dashboard reads the installed options file, which every released option reaches the same way; until then the ordinary-language opt-out retains the result.
 
 ## Considered and excluded
 

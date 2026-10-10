@@ -120,7 +120,8 @@ landing settles. It carries the story's refinement outcome, the plan path, the
 recorded readiness assessment, and the landing result: the landed commit, the
 story's next step, and Dough Land's publication, refresh, and retirement
 results. For a retained or stopped result it carries the draft's workspace,
-the Preparing assignment others still see, and the expected response.
+the Preparing assignment others still see, and the expected response, which
+for a result the opt-out retained is an explicit keep.
 
 With supplied dashboard reporting context, the completion report under
 [dashboard completion](../../dough-land/references/dashboard-completion.md) is
