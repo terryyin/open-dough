@@ -22,10 +22,11 @@
 // branch heads: `./branchHeads.ts`; one request's wait for its `gh`
 // answers: `./trackedGh.ts`; failure wording and any directed wait:
 // `./readFailureMessage.ts`; bounded local failure history:
-// `./readDiagnostics.ts`. Beside it, a second path serves the GitHub
-// avatar of the human credited for one listed profile (`./avatarRead.ts`,
-// images kept by `./avatarImages.ts`), and a third inspects recent failed
-// upstream reads without asking GitHub.
+// `./readDiagnostics.ts`; where an answer's time went, in its
+// `Server-Timing` header: `./readTiming.ts`. Beside it, a second path serves
+// the GitHub avatar of the human credited for one listed profile
+// (`./avatarRead.ts`, images kept by `./avatarImages.ts`), and a third
+// inspects recent failed upstream reads without asking GitHub.
 // Node-only; never returns credentials, raw stderr, or an arbitrary path or
 // image proxy.
 
@@ -45,6 +46,7 @@ import {
   type DiagnosticOutcome,
 } from "./readDiagnostics.ts";
 import type { Outcome } from "./readOutcome.ts";
+import { withReadTiming } from "./readTiming.ts";
 import { parseRequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -117,6 +119,7 @@ async function answer(
 function respond(
   res: ServerResponse,
   outcome: Outcome | AvatarOutcome | DiagnosticOutcome,
+  serverTiming: string,
 ): void {
   // Disconnect is a cancellation trigger; a closed response has no audience.
   if (res.writableEnded || res.destroyed) {
@@ -127,6 +130,7 @@ function respond(
   const headers = {
     "Cache-Control": "no-store",
     "Content-Type": "application/json",
+    "Server-Timing": serverTiming,
   };
   if (outcome.kind === "image") {
     res.writeHead(200, {
@@ -184,9 +188,11 @@ export function installAuthenticatedReadMiddleware(
       next();
       return;
     }
-    void answer(req, boundary, url).then((outcome) => {
-      respond(res, outcome);
-    });
+    void withReadTiming(() => answer(req, boundary, url)).then(
+      ({ outcome, serverTiming }) => {
+        respond(res, outcome, serverTiming);
+      },
+    );
   };
   middlewares.use(handler);
   return () => {

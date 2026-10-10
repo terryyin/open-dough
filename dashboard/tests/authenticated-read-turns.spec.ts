@@ -10,89 +10,36 @@
 // `gh` calls it had unanswered at once: a call beyond the bound would stay
 // unanswered and be counted. Each request's pinned reads before its held one
 // are made first, as ./authenticated-read-shared.spec.ts makes them. Two tabs
-// across two projects: ./read-turns-across-tabs.spec.ts.
+// across two projects: ./read-turns-across-tabs.spec.ts. Where an answer's
+// time went, in its `Server-Timing`:
+// ./authenticated-read-turns-timing.spec.ts.
 
 import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
-import { everyRepository, publishes } from "./support/fakeGitHub.ts";
+import { everyRepository } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { heldInTurn } from "./support/heldGitHubAnswer.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { abandonedRequest } from "./support/rawHttp.ts";
 import { onServerOfItsOwn } from "./support/directedWait.ts";
 import { askedSince, readAt, refusedMarker } from "./support/sharedReads.ts";
+import {
+  arrived,
+  asked,
+  isSeed,
+  publishedAt,
+  revisionOf,
+  seedPaths,
+  seedRead,
+  servedInTurn,
+  turns,
+  underWay,
+} from "./support/turnReads.ts";
 
 test.describe.configure({ mode: "serial" });
-
-const revisionOf = (pair: string) => pair.repeat(20);
-const turns = 8;
-
-// Twelve seeds the backlog names, so each is a different pinned read.
-const seedPaths = Array.from(
-  Array(12).keys(),
-  (index) => `.planning/seeds/SEED-turn-${String(index + 1)}.md`,
-);
-const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-${seedPaths
-  .map((path, index) => {
-    const identity = `SEED-turn-${String(index + 1)}#turn`;
-    return `- [Turn ${String(index + 1)}](${path.replace(".planning/", "")}#turn) — ${identity}`;
-  })
-  .join("\n")}
-`;
-const publishedAt = (revision: string) =>
-  publishes({
-    revision,
-    backlog,
-    files: Object.fromEntries(seedPaths.map((path) => [path, `# ${path}\n`])),
-  });
-
-const seedRead = (revision: string, path: string) =>
-  `&revision=${revision}&path=${encodeURIComponent(path)}`;
-const asked = (revision: string, paths: readonly string[]) =>
-  paths.map((path) => `content ${path}@${revision}`);
-const isSeed = (request: GhRequest) =>
-  request.kind === "content" && seedPaths.includes(request.path);
-
-// Serves `revision` with its backlog already read, then holds every seed
-// read until released one at a time.
-async function servedInTurn(server: DashboardServer, revision: string) {
-  const published = publishedAt(revision);
-  server.github.serve(everyRepository, published);
-  expect((await readAt(server, `&revision=${revision}`)).status).toBe(200);
-  const held = heldInTurn(published, isSeed);
-  server.github.serve(everyRepository, held.answer);
-  return { ...held, before: server.github.calls.length };
-}
-
-const arrived = (server: DashboardServer, before: number, count: number) =>
-  expect
-    .poll(() => askedSince(server, before).length, { timeout: 10_000 })
-    .toBe(count);
-
-// Sends one read for each of `paths` at `revision`, each reaching GitHub
-// before the next is sent, so they arrive in order.
-async function underWay(
-  server: DashboardServer,
-  revision: string,
-  before: number,
-  paths: readonly string[],
-) {
-  const answers = [];
-  for (const path of paths) {
-    answers.push(readAt(server, seedRead(revision, path)));
-    await arrived(server, before, askedSince(server, before).length + 1);
-  }
-  return answers;
-}
 
 test.describe("authenticated read boundary: reads take turns at GitHub (dev launch mode)", () => {
   let server: DashboardServer;

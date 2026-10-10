@@ -19,6 +19,7 @@ import { readAnswer, type GhAnswer } from "./ghAnswer.ts";
 import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
 import { ReadAdmission } from "./readAdmission.ts";
 import { recordFailedRead } from "./readDiagnostics.ts";
+import { timedGhWait } from "./readTiming.ts";
 import { GhFailure, type GhFailureReason } from "./ghFailure.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 
@@ -175,14 +176,17 @@ function endedAtReadBound(signal: AbortSignal): boolean {
 // caller can decide from that status before treating the exit as a failure.
 // `signal` ends only this request's wait, which then rejects with its reason
 // and gets no answer; a call that reached its own bound is a timed-out
-// failure for every request waiting on it.
+// failure for every request waiting on it. The wait is counted in the
+// request's `Server-Timing` (`./readTiming.ts`).
 export function execGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhAnswer> {
   const asked = includedArgs(args);
-  return outstandingGh.waitFor(JSON.stringify(asked), signal, (shared) =>
-    spawnedGh(asked, shared),
+  return timedGhWait(() =>
+    outstandingGh.waitFor(JSON.stringify(asked), signal, (shared) =>
+      spawnedGh(asked, shared),
+    ),
   );
 }
 

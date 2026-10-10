@@ -176,7 +176,15 @@ slice 6's loaded run.
 
 ### 3. Where a fresh run's first seconds go is recorded
 Type: Structure
-Status: planned
+Status: in progress — the header is delivered; the fresh-run observation remains
+Accepted proof of the header (2026-10-10, pinned Node): `npm run --silent
+test:dashboard -- authenticated-read-turns` (five tests in two files; the
+timing test in `authenticated-read-turns-timing.spec.ts` holds eight reads
+and queues a ninth: held reads show `gh` "1 call" at least as long as the
+measured hold, the queued read shows `admission` at least its measured queue
+time, refused and from-memory answers show zero for both; red with the header
+line removed); the read-boundary consumer specs and the full suite exit 0
+with no output (load 3.2 → 18.0).
 Proof: `/opt/homebrew/bin/bash scripts/dashboard-repeat.sh 1 --fresh` with
 the header in place; for the three head-of-run journeys of `8511d0cb`'s
 failure (or whichever the run shows slowest), the breakdown of the page's
@@ -266,6 +274,16 @@ Reported: slice 2 — "The new test's "pending" observation depends on Playwrigh
 Story clause: "passes three consecutive full runs on unchanged code with no output"
 Disposition: no user cost "passes three consecutive full runs on unchanged code with no output": with the wait working, `returned` stays false until the held read is released whatever the order of evaluates, so the ordering can only weaken the test's power to catch a regression, never fail a passing run.
 
+### G8. A wait that ends unanswered is in neither metric
+Reported: slice 3 — "A `gh` wait that rejects (the request's own bound, or its departure) is counted in neither `admission` nor `gh`. It is excluded from `rest`, so it shows only as `total − rest − admission − gh`."
+Story clause: "Find what the first reads of a freshly prepared checkout wait on, from the repeat script's `--fresh` run and its kept trace and timings"
+Disposition: no user cost "passes three consecutive full runs on unchanged code with no output": the header is observation only; an unanswered wait is still told by `total` exceeding the other three, and no run's result depends on it.
+
+### G9. The header is asserted on dev-mode read answers only
+Reported: slice 3 — "The header on avatar and diagnostics answers is not asserted, though it uses the same `headers` object. Preview-mode servers are not asserted by the new test (it runs in dev mode); the trace sample above comes from preview servers and shows the header."
+Story clause: "Find what the first reads of a freshly prepared checkout wait on, from the repeat script's `--fresh` run and its kept trace and timings"
+Disposition: proved by slice 3: the recorded preview-server trace lines in Learnings show the header on `/__authenticated-read` answers, the only answers the finding reads
+
 ## Learnings
 
 - Slice 1: the page reads its project list (`/__project-configuration`)
@@ -297,6 +315,18 @@ Disposition: no user cost "passes three consecutive full runs on unchanged code 
 - Slice 2: 20 loaded repeats of `reopened-project-reads` with the label
   checks after the reads did not show "Reading plan slices…" (load at most
   25.5); slice 5 stays conditional on slice 6's loaded full run.
+
+- Slice 3: every read-boundary answer carries `Server-Timing:
+  admission;dur=…, gh;dur=…;desc="N calls", rest;dur=…, total;dur=…`
+  (`dashboard/server/readTiming.ts`), whole milliseconds; calls waited on
+  together are each summed, so the first three can exceed `total`. A warm
+  preview-server sample at load about 18: `82ms 200 ?source=open-dough |
+  admission;dur=0, gh;dur=75;desc="2 calls", rest;dur=3, total;dur=78`.
+  Browser time minus `total` is time outside the handler.
+- Slice 3: a passing run keeps no trace under the quiet reporter; recording
+  on purpose needs `--trace on --reporter=dot`, and the breakdown is read
+  from each `trace.zip`'s `*.network` records (`resource-snapshot` entries
+  whose URL has `/__authenticated-read?`, header `server-timing`).
 
 ## Verification and sizing
 
