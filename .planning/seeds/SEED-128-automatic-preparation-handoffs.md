@@ -29,52 +29,146 @@ Automatic preparation and landing do not authorize product execution.
 
 **Identity:** SEED-128#continue-refinement-to-slice-planning
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/287-continue-refinement-into-slice-planning/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1e723d84c4013343ce0c9803b31d87e93622cc0d0b0ee6b3913136f72a4387f7","plan":"f5a3b7618f9dfd80be74dbee714faaa8f4bcf8ed43fcccbe6f0e2742f6c2a3af"}}
 ```
 
-**Beneficiary:** A coordinator asking an agent to prepare a selected story.
+**Beneficiary:** A coordinator who starts story refinement from the dashboard's
+Refinement launch or a direct `dough-story-refinement` invocation and wants a
+plan-ready preparation from that one start.
 
 **Goal:** After story refinement completes with no open question to the
-coordinator, the agent automatically continues into slice planning in the same
-owned temporary worktree and feature branch, including slice-plan refinement
-when the existing planning workflow calls for it.
+coordinator, the agent continues into slice planning in the same owned
+temporary worktree and feature branch, including slice-plan refinement when the
+existing planning workflow calls for it. One launch yields one preparation
+draft, the refined story and its plan with a recorded readiness assessment,
+instead of a refinement report the coordinator must read and answer with a
+second planning start. Landing that draft and starting execution from it are
+the sibling stories; this story changes neither.
 
 **Scope:**
 
-- Make this continuation the refinement skill's normal behavior. Stop the
-  automatic handoff only for a question requiring the coordinator's response
-  or an explicit instruction on the refinement invocation not to continue
-  into slice planning. Preserve useful missing-context and failure handling.
-- Keep refinement and planning in one preparation workspace and branch,
-  retaining the established story, assignment, and draft context across the
-  handoff. The normal preparation journey ends with one commit landed on main
-  once its landing is authorized by the applicable workflow.
-- Retain the coordinator's ability to land completed refinement before a
-  slice plan is written, including a refinement-only invocation. This is an
-  intentional stopping point rather than the default preparation journey.
-- Update the workflow ADRs concisely to express the normal combined
-  preparation journey and its explicit stop; keep procedures in the skills.
+Required behavior:
 
-**Architecture reminder for refinement and planning:** Design one cohesive
-solution for this story, automatic landing after planning, and publishing dirty
-preparation before execution. Consider future skill chaining without creating
-separate handoff policies for each pair of skills. Find and reuse existing
-workflow, workspace, disposition, and publication responsibilities; settle how
-continuation intent, explicit stops, coordinator questions, and established
-context pass through the chain. Keep each responsibility in one authoritative
-home, with only necessary host adaptation. Do not implement speculative future
-chains or prescribe a new framework merely for extensibility.
+- Continuing into slice planning is the refinement skill's normal ending for
+  a ready outcome, both "Ready for slice planning" and "Flawless". After the
+  seed records goal, scope, and key examples and the recorder records
+  `refined`, the same session invokes the installed slice-planning skill for
+  the story the invocation names, in the same workspace, branch, and session.
+  Slice planning runs as it does today: its `start` returns `continued` on the
+  existing Preparing assignment, it writes the plan, runs slice-plan
+  refinement when its own rule calls for it, and records the readiness
+  assessment. The refinement outcome is reported before continuing; the
+  session's final report is the planning report, which carries the story's
+  refinement outcome, the plan path, the recorded assessment, and the pending
+  draft and Preparing assignment as information.
+- A Flawless outcome continues into slice planning too. Refinement alone never
+  records `ready`, so an unplanned Flawless story shows "Not marked Ready for
+  execution" on the dashboard's Execution launch. The one-slice plan makes the
+  story ready; the coordinator's choice to execute it planless stays an
+  execution-launch decision and is unchanged.
+- Two conditions stop the continuation. A Needs human engagement outcome stops
+  before planning and lists the expected responses as today; when the
+  coordinator answers in the same session and no question remains, refinement
+  finishes and continues into planning. An explicit refine-only instruction on
+  the invocation stops at the refinement result, and the report names slice
+  planning in that workspace as the next step, as today, so the coordinator
+  can land refinement alone before planning. Missing-context stops and
+  failure handling of both skills are unchanged.
+- The refine-only instruction is an entry in the refinement skill's
+  `refinement-options.json` (recommended flag `--refine-only`, label "Refine
+  only"), beside the inquiry options. The dashboard's Refinement launch reads
+  that file from the installed skill and offers every entry, so the checkbox
+  appears without a dashboard change, and a direct invocation passes the flag.
+  An ordinary-language instruction not to continue into planning counts the
+  same. The flag composes with any inquiry option or focus.
+- A refinement invocation authorizes slice planning of its story and still
+  authorizes no execution and no publication. The combined draft stays
+  uncommitted in the owned workspace with its Preparing assignment under the
+  existing disposition until a keep lands it; `start` for the planning step
+  announces nothing new, and no second Established preparation block,
+  workspace, or branch is created. Refinement's current wording that it
+  "does not authorize planning" and hands off planning only on request is
+  replaced.
+- When several related stories are refined together, continuation plans the
+  story the invocation names (the established identity). Sibling stories
+  refined for their boundaries end with their own refinement outcome.
+- Update [ADR 0007](../../docs/adrs/0007-software-development-lifecycles.md)
+  concisely: its Story Branch Mode text and diagram show refinement flowing
+  into slice planning in the same owned workspace unless a coordinator question
+  or an explicit refine-only instruction stops it. Procedures stay in the
+  skills; the ADR's status is unchanged. ADR 0009 describes no step this story
+  changes; confirm during planning rather than editing it on assumption.
+- The refinement skill's guidance tests, which pin its outcome and
+  established-preparation wording, change with the guidance, and the shipped
+  options definition keeps satisfying the dashboard's definition schema (each
+  flag defined once; no exclusive group is needed).
+
+Deferred promises:
+
+- Automatic landing after planning and landing unpublished preparation before
+  execution: the two sibling stories below.
+- One-shot refinement (`--one-shot`) keeps its current journey: refine, commit,
+  then stop for review or land with `--auto-land`. Its workspace holds no
+  Preparing assignment, so planning there would need its own start handling;
+  extending one-shot to planning is a later decision.
+- A dashboard-side slice-planning launch, or a separate option category for
+  journey controls in the options file. The offered list stays flat.
+
+**UI:** The coordinator sees one new checkbox in the Refinement launch
+dialog's options, "Refine only" with a one-line summary such as "Stop after
+recording the story; leave slice planning for a later step", listed with the
+existing inquiry options and recorded on the launch like them ("Options:
+--refine-only (requested)"). Nothing else in the dialog or card changes: the
+card shows "Being prepared" throughout refinement and planning, because the
+published assignment's activity is preparation for both.
+
+**Architecture:** The consequential concern is where the continuation rule
+lives. Keep it in one home: a reference under the refinement skill, beside
+its workspace, assignment, and disposition references, that states the
+preparation journey (refinement, then slice planning, then slice-plan
+refinement as planning already decides), its single stop rule (an open
+coordinator question or an explicit refine-only instruction), and that the
+same session, workspace, branch, and assignment carry the established context
+through the chain with no new block and no re-announcement. Refinement's
+outcome step and slice planning's "stay within the triggering instruction"
+link to it. The sibling landing story extends that same home with landing
+instead of adding a second handoff policy; no chain registry or generic
+handoff protocol is introduced.
+
+Accepted decisions consulted: [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+(one representation per conceptual solution; readiness separate from execution
+authority; a default instead of a per-run coordinator choice leaves less
+judgment in the repository), [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+(the chain works by following the installed skill's guidance on every host,
+as slice planning already invokes plan refinement; no host-specific mechanism),
+and [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+(procedures in skills, concise ADR text). No conflict was found. Proposed ADRs
+0007 and 0009 inform the design and bind nothing.
 
 **Key examples:**
 
-- Refinement records an understood story with no coordinator question and no
-  stop instruction: proceed directly to slice planning in the same worktree;
-  run slice-plan refinement when needed by that workflow.
-- Refinement needs a coordinator scope decision: report the question and stop
-  dependent planning until it is answered.
-- The refinement invocation explicitly says not to continue into slice
-  planning: retain the refinement result at that boundary; the coordinator
-  can choose to land that result before planning.
+- The dashboard starts refinement with an established preparation and no
+  refine-only option; refinement records the story with no coordinator
+  question → the same session invokes slice planning; `start` returns
+  `continued`, the plan is written and refined when needed, readiness is
+  recorded → the final report is the planning report with the refinement
+  outcome, plan path, assessment, and the draft pending in the workspace with
+  its Preparing assignment; nothing is committed or pushed.
+- Refinement needs a coordinator scope decision → the report lists the
+  decision as Needs human engagement and no plan is written → the coordinator
+  answers in the same session; refinement completes and continues into
+  planning as above.
+- The invocation carries `--refine-only`, from the dashboard checkbox or the
+  command line, with or without inquiry options → refinement completes,
+  applying any inquiry options → the session stops with the refinement
+  report naming slice planning in that workspace as the next step; the
+  coordinator may land the refinement alone first.
+- Refinement judges the story Flawless → planning continues and writes a
+  one-slice plan recorded `ready` → the coordinator may still execute it with
+  an explicit skip-planning instruction.
+- Refinement runs with `--one-shot` → the one-shot journey applies unchanged:
+  the committed refinement stops for review or lands with `--auto-land`, and
+  no plan is written.
 
 <a id="land-planning-without-coordinator-questions"></a>
 
