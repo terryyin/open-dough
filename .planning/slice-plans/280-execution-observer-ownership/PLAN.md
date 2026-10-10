@@ -387,9 +387,24 @@ Learnings:
   for the count in resume's `missing` reason.
 - Native evidence pending: Cursor and Claude Code closure with ambient
   identity or `--session-json` from the note, and Codex closure with the
-  retained inputs. No harness case exercises Codex closure, so no
-  `stream --coordinator` closure fixture exists. Retained trunk-closure
-  evidence identities changed with the hashed modules.
+  retained inputs. The manual `--native codex` trunk-closure cases still
+  pre-start a detached, unclaimed observer and cannot pass until a
+  `stream --coordinator` fixture exists. Retained trunk-closure evidence
+  identities changed with the hashed modules.
+
+## Execution complete
+
+Product advice: Keep SEED-121#settle-observer-owner-edges
+([plan 288](../288-observer-owner-edges/PLAN.md)) ahead of any release of this
+guidance. It is recorded not ready: one premise of its first slice is
+unobserved. Until it lands, a closure rerun after worktree retirement can stop
+at `step: "observation"` when another worktree armed the observer, gap reasons
+steer a later session to an observer whose events it cannot receive, and the
+manual Codex native trunk-closure cases cannot pass. Native Cursor, Claude
+Code, and Codex evidence for the changed owner inputs is pending under ADR
+0005 and needs the developer's authorization for paid runs. The dashboard-owned
+CI monitoring direction is unaffected; this delivery keeps the standalone
+observer's ownership correct beside it.
 
 ## Verification, native evidence, and execution gates
 

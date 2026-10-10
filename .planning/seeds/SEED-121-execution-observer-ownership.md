@@ -184,6 +184,33 @@ monitoring story has a separate outcome.
 **Safe stopping point:** Concurrent trunk deliveries have correct observer
 ownership and explicit ownership gaps, even if dashboard monitoring is deferred.
 
+<a id="settle-observer-owner-edges"></a>
+
+### Settle observer ownership at its recovery edges
+
+**Identity:** SEED-121#settle-observer-owner-edges
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/288-observer-owner-edges/PLAN.md","assessment":"not-ready","reasons":["Slice 1's proof for a project below its Git toplevel depends on whether closure supports that layout; that premise is unobserved"],"basis":{"document":"c31d068e415f6a8814dbe6a2aa0988f75060a3353f12b475ff7a64a8eee519c3","plan":"07952eed6d80252ac3fc8e46ea02b651be6382afaa255879a58dad7b4b51ce8f"}}
+```
+**Slice plan:** [Observer ownership holds at its recovery edges](../slice-plans/288-observer-owner-edges/PLAN.md).
+
+**Goal:** A coordinator whose observer ownership is verified keeps a usable
+observer and truthful recovery guidance when its closure reruns after the
+worktree is retired, when a call names another session, when it is a subagent
+coordinator, and in the native closure harness. This corrects edges the
+delivered ownership story left; it adds no feature promise.
+
+**Scope:**
+
+- A closure rerun after retirement reads the owner's observer whichever
+  worktree armed it, and closure derives the owner the way delivery does.
+- Gap reasons and guidance direct a caller only to an observer whose events it
+  can receive, and name the session fields a subagent coordinator passes.
+- The native closure harness arms and records observers as the guidance
+  teaches, including a Codex stream.
+- Delivery, resume, and closure share one gap vocabulary and one session-input
+  parser; wording that still describes repository-and-branch matching goes.
+
 ## Breadcrumbs
 
 - Terry's reported misregistration and explicit request to queue confirmed
