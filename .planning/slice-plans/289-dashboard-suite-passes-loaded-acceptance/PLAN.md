@@ -106,7 +106,7 @@ adds no topic.
 | --- | --- | --- |
 | A fresh run's first open waits for its read (1) | 1 | A spec holding the first `ref` answer 6 s fails on the current helpers at the 5 s bound and passes with the wait; the status consumers (`published-work`, `steady-refresh`, `transient-read-recovery`, `accessible-overview*`) and the held-read journeys (`published-facts-*`, `recently-done-progressive-*`) pass. |
 | Boundary: the first read fails (2) | 1 | The same spec with the `ref` answer failing: the wait ends at the failure and the membership expectation fails at once, naming the titles, inside 5 s. |
-| Plan slices under load (3) | 2, 5 | `reopened-project-reads.spec.ts --repeat-each 20` under `--load` passes with the event-first check; a label persisting after its reads answered is slice 5's reproduction. |
+| Plan slices under load (3) | 2 | `reopened-project-reads.spec.ts --repeat-each 20` under `--load` passes with the event-first check; a label persisting after its reads answered is slice 5's reproduction. |
 | Where the first seconds go (scope) | 3 | The `Server-Timing` breakdown of the head-of-run reads in a fresh run, recorded in Learnings. |
 | An owned cause is removed (scope) | 4 | The same breakdown after the fix, in a fresh run, relative to slice 3's under comparable load. |
 | Three consecutive runs, unchanged code (4) | 6 | The script's three run lines (exit 0, no `FAIL:`/`PRINTED:`) in order, recorded here with their loads; CI green on the published revision. |
@@ -222,21 +222,21 @@ storm) or in the server's handling of a project's first read → no longer
 waits on it. When slice 3 names a cause outside both, this slice is replaced
 by a bug report named in Learnings and slice 1's wait carries the acceptance.
 
-### 5. The plan-slices label leaves once its reads answered
-Type: Behavior
-Status: planned, conditional on slice 2
-Proof: A spec ordering the branch head and plan answers against the other
-detail reads as the kept trace shows them reproduces the persisting label on
-the current code and passes after the fix; the loaded repeats of slice 2 pass.
-
-Behavior: After every read a Taken card's slices depend on answered → the
-card shows its count → "Reading plan slices…" is gone. When slice 2's loaded
-repeats and slice 6's loaded run never show the label after the reads, this
-slice is recorded as not reproduced, with the loads observed, and removed.
-
 ### 6. The three runs pass and CI is green
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (2026-10-10, pinned Node 24.21.0, 16 cores, 8 workers, no
+code change between the runs, at `319ff5ac`):
+`Run 1 (fresh worktree): exit 0, 577 s, load 7.53 -> 14.31`;
+`Run 1: exit 0, 540 s, load 14.31 -> 12.99`;
+`Run 1 under burners: exit 0, 759 s, load 12.99 -> 50.90` (sampled every
+30 s: 50–57 from the third minute on), each followed by `Passed 1 of 1
+runs.` and no `FAIL:` or `PRINTED:` line. Then, with `published-work.spec.ts`
+line 132 expecting "4 entries": `Run 1 under burners: exit 1, 689 s, load
+33.89 -> 47.28` with the one line `FAIL:
+dashboard/tests/published-work.spec.ts:43`; the break was removed. CI run
+38057255366 on `319ff5ac`: lint, three test shards and the nine dashboard
+shards passed, the longest dashboard shard in 5 min 18 s of its 6 minutes.
 Proof: On this 16-core machine at 8 workers, with no code change between
 them: `/opt/homebrew/bin/bash scripts/dashboard-repeat.sh 1 --fresh`, then
 `1`, then `1 --load`; each prints exit 0 and no `FAIL:`/`PRINTED:` line; the
@@ -259,7 +259,7 @@ Disposition: proved by slice 2: `dashboard/tests/support/pageTest.ts` `context` 
 ### G2. The wait relies on page turns between the page's steps
 Reported: slice 1 — "The wait still relies on page turns between steps. After the first content and after each answer, the page gets three message turns to send its next request, as `untilPageReadsAnswered` already assumes."
 Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G3. Fail-at-once looks once
 Reported: slice 1 — "Fail-at-once is one-shot. If the final-failure line has not rendered when the helper looks, the expectation takes the ordinary 5 s path."
@@ -269,17 +269,17 @@ Disposition: no user cost "passes three consecutive full runs on unchanged code 
 ### G4. Detail-read bounds are unchanged
 Reported: slice 1 — "Detail-read bounds are unchanged, and slice 2's reordering is not done."
 Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G5. The new spec costs about 11 s of one worker
 Reported: slice 1 — "Suite cost: the new spec costs about 11 s of one worker (6 s hold plus the 5 s bound expectation in the ordering proof)."
 Story clause: "Each CI dashboard shard still ends within `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`"
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G6. Production-watcher pages note nothing
 Reported: slice 2 — "`production-watcher*` pages come from `browser.newPage()`, outside any fixture context, so they note nothing. `production-watcher-updates.spec.ts:159` checks the "Published Git state" region after a reload with no wait."
 Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G7. The bare-fixture test's pending observation is an ordering argument
 Reported: slice 2 — "The new test's "pending" observation depends on Playwright evaluates completing in order (four turn round trips after a wait that needs three when it has nothing to wait for)."
@@ -304,12 +304,12 @@ Disposition: no user cost "passes three consecutive full runs on unchanged code 
 ### G11. The codex and cursor fixtures are not run once
 Reported: slice 4 — "Left out on purpose: `fake-codex`, `fake-cursor` and `fake-cursor-attach` have no immediate refusal path with an empty environment, so they are not the same harmless mechanism. Their first-run cost in a fresh checkout is not removed."
 Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G12. The global setup's fixture runs are unproved on Linux
 Reported: slice 4 — "Linux CI not run. There the call is three plain execs via `/usr/bin/env node`; it is unproved until the published revision runs."
 Story clause: "CI's dashboard shards then pass on the published revision within their recorded deadline."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G13. A stopped command that ignores its signal is no longer killed
 Reported: slice 6 — "`stop()` no longer force-kills a command that ignores SIGTERM. Such a hang now runs to the test timeout, and when it happens in a `finally` after an earlier assertion failure, the timeout would hide that error."
@@ -319,12 +319,12 @@ Disposition: proved by slice 6: `dashboard/tests/support/processGroup.ts` still 
 ### G14. Other page actions keep a plain bound on their result
 Reported: slice 6 — "Other page actions that are followed by a plain 5 s `expect` on their result (Mark as read, Delete record, Recover, launch) have the same shape and were not touched."
 Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G15. A resumed start outlasted its one-second product wait once
 Reported: slice 6 — "`agent-launch-preparation-resume.spec.ts:128` failed once in the plain family run, at `:113`: `Expected: "launched"`, `Received: "uncertain"` ("The start did not finish within the wait…")."
 Story clause: "A failure whose kept evidence shows only a wait that ended while the load was several times the core count is the first story's deferred boundary, not a pass: record it with that load and repeat the loaded run when the load is nearer the bound."
-Disposition: interim until slices 6
+Disposition: proved by slice 6: the fourth series at `319ff5ac` passed fresh, warm and under burners with no suite output (Learnings), and CI run 38057255366 passed all nine dashboard shards on that revision
 
 ### G16. The full-source fixture's cost under contention remains
 Reported: slice 6 — "The underlying cost remains. `git add` of the whole source per full-source test, with about 10x contention, still makes the production block slow; the change gives the two tests room and does not shrink the fixture."
@@ -459,6 +459,19 @@ Disposition: excluded "Making the full local run faster is not a promise; only t
   `production-publication-fixture`, now declare 120 s as the suite's
   own-budget convention does. No `expect` bound, retry, or global timeout
   changed. The series restarts from the fresh run.
+
+- Slice 5, not reproduced and removed: with the label checks after the
+  reads (slice 2), "Reading plan slices…" was never shown after its reads
+  answered: 20 loaded repeats of `reopened-project-reads` (load at most
+  25.5), two loaded full runs (16 → 65 and 13 → 51, sampled 50–57) and the
+  loaded deliberate-break run (34 → 47). No client race is shown; the
+  2026-10-10 failure at `8511d0cb` fits a check made before its reads
+  answered while the page was starved.
+- Slice 6: the acceptance needed four series. Each failing run named one
+  suite defect, none of them in the product: a stop that killed the watcher
+  mid-shutdown, a check begun before its done mark answered, and two tests
+  whose default bound did not fit a fixture that slows tenfold under
+  file-system contention.
 
 ## Verification and sizing
 
