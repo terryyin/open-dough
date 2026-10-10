@@ -96,6 +96,40 @@ Codex runs without `--ephemeral`, because spawning a subagent thread needs the
 parent's persisted rollout. Those rollouts are kept in the developer's Codex
 home with their other sessions, which also keeps the developer's sign-in in place.
 
+## Unrun observer-ownership acceptance
+
+No paid native run has yet observed how a coordinator keeps its own CI
+observer. Under
+[ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md), substitute and
+replay results are not native acceptance. Each run below is paid and needs the
+developer's authorization.
+
+- Cursor and Claude Code: concurrent `deliver`, repair, and completion with the
+  ambient session identity; `resume` and `finish` with ambient identity or
+  `--session-json`.
+- Codex: arm the documented cell with `COORDINATOR` set, confirm
+  `<directory>/owner` after the first yielded output, run `deliver` with
+  `--coordinator` and `--observer-directory`, and expect
+  `observation.state: "reused"` on that directory; repeat with a second
+  coordinator's stream live on the same target. Then `resume` and `finish` with
+  the same inputs.
+- Claude Code subagent coordinator: whether its Bash tool carries its parent's
+  `CLAUDE_CODE_SESSION_ID`, and whether it can state its own `agent_id`, are
+  unobserved. The guidance and receipt state only that the variable names the
+  session alone and that an observer claimed with an `agent_id` is named by
+  `--session-json` with both.
+- Every `--case trunk-closure/...`: on Claude Code and Cursor one `finish`
+  without `--session-json` whose receipt's `notifies` names the tool's
+  variable; on Codex one `finish` carrying the note's coordinator and stream
+  directory with `observation.state: "reused"`.
+- The retained trunk-closure and git-publication evidence identities predate
+  changes to their hashed modules, among them `trunk-closure-observer.mjs` and
+  `trunk-closure-settlement.mjs`; `native-harness-observation.sh`, whose
+  fixture stop reads the recorded identity, is hashed into the
+  story-branch-closure identity as well.
+- With that run, the closure assessor gains a signal for an absent
+  `--session-json` and one for `notifies`.
+
 ## Native family layers
 
 A native family keeps six layers, each in its own file under `tests/support`

@@ -151,6 +151,38 @@ authorization.
   recorded identity; that file is hashed into the story-branch-closure
   evidence identity as well as the trunk-closure and git-publication ones.
 
+<a id="finish-retirement-without-verdict"></a>
+
+### Finish retires the worktree only by a decided rule when CI gave no verdict
+
+**Identity:** SEED-121#finish-retirement-without-verdict
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer whose coordinator's `finish` completes the final closure
+without a CI verdict knows what happens to the execution worktree and branch
+by a rule the product states and tests, so retirement never removes them on
+an unobserved closure by default.
+
+**Scope:** Read from the code on 2026-10-11, not exercised:
+`receiptPermitsRetirement` in
+[trunk closure](../../src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs)
+permits retirement on any completion receipt without a `failure` verdict whose
+shutdown is confirmed. A live observer's unresolved receipt, such as the
+ten-minute `timeout`, would therefore retire the worktree with no CI verdict
+for the closure. No test or guidance pins that outcome. An ended observer's
+record no longer reaches it: `finish` selects an ended observer only by its
+recorded verdict.
+
+The decision to refine: whether retirement requires a `success` verdict, with
+an unresolved receipt keeping the worktree and branch under `step:
+"completion"`, or whether retiring on an unresolved receipt is intended and
+is then stated in
+[wrap-up closure publication](../../src/skills/dough-execute-plan/references/wrap-up-closure-publication.md)
+and pinned by a journey. The first step of refinement is a journey through the
+installed `finish` that shows today's outcome.
+
 ## Breadcrumbs
 
 - Terry's reported misregistration and explicit request to queue confirmed
