@@ -26,10 +26,10 @@ reconsideration, use
 For smaller or clearer slices, use the project's execution-plan
 refinement workflow on the existing plan.
 
-A refinement invocation authorizes slice planning of its story under
+A refinement invocation authorizes slice planning of its story and landing the
+completed preparation under
 [preparation journey](references/preparation-journey.md); it authorizes no
-execution and no publication. Continue into planning without repeating
-answered questions.
+execution. Continue into planning without repeating answered questions.
 
 ## Resolve required context
 
@@ -75,9 +75,9 @@ Report each selected story under
 continue a ready story into slice planning under
 [preparation journey](references/preparation-journey.md) unless an open
 coordinator question or an explicit refine-only instruction (`--refine-only`)
-stops it. Apply the [preparation disposition](references/preparation-disposition.md)
-keep or discard decision, then close or retain the workspace, when this
-session ends.
+stops it. When this session ends, follow
+[land at the end of preparation](references/preparation-journey.md#land-at-the-end-of-preparation),
+then close or retain the workspace.
 
 ## Report the refinement outcome
 

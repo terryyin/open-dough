@@ -117,7 +117,7 @@ explicit abandonment, under [Abandon the preparation](#abandon-the-preparation).
 
 ## Release it with the kept result
 
-After a validated explicit keep instruction, per
+After a validated keep instruction, per
 [Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result),
 stage the release in the owned workspace before landing:
 

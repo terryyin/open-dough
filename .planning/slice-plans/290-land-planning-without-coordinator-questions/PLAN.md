@@ -110,7 +110,7 @@ the wording. No Accepted ADR conflicts; this plan adds no topic.
 
 | Promise (story example) | Owning slice | Proof |
 | --- | --- | --- |
-| Planning with no concern lands as one commit, report last (1) | 2 | `preparation-journey-guidance.test.mjs` pins the end section: `release`, Dough Land, one snapshot, completion report final; `refinement-outcome-guidance.test.mjs` pins the ready outcome continuing to planning and landing. |
+| Planning with no concern lands as one commit, report last (1) | 2 | `preparation-landing-guidance.test.mjs` pins the end section: `release`, Dough Land, one snapshot, completion report final; `refinement-outcome-guidance.test.mjs` pins the ready outcome continuing to planning and landing. |
 | Planning, then plan refinement, then landing with no approval step (2) | 2 | Same tests: refinement is part of planning, no second report. |
 | A `not-ready` plan lands (3) | 2 | Journey test: "recorded assessment does not gate landing". |
 | Resplit recommendation or Escalate stops landing (4) | 2 | Journey test: the open-question list names them; draft and assignment retained. |
@@ -147,7 +147,7 @@ section in this skill.
 
 ### 2. Completed preparation lands by default at the journey's end
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-story-refinement/scripts/*.test.mjs`
 passes with `preparation-journey-guidance.test.mjs`,
 `refinement-outcome-guidance.test.mjs`, and
@@ -175,6 +175,16 @@ names itself as the one-shot entry of that sequence. `dough-story-refinement`,
 `dough-slice-planning`, and `dough-slice-plan-refinement` SKILL.md end by
 linking to the journey end instead of their keep-or-discard paragraph;
 slice planning's continuation bullet points there.
+
+Accepted: `node --test src/skills/dough-story-refinement/scripts/*.test.mjs`
+passes (97). The end-section pins live in
+`preparation-landing-guidance.test.mjs`, split from the journey test to stay
+under the file limit; removing the end's landing sentence fails its "lands as
+one snapshot through the keep sequence" test. Slice planning's continuation
+bullet links the journey's "Report once at the end"; the section's "When this
+session ends" paragraph carries the landing link. Slice 3's assertion that the
+end names `--retain` belongs beside those pins; its options-file check stays
+in the journey test.
 
 ### 3. `--retain` keeps the result for an explicit keep
 Type: Behavior
@@ -209,6 +219,28 @@ lands on `main` by default with `--retain` or an ordinary-language opt-out,
 that an open coordinator question retains the draft, and that landing grants
 no execution authority. The "Revised" line gains the date; status stays
 Proposed.
+
+## Story obligations
+
+### G1. `--retain` is named before the options file defines it
+Reported: slice 2 — "the journey end names `--retain` and links `refinement-options.json`, which does not define it yet. Only the ordinary-language opt-out works until slice 3."
+Story clause: "which the dashboard offers automatically, or an ordinary-language"
+Disposition: receiving slice 3
+
+### G2. ADR 0007 still states the explicit-keep default
+Reported: slice 2 — "`docs/adrs/0007-software-development-lifecycles.md:72` still says 'Publish draft results only on an explicit keep'. Left for slice 4."
+Story clause: "concisely: completed preparation lands on `main` by default with an explicit"
+Disposition: receiving slice 4
+
+### G3. Retained native publication evidence is stale
+Reported: slice 2 — "`tests/support/git-publication-native-evidence.sh` hashes `preparation-disposition.md` and `dough-story-refinement/SKILL.md` into an evidence identity, so retained native evidence for those profiles is now stale."
+Story clause: "the agent lands the retained preparation on remote main through the"
+Disposition: no user cost "the agent lands the retained preparation on remote main through the": the native publication suites are paid, manual-only runs whose evidence is regenerated when a maintainer runs them; the changed text leaves the keep sequence's steps as they were.
+
+### G4. Proof is guidance text, with no observed landing
+Reported: slice 2 — "All of this is guidance-text proof; no agent run observed an actual landing."
+Story clause: "existing keep sequence and Dough Land"
+Disposition: no user cost "existing keep sequence and Dough Land": the story changes guidance only; `release` staging and Dough Land keep their own passing script tests, and an agent run is a paid native host run, which this project keeps manual.
 
 ## Considered and excluded
 

@@ -144,7 +144,7 @@ handoff. Report a missing input, disputed constraint, or concern that refinement
 cannot resolve within scope under the next section; do not repeat refinement
 without new evidence or widen the outcome.
 Refinement keeps the same plan, preparation workspace, and assignment. It
-grants neither execution nor publication authority.
+grants no execution authority.
 
 ## Report concern evidence and assess readiness
 
@@ -177,10 +177,10 @@ replace the triggering instruction's execution authority.
 After writing and reporting the plan, the next action remains within the
 triggering human or parent-agent instruction:
 
-- Planning-only request, or a continuation from story refinement under the
-  [preparation journey](../dough-story-refinement/references/preparation-journey.md#report-once-at-the-end):
-  report the plan path, ordered slices, considered-but-excluded additions, the refinement decision and
-  concern report, and the recorded readiness assessment, then stop. Do not implement and do not invoke execution.
+- Planning-only request, or a continuation from story refinement: do not implement and do not invoke execution.
+  The report carries the plan path, ordered slices, considered-but-excluded additions, the refinement decision
+  and concern report, and the recorded readiness assessment, given under the preparation journey's
+  [report once at the end](../dough-story-refinement/references/preparation-journey.md#report-once-at-the-end).
 - Parent-agent delegation that asks only for slice planning: return the plan,
   the refinement decision and concern report, and the recorded readiness
   assessment to the parent. The parent's broader implementation task
@@ -191,9 +191,10 @@ triggering human or parent-agent instruction:
   progress. Prefer the project's established execution path (for example
   [dough-execute-plan](../dough-execute-plan/SKILL.md)) when that path applies.
 
-Apply [preparation workspace](../dough-story-refinement/references/preparation-workspace.md)'s
-keep or discard decision, then close or retain the workspace, when this
-session ends.
+When this session ends, follow
+[land at the end of preparation](../dough-story-refinement/references/preparation-journey.md#land-at-the-end-of-preparation),
+then close or retain the workspace under
+[preparation workspace](../dough-story-refinement/references/preparation-workspace.md#close-or-retain-the-workspace).
 
 After the matching case above, end with:
 

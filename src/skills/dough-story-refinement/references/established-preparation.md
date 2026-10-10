@@ -25,8 +25,9 @@ When the block is present:
 - Work in the named workspace and branch, not the directory you were opened in.
 - Keep the fields as this preparation's recorded identity, workspace, target, and
   integration checkout for the later `release` or `abandon` commands and the
-  keep decision.
-- Continue with refinement and the record write.
+  landing.
+- Continue with refinement and the record write, through to
+  [land at the end of preparation](preparation-journey.md#land-at-the-end-of-preparation).
 
 A later skill in the same session that runs `start` for this story in this
 workspace gets `continued`, not a second assignment.
