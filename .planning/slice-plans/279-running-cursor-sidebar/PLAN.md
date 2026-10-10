@@ -344,6 +344,18 @@ navigation and the North Star Sessions wording.
 
 Safe stopping point: the full story's presentation behavior is delivered.
 
+## Execution complete
+
+Product advice: no change to this story's promises or to queue priorities. One
+recommendation for wrap-up: consider a small story that makes the remaining
+Claude done-rename specs independent of wall-clock margins. This execution's
+CI repair (`722a7b36`) fixed `agent-launch-done-prompt.spec.ts`, where a
+succeeding rename had to fit inside one 2 s deadline; `agent-launch-done.spec.ts`,
+`agent-launch-done-rename-wait.spec.ts`, `agent-launch-done-question.spec.ts`
+and `agent-completion-quiet-claude.spec.ts` still expect a successful rename
+inside a 2–3 s wait, with wider margins and no failure observed. The outcome
+review found no correction for the delivered sidebar behavior.
+
 ## Verification, delivery and sizing
 
 The stable proof boundary is the production dashboard served by the existing
