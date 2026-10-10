@@ -22,24 +22,126 @@ without piecing together individual commits or session outputs.
 ### Review only a story's uncommitted changes
 
 **Identity:** SEED-088#review-uncommitted-changes
+**Slice plan:** [The full story review can leave uncommitted changes out](../slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md).
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"54a56c80859919b52df1c7ca3366355aa967b712bed620600bdb229bedd0138d","plan":"334d9b9906030c938b0641bfc2eefda944375084703759f669c530e8dba13a03"}}
+```
+
+**Goal:** A developer reviewing a Story Branch Mode story's worktree from the
+dashboard can leave its uncommitted changes (staged, unstaged and untracked)
+out of the full review, so they can read what the agent has committed apart
+from the work still in progress.
+
+**Scope:** Builds on the
+[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md), whose snapshot
+already combines commits with uncommitted files, and on the
+[Commits comparison](../../dashboard/STORY-REVIEW-COMMITS.md), whose
+Uncommitted changes item is already the uncommitted-only view of any
+workspace the review reads (Terry, 2026-10-08). The user is the developer at
+the dashboard on the machine that holds the story's worktree, checking an
+agent's work while it is still being written.
+
+Required:
+
+- While All changes is shown and the snapshot holds uncommitted changes, the
+  review offers a check, “Include uncommitted changes”, on at every opening.
+  Turned off, the file browser, counts, total, diffs and file moves compare
+  the baseline with the head's tree, the same snapshot's committed work, and
+  the review says uncommitted changes are left out. Turning it on again shows
+  the whole snapshot without reading anew.
+- The check is one more comparison of the snapshot shown: it takes no new
+  snapshot and fetches nothing. Refresh keeps its state while the new
+  snapshot still holds uncommitted changes; switching to another comparison
+  and back keeps it; closing and opening starts with it on.
+- Without uncommitted changes there is nothing to leave out and no check, as
+  Commits lists no Uncommitted changes item then. Once the agent commits and
+  Refresh finds none, the check goes and All changes shows the whole snapshot.
+- Mark reviewed still marks the whole snapshot, as it does in Commits, and the
+  review says so while the check is off, so a developer does not take
+  unseen work in progress for unmarked.
+
+Deferred, not built or verified here:
+
+- Marking only the committed work reviewed, and the check in Since the review
+  or on a landed comparison.
+- Remembering the check's state across openings or stories.
+- A Trunk Mode story's uncommitted changes: its worktree is first named by
+  the [sibling story](#review-trunk-mode-story-worktree), after which the
+  Uncommitted changes item in Commits is expected to show them.
+
+**Key examples:**
+
+- A Story Branch Mode story's worktree holds three commits changing `a.ts` and
+  `b.ts`, an unstaged edit to `b.ts`, and an untracked `c.ts` → the developer
+  opens Review changes on All changes → three files are listed, the check
+  “Include uncommitted changes” is on, and `b.ts` shows the committed and the
+  unstaged edit together.
+- The same review → the developer turns the check off → `a.ts` and `b.ts` are
+  listed, `b.ts` with its committed lines only and the counts to match,
+  `c.ts` is gone, the total reads two files, and the review says uncommitted
+  changes are left out; the selection stays on `b.ts`. Had `c.ts` been
+  selected, the first file is selected instead.
+- The check is off and the agent has since committed `c.ts` and kept editing
+  `b.ts` → Refresh → the check stays off and `a.ts`, `b.ts` and `c.ts` are
+  listed as committed.
+- The check is off and the agent has since committed everything → Refresh →
+  no check is offered and All changes lists the whole snapshot.
+- The worktree holds only uncommitted work, no story commit yet → the
+  developer turns the check off → the review says nothing is committed yet
+  and lists no files; the check stays to turn back on.
+- The check is off → the developer activates Mark reviewed → the whole
+  snapshot, `c.ts` and the unstaged edit included, is marked, and the review
+  says so before and after.
+- A clean worktree with commits → Review changes → All changes shows no check.
+
+**UI:** The check belongs with the review's marking controls in its fixed top,
+shown only for All changes. Its state is conveyed by the control itself and by
+a line in words, not by a missing file alone, because a developer who forgets
+it is off would otherwise read the committed work as everything.
+
+**Architecture:** The committed work is one more comparison of the snapshot
+shown, carried with it as the changes since the review are: the snapshot
+answers the files from the baseline to the head's tree whenever that tree
+differs from its own, and file diffs use the existing file read. Nothing new
+is admitted and toggling reads nothing. Set aside: answering the check
+through the range read, which would make each toggle a pending read, and
+making the check the snapshot's extent, which would add an extent to the
+snapshot request, the mark and the range list. No Accepted ADR applies.
+
+<a id="review-trunk-mode-story-worktree"></a>
+
+### A Trunk Mode story started outside the dashboard offers Review changes
+
+**Identity:** SEED-088#review-trunk-mode-story-worktree
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
 **Goal:** A developer on the machine where a Trunk Mode story's agent works
-can review only the changes still uncommitted in its work tree (staged,
-unstaged and untracked), so they can check work in progress before it is
-committed. In Story Branch Mode, the full review also offers a check to
-include or leave out the work tree's uncommitted changes.
+can open the story review on that agent's worktree, although no dashboard
+launch started it, so they can check its unpublished and uncommitted work in
+progress.
 
-**Scope:** Builds on the
-[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md), whose snapshot
-already combines commits with uncommitted files. Story Branch Mode's
-uncommitted-only view is the Uncommitted changes item of
-[Commits comparison](../../dashboard/STORY-REVIEW-COMMITS.md) (Terry, 2026-10-08), so this
-story keeps the Trunk Mode view and the check. To be refined: which work tree
-a Trunk Mode story names, how its uncommitted-only view is chosen, and the
-check's default.
+**Scope:** The dashboard starts executions only in Story Branch Mode
+(`mode: "story-branch"` in `dashboard/server/executionStart.ts` and the launch
+record schema), and the review reads only a kept launch record's workspace
+(`reviewWorkspaceOf`), so a story started with `--trunk` in a terminal offers
+no Review changes. Once its worktree is named, the existing
+[story review](../../dashboard/AGENT-LAUNCH-REVIEW.md) is expected to serve it
+unchanged: the local branch sits on trunk after each publication, so All
+changes is the unpublished commits plus the uncommitted files, and Uncommitted
+changes in [Commits](../../dashboard/STORY-REVIEW-COMMITS.md) is the
+uncommitted files alone. That expectation is a hypothesis; no Trunk Mode
+worktree was available to observe. The direction to refine: resolve the
+worktree from local Git, matching the agent the story's trunk profile names
+with the worktree whose per-worktree author config names that agent
+(`workspace-agent-authorship.mjs`), since a Trunk Mode launch from the
+dashboard would not cover stories started in a terminal. The Proposed
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+keeps worktree locations in machine-local evidence and the Proposed
+[ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md) describes
+Trunk Mode's local branch; neither binds. Naming the worktree is also the
+first need of [reviewing only the story's own changes](#review-trunk-mode-story-changes).
 
 <a id="review-trunk-mode-story-changes"></a>
 
@@ -237,3 +339,13 @@ it.
   shipping manifest fixed at hand-over: the record of what was delivered outlives
   the vehicle; the analogy breaks where the manifest exists only on the sending
   machine, so the review stays local launch evidence.
+- 2026-10-10 refinement of the uncommitted-changes review (UX/UI and
+  architecture focus): the Commits comparison delivered since this story was
+  queued already gives the uncommitted-only view, and the dashboard starts no
+  Trunk Mode execution, so a Trunk Mode story has no worktree for the review
+  to read. Terry agreed to move the Trunk Mode half to its own story, naming a
+  Trunk Mode story's worktree, ahead of the Trunk Mode sibling, and to keep
+  this story as the Story Branch Mode check: a view of All changes, included
+  by default. Set aside: making the check the snapshot's extent, which would
+  allow marking committed work alone but would show a mark's uncommitted work
+  as removed in Since the review while the check is off.
