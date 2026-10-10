@@ -110,6 +110,7 @@ export function installFakeCursor(options?: {
   readonly becomeReady?: boolean;
   readonly paintDelayMs?: number;
   readonly splitPaintMs?: number;
+  readonly submitPaintMs?: number;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, fakeCursorHost.binDir);
@@ -170,6 +171,9 @@ export function installFakeCursor(options?: {
       ...(options?.splitPaintMs === undefined
         ? {}
         : { FAKE_CURSOR_SPLIT_PAINT_MS: String(options.splitPaintMs) }),
+      ...(options?.submitPaintMs === undefined
+        ? {}
+        : { FAKE_CURSOR_SUBMIT_PAINT_MS: String(options.submitPaintMs) }),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);

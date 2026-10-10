@@ -364,7 +364,17 @@ and passed it and the other starters after.
 
 ### 6. Recover reports the label of the settled screen
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `cursor-recover-submitted-chip.spec.ts` keeps the submitted
+chip on screen until the test repaints the follow-up prompt and requires
+keep not to settle meanwhile, then the label "at the follow-up prompt"; it
+failed 10 of 10 on the old code. The fake Cursor's `submitPaintMs`, used
+file-wide in `cursor-session-recovery.spec.ts`, reproduced line 62's (was
+58's) failure 3 of 3 on the old code and four more launch and Recover tests
+the same way; all pass after. Every Cursor spec passes `--repeat-each 3`.
+`LaunchInstruction` is only used by Cursor's keep path, so Claude and Codex
+launches are unaffected. Launch's first screen now also waits for the
+repaint after the chip.
 Proof: A Recover on the idle composer with confirmed first input, whose fake
 Cursor repaints the follow-up prompt only after a delay following Enter,
 reports "at the follow-up prompt", never "waiting for an answer" read from

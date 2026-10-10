@@ -31,6 +31,10 @@ import { expect, test } from "./support/cursorStart.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
+// Cursor repaints a while after Enter on a paste chip, so a continuation's
+// answer can read the submitted chip unless Recover waits for that repaint.
+test.use({ cursorSubmitPaintMs: 1_000 });
+
 test("an unfinished not-held Cursor session says the agent is not running, offers Recover, and starts no agent", async ({
   page,
   dashboard,
