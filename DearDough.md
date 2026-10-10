@@ -588,3 +588,57 @@ linked installation, so execution had to obtain the selected Node first.
   - Evidence: plan 287 "Published baseline and integration context" and its last Current decision (`91d8439e:.planning/slice-plans/287-continue-refinement-into-slice-planning/PLAN.md`); `dough-execute-plan/references/execution-location.md` ("Do not copy or symlink mutable installation from another checkout"); the machine had Node 24.5.0 against `.node-version` 24.21.0 and no version manager.
   - Observed effect: the coordinator downloaded the official Node 24.21.0 archive into a job temporary directory, verified its checksum, and ran `setup-native.mjs npm`, `browser`, and `check` in the worktree before delegating; every delegated command needed that `PATH` prefix.
   - Inference: preparation had observed its premise through the link, so the conflict with execution setup was not visible when the plan was assessed ready. The selected Node is absent machine-wide, so each new session repeats the download unless it is installed durably.
+
+## DD-274 — A plan counted the sites needing a wait from one navigation call and missed reloads and the page's earlier read
+
+Numbered above the trunk log's DD-273 (`origin/main` at 2026-10-10), which this branch's log does not yet hold, to avoid a concurrent allocation.
+
+Slice 1's plan named 21 journeys whose first expectation after
+`page.goto("/")` was a plain `expect`, and a wait on the page's
+published-work reads. Execution found about 45 such opens and about 96
+`page.reload()` sites with the same exposure, and the wait as planned
+returned early because the page reads its project list before any
+published-work read.
+
+### Occurrences
+- Execution: SEED-123#dashboard-suite-passes-loaded-acceptance (plan 289, first implementation commit 065bf393)
+  - Timestamp: 2026-10-10T18:19:01+09:00 (end of the first return's full run)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `29b9c41c`; base 0.3.58
+  - Evidence: plan 289 "Existing solutions" first row ("the 21 journeys") and slice 1's Learnings; commit 065bf393 (82 files); the kept trace `dashboard/test-results/2026-10-10T09-25-20.472Z` (wait found nothing at +159 ms, read sent at +172 ms).
+  - Observed effect: slice 1 was returned once for reloads and the fail-at-once example, grew from a planned helper change with 21 sites to 80 modified files, and needed three full dashboard runs and a mechanism fix before acceptance; about 31 minutes of implementation agent time against a planned "one proof loop".
+  - Inference: the plan's site count came from a search for the open call followed by a plain expectation; a search for every navigation that restarts the page's reads, and one traced open, would have shown both the reloads and the project-list read during planning.
+
+## DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound
+
+The story treats a failure "while the load was several times the core count"
+differently from a defect, and the repeat script prints the one-minute load
+before and after each run. A loaded run of 826 s failed one test 148 s in,
+with load 16 at the start and 65 at the end.
+
+### Occurrences
+- Execution: SEED-123#dashboard-suite-passes-loaded-acceptance (plan 289, first implementation commit 065bf393)
+  - Timestamp: 2026-10-10T21:39:08+09:00 (end of the failing loaded run)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `29b9c41c`; base 0.3.58
+  - Evidence: plan 289 slice 6 Learnings (second series); `scripts/dashboard-repeat.sh` `load_average` before and after only; the diagnosis estimated the load at the failure as 25 by interpolation and about 70 from the five- and fifteen-minute averages.
+  - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
+  - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
+
+## DD-276 — A slice's fresh-checkout proof could not include the slice's own uncommitted change
+
+Slices 3 and 4 named `scripts/dashboard-repeat.sh 1 --fresh` as proof of a
+change made in the same slice. The script runs a new worktree of `HEAD`, and
+an implementation agent returns uncommitted changes.
+
+### Occurrences
+- Execution: SEED-123#dashboard-suite-passes-loaded-acceptance (plan 289, first implementation commit 065bf393)
+  - Timestamp: unknown (2026-10-10, between 19:25 and 20:25 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `29b9c41c`; base 0.3.58
+  - Evidence: plan 289 slices 3 and 4 Proof lines; `scripts/dashboard-repeat.sh` `make_fresh_worktree` (`git worktree add … HEAD`); commits 47c5b2fa (header) and c7d728e6 (finding) for slice 3.
+  - Observed effect: slice 3 was delivered in two commits with an "in progress" status between them, and slice 4's agent built its own temporary worktrees and copied its changed files into them for the before and after samples.
+  - Inference: none of this failed, but both slices' proof needed a step the plan did not name; a plan that names a proof run on a fresh worktree of `HEAD` can say whether the change is committed first or copied in.

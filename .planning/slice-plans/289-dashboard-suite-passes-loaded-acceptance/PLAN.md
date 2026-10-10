@@ -249,6 +249,36 @@ suite output. A failing run is a defect: read its kept directory, fix the
 cause in the owning slice above, and start the series again from the fresh
 run.
 
+## Execution complete
+
+Product advice: no correction is planned; the story's outcome is delivered
+and nothing found contradicts it. For story wrap-up and later priorities:
+
+- The tests guide (`tests/README.md`, "Waits, fixtures, and teardown") does
+  not yet name the dashboard convention this story introduced: a journey
+  opens or reloads with `openUntilRead`/`reloadUntilRead` (or checks through
+  `expectMembership`/`expectSettledPage`) and marks done with `markDone`, so
+  a check's bound starts after the answer it depends on. About 250 call
+  sites carry it and nothing tells the author of the next spec; wrap-up
+  should assimilate it there.
+- The same shape as the done-mark failure remains at other page actions
+  followed by a plain expectation (Mark as read, Delete record, Recover,
+  launch; obligation G14). No run showed one. If a later loaded run does,
+  the fix is the same event-first wait, not a longer bound.
+- The full-source Git fixture (`publishedMainFixture(true)`) slows about
+  tenfold when eight workers build it at once (2 s alone, 13–20 s); it is
+  the production block's main cost and a candidate for test optimization.
+- `agent-launch-preparation-resume.spec.ts:128` depends on a one-second
+  product start wait and ended "uncertain" once at load about 46 outside
+  the series (G15); it passed in all acceptance runs. Worth a look if it
+  recurs inside the load bound.
+- `endGroup`'s kill five seconds after its signal still applies to the
+  directly spawned Vite servers; the watcher showed what that costs a
+  process whose shutdown does real work.
+- ProjectFindings DD-240, DD-257 and DD-260 cite this story as their
+  follow-up; wrap-up should bring them up to date (DD-257's silent Vite
+  start was not reached by any run).
+
 ## Story obligations
 
 ### G1. Specs on the bare page fixture get no wait
