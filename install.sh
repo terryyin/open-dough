@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2034,SC2310,SC2312
-# SC2034: force, replace_verified, and version are read by install_declared_payload.
+# shellcheck disable=SC1091,SC2034,SC2310,SC2312 # SC2034: force, replace_verified, and version are read by install_declared_payload.
 set -euo pipefail
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -11,8 +10,7 @@ source "${source_dir}/src/install/open-dough-install-payload.sh"
 # shellcheck source=src/install/open-dough-install-request.sh
 source "${source_dir}/src/install/open-dough-install-request.sh"
 [[ -n "${target}" && -n "${recorded_source}" ]] || usage
-# platform is assigned by the sourced request parser.
-# shellcheck disable=SC2154
+# shellcheck disable=SC2154 # platform is assigned by the sourced request parser.
 destination_for /dev/null "${platform}" > /dev/null
 if [[ "${recorded_source}" == /* && -d "${recorded_source}" ]]; then
   recorded_source=$(cd -- "${recorded_source}" && pwd -P)
@@ -214,6 +212,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-carry.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
+  dough-execute-plan/scripts/history-preserving-candidate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/maintain-default-checkout.mjs
   dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
@@ -239,6 +238,7 @@ managed_files=(
   dough-execution-retrospective/references/process-review-of-a-run.md
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/references/follow-up-disposition.md
+  dough-story-wrap-up/references/story-branch-integration.md
   dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs

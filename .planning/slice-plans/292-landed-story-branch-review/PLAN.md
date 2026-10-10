@@ -191,7 +191,7 @@ Learnings for later slices:
 
 ### 3. The Story Branch integration records its delivered pair
 Type: Behavior
-Status: planned
+Status: done
 Proof: New spec `story-branch-landing-capture.spec.ts`: real claimed launch,
 a story commit pushed to its branch, a trunk commit from another writer, then
 `node <installed>/dough-execute-plan/scripts/history-preserving-publication.mjs integrate --workspace … --published-tip <B> --branch … --target-ref refs/heads/main --landing-context <file>`
@@ -233,6 +233,38 @@ tells the coordinator to pass the supplied context. Guidance tests:
 Safe stopping point: captured landings exist in records; the review does not
 list them until slice 4, and no existing view regresses.
 
+Delivered: `publishHistoryPreservingCandidate` takes `landingContext`, retains
+`{candidate, suffixBase}` before every push attempt, records the accepted pair,
+and returns `landing`; `integrate` is its CLI (exit 1 on `preserved`, 2 on an
+error). An `already-accepted` run with a context records the pair retained
+before the accepted push, so a rerun after a lost push answer recovers. The
+prepare rule is: the candidate is the workspace `HEAD` and contains
+`refs/heads/<branch>`. Refusals say “the established launch's authorized
+landing” and “the established launch's workspace candidate and commit
+comparison”. The guidance heading is “Retain the launch landing”.
+The refactor pass split candidate construction into
+`history-preserving-candidate.mjs`, moved the wrap-up integration detail to
+`dough-story-wrap-up/references/story-branch-integration.md` (both declared in
+`install.sh`), shared one flag reader (`flagValues` in `ci-direct-entry.mjs`)
+with `deliver`, and put the claimed-launch journey in
+`dashboard/tests/support/storyBranchIntegration.ts` for slice 4.
+Accepted proof: `story-branch-landing-capture.spec.ts` (recorded pair on a
+detached merge after trunk advanced, not-`HEAD` prepare refused, pins, diff
+names, rerun `already-accepted`; fast-forward; lost push answer →
+`unacknowledged` with the reporting-only retry, then recorded);
+`closure-story-integration.test.mjs` and the fast-forward cases for
+`beforePush` per attempt; guidance, payload and link checks; the one-shot
+capture, recovery and review specs; typecheck.
+
+Learnings for slice 4:
+
+- A claimed record's `landing` has a one-shot's shape, its pins under the same
+  prefix, and `landing.repository` is the project's common Git directory.
+- After `integrate` the worktree is back on its branch at B while trunk is at
+  M; retirement takes the accepted SHA from `receipt.sha`.
+- Restarting a preview server on the same port over the same machine directory
+  keeps the claimed record, which serves the Refresh-after-trunk-moves case.
+
 ### 4. The review shows a landed Story Branch integration
 Type: Behavior
 Status: planned
@@ -269,19 +301,34 @@ Safe stopping point: the story's outcome is delivered.
 ### G1. A claimed launch's context has no consumer yet
 Reported: slice 2 — "A claimed launch's context is consumed by nothing until slice 3's `integrate`."
 Story clause: "Wrap-up's Story Branch trunk integration passes that context through the history-preserving candidate sequence"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/story-branch-landing-capture.spec.ts`, the `integrate --landing-context` run asserting `classification: "published"`, `landing.state: "recorded"` and the kept record's base and revision
 
 ### G2. Capture refusals name one-shot to a claimed launch
 Reported: slice 2 — "For a claimed launch, today's prepare verification and the refusal messages still say \"one-shot\" (slice 3)."
 Story clause: "describes the general rule for the executing agent"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/story-branch-landing-capture.spec.ts`, the not-`HEAD` prepare asserting “This is not the established launch's workspace candidate and commit comparison.”
 
 ### G3. A bound claimed record's landing reporting is unasserted
 Reported: slice 2 — "Every bound claimed record now gains `landingReporting` (authority and preparations) at binding, and deletion consults it. The suite is green; no new spec asserts it for a claimed record."
 Story clause: "Recording happens before retirement and follows the existing capture rules"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/story-branch-landing-capture.spec.ts`, the bound claimed record's `landingReporting` asserted at binding and after landing
 
 ### G4. The no-capture sentence reaches a launch with no established context
 Reported: slice 2 — "A story launch with a reporting block but no established context (a plain launch, no installed start) now gets the no-capture sentence"
 Story clause: "can review that story's combined delivered changes after its branch has merged to trunk"
 Disposition: no user cost "can review that story's combined delivered changes after its branch has merged to trunk": such a launch cannot capture either, and the sentence still has the agent explain the evidence gap the review then shows
+
+### G5. A rerun with nothing retained reports an unreadable retained comparison
+Reported: slice 3 — "If nothing was ever retained (trunk came to contain the tip by other means), it returns `landing.state: \"unacknowledged\"` with a file-not-found error for `landing-current.json` rather than a distinct state."
+Story clause: "The landed review never guesses a baseline or lists substitute files"
+Disposition: no user cost "can review that story's combined delivered changes after its branch has merged to trunk": no pair was retained before the accepted push, so nothing can be recorded and the review shows the evidence gap the story keeps for an uncaptured landing
+
+### G6. A rejected then retried push is not driven against the real receiver
+Reported: slice 3 — "Not exercised end to end: a rejected-then-retried push against the real receiver."
+Story clause: "Recording happens before retirement and follows the existing capture rules"
+Disposition: proved by slice 3: `src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs` asserts the pair of each attempt after a rejected push, and the receiver's superseded preparation is the shared path `dashboard/tests/one-shot-landing-recovery.spec.ts` drives
+
+### G7. Dashboard documents still describe one-shot-only capture
+Reported: slice 3 — "`dashboard/AGENT-LAUNCH-COMPLETION.md` and its siblings still describe the old prepare rule and one-shot-only capture"
+Story clause: "the selector and context wording name both one-shot runs and story-branch integrations with one term per fact"
+Disposition: receiving slice 4

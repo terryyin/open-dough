@@ -91,8 +91,8 @@ never adds or removes an assignment profile.
 
 ## Publish
 
-With the original one-shot launch's supplied dashboard landing context, use the
-[launch-bound handoff](references/dashboard-completion.md#retain-the-one-shot-landing)
+With the original launch's supplied dashboard landing context, use the
+[launch-bound handoff](references/dashboard-completion.md#retain-the-launch-landing)
 for publication and resume. Record its accepted comparison before refresh or
 retirement; reporting failure leaves Git acceptance accepted and retries only evidence.
 

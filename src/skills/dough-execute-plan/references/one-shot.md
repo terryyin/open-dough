@@ -108,7 +108,7 @@ until the developer asks to land the result. The default checkout always stays i
 ## Land the retained result
 
 For automatic or later explicit landing with supplied dashboard context, apply
-[the original launch's landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-one-shot-landing).
+[the original launch's landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing).
 
 An explicit landing request in this session, or a later one naming the workspace,
 authorizes [increment publication](trunk-publication.md#publish-an-execution-increment-or-repair)

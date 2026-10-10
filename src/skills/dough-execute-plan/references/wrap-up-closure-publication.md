@@ -130,10 +130,16 @@ branch observer cannot complete, or the trunk bridge cannot be established,
 retain explicit unavailable coverage; do not invent success or silently discard
 an observer that may still own the checkout.
 
-Publish the history-preserving integration through the common candidate
-sequence. After remote confirmation, register only the accepted integrated SHA
-with the trunk observer. A saved branch tip or superseded merge candidate is
-not that receipt. Invoke
+Publish the history-preserving integration with the installed
+`history-preserving-publication.mjs integrate` command under
+[Preserve published history](publish-the-candidate.md#preserve-published-history).
+When the launch supplied a dashboard landing context, pass it as
+`--landing-context` and handle the printed `landing` under the
+[landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing)
+before retirement.
+After remote confirmation, register only the accepted integrated SHA, the
+printed receipt, with the trunk observer. A saved branch tip or superseded merge
+candidate is not that receipt. Invoke
 [the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
 once for the accepted integrated SHA on that trunk observer and handle its
 combined receipt. With confirmed shutdown as its gate, wrap-up then retires

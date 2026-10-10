@@ -24,14 +24,19 @@ export async function verifyLanding(
         throw new Error("Both comparison ends must be commits.");
     await git(repository, ["merge-base", "--is-ancestor", base, revision]);
     if (prepare !== undefined) {
+      // The candidate is what the workspace holds and carries the launch's
+      // branch: its tip, or a detached integration of that tip onto trunk.
       if (
         (await git(prepare.workspace, ["rev-parse", "HEAD"])).stdout.trim() !==
-          revision ||
-        (
-          await git(prepare.workspace, ["symbolic-ref", "--short", "HEAD"])
-        ).stdout.trim() !== prepare.branch
+        revision
       )
-        throw new Error("The candidate is not this launch's workspace tip.");
+        throw new Error("The candidate is not this launch's workspace HEAD.");
+      await git(prepare.workspace, [
+        "merge-base",
+        "--is-ancestor",
+        `refs/heads/${prepare.branch}`,
+        revision,
+      ]);
       return;
     }
     // Fetch only into FETCH_HEAD: the record operation moves no checkout branch.
@@ -47,7 +52,7 @@ export async function verifyLanding(
       409,
       prepare === undefined
         ? "The authorized remote target has not confirmed this commit comparison."
-        : "This is not the established one-shot workspace candidate and commit comparison.",
+        : "This is not the established launch's workspace candidate and commit comparison.",
     );
   }
 }

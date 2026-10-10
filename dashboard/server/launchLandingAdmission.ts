@@ -65,7 +65,7 @@ export async function expiredAttemptRecord(
   )
     throw new RefusedRequest(
       409,
-      "This is not the established one-shot launch's authorized landing.",
+      "This is not the established launch's authorized landing.",
     );
   return record;
 }

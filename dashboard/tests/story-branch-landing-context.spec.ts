@@ -8,18 +8,17 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
-import { launch, recordsOf } from "./agentLaunchBoundary.ts";
 import { keptAttempts } from "./acceptedAttempts.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { git } from "./support/oneShotLanding.ts";
-import { requestFor, slug, startPreview } from "./support/oneShotLaunch.ts";
+import { slug, startPreview } from "./support/oneShotLaunch.ts";
 import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { claimedStoryBranchLaunch } from "./support/storyBranchIntegration.ts";
 
 test.describe("a claimed Story Branch Mode execution launch", () => {
   let origin: StartOrigin;
@@ -36,24 +35,8 @@ test.describe("a claimed Story Branch Mode execution launch", () => {
   });
 
   test("carries the landing context, the capture authority, and the instruction to supply it", async () => {
-    server.claudeScenario("launched");
-    const response = await launch(
-      server,
-      requestFor("execution", {
-        tracking: "standard",
-        workspace: "isolated",
-        landing: "review",
-      }),
-    );
-    expect(
-      (JSON.parse(response.body) as { kind: string }).kind,
-      response.body,
-    ).toBe("launched");
-
-    const [record] = (await recordsOf(server, "open-dough")) as LaunchRecord[];
-    const start = record?.start;
-    if (record === undefined || start === undefined || "tracking" in start)
-      throw new Error("Missing claimed start.");
+    const { record, start, reporting, landingContext } =
+      await claimedStoryBranchLaunch(server);
     const workspace = path.join(origin.project, ".worktrees", slug);
     const branch = `claude/${slug}`;
     expect(start).toMatchObject({
@@ -67,10 +50,7 @@ test.describe("a claimed Story Branch Mode execution launch", () => {
 
     // The kept record names the context file, which names the launch and its
     // trunk target.
-    const reporting = record.request.reporting;
-    if (reporting?.landingContext === undefined)
-      throw new Error("Missing landing context.");
-    expect(JSON.parse(readFileSync(reporting.landingContext, "utf8"))).toEqual({
+    expect(JSON.parse(readFileSync(landingContext, "utf8"))).toEqual({
       origin: server.origin,
       source: "open-dough",
       host: "claude",
