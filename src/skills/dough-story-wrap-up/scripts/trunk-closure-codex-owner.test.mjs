@@ -26,6 +26,7 @@ import {
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  armingCheckouts,
   assertObserverEnded,
   siblingWitness,
 } from "./trunk-closure-owner-test-fixtures.mjs";
@@ -40,9 +41,10 @@ import {
 
 const main = "refs/heads/main";
 
-// A publishing coordinator's stream armed in its execution worktree beside a
-// sibling coordinator's, armed from the default checkout's own install.
-async function closureBesideSiblingStream(t) {
+// A publishing coordinator's stream beside a sibling coordinator's, armed
+// from the default checkout's own install. The publisher's is armed from
+// `armedFrom`: its own execution worktree, or the sibling's default checkout.
+async function closureBesideSiblingStream(t, armedFrom = "publisher") {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
   await installClosureSkills(fixture, ".agents");
@@ -56,7 +58,10 @@ async function closureBesideSiblingStream(t) {
     coordinator: "sibling",
     skill: elsewhere.skill,
   });
-  const publisher = await armStream(fixture, { coordinator: "publisher" });
+  const publisher = await armStream(fixture, {
+    coordinator: "publisher",
+    skill: armedFrom === "sibling" ? elsewhere.skill : fixture.skill,
+  });
   return {
     fixture,
     publisher,
@@ -73,65 +78,76 @@ async function closureBesideSiblingStream(t) {
   };
 }
 
-test("a Codex coordinator's finish publishes its final closure once, completes it on the stream it retained, retires, and a rerun from the management context reuses that ended stream", async (t) => {
-  const journey = await closureBesideSiblingStream(t);
-  const { fixture, publisher } = journey;
-  const owner = retained(publisher.coordinator, publisher.directory);
-  const { delivered } = await deliverThroughCli(fixture, {
-    host: "codex",
-    base: fixture.trunkSha,
-    extra: owner,
+for (const [armedFrom, where] of Object.entries(armingCheckouts)) {
+  test(`a Codex coordinator's finish publishes its final closure once, completes it on the stream it retained from ${where}, retires, and a rerun from the management context reuses that ended stream for its coordinator only`, async (t) => {
+    const journey = await closureBesideSiblingStream(t, armedFrom);
+    const { fixture, publisher } = journey;
+    const owner = retained(publisher.coordinator, publisher.directory);
+    const { delivered } = await deliverThroughCli(fixture, {
+      host: "codex",
+      base: fixture.trunkSha,
+      extra: owner,
+    });
+    assert.equal(delivered.observation.directory, publisher.directory);
+    const beforeCleanup = delivered.receipt.sha;
+    const final = await commitFinalClosure(fixture);
+    releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
+    const pushes = await countPushes(fixture);
+    const repository = join(fixture.integration, ".git");
+
+    const { result, code, stderr } = await journey.finish(
+      { beforeCleanup, final },
+      owner,
+    );
+
+    assert.equal(code, 0, stderr);
+    assert.equal(pushes(), 1);
+    assert.equal(result.acceptedSha, final);
+    assert.equal(result.observation.state, "reused", result.observation.reason);
+    assert.equal(result.observation.directory, publisher.directory);
+    assert.deepEqual(
+      coverage(publisher.directory),
+      revisions(beforeCleanup, final),
+    );
+    assert.equal(result.completion.requestedSha, final);
+    assert.equal(result.completion.verdict, "success");
+    assert.equal(result.completion.shutdown.status, "confirmed");
+    assertObserverEnded(publisher.directory);
+    assert.equal(result.cleanup.worktree, "removed");
+    assert.equal(existsSync(fixture.execution), false);
+    journey.assertSiblingUntouched();
+
+    const rerun = (retainedOwner) =>
+      journey.finish(
+        {
+          beforeCleanup,
+          final,
+          checkout: fixture.integration,
+          extra: ["--repository", repository],
+        },
+        retainedOwner,
+      );
+
+    const stranger = await rerun(retained("another", publisher.directory));
+    assert.equal(stranger.code, 1);
+    assert.equal(stranger.result.step, "observation");
+    assert.equal(stranger.result.observation.ownership, "foreign");
+    assert.equal(stranger.result.completion, null);
+
+    const again = await rerun(owner);
+
+    assert.equal(again.code, 0, again.stderr);
+    assert.equal(again.result.pushCount, 0);
+    assert.equal(again.result.observation.directory, publisher.directory);
+    assert.equal(again.result.completion.shutdown.status, "confirmed");
+    assert.deepEqual(
+      [again.result.cleanup.worktree, again.result.cleanup.branch],
+      ["already-absent", "already-absent"],
+    );
+    assert.equal(pushes(), 1);
+    journey.assertSiblingUntouched();
   });
-  assert.equal(delivered.observation.directory, publisher.directory);
-  const beforeCleanup = delivered.receipt.sha;
-  const final = await commitFinalClosure(fixture);
-  releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
-  const pushes = await countPushes(fixture);
-  const repository = join(fixture.integration, ".git");
-
-  const { result, code, stderr } = await journey.finish(
-    { beforeCleanup, final },
-    owner,
-  );
-
-  assert.equal(code, 0, stderr);
-  assert.equal(pushes(), 1);
-  assert.equal(result.acceptedSha, final);
-  assert.equal(result.observation.state, "reused", result.observation.reason);
-  assert.equal(result.observation.directory, publisher.directory);
-  assert.deepEqual(
-    coverage(publisher.directory),
-    revisions(beforeCleanup, final),
-  );
-  assert.equal(result.completion.requestedSha, final);
-  assert.equal(result.completion.verdict, "success");
-  assert.equal(result.completion.shutdown.status, "confirmed");
-  assertObserverEnded(publisher.directory);
-  assert.equal(result.cleanup.worktree, "removed");
-  assert.equal(existsSync(fixture.execution), false);
-  journey.assertSiblingUntouched();
-
-  const again = await journey.finish(
-    {
-      beforeCleanup,
-      final,
-      checkout: fixture.integration,
-      extra: ["--repository", repository],
-    },
-    owner,
-  );
-
-  assert.equal(again.code, 0, again.stderr);
-  assert.equal(again.result.pushCount, 0);
-  assert.equal(again.result.observation.directory, publisher.directory);
-  assert.equal(again.result.completion.shutdown.status, "confirmed");
-  assert.deepEqual(
-    [again.result.cleanup.worktree, again.result.cleanup.branch],
-    ["already-absent", "already-absent"],
-  );
-  assert.equal(pushes(), 1);
-  journey.assertSiblingUntouched();
-});
+}
 
 test("a Codex finish without its retained stream, or naming a sibling's, reports the accepted closure unobserved and keeps the worktree; its own retained stream then registers it once without pushing", async (t) => {
   const journey = await closureBesideSiblingStream(t);

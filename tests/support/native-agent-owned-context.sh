@@ -14,7 +14,8 @@
 # through the admission substitute's recorder and sets ${response}.
 # NATIVE_OWNED_WORKSPACE, _BRANCH and _IDENTITY carry the journey's workspace,
 # branch and story; TRUNK_CLOSURE_CANDIDATE_SHA and _IDENTITY the final
-# closure's, and TRUNK_CLOSURE_SESSION_JSON its observer's owner session.
+# closure's, and TRUNK_CLOSURE_STATE the retained execution state a Codex
+# closure reads its observer note from.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -76,14 +77,25 @@ native_owned_context_prepare_and_land() {
 }
 
 # The before-cleanup commit is already on trunk; the installed `finish`
-# publishes the final closure on the fixture's live observer, naming the
-# coordinator session that owns it, completes it, and retires the worktree and
-# its branch.
+# publishes the final closure on this coordinator's live observer, completes
+# it, and retires the worktree and its branch. A Claude Code or Cursor
+# coordinator is named by the session its own tool carries, so its `finish`
+# establishes its observer; on Codex the retained state's observer note
+# supplies its coordinator and stream directory.
 native_owned_context_close_trunk() {
-  local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} branch base
+  local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} branch base note coordinator directory
   local owner=()
-  [[ -z ${TRUNK_CLOSURE_SESSION_JSON:-} ]] \
-    || owner=(--session-json "${TRUNK_CLOSURE_SESSION_JSON}")
+  case ${host} in
+    claude) export CLAUDE_CODE_SESSION_ID=substitute-closure-session ;;
+    cursor) export CURSOR_CONVERSATION_ID=substitute-closure-session ;;
+    *)
+      note=$(sed -n 's/^Observer note: //p' "${TRUNK_CLOSURE_STATE}")
+      coordinator=${note#coordinator }
+      directory=${note#*; stream directory }
+      owner=(--coordinator "${coordinator%%;*}"
+        --observer-directory "${directory%%;*}")
+      ;;
+  esac
   branch=$(git -C "${workspace}" branch --show-current)
   admission_run git fetch -q origin
   base=$(git -C "${workspace}" rev-parse origin/main)

@@ -34,7 +34,7 @@ async function deliverBeforeCleanup(fixture) {
   return delivered;
 }
 
-test("finish publishes the final closure, completes it once on the recovered observer, refreshes the default checkout, and then retires", async (t) => {
+test("finish publishes the final closure, completes it once on its coordinator's observer, refreshes the default checkout, and then retires", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
   const before = await deliverBeforeCleanup(fixture);
   const beforeCleanup = before.receipt.sha;
@@ -98,7 +98,7 @@ test("a stopped default-checkout refresh keeps the accepted closure, still retir
   );
 });
 
-test("finish arms an observer on a non-default remote and target when none is live, without a default checkout", async (t) => {
+test("finish establishes its coordinator's observer on a non-default remote and target when it holds none, without a default checkout", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
   const release = "refs/heads/release";
   await git(fixture.integration, "remote", "add", "upstream", fixture.origin);
@@ -212,30 +212,6 @@ for (const [receipt, beforeCi, finalCi, verdict] of [
     assert.equal(await branchSha(fixture), final);
   });
 }
-
-test("without any observer the accepted closure is reported as lost coverage and nothing is retired", async (t) => {
-  const fixture = await createTrunkClosureFixture(t);
-  const env = { ...fixture.env };
-  delete env.CLAUDE_CODE_SESSION_ID;
-  const beforeCleanup = fixture.candidateSha;
-  await git(fixture.execution, "push", "-q", "origin", "HEAD:main");
-  const final = await commitFinalClosure(fixture);
-
-  const { result, code } = await finishThroughCli(fixture, {
-    beforeCleanup,
-    final,
-    env,
-    extra: ["--created-for-work"],
-  });
-
-  assert.equal(code, 1);
-  assert.equal(result.step, "observation");
-  assert.equal(result.observation.state, "unobserved");
-  assert.equal(result.completion, null);
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
-  assert.equal(existsSync(fixture.execution), true);
-  assert.equal(await branchSha(fixture), final);
-});
 
 test("finish refuses incomplete arguments as a usage error", async (t) => {
   const fixture = await createTrunkClosureFixture(t);

@@ -46,7 +46,8 @@ trunk_closure_observe() {
     printf 'scenario: %s\n' "${scenario}"
     printf 'remote-sha: %s\n' "$(git ls-remote "${trunk_closure_origin}" refs/heads/main | awk '{print $1}')"
     printf 'candidate-sha: %s\n' "${trunk_closure_candidate_sha}"
-    printf 'mailbox-target: %s\n' "$(jq -r '.branch' "${trunk_closure_mailbox}/request.json")"
+    printf 'mailbox-target: %s\n' \
+      "$(jq -r '.branch' "${trunk_closure_mailbox}/request.json" 2> /dev/null)"
     printf 'coverage-state: %s\n' "${state}"
     printf 'basis-state: %s\n' "${basis_state}"
     printf 'observer-terminal: %s\n' "${terminal}"

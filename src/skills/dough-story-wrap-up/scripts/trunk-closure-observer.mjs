@@ -3,11 +3,14 @@
 // coordinator's session, or a Codex coordinator's retained stream. That owner
 // filters the observers before coverage or liveness is read, so closure never
 // registers on, completes, or stops another coordinator's observer. The owner
-// is computed from the repository's common Git directory, the identity every
-// worktree of it shares, so a rerun after the execution worktree was retired
-// names the same owner from the recorded management context.
-import { realpathSync } from "node:fs";
+// is computed from the execution checkout as delivery computes it. Once that
+// worktree was retired, the repository's common Git directory, the identity
+// its worktrees shared, names the same owner from the recorded management
+// context, and reaches that owner's observer whichever worktree armed it.
+import { existsSync, realpathSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 import {
+  eventRecipient,
   hostSessionOwner,
   missingIdentityReason,
   resolveHostSession,
@@ -22,42 +25,31 @@ import {
   coverageGap,
   retainedStream,
 } from "../../dough-execute-plan/scripts/execution-increment-observation.mjs";
+import { ownerGapReason } from "../../dough-execute-plan/scripts/execution-increment-observation-gaps.mjs";
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 
-const notLive = {
-  ended: "ended",
-  lost: "lost its worker",
-  unavailable: "is not live",
-};
-
-// Why none of a host coordinator's observers carries the final closure.
-// `candidates` are the several that could, when the choice is ambiguous.
-function hostGap({ target, owner, candidates }) {
-  const where = `${target.repo} ${target.branch}`;
-  if (candidates.length > 1) {
+// Why none of a host coordinator's observers carries the final closure, by
+// their classification. Several `candidates` that are not its several live
+// observers each registered the final closure and are no longer live.
+function hostGap({ target, host, owner, candidates }) {
+  const owned = classifyOwnedObservation({ ...target, owner });
+  if (candidates.length > 1 && owned.kind !== "ambiguous") {
     return coverageGap(
-      `this coordinator owns ${candidates.length} observers of ${where} that could carry the final closure (${candidates.join(", ")}); none is chosen for it`,
+      `this coordinator owns ${candidates.length} observers of ${target.repo} ${target.branch} that could carry the final closure (${candidates.join(", ")}); none is chosen for it`,
       { ownership: "ambiguous", directories: candidates },
     );
   }
-  const owned = classifyOwnedObservation({ ...target, owner });
-  if (owned.kind === "missing") {
-    return coverageGap(
-      `this coordinator holds no observer of ${where}; pass --session-json naming the session that armed this execution's observer when that is not this one`,
-      { ownership: "missing" },
-    );
-  }
-  const directories = owned.directories ?? [owned.directory];
-  return coverageGap(
-    `this coordinator's observer of ${where} at ${directories.join(", ")} ${notLive[owned.kind]} without registering the final closure`,
-    { ownership: owned.kind, directories },
-  );
+  return coverageGap(ownerGapReason("finish", { ...target, host, owned }), {
+    ownership: owned.kind,
+    directories: owned.directories ?? (owned.directory && [owned.directory]),
+  });
 }
 
 // `directories` are the owner's observers in any state. `select` returns the
 // one that covers `sha`, preferring a live one; else the owner's one live
 // observer, which has yet to register it; otherwise the coverage `gap`.
-function ownedObservers(directories, target, gap) {
+// `notifies` is the host session that receives a selected observer's events.
+function ownedObservers(directories, target, gap, notifies) {
   return {
     directories,
     select(sha) {
@@ -74,18 +66,33 @@ function ownedObservers(directories, target, gap) {
           covering.length ? [] : live,
         ].find((found) => found.length > 0) ?? [];
       return candidates.length === 1
-        ? { directory: candidates[0] }
+        ? { directory: candidates[0], ...(notifies && { notifies }) }
         : { gap: gap(candidates) };
     },
   };
 }
 
+// Where closure reads its observers from and computes their owner. While the
+// execution checkout exists, both are that checkout, as in delivery. Once it
+// is gone, `repository`'s common Git directory stands for the identity it
+// shared with the repository's other worktrees: observers are read through
+// it and through the retired path, which is its own identity now and still
+// the root of the observers started there.
+export async function observerAccess(workspace, repository) {
+  if (existsSync(workspace)) {
+    const root = realpathSync(workspace);
+    return { root, ownerRoot: root };
+  }
+  // The retired path's parent still resolves as it did for its observers.
+  const retired = join(realpathSync(dirname(workspace)), basename(workspace));
+  const ownerRoot = realpathSync(await managementContext(repository));
+  return { root: [retired, ownerRoot], ownerRoot };
+}
+
 // The observers of `repo` and target `branch` this execution's owner evidence
-// names. `inspection` is the execution worktree, or the recorded management
-// context once that worktree is gone; `root` is the checkout the observers
-// were started for.
-export async function closureObservers({
-  inspection,
+// names, read through `root` and claimed for `ownerRoot` as `observerAccess`
+// gives them.
+export function closureObservers({
   repo,
   branch,
   host,
@@ -94,12 +101,10 @@ export async function closureObservers({
   observerDirectory,
   env,
   root,
+  ownerRoot,
   storage,
 }) {
   const target = { repo, branch, root, storage };
-  // A path that is not a checkout is its own identity, so the common Git
-  // directory names the owner its worktrees' observers were claimed for.
-  const ownerRoot = realpathSync(await managementContext(inspection));
   if (host === "codex") {
     const stream = retainedStream({
       ...target,
@@ -130,6 +135,7 @@ export async function closureObservers({
   return ownedObservers(
     listOwnedMailboxes({ ...target, owner }),
     target,
-    (candidates) => hostGap({ target, owner, candidates }),
+    (candidates) => hostGap({ target, host, owner, candidates }),
+    eventRecipient({ host, session, env }),
   );
 }

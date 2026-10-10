@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Credential-free proof for the owned-context journeys: each runs once
-# through a substitute host and the shared supervisor/stream/retention path,
-# and its assessor rejects the failures that matter, as real-state
-# counterexamples on the kept publication fixtures (each mutation alone,
-# observed again, changes one signal of the passing observation) and as
-# observation counterexamples for the Trunk Mode closure.
+# Credential-free proof for the owned-context journeys: startup and
+# preparation each run once through a substitute host and the Trunk Mode
+# closure once on every host, all through the shared
+# supervisor/stream/retention path. Each journey's assessor rejects the
+# failures that matter, as real-state counterexamples on the kept publication
+# fixtures (each mutation alone, observed again, changes one signal of the
+# passing observation) and as observation counterexamples for the Trunk Mode
+# closure.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.
 
 # shellcheck source=tests/support/git-publication-native-owned-context-startup-counterexamples.sh
@@ -15,10 +17,13 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-nati
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-owned-context-land-counterexamples.sh"
 
 run_substitute_owned_context_journeys() {
+  local host
   prepare_substitute_hosts
   run_substitute_owned_context_journey codex startup-owned-context
   run_substitute_owned_context_journey claude preparation-land
-  run_substitute_trunk_closure_owned_context
+  for host in claude cursor codex; do
+    run_substitute_trunk_closure_owned_context "${host}"
+  done
   run_trunk_closure_owned_context_counterexamples
 }
 
@@ -79,19 +84,21 @@ owned_context_append_started() {
   esac >> "${owned_context_transcript}"
 }
 
-# The Trunk Mode closure with no default checkout, through its controller.
+# The Trunk Mode closure with no default checkout on substitute host $1,
+# through its controller: each host's `finish` registers on the observer its
+# guidance gives that coordinator.
 run_substitute_trunk_closure_owned_context() {
-  local results status
+  local host=$1 results status
   results=$(mktemp -d "${substitute_work}/trunk-closure-results.XXXXXX")
   set +e
   NATIVE_AGENT_SENTINEL_LOG="${substitute_run_log}" \
     NATIVE_PUBLICATION_JOURNEY=trunk-closure-owned-context \
-    trunk_closure_run_journey "${source_dir}" claude owned-context \
+    trunk_closure_run_journey "${source_dir}" "${host}" owned-context \
     "${results}" > "${results}/run.txt" 2>&1
   status=$?
   set -e
   if [[ ${status} -ne 0 || ${git_publication_assess_status} != 'pass' ]]; then
-    echo "FAIL: substitute claude trunk-closure/owned-context exited ${status}, assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
+    echo "FAIL: substitute ${host} trunk-closure/owned-context exited ${status}, assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
     cat "${results}/run.txt" >&2
     exit 1
   fi

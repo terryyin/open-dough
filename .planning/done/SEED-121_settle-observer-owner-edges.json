@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-121#settle-observer-owner-edges",
+  "title": "Settle observer ownership at its recovery edges",
+  "completedAt": "2026-10-10T10:45:51.891Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

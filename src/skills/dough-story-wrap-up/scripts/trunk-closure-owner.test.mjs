@@ -18,6 +18,7 @@ import { completeThroughCli } from "../../dough-execute-plan/scripts/execution-i
 import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  armingCheckouts,
   assertObserverEnded,
   closureBesideSibling,
 } from "./trunk-closure-owner-test-fixtures.mjs";
@@ -68,70 +69,90 @@ for (const host of Object.keys(hosts)) {
     journey.assertSiblingUntouched();
   });
 
-  test(`a ${host} finish registers a final closure the target already holds once on its own observer without pushing, and a rerun from the management context after retirement reuses that ended observer`, async (t) => {
-    const journey = await closureBesideSibling(t, host);
-    const { fixture, publisher } = journey;
-    const beforeCleanup = await deliverBeforeCleanup(journey);
-    await commitFinalClosure(fixture);
-    // The interrupted `finish` pushed the final closure and registered nothing.
-    const final = await acceptedIncrement(fixture);
-    releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
-    const pushes = await journey.pushes();
-    const repository = join(fixture.integration, ".git");
+  for (const [armedFrom, where] of Object.entries(armingCheckouts)) {
+    test(`a ${host} finish registers a final closure the target already holds once without pushing on its own observer armed from ${where}, and a rerun from the management context after retirement reuses that ended observer for its owner only`, async (t) => {
+      const journey = await closureBesideSibling(t, host, armedFrom);
+      const { fixture, publisher } = journey;
+      const beforeCleanup = await deliverBeforeCleanup(journey);
+      await commitFinalClosure(fixture);
+      // The interrupted `finish` pushed the final closure and registered nothing.
+      const final = await acceptedIncrement(fixture);
+      releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
+      const pushes = await journey.pushes();
+      const repository = join(fixture.integration, ".git");
 
-    const { result, code, stderr } = await journey.finish({
-      beforeCleanup,
-      final,
-      extra: ["--created-for-work"],
-    });
-
-    assert.equal(code, 0, stderr);
-    assert.equal(result.pushCount, 0);
-    assert.deepEqual(result.observation, {
-      state: "recovered",
-      directory: publisher,
-      reused: true,
-    });
-    assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
-    assert.equal(result.completion.requestedSha, final);
-    assert.equal(result.completion.verdict, "success");
-    assert.equal(result.completion.shutdown.status, "confirmed");
-    assertObserverEnded(publisher);
-    assert.equal(result.repository, repository);
-    assert.equal(result.cleanup.worktree, "removed");
-    assert.equal(existsSync(fixture.execution), false);
-    journey.assertSiblingUntouched();
-
-    // The rerun names its owner explicitly where the ambient identity is the
-    // sibling's; the owner is computed without the retired worktree.
-    const field = host === "cursor" ? "conversation_id" : "session_id";
-    const again = await journey.finish(
-      {
+      const { result, code, stderr } = await journey.finish({
         beforeCleanup,
         final,
-        checkout: fixture.integration,
-        extra: [
-          ...["--created-for-work", "--repository", repository],
-          ...["--session-json", JSON.stringify({ [field]: journey.owner })],
-        ],
-      },
-      "sibling-coordinator",
-    );
+        extra: ["--created-for-work"],
+      });
 
-    assert.equal(again.code, 0, again.stderr);
-    assert.equal(again.result.pushCount, 0);
-    assert.equal(again.result.observation.directory, publisher);
-    assert.equal(again.result.completion.verdict, "success");
-    assert.equal(again.result.completion.shutdown.status, "confirmed");
-    assert.deepEqual(
-      [again.result.cleanup.worktree, again.result.cleanup.branch],
-      ["already-absent", "already-absent"],
-    );
-    assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
-    assert.equal(pushes(), 0);
-    assert.equal(await lsRemoteSha(fixture.origin, main), final);
-    journey.assertSiblingUntouched();
-  });
+      assert.equal(code, 0, stderr);
+      assert.equal(result.pushCount, 0);
+      const { notifies, ...observation } = result.observation;
+      assert.deepEqual(observation, {
+        state: "recovered",
+        directory: publisher,
+        reused: true,
+      });
+      assert.match(
+        notifies,
+        new RegExp(`${journey.owner}, named by ${hosts[host].variable}`),
+      );
+      assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
+      assert.equal(result.completion.requestedSha, final);
+      assert.equal(result.completion.verdict, "success");
+      assert.equal(result.completion.shutdown.status, "confirmed");
+      assertObserverEnded(publisher);
+      assert.equal(result.repository, repository);
+      assert.equal(result.cleanup.worktree, "removed");
+      assert.equal(existsSync(fixture.execution), false);
+      journey.assertSiblingUntouched();
+
+      // The rerun names its owner explicitly where the ambient identity is the
+      // sibling's; the owner is computed without the retired worktree.
+      const field = host === "cursor" ? "conversation_id" : "session_id";
+      const rerun = (session) =>
+        journey.finish(
+          {
+            beforeCleanup,
+            final,
+            checkout: fixture.integration,
+            extra: [
+              ...["--created-for-work", "--repository", repository],
+              ...["--session-json", JSON.stringify({ [field]: session })],
+            ],
+          },
+          "sibling-coordinator",
+        );
+
+      const stranger = await rerun("third-coordinator");
+      assert.equal(stranger.code, 1);
+      assert.equal(stranger.result.step, "observation");
+      assert.equal(stranger.result.observation.ownership, "missing");
+      assert.equal(stranger.result.completion, null);
+
+      const again = await rerun(journey.owner);
+
+      assert.equal(again.code, 0, again.stderr);
+      assert.equal(again.result.pushCount, 0);
+      assert.equal(again.result.observation.directory, publisher);
+      assert.match(
+        again.result.observation.notifies,
+        new RegExp(`${journey.owner}, named by --session-json`),
+      );
+      assert.equal(again.result.completion.verdict, "success");
+      assert.equal(again.result.completion.shutdown.status, "confirmed");
+      assert.deepEqual(
+        [again.result.cleanup.worktree, again.result.cleanup.branch],
+        ["already-absent", "already-absent"],
+      );
+      assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
+      assert.equal(pushes(), 0);
+      assert.equal(await lsRemoteSha(fixture.origin, main), final);
+      journey.assertSiblingUntouched();
+    });
+  }
 }
 
 test("a rerun after completion and worktree removal settles only for the owner: without its identity or as another coordinator the accepted closure is reported unobserved and the branch stays", async (t) => {

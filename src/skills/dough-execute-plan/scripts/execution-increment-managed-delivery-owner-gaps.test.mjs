@@ -39,7 +39,7 @@ for (const host of Object.keys(hosts)) {
     assert.equal(unidentified.observation.ownership, "unidentified");
     assert.match(
       unidentified.observation.reason,
-      new RegExp(`${hosts[host].variable} is unset`),
+      new RegExp(`${hosts[host].variable} is unset.*--session-json`),
     );
     assert.equal(unidentified.observation.directory, undefined);
     assert.equal(

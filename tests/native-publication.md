@@ -62,6 +62,36 @@ kept workspace or the CI gap. The stream fields `ci-observed-shas` and
 `ci-unobserved-shas` carry that coverage from the delivery and observer
 commands' own output.
 
+The Trunk Mode closure cases (`trunk-closure/source`, `/ignored-only`,
+`/owned-context`) give the closure's coordinator its CI observer as the
+installed guidance does, and name no owner in the retained state beyond what
+that guidance retains (`tests/support/trunk-closure-native-arming.sh`):
+
+- Claude Code and Cursor: the fixture arms no observer, because only the
+  launched session's own Bash or Shell tool carries the coordinator's identity
+  (`CLAUDE_CODE_SESSION_ID`, `CURSOR_CONVERSATION_ID`). The session's `finish`
+  establishes its observer while publishing the final closure.
+- Codex: the fixture arms `ci-mailbox.mjs stream --execution owner/project
+  main --coordinator trunk-closure-coordinator` from the execution worktree
+  and records the observer note (coordinator, stream directory, PID,
+  checkout); the session passes that coordinator and directory to `finish`.
+  The harness, not a Codex cell, holds that stream, so no CI event reaches the
+  session.
+
+The controller waits for `finish` to register the final closure on the armed
+Codex stream; on Claude Code and Cursor it follows the observer that holds the
+final closure's coverage record, wherever `finish` registered it. Run one case
+per host, for example:
+
+```sh
+tests/git-publication-native.sh --native claude --case trunk-closure/owned-context --results-dir DIR
+tests/git-publication-native.sh --native cursor --case trunk-closure/source --results-dir DIR
+tests/git-publication-native.sh --native codex --case trunk-closure/ignored-only --results-dir DIR
+```
+
+`tests/git-publication-native-owned-context.sh` runs the owned-context closure
+on each substitute host; the other two scenarios have no substitute.
+
 Codex runs without `--ephemeral`, because spawning a subagent thread needs the
 parent's persisted rollout. Those rollouts are kept in the developer's Codex
 home with their other sessions, which also keeps the developer's sign-in in place.
@@ -106,7 +136,7 @@ Current families, each `<family>-native-<layer>` in `tests/support`:
 - git-publication: `-fixture`, `-run`, `-evidence`, `-assess` with startup,
   candidate and one-shot assessors, and several `-counterexamples` files.
 - story-branch-closure and trunk-closure: `-fixture`, `-observe`, `-assess`,
-  `-counterexamples`, `-run`.
+  `-counterexamples`, `-run`; trunk-closure's fixture also sources `-arming`.
 - ci-completion: `-fixture`, `-observe`, `-assess`, `-counterexamples`, `-run`.
 - delivery-evidence (selection, claims, consumers, gaps): shared
   `delivery-evidence-native-run.sh`; each case has `-scenario-content`,

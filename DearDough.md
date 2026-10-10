@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 268. Removed local codes are never reused.
+- Highest allocated local number: 270. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -158,6 +158,16 @@ Follow-up: delivered, unreleased: [Observe decisive planning premises through th
 
 Evidence and response: [ODF-074](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-074).
 
+### Occurrences
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10; the plan was published not-ready in `17c33bd2` and made ready in `c6aa657b` at 17:16 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: `17c33bd2:.planning/slice-plans/288-observer-owner-edges/PLAN.md` ends "Remaining concern: slice 1's proof for a project below its Git toplevel depends on whether closure supports that layout, which this review did not observe", and the seed's state block records `not-ready` for it. The developer's next instruction was "Why is the plan not ready for running? Please make it ready for running." Two scratch runs of the installed `deliver` and `finish` on existing fixtures (1–2 s each) settled it; "Observed premises" in `2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`.
+  - Observed effect: a planned correction waited for a developer round trip and a second preparation session over a premise the existing closure fixtures could run.
+  - Inference: qualified. The plan was written by an execution retrospective, which may have treated the observation as outside a review's read-only limits; an unpaid scratch run outside the checkout changes no product file.
+
 ## ODF-110 — A plan's consumer premise for an admission rule swept function callers, missing specs that relaunch the same story
 
 Former local code: DD-213.
@@ -207,6 +217,14 @@ Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: slice 1's refactor return, decision 3: the slice's eight-line fixtures paragraph took `tests/README.md` from 250 to 258 lines, and the pass moved the unrelated "Native host streams" section to a new `tests/native-host-streams.md`, stating the move "is outside the slice's concept and was done only because the file-size check is unconditional" (`git show b78500a4 -- tests/README.md tests/native-host-streams.md`). Slice 2's refactor return, decision 6, met the same check on `ProjectFindings.md` (457 lines, shrunk from 475 by the change) and left it as a reported gap.
   - Observed effect: one documentation move unrelated to the story entered a behavior commit, and the same check produced opposite dispositions in two passes of one execution.
   - Inference: qualified. The move is harmless here (one link, no other reference to the section), but the size threshold, not a concept the change implicated, selected it.
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10, slice 2 and slice 4 refactor passes, between `1ff314d3` at 17:44 +09:00 and `8f348077` at 18:52 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: slice 2's refactor return: the slice took `src/skills/dough-execute-plan/references/trunk-publication.md` from 250 to 262 lines, and the pass removed three sentences that predate the slice and sit outside its hunks "only to reach the limit" (`git show fc795844 -- src/skills/dough-execute-plan/references/trunk-publication.md`). Slice 4's pass collapsed an unrelated guard in `execution-increment-delivery.mjs` (252 lines, 255 before the slice) to reach 250. The coordinator's delegation briefs also told agents that files over 250 lines "fail a check"; slice 4's agent found no such check.
+  - Observed effect: published guidance lost three restatements unrelated to the story, each rule still stated elsewhere in the file; three references now sit at exactly 250 lines, so the next addition repeats the trade.
+  - Inference: qualified. No rule was lost, but the threshold, not the change's concept, chose what to delete, and the coordinator turned a refactor check into a hard limit in its briefs.
 
 ## ODF-209 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
@@ -631,3 +649,35 @@ numbers noted in an effect) that would have opened the gate one render late.
   - Observed effect: the implementation agent wrote the specs first, saw the outright-abort form pass on the unfixed code, and changed the test to hold the read, assert nothing is read, then abort; it keyed the gate on the project list instead of ask numbers. No rework followed and the coordinator accepted both deviations.
   - Inference: the delegation's requirement to observe each new test failing before the fix is what caught it; the cost was small. The premise was settled by reading for the first example only.
 
+## DD-269 — A ready refinement named execution as its next step while its result was unpublished
+
+Refinement reported a ready plan with execution as the one next step, but the
+readiness lived in an uncommitted draft, execution start reads the published
+preparation, and keeping a draft needs an explicit instruction.
+
+### Occurrences
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10, between the readiness record and the keep commit `c6aa657b` at 17:16 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: the refinement report ended "Next step: in that workspace, run `/dough-execute-plan …`" beside "Draft: uncommitted"; the developer answered "ok. Do the next step"; `execution-start.mjs start` "checks the published selected source and preparation" (`dough-execute-plan/SKILL.md`), and `preparation-disposition.md` counts only an explicit instruction as keep. The coordinator landed the draft as `c6aa657b` on that reply, then reused the preparation worktree for execution instead of retiring it as Dough Land describes.
+  - Observed effect: the coordinator inferred a keep and a workspace reuse that neither reference grants, and said so in its report; the developer did not object.
+  - Inference: qualified to a ready outcome followed by execution in the same session. The outcome wording offers a step the workflow cannot take without a second, unstated decision.
+
+## DD-270 — Guidance stating an unobserved host fact was accepted with the gap filed as pending native evidence
+
+A slice published guidance and receipt text that state how a host behaves,
+proved only by a test whose setup supplies that behavior, and acceptance
+recorded the missing observation as pending native evidence instead of holding
+the wording.
+
+### Occurrences
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10, slice 2 acceptance, before `fc795844` at 18:04 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: `fc795844` adds to `trunk-publication.md` and `ci-notify-hosts.md` that a Claude Code subagent coordinator's "Bash tool carries its parent's `CLAUDE_CODE_SESSION_ID`" and that it passes "its own `agent_id`"; `execution-increment-managed-delivery-recipient.test.mjs` sets both itself. The implementation return listed both as "not observable without a native run". The coordinator accepted the slice and added a pending-native-evidence line to plan 288 (`2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`). The independent product review raised it as its first finding, with `docs/maintainer/finding-names.md` recording a Cursor coordinator that could not read its own `conversation_id`. The premise entered as plan 288's fourth finding, marked observed by read-only review.
+  - Observed effect: unobserved host behavior is published as fact; a subagent that cannot read its `agent_id` has no taught way to follow the step. On the developer's instruction the wording was reduced to observed facts in `80ab062f`.
+  - Inference: qualified. ADR 0005's pending-evidence list covered acceptance of the tests but not the wording of what was published.
