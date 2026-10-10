@@ -6,8 +6,10 @@
 workspace `/Users/terryyin/git/open-dough/.worktrees/automatically-land-completed-slice-planning-when`
 on `claude/automatically-land-completed-slice-planning-when`, under the
 preparation assignment for `ebacky-chan` (announced at `e1b0a009`, continued
-for this plan). Publication target: `origin/main`; integration checkout:
-`/Users/terryyin/git/open-dough`.
+for this plan) and landed at `6b7948a4`. Reviewed again on 2026-10-10 in the
+same workspace under the preparation assignment for `bastiaan-chan` (announced
+at `528942f7`, `start` returned `continued`). Publication target:
+`origin/main`; integration checkout: `/Users/terryyin/git/open-dough`.
 
 ## Goal and boundaries
 
@@ -87,12 +89,18 @@ the wording. No Accepted ADR conflicts; this plan adds no topic.
 - Guidance changes are proved by the guidance tests, rewritten to pin the new
   wording with the same discrimination the current tests have (observed below).
   The ADR change has no test; its proof is a read against the journey's words.
+- Accepted interim between slices 2 and 3: after slice 2 the journey end names
+  `--retain` as the opt-out before `refinement-options.json` defines it, so
+  the dashboard dialog cannot offer it yet and only the ordinary-language
+  opt-out works. Slice 3 replaces that interim by defining the option; the
+  journey test that checks the option's definition belongs to slice 3, not
+  slice 2.
 
 ## Decisive premises and observations
 
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
-| The guidance tests pin the journey's current authority wording and discriminate | Slices 2 and 3's proof | In this workspace: `node --test` on the four refinement guidance test files, 29 tests pass. Scratch edit replacing "explicit keep." in `preparation-journey.md` with other words, same command on `preparation-journey-guidance.test.mjs`: 8 pass, 1 fail; edit reverted. | Confirmed: the tests are the discriminating proof and must be rewritten with the text. |
+| The guidance tests pin the journey's current authority wording and discriminate | Slices 2 and 3's proof | In this workspace: `node --test` on the four refinement guidance test files, 29 tests pass. Scratch edit replacing "explicit keep." in `preparation-journey.md` with other words, same command on `preparation-journey-guidance.test.mjs`: 8 pass, 1 fail; edit reverted. Rerun at `528942f7` on the review: the same four files, 29 pass. | Confirmed: the tests are the discriminating proof and must be rewritten with the text. |
 | The slice-planning skill has no room | Slice 1 | `wc -l src/skills/dough-slice-planning/SKILL.md` = 250; the limit is `refactor-checks.md:128`. Only `preparation-journey-guidance.test.mjs` pins text of that file (its "Stay within the triggering instruction" section); nothing pins the premise paragraphs. | Confirmed. |
 | `release` staging and the landing retry are the working mechanics the journey will enter | Slice 2 | `node --test` on the seven `preparation-assignment-*.test.mjs` files naming `release-staged`/`already-released`: 16 pass. Dough Land's text takes a staged release (`dough-land/SKILL.md:88-90`). | Confirmed; no script change planned. |
 | An added option reaches the dashboard without dashboard code | Slice 3 | `dashboard/src/commandOptions.ts` reads options and optional groups; `AGENT-LAUNCH-OPTIONS.md` says the dialog reads the installed definition afresh. The dashboard reads the installed copy, which changes on release, so the dialog shows `--retain` after the next release, not from this landing. | Confirmed by reading the schema (`groups` optional, entries flat); the appearance in the dialog is a release-time fact and not this story's proof. |

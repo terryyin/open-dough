@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bastiaan-chan",
-  "email": "bastiaan-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-128#land-planning-without-coordinator-questions",
-  "host": "claude",
-  "model": "fable"
-}

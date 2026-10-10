@@ -31,7 +31,7 @@ Automatic preparation and landing do not authorize product execution.
 
 **Identity:** SEED-128#land-planning-without-coordinator-questions
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/290-land-planning-without-coordinator-questions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"af8ac5ffd2c5f98f3a9c9346682cdf4b874b35e46267385de757021c3b4c8f14","plan":"413f9b933ae0eedff9be393b4d5492d4b1b9ecd26ad42de7ee6bfaf5505c5450"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/290-land-planning-without-coordinator-questions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"af8ac5ffd2c5f98f3a9c9346682cdf4b874b35e46267385de757021c3b4c8f14","plan":"83f610ec18601db052f5033adeb01b312ae60bfbaca93110682599c53e868023"}}
 ```
 
 **Beneficiary:** A coordinator waiting for usable preparation on remote main.
