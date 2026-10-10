@@ -6,6 +6,7 @@ import {
   spawnGroupLeader,
   type GroupLeader,
 } from "./processGroup.ts";
+import { startOnOwnAddress } from "./viteAddress.ts";
 
 export function dashboardCommand(
   directory: string,
@@ -41,6 +42,20 @@ export function dashboardCommand(
       await exited;
     },
   };
+}
+
+// The public development command on any free port, with the address it
+// reports having bound.
+export async function developmentDashboard(
+  directory: string,
+  env: NodeJS.ProcessEnv,
+) {
+  const { launched, url } = await startOnOwnAddress(
+    0,
+    () => dashboardCommand(directory, env, "dev:dashboard", ["--port", "0"]),
+    "The development dashboard did not start",
+  );
+  return { command: launched, url };
 }
 
 function terminalExit(child: GroupLeader) {

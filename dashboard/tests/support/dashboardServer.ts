@@ -29,13 +29,10 @@ import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { endAtExit, endGroup, spawnGroupLeader } from "./processGroup.ts";
-import { listenArgs, ownAddress } from "./viteAddress.ts";
+import { endAtExit } from "./processGroup.ts";
+import { listenArgs, spawnVite, startOnOwnAddress } from "./viteAddress.ts";
 import { configureDevelopmentProjects } from "./projectConfiguration.ts";
-import { repoRoot } from "./repositoryRoot.ts";
 import { buildDashboardTo } from "./dashboardBuild.ts";
-
-const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
 
 // Callers find the run's build where they find the server that serves it.
 export { builtDashboardDir } from "./dashboardBuild.ts";
@@ -158,16 +155,6 @@ export async function startDashboardServer(
     args = ["preview", ...serverArgs, "--outDir", outDir];
   }
 
-  // Its own process group, so closing can wait for every `gh` it launched.
-  const child = spawnGroupLeader(viteBin, args, { cwd: repoRoot, env });
-  const output: Buffer[] = [];
-  const collect = (chunk: Buffer) => {
-    output.push(chunk);
-  };
-  child.stdout.on("data", collect);
-  child.stderr.on("data", collect);
-  const outputText = () => Buffer.concat(output).toString("utf8");
-
   const home = claude.controls.home;
   // SIGTERM hangs up the runner's clients and exits it.
   const withdrawRunnerStopAtExit = endAtExit(() => {
@@ -192,26 +179,23 @@ export async function startDashboardServer(
     rmSync(tempRoot, { recursive: true, force: true });
   };
 
-  let baseURL: string;
-  try {
-    baseURL = await ownAddress(child, outputText, 20_000);
-  } catch (error) {
-    await endGroup(child);
+  const { launched: vite, url: baseURL } = await startOnOwnAddress(
+    options.port,
+    () => spawnVite(args, env),
+    `The ${options.mode} server this test started could not start`,
+  ).catch(async (error: unknown) => {
     await closeOwned();
-    throw new Error(
-      `The ${options.mode} server this test started could not start:\n${outputText()}`,
-      { cause: error },
-    );
-  }
+    throw error;
+  });
 
   return {
     baseURL,
     origin: baseURL,
-    pid: child.pid ?? 0,
+    pid: vite.child.pid ?? 0,
     outDir,
     github,
     codex,
-    output: outputText,
+    output: vite.output,
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },
@@ -227,7 +211,7 @@ export async function startDashboardServer(
     },
     ...claude.controls,
     async close() {
-      await endGroup(child);
+      await vite.stop();
       await closeOwned();
     },
   };

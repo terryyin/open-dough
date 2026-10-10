@@ -2,13 +2,15 @@ import { expect, test } from "./support/pageTest.ts";
 import { readFile, writeFile, readdir } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
-import { dashboardCommand } from "./support/dashboardCommand.ts";
+import {
+  dashboardCommand,
+  developmentDashboard,
+} from "./support/dashboardCommand.ts";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
 import { startFakeGitHub } from "./support/fakeGitHub.ts";
-import { ownAddress } from "./support/viteAddress.ts";
 import {
   productionActivation,
   productionDeployments,
@@ -57,15 +59,9 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
     );
     await fixture.installDevelopment();
     configureDevelopmentProjects(fixture.home);
-    development = dashboardCommand(fixture.development, env, "dev:dashboard", [
-      "--port",
-      "0",
-    ]);
-    const developmentUrl = await ownAddress(
-      development.child,
-      development.output,
-      20_000,
-    );
+    const started = await developmentDashboard(fixture.development, env);
+    development = started.command;
+    const developmentUrl = started.url;
     watcher = dashboardCommand(fixture.development, env, "watch:dashboard", [
       "--port",
       "0",

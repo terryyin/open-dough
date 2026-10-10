@@ -351,6 +351,17 @@ teardown, the server's exit handling, or the runner's lifetime); fix the
 owner. A product defect beyond the server stopping its own runner is a bug
 report.
 
+CI repair after slice 5: run 38009827597 (12939678, dashboard 6/9) failed
+`agent-terminal-cursor-runner.spec.ts:33` with `Port N is already in use`.
+Cause, not from this story: Vite 8.3.0's `--port 0` probes a free port,
+closes it, then binds it, so another listener can take it in between. Fix:
+`dashboard/server/chosenPort.mjs` starts again only when no port was named
+and the failure says that port is in use, at most three times, ending each
+failed launch; the production preview start and the suite's dev and preview
+starts go through it. `chosen-port.spec.ts` fails with the restart off; a
+forced-collision preload failed `production-cursor-runner` before the fix
+and passed it and the other starters after.
+
 ### 6. Recover reports the label of the settled screen
 Type: Behavior
 Status: planned
