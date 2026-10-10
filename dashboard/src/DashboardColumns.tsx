@@ -42,9 +42,10 @@ export function DashboardColumns({
     sourceId,
     work,
     creations: launches.creations,
-    records: sessions.done,
+    // Unread until a sessions read for the current project list has ended.
+    records: launches.sessionsSettled ? sessions.done : undefined,
     noneKept: sessions.noneKept,
-    sessionsSettled: launches.attemptEvidence !== "unread",
+    sessionsSettled: launches.sessionsSettled,
   });
   const columns: readonly ColumnSummary[] = [
     ...stages.map(({ column }) => column),

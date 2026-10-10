@@ -88,7 +88,20 @@ slice 1 must keep green.
 
 ### 1. An added project's done records wait for its sessions
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+dashboard/tests/recently-done-progressive-added-project.spec.ts
+dashboard/tests/recently-done-progressive-after-sessions.spec.ts` (4 passed;
+both new tests failed before the fix, on "Reading sessions…" and on ten of
+B's records read while the read was held), and the `recently-done-`,
+`project-`, `system-settings` and "Reading sessions…" consumer specs (198
+passed).
+Learnings: the second test holds the read before aborting it, because an
+outright abort passes on the unfixed code, which reads B's ten stories at
+once either way. The gate compares the project list under which the latest
+ended read was asked with the current list (`settledFor === projects`)
+rather than ask numbers: an ask noted in the effect arrives one commit after
+the list changes, and the stories would be read in that commit.
 Proof: A new Recently done journey on `pageTest` with `projectAddMachine`
 serves project A's progressive list on `repository` and project B's on
 `addedRepository` (14 entries, sessions at 2, 7 and 11, kept for source
@@ -149,3 +162,20 @@ changes.
 - An added project's column shows the same "Reading sessions…" state as a
   first open while its sessions are unknown, rather than a settled empty
   list, so the page's wording stays consistent across both paths.
+
+## Story obligations
+
+### G1. No assertion pins "Reading sessions…" after a removal
+Reported: slice 1 — "Removal and "first list" are covered only by the existing project-remove and first-open specs passing; no new assertion pins "Reading sessions…" after a removal."
+Story clause: "A developer who adds a project while the dashboard is open"
+Disposition: no user cost "A developer who adds a project while the dashboard is open": a removal lies outside the goal; the one gate rule only withholds the column until the next sessions read ends, and the project-remove journeys pass.
+
+### G2. Example 2 does not assert the column's sessions line
+Reported: slice 1 — "In Example 2 the added project's column text after the failed read is not asserted"
+Story clause: "the ten stories B shows without sessions are read"
+Disposition: no user cost "has Recently done read that project's done stories as it reads": the goal and example 2 promise which stories are read, which the test observes; the sessions line is unchanged product wording.
+
+### G3. Not run under load or with repeats
+Reported: slice 1 — "Not checked under load or with repeats."
+Story clause: "the loaded acceptance runs with"
+Disposition: excluded "the loaded acceptance runs with"
