@@ -627,7 +627,7 @@ numbers noted in an effect) that would have opened the gate one render late.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
-  - Evidence: plan 288 slice 1 Proof and Behavior, and its premise row "Holds by reading; the slice's spec reproduces it before the fix" (`fba8d90c:.planning/slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md`); slice 1's Learnings in the delivered plan; `dashboard/tests/recently-done-progressive-added-project.spec.ts` second test.
+  - Evidence: plan 288 slice 1 Proof and Behavior, and its premise row "Holds by reading; the slice's spec reproduces it before the fix" (`fba8d90c:.planning/slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md`); slice 1's Learnings in the delivered plan (`84ee16fa:` same path); `dashboard/tests/recently-done-progressive-added-project.spec.ts` second test.
   - Observed effect: the implementation agent wrote the specs first, saw the outright-abort form pass on the unfixed code, and changed the test to hold the read, assert nothing is read, then abort; it keyed the gate on the project list instead of ask numbers. No rework followed and the coordinator accepted both deviations.
   - Inference: the delegation's requirement to observe each new test failing before the fix is what caught it; the cost was small. The premise was settled by reading for the first example only.
 
