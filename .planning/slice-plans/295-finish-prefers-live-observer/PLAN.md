@@ -180,6 +180,21 @@ export of `trunk-closure-owner-test-fixtures.mjs`. A Codex coordinator's
 closure goes through the same selection; its `ended` gap keeps the stream's
 own wording and arm step.
 
+## Execution complete
+
+Product advice: no backlog change from this execution. Two observations for
+wrap-up to weigh, neither verified as a defect:
+
+- `receiptPermitsRetirement` in `trunk-closure.mjs` still retires on any
+  receipt without a `failure` verdict whose shutdown is confirmed. Selection
+  no longer hands it an ended observer's cancelled attempt, but a live
+  observer's unresolved receipt, such as a timeout, would still retire with no
+  CI verdict. Whether retirement should require a verdict is a product
+  decision the story did not take.
+- A Codex coordinator's `ended` gap keeps its stream wording: it names the
+  ended stream and the arm step, not that the stream registered the closure
+  without a verdict (obligation G6).
+
 ## Story obligations
 
 ### G1. A sole ended observer with a cancelled attempt still retires

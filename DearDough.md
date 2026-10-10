@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 279. Removed local codes are never reused.
+- Highest allocated local number: 280. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -247,6 +247,14 @@ Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: slice 3's refactor return: to keep `install.sh` at exactly 250 lines after declaring two new payload files, the pass folded two explanatory comments onto their shellcheck directive lines (`git show 6207064d -- install.sh`, lines 2 and 13), and `publish-the-candidate.md` reached exactly 250 with one sentence run to about 150 columns (line 77). The same pass made two cohesive splits (`history-preserving-candidate.mjs`, `dough-story-wrap-up/references/story-branch-integration.md`). Its report lists six files now at exactly 250 lines.
   - Observed effect: two files were compressed without a seam; the retrospective's outcome review flagged both, and correction plan 294 slice 4 owns the split.
   - Inference: qualified. shellcheck still passes and no rule was lost; the threshold again selected the edit, and the cost is one planned Structure slice.
+- Execution: `SEED-121#finish-prefers-live-observer` / plan 295, first implementation `64a54160`.
+  - Timestamp: unknown (2026-10-11, slice 2 implementation follow-up and refactor pass, between `64a54160` at 08:14 +09:00 and `b89b2548` at 08:27 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `4b337bde`; base 0.3.58
+  - Evidence: the coordinator's slice 2 brief called 250 lines "a 250-line file-size limit" and told the implementation agent to "place the journey so the limit holds". That agent's follow-up return: adding a Codex journey took `trunk-closure-codex-owner.test.mjs` to 248 lines, and "to fit the size limit I dropped a redundant `acceptedSha` assertion". The refactor return, decision 1, moved both tests in that file onto the exported `assertUnresolvedCoverage`, which restored the assertion and left the file at 232 lines (`git show b89b2548 -- src/skills/dough-story-wrap-up/scripts/trunk-closure-codex-owner.test.mjs`). In slice 1 the refactor pass split two test suites over the size at their existing topics.
+  - Observed effect: an implementation agent removed a proof assertion to stay under the size, before the refactor pass that owns the check ran; the published test holds the assertion.
+  - Inference: qualified. Nothing was lost in the delivered commit. The coordinator again passed a refactor check to an implementer as a limit, as in plan 288's row, and this time the threshold selected a proof deletion where a shared helper was the seam.
 
 ## ODF-209 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
@@ -850,3 +858,19 @@ path into that state: resolve a conflicted integration by hand and push it.
   - Evidence: plan 292 `## Story obligations` G5 (`no user cost`, reasoning that no pair was retained so the evidence gap is the story's own rule); slice 3's return listed it under gaps with that one cause; the independent outcome review traced `constructCandidate` (`history-preserving-candidate.mjs`, always `checkout --detach` then merge) and `story-branch-integration.md`'s conflict step to the same state; a scratch repository with a content conflict gave exit 2 and, after a hand resolution, the same conflict again (plan 294, Observed premises).
   - Observed effect: slice 3 was accepted and published with the story's Required clause “once remote trunk accepts the integrated SHA the handoff records the pair” unmet for a conflicted integration; correction plan 294 was written.
   - Inference: the story-obligations check validates the entry's structure and quotes, and the disposition rested on the return's stated cause. Asking which paths the guidance directs into the reported state, a few minutes of reading, would have made it a `return`. One sample.
+
+## DD-280 — A plan changed one selection rule without listing every host path that reaches it
+
+A plan's findings described the changed selection through the Cursor and
+Claude Code journeys only. A Codex coordinator's closure reaches the same
+selection, so its behavior changed too, with no promise or proof in the plan.
+
+### Occurrences
+- Execution: `SEED-121#finish-prefers-live-observer` / plan 295, first implementation `64a54160`.
+  - Timestamp: unknown (2026-10-11, slice 2 acceptance, between `64a54160` at 08:14 +09:00 and `b89b2548` at 08:27 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `4b337bde`; base 0.3.58
+  - Evidence: plan 295 "Current findings" and "Outside-in proof ownership" name `ownedObservers.select` and journeys on Claude Code; neither names Codex. `closureObservers` builds `ownedObservers([stream.directory], …)` for `host === "codex"` in `trunk-closure-observer.mjs`. Slice 2's return listed "Codex: a retained stream that registered the closure and ended without a verdict … no test covers this" under untested; the coordinator returned it, and with the deleted candidate restored the new Codex journey failed (`finish` exited 0 and retired). Plan 295 `## Story obligations` G6 and slice 2 "Accepted proof".
+  - Observed effect: one extra implementation round (about 6.5 minutes and 19k subagent tokens by the task notifications) added the Codex journey before delivery; slice 1 needed a similar round for several live observers beside one ended. The Codex `ended` gap keeps its stream wording and does not say the stream registered the closure without a verdict.
+  - Inference: the plan's PFE note that "the selection already lives in one place" was correct and is why the change reached Codex; listing that place's callers when the plan was written would have put the Codex case in slice 2's proof. One sample.
