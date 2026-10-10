@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 279. Removed local codes are never reused.
+- Highest allocated local number: 280. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -148,6 +148,13 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Model: claude-opus-5-5
   - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
   - Evidence: slice 3 (`7e27929f`) changed nine lines of one test file; its delegated refactor pass reported `none — already clean` (about 55k subagent tokens, 34 s). Slice 1's pass extracted a fixture three tests share and split an oversized test file, and slice 2's removed test-only exports, so both earned their cost.
+  - Observed effect: one full refactor delegation with no change.
+- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first implementation `5f539d6a`.
+  - Timestamp: 2026-10-10T22:50Z
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown.
+  - Evidence: CI repair `cb4d46c9` added a four-line test budget to one spec (`authenticated-project-overview.spec.ts`); its delegated refactor pass reported `none — already clean` (about 47k subagent tokens, 20 s). Both slice passes earned their cost: slice 1's (`5f539d6a`) split two files that crossed 250 lines and removed two duplications, and slice 2's (`63ad82d6`) brought a design doc back to 250 lines.
   - Observed effect: one full refactor delegation with no change.
 
 

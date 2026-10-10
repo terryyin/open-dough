@@ -39,6 +39,10 @@ execution. A repaired individual race does not resolve every suite failure.
 5. **Dashboard shards run at their time ceiling — open, unqueued.** DD-279
    has one deadline failure, repaired by refreshing `longest-first` from
    measured durations. Nothing refreshes that list as specs are added.
+6. **A heavy dev-mode journey runs at its per-test ceiling — open,
+   unqueued.** DD-280 has one timeout on a slower runner, repaired by a
+   60-second budget for that case. Its preview case and other specs near the
+   30-second default have no margin check.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -62,6 +66,14 @@ that had asked for nothing.
   - Observed effect: two failed CI runs on revisions whose code was sound, each costing a diagnosis and a repair commit before completion could proceed.
   - Inference: qualified. Each repair covers its own spec family. `openStoryStagesJourney` returns after the published-work read alone, and `markDone` treats “no mark noted” as answered, so any spec that mouse-presses before the page settles has the same roughly 30 ms exposure. The loaded-suite acceptance story is closed, so this exposure has no owner.
 
+- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first related implementation commit `5f539d6a`
+  - Timestamp: 2026-10-10T22:33Z (run 38091599194, story branch at `5f539d6a`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown
+  - Evidence: run 38091599194 failed `session-workspace-retirement-claude.spec.ts:162` with the entry still offering Mark as done and no rename attempted, the lost press trunk had repaired in `8df6248b` 20 minutes earlier. The story branch was taken from `b4cb0cb9`, before that repair; it merged trunk at `2783ca92` and the repaired specs passed three times each locally.
+  - Observed effect: one failed CI run on a slice whose code was sound, costing a diagnosis, a pause of the next slice's work, and a trunk merge.
+
 ## Dashboard shards run at their time ceiling (open, unqueued)
 
 <a id="dd-279"></a>
@@ -78,6 +90,23 @@ that had asked for nothing.
   - Evidence: shard 2/9 failed with “Timed out waiting 305.392s for the test suite to run”. Its job took 310 s on the passing run 38089450687 and 270 s to 306 s across shards of run 38089179190. `longest-first` dated from 2026-10-01 and listed 163 of 443 specs; the per-spec durations in run 38089179190's nine reports put 965 test-seconds in share 1 and 582 in share 6. The refreshed list (200 specs) predicts 786 and 669.
   - Observed effect: a records-and-tests repair commit failed CI on time alone, costing a third diagnosis during one wrap-up.
   - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
+
+## A heavy dev-mode journey runs at its per-test ceiling (open, unqueued)
+
+<a id="dd-280"></a>
+
+### DD-280 — The dev-mode project overview journey timed out at 30 seconds on a slower CI runner with every step passing
+
+#### Occurrences
+
+- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first related implementation commit `5f539d6a`
+  - Timestamp: 2026-10-10T22:40Z (run 38092275056, story branch at `2783ca92`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown
+  - Evidence: shard 7/9 failed `authenticated-project-overview.spec.ts:48` (dev launch mode) with “Test timeout of 30000ms exceeded”. The trace shows every step passed and the last step's assertions still running at 30.4 s. The dev server serves about 300 modules on each of the journey's six page loads; the case took 19.1 s to 27.9 s on four passing runs (38091885152, 38089179190, 38089450687, 38090467243), and this shard ran its 172 tests in 749 test-seconds against 540 on run 38091885152. A CPU-throttled local run failed at 30 s before the repair and passed with it. Repair: `cb4d46c9` gives the dev case 60 seconds.
+  - Observed effect: one failed CI run on a merge whose code was sound, costing a diagnosis and a repair commit.
+  - Inference: qualified. The case had run within 2 to 4 seconds of the default on trunk-lineage runs before this execution, so ordinary runner variance was enough. The preview case reached 19.1 s on the slow runner and keeps the default; `assertNoCredentialMarker` issues one assertion per response body, about 2 s of the dev case on CI. No check reports specs that run near their per-test timeout.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
 
