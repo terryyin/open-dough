@@ -64,7 +64,10 @@ identity across interruptions while work remains unfinished.
 Start a fresh preparation or execution workspace from freshly fetched remote
 trunk. Select queued work and its preparation records from the authorized remote
 source, including the published story branch when applicable. A stale, dirty,
-diverged, or absent default checkout must not veto a valid remote source.
+diverged, or absent default checkout must not veto a valid remote source. A
+preparation workspace whose result has landed may continue as the execution
+workspace when the start reuses it at fetched trunk, and in Story Branch Mode
+its branch becomes the story branch.
 
 Resuming an existing owned workspace preserves its unfinished work. Deliberately
 supplied unpublished preparation or carried edits remain explicit owned inputs;

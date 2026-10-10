@@ -213,9 +213,13 @@ handoff as one way the session may end.
 
 ### 3. ADR 0009 and ADR 0007 name the reused preparation workspace
 Type: Behavior
-Status: planned
+Status: done
 Proof: a read of the changed lines against the journey's handoff section;
 `node scripts/lint.mjs` passes; ADR statuses unchanged.
+
+Accepted 2026-10-10: each ADR clause matches a sentence of the journey's
+handoff section; `npm run --silent lint` exits 0 (bare `node scripts/lint.mjs`
+needs `node_modules/.bin` on `PATH`); both ADRs stay Proposed.
 
 Behavior: ADR 0009 "Owned workspaces and branch modes" → one sentence after
 "Start a fresh preparation or execution workspace from freshly fetched remote
