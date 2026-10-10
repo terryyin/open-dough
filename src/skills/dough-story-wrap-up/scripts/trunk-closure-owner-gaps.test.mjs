@@ -9,11 +9,9 @@ import { test } from "node:test";
 import {
   acceptedIncrement,
   coverage,
-  siblingCheckouts,
   startReceipt,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { closureObservers, observerAccess } from "./trunk-closure-observer.mjs";
 import { closureBesideSibling } from "./trunk-closure-owner-test-fixtures.mjs";
 import {
   branchSha,
@@ -134,7 +132,7 @@ test("finish without the owner's identity, as another coordinator, or after the 
   journey.assertSiblingUntouched(4);
 });
 
-test("finish whose coordinator's ended observers each registered the final closure reports them ended with the deliver step; its rerun after that deliver completes on the new observer and retires", async (t) => {
+test("finish whose coordinator's ended observers each registered the final closure reports them ended with the deliver step; its rerun after that deliver completes on the new observer and retires; a rerun after retirement repeats completion on that observer for its owner only", async (t) => {
   const journey = await closureBesideSibling(t, "claude");
   const { fixture, publisher } = journey;
   const beforeCleanup = await acceptedIncrement(fixture);
@@ -180,6 +178,34 @@ test("finish whose coordinator's ended observers each registered the final closu
   assert.equal(rerun.result.cleanup.worktree, "removed");
   // Each establishing delivery added its readiness probe and its observer.
   journey.assertSiblingUntouched(6);
+
+  // After retirement three of the owner's ended observers each registered the
+  // final closure and one completed it. A rerun from the management context
+  // names its owner where the ambient identity is the sibling's.
+  const settled = (session) =>
+    journey.rerunFromManagement({ beforeCleanup, final }, session);
+
+  const stranger = await settled("third-coordinator");
+  assert.equal(stranger.code, 1);
+  assert.equal(stranger.result.step, "observation");
+  assert.equal(stranger.result.observation.ownership, "missing");
+  assert.equal(stranger.result.completion, null);
+  assert.equal(stranger.result.cleanup, "not-performed");
+
+  const again = await settled(journey.owner);
+  assert.equal(again.code, 0, JSON.stringify(again.result));
+  assert.equal(again.result.pushCount, 0);
+  assert.equal(again.result.observation.directory, own.directory);
+  assert.equal(again.result.completion.requestedSha, final);
+  assert.equal(again.result.completion.verdict, "success");
+  assert.equal(again.result.completion.shutdown.status, "confirmed");
+  assert.deepEqual(
+    [again.result.cleanup.worktree, again.result.cleanup.branch],
+    ["already-absent", "already-absent"],
+  );
+  for (const ended of [publisher, second, own.directory])
+    assert.deepEqual(coverage(ended), [final]);
+  journey.assertSiblingUntouched(6);
 });
 
 test("finish chooses none of several live observers its coordinator owns for an accepted closure neither covers", async (t) => {
@@ -212,35 +238,4 @@ test("finish chooses none of several live observers its coordinator owns for an 
   assert.deepEqual(coverage(second), []);
   assert.equal(pushes(), 0);
   journey.assertSiblingUntouched(3);
-});
-
-test("closure names an observer its coordinator claimed after its observers were listed as one that went live, with the rerun that registers on it", async (t) => {
-  const { fixture, startObserver, hook } = await siblingCheckouts(t, "cursor");
-  const observers = closureObservers({
-    repo: "owner/project",
-    branch: "main",
-    host: "cursor",
-    session: { conversation_id: "late-coordinator" },
-    root: await observerAccess(fixture.execution),
-    storage: fixture.storage,
-  });
-  assert.deepEqual(observers.directories, []);
-  const late = await startObserver("publisher");
-  assert.match(
-    await hook("publisher", "late-coordinator", startReceipt(late)),
-    /CI observer attached to this coordinator/,
-  );
-
-  const { gap } = observers.select("a".repeat(40));
-
-  assert.equal(gap.state, "unobserved");
-  assert.equal(gap.ownership, "live");
-  assert.deepEqual(gap.directories, [late]);
-  assert.match(
-    gap.reason,
-    new RegExp(
-      `observer at ${late} went live while this finish ran; rerunning this finish registers on it$`,
-    ),
-  );
-  assert.deepEqual(coverage(late), []);
 });

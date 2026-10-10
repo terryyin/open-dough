@@ -90,6 +90,8 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
   const checkouts = await siblingCheckouts(t, host);
   const { fixture, startObserver, hook, env } = checkouts;
   const { platform } = hosts[host];
+  const sessionField = host === "cursor" ? "conversation_id" : "session_id";
+  const repository = join(fixture.integration, ".git");
   await installClosureSkills(fixture, platform);
   installInIntegration(fixture, platform);
   const publisher = await startObserver(armedFrom);
@@ -127,6 +129,21 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
         platform,
         env: env(coordinator),
         ...options,
+      }),
+    // The installed `finish` of `closure` rerun from the management context
+    // once the execution worktree is retired. It names `session` as its owner
+    // where the ambient identity is the sibling's.
+    rerunFromManagement: (closure, session) =>
+      finishThroughCli(fixture, {
+        host,
+        platform,
+        env: env("sibling-coordinator"),
+        checkout: fixture.integration,
+        ...closure,
+        extra: [
+          ...["--created-for-work", "--repository", repository],
+          ...["--session-json", JSON.stringify({ [sessionField]: session })],
+        ],
       }),
     assertSiblingUntouched: siblingWitness(fixture, sibling),
   };

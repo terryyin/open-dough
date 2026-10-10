@@ -113,9 +113,25 @@ Safe stopping point: the access rule depends on no path that can change.
 
 ### 2. A finish rerun settles on the observer that completed the closure
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the several-ended journey in `trunk-closure-owner-gaps.test.mjs`
 with the rerun from the management context after retirement.
+Accepted proof: `npm test -- src/skills/dough-story-wrap-up/scripts/trunk-closure-owner-gaps.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-observer-selection.test.mjs`.
+The journey's installed `finish` rerun after retirement completes on the
+observer that completed the closure with cleanup `already-absent`, and another
+coordinator's rerun stays at `step: "observation"`. The selection suite proves,
+on real ended observers, the one whose record holds the result, the first of
+several whose results agree, and the `ended` gap when they differ. Consumers
+run green: the `trunk-closure*` and `closure-*` suites, the `ci-mailbox-await`
+importers, the guidance suites, `tests/native-evidence-identity.sh`, and
+`tests/git-publication-native.sh`.
+
+Learning: nothing records that completion ran, so `finish` reads "completed
+it" from the observer's own coverage record. With none live it repeats
+completion on the first ended covering observer whose record holds the
+closure's result when every such record holds the same result, and keeps the
+`ended` gap when none holds one or they differ. A first `finish` therefore
+also completes on such an observer instead of asking for a `deliver`.
 
 Behavior: Several of a coordinator's ended observers registered the final
 closure and one completed it → `finish` reruns after retirement → it repeats
@@ -158,6 +174,21 @@ Reported: slice 1 — "Only `stop` is exercised through the reused path; other r
 Story clause: "A mailbox that recorded its arming identity is read by that identity"
 Disposition: no user cost "A coordinator recovering an ended observer keeps reaching it when the removed worktree's path exists again": `readMailbox` is the only caller of `armingIdentity` and every reader goes through it, so the one driven reader exercises the rule the others share
 
+### G4. Agreeing and differing results are proven at selection only
+Reported: slice 2 — "The agreeing and differing cases through the installed `finish`; they are proven at `select` only."
+Story clause: "one of which completed it, repeats completion on that one"
+Disposition: proved by slice 2: `trunk-closure-observer-selection.test.mjs` "closure selects, among several ended observers…" proves the selection on real ended observers, and the journey in `trunk-closure-owner-gaps.test.mjs` proves a selected ended observer flows through the installed `finish` to completion and `already-absent` cleanup
+
+### G5. The none-completed gap is asserted before retirement only
+Reported: slice 2 — "None completed after retirement; the none-completed gap is asserted before retirement only."
+Story clause: "one of which completed it, repeats completion on that one"
+Disposition: proved by slice 2: the selection reads only the observers' records, never the worktree; `trunk-closure-observer-selection.test.mjs` "closure selects none of several ended observers…" and the journey's pre-retirement `several` assertions hold the gap and its step
+
+### G6. Unexercised record states and the late-live observer beside several ended ones
+Reported: slice 2 — "Agreement on `incomplete`, and a `not_required` record whose basis carries the verdict; only `success` and `failure` states are exercised." and "Several ended covering observers beside a late-claimed live one (the removed \"went live … none is live\" contradiction)."
+Story clause: "one of which completed it, repeats completion on that one"
+Disposition: no user cost "a `finish` rerun settles on the observer that already completed the final closure": `recordedOutcome` returns what `effectiveCoverage` already yields for every record state, which the `ci-mailbox-await` suites cover, and the late-live reason now comes from the one classification that also empties the ended set, a race the plan records as never observed
+
 ## Execution resume context
 
 - Mode: Story Branch; workspace
@@ -166,6 +197,8 @@ Disposition: no user cost "A coordinator recovering an ended observer keeps reac
   trunk `main`; agent `dbs-chan`.
 - Claim `4364af24b74ceeea423c4fd833fb55be363a8f1a` accepted on `origin/main`,
   starting revision `34d496c21a5b32655bb5f9ae307d65bb5adb7ede`.
+- Slice 1 accepted on the execution branch at
+  `cb8444204a721f4ffdc81723aecc0d566aa53453`.
 - CI source: GitHub Actions `ci.yml` on the execution branch, observed
   through managed delivery.
 

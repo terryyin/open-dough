@@ -14,9 +14,9 @@ import {
   missingIdentityReason,
   resolveHostSession,
 } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
+import { recordedOutcome } from "../../dough-execute-plan/scripts/ci-mailbox-await.mjs";
 import {
   classifyOwnedObservation,
-  isLiveMatchingMailbox,
   listOwnedMailboxes,
 } from "../../dough-execute-plan/scripts/ci-mailbox-match.mjs";
 import { listRegisteredRevisions } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
@@ -27,46 +27,74 @@ import {
 import { ownerGapReason } from "../../dough-execute-plan/scripts/execution-increment-observation-gaps.mjs";
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 
-// Why none of a host coordinator's observers carries the final closure, by
-// their classification. Several `registered` it and are no longer live.
-function hostGap({ target, host, owner, registered }) {
+// One classification of a host coordinator's observers: those it finds
+// `live`, and why none of them carries the final closure. Several
+// `registered` it and are no longer live.
+function hostClassification({ target, host, owner }) {
   const owned = classifyOwnedObservation({ ...target, owner });
-  return coverageGap(
-    ownerGapReason("finish", { ...target, host, owned, registered }),
-    {
-      ownership: owned.kind,
-      directories:
-        registered.length > 1
-          ? registered
-          : (owned.directories ?? (owned.directory && [owned.directory])),
-    },
-  );
+  return {
+    live:
+      { live: [owned.directory], ambiguous: owned.directories }[owned.kind] ??
+      [],
+    gap: (registered) =>
+      coverageGap(
+        ownerGapReason("finish", { ...target, host, owned, registered }),
+        {
+          ownership: owned.kind,
+          directories:
+            registered.length > 1
+              ? registered
+              : (owned.directories ?? (owned.directory && [owned.directory])),
+        },
+      ),
+  };
 }
 
-// `directories` are the owner's observers in any state. `select` returns the
-// one that covers `sha`, preferring a live one, then the only one that ended;
-// else the owner's one live observer, which has yet to register it; otherwise
-// the coverage `gap`, given the several ended observers that cover `sha`.
+// The one of `ended` observers to repeat completion of `sha` on: the first
+// whose record holds its outcome, when every record that holds one holds the
+// same. Records that differ identify none to trust.
+function completedObserver(ended, sha) {
+  const resolved = ended
+    .map((directory) => ({
+      directory,
+      outcome: recordedOutcome(directory, sha),
+    }))
+    .filter(({ outcome }) => outcome);
+  return new Set(resolved.map(({ outcome }) => outcome)).size === 1
+    ? [resolved[0].directory]
+    : [];
+}
+
+// `directories` are the owner's observers in any state. `select` classifies
+// them once, for the selection and its gap alike, and returns the one that
+// covers `sha`, preferring a live one, then the only one that ended; else the
+// owner's one live observer, which has yet to register it; else, with none
+// live, the `completedObserver` among the several ended ones covering `sha`;
+// otherwise the coverage `gap`, given those several ended observers. An
+// observer that went live after `directories` were listed is never selected.
 // `notifies` is the host session that receives a selected observer's events.
-function ownedObservers(directories, target, gap, notifies) {
+function ownedObservers(directories, classify, notifies) {
   return {
     directories,
     select(sha) {
+      const classified = classify();
       const live = directories.filter((directory) =>
-        isLiveMatchingMailbox(directory, target),
+        classified.live.includes(directory),
       );
       const covering = directories.filter((directory) =>
         listRegisteredRevisions(directory).includes(sha.toLowerCase()),
       );
+      const ended = classified.live.length > 0 ? [] : covering;
       const candidates =
         [
           covering.filter((directory) => live.includes(directory)),
           covering.length === 1 ? covering : [],
           live,
+          completedObserver(ended, sha),
         ].find((found) => found.length > 0) ?? [];
       return candidates.length === 1
         ? { directory: candidates[0], ...(notifies && { notifies }) }
-        : { gap: gap(live.length ? [] : covering) };
+        : { gap: classified.gap(ended) };
     },
   };
 }
@@ -104,11 +132,10 @@ export function closureObservers({
       command: "finish",
     });
     // Only this coordinator's own stream carries a directory, in any state.
-    return ownedObservers(
-      stream.directory ? [stream.directory] : [],
-      target,
-      stream.gap,
-    );
+    return ownedObservers(stream.directory ? [stream.directory] : [], () => ({
+      live: stream.kind === "live" ? [stream.directory] : [],
+      gap: stream.gap,
+    }));
   }
   const owner = hostSessionOwner({
     host,
@@ -116,16 +143,17 @@ export function closureObservers({
     root,
   });
   if (!owner) {
-    return ownedObservers([], target, () =>
-      coverageGap(missingIdentityReason(host, "finish"), {
-        ownership: "unidentified",
-      }),
-    );
+    return ownedObservers([], () => ({
+      live: [],
+      gap: () =>
+        coverageGap(missingIdentityReason(host, "finish"), {
+          ownership: "unidentified",
+        }),
+    }));
   }
   return ownedObservers(
     listOwnedMailboxes({ ...target, owner }),
-    target,
-    (registered) => hostGap({ target, host, owner, registered }),
+    () => hostClassification({ target, host, owner }),
     eventRecipient({ host, session, env }),
   );
 }

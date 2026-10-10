@@ -118,20 +118,8 @@ for (const host of Object.keys(hosts)) {
 
       // The rerun names its owner explicitly where the ambient identity is the
       // sibling's; the owner is computed without the retired worktree.
-      const field = host === "cursor" ? "conversation_id" : "session_id";
       const rerun = (session) =>
-        journey.finish(
-          {
-            beforeCleanup,
-            final,
-            checkout: fixture.integration,
-            extra: [
-              ...["--created-for-work", "--repository", repository],
-              ...["--session-json", JSON.stringify({ [field]: session })],
-            ],
-          },
-          "sibling-coordinator",
-        );
+        journey.rerunFromManagement({ beforeCleanup, final }, session);
 
       const stranger = await rerun("third-coordinator");
       assert.equal(stranger.code, 1);

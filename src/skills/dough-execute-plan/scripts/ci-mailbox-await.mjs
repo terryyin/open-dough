@@ -46,6 +46,22 @@ function effectiveCoverage(coverage) {
   return { evidence };
 }
 
+// The outcome `directory`'s own record already holds for `sha`, which awaiting
+// it there returns whether or not its observer still runs: its verdict, or
+// the reason it stays unresolved. Undefined while the record resolves nothing.
+export function recordedOutcome(directory, sha) {
+  let coverage;
+  try {
+    coverage = readRevisionCoverage(directory).find(
+      (revision) => revision.sha === sha.toLowerCase(),
+    );
+  } catch {
+    return undefined;
+  }
+  const outcome = coverage && effectiveCoverage(coverage).outcome;
+  return outcome && (outcome.verdict ?? outcome.unresolvedReason);
+}
+
 function terminalObservation(directory) {
   const path = join(directory, "result.json");
   if (!existsSync(path)) return;
