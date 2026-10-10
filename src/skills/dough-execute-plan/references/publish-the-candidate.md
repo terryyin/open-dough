@@ -69,7 +69,12 @@ or push again.
 
 ## Publish the candidate
 
-Apply [Preconditions](#preconditions) before this sequence.
+Apply [Preconditions](#preconditions) before this sequence. For an established
+one-shot launch with supplied dashboard landing context, wire that context into
+the installed publisher before step 5 under the shared
+[landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-one-shot-landing).
+It retains each final pair before push and captures accepted evidence at step 6;
+a later explicit landing uses the original launch's context.
 
 1. Fetch the authorized remote for the target branch from the owned workspace.
 2. Reconcile in that workspace from the fetched remote target, not from the
@@ -108,8 +113,13 @@ Apply [Preconditions](#preconditions) before this sequence.
    the owned suffix extends. When this candidate has not been rewritten,
    that base is the previously published base. When step 3 replayed the
    suffix, that base is the fetched target it was replayed onto, not the
-   older revision and not the candidate tip. Push that exact candidate
-   from the owned workspace:
+   older revision and not the candidate tip. The execution publisher's
+   `beforePush` callback exposes `candidate` and `suffixBase` for each
+   attempted push, including after a retry rewrites the candidate and its base.
+   Retain the pair together
+   before allowing that push. The accepted result carries the same base and
+   its receipt's SHA; a multi-commit suffix is not based at the tip's parent.
+   Push that exact candidate from the owned workspace:
    `git -C <owned-workspace> push <remote> <candidate>:refs/heads/<target-branch>`.
    Do not fast-forward the default checkout, force-push, or move that
    checkout's branch with `merge`, `update-ref`, or `branch -f`.
@@ -189,6 +199,15 @@ writer has since added commits on top of it. Do not rebase that candidate,
 push it again, or push a superseded pre-rebase SHA. A lost or unknown push
 response is this published case whenever the retained candidate is an
 ancestor. It is not a rejected push.
+
+When the caller retained the delivery comparison before push, supply its
+`suffixBase` with that candidate. Resume validates both full commit IDs and
+base ancestry before any fetch, push, or registration, and returns that base
+unchanged even after the target advances. Equal ends are a valid empty
+comparison. Without an explicitly retained base, ordinary publication recovery
+still applies, but the result has no historical comparison. Do not substitute
+the candidate's parent, today's target, or an earlier starting revision after
+a rewrite.
 
 Continue only the first unfinished obligation below. Do not duplicate the
 commit or replace the caller's workspace. A pending human edit on the default

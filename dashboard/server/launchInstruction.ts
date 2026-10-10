@@ -54,15 +54,17 @@ export class LaunchInstruction {
     return this.holding;
   }
 
-  write(output: string): void {
+  // Resolves once this output has been parsed and its readiness judged.
+  write(output: string): Promise<void> {
     const screen = this.screen;
-    if (screen === undefined) return;
+    if (screen === undefined) return Promise.resolve();
     screen.write(output);
     this.chain = this.chain
       .then(() => this.evaluate(screen))
       .catch(() => {
         this.announce();
       });
+    return this.chain;
   }
 
   resize(cols: number, rows: number): void {

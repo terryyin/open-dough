@@ -42,6 +42,12 @@ assert_upgraded_execution_payload() {
       "${target}/${root}/dough-execute-plan/scripts/dashboard-completion.mjs"
     cmp "${newer}/src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs" \
       "${target}/${root}/dough-execute-plan/scripts/ci-direct-entry.mjs"
+    cmp "${newer}/src/skills/dough-execute-plan/scripts/dashboard-landing.mjs" \
+      "${target}/${root}/dough-execute-plan/scripts/dashboard-landing.mjs"
+    for script in publication-comparison.mjs execution-increment-reconciliation.mjs; do
+      cmp "${newer}/src/skills/dough-execute-plan/scripts/${script}" \
+        "${target}/${root}/dough-execute-plan/scripts/${script}"
+    done
     # Exercise the installed runtime entrypoint in the platform layout.
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)

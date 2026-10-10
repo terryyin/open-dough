@@ -1,55 +1,38 @@
-// A story review names a known project and a work identity, exactly, never a
-// path: its workspace comes from the project's kept launch records by the
-// rule the card offers Review changes with (`reviewWorkspaceOf`). A file diff
-// of the review also names the object IDs of the tree it compares from (as
-// `baseline`: the snapshot's baseline, or the *from* tree of the changes
-// since the review shown) and of the snapshot's tree, which must be
-// hexadecimal, and the file's path within them (and its old path for a
-// rename), which Git receives only as literal paths after `--`. Marking a
-// snapshot reviewed is a same-origin POST naming the project, the work
-// identity, and the snapshot's tree and baseline object IDs, its workspace
-// resolved by the same rule.
-// A commit range is a GET naming that same project and identity and two
-// points from the snapshot's list: `fromTree`, `fromBaseline`, `tree`, and
-// `baseline`, all hexadecimal object IDs. Its workspace is resolved by the
-// same rule; the range read confirms the repository holds those objects.
-// The Uncommitted changes item supplies the head tree as its from point and
-// the snapshot tree as its to point, both on the snapshot baseline.
-// Optional `integrations` is a JSON array of selected merges' already-listed
-// `fromTree`, `fromBaseline`, and destination `baseline` object IDs. It
-// supplies integration conflicts without accepting paths or rereading history.
+// A review names an exact project and work identity, never a repository path.
+// Workspace review follows reviewWorkspaceOf; a named historical run follows
+// its retained launch. File reads name hexadecimal comparison objects and
+// literal changed paths, including a rename's old path. Historical reads must
+// match that run's captured pair and file list.
+// Marking is a same-origin POST of the workspace snapshot's tree and baseline.
+// Commit ranges name listed fromTree/fromBaseline and tree/baseline points;
+// the range reader confirms their objects exist. Uncommitted changes compare
+// the head tree with the snapshot tree on the same baseline. Optional
+// integrations name selected merges' listed parent points and destination
+// baselines, without accepting paths or rereading history.
 
+import {
+  reviewedWorkspace,
+  queriedWorkspace,
+} from "./storyReviewWorkspaceAdmission.ts";
+import { reviewedRunFile } from "./storyReviewRunAdmission.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
-import { workIdentitySchema } from "../src/launchRequest.ts";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
   markReviewedRequestSchema,
   objectIdSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
-  reviewWorkspaceOf,
 } from "../src/storyReview.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { keptRecords } from "./launchRecordStore.ts";
-import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { projectFolder } from "./projectFolders.ts";
-import { knownSource, requireExactQuery } from "./sessionAdmission.ts";
+import { requireExactQuery } from "./sessionAdmission.ts";
 import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
-
-export interface AdmittedReview {
-  readonly kind: "review";
-  readonly sourceId: string;
-  readonly identity: string;
-  readonly established: EstablishedContext;
-  // The workspace as the page shows it.
-  readonly shown: string;
-}
 
 export interface AdmittedFileDiff {
   readonly kind: "review-file";
   readonly established: EstablishedContext;
+  readonly repository?: string;
   // The tree the file diff compares from.
   readonly baseline: string;
   readonly tree: string;
@@ -66,47 +49,6 @@ export interface AdmittedReviewRange {
   readonly tree: string;
   readonly baseline: string;
   readonly integrations: readonly ReviewIntegration[];
-}
-
-// The workspace the named story's review reads.
-async function reviewedWorkspace(
-  sourceId: string | null,
-  identityNamed: string | null,
-) {
-  const source = knownSource(sourceId);
-  const identity = workIdentitySchema.safeParse(identityNamed);
-  if (!identity.success)
-    throw new RefusedRequest(400, "The review identity is malformed.");
-  const found = reviewWorkspaceOf(
-    await keptRecords(source.id),
-    source.id,
-    identity.data,
-  );
-  if (found === undefined)
-    throw new RefusedRequest(
-      404,
-      "This story has no launch workspace to review.",
-    );
-  return { source, identity: identity.data, established: found.established };
-}
-
-// The workspace the story named in the query reviews.
-const queriedWorkspace = (url: URL) =>
-  reviewedWorkspace(
-    url.searchParams.get("source"),
-    url.searchParams.get("identity"),
-  );
-
-export async function reviewRequest(url: URL): Promise<AdmittedReview> {
-  requireExactQuery(url, ["source", "identity"], "review");
-  const { source, identity, established } = await queriedWorkspace(url);
-  return {
-    kind: "review",
-    sourceId: source.id,
-    identity,
-    established,
-    shown: shownStartWorkspace(projectFolder(source), established.workspace),
-  };
 }
 
 const reviewedPathSchema = z
@@ -174,6 +116,7 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       "baseline",
       "tree",
       "path",
+      ...(url.searchParams.has("reference") ? ["reference"] : []),
       ...(url.searchParams.has("oldPath") ? ["oldPath"] : []),
     ],
     "file diff",
@@ -186,11 +129,23 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       400,
       "The file diff names a malformed object or path.",
     );
-  const { established } = await queriedWorkspace(url);
   const { baseline, tree, path, oldPath } = query.data;
+  let established: EstablishedContext;
+  let repository: string | undefined;
+  if (url.searchParams.has("reference")) {
+    ({ established, repository } = await reviewedRunFile(url, {
+      baseline,
+      tree,
+      path,
+      ...(oldPath === undefined ? {} : { oldPath }),
+    }));
+  } else {
+    ({ established } = await queriedWorkspace(url));
+  }
   return {
     kind: "review-file",
     established,
+    ...(repository === undefined ? {} : { repository }),
     baseline,
     tree,
     path,
@@ -217,3 +172,5 @@ export async function markReviewedRequest(
     baseline: parsed.data.baseline,
   };
 }
+
+export { reviewRequest, type AdmittedReview } from "./storyReviewRequest.ts";

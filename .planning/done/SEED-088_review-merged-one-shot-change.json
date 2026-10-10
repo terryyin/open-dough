@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-088#review-merged-one-shot-change",
+  "title": "Review a story's merged one-shot change",
+  "completedAt": "2026-10-10T06:00:40.847Z",
+  "developer": "Terry Yin",
+  "agent": "philip-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

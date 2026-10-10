@@ -66,10 +66,16 @@ function NoChanges({
   sinceReview,
   commitsReview,
 }: {
-  readonly snapshot: TakenStoryReview;
+  readonly snapshot?: TakenStoryReview;
   readonly sinceReview: boolean;
   readonly commitsReview: boolean;
 }) {
+  if (snapshot === undefined)
+    return (
+      <p>
+        No changes: this landed one-shot run has an empty delivered comparison.
+      </p>
+    );
   if (commitsReview) return <p>The chosen commits changed nothing.</p>;
   if (!sinceReview)
     return (
@@ -99,7 +105,7 @@ export function SnapshotView({
   commitsReview = false,
 }: {
   readonly reviewed: ReviewedStory;
-  readonly snapshot: TakenStoryReview;
+  readonly snapshot?: TakenStoryReview;
   // The comparison shown, and whether it is the changes since the review.
   readonly comparison: ReviewComparison;
   readonly sinceReview: boolean;
@@ -152,7 +158,7 @@ export function SnapshotView({
   const diffHeadingId = `${headingId}-diff`;
   return selected === undefined ? (
     <NoChanges
-      snapshot={snapshot}
+      {...(snapshot === undefined ? {} : { snapshot })}
       sinceReview={sinceReview}
       commitsReview={commitsReview}
     />

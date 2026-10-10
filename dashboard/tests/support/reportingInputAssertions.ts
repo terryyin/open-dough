@@ -49,6 +49,21 @@ export function expectReportingBlock(
     `- reporting command: ${context.command}`,
   ]);
   expect(lines).toHaveLength(6);
+  if (context.landingContext !== undefined) {
+    expect(context.landingContext).toBe(
+      path.join(
+        server.home,
+        ".open-dough/dashboard/reporting",
+        context.reference,
+        "landing-context.json",
+      ),
+    );
+    expect(lines[5]).toContain(
+      `--landing-context ${quote(context.landingContext)}`,
+    );
+    expect(lines[5]).toContain("before each push");
+    expect(lines[5]).toContain("before retirement");
+  }
   for (const rule of [
     /Dough Land or Story Wrap Up[\s\S]+after all required operations and final wording settle/,
     /--outcome completed[\s\S]+no message file/,

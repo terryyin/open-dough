@@ -2,6 +2,14 @@
 // One classification shared by execution and preparation. Installed guidance
 // is the agent's contract for recovery.
 import {
+  isAncestor,
+  validateRetainedComparison,
+} from "./publication-comparison.mjs";
+import {
+  retainLandingComparison,
+  captureAcceptedLanding,
+} from "./dashboard-landing.mjs";
+import {
   git,
   inspectDefaultCheckoutMaintenance,
   originTrackingRef,
@@ -10,15 +18,6 @@ import {
 } from "./publication-git.mjs";
 
 const defaultTargetRef = "refs/heads/main";
-
-async function isAncestor(workspace, ancestor, descendant) {
-  try {
-    await git(workspace, "merge-base", "--is-ancestor", ancestor, descendant);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 // Runs one remote transport step. A step that outlasts the transport bound
 // rethrows its `transport-timeout` error naming the resume `stage` and the
@@ -73,6 +72,9 @@ function appendIdentity(publishedRevisions, sha) {
 // publication obligation. Does not commit, refresh the default checkout,
 // or remove a workspace. `candidateSha` is the SHA retained immediately
 // before the push; after a rewrite that is the rewritten SHA.
+// `suffixBase`, when retained with it, is returned unchanged even when the
+// accepted candidate is an ancestor of a newer remote tip. Its absence leaves
+// the comparison unavailable; publication recovery still works as before.
 // `supersededShas` are pre-rebase identities and are never pushed. Before a
 // push, an `onFetchedTarget` stop (see applicable-candidate-proof.mjs) for
 // the fetched target tip is reported as `held` instead. A fetch or push that
@@ -82,18 +84,32 @@ export async function resumeInterruptedPublication({
   ownedWorkspace,
   defaultCheckout,
   candidateSha,
+  suffixBase,
   supersededShas = [],
   publishedRevisions,
   observer = null,
   targetRef = defaultTargetRef,
   remote = "origin",
   onFetchedTarget,
+  landingContext,
 }) {
   if (supersededShas.includes(candidateSha)) {
     throw new Error(
       "retained candidate must be the rewritten SHA, not a pre-rebase SHA",
     );
   }
+
+  await validateRetainedComparison(ownedWorkspace, candidateSha, suffixBase);
+  const comparison = suffixBase === undefined ? {} : { suffixBase };
+  const captureLanding = () =>
+    landingContext
+      ? captureAcceptedLanding(landingContext, {
+          base: suffixBase,
+          revision: candidateSha,
+          remote,
+          target: targetRef,
+        })
+      : undefined;
 
   const remoteTarget = originTrackingRef(targetRef, remote);
   const preserved = await ownedCommitIdentity(ownedWorkspace);
@@ -113,7 +129,19 @@ export async function resumeInterruptedPublication({
       candidate: candidateSha,
       remoteTip,
     });
-    if (held) return { classification: "not-on-remote", pushCount: 0, held };
+    if (held)
+      return {
+        classification: "not-on-remote",
+        pushCount: 0,
+        ...comparison,
+        held,
+      };
+    if (landingContext)
+      await retainLandingComparison(
+        landingContext,
+        { candidate: candidateSha, suffixBase },
+        { remote, targetRef },
+      );
     const pushAttempt = { classification: "not-on-remote", pushIssued: true };
     // An unanswered push leaves acceptance unknown; nothing is counted as
     // pushed until the push answers.
@@ -128,6 +156,7 @@ export async function resumeInterruptedPublication({
     if (!(await isAncestor(ownedWorkspace, candidateSha, remoteTarget))) {
       throw new Error("push did not accept the retained candidate");
     }
+    const landing = await captureLanding();
     assertOwnedCommitsPreserved(
       preserved,
       await ownedCommitIdentity(ownedWorkspace),
@@ -142,9 +171,11 @@ export async function resumeInterruptedPublication({
     );
     return {
       classification: "not-on-remote",
+      ...(landing === undefined ? {} : { landing }),
       completedObligation: "publish",
       pushCount: 1,
       acceptedSha: candidateSha,
+      ...comparison,
       acceptedPublicationCount: publishedRevisions.length,
       registration,
       maintenance,
@@ -161,6 +192,7 @@ export async function resumeInterruptedPublication({
     }
   }
 
+  const landing = await captureLanding();
   assertOwnedCommitsPreserved(
     preserved,
     await ownedCommitIdentity(ownedWorkspace),
@@ -173,9 +205,11 @@ export async function resumeInterruptedPublication({
     targetRef,
   );
   const published = {
+    ...(landing === undefined ? {} : { landing }),
     classification: "already-published",
     pushCount: 0,
     acceptedSha: candidateSha,
+    ...comparison,
     acceptedPublicationCount: publishedRevisions.length,
     maintenance,
     cleanup: "not-performed",

@@ -23,6 +23,7 @@ import "./story-review-diff.css";
 export type ReviewedStory = {
   readonly sourceId: string;
   readonly identity: string;
+  readonly reference?: string;
 };
 
 const lineMarkers: Record<DiffLine["kind"], string> = {
@@ -115,6 +116,9 @@ export function FileDiff({
     {
       source: reviewed.sourceId,
       identity: reviewed.identity,
+      ...(reviewed.reference === undefined
+        ? {}
+        : { reference: reviewed.reference }),
       baseline: from,
       tree,
       path: file.path,

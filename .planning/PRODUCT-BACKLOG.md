@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load) — SEED-123#dashboard-suite-stable-under-load ([plan](slice-plans/282-dashboard-suite-stable-under-load/PLAN.md))
-- [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change ([plan](slice-plans/281-review-merged-one-shot-change/PLAN.md))
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner ([plan](slice-plans/280-execution-observer-ownership/PLAN.md))
 - [A Cursor launch or recover wait ends within a bound with a clear message](seeds/SEED-129-bounded-cursor-launch-wait.md#bounded-cursor-launch-wait) — SEED-129#bounded-cursor-launch-wait ([plan](slice-plans/283-bounded-cursor-launch-wait/PLAN.md))
 

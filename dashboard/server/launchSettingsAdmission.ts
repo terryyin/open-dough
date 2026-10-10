@@ -1,7 +1,10 @@
 // Startup settings admission keeps static host aliases distinct from a host
 // boundary's transient native offerings.
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
-import type { LaunchHost } from "./launchHosts.ts";
+import { launchHost, type LaunchHost } from "./launchHosts.ts";
+import { sessionHostSchema } from "../src/sessionReference.ts";
+import { knownSource } from "./sessionAdmission.ts";
+import { projectFolder, folderExists } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export async function admitLaunchSettings(
@@ -52,4 +55,32 @@ export async function admitLaunchSettings(
         `${host.name} model choices could not be verified.`,
     );
   }
+}
+
+// Startup option discovery uses the same host and project admission as launch settings.
+export type AdmittedHostOptions = {
+  readonly kind: "host-options";
+  readonly cwd?: string;
+  readonly host: LaunchHost;
+};
+export async function hostOptionsRequest(
+  url: URL,
+): Promise<AdmittedHostOptions> {
+  const source = knownSource(url.searchParams.get("source"));
+  const identity = sessionHostSchema.safeParse(url.searchParams.get("host"));
+  const host = identity.success ? launchHost(identity.data) : undefined;
+  if (host?.options === undefined)
+    throw new RefusedRequest(400, "This host cannot offer startup choices.");
+  if (!(await folderExists(projectFolder(source))))
+    throw new RefusedRequest(
+      404,
+      "The project folder is not available on this machine.",
+    );
+  return {
+    kind: "host-options",
+    host,
+    ...(url.searchParams.get("context") === "project"
+      ? { cwd: projectFolder(source).path }
+      : {}),
+  };
 }

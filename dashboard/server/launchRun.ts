@@ -70,6 +70,11 @@ export async function attemptRun(
       (await reportingContext(
         attempt,
         start.kind === "established" ? start.workspace : folder,
+        pending?.start ??
+          pending?.preparation ??
+          (start.kind === "established"
+            ? establishedFacts(start.handoff.established)
+            : undefined),
       ));
     if (reporting !== undefined) {
       // Kept before this server answers it.

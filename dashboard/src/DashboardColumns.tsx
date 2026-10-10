@@ -106,7 +106,11 @@ export function DashboardColumns({
             launches={launches}
             onOpenRoster={onOpenRoster}
           />
-          <RecentlyDone view={recent} />
+          <RecentlyDone
+            view={recent}
+            sourceId={sourceId}
+            launchRecords={launches.records}
+          />
         </div>
       </div>
       {right && (

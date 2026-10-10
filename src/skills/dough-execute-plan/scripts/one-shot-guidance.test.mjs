@@ -69,12 +69,12 @@ test("record-preparation names both one-shot start locations without a claim", (
 
 test("only an explicit landing request delivers the retained result", () => {
   const land = section(reference, "## Land the retained result");
-  assert.match(land, /explicitly asks to land the retained result/);
+  assert.match(land, /explicit landing request[\s\S]+authorizes/);
   assert.match(land, /`--mode story-branch --tracking one-shot`/);
   assert.match(land, /`--target-ref refs\/heads\/<trunk>`/);
   assert.match(
     land,
-    /`previouslyPublishedBase` set to the retained `startingRevision`/,
+    /Set `previouslyPublishedBase` to retained `startingRevision`/,
   );
   const queued = section(
     reference,
@@ -132,12 +132,11 @@ test("selected automatic landing publishes the verified result without review, a
     /\[Land the retained result\]\(#land-the-retained-result\)/,
   );
   assert.match(auto, /`--one-shot-identity`/);
-  assert.match(auto, /all checkout content is committed together/);
   assert.match(auto, /remote acceptance alone completes neither/);
   assert.match(
     auto,
     /`ownership-changed`[\s\S]+`conflict`[\s\S]+second rejection\. Push nothing more/,
   );
   assert.match(auto, /resumes the retained candidate/);
-  assert.match(auto, /the default checkout\s+stays/);
+  assert.match(auto, /\[workspace retirement\]\(#retire-the-workspace\)/);
 });

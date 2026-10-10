@@ -1,6 +1,5 @@
-// Git mechanics for one validated execution increment or owned repair.
-// The caller supplies the owned workspace, the owned unpublished suffix,
-// the authorized remote target, and how the accepted result is registered.
+// Git mechanics for a validated execution increment or owned repair, with its
+// owned workspace/suffix, authorized target and acceptance registration.
 // A previously published base that no fetched remote ref holds stops at once.
 // `onFetchedTarget` may stop on each fetched target tip before anything is
 // rewritten. A candidate the fetched target already contains, as after a push
@@ -17,6 +16,10 @@
 // contract.
 import { fetchedTargetStop, stopped } from "./applicable-candidate-proof.mjs";
 import { reconcileAndRequireProof } from "./execution-increment-reconciliation.mjs";
+import {
+  retainLandingComparison,
+  captureAcceptedLanding,
+} from "./dashboard-landing.mjs";
 import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import {
   fetchedTarget,
@@ -42,6 +45,7 @@ export async function publishExecutionIncrement({
   backlogPath = defaultBacklogPath,
   beforeRetryPush,
   beforePush,
+  landingContext,
   onFetchedTarget,
 }) {
   const preRebaseSha = await revParse(workspace, branch);
@@ -96,6 +100,14 @@ export async function publishExecutionIncrement({
   // Registers the accepted candidate and inspects the default checkout.
   const accept = async (acceptedTip, classification) => {
     const receipt = { sha: candidate, target: targetRef };
+    const landing = landingContext
+      ? await captureAcceptedLanding(landingContext, {
+          base: suffixBase,
+          revision: candidate,
+          remote,
+          target: targetRef,
+        })
+      : undefined;
     register?.(receipt);
     const maintenance = await inspectDefaultCheckoutMaintenance(
       workspace,
@@ -106,6 +118,7 @@ export async function publishExecutionIncrement({
     return {
       ok: true,
       publication: "accepted",
+      ...(landing === undefined ? {} : { landing }),
       ...(classification && { classification }),
       receipt,
       preRebaseSha,
@@ -191,9 +204,16 @@ export async function publishExecutionIncrement({
     if (stop) return stop;
   }
 
-  if (beforePush) {
-    await beforePush({ attempt: 0, candidate });
-  }
+  const preparePush = async (attempt) => {
+    const comparison = { candidate, suffixBase };
+    if (landingContext)
+      await retainLandingComparison(landingContext, comparison, {
+        remote,
+        targetRef,
+      });
+    await beforePush?.({ attempt, ...comparison });
+  };
+  await preparePush(0);
   let pushed = await push("push");
   if (pushed.stop) return pushed.stop;
   if (pushed.value.rejected) {
@@ -207,9 +227,7 @@ export async function publishExecutionIncrement({
     if (beforeRetryPush) {
       await beforeRetryPush();
     }
-    if (beforePush) {
-      await beforePush({ attempt: 1, candidate });
-    }
+    await preparePush(1);
     pushed = await push("retry-push");
     if (pushed.stop) return pushed.stop;
     if (pushed.value.rejected) {

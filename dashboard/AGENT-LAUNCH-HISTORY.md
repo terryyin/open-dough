@@ -36,6 +36,12 @@ card. Closed sessions without a shown done card remain standalone, including
 those whose story is active. An expired published card releases its closed
 sessions to standalone entries for their remaining local retention window.
 Unread or failed done details retain closed-session access until regrouping.
+Each done-story card also offers [Review changes](STORY-REVIEW-ONE-SHOT.md)
+from the full retained launch read, including an open session listed in Taken.
+Its review uses the catalog identity and that identity as the title until its
+done record supplies the title. Native availability, completion attention and
+the removed seed or plan do not decide whether review is offered. The review
+action and nested sessions do not add entries to the heading or edge counts.
 Native Working, Needs input, Ready for review, unavailable or unknown activity,
 and Mark as read, never choose a column. Existing operations recording or
 clearing Done remain authoritative; refused marking or native reopening keeps

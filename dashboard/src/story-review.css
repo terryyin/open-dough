@@ -228,3 +228,17 @@
 .story-review-comparison label {
   cursor: pointer;
 }
+
+.story-review-top > .story-review-comparison,
+.story-review-run-choice {
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.story-review-run-choice select {
+  max-width: 100%;
+}
+
+.story-review-top > div > p code {
+  overflow-wrap: anywhere;
+}

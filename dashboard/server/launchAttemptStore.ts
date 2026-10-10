@@ -29,6 +29,7 @@ import {
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
+import { retainLandingSettlement } from "./oneShotLandingRecord.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
@@ -128,7 +129,15 @@ function withAttempt(
                 reporting: entry.reporting ?? attempt.reporting,
                 reportingDeletedAt:
                   entry.reportingDeletedAt ?? attempt.reportingDeletedAt,
+                reportingDeletedSession:
+                  entry.reportingDeletedSession ??
+                  attempt.reportingDeletedSession,
                 completion: entry.completion ?? attempt.completion,
+                landingRepository:
+                  entry.landingRepository ?? attempt.landingRepository,
+                landing: entry.landing ?? attempt.landing,
+                landingPreparations:
+                  entry.landingPreparations ?? attempt.landingPreparations,
                 completionReceipts:
                   entry.completionReceipts ?? attempt.completionReceipts,
               }
@@ -142,7 +151,14 @@ function withAttempt(
 // when none is: a newly accepted attempt, or one whose earlier state was lost
 // when an unreadable file was moved aside. A failed write keeps nothing.
 export function keepAttempt(attempt: LaunchAttemptRecord): Promise<void> {
-  return replaceAttempts((kept) => withAttempt(kept, attempt));
+  return replaceAttempts(async (kept) => {
+    const next = withAttempt(kept, attempt);
+    const saved = next[attempt.request.source]?.find(
+      (entry) => entry.id === attempt.id,
+    );
+    if (saved !== undefined) await retainLandingSettlement(saved);
+    return next;
+  });
 }
 
 // Under the attempt store's write lock, lets `allow` decide from the freshly

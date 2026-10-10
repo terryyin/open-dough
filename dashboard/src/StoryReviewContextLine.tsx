@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
-import type { TakenStoryReview } from "./storyReview.ts";
+import { reviewTargetName, type TakenStoryReview } from "./storyReview.ts";
 
 // The file browser as the review places it: its element's id, and whether
 // the developer shows it.
@@ -31,12 +31,8 @@ export function ContextLine({
   readonly onShowBrowser: (shown: boolean) => void;
 }) {
   const [full, setFull] = useState(false);
-  const { branch, baseline, remote, target, workspace } = snapshot;
-  const trunk = (
-    <code>
-      {remote}/{target}
-    </code>
-  );
+  const { branch, baseline, workspace } = snapshot;
+  const trunk = <code>{reviewTargetName(snapshot)}</code>;
   return (
     <div className="story-review-context-line">
       <button

@@ -1,8 +1,6 @@
 #!/usr/bin/env node
-// Managed delivery for an authorized validated execution increment or repair:
-// resolve checkout runtime, establish or reuse matching observation, publish,
-// and attach the accepted SHA. Reconciled candidates that still need proof
-// return before any push. Local-only authority does not push.
+// Resolve runtime and observation, publish an authorized increment, and attach
+// acceptance. Held proof stops before push; local-only authority never pushes.
 import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import { registerPushedRevision, mailboxRoot } from "./ci-mailbox.mjs";
@@ -36,6 +34,7 @@ export async function deliverManagedExecutionIncrement(request) {
     backlogPath,
     beforeRetryPush,
     beforePush,
+    landingContext,
     oneShotIdentity,
   } = request;
 
@@ -106,6 +105,7 @@ export async function deliverManagedExecutionIncrement(request) {
     backlogPath,
     beforeRetryPush,
     beforePush,
+    landingContext,
     onFetchedTarget,
   });
 
@@ -159,6 +159,7 @@ export async function deliverManagedExecutionIncrement(request) {
       classification: published.classification,
     }),
     receipt: published.receipt,
+    ...(published.landing === undefined ? {} : { landing: published.landing }),
     preRebaseSha: published.preRebaseSha,
     remoteTip: published.remoteTip,
     suffixBase: published.suffixBase,
@@ -197,7 +198,7 @@ function requestRefusal(request) {
 }
 
 const usage =
-  "usage: execution-increment-delivery.mjs deliver --mode trunk|story-branch --workspace PATH --branch NAME --previously-published-base SHA --target-ref refs/heads/<branch> --repo OWNER/REPO [--tracking one-shot] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--validated-candidate SHA] [--default-checkout PATH] [--one-shot-identity ID]";
+  "usage: execution-increment-delivery.mjs deliver --mode trunk|story-branch --workspace PATH --branch NAME --previously-published-base SHA --target-ref refs/heads/<branch> --repo OWNER/REPO [--tracking one-shot] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--validated-candidate SHA] [--default-checkout PATH] [--one-shot-identity ID] [--landing-context PATH]";
 
 function argumentsOf(argv) {
   if (argv[0] !== "deliver") throw new Error(usage);

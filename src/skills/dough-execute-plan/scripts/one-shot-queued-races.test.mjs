@@ -191,6 +191,7 @@ test("resuming a guarded delivery refuses to push over a holder its candidate wa
       join(fixture.skill, "scripts/execution-increment-resume.mjs"),
       "resume",
       ...["--workspace", fixture.execution, "--candidate-sha", candidate],
+      ...["--suffix-base", announced],
       ...["--target-ref", trunkTarget, "--repo", repo],
       ...["--one-shot-identity", identityB],
     ],
@@ -200,5 +201,6 @@ test("resuming a guarded delivery refuses to push over a holder its candidate wa
   const resumed = JSON.parse(stdout.trim().split("\n").at(-1));
   fixture.stopAtTeardown(resumed.observation?.directory);
   assert.equal(resumed.pushCount, 0);
+  assert.equal(resumed.suffixBase, announced);
   await assertHeld(trunk, fixture, resumed, announced);
 });

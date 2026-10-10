@@ -140,6 +140,11 @@ separately. An
 unavailable bridge is a coverage gap on the delivery receipt, not a reason to
 undo acceptance.
 
+Retain each pre-push candidate with its actual `suffixBase`, as
+[candidate step 5](publish-the-candidate.md#publish-the-candidate) requires.
+The managed publisher passes both to `beforePush` and returns `suffixBase`
+alongside the accepted receipt; reconcile the pair together after a rewrite.
+
 ## Recover a rejected push
 
 Before replaying a claim, recheck that identity's membership on the
@@ -175,6 +180,22 @@ uses the workspace selected before its commit, as
 After that publication obligation is accepted, apply the refresh rule in
 [Publish the candidate](#publish-the-candidate). The resume classification
 itself still only inspects the checkout.
+
+For managed increment recovery, pass the candidate and base retained together
+before push to the installed resume command:
+
+```text
+node <installed>/dough-execute-plan/scripts/execution-increment-resume.mjs resume \
+  --workspace <owned workspace> --candidate-sha <retained candidate SHA> \
+  --suffix-base <retained suffix base SHA> \
+  --target-ref <authorized target ref> --repo <owner/repo> --host <host> \
+  [--default-checkout <path>] [--one-shot-identity <identity>]
+```
+
+Use the returned receipt and `suffixBase` for that delivery comparison. A
+legacy recovery without retained base context omits `--suffix-base`; it can
+recover publication but cannot establish a historical comparison by guessing
+its base. Missing coverage still follows the observer recovery contract.
 
 In that shared table, "Missing registration" is this project's CI
 registration: a published SHA absent from the existing observer's coverage or

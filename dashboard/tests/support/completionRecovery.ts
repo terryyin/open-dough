@@ -31,6 +31,7 @@ export async function recordOperation(
   server: Pick<DashboardServer, "home">,
   operation: string,
   args: unknown[],
+  env = process.env,
 ) {
   const url = new URL(
     `file://${path.join(repoRoot, "dashboard/server/launchRecordStore.ts")}`,
@@ -45,14 +46,18 @@ export async function recordOperation(
       JSON.stringify(args),
     ],
     {
-      env: { ...process.env, HOME: server.home, NODE_NO_WARNINGS: "1" },
+      env: { ...env, HOME: server.home, NODE_NO_WARNINGS: "1" },
     },
   );
 }
 
 // Forward with the original Host/Origin. Lose the client acknowledgment only
 // AFTER the real receiver finished its persisted response, not before its write.
-export async function completionProxy(origin: string, receiver: string) {
+export async function completionProxy(
+  origin: string,
+  receiver: string,
+  endpoint = "/__agent-launch/completion",
+) {
   let drop = false;
   let lost = 0;
   const server = createServer((req, res) => {
@@ -63,11 +68,7 @@ export async function completionProxy(origin: string, receiver: string) {
         const chunks: Buffer[] = [];
         answer.on("data", (chunk: Buffer) => chunks.push(chunk));
         answer.on("end", () => {
-          if (
-            drop &&
-            req.url === "/__agent-launch/completion" &&
-            req.method === "POST"
-          ) {
+          if (drop && req.url === endpoint && req.method === "POST") {
             drop = false;
             lost += 1;
             res.destroy();
@@ -113,6 +114,7 @@ export function completionWriteFault(machine: string) {
 }`,
   );
   return {
+    marker,
     arm() {
       writeFileSync(marker, "fault\n");
     },

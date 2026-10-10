@@ -41,8 +41,10 @@ export async function resumeManagedExecutionIncrement(request) {
   const {
     workspace,
     candidateSha,
+    suffixBase,
     targetRef,
     repo,
+    remote = "origin",
     supersededShas = [],
     publishedRevisions = [],
     defaultCheckout,
@@ -51,6 +53,7 @@ export async function resumeManagedExecutionIncrement(request) {
     root,
     storage,
     oneShotIdentity,
+    landingContext,
   } = request;
 
   for (const field of ["workspace", "candidateSha", "targetRef", "repo"]) {
@@ -95,6 +98,9 @@ export async function resumeManagedExecutionIncrement(request) {
       ownedWorkspace: workspace,
       defaultCheckout,
       candidateSha,
+      suffixBase,
+      remote,
+      landingContext,
       supersededShas,
       publishedRevisions,
       observer,
@@ -118,11 +124,16 @@ export async function resumeManagedExecutionIncrement(request) {
       observation: recovered.observation,
     });
   }
+  const comparison =
+    published.suffixBase === undefined
+      ? {}
+      : { suffixBase: published.suffixBase };
   if (published.held)
     return stopped(published.held.status, {
       candidate: candidateSha,
       pushCount: 0,
       classification: published.classification,
+      ...comparison,
       ...published.held.fields,
       observation: recovered.observation,
     });
@@ -140,10 +151,12 @@ export async function resumeManagedExecutionIncrement(request) {
     pushCount: published.pushCount,
     completedObligation: published.completedObligation,
     classification: published.classification,
+    ...(published.landing === undefined ? {} : { landing: published.landing }),
     receipt: {
       sha: published.acceptedSha,
       target: targetRef,
     },
+    ...comparison,
     observation: recovered.observation,
     runtime: {
       alias: runtime.alias,
@@ -158,7 +171,7 @@ export async function resumeManagedExecutionIncrement(request) {
 function argumentsOf(argv) {
   if (argv[0] !== "resume") {
     throw new Error(
-      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID]",
+      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--remote NAME] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID] [--landing-context PATH]",
     );
   }
   const result = { supersededShas: [], publishedRevisions: [] };
