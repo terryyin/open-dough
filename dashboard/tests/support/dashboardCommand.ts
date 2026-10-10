@@ -1,5 +1,6 @@
 // Run the public npm command from a fixture checkout. Observe its own output
-// and exit, and signal the full npm group so the watcher receives shutdown.
+// and exit, and signal the full npm group so the watcher receives shutdown and
+// finishes it.
 import { stripVTControlCharacters } from "node:util";
 import {
   endGroup,
@@ -30,6 +31,10 @@ export function dashboardCommand(
     child,
     exited,
     output: () => stripVTControlCharacters(output),
+    // Asks the command to shut down and waits for its own exit, however long
+    // its shutdown takes: the production watcher stops its preview and removes
+    // its deployment checkouts first, and a kill would leave them behind. Only
+    // then is the group ended, which by now has nothing left to kill.
     async stop() {
       if (
         child.exitCode === null &&
@@ -38,8 +43,8 @@ export function dashboardCommand(
       ) {
         process.kill(-child.pid, "SIGTERM");
       }
-      await endGroup(child);
       await exited;
+      await endGroup(child);
     },
   };
 }

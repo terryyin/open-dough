@@ -311,6 +311,11 @@ Reported: slice 4 — "Linux CI not run. There the call is three plain execs via
 Story clause: "CI's dashboard shards then pass on the published revision within their recorded deadline."
 Disposition: interim until slices 6
 
+### G13. A stopped command that ignores its signal is no longer killed
+Reported: slice 6 — "`stop()` no longer force-kills a command that ignores SIGTERM. Such a hang now runs to the test timeout, and when it happens in a `finally` after an earlier assertion failure, the timeout would hide that error."
+Story clause: "a run ends every process it started"
+Disposition: proved by slice 6: `dashboard/tests/support/processGroup.ts` still ends every group a worker started when the worker exits (`endAtExit`), which `dashboardCommand.ts` `stop()` leaves in place; the test timeout names the test, and `production-watcher production-cursor-runner` pass plain and under burners with the watcher exiting on its own
+
 ## Learnings
 
 - Slice 1: the page reads its project list (`/__project-configuration`)
@@ -382,6 +387,22 @@ Disposition: interim until slices 6
   workers, and its cost grows with load (about 1.0–1.4 s on the head reads at
   load 30–44 against 0.5–1.0 s at 21–31). A warm pass of the three fixtures
   costs 71–113 ms per suite run.
+
+- Slice 6, first series at `9356de7d` (2026-10-10, pinned Node, 8 workers):
+  `Run 1 (fresh worktree): exit 0, 607 s, load 4.44 -> 24.93`; then `Run 1:
+  exit 1, 592 s, load 23.33 -> 20.24` with `FAIL:
+  dashboard/tests/production-watcher-exclusions.spec.ts:26`, kept at
+  `dashboard/test-results/2026-10-10T11-36-15.158Z`. Cause: the suite's
+  `stop()` (`dashboard/tests/support/dashboardCommand.ts`) went through
+  `endGroup`, which kills the group 5 s after its signal; under load the
+  production watcher's shutdown (stop the preview, remove its deployment
+  checkouts) took longer, and the last checkout was left behind (the kept
+  trace's stop step took 5.01 s). The same spec failed 3 of 8 under burners
+  before the fix and 0 of 16 after: `stop()` now signals the group and waits
+  for the command's own exit before ending the group. A test-support defect
+  in files this execution had not touched, not a product defect. The series
+  restarts from the fresh run. `endGroup`'s 5 s kill still applies to
+  directly spawned Vite servers; no failure is attributed to it.
 
 ## Verification and sizing
 
