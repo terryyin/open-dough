@@ -136,26 +136,3 @@ for (const receipt of ["with", "without"]) {
     );
   });
 }
-
-test("a Cursor delivery without its conversation identity reports a gap naming CURSOR_CONVERSATION_ID and keeps publication", async (t) => {
-  const fixture = await createManagedFixture();
-  t.after(fixture.cleanup);
-  const env = { ...fixture.env };
-  delete env.CURSOR_CONVERSATION_ID;
-  delete env.CLAUDE_CODE_SESSION_ID;
-
-  const { delivered } = await deliverThroughCli(fixture, {
-    host: "cursor",
-    base: fixture.trunkSha,
-    env,
-  });
-  assert.equal(delivered.publication, "accepted");
-  assert.equal(delivered.observation.state, "unobserved");
-  assert.match(delivered.observation.reason, /CURSOR_CONVERSATION_ID is unset/);
-  assert.match(delivered.observation.reason, /--session-json/);
-  assert.equal(
-    await lsRemoteSha(fixture.origin, trunkTarget),
-    delivered.receipt.sha,
-  );
-  assert.equal(existsSync(fixture.storage), false);
-});

@@ -13,7 +13,6 @@ import {
   eventRecipient,
   hostSessionOwner,
   missingIdentityReason,
-  ownObserverRecovery,
   resolveHostSession,
 } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
 import {
@@ -26,36 +25,24 @@ import {
   coverageGap,
   retainedStream,
 } from "../../dough-execute-plan/scripts/execution-increment-observation.mjs";
+import { ownerGapReason } from "../../dough-execute-plan/scripts/execution-increment-observation-gaps.mjs";
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 
-const notLive = {
-  ended: "ended",
-  lost: "lost its worker",
-  unavailable: "is not live",
-};
-
-// Why none of a host coordinator's observers carries the final closure.
-// `candidates` are the several that could, when the choice is ambiguous.
+// Why none of a host coordinator's observers carries the final closure, by
+// their classification. Several `candidates` that are not its several live
+// observers each registered the final closure and are no longer live.
 function hostGap({ target, host, owner, candidates }) {
-  const where = `${target.repo} ${target.branch}`;
-  if (candidates.length > 1) {
+  const owned = classifyOwnedObservation({ ...target, owner });
+  if (candidates.length > 1 && owned.kind !== "ambiguous") {
     return coverageGap(
-      `this coordinator owns ${candidates.length} observers of ${where} that could carry the final closure (${candidates.join(", ")}); none is chosen for it`,
+      `this coordinator owns ${candidates.length} observers of ${target.repo} ${target.branch} that could carry the final closure (${candidates.join(", ")}); none is chosen for it`,
       { ownership: "ambiguous", directories: candidates },
     );
   }
-  const owned = classifyOwnedObservation({ ...target, owner });
-  if (owned.kind === "missing") {
-    return coverageGap(
-      `this coordinator holds no observer of ${where}; ${ownObserverRecovery(host)}; this coordinator's next \`deliver\` from the execution worktree establishes its own, and rerunning this finish then completes the final closure on it; once that worktree is gone, report the final closure's coverage as lost`,
-      { ownership: "missing" },
-    );
-  }
-  const directories = owned.directories ?? [owned.directory];
-  return coverageGap(
-    `this coordinator's observer of ${where} at ${directories.join(", ")} ${notLive[owned.kind]} without registering the final closure`,
-    { ownership: owned.kind, directories },
-  );
+  return coverageGap(ownerGapReason("finish", { ...target, host, owned }), {
+    ownership: owned.kind,
+    directories: owned.directories ?? (owned.directory && [owned.directory]),
+  });
 }
 
 // `directories` are the owner's observers in any state. `select` returns the

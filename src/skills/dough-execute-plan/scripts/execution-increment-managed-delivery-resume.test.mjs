@@ -1,5 +1,6 @@
 // Managed resume recovers accepted publication without duplicate push when a
-// live matching owner is still available (lost response or missing attachment).
+// coordinator's live observer is still available (lost response or missing
+// attachment).
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -124,7 +125,7 @@ test("lost push response resumes the retained multi-commit comparison after anot
   );
 });
 
-test("missing observation attachment recovers matching live owner without another push", async (t) => {
+test("missing observation attachment recovers its coordinator's live observer without another push", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
 

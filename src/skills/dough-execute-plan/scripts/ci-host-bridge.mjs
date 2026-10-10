@@ -44,6 +44,14 @@ export function resolveHostSession({ host, session, env = process.env }) {
   return ambient ? { [identity.field]: ambient } : session;
 }
 
+// The one reading of `--session-json` for `deliver`, `resume`, and `finish`.
+// The explicit session stays apart from the ambient identity, which
+// `eventRecipient` tells from it. Malformed JSON throws: the command stops,
+// and no other identity stands in for the one it named.
+export function withExplicitSession({ sessionJson, ...args }) {
+  return sessionJson ? { ...args, session: JSON.parse(sessionJson) } : args;
+}
+
 export function missingIdentityReason(host, command = "deliver") {
   const identity = hostIdentity[host];
   if (!identity)

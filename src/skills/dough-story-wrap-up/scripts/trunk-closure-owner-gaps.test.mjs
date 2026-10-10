@@ -9,9 +9,11 @@ import { test } from "node:test";
 import {
   acceptedIncrement,
   coverage,
+  siblingCheckouts,
   startReceipt,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { closureObservers, observerAccess } from "./trunk-closure-observer.mjs";
 import { closureBesideSibling } from "./trunk-closure-owner-test-fixtures.mjs";
 import {
   branchSha,
@@ -87,7 +89,9 @@ test("finish without the owner's identity, as another coordinator, or after the 
   await assertUnresolvedCoverage(fixture, ended, {
     final,
     ownership: "ended",
-    reason: new RegExp(`${publisher} ended without registering`),
+    reason: new RegExp(
+      `${publisher} ended \\(.*next \`deliver\` from the execution worktree establishes its own.*rerunning this finish`,
+    ),
   });
   assert.deepEqual(coverage(publisher), []);
   assert.equal(pushes(), 1);
@@ -149,7 +153,8 @@ test("finish chooses none of several live observers its coordinator owns for an 
   await assertUnresolvedCoverage(fixture, finished, {
     final,
     ownership: "ambiguous",
-    reason: /owns 2 observers of owner\/project main.*none is chosen/,
+    reason:
+      /owns 2 live observers of owner\/project main.*next finish reuses it/,
   });
   assert.deepEqual(
     finished.result.observation.directories.toSorted(),
@@ -159,4 +164,35 @@ test("finish chooses none of several live observers its coordinator owns for an 
   assert.deepEqual(coverage(second), []);
   assert.equal(pushes(), 0);
   journey.assertSiblingUntouched(3);
+});
+
+test("closure names an observer its coordinator claimed after its observers were listed as one that went live, with the rerun that registers on it", async (t) => {
+  const { fixture, startObserver, hook } = await siblingCheckouts(t, "cursor");
+  const observers = closureObservers({
+    repo: "owner/project",
+    branch: "main",
+    host: "cursor",
+    session: { conversation_id: "late-coordinator" },
+    ...(await observerAccess(fixture.execution)),
+    storage: fixture.storage,
+  });
+  assert.deepEqual(observers.directories, []);
+  const late = await startObserver("publisher");
+  assert.match(
+    await hook("publisher", "late-coordinator", startReceipt(late)),
+    /CI observer attached to this coordinator/,
+  );
+
+  const { gap } = observers.select("a".repeat(40));
+
+  assert.equal(gap.state, "unobserved");
+  assert.equal(gap.ownership, "live");
+  assert.deepEqual(gap.directories, [late]);
+  assert.match(
+    gap.reason,
+    new RegExp(
+      `observer at ${late} went live while this finish ran; rerunning this finish registers on it$`,
+    ),
+  );
+  assert.deepEqual(coverage(late), []);
 });

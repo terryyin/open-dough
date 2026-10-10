@@ -15,6 +15,7 @@ import { resolve } from "node:path";
 import { completeRevision } from "../../dough-execute-plan/scripts/ci-mailbox-complete.mjs";
 import { mailboxRoot } from "../../dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import { isDirectCliEntry } from "../../dough-execute-plan/scripts/ci-direct-entry.mjs";
+import { withExplicitSession } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
 import { refreshDefaultCheckout } from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
 import {
   git,
@@ -211,11 +212,7 @@ function argumentsOf(argv) {
     }
   }
   targetBranchName(result.targetRef);
-  if (result.sessionJson) {
-    result.session = JSON.parse(result.sessionJson);
-    delete result.sessionJson;
-  }
-  return result;
+  return withExplicitSession(result);
 }
 
 if (isDirectCliEntry(import.meta.url, process.argv[1])) {

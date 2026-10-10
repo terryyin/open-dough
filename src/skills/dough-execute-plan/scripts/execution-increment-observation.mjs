@@ -20,6 +20,7 @@ import {
   classifyRetainedStream,
 } from "./ci-mailbox-match.mjs";
 import { codexStreamOwner } from "./ci-observer-owner.mjs";
+import { ownerGapReason } from "./execution-increment-observation-gaps.mjs";
 
 export function coverageGap(reason, extras = {}) {
   return {
@@ -124,16 +125,6 @@ export function retainedStreamObservation(request) {
     : stream.gap();
 }
 
-// One coordinator holding several live observers of a target cannot say which
-// one a registration belongs on; none is chosen for it.
-export function ambiguousOwnerReason(
-  { repo, branch },
-  directories,
-  command = "deliver",
-) {
-  return `this coordinator owns ${directories.length} live observers of ${repo} ${branch} (${directories.join(", ")}); keep the one whose directory it retained, stop the others with \`ci-mailbox.mjs stop <directory>\`, and the next ${command} reuses it`;
-}
-
 export async function establishObservation({
   repo,
   branch,
@@ -185,7 +176,7 @@ export async function establishObservation({
   if (owned.kind === "ambiguous") {
     return {
       observation: coverageGap(
-        ambiguousOwnerReason({ repo, branch }, owned.directories),
+        ownerGapReason("deliver", { repo, branch, host, owned }),
         { ownership: owned.kind, directories: owned.directories },
       ),
       startReceipt: null,

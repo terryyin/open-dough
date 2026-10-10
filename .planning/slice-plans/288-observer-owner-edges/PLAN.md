@@ -207,7 +207,7 @@ The owned-context check now runs the closure three times; compare it with
 
 ### 4. One gap vocabulary and session-input parser
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing managed-delivery, resume, and closure suites stay green.
 
 Give delivery, resume, and closure one table from classification kind to
@@ -216,6 +216,25 @@ Correct the stale header, test titles, and `ci-monitor.md` wording. Consolidate
 the three proofs of the missing-identity gap where one keeps the journey.
 
 Safe stopping point: the correction is complete.
+
+Accepted proof: the managed-delivery, resume, closure, one-shot, and guidance
+suites and the payload and install checks stay green;
+`trunk-closure-owner-gaps.test.mjs` pins the observer that goes live while
+`finish` runs, which used to print `undefined`.
+
+Result: `execution-increment-observation-gaps.mjs` holds the one table and
+`withExplicitSession` in `ci-host-bridge.mjs` the one `--session-json`
+reading. Closure's ended, lost, not-live, and several-live reasons now use
+the shared wording with a `finish` recovery step. The missing-identity journey
+stays in `execution-increment-managed-delivery-owner-gaps.test.mjs` and the
+closure owner-gaps journey.
+
+Left as it was: when several of the owner's observers each registered the
+final closure and none is live, `finish` reports `ownership: "ambiguous"` with
+its own text and no recovery step; folding it into the table would change
+selection or the receipt schema, and no test reaches it. The three commands
+keep their own flag loops, which differ on a `--session-json` value that
+starts with `--`. `deliver` reads the table only for several live observers.
 
 ## Verification and gates
 

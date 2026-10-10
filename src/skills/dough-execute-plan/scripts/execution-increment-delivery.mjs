@@ -3,6 +3,7 @@
 // acceptance. Held proof stops before push; local-only authority never pushes.
 import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
+import { withExplicitSession } from "./ci-host-bridge.mjs";
 import { registerPushedRevision, mailboxRoot } from "./ci-mailbox.mjs";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
@@ -222,17 +223,11 @@ function argumentsOf(argv) {
       .replace(/-[a-z]/g, (match) => match[1].toUpperCase());
     result[key] = argv[++index];
   }
-  if (!["trunk", "story-branch"].includes(result.mode)) {
-    throw new Error(usage);
-  }
-  if (result.sessionJson) {
-    result.session = JSON.parse(result.sessionJson);
-    delete result.sessionJson;
-  }
+  if (!["trunk", "story-branch"].includes(result.mode)) throw new Error(usage);
   if (result.maxDurationMs !== undefined) {
     result.maxDurationMs = Number(result.maxDurationMs);
   }
-  return result;
+  return withExplicitSession(result);
 }
 
 if (isDirectCliEntry(import.meta.url, process.argv[1])) {

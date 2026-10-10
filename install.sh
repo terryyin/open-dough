@@ -189,6 +189,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
+  dough-execute-plan/scripts/execution-increment-observation-gaps.mjs
   dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs
