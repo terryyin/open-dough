@@ -1,5 +1,5 @@
 // Historical context names the fixed accepted pair, without workspace or marking semantics.
-import type { LandedReviewContext } from "./storyReviewOneShot.ts";
+import type { LandedReviewContext } from "./storyReviewLandedRun.ts";
 import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
 import { reviewTargetName } from "./storyReview.ts";

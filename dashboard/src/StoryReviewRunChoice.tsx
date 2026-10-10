@@ -2,7 +2,7 @@
 import { useId } from "react";
 import { launchKindName } from "./launchWorkflow.ts";
 import { reviewTargetName } from "./storyReview.ts";
-import type { ReviewRunChoice } from "./storyReviewOneShot.ts";
+import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 export function RunChoice({
   runs,
   selected,

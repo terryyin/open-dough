@@ -12,7 +12,7 @@ import { objectIdSchema, reviewedFileSchema } from "./storyReviewFiles.ts";
 import {
   landedReviewContextSchema,
   reviewRunChoiceSchema,
-} from "./storyReviewOneShot.ts";
+} from "./storyReviewLandedRun.ts";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";

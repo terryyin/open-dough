@@ -2,20 +2,20 @@
 import type { IncomingMessage } from "node:http";
 import {
   landingReceiptSchema,
-  type OneShotLanding,
+  type LaunchLanding,
   type LandingReceipt,
-} from "../src/oneShotLanding.ts";
+} from "../src/launchLanding.ts";
 import {
   landingSubmissionSchema,
   expiredAttemptRecord,
-} from "./oneShotLandingAdmission.ts";
+} from "./launchLandingAdmission.ts";
 import {
   authorizedLanding,
   reserveLandingComparison,
   sameComparison,
-} from "./oneShotLandingReservation.ts";
-import { submitRetainedLanding } from "./oneShotLandingRetained.ts";
-import { boundLandingReporting } from "./oneShotLandingRecord.ts";
+} from "./launchLandingReservation.ts";
+import { submitRetainedLanding } from "./launchLandingRetained.ts";
+import { boundLandingReporting } from "./launchLandingRecord.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
 import { keptRecords } from "./launchRecordStore.ts";
@@ -48,7 +48,7 @@ export async function submitLanding(
         : submitRetainedLanding(record, report, prepare);
     });
     if (retained !== undefined) return retained;
-    let saved: OneShotLanding | undefined;
+    let saved: LaunchLanding | undefined;
     await replaceAttempts(async (kept) => {
       const attempt = reportingAttempt(
         Object.values(kept).flat(),

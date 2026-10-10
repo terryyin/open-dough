@@ -1,7 +1,7 @@
 // Capture authority is established once, then follows the original bound record.
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { LandingReporting } from "../src/oneShotLanding.ts";
+import type { LandingReporting } from "../src/launchLanding.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 
 export function boundLandingReporting(

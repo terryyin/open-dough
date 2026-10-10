@@ -2,14 +2,14 @@
 import type { StoryReview } from "../src/storyReview.ts";
 import {
   landedReviewContextSchema,
-  type ReviewOneShotRun,
-} from "../src/storyReviewOneShot.ts";
+  type ReviewLandedRun,
+} from "../src/storyReviewLandedRun.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 
 export async function landedStoryReview(
-  run: ReviewOneShotRun,
+  run: ReviewLandedRun,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const { record } = run;

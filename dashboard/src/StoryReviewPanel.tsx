@@ -16,7 +16,7 @@ import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
 import { SidePanelEdge } from "./SidePanelEdge.tsx";
-import { preferredReviewRun } from "./storyReviewOneShot.ts";
+import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";

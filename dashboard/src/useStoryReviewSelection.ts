@@ -8,7 +8,7 @@ import {
 } from "./storyReview.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
-import { preferredReviewRun } from "./storyReviewOneShot.ts";
+import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 
 export function useStoryReviewSelection(
   source: string,

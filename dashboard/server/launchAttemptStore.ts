@@ -29,7 +29,7 @@ import {
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
-import { retainLandingSettlement } from "./oneShotLandingRecord.ts";
+import { retainLandingSettlement } from "./launchLandingRecord.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 

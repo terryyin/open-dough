@@ -1,15 +1,12 @@
 // One immutable comparison is prepared before publication and accepted afterward.
 import { randomUUID } from "node:crypto";
-import type {
-  LandingRepository,
-  OneShotLanding,
-} from "../src/oneShotLanding.ts";
-import type { LandingSubmission } from "./oneShotLandingAdmission.ts";
-import { verifyLanding, pinLanding } from "./oneShotLandingGit.ts";
+import type { LandingRepository, LaunchLanding } from "../src/launchLanding.ts";
+import type { LandingSubmission } from "./launchLandingAdmission.ts";
+import { verifyLanding, pinLanding } from "./launchLandingGit.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export function sameComparison(
-  landing: OneShotLanding,
+  landing: LaunchLanding,
   report: LandingSubmission,
 ) {
   for (const key of [
@@ -49,9 +46,9 @@ export async function reserveLandingComparison(
   authority: LandingRepository,
   report: LandingSubmission,
   prepare: boolean,
-  accepted: OneShotLanding | undefined,
-  preparations: readonly OneShotLanding[] = [],
-): Promise<{ landing: OneShotLanding; needsSave: boolean }> {
+  accepted: LaunchLanding | undefined,
+  preparations: readonly LaunchLanding[] = [],
+): Promise<{ landing: LaunchLanding; needsSave: boolean }> {
   const prepared = preparations.find(
     (entry) => entry.delivery === report.delivery,
   );
@@ -71,7 +68,7 @@ export async function reserveLandingComparison(
       409,
       "This comparison was not retained for this launch before publication.",
     );
-  const landing: OneShotLanding = prepared ?? {
+  const landing: LaunchLanding = prepared ?? {
     repository: authority.repository,
     identity: report.identity,
     remote: report.remote,

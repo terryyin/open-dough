@@ -10,8 +10,8 @@ import {
 } from "./launchRequest.ts";
 import {
   landingRepositorySchema,
-  oneShotLandingSchema,
-} from "./oneShotLanding.ts";
+  launchLandingSchema,
+} from "./launchLanding.ts";
 import { completionReceiptSchema } from "./completionReport.ts";
 import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
@@ -141,8 +141,8 @@ export const launchAttemptSchema = z.object({
   reporting: reportingContextSchema.optional(),
   completion: completionSchema.optional(),
   landingRepository: landingRepositorySchema.optional(),
-  landingPreparations: z.array(oneShotLandingSchema).optional(),
-  landing: oneShotLandingSchema.optional(),
+  landingPreparations: z.array(launchLandingSchema).optional(),
+  landing: launchLandingSchema.optional(),
   completionReceipts: z.array(completionReceiptSchema).optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),

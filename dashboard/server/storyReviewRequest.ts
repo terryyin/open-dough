@@ -4,8 +4,8 @@ import { reviewWorkspaceOf } from "../src/storyReview.ts";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
   preferredReviewRun,
-  type ReviewOneShotRun,
-} from "../src/storyReviewOneShot.ts";
+  type ReviewLandedRun,
+} from "../src/storyReviewLandedRun.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
@@ -20,16 +20,16 @@ interface AdmittedWorkspaceReview {
   readonly established: EstablishedContext;
   // The workspace as the page shows it.
   readonly shown: string;
-  readonly fallback?: ReviewOneShotRun;
-  readonly runs: readonly ReviewOneShotRun[];
+  readonly fallback?: ReviewLandedRun;
+  readonly runs: readonly ReviewLandedRun[];
 }
 
 export type AdmittedReview =
   | AdmittedWorkspaceReview
   | {
       readonly kind: "review";
-      readonly run: ReviewOneShotRun;
-      readonly runs: readonly ReviewOneShotRun[];
+      readonly run: ReviewLandedRun;
+      readonly runs: readonly ReviewLandedRun[];
     };
 
 export async function reviewRequest(url: URL): Promise<AdmittedReview> {

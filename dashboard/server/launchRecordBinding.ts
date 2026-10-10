@@ -9,7 +9,7 @@ import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
-import { boundLandingReporting } from "./oneShotLandingRecord.ts";
+import { boundLandingReporting } from "./launchLandingRecord.ts";
 
 // Binds one known conversation, then starts any early reported Done after
 // releasing the persistence locks.

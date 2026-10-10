@@ -3,15 +3,15 @@ import { z } from "zod";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import {
   launchRetentionDays,
-  isEstablishedOneShot,
+  establishedCapturesLanding,
   type LaunchRecord,
 } from "../src/launchRecord.ts";
-import { oneShotLandingSchema } from "../src/oneShotLanding.ts";
+import { launchLandingSchema } from "../src/launchLanding.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-export const landingSubmissionSchema = oneShotLandingSchema
+export const landingSubmissionSchema = launchLandingSchema
   .omit({ repository: true, receipt: true, receivedAt: true })
   .extend({ source: z.string().min(1), host: sessionHostSchema })
   .strict();
@@ -61,7 +61,7 @@ export async function expiredAttemptRecord(
     record.request.workflow === "ad-hoc" ||
     record.request.identity !== report.identity ||
     established === undefined ||
-    !isEstablishedOneShot(established) ||
+    !establishedCapturesLanding(established) ||
     established.identity !== authority.identity ||
     established.workspace !== authority.workspace ||
     established.branch !== authority.branch ||

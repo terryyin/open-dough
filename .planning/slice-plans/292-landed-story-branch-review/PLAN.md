@@ -104,7 +104,7 @@ observes it.
 
 ### 1. Landing capture and landed runs are named for any launch
 Type: Structure
-Status: planned
+Status: done
 Proof: The one-shot capture, recovery, retention, review and Recently done
 specs above stay green; `npm run typecheck:dashboard` clean.
 
@@ -117,6 +117,28 @@ true for one-shot alone. Keep `landingRefPrefix`'s path. Leave user-facing
 words for slice 4. Enables slice 2, which widens the predicate.
 
 Safe stopping point: no behavior changes.
+
+Delivered: `launchLandingSchema`/`LaunchLanding` in `src/launchLanding.ts`,
+`reviewLandedRunsOf`/`ReviewLandedRun` in `src/storyReviewLandedRun.ts`,
+`server/launchLanding{Admission,Git,Record,Reporting,Reservation,Retained}.ts`,
+and the predicate `establishedCapturesLanding` in `src/launchRecord.ts`.
+Accepted proof: typecheck clean; the named one-shot specs (20 tests) and the
+other story-review, agent-completion, launch-boundary, session-refusal,
+launch-record and session-result-admission specs (119 tests) green.
+
+Learnings for later slices:
+
+- The predicate is a type guard narrowing to the one-shot variant and gates
+  both `completionReporting.ts` and `launchLandingAdmission.ts` (expired-attempt
+  landing admission had the same inline test). Slice 2's widening therefore
+  widens its return type too, and admits a claimed launch's landing submission.
+- Refusal messages shown once claimed launches reach capture still say
+  “established one-shot launch's authorized landing” (`launchLandingAdmission.ts`,
+  `launchLandingReporting.ts`, `launchLandingReservation.ts`) and “established
+  one-shot workspace candidate” (`launchLandingGit.ts`); slice 3 gives them the
+  general words with the prepare rule it changes.
+- `reviewRunChoice` reads `remote` and `target` from the one-shot-narrowed
+  type; slice 4 needs them from the claimed variant.
 
 ### 2. A claimed Story Branch Mode launch carries the landing capture
 Type: Behavior

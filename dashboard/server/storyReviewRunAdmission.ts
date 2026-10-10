@@ -2,9 +2,9 @@
 import { z } from "zod";
 import { workIdentitySchema } from "../src/launchRequest.ts";
 import {
-  reviewOneShotRunsOf,
+  reviewLandedRunsOf,
   reviewRunKey,
-} from "../src/storyReviewOneShot.ts";
+} from "../src/storyReviewLandedRun.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
@@ -19,7 +19,7 @@ export async function queriedRun(url: URL) {
   if (!identity.success)
     throw new RefusedRequest(400, "The review identity is malformed.");
   const records = await keptRecords(source.id);
-  const runs = reviewOneShotRunsOf(records, source.id, identity.data);
+  const runs = reviewLandedRunsOf(records, source.id, identity.data);
   const reference = url.searchParams.get("reference");
   const key = url.searchParams.get("run");
   if (key !== null) {

@@ -3,10 +3,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import type {
-  LandingReceipt,
-  OneShotLanding,
-} from "../../src/oneShotLanding.ts";
+import type { LandingReceipt, LaunchLanding } from "../../src/launchLanding.ts";
 import { completionSchema } from "../../src/completionReport.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
@@ -26,7 +23,7 @@ export async function observeLandingRecoveryIntent(options: {
   cwd: string;
   retry: string;
   first: LandingReceipt;
-  reserved: OneShotLanding | undefined;
+  reserved: LaunchLanding | undefined;
   env: NodeJS.ProcessEnv;
 }) {
   const { receiver, original, stale, cwd, retry, first, reserved, env } =

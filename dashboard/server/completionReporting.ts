@@ -3,7 +3,7 @@ import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { IncomingMessage } from "node:http";
 import {
-  isEstablishedOneShot,
+  establishedCapturesLanding,
   type EstablishedContext,
 } from "../src/launchRecord.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
@@ -76,7 +76,7 @@ export async function reportingContext(
   if (
     capturesLanding &&
     established !== undefined &&
-    isEstablishedOneShot(established)
+    establishedCapturesLanding(established)
   ) {
     const repository = (
       await runGit(

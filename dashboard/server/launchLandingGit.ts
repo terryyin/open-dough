@@ -1,5 +1,5 @@
 // Recording owns object preservation; reads never need to create these refs.
-import type { OneShotLanding } from "../src/oneShotLanding.ts";
+import type { LaunchLanding } from "../src/launchLanding.ts";
 import { runGit, defaultGitOutputLimit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 const git = (repository: string, args: readonly string[]) =>
@@ -11,7 +11,7 @@ const git = (repository: string, args: readonly string[]) =>
 export const landingRefPrefix = (reference: string) =>
   `refs/open-dough/one-shot/${reference}/`;
 export async function verifyLanding(
-  landing: OneShotLanding,
+  landing: LaunchLanding,
   prepare?: { workspace: string; branch: string },
 ): Promise<void> {
   const { repository, base, revision, remote, target } = landing;
@@ -51,7 +51,7 @@ export async function verifyLanding(
     );
   }
 }
-export async function pinLanding(landing: OneShotLanding): Promise<void> {
+export async function pinLanding(landing: LaunchLanding): Promise<void> {
   const prefix = `${landingRefPrefix(landing.reference)}${landing.delivery}/`;
   await git(landing.repository, ["update-ref", `${prefix}base`, landing.base]);
   await git(landing.repository, [

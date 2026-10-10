@@ -10,7 +10,7 @@ import {
   quote,
   recordOperation,
 } from "./support/completionRecovery.ts";
-import { landingReceiptSchema } from "../src/oneShotLanding.ts";
+import { landingReceiptSchema } from "../src/launchLanding.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import {
   git,

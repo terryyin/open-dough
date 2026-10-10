@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { landingReceiptSchema } from "../../src/oneShotLanding.ts";
+import { landingReceiptSchema } from "../../src/launchLanding.ts";
 import { z } from "zod";
 
 // Keep the CLI envelope intact while typing its existing public landing receipt.
