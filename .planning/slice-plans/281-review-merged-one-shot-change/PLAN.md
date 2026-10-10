@@ -240,3 +240,8 @@ and review documentation where those interactions are owned.
 
 Safe stopping point: the full story works for both queued refinements and
 completed executions.
+
+## Execution complete
+
+Product advice: keep the existing Story Branch and Trunk review follow-ups and
+priorities; no additional product backlog work is justified.

@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 257. Removed local codes are never reused.
+- Highest allocated local number: 259. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -333,3 +333,43 @@ A CI repair fixes only the reported spec although a sibling written by the same 
 Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-221](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-221).
+
+
+## DD-258 — A terminal observer after transport loss cannot cover later delivery
+
+A reported GitHub transport error ended the Codex observer with a valid
+`finished` receipt. The prescribed adapter then forbids rearming that state;
+managed delivery reports later accepted revisions unobserved. Bounded provider
+recovery or a distinct recoverable terminal state is a process proposal, not an
+implemented change. This matches the concrete cause of existing canonical
+[ODF-121](docs/maintainer/finding-names.md#odf-121); adoption of that mapping is
+recommended, not performed here. It differs from ODF-201's missing acknowledgment
+and ODF-208's missing terminal/cause.
+
+### Occurrences
+
+- Execution: `SEED-088#review-merged-one-shot-change`, first implementation `652036beee15fbf824066dcc058a51ef0629473f`
+  - Timestamp: unknown (2026-10-10; recovered after slice5 publication)
+  - Tool: Codex
+  - Open Dough release: 0.3.57 (installed `.agents/skills/dough-update/VERSION` at accepted start `1b28c208`)
+  - Evidence: [CI repair record](.planning/slice-plans/281-review-merged-one-shot-change/CI-REPAIR.md); exact mailbox `/tmp/dough-ci-501/watch-lAm58a` sequence7 reports `error connecting to api.github.com`, `result.json` says finished, delivery cursor is7, and process16455 ended. Slice5 `1e6fecc0`, repair `5a7e2367` and slice6 `d50e8e85` managed receipts explicitly say unobserved. The unchanged installed `ci-notify-codex.md` prohibits restarting terminal finished observers.
+  - Observed effect: later publications have no notification coverage; all six earlier owned failed jobs were recovered, classified and repaired before slice6.
+  - Inference: transport unavailability ended observation, not the product tests. The raw early coordinator notification history is unavailable, so no claim about why events were not acted on earlier is made.
+
+## DD-259 — A proof reporter override bypassed the configured failure policy
+
+Changing a focused test run's reporter can change its verdict policy, not only
+its presentation. Keep the project's configured behavior reporter and enumerate
+selection separately when counts are needed. This is a general proof-acceptance
+lesson; the repository's quiet selected-count finding (project DD-216/DD-243)
+remains separate, and no tooling or guidance change is implemented here.
+
+### Occurrences
+
+- Execution: `SEED-088#review-merged-one-shot-change`, first implementation `652036beee15fbf824066dcc058a51ef0629473f`
+  - Timestamp: unknown (slice2–5 proof, 2026-10-10)
+  - Tool: Codex (coordinator and delegated agents)
+  - Open Dough release: 0.3.57 (installed `.agents/skills/dough-update/VERSION` at accepted start `1b28c208`)
+  - Evidence: [accepted proof commands](.planning/slice-plans/281-review-merged-one-shot-change/PROOF.md) used `--reporter=line`. `dashboard/playwright.config.ts` instead configures `tests/support/quietReporter.ts`, which rejects passing tests that print output. [CI repair record](.planning/slice-plans/281-review-merged-one-shot-change/CI-REPAIR.md) accounts for runs38005633984,38007783610,38010280032: legacy capture and retired-review tests passed assertions but failed the configured reporter on uncaptured Git push stderr. The unchanged-HEAD strict red reproduced both; repair `5a7e2367` captured subprocess stdio and strict proof passed. Slice6 retained the configured reporter and used `--list` separately.
+  - Observed effect: five CI jobs rejected output hidden by local proof; one shared helper repair and independent delivery were required. The sixth job was a separately diagnosed Cursor frame race, not explained by the override.
+  - Inference: the override weakened acceptance evidence. Its original motivation and net time cost are not established by the retained record.
