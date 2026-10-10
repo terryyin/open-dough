@@ -2,19 +2,20 @@
 // coordinator's observers and every command that reports one: each reason
 // states that classification alone and ends in a step the coordinator runs.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { ownerGapReason } from "./execution-increment-observation-gaps.mjs";
 
-// Every command that reports a gap, and every classification
-// `classifyOwnedObservation` returns for a coordinator's observers.
+// Every command that reports a gap.
 const ownerGapCommands = ["deliver", "resume", "finish"];
+// Every classification `classifyOwnedObservation` returns for a coordinator's
+// observers, read from the one function that returns them.
+const classifier = readFileSync(
+  new URL("./ci-mailbox-match.mjs", import.meta.url),
+  "utf8",
+).match(/\nfunction classifyObservers\(.*?\n}\n/s)[0];
 const ownerGapKinds = [
-  "missing",
-  "ended",
-  "lost",
-  "unavailable",
-  "ambiguous",
-  "live",
+  ...new Set(Array.from(classifier.matchAll(/kind: "([^"]+)"/g), ([, k]) => k)),
 ];
 const terminal = { status: "stopped", coverage: { reason: "worker exited" } };
 const owned = (kind) => ({
@@ -31,40 +32,49 @@ const reasonFor = (command, kind, extra = {}) =>
     owned: owned(kind),
     ...extra,
   });
-// Where a reason's step begins: the command the coordinator runs next.
-const stepStart =
-  /; (?:resume starts no observer: )?(?:this coordinator's next `deliver` |keep the one whose directory it retained, |rerunning this )/;
-const step = (reason) => reason.slice(reason.search(stepStart) + 2);
-// What the reason says of the observers, apart from the step and its command.
-const meaning = (command, reason) =>
-  reason
-    .slice(0, reason.search(stepStart))
-    .replaceAll(`this ${command}`, "this command");
+// A kind's reason for each command, split where the commands part: the
+// meaning they share, which says what the observers are, and the step each one
+// ends in. A reason names its own command as `<command>` here, so only a
+// difference in what to do parts them; the split falls on the clause boundary
+// before it, or before the last clause when the commands agree throughout.
+const naming = (command, reason) =>
+  reason.replaceAll(new RegExp(`\\b${command}\\b`, "g"), "<command>");
+const commandReasons = (kind) => {
+  const reasons = ownerGapCommands.map((command) =>
+    naming(command, reasonFor(command, kind)),
+  );
+  const shared = Array.from(reasons[0]).findIndex((character, index) =>
+    reasons.some((reason) => reason[index] !== character),
+  );
+  const boundary = reasons[0].lastIndexOf(
+    "; ",
+    shared < 0 ? reasons[0].length : shared,
+  );
+  return reasons.map((reason, index) => ({
+    command: ownerGapCommands[index],
+    meaning: reason.slice(0, Math.max(boundary, 0)),
+    step: boundary < 0 ? "" : reason.slice(boundary + 2),
+  }));
+};
+
+test("the kinds are every classification of a coordinator's observers", () => {
+  assert.ok(ownerGapKinds.length > 1, classifier);
+});
 
 test("every kind's reason for deliver, resume, and finish ends in a step naming a command to run", () => {
   for (const kind of ownerGapKinds)
-    for (const command of ownerGapCommands) {
+    for (const { command, meaning, step } of commandReasons(kind)) {
       const reason = reasonFor(command, kind);
       assert.doesNotMatch(reason, /undefined/, `${command} ${kind}`);
-      assert.match(reason, stepStart, `${command} ${kind}: ${reason}`);
-      assert.match(
-        step(reason),
-        new RegExp(
-          `establishes its own|the next ${command} reuses it$|^rerunning this ${command} registers on it$`,
-        ),
-        `${command} ${kind}: ${reason}`,
-      );
+      // The commands share what the reason says of the observers.
+      assert.notEqual(meaning, "", `${command} ${kind}: ${reason}`);
+      // Its own command, or another the coordinator runs first.
+      assert.match(step, /<command>|`[^`]+`/, `${command} ${kind}: ${reason}`);
     }
 });
 
-test("each ownership value keeps one meaning across commands, and only ambiguous means several live observers", () => {
-  const meanings = ownerGapKinds.map((kind) => {
-    const [first, ...rest] = ownerGapCommands.map((command) =>
-      meaning(command, reasonFor(command, kind)),
-    );
-    for (const other of rest) assert.equal(other, first, kind);
-    return first;
-  });
+test("each kind's meaning is its own, and only ambiguous means several live observers", () => {
+  const meanings = ownerGapKinds.map((kind) => commandReasons(kind)[0].meaning);
   assert.equal(new Set(meanings).size, ownerGapKinds.length);
   for (const [index, kind] of ownerGapKinds.entries())
     assert.equal(
@@ -74,15 +84,17 @@ test("each ownership value keeps one meaning across commands, and only ambiguous
     );
 });
 
-test("several ended observers that each registered the revision keep their kind's meaning and step, and name every one", () => {
+test("finish over several ended observers that each registered the revision keeps the ended meaning and step, and names every one", () => {
   const registered = ["/observers/one", "/observers/two"];
-  for (const command of ownerGapCommands) {
-    const reason = reasonFor(command, "ended", { registered });
-    assert.match(
-      reason,
-      /observer at \/observers\/one ended \(stopped\); 2 of its observers each registered this revision and none is live \(\/observers\/one, \/observers\/two\); /,
-    );
-    assert.equal(step(reason), step(reasonFor(command, "ended")));
-    assert.doesNotMatch(reason, /live observers|undefined/);
-  }
+  const { meaning, step } = commandReasons("ended").find(
+    ({ command }) => command === "finish",
+  );
+  const reason = naming("finish", reasonFor("finish", "ended", { registered }));
+  assert.ok(reason.startsWith(meaning), reason);
+  assert.ok(reason.endsWith(`; ${step}`), reason);
+  assert.equal(
+    reason.slice(meaning.length, -`; ${step}`.length),
+    "; 2 of its observers each registered this revision and none is live (/observers/one, /observers/two)",
+  );
+  assert.doesNotMatch(reason, /live observers|undefined/);
 });

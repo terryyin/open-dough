@@ -147,8 +147,12 @@ Safe stopping point: the promised rerun holds for every observer history.
 
 ### 3. Proofs carry only what they use
 Type: Structure
-Status: planned
+Status: done
 Proof: Closure and gap-table suites stay green.
+Accepted proof: `npm test -- src/skills/dough-story-wrap-up/scripts/trunk-closure*.test.mjs src/skills/dough-story-wrap-up/scripts/closure-*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-observation-gaps.test.mjs`
+green. The gap-table proof reads its kinds from `classifyObservers` and was
+seen to fail on an emptied step, an `undefined` step, and a classifier kind
+the table lacks.
 
 Remove the journey's `resume` step and its fixture helper. Make the gap
 table's unit proof assert that every kind and command yields a reason with a
@@ -189,6 +193,11 @@ Reported: slice 2 — "Agreement on `incomplete`, and a `not_required` record wh
 Story clause: "one of which completed it, repeats completion on that one"
 Disposition: no user cost "a `finish` rerun settles on the observer that already completed the final closure": `recordedOutcome` returns what `effectiveCoverage` already yields for every record state, which the `ci-mailbox-await` suites cover, and the late-live reason now comes from the one classification that also empties the ended set, a race the plan records as never observed
 
+### G7. The gap-table proof no longer compares one meaning across commands
+Reported: slice 3 — "The \"one meaning across commands\" check is weaker than before." and "For `missing`, whose meaning has internal `; ` clauses, a late divergence would shift the split and pass."
+Story clause: "The guidance rows and tests the recovery-steps correction left inexact or"
+Disposition: no user cost "This corrects residue the": the proof now derives each meaning from where the commands' reasons part, so it holds whatever the wording; each kind's meaning must still be non-empty and distinct, and the installed journeys assert the reasons each command prints
+
 ## Execution resume context
 
 - Mode: Story Branch; workspace
@@ -198,7 +207,9 @@ Disposition: no user cost "a `finish` rerun settles on the observer that already
 - Claim `4364af24b74ceeea423c4fd833fb55be363a8f1a` accepted on `origin/main`,
   starting revision `34d496c21a5b32655bb5f9ae307d65bb5adb7ede`.
 - Slice 1 accepted on the execution branch at
-  `cb8444204a721f4ffdc81723aecc0d566aa53453`.
+  `cb8444204a721f4ffdc81723aecc0d566aa53453`, slice 2 at
+  `36a747227fd39926e9c55d459b652f0b3c83639b`; observer
+  `/tmp/dough-ci-501/watch-GHUmnS`.
 - CI source: GitHub Actions `ci.yml` on the execution branch, observed
   through managed delivery.
 

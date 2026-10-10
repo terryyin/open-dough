@@ -23,7 +23,6 @@ import {
   siblingCheckouts,
   startReceipt,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
-import { resumeThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { fixtureTeardown } from "../../dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
 import {
   git,
@@ -115,13 +114,6 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
     pushes: () => countPushes(fixture),
     deliver: (base, extra = [], coordinator = publisherCoordinator) =>
       checkouts.deliver(base, coordinator, extra),
-    // The installed `resume` of the accepted `candidate` as the publisher.
-    resume: (candidate) =>
-      resumeThroughCli(fixture, {
-        candidate,
-        host,
-        env: env(publisherCoordinator),
-      }),
     // The installed `finish` as `coordinator`'s host runs it.
     finish: (options, coordinator = publisherCoordinator) =>
       finishThroughCli(fixture, {

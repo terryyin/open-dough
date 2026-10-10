@@ -149,7 +149,6 @@ test("finish whose coordinator's ended observers each registered the final closu
   await fixture.stopObserver(publisher);
   const second = (await established()).directory;
   assert.notEqual(second, publisher);
-  await journey.resume(final);
   await fixture.stopObserver(second);
   for (const ended of [publisher, second])
     assert.deepEqual(coverage(ended), [final]);
