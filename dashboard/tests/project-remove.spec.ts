@@ -6,7 +6,7 @@ import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
+import { openUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -125,6 +125,7 @@ test("removing a configured project retains its checkout and records, hides sess
     await expect(
       page.getByRole("button", { name: "System settings", exact: true }),
     ).toBeFocused();
+    await untilPublishedWorkRead(page);
     await expect(recent).not.toContainText("Retained sample session", {
       timeout: 1_000,
     });
