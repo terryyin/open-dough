@@ -16,15 +16,13 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-1. **Dashboard suite interference and load-sensitive results — first, already
-   queued.** Six distinct executions: plans 231 (DD-226), 238 (DD-224), 264
-   and 266 (DD-246), 257 (project DD-240), and 276 (DD-257). Lost traces, false failures,
-   and whole-suite reruns cost minutes and leave causes unexplained. The
-   configured shared output/build paths still exist; load is a qualified cause
-   for DD-240/DD-257, not a reproduced explanation. Keep the existing first
-   story, [SEED-123#dashboard-suite-stable-under-load](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load),
-   unchanged. Its scope already covers retained failure output, concurrent
-   builds, and the named load failures. No duplicate is queued.
+1. **Dashboard suite load-sensitive results — first, queued.** DD-240 and
+   DD-257 remain from six executions; the shared output and build paths
+   (DD-224, DD-226, DD-246) were removed on 2026-10-10. A local probe showed
+   further suite and product causes, and two failure kinds remain: a fresh
+   run's first published-work read can outlast the 5 s wait after page open,
+   and a heavily loaded run kept the plan-slices card "Reading". They belong
+   to [SEED-123#dashboard-suite-passes-loaded-acceptance](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance).
 2. **Local checks miss the dashboard's typed fixture imports — second,
    queued.** DD-171 recurred in two executions (plans 146 and 191), each
    producing a red dashboard CI job and a repair cycle after focused Node
@@ -50,90 +48,16 @@ execution. A repaired individual race does not resolve every suite failure.
    permission boundary. Neither justifies changing public Open Dough guidance
    or adding a second high-priority story.
 
-## Dashboard suite interference and load-sensitive results (first priority, already queued)
+## Dashboard suite load-sensitive results (first priority, queued)
 
 **Follow-up:** queued, not resolved:
-[The dashboard Playwright suite gives the same result on a loaded developer machine as in CI](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-stable-under-load)
-— SEED-123#dashboard-suite-stable-under-load (DD-224, DD-226, DD-246,
-project DD-240, DD-257). It is already first in the product backlog.
-
-**Recurrence after earlier repairs:** DD-232's removal recorded 20 passing CI
-runs on `06dfb716`; that established the repaired CI paths, not every local
-wait or concurrent run. Plans 266 and 276 subsequently exposed different
-local suite failures. The specifically repaired DD-247 paths are removed
-below, while DD-257 and the older unexplained DD-240 remain open. Existing
-SEED-123 already owns this remaining work; neither prior closure nor a green
-rerun proves these findings resolved.
-
-<a id="dd-226"></a>
-
-### DD-226 — Concurrent Playwright runs in one checkout rebuild the shared `dashboard/dist` under each other
-
-The dashboard suite builds production assets into `dashboard/dist` once per run (`dashboard/tests/support/globalSetup.ts`). A second run started from the same checkout rebuilds that directory while the first is still serving it.
-
-#### Occurrences
-
-- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d`
-  - Timestamp: unknown (slice 1 implementation, before `c58dc07d` committed 2026-10-03T21:36:52+08:00)
-  - Tool: Claude Code (delegated implementation agent)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: the slice 1 agent's full dashboard run gave 1002 passed and 1 failed, `agent-launch-claude-verification.spec.ts` "Recheck records the one session…" (Taken membership heading mismatch), while its other Playwright runs in the same checkout rebuilt `dashboard/dist`; the spec passed 3 of 3 alone and again in a later isolated run.
-  - Observed effect: one unexplained full-run failure and later delegations carrying a "never run two Playwright invocations at once" rule.
-  - Inference: Qualified. The rebuild is the likely cause, but the failing run was not kept and the cause is not reproduced. A per-run output directory or a lock would make overlapping runs safe. DD-224 lost a failure to the same kind of fixed location, `dashboard/test-results`.
-
-<a id="dd-224"></a>
-
-### DD-224 — A delegated rerun overwrote the only output of an unexplained test failure
-
-A refactor agent's rerun of a combined Playwright command replaced the output of an earlier run in which one spec failed, so the failure's assertion and trace were lost. The coordinator could then only try to reproduce it, and the cause stayed unknown.
-
-#### Occurrences
-
-- Execution: `SEED-052#unread-report-apart-from-engagement` / plan 238, first related implementation commit `f1221461`
-  - Timestamp: unknown (slice 2 refactor pass, before `88357912` committed 2026-10-03T20:03:40+08:00)
-  - Tool: Claude Code (delegated refactor agent and coordinator)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: the slice 2 refactor report says one run of its alert command failed `session-unread-report.spec.ts` (13 passed, 3.1m, load about 40) and that "the rerun overwrote its output"; the coordinator then ran that spec `--repeat-each 6 --workers 6` and the full command `--repeat-each 3` (48 passes at load about 42–44); plan 238 slice 2 records the failure as an open observation.
-  - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
-  - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
-
-<a id="dd-246"></a>
-
-### DD-246 — Concurrent Playwright runs in one checkout delete each other's trace output
-
-Two agents ran dashboard Playwright commands in the same execution checkout at
-the same time. Both used the default `dashboard/test-results` output folder, and
-one run's cleanup removed the other's `.playwright-artifacts-*` trace files, so
-passing tests were reported as failed with `ENOENT`. Giving each concurrent run
-a private `--output` folder removed the noise.
-
-#### Occurrences
-
-- Execution: `SEED-113#reuse-unchanged-records-after-publication` / plan 266, first related implementation commit `945857c9`
-  - Timestamp: unknown (slice 3 implementation and the load-flake fix ran together, before `7d8319bc` at 2026-10-07T10:01:13+09:00)
-  - Tool: Claude Code (delegated implementation agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; installed guidance 0.3.56, updated to 0.3.57 by the mid-execution merge `8cc33280`
-  - Evidence: slice 3 return: first 42-file run "had 4 failures, all `ENOENT` on `dashboard/test-results/.playwright-artifacts-*` trace files"; flake-fix return: first run "failed both specs, but only with trace ENOENT errors"; both reran with `--output` and passed.
-  - Observed effect: one rerun per agent (minutes each); no false acceptance, because both agents read the error kind.
-  - Inference: Qualified. The coordinator launched the two agents together without assigning output folders; delegation that runs tests concurrently in one checkout could name a private `--output` per agent.
-
-**Additional occurrence moved from ODF-209 / former DD-221.** The concrete
-collision is the same project test-output mechanism as DD-246. The source’s
-general coordination concern remains in DearDough.md; this execution counts
-once in the project suite group, and does not prove that CPU load caused the
-other timeouts. Original observation and qualified inference:
-
-- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
-  - Timestamp: unknown (2026-10-07, while the refactor pass that preceded `823c1eda`, committed 2026-10-07T09:30:10+09:00, overlapped the CI repair delivered as `9935c040`)
-  - Tool: Claude Code (coordinator and delegated agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.57 (installed `dough-update/VERSION` after the merge at `fefab16d`)
-  - Evidence: the coordinator ran a CI repair (run 37545377335) and a refactor pass concurrently in the same execution checkout. The repair's `--repeat-each=10 --workers=8` Playwright run cleared the shared `dashboard/test-results`, so the refactor pass's `production-watcher-updates` stress failed 8 of 8 with trace `ENOENT`, and its first `shared-observer-reads`/`story-readiness` stress failed 8 of 48 with 30-second timeouts at load about 101. Both passed on rerun, the first with a private `--output`. Later delegations required a private `--output` for every Playwright run.
-  - Observed effect: two invalid stress runs and their diagnosis; no wrong verdict was accepted.
-  - Inference: Qualified. Same concurrency as the earlier row, plus a shared-output-directory collision that only arises when both run in one checkout.
+[The full dashboard suite passes three consecutive local runs, fresh and loaded](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance)
+— SEED-123#dashboard-suite-passes-loaded-acceptance (DD-240, DD-257). It is
+first in the product backlog. Each failed run now keeps its report and traces
+in its own `dashboard/test-results/<start time>/`, and
+`scripts/dashboard-repeat.sh` repeats runs idle, under load, or from a fresh
+worktree; neither prior closure nor a green rerun proves these findings
+resolved.
 
 <a id="dd-240"></a>
 
@@ -367,6 +291,16 @@ collision occurrence into DD-246 without allocating a new identity. Recovery:
 fixture-check group remain first and second; both already have queued stories.
 Their fixes belong to repository test tooling and documentation, rather than
 published skills or rules. No duplicate story or queue change is needed.
+
+Resolved entries removed on 2026-10-10 (recovery: `054fc914:ProjectFindings.md`):
+
+- **DD-224, DD-246:** each suite run writes into its own
+  `dashboard/test-results/<start time>/`; a failed run keeps `report.txt`
+  and its traces there and a later run removes only its own directory
+  (`210b335d`).
+- **DD-226:** each suite run builds the app into its own temporary directory
+  and leaves `dashboard/dist` alone; `tests/dashboard-concurrent-runs.sh`
+  proves two concurrent runs (`8e5533ea`).
 
 Resolved or mitigated entries removed from the active findings on 2026-10-09:
 

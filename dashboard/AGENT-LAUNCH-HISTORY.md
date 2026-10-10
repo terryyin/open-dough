@@ -54,7 +54,10 @@ never an empty list, naming its repair: run the product backlog's
 `catalog-done` to rebuild it from the done records, then publish the rebuilt
 catalog. A catalog read that fails says only that done stories could not be
 read, and why. The list shows the latest ten top-level entries and reads
-only the done records those show. **Show 10 of N older entries** (or **Show
+only the done records those show. The saved sessions decide which stories those
+entries hold, so no done record is read before the page's first read of the
+sessions ends; until then the stories show as reading, and a sessions read
+that ends unanswered lets the stories shown without them be read. **Show 10 of N older entries** (or **Show
 the N older entries**) after them is the only way to show more: scrolling,
 resizing, and column paging read nothing. While a batch reads, the entries
 already shown stay usable and each unread story keeps its place under its
