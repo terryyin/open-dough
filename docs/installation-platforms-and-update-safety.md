@@ -141,7 +141,9 @@ When the commit stages a JavaScript or TypeScript file and lint passes, the
 hook then runs `npm run typecheck:dashboard` and refuses the commit when it
 fails, printing the TypeScript diagnostics. That catches a shared JavaScript
 module whose changed signature breaks a dashboard consumer, whatever tests
-were run. A commit that stages no such file runs no typecheck, so a
+were run. Any staged script file triggers the whole typecheck, rather than a
+list of fixture paths, so a module the dashboard newly imports is covered
+without upkeep. A commit that stages no such file runs no typecheck, so a
 records-only commit still needs no tool.
 `npm ci` runs the `prepare` script, which sets the repository's `core.hooksPath`
 to `.githooks` once. That setting is shared by the checkout and every worktree
