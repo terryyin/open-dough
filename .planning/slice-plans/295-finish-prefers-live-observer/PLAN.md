@@ -78,7 +78,7 @@ on Claude Code: `acceptedIncrement`, `commitFinalClosure`, then the owner's
 
 ### 1. The owner's live observer settles the closure before any ended one
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new journey in `trunk-closure-owner.test.mjs`, run for both ended
 records: the owner's observer that registered the final closure ended, with a
 recorded `success` (completed through `completeThroughCli`) in one run and
@@ -107,6 +107,29 @@ coordinator's live observer, else on the ended one by its recorded verdict.
 
 Safe stopping point: the story's goal holds; a sole ended observer with a
 cancelled attempt still retires, as today, until slice 2.
+
+Accepted proof (2026-10-11): the journey "finish registers, completes, and
+stops its coordinator's live observer that never registered the final closure
+before retiring, beside its ended observer that registered it with …" in
+`trunk-closure-owner.test.mjs`, for a recorded success and for only a
+cancelled attempt; in `trunk-closure-observer-selection.test.mjs` the live
+observer selected beside one ended covering observer for both records, and
+none of several live ones beside it. Run with the `trunk-closure*` and
+`closure-*` suites, the three guidance and gap consumers, and both identity
+checks.
+
+Learnings for slice 2: the refactor split the suites at the 250-line limit.
+Selection among ended observers now lives in
+`trunk-closure-observer-ended-selection.test.mjs`, its shared setup in
+`trunk-closure-observer-selection-test-fixtures.mjs`, and the ambient reruns
+in `trunk-closure-owner-ambient-rerun.test.mjs`; `deliverBeforeCleanup`,
+`pushFinalClosure`, and `assertCompletedAndStopped` are exports of
+`trunk-closure-owner-test-fixtures.mjs`. `trunk-closure-owner-gaps.test.mjs`
+stands at 240 lines, so slice 2's journey needs room there. The rerun
+paragraph of `wrap-up-closure-publication.md` reads "else on its ended
+observer that covers the closure" until slice 2 states the verdict rule.
+`trunk-closure-settlement.mjs`, also hashed into the evidence identities,
+changed in its header comment.
 
 ### 2. A sole ended observer settles the closure only by its recorded verdict
 Type: Behavior
@@ -139,6 +162,33 @@ an ended observer settles the closure only by a recorded verdict, one as
 several.
 
 Safe stopping point: the whole story holds.
+
+## Story obligations
+
+### G1. A sole ended observer with a cancelled attempt still retires
+Reported: slice 1 — "a sole ended observer with only a cancelled attempt and none live still retires."
+Story clause: "A record that holds only a cancelled attempt identifies no observer, alone as among several"
+Disposition: receiving slice 2
+
+### G2. Several live observers beside one ended covering observer
+Reported: slice 1 — "with several live observers, none covering, beside one ended covering observer, `finish` used to select the ended one and now reports `ambiguous`."
+Story clause: "several live observers of one coordinator stay `ambiguous`"
+Disposition: proved by slice 1: `trunk-closure-observer-selection.test.mjs` "closure selects none of its coordinator's several live observers that have yet to register the final closure, nor the one ended observer that registered it beside them"
+
+### G3. The journey runs on Claude Code only
+Reported: slice 1 — "The new journey runs on Claude Code only, as the plan specifies; there is no Cursor variant."
+Story clause: "Cursor and Claude Code: concurrent `deliver`, repair, and completion with the ambient session identity"
+Disposition: no user cost "the closure is observed by the observer that is actually running": the selection `finish` applies reads no host, and the selection suite proves it with Cursor claims; each host's own identity stays under Pending native evidence
+
+### G4. Native-run supports are unrun
+Reported: slice 1 — "the two native-run supports, which are only exercised by paid `--native` runs (forbidden, not run)."
+Story clause: "each run is paid and needs the developer's authorization"
+Disposition: excluded "each run is paid and needs the developer's authorization"
+
+### G5. The settlement module's retained evidence identity changes
+Reported: slice 1 — "the settlement comment edit adds `trunk-closure-settlement.mjs` to the hashed modules whose retained native evidence identities change."
+Story clause: "No native run exists for any of these"
+Disposition: excluded "No native run exists for any of these; substitute and replay results are not native acceptance"
 
 ## Current decisions
 

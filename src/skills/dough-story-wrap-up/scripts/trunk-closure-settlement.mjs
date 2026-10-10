@@ -1,7 +1,7 @@
 // Settles the final closure for Trunk Mode `finish`. A final closure the
 // target already holds is recognized through resumeInterruptedPublication
-// without a second push, on this execution's own observer that covers it,
-// live or already ended, so completion can be reused or repeated. An
+// without a second push, on the one of this execution's own observers that
+// `closureObservers` selects, so completion can be reused or repeated. An
 // unpublished one is published once through managed delivery with the same
 // owner evidence, rebased when the target moved. A rerun with the original
 // `--final` after `finish` rebased and published it recognizes the rebased

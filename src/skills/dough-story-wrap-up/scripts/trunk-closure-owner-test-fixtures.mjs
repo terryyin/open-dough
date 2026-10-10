@@ -6,7 +6,8 @@
 // default checkout. A project below its Git toplevel is the other starting
 // condition. Tests run the installed `deliver` and `finish` as each
 // coordinator's host does and own every assertion on what those commands
-// registered, completed, and retired.
+// registered, completed, and retired; the journey steps and the completion
+// witness several suites repeat are named here.
 import assert from "node:assert/strict";
 import { appendFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -17,6 +18,7 @@ import {
 import { isLiveMatchingMailbox } from "../../dough-execute-plan/scripts/ci-mailbox-match.mjs";
 import { checkMailboxWorkerLiveness } from "../../dough-execute-plan/scripts/ci-mailbox-worker-process.mjs";
 import {
+  acceptedIncrement,
   countPushes,
   coverage,
   hosts,
@@ -31,6 +33,7 @@ import {
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import { createCleanTrunkFixture } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  commitFinalClosure,
   finishThroughCli,
   installClosureSkills,
   installInIntegration,
@@ -146,6 +149,28 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
       ]),
     assertSiblingUntouched: siblingWitness(fixture, sibling),
   };
+}
+
+// The before-cleanup commit accepted through the publisher's own `deliver`.
+export async function deliverBeforeCleanup(journey) {
+  const { delivered } = await journey.deliver(journey.fixture.trunkSha);
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.directory, journey.publisher);
+  return delivered.receipt.sha;
+}
+
+// The final closure an interrupted `finish` pushed and registered nowhere.
+export async function pushFinalClosure(fixture) {
+  await commitFinalClosure(fixture);
+  return acceptedIncrement(fixture);
+}
+
+// `finish` completed `final` as passed on `observer` and stopped it.
+export function assertCompletedAndStopped(result, observer, final) {
+  assert.equal(result.completion.requestedSha, final);
+  assert.equal(result.completion.verdict, "success");
+  assert.equal(result.completion.shutdown.status, "confirmed");
+  assertObserverEnded(observer);
 }
 
 // A Claude Code project in a directory below its execution worktree's Git

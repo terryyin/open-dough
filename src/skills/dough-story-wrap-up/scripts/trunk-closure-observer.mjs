@@ -67,12 +67,13 @@ function completedObserver(ended, sha) {
 }
 
 // `directories` are the owner's observers in any state. `select` classifies
-// them once, for the selection and its gap alike, and returns the one that
-// covers `sha`, preferring a live one, then the only one that ended; else the
-// owner's one live observer, which has yet to register it; else, with none
-// live, the `completedObserver` among the several ended ones covering `sha`;
-// otherwise the coverage `gap`, given those several ended observers. An
-// observer that went live after `directories` were listed is never selected.
+// them once, for the selection and its gap alike, and returns the live one
+// that covers `sha`; else the owner's one live observer, which has yet to
+// register it, whatever an ended one recorded; else the only one that covers
+// `sha`; else, with none live, the `completedObserver` among the several ended
+// ones covering `sha`; otherwise the coverage `gap`, given those several ended
+// observers. An observer that went live after `directories` were listed is
+// never selected.
 // `notifies` is the host session that receives a selected observer's events.
 function ownedObservers(directories, classify, notifies) {
   return {
@@ -89,8 +90,8 @@ function ownedObservers(directories, classify, notifies) {
       const candidates =
         [
           covering.filter((directory) => live.includes(directory)),
-          covering.length === 1 ? covering : [],
           live,
+          covering.length === 1 ? covering : [],
           completedObserver(ended, sha),
         ].find((found) => found.length > 0) ?? [];
       return candidates.length === 1
