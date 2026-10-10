@@ -35,7 +35,7 @@ async function expectReadingPlace(
 }
 
 async function openReadingPlace(page: Page) {
-  await page.setViewportSize({ width: 54 * rem, height: 480 });
+  await page.setViewportSize({ width: 54 * rem, height: 500 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const held = await heldFactGroups(page);
   const { trunkCard, doneCard } = held;

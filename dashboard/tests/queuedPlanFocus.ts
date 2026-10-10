@@ -20,7 +20,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   repo: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
-  const { backlog, project } = parts(page);
+  const { backlog } = parts(page);
   const card = backlog.getByRole("article", { name: plannedBlocked.title });
   // The plan link is in the story's detail, which stays open across snapshots.
   await card.getByRole("button", { name: "Inspect story" }).click();
@@ -32,32 +32,26 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   // detail ask would hit the wait bound and arm recovery that blocks checks.
   await untilPageReadsAnswered(page);
 
-  // Membership temporarily drops the derived link. While canonical reading is
-  // held, a deliberate move away from fallback card wins over deferred focus.
-  for (const movedTo of [
-    project.getByRole("radio", { checked: true }),
-    card.getByRole("button", { name: "Hide detail" }),
-  ]) {
-    const seed = join(repo.directory, ".planning", seedRelative);
-    writeFileSync(seed, `${readFileSync(seed, "utf8")}\n`);
-    const fresh = commitPaths(
-      repo.directory,
-      [`.planning/${seedRelative}`],
-      "Publish fresh preparation for focus observation",
-    );
-    repo.advanceTo(fresh);
-    origin.advanceTo(fresh);
-    const releaseSeed = origin.hold(`.planning/${seedRelative}`);
-    await plan.focus();
-    await passTimeUntilChecked(page);
-    await expect(card).toBeFocused();
-    await expect(plan).toHaveCount(0);
-    await movedTo.focus();
-    releaseSeed();
-    await expect(plan).toBeVisible();
-    await expect(movedTo).toBeFocused();
-    await untilPageReadsAnswered(page);
-  }
+  // A new revision keeps the link shown until its own canonical answer: while
+  // that reading is held, the focused link stays, and focus stays on it.
+  const seed = join(repo.directory, ".planning", seedRelative);
+  writeFileSync(seed, `${readFileSync(seed, "utf8")}\n`);
+  const fresh = commitPaths(
+    repo.directory,
+    [`.planning/${seedRelative}`],
+    "Publish fresh preparation for focus observation",
+  );
+  repo.advanceTo(fresh);
+  origin.advanceTo(fresh);
+  const releaseSeed = origin.hold(`.planning/${seedRelative}`);
+  await plan.focus();
+  await passTimeUntilChecked(page);
+  await expect(parts(page).source).toContainText(fresh);
+  await expect(plan).toBeVisible();
+  await expect(plan).toBeFocused();
+  releaseSeed();
+  await untilPageReadsAnswered(page);
+  await expect(plan).toBeFocused();
 
   // A truly removed association completes enrichment without a plan link and
   // leaves focus on the original work card, rather than another card/link.

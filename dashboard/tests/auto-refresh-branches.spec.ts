@@ -35,6 +35,7 @@ import {
 } from "./branchProgressRecords.ts";
 import { openedSettled, trunkMoved } from "./branchRefreshJourney.ts";
 import { readsBesideChecks } from "./originObservation.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 
 const example = "story/example";
@@ -129,6 +130,9 @@ test("the automatic check follows each recorded story branch, reading only the p
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
     await expect(source).toContainText(trunkMoved);
+    // The shown progress stays while the new revision is read, so only the
+    // page's own reads say the read has ended.
+    await untilPageReadsAnswered(page);
     await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
     await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
     await expect(

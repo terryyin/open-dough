@@ -1,8 +1,9 @@
 // The details of the done records Recently done shows: each record its
 // shown entries need (`./recentlyDoneView.ts`) is read once, by the file
 // name and Git blob its catalog names (`./doneStories.ts`), at the revision
-// shown, through the local boundary's catalogued record read
-// (`./authenticatedDoneRead.ts`). Records nobody asked for are never read.
+// that catalog was read at, through the local boundary's catalogued record
+// read (`./authenticatedDoneRead.ts`). Records nobody asked for are never
+// read.
 //
 // What a record says stays known for as long as the project is shown: a
 // record's text is the blob it is kept by, so a later revision listing the

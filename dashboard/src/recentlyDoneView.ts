@@ -10,11 +10,12 @@
 // stories shown are read (`./doneDetails.ts`); a story shown before its
 // record answers keeps its place, with its sessions, under its identity.
 // A refresh of the project keeps the list the last revision's catalog placed
-// until the new revision's catalog answers, so the list neither empties nor
-// loses the keyboard meanwhile; each record is still read at the revision
-// whose catalog lists it. `./RecentlyDone.tsx` presents it.
+// until the new revision's catalog answers, since the snapshot carries it
+// (`./carriedFacts.ts`), so the list neither empties nor loses the keyboard
+// meanwhile; each record is still read at the revision whose catalog lists
+// it. `./RecentlyDone.tsx` presents it.
 
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect } from "react";
 import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { storySessionsOf, type LaunchWithState } from "./agentLaunch.ts";
 import type { ColumnSummary } from "./columnSummary.ts";
@@ -73,27 +74,6 @@ const holdsEntry = (each: Listed, held: HeldEntry) =>
     ? holds(each, held.session)
     : "record" in each && each.record.identity === held.story;
 
-type ShownDone = {
-  readonly sourceId: string;
-  readonly revision: string;
-  readonly done: PublishedWork["done"];
-};
-
-// The done stories shown, and the revision whose catalog places them: the
-// work's own once its catalog answers, else, while a newer revision of the
-// same project reads its catalog, the last revision's.
-function useShownDone(sourceId: string, work: PublishedWork): ShownDone {
-  const { revision, done } = work;
-  const current = { sourceId, revision, done };
-  const [last, setLast] = useState<ShownDone>(current);
-  if (done?.status !== "loading" && last.done !== done) setLast(current);
-  return done?.status === "loading" &&
-    last.sourceId === sourceId &&
-    last.done?.status === "catalogued"
-    ? last
-    : current;
-}
-
 // Answers the page's destination in this project once the list can place it:
 // not held here when no saved Done session is it, else, once the done
 // catalog has placed it, the range extended exactly through its entry, and
@@ -148,7 +128,12 @@ export function useRecentlyDone({
   readonly noneKept: boolean;
 }) {
   const range = usePageRange();
-  const { done, revision } = useShownDone(sourceId, work);
+  // While a newer revision reads its catalog, the snapshot carries the
+  // last one (`./carriedFacts.ts`).
+  const { done } = work;
+  // Records are read at the revision whose catalog lists them.
+  const revision =
+    done?.status === "catalogued" ? done.revision : work.revision;
   const listed = newestFirst(
     recentDoneRecords(done, new Date()),
     records ?? [],

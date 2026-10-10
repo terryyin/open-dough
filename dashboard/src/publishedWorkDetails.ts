@@ -1,7 +1,9 @@
 // After membership: preparation, profiles, credit, progress, clocks, and done
 // stories for one published snapshot read (`./publishedWorkRead.ts`). At the
 // same revision as a shown snapshot, successful facts stay projected while
-// eligible unanswered questions are asked again.
+// eligible unanswered questions are asked again; at a new revision of the
+// shown project, each snapshot the read shows carries the shown facts it has
+// not answered yet (`./carriedFacts.ts`).
 
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
@@ -17,12 +19,16 @@ import {
   withProgressSources,
 } from "./progressSource.ts";
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
+import { withCarriedFacts } from "./carriedFacts.ts";
 
 // Enriches a membership snapshot with independent detail groups. Same-
 // revision recovery keeps counted progress and clocks that already answered.
+// `carriedFrom`, the shown snapshot of an earlier revision, lends its facts to
+// every part not yet answered.
 export async function readPublishedDetails(
   work: PublishedWork,
   sameRevision: boolean,
+  carriedFrom: PublishedWork | undefined,
   untilEither: AbortSignal,
   bound: AbortSignal,
   signal: AbortSignal,
@@ -36,7 +42,7 @@ export async function readPublishedDetails(
     sameRevision && work.done !== undefined && work.done.status !== "loading"
       ? work.done
       : { status: "loading" };
-  const assembled = (): PublishedWork => {
+  const answered = (): PublishedWork => {
     // Trunk's plan facts do not establish a Taken entry's progress until
     // its profiles can say where that progress is published.
     const current = progress ?? {
@@ -53,9 +59,12 @@ export async function readPublishedDetails(
     // trunk-copy labels aligned (or cleared) with the owners now shown.
     return { ...withKnownProgressSources(withOwners), done };
   };
+  const shownWith = (read: PublishedWork) => {
+    onPartial?.(withCarriedFacts(read, carriedFrom), read);
+  };
   const show = () => {
     if (!signal.aborted) {
-      onPartial?.(assembled());
+      shownWith(answered());
     }
   };
   // Establish the pending observation before any detail can answer.
@@ -171,10 +180,11 @@ export async function readPublishedDetails(
   try {
     const [, , snapshotUnread] = await Promise.all(details);
     signal.throwIfAborted();
-    const enriched = assembled();
+    // Every part is answered or a gap by now, so nothing is carried.
+    const enriched = answered();
     // Finish every started read before the final promise establishes
     // completion, even when a bound left explicit gaps in the view.
-    onPartial?.(enriched);
+    onPartial?.(enriched, enriched);
     if (snapshotUnread) {
       bound.throwIfAborted();
     }

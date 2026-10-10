@@ -81,8 +81,14 @@ export type PublishedWork = {
   readonly done?: DoneStories;
 };
 
-// Receives each more complete snapshot of one read as it becomes known.
-export type PublishedWorkProgress = (work: PublishedWork) => void;
+// Receives each more complete snapshot of one read as it becomes known, and
+// the same snapshot with only what the read itself has answered: without the
+// facts a new revision's read carries from the shown snapshot
+// (`./carriedFacts.ts`), which do not outlive the read.
+export type PublishedWorkProgress = (
+  work: PublishedWork,
+  answered: PublishedWork,
+) => void;
 
 // A revision as it is said inside a sentence. The source evidence and every
 // pinned link keep the whole revision.

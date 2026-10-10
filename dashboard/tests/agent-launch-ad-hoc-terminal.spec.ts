@@ -97,6 +97,11 @@ for (const text of ["why is the CI slow on main?", ""]) {
     const rows = panel.locator(".xterm-rows");
     const { taken } = parts(page);
 
+    // A window short enough that the page scrolls well past 40 px both
+    // before the launch and once the terminal shares the window with it,
+    // whatever the fonts make its length, so a kept position is the page's
+    // own and not one the window forces.
+    await page.setViewportSize({ width: 1280, height: 480 });
     await page.evaluate(() => {
       window.scrollTo(0, 40);
     });
@@ -104,6 +109,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     await expect(dialog).toBeVisible();
     // Where the page is once the dialog is open; the launch does not move it.
     const scroll = await page.evaluate(() => window.scrollY);
+    expect(scroll).toBeGreaterThan(0);
     if (text !== "") {
       await startSessionField(dialog).fill(text);
     }

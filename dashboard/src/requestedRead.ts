@@ -3,7 +3,9 @@
 // ref afresh, of a revision a check already found the ref naming, or, while
 // the ref is unchanged, of only the progress on story branches a check found
 // at other heads (`./movedBranchProgress.ts`). A cancelled read reports
-// nothing further.
+// nothing further. A read that fails or is let go of before it lands leaves
+// shown only what it answered itself: facts it carried from the shown
+// snapshot while it was under way (`./carriedFacts.ts`) do not outlive it.
 
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { readMovedProgress } from "./movedBranchProgress.ts";
@@ -30,6 +32,8 @@ export type ReadReports = {
   readonly settle: (revealing: boolean) => void;
 };
 
+// Returns what letting go of the read before it lands asks: showing what it
+// answered itself, once its signal is aborted.
 export function carryOutRead(
   { revision, movedBranches }: ReadRequest,
   source: PublishedSource,
@@ -37,7 +41,7 @@ export function carryOutRead(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   reports: ReadReports,
-) {
+): () => void {
   const landed = (revealing: boolean, found: () => void) => {
     if (signal.aborted) return;
     found();
@@ -56,15 +60,26 @@ export function carryOutRead(
         });
       },
     );
-    return;
+    return () => {};
   }
   let acceptedMembership = false;
-  const acceptProgress = (partial: PublishedWork) => {
+  // The last snapshot shown, and the same with only what the read answered.
+  let lastShown: PublishedWork | undefined;
+  let lastAnswered: PublishedWork | undefined;
+  const acceptProgress = (partial: PublishedWork, answered: PublishedWork) => {
     if (signal.aborted) return;
     const firstMembership = !acceptedMembership;
     acceptedMembership = true;
     if (firstMembership) reports.acceptMembership();
+    lastShown = partial;
+    lastAnswered = answered;
     reports.show(partial, firstMembership);
+  };
+  const showAnswered = () => {
+    if (lastAnswered !== undefined && lastAnswered !== lastShown) {
+      lastShown = lastAnswered;
+      reports.show(lastAnswered, false);
+    }
   };
   readPublishedWork(
     source,
@@ -76,14 +91,18 @@ export function carryOutRead(
   ).then(
     (read) => {
       landed(true, () => {
-        acceptProgress(read);
+        acceptProgress(read, read);
         reports.completeDetail();
       });
     },
     (error: unknown) => {
       landed(true, () => {
+        showAnswered();
         reports.fail(error, acceptedMembership);
       });
     },
   );
+  return () => {
+    if (signal.aborted) showAnswered();
+  };
 }

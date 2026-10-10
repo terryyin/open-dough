@@ -16,6 +16,7 @@ import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
 import { avatarHost, creditedAvatar } from "./agentAttributionRecords.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
@@ -76,6 +77,9 @@ async function expectCreditedAt(
   }
   await back.click();
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
+  // Shown credits stay while a new revision is read, so only the page's own
+  // reads say that read has ended.
+  await untilPageReadsAnswered(page);
 }
 
 // The history listings and commit reads among `asked`: what a credit costs,

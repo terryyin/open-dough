@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-126#steady-dashboard-refresh",
+  "title": "Keep unchanged dashboard stories steady while story information reloads",
+  "completedAt": "2026-10-10T04:46:33.383Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "claude"
+}

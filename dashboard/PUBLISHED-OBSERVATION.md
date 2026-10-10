@@ -62,7 +62,11 @@ longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
 a minimized window) asks nothing and abandons a check under way; when it is
 seen again it checks once at once, then resumes the 15-second pace. Each read
-replaces the whole view with one revision. No local
+settles on one revision's facts. A new revision's membership and order show as
+soon as its backlog is read; a story it still lists keeps what the page showed
+for each part, the agent roster and Recently done included, until that
+revision answers for that part, so unchanged work neither blanks nor moves,
+while a story new to the backlog reads as on a first visit. No local
 checkout, unpushed change, or running agent is a source of what it shows:
 Taken means recorded as taken, not that anyone is working now.
 

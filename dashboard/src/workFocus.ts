@@ -181,8 +181,11 @@ export function workHome(identity: string | undefined): HTMLElement | null {
   return (identity === undefined ? undefined : workCard(identity)) ?? stages();
 }
 
-// Membership arrives before derived links. Retain a missing role while its
-// preparation loads, only if focus stays on that work's fallback card.
+// A snapshot can name a work before its derived links: a new revision keeps
+// the shown preparation (`./carriedFacts.ts`), so a link goes missing only
+// while preparation is still unanswered there too. Retain a missing role
+// while its preparation loads, only if focus stays on that work's fallback
+// card.
 export function restoreSnapshotFocus(
   held: FocusedWork | undefined,
   deferred: FocusedWork | undefined,

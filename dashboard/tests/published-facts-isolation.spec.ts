@@ -24,6 +24,7 @@ import {
   factCards,
   expectHeldGroups,
   expectNextProjectCheck,
+  expectNoEarlierAssignments,
   expectNoEarlierFacts,
   expectOnlyProjectAsked,
   focusCanonical,
@@ -40,7 +41,7 @@ const factsA = factsAt(revisionA, "A");
 const factsB = factsAt(revisionB, "B");
 const pendingB = ["preparation", "done"] as const;
 
-test("new membership and fast B assignments replace a complete A without borrowing its held preparation or done facts", async ({
+test("new membership and fast B assignments replace a complete A's, while B's held preparation keeps A's facts for the same story until B answers it", async ({
   page,
 }) => {
   const errors = pageErrors(page);
@@ -67,17 +68,18 @@ test("new membership and fast B assignments replace a complete A without borrowi
   await expectMembership(page, factsB.membership);
   await expectHeldGroups(page, factsB, pendingB);
 
-  await test.step("B's available assignments and roster are usable while all A details disappear", async () => {
-    await expectCurrentFacts(page, factsB, pendingB);
-    await expectNoEarlierFacts(page, factsA);
+  await test.step("B's available assignments and roster are usable while A's details B has not answered stay", async () => {
+    await expectCurrentFacts(page, factsB, pendingB, factsA);
+    await expectNoEarlierAssignments(page, factsA);
+    await expect(parts(page).recentlyDone).not.toContainText(factsA.doneTitle);
     await expect(link).toBeFocused();
     await expectCurrentRoster(page, factsB);
     await focusCanonical(page, factsB);
   });
-  await test.step("B's held groups add only B facts and retain the current inspection and focus", async () => {
+  await test.step("B's held groups replace A's with only B facts and retain the current inspection and focus", async () => {
     current.release("done");
-    await expectCurrentFacts(page, factsB, ["preparation"]);
-    await expectNoEarlierFacts(page, factsA);
+    await expectCurrentFacts(page, factsB, ["preparation"], factsA);
+    await expectNoEarlierAssignments(page, factsA);
     await expect(link).toBeFocused();
     current.release("preparation");
     await expectCurrentFacts(page, factsB);

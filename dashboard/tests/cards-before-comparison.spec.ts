@@ -1,7 +1,7 @@
 // Once the configured ref names a new commit B, B's backlog alone decides its
 // cards: with GitHub's account of what changed since A still unanswered, the
 // page shows B's membership under B while the details that account decides
-// are still reading. The fake GitHub only holds the comparison
+// are still read, a card shown at A keeping A's details meanwhile. The fake GitHub only holds the comparison
 // (./publishedFiles.ts); the local read boundary and the page decide what is
 // shown.
 
@@ -34,19 +34,23 @@ import {
 } from "./unchangedRecordsRefresh.ts";
 
 // Membership at B never waits on GitHub's account of what changed: with the
-// comparison held, B's cards show at once, under B, with the details that
-// account decides still reading.
+// comparison held, B's cards show at once, under B; only a card new at B
+// reads its preparation, while the others keep what they showed at A.
 async function expectCardsBeforeDetailsAt(
   page: Page,
   revision: string,
   titles: { readonly taken: string[]; readonly backlog: string[] },
+  reading: readonly string[] = [],
 ) {
   await expect(parts(page).source).toContainText(revision);
   await expectMembership(page, titles);
-  await expect(page.getByText("Reading preparation…").first()).toBeVisible();
+  const cards = parts(page).stages.locator("[data-work]");
+  await expect(
+    cards.filter({ hasText: "Reading preparation…" }).locator("fieldset > h3"),
+  ).toHaveText([...reading]);
 }
 
-test("while the comparison is held, B's cards show under B with their details still reading, and released, the details are A's as B's own", async ({
+test("while the comparison is held, B's cards show under B keeping the details shown at A, and released, the details are A's as B's own", async ({
   page,
 }) => {
   await pausePageClockAt(page, opened);
@@ -102,10 +106,12 @@ test("while the comparison is held, B's changed backlog shows its new membership
     },
   ]);
   await passTimeUntilChecked(page);
-  await expectCardsBeforeDetailsAt(page, revisionB, {
-    taken: [takenTitle],
-    backlog: [queuedTitle, addedTitle],
-  });
+  await expectCardsBeforeDetailsAt(
+    page,
+    revisionB,
+    { taken: [takenTitle], backlog: [queuedTitle, addedTitle] },
+    [addedTitle],
+  );
 
   release();
   await expectSettledAt(page, revisionB, [queuedTitle, addedTitle]);

@@ -104,7 +104,7 @@ test("story readiness reads preparation and progress accessibly", async ({
   });
 });
 
-test("queued plan focus deferral respects deliberate movement and a removed association", async ({
+test("a focused queued plan link keeps focus while a new revision is read, and a removed association returns focus to its card", async ({
   page,
   afterGitHubStops,
 }) => {

@@ -160,7 +160,9 @@ test("accessible overview announces reading, the read result, and a failure whil
       true,
     ]);
     // The source evidence already shows the result, so it is not shown twice.
-    expect(await box(status)).toMatchObject({ width: 1, height: 1 });
+    expect(
+      await box(status.getByText(/^Published work read at revision /)),
+    ).toMatchObject({ width: 1, height: 1 });
   });
 
   // Sessions, the project, the source evidence, then System settings.
@@ -205,7 +207,9 @@ test("accessible overview announces reading, the read result, and a failure whil
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
     await expect(notice).toBeEmpty();
-    expect(await box(status)).toMatchObject({ width: 1, height: 1 });
+    expect(
+      await box(status.getByText(/^Published work read at revision /)),
+    ).toMatchObject({ width: 1, height: 1 });
     expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
       true,
       true,

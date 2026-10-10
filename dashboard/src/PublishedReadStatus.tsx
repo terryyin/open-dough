@@ -35,26 +35,21 @@ export function PublishedReadStatus({
           already knows, and may never speak one inserted with its text.
           Neither takes focus. The result names only what was read; the
           source evidence above already shows it, so it is spoken and not
-          shown twice, while a read under way is said in sight. */}
-      <p
-        role="status"
-        className={
-          attempt.status === "read"
-            ? "announcement spoken-only"
-            : "announcement"
-        }
-      >
+          shown twice, while a read under way is said in sight. Either keeps
+          the status's one line of room, so the read starting or ending moves
+          nothing below it. */}
+      <p role="status" className="announcement read-status">
         {reading && (
-          <>
+          <span className="read-status-line">
             Reading published work…
             {work && " What is shown is still the snapshot retrieved earlier."}
-          </>
+          </span>
         )}
         {attempt.status === "read" && work && (
-          <>
+          <span className="visually-hidden">
             Published work read at revision {shortRevision(work.revision)},
             retrieved <Moment at={work.retrievedAt} />.
-          </>
+          </span>
         )}
       </p>
       {attempt.status === "failed" ? (
