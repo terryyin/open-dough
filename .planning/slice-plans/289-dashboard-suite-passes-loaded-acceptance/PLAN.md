@@ -92,7 +92,7 @@ adds no topic.
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
 | The failing fresh-run waits were plain 5 s bounds right after an open | Slice 1's shape | At `8511d0cb`, Playwright named the tests by declaration line: `accessible-overview.spec.ts:38` and `:131` are the two tests whose first expectation after `page.goto("/")` is `expect(longCard).toBeVisible()` or the narrow-window first expect; `accessible-overview-keyboard.spec.ts:144` opens through `openAtA` → `expectMembership` (`dashboardPage.ts:134`, `toHaveText` with the default 5 s). `playwright.config.ts` sets no `expect.timeout`. | Confirmed. |
-| Every page notes its reads before its scripts run, so a wait can observe the opening read | Slice 1's wait | `dashboardTest.ts:133-135`: the `context` fixture calls `noteRequestsInEveryPage`, an init script; `pageRequestNotes.ts` keeps `readsUnanswered` for `/__authenticated-read` requests without `since`. | Confirmed; the set keeps no URL, so the kind is added (slice 1). |
+| Every page notes its reads before its scripts run, so a wait can observe the opening read | Slice 1's wait | `dashboardTest.ts:133-135` (since slice 2 `support/pageTest.ts`): the `context` fixture calls `noteRequestsInEveryPage`, an init script; `pageRequestNotes.ts` keeps `readsUnanswered` for `/__authenticated-read` requests without `since`. | Confirmed; the set keeps no URL, so the kind is added (slice 1). |
 | A held first answer reproduces the symptom deterministically | Slice 1's red proof | `fakeGitHub.ts:33`: a `RepositoryAnswerer` may wait before answering, so a spec can hold the first `ref` answer about 6 s (over the 5 s bound, under the 30 s test timeout) and release it. | Mechanism confirmed by reading; the red run is slice 1's first step. |
 | The loaded failure's check never waited on the reads it depended on | Slice 2's shape | `reopened-project-reads.spec.ts:60-78` `expectSettled`: membership, source, card text, then `toHaveCount(0)` on three labels, no `untilPageReadsAnswered`; `expectSettledPage` (`dashboardPage.ts:155-172`) checks the preparation label before the reads. | Confirmed. |
 | A counted entry is not rewritten to loading after its plan answered | Slice 5's premise | `publishedWorkDetails.ts:46-61,131-170`: `answered()` uses `progress` once set; `withSliceClocks` derives from the resolved progress; `movedBranchProgress.ts:40` reads only moved branches. | No overwrite found by reading; not settled. Slice 2's event-first check and loaded repeats decide; slice 5 is conditional on them. |
@@ -150,7 +150,15 @@ callers, and every held-read journey.
 
 ### 2. Settled checks observe labels after the page's reads
 Type: Structure
-Status: planned
+Status: done
+Accepted proof (2026-10-10, pinned Node): full `npm run --silent
+test:dashboard` exit 0, no output, 517 s, load 6.4 → 17.0;
+`/opt/homebrew/bin/bash scripts/dashboard-repeat.sh 1 --load
+reopened-project-reads --repeat-each 20` printed `Run 1 under burners: exit
+0, 13 s, load 14.94 -> 25.54` and `Passed 1 of 1 runs.`; the bare-fixture test
+in `first-open-waits-for-read.spec.ts` was red before the fixture change
+(`expect(returned).toBe(false)` received true) and green after, 24 of 24
+under burners (load 22.90 -> 26.51).
 Proof: `expectSettledPage` callers (40 files) pass; `reopened-project-reads`
 passes `--repeat-each 20` through `scripts/dashboard-repeat.sh 1 --load`, its
 load lines recorded here. A label still shown after the reads answered fails
@@ -226,7 +234,7 @@ run.
 ### G1. Specs on the bare page fixture get no wait
 Reported: slice 1 — "Specs on `support/pageTest.ts` get no wait. Request noting is installed only by the `dashboardTest.ts` context fixture (and by hand in `read-turns-across-tabs`). On other pages the wait is a no-op."
 Story clause: "Every journey's first card check after an open waits first for the page's published-work read to answer or fail"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `dashboard/tests/support/pageTest.ts` `context` fixture notes every page's requests; `first-open-waits-for-read.spec.ts` "a page of a journey that starts its own dashboard waits for its published-work read too" observes the wait pending on a held read there
 
 ### G2. The wait relies on page turns between the page's steps
 Reported: slice 1 — "The wait still relies on page turns between steps. After the first content and after each answer, the page gets three message turns to send its next request, as `untilPageReadsAnswered` already assumes."
@@ -247,6 +255,16 @@ Disposition: interim until slices 6
 Reported: slice 1 — "Suite cost: the new spec costs about 11 s of one worker (6 s hold plus the 5 s bound expectation in the ordering proof)."
 Story clause: "Each CI dashboard shard still ends within `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`"
 Disposition: interim until slices 6
+
+### G6. Production-watcher pages note nothing
+Reported: slice 2 — "`production-watcher*` pages come from `browser.newPage()`, outside any fixture context, so they note nothing. `production-watcher-updates.spec.ts:159` checks the "Published Git state" region after a reload with no wait."
+Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
+Disposition: interim until slices 6
+
+### G7. The bare-fixture test's pending observation is an ordering argument
+Reported: slice 2 — "The new test's "pending" observation depends on Playwright evaluates completing in order (four turn round trips after a wait that needs three when it has nothing to wait for)."
+Story clause: "passes three consecutive full runs on unchanged code with no output"
+Disposition: no user cost "passes three consecutive full runs on unchanged code with no output": with the wait working, `returned` stays false until the held read is released whatever the order of evaluates, so the ordering can only weaken the test's power to catch a regression, never fail a passing run.
 
 ## Learnings
 
@@ -270,6 +288,15 @@ Disposition: interim until slices 6
 - Setup: this machine's Node (24.5.0) differs from `.node-version`
   (24.21.0); proof from the corrected slice 1 onward runs on the pinned Node
   after `scripts/setup-native.mjs npm`, `browser`, `check`.
+
+- Slice 2: request noting moved to the base page fixture
+  (`dashboard/tests/support/pageTest.ts`), so every spec's fixture pages note
+  their reads; pages a spec makes with `browser.newPage()` or its own context
+  (`production-watcher*`, `read-turns-across-tabs`) still install by hand or
+  not at all (G6).
+- Slice 2: 20 loaded repeats of `reopened-project-reads` with the label
+  checks after the reads did not show "Reading plan slices…" (load at most
+  25.5); slice 5 stays conditional on slice 6's loaded full run.
 
 ## Verification and sizing
 

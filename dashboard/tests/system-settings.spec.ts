@@ -7,6 +7,7 @@ import { startSessionDialog } from "./launchCardPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { settings, back } from "./support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -118,7 +119,7 @@ test("direct settings reload knows the selected project; unselected removal pres
   await expect(
     page.getByRole("radio", { name: "Pygardon", exact: true }),
   ).toHaveCount(0);
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(
     page.getByRole("radio", { name: "Terry Talks", exact: true }),
   ).toBeChecked();

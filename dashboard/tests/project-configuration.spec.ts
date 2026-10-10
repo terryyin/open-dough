@@ -25,6 +25,7 @@ import { title } from "./agentLaunchBoundary.ts";
 import { settings } from "./support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { customSavedProjects } from "./support/projectConfiguration.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 let machine: string;
@@ -79,7 +80,7 @@ test("production seeds its four projects and shows a previously saved session", 
   );
   const records = readFileSync(storeFile(machine));
   const server = await start("preview");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("radiogroup", { name: "Project" }).getByRole("radio"),
   ).toHaveCount(4);
@@ -136,7 +137,7 @@ for (const mode of ["dev", "preview"] as const) {
     save(mode, saved);
     for (let run = 0; run < 2; run += 1) {
       const server = await start(mode);
-      await page.goto(`${server.baseURL}/?project=unknown`);
+      await openUntilRead(page, `${server.baseURL}/?project=unknown`);
       const group = page.getByRole("radiogroup", { name: "Project" });
       await expect(group.getByRole("radio")).toHaveCount(2);
       await expect(group.locator("label")).toHaveText(["Zebra", "Apple"]);
@@ -163,7 +164,7 @@ for (const mode of ["dev", "preview"] as const) {
   test(`an existing empty list stays empty (${mode})`, async ({ page }) => {
     save(mode, "[]\n");
     const server = await start(mode);
-    await page.goto(server.baseURL);
+    await openUntilRead(page, server.baseURL);
     await expect(
       page.getByRole("heading", { name: "No projects configured" }),
     ).toBeVisible();
@@ -181,7 +182,7 @@ for (const mode of ["dev", "preview"] as const) {
     const malformed = "{ not a project list\n";
     save(mode, malformed);
     const server = await start(mode);
-    await page.goto(server.baseURL);
+    await openUntilRead(page, server.baseURL);
     await expect(page.getByRole("status")).toContainText(
       "project configuration could not be read",
     );
@@ -198,7 +199,7 @@ test("development first start is empty and refuses the formerly fixed project", 
   page,
 }) => {
   const server = await start("dev");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("heading", { name: "No projects configured" }),
   ).toBeVisible();
@@ -224,15 +225,14 @@ test("development first start is empty and refuses the formerly fixed project", 
 test("a saved document with the wrong shape is reported without replacement", async ({
   page,
 }) => {
-  save("preview", '[{"id":"broken"}]\n');
+  const wrongShape = '[{"id":"broken"}]\n';
+  save("preview", wrongShape);
   const server = await start("preview");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("status")).toContainText(
     configurationFile("preview"),
   );
-  expect(readFileSync(configurationFile("preview"), "utf8")).toBe(
-    '[{"id":"broken"}]\n',
-  );
+  expect(readFileSync(configurationFile("preview"), "utf8")).toBe(wrongShape);
   expect(server.ghCalls()).toEqual([]);
 });
 
@@ -241,7 +241,7 @@ test("a file that cannot be read is reported without seeding", async ({
 }) => {
   mkdirSync(configurationFile("preview"), { recursive: true });
   const server = await start("preview");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("status")).toContainText(
     configurationFile("preview"),
   );

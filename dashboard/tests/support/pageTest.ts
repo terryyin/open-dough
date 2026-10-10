@@ -13,11 +13,16 @@
 // finishing. A route handler may still be reading its fetched answer when the
 // test's last assertion passes, and Playwright disposes those answers with the
 // context. So the `page` fixture finishes every handler of the page before it
-// is torn down, and no spec needs a teardown of its own for it. Specs import
-// `test` from here; the lint configuration rejects a direct import of `test`
-// from `@playwright/test` under `dashboard/tests/`.
+// is torn down, and no spec needs a teardown of its own for it. Another is
+// the answer to a read the page sent on opening: every page of the test's
+// context notes its requests from before its own scripts run
+// (../pageRequestNotes.ts), whichever server the spec opens it at, so a first
+// check after an open can wait for that answer. Specs import `test` from
+// here; the lint configuration rejects a direct import of `test` from
+// `@playwright/test` under `dashboard/tests/`.
 
 import { test as base } from "@playwright/test";
+import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
 
 export { expect } from "@playwright/test";
@@ -26,6 +31,10 @@ export { expect } from "@playwright/test";
 endDescendantsAtExit();
 
 export const test = base.extend({
+  context: async ({ context }, use) => {
+    await noteRequestsInEveryPage(context);
+    await use(context);
+  },
   page: async ({ page }, use) => {
     await use(page);
     // A spec that closed its page has no handler left to finish.

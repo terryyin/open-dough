@@ -102,8 +102,10 @@ async function expectFirstCard(page: Page) {
 // setting file of a project with no Taken entry, has then reached GitHub
 // too. Cards come first: until the stages show them -- these titles, or else
 // a first card -- no card says it is still reading, as just after a reload,
-// so that absence alone settles nothing. `timeout` bounds only the wait for
-// the preparation reading to end.
+// so that absence alone settles nothing. Then the reads: once they are
+// answered, a card still reading its preparation is one the page has yet to
+// show as read, or one that reads again in its own time, so `timeout` bounds
+// only that; the reads a later reading sent are awaited after it.
 export async function expectSettledPage(
   page: Page,
   membership?: { readonly taken: string[]; readonly backlog: string[] },
@@ -114,6 +116,7 @@ export async function expectSettledPage(
   } else {
     await expectMembership(page, membership);
   }
+  await untilPageReadsAnswered(page);
   await expect(page.getByText("Reading preparation…")).toHaveCount(0, {
     ...(timeout !== undefined && { timeout }),
   });

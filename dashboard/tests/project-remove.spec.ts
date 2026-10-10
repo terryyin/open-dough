@@ -6,6 +6,7 @@ import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -155,7 +156,7 @@ test("removing a configured project retains its checkout and records, hides sess
   ]);
   await fixture.stop(server);
   server = await fixture.start("preview");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("radio")).toHaveCount(4);
   await expect(page.getByRole("radio", { name: "Sample App" })).toHaveCount(0);
   await addProjectOnPage(page);
@@ -210,7 +211,7 @@ test("removing the first project selects its next neighbor and reads that projec
   page,
 }) => {
   const server = await fixture.start("preview");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();

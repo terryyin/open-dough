@@ -118,7 +118,7 @@ machineTest(
     });
     try {
       await page.setViewportSize(narrowWindow);
-      await page.goto(server.baseURL);
+      await openUntilRead(page, server.baseURL);
       const heading = page.getByRole("heading", {
         name: "No projects configured",
       });

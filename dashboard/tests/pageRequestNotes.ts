@@ -40,7 +40,7 @@ type RequestsNoted = {
 // whole, or the request has failed or been abandoned. The page's requests
 // and the answers it reads are left exactly as they are; only a copy of each
 // answer is read here. Runs in the page, as a page script or as an init
-// script before the page's own scripts (`./dashboardTest.ts`).
+// script before the page's own scripts (`./support/pageTest.ts`).
 function noteRequestsInPage({
   checkParameter: parameter,
   readPath,

@@ -10,7 +10,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import {
@@ -56,13 +56,16 @@ const reopenedAtA = [
 ].sort();
 
 // The page once the project's membership and every fact its cards wait on are
-// read.
+// read: with every read answered, no card says it is still reading any of
+// them, and the Taken card shows what they answered.
 async function expectSettled(
   page: Page,
   { revision, queued }: { revision: string; queued: string },
 ) {
   const { source, taken } = parts(page);
-  await expectMembership(page, { taken: [takenTitle], backlog: [queued] });
+  await expectSettledPage(page, { taken: [takenTitle], backlog: [queued] });
+  await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
+  await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   await expect(source).toContainText(revision);
   const card = taken.getByRole("article", { name: takenTitle });
   const progress = card.locator(".card-progress");
@@ -72,9 +75,6 @@ async function expectSettled(
   ).toBeVisible();
   await expect(progress).toContainText("Current slice started 7 min ago");
   await expect(card).toContainText("Akiho");
-  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
-  await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
-  await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
 }
 
 // The canonical record link a card's detail gives.
@@ -128,9 +128,11 @@ test("reopening an unchanged project asks only which commits its ref and story b
 
   await test.step("returning from another project asks the same and nothing more", async () => {
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
-    await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
+    await expectSettledPage(page, {
+      taken: [],
+      backlog: [doughnutSharedTitle],
+    });
     await expect(source).toContainText(revisionDoughnut);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
     const before = origin.requests.length;
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })

@@ -6,9 +6,13 @@
 // decides how GitHub answers the ref.
 
 import { expect, test } from "./dashboardTest.ts";
+import { test as machineTest } from "./support/pageTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { recordsAt } from "./autoRefreshJourney.ts";
-import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
+import {
+  givePageItsTurns,
+  untilPublishedWorkRead,
+} from "./pageRequestNotes.ts";
 import {
   commitAnswer,
   publishMovingOrigin,
@@ -21,6 +25,12 @@ import {
   revisionA,
   titlesOfA,
 } from "./refreshJourney.ts";
+import {
+  builtDashboardDir,
+  startDashboardServer,
+} from "./support/dashboardServer.ts";
+import { everyRepository, publishes } from "./support/fakeGitHub.ts";
+import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
 
 // Longer than an `expect` waits for a card (5 s, Playwright's default, which
 // playwright.config.ts leaves alone) and well inside a test's 30 s: how long
@@ -123,3 +133,44 @@ test("a held detail read does not hold a membership check back", async ({
     release();
   }
 });
+
+// A journey that starts its own dashboard server, on the page every dashboard
+// spec runs under (./support/pageTest.ts), waits the same way.
+machineTest(
+  "a page of a journey that starts its own dashboard waits for its published-work read too",
+  async ({ page }) => {
+    const server = await startDashboardServer({
+      mode: "preview",
+      prebuilt: builtDashboardDir,
+    });
+    const ref = holdingAnswer(
+      publishes({ revision: revisionA, backlog: backlogA }),
+      (request) => request.kind === "ref",
+    );
+    server.github.serve(everyRepository, ref.answer);
+    const { status, stages } = parts(page);
+    try {
+      await page.goto(server.baseURL);
+      await expect(status).toHaveText("Reading published work…");
+
+      // The wait is seen pending after more page turns, asked for after it,
+      // than a wait with nothing to wait for takes to return.
+      let returned = false;
+      const waited = untilPublishedWorkRead(page).then(() => {
+        returned = true;
+      });
+      for (let asked = 0; asked < 4; asked += 1) {
+        await givePageItsTurns(page);
+      }
+      await expect(status).toHaveText("Reading published work…");
+      expect(returned).toBe(false);
+
+      ref.release();
+      await waited;
+      await expect(stages.getByRole("article").first()).toBeVisible();
+    } finally {
+      ref.release();
+      await server.close();
+    }
+  },
+);

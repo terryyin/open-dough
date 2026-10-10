@@ -13,6 +13,7 @@ import { rawRequest } from "./support/rawHttp.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { expect, test } from "./support/pageTest.ts";
 import { startSessionDialog, startSessionField } from "./launchCardPage.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 import {
   projectAddMachine,
   addedRepository,
@@ -31,7 +32,7 @@ test("Add selects, reads the repository's default branch, launches in its config
   page,
 }) => {
   let server = await fixture.start("preview");
-  await page.goto(server.baseURL);
+  await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
@@ -86,7 +87,7 @@ test("Add selects, reads the repository's default branch, launches in its config
 
   await fixture.stop(server);
   server = await fixture.start("preview");
-  await page.goto(`${server.baseURL}/?project=sample-app`);
+  await openUntilRead(page, `${server.baseURL}/?project=sample-app`);
   await expect(
     page.getByRole("radio", { name: "Sample App", exact: true }),
   ).toBeChecked();
@@ -110,14 +111,14 @@ test("Add in empty development leaves the production list on the same machine un
 }) => {
   const production = await fixture.start("preview");
   const productionPage = await page.context().newPage();
-  await productionPage.goto(production.baseURL);
+  await openUntilRead(productionPage, production.baseURL);
   await expect(productionPage.getByRole("radio")).toHaveCount(4);
   const productionFile = readFileSync(
     fixture.configurationFile("preview"),
     "utf8",
   );
   const development = await fixture.start("dev");
-  await page.goto(development.baseURL);
+  await openUntilRead(page, development.baseURL);
   await expect(
     page.getByRole("heading", { name: "No projects configured" }),
   ).toBeVisible();
@@ -128,7 +129,7 @@ test("Add in empty development leaves the production list on the same machine un
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     productionFile,
   );
-  await productionPage.reload();
+  await reloadUntilRead(productionPage);
   await expect(productionPage.getByRole("radio")).toHaveCount(4);
   await expect(
     productionPage.getByRole("radio", { name: "Sample App" }),

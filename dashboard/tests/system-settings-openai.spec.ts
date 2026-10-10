@@ -5,6 +5,7 @@ import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
 import { back, settings } from "./support/systemSettingsPage.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
@@ -28,7 +29,7 @@ test("empty-project settings saves private general access, shares it across dev/
       browserEgress.push(url.host);
   });
   const server = await fixture.start("dev");
-  await page.goto(`${server.baseURL}/?view=settings`);
+  await openUntilRead(page, `${server.baseURL}/?view=settings`);
   await expect(
     page.getByText("No projects configured. Add a project to get started."),
   ).toBeVisible();
