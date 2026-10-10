@@ -1,7 +1,9 @@
 // After membership: preparation, profiles, credit, progress, clocks, and done
 // stories for one published snapshot read (`./publishedWorkRead.ts`). At the
 // same revision as a shown snapshot, successful facts stay projected while
-// eligible unanswered questions are asked again.
+// eligible unanswered questions are asked again; at a new revision of the
+// shown project, each snapshot the read shows carries the shown facts it has
+// not answered yet (`./carriedFacts.ts`).
 
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
@@ -17,12 +19,16 @@ import {
   withProgressSources,
 } from "./progressSource.ts";
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
+import { withCarriedFacts } from "./carriedFacts.ts";
 
 // Enriches a membership snapshot with independent detail groups. Same-
 // revision recovery keeps counted progress and clocks that already answered.
+// `carriedFrom`, the shown snapshot of an earlier revision, lends its facts to
+// every part not yet answered.
 export async function readPublishedDetails(
   work: PublishedWork,
   sameRevision: boolean,
+  carriedFrom: PublishedWork | undefined,
   untilEither: AbortSignal,
   bound: AbortSignal,
   signal: AbortSignal,
@@ -51,7 +57,10 @@ export async function readPublishedDetails(
       credited === undefined ? current : withAssignments(current, credited);
     // Owners from `credited` can heal before `progress` is rewritten; keep
     // trunk-copy labels aligned (or cleared) with the owners now shown.
-    return { ...withKnownProgressSources(withOwners), done };
+    return withCarriedFacts(
+      { ...withKnownProgressSources(withOwners), done },
+      carriedFrom,
+    );
   };
   const show = () => {
     if (!signal.aborted) {

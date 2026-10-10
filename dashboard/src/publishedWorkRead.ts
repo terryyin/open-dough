@@ -87,9 +87,14 @@ export async function readPublishedWork(
             ...interpretPublishedBacklog(markdown, revision, source),
             done: { status: "loading" },
           });
+      // A new revision of the shown project carries the shown facts until
+      // its own answers replace them; another project starts afresh.
+      const carriedFrom =
+        !sameRevision && shown?.source.id === source.id ? shown : undefined;
       return await readPublishedDetails(
         work,
         sameRevision,
+        carriedFrom,
         untilEither,
         bound,
         signal,

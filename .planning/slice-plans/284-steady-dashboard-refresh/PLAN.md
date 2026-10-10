@@ -211,7 +211,7 @@ Catalogued `DoneStories` carries `revision` (set in `cataloguedAt`);
 
 ### 3. Unchanged cards keep content and place while a new revision is read
 Type: Behavior
-Status: planned
+Status: done
 Proof: `steady-refresh.spec.ts` tests for examples 1–5 as the proof table
 maps them; `tests/auto-refresh.spec.ts`,
 `tests/auto-refresh-detail-recovery.spec.ts`,
@@ -228,6 +228,37 @@ replaces the carried part in place; a new entry shows the first-visit reading
 presentation. `useShownDone` is removed, since the carried done list now
 names its revision. No card, portrait, or column changes for a part B's
 answer leaves equal.
+
+Accepted proof: `steady-refresh-carry.spec.ts` (examples 1–4: unchanged
+revision keeps every card's text and box with no placeholder; only the
+changed story updates; a new entry reads as on a first visit, a removed one
+leaves, a moved one keeps its preparation and purpose) and
+`steady-refresh-inspection.spec.ts` (example 5: an open inspection keeps
+its purpose and focus; owners, roster credits and portraits stay), each
+seen failing with the carry off. Consumers green: auto-refresh*,
+recently-done-*, agent-roster*, published-facts-*, transient-*,
+settled-page, story-readiness-accessible, story-dependencies,
+cards-before-comparison, unchanged-assignment-credit; full suite
+1380/1384, the remaining two load-only (`frame-launch-look:101`,
+`cursor-session-recovery`).
+
+Learnings: the carry is `dashboard/src/carriedFacts.ts`, applied in
+`assembled()`; the preparation group and purpose carry across a stage move,
+while slices, clock, owner, and preparers carry only within the same stage.
+Once profiles are read, `owner` and `preparing` always settle, so a removed
+assignment is not carried. Preparation answers every entry in one wave, so
+example 2 is observed by holding one record. Placeholder counts reaching
+zero no longer signal a settled new-revision read; specs settle on
+`untilPageReadsAnswered`. Specs that asserted B borrowed nothing of A for
+the same project (`published-facts-isolation.spec.ts`,
+`cards-before-comparison.spec.ts`, `queuedPlanFocus.ts`,
+`story-dependencies.spec.ts`) now assert the carry; project switching still
+replaces the view. The same-revision projection stays a separate concept.
+Gap: `workFocus.ts`'s focus deferral is now reached only when a shown
+snapshot still had preparation loading (after an abandoned read) and no
+spec covers it. For slice 4: a details read rejecting for a reason other
+than the bound leaves the last partial snapshot, with carried facts, under
+B; the story requires that carried facts not outlive the attempt.
 
 ### 4. A carried part gives way to the gap when its read is given up
 Type: Behavior

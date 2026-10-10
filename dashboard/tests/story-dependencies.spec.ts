@@ -90,7 +90,8 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(card).toBeFocused();
   await expect(summary).toHaveText("Dependencies · 1 blocking");
   await expect(execution).toBeDisabled();
-  await summary.click();
+  // The dependencies the developer opened stay open across the refresh.
+  await expect(list).toBeVisible();
   await expect(list).toContainText("Satisfied");
   await expect(list).toContainText("Decision needed");
   await expect(

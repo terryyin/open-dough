@@ -5,6 +5,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { slicePlan } from "./branchProgressRecords.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
@@ -115,6 +116,9 @@ export async function expectSettledAt(
   await expect(page.getByText("Reading preparation…")).toHaveCount(0);
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
+  // A card shown before keeps its facts while a new revision is read, so
+  // only the page's own reads say that read has ended.
+  await untilPageReadsAnswered(page);
 }
 
 // The record texts and listings asked at `revision` among `asked`.

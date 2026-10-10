@@ -65,10 +65,15 @@ export async function focusCanonical(page: Page, facts: PublishedFacts) {
   return link;
 }
 
+// The selected publication's facts, with `pending` groups still unanswered:
+// reading as on a first visit, or, while a new revision of the shown project
+// is read, showing what `carriedFrom` showed for the same story. A done
+// record is pending once the catalog placed it, so it is new to its card.
 export async function expectCurrentFacts(
   page: Page,
   facts: PublishedFacts,
   pending: readonly ("preparation" | "done")[] = [],
+  carriedFrom?: PublishedFacts,
 ) {
   const { taken, queued } = factCards(page, facts);
   const { source, problem, status, recentlyDone } = parts(page);
@@ -102,7 +107,23 @@ export async function expectCurrentFacts(
     "href",
     `https://github.com/${repository}/blob/${facts.revision}/${canonicalPath}#shared-story`,
   );
-  if (pending.includes("preparation")) {
+  if (pending.includes("preparation") && carriedFrom !== undefined) {
+    // The Taken story was shown before; the queued one is new.
+    await expect(taken).not.toContainText("Reading preparation…");
+    await expect(taken.locator(".story-purpose")).toHaveText(
+      carriedFrom.purpose,
+    );
+    await expect(taken.locator(".card-progress")).toContainText(
+      "1 of 2 slices recorded complete",
+    );
+    await expect(
+      taken.getByRole("link", { name: /^Slice plan/ }),
+    ).toHaveAttribute(
+      "href",
+      `https://github.com/${repository}/blob/${carriedFrom.revision}/${planPath}`,
+    );
+    await expect(queued).toContainText("Reading preparation…");
+  } else if (pending.includes("preparation")) {
     await expect(taken).toContainText("Reading preparation…");
     await expect(queued).toContainText("Reading preparation…");
     await expect(taken).toContainText("Reading purpose…");
@@ -144,14 +165,24 @@ export async function expectNoEarlierFacts(
   page: Page,
   earlier: PublishedFacts,
 ) {
-  const { taken, backlog, recentlyDone, stages, source } = parts(page);
-  await expect(source).not.toContainText(earlier.revision);
+  const { recentlyDone, stages } = parts(page);
+  await expectNoEarlierAssignments(page, earlier);
   await expect(stages.locator(`a[href*="${earlier.revision}"]`)).toHaveCount(0);
+  await expect(stages).not.toContainText(earlier.purpose);
+  await expect(recentlyDone).not.toContainText(earlier.doneTitle);
+}
+
+// Nothing the new revision has already answered shows the earlier one's:
+// its source, owners, preparers, and membership.
+export async function expectNoEarlierAssignments(
+  page: Page,
+  earlier: PublishedFacts,
+) {
+  const { taken, backlog, source } = parts(page);
+  await expect(source).not.toContainText(earlier.revision);
   await expect(taken).not.toContainText(`${earlier.owner}-chan`);
   await expect(backlog).not.toContainText(`${earlier.preparer}-chan`);
-  await expect(stages).not.toContainText(earlier.purpose);
   await expect(backlog).not.toContainText(earlier.queuedTitle);
-  await expect(recentlyDone).not.toContainText(earlier.doneTitle);
 }
 
 export async function expectCurrentRoster(page: Page, facts: PublishedFacts) {
