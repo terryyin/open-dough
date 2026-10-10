@@ -78,7 +78,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   const review = page.getByRole("region", { name: "Review changes" });
   const status = reviewFeedback(review);
   await expect(status).toHaveText(
-    "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
+    "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
   );
   await expect(
     review.getByRole("radio", { name: "Landed runs", exact: true }),

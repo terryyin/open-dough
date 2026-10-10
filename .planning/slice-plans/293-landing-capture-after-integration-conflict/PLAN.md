@@ -22,9 +22,7 @@ contains the branch tip), one fixed landing per launch, the `integrate` result
 shapes for `published` and `already-accepted`, the review's listing rule and
 words, and the one-shot capture and review.
 
-Excluded: what a removed worktree that never landed says under “Landed runs”
-(a product decision, see Current decisions); Trunk Mode; a second landing per
-launch.
+Excluded: Trunk Mode; a second landing per launch.
 
 ## Current findings
 
@@ -69,10 +67,6 @@ launch.
   landing per launch stays; the instruction and handoff say so. Considered:
   letting the receiver ignore a later comparison silently; rejected because a
   silent skip hides a real mismatch.
-- **Left for the developer:** whether a claimed launch whose worktree was
-  removed without landing should read as a landed run with an evidence gap, as
-  plan 292 decided, or keep “The worktree is missing”. The branch in
-  `storyReviewSnapshot.ts` stays until that is decided.
 
 ## Observed premises
 

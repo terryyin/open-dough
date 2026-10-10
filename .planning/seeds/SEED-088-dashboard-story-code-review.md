@@ -196,7 +196,7 @@ it.
 
 **Identity:** SEED-088#landing-capture-after-integration-conflict
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/293-landing-capture-after-integration-conflict/PLAN.md","assessment":"not-ready","reasons":["Slice 2's premise, that a second comparison after an accepted landing is refused before its push, was read in the code and not observed against the receiver.","What a removed worktree that never landed says under Landed runs awaits the developer's decision; the plan leaves it unchanged."],"basis":{"document":"464e30e5437bbedddc0470938aff8d86145368841f48a1aa0006da2ff230aeea","plan":"1baf1516e1a9ceeddf63197bdff17ce6e590ad8e80572ca3a852312f3bf90aed"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/293-landing-capture-after-integration-conflict/PLAN.md","assessment":"not-ready","reasons":["Slice 2's premise, that a second comparison after an accepted landing is refused before its push, was read in the code and not observed against the receiver."],"basis":{"document":"63e3ad8b825f20f6cd5bad414c5bb474b36a7071a3377a502ffe334dde370e90","plan":"0308e1a2ddda0bb0108420a81900373f4deab1a2a55200dbcf1dd21bc22fb67a"}}
 ```
 **Slice plan:** [A conflicted Story Branch integration still records its landing](../slice-plans/293-landing-capture-after-integration-conflict/PLAN.md).
 
@@ -211,8 +211,7 @@ that story's execution retrospective; it adds no feature promise.
 hand and reports a conflict as a preserved result; the launch instruction and
 landing handoff say that a launch's later trunk publications take no landing
 context; the removed-worktree gap keeps one inexpensive spec; the landed-run
-document and shared test support carry the general name. Unchanged: what a
-removed worktree that never landed says, which awaits a product decision.
+document and shared test support carry the general name.
 
 ## Breadcrumbs
 

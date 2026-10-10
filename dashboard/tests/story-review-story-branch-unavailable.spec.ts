@@ -48,7 +48,7 @@ test("a claimed launch with its workspace is no landed run, and once its worktre
     kind: "landing-unavailable",
     selectedRun: record.request.reporting?.reference,
     explanation:
-      "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
+      "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     runs: [
       {
         key: record.request.reporting?.reference,
@@ -61,7 +61,7 @@ test("a claimed launch with its workspace is no landed run, and once its worktre
   });
   expect(gap.runs?.[0]?.comparison).toBeUndefined();
   await expect(reviewFeedback(review)).toHaveText(
-    "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
+    "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
   );
   await expect(
     review.getByRole("radio", { name: "Landed runs", exact: true }),

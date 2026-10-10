@@ -1,4 +1,5 @@
 // A fixed captured comparison reads only its original common repository and objects.
+import { isEstablishedOneShot } from "../src/launchRecord.ts";
 import type { StoryReview } from "../src/storyReview.ts";
 import {
   landedReviewContextSchema,
@@ -22,7 +23,10 @@ export async function landedStoryReview(
   const landing = record.landing;
   if (landing === undefined)
     return unavailable(
-      "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
+      // A claimed launch is listed here once its workspace is gone, landed or not.
+      isEstablishedOneShot(run.established)
+        ? "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk."
+        : "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     );
   if (directoryState(landing.repository).kind !== "available")
     return unavailable(

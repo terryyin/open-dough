@@ -51,7 +51,10 @@ workspace review mark.
 
 A valid empty comparison says that this run's delivered comparison is empty.
 A landed run without capture explains its evidence gap: its delivered comparison
-was not captured and cannot be reconstructed from today's trunk. Missing or
+was not captured and cannot be reconstructed from today's trunk. A claimed
+launch listed because its workspace is gone says that the workspace is gone and
+no landing comparison was captured, since such a launch may never have landed.
+Missing or
 unreadable saved repository or objects explain why the comparison is unavailable.
 None of these states guesses a baseline or lists substitute files from today's
 trunk. Requests to the same review/file boundary name the project, story and
