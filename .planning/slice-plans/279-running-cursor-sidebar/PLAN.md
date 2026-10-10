@@ -356,6 +356,19 @@ and `agent-completion-quiet-claude.spec.ts` still expect a successful rename
 inside a 2–3 s wait, with wider margins and no failure observed. The outcome
 review found no correction for the delivered sidebar behavior.
 
+CI state at the execution handoff: the last fully green run on this branch is
+`faa10af4` (slice 2). `dc85f15e` (slice 3, run 38026631957) and `84efed2f`
+(this record, run 38026747233) each failed one different flaky spec that the
+other run passed on identical dashboard code; neither is repaired here because
+each has another owner:
+
+- `recently-done-progressive-failed-read-refresh.spec.ts:149` — repaired by
+  SEED-123's execution on its own branch (`8511d0cb`); not yet on `main`.
+- `cursor-session-recovery.spec.ts:168` (`endHeldClient` 15 s wait: the
+  terminal joins after the hangup) — repaired on `main` by `d1aec794` in
+  `tests/support/cursorSessionReading.ts`; this branch's base `3aca46a5`
+  predates it. Bringing `main` into the branch at wrap-up supplies it.
+
 ## Verification, delivery and sizing
 
 The stable proof boundary is the production dashboard served by the existing
