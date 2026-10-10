@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes ([plan](slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md))
 - [A conflicted Story Branch integration still records its landing](seeds/SEED-088-dashboard-story-code-review.md#landing-capture-after-integration-conflict) — SEED-088#landing-capture-after-integration-conflict ([plan](slice-plans/294-landing-capture-after-integration-conflict/PLAN.md))
-- [Finish prefers its coordinator's live observer over an ended one](seeds/SEED-121-execution-observer-ownership.md#finish-prefers-live-observer) — SEED-121#finish-prefers-live-observer ([plan](slice-plans/295-finish-prefers-live-observer/PLAN.md))
 
 ## Backlog list
 

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-121#finish-prefers-live-observer",
+  "title": "Finish prefers its coordinator's live observer over an ended one",
+  "completedAt": "2026-10-10T23:39:19.336Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "claude"
+}

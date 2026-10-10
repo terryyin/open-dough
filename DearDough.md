@@ -247,7 +247,7 @@ Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: slice 3's refactor return: to keep `install.sh` at exactly 250 lines after declaring two new payload files, the pass folded two explanatory comments onto their shellcheck directive lines (`git show 6207064d -- install.sh`, lines 2 and 13), and `publish-the-candidate.md` reached exactly 250 with one sentence run to about 150 columns (line 77). The same pass made two cohesive splits (`history-preserving-candidate.mjs`, `dough-story-wrap-up/references/story-branch-integration.md`). Its report lists six files now at exactly 250 lines.
   - Observed effect: two files were compressed without a seam; the retrospective's outcome review flagged both, and correction plan 294 slice 4 owns the split.
   - Inference: qualified. shellcheck still passes and no rule was lost; the threshold again selected the edit, and the cost is one planned Structure slice.
-- Execution: `SEED-121#finish-prefers-live-observer` / plan 295, first implementation `64a54160`.
+- Execution: `SEED-121#finish-prefers-live-observer` / plan 295 (spent plan recoverable at `997c4abcd02968385572b474589f692f367b7298:.planning/slice-plans/295-finish-prefers-live-observer/PLAN.md`), first implementation `64a54160`.
   - Timestamp: unknown (2026-10-11, slice 2 implementation follow-up and refactor pass, between `64a54160` at 08:14 +09:00 and `b89b2548` at 08:27 +09:00).
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -866,7 +866,7 @@ Claude Code journeys only. A Codex coordinator's closure reaches the same
 selection, so its behavior changed too, with no promise or proof in the plan.
 
 ### Occurrences
-- Execution: `SEED-121#finish-prefers-live-observer` / plan 295, first implementation `64a54160`.
+- Execution: `SEED-121#finish-prefers-live-observer` / plan 295 (spent plan recoverable at `997c4abcd02968385572b474589f692f367b7298:.planning/slice-plans/295-finish-prefers-live-observer/PLAN.md`), first implementation `64a54160`.
   - Timestamp: unknown (2026-10-11, slice 2 acceptance, between `64a54160` at 08:14 +09:00 and `b89b2548` at 08:27 +09:00).
   - Tool: Claude Code
   - Model: claude-opus-5-5
