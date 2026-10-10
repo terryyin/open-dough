@@ -316,6 +316,16 @@ Reported: slice 6 — "`stop()` no longer force-kills a command that ignores SIG
 Story clause: "a run ends every process it started"
 Disposition: proved by slice 6: `dashboard/tests/support/processGroup.ts` still ends every group a worker started when the worker exits (`endAtExit`), which `dashboardCommand.ts` `stop()` leaves in place; the test timeout names the test, and `production-watcher production-cursor-runner` pass plain and under burners with the watcher exiting on its own
 
+### G14. Other page actions keep a plain bound on their result
+Reported: slice 6 — "Other page actions that are followed by a plain 5 s `expect` on their result (Mark as read, Delete record, Recover, launch) have the same shape and were not touched."
+Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
+Disposition: interim until slices 6
+
+### G15. A resumed start outlasted its one-second product wait once
+Reported: slice 6 — "`agent-launch-preparation-resume.spec.ts:128` failed once in the plain family run, at `:113`: `Expected: "launched"`, `Received: "uncertain"` ("The start did not finish within the wait…")."
+Story clause: "A failure whose kept evidence shows only a wait that ended while the load was several times the core count is the first story's deferred boundary, not a pass: record it with that load and repeat the loaded run when the load is nearer the bound."
+Disposition: interim until slices 6
+
 ## Learnings
 
 - Slice 1: the page reads its project list (`/__project-configuration`)
@@ -403,6 +413,31 @@ Disposition: proved by slice 6: `dashboard/tests/support/processGroup.ts` still 
   in files this execution had not touched, not a product defect. The series
   restarts from the fresh run. `endGroup`'s 5 s kill still applies to
   directly spawned Vite servers; no failure is attributed to it.
+
+- Slice 6, second series at `5b913ac0`: `Run 1 (fresh worktree): exit 0,
+  692 s, load 11.91 -> 24.90`; `Run 1: exit 0, 647 s, load 24.90 -> 16.35`;
+  `Run 1 under burners: exit 1, 826 s, load 16.35 -> 65.11` (five-minute
+  average 69 at the end, other work included) with `FAIL:
+  dashboard/tests/agent-launch-done-question.spec.ts:172`, kept at
+  `dashboard/test-results/2026-10-10T12-25-23.154Z`. Cause: `expect(entryA)
+  .toHaveCount(0)` after `markDone` began its 5 s before the done mark's
+  `POST /__agent-launch/done` had answered (862 ms, the server's normal
+  time), and the page then ran nothing for about 6 s from the answer (the
+  expect's polls and the screencast both stop; the snapshot after the timeout
+  shows the session done). Forcing either condition on the earlier helpers
+  reproduced the failure; with `markDone`/`markDoneAnyway` waiting for the
+  mark's answer in the page (`untilDoneMarkAnswered`) both forced conditions
+  pass. What stalled the page is not proved: a starved renderer fits (load
+  estimated near 70 at that moment, swap nearly full); a product stall is
+  unsupported, not excluded. No slices label was shown.
+- Slice 6: `agent-launch-preparation-resume.spec.ts:128` failed once outside
+  the series (plain family run, load about 46 from other jobs, kept at
+  `dashboard/test-results/2026-10-10T12-56-29.436Z`): a server-boundary test
+  whose one-second product start wait ended "uncertain" (G15).
+- Slice 6: sixteen burners plus eight workers of this suite take the
+  one-minute load to several times the core count on their own; the series
+  now logs `uptime` every 30 s so a failure is placed against the load at
+  its own time, not the run's start and end.
 
 ## Verification and sizing
 

@@ -17,6 +17,7 @@ import { report, save, storeFile } from "./support/retainedReport.ts";
 import { completionReport } from "./support/completionReport.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
+import { markDone } from "./support/markDone.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
 test.beforeAll(async () => {
@@ -71,7 +72,7 @@ test("retired Claude preparation opens retained report after refresh without wak
     .poll(() => stored(dashboard.home)[0]?.reportRead)
     .toBe(record.completion?.receipt);
   await entry.getByRole("button", { name: "Read final report" }).click();
-  await panel.getByRole("button", { name: "Mark as done" }).click();
+  await markDone(panel);
   await expect(panel).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;
   expect(doneAt).toBeDefined();
@@ -177,7 +178,7 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
       await expect(recent).toContainText("saved workspace is missing");
       expect(dashboard.claudeAttaches()).toEqual([]);
 
-      await recent.getByRole("button", { name: "Mark as done" }).click();
+      await markDone(recent);
 
       await expect(recent).toContainText(`Named ${doneName}`, {
         timeout: 20_000,

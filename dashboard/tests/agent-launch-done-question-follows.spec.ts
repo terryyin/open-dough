@@ -19,6 +19,7 @@ import {
   expectAsked,
   expectQuestion,
   markAsDone,
+  markDone,
   stillWorking,
   waitingForInput,
 } from "./support/markDone.ts";
@@ -110,7 +111,7 @@ test("on a card, the open question follows the session's reading and goes away o
   await questionFollowsReadings(page, dashboard, sessionId, entry, entry);
   expect(dashboard.claudeStopCalls()).toHaveLength(before);
 
-  await markAsDone(entry).click();
+  await markDone(entry);
 
   await expectDone(page, entry);
   expect(dashboard.claudeStopCalls().slice(before)).toEqual([
@@ -138,7 +139,7 @@ test("in the terminal panel, the open question follows the session's reading and
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
   expect(dashboard.claudeStopCalls()).toHaveLength(before);
 
-  await markAsDone(panel).click();
+  await markDone(panel);
 
   await expect(panel).toHaveCount(0);
   await expectDone(page, entry);

@@ -43,6 +43,7 @@ import {
   idleBetweenSteps,
   markAsDone,
   markDoneAnyway,
+  sendDoneMarkAnyway,
   stillWorking,
 } from "./support/markDone.ts";
 
@@ -122,7 +123,7 @@ test.describe("marking a session done from its terminal", () => {
     const release = await holdDoneRequests(page);
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
 
-    await markDoneAnyway(panel);
+    await sendDoneMarkAnyway(panel);
 
     const marking = panel.getByRole("status").getByText("Marking as done…");
     await expect(marking).toBeVisible();
@@ -205,7 +206,7 @@ test.describe("marking a session done from its terminal", () => {
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const release = await holdDoneRequests(page);
-    await markDoneAnyway(panel);
+    await sendDoneMarkAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
     await cardSessionOf(card(notRefinedStory), "Refinement")

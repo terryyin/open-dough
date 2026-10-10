@@ -1,122 +1,15 @@
 // What a dashboard page asks of the local boundary, as the page itself notes
-// it: the page times of its revision checks, the requests and reads still
-// unanswered, and the message turns on which it acts. See
-// ./autoRefreshJourney.ts and ./dashboardPage.ts.
+// it (./pageRequestNoting.ts): the page times of its revision checks, the
+// requests, reads and done marks still unanswered, and the message turns on
+// which it acts. See ./autoRefreshJourney.ts and ./dashboardPage.ts.
 
-import type { BrowserContext, Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
-import { projectListEndpoint } from "../src/projectConfiguration.ts";
+import type { Page } from "@playwright/test";
+import {
+  noteRequestsInOpenPage,
+  type RequestsNoted,
+} from "./pageRequestNoting.ts";
 
-// A browser request to the local boundary is a revision check when it names
-// the revision the page already shows with this search parameter.
-const checkParameter = "since";
-
-export function isCheck(url: string): boolean {
-  return new URL(url).searchParams.has(checkParameter);
-}
-
-// What the page notes about its own requests (see `noteRequestsInPage`):
-// the page times at which it asked for revision checks, every request it has
-// sent that is not yet answered, of those its reads of the local read
-// boundary other than revision checks, and of those reads the ones of the
-// published work itself: the source's ref and backlog, or the backlog at a
-// revision already resolved, which name a source, at most a revision, and
-// nothing else. Every other read names what it reads besides. With them is
-// kept the read of the project list, which the page awaits before it reads
-// any project's published work.
-type RequestsNoted = {
-  revisionChecksAskedAt?: number[];
-  requestsUnanswered?: Set<Promise<unknown>>;
-  readsUnanswered?: Set<Promise<unknown>>;
-  publishedWorkReadsUnanswered?: Set<Promise<unknown>>;
-};
-
-// From now on, the page notes the page time at which it asks for each
-// revision check, at the moment it calls `fetch`. Noting it there, rather
-// than from Playwright's `request` event, keeps the note in step with page
-// time: the event may arrive only after later steps have already passed.
-// It also keeps each request it sends -- to the local boundary, the only
-// place this page sends any -- until that request's answer has been read
-// whole, or the request has failed or been abandoned. The page's requests
-// and the answers it reads are left exactly as they are; only a copy of each
-// answer is read here. Runs in the page, as a page script or as an init
-// script before the page's own scripts (`./support/pageTest.ts`).
-function noteRequestsInPage({
-  checkParameter: parameter,
-  readPath,
-  projectListPath,
-}: {
-  readonly checkParameter: string;
-  readonly readPath: string;
-  readonly projectListPath: string;
-}): void {
-  const noted = window as RequestsNoted & typeof window;
-  if (noted.revisionChecksAskedAt !== undefined) {
-    return;
-  }
-  const askedAt: number[] = [];
-  const unanswered = new Set<Promise<unknown>>();
-  const readsUnanswered = new Set<Promise<unknown>>();
-  const publishedWorkReadsUnanswered = new Set<Promise<unknown>>();
-  noted.revisionChecksAskedAt = askedAt;
-  noted.requestsUnanswered = unanswered;
-  noted.readsUnanswered = readsUnanswered;
-  noted.publishedWorkReadsUnanswered = publishedWorkReadsUnanswered;
-  const send = window.fetch.bind(window);
-  window.fetch = (input, init) => {
-    const url = new URL(
-      input instanceof Request ? input.url : input,
-      window.location.href,
-    );
-    const check = url.searchParams.has(parameter);
-    if (check) {
-      askedAt.push(Date.now());
-    }
-    const read = !check && url.pathname === readPath;
-    const projectListRead = url.pathname === projectListPath;
-    const publishedWorkRead =
-      read &&
-      url.searchParams.has("source") &&
-      [...url.searchParams.keys()].every(
-        (named) => named === "source" || named === "revision",
-      );
-    const sent = send(input, init);
-    const answered = sent
-      .then((response) => response.clone().arrayBuffer())
-      .catch(() => undefined)
-      .finally(() => {
-        unanswered.delete(answered);
-        readsUnanswered.delete(answered);
-        publishedWorkReadsUnanswered.delete(answered);
-      });
-    unanswered.add(answered);
-    if (read) {
-      readsUnanswered.add(answered);
-    }
-    if (projectListRead || publishedWorkRead) {
-      publishedWorkReadsUnanswered.add(answered);
-    }
-    return sent;
-  };
-}
-
-const notedRequests = {
-  checkParameter,
-  readPath: authenticatedReadEndpoint,
-  projectListPath: projectListEndpoint,
-};
-
-async function noteRequestsInOpenPage(page: Page): Promise<void> {
-  await page.evaluate(noteRequestsInPage, notedRequests);
-}
-
-// Every page of `context` notes its requests from before its own scripts
-// run, so a journey can wait for reads it sent on opening.
-export async function noteRequestsInEveryPage(
-  context: BrowserContext,
-): Promise<void> {
-  await context.addInitScript(noteRequestsInPage, notedRequests);
-}
+export { isCheck, noteRequestsInEveryPage } from "./pageRequestNoting.ts";
 
 // Gives the page its message turns: the page's own work runs on them, and
 // the paused page clock does not hold them back, so a few of them let it act
@@ -191,6 +84,17 @@ export async function untilPublishedWorkRead(page: Page): Promise<void> {
     });
   });
   await untilNotedAnswered(page, "publishedWorkReadsUnanswered");
+}
+
+// Waits until every done mark the page has sent the local launch boundary is
+// answered or has failed, and the page has had its turns to act on the
+// answer: a session leaving its card, or a panel closing, is then bounded by
+// the page's rendering, not by how long the rename and the stop took. A
+// press sends its mark before the page's next turn, so a wait begun after the
+// press finds it. Reads on their way are left alone, so a journey holding one
+// still returns from here; one holding the mark itself does not wait here.
+export async function untilDoneMarkAnswered(page: Page): Promise<void> {
+  await untilNotedAnswered(page, "doneMarksUnanswered");
 }
 
 // Opens the page at `address`, or opens it again by a reload, and waits

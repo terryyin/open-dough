@@ -26,7 +26,7 @@ import { setPageVisibility } from "./autoRefreshJourney.ts";
 import {
   expectAsked,
   idleBetweenSteps,
-  markAsDone,
+  markDone,
   stillWorking,
 } from "./support/markDone.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
@@ -78,7 +78,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       dashboard,
       String(dashboard.claudeListing()[0]?.["sessionId"]),
     );
-    await markAsDone(question).click();
+    await markDone(question);
 
     await expect(panel).toHaveCount(0);
   });
@@ -111,7 +111,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     const question = await expectAsked(panel, stillWorking);
     // Asked while it reads working, it then idles between steps.
     idleBetweenSteps(dashboard, sessionId);
-    await markAsDone(question).click();
+    await markDone(question);
     await expect(panel).toHaveCount(0);
     await expect(listed).toHaveCount(0);
   });

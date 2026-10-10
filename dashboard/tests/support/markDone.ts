@@ -3,9 +3,14 @@
 // intention is complete (its latest report is `completed`, and it reads
 // neither working nor waiting) is marked done with `markDone`; any other
 // session is marked done with `markDoneAnyway`, which answers the question
-// Mark as done asks about it in place, on an entry or within a panel.
+// Mark as done asks about it in place, on an entry or within a panel. A
+// question already open is answered with `markDone` on the question itself.
+// Either mark waits until the boundary has answered it
+// (`untilDoneMarkAnswered`); a journey that holds the answer presses with
+// `sendDoneMarkAnyway` instead.
 
 import { expect, type Locator } from "@playwright/test";
+import { untilDoneMarkAnswered } from "../pageRequestNotes.ts";
 import type { ClaudeListingControls } from "./fakeClaudeListing.ts";
 
 const anyway = "Mark it done anyway?";
@@ -58,16 +63,27 @@ export function idleBetweenSteps(
   claude.claudeSessionBecomes(sessionId, "working-idle");
 }
 
-// A session whose intention is complete.
+// Presses the Mark as done in this scope that sends the mark -- a session's
+// own when its intention is complete, or an open question's -- and waits
+// until the boundary has answered it and the page has acted on the answer.
 export async function markDone(scope: Locator) {
   await markAsDone(scope).click();
+  await untilDoneMarkAnswered(scope.page());
 }
 
-// A session Mark as done asks about: presses it, then answers the question's
-// Mark as done.
-export async function markDoneAnyway(scope: Locator) {
+// Presses Mark as done on a session it asks about and answers the question's
+// Mark as done, without waiting for the mark's answer: for a journey that
+// holds it.
+export async function sendDoneMarkAnyway(scope: Locator) {
   await markAsDone(scope).click();
   const question = doneQuestion(scope);
   await expect(question).toBeVisible();
   await markAsDone(question).click();
+}
+
+// A session Mark as done asks about: presses it, answers the question's Mark
+// as done, and waits as `markDone` does.
+export async function markDoneAnyway(scope: Locator) {
+  await sendDoneMarkAnyway(scope);
+  await untilDoneMarkAnswered(scope.page());
 }

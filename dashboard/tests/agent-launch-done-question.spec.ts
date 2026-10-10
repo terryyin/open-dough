@@ -149,7 +149,7 @@ test("a session not reported complete asks first with its situation; Keep open a
     const shortId = shortIdOf(dashboard, storyA.sessionId);
     const attachesBefore = dashboard.claudeAttaches().length;
     const question = await expectAsked(entryA, waitingForInput);
-    await markAsDone(question).click();
+    await markDone(question);
 
     await expect(entryA).toHaveCount(0);
     const recentA = parts(page)

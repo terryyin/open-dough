@@ -18,7 +18,7 @@ import {
 } from "./support/codexTerminal.ts";
 import {
   expectAsked,
-  markAsDone,
+  markDone,
   markDoneAnyway,
   waitingForInput,
 } from "./support/markDone.ts";
@@ -71,7 +71,7 @@ for (const attached of [false, true]) {
         "original retained history",
       );
       const question = await expectAsked(panel, waitingForInput);
-      await markAsDone(question).click();
+      await markDone(question);
       await expect(panel).toHaveCount(0);
       const pid = codexAttaches(native)[0]?.pid ?? 0;
       await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
