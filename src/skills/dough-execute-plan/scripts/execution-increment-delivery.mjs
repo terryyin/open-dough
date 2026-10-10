@@ -110,13 +110,12 @@ export async function deliverManagedExecutionIncrement(request) {
   });
 
   let observation = established.observation;
+  // Started but unbound: keep the directory for recovery context without
+  // claiming live coverage.
+  if (established.directory && observation.state === "unobserved") {
+    observation = { ...observation, directory: established.directory };
+  }
   if (!published.ok) {
-    if (established.directory && observation.state === "unobserved") {
-      observation = {
-        ...observation,
-        directory: established.directory,
-      };
-    }
     // Live owner is kept for later validated resume; no SHA registered yet.
     return {
       ok: false,
@@ -130,6 +129,12 @@ export async function deliverManagedExecutionIncrement(request) {
       previouslyPublishedBase: published.previouslyPublishedBase,
       suffixBase: published.suffixBase,
       reconciliations: published.reconciliations,
+      // A transport-timeout stop names the stalled stage and its bound.
+      stage: published.stage,
+      pushIssued: published.pushIssued,
+      boundMs: published.boundMs,
+      remote: published.remote,
+      target: published.target,
       replay: published.replay,
       validation: published.validation,
       ownership: published.ownership,
@@ -143,19 +148,16 @@ export async function deliverManagedExecutionIncrement(request) {
 
   if (observation.directory && observation.state !== "unobserved") {
     registerPushedRevision(observation.directory, published.receipt.sha);
-  } else if (established.directory && observation.state === "unobserved") {
-    // Started but unbound: keep the directory for recovery context without
-    // claiming live coverage.
-    observation = {
-      ...observation,
-      directory: established.directory,
-    };
   }
 
   return {
     ok: true,
     publication: "accepted",
     report: "accepted",
+    // A retry whose candidate the remote already held pushed nothing.
+    ...(published.classification && {
+      classification: published.classification,
+    }),
     receipt: published.receipt,
     preRebaseSha: published.preRebaseSha,
     remoteTip: published.remoteTip,

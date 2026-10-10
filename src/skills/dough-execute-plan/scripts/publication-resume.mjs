@@ -20,6 +20,21 @@ async function isAncestor(workspace, ancestor, descendant) {
   }
 }
 
+// Runs one remote transport step. A step that outlasts the transport bound
+// rethrows its `transport-timeout` error naming the resume `stage` and the
+// attempt's facts, so a managed caller can report it as a stop while other
+// callers see it as any other thrown Git failure.
+async function atStage(stage, facts, operation) {
+  try {
+    return await operation();
+  } catch (error) {
+    if (error?.code === "transport-timeout") {
+      Object.assign(error, { stage, ...facts });
+    }
+    throw error;
+  }
+}
+
 function hasReceipt(observer, sha, targetRef) {
   return (
     observer?.bound === true &&
@@ -60,7 +75,9 @@ function appendIdentity(publishedRevisions, sha) {
 // before the push; after a rewrite that is the rewritten SHA.
 // `supersededShas` are pre-rebase identities and are never pushed. Before a
 // push, an `onFetchedTarget` stop (see applicable-candidate-proof.mjs) for
-// the fetched target tip is reported as `held` instead.
+// the fetched target tip is reported as `held` instead. A fetch or push that
+// outlasts the transport bound throws its `transport-timeout` error carrying
+// the stage (`fetch`, `push`, `confirmation-fetch`) and that attempt's facts.
 export async function resumeInterruptedPublication({
   ownedWorkspace,
   defaultCheckout,
@@ -80,18 +97,34 @@ export async function resumeInterruptedPublication({
 
   const remoteTarget = originTrackingRef(targetRef, remote);
   const preserved = await ownedCommitIdentity(ownedWorkspace);
-  await git(ownedWorkspace, "fetch", remote);
+  await atStage(
+    "fetch",
+    { classification: null, pushIssued: false, pushCount: 0, remoteTip: null },
+    () => git(ownedWorkspace, "fetch", remote),
+  );
   const accepted = await isAncestor(ownedWorkspace, candidateSha, remoteTarget);
 
   if (!accepted) {
+    const remoteTip = await revParse(ownedWorkspace, remoteTarget).catch(
+      () => null,
+    );
     const held = await onFetchedTarget?.({
       attempt: 0,
       candidate: candidateSha,
-      remoteTip: await revParse(ownedWorkspace, remoteTarget).catch(() => null),
+      remoteTip,
     });
     if (held) return { classification: "not-on-remote", pushCount: 0, held };
-    await pushExactRef(ownedWorkspace, candidateSha, remote, targetRef);
-    await git(ownedWorkspace, "fetch", remote);
+    const pushAttempt = { classification: "not-on-remote", pushIssued: true };
+    // An unanswered push leaves acceptance unknown; nothing is counted as
+    // pushed until the push answers.
+    await atStage("push", { ...pushAttempt, pushCount: 0, remoteTip }, () =>
+      pushExactRef(ownedWorkspace, candidateSha, remote, targetRef),
+    );
+    await atStage(
+      "confirmation-fetch",
+      { ...pushAttempt, pushCount: 1, remoteTip },
+      () => git(ownedWorkspace, "fetch", remote),
+    );
     if (!(await isAncestor(ownedWorkspace, candidateSha, remoteTarget))) {
       throw new Error("push did not accept the retained candidate");
     }

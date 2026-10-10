@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-008#bound-managed-git-transport",
+  "title": "Managed delivery stops a stalled Git transport with a recoverable result",
+  "completedAt": "2026-10-10T05:00:45.059Z",
+  "developer": "Terry Yin",
+  "agent": "terry-chan",
+  "host": "claude"
+}

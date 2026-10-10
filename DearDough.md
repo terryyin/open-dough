@@ -304,6 +304,16 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-097).
 
+### Occurrences
+- Execution: SEED-008#bound-managed-git-transport (plan 285, first implementation commit `4d2cf148`)
+  - Timestamp: unknown (2026-10-10, slice 3 delivery, before commit `b87bcde7`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.57
+  - Evidence: the coordinator ran `npm run format … | grep …; <plan edit>; git add … && agent-commit.mjs` as one command; the formatter printed `'origin' is assigned a value but never used` and `Format failed`, and the commit still ran and was refused by the check-only hook (`commit-failed`).
+  - Observed effect: no bad commit; one extra hook run, then a one-line fix, formatter rerun, and commit.
+  - Inference: chaining format, staging, and commit with `;` after a filtered pipeline lets a failed format reach the commit; the hook was the only gate.
+
 ## ODF-222 — Managed story-branch delivery can stall after a successful agent-commit
 
 Former local code: DD-253 (Cursor plan 273 only).
@@ -330,7 +340,7 @@ Former local code: DD-253 (Claude Code plan 274 only).
 
 An SSH fetch or push has no time bound, leaving managed delivery waiting without a terminal failure while the remote tip remains unpublished.
 
-Follow-up: queued, not resolved: [Managed delivery stops a stalled Git transport with a recoverable result](https://github.com/terryyin/open-dough/blob/main/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#bound-managed-git-transport) — SEED-008#bound-managed-git-transport.
+Follow-up: delivered, unreleased: [Managed delivery stops a stalled Git transport with a recoverable result](https://github.com/terryyin/open-dough/blob/d1aec79453b64587f51e47140b4b4e5ef89b1bd1/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#bound-managed-git-transport) — SEED-008#bound-managed-git-transport.
 
 Evidence and response: [ODF-184](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-184).
 

@@ -64,6 +64,39 @@ test("Story Branch Mode increment publishes to the recorded remote execution bra
   assertCheckoutUnchanged(before, await captureCheckout(integration));
 });
 
+test("a candidate the remote already holds is accepted without reconciliation or push", async (t) => {
+  const { integration, execution, trunkSha, candidateSha, cleanup } =
+    await createCleanTrunkFixture();
+  t.after(cleanup);
+  // An earlier push was accepted but its answer never arrived.
+  await git(execution, "push", "origin", `${candidateSha}:${trunkTarget}`);
+  const observer = receiptsOf();
+  let pushes = 0;
+
+  const published = await publishExecutionIncrement({
+    workspace: execution,
+    branch: "exec/story",
+    previouslyPublishedBase: trunkSha,
+    targetRef: trunkTarget,
+    register: observer.register,
+    defaultCheckout: integration,
+    beforePush: () => {
+      pushes += 1;
+    },
+  });
+
+  assert.equal(published.publication, "accepted");
+  assert.equal(published.classification, "already-published");
+  assert.equal(published.reconciliations, 0);
+  assert.equal(published.remoteTip, candidateSha);
+  assert.equal(published.maintenance, "deferred");
+  assert.equal(pushes, 0);
+  assert.deepEqual(observer.receipts, [
+    { sha: candidateSha, target: trunkTarget },
+  ]);
+  assert.equal(await revParse(execution, "exec/story"), candidateSha);
+});
+
 test("an owned repair publishes without unfinished work and restores that work afterwards", async (t) => {
   const { origin, execution, trunkSha, cleanup } =
     await createCleanTrunkFixture();

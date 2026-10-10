@@ -1,6 +1,7 @@
 // Resume an accepted managed delivery without duplicate push or guessed
 // observation. Verifies remote acceptance, recovers only a matching live
-// owner, and reports an actionable gap when coverage cannot be restored.
+// owner, and reports an actionable gap when coverage cannot be restored. A
+// fetch or push that outlasts the transport bound stops as held stops do.
 import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import {
@@ -88,16 +89,35 @@ export async function resumeManagedExecutionIncrement(request) {
         identity: oneShotIdentity,
       })
     : undefined;
-  const published = await resumeInterruptedPublication({
-    ownedWorkspace: workspace,
-    defaultCheckout,
-    candidateSha,
-    supersededShas,
-    publishedRevisions,
-    observer,
-    targetRef,
-    onFetchedTarget,
-  });
+  let published;
+  try {
+    published = await resumeInterruptedPublication({
+      ownedWorkspace: workspace,
+      defaultCheckout,
+      candidateSha,
+      supersededShas,
+      publishedRevisions,
+      observer,
+      targetRef,
+      onFetchedTarget,
+    });
+  } catch (error) {
+    if (error?.code !== "transport-timeout") throw error;
+    // A stalled fetch or push stops with the candidate preserved; the same
+    // resume run again settles acceptance from the remote.
+    return stopped("transport-timeout", {
+      stage: error.stage,
+      pushCount: error.pushCount,
+      pushIssued: error.pushIssued,
+      classification: error.classification,
+      boundMs: error.boundMs,
+      remote: error.remote,
+      target: targetRef,
+      candidate: candidateSha,
+      remoteTip: error.remoteTip,
+      observation: recovered.observation,
+    });
+  }
   if (published.held)
     return stopped(published.held.status, {
       candidate: candidateSha,

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "identity": "SEED-008#bound-managed-git-transport",
-  "mode": "story-branch",
-  "branch": "claude/managed-delivery-stops-a-stalled-git-transport-w",
-  "host": "claude"
-}
