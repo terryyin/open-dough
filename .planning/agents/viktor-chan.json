@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "identity": "SEED-124#check-dashboard-fixture-consumers-locally",
-  "mode": "story-branch",
-  "branch": "claude/catch-shared-fixture-signature-breaks-in-the-das",
-  "host": "claude"
-}
