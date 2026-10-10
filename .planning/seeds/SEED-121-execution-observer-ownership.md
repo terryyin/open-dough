@@ -25,7 +25,7 @@ owner.
 
 **Identity:** SEED-121#finish-prefers-live-observer
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/295-finish-prefers-live-observer/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"35b86d57b5c31085c4afa0821bb9c873c2a47b60c696cad4dc8fb56afbd8c875","plan":"16fdac0874a5b60d422bb190bee0a0962fa4171790c316262fc11f9df738ee33"}}
 ```
 
 **Goal:** A coordinator whose `finish` holds a live observer of its own
