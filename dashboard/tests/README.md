@@ -141,7 +141,7 @@ Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select share `i` of `n` whole
 spec files. `longest-first` orders known files by recorded hosted duration;
 unlisted specs follow sorted, and that order is dealt round-robin across
-shares. CI currently uses nine shares and runs the dashboard type-check once
+shares. CI currently uses twelve shares and runs the dashboard type-check once
 in the last share, whose recorded browser load is smallest. Stale and repeated
 list entries are ignored. With the variable unset,
 `npm run test:dashboard` keeps running the whole suite. The partition check
