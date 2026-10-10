@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yilv-chan",
+  "email": "yilv-chan@example.org",
+  "identity": "SEED-123#recently-done-waits-for-added-project-sessions",
+  "mode": "story-branch",
+  "branch": "claude/recently-done-waits-for-an-added-project-s-sessi",
+  "host": "claude"
+}
