@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "DavidKo-chan",
-  "email": "davidko-chan@example.org",
-  "identity": "SEED-128#continue-refinement-to-slice-planning",
-  "mode": "story-branch",
-  "branch": "claude/continue-completed-refinement-into-slice-plannin",
-  "host": "claude"
-}
