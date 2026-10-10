@@ -16,7 +16,18 @@ as it does for the project arrows below. Toggling leaves the keyboard where it
 is, except that closing the sidebar while the keyboard is inside it returns
 the keyboard to the Sessions button. The sidebar stays open or closed as left
 across project switches, views, the terminal, and reloads; it is disposable
-per-browser state and starts closed when none is kept. Opening a sidebar entry
+per-browser state and starts closed when none is kept. Below the session list,
+the sidebar's **Running Cursor sessions** section starts collapsed on each page
+load, its header alone below the list, which fills the rest of the sidebar.
+Expanding it with the mouse or keyboard gives the session list and the
+section's content an equal share of the room the heading and headers leave,
+each scrolling on its own; collapsing returns that room to the session list
+and leaves the keyboard on the header. Expansion lasts across project
+switches, views, and closing the sidebar within the page, but is not kept
+across reloads. Where the window is too short or zoomed for each list to keep
+room to read and choose an entry, the sidebar itself scrolls, keeping both
+lists and the header in reach. Expanding or collapsing it is page state only.
+Opening a sidebar entry
 shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
 terminal with the keyboard there, or opens the read-only final report when a

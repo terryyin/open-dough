@@ -187,7 +187,22 @@ sequentially in this workspace: their build and trace directories are shared.
 
 ### 1. Watch both lists in independently scrolling collapsible sections
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `cursor-sidebar-panels.spec.ts` (layout, equal share,
+independent scrolling, keyboard collapse/focus, 320×256 reach),
+`cursor-sidebar-panels-navigation.spec.ts` (wide/narrow held-row terminal with
+unchanged PID/calls; expansion across project, System settings, sidebar toggle;
+reload collapsed), the feedback-transition case in `cursor-runner-sessions.spec.ts`,
+and the sessions-first gate in `recently-done-progressive-navigation-cursor.spec.ts`
+with its original assertions. After refactoring, 51 sidebar-consuming specs
+passed (126 tests); typecheck clean.
+Learnings for slice 2: the fixed split lives in `.session-sidebar` /
+`.running-cursor-open` grid row templates (fourth row is the resize hook
+point); the Cursor section spans rows 3–4 with `subgrid`, so header/content
+spacing sits on the header's margin, not a row gap. The 8rem floor and equal
+share held at 1440×900. Use `expectNoSidewaysScrollAndWholeText` (not
+`expectNoSidewaysScrollIn`) on the sidebar. Shared fixtures live in
+`runningCursorSessionsPage.ts`; crowded held rows need UUID `sessionId`s.
 Proof: Add `cursor-sidebar-panels.spec.ts` and a focused feedback-transition
 case to the existing runner proof. Run the runner and complete sidebar suites,
 the two progressive Cursor consumers, and the frame/paging/header consumers

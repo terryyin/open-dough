@@ -2,19 +2,22 @@
 // terminal already open. The list names a session the runner holds. Choosing
 // that row opens the terminal on that same client. A runner that is not
 // running, or cannot be reached, says so, lists nothing, and starts no agent.
+// While expanded, the list says it is reading until a read answers, then
+// follows each later read, recovering its rows when one succeeds.
 import type { Page } from "@playwright/test";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import { parts } from "./dashboardPage.ts";
-import { launch } from "./agentLaunchBoundary.ts";
+import {
+  holdSession,
+  instruction,
+  openRunningList,
+  showPage as showProject,
+} from "./runningCursorSessionsPage.ts";
 import { expect, test as cursorTest } from "./support/cursorStart.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import { occupyRunner } from "./support/cursorRunnerJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
-
-const instruction = "hold this session";
 
 type Screen = "working" | "waiting" | "trust";
 
@@ -36,45 +39,10 @@ function withScreen(screen: Screen) {
   return withCursor({ screen });
 }
 
-async function holdSession(
-  dashboard: DashboardServer,
-  cursor: FakeCursor,
-): Promise<number> {
-  const launched = await launch(dashboard, {
-    source: "open-dough",
-    workflow: "ad-hoc",
-    host: "cursor",
-    instruction,
-  });
-  expect(launched.status).toBe(200);
-  expect(JSON.parse(launched.body)).toMatchObject({ kind: "launched" });
-  await expect.poll(() => cursor.attaches()).toHaveLength(1);
-  return cursor.attaches()[0]?.pid ?? 0;
-}
-
+// The page also lists the held session as the project's local Taken entry.
 async function showPage(page: Page, origin: StartOrigin): Promise<void> {
-  const revision = (await origin.originGit("rev-parse", "main")).trim();
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision,
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  await page.goto("/");
-  await expect(
-    page.getByRole("button", { name: "Start session in Open Dough" }),
-  ).toBeVisible();
+  await showProject(page, origin);
   await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
-}
-
-async function openRunningList(page: Page) {
-  const { sidebar, button } = sidebarParts(page);
-  await button.click();
-  const region = sidebar.getByRole("region", {
-    name: "Running Cursor sessions",
-  });
-  await region.getByRole("button", { name: "Running Cursor sessions" }).click();
-  return { sidebar, region };
 }
 
 const held = [
@@ -203,6 +171,79 @@ refused(
       expect(cursor.attaches()).toHaveLength(attaches);
     } finally {
       await release();
+    }
+  },
+);
+
+const feedback = withScreen("working");
+feedback(
+  "while expanded, the list says it is reading, then follows each later read: unreachable, restored, and running with no held sessions",
+  async ({ page, dashboard, origin, cursor }) => {
+    feedback.setTimeout(120_000);
+    const pid = await holdSession(dashboard, cursor);
+    // The runner's own answer for the held session; the replies below are
+    // what the page's reads are given, preconditions only.
+    const answered = await page.request.get(
+      `${dashboard.baseURL}${cursorRunnerSessionsEndpoint}`,
+      { headers: { Origin: dashboard.baseURL } },
+    );
+    expect(answered.ok()).toBe(true);
+    const held: unknown = await answered.json();
+    expect(held).toMatchObject({ runner: "running" });
+    const replies = {
+      held,
+      unreachable: { runner: "unreachable", sessions: [] },
+      empty: { runner: "running", sessions: [] },
+    };
+    let reply: keyof typeof replies = "held";
+    let release: () => void = () => undefined;
+    const reading = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await showPage(page, origin);
+    const calls = cursor.calls().length;
+    await page.route(
+      (url) => url.pathname === cursorRunnerSessionsEndpoint,
+      async (route) => {
+        await reading;
+        await route.fulfill({ json: replies[reply] });
+      },
+    );
+    try {
+      const terminalPanel = page.getByRole("region", { name: "Terminal" });
+      const { sidebar, region } = await openRunningList(page);
+      const row = region.getByRole("button", { name: /Open Dough/ });
+      await expect(region).toContainText("Reading the Cursor runner…");
+      await expect(region.getByRole("listitem")).toHaveCount(0);
+      release();
+      await expect(region).toContainText("The Cursor runner is running.");
+      await expect(row).toContainText("working");
+
+      reply = "unreachable";
+      await expect(region).toContainText(
+        "The Cursor runner cannot be reached.",
+      );
+      await expect(region.getByRole("listitem")).toHaveCount(0);
+      // The session list stays as it was.
+      await expect(
+        sidebar.getByRole("button", { name: instruction, exact: true }),
+      ).toBeVisible();
+
+      reply = "held";
+      await expect(region).toContainText("The Cursor runner is running.");
+      await expect(row).toContainText("working");
+
+      reply = "empty";
+      await expect(region.getByRole("listitem")).toHaveCount(0);
+      await expect(region).toContainText("The Cursor runner is running.");
+      await expect(region).not.toContainText("cannot be reached");
+
+      await expect(terminalPanel).toHaveCount(0);
+      expect(cursor.calls()).toHaveLength(calls);
+      expect(cursor.attaches()).toHaveLength(1);
+      expect(cursor.attaches()[0]?.pid).toBe(pid);
+    } finally {
+      release();
     }
   },
 );

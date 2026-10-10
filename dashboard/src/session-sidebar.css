@@ -1,12 +1,15 @@
 /* The Sessions sidebar and its button. On a wide window the sidebar is a
-   fixed-width column left of the page, as tall as the window and scrolling
-   on its own while the page scrolls beside it, with the side panel still
-   on the right: sidebar | page | panel (./side-panel.css). On a narrow
-   window, where the panel stacks above the page, it overlays the page from
-   the left, below the pinned banner so the Sessions button stays in reach.
-   An entry is one line; its state shows by its left border, an unread report by its own mark and
-   tint, and its tooltip and hidden words carry the words
-   (`./SidebarEntry.tsx`). */
+   fixed-width column left of the page, as tall as the window, while the page
+   scrolls beside it, with the side panel still on the right:
+   sidebar | page | panel (./side-panel.css). On a narrow window, where the
+   panel stacks above the page, it overlays the page from the left, below the
+   pinned banner so the Sessions button stays in reach.
+   Inside, the session list fills the room the heading and the Running Cursor
+   sessions header leave, scrolling on its own; expanded, that section's
+   content takes an equal share of the room, scrolling on its own too. Where
+   the window is too short for each to keep room to read and choose an entry,
+   the sidebar itself scrolls, so neither list nor the header is out of reach.
+   Its entries are ./sidebar-entry.css's. */
 
 .page-with-sidebar {
   display: grid;
@@ -14,14 +17,39 @@
 }
 
 .session-sidebar {
+  /* The room each list keeps to read and choose an entry. */
+  --sidebar-list-floor: 8rem;
   position: sticky;
   top: 0;
   box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(var(--sidebar-list-floor), 1fr) auto;
   height: 100dvh;
   overflow-y: auto;
   padding: var(--space-2) var(--space-3) var(--space-3);
   border-right: 1px solid var(--line);
   background: var(--panel);
+}
+
+.session-sidebar[hidden] {
+  display: none;
+}
+
+.session-sidebar.running-cursor-open {
+  grid-template-rows:
+    auto minmax(var(--sidebar-list-floor), 1fr)
+    auto minmax(var(--sidebar-list-floor), 1fr);
+}
+
+/* Each list scrolls on its own, reaching the sidebar's sides so its entries'
+   focus rings keep their room. */
+.sidebar-sessions,
+.running-cursor-body {
+  overflow-y: auto;
+  margin-inline: calc(-1 * var(--space-3));
+  padding: 0 var(--space-3) var(--focus-ring-clearance);
+  scroll-padding-block: var(--focus-ring-clearance);
 }
 
 /* The heading sits on the banner's row, at its control height. */
@@ -33,7 +61,7 @@
   font-weight: var(--weight-strong);
 }
 
-.session-sidebar > p.quiet {
+.sidebar-sessions > p.quiet {
   margin-top: var(--space-1);
   font-size: var(--text-sm);
 }
@@ -46,12 +74,32 @@
   margin-top: var(--space-2);
 }
 
+/* The section reaches the sidebar's sides, holding its header and content
+   within the sidebar's own padding. */
 .running-cursor-sessions {
   display: grid;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
+  margin: var(--space-2) calc(-1 * var(--space-3)) 0;
+  padding: 0.75rem var(--space-3) 0;
   border-top: 1px solid var(--line);
+}
+
+/* Expanded, the header keeps the sidebar's third row and the content its
+   fourth, as tall as the session list's: the room between them is the
+   header's own, so the content's row keeps its whole height. */
+.running-cursor-open > .running-cursor-sessions {
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+}
+
+.running-cursor-open .running-cursor-toggle {
+  margin-bottom: var(--space-1);
+}
+
+.running-cursor-body {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  padding-top: var(--space-1);
 }
 
 .running-cursor-toggle {
@@ -86,118 +134,6 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-/* Each entry is one control over its whole area, a quiet row in the frame's
-   radius and edge; the entry the page's terminal shows is current, outlined
-   as its card is, on the accent's soft fill. */
-.session-sidebar li.sidebar-entry {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  background: var(--panel);
-  box-shadow: var(--shadow-1);
-}
-
-.sidebar-entry-open {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  border-radius: inherit;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.sidebar-entry-open:hover {
-  background: color-mix(in srgb, var(--text) 5%, transparent);
-}
-
-.sidebar-entry-open:focus-visible {
-  border-radius: var(--radius-md);
-}
-
-/* An entry whose session holds an unread report is faintly tinted across its
-   whole area, whatever its edge; the entry the terminal shows keeps its own
-   fill. */
-.session-sidebar .sidebar-entry.has-unread-report {
-  background: color-mix(in srgb, var(--accent) 7%, var(--panel));
-}
-
-.session-sidebar .sidebar-entry.in-terminal {
-  outline: 3px solid var(--accent);
-  outline-offset: 1px;
-  background: var(--accent-soft);
-}
-
-/* An entry's state by its left border, whatever its other edges: needing
-   input, solid thick red; ready for review, solid thick green; failed or
-   stopped, dashed red; working, thin blue; done, thin grey; unknown,
-   unlisted, or not recognized, dotted grey. Style, thickness, and colour all
-   differ, so no one of them carries the state alone. */
-.session-sidebar .sidebar-entry.tone-needs-input {
-  border-left: 5px solid var(--problem);
-}
-
-.session-sidebar .sidebar-entry.tone-ready {
-  border-left: 5px solid var(--ready);
-}
-
-.session-sidebar .sidebar-entry.tone-halted {
-  border-left: 3px dashed var(--problem);
-}
-
-.session-sidebar .sidebar-entry.tone-working {
-  border-left: 2px solid var(--accent);
-}
-
-.session-sidebar .sidebar-entry.tone-done {
-  border-left: 2px solid var(--edge);
-}
-
-.session-sidebar .sidebar-entry.tone-unsettled {
-  border-left: 3px dotted var(--edge);
-}
-
-/* One line: the title, cut with an ellipsis when it is long, and the elapsed
-   time at the end. The whole title stays the heading's, for assistive
-   technology; the entry's tooltip says the rest. */
-.sidebar-title {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-/* An unread report's mark: a small message icon before the elapsed time,
-   in the accent. */
-.sidebar-unread-report {
-  flex: none;
-  display: inline-flex;
-  align-self: center;
-  color: var(--accent);
-}
-
-.sidebar-unread-report svg {
-  width: var(--text-sm);
-  height: var(--text-sm);
-}
-
-.sidebar-elapsed {
-  flex: none;
-  font-size: var(--text-xs);
-  font-variant-numeric: tabular-nums;
-  color: var(--quiet);
-  white-space: nowrap;
 }
 
 /* The Sessions button is a frame icon control (./icon-control.css); open, it
