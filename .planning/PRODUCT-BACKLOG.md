@@ -18,10 +18,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Review a story's merged one-shot change](seeds/SEED-088-dashboard-story-code-review.md#review-merged-one-shot-change) — SEED-088#review-merged-one-shot-change ([plan](slice-plans/281-review-merged-one-shot-change/PLAN.md))
 - [Show Running Cursor sessions as a resizable sidebar section](seeds/SEED-122-running-cursor-sessions-sidebar-panel.md#running-cursor-sessions-sidebar-panel) — SEED-122#running-cursor-sessions-sidebar-panel ([plan](slice-plans/279-running-cursor-sidebar/PLAN.md))
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner ([plan](slice-plans/280-execution-observer-ownership/PLAN.md))
+- [A Cursor launch or recover wait ends within a bound with a clear message](seeds/SEED-129-bounded-cursor-launch-wait.md#bounded-cursor-launch-wait) — SEED-129#bounded-cursor-launch-wait ([plan](slice-plans/283-bounded-cursor-launch-wait/PLAN.md))
 
 ## Backlog list
 
-- [A Cursor launch or recover wait ends within a bound with a clear message](seeds/SEED-129-bounded-cursor-launch-wait.md#bounded-cursor-launch-wait) — SEED-129#bounded-cursor-launch-wait
 - [Continue completed refinement into slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#continue-refinement-to-slice-planning) — SEED-128#continue-refinement-to-slice-planning
 - [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions
 - [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution
