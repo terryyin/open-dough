@@ -168,129 +168,29 @@ current one as trunk's, so story work that reaches trunk after the mark is
 left out and an otherwise empty review says nothing changed beyond what trunk
 now holds; recognizing the story's own commits there would let it list them.
 
-<a id="review-merged-story-branch-changes"></a>
+<a id="landing-capture-after-integration-conflict"></a>
 
-### Review a Story Branch Mode story's changes after they merge
+### A conflicted Story Branch integration still records its landing
 
-**Identity:** SEED-088#review-merged-story-branch-changes
-**Slice plan:** [A Story Branch Mode story's changes stay reviewable after they merge](../slice-plans/292-landed-story-branch-review/PLAN.md).
+**Identity:** SEED-088#landing-capture-after-integration-conflict
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/292-landed-story-branch-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9f5d17745aa8886f164f8c04286e9ed9ee51da56d15b1184ae739d8c2c21a2ca","plan":"8ca8ec3bf77fd4ef4242602d303d9558bed46dcc61f6fe8146b019a4898d2f94"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md","assessment":"not-ready","reasons":["Slice 2's premise, that a second comparison after an accepted landing is refused before its push, was read in the code and not observed against the receiver."],"basis":{"document":"fc18198d9e33344a26e99e729e6966413f29ed27a20041b1159a55de6a7b2fe8","plan":"524388f483413b137b49fbb141012c919638901a2cfec8ccdf7100ee8f86aa6b"}}
 ```
+**Slice plan:** [A conflicted Story Branch integration still records its landing](../slice-plans/294-landing-capture-after-integration-conflict/PLAN.md).
 
-**Goal:** A developer reviewing a story executed in Story Branch Mode from the
-dashboard can review that story's combined delivered changes after its branch
-has merged to trunk and its worktree and branches are retired, so they can
-check the delivered work after landing in the same review the dashboard
-already gives a landed one-shot run.
+**Goal:** A developer reviewing a Story Branch Mode story whose trunk
+integration met a merge conflict, or whose launch published to trunk again
+after integrating, still gets the landed review that
+the reviewed story (`SEED-088#review-merged-story-branch-changes`, at
+`1d2de5da4b38eb379caa25da45e9254c42949795:.planning/seeds/SEED-088-dashboard-story-code-review.md`) delivers, so
+contended stories do not land with an evidence gap. A bounded correction from
+that story's execution retrospective; it adds no feature promise.
 
-**Scope:** Builds on the [story review](../../dashboard/AGENT-LAUNCH-REVIEW.md)
-and the [landed one-shot review](../../dashboard/STORY-REVIEW-ONE-SHOT.md),
-whose fixed delivered pair (the trunk tip a publication was accepted onto and
-the accepted revision) is captured by the publication handoff described in
-[explicit completion](../../dashboard/AGENT-LAUNCH-COMPLETION.md). Today the
-dashboard prepares that capture only for one-shot launches; a claimed Story
-Branch Mode execution launch gets none, so after wrap-up retires its worktree
-the review can only say the worktree is missing, and before retirement the
-merge-base baseline shows nothing once the branch is on trunk.
-
-Required:
-
-- A claimed Story Branch Mode execution launch started from the dashboard
-  carries the same landing capture as a one-shot launch: a landing context
-  naming the project, launch, work identity, remote and trunk target, with the
-  workspace's common repository retained as the capture authority.
-- Wrap-up's Story Branch trunk integration passes that context through the
-  history-preserving candidate sequence, so that once remote trunk accepts the
-  integrated SHA the handoff records the pair: base is the fetched trunk tip
-  the integration was published onto, revision is the accepted integrated SHA.
-  Trunk changes merged into the branch during execution are therefore not part
-  of the comparison. Recording happens before retirement and follows the
-  existing capture rules: one fixed landing fact per launch, a receipt or a
-  reporting-only retry, and Git acceptance kept when recording fails.
-- Progress publication to the remote story branch captures nothing; only
-  publication to the trunk target is the landing.
-- The review lists that integration among the story's retained runs, from the
-  active card and from the Recently done card, under the existing opening
-  rule: a readable workspace opens first, otherwise the newest captured
-  comparison; the selector and context wording name both one-shot runs and
-  story-branch integrations with one term per fact.
-- Guidance that today says the handoff is for one-shot launches (Dough Land's
-  dashboard completion reference and the launch instruction's reporting text)
-  describes the general rule for the executing agent.
-
-Rejected:
-
-- Reconstructing an uncaptured landing from today's trunk. The landed review
-  never guesses a baseline or lists substitute files
-  ([landed one-shot review](../../dashboard/STORY-REVIEW-ONE-SHOT.md)); a story
-  landed before this capability keeps its evidence-gap explanation.
-
-Deferred, not built or verified here:
-
-- Durability beyond the launch record's retention (30 days after Done) and
-  across machines. A repository ref beside the review mark's would be the
-  natural home if wanted later.
-- A Story Branch integration run outside the launch's session (a wrap-up
-  started without the execution launch's landing context) captures nothing and
-  shows the evidence gap, as a one-shot landing does today.
-- Opening on the landed comparison while an integrated workspace is still
-  present (retirement held): the workspace review opens as today, with the
-  integration offered in the Comparison switch.
-- Trunk Mode, which lands many increments per launch, is the
-  [sibling story](#review-trunk-mode-story-changes).
-
-**Key examples:**
-
-- A Story Branch Mode story executed from the dashboard was wrapped up: its
-  branch was merged onto fetched trunk tip T and accepted as integrated SHA S,
-  then its worktree and branches were retired and the story sits in Recently
-  done → the developer activates Review changes on its done card → the review
-  opens on the landed comparison from T to S in the usual file browser and
-  diff; the context names the landed run, its launch time, the authorized
-  remote target, and the exact base and accepted revision. Mark reviewed is not
-  offered there.
-- Trunk advanced three times during that execution and each time was merged
-  into the branch; a file only trunk changed and a file both changed →
-  the same review → the trunk-only file is not listed; the file both changed
-  shows the story's merged version against trunk's at T.
-- The branch already contained fetched trunk, so integration was a fast-forward
-  to the branch tip B → the same review → the comparison is from T to B, the
-  same files the workspace review showed before landing.
-- Others landed after S, or S was reverted on trunk → Refresh, or a later
-  opening → the same fixed pair and files; nothing is read from today's trunk.
-- The story had a one-shot refinement run earlier and then this execution →
-  the Comparison switch's landed runs list both, newest first, each by
-  workflow, launch time and accepted revision.
-- A Story Branch Mode story landed before this capability, its worktree gone →
-  Review changes → the review explains that this run's delivered comparison
-  was not captured and cannot be reconstructed from today's trunk, and lists
-  no files.
-- Wrap-up's integration push was accepted but the dashboard refused the
-  landing record → the wrap-up reports the reporting-only retry, Git acceptance
-  and retirement proceed, and the review shows the comparison once the retry
-  is acknowledged.
-
-**Architecture:** The delivered one-shot landing specialised a general fact,
-a dashboard-started launch's accepted trunk landing, to its single case: the
-dashboard writes the landing context only for a one-shot established context
-(`dashboard/server/completionReporting.ts`), the review's retained-run list
-admits only one-shot launches (`reviewOneShotRunsOf` in
-`dashboard/src/storyReviewOneShot.ts`), and the schemas, selector and heading
-carry “one-shot” in their names and words. This story generalises that into
-one concept, the landing captured for a launch, owned by the same modules:
-the capture authority is established for every launch whose established
-context names a trunk target, the handoff captures at the publication whose
-target is trunk (`history-preserving-publication.mjs` for the Story Branch
-integration, as `execution-increment-publication.mjs` already does for a
-one-shot suffix), and the review lists launches with a captured landing
-whatever their tracking. A launch keeps one fixed landing fact; Trunk Mode's
-many increments per launch would need a list, which the sibling story owns.
-No Accepted ADR constrains the choice; [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-applies to the guidance change, and the Proposed
-[ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md) informs the
-distinction between story-branch progress and trunk integration without binding
-it.
+**Scope:** The `integrate` command publishes a merge the agent resolved by
+hand and reports a conflict as a preserved result; the launch instruction and
+landing handoff say that a launch's later trunk publications take no landing
+context; the removed-worktree gap keeps one inexpensive spec; the landed-run
+document and shared test support carry the general name.
 
 ## Breadcrumbs
 

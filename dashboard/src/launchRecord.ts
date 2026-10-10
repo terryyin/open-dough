@@ -1,9 +1,9 @@
 // Durable native launch evidence and current session observations.
 import { z } from "zod";
 import {
-  oneShotLandingSchema,
+  launchLandingSchema,
   landingReportingSchema,
-} from "./oneShotLanding.ts";
+} from "./launchLanding.ts";
 import { completionSchema } from "./completionReport.ts";
 export { completionSchema, type CompletionReport } from "./completionReport.ts";
 import {
@@ -143,7 +143,7 @@ export const launchRecordSchema = z.object({
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
   completion: completionSchema.optional(),
-  landing: oneShotLandingSchema.optional(),
+  landing: launchLandingSchema.optional(),
   landingReporting: landingReportingSchema.optional(),
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.

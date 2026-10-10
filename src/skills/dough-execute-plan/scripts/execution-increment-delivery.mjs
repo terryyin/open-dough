@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import { withExplicitSession } from "./ci-host-bridge.mjs";
 import { registerPushedRevision, mailboxRoot } from "./ci-mailbox.mjs";
-import { isDirectCliEntry } from "./ci-direct-entry.mjs";
+import { flagValues, isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { establishObservation } from "./execution-increment-observation.mjs";
 export { resumeManagedExecutionIncrement } from "./execution-increment-resume.mjs";
@@ -207,22 +207,7 @@ const usage =
 
 function argumentsOf(argv) {
   if (argv[0] !== "deliver") throw new Error(usage);
-  const result = { authority: "publish" };
-  for (let index = 1; index < argv.length; index += 1) {
-    const flag = argv[index];
-    // Every flag carries a value; a flag in a value's place is unknown.
-    if (
-      !flag.startsWith("--") ||
-      index + 1 >= argv.length ||
-      argv[index + 1].startsWith("--")
-    ) {
-      throw new Error(`invalid argument ${flag}`);
-    }
-    const key = flag
-      .slice(2)
-      .replace(/-[a-z]/g, (match) => match[1].toUpperCase());
-    result[key] = argv[++index];
-  }
+  const result = flagValues(argv.slice(1), { authority: "publish" });
   if (!["trunk", "story-branch"].includes(result.mode)) throw new Error(usage);
   if (result.maxDurationMs !== undefined) {
     result.maxDurationMs = Number(result.maxDurationMs);

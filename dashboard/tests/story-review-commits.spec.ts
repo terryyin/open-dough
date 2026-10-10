@@ -3,6 +3,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
@@ -69,8 +70,8 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
   await expect(rows.nth(2)).toBeEnabled();
   await expect(rows.first()).toHaveText("Uncommitted changes");
   await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-  await rows.nth(1).click();
-  await rows.nth(1).click();
+  await chooseCommit(review, rows.nth(1));
+  await chooseCommit(review, rows.nth(1));
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
@@ -91,8 +92,8 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
     "untracked",
   );
   // Extend to the older commit, then activate again to start its own range.
-  await rows.last().click();
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
+  await chooseCommit(review, rows.last());
   await expect(rows.last()).toHaveAttribute("aria-pressed", "true");
   await expect(
     files.getByRole("button", {
@@ -124,8 +125,8 @@ test("a clean merge selected alone changed nothing by itself", async ({
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await rows.nth(1).click();
-  await rows.nth(1).click();
+  await chooseCommit(review, rows.nth(1));
+  await chooseCommit(review, rows.nth(1));
   await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.first()).toBeEnabled();
   await expect(review).toContainText("The chosen commits changed nothing.");
@@ -135,8 +136,8 @@ test("a clean merge selected alone changed nothing by itself", async ({
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
-  await rows.nth(3).click();
-  await rows.nth(3).click();
+  await chooseCommit(review, rows.nth(3));
+  await chooseCommit(review, rows.nth(3));
   await expect(
     review
       .getByRole("list", { name: "1 changed file", exact: true })

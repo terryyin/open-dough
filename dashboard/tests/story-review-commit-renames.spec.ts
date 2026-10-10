@@ -1,6 +1,7 @@
 // Integration conflicts follow the same file through renames on both sides
 // of that integration, preserving the selected range's original old path.
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
@@ -43,7 +44,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   await expect(
     review.getByRole("heading", { name: "Changes in 4 commits" }),
   ).toBeVisible();

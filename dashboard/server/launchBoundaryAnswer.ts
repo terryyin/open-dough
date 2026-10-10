@@ -9,7 +9,7 @@ import {
   landingEndpoint,
   landingPrepareEndpoint,
   submitLanding,
-} from "./oneShotLandingReporting.ts";
+} from "./launchLandingReporting.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";

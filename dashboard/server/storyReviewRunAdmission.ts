@@ -2,12 +2,13 @@
 import { z } from "zod";
 import { workIdentitySchema } from "../src/launchRequest.ts";
 import {
-  reviewOneShotRunsOf,
+  reviewLandedRunsOf,
   reviewRunKey,
-} from "../src/storyReviewOneShot.ts";
+} from "../src/storyReviewLandedRun.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
+import { directoryState } from "./sessionWorkspace.ts";
 import type { AdmittedFileDiff } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 // A named run is admitted only from this source and story's retained records.
@@ -19,7 +20,12 @@ export async function queriedRun(url: URL) {
   if (!identity.success)
     throw new RefusedRequest(400, "The review identity is malformed.");
   const records = await keptRecords(source.id);
-  const runs = reviewOneShotRunsOf(records, source.id, identity.data);
+  const runs = reviewLandedRunsOf(
+    records,
+    source.id,
+    identity.data,
+    (workspace) => directoryState(workspace).kind === "missing",
+  );
   const reference = url.searchParams.get("reference");
   const key = url.searchParams.get("run");
   if (key !== null) {
@@ -27,7 +33,7 @@ export async function queriedRun(url: URL) {
     if (run === undefined)
       throw new RefusedRequest(
         404,
-        "This story has no retained one-shot run with that identity.",
+        "This story has no landed run with that identity.",
       );
     return { source, identity: identity.data, records, runs, run };
   }
@@ -43,7 +49,7 @@ export async function queriedRun(url: URL) {
     if (run === undefined)
       throw new RefusedRequest(
         404,
-        "This story has no retained one-shot run with that reference.",
+        "This story has no landed run with that reference.",
       );
     return { source, identity: identity.data, records, runs, run };
   }
@@ -61,8 +67,7 @@ export async function reviewedRunFile(
   }: Pick<AdmittedFileDiff, "baseline" | "tree" | "path" | "oldPath">,
 ) {
   const { run } = await queriedRun(url);
-  if (run === undefined)
-    throw new RefusedRequest(404, "No retained one-shot run.");
+  if (run === undefined) throw new RefusedRequest(404, "No landed run.");
   const review = await landedStoryReview(run, AbortSignal.timeout(30_000));
   if (review.kind !== "landed")
     throw new RefusedRequest(

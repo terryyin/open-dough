@@ -1,6 +1,7 @@
 // A contiguous range uses its oldest parent and newest tree, while trunk
 // integrations are restated by the same comparison as Since the review.
 import { expect, test } from "./support/preparationPage.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
@@ -22,8 +23,8 @@ test("two ends select three commits in either direction, reset to one, and survi
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
-  await rows.last().click();
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
+  await chooseCommit(review, rows.last());
   await rows.nth(2).press("Enter");
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
@@ -51,12 +52,12 @@ test("two ends select three commits in either direction, reset to one, and survi
   );
 
   // Starting from the newer end selects the same three commits.
-  await rows.nth(2).click();
+  await chooseCommit(review, rows.nth(2));
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
   await expect(rows.nth(3)).toHaveAttribute("aria-pressed", "false");
-  await rows.last().click();
+  await chooseCommit(review, rows.last());
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
@@ -88,9 +89,9 @@ olderGit(
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
-    await rows.nth(1).click();
-    await rows.nth(1).click();
-    await rows.last().click();
+    await chooseCommit(review, rows.nth(1));
+    await chooseCommit(review, rows.nth(1));
+    await chooseCommit(review, rows.last());
     await expect(
       review.getByRole("heading", { name: "Changes in 4 commits" }),
     ).toBeVisible();
@@ -100,8 +101,8 @@ olderGit(
     await expect(
       review.getByRole("list", { name: /changed file/ }),
     ).toHaveCount(0);
-    await rows.last().click();
-    await rows.nth(2).click();
+    await chooseCommit(review, rows.last());
+    await chooseCommit(review, rows.nth(2));
     await expect(
       review.getByRole("heading", { name: "Changes in 3 commits" }),
     ).toBeVisible();

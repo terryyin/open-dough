@@ -2,6 +2,7 @@
 import { test, expect, stored } from "./support/codexStart.ts";
 import { reviewChoices, addLiveEdit } from "./support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "./support/oneShotReview.ts";
+import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import {
   markReviewed,
   keptStoryAMark,
@@ -37,12 +38,12 @@ test("keyboard choices show each retained captured or legacy run beside the live
     review.getByRole("radio", { name: "Since the review", exact: true }),
   ).toBeChecked();
   const radio = review.getByRole("radio", {
-    name: "Landed one-shot runs",
+    name: "Landed runs",
     exact: true,
   });
   await radio.focus();
   await page.keyboard.press("Space");
-  const select = review.getByRole("listbox", { name: "One-shot run" });
+  const select = review.getByRole("listbox", { name: "Landed run" });
   await expect(select).toHaveValue(choices.second.key);
   for (const [index, run] of [choices.second, choices.first].entries()) {
     await select.focus();
@@ -111,8 +112,8 @@ test("keyboard choices show each retained captured or legacy run beside the live
   });
   const rows = commits.getByRole("button");
   await expect(rows).toHaveCount(2);
-  await rows.nth(1).click();
-  await rows.nth(1).click();
+  await chooseCommit(review, rows.nth(1));
+  await chooseCommit(review, rows.nth(1));
   await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.nth(0)).toHaveAttribute("aria-pressed", "false");
   await expect(review.locator(".story-review-added")).toHaveText(["+live.txt"]);

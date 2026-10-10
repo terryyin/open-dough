@@ -2,14 +2,11 @@
 import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { IncomingMessage } from "node:http";
-import {
-  isEstablishedOneShot,
-  type EstablishedContext,
-} from "../src/launchRecord.ts";
+import type { EstablishedContext } from "../src/launchRecord.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
-import { replaceAttempts } from "./launchAttemptStore.ts";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
+import type { LandingRepository } from "../src/launchLanding.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { deliverCompletion } from "./completionDelivery.ts";
@@ -22,13 +19,19 @@ import { shellCommand } from "../src/sessionCapabilities.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 
 export const completionEndpoint = "/__agent-launch/completion";
+// What a launch's attempt keeps in one write: the context its instruction
+// names and, when that names a landing context, the capture authority.
+export type PreparedReporting = {
+  readonly reporting: ReportingContext;
+  readonly landingRepository?: LandingRepository;
+};
 // Prepare a standalone installed script outside the launch workspace, which may retire.
 // This is an executable copy; the existing attempts/records remain the only evidence stores.
 export async function reportingContext(
   attempt: LaunchAttemptRecord,
   folder: ProjectFolder,
   established?: EstablishedContext,
-): Promise<ReportingContext | undefined> {
+): Promise<PreparedReporting | undefined> {
   if (
     attempt.reportingOrigin === undefined ||
     (attempt.request.workflow === "ad-hoc" &&
@@ -56,6 +59,7 @@ export async function reportingContext(
   );
   await copyFile(installed, script);
   let landingContext: string | undefined;
+  let landingRepository: LandingRepository | undefined;
   const landingModule = path.join(
     path.dirname(installed),
     "dashboard-landing.mjs",
@@ -73,11 +77,8 @@ export async function reportingContext(
       landingModule,
       path.join(directory, "dashboard-landing.mjs"),
     );
-  if (
-    capturesLanding &&
-    established !== undefined &&
-    isEstablishedOneShot(established)
-  ) {
+  // Every established start or preparation names its trunk target.
+  if (capturesLanding && established !== undefined) {
     const repository = (
       await runGit(
         ["rev-parse", "--path-format=absolute", "--git-common-dir"],
@@ -87,7 +88,7 @@ export async function reportingContext(
         },
       )
     ).stdout.trim();
-    const authority = {
+    landingRepository = {
       repository,
       workspace: established.workspace,
       branch: established.branch,
@@ -95,41 +96,32 @@ export async function reportingContext(
       remote: established.remote,
       target: `refs/heads/${established.target}`,
     };
-    await replaceAttempts((kept) => ({
-      ...kept,
-      [attempt.request.source]: (kept[attempt.request.source] ?? []).map(
-        (entry) =>
-          entry.id === attempt.id
-            ? {
-                ...entry,
-                landingRepository: entry.landingRepository ?? authority,
-              }
-            : entry,
-      ),
-    }));
     landingContext = path.join(directory, "landing-context.json");
     await writeFile(
       landingContext,
-      `${JSON.stringify({ origin: attempt.reportingOrigin, source: attempt.request.source, host: attempt.request.host, reference: attempt.id, identity: authority.identity, remote: authority.remote, target: authority.target }, null, 2)}\n`,
+      `${JSON.stringify({ origin: attempt.reportingOrigin, source: attempt.request.source, host: attempt.request.host, reference: attempt.id, identity: landingRepository.identity, remote: landingRepository.remote, target: landingRepository.target }, null, 2)}\n`,
       { mode: 0o600 },
     );
   }
   return {
-    origin: attempt.reportingOrigin,
-    reference: attempt.id,
-    ...(landingContext === undefined ? {} : { landingContext }),
-    command: shellCommand([
-      "node",
-      script,
-      "--origin",
-      attempt.reportingOrigin,
-      "--source",
-      attempt.request.source,
-      "--host",
-      attempt.request.host,
-      "--reference",
-      attempt.id,
-    ]),
+    ...(landingRepository === undefined ? {} : { landingRepository }),
+    reporting: {
+      origin: attempt.reportingOrigin,
+      reference: attempt.id,
+      ...(landingContext === undefined ? {} : { landingContext }),
+      command: shellCommand([
+        "node",
+        script,
+        "--origin",
+        attempt.reportingOrigin,
+        "--source",
+        attempt.request.source,
+        "--host",
+        attempt.request.host,
+        "--reference",
+        attempt.id,
+      ]),
+    },
   };
 }
 

@@ -29,7 +29,7 @@ import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 
 import type { submitCompletion } from "./completionReporting.ts";
 
-import type { LandingReceipt } from "../src/oneShotLanding.ts";
+import type { LandingReceipt } from "../src/launchLanding.ts";
 
 export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: LandingReceipt }

@@ -84,9 +84,17 @@ completion reporting schedules no delayed disposal. A session marked done with a
 report reads Done, with native Working as its note. A receipt claims no native shutdown. Direct Land/Wrap Up
 without supplied context makes no dashboard contact. Other workflows receive the channel without gaining automatic completion.
 
-One-shot landing capture is a separate launch-bound fact. Before each push the
-installed publication handoff retains the final candidate and delivery base,
-including a reconciled pair, outside the workspace. Accepted publication survives
+Landing capture is a separate launch-bound fact of every established start or
+preparation naming a trunk target: a one-shot launch, and a claimed Story Branch
+Mode launch, whose wrap-up integration is the publication that lands. Publication
+to the remote story branch captures nothing. Before each push to the trunk target
+the installed publication handoff retains the final candidate and delivery base,
+including a reconciled pair, outside the workspace. The dashboard prepares a
+candidate that is the launch workspace's `HEAD` and contains its branch tip: a
+one-shot tip, a fast-forwarded story tip, or a detached integration merge of that
+tip onto fetched trunk; the base is the fetched trunk tip the candidate is
+published onto. The [story review](STORY-REVIEW-ONE-SHOT.md) lists a launch with
+a captured landing as a landed run. Accepted publication survives
 recording failure; resume verifies the retained pair without another push, and
 the copied reporting command retries only that original input after retirement.
 Preparation and acceptance retain one immutable comparison receipt. Capture

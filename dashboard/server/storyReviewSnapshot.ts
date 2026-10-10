@@ -25,7 +25,7 @@
 // path.
 
 import { landedStoryReview } from "./storyReviewLanded.ts";
-import { reviewRunChoice, reviewRunKey } from "../src/storyReviewOneShot.ts";
+import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import { mkdtemp, realpath, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";

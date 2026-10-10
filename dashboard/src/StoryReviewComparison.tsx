@@ -53,9 +53,7 @@ export function ComparisonSwitch({
               onSwitch(option);
             }}
           />{" "}
-          {option === "landed"
-            ? "Landed one-shot runs"
-            : comparisonWords[option]}
+          {option === "landed" ? "Landed runs" : comparisonWords[option]}
         </label>
       ))}
     </div>

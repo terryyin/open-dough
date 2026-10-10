@@ -2,8 +2,8 @@
 // fixed top and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
 // the line staying in place while a short panel scrolls that explanation; a
-// worktree whose folder was removed is missing, named by the path the review looked
-// for, still offering Refresh and Close, and no Git runs; a trunk that cannot
+// worktree whose folder was removed with no landing captured explains that
+// evidence gap, still offering Refresh and Close, and no Git runs; a trunk that cannot
 // be fetched names its remote and target, shows no file list, and Refresh
 // reads the review again once trunk is reachable; and a story whose kept
 // launch record names no workspace offers no review at all, which the launch
@@ -62,7 +62,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   await expectFixedWhileScrolled(page, body, [contextLine(review)]);
 });
 
-test("a removed worktree is missing, named by its path, and no Git runs", async ({
+test("a removed worktree with no captured landing explains the gap, and no Git runs", async ({
   page,
   dashboard,
   origin,
@@ -78,8 +78,12 @@ test("a removed worktree is missing, named by its path, and no Git runs", async 
   const review = page.getByRole("region", { name: "Review changes" });
   const status = reviewFeedback(review);
   await expect(status).toHaveText(
-    `The worktree is missing. It was removed or retired. Worktree ${shownWorkspace}.`,
+    "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
   );
+  await expect(
+    review.getByRole("radio", { name: "Landed runs", exact: true }),
+  ).toBeChecked();
+  await expect(review.getByRole("radio")).toHaveCount(1);
   // The explanation is the fixed top's; the body beneath it shows nothing,
   // and there is no context line.
   const body = reviewBody(review);

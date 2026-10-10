@@ -30,12 +30,21 @@ test("a fast-forward story tip is the trunk receipt and a later retry does not p
   await plantHumanEdit(integration);
   const integrationBefore = await captureCheckout(integration);
   const commitsBefore = await remoteCommitCount(origin);
+  const trunkBefore = await lsRemoteSha(origin, trunkTarget);
+  const prepared = [];
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
     publishedTip: closureSha,
     branch: executionBranch,
+    beforePush: async (comparison) => prepared.push(comparison),
   });
+  // The comparison handed over before the push runs from fetched trunk to the
+  // story tip.
+  assert.deepEqual(prepared, [
+    { attempt: 0, candidate: closureSha, suffixBase: trunkBefore },
+  ]);
+  assert.notEqual(trunkBefore, closureSha);
   assert.equal(published.classification, "published");
   assert.equal(published.mergeCount, 1);
   assert.equal(published.pushCount, 1);

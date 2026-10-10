@@ -67,12 +67,22 @@ and pushes once. A superseded candidate is not the receipt. Resume treats
 an ancestor of the fetched target as already accepted and does not merge
 or push again.
 
+Run this integration with the installed
+`history-preserving-publication.mjs integrate --workspace <owned-workspace> --published-tip <published-tip> --branch <owned-branch> --target-ref refs/heads/<target-branch>`,
+adding `--remote <remote>` for a remote other than `origin`. It performs the
+fetch, the merge and its credit or the adapter merge, the exact push and the one
+recomputed retry, then returns the workspace to its branch once accepted. Its
+printed result names `classification`: `published` with the `receipt`,
+`already-accepted` with nothing pushed, or `preserved` with its `reason` and the
+state Git left. With a supplied dashboard landing context, add `--landing-context <supplied absolute file>` under the shared
+[landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing).
+
 ## Publish the candidate
 
-Apply [Preconditions](#preconditions) before this sequence. For an established
-one-shot launch with supplied dashboard landing context, wire that context into
-the installed publisher before step 5 under the shared
-[landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-one-shot-landing).
+Apply [Preconditions](#preconditions) before this sequence. When it lands a
+launch's work on trunk and that launch supplied a dashboard landing context,
+wire that context into the installed publisher before step 5 under the shared
+[landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing).
 It retains each final pair before push and captures accepted evidence at step 6;
 a later explicit landing uses the original launch's context.
 

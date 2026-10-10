@@ -7,7 +7,7 @@ import { accept } from "./agentLaunchBoundary.ts";
 import { requestFor, oneShot } from "./support/oneShotLaunch.ts";
 import { commit, scripts, git } from "./support/oneShotLanding.ts";
 import { acceptanceSchema } from "../src/launchOutcome.ts";
-import { landingReceiptSchema } from "../src/oneShotLanding.ts";
+import { landingReceiptSchema } from "../src/launchLanding.ts";
 import { completionSchema } from "../src/completionReport.ts";
 import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
 import {

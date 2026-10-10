@@ -7,7 +7,7 @@
 import {
   landingEndpoint,
   landingPrepareEndpoint,
-} from "./oneShotLandingReporting.ts";
+} from "./launchLandingReporting.ts";
 import { completionEndpoint } from "./completionReporting.ts";
 import {
   admitLaunchSettings,

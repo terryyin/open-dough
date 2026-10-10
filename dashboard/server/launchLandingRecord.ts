@@ -1,8 +1,10 @@
 // Capture authority is established once, then follows the original bound record.
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { LandingReporting } from "../src/oneShotLanding.ts";
+import type { LandingReporting } from "../src/launchLanding.ts";
+import type { CreationRecord } from "../src/launchCreation.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
+import { leaveMachineJson } from "./machineJsonStore.ts";
 
 export function boundLandingReporting(
   attempt: LaunchAttemptRecord | undefined,
@@ -34,15 +36,16 @@ export async function retainLandingSettlement(
     attempt.landingRepository === undefined
   )
     return;
-  await replaceRecords((kept) => ({
-    ...kept,
-    [attempt.request.source]: (kept[attempt.request.source] ?? []).map(
-      (entry) => {
-        if (
-          !("session" in entry) ||
-          entry.request.reporting?.reference !== attempt.id
-        )
-          return entry;
+  const bound = (entry: LaunchRecord | CreationRecord): entry is LaunchRecord =>
+    "session" in entry && entry.request.reporting?.reference === attempt.id;
+  await replaceRecords((kept) => {
+    const records = kept[attempt.request.source] ?? [];
+    // A settlement no kept record is bound to leaves the records as they are.
+    if (!records.some(bound)) return leaveMachineJson;
+    return {
+      ...kept,
+      [attempt.request.source]: records.map((entry) => {
+        if (!bound(entry)) return entry;
         const reporting = boundLandingReporting(attempt, entry);
         return reporting === undefined
           ? entry
@@ -53,7 +56,7 @@ export async function retainLandingSettlement(
                 settledAt: reporting.settledAt ?? attempt.settledAt,
               },
             };
-      },
-    ),
-  }));
+      }),
+    };
+  });
 }

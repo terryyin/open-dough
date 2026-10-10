@@ -1,4 +1,4 @@
-// Story review shows a launch workspace snapshot or a retained one-shot run's
+// Story review shows a launch workspace snapshot or a landed run's
 // fixed delivered comparison. The local launch boundary resolves the project,
 // work identity and optional launch reference, never a repository path.
 // reviewWorkspaceOf owns the latest workspace selection on both sides; the
@@ -12,7 +12,7 @@ import { objectIdSchema, reviewedFileSchema } from "./storyReviewFiles.ts";
 import {
   landedReviewContextSchema,
   reviewRunChoiceSchema,
-} from "./storyReviewOneShot.ts";
+} from "./storyReviewLandedRun.ts";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";

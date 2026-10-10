@@ -24,7 +24,7 @@ import {
   dropExpiredAttempts,
 } from "./support/landingRetentionClock.ts";
 import { keptAttempts } from "./acceptedAttempts.ts";
-import { landingReceiptSchema } from "../src/oneShotLanding.ts";
+import { landingReceiptSchema } from "../src/launchLanding.ts";
 import { retainedLandingEvidence } from "./support/landingRetentionEvidence.ts";
 
 test("an original kept bound launch first captures and retries after its actual attempt expiry, while premature loss and expired records refuse", async ({

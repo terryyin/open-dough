@@ -1,13 +1,13 @@
 # Dashboard story review
 
 The [agent launch contract](AGENT-LAUNCH.md#story-review) links here for a
-story's read-only review of its workspace or retained one-shot change in the side panel.
+story's read-only review of its workspace or a landed run's change in the side panel.
 
-A story with a kept launch record naming a workspace or retained one-shot run
+A story with a kept launch record naming a workspace or landed run
 offers **Review changes** on its active card beside **Inspect story**, or on
 its Recently done card. It opens a read-only review, defaulting to the readable
-workspace's change against trunk; otherwise it opens the newest captured one-shot
-run, or the retained run's evidence gap. The [landed comparison](STORY-REVIEW-ONE-SHOT.md)
+workspace's change against trunk; otherwise it opens the newest captured landed
+run, or the newest landed run's evidence gap. The [landed comparison](STORY-REVIEW-ONE-SHOT.md)
 uses its fixed delivered pair after workspace retirement. The action leads with
 a compare icon and ends with an arrow
 toward the side panel where the review opens; both are decorative, so its name
@@ -65,7 +65,7 @@ the old file, the new file, or both, counted from its hunk's header
 generated beside the line, outside its text, so copying code leaves them
 behind and assistive technology reads the code alone. Binary and
 mode-only changes say they have no textual diff. The review explains a
-workspace with no changes, a missing worktree, and a trunk that cannot be
+workspace with no changes and a trunk that cannot be
 fetched; it never lists files against an unfetched baseline. Requests name
 only the project, the work identity and, for a file diff, the snapshot's
 object IDs and paths, never a filesystem path
@@ -220,6 +220,7 @@ The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
 first-parent commits and Uncommitted changes, compares a contiguous range,
 and preserves its chosen endpoints through Refresh.
 
-The [Landed one-shot runs comparison](STORY-REVIEW-ONE-SHOT.md) offers every
-retained refinement or execution run alongside the workspace comparisons, using
-each run's fixed delivered pair after retirement.
+The [Landed runs comparison](STORY-REVIEW-ONE-SHOT.md) offers every landed
+refinement or execution run, one-shot or a claimed Story Branch Mode launch's
+trunk integration, alongside the workspace comparisons, using each run's fixed
+delivered pair after retirement.

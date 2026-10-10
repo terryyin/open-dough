@@ -10,7 +10,7 @@ import { parts } from "./dashboardPage.ts";
 import { showColumn, edgeControl, rem } from "./dashboardColumnsPage.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import { noConnection } from "./originAnswers.ts";
-import type { landingReceiptSchema } from "../src/oneShotLanding.ts";
+import type { landingReceiptSchema } from "../src/launchLanding.ts";
 import type { z } from "zod";
 import { openUntilRead } from "./pageRequestNotes.ts";
 

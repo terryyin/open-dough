@@ -11,10 +11,10 @@ export function reportingInstruction(
     return undefined;
   const landing =
     request.reporting.landingContext === undefined
-      ? request.workflow !== "ad-hoc" && request.policy?.tracking === "one-shot"
+      ? request.workflow !== "ad-hoc"
         ? " This installed reporting command cannot capture a landing comparison; explain that evidence gap without supplying unsupported landing flags."
         : ""
-      : ` For this one-shot launch, supply --landing-context ${shellCommand([request.reporting.landingContext])} to the installed publication command (or landingContext to its shared publication API). It retains the final candidate and suffix base before each push, records accepted landing evidence before retirement, and reports capture separately from completion. Keep the exact retained landing retry input; recording failure never repeats Git publication.`;
+      : ` For this launch, supply --landing-context ${shellCommand([request.reporting.landingContext])} to the installed publication command that lands on trunk (or landingContext to its shared publication API). It retains the final candidate and suffix base before each push, records accepted landing evidence before retirement, and reports capture separately from completion. Keep the exact retained landing retry input; recording failure never repeats Git publication.`;
   return [
     "Dashboard reporting context:",
     `- project: ${request.source}`,

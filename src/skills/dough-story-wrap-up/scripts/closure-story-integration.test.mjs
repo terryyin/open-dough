@@ -92,6 +92,8 @@ for (const [remote, branch] of [
     await plantHumanEdit(integration);
     const integrationBefore = await captureCheckout(integration);
     const registered = [];
+    const prepared = [];
+    let racingSha;
     const commitsBefore = await remoteCommitCount(remoteUrl, target);
     const publish = (options) =>
       publishHistoryPreservingCandidate({
@@ -115,8 +117,12 @@ for (const [remote, branch] of [
           "story closure\n",
         );
       },
-      beforePush: async () => {
-        await advanceOriginFromAnotherWriter(remoteUrl, {
+      // Each attempt hands over its candidate and the fetched tip it was
+      // built on before its push; another writer wins the first push.
+      beforePush: async (comparison) => {
+        prepared.push(comparison);
+        if (comparison.attempt !== 0) return;
+        racingSha = await advanceOriginFromAnotherWriter(remoteUrl, {
           file: "racing.txt",
           body: "racing trunk\n",
           message: "racing trunk advance",
@@ -134,6 +140,15 @@ for (const [remote, branch] of [
     assert.equal(published.receipt.sha, await lsRemoteSha(remoteUrl, target));
     assert.notEqual(published.receipt.sha, closureSha);
     assert.notEqual(published.receipt.sha, published.supersededSha);
+    assert.deepEqual(prepared, [
+      {
+        attempt: 0,
+        candidate: published.supersededSha,
+        suffixBase: siblingSha,
+      },
+      { attempt: 1, candidate: published.receipt.sha, suffixBase: racingSha },
+    ]);
+    assert.equal("landing" in published, false);
     assert.equal(await isAncestor(execution, closureSha, tracking), true);
     assert.equal(
       await isAncestor(execution, published.supersededSha, tracking),

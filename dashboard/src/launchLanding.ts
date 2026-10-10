@@ -12,7 +12,7 @@ export const landingRepositorySchema = z.object({
   target: z.string().startsWith("refs/heads/"),
 });
 export type LandingRepository = z.infer<typeof landingRepositorySchema>;
-export const oneShotLandingSchema = landingRepositorySchema
+export const launchLandingSchema = landingRepositorySchema
   .omit({ workspace: true, branch: true })
   .extend({
     reference: z.uuid(),
@@ -22,18 +22,18 @@ export const oneShotLandingSchema = landingRepositorySchema
     revision: commitIdSchema,
     receivedAt: z.iso.datetime(),
   });
-export type OneShotLanding = z.infer<typeof oneShotLandingSchema>;
+export type LaunchLanding = z.infer<typeof launchLandingSchema>;
 // The original server-owned capture authority follows its bound conversation.
 // Its lifetime is the record's existing retention, independent of startup attempts.
 export const landingReportingSchema = z.object({
   origin: z.url(),
   authority: landingRepositorySchema,
-  preparations: z.array(oneShotLandingSchema),
+  preparations: z.array(launchLandingSchema),
   settledAt: z.iso.datetime().optional(),
   deletedAt: z.iso.datetime().optional(),
 });
 export type LandingReporting = z.infer<typeof landingReportingSchema>;
-export const landingReceiptSchema = oneShotLandingSchema
+export const landingReceiptSchema = launchLandingSchema
   .omit({ repository: true })
   .extend({
     state: z.enum(["prepared", "recorded", "pending-native-session"]),

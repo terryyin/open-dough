@@ -3,13 +3,13 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   landingReceiptSchema,
   type LandingReceipt,
-} from "../src/oneShotLanding.ts";
+} from "../src/launchLanding.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
-import type { LandingSubmission } from "./oneShotLandingAdmission.ts";
+import type { LandingSubmission } from "./launchLandingAdmission.ts";
 import {
   authorizedLanding,
   reserveLandingComparison,
-} from "./oneShotLandingReservation.ts";
+} from "./launchLandingReservation.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 // The caller holds the attempt lock. Failed record writes retain the exact

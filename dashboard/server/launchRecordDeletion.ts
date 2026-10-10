@@ -1,5 +1,5 @@
 // Deletion records launch-local intent even before native launch settlement.
-import { removeLandingPins } from "./oneShotLandingGit.ts";
+import { removeLandingPins } from "./launchLandingGit.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import {

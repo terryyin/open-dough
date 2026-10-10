@@ -1,15 +1,16 @@
 // A fixed captured comparison reads only its original common repository and objects.
+import { isEstablishedOneShot } from "../src/launchRecord.ts";
 import type { StoryReview } from "../src/storyReview.ts";
 import {
   landedReviewContextSchema,
-  type ReviewOneShotRun,
-} from "../src/storyReviewOneShot.ts";
+  type ReviewLandedRun,
+} from "../src/storyReviewLandedRun.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 
 export async function landedStoryReview(
-  run: ReviewOneShotRun,
+  run: ReviewLandedRun,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const { record } = run;
@@ -22,7 +23,10 @@ export async function landedStoryReview(
   const landing = record.landing;
   if (landing === undefined)
     return unavailable(
-      "This one-shot run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk.",
+      // A claimed launch is listed here once its workspace is gone, landed or not.
+      isEstablishedOneShot(run.established)
+        ? "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk."
+        : "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     );
   if (directoryState(landing.repository).kind !== "available")
     return unavailable(
@@ -50,7 +54,7 @@ export async function landedStoryReview(
     const files = await changedFrom(landing.base, landing.revision, call);
     const workflow = record.request.workflow;
     if (workflow !== "execution" && workflow !== "refinement")
-      return unavailable("This launch has no one-shot review workflow.");
+      return unavailable("This launch's workflow has no landed review.");
     return {
       kind: "landed",
       landing: landedReviewContextSchema.parse({

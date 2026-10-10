@@ -59,8 +59,9 @@ export function expectReportingBlock(
       ),
     );
     expect(lines[5]).toContain(
-      `--landing-context ${quote(context.landingContext)}`,
+      `For this launch, supply --landing-context ${quote(context.landingContext)} to the installed publication command that lands on trunk`,
     );
+    expect(lines[5]).not.toContain("one-shot");
     expect(lines[5]).toContain("before each push");
     expect(lines[5]).toContain("before retirement");
   }

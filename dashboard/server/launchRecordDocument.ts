@@ -21,6 +21,7 @@ import {
 import {
   readMachineJson,
   replaceMachineJson,
+  type leaveMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
@@ -60,9 +61,10 @@ export function readStoredRecords() {
 }
 
 // Rewrites the kept records with `change` applied to them. Records past
-// retention are dropped first.
+// retention are dropped first. `change` may return `leaveMachineJson` to
+// leave the file as it is.
 export async function replaceRecords(
-  change: (kept: StoredRecords) => StoredRecords,
+  change: (kept: StoredRecords) => StoredRecords | typeof leaveMachineJson,
 ): Promise<void> {
   await replaceMachineJson(launchStore(), (stored) => {
     const now = Date.now();

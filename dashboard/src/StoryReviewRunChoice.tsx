@@ -2,7 +2,7 @@
 import { useId } from "react";
 import { launchKindName } from "./launchWorkflow.ts";
 import { reviewTargetName } from "./storyReview.ts";
-import type { ReviewRunChoice } from "./storyReviewOneShot.ts";
+import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 export function RunChoice({
   runs,
   selected,
@@ -15,7 +15,7 @@ export function RunChoice({
   const id = useId();
   return (
     <div className="story-review-run-choice">
-      <label htmlFor={id}>One-shot run</label>{" "}
+      <label htmlFor={id}>Landed run</label>{" "}
       <select
         id={id}
         size={Math.max(2, Math.min(runs.length, 3))}

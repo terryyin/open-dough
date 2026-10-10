@@ -24,7 +24,7 @@ import {
   retainedLanding,
   landingGitFault,
 } from "./support/oneShotLandingRecovery.ts";
-import { landingReceiptSchema } from "../src/oneShotLanding.ts";
+import { landingReceiptSchema } from "../src/launchLanding.ts";
 import { storyReviewMarkEndpoint } from "../src/storyReview.ts";
 import { observeLandingRecoveryIntent } from "./support/landingRecoveryIntent.ts";
 
