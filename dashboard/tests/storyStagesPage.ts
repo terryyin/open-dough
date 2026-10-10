@@ -16,6 +16,7 @@ import {
 import type { StoryStagesJourney } from "./launchJourney.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { openUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
 
 export type Workflow = "Execution" | "Refinement";
 
@@ -30,7 +31,7 @@ export async function openStoryStagesJourney(
   });
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
   doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, source } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const action = (title: string, workflow: Workflow) =>
@@ -48,6 +49,7 @@ export async function openStoryStagesJourney(
         await setPageVisibility(page, "hidden");
         await setPageVisibility(page, "visible");
       }
+      await untilPublishedWorkRead(page);
       await expect(source).toContainText(revision);
       await settled();
     },

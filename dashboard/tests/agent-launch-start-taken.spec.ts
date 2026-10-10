@@ -18,6 +18,7 @@ import {
   test,
   workspaceShown,
 } from "./keptStartJourney.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("a Taken card offers Start with the words while this machine keeps a start with no session, and Start opens the session in the same workspace", async ({
   page,
@@ -89,7 +90,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   expect(starts["open-dough"]?.[queuedIdentity]).toBeUndefined();
 
   // Still gone after another reload.
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(takenCard).toBeVisible();
   await expect(startAction(takenCard)).toHaveCount(0);
 });

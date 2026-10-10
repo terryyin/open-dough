@@ -33,6 +33,7 @@ import {
   publishLongTitleOrigin,
   type LongTitleOrigin,
 } from "./longTitleLaunch.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 // Every piece of text a reader reads in a dialog, and every control.
 const launchDialog = {
@@ -103,7 +104,7 @@ test("the agent roster's heading and Back read clearly and fit a narrow and a zo
 }) => {
   await publishRosterOrigins(page);
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/?project=doughnut&view=roster");
+  await openUntilRead(page, "/?project=doughnut&view=roster");
   const { roster, back, members } = rosterParts(page);
   const heading = roster.getByRole("heading", { name: "Agent roster" });
   await expect(heading).toBeFocused();

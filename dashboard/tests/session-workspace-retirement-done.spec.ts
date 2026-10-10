@@ -12,6 +12,7 @@ import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { codexAttaches } from "./support/codexTerminal.ts";
 import { report, save, retained } from "./support/retainedReport.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -64,7 +65,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   const doneAt = stored(dashboard.home)[0]?.doneAt;
   expect(doneAt).toBeDefined();
   await machineSessions(dashboard);
-  await page.reload();
+  await reloadUntilRead(page);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });

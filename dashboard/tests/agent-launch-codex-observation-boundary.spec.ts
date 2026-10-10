@@ -18,6 +18,7 @@ import {
   observed,
   passive,
 } from "./support/codexObservation.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 test.use({ projectFolders: ["open-dough"] });
 
 test("predecessor without continuation gains no command; missing workspace preserves passive final-report access", async ({
@@ -89,7 +90,7 @@ test("predecessor without continuation gains no command; missing workspace prese
       }
     };
     await check();
-    await page.reload();
+    await reloadUntilRead(page);
     await check();
     expect(stored(dashboard.home)).toEqual(before);
     passive(native.calls);

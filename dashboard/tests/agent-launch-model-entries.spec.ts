@@ -25,6 +25,7 @@ import {
   sidebarParts,
   sidebarTooltipOf,
 } from "./sessionSidebarPage.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -102,7 +103,7 @@ for (const [model, words] of [
     };
 
     await expectWords();
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(cardSessions(card(readyStory))).toHaveCount(1);
     await expectWords();
   });
@@ -138,7 +139,7 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   };
 
   await expectWords();
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(taken.locator(".session-entry")).toHaveCount(1);
   await expectWords();
 });

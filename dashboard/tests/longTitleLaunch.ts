@@ -17,6 +17,7 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { installRefinementSkill } from "./launchCardPage.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 export const longTitle =
   "Let developers read a very long queued story title that wraps across several lines without widening the dialog: Supercalifragilisticexpialidocious-session-options-with-an-unbroken-name";
@@ -56,7 +57,7 @@ export async function openLongTitleOrigin(
     revision: published.revision,
     repository: "terryyin/open-dough",
   });
-  await page.goto("/");
+  await openUntilRead(page);
 }
 
 export async function openRefinement(

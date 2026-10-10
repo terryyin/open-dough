@@ -19,6 +19,7 @@ import {
   publishLaunchJourney,
   type LaunchJourney,
 } from "./launchJourney.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -82,7 +83,7 @@ for (const [what, options, model] of [
     };
 
     await expectWords();
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
     await expectWords();
   });

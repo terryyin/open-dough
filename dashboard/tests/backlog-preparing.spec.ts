@@ -17,6 +17,7 @@ import {
   storyC,
   type PreparingJourney,
 } from "./preparingJourney.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 let journey: PreparingJourney;
 // Publishing the journey runs every production preparation command against a
@@ -49,7 +50,7 @@ test("a queued card shows Preparing and its developer from published assignments
     card(title).locator(".badge").allTextContents();
   const show = async (revision: string) => {
     origin.advanceTo(revision);
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(source).toContainText(revision);
     await expectSettledPage(page, { taken: [], backlog: order });
   };
@@ -207,7 +208,7 @@ test("a queued card shows Preparing and its developer from published assignments
   });
 
   await test.step("two preparation assignments for one entry are shown as conflicting records", async () => {
-    await page.reload();
+    await reloadUntilRead(page);
     const [first, second] = preparers.conflicting;
     // The conflict stays in the scan view, naming both developers.
     await expect(card(storyA).locator(".owner-agent")).toHaveText([

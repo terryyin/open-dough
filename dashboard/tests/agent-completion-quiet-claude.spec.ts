@@ -24,6 +24,7 @@ import { queuedIdentity, startOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
 import { expect } from "./dashboardTest.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const title = "Story A";
 const pending = "Local done mark retained. Native done mark is pending.";
@@ -60,7 +61,7 @@ test.describe("within a wait the session outlasts", () => {
     const doneName = `done-${String(reported?.session.name)}`;
 
     await publishOrigin(page, origin);
-    await page.goto("/");
+    await openUntilRead(page);
     await showColumn(page, "Recently done");
     const recent = parts(page)
       .recentlyDone.getByRole("article")
@@ -82,7 +83,7 @@ test.describe("within a wait the session outlasts", () => {
         timeout: 30_000,
       })
       .toBeUndefined();
-    await page.reload();
+    await reloadUntilRead(page);
     await showColumn(page, "Recently done");
     await expect(recent).toContainText(`Named ${doneName}`);
     await expect(recent).not.toContainText(pending);

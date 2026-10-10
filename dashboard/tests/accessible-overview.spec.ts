@@ -32,6 +32,7 @@ import {
   expectSideBySideInOrder,
   expectStackedInOrder,
 } from "./pageLayout.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const narrowWindow = { width: 360, height: 740 };
 
@@ -42,7 +43,7 @@ test("accessible overview reflows long published work for a narrow window and pa
     ref: commitAnswer(revision),
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, taken, recentlyDone, direction, directionToggle, source } =
     parts(page);
   const longCard = taken.getByRole("article", { name: longTitle });
@@ -137,7 +138,7 @@ test("accessible overview keeps empty groups readable in a narrow window", async
     ref: commitAnswer(revision),
     backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, taken, direction, directionText, source } = parts(page);
 
   await expect(
@@ -164,7 +165,7 @@ test("accessible overview keeps a read problem and the retained work reachable i
   const origin = await publishMovingOrigin(page);
   origin.push(revision, longBacklog);
   await pausePageClock(page);
-  await page.goto("/");
+  await openUntilRead(page);
   const { stages, source, problem } = parts(page);
   await expect(stages.getByRole("article")).toHaveCount(5);
 

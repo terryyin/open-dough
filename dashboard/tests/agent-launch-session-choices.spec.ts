@@ -8,6 +8,7 @@ import { parts } from "./dashboardPage.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog, radio } from "./support/sessionDialog.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("one-shot is offered only for a host whose installation takes the policy, and a kept start shows its own", async ({
   page,
@@ -51,7 +52,7 @@ test("one-shot is offered only for a host whose installation takes the policy, a
   await expect(card.locator(".launch-problem")).toContainText(
     "No session started; nothing was published.",
   );
-  await page.reload();
+  await reloadUntilRead(page);
   const reloaded = parts(page).backlog.getByRole("article", {
     name: "Story A",
   });

@@ -21,6 +21,7 @@ import {
   machineSessions,
 } from "./agentLaunchBoundary.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 const request = {
   ...refinementRequest,
   host: "codex",
@@ -74,7 +75,7 @@ test("explicit input refusal allows the saved input once in the resumed same con
     "explanation",
   );
   const session = cardSessions(card(notRefinedStory));
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   await expect(session).not.toContainText("acceptance is not yet acknowledged");
   expect(native.history).toHaveLength(1);

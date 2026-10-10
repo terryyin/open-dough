@@ -21,6 +21,7 @@ import {
   expectCardAssignments,
   expectDoneFacts,
 } from "./publishedFactsAssertions.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const preparationGap =
   "The canonical record could not be read for preparation facts.";
@@ -130,7 +131,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
 
   // Without a readable assignment there is no portrait to open its roster.
   // Visit the ordinary roster URL with the same failed GitHub answer.
-  await page.goto("/?project=open-dough&view=roster");
+  await openUntilRead(page, "/?project=open-dough&view=roster");
   const { members, roster, back } = rosterParts(page);
   await expect(
     members.filter({ hasText: `Assignment unknown. ${profilesGap}` }),

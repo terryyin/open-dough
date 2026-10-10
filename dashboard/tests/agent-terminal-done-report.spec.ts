@@ -27,6 +27,7 @@ import {
 import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
 import { markReportRead } from "./support/sessionMessagePart.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
@@ -36,7 +37,7 @@ const unreadWords = "Unread report: Completed with attention";
 // Opens the page on the origin's stories and answers Story A's Taken card.
 async function openCard(page: Page, origin: StartOrigin) {
   await publishOrigin(page, origin);
-  await page.goto("/");
+  await openUntilRead(page);
   return parts(page).taken.getByRole("article", { name: titleA, exact: true });
 }
 

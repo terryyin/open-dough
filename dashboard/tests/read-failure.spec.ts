@@ -23,6 +23,7 @@ import {
   revisionA,
   titlesOfA,
 } from "./refreshJourney.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 const revision = "5e".repeat(20);
 const repairEntry =
@@ -172,7 +173,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
 
   await test.step("a reload that fails too reports that attempt, still with no snapshot", async () => {
     await page.clock.setFixedTime(secondFailure);
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(problem.locator("time").nth(0)).toHaveAttribute(
       "datetime",
       secondFailure.toISOString(),

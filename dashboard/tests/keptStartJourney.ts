@@ -25,6 +25,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 export const test = base.extend<{ origin: StartOrigin }>({
   // eslint-disable-next-line no-empty-pattern
@@ -66,7 +67,7 @@ export async function reachKeptStart(
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, taken, source } = parts(page);
   const backlogCard = backlog.getByRole("article", { name: "Story A" });
   const takenCard = taken.getByRole("article", { name: "Story A" });
@@ -99,12 +100,12 @@ export async function reachKeptStart(
   // Origin shows the story Taken; after a reload its Taken card shows.
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   published.advanceTo(revision);
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(source).toContainText(revision);
   await expect(takenCard).toBeVisible();
   await expect(backlog.getByRole("article", { name: "Story A" })).toHaveCount(
     0,
   );
-  await page.reload();
+  await reloadUntilRead(page);
   return { takenCard, otherTakenCard, workspace };
 }

@@ -19,6 +19,7 @@ import {
   machineSessions,
 } from "./agentLaunchBoundary.ts";
 import { test, expect } from "./support/codexLaunch.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 const request = {
   ...refinementRequest,
   host: "codex",
@@ -89,7 +90,7 @@ test("lost creation identity persists reconciliation requirement across server r
       path.join(restarted.home, "git/open-dough"),
     );
     const port = Number(new URL(restarted.baseURL).port);
-    await page.goto(`http://localhost:${port}/`);
+    await openUntilRead(page, `http://localhost:${port}/`);
     const pending = page.getByRole("article", {
       name: `${notRefinedStory} unresolved creation`,
     });

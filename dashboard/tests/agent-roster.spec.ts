@@ -28,6 +28,7 @@ import {
   queuedStory,
   takenStory,
 } from "./agentRosterRecords.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const everyAgent = agentNames.map((name) => agentIdentity(name).agent);
 
@@ -190,7 +191,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
   await publishRosterOrigins(page);
 
   await test.step("direct roster load selects project and focuses heading, reload keeps it, and Back returns to project stories", async () => {
-    await page.goto("/?project=doughnut&view=roster");
+    await openUntilRead(page, "/?project=doughnut&view=roster");
     const { project, stages } = parts(page);
     const { roster, back } = rosterParts(page);
 
@@ -207,7 +208,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
       `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
     );
 
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(roster).toBeVisible();
     await expect(
       roster.getByRole("heading", { name: "Agent roster" }),

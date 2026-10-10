@@ -18,6 +18,7 @@ import {
   nerdAgentNames,
   renderAgentProfile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const story = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";
@@ -52,7 +53,7 @@ async function openRoster(page: Page, settings?: string) {
       ...(settings === undefined ? {} : { [settingsPath]: settings }),
     },
   });
-  await page.goto("/?project=open-dough&view=roster");
+  await openUntilRead(page, "/?project=open-dough&view=roster");
   return rosterParts(page);
 }
 

@@ -31,6 +31,7 @@ import {
   startDashboardServer,
 } from "./support/dashboardServer.ts";
 import { settings } from "./support/systemSettingsPage.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 test("the row below the banner and the stages read clearly in the frame's look", async ({
   page,
@@ -43,7 +44,7 @@ test("the row below the banner and the stages read clearly in the frame's look",
     repository: "terryyin/open-dough",
   });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, taken, directionToggle } = parts(page);
   await expect(backlog.getByRole("article").first()).toBeVisible();
 
@@ -85,7 +86,7 @@ test("an empty stage and a failed read are said in the frame's look, whole in a 
   const origin = await publishMovingOrigin(page);
   origin.push("e1".repeat(20), emptyBacklog);
   await page.setViewportSize(narrowWindow);
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, problem } = parts(page);
   const empty = backlog.getByText("No Backlog entries are recorded.");
   await expect(empty).toBeVisible();

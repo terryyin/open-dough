@@ -29,6 +29,7 @@ import {
 } from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Cursor repaints a while after Enter on a paste chip, so a continuation's
 // answer can read the submitted chip unless Recover waits for that repaint.
@@ -76,7 +77,7 @@ test("Recover on the idle composer with confirmed first input resumes the same c
   const originalPrompt = "Implement the selected slice.";
   const before = cursor.attaches().length;
   await endHeldClient(page, cursor, dashboard.home);
-  await page.reload();
+  await reloadUntilRead(page);
   const stopped = parts(page).taken.locator(".session-entry");
   await expectReadingWithoutScreenLabel(stopped, agentNotRunningLabel);
   await stopped.getByRole("button", { name: "Recover" }).click();
@@ -191,7 +192,7 @@ test("done and completed sessions offer no Recover", async ({
       "open-dough": [{ ...record, doneAt: "2026-10-01T00:00:00.000Z" }],
     }),
   );
-  await page.reload();
+  await reloadUntilRead(page);
   let entry = parts(page).recentlyDone.locator(".session-entry");
   await expect(entry).toHaveCount(1);
   await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(0);
@@ -210,7 +211,7 @@ test("done and completed sessions offer no Recover", async ({
       ],
     }),
   );
-  await page.reload();
+  await reloadUntilRead(page);
   entry = parts(page).taken.locator(".session-entry");
   await expect(entry).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
@@ -232,7 +233,7 @@ test("runner not running offers Recover; the click starts the runner and resumes
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
-  await page.reload();
+  await reloadUntilRead(page);
   const entry = parts(page).taken.locator(".session-entry");
   await expectReadingWithoutScreenLabel(
     entry,

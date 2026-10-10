@@ -5,7 +5,10 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import {
+  untilPageReadsAnswered,
+  untilPublishedWorkRead,
+} from "./pageRequestNotes.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { slicePlan } from "./branchProgressRecords.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
@@ -104,6 +107,7 @@ export async function expectSettledAt(
   backlogTitles = [queuedTitle],
 ) {
   const { source, taken } = parts(page);
+  await untilPublishedWorkRead(page);
   await expect(source).toContainText(revision);
   await expectMembership(page, { taken: [takenTitle], backlog: backlogTitles });
   const card = taken.getByRole("article", { name: takenTitle });

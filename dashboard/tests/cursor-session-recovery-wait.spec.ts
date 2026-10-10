@@ -16,6 +16,7 @@ import {
 } from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.describe("Recover keep-wait expiry", () => {
   // Shorter than the delayed paint so Start and Recover both hit the shared
@@ -48,7 +49,7 @@ test.describe("Recover keep-wait expiry", () => {
     const taken = parts(page).taken.locator(".session-entry");
     await expect(taken).toHaveCount(1);
     await endHeldClient(page, cursor, dashboard.home);
-    await page.reload();
+    await reloadUntilRead(page);
     const entry = parts(page).taken.locator(".session-entry");
     await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
     await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(1);

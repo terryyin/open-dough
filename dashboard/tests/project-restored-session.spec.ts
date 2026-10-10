@@ -13,6 +13,7 @@ import {
 } from "./support/codexObservation.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("adding an initially unconfigured retained Codex project prepares its passive service once without starting a conversation", async ({
   page,
@@ -60,7 +61,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
       page.getByRole("complementary", { name: "Sessions" }),
     ).toContainText("Ready for review");
     await expect(page).toHaveURL(/project=sample-app/);
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
     expect(daemonStarts(native)).toHaveLength(1);
     passive(native.calls);

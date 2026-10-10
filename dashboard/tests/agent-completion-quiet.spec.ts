@@ -11,6 +11,7 @@ import { parts } from "./dashboardPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { expectInstalledCompletionGuidance } from "./support/installedCompletionGuidance.ts";
 import { withInstalledCompletionClosure } from "./support/installedCompletionClosure.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const exec = promisify(execFile);
 for (const closure of [
@@ -115,7 +116,7 @@ for (const closure of [
           revision: final,
           repository: "terryyin/open-dough",
         });
-        await page.goto("/");
+        await openUntilRead(page);
         const recent = parts(page)
           .recentlyDone.getByRole("article")
           .filter({ hasText: native.threadId });
@@ -197,7 +198,7 @@ for (const closure of [
             ),
         ).toBe(true);
         expect(stored(dashboard.home)[0]?.doneAt).toBe(receipt.receivedAt);
-        await page.reload();
+        await reloadUntilRead(page);
         await expect(recent).toContainText("Done");
       },
     );

@@ -10,6 +10,7 @@ import {
 } from "./publishedOrigin.ts";
 import { expectMark, expectPortrait } from "./agentPortrait.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const agents = ".planning/agents";
@@ -34,7 +35,7 @@ test("a project without agent profiles still loads, and a reload shows a profile
     files: { [backlogPath]: onlyBacklog },
   });
 
-  await page.goto("/");
+  await openUntilRead(page);
 
   const { taken, source, problem } = parts(page);
   const card = taken.getByRole("article", { name: trunkStory });
@@ -63,7 +64,7 @@ test("a project without agent profiles still loads, and a reload shows a profile
         }),
       },
     });
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(source).toContainText(revisionB);
     await expect(card).not.toContainText("Owner not recorded");
     await expectPortrait(card, "Akiho-chan", {

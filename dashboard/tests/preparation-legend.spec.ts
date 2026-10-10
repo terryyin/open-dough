@@ -16,6 +16,7 @@ import {
   plannedBlocked,
   unrefined,
 } from "./storyReadinessFixture.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 for (const viewport of [
   { name: "desktop", size: { width: 1280, height: 720 } },
@@ -33,7 +34,7 @@ for (const viewport of [
     });
     await page.setViewportSize(viewport.size);
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
+    await openUntilRead(page);
     const { taken, project } = parts(page);
     const ready = taken.getByRole("article", { name: plannedReady.title });
     await expect(
@@ -182,7 +183,7 @@ test("preparation help is absent when there are no preparation facts", async ({
     "e1".repeat(20),
     "# Product backlog\n\n## Taken\n\n## Backlog list\n",
   );
-  await page.goto("/");
+  await openUntilRead(page);
   await expect(parts(page).backlog).toContainText(
     "No Backlog entries are recorded.",
   );

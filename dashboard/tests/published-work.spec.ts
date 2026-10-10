@@ -13,6 +13,7 @@ import {
   rawFileAnswer,
 } from "./publishedOrigin.ts";
 import { expectSideBySideInOrder } from "./pageLayout.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 
@@ -209,7 +210,7 @@ test("published overview accepts successfully empty groups and no recorded direc
     backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
   });
 
-  await page.goto("/");
+  await openUntilRead(page);
 
   const { stages, backlog, taken, direction, source } = parts(page);
   await expect(taken).toContainText("No Taken entries are recorded.");

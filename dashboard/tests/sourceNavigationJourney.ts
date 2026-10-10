@@ -12,6 +12,7 @@ import {
   publishOrigin,
   rawFileAnswer,
 } from "./publishedOrigin.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 export const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
 export const snapshotRoot = `/terryyin/open-dough/blob/${revision}`;
@@ -57,7 +58,7 @@ export async function openDashboard(page: Page) {
     ref: commitAnswer(revision),
     backlog: { revision, answer: rawFileAnswer(linkedBacklog) },
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const { stages } = parts(page);
   await expect(stages.getByRole("article")).toHaveCount(11);
   // Every GitHub endpoint the local `gh` was asked for, as GitHub sees it.

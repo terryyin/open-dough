@@ -39,6 +39,7 @@ import {
 import { expect, test } from "./support/cursorStart.ts";
 import type { CursorScreen } from "./support/fakeCursor.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("a held Cursor session shows its screen label, without stop or rename", async ({
   page,
@@ -104,7 +105,7 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
   expect(readLog(dashboard.codex.env["FAKE_CODEX_CLI_LOG"])).toBe("");
   expect(readLog(dashboard.codex.env["FAKE_CODEX_DAEMON_LOG"])).toBe("");
 
-  await page.reload();
+  await reloadUntilRead(page);
   await expectHeldLabel(recent, cursorHeldLabel.followUp);
   await expect(page.getByRole("button", { name: "Mark as done" })).toHaveCount(
     0,
@@ -166,7 +167,7 @@ test("a stopped runner says so, shows no screen label, and starts no agent", asy
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
-  await page.reload();
+  await reloadUntilRead(page);
   const again = parts(page).taken.locator(".session-entry");
   await expect(again).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
@@ -191,7 +192,7 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   await stopCursorRunner(dashboard.home);
   const release = await occupyRunner(dashboard.home);
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     const again = parts(page).taken.locator(".session-entry");
     await expect(again).toHaveCount(1);
     await expectReadingWithoutScreenLabel(

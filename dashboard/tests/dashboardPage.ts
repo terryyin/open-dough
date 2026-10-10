@@ -1,86 +1,16 @@
-// Where a reader finds each part of the dashboard page, by the role and name
-// the page gives it. Every journey looks the parts up here, so a part is named
-// in one place.
+// What a journey expects of the dashboard page as a whole: its stages once
+// the published work is read, a settled page, a whole snapshot, a read
+// problem. The page's parts (./dashboardParts.ts) are found through here too.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { cardLaunchActions, detailToggle } from "./cardControls.ts";
-import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import { parts } from "./dashboardParts.ts";
+import {
+  untilPageReadsAnswered,
+  untilPublishedWorkRead,
+} from "./pageRequestNotes.ts";
 
-export function parts(page: Page) {
-  const stages = page.getByRole("region", { name: "Work stages" });
-  const status = page.getByRole("status");
-  const direction = page.getByRole("region", { name: "Near-future direction" });
-  return {
-    banner: page.getByRole("banner"),
-    sourceEvidence: page.getByLabel(/^Source evidence for /),
-    project: page.getByRole("radiogroup", { name: "Project" }),
-    stages,
-    backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
-    taken: stages.getByRole("region", { name: "Taken", exact: true }),
-    direction,
-    directionToggle: page.locator(".direction summary"),
-    // The direction's text, shown only while the direction is open.
-    directionText: direction.locator("p"),
-    // The row holding the direction, Start session, and the help.
-    projectActions: page.locator(".project-actions"),
-    preparationHelp: page.getByRole("button", {
-      name: "Preparation badge legend",
-    }),
-    // The selected project's sessions launched from this dashboard.
-    recentlyDone: page.getByRole("region", { name: "Recently done" }),
-    source: page.getByRole("region", { name: "Published Git state" }),
-    problem: page.getByRole("alert"),
-    // The read status is always on the page, so that a change of its text is
-    // spoken; it says what the latest read is doing or what it read.
-    status,
-    // That status only while it says a read is under way.
-    reading: status.filter({ hasText: "Reading published work" }),
-    notice: page.locator("[aria-live='polite']"),
-    // What Start session announces once its ad hoc session has started, in a
-    // log: an implicitly polite live region that is neither the read status
-    // nor the published-read notice.
-    adHocStarted: page
-      .getByRole("log")
-      .filter({ hasText: "Ad hoc session started" }),
-  };
-}
-
-// A standalone session entry, named for its launch's workflow and title.
-export const standaloneSessionName = (workflow: string, title: string) =>
-  `${workflow} session for ${title}`;
-
-// A card's session entries, newest first.
-export const cardSessions = (card: Locator) =>
-  card.getByRole("list", { name: "Sessions" }).getByRole("article");
-
-// What a card says of how many of its sessions need attention, when any do.
-export const cardAttentionOf = (card: Locator) =>
-  card.getByText(/^\d+ sessions? needs? attention$/);
-
-// A card's session entry, named for its launch's workflow.
-export const cardSessionName = (workflow: string) => `${workflow} session`;
-
-// A card's entry for its session in this workflow.
-export const cardSessionOf = (card: Locator, workflow: string) =>
-  cardSessions(card).and(
-    card.page().getByRole("article", {
-      name: cardSessionName(workflow),
-      exact: true,
-    }),
-  );
-
-// The state words a session entry shows, on a card or in Recently done.
-export const sessionStateOf = (entry: Locator) =>
-  entry.locator(".session-state");
-
-// The session id a session entry names, on a card or in Recently done.
-export async function sessionNamedBy(record: Locator): Promise<string> {
-  const id = await record
-    .locator("p", { hasText: /^Session / })
-    .locator("code")
-    .textContent();
-  return id ?? "?";
-}
+export * from "./dashboardParts.ts";
 
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, System settings, Start session, the badge legend, each Backlog
@@ -111,37 +41,59 @@ export async function expectSnapshotButtons(
   );
 }
 
-// The agent roster: its members, one member by its agent's name, the card
-// portrait that opens the roster at an agent, and the way back to the
-// stories.
-export function rosterParts(page: Page) {
-  const roster = page.getByRole("region", { name: "Agent roster" });
-  const members = roster.getByRole("listitem");
-  return {
-    roster,
-    members,
-    member: (agent: string) =>
-      members.filter({
-        has: page.getByRole("heading", { name: agent, exact: true }),
-      }),
-    opener: (agent: string) =>
-      page.getByRole("button", { name: `Show ${agent} in the agent roster` }),
-    back: roster.getByRole("button", { name: "Back to stories" }),
-  };
+// Waits until no read of the published work is on its way, then tells
+// whether the page says that read failed with nothing read and that it reads
+// no more on its own: the line a failure shows only with no work, no
+// transient recovery due, and no rate limit standing
+// (../src/PublishedReadFailure.tsx). Looked at once, not waited for: a page
+// that does not say so is checked as any other.
+async function readAndNothingMoreWillBeRead(page: Page): Promise<boolean> {
+  await untilPublishedWorkRead(page);
+  return (
+    (await parts(page)
+      .problem.filter({ hasText: "Reload the page to read again." })
+      .count()) > 0
+  );
 }
 
-// The published story titles in each stage, excluding standalone sessions.
+const nothingMoreWillBeRead =
+  "the page says the published work could not be read and it reads no more on its own";
+
+// The published story titles in each stage, excluding standalone sessions,
+// once no read of the published work is on its way: the titles then wait on
+// the page showing what it read, however long GitHub took to answer. When
+// the page says that read failed for good, nothing can still bring a title,
+// so what the stages show is compared at once.
 export async function expectMembership(
   page: Page,
   titles: { readonly taken: string[]; readonly backlog: string[] },
 ) {
   const { taken, backlog } = parts(page);
-  await expect(taken.locator("[data-work] > fieldset > h3")).toHaveText(
-    titles.taken,
-  );
-  await expect(backlog.locator("[data-work] > fieldset > h3")).toHaveText(
-    titles.backlog,
-  );
+  const titlesIn = (stage: Locator) =>
+    stage.locator("[data-work] > fieldset > h3");
+  if (await readAndNothingMoreWillBeRead(page)) {
+    expect(
+      {
+        taken: await titlesIn(taken).allTextContents(),
+        backlog: await titlesIn(backlog).allTextContents(),
+      },
+      nothingMoreWillBeRead,
+    ).toEqual({ taken: titles.taken, backlog: titles.backlog });
+    return;
+  }
+  await expect(titlesIn(taken)).toHaveText(titles.taken);
+  await expect(titlesIn(backlog)).toHaveText(titles.backlog);
+}
+
+// A first card in the stages, once no read of the published work is on its
+// way; looked for at once when the page says that read failed for good.
+async function expectFirstCard(page: Page) {
+  const cards = parts(page).stages.getByRole("article");
+  if (await readAndNothingMoreWillBeRead(page)) {
+    expect(await cards.count(), nothingMoreWillBeRead).toBeGreaterThan(0);
+    return;
+  }
+  await expect(cards.first()).toBeVisible();
 }
 
 // The page once every shown card's preparation facts are read, and every
@@ -158,7 +110,7 @@ export async function expectSettledPage(
   { timeout }: { readonly timeout?: number } = {},
 ) {
   if (membership === undefined) {
-    await expect(parts(page).stages.getByRole("article").first()).toBeVisible();
+    await expectFirstCard(page);
   } else {
     await expectMembership(page, membership);
   }
@@ -223,7 +175,8 @@ export const controlsBesideSessions = (page: Page) =>
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem, the way to read
-// again (`recovery`), and nothing that only a snapshot could say.
+// again (`recovery`), and nothing that only a snapshot could say. The problem
+// is looked for once no read of the published work is on its way.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
@@ -231,6 +184,7 @@ export async function expectProblemAndNoSnapshot(
   recovery = "Reload the page to read again.",
 ) {
   const { stages, source, problem } = parts(page);
+  await untilPublishedWorkRead(page);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText(problemText);
   await expect(problem).toContainText(

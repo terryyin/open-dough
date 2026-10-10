@@ -13,6 +13,7 @@ import {
   publishDependencies,
   publishMalformedDependencies,
 } from "./storyDependencyFixture.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ hasTouch: true });
 
@@ -29,7 +30,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
     follows: true,
   });
   await pausePageClock(page);
-  await page.goto("/");
+  await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", {
     name: consumer.title,
     exact: true,
@@ -151,7 +152,7 @@ test("malformed and unreadable dependency facts block execution without blocking
     follows: true,
   });
   const releaseCanonical = published.hold(".planning/seeds/A.md");
-  await page.goto("/");
+  await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", {
     name: consumer.title,
     exact: true,
@@ -182,7 +183,7 @@ test("malformed and unreadable dependency facts block execution without blocking
   );
   const unreadRevision = await publishDependencies(origin);
   published.answerWith(".planning/seeds/A.md", notFoundAnswer());
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(parts(page).source).toContainText(unreadRevision);
   await expect(card.locator(".dependency-problem")).not.toContainText(
     "not valid JSON",

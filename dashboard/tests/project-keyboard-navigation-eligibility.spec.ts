@@ -16,6 +16,7 @@ import {
   publishCatalogProjects,
   pygardonProject,
 } from "./projectKeyboardNavigationJourney.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 test("help modal, editing, other arrow controls, and prevented keys leave the project unchanged", async ({
   page,
@@ -35,7 +36,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
     });
   }
 
-  await page.goto("/");
+  await openUntilRead(page);
   await expect(
     page.getByRole("article", { name: plannedReady.title }),
   ).toBeVisible();

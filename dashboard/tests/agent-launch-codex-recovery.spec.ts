@@ -24,6 +24,7 @@ import {
   refinementRequest,
   machineSessions,
 } from "./agentLaunchBoundary.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: LaunchJourney | undefined;
@@ -71,7 +72,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
         firstInput: { state: "uncertain" },
         session: { sessionId: native.threadId },
       });
-      await page.reload();
+      await reloadUntilRead(page);
       const pending = cardSessions(card(notRefinedStory));
       await expect(pending).toContainText("Conversation created in Codex");
       await expect(pending).toContainText("First input acceptance uncertain");
@@ -135,7 +136,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
           .filter((call) => call.method === "thread/resume")
           .map((call) => call.params),
       ).toEqual([{ threadId: native.threadId }]);
-      await page.reload();
+      await reloadUntilRead(page);
       await expect(cardSessions(card(notRefinedStory))).toContainText(
         "Refinement started in Codex",
       );

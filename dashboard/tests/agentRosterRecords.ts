@@ -22,6 +22,7 @@ import {
   notFoundAnswer,
   rawFileAnswer,
 } from "./originAnswers.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const agents = ".planning/agents";
@@ -181,7 +182,7 @@ export async function expectOpenDoughAssignments(
 }
 
 export async function expectDirectRosterFailure(page: Page) {
-  await page.goto("/?project=pygardon&view=roster");
+  await openUntilRead(page, "/?project=pygardon&view=roster");
   const { project } = parts(page);
   const { roster, back } = rosterParts(page);
 

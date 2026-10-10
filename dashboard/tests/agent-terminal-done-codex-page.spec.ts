@@ -22,6 +22,7 @@ import {
   markDoneAnyway,
   waitingForInput,
 } from "./support/markDone.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -124,7 +125,7 @@ for (const attached of [false, true]) {
           ]
         : [],
     );
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(listed).toHaveCount(1);
     expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   });
@@ -172,7 +173,7 @@ test("native interrupt refusal remains Working with retained local intent and di
   );
   const problem = stored(dashboard.home)[0]?.doneProblem;
   expect(problem).toContain("Owner denied native interruption");
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(recent.locator(".session-state")).toHaveText("Working");
   await expect(recent).toContainText(problem ?? "missing diagnostic");
   codexTerminalMode(native, "review");

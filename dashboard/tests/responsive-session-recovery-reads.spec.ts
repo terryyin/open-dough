@@ -22,6 +22,7 @@ import {
   subject,
 } from "./responsiveRecovery.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -69,7 +70,7 @@ test("no story's Start is offered before this machine's launch evidence answers,
   const reads = await controlMachineReads(page);
 
   reads.set("hold");
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(story).toBeVisible();
   await expect(start).toBeDisabled();
   await expect(start).toHaveAccessibleDescription(

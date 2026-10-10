@@ -5,6 +5,7 @@
 // compared in partArrangement.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
 import { box } from "./partArrangement.ts";
 
 export {
@@ -106,11 +107,14 @@ const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
 
 // The page fits the window and its text is read whole, apart from parts that
 // are cut by design and read whole elsewhere, such as a Sessions sidebar
-// entry's title, or a terminal's own scrolling screen.
+// entry's title, or a terminal's own scrolling screen. The page is measured
+// once no read of the published work is on its way, so what it measures is
+// the work shown, not the line saying it is being read.
 export async function expectNoSidewaysScrollAndWholeText(
   page: Page,
   cutByDesign: readonly string[] = [],
 ) {
+  await untilPublishedWorkRead(page);
   expect(
     await page.evaluate(
       "document.documentElement.scrollWidth <= document.documentElement.clientWidth",

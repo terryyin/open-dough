@@ -34,6 +34,7 @@ import {
   test,
   titleA,
 } from "./support/unreadReportPage.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const label = "Completed with attention";
 
@@ -46,7 +47,7 @@ test("a card entry's unread message is marked read in its message part, beside t
   const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   await story.report();
   await publishOrigin(page, origin);
-  await page.goto("/");
+  await openUntilRead(page);
   const entry = takenCard(page, titleA).getByRole("article");
   const message = messagePartOf(entry);
 
@@ -120,7 +121,7 @@ test("an ad-hoc session's message is read and marked read on its Recently done e
   );
   await adHoc.report({ outcome: "unfinished", message: newerMessage });
   await publishOrigin(page, origin);
-  await page.goto("/");
+  await openUntilRead(page);
   const recent = parts(page).taken.locator(".session-entry");
   await expect(recent).toHaveCount(1);
   const message = messagePartOf(recent);
@@ -155,7 +156,7 @@ test("a long unread message scrolls inside its message part, with Mark as read a
   const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   await story.report({ message: longMessage });
   await publishOrigin(page, origin);
-  await page.goto("/");
+  await openUntilRead(page);
   const entry = takenCard(page, titleA).getByRole("article");
   const message = messagePartOf(entry);
   const done = entry.getByRole("button", { name: "Mark as done" });
@@ -200,7 +201,7 @@ test("a long unread message scrolls inside its message part, with Mark as read a
 
   // A short message, the session's newer report, does not scroll.
   await story.report();
-  await page.reload();
+  await reloadUntilRead(page);
   await expectExpanded(message, label, reportedMessage);
   const short = await scrollOf(message);
   expect(short.whole).toBeLessThanOrEqual(short.shown);

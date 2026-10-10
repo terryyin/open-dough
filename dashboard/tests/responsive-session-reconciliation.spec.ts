@@ -15,7 +15,10 @@ import {
   passTimeUntilChecked,
   pausePageClock,
 } from "./autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
+import {
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
@@ -103,7 +106,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   );
   await expectProtected(story);
   restoreCompare();
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${unrelated.slice(0, 7)}`,
   );
@@ -159,7 +162,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     .poll(async () => (await attempts(dashboard))[0]?.reconciledAt)
     .toBeDefined();
   published.answerWith("compare", rateLimitedAnswer());
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${descendant.slice(0, 7)}`,
   );

@@ -11,6 +11,7 @@ import {
   notRefinedStory,
 } from "./launchJourney.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 test("confirmation clears pending evidence; legacy reload is truthful and connection loss retains continuation context", async ({
@@ -36,7 +37,7 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
     ),
   ).toMatchObject({ kind: "launched" });
   const session = cardSessions(card(notRefinedStory));
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   expect(stored(dashboard.home)[0]?.firstInput).not.toHaveProperty(
     "explanation",
@@ -58,7 +59,7 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   legacy.firstInput.explanation =
     "First-input acceptance has not been acknowledged. Continue this conversation before starting again.";
   writeFileSync(file, JSON.stringify(document));
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   await expect(session).not.toContainText("has not been acknowledged");
   await expect(session).toContainText(saved.session.sessionId);
@@ -71,7 +72,7 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
         : undefined;
     })
     .toContain("native connection ended");
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   await expect(session).toContainText("native connection ended");
   await expect(session).not.toContainText("has not been acknowledged");

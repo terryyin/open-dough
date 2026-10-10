@@ -12,6 +12,7 @@ import { queuedIdentity } from "./support/startOrigin.ts";
 import { noConnection } from "./originAnswers.ts";
 import type { landingReceiptSchema } from "../src/oneShotLanding.ts";
 import type { z } from "zod";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 async function inspectDelivered(
   page: Page,
@@ -87,7 +88,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
     repository: "terryyin/open-dough",
   });
   await page.setViewportSize({ width: 54 * rem, height: 900 });
-  await page.goto("/");
+  await openUntilRead(page);
   const { recentlyDone: recent, taken, backlog } = parts(page);
   await expect(
     backlog.getByRole("article", { name: "Story A", exact: true }),
@@ -153,7 +154,7 @@ test("an unfinished attention session outside its done card still supplies revie
   });
   const release = published.hold(donePath);
   const restore = published.answerWith(donePath, noConnection);
-  await page.goto("/");
+  await openUntilRead(page);
   await showColumn(page, "Recently done");
   const { recentlyDone: recent, taken } = parts(page);
   const unread = recent.getByRole("article", {

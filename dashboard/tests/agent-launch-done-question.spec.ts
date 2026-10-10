@@ -36,6 +36,7 @@ import {
 } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
 import { markReportRead } from "./support/sessionMessagePart.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 // A session waiting for input is not renamed; that wait is kept short.
 test.use({
@@ -60,7 +61,7 @@ async function launchedStories(
 
 async function openPage(page: Page, origin: StartOrigin) {
   await publishOrigin(page, origin);
-  await page.goto("/");
+  await openUntilRead(page);
   const entryOf = (title: string) =>
     cardSessions(
       parts(page).taken.getByRole("article", { name: title, exact: true }),
@@ -120,7 +121,7 @@ test("a session not reported complete asks first with its situation; Keep open a
 
   await test.step("(e) Ready for review, never reported: asks that it has not reported its work complete, with its reading", async () => {
     dashboard.claudeSessionBecomes(storyA.sessionId, "done-live");
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(sessionStateOf(entryA)).toHaveText("Ready for review");
     await expectAskedThenKept(
       dashboard,
@@ -131,7 +132,7 @@ test("a session not reported complete asks first with its situation; Keep open a
 
   await test.step("(g) Session unavailable, never reported: asks with that reading", async () => {
     dashboard.claudeSessionBecomes(storyB.sessionId, "forgotten");
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(sessionStateOf(entryB)).toHaveText("Session unavailable");
     await expectAskedThenKept(
       dashboard,
@@ -142,7 +143,7 @@ test("a session not reported complete asks first with its situation; Keep open a
 
   await test.step("(d) Needs input: asks that it is waiting for your input; confirming stops it as Mark as done does, without typing a rename into its prompt", async () => {
     dashboard.claudeSessionBecomes(storyA.sessionId, "blocked");
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(sessionStateOf(entryA)).toHaveText("Needs input");
     const doneName = doneNameOf(dashboard, storyA.sessionId);
     const shortId = shortIdOf(dashboard, storyA.sessionId);
@@ -207,7 +208,7 @@ test("a completed report marks done at once only while the session neither works
 
   await test.step("(a) reported completed with a reminder, read, Ready for review: one click marks it done", async () => {
     dashboard.claudeSessionBecomes(storyA.sessionId, "done-live");
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(sessionStateOf(entryA)).toHaveText("Ready for review");
     const shortId = shortIdOf(dashboard, storyA.sessionId);
 

@@ -17,6 +17,7 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 const instruction = "Focus on the examples.";
@@ -208,7 +209,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
   ).toBe("cursor/story-a");
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
 
-  await page.reload();
+  await reloadUntilRead(page);
   const prepared = parts(page).backlog.getByRole("article", {
     name: "Story A",
     exact: true,

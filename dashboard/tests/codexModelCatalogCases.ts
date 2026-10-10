@@ -4,6 +4,7 @@ import path from "node:path";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("slow/unavailable discovery retains focus, retry works, host changes and fresh openings reset; cancel creates nothing", async ({
   page,
@@ -130,7 +131,7 @@ test("a vanished explicit model is explained; deliberate default and former dyna
     .poll(() => stored(dashboard.home)[1]?.firstInput?.state)
     .toBe("not-requested");
   codexProtocol.models = [];
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(parts(page).taken).toContainText(
     `Model: ${dynamicId} (requested)`,
   );

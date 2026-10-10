@@ -7,6 +7,7 @@ import { cardSessions, parts } from "./dashboardPage.ts";
 import { publishPreparingJourney, storyA, storyC } from "./preparingJourney.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -27,7 +28,7 @@ test("a retained session keeps its allocation credit after release and a later p
       "refs/heads/main",
       revision,
     ]);
-    await page.reload();
+    await reloadUntilRead(page);
   };
   const workspace = path.join(
     dashboard.home,
@@ -124,7 +125,7 @@ test("a retained session keeps its allocation credit after release and a later p
     follows: true,
     realHistory: true,
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: storyC });
   const original = cardSessions(card).filter({ hasText: sessionId });
   const historical = `Session assignment: ${journey.preparers.refining} · Integration Checkout · Claude Code`;

@@ -12,6 +12,7 @@ import {
   noConnection,
 } from "./publishedOrigin.ts";
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 const revisionA = "a".repeat(40);
 const revisionB = "b".repeat(40);
@@ -35,7 +36,7 @@ test("direction starts collapsed and opens by pointer and keyboard without readi
 }) => {
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, withDirection(fullDirection));
-  await page.goto("/");
+  await openUntilRead(page);
   const {
     direction,
     directionToggle,
@@ -75,7 +76,7 @@ test("the opened direction reads across the whole project actions row beneath St
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, withDirection(fullDirection));
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
+  await openUntilRead(page);
   const { directionText, directionToggle, projectActions, source } =
     parts(page);
   await expect(source).toContainText(revisionA);

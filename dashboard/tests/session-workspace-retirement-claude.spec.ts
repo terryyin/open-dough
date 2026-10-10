@@ -16,7 +16,7 @@ import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { report, save, storeFile } from "./support/retainedReport.ts";
 import { completionReport } from "./support/completionReport.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
 test.beforeAll(async () => {
@@ -56,7 +56,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const { card } = await openStoryStagesJourney(page, journey);
-  await page.reload();
+  await reloadUntilRead(page);
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
   await entry.getByRole("button", { name: "Read final report" }).click();
@@ -75,7 +75,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect(panel).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;
   expect(doneAt).toBeDefined();
-  await page.reload();
+  await reloadUntilRead(page);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: record.session.sessionId });

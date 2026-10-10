@@ -10,6 +10,7 @@ import {
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
 test.use({ projectFolders: ["open-dough"] });
@@ -66,7 +67,7 @@ for (const blank of [true, false]) {
         JSON.stringify({ "open-dough": [saved] }),
       );
     }
-    await page.reload();
+    await reloadUntilRead(page);
     const recent = parts(page).taken.locator(".session-entry");
     await expect(recent).toContainText(
       blank
@@ -133,7 +134,7 @@ for (const blank of [true, false]) {
             call.params["includeTurns"] === true,
         ),
       ).toHaveLength(blank ? 2 : 1);
-      await page.reload();
+      await reloadUntilRead(page);
       await expect(recent).toContainText(
         blank ? "Opened without an instruction" : "First input accepted",
       );

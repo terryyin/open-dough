@@ -38,6 +38,7 @@ import {
   listed,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,
@@ -244,6 +245,6 @@ test("an active story owns its open session even with a matching done card, whos
     );
   };
   await expectUnique();
-  await page.reload();
+  await reloadUntilRead(page);
   await expectUnique();
 });

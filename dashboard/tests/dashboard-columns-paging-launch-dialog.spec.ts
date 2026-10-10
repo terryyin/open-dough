@@ -10,6 +10,7 @@ import { expectView, showColumn } from "./dashboardColumnsPage.ts";
 import { reachKeptStart, startAction, test } from "./keptStartJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ viewport: { width: 1100, height: 900 } });
 
@@ -51,7 +52,7 @@ test("opening and leaving Start execution on a shown Taken card keeps the view o
   });
 
   await test.step("after a reload", async () => {
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(takenCard).toBeVisible();
     await expectTakenAndRecentlyDone();
   });

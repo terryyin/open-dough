@@ -13,6 +13,7 @@ import {
   type LaunchJourney,
 } from "./launchJourney.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -71,7 +72,7 @@ test("without a reported phase, story startup keeps its host and the installed s
   for (host of ["claude", "codex"] as const) {
     for (workflow of ["execution", "refinement"] as const) {
       for (establishes of [false, true]) {
-        await page.reload();
+        await reloadUntilRead(page);
         const words = establishes
           ? `Preparing ${workflow}…`
           : `Starting ${workflow} in ${host === "claude" ? "Claude Code" : "Codex"}…`;

@@ -16,6 +16,7 @@ import {
 } from "./pageLayout.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { settings } from "./support/systemSettingsPage.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 for (const viewport of [
   { width: 1280, height: 800 },
@@ -33,7 +34,7 @@ for (const viewport of [
     });
     const origin = await publishMovingOrigin(page);
     origin.push(revision, largeBacklog);
-    await page.goto("/");
+    await openUntilRead(page);
     // A wider installed font reproduces the Linux first-row wrapping; the
     // same geometry, text, disclosure and keyboard promises must still hold.
     if (fontFamily) {
@@ -119,7 +120,7 @@ for (const width of [1440, 1280]) {
     await page.setViewportSize({ width, height: 800 });
     const origin = await publishMovingOrigin(page);
     origin.push(revision, largeBacklog);
-    await page.goto("/");
+    await openUntilRead(page);
     const { banner, project, sourceEvidence } = parts(page);
     await expect(sourceEvidence).toContainText("Open Dough");
     const gear = settings(page);
@@ -154,7 +155,7 @@ test("banner project selection reads the selected project's actual published wor
   const backlog = (title: string) =>
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
   doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
-  await page.goto("/");
+  await openUntilRead(page);
   const { project, source, sourceEvidence } = parts(page);
   await expect(source).toContainText(revision);
   const openDoughChoice = project.getByRole("radio", {

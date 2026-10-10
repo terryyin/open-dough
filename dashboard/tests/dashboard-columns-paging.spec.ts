@@ -43,14 +43,14 @@ import {
   slidesOf,
   wheelTo,
 } from "./dashboardColumnsPage.ts";
-
+import { openUntilRead } from "./pageRequestNotes.ts";
 // The dashboard, reading a Backlog longer than one screen and one Taken entry.
 async function openLargeBacklog(page: Page) {
   await publishOrigin(page, {
     ref: commitAnswer(revision),
     backlog: { revision, answer: rawFileAnswer(largeBacklog) },
   });
-  await page.goto("/");
+  await openUntilRead(page);
 }
 
 test.describe("in a narrow window", () => {

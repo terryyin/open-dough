@@ -116,7 +116,16 @@ adds no topic.
 
 ### 1. A journey's first expectation after an open waits for the published-work read
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (2026-10-10, pinned Node 24.21.0): `npm run --silent
+test:dashboard -- first-open-waits-for-read` (three tests: a `ref` answer held
+6 s, then `expectMembership` passes; a final failure ends the wait and the
+membership rejection settles before a 5 s-bound expectation started first,
+naming every title; a held detail read does not hold the check back). Red
+first on the earlier helpers: `toHaveText … Timeout: 5000ms … Received Array
+[]` at `expectMembership`, and `Expected: "the membership check" Received:
+"the bound"`. Full `npm run --silent test:dashboard` after the refactor pass:
+exit 0, no output, 8 workers, load 14.5 → 18.3, about nine minutes.
 Proof: `dashboard/tests/first-open-waits-for-read.spec.ts` (or a test in
 `published-work.spec.ts`): the fake GitHub holds the first `ref` answer 6 s;
 `page.goto("/")` then `expectMembership` fails on the current helpers at the 5
@@ -146,6 +155,10 @@ Proof: `expectSettledPage` callers (40 files) pass; `reopened-project-reads`
 passes `--repeat-each 20` through `scripts/dashboard-repeat.sh 1 --load`, its
 load lines recorded here. A label still shown after the reads answered fails
 the test naming the label and keeps its trace: slice 5's input.
+
+Receives G1: the bare `support/pageTest.ts` page notes its requests too, so
+the shared wait is not a no-op for the 22 spec files built on it, and their
+first read-dependent checks after an open or reload wait on it.
 
 Structure: `expectSettledPage` waits `untilPageReadsAnswered` before checking
 "Reading preparation…"; `reopened-project-reads.spec.ts`'s `expectSettled`
@@ -207,6 +220,56 @@ Behavior: Unchanged code → the three runs in order → each exits 0 with no
 suite output. A failing run is a defect: read its kept directory, fix the
 cause in the owning slice above, and start the series again from the fresh
 run.
+
+## Story obligations
+
+### G1. Specs on the bare page fixture get no wait
+Reported: slice 1 — "Specs on `support/pageTest.ts` get no wait. Request noting is installed only by the `dashboardTest.ts` context fixture (and by hand in `read-turns-across-tabs`). On other pages the wait is a no-op."
+Story clause: "Every journey's first card check after an open waits first for the page's published-work read to answer or fail"
+Disposition: receiving slice 2
+
+### G2. The wait relies on page turns between the page's steps
+Reported: slice 1 — "The wait still relies on page turns between steps. After the first content and after each answer, the page gets three message turns to send its next request, as `untilPageReadsAnswered` already assumes."
+Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
+Disposition: interim until slices 6
+
+### G3. Fail-at-once looks once
+Reported: slice 1 — "Fail-at-once is one-shot. If the final-failure line has not rendered when the helper looks, the expectation takes the ordinary 5 s path."
+Story clause: "passes three consecutive full runs on unchanged code with no output"
+Disposition: no user cost "passes three consecutive full runs on unchanged code with no output": only a journey that is already failing on a failed read can take the 5 s path, and it still fails naming its titles; no passing run waits on it.
+
+### G4. Detail-read bounds are unchanged
+Reported: slice 1 — "Detail-read bounds are unchanged, and slice 2's reordering is not done."
+Story clause: "A failing run is a defect: its kept directory is read, the cause fixed, and the series starts again from the fresh run."
+Disposition: interim until slices 6
+
+### G5. The new spec costs about 11 s of one worker
+Reported: slice 1 — "Suite cost: the new spec costs about 11 s of one worker (6 s hold plus the 5 s bound expectation in the ordering proof)."
+Story clause: "Each CI dashboard shard still ends within `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`"
+Disposition: interim until slices 6
+
+## Learnings
+
+- Slice 1: the page reads its project list (`/__project-configuration`)
+  before any published-work read, and `goto` resolves before either is sent.
+  A wait that looked only at published-work reads returned early once in two
+  loaded full runs (kept trace: wait found nothing at +159 ms, the read was
+  sent at +172 ms). `untilPublishedWorkRead` therefore waits for `#root`'s
+  first content and counts the project-list read with the published-work
+  reads; 72 repeats of the spec and two full runs then passed (G2 keeps the
+  remaining page-turn assumption open until slice 6).
+- Slice 1: a reload is an open. About 96 `page.reload()` sites and 45
+  `page.goto("/")` sites whose next read-dependent statement was a plain
+  `expect` now go through `openUntilRead`/`reloadUntilRead`
+  (`dashboard/tests/pageRequestNotes.ts`); journeys that hold the
+  published-work read on purpose keep the raw navigation.
+- Slice 1: a failure the page will not read again on its own is told from a
+  transient one by the page's own line "Reload the page to read again."
+  (`dashboard/src/PublishedReadFailure.tsx`); only then is the membership or
+  first-card check compared once without retrying.
+- Setup: this machine's Node (24.5.0) differs from `.node-version`
+  (24.21.0); proof from the corrected slice 1 onward runs on the pinned Node
+  after `scripts/setup-native.mjs npm`, `browser`, `check`.
 
 ## Verification and sizing
 

@@ -24,6 +24,7 @@ import {
   passive,
   daemonStarts,
 } from "./support/codexObservation.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -207,7 +208,7 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
   };
   await check();
   expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(dashboard.home) }]);
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(sidebar.button).toBeVisible();
   if (!(await sidebar.sidebar.isVisible())) await sidebar.button.click();
   await check();

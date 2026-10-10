@@ -19,6 +19,7 @@ import {
 } from "./support/dashboardServer.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import type { EstablishedPreparation } from "../src/agentLaunch.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ preparationHost: "codex" });
 
@@ -110,7 +111,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await card.getByRole("button", { name: "Start refinement" }).click();
   await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
   await page.keyboard.press("Escape");
-  await page.reload();
+  await reloadUntilRead(page);
   await expectStartNote(
     card,
     "Start refinement",
@@ -137,7 +138,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     codexProtocol: native,
   });
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     await expectStartNote(
       card,
       "Start refinement",

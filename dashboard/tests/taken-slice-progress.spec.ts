@@ -9,6 +9,7 @@ import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 const repository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -188,7 +189,7 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
       page,
       publishedAt(revisionB, ["done", "done", "planned"]),
     );
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(source).toContainText(revisionB);
     const bar = card(counted).getByRole("img", {
       name: "2 of 3 slices recorded complete",

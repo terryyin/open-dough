@@ -41,6 +41,7 @@ import {
 import { resizeEdge } from "./sidePanelWidthPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { holding } from "./support/heldGitHubAnswer.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -123,7 +124,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
   });
 
   await test.step("a reload shows the latest ten again", async () => {
-    await page.reload();
+    await reloadUntilRead(page);
     await expectEntries(recent, namesOf(atB, 10));
     await expect(revealAction(recent)).toHaveText(
       "Show 10 of 24 older entries",

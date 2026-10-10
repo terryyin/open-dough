@@ -22,6 +22,7 @@ import {
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
@@ -158,7 +159,7 @@ test("installed attention report stays open, durable and readable through stage 
   await expect(queued).toContainText("Unfinished work", { timeout: 20000 });
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   published.advanceTo(revision);
-  await page.reload();
+  await reloadUntilRead(page);
   const claimed = parts(page).taken.getByRole("article", {
     name: "Story A",
     exact: true,
@@ -179,7 +180,7 @@ test("installed attention report stays open, durable and readable through stage 
     port,
   });
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(messagePartOf(claimed).text).toHaveText(text);
     expect(stored(restarted.home)[0]?.completion?.receipt).toBe(
       retainedReceipt,
@@ -219,7 +220,7 @@ test("installed attention report stays open, durable and readable through stage 
     expect(stored(restarted.home)[0]?.doneProblem).toBeUndefined();
     const doneName = `done-${stored(restarted.home)[0]?.session.name ?? ""}`;
     await machineSessions(restarted);
-    await page.reload();
+    await reloadUntilRead(page);
     const recent = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });

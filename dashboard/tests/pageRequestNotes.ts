@@ -5,6 +5,7 @@
 
 import type { BrowserContext, Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+import { projectListEndpoint } from "../src/projectConfiguration.ts";
 
 // A browser request to the local boundary is a revision check when it names
 // the revision the page already shows with this search parameter.
@@ -16,12 +17,18 @@ export function isCheck(url: string): boolean {
 
 // What the page notes about its own requests (see `noteRequestsInPage`):
 // the page times at which it asked for revision checks, every request it has
-// sent that is not yet answered, and of those its reads of the local read
-// boundary other than revision checks.
+// sent that is not yet answered, of those its reads of the local read
+// boundary other than revision checks, and of those reads the ones of the
+// published work itself: the source's ref and backlog, or the backlog at a
+// revision already resolved, which name a source, at most a revision, and
+// nothing else. Every other read names what it reads besides. With them is
+// kept the read of the project list, which the page awaits before it reads
+// any project's published work.
 type RequestsNoted = {
   revisionChecksAskedAt?: number[];
   requestsUnanswered?: Set<Promise<unknown>>;
   readsUnanswered?: Set<Promise<unknown>>;
+  publishedWorkReadsUnanswered?: Set<Promise<unknown>>;
 };
 
 // From now on, the page notes the page time at which it asks for each
@@ -37,9 +44,11 @@ type RequestsNoted = {
 function noteRequestsInPage({
   checkParameter: parameter,
   readPath,
+  projectListPath,
 }: {
   readonly checkParameter: string;
   readonly readPath: string;
+  readonly projectListPath: string;
 }): void {
   const noted = window as RequestsNoted & typeof window;
   if (noted.revisionChecksAskedAt !== undefined) {
@@ -48,9 +57,11 @@ function noteRequestsInPage({
   const askedAt: number[] = [];
   const unanswered = new Set<Promise<unknown>>();
   const readsUnanswered = new Set<Promise<unknown>>();
+  const publishedWorkReadsUnanswered = new Set<Promise<unknown>>();
   noted.revisionChecksAskedAt = askedAt;
   noted.requestsUnanswered = unanswered;
   noted.readsUnanswered = readsUnanswered;
+  noted.publishedWorkReadsUnanswered = publishedWorkReadsUnanswered;
   const send = window.fetch.bind(window);
   window.fetch = (input, init) => {
     const url = new URL(
@@ -62,6 +73,13 @@ function noteRequestsInPage({
       askedAt.push(Date.now());
     }
     const read = !check && url.pathname === readPath;
+    const projectListRead = url.pathname === projectListPath;
+    const publishedWorkRead =
+      read &&
+      url.searchParams.has("source") &&
+      [...url.searchParams.keys()].every(
+        (named) => named === "source" || named === "revision",
+      );
     const sent = send(input, init);
     const answered = sent
       .then((response) => response.clone().arrayBuffer())
@@ -69,10 +87,14 @@ function noteRequestsInPage({
       .finally(() => {
         unanswered.delete(answered);
         readsUnanswered.delete(answered);
+        publishedWorkReadsUnanswered.delete(answered);
       });
     unanswered.add(answered);
     if (read) {
       readsUnanswered.add(answered);
+    }
+    if (projectListRead || publishedWorkRead) {
+      publishedWorkReadsUnanswered.add(answered);
     }
     return sent;
   };
@@ -81,6 +103,7 @@ function noteRequestsInPage({
 const notedRequests = {
   checkParameter,
   readPath: authenticatedReadEndpoint,
+  projectListPath: projectListEndpoint,
 };
 
 async function noteRequestsInOpenPage(page: Page): Promise<void> {
@@ -131,9 +154,61 @@ export async function untilPageReadsAnswered(page: Page): Promise<void> {
   await untilNotedAnswered(page, "readsUnanswered");
 }
 
+// Waits until every read of the published work the page has sent is answered
+// or has failed: the stages, or the problem shown in their place, then come
+// from nothing still on its way, so an expectation about a card is bounded by
+// the page's rendering, not by how long GitHub took. A journey's first card
+// check after an open waits here first (`expectMembership` and
+// `expectSettledPage` in ./dashboardPage.ts). Reads of a card's detail are
+// left alone, so a journey holding one still returns from here; one holding
+// the published-work read itself returns once it lets that go.
+//
+// A page just opened has first to show something and read the project list
+// before it sends that read, and its load does not wait for either. So the
+// wait begins once the dashboard has put its first content on the page, after
+// which its turns send the project list's read; that read is awaited with the
+// published work's, and its answer leads to theirs. A page that notes no
+// requests, or is not the dashboard's, has nothing to wait for.
+export async function untilPublishedWorkRead(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const root = document.getElementById("root");
+    if (
+      (window as RequestsNoted & typeof window).publishedWorkReadsUnanswered ===
+        undefined ||
+      root === null ||
+      root.hasChildNodes()
+    ) {
+      return;
+    }
+    await new Promise<void>((shown) => {
+      const observer = new MutationObserver(() => {
+        if (root.hasChildNodes()) {
+          observer.disconnect();
+          shown();
+        }
+      });
+      observer.observe(root, { childList: true });
+    });
+  });
+  await untilNotedAnswered(page, "publishedWorkReadsUnanswered");
+}
+
+// Opens the page at `address`, or opens it again by a reload, and waits
+// there: for a journey whose next step looks at what the page read and is
+// none of those checks. One holding the published-work read opens it itself.
+export async function openUntilRead(page: Page, address = "/"): Promise<void> {
+  await page.goto(address);
+  await untilPublishedWorkRead(page);
+}
+
+export async function reloadUntilRead(page: Page): Promise<void> {
+  await page.reload();
+  await untilPublishedWorkRead(page);
+}
+
 async function untilNotedAnswered(
   page: Page,
-  unansweredNote: "requestsUnanswered" | "readsUnanswered",
+  unansweredNote: Exclude<keyof RequestsNoted, "revisionChecksAskedAt">,
 ): Promise<void> {
   for (;;) {
     await givePageItsTurns(page);

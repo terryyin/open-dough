@@ -14,6 +14,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 // A test whose dashboard uses the machine of a real bare origin
 // (./support/startOrigin.ts) with the installed starts.
@@ -73,7 +74,7 @@ export async function openStories(page: Page, origin: StartOrigin) {
     repository: "terryyin/open-dough",
     follows: true,
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog, taken } = parts(page);
   const story = backlog.getByRole("article", { name: "Story A" });
   const takenStory = taken.getByRole("article", { name: "Story A" });

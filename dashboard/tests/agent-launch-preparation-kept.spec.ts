@@ -18,6 +18,7 @@ import { parts } from "./dashboardPage.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const workspaceShown = "~/git/open-dough/.worktrees/story-a";
 const establishing = "Start also publishes";
@@ -33,7 +34,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
     repository: "terryyin/open-dough",
     follows: true,
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const { backlog } = parts(page);
   const card = backlog.getByRole("article", { name: "Story A" });
   const otherCard = backlog.getByRole("article", { name: "Story B" });
@@ -68,7 +69,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   ]);
 
   // After a reload the card offers the resume; another card does not.
-  await page.reload();
+  await reloadUntilRead(page);
   await expectStartNote(
     card,
     "Start refinement",

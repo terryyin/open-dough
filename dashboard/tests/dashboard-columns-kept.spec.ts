@@ -18,6 +18,7 @@ import {
   publishCatalogProjects,
 } from "./projectKeyboardNavigationJourney.ts";
 import { expectView, rem, showColumn } from "./dashboardColumnsPage.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Room for two of the three columns, and for all three.
 const narrowWindow = { width: 54 * rem, height: 800 };
@@ -70,7 +71,7 @@ test("the chosen columns stay across a project switch, a reload, and a wide page
   await test.step("a wide page shows every column and a narrow one comes back to them, also after a reload", async () => {
     await page.setViewportSize(wideWindow);
     await expectView(page, ["Backlog", "Taken", "Recently done"], []);
-    await page.reload();
+    await reloadUntilRead(page);
     await expectView(page, ["Backlog", "Taken", "Recently done"], []);
     await page.setViewportSize(narrowWindow);
     await expectAtTaken(page);
@@ -101,7 +102,7 @@ test("an unusable kept position starts at Backlog", async ({ page }) => {
           value,
         );
       }, malformed);
-      await page.reload();
+      await reloadUntilRead(page);
       await expectAtBacklog(page);
     });
   }
@@ -132,7 +133,7 @@ test("where the browser refuses storage, the view starts at Backlog and pages fo
   await expectAtTaken(page);
   await chooseProject(page, doughnutProject.label);
   await expectAtTaken(page);
-  await page.reload();
+  await reloadUntilRead(page);
   await expectAtBacklog(page);
   expect(errors).toEqual([]);
 });

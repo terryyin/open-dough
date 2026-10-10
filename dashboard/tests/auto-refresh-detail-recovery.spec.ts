@@ -26,6 +26,7 @@ import {
   recordsAt,
 } from "./autoRefreshJourney.ts";
 import { backlogB, revisionB, titlesOfB } from "./refreshJourney.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 const claimsStory = "Publish shared backlog claims";
 const claimsRecord = ".planning/seeds/SEED-040-claims.md";
@@ -37,7 +38,7 @@ async function expectGapClosedAtB(page: Page) {
   const { source, backlog, problem } = parts(page);
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
   const from = githubFor(page).calls.length;
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(claimsCard).toBeVisible();
   await expectSettledPage(page);
   await expectOwnersNotRecorded(page);

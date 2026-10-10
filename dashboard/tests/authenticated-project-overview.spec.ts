@@ -32,6 +32,7 @@ import {
   collectFiles,
 } from "./support/credentialAbsence.ts";
 import { startDashboardServer } from "./support/dashboardServer.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Shaped like a real GitHub token and placed only in the spawned server
 // process's own environment, where the production `gh` invocation would see
@@ -141,7 +142,7 @@ for (const mode of ["dev", "preview"] as const) {
 
         await test.step(`reloading ${published.label} resolves ${published.ref} again through local gh`, async () => {
           const before = calls.length;
-          await page.reload();
+          await reloadUntilRead(page);
           await expect(source).toContainText(published.revision);
           await expect.poll(() => calls.length).toBeGreaterThan(before);
           expect(calls[before]?.argv).toEqual([

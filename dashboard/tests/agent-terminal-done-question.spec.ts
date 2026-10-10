@@ -29,6 +29,7 @@ import {
   markAsDone,
   stillWorking,
 } from "./support/markDone.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -97,7 +98,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     await launch(readyStory, "Execution");
     const sessionId = String(dashboard.claudeListing()[0]?.["sessionId"]);
     dashboard.claudeSessionBecomes(sessionId, "done-live");
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(sessionStateOf(listed)).toHaveText("Ready for review");
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");

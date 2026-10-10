@@ -24,6 +24,7 @@ import {
 } from "./responsiveRecovery.ts";
 import { openStories, test } from "./responsiveStart.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -48,7 +49,7 @@ test("a start a closed server left unsettled stays protected after restart, relo
     ]);
     expect(restarted.claudeLaunchCalls()).toEqual([]);
     // Its Take reached origin while no server ran it.
-    await page.reload();
+    await reloadUntilRead(page);
     await expectStaticallyProtected(takenStory);
     await expect(takenStory).toContainText(
       "no running dashboard server owns it",
@@ -79,7 +80,7 @@ test("a start a closed server left unsettled stays protected after restart, relo
     await expectRecoveryOffered(page);
 
     const second = await page.context().newPage();
-    await second.goto("/");
+    await openUntilRead(second);
     const secondTaken = parts(second).taken.getByRole("article", {
       name: "Story A",
     });
@@ -126,10 +127,10 @@ test("a story removed while its startup needs reconciliation keeps that recovery
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
   const restarted = await restartAfterPush(dashboard, push, origin, github);
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     await expectStaticallyProtected(takenStory);
     await removeQueuedStory(origin);
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(
       parts(page).stages.getByRole("article", { name: "Story A" }),
     ).toHaveCount(0);

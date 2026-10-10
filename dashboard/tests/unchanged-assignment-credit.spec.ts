@@ -16,7 +16,10 @@ import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./cardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
-import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import {
+  untilPageReadsAnswered,
+  untilPublishedWorkRead,
+} from "./pageRequestNotes.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
 import { avatarHost, creditedAvatar } from "./agentAttributionRecords.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
@@ -55,6 +58,7 @@ async function expectCreditedAt(
 ) {
   const { source, taken } = parts(page);
   const { member, opener, back } = rosterParts(page);
+  await untilPublishedWorkRead(page);
   await expect(source).toContainText(at);
   await expectMembership(page, { taken: agents.map(titleOf), backlog: [] });
   for (const agent of agents) {

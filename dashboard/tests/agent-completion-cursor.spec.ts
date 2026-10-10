@@ -19,6 +19,7 @@ import { occupyRunner } from "./support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import { messagePartOf } from "./support/sessionMessagePart.ts";
+import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 
 const exec = promisify(execFile);
 
@@ -86,7 +87,7 @@ async function reportedCursorCard({
     revision,
     repository: "terryyin/open-dough",
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const card = parts(page).taken.getByRole("article", {
     name: "Story A",
     exact: true,
@@ -169,7 +170,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
   await stopCursorRunner(dashboard.home);
   const release = await occupyRunner(dashboard.home);
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     const listed = cardSessions(card);
     await expect(listed.locator(".session-state")).toHaveText(
       cursorRunnerSentence("unreachable"),
@@ -228,7 +229,7 @@ test("Cursor explicit quiet completion is durable local Done without native stop
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: cursor.sessionId });

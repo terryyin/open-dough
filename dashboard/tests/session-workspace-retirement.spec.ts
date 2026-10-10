@@ -15,6 +15,7 @@ import {
   retained,
   passive,
 } from "./support/retainedReport.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -93,7 +94,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(entry).toContainText("Ready for review");
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(sideOpen).toBeFocused();
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(entry).toContainText("Ready for review");
   expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
   expect(existsSync(workspace)).toBe(false);

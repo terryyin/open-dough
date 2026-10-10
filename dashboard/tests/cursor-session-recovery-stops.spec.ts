@@ -21,6 +21,7 @@ import {
 } from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { unclassifiedCursorExit } from "./support/fakeCursor.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("missing workspace, trust, unreachable runner, and unclassified exit explain and leave no agent", async ({
   page,
@@ -92,7 +93,7 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   await stopCursorRunner(dashboard.home);
   const release = await occupyRunner(dashboard.home);
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     entry = parts(page).taken.locator(".session-entry");
     await expectReadingWithoutScreenLabel(
       entry,
@@ -109,7 +110,7 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
     rmSync(cursorRunnerAddressFile(dashboard.home), { force: true });
   }
 
-  await page.reload();
+  await reloadUntilRead(page);
   entry = parts(page).taken.locator(".session-entry");
   await expectReadingWithoutScreenLabel(
     entry,

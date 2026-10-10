@@ -32,6 +32,7 @@ import {
   revision,
 } from "./recentlyDoneRecords.ts";
 import { keptSessions } from "./recentlyDoneSessions.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -202,7 +203,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   expect((await saved(dashboard))[0]?.doneAt).toBeDefined();
   await sidebarParts(page).button.click();
   await expect(sidebarParts(page).entries).toHaveCount(0);
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(recent).toHaveCount(1);
   const doneAt = (await saved(dashboard))[0]?.doneAt;
   // Native disappearance refuses terminal readiness before clearing local Done.
@@ -238,7 +239,7 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
   await panel.getByRole("button", { name: "Close" }).click();
   dashboard.claudeListingFails(true);
-  await page.reload();
+  await reloadUntilRead(page);
   const entry = locals(page);
   await expect(sessionStateOf(entry)).toContainText("State unknown");
   await showColumn(page, "Taken");

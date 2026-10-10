@@ -22,6 +22,7 @@ import {
   type ReadinessRepo,
   unrefined,
 } from "./storyReadinessFixture.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 export async function expectFailedCheckKeepsPriorRevision(
   page: Page,
@@ -68,7 +69,7 @@ export async function expectFailedCheckKeepsPriorRevision(
 
   restore();
   const afterFail = origin.requests.length;
-  await page.reload();
+  await reloadUntilRead(page);
   await expect(problem).toHaveCount(0);
   await expect(source).toContainText(retainedRevision);
   await expect.poll(() => origin.requests.length).toBeGreaterThan(afterFail);

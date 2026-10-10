@@ -19,6 +19,7 @@ import {
   startDashboardServer,
 } from "./support/dashboardServer.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 let journey: LaunchJourney;
@@ -157,7 +158,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       .poll(() => codexEnded(native, attached?.pid ?? 0))
       .toBe("SIGHUP");
     expect(codexLines(native, attached?.pid ?? 0)).toEqual([]);
-    await page.reload();
+    await reloadUntilRead(page);
     await expect(recent.locator(".session-state")).toHaveText(
       blank ? "Awaiting first instruction" : "Ready for review",
     );
@@ -173,7 +174,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       port,
     });
     try {
-      await page.reload();
+      await reloadUntilRead(page);
       await expect(recent).toContainText(native.threadId);
       await expect(recent.locator(".session-state")).toHaveText(
         blank ? "Awaiting first instruction" : "Ready for review",
@@ -206,7 +207,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
         `done-${saved.session.name}`,
       );
       expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
-      await page.reload();
+      await reloadUntilRead(page);
       await expect(recent.locator(".session-state")).toHaveText("Done");
       await showColumn(page, "Recently done");
       await recent.getByRole("button", { name: "Open terminal" }).click();

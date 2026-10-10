@@ -27,6 +27,7 @@ import {
   publishOrigin,
 } from "./publishedOrigin.ts";
 import { expectTooltipLine, sidebarParts } from "./sessionSidebarPage.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 let journey: LaunchJourney;
 // Publishing runs production backlog commands against a local origin; give
@@ -86,8 +87,7 @@ test("Start session is offered after the published read failed", async ({
   page,
 }) => {
   await publishOrigin(page, { ref: noConnection });
-  await page.goto("/");
-
+  await openUntilRead(page);
   await expect(parts(page).problem).toBeVisible();
   await expect(startSession(page, "Open Dough")).toBeEnabled();
 });

@@ -11,6 +11,7 @@ import {
   test,
   twoDependencies,
 } from "./storyDependencyFixture.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 
 test("a blocker published after the card rendered refuses real startup before claim or native launch", async ({
   page,
@@ -24,7 +25,7 @@ test("a blocker published after the card rendered refuses real startup before cl
     repository: "terryyin/open-dough",
     follows: true,
   });
-  await page.goto("/");
+  await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", {
     name: consumer.title,
     exact: true,

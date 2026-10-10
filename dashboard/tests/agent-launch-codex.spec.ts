@@ -29,6 +29,7 @@ import {
   disconnectContinuation,
 } from "./support/codexContinuation.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,
@@ -110,7 +111,8 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     hasText: "Refinement started in Codex",
   });
   await expect(codex).toContainText("First input accepted");
-  await page.reload(); // Fresh shared polling replaces launch-time unknown.
+  // Fresh shared polling replaces launch-time unknown.
+  await reloadUntilRead(page);
   await expect(codex.locator(".session-state")).toHaveText("Working");
   await expect(
     codex.getByRole("button", { name: "Open terminal" }),
@@ -163,7 +165,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   const beforeDisplay = stored(dashboard.home);
   const sinceDisplay = native.calls.length;
   await checkContinuation();
-  await page.reload();
+  await reloadUntilRead(page);
   await checkContinuation();
   expect(stored(dashboard.home)).toEqual(beforeDisplay);
   passive(native.calls.slice(sinceDisplay));
@@ -205,7 +207,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     native,
   );
   const sinceNotice = native.calls.length;
-  await page.reload();
+  await reloadUntilRead(page);
   await checkContinuation(notice);
   expect(stored(dashboard.home)).toEqual(withNotice);
   passive(native.calls.slice(sinceNotice));
@@ -221,7 +223,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     codexProtocol: protocol,
   });
   try {
-    await page.reload();
+    await reloadUntilRead(page);
     await checkContinuation(notice);
     expect(stored(dashboard.home)).toEqual(withNotice);
     passive(native.calls.slice(sinceNotice));
