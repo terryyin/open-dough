@@ -7,6 +7,10 @@
 
 import { expect, test } from "./support/preparationPage.ts";
 import {
+  expectFileSelected,
+  expectLineCounts,
+} from "./support/reviewTreeRows.ts";
+import {
   comparison,
   markedThenChanged,
   storyFile,
@@ -18,18 +22,9 @@ test("each comparison opens on its first file, counts its own lines, and moves t
   origin,
 }) => {
   const { review } = await markedThenChanged(page, dashboard, origin);
-  const row = (name: string) =>
-    review
-      .locator(".story-review-files")
-      .getByRole("button", { name, exact: true });
   const expectCounts = (name: string, shown: string) =>
-    expect(row(name).locator(".story-review-line-counts")).toHaveText(shown, {
-      useInnerText: true,
-    });
-  const expectSelected = async (name: string) => {
-    await expect(row(name)).toHaveAttribute("aria-pressed", "true");
-    await expect(review.getByRole("region", { name })).toBeVisible();
-  };
+    expectLineCounts(review, name, shown);
+  const expectSelected = (name: string) => expectFileSelected(review, name);
   const previous = review.getByRole("button", { name: "Previous file" });
   const next = review.getByRole("button", { name: "Next file" });
   const [two, nine, thirteen] = [2, 9, 13].map(storyFile);

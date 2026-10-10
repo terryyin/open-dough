@@ -24,6 +24,7 @@ export function ReviewBody({
   headingId,
   browser,
   since,
+  committedOnly,
 }: {
   readonly landed: Extract<StoryReview, { kind: "landed" }> | undefined;
   readonly snapshot: TakenStoryReview | undefined;
@@ -38,6 +39,8 @@ export function ReviewBody({
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
   readonly since: ReviewComparison | undefined;
+  // Whether all changes leave the snapshot's uncommitted changes out.
+  readonly committedOnly: boolean;
 }) {
   return (
     <>
@@ -75,6 +78,7 @@ export function ReviewBody({
             commitsReview={shown === "commits"}
             comparison={comparison}
             sinceReview={since !== undefined}
+            committedOnly={committedOnly}
             headingId={headingId}
             browser={browser}
           />

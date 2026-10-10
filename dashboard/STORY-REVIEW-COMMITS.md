@@ -3,7 +3,7 @@
 The Commits comparison extends the [story review](AGENT-LAUNCH-REVIEW.md).
 
 The snapshot also lists the story's commits after its baseline along the
-first-parent line, newest first (`server/storyReviewSnapshot.ts`). Commits
+first-parent line, newest first (`server/storyReviewCommits.ts`). Commits
 shows each by short revision, subject, and committer time, with merges saying
 “Integrated trunk”. The newest item alone is selected initially; its heading
 names the count and both ends. While one item is selected, choosing another

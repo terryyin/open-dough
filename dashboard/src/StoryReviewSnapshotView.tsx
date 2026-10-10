@@ -12,8 +12,10 @@
 // trunk's changes since the review, shown from the top while the browser
 // keeps its scroll; the two fill the review's body, each scrolling on its
 // own. A worktree that matches its baseline, or a snapshot that matches the
-// marked one, says so in place of the browser; after trunk was integrated
-// since the mark, it says nothing changed beyond what trunk now holds, since
+// marked one, says so in place of the browser, as do all changes that leave
+// uncommitted changes out of a worktree with nothing committed; after trunk
+// was integrated since the mark, it says nothing changed beyond what trunk
+// now holds, since
 // story work that reached trunk counts as trunk's. A refreshed snapshot, or
 // the other comparison, keeps the browser as it was, its collapsed folders,
 // and the selected file while the files shown still list their paths;
@@ -65,16 +67,24 @@ function NoChanges({
   snapshot,
   sinceReview,
   commitsReview,
+  committedOnly,
 }: {
   readonly snapshot?: TakenStoryReview;
   readonly sinceReview: boolean;
   readonly commitsReview: boolean;
+  readonly committedOnly: boolean;
 }) {
   if (snapshot === undefined)
     return (
       <p>No changes: this landed run has an empty delivered comparison.</p>
     );
   if (commitsReview) return <p>The chosen commits changed nothing.</p>;
+  if (committedOnly)
+    return (
+      <p>
+        Nothing is committed yet: every change in this worktree is uncommitted.
+      </p>
+    );
   if (!sinceReview)
     return (
       <p>
@@ -101,6 +111,7 @@ export function SnapshotView({
   browser,
   tree: comparedTree,
   commitsReview = false,
+  committedOnly = false,
 }: {
   readonly reviewed: ReviewedStory;
   readonly snapshot?: TakenStoryReview;
@@ -111,6 +122,8 @@ export function SnapshotView({
   readonly browser: FileBrowserPlace;
   readonly tree: string;
   readonly commitsReview?: boolean;
+  // Whether all changes leave the snapshot's uncommitted changes out.
+  readonly committedOnly?: boolean;
 }) {
   const [selectedPath, setSelectedPath] = useState<string | undefined>();
   // Folders collapsed by path; every folder starts expanded on each opening,
@@ -159,6 +172,7 @@ export function SnapshotView({
       {...(snapshot === undefined ? {} : { snapshot })}
       sinceReview={sinceReview}
       commitsReview={commitsReview}
+      committedOnly={committedOnly}
     />
   ) : (
     <div className="story-review-workarea">

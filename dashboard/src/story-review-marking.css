@@ -1,0 +1,37 @@
+/* A story review's marking controls (./StoryReviewMark.tsx) in its fixed
+   top (./story-review.css): the comparison's heading, the check that leaves
+   uncommitted changes out, the mark stated, and Mark reviewed. */
+
+/* They sit beneath the feedback, above the body. */
+.story-review-marking {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.story-review-mark {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+}
+
+/* The check that leaves uncommitted changes out, above what it says while
+   it is off. */
+.story-review-uncommitted {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.story-review-uncommitted label {
+  align-self: flex-start;
+  cursor: pointer;
+}
+
+.story-review-since h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}

@@ -40,6 +40,8 @@ export function StoryReviewPanel({
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
   const [browserShown, setBrowserShown] = useState(true);
+  // Whether all changes include uncommitted changes: on at every opening.
+  const [includeUncommitted, setIncludeUncommitted] = useState(true);
   const browser = { id: `${id}-files`, shown: browserShown };
   const {
     review,
@@ -69,6 +71,8 @@ export function StoryReviewPanel({
     trunkIntegrated,
     shown,
     since,
+    committed,
+    committedOnly,
     range,
     comparison,
     tree,
@@ -78,6 +82,7 @@ export function StoryReviewPanel({
     identity,
     snapshot: workspace,
     chosen,
+    includeUncommitted,
     active: selectedRun === undefined,
   });
   // The mark the review states: one made on the review shown since it was
@@ -191,6 +196,14 @@ export function StoryReviewPanel({
             sinceReview={since !== undefined}
             stated={stated}
             busy={reading || marking}
+            {...(committed === undefined
+              ? {}
+              : {
+                  uncommitted: {
+                    included: includeUncommitted,
+                    onInclude: setIncludeUncommitted,
+                  },
+                })}
             onMark={() => {
               const of = snapshot;
               setMarking(true);
@@ -222,6 +235,7 @@ export function StoryReviewPanel({
           headingId={headingId}
           browser={browser}
           since={since}
+          committedOnly={committedOnly}
         />
       </div>
     </section>

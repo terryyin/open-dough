@@ -198,6 +198,12 @@ export const storyReviewSchema = z
       files: z.array(reviewedFileSchema),
       commits: z.array(reviewCommitSchema),
       uncommitted: reviewUncommittedSchema.optional(),
+      // With uncommitted changes, the same snapshot's committed work alone:
+      // the files from `baseline` to the head's tree, its `tree`, which its
+      // file diffs compare `from` with in place of the snapshot's.
+      committed: reviewComparisonSchema
+        .extend({ tree: objectIdSchema })
+        .optional(),
       // The story's mark on this machine, when it has one.
       mark: reviewMarkSchema.optional(),
       // With a mark the repository holds, the same snapshot compared with it:

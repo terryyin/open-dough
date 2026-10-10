@@ -180,6 +180,26 @@ no longer be read, and shows all changes, with Commits still offered when the
 snapshot lists commits. Mark reviewed
 then starts again from the snapshot shown.
 
+While All changes is shown and the snapshot holds uncommitted changes
+(staged, unstaged or untracked), the marking controls offer a native checkbox,
+**Include uncommitted changes**, on at every opening. Turned off, the file
+browser, counts, total, diffs and file moves show the same snapshot's
+committed work alone: the answer also carries `committed`, the files from
+`baseline` to the head's tree with that tree, read as `files` is whenever the
+snapshot's tree differs from the head's (`server/storyReviewSnapshot.ts`), and
+its file diffs name the head's tree as `tree`. Toggling takes no new snapshot;
+only the selected file's diff is read. The selected file stays selected while
+the files shown list it, and otherwise the first file is. While the check is
+off, one line, also the check's accessible description, says “Uncommitted
+changes are left out. Mark reviewed still marks the whole snapshot.”, and
+Mark reviewed does mark the whole snapshot, as it does in Commits. With
+nothing committed, the body says “Nothing is committed yet: every change in
+this worktree is uncommitted.” and the check stays to turn back on. A snapshot
+without uncommitted changes carries no `committed` and offers no check, as
+Commits lists no Uncommitted changes item then; neither do Since the review,
+Commits or a landed comparison (`src/useStoryReviewComparison.ts`,
+`src/StoryReviewMark.tsx`).
+
 Trunk merged into the story after the mark stays out of the changes since the
 review, as it does from all changes (`server/storyReviewComparison.ts`). With an
 unchanged baseline the marked tree is compared directly and nothing is

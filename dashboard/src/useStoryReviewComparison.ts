@@ -1,6 +1,8 @@
 // The comparison chosen for a snapshot: all changes, changes since its
 // review, or a contiguous range's two points. Range answers apply only after the read
-// for the points currently chosen has settled.
+// for the points currently chosen has settled. All changes of a snapshot
+// holding uncommitted changes can leave them out: its committed work alone,
+// to the head's tree, which came with the snapshot.
 import { useState } from "react";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import {
@@ -17,12 +19,15 @@ export function useStoryReviewComparison({
   identity,
   snapshot,
   chosen,
+  includeUncommitted,
   active,
 }: {
   readonly source: string;
   readonly identity: string;
   readonly snapshot: TakenStoryReview | undefined;
   readonly chosen: ShownComparison;
+  // Whether all changes include the snapshot's uncommitted changes.
+  readonly includeUncommitted: boolean;
   readonly active: boolean;
 }) {
   const [ends, setEnds] = useState<readonly [string, string]>();
@@ -70,6 +75,10 @@ export function useStoryReviewComparison({
         ? "since"
         : "all";
   const since = chosen === "since" ? snapshot?.since : undefined;
+  // The committed work alone, which all changes can show in place of the
+  // whole snapshot.
+  const committed = shown === "all" ? snapshot?.committed : undefined;
+  const committedShown = includeUncommitted ? undefined : committed;
   const range = useReviewRead<ReviewRange>(
     storyReviewRangeEndpoint,
     {
@@ -102,13 +111,20 @@ export function useStoryReviewComparison({
       ? undefined
       : shown === "commits"
         ? rangeComparison
-        : (since ?? { from: snapshot.baseline, files: snapshot.files });
-  const tree = shown === "commits" ? rangeComparison?.tree : snapshot?.tree;
+        : (since ??
+          committedShown ?? { from: snapshot.baseline, files: snapshot.files });
+  const tree =
+    shown === "commits"
+      ? rangeComparison?.tree
+      : (committedShown?.tree ?? snapshot?.tree);
   return {
     items,
     selectedItems,
     shown,
     since,
+    committed,
+    // Whether all changes leave the snapshot's uncommitted changes out.
+    committedOnly: committedShown !== undefined,
     range,
     comparison,
     tree,

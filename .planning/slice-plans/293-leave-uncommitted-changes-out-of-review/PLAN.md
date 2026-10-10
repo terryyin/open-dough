@@ -99,7 +99,7 @@ Not observed, and not relied on: how the review reads a Trunk Mode worktree.
 
 ### 1. All changes can leave uncommitted changes out
 Type: Behavior
-Status: planned
+Status: done
 Proof: New spec `dashboard/tests/story-review-uncommitted-check.spec.ts`
 covering the first six rows of the proof table on `storyWorktree` and two
 small worktrees; the story-review spec suite named above; typecheck and
@@ -131,6 +131,21 @@ promised to keep the check's state.
 
 Safe stopping point: the check works within one snapshot.
 
+Accepted proof (Story Branch Mode, branch
+`claude/review-only-a-story-s-uncommitted-changes`):
+`npm run test:dashboard -- dashboard/tests/story-review-uncommitted-check.spec.ts --reporter=list`
+(5 passed) observes the first six proof rows on `storyWorktree` with
+`story.txt` edited again uncommitted, `nestedWorktree`, and
+`unchangedWorktree` with an untracked file. Every panel-opening spec
+(`story-review*`, `recently-done-one-shot-review`, `story-panel-*`,
+`side-panel-width*`, `one-shot-landing-recovery*`) passed, 99 tests, and
+`npm run typecheck:dashboard` is clean.
+
+Learning: the check's state is panel state, so it already survives Refresh and
+comparison switches and already resets on Close and reopen. Slice 2 builds
+only what that leaves: the reset to on when a snapshot answers no `committed`,
+the Refresh announcement, the doc rules, and the proof.
+
 ### 2. The check keeps its state across Refresh and comparison switches
 Type: Behavior
 Status: planned
@@ -147,9 +162,37 @@ uncommitted work appearing again later offers the check on. Switching to
 Commits or Since the review and back to All changes keeps the state. Close
 and Review changes again starts with the check on.
 
-Change: keep the state through snapshots that answer `committed` and drop it
-to on when one does not, in the same place slice 1 holds it; extend the
-Refresh announcement to the comparison shown. Complete the doc paragraph with
-these rules.
+Change: the state already lasts through snapshots that answer `committed`;
+drop it to on when one does not, in the same place slice 1 holds it; extend
+the Refresh announcement (`StoryReviewFeedback.tsx`) to the comparison shown.
+Complete the doc paragraph with these rules. Carry the story obligations
+below that name this slice.
 
 Safe stopping point: the story's outcome is delivered.
+
+## Story obligations
+
+### G1. File moves are unasserted with the check off
+Reported: slice 1 — "Previous file / Next file and collapsed-folder counts with the check off. They read `comparison` unchanged; only the list and total are asserted."
+Story clause: "Turned off, the file browser, counts, total, diffs and file moves compare the baseline with the head's tree"
+Disposition: receiving slice 2
+
+### G2. Refresh announces the whole snapshot's count with the check off
+Reported: slice 1 — "with the check off, Refresh still announces the whole snapshot's count"
+Story clause: "Refresh keeps its state while the new snapshot still holds uncommitted changes"
+Disposition: receiving slice 2
+
+### G3. The check's absence outside All changes is unasserted
+Reported: slice 1 — "that the check is absent in Since the review, Commits or a landed comparison"
+Story clause: "shown only for All changes"
+Disposition: receiving slice 2
+
+### G4. A binary file's committed-only diff is unasserted
+Reported: slice 1 — "a binary or renamed file's committed-only diff; only `story.txt`'s text diff is"
+Story clause: "file diffs use the existing file read"
+Disposition: receiving slice 2
+
+### G5. The check's appearance was not looked at
+Reported: slice 1 — "the check's visual appearance in a browser; the CSS is small and unreviewed by eye"
+Story clause: "The check belongs with the review's marking controls in its fixed top"
+Disposition: receiving slice 2
