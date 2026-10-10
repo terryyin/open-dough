@@ -154,7 +154,11 @@ event fails naming what it awaited. A wait for a signal from a started process
 lasts while that process lives and fails, naming its exit, if it ends first
 (`src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
 File timestamps that must differ are set explicitly, and the dashboard's timed
-journeys step a paused page clock.
+journeys step a paused page clock. A dashboard journey waits in
+the page for the answer a check depends on before the check's own bound
+starts: it opens with `openUntilRead` or `reloadUntilRead`, or checks through
+`expectMembership` or `expectSettledPage`, and marks done with `markDone`
+([dashboard tests guide](../dashboard/tests/README.md)).
 
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a

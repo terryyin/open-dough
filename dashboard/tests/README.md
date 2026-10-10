@@ -189,6 +189,61 @@ before and after, each failing location, and the kept directory, and it exits
 0 only when every run passed. A run under other load can still fail where an
 idle one passes; such a failure is a defect of the same kind.
 
+A check's bound starts after the answer it depends on. An `expect` waits 5
+seconds, and under load GitHub's answer, a `gh` start, or a server's own work
+can take longer, so a journey first waits in the page for the request to be
+answered or to fail, and only then checks what the page shows; the test
+timeout stays the only bound on the answer itself. Every page a test's
+context opens notes its own requests from before its scripts run
+(`pageRequestNoting.ts`, installed by `support/pageTest.ts`), and the waits
+in `pageRequestNotes.ts` end on those notes:
+
+- After `page.goto` or `page.reload()`, open with `openUntilRead(page)` or
+  `reloadUntilRead(page)` when the next step checks something the page
+  read. They wait until the project list and the published-work read are
+  answered (`untilPublishedWorkRead`). `expectMembership`,
+  `expectSettledPage`, `expectProblemAndNoSnapshot` (`dashboardPage.ts`) and
+  `expectNoSidewaysScrollAndWholeText` (`pageLayout.ts`) wait the same way
+  themselves, so a journey whose first check is one of them opens plainly.
+  A journey that holds the published-work read on purpose also opens
+  plainly and waits on what it holds.
+- `expectSettledPage` checks "Reading preparation…" is gone only after every
+  read the page sent is answered (`untilPageReadsAnswered`); a spec checking
+  another reading label does so after it. A label still shown then is a
+  rendering fact to investigate, never a reason for a longer bound.
+- When the page says a read failed for good ("Reload the page to read
+  again."), `expectMembership` and `expectSettledPage` compare once and fail
+  at once, naming what they expected.
+- Mark as done is pressed through `markDone` or `markDoneAnyway`
+  (`support/markDone.ts`), which wait for the mark's answer
+  (`untilDoneMarkAnswered`); a journey holding that answer presses with
+  `sendDoneMarkAnyway`. Give another page action the same kind of wait when
+  a check on its result proves to outrun its answer.
+- A page a spec makes with `browser.newPage()` or its own context notes
+  nothing unless the spec installs the noting (`noteRequestsInEveryPage`);
+  the waits return at once on such a page.
+
+A command started with `dashboardCommand` (`support/dashboardCommand.ts`) is
+stopped by signalling its group and waiting for its own exit, so the
+production watcher finishes removing its deployment checkouts; a directly
+spawned server is ended by `endGroup` (`support/processGroup.ts`), which
+kills the group 5 seconds after its signal. A test that builds the
+full-source fixture (`publishedMainFixture(true)`) declares its own
+`test.setTimeout`: the copy and `git add` take about 2 seconds alone and 13
+to 20 when eight workers build it at once.
+
+Every answer of the local read boundary carries a `Server-Timing` header
+(`../server/readTiming.ts`): `admission` (waiting for a turn at GitHub), `gh`
+(spawn to answer, with the number of calls), `rest`, and `total`, in whole
+milliseconds. A failing run's kept `trace.zip` holds it in the `*.network`
+records of each `/__authenticated-read` answer, which shows where a slow
+read spent its time; the browser's time beyond `total` was spent outside the
+handler. To record traces of a passing run, add `--trace on --reporter=dot`.
+The run's global setup (`support/globalSetup.ts`) runs the synthetic `gh`,
+`claude`, and `osascript` once before any worker starts, because macOS
+assesses a new executable on its first run and a fresh checkout's first
+reads would otherwise wait on it.
+
 The automatic-freshness journeys (`auto-refresh*.spec.ts`) pause the
 page's clock and step it with the helpers in `autoRefreshJourney.ts`, so
 the 15-second pace, the 30-second target, hidden-page pauses, and a rate

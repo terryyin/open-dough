@@ -16,110 +16,22 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-1. **Dashboard suite load-sensitive results — first, queued.** DD-240,
-   DD-257 and DD-260 remain from seven executions; the shared output and build
-   paths (DD-224, DD-226, DD-246) were removed on 2026-10-10. A local probe
-   showed further suite and product causes, and two failure kinds remain: a
-   fresh run's first published-work read can outlast the 5 s wait after page
-   open, and a heavily loaded run kept the plan-slices card "Reading". They
-   belong to [SEED-123#dashboard-suite-passes-loaded-acceptance](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance).
-2. **Quiet passing checks obscure the selected proof — open, unqueued.**
+1. **Quiet passing checks obscure the selected proof — open, unqueued.**
    DD-216 and the later DD-243 reports describe the same reporter behavior in
    four executions (plans 217, 261, 263, 264). Extra runs cost seconds to
    minutes, with no observed false acceptance. Retain one finding with both
    codes; the repository deliberately requires silent passing runs, so a
    response must preserve that contract.
-3. **Shell observations can invert a result on Linux — open, unqueued.**
+2. **Shell observations can invert a result on Linux — open, unqueued.**
    DD-187 has one demonstrated SIGPIPE repair cycle. The reported observer
    was fixed, but the same early-exit pipeline shape remains in two test
    helpers. Those sites are a confirmed residual risk, not additional
    observed failures.
-4. **Local native-run prerequisites and host permission handoff — low,
+3. **Local native-run prerequisites and host permission handoff — low,
    unqueued.** DD-162 and DD-161 each have one execution. The Bash failure
    bypassed the documented runner; the paid-run refusal belongs to the host's
    permission boundary. Neither justifies changing public Open Dough guidance
    or adding a second high-priority story.
-
-## Dashboard suite load-sensitive results (first priority, queued)
-
-**Follow-up:** queued, not resolved:
-[The full dashboard suite passes three consecutive local runs, fresh and loaded](.planning/seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance)
-— SEED-123#dashboard-suite-passes-loaded-acceptance (DD-240, DD-257,
-DD-260). It is
-first in the product backlog. Each failed run now keeps its report and traces
-in its own `dashboard/test-results/<start time>/`, and
-`scripts/dashboard-repeat.sh` repeats runs idle, under load, or from a fresh
-worktree; neither prior closure nor a green rerun proves these findings
-resolved.
-
-<a id="dd-240"></a>
-
-### DD-240 — Claude completion and kept-start specs failed early in one full dashboard run and passed alone and in the next full run
-
-In one full local dashboard run, seven tests failed with a poll timeout or a
-start that "did not finish within the wait". They were every Claude
-early-binding variant in `agent-completion-binding.spec.ts`, plus
-`agent-completion-attention.spec.ts`, `agent-completion-early-recovery.spec.ts`
-and `agent-launch-preparation-resume.spec.ts:128`. All seven failed among the
-first tests the 8 workers ran. The same files passed when run alone (10 tests),
-and the next full run passed every test. The cause is unknown.
-
-#### Occurrences
-
-- Execution: `SEED-107#recently-done-correction` / plan 257, first related implementation commit `5cb0984a`
-  - Timestamp: unknown (slice 3 implementation, between `1d2724d6` committed 2026-10-06T12:31:18+09:00 and `ee0b21b7` committed 2026-10-06T13:07:51+09:00)
-  - Tool: Claude Code (delegated implementation agent)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
-  - Evidence: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts --reporter=dot` reported 1091 passed and 7 failed in 9.0 min; the failures were in the dot line's first 20 marks. Rerunning the four files alone gave 10 passed, and a second full run gave 1098 passed in 6.5 min. Slice 3 changed the server's listed-record reads and the fake GitHub listings, not the completion or launch code. The job-local logs are not retained in the repository. No load average was recorded.
-  - Observed effect: a second full run of about 6.5 minutes. The failure question is left without a cause.
-  - Inference: Qualified. The longer first run and the early position point to contention at suite start (load, or the concurrent `dashboard/dist` rebuild of DD-226), but nothing retained shows which. One sample.
-
-<a id="dd-257"></a>
-
-### DD-257 — A twelve-spec dashboard group failed in unchanged code at default workers under load and passed at three workers
-
-Under a load average of 7–8, two runs of the same twelve-spec Recently done
-progressive group at default local workers each failed 3–4 tests, a different
-set each time, in code the change did not touch: Vite not reporting its
-address within 20000ms, the column "row rests" wait
-(`dashboard/tests/dashboardColumnsPage.ts:49`), and an empty Backlog heading
-(`dashboard/tests/dashboardPage.ts:137`). The failed specs passed alone, and
-the whole group passed at `--workers=3`. The cause is unknown.
-
-#### Occurrences
-
-- Execution: `SEED-119#done-catalog-currency-correction` / plan 276, first related implementation commit `24fb8d48`
-  - Timestamp: unknown (slice 4 refactor pass, between `f49e686f` committed 2026-10-08T12:21:15+09:00 and `e634f974` committed 2026-10-08T12:51:47+09:00)
-  - Tool: Claude Code (delegated refactor agent)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
-  - Evidence: `npm run test:dashboard -- recently-done-progressive-loading.spec.ts … dashboard-columns-height.spec.ts --reporter=line` (the plan's Progressive range group plus helper consumers) failed 4 then 3 tests; the failed files alone gave 9 passed; the same command with `--workers=3` gave 34 passed. Slice 4 changed `dashboard/src/doneDetails.ts` and test helpers, not Vite start, column scrolling, or the Backlog column. Plan 276 slice 4 records it; the run logs are not retained.
-  - Observed effect: a third run at reduced workers to obtain a green group; the failures stay unexplained.
-  - Inference: Qualified. Like DD-240, contention looks likely (the machine ran other workloads), but nothing retained separates load from a shared-output collision such as DD-226. One sample.
-
-<a id="dd-260"></a>
-
-### DD-260 — Unchanged dashboard specs failed once in a full local suite and passed alone
-
-During one execution's full local dashboard runs, specs the change did not
-touch failed once each and then passed when run alone or repeated:
-`tests/cursor-session-recovery.spec.ts:168` (session state "at the follow-up
-prompt" instead of "Activity unknown…"; also `:106` once),
-`tests/frame-launch-look.spec.ts:101`, and
-`tests/recently-done-progressive-failed-read-refresh.spec.ts:120` (first entry
-still named by its identity at the 5 s timeout). The cause is unknown.
-
-#### Occurrences
-
-- Execution: `SEED-126#steady-dashboard-refresh` / plan 284, first related implementation commit `5accd572`
-  - Timestamp: unknown (full local runs between 2026-10-10T08:14:20+09:00 and 2026-10-10T11:51:41+09:00)
-  - Tool: Claude Code (delegated implementation agents)
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
-  - Evidence: slice 1's full run failed `cursor-session-recovery.spec.ts:168`, which then failed 1 of 3 alone and passed `--repeat-each 5` at the coordinator; slice 3's full run (1380/1384) failed `cursor-session-recovery:106` and `frame-launch-look:101`, both passing alone (4/4 for the latter); slice 4's consumer group failed `recently-done-progressive-failed-read-refresh:120` once, then passed in the rerun and 8/8 alone. Slice 4's full run passed. Plan 284 slices 1, 3, and 4 record them; logs are not retained.
-  - Observed effect: extra reruns in three slices to separate these from the change; no CI failure observed for them.
-  - Inference: Qualified. Matches the load-sensitive pattern SEED-123 owns (other workloads ran on the machine), but nothing retained separates load from a timing race in these specs.
 
 ## Quiet passing checks obscure the selected proof (open, unqueued)
 
@@ -296,6 +208,16 @@ already has a queued story. Its fix belongs to repository test tooling and
 documentation, rather than published skills or rules. No duplicate story or
 queue change is needed.
 
+Resolved and removed from the active findings on 2026-10-11 (recovery:
+`3ff299c0b146cbe4562328a124d00cd97e5ca21c:ProjectFindings.md`):
+
+- **DD-240, DD-257, DD-260:** the dashboard suite passed a fresh, a warm and
+  a loaded full run in order on unchanged code. A journey's checks now start
+  their bound after the answer they depend on, and the runs named and removed
+  three further suite causes
+  ([dashboard tests guide](dashboard/tests/README.md)). DD-257's silent
+  20-second Vite start was reached by no run.
+
 Resolved and removed from the active findings on 2026-10-10 (recovery:
 `b78500a4e0753e4560f255ff917144d0e4340350:ProjectFindings.md`):
 
@@ -343,8 +265,7 @@ Resolved or mitigated entries removed from the active findings on 2026-10-09:
   `7d8319bc` and `0b2613f4`; the supposedly unfixed `expectSettledPage`
   agent-profile-read race was subsequently fixed in `823c1eda`, and the
   current helper awaits `untilPageReadsAnswered`. These concrete repairs
-  remove this entry's remaining causes; DD-240/DD-257 still track other
-  unexplained failures under the existing suite story.
+  remove this entry's remaining causes.
 - **DD-252:** `62b21604` replaces whole-card visibility with the reachable
   card-end control and waits for settled geometry. Its retained plan-271
   acceptance records eight repeats at four workers plus the related height,
