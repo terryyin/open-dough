@@ -374,7 +374,7 @@ about 4.2 hours of agent time.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown
-  - Evidence: plan 282 slice 3 learning; kept `dashboard/test-results/2026-10-09T05-41-58.332Z` in the execution workspace; probe agent duration 15,127 s.
+  - Evidence: plan 282 slice 3 learning (`1b365ce0:.planning/slice-plans/282-dashboard-suite-stable-under-load/PLAN.md`); probe agent duration 15,127 s.
   - Observed effect: most of the planned full-run series never completed; its evidence for slice 4 came from the 20 s group runs.
   - Inference: part of the load came from the suite's own leaked processes (fixed in slice 5); a load and swap check before each full run would have stopped the series hours earlier. Slice 7's agent did check before starting.
 

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-123#dashboard-suite-stable-under-load",
+  "title": "The dashboard Playwright suite gives the same result on a loaded developer machine as in CI",
+  "completedAt": "2026-10-10T07:15:28.338Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "claude",
+  "model": "opus"
+}

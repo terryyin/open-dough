@@ -3,7 +3,8 @@
 **Identity:** SEED-123#recently-done-waits-for-added-project-sessions
 **Source:** [correction story](../../seeds/SEED-123-dashboard-suite-stable-under-load.md#recently-done-waits-for-added-project-sessions),
 from the execution retrospective of plan 282
-(`324375f4..83d75f3e`; slice 4 at `f01ea795`).
+(`324375f4..83d75f3e`; slice 4 at `f01ea795`; recovery:
+`1b365ce0:.planning/slice-plans/282-dashboard-suite-stable-under-load/PLAN.md`).
 **Prepared:** 2026-10-10 by the plan 282 retrospective in
 `/Users/terryyin/git/open-dough/.worktrees/the-dashboard-playwright-suite-gives-the-same-re`
 on `claude/the-dashboard-playwright-suite-gives-the-same-re`. Publication
