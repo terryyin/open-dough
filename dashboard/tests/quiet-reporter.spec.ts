@@ -7,21 +7,19 @@
 // reaches its deadline names it while keeping what completed.
 
 import { expect, test } from "./support/pageTest.ts";
-import { spawn } from "node:child_process";
 import {
   existsSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
   rmSync,
-  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { runInnerPlaywright } from "./support/innerPlaywright.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
-const playwrightBin = path.join(repoRoot, "node_modules", ".bin", "playwright");
 const substitutes = path.join(
   repoRoot,
   "dashboard",
@@ -86,34 +84,8 @@ async function runSubstitute(options: {
         }
       : {}),
   };
-  const configFile = path.join(workDir, "playwright.config.mjs");
-  writeFileSync(configFile, `export default ${JSON.stringify(config)};\n`);
-
-  // The inner run must not inherit this worker's own Playwright wiring.
-  const env = Object.fromEntries(
-    Object.entries(process.env).filter(
-      ([name]) => !name.startsWith("TEST_") && !name.startsWith("PW_"),
-    ),
-  );
-  const child = spawn(playwrightBin, ["test", "--config", configFile], {
-    cwd: repoRoot,
-    env,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  const stdout: Buffer[] = [];
-  const stderr: Buffer[] = [];
-  child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
-  child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
-  const status = await new Promise<number | null>((resolve) => {
-    child.on("close", resolve);
-  });
-  return {
-    status,
-    stdout: Buffer.concat(stdout).toString("utf8"),
-    stderr: Buffer.concat(stderr).toString("utf8"),
-    outputDir,
-    reportDir,
-  };
+  const run = await runInnerPlaywright(workDir, config);
+  return { ...run, outputDir, reportDir };
 }
 
 function retainedTraces(outputDir: string): string[] {

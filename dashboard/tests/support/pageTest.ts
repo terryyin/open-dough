@@ -18,8 +18,12 @@
 // from `@playwright/test` under `dashboard/tests/`.
 
 import { test as base } from "@playwright/test";
+import { endDescendantsAtExit } from "./processGroup.ts";
 
 export { expect } from "@playwright/test";
+
+// No process a test started outlives its worker (./processGroup.ts).
+endDescendantsAtExit();
 
 export const test = base.extend({
   page: async ({ page }, use) => {

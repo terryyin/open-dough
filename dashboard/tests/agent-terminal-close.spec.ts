@@ -14,6 +14,10 @@ import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import { agentLaunchPlugin } from "../server/agentLaunchPlugin.ts";
 import {
+  ensureCursorRunner,
+  stopCursorRunner,
+} from "../server/hosts/cursor/runnerClient.ts";
+import {
   lastAttachEnded,
   launched,
   openTerminal,
@@ -93,6 +97,10 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
           resolve();
         });
       });
+      // The plugin started this HOME's Cursor runner, which outlives it; once
+      // that start settles, the runner is stopped before its directory goes.
+      await ensureCursorRunner(claude.controls.home);
+      await stopCursorRunner(claude.controls.home);
       restoreEnv();
       rmSync(tempRoot, { recursive: true, force: true });
     }

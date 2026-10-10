@@ -1,6 +1,5 @@
 // Runs the kept-first spec's own setup and teardown under Playwright. Only
 // setup is perturbed: the actual preview exits, or an acquired cleanup throws.
-import { spawn } from "node:child_process";
 import type { JSONReport } from "@playwright/test/reporter";
 import {
   existsSync,
@@ -12,6 +11,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
+import { runInnerPlaywright } from "./support/innerPlaywright.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 const specFile = path.join(
@@ -60,32 +60,20 @@ for (const failure of ["preview", "release"] as const) {
     }
     const substitute = path.join(workDir, "kept-first.spec.ts");
     writeFileSync(substitute, source);
-    const configFile = path.join(workDir, "playwright.config.mjs");
-    writeFileSync(
-      configFile,
-      `export default ${JSON.stringify({ testDir: workDir, testMatch: "kept-first.spec.ts", outputDir: path.join(workDir, "results"), workers: 1, retries: 0, reporter: [["json", { outputFile: reportFile }]], timeout: 30_000 })};\n`,
-    );
-    const env = Object.fromEntries(
-      Object.entries(process.env).filter(
-        ([name]) => !name.startsWith("TEST_") && !name.startsWith("PW_"),
-      ),
-    );
     let machine: string | undefined;
     let processCleanupError: unknown;
     try {
-      const child = spawn(
-        path.join(repoRoot, "node_modules/.bin/playwright"),
-        ["test", "--config", configFile],
-        { cwd: repoRoot, env, stdio: ["ignore", "pipe", "pipe"] },
-      );
-      const output: Buffer[] = [];
-      child.stdout.on("data", (chunk: Buffer) => output.push(chunk));
-      child.stderr.on("data", (chunk: Buffer) => output.push(chunk));
-      const status = await new Promise<number | null>((resolve, reject) => {
-        child.on("error", reject);
-        child.on("close", resolve);
+      const run = await runInnerPlaywright(workDir, {
+        testDir: workDir,
+        testMatch: "kept-first.spec.ts",
+        outputDir: path.join(workDir, "results"),
+        workers: 1,
+        retries: 0,
+        reporter: [["json", { outputFile: reportFile }]],
+        timeout: 30_000,
       });
-      const outputText = Buffer.concat(output).toString("utf8");
+      const status = run.status;
+      const outputText = `${run.stdout}${run.stderr}`;
       expect(existsSync(machineFile), outputText).toBe(true);
       const jsonReport = JSON.parse(
         readFileSync(reportFile, "utf8"),

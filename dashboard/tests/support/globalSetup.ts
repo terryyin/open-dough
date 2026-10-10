@@ -10,7 +10,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { buildDashboardTo, builtDashboardVariable } from "./dashboardServer.ts";
+import { buildDashboardTo, builtDashboardVariable } from "./dashboardBuild.ts";
 
 export default function globalSetup(): () => void {
   const outDir = mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-"));

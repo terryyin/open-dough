@@ -6,6 +6,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import { agentLaunchPlugin } from "../server/agentLaunchPlugin.ts";
+import {
+  ensureCursorRunner,
+  stopCursorRunner,
+} from "../server/hosts/cursor/runnerClient.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { shows, type Terminal } from "./agentTerminalBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
@@ -93,6 +97,10 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
         resolve();
       }),
     );
+    // The plugin started this HOME's Cursor runner, which outlives it; once
+    // that start settles, the runner is stopped before its directory goes.
+    await ensureCursorRunner(claude.controls.home);
+    await stopCursorRunner(claude.controls.home);
     await native.close();
     restore();
     // A closed PTY's process may still be writing its last files there.

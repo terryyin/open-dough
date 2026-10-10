@@ -317,7 +317,26 @@ artefact rather than real product behavior, stop and report.
 
 ### 5. A run ends every process it started
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `run-processes.spec.ts` runs Playwright on substitutes with a
+unique environment marker and finds no marked process afterwards: a passing
+run, a run whose `page` teardown outlasts its timeout, and a run that times
+out while a production `ownedProcess` group runs (the last two failed before
+the fix with `vite preview`, `runnerMain.ts`, and the production keeper
+left). `--repeat-each 4` passes. Owner: the test side, not the product; the
+runner is meant to outlive its server. Playwright ends a worker whose
+teardown outlasts its timeout without running the teardowns still ahead, so
+`dashboard.close()` never ran; the in-process plugin specs
+(`agent-terminal-close`, `-codex-close`) never stopped the runner they
+started. Fix: every worker kills its descendants and registered groups at
+exit (`processGroup.ts`, installed by `pageTest.ts`); `dashboardServer.ts`
+stops its runner at exit; the two close specs stop theirs. Left: a worker
+that is SIGKILLed runs no exit handler, and an abandoned teardown leaves its
+temporary directory. The refactor shared the inner-Playwright runner
+(`innerPlaywright.ts`) and moved the build to `dashboardBuild.ts`. Seen under
+load 26–51 in the broad consumer run: line 58's known race twice and a
+`production-publication-fixture.spec.ts:12` 30 s timeout once; slice 6
+reaches both.
 Proof: A check that runs a small dashboard selection that starts a Cursor
 runner and preview servers, once passing and once with a deliberate failure
 (including a test timeout), and then finds no `vite preview` or
