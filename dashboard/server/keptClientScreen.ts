@@ -69,6 +69,12 @@ export class KeptClientScreen {
     return this.cursorOn;
   }
 
+  // A synchronized update (`?2026`) has begun and not finished: the screen
+  // is part of a paint still arriving.
+  updating(): boolean {
+    return this.framePending;
+  }
+
   // A synchronized update (`?2026`) has finished and none is open. The page
   // reports readiness on that same boundary.
   completedFrame(): boolean {

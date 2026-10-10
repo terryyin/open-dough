@@ -1,11 +1,12 @@
 // Enters one launch instruction into a kept client once its server-side
-// screen is ready, and holds idle hangup until that write. A ready screen
-// settles the launch wait even when no synchronized frame arrived, except
-// that a pasted instruction settles it only once its chip is submitted or a
-// later frame finished showing neither that chip nor the empty composer. A
-// screen that is not ready still waits for a completed frame. The client
-// exiting also settles the wait. A later screen can still accept the
-// instruction.
+// screen is ready, and holds idle hangup until that write. A screen inside a
+// synchronized update still arriving is not judged until that update
+// finishes. A ready screen settles the launch wait even when no synchronized
+// frame arrived, except that a pasted instruction settles it only once its
+// chip is submitted or a later frame finished showing neither that chip nor
+// the empty composer. A screen that is not ready still waits for a completed
+// frame. The client exiting also settles the wait. A later screen can still
+// accept the instruction.
 import type { ScreenReadiness } from "./launchHosts.ts";
 import { KeptClientScreen } from "./keptClientScreen.ts";
 
@@ -86,6 +87,9 @@ export class LaunchInstruction {
       this.announce();
       return;
     }
+    // Part of a paint is not the screen it paints: a working screen's
+    // composer line can arrive before its working marker.
+    if (screen.updating()) return;
     const ready = this.launch.ready(screen.text(), screen.cursorVisible());
     const pastedChip = showsPasteChip(screen.text());
     if (!this.entered && this.pasted) {

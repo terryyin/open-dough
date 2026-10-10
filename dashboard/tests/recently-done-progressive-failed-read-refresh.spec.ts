@@ -8,7 +8,7 @@
 // records were read, and at which revision.
 
 import { basename } from "node:path";
-import type { Page } from "@playwright/test";
+import type { Page, Request } from "@playwright/test";
 import {
   doneRecordFileName,
   renderDoneRecord,
@@ -59,25 +59,39 @@ const storiesFrom = (from: number, to: number) =>
     .slice(from - 1, to)
     .flatMap((entry) => (entry.kind === "story" ? [entry.path] : []));
 
+type Demanded = { readonly revision: string; readonly path: string }[];
+
+// The done records a done record read asks for, with the revision it asks
+// them at; none for any other request.
+function recordsOf(request: Request): Demanded {
+  const query = new URL(request.url()).searchParams;
+  if (query.get("done") !== "bodies") return [];
+  const revision = query.get("revision") ?? "";
+  return query
+    .getAll("file")
+    .map((file) => ({ revision, path: `${doneDirectory}/${file}` }));
+}
+
+const pathsAt = (records: Demanded, revision: string) =>
+  records.flatMap((each) => (each.revision === revision ? [each.path] : []));
+
 // The done records the page asks the local read boundary for, by path, with
-// the revision each is asked at, in order. The boundary reaches GitHub only
-// for records it has not read before.
+// the revision each is asked at, in order; and those whose read the boundary
+// has answered, after every `gh` call it made for them. The boundary reaches
+// GitHub only for records it has not read before.
 function demandedBy(page: Page) {
-  const demanded: { readonly revision: string; readonly path: string }[] = [];
+  const demanded: Demanded = [];
+  const answered: Demanded = [];
   page.on("request", (request) => {
-    const query = new URL(request.url()).searchParams;
-    if (query.get("done") !== "bodies") return;
-    const revision = query.get("revision") ?? "";
-    for (const file of query.getAll("file")) {
-      demanded.push({ revision, path: `${doneDirectory}/${file}` });
-    }
+    demanded.push(...recordsOf(request));
+  });
+  page.on("requestfinished", (request) => {
+    answered.push(...recordsOf(request));
   });
   return {
     count: () => demanded.length,
-    at: (revision: string) =>
-      demanded.flatMap((each) =>
-        each.revision === revision ? [each.path] : [],
-      ),
+    at: (revision: string) => pathsAt(demanded, revision),
+    answeredAt: (revision: string) => pathsAt(answered, revision),
   };
 }
 
@@ -138,14 +152,16 @@ test("a newer revision asks once again for the failed records still shown, not f
     const revisionB = main.publish(now, atB);
     expect(revisionB).toBe(failingAgainAt);
     await refreshedTo(page, revisionB);
+    const askedAtB = [newest.path, ...storiesFrom(11, 19)].toSorted();
+    await expect
+      .poll(() => demanded.answeredAt(revisionB).toSorted())
+      .toEqual(askedAtB);
     await expect(failed).toContainText("This done story could not be read.");
     await expect(recent).toContainText("Done stories could not be read.");
     await expect(retry).toBeVisible();
     await expect(recent).toContainText(refusal);
     await settle(page);
-    expect(demanded.at(revisionB).toSorted()).toEqual(
-      [newest.path, ...storiesFrom(11, 19)].toSorted(),
-    );
+    expect(demanded.at(revisionB).toSorted()).toEqual(askedAtB);
     expect(recordsAskedAt(github, revisionB)).toContain(failingPath);
   });
 

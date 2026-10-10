@@ -341,3 +341,11 @@ transport-stop guidance names `deliver` as the retry, while a stop from
 `resume` retries with the same `resume`; and `publication-resume.mjs` keeps a
 private `isAncestor` that treats any Git error as "not an ancestor", unlike the
 exported one delivery now uses.
+
+CI repair after completion: runs 38007264138 (`b308c2ac`) and 38007610729
+(`3bc29e88`) each failed one dashboard spec unrelated to this story. Recover
+on a working screen typed into a half-painted synchronized frame, so the
+launch instruction now waits for an open `?2026` update to finish; the
+progressive done-read refresh spec asserted before the revision-B reads were
+answered, so it now waits for those answers. Both were reproduced with injected
+delays and pass repeated runs.
