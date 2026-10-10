@@ -124,14 +124,21 @@ as `registered`.
 
 ### 3. Rerun proofs keep one host for host-independent rules
 Type: Structure
-Status: planned
-Proof: Closure suites stay green.
+Status: done
+Proof: `npm test -- src/skills/dough-story-wrap-up/scripts/trunk-closure*.test.mjs`
+stays green with three rerun journeys in `trunk-closure-owner.test.mjs`.
 
 Run the default-checkout arming journey on one host and keep the per-host
 difference, the session field, where it is asserted. Name the surviving
 coverage for each removed case.
 
 Safe stopping point: the correction is complete.
+
+Removed: the Cursor rerun armed from the default checkout. Its session field
+stays in the Cursor rerun armed from the execution worktree; arming from the
+default checkout and the rerun after retirement stay in the Claude Code and
+Codex default-checkout reruns. The file's CPU time fell by roughly a tenth;
+wall time under load showed no reliable difference.
 
 ## Story obligations
 
@@ -154,6 +161,11 @@ Disposition: no user cost "A coordinator that follows a coverage gap's recovery 
 Reported: slice 2 — "The deliver step for not-live kinds has only the unit proof, since no `deliver` path prints it."
 Story clause: "Each gap reason `deliver`, `resume`, and `finish` can print ends in a"
 Disposition: proved by slice 2: `execution-increment-observation-gaps.test.mjs`, "every kind's reason for deliver, resume, and finish ends in a step naming a command to run"; no installed `deliver` path reaches those kinds.
+
+### G5. Cursor armed from the default checkout has no end-to-end rerun
+Reported: slice 3 — "Cursor armed from the default checkout no longer has an end-to-end case."
+Story clause: "The closure rerun proofs keep one host for rules that do not differ by host."
+Disposition: proved by slice 3: `trunk-closure-owner.test.mjs` keeps the Cursor session field in its execution-worktree rerun and the default-checkout arming in the Claude Code rerun; the arming checkout reaches product code only through `checkoutIdentity`, which reads no host.
 
 ## Verification and gates
 
