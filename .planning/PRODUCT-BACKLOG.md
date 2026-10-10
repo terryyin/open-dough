@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Settle observer ownership at its recovery edges](seeds/SEED-121-execution-observer-ownership.md#settle-observer-owner-edges) — SEED-121#settle-observer-owner-edges ([plan](slice-plans/288-observer-owner-edges/PLAN.md))
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance ([plan](slice-plans/289-dashboard-suite-passes-loaded-acceptance/PLAN.md))
-- [Recently done waits for an added project's sessions](seeds/SEED-123-dashboard-suite-stable-under-load.md#recently-done-waits-for-added-project-sessions) — SEED-123#recently-done-waits-for-added-project-sessions ([plan](slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md))
 
 ## Backlog list
 

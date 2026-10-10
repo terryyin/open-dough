@@ -22,10 +22,11 @@ import {
 } from "./recentlyDoneProgressive.ts";
 
 // The done records whose content reads reached GitHub, by path, in order;
-// the catalog is not a record.
-export const recordsAsked = (github: FakeGitHub) =>
+// the catalog is not a record. Those of `repository` only, when given.
+export const recordsAsked = (github: FakeGitHub, repository?: string) =>
   github.calls.flatMap(({ request }) =>
     request.kind === "content" &&
+    (repository === undefined || request.repository === repository) &&
     request.path.startsWith(`${doneDirectory}/`) &&
     !request.path.endsWith("/.catalog.json")
       ? [request.path]

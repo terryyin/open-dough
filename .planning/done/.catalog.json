@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-123_recently-done-waits-for-added-project-sessions.json",
+      "identity": "SEED-123#recently-done-waits-for-added-project-sessions",
+      "completedAt": "2026-10-10T09:57:45.937Z",
+      "blob": "dbfd1a7ab8db92fe1e43347a15a33a7b59104aa0"
+    },
+    {
       "fileName": "SEED-128_continue-refinement-to-slice-planning.json",
       "identity": "SEED-128#continue-refinement-to-slice-planning",
       "completedAt": "2026-10-10T08:54:08.087Z",

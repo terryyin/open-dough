@@ -3,6 +3,8 @@ import { expect } from "@playwright/test";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import { addedRepository, addedLocalPath } from "./projectAddMachine.ts";
 
+// Adds the sample project through the dialog, which selects it, and waits
+// until the sessions read asked after the addition answered with it.
 export async function addProjectOnPage(page: Page) {
   const offered = page.waitForResponse(
     async (response) => {
@@ -18,6 +20,18 @@ export async function addProjectOnPage(page: Page) {
     },
     { timeout: 5_000 },
   );
+  await addProjectThroughDialog(page);
+  const snapshot = (await (await offered).json()) as MachineAnswer;
+  expect(
+    snapshot.definitions.some(
+      (definition) => definition.source === "sample-app",
+    ),
+  ).toBe(true);
+}
+
+// The dialog's steps alone: the sample project is added and selected, whatever
+// the page's reads of the machine's sessions then do.
+export async function addProjectThroughDialog(page: Page) {
   if (
     !(await page
       .getByRole("heading", { name: "System settings", exact: true })
@@ -44,10 +58,4 @@ export async function addProjectOnPage(page: Page) {
   await expect(
     page.getByRole("radio", { name: "Sample App", exact: true }),
   ).toBeChecked();
-  const snapshot = (await (await offered).json()) as MachineAnswer;
-  expect(
-    snapshot.definitions.some(
-      (definition) => definition.source === "sample-app",
-    ),
-  ).toBe(true);
 }

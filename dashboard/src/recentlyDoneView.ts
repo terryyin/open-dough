@@ -130,8 +130,8 @@ export function useRecentlyDone({
   readonly creations: readonly CreationView[];
   readonly records: readonly LaunchWithState[] | undefined;
   readonly noneKept: boolean;
-  // Whether the page's first read of the machine's sessions has ended,
-  // answered or not.
+  // Whether a read of the machine's sessions asked after the latest change
+  // of the project list has ended, answered or not.
   readonly sessionsSettled: boolean;
 }) {
   const range = usePageRange();

@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 266. Removed local codes are never reused.
+- Highest allocated local number: 268. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -128,6 +128,13 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: modified; revision `91d8439e`; base 0.3.57
   - Evidence: slice 2 (`909da1ef`) changed six lines of ADR 0007 that no test reads; its delegated refactor pass reported `none — already clean` (about 50k subagent tokens, 29 s). The same execution's slice 1 pass did find a 250-line file-size breach and duplicated rule text, so the pass earned its cost there.
   - Observed effect: one full refactor delegation with no change.
+- Execution: `SEED-123#recently-done-waits-for-added-project-sessions` / plan 288, first implementation `f365eb2b`.
+  - Timestamp: unknown (2026-10-10, between 18:10 and 18:37 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
+  - Evidence: slice 2 (`56203263`) changed one fixture value in one spec and slice 3 (`2f070f91`) two lines of a test-support close; both delegated refactor passes reported `none — already clean` (about 50k and 59k subagent tokens, 33 s and 37 s). Slice 1's pass (`f365eb2b`) renamed the gate and extracted a duplicated spec fixture, so it earned its cost.
+  - Observed effect: two full refactor delegations with no change.
 
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
@@ -588,3 +595,39 @@ linked installation, so execution had to obtain the selected Node first.
   - Evidence: plan 287 "Published baseline and integration context" and its last Current decision (`91d8439e:.planning/slice-plans/287-continue-refinement-into-slice-planning/PLAN.md`); `dough-execute-plan/references/execution-location.md` ("Do not copy or symlink mutable installation from another checkout"); the machine had Node 24.5.0 against `.node-version` 24.21.0 and no version manager.
   - Observed effect: the coordinator downloaded the official Node 24.21.0 archive into a job temporary directory, verified its checksum, and ran `setup-native.mjs npm`, `browser`, and `check` in the worktree before delegating; every delegated command needed that `PATH` prefix.
   - Inference: preparation had observed its premise through the link, so the conflict with execution setup was not visible when the plan was assessed ready. The selected Node is absent machine-wide, so each new session repeats the download unless it is installed durably.
+
+## DD-267 — Checkout setup passed on a Node patch other than the project's pinned one
+
+Execution setup resolved the locked install from `package.json` and the
+contributor guide, ran `npm ci` and the dashboard typecheck, and crossed the
+readiness gate. The project also pins an exact Node patch in `.node-version`
+and names `scripts/setup-native.mjs` as its setup in `tests/native-setup.md`;
+neither was read, and none of the commands run refuses another patch.
+
+### Occurrences
+- Execution: SEED-123#recently-done-waits-for-added-project-sessions (plan 288, first implementation commit f365eb2b)
+  - Timestamp: unknown (2026-10-10, setup before 18:10 +09:00; found about 18:35 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
+  - Evidence: `.node-version` 24.21.0 against the machine's Node 24.5.0; `tests/native-setup.md` "First setup or changed lockfile"; `dough-execute-plan/references/execution-location.md` ("Resolve the required setup from this project's checked-in conventions"). The mismatch surfaced only when the retrospective read DD-266's row for the same machine.
+  - Observed effect: all three slices were implemented, proved and published with Node 24.5.0. The coordinator then fetched the official 24.21.0 archive, verified its checksum, ran `setup-native.mjs npm`, `browser` and `check`, and reran each slice's passing proof on it (183, 30 and 43 tests passed); slice 2's failing reproduction on the old behaviour was not rerun.
+  - Inference: `npm ci`, the typecheck and Playwright accept any Node in the `engines` range, so only `setup-native.mjs check` would have refused. The setup rule names lockfiles and `npm ci` as its example, which the coordinator matched without looking for a runtime pin.
+
+## DD-268 — A plan stated that a test would fail before its fix in a form that passes on the unfixed code
+
+A slice's proof said both of its new tests "fail on the current code". The
+second, as written, aborted the sessions read outright, and the unfixed code
+reads the same ten stories either way. The plan also named a mechanism (ask
+numbers noted in an effect) that would have opened the gate one render late.
+
+### Occurrences
+- Execution: SEED-123#recently-done-waits-for-added-project-sessions (plan 288, first implementation commit f365eb2b)
+  - Timestamp: unknown (2026-10-10, between 17:50 and 18:10 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
+  - Evidence: plan 288 slice 1 Proof and Behavior, and its premise row "Holds by reading; the slice's spec reproduces it before the fix" (`fba8d90c:.planning/slice-plans/288-recently-done-waits-for-added-project-sessions/PLAN.md`); slice 1's Learnings in the delivered plan (`84ee16fa:` same path); `dashboard/tests/recently-done-progressive-added-project.spec.ts` second test.
+  - Observed effect: the implementation agent wrote the specs first, saw the outright-abort form pass on the unfixed code, and changed the test to hold the read, assert nothing is read, then abort; it keyed the gate on the project list instead of ask numbers. No rework followed and the coordinator accepted both deviations.
+  - Inference: the delegation's requirement to observe each new test failing before the fix is what caught it; the cost was small. The premise was settled by reading for the first example only.
+
