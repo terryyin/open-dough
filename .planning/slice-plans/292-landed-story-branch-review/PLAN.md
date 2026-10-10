@@ -142,7 +142,7 @@ Learnings for later slices:
 
 ### 2. A claimed Story Branch Mode launch carries the landing capture
 Type: Behavior
-Status: planned
+Status: done
 Proof: New spec `story-branch-landing-context.spec.ts` on the real claimed
 start (as `agent-launch-session-refusal.spec.ts` starts one); the one-shot
 capture-binding spec for the unchanged one-shot block.
@@ -163,6 +163,31 @@ Consumers: `reportingInputAssertions.ts`, `one-shot-landing-capture-binding.spec
 
 Safe stopping point: a claimed launch carries context nothing consumes yet;
 publication to the story branch does not touch it.
+
+Delivered: `reportingContext` prepares the context and capture authority for
+every established start or preparation and returns them together
+(`PreparedReporting`); `launchRun.ts` keeps both on the attempt in one write;
+the `establishedCapturesLanding` predicate, now always true, is gone. The
+instruction says “For this launch, supply --landing-context <file> to the
+installed publication command that lands on trunk”, one sentence for one-shot
+and claimed launches alike, so the one-shot block differs by those words.
+The dashboard establishes only Story Branch Mode claimed starts
+(`executionStart.ts`), so no Trunk Mode launch gains a context. A claimed
+refinement preparation gains one as the Architecture row says.
+`retainLandingSettlement` leaves the records file untouched when no kept
+record is bound to the attempt.
+Accepted proof: `story-branch-landing-context.spec.ts`; typecheck; every spec
+under `dashboard/tests` in three batches, with
+`production-watcher-exclusions.spec.ts:26` failing once in a batch and passing
+alone (load average 25–40; it reaches no changed code; suite stability under
+load is SEED-123's).
+
+Learnings for later slices:
+
+- The attempt answer now carries `landingRepository` for owned attempts.
+- Slice 4's list decides explicitly whether a claimed refinement with a
+  captured landing is a landed run; the plan's rule (“every launch with a
+  captured landing”) lists it.
 
 ### 3. The Story Branch integration records its delivered pair
 Type: Behavior
@@ -238,3 +263,25 @@ gap. Words: selector “Landed runs”, context heading “Landed run”
 the claimed-launch capture and the general prepare rule.
 
 Safe stopping point: the story's outcome is delivered.
+
+## Story obligations
+
+### G1. A claimed launch's context has no consumer yet
+Reported: slice 2 — "A claimed launch's context is consumed by nothing until slice 3's `integrate`."
+Story clause: "Wrap-up's Story Branch trunk integration passes that context through the history-preserving candidate sequence"
+Disposition: receiving slice 3
+
+### G2. Capture refusals name one-shot to a claimed launch
+Reported: slice 2 — "For a claimed launch, today's prepare verification and the refusal messages still say \"one-shot\" (slice 3)."
+Story clause: "describes the general rule for the executing agent"
+Disposition: receiving slice 3
+
+### G3. A bound claimed record's landing reporting is unasserted
+Reported: slice 2 — "Every bound claimed record now gains `landingReporting` (authority and preparations) at binding, and deletion consults it. The suite is green; no new spec asserts it for a claimed record."
+Story clause: "Recording happens before retirement and follows the existing capture rules"
+Disposition: receiving slice 3
+
+### G4. The no-capture sentence reaches a launch with no established context
+Reported: slice 2 — "A story launch with a reporting block but no established context (a plain launch, no installed start) now gets the no-capture sentence"
+Story clause: "can review that story's combined delivered changes after its branch has merged to trunk"
+Disposition: no user cost "can review that story's combined delivered changes after its branch has merged to trunk": such a launch cannot capture either, and the sentence still has the agent explain the evidence gap the review then shows

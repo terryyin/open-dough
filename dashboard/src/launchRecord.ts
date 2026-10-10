@@ -129,13 +129,6 @@ export function isEstablishedOneShot(
   return "tracking" in established;
 }
 
-// Whether an established context captures its launch's trunk landing.
-export function establishedCapturesLanding(
-  established: EstablishedContext,
-): established is Extract<EstablishedContext, { tracking: "one-shot" }> {
-  return isEstablishedOneShot(established);
-}
-
 // A native conversation with first-input evidence, kept until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.

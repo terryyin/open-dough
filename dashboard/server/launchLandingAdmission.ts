@@ -1,11 +1,7 @@
 // A bound launch keeps its capture authority after normal startup-attempt expiry.
 import { z } from "zod";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
-import {
-  launchRetentionDays,
-  establishedCapturesLanding,
-  type LaunchRecord,
-} from "../src/launchRecord.ts";
+import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
 import { launchLandingSchema } from "../src/launchLanding.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
@@ -61,7 +57,6 @@ export async function expiredAttemptRecord(
     record.request.workflow === "ad-hoc" ||
     record.request.identity !== report.identity ||
     established === undefined ||
-    !establishedCapturesLanding(established) ||
     established.identity !== authority.identity ||
     established.workspace !== authority.workspace ||
     established.branch !== authority.branch ||

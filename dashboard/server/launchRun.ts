@@ -65,21 +65,23 @@ export async function attemptRun(
       (start.kind === "established"
         ? withStartPolicy(requested, start.policy)
         : requested);
-    const reporting =
-      pending?.request.reporting ??
-      attempt.reporting ??
-      (await reportingContext(
-        attempt,
-        start.kind === "established" ? start.workspace : folder,
-        pending?.start ??
-          pending?.preparation ??
-          (start.kind === "established"
-            ? establishedFacts(start.handoff.established)
-            : undefined),
-      ));
-    if (reporting !== undefined) {
+    const kept = pending?.request.reporting ?? attempt.reporting;
+    const prepared =
+      kept === undefined
+        ? await reportingContext(
+            attempt,
+            start.kind === "established" ? start.workspace : folder,
+            pending?.start ??
+              pending?.preparation ??
+              (start.kind === "established"
+                ? establishedFacts(start.handoff.established)
+                : undefined),
+          )
+        : { reporting: kept };
+    const reporting = prepared?.reporting;
+    if (prepared !== undefined) {
       // Kept before this server answers it.
-      const withReporting = { ...owned.attempt, reporting };
+      const withReporting = { ...owned.attempt, ...prepared };
       await keepAttempt(withReporting);
       owned.attempt = withReporting;
     }
