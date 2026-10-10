@@ -30,7 +30,10 @@ for (const mode of ["dev", "preview"] as const) {
         mode,
         cursor,
         instruction,
-        async (server) => {
+        async (server, launched) => {
+          expect(JSON.parse(launched.body)).toMatchObject({
+            kind: "launched",
+          });
           const recorded = keptCursor(server.home);
           const session = recorded.session;
           if (session.host !== "cursor") {
@@ -79,7 +82,6 @@ for (const mode of ["dev", "preview"] as const) {
           await expect.poll(() => cursor.input(pid)).toContain("still");
           expect(server.claudeAttaches()).toEqual([]);
         },
-        1_000,
       );
     });
 
@@ -201,33 +203,6 @@ for (const mode of ["dev", "preview"] as const) {
         ]);
         expect(cursor.attaches()).toHaveLength(1);
       });
-    });
-
-    test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
-      const cursor = installFakeCursor({
-        screen: "working",
-        paintDelayMs: 3_000,
-      });
-      await withInstructedCursor(
-        mode,
-        cursor,
-        instruction,
-        async (server) => {
-          const pid = cursor.attaches()[0]?.pid ?? 0;
-          expect(processRunning(pid)).toBe(true);
-          expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
-          expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
-          await expect
-            .poll(() => keptCursor(server.home).firstInput?.state, {
-              timeout: 10_000,
-            })
-            .toBe("confirmed");
-          expect(enteredInstruction(cursor, pid)).toContain(instruction);
-          expect(processRunning(pid)).toBe(true);
-          expect(cursor.attaches()).toHaveLength(1);
-        },
-        1_500,
-      );
     });
   });
 }

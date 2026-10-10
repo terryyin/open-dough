@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Register trunk delivery with its own execution observer](seeds/SEED-121-execution-observer-ownership.md#retain-execution-observer-owner) — SEED-121#retain-execution-observer-owner ([plan](slice-plans/280-execution-observer-ownership/PLAN.md))
-- [A Cursor launch or recover wait ends within a bound with a clear message](seeds/SEED-129-bounded-cursor-launch-wait.md#bounded-cursor-launch-wait) — SEED-129#bounded-cursor-launch-wait ([plan](slice-plans/283-bounded-cursor-launch-wait/PLAN.md))
 
 ## Backlog list
 

@@ -111,6 +111,8 @@ export function installFakeCursor(options?: {
   readonly paintDelayMs?: number;
   readonly splitPaintMs?: number;
   readonly submitPaintMs?: number;
+  // After paste-chip Enter, do not repaint (keep stays open / silent).
+  readonly holdAfterPaste?: boolean;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, fakeCursorHost.binDir);
@@ -122,6 +124,7 @@ export function installFakeCursor(options?: {
   const attachModePath = path.join(root, "attach-mode");
   const nextSessionPath = path.join(root, "next-session-id");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
+  installFixtureExecutable("fake-cursor-attach", binDir, "fake-cursor-attach");
   installFixtureExecutable(
     "fake-host-environment.cjs",
     binDir,
@@ -174,6 +177,9 @@ export function installFakeCursor(options?: {
       ...(options?.submitPaintMs === undefined
         ? {}
         : { FAKE_CURSOR_SUBMIT_PAINT_MS: String(options.submitPaintMs) }),
+      ...(options?.holdAfterPaste === true
+        ? { FAKE_CURSOR_HOLD_AFTER_PASTE: "1" }
+        : {}),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);

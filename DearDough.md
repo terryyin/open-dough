@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 264. Removed local codes are never reused.
+- Highest allocated local number: 265. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -526,3 +526,30 @@ about 4.2 hours of agent time.
   - Evidence: plan 282 slice 3 learning (`1b365ce0:.planning/slice-plans/282-dashboard-suite-stable-under-load/PLAN.md`); probe agent duration 15,127 s.
   - Observed effect: most of the planned full-run series never completed; its evidence for slice 4 came from the 20 s group runs.
   - Inference: part of the load came from the suite's own leaked processes (fixed in slice 5); a load and swap check before each full run would have stopped the series hours earlier. Slice 7's agent did check before starting.
+
+## DD-265 — An interrupted Cursor Task left slice work without an agent return
+
+A Cursor Task for slice implementation can be interrupted after edits land and
+before the agent returns its proof report, leaving the coordinator to recover
+outcome and acceptance from the checkout.
+
+### Occurrences
+- Execution: SEED-129#bounded-cursor-launch-wait (spent plan recoverable at `05ef17b797308daa7569db430b52952507c6f3e1:.planning/slice-plans/283-bounded-cursor-launch-wait/PLAN.md`), first related
+  implementation commit `3f761b36`
+  - Timestamp: unknown (2026-10-10, after slice-1 Task start ~15:04 +09:00 and
+    before slice-1 post-change refactor ~15:35 +09:00)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: modified; revision `141523cb`; base 0.3.57
+  - Evidence: coordinator transcript
+    `1c2bb728-d395-4342-9910-b15665a34c15` (after Task for “Slice 1 Start
+    keep-wait”: “interrupted slice-1 delegation”; “edits are present but the
+    agent return was interrupted”); implementation Task
+    `ada3831a-1de4-4323-bb80-c4409f49b2b2`. Distinct from ODF-204 (agent did
+    not commit/push) and ODF-059 (not a refactor pass).
+  - Observed effect: coordinator inspected the uncommitted diff, re-ran focused
+    Cursor launch proof, then continued refactor and delivery for slice 1.
+  - Inference: qualified to Cursor Task interruption in this host. Treat an
+    interrupted Task as incomplete until the coordinator re-establishes proof
+    from the checkout; do not assume the agent return will arrive.
+

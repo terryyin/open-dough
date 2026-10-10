@@ -15,6 +15,7 @@ import {
 } from "./dashboardServer.ts";
 import type { FakeCursor } from "./fakeCursor.ts";
 import type { CursorTerminal } from "./cursorTerminal.ts";
+import type { RawResponse } from "./rawHttp.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
 
@@ -58,12 +59,15 @@ export function instructedCursorRequest(instruction: string) {
 }
 
 // Starts one dashboard, launches that instructed session, and requires the
-// launch to be answered. The body observes the settled attempt.
+// launch to be answered. The body observes the settled launch response.
 export async function withInstructedCursor(
   mode: "dev" | "preview",
   cursor: FakeCursor,
   instruction: string,
-  observe: (server: DashboardServer) => Promise<void> | void,
+  observe: (
+    server: DashboardServer,
+    launched: RawResponse,
+  ) => Promise<void> | void,
   launchTimeoutMs?: number,
 ): Promise<void> {
   await withCursorLaunch(
@@ -75,7 +79,7 @@ export async function withInstructedCursor(
         instructedCursorRequest(instruction),
       );
       expect(launched.status).toBe(200);
-      await observe(server);
+      await observe(server, launched);
     },
     launchTimeoutMs,
   );

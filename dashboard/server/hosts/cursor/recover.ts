@@ -3,14 +3,18 @@
 // cursorRunnerPort, which may. It resumes the recorded command, types one
 // continuation only when first input is already confirmed (LaunchInstruction
 // writes that only on the idle composer), and starts one replacement when
-// resume exits with the cannot-load sentence.
+// resume exits with the cannot-load sentence. When keep has not settled by
+// the shared launch wait, Recover answers failed for unconfirmed delivery
+// and does not kill the client.
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import { showsCursorCannotLoad } from "../../../src/cursorCannotLoad.ts";
 import type { RecoverSessionAnswer } from "../../../src/sessionRecovery.ts";
 import type { AgentLaunches } from "../../agentLaunches.ts";
+import { launchTimeoutMs } from "../../launchRun.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { directoryState } from "../../sessionWorkspace.ts";
 import { cursorAgent } from "./exec.ts";
+import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
 import { cursorRecoveryContinuation } from "./recoveryContinuation.ts";
 import { replaceCannotLoadChat } from "./recoveryReplacement.ts";
 import {
@@ -19,6 +23,14 @@ import {
   type CursorKeepResult,
 } from "./runnerClient.ts";
 import { cursorTerminalSize } from "./terminal.ts";
+
+function untilLaunchWait(): Promise<"timed-out"> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("timed-out");
+    }, launchTimeoutMs());
+  });
+}
 
 const trustPhrases = [
   "Workspace Trust Required",
@@ -139,7 +151,7 @@ export async function recoverCursorSession(
   const instruction = confirmed
     ? cursorRecoveryContinuation(record)
     : undefined;
-  const kept = await keepCursorClient({
+  const kept = keepCursorClient({
     command,
     args: [...args],
     cwd,
@@ -149,5 +161,13 @@ export async function recoverCursorSession(
     session: record.session,
     ...(instruction === undefined ? {} : { instruction, idleComposer: true }),
   });
-  return afterKeep(source, record, launches, kept);
+  const outcome = await Promise.race([kept, untilLaunchWait()]);
+  if (outcome === "timed-out") {
+    return {
+      kind: "failed",
+      explanation: instructionDeliveryTimedOutExplanation(record.session),
+      record: await launches.stateOf(source, record),
+    };
+  }
+  return afterKeep(source, record, launches, outcome);
 }

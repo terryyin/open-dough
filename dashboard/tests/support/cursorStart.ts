@@ -1,7 +1,8 @@
 // Real Git origin and installed execution-start. Only cursor-agent is a fixture.
 // A spec sets `cursorScreen` to choose the attach screen the fixture paints,
-// `cursorSplitPaintMs` to deliver each screen in two writes that far apart, and
-// `cursorSubmitPaintMs` to keep a submitted paste chip on screen that long.
+// `cursorSplitPaintMs` to deliver each screen in two writes that far apart,
+// `cursorSubmitPaintMs` to keep a submitted paste chip on screen that long,
+// and `cursorPaintDelayMs` to delay the first paint.
 // `keptRecord` reads the one session the dashboard kept for the project.
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -26,11 +27,13 @@ export const test = base.extend<{
   cursorScreen: CursorScreen | undefined;
   cursorSplitPaintMs: number | undefined;
   cursorSubmitPaintMs: number | undefined;
+  cursorPaintDelayMs: number | undefined;
   cursor: FakeCursor;
 }>({
   cursorScreen: [undefined, { option: true }],
   cursorSplitPaintMs: [undefined, { option: true }],
   cursorSubmitPaintMs: [undefined, { option: true }],
+  cursorPaintDelayMs: [undefined, { option: true }],
   // eslint-disable-next-line no-empty-pattern
   origin: async ({}, use) => {
     const origin = await startOrigin(
@@ -45,7 +48,12 @@ export const test = base.extend<{
     await use(origin.machine);
   },
   cursor: async (
-    { cursorScreen, cursorSplitPaintMs, cursorSubmitPaintMs },
+    {
+      cursorScreen,
+      cursorSplitPaintMs,
+      cursorSubmitPaintMs,
+      cursorPaintDelayMs,
+    },
     use,
   ) => {
     const cursor = installFakeCursor({
@@ -56,6 +64,9 @@ export const test = base.extend<{
       ...(cursorSubmitPaintMs === undefined
         ? {}
         : { submitPaintMs: cursorSubmitPaintMs }),
+      ...(cursorPaintDelayMs === undefined
+        ? {}
+        : { paintDelayMs: cursorPaintDelayMs }),
     });
     await use(cursor);
     cursor.cleanup();

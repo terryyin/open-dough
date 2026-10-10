@@ -22,14 +22,21 @@ later Enter, and the record says the first input was accepted only then. A
 screen that is not ready does not receive the instruction, the record stays
 uncertain, and the developer can still type. When that same client later
 becomes ready, it receives the instruction. The client exiting does not
-accept the instruction. The launch attempt settles once the client is running
-and that uncertain record is saved; acceptance of a later screen is recorded
-after the attempt returns. The launch wait's abort does not kill the client.
-Opening the terminal joins that client and shows its output. There is no
-launch-wait notice and no second `cursor-agent`. A blank ad hoc start still
-creates the session, submits nothing, and starts the client when opened.
-Attach is supplied: a later open with no client already kept runs the stored
-command. The text `Add a follow-up` or
+accept the instruction. The launch attempt settles once the client is running and the first screen
+has been judged, or when the shared launch wait
+(`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s) ends while keep is still open —
+including a screen that never becomes ready, and a paste chip whose Enter was
+submitted but never answered by a later paint or exit. That wait expiry
+answers `uncertain` with reason `timed-out`, says Cursor did not show it took
+the instruction in time, that the session remains kept, and how to continue
+from the recorded resume; it does not invent or revoke first-input state, and
+it does not kill the client. Acceptance of a later ready screen is still
+recorded after Start returns. A Cursor that settles before the bound returns
+`launched` as before. Opening the terminal joins that client and shows its
+output. There is no launch-wait notice and no second `cursor-agent`. A blank
+ad hoc start still creates the session, submits nothing, and starts the
+client when opened. Attach is supplied: a later open with no client already
+kept runs the stored command. The text `Add a follow-up` or
 `Plan, search, build anything` admits it even when the terminal cursor is
 hidden. That
 attach result declares keep, so a detached terminal leaves the client running
@@ -43,21 +50,24 @@ An unfinished Cursor session the runner does not hold — including when the
 runner is not running or cannot be reached — offers Recover on the session
 entry. Observation never starts the runner or an agent. Recover resumes the
 recorded `cursor-agent` continuation in the recorded worktree through the
-runner (which may start). When the resulting screen is the idle composer and
-first input is already confirmed, it types one continuation naming the
-recorded workflow, identity, worktree, and branch, plus the reporting command
-when present, and tells the agent to continue from the worktree's state
-without opening another assignment; it does not paste the original first
-prompt. Working, waiting, unconfirmed first input, and blank not-requested
-type nothing. When resume exits with the cannot-load sentence
-(`Cursor could not load this chat.` — provisional until native cursor-agent
-emits an observed sentence), Recover starts one replacement chat in the same
-workspace on the same launch record, updates the stored session id before
-instructing that agent, and sends the original prompt plus the continuation
-facts (blank not-requested sends only the continuation facts). Missing
-workspace, workspace trust, an unreachable runner, or any other exit explains
-the reason, leaves no agent running, and starts no replacement. Held, done,
-and completed sessions offer no Recover.
+runner (which may start), racing that keep against the same shared launch
+wait. When keep has not settled by that bound, Recover answers `failed` with
+the same unconfirmed-delivery explanation, leaves the client kept, and does
+not hang it up. When the keep settles in ordinary time and the resulting
+screen is the idle composer and first input is already confirmed, it types
+one continuation naming the recorded workflow, identity, worktree, and
+branch, plus the reporting command when present, and tells the agent to
+continue from the worktree's state without opening another assignment; it
+does not paste the original first prompt. Working, waiting, unconfirmed
+first input, and blank not-requested type nothing. When resume exits with
+the cannot-load sentence (`Cursor could not load this chat.` — provisional
+until native cursor-agent emits an observed sentence), Recover starts one
+replacement chat in the same workspace on the same launch record, updates
+the stored session id before instructing that agent, and sends the original
+prompt plus the continuation facts (blank not-requested sends only the
+continuation facts). Missing workspace, workspace trust, an unreachable
+runner, or any other exit explains the reason, leaves no agent running, and
+starts no replacement. Held, done, and completed sessions offer no Recover.
 Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
 setting)": each `<id> - <name>` line, with no efforts and no configured model.
 An unreadable list is explained with Retry, and Default stays startable.
