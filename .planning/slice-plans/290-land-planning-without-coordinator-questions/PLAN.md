@@ -214,7 +214,7 @@ passed three times alone, the flake `ProjectFindings.md` already records.
 
 ### 4. ADR 0007 states the default and its opt-out
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node scripts/lint.mjs` passes; a read of the changed ADR lines
 against the journey end finds the same default, opt-out, stops, and "no
 execution authority" statement, and no remaining "explicit keep" default.
@@ -228,6 +228,13 @@ that an open coordinator question retains the draft, and that landing grants
 no execution authority. The "Revised" line gains the date; status stays
 Proposed.
 
+Accepted: lint passes; the ADR's two remaining "explicit keep" uses are the
+other draft results and the retained draft's flow edge. The planning
+paragraph states the default and "landing grants no execution authority";
+Story Branch Mode step 2 names `main`, the opt-out, and the open coordinator
+question; the flow gains a retained-draft node. The "Revised" line already
+carried 2026-10-10. ADR 0009 needed no change.
+
 ## Story obligations
 
 ### G1. `--retain` is named before the options file defines it
@@ -238,7 +245,7 @@ Disposition: proved by slice 3: `preparation-journey-guidance.test.mjs` "the opt
 ### G2. ADR 0007 still states the explicit-keep default
 Reported: slice 2 — "`docs/adrs/0007-software-development-lifecycles.md:72` still says 'Publish draft results only on an explicit keep'. Left for slice 4."
 Story clause: "concisely: completed preparation lands on `main` by default with an explicit"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `docs/adrs/0007-software-development-lifecycles.md` Story Branch Mode step 2 and its flow, read against the journey end
 
 ### G3. Retained native publication evidence is stale
 Reported: slice 2 — "`tests/support/git-publication-native-evidence.sh` hashes `preparation-disposition.md` and `dough-story-refinement/SKILL.md` into an evidence identity, so retained native evidence for those profiles is now stale."
