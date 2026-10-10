@@ -26,7 +26,7 @@ These decisions change that default:
 - **A keep of this preparation's retained result** authorizes landing it from
   the owned workspace onto the authorized remote target through
   [Keep and publish the retained result](#keep-and-publish-the-retained-result)
-  below. Three sources supply a keep instruction, each with the candidate
+  below. Four sources supply a keep instruction, each with the candidate
   check its landing runs:
   - an explicit instruction to keep the result. Candidate check: `release`
     staging when this session announced an assignment, or `recheck` for a
@@ -38,7 +38,13 @@ These decisions change that default:
   - one-shot refinement's selected
     [automatic landing](one-shot-refinement.md#land-automatically-when-selected)
     (`--auto-land`). Candidate check: `recheck`, with no assignment to
-    release.
+    release;
+  - the execution handoff,
+    [hand off to execution in the same session](preparation-journey.md#hand-off-to-execution-in-the-same-session),
+    for an execution instruction in the session that holds the story's
+    Preparing workspace with unlanded preparation. Candidate check: `release`
+    staging. The workspace is not retired and the landing has no final
+    operation of its own: execution continues there.
 
   Continuing discussion, pausing for more review, or silence is never a keep
   decision.

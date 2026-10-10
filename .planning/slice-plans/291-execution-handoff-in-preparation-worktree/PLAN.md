@@ -169,13 +169,20 @@ publishes the branch at the Take. The test lives beside
 
 ### 2. The execution handoff lands the retained preparation and starts execution in the same worktree
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-story-refinement/scripts/preparation-handoff-guidance.test.mjs src/skills/dough-story-refinement/scripts/preparation-landing-guidance.test.mjs src/skills/dough-execute-plan/scripts/established-start-guidance.test.mjs`
 passes with the new test pinning the journey's handoff section, disposition's
 four keep sources, and the execute-plan pointer, and the landing test updated
 from three sources to four; a scratch removal of the section's "no
 retirement" sentence fails the new test before the edit is reverted;
 `wc -l src/skills/dough-execute-plan/SKILL.md` ≤ 250.
+
+Accepted 2026-10-10 on Node v24.21.0: the three files pass (30 tests), the
+"No retirement" removal failed `the handoff's landing retires nothing`, and
+`node --test "src/skills/**/*.test.mjs"` passes (780 tests). The execute-plan
+skill is at exactly 250 lines; the three preparation skills each gained one
+link sentence beside their session-end sentence. Guidance tests pin wording;
+no native host run observed an agent performing the handoff.
 
 Behavior: An execution instruction for the prepared story, with its mode,
 reaches the session holding that story's Preparing assignment while the

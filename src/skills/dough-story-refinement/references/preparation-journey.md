@@ -112,6 +112,82 @@ Other written results, such as a decomposition seed, a session that ends at
 the refinement result, or a record with no announced assignment, follow
 [Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result).
 
+## Hand off to execution in the same session
+
+An execution instruction for the prepared story, with its mode, may reach the
+session that holds that story's Preparing assignment while its workspace holds
+unlanded preparation: a result the opt-out retained, a draft an answered
+question left, or preparation that has not yet reached its landing. The
+handoff lands that preparation and starts execution in the same workspace and
+branch, with no second worktree, branch, landing, or Take. With nothing
+unlanded, or with the worktree already retired, the ordinary start under
+[Take or admit work](../../dough-execute-plan/SKILL.md#take-or-admit-work)
+applies and this section adds nothing.
+
+Resolve the start before landing, because the start reads the landed result
+from the remote target and refuses one it cannot execute:
+
+- the execution source and authority under
+  [Establish execution context](../../dough-execute-plan/SKILL.md#establish-execution-context);
+- the mode, the
+  [publication preconditions](../../dough-execute-plan/references/trunk-publication.md#preconditions),
+  and every input the start needs: workspace path and branch, identity,
+  publisher ID, remote, target, and host; and
+- a recorded `ready` assessment on the result: planning's own, or planless
+  only under an explicit skip-planning instruction, through the recorder's
+  [planless authority](../../dough-product-backlog/references/record-preparation.md#planless-authority).
+
+Any stop here retains the draft and its Preparing assignment and lands
+nothing. A refinement result with neither a plan nor that instruction has no
+execution source and stops, with slice planning as the next step. An
+[open coordinator question](#land-at-the-end-of-preparation) is reported with
+its expected response; nothing is landed or claimed.
+
+The execution instruction is then the keep instruction for this preparation's
+result. Enter
+[Validate a keep instruction before acting](preparation-disposition.md#validate-a-keep-instruction-before-acting),
+which stops on an unreverted scratch observation edit as on any other content,
+then
+[Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result)
+with `release` staged, as the landing above does. Two things differ:
+
+- **No retirement.** The workspace continues as the execution workspace, so
+  Dough Land's [retire step](../../dough-land/SKILL.md#retire-the-worktree)
+  does not run and the worktree stays at the landed commit.
+- **No completion report.** The session continues, so this landing gives no
+  final report and no dashboard completion report of its own.
+
+The announcement's publication authority covers this landing; the execution
+instruction's authority covers the claim.
+
+Once the keep is confirmed, run the ordinary installed
+`execution-start.mjs start` under
+[Take or admit work](../../dough-execute-plan/SKILL.md#take-or-admit-work)
+with this preparation's workspace path and branch, the selected mode, and the
+recorded integration checkout, remote, and target. It reuses the workspace at
+fetched trunk and publishes the Take. In Story Branch Mode the branch becomes
+the story branch, published at the Take; in Trunk Mode it stays the temporary
+execution branch. Retain the receipt as your execution identity, then continue
+at checkout-bound setup and the first slice. The story identity, plan path,
+mode, integration checkout, dashboard reporting context, and the execution
+instruction carry over.
+
+Recovery repeats neither an accepted landing nor a claim. A stop in the keep
+sequence, such as `story-left-queue`, keeps that sequence's handling: the
+draft is retained, nothing more is pushed, execution has not started, and the
+report carries the receipt with the decision or rerun that continues. After a
+landing stop or a refused or interrupted start, rerun `release` and the same
+landing, which push nothing already accepted, then the same start with the
+same workspace path, branch, and publisher ID, which answers `published`,
+`existing`, or `resumed`. A start that names this branch with another
+workspace path is refused `setup-failed`, because the branch already exists.
+
+Retirement belongs to
+[story wrap-up](../../dough-story-wrap-up/SKILL.md#remove-execution-resources-safely),
+which retires the worktree and branch through the creation record this
+preparation's start wrote; nothing rewrites that record. Reporting belongs to
+execution's [finish or stop](../../dough-execute-plan/references/finish-or-stop.md).
+
 ## Report once at the end
 
 The session's final report is slice planning's report, or the plan
