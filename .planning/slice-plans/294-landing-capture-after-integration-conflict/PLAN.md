@@ -204,6 +204,21 @@ at the limit. Owned directly by this correction (finding 4).
 
 Safe stopping point: no behavior changes.
 
+## Execution complete
+
+Product advice: the retrospective found that slice 1 left the hand-resolved
+merge exposed: a failed landing retention drops it, an uncommitted merge makes
+the rerun exit 2, and a merge with the story as first parent is published
+(obligations G1 and G5 were dispositioned wrongly). Correction
+[plan 295](../295-resolved-integration-survives-reruns/PLAN.md)
+(`SEED-088#resolved-integration-survives-reruns`) carries them and is recorded
+not ready until the developer confirms its trunk-first decision and its
+receiver-restart proof route is observed. Recommend queueing it ahead of other
+SEED-088 work, since a conflicted Story Branch integration can meet it at any
+wrap-up once this guidance is released. Separately, `install.sh` has about six
+payload entries of headroom; whether its declaration may live outside
+`install.sh` is an installer decision for the developer.
+
 ## Story obligations
 
 ### G1. A resolved merge with reversed parents is untested
