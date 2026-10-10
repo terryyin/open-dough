@@ -71,14 +71,17 @@ Excluded: Trunk Mode; a second landing per launch.
 
 ## Observed premises
 
-Observed on 2026-10-10 at `08d9ee6e` in the execution worktree; scratch
-repository under the job's temporary directory, no product file changed.
+Slice 1's rows were observed on 2026-10-10 at `08d9ee6e` in the execution
+worktree, in a scratch repository under the job's temporary directory. Slice
+2's row was observed on 2026-10-11 at `adbe8755` in this story's preparation
+worktree, by a scratch spec removed afterwards. The scripts and receiver files
+these rows name are unchanged between the two revisions; no product file changed.
 
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
 | A content conflict makes `integrate` exit 2 without a printed result and leaves the workspace detached with the conflict | Slice 1 | Bare origin; `main` and `story` each change `f.txt`; `node src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs integrate --workspace … --published-tip <B> --branch story --target-ref refs/heads/main` | stderr `Command failed: git merge --no-ff --no-commit <B>`, exit 2, `UU f.txt`, `HEAD` detached |
 | A rerun after resolving and committing the merge discards the resolution | Slice 1 | Same repository: resolve, `git commit`, run the same command | Same failure, exit 2, `UU f.txt` again |
-| A second comparison after an accepted landing is refused before its push | Slice 2 | Read only: `reserveLandingComparison` (`dashboard/server/launchLandingReservation.ts`) calls `sameComparison(accepted, report)`; `retainLandingComparison` (`dashboard-landing.mjs`) throws on the refusal | Not run against the receiver; slice 2's spec observes the refusal first, and changes approach if it does not occur |
+| A second comparison after an accepted landing is refused before its push, and the same publication without the context is accepted with the recorded pair kept | Slice 2 | Scratch spec on `claimedLaunchWithStoryCommit` (`dashboard/tests/support/storyBranchIntegration.ts`) against the real receiver: integrate and record; commit `repair.txt` in the workspace and push it to the story branch; run the installed `history-preserving-publication.mjs integrate --workspace … --published-tip <repair> --branch … --target-ref refs/heads/main --landing-context …`, then the same command without `--landing-context`; `npx playwright test --config dashboard/playwright.config.ts <scratch spec>` | With the context: exit 2, no printed result, stderr `This launch already retained a different landing comparison.` followed by a `Retained landing:` path and a `Retry reporting only:` `landing-prepare` command; origin `main` unchanged, workspace clean on its branch. Without it: `published`, `pushCount: 1`, origin `main` contains the repair, the record's `landing` equal to the first pair |
 
 ## Outside-in proof ownership
 
@@ -111,7 +114,7 @@ Safe stopping point: clean integrations behave as today.
 ### 2. A launch's later trunk publication takes no landing context
 Type: Behavior
 Status: planned
-Proof: The spec above, written first to observe today's refusal.
+Proof: The spec above; today's refusal is recorded under Observed premises.
 
 Behavior: A launch's integration is recorded → the same launch publishes a
 later trunk commit → the instruction (`reportingInstruction.ts`) and the

@@ -1,23 +1,23 @@
 // Recorded Claude workspace retirement uses the shared passive report panel.
-import { mkdirSync, readFileSync, rmSync } from "node:fs";
-import path from "node:path";
+import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
-import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryStagesJourney,
-  notRefinedIdentity,
   notRefinedStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { report, save, storeFile } from "./support/retainedReport.ts";
-import { completionReport } from "./support/completionReport.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
+import {
+  recordedClaude as recorded,
+  report,
+  save,
+  storeFile,
+} from "./support/retainedReport.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-import { markDone } from "./support/markDone.ts";
+import { markAsDone, markDone } from "./support/markDone.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
 test.beforeAll(async () => {
@@ -26,29 +26,6 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
 
-async function recorded(dashboard: DashboardServer, message = report) {
-  await launch(dashboard, {
-    ...refinementRequest,
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-  });
-  const record = stored(dashboard.home)[0];
-  if (record === undefined) throw new Error("Missing Claude launch");
-  const workspace = path.join(dashboard.home, "retired-claude-workspace");
-  mkdirSync(workspace);
-  record.preparation = {
-    identity: notRefinedIdentity,
-    workspace,
-    branch: "claude/retired",
-    remote: "origin",
-    target: "main",
-  };
-  record.completion = completionReport({ message });
-  dashboard.claudeSessionBecomes(record.session.sessionId, "done-exited");
-  save(dashboard.home, [record]);
-  return { record, workspace };
-}
-
 test("retired Claude preparation opens retained report after refresh without waking and preserves read/done intent", async ({
   page,
   dashboard,
@@ -56,8 +33,9 @@ test("retired Claude preparation opens retained report after refresh without wak
   const { record, workspace } = await recorded(dashboard);
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryStagesJourney(page, journey);
   await reloadUntilRead(page);
+  await settled();
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
   await entry.getByRole("button", { name: "Read final report" }).click();
@@ -77,6 +55,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   const doneAt = stored(dashboard.home)[0]?.doneAt;
   expect(doneAt).toBeDefined();
   await reloadUntilRead(page);
+  await settled();
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: record.session.sessionId });
@@ -116,7 +95,8 @@ for (const context of ["preparation", "start"] as const) {
       expect(observation.status()).toBe(200);
       await route.fulfill({ response: observation });
     });
-    await openStoryStagesJourney(page, journey);
+    const { settled } = await openStoryStagesJourney(page, journey);
+    await settled();
     const entry = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: record.session.sessionId });
@@ -130,79 +110,13 @@ for (const context of ["preparation", "start"] as const) {
     await expect(
       page.getByRole("region", { name: "Terminal", exact: true }),
     ).toHaveCount(0);
-    await expect(
-      panel.getByRole("button", { name: "Mark as done" }),
-    ).toHaveCount(0);
+    await expect(markAsDone(panel)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
     expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
     await panel.getByRole("button", { name: "Close", exact: true }).click();
     await expect(open).toBeFocused();
   });
 }
-
-// Mark as done answers only after private rename confirmation and stop. A
-// busy CI shard can spend most of the default five-second rename wait on
-// attach start-up and the fixed key pauses, so the entry still shows the
-// retained doneProblem past one default expectation even when rename will
-// succeed. These cases own a wait the runner cannot exhaust; success still
-// returns as soon as the name is listed.
-test.describe("Recently done renames a retired-workspace Claude session", () => {
-  test.use({ extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "30000" } });
-
-  for (const [cause, oldProblem] of [
-    [
-      "requires terminal input",
-      "Native rename requires terminal input while the reporting sender is still working. Use Mark as done after reporting finishes.",
-    ],
-    [
-      "No terminal attachment",
-      "No terminal attachment is available to confirm native rename.",
-    ],
-  ] as const) {
-    test(`Recently done renames a retired-workspace Claude session with the old ${cause} problem`, async ({
-      page,
-      dashboard,
-    }) => {
-      const { record, workspace } = await recorded(dashboard);
-      dashboard.claudeSessionBecomes(record.session.sessionId, "done-live");
-      rmSync(workspace, { recursive: true });
-      record.doneAt = "2026-10-01T00:00:00Z";
-      record.doneProblem = `Local done mark retained. Claude Code rename failed: ${oldProblem}`;
-      save(dashboard.home, [record]);
-      const doneName = `done-${record.session.name}`;
-      await openStoryStagesJourney(page, journey);
-      const recent = parts(page)
-        .recentlyDone.getByRole("article")
-        .filter({ hasText: record.session.sessionId });
-      await expect(recent).toContainText(record.doneProblem);
-      await expect(recent).toContainText("saved workspace is missing");
-      expect(dashboard.claudeAttaches()).toEqual([]);
-
-      await markDone(recent);
-
-      await expect(recent).toContainText(`Named ${doneName}`, {
-        timeout: 20_000,
-      });
-      await expect(recent).not.toContainText(oldProblem);
-      await expect(recent.locator(".launch-problem")).toHaveText("");
-      expect(stored(dashboard.home)[0]).not.toHaveProperty("doneProblem");
-      expect(
-        dashboard
-          .claudeListing()
-          .find((each) => each["sessionId"] === record.session.sessionId),
-      ).toMatchObject({ name: doneName });
-      expect(dashboard.claudeAttaches()).toEqual([
-        expect.objectContaining({
-          id: record.session.host === "claude" ? record.session.shortId : "",
-          lines: [`/rename ${doneName}`],
-        }),
-      ]);
-      await expect(
-        page.getByRole("region", { name: "Terminal", exact: true }),
-      ).toHaveCount(0);
-    });
-  }
-});
 
 test("missing Claude workspace without retained report explains the limitation without waking", async ({
   page,
@@ -211,7 +125,8 @@ test("missing Claude workspace without retained report explains the limitation w
   const { workspace } = await recorded(dashboard, "");
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
-  const { card } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryStagesJourney(page, journey);
+  await settled();
   await cardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Read final report" })
     .click();
@@ -236,7 +151,8 @@ for (const context of ["existing", "legacy"] as const) {
       delete record.preparation;
       save(dashboard.home, [record]);
     }
-    const { card } = await openStoryStagesJourney(page, journey);
+    const { card, settled } = await openStoryStagesJourney(page, journey);
+    await settled();
     const entry = cardSessions(card(notRefinedStory));
     await entry.getByRole("button", { name: "Open terminal" }).click();
     const panel = page.getByRole("region", { name: "Terminal", exact: true });

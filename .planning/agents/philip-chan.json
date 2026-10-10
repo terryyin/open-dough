@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "philip-chan",
+  "email": "philip-chan@example.org",
+  "identity": "SEED-088#landing-capture-after-integration-conflict",
+  "mode": "story-branch",
+  "branch": "claude/a-conflicted-story-branch-integration-still-reco",
+  "host": "claude"
+}
