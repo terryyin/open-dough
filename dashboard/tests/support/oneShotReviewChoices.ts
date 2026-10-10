@@ -11,7 +11,7 @@ import {
   captureReviewRun,
   retireReviewRun,
 } from "./oneShotReview.ts";
-import { commit, git } from "./oneShotLanding.ts";
+import { commit, git } from "./launchLanding.ts";
 import { recordOperation } from "./completionRecovery.ts";
 import { keepLaunchRecords, storyALaunchRecord } from "./storyLaunchRecord.ts";
 import { sessionKey } from "../../src/sessionReference.ts";

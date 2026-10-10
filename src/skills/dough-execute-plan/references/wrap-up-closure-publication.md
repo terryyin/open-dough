@@ -136,7 +136,7 @@ an observer that may still own the checkout.
 
 Publish the history-preserving integration with the installed
 `history-preserving-publication.mjs integrate` command under
-[Preserve published history](publish-the-candidate.md#preserve-published-history).
+[Preserve published history](preserve-published-history.md).
 When the launch supplied a dashboard landing context, pass it as
 `--landing-context` and handle the printed `landing` under the
 [landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing)

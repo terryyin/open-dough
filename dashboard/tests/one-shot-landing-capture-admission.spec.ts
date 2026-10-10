@@ -2,7 +2,9 @@
 import { randomUUID } from "node:crypto";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { requestFor, oneShot } from "./support/oneShotLaunch.ts";
+import { oneShot } from "./support/oneShotLaunch.ts";
+import { requestFor } from "./support/launchPreview.ts";
+import { git, commit, refs } from "./support/launchLanding.ts";
 import { keptAttempts } from "./acceptedAttempts.ts";
 import { otherQueuedIdentity } from "./support/startOrigin.ts";
 import {
@@ -12,14 +14,7 @@ import {
 } from "./support/completionRecovery.ts";
 import { landingReceiptSchema } from "../src/launchLanding.ts";
 import { rawRequest } from "./support/rawHttp.ts";
-import {
-  git,
-  commit,
-  checkout,
-  refs,
-  context,
-  publish,
-} from "./support/oneShotLanding.ts";
+import { checkout, context, publish } from "./support/oneShotLanding.ts";
 test("capture refuses unaccepted, foreign, malformed and changed launch comparisons; deleting one launch removes only its pins", async ({
   dashboard,
   origin,

@@ -4,13 +4,14 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { requestFor, oneShot } from "./support/oneShotLaunch.ts";
+import { oneShot } from "./support/oneShotLaunch.ts";
+import { requestFor } from "./support/launchPreview.ts";
 import {
   scripts,
   commit,
-  context,
   capturedPublicationSchema,
-} from "./support/oneShotLanding.ts";
+} from "./support/launchLanding.ts";
+import { context } from "./support/oneShotLanding.ts";
 test("the installed managed delivery and resume CLIs carry --landing-context without a second push or observer", async ({
   dashboard,
   origin,

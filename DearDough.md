@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 280. Removed local codes are never reused.
+- Highest allocated local number: 281. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -736,6 +736,15 @@ lines, and the plan settled neither as a premise.
   - Observed effect: slice 1's agent found the failing payload check through its consumer search and added the declaration; slice 2's agent split the test file, after which the plan's proof table and slice 3's proof command named the wrong file until the coordinator corrected them. No rework or failed delivery followed.
   - Inference: the delegation's consumer-search requirement caught both; the cost was small. The plan's premise table covered the skill's own line limit but not the limit on the test file it would grow or the declaration a new file needs.
 
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
+  - Timestamp: unknown (2026-10-11, between the Take `aa5bcb17` and `a5c55a56` at 08:16 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `491cf102`; base 0.3.58
+  - Evidence: plan 294 proof-ownership rows naming `story-branch-landing-capture.spec.ts` (235 lines) for two new journeys, and slice 4's "split `install.sh`'s declarations" (`491cf102:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`); slice 1 and 2 returns (journeys placed in `story-branch-landing-conflict.spec.ts` and `story-branch-landing-later-publication.spec.ts`); slice 4's return (`read_managed_files_declaration` and the release tooling read the declaration from `install.sh` itself); plan 294 slice Learnings.
+  - Observed effect: both journeys went to sibling specs and the plan's proof table named the wrong file; slice 4 relieved `install.sh` by moving request checks into the sourced request helper (244 lines) and left the declaration inline, reported as an undecided installer question. No rework followed.
+  - Inference: the same two premises as before, a size limit on a file the plan grows and who reads a declaration the plan moves, each observable with `wc -l` and one search during planning.
+
 ## DD-272 — A plan's boundary ruled out the only fact its slice could use, and its premise was observed with an input the command never receives
 
 A correction plan forbade a new schema and told its slice to replace a list of
@@ -857,3 +866,28 @@ path into that state: resolve a conflicted integration by hand and push it.
   - Evidence: plan 292 `## Story obligations` G5 (`no user cost`, reasoning that no pair was retained so the evidence gap is the story's own rule); slice 3's return listed it under gaps with that one cause; the independent outcome review traced `constructCandidate` (`history-preserving-candidate.mjs`, always `checkout --detach` then merge) and `story-branch-integration.md`'s conflict step to the same state; a scratch repository with a content conflict gave exit 2 and, after a hand resolution, the same conflict again (plan 294, Observed premises).
   - Observed effect: slice 3 was accepted and published with the story's Required clause “once remote trunk accepts the integrated SHA the handoff records the pair” unmet for a conflicted integration; correction plan 294 was written.
   - Inference: the story-obligations check validates the entry's structure and quotes, and the disposition rested on the return's stated cause. Asking which paths the guidance directs into the reported state, a few minutes of reading, would have made it a `return`. One sample.
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
+  - Timestamp: unknown (2026-10-11, slice 1 acceptance before `9aa4ec9f` at 07:44 +09:00; found by the retrospective about 08:25 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `491cf102`; base 0.3.58
+  - Evidence: plan 294 `## Story obligations` G1 ("Git and the merge adapter write the fetched trunk tip first") and G5 ("it runs the code it ran before this slice"), both `no user cost`; the independent outcome review's scratch repositories (a merge of trunk into the story branch answered `published` with the story on trunk's first-parent line; a rerun on a staged or identity-refused merge exited 2 and dropped `MERGE_HEAD`); plan 295 findings 2 and 3.
+  - Observed effect: slice 1 was accepted and published with both states reachable from the two steps its own guidance gives; correction plan 295 carries them. In the same slice the coordinator did ask which guided paths lacked an observation for three other gaps (the adapter's `continue`, the `agent-commit.mjs` command, retention across runs) and returned them, and those now have tests.
+  - Inference: the dispositions that held were the ones checked by running the path; G1 and G5 were reasoned from the code as read. Fourteen entries were written in this execution, twelve as `no user cost`, so the entry count itself may crowd out the check. Second sample.
+
+## DD-281 — A slice made hand-made work the publication candidate, and no one traced the paths that move the workspace off it
+
+Before the slice every integration candidate was rebuilt by the command, so
+returning the workspace to its branch on a failure lost nothing. The slice
+made a merge the agent resolved by hand the candidate. Untouched code still
+returned to the branch when landing retention failed.
+
+### Occurrences
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
+  - Timestamp: unknown (2026-10-11, slice 1 delivered at 07:44 +09:00; found by the retrospective about 08:25 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `491cf102`; base 0.3.58
+  - Evidence: `history-preserving-publication.mjs` `returnToBranch` in the `retainLandingComparison` catch (unchanged by `9aa4ec9f`); slice 1's return and its correction return, whose gap lists named no failure path after the candidate is taken; the independent outcome review's scratch run with a landing context on an unreachable origin (workspace back on its branch, the resolved commit on no ref, the next run `preserved` / `conflict` again); plan 295 finding 1.
+  - Observed effect: slice 1 was accepted and published; a closed dashboard or a receiver refusal after a hand resolution drops that resolution to the reflog. Correction plan 295 was written.
+  - Inference: the plan, the implementation return, the coordinator's acceptance and the refactor pass each followed the paths the slice named. The reviewer found it by asking what each failure exit does with a candidate that can no longer be rebuilt. One sample.

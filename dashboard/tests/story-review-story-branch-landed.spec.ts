@@ -1,5 +1,5 @@
 // A claimed Story Branch Mode launch's landed integration in the story review
-// (../STORY-REVIEW-ONE-SHOT.md): the real installed start, the installed
+// (../STORY-REVIEW-LANDED-RUNS.md): the real installed start, the installed
 // `history-preserving-publication.mjs integrate` and `worktree-retirement.mjs`
 // against a real bare origin produce the launch record the review reads
 // (./support/storyBranchLandedReview.ts). Only the native Codex transport and
@@ -8,8 +8,8 @@ import { test, expect } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
-import { git } from "./support/oneShotLanding.ts";
-import { readReview, retireLaunchWorkspace } from "./support/oneShotReview.ts";
+import { git, retireLaunchWorkspace } from "./support/launchLanding.ts";
+import { readReview, refreshReview } from "./support/launchLandingReview.ts";
 import { reviewFeedback } from "./support/reviewContextLine.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
@@ -20,7 +20,6 @@ import {
   integratedOntoTrunk,
   storyBranchExecutionAfterRefinement,
 } from "./support/storyBranchLandedReview.ts";
-import { storyReviewEndpoint, storyReviewSchema } from "../src/storyReview.ts";
 
 const repository = "terryyin/open-dough";
 
@@ -193,11 +192,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   expect((await origin.originGit("rev-parse", "main")).trim()).not.toBe(
     accepted,
   );
-  const refreshed = page.waitForResponse(
-    (response) => new URL(response.url()).pathname === storyReviewEndpoint,
-  );
-  await review.getByRole("button", { name: "Refresh" }).click();
-  const again = storyReviewSchema.parse(await (await refreshed).json());
+  const again = await refreshReview(page, review);
   expect(again).toMatchObject({
     kind: "landed",
     baseline: trunkTip,

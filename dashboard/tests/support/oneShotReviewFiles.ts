@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import type { LandingReceipt } from "../../src/launchLanding.ts";
-import { git } from "./oneShotLanding.ts";
+import { git } from "./launchLanding.ts";
 // Commit the text/rename/binary baseline before the one-shot start.
 export function baseline(project: string) {
   writeFileSync(path.join(project, "text.txt"), "kept\nbefore\n");

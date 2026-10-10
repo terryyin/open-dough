@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Installer argument parsing; sourced with the original positional arguments.
+# Installer request: parses the original positional arguments, then checks and
+# resolves the target project and recorded source. Sourced after the platform
+# helper; the caller assigns original_pwd before its own directory changes.
 # shellcheck disable=SC2034,SC2154,SC2310
 usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
@@ -30,3 +32,13 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+[[ -n "${target}" && -n "${recorded_source}" ]] || usage
+# An unsupported platform stops here, before anything is resolved.
+destination_for /dev/null "${platform}" > /dev/null
+if [[ "${recorded_source}" == /* && -d "${recorded_source}" ]]; then
+  recorded_source=$(cd -- "${recorded_source}" && pwd -P)
+elif [[ -d "${original_pwd}/${recorded_source}" ]]; then
+  recorded_source=$(cd -- "${original_pwd}/${recorded_source}" && pwd -P)
+fi
+[[ -d "${target}" ]] || { echo "Client project directory does not exist: ${target}" >&2 && exit 1; }
+target=$(cd -- "${target}" && pwd -P)

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2034,SC2310,SC2312 # SC2034: force, replace_verified, and version are read by install_declared_payload.
+# shellcheck disable=SC1091,SC2034,SC2310,SC2312
+# SC2034: force, replace_verified, and version are read by install_declared_payload.
 set -euo pipefail
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -9,14 +10,6 @@ source "${source_dir}/src/install/open-dough-register-hooks.sh"
 source "${source_dir}/src/install/open-dough-install-payload.sh"
 # shellcheck source=src/install/open-dough-install-request.sh
 source "${source_dir}/src/install/open-dough-install-request.sh"
-[[ -n "${target}" && -n "${recorded_source}" ]] || usage
-# shellcheck disable=SC2154 # platform is assigned by the sourced request parser.
-destination_for /dev/null "${platform}" > /dev/null
-if [[ "${recorded_source}" == /* && -d "${recorded_source}" ]]; then
-  recorded_source=$(cd -- "${recorded_source}" && pwd -P)
-elif [[ -d "${original_pwd}/${recorded_source}" ]]; then recorded_source=$(cd -- "${original_pwd}/${recorded_source}" && pwd -P); fi
-[[ -d "${target}" ]] || { echo "Client project directory does not exist: ${target}" >&2 && exit 1; }
-target=$(cd -- "${target}" && pwd -P)
 managed_files=(
   dough-update/SKILL.md
   dough-bug-fixing/SKILL.md
@@ -150,6 +143,7 @@ managed_files=(
   dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/one-shot-escalation.md
   dough-execute-plan/references/oversized-slice.md
+  dough-execute-plan/references/preserve-published-history.md
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/runtime-setup.md

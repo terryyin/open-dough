@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-088_landing-capture-after-integration-conflict.json",
+      "identity": "SEED-088#landing-capture-after-integration-conflict",
+      "completedAt": "2026-10-10T23:34:59.315Z",
+      "blob": "54a84b954ad836eee893f08aed87e3223c06ee3f"
+    },
+    {
       "fileName": "SEED-088_review-uncommitted-changes.json",
       "identity": "SEED-088#review-uncommitted-changes",
       "completedAt": "2026-10-10T23:32:38.330Z",

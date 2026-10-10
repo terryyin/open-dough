@@ -57,8 +57,11 @@ CI-observer shutdown/retirement gates remain independent and required.
 
 When a dashboard-started launch supplies a `landing-context.json`, retain that
 original launch's file outside the checkout and supply it to the publication
-that lands this launch's work on the authorized trunk target. Publication to an
-execution branch takes no landing context.
+that first lands this launch's work on the authorized trunk target, through its
+retries and resumes. A launch has one landing: after the target accepts that
+publication, this launch's later publications to it, such as a CI repair or a
+consumer resolution after integration, take no landing context. Publication to
+an execution branch takes none.
 Without that capability, explain that no landing comparison can be retained;
 completion reporting stays available. Never guess a launch, base, target or repository.
 

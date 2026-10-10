@@ -1,7 +1,9 @@
 // Builds the candidate for history-preserving-publication.mjs: the published
 // tip merged onto the fetched target in a detached owned workspace, through
 // the backlog merge adapter when either side touched the backlog or its done
-// records, and as an agent-credited merge commit otherwise.
+// records, and as an agent-credited merge commit otherwise. A merge Git stops
+// on a conflict stays as Git left it; once it is resolved and committed, that
+// commit is the candidate.
 import { fileURLToPath } from "node:url";
 import { doneDirectoryBeside } from "../../dough-product-backlog/scripts/product-backlog-git-done-catalog.mjs";
 import {
@@ -53,16 +55,50 @@ async function mergeThroughAdapter(workspace, ref, file) {
   }
 }
 
+async function unmergedPaths(workspace) {
+  const { stdout } = await git(
+    workspace,
+    "diff",
+    "--name-only",
+    "--diff-filter=U",
+  );
+  return stdout.split("\n").filter(Boolean);
+}
+
+// Answers the unmerged paths when Git stopped the merge on a conflict, and
+// null once the merge is committed.
 async function historyPreservingMerge(workspace, ref) {
   const head = await revParse(workspace, "HEAD");
   const base = (await git(workspace, "merge-base", "HEAD", ref)).stdout.trim();
   if (base === head) {
     await git(workspace, "merge", "--ff-only", ref);
-    return;
+    return null;
   }
-  await git(workspace, "merge", "--no-ff", "--no-commit", ref);
+  try {
+    await git(workspace, "merge", "--no-ff", "--no-commit", ref);
+  } catch (error) {
+    const conflictedPaths = await unmergedPaths(workspace);
+    if (conflictedPaths.length === 0) throw error;
+    return conflictedPaths;
+  }
   await creditMergeInProgress(workspace);
   await git(workspace, "commit", "--no-edit");
+  return null;
+}
+
+// Whether the workspace `HEAD` is a merge of exactly the fetched target's tip
+// and the published tip: a conflicted integration resolved and committed.
+async function headMerges(workspace, trunkRef, publishedTip) {
+  const [, ...parents] = (
+    await git(workspace, "rev-list", "--parents", "-n", "1", "HEAD")
+  ).stdout
+    .trim()
+    .split(" ");
+  const sides = [
+    await revParse(workspace, `${trunkRef}^{commit}`),
+    await revParse(workspace, `${publishedTip}^{commit}`),
+  ];
+  return parents.length === 2 && sides.every((side) => parents.includes(side));
 }
 
 export async function constructCandidate(
@@ -71,11 +107,28 @@ export async function constructCandidate(
   publishedTip,
   file,
 ) {
+  const unresolved = await unmergedPaths(workspace);
+  if (unresolved.length > 0) {
+    return { ok: false, reason: "conflict", conflictedPaths: unresolved };
+  }
+  if (await headMerges(workspace, trunkRef, publishedTip)) {
+    return {
+      ok: true,
+      resolved: true,
+      sha: await revParse(workspace, "HEAD"),
+      adapterStatus: null,
+    };
+  }
   await git(workspace, "checkout", "--detach", trunkRef);
   if (await backlogTouched(workspace, publishedTip, file)) {
     const merged = await mergeThroughAdapter(workspace, publishedTip, file);
     if (merged.code !== 0) {
-      return { ok: false, adapterStatus: merged.status, merged };
+      return {
+        ok: false,
+        adapterStatus: merged.status,
+        merged,
+        conflictedPaths: await unmergedPaths(workspace),
+      };
     }
     return {
       ok: true,
@@ -84,7 +137,13 @@ export async function constructCandidate(
     };
   }
   try {
-    await historyPreservingMerge(workspace, publishedTip);
+    const conflictedPaths = await historyPreservingMerge(
+      workspace,
+      publishedTip,
+    );
+    if (conflictedPaths) {
+      return { ok: false, reason: "conflict", conflictedPaths };
+    }
   } catch (error) {
     if (!(error instanceof DeveloperIdentityRefused)) throw error;
     return {

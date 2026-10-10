@@ -1,6 +1,5 @@
-// What the session-policy launch specs share: the queued story's request
-// with a policy, what origin holds, a preview dashboard on the real installed
-// start, and what every established one-shot launch shows whichever host
+// What the session-policy launch specs share: a one-shot policy, what origin
+// holds, and what every established one-shot launch shows whichever host
 // carried it.
 
 import { existsSync, realpathSync } from "node:fs";
@@ -9,58 +8,20 @@ import { expect } from "@playwright/test";
 import type { SessionPolicy } from "../../src/agentLaunch.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expectReportingBlock } from "./reportingInputAssertions.ts";
-import {
-  keptStarts,
-  launchRequest,
-  recordsOf,
-} from "../agentLaunchBoundary.ts";
-import {
-  builtDashboardDir,
-  startDashboardServer,
-  type DashboardServer,
-} from "./dashboardServer.ts";
-import type { FakeCodex } from "./fakeCodex.ts";
-import {
-  queuedIdentity,
-  queuedTitle,
-  type StartOrigin,
-} from "./startOrigin.ts";
+import { keptStarts, recordsOf } from "../agentLaunchBoundary.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
+import { slug, type Workflow } from "./launchPreview.ts";
+import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 
-export const slug = "prepare-the-queued-start";
-const workflows = {
+const workflows: Record<Workflow, string> = {
   execution: "dough-execute-plan",
   refinement: "dough-story-refinement",
-} as const;
-export type Workflow = keyof typeof workflows;
-
-export const requestFor = (workflow: Workflow, policy?: SessionPolicy) => ({
-  ...launchRequest,
-  workflow,
-  identity: queuedIdentity,
-  title: queuedTitle,
-  instruction: "Keep it small.",
-  ...(policy === undefined ? {} : { policy }),
-});
+};
 
 export const oneShot = (
   workspace: SessionPolicy["workspace"],
   landing: SessionPolicy["landing"],
 ): SessionPolicy => ({ tracking: "one-shot", workspace, landing });
-
-// A preview dashboard on the origin's machine, reading its project folder.
-export function startPreview(
-  origin: StartOrigin,
-  codexProtocol?: FakeCodex,
-): Promise<DashboardServer> {
-  return startDashboardServer({
-    mode: "preview",
-    prebuilt: builtDashboardDir,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    launchTimeoutMs: 30_000,
-    ...(codexProtocol === undefined ? {} : { codexProtocol }),
-  });
-}
 
 // What origin holds: every ref and the agent profiles on main.
 export async function originState(origin: StartOrigin) {

@@ -8,7 +8,7 @@ import path from "node:path";
 import { z } from "zod";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { git, scripts } from "./oneShotLanding.ts";
+import { git, scripts } from "./launchLanding.ts";
 import { capturedChoice } from "./oneShotReviewChoices.ts";
 import { expect } from "./pageTest.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";

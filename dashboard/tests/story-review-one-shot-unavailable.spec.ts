@@ -2,14 +2,14 @@
 import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/codexStart.ts";
-import { commit } from "./support/oneShotLanding.ts";
+import { commit } from "./support/launchLanding.ts";
 import {
   startReviewRun,
   captureReviewRun,
   retireReviewRun,
   openCapturedReview,
 } from "./support/oneShotReview.ts";
-import { storyReviewEndpoint, storyReviewSchema } from "../src/storyReview.ts";
+import { refreshReview } from "./support/launchLandingReview.ts";
 
 for (const captured of [true, false]) {
   test(
@@ -63,13 +63,7 @@ test("missing captured objects or the saved common repository expose an unavaila
   await expect(
     review.getByRole("list", { name: "1 changed file" }),
   ).toBeVisible();
-  const refresh = async () => {
-    const answer = page.waitForResponse(
-      (response) => new URL(response.url()).pathname === storyReviewEndpoint,
-    );
-    await review.getByRole("button", { name: "Refresh" }).click();
-    return storyReviewSchema.parse(await (await answer).json());
-  };
+  const refresh = () => refreshReview(page, review);
   const object = path.join(
     repository,
     "objects",

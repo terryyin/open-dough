@@ -11,15 +11,14 @@ import {
   captureReviewRun,
   retireReviewRun,
   openCapturedReview,
-  readReview,
   repositoryObservation,
 } from "./support/oneShotReview.ts";
+import { readReview, refreshReview } from "./support/launchLandingReview.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
 import { parts } from "./dashboardPage.ts";
-import { storyReviewEndpoint, storyReviewSchema } from "../src/storyReview.ts";
 
 test("a retired one-shot's common file browser reads only its captured pair after trunk advances, reverts the result, and the dashboard restarts", async ({
   page,
@@ -101,13 +100,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   expect(readFileSync(before.index)).toEqual(index);
   advanceAndRevert(origin.project, receipt);
   const afterTrunk = repositoryObservation(origin.project);
-  const refreshed = page.waitForResponse(
-    (response) => new URL(response.url()).pathname === storyReviewEndpoint,
-  );
-  await review.getByRole("button", { name: "Refresh" }).click();
-  expect(storyReviewSchema.parse(await (await refreshed).json())).toEqual(
-    answer,
-  );
+  expect(await refreshReview(page, review)).toEqual(answer);
   await expect(
     review.getByRole("region", { name: "Modified text.txt" }),
   ).toContainText("+extra");
