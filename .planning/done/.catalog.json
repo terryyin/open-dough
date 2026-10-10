@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-121_finish-prefers-live-observer.json",
+      "identity": "SEED-121#finish-prefers-live-observer",
+      "completedAt": "2026-10-10T23:39:19.336Z",
+      "blob": "ba323eb31ca331b2cc6e5e32a37ec7626b4f7584"
+    },
+    {
       "fileName": "SEED-088_landing-capture-after-integration-conflict.json",
       "identity": "SEED-088#landing-capture-after-integration-conflict",
       "completedAt": "2026-10-10T23:34:59.315Z",

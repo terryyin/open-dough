@@ -6,7 +6,8 @@
 // default checkout. A project below its Git toplevel is the other starting
 // condition. Tests run the installed `deliver` and `finish` as each
 // coordinator's host does and own every assertion on what those commands
-// registered, completed, and retired.
+// registered, completed, and retired; the journey steps and the completion
+// witness several suites repeat are named here.
 import assert from "node:assert/strict";
 import { appendFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -17,6 +18,7 @@ import {
 import { isLiveMatchingMailbox } from "../../dough-execute-plan/scripts/ci-mailbox-match.mjs";
 import { checkMailboxWorkerLiveness } from "../../dough-execute-plan/scripts/ci-mailbox-worker-process.mjs";
 import {
+  acceptedIncrement,
   countPushes,
   coverage,
   hosts,
@@ -29,8 +31,13 @@ import {
   installManagedDelivery,
   watchCount,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
-import { createCleanTrunkFixture } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  createCleanTrunkFixture,
+  lsRemoteSha,
+} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import {
+  branchSha,
+  commitFinalClosure,
   finishThroughCli,
   installClosureSkills,
   installInIntegration,
@@ -146,6 +153,50 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
       ]),
     assertSiblingUntouched: siblingWitness(fixture, sibling),
   };
+}
+
+// The before-cleanup commit accepted through the publisher's own `deliver`.
+export async function deliverBeforeCleanup(journey) {
+  const { delivered } = await journey.deliver(journey.fixture.trunkSha);
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.directory, journey.publisher);
+  return delivered.receipt.sha;
+}
+
+// The final closure an interrupted `finish` pushed and registered nowhere.
+export async function pushFinalClosure(fixture) {
+  await commitFinalClosure(fixture);
+  return acceptedIncrement(fixture);
+}
+
+// `finish` completed `final` as passed on `observer` and stopped it.
+export function assertCompletedAndStopped(result, observer, final) {
+  assert.equal(result.completion.requestedSha, final);
+  assert.equal(result.completion.verdict, "success");
+  assert.equal(result.completion.shutdown.status, "confirmed");
+  assertObserverEnded(observer);
+}
+
+// The accepted final closure stands unobserved with everything preserved.
+export async function assertUnresolvedCoverage(
+  fixture,
+  { result, code },
+  { final, ownership, reason },
+) {
+  assert.equal(code, 1);
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "observation");
+  assert.equal(result.publication, "accepted");
+  assert.equal(result.acceptedSha, final);
+  assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), final);
+  assert.equal(result.observation.state, "unobserved");
+  assert.equal(result.observation.pendingCi, "unobserved");
+  assert.equal(result.observation.ownership, ownership);
+  assert.match(result.observation.reason, reason);
+  assert.equal(result.completion, null);
+  assert.equal(result.cleanup, "not-performed");
+  assert.equal(existsSync(fixture.execution), true);
+  assert.equal(await branchSha(fixture), final);
 }
 
 // A Claude Code project in a directory below its execution worktree's Git

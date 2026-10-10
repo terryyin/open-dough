@@ -28,8 +28,8 @@ import { ownerGapReason } from "../../dough-execute-plan/scripts/execution-incre
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 
 // One classification of a host coordinator's observers: those it finds
-// `live`, and why none of them carries the final closure. Several
-// `registered` it and are no longer live.
+// `live`, and why none of them carries the final closure. `registered` are
+// those that registered it and are no longer live.
 function hostClassification({ target, host, owner }) {
   const owned = classifyOwnedObservation({ ...target, owner });
   return {
@@ -42,7 +42,7 @@ function hostClassification({ target, host, owner }) {
         {
           ownership: owned.kind,
           directories:
-            registered.length > 1
+            registered.length > 0
               ? registered
               : (owned.directories ?? (owned.directory && [owned.directory])),
         },
@@ -67,12 +67,12 @@ function completedObserver(ended, sha) {
 }
 
 // `directories` are the owner's observers in any state. `select` classifies
-// them once, for the selection and its gap alike, and returns the one that
-// covers `sha`, preferring a live one, then the only one that ended; else the
-// owner's one live observer, which has yet to register it; else, with none
-// live, the `completedObserver` among the several ended ones covering `sha`;
-// otherwise the coverage `gap`, given those several ended observers. An
-// observer that went live after `directories` were listed is never selected.
+// them once, for the selection and its gap alike, and returns the live one
+// that covers `sha`; else the owner's one live observer, which has yet to
+// register it, whatever an ended one recorded; else, with none live, the
+// `completedObserver` among the ended ones covering `sha`, one as several;
+// otherwise the coverage `gap`, given those ended observers. An observer that
+// went live after `directories` were listed is never selected.
 // `notifies` is the host session that receives a selected observer's events.
 function ownedObservers(directories, classify, notifies) {
   return {
@@ -89,7 +89,6 @@ function ownedObservers(directories, classify, notifies) {
       const candidates =
         [
           covering.filter((directory) => live.includes(directory)),
-          covering.length === 1 ? covering : [],
           live,
           completedObserver(ended, sha),
         ].find((found) => found.length > 0) ?? [];

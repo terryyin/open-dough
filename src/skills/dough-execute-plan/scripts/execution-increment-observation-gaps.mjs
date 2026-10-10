@@ -62,16 +62,19 @@ const ownerGaps = {
 // Why `command` leaves the target `repo` `branch` unobserved when `owned`
 // classifies its `host` coordinator's observers. `others` counts the
 // observers of that target the coordinator does not own. `registered` are
-// the several of its observers that each registered the revision `command`
-// closes and are no longer live, so none of them is chosen for it.
+// those of its observers that each registered the revision `command` closes
+// and are no longer live, with none of them chosen for it: the one whose
+// record holds no CI verdict for that revision, or the several.
 export function ownerGapReason(
   command,
   { repo, branch, host, owned, others = 0, registered = [] },
 ) {
   const { reason, recovery } = ownerGaps[owned.kind];
-  const several =
+  const unchosen =
     registered.length > 1
       ? `; ${registered.length} of its observers each registered this revision and none is live (${registered.join(", ")})`
-      : "";
-  return `${reason({ repo, branch, host, owned, others, command })}${several}; ${recovery(command)}`;
+      : registered.length === 1
+        ? `; its observer at ${registered[0]} registered this revision and its record holds no CI verdict for it`
+        : "";
+  return `${reason({ repo, branch, host, owned, others, command })}${unchosen}; ${recovery(command)}`;
 }
