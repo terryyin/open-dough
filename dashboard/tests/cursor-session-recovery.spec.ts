@@ -1,10 +1,10 @@
 // Recover for an unfinished Cursor session the runner does not hold: the
 // not-held offer, resume through the runner, one continuation only on the
 // idle composer with confirmed first input, and cases that type nothing or
-// withhold Recover.
+// withhold Recover. Keep-wait expiry and cannot-load replacement live in
+// sibling specs.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { cursorCannotLoadChat } from "../src/cursorCannotLoad.ts";
 import { cursorHeldLabel } from "../src/cursorHeldLabel.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
@@ -28,7 +28,6 @@ import {
   startCursorExecution,
 } from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
-import { rawRequest } from "./support/rawHttp.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
 test("an unfinished not-held Cursor session says the agent is not running, offers Recover, and starts no agent", async ({
@@ -241,105 +240,4 @@ test("runner not running offers Recover; the click starts the runner and resumes
   await entry.getByRole("button", { name: "Recover" }).click();
   await expectHeldLabel(entry, cursorHeldLabel.followUp);
   await expect.poll(() => cursor.attaches().length).toBeGreaterThan(attaches);
-});
-
-test("cannot-load resume replaces the chat on the same launch", async ({
-  page,
-  dashboard,
-  origin,
-  cursor,
-}) => {
-  test.setTimeout(120_000);
-  await startCursorExecution(page, origin, cursor);
-  const [before] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  expect(before?.firstInput?.state).toBe("confirmed");
-  if (before?.session.host !== "cursor") throw new Error("Missing Cursor.");
-  const oldId = before.session.sessionId;
-  const originalPrompt = "Implement the selected slice.";
-  const replacementId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
-  await endHeldClient(page, cursor, dashboard.home);
-  cursor.setAttachMode("cannot-load");
-  cursor.queueCreateChatId(replacementId);
-  const createBefore = cursor
-    .calls()
-    .filter((call) => call.args.includes("create-chat")).length;
-  await page.reload();
-  const entry = parts(page).taken.locator(".session-entry");
-  const recoverResponse = page.waitForResponse((response) =>
-    response.url().includes("/__agent-launch/recover"),
-  );
-  await entry.getByRole("button", { name: "Recover" }).click();
-  const recover = await recoverResponse;
-  const recoverBody = (await recover.json()) as {
-    kind: string;
-    explanation?: string;
-    record?: { session?: { sessionId?: string } };
-  };
-  expect(
-    {
-      status: recover.status(),
-      kind: recoverBody.kind,
-      explanation: recoverBody.explanation,
-      sessionId: recoverBody.record?.session?.sessionId,
-      createCalls: cursor
-        .calls()
-        .filter((call) => call.args.includes("create-chat"))
-        .map((call) => call.args),
-      attachIds: cursor.attaches().map((attach) => attach.sessionId),
-    },
-    "recover response",
-  ).toMatchObject({
-    status: 200,
-    kind: "recovered",
-    sessionId: replacementId,
-  });
-  await expectHeldLabel(entry, cursorHeldLabel.followUp);
-  await expect
-    .poll(
-      () =>
-        cursor.calls().filter((call) => call.args.includes("create-chat"))
-          .length,
-    )
-    .toBe(createBefore + 1);
-  const [after] = keptRecords(dashboard.home);
-  if (after?.session.host !== "cursor") throw new Error("Missing Cursor.");
-  expect(after.session.sessionId).toBe(replacementId);
-  expect(after.session.continuation.args).toEqual([
-    expect.any(String),
-    "--workspace",
-    before.session.continuation.workspace,
-    "--resume",
-    replacementId,
-  ]);
-  const resumed = cursor.attaches().at(-1);
-  expect(resumed?.sessionId).toBe(replacementId);
-  const typed = cursor.input(resumed?.pid ?? 0).replace(/\r$/u, "");
-  expect(typed).toContain(originalPrompt);
-  expect(typed).toContain("Continue the recorded Execution");
-  expect(typed).toContain(`Identity: ${queuedIdentity}.`);
-  expect(typed).not.toContain(cursorCannotLoadChat);
-  const reference = after.request.reporting?.reference;
-  if (reference === undefined) throw new Error("Missing reporting reference.");
-  const post = (session: string) =>
-    rawRequest({
-      url: `${dashboard.baseURL}/__agent-launch/completion`,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Origin: dashboard.origin,
-      },
-      body: JSON.stringify({
-        source: "open-dough",
-        host: "cursor",
-        reference,
-        session,
-        outcome: "unfinished",
-        message: "Replacement completion check.",
-      }),
-    });
-  expect((await post(replacementId)).status).toBe(200);
-  expect((await post(oldId)).status).toBe(409);
-  expect((await post(oldId)).body).toContain(
-    "The report does not name this launch's recorded session.",
-  );
 });

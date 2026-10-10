@@ -94,8 +94,8 @@ Behavior: Cursor keep has not settled (never ready, or paste chip submitted then
 
 ### 2. Recover keep-wait expiry answers failed within the same bound
 Type: Behavior
-Status: planned
-Proof: Focused case in `dashboard/tests/cursor-session-recovery.spec.ts` with a short `launchTimeoutMs` and an attach that cannot settle keep before that bound — Recover answers `failed` with the same class of explanation within the bound; runner still holds the client when applicable. Existing idle-composer Recover case still recovers and types one continuation. Command: focused Playwright for that recover spec (same pattern as existing recover proofs).
+Status: done
+Proof: Accepted. Command: `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/cursor-session-recovery.spec.ts dashboard/tests/cursor-session-recovery-wait.spec.ts dashboard/tests/cursor-session-recovery-replacement.spec.ts` (and launch wait specs when shared wording moved). Wait-expiry observation in `cursor-session-recovery-wait.spec.ts`: short `launchTimeoutMs` + delayed paint — Recover body `failed` with shared instruction-delivery explanation within the bound; client still running; no hangup. Ordinary idle-composer Recover in `cursor-session-recovery.spec.ts` still recovers. Product: `recover.ts` races keep against `launchTimeoutMs()`; shared wording in `instructionDelivery.ts`.
 
 Behavior: Developer Recover on a Cursor session whose keep has not settled when the shared launch wait ends → Recover answers `failed` with the unconfirmed-delivery explanation; the client is not hung up; a Recover whose keep settles in ordinary time still returns `recovered` as today.
 
@@ -103,3 +103,5 @@ Behavior: Developer Recover on a Cursor session whose keep has not settled when 
 
 - Ordinary Cursor launch proofs that shortened `launchTimeoutMs` below keep settle time were accidentally green under the old abort→`launched` bug; with correct timed-out abort they need a settle-capable wait (or no override).
 - Quiet reporter treats Node `FORCE_COLOR`/`NO_COLOR` warnings as stray PRINTED output (non-zero exit); run focused dashboard Playwright with those env vars unset.
+- Start and Recover share one instruction-delivery timed-out sentence via `hosts/cursor/instructionDelivery.ts`.
+- Claude Mark-as-done rename proofs under shard load need `DOUGH_DONE_RENAME_WAIT_MS=30000` (CI repair on this branch); unrelated to Cursor keep-wait product change.

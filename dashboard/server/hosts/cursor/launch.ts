@@ -22,6 +22,7 @@ import { shellCommand } from "../../../src/sessionCapabilities.ts";
 import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { cursorAgent } from "./exec.ts";
+import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
 import { cursorPrompt } from "./prompt.ts";
 import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
 import { terminalHandoffRequested } from "../../terminalHandoff.ts";
@@ -73,7 +74,7 @@ function timedOut(session: CursorSession | undefined): HostLaunch {
   return {
     kind: "uncertain",
     reason: "timed-out",
-    explanation: `Cursor did not show it took the instruction in time. Session ${session.sessionId} is kept. Continue with \`${shellCommand(session.continuation.args)}\`.`,
+    explanation: instructionDeliveryTimedOutExplanation(session),
   };
 }
 

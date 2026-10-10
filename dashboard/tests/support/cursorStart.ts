@@ -24,10 +24,12 @@ export const test = base.extend<{
   origin: StartOrigin;
   cursorScreen: CursorScreen | undefined;
   cursorSplitPaintMs: number | undefined;
+  cursorPaintDelayMs: number | undefined;
   cursor: FakeCursor;
 }>({
   cursorScreen: [undefined, { option: true }],
   cursorSplitPaintMs: [undefined, { option: true }],
+  cursorPaintDelayMs: [undefined, { option: true }],
   // eslint-disable-next-line no-empty-pattern
   origin: async ({}, use) => {
     const origin = await startOrigin(
@@ -41,12 +43,18 @@ export const test = base.extend<{
   machine: async ({ origin }, use) => {
     await use(origin.machine);
   },
-  cursor: async ({ cursorScreen, cursorSplitPaintMs }, use) => {
+  cursor: async (
+    { cursorScreen, cursorSplitPaintMs, cursorPaintDelayMs },
+    use,
+  ) => {
     const cursor = installFakeCursor({
       ...(cursorScreen === undefined ? {} : { screen: cursorScreen }),
       ...(cursorSplitPaintMs === undefined
         ? {}
         : { splitPaintMs: cursorSplitPaintMs }),
+      ...(cursorPaintDelayMs === undefined
+        ? {}
+        : { paintDelayMs: cursorPaintDelayMs }),
     });
     await use(cursor);
     cursor.cleanup();

@@ -3,7 +3,7 @@
 // the client kept. Ordinary ready settlement is covered in
 // agent-terminal-cursor-launch.spec.ts.
 import { test, expect } from "./support/pageTest.ts";
-import { shellCommand } from "../src/sessionCapabilities.ts";
+import { instructionDeliveryTimedOutExplanation } from "../server/hosts/cursor/instructionDelivery.ts";
 import { installFakeCursor } from "./support/fakeCursor.ts";
 import {
   enteredInstruction,
@@ -20,7 +20,7 @@ function instructionDeliveryTimedOut(session: CursorSession) {
   return {
     kind: "uncertain",
     reason: "timed-out",
-    explanation: `Cursor did not show it took the instruction in time. Session ${session.sessionId} is kept. Continue with \`${shellCommand(session.continuation.args)}\`.`,
+    explanation: instructionDeliveryTimedOutExplanation(session),
   };
 }
 
