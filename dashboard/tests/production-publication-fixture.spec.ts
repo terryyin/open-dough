@@ -9,7 +9,13 @@ import { repoRoot } from "./support/repositoryRoot.ts";
 
 const exec = promisify(execFile);
 
+// The fixture commits this repository's whole source (about 2s alone, about
+// 20s while other workers commit theirs, most of it in `git add`), and the
+// pushes follow it; give it its own budget, as the other full-source
+// production specs have, so a busy machine cannot starve it inside the
+// default per-test timeout.
 test("a documentation-only publication pushes only its requested paths to origin main", async () => {
+  test.setTimeout(120_000);
   const fixture = await publishedMainFixture(true);
   const origin = async (...args: string[]) =>
     (await exec("git", ["--git-dir", fixture.origin, ...args])).stdout;

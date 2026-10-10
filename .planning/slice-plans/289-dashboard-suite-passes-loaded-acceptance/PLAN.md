@@ -326,6 +326,11 @@ Reported: slice 6 — "`agent-launch-preparation-resume.spec.ts:128` failed once
 Story clause: "A failure whose kept evidence shows only a wait that ended while the load was several times the core count is the first story's deferred boundary, not a pass: record it with that load and repeat the loaded run when the load is nearer the bound."
 Disposition: interim until slices 6
 
+### G16. The full-source fixture's cost under contention remains
+Reported: slice 6 — "The underlying cost remains. `git add` of the whole source per full-source test, with about 10x contention, still makes the production block slow; the change gives the two tests room and does not shrink the fixture."
+Story clause: "Making the full local run faster is not a promise; only the result is."
+Disposition: excluded "Making the full local run faster is not a promise; only the result is."
+
 ## Learnings
 
 - Slice 1: the page reads its project list (`/__project-configuration`)
@@ -438,6 +443,22 @@ Disposition: interim until slices 6
   one-minute load to several times the core count on their own; the series
   now logs `uptime` every 30 s so a failure is placed against the load at
   its own time, not the run's start and end.
+
+- Slice 6, third series at `f1fb04ff`: `Run 1 (fresh worktree): exit 1,
+  942 s, load 18.25 -> 20.25` (one-minute load 27–44 for most of the run,
+  from other work; no burners) with `FAIL:
+  dashboard/tests/production-watcher-refusals.spec.ts:7` (30 s test timeout),
+  kept at `dashboard/test-results/2026-10-10T13-22-08.586Z`; load at the
+  failure 33. Nothing hung: the full-source `publishedMainFixture(true)`
+  (a copy and `git add --all` of about 2,750 files) took the first 29.7 s
+  with its first command, and each refusal 0.15 s. Measured here, the
+  fixture takes 2 s alone and 13–20 s when eight workers build it at once,
+  with or without burners: file-system contention, not CPU load. Every other
+  full-source spec already declared its own budget (240–900 s); the two at
+  the default 30 s, `production-watcher-refusals` and
+  `production-publication-fixture`, now declare 120 s as the suite's
+  own-budget convention does. No `expect` bound, retry, or global timeout
+  changed. The series restarts from the fresh run.
 
 ## Verification and sizing
 
