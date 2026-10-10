@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-128#publish-dirty-preparation-before-execution",
+  "title": "Land unpublished preparation before starting execution from fresh remote main",
+  "completedAt": "2026-10-10T12:57:24.598Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "claude"
+}
