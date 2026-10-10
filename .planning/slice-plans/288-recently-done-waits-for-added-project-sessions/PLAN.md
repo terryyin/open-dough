@@ -222,3 +222,13 @@ Reported: slice 3 — "On a fixture's machine, if the worker dies after `server.
 Story clause: "withdraws its at-exit runner stop on every close, for a fixture's machine as for its own"
 Disposition: no user cost "has Recently done read that project's done stories as it reads": the window is the scope's own consequence in test support, outside the goal; it is reported to the developer at completion.
 
+
+## Execution complete
+
+Product advice: no backlog change. The correction delivered its four key
+examples and leaves SEED-129#bounded-cursor-launch-wait and
+SEED-123#dashboard-suite-passes-loaded-acceptance as they are. One decision
+stays with the developer: since slice 3, a Cursor runner a test keeps past
+its server's close has no at-exit stop until the test's own
+`stopCursorRunner` runs; accept that window, or give the fixtures that keep
+a runner their own at-exit stop.
