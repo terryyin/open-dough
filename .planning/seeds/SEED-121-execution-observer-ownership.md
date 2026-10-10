@@ -19,35 +19,77 @@ owner.
 
 ## Story
 
-<a id="recovery-holds-after-reuse-and-rerun"></a>
+<a id="finish-prefers-live-observer"></a>
 
-### Recovery holds after a path is reused and after finish reruns
+### Finish prefers its coordinator's live observer over an ended one
 
-**Identity:** SEED-121#recovery-holds-after-reuse-and-rerun
+**Identity:** SEED-121#finish-prefers-live-observer
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5d2cac935977cff87e667072c36d6bb8dae8b2ff5611c7b162fede08c25590e9","plan":"c92052389b9224354a2a48d1930c9c6fb4688d4449838545f61415c66496437a"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
-**Slice plan:** [Recovery holds after a path is reused and after finish reruns](../slice-plans/292-recovery-holds-after-reuse-and-rerun/PLAN.md).
 
-**Goal:** A coordinator recovering an ended observer keeps reaching it when
-the removed worktree's path exists again, and a `finish` rerun settles on the
-observer that already completed the final closure. This corrects residue the
-recovery-steps correction left; it adds no feature promise.
+**Goal:** A coordinator finishing a closure is not retired on an ended
+observer's receipt while a live observer of its own still runs toward its
+budget. Decided by the developer on 2026-10-10 as a later correction of the
+closure selection, to be planned once a journey shows the retirement
+consequence.
 
 **Scope:**
 
-- A mailbox that recorded its arming identity is read by that identity
-  whatever its recorded path has become, and a different repository at that
-  path is refused.
-- A `finish` rerun whose coordinator holds several ended observers of the
-  final closure, one of which completed it, repeats completion on that one.
-- The guidance rows and tests the recovery-steps correction left inexact or
-  tied to wording.
-- Excluded: which observer
-  `finish` prefers when one ended observer covers the closure beside a live
-  one that does not, which observer an ambient-identity `finish` rerun may use
-  after retirement, and what the native closure cases assert. Each waits for a
-  developer decision recorded in the plan.
+- When one ended observer covers the final closure beside a live one of the
+  same coordinator that does not, `finish` prefers the live observer, as it
+  already does beside several ended ones.
+- What one ended observer that alone covers the closure may settle when its
+  record holds no CI verdict, only a cancelled attempt: today `finish`
+  completes on it and may retire. Decide it with the preference above.
+- Kept as they are, by the same decision: an observer armed before mailboxes
+  recorded their identity is not reached after its worktree is removed; an
+  ambient `finish` rerun after retirement uses the caller's one live observer
+  of the target; ended observers whose recorded verdicts differ leave the
+  `ended` gap.
+- When the next paid native run is authorized, the closure assessor gains a
+  signal for an absent `--session-json` and one for `notifies`.
+
+**Key examples:**
+
+- A coordinator holds an ended observer that registered the final closure and
+  a live one that did not → `finish` → it registers the closure on the live
+  observer and completes there, and the worktree is not retired on the ended
+  observer's receipt.
+
+**Pending native evidence:**
+
+Carried from the delivered ownership story and its corrections under ADR 0005.
+No native run exists for any of these; substitute and replay results are not
+native acceptance, and each run is paid and needs the developer's
+authorization.
+
+- Cursor and Claude Code: concurrent `deliver`, repair, and completion with the
+  ambient session identity; `resume` and `finish` with ambient identity or
+  `--session-json`.
+- Codex: arm the documented cell with `COORDINATOR` set, confirm
+  `<directory>/owner` after the first yielded output, run `deliver` with
+  `--coordinator` and `--observer-directory`, and expect
+  `observation.state: "reused"` on that directory; repeat with a second
+  coordinator's stream live on the same target. Then `resume` and `finish` with
+  the same inputs.
+- Claude Code subagent coordinator: whether its Bash tool carries its parent's
+  `CLAUDE_CODE_SESSION_ID` and whether it can state its own `agent_id` are
+  unobserved. On the developer's decision of 2026-10-10 the guidance and
+  receipt state only that the variable names the session alone and that an
+  observer claimed with an `agent_id` is named by `--session-json` with both.
+- Trunk-closure harness, every case
+  `tests/git-publication-native.sh --native HOST --case trunk-closure/...`
+  after its arming change: on Claude Code and Cursor one `finish` without
+  `--session-json` whose receipt's `notifies` names the tool's variable; on
+  Codex one `finish` carrying the note's coordinator and stream directory with
+  `observation.state: "reused"`. `tests/native-publication.md` records the
+  commands.
+- Retained trunk-closure and git-publication evidence identities changed with
+  the hashed modules.
+- The fixture stop in `tests/support/native-harness-observation.sh` reads the
+  recorded identity; that file is hashed into the story-branch-closure
+  evidence identity as well as the trunk-closure and git-publication ones.
 
 ## Breadcrumbs
 

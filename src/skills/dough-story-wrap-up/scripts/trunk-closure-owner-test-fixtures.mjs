@@ -23,7 +23,6 @@ import {
   siblingCheckouts,
   startReceipt,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
-import { resumeThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { fixtureTeardown } from "../../dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
 import {
   git,
@@ -90,6 +89,8 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
   const checkouts = await siblingCheckouts(t, host);
   const { fixture, startObserver, hook, env } = checkouts;
   const { platform } = hosts[host];
+  const sessionField = host === "cursor" ? "conversation_id" : "session_id";
+  const repository = join(fixture.integration, ".git");
   await installClosureSkills(fixture, platform);
   installInIntegration(fixture, platform);
   const publisher = await startObserver(armedFrom);
@@ -102,6 +103,17 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
     await hook("sibling", "sibling-coordinator", startReceipt(sibling)),
     attached,
   );
+  // The installed `finish` of `closure` rerun from the management context
+  // once the execution worktree is retired, as `coordinator`'s host runs it.
+  const rerun = (closure, coordinator, extra = []) =>
+    finishThroughCli(fixture, {
+      host,
+      platform,
+      env: env(coordinator),
+      checkout: fixture.integration,
+      ...closure,
+      extra: ["--created-for-work", "--repository", repository, ...extra],
+    });
   return {
     fixture,
     hook,
@@ -113,13 +125,6 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
     pushes: () => countPushes(fixture),
     deliver: (base, extra = [], coordinator = publisherCoordinator) =>
       checkouts.deliver(base, coordinator, extra),
-    // The installed `resume` of the accepted `candidate` as the publisher.
-    resume: (candidate) =>
-      resumeThroughCli(fixture, {
-        candidate,
-        host,
-        env: env(publisherCoordinator),
-      }),
     // The installed `finish` as `coordinator`'s host runs it.
     finish: (options, coordinator = publisherCoordinator) =>
       finishThroughCli(fixture, {
@@ -128,6 +133,17 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
         env: env(coordinator),
         ...options,
       }),
+    // That rerun with no `--session-json`: its owner is `coordinator`'s
+    // ambient session, or none when `coordinator` is null.
+    ambientRerunFromManagement: (closure, coordinator = publisherCoordinator) =>
+      rerun(closure, coordinator),
+    // That rerun naming `session` as its owner where the ambient identity is
+    // the sibling's.
+    rerunFromManagement: (closure, session) =>
+      rerun(closure, "sibling-coordinator", [
+        "--session-json",
+        JSON.stringify({ [sessionField]: session }),
+      ]),
     assertSiblingUntouched: siblingWitness(fixture, sibling),
   };
 }

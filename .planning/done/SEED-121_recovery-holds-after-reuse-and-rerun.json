@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-121#recovery-holds-after-reuse-and-rerun",
+  "title": "Recovery holds after a path is reused and after finish reruns",
+  "completedAt": "2026-10-10T13:31:08.962Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "claude"
+}

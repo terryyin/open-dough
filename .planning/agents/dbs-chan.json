@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "dbs-chan",
-  "email": "dbs-chan@example.org",
-  "identity": "SEED-121#recovery-holds-after-reuse-and-rerun",
-  "mode": "story-branch",
-  "branch": "claude/recovery-holds-after-a-path-is-reused-and-after",
-  "host": "claude"
-}
