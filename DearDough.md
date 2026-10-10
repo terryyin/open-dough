@@ -239,7 +239,7 @@ Evidence and response: [ODF-152](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: slice 2's refactor return: the slice took `src/skills/dough-execute-plan/references/trunk-publication.md` from 250 to 262 lines, and the pass removed three sentences that predate the slice and sit outside its hunks "only to reach the limit" (`git show fc795844 -- src/skills/dough-execute-plan/references/trunk-publication.md`). Slice 4's pass collapsed an unrelated guard in `execution-increment-delivery.mjs` (252 lines, 255 before the slice) to reach 250. The coordinator's delegation briefs also told agents that files over 250 lines "fail a check"; slice 4's agent found no such check.
   - Observed effect: published guidance lost three restatements unrelated to the story, each rule still stated elsewhere in the file; three references now sit at exactly 250 lines, so the next addition repeats the trade.
   - Inference: qualified. No rule was lost, but the threshold, not the change's concept, chose what to delete, and the coordinator turned a refactor check into a hard limit in its briefs.
-- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first implementation `3354d72b`.
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292 (spent plan recoverable at `1d2de5da4b38eb379caa25da45e9254c42949795:.planning/slice-plans/292-landed-story-branch-review/PLAN.md`), first implementation `3354d72b`.
   - Timestamp: unknown (2026-10-10, slice 3 refactor pass, between `f86c0dae` at 22:40 +09:00 and `6207064d` at 23:04 +09:00).
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -766,7 +766,7 @@ with `no user cost` on that description. The wrap-up guidance itself directs a
 path into that state: resolve a conflicted integration by hand and push it.
 
 ### Occurrences
-- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first implementation `3354d72b`.
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292 (spent plan recoverable at `1d2de5da4b38eb379caa25da45e9254c42949795:.planning/slice-plans/292-landed-story-branch-review/PLAN.md`), first implementation `3354d72b`.
   - Timestamp: unknown (2026-10-10, slice 3 acceptance before `6207064d` at 23:04 +09:00; found by the retrospective about 23:40 +09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5

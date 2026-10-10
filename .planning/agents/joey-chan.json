@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "identity": "SEED-088#review-merged-story-branch-changes",
-  "mode": "story-branch",
-  "branch": "claude/review-a-story-branch-mode-story-s-changes-after",
-  "host": "claude"
-}

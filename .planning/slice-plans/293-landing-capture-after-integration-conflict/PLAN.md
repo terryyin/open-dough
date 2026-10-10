@@ -3,8 +3,9 @@
 **Identity:** SEED-088#landing-capture-after-integration-conflict
 **Source:** [correction story](../../seeds/SEED-088-dashboard-story-code-review.md#landing-capture-after-integration-conflict),
 written 2026-10-10 by the execution retrospective of
-[SEED-088#review-merged-story-branch-changes](../../seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes)
-(plan 292, commits `3354d72b`, `f86c0dae`, `6207064d`, `08d9ee6e` on
+`SEED-088#review-merged-story-branch-changes` (story and plan 292 recoverable at
+`1d2de5da4b38eb379caa25da45e9254c42949795`: `.planning/seeds/SEED-088-dashboard-story-code-review.md` and
+`.planning/slice-plans/292-landed-story-branch-review/PLAN.md`; commits `3354d72b`, `f86c0dae`, `6207064d`, `08d9ee6e` on
 `claude/review-a-story-branch-mode-story-s-changes-after`). Planning only; this
 plan grants no Take, execution, or publication.
 
