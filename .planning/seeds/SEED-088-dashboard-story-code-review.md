@@ -22,8 +22,9 @@ without piecing together individual commits or session outputs.
 ### A Trunk Mode story started outside the dashboard offers Review changes
 
 **Identity:** SEED-088#review-trunk-mode-story-worktree
+**Slice plan:** [A Trunk Mode story started outside the dashboard offers Review changes](../slice-plans/296-trunk-mode-worktree-review/PLAN.md).
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/296-trunk-mode-worktree-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6f377f5576392aeb662c622bf564a95343232bff52f2b5ac3bdb2e4422ef9d84","plan":"9451c762eebeb4a8ba0ab816e0150309cd6e75b795cd041e140891c4f0ff0507"}}
 ```
 
 **Goal:** A developer on the machine where a Trunk Mode story's agent works
