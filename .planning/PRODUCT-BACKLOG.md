@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [The full dashboard suite passes three consecutive local runs, fresh and loaded](seeds/SEED-123-dashboard-suite-stable-under-load.md#dashboard-suite-passes-loaded-acceptance) — SEED-123#dashboard-suite-passes-loaded-acceptance ([plan](slice-plans/289-dashboard-suite-passes-loaded-acceptance/PLAN.md))
 - [Automatically land completed slice planning when no coordinator question remains](seeds/SEED-128-automatic-preparation-handoffs.md#land-planning-without-coordinator-questions) — SEED-128#land-planning-without-coordinator-questions ([plan](slice-plans/290-land-planning-without-coordinator-questions/PLAN.md))
+- [Recovery steps reach the observer they name](seeds/SEED-121-execution-observer-ownership.md#recovery-steps-reach-their-observer) — SEED-121#recovery-steps-reach-their-observer ([plan](slice-plans/291-recovery-steps-reach-their-observer/PLAN.md))
 
 ## Backlog list
 
-- [Recovery steps reach the observer they name](seeds/SEED-121-execution-observer-ownership.md#recovery-steps-reach-their-observer) — SEED-121#recovery-steps-reach-their-observer
 - [Land unpublished preparation before starting execution from fresh remote main](seeds/SEED-128-automatic-preparation-handoffs.md#publish-dirty-preparation-before-execution) — SEED-128#publish-dirty-preparation-before-execution
 - [Review a Story Branch Mode story's changes after they merge](seeds/SEED-088-dashboard-story-code-review.md#review-merged-story-branch-changes) — SEED-088#review-merged-story-branch-changes
 - [Review only a story's uncommitted changes](seeds/SEED-088-dashboard-story-code-review.md#review-uncommitted-changes) — SEED-088#review-uncommitted-changes
