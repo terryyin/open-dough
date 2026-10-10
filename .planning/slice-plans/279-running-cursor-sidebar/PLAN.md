@@ -310,7 +310,18 @@ Safe stopping point: both panels resize accessibly for the page's lifetime.
 
 ### 3. Recover the preferred size without reopening the section on reload
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `cursor-sidebar-size-kept.spec.ts` (kept across collapse,
+sidebar, project and view; reload starts collapsed and expansion recovers the
+height; fresh context default; constrained room leaves the stored value; other
+keys intact) and `cursor-sidebar-size-unkept.spec.ts` (malformed, nonpositive
+and nonfinite values default; refused storage still resizes without page
+errors). 29 consumer specs passed (61 tests) before refactoring; the 13 specs
+the refactor reached passed after it (25 tests); typecheck clean.
+Learnings: the key is `open-dough.sessionSidebar.runningCursorHeight`;
+`usePreferredSize` in `sharedRoom.ts` now owns the kept-number read rule and
+write for both the sidebar height and the side panel width, each keeping its
+own key. `watchPageErrors` lives in `tests/pageErrors.ts`.
 Proof: Add `cursor-sidebar-size-kept.spec.ts`, using the real browser storage
 and reload boundary. Check fresh/invalid/refused storage, constrained room,
 returning room and another browser context. Keep the panel/resize and existing

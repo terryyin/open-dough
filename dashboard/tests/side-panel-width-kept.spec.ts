@@ -8,6 +8,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { cardSessions, parts } from "./dashboardPage.ts";
+import { watchPageErrors } from "./pageErrors.ts";
 import { pressWhereShown } from "./pageLayout.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import {
@@ -50,12 +51,6 @@ async function expectHalfTheRoom(page: Page, panel: Locator) {
   const { dashboard, panel: width } = await split(page, panel);
   expect(width).toBeCloseTo((dashboard + width) / 2, 0);
   await expectEdgeSays(page, Math.round((dashboard + width) / 2));
-}
-
-function watchPageErrors(page: Page): Error[] {
-  const errors: Error[] = [];
-  page.on("pageerror", (error) => errors.push(error));
-  return errors;
 }
 
 const keptWidth = (page: Page) =>

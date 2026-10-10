@@ -2,9 +2,11 @@
 // between the session list and Running Cursor sessions' content. The developer
 // keeps one preferred height for the Cursor content, chosen by dragging the
 // edge above that section or with its Up and Down keys
-// (`./ResizeEdge.tsx`), for the page's lifetime: collapsing and expanding the
-// section, closing and reopening the sidebar, and project and view changes
-// keep it. Until one is chosen the two share the room equally. The room is
+// (`./ResizeEdge.tsx`): collapsing and expanding the section, closing and
+// reopening the sidebar, and project and view changes keep it, and it is kept
+// in this browser's disposable storage, so expanding the section after a
+// reload recovers it. Until one is chosen, or where the browser keeps none or
+// an unusable one, the two share the room equally. The room is
 // what the sidebar's height leaves once its heading and the section's header
 // take theirs, as shown, so a banner or header that wraps leaves less. Each
 // keeps a usable floor: room to read and choose an entry, with the runner's
@@ -16,7 +18,10 @@
 import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
 import { flushSync } from "react-dom";
 import type { EdgeRange } from "./ResizeEdge.tsx";
-import { shareOfRoom, sizeWithin } from "./sharedRoom.ts";
+import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
+
+// Where this browser keeps the preferred height, in CSS px.
+const preferredHeightKey = "open-dough.sessionSidebar.runningCursorHeight";
 
 // Each area's usable floor, in rem: the sidebar's own, which its rows keep
 // (./session-sidebar.css).
@@ -82,7 +87,7 @@ export function useRunningCursorHeight(
   sidebar: RefObject<HTMLElement | null>,
   measuring: boolean,
 ): { height: number | undefined; range: EdgeRange | undefined } {
-  const [preferred, setPreferred] = useState<number | undefined>();
+  const [preferred, prefer] = usePreferredSize(preferredHeightKey);
   const room = useRoom(sidebar, measuring);
   const shown =
     room === undefined
@@ -98,9 +103,9 @@ export function useRunningCursorHeight(
   const choose = useCallback(
     (height: number) => {
       if (minimum === undefined || maximum === undefined) return;
-      setPreferred(sizeWithin(height, minimum, maximum));
+      prefer(sizeWithin(height, minimum, maximum));
     },
-    [minimum, maximum],
+    [minimum, maximum, prefer],
   );
   return { height: shown?.size, range: shown && { ...shown, choose } };
 }

@@ -21,8 +21,7 @@ import {
   type RefObject,
 } from "react";
 import { flushSync } from "react-dom";
-import { keep, readKept } from "./keptPreference.ts";
-import { shareOfRoom, sizeWithin } from "./sharedRoom.ts";
+import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
 // (`./session-sidebar.css`) and the panel stacks above it.
@@ -47,13 +46,8 @@ type SidePanelLayout =
       readonly step: number;
     };
 
-// The preferred width this browser keeps, in CSS px, if a usable one is kept.
+// Where this browser keeps the preferred width, in CSS px.
 const preferredWidthKey = "open-dough.sidePanel.width";
-
-function readPreferredWidth(): number | undefined {
-  const kept = Number(readKept(preferredWidthKey));
-  return Number.isFinite(kept) && kept > 0 ? kept : undefined;
-}
 
 // The panel's arrangement and width, in CSS px, in the room the page and the
 // panel share, for the preferred width, if one was chosen.
@@ -129,7 +123,7 @@ export function useSidePanelWidth(
   shown: boolean,
   sidebarOpen: boolean,
 ): { stacked: boolean; edge: SidePanelEdgeState | undefined } {
-  const [preferred, setPreferred] = useState(readPreferredWidth);
+  const [preferred, prefer] = usePreferredSize(preferredWidthKey);
   const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
   const room = useRoom(frame, shown, sidebarOpen);
   const layout: SidePanelLayout | undefined =
@@ -145,11 +139,9 @@ export function useSidePanelWidth(
   const choose = useCallback(
     (width: number) => {
       if (minimum === undefined || maximum === undefined) return;
-      const chosen = sizeWithin(width, minimum, maximum);
-      setPreferred(chosen);
-      keep(preferredWidthKey, String(chosen));
+      prefer(sizeWithin(width, minimum, maximum));
     },
-    [minimum, maximum],
+    [minimum, maximum, prefer],
   );
   return {
     stacked: layout?.arrangement === "stacked",

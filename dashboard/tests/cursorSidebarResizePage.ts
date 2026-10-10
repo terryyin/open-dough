@@ -1,7 +1,8 @@
 // The edge between the Sessions sidebar's two lists as the resize specs meet
 // it: the held session and the crowded lists (./runningCursorSessionsPage.ts)
 // with the section expanded, the split and what the edge says as shown, and
-// the mouse and keys that move it.
+// the mouse and keys that move it, and the preferred height this browser
+// keeps.
 import type { Locator, Page } from "@playwright/test";
 import { box } from "./pageLayout.ts";
 import {
@@ -23,6 +24,27 @@ export const keyStep = 2 * 16;
 export const wide = { width: 1440, height: 900 };
 
 export type Shown = ReturnType<typeof runningCursorParts>;
+
+// Where the browser keeps the preferred height, and what it keeps there.
+export const heightKey = "open-dough.sessionSidebar.runningCursorHeight";
+
+export const keptHeight = (page: Page) =>
+  page.evaluate((key) => window.localStorage.getItem(key), heightKey);
+
+export const keepInBrowser = (page: Page, key: string, value: string) =>
+  page.evaluate(
+    ([name, kept]) => {
+      window.localStorage.setItem(name, kept);
+    },
+    [key, value] as const,
+  );
+
+// The section is collapsed, showing no content and no edge.
+export async function expectCollapsed({ header, body, edge }: Shown) {
+  await expect(header).toHaveAttribute("aria-expanded", "false");
+  await expect(body).toHaveCount(0);
+  await expect(edge).toHaveCount(0);
+}
 
 export const heightOf = async (area: Locator) => (await box(area)).height;
 

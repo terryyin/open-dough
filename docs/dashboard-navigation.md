@@ -30,8 +30,12 @@ one preferred height, and a drag ends when released, wherever the pointer is,
 or when the browser cancels it. Each list keeps at least 8rem, room to read
 and choose an entry and the runner's status, so the maximum is the room less
 the session list's 8rem. Expansion and the preferred height last across
-collapsing, project switches, views, and closing the sidebar within the page,
-but are not kept across reloads. Where the window is too short or zoomed for
+collapsing, project switches, views, and closing the sidebar within the page.
+The preferred height alone is also local to this browser and disposable: after
+a reload the section starts collapsed, and expanding it recovers that height.
+Where the browser keeps none, refuses storage, or keeps an unusable value, the
+two lists start at an equal share and still resize for the page's lifetime.
+Where the window is too short or zoomed for
 both lists to keep 8rem, the edge offers no range, and the sidebar itself
 scrolls, keeping both lists and the header in reach; a height the room
 imposes never replaces the preferred one, so more room recovers it. Expanding,

@@ -30,7 +30,7 @@ import { sessionKey } from "./sessionReference.ts";
 // the developer resizes them with the edge between them
 // (`./runningCursorHeight.ts`); collapsing gives that room back to the session
 // list. Whether it is expanded, and the chosen split, survive project and view
-// changes and closing the sidebar, for the page's lifetime only. The section
+// changes and closing the sidebar; a reload keeps only the split. The section
 // says whether the Cursor runner is running, and each session it holds, as
 // working, waiting for an answer, or at the follow-up prompt. Choosing one
 // opens that terminal. When the runner is down or unreachable, the list says
