@@ -21,6 +21,7 @@ Accepted increment: `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`, suffix base `bbc
 Accepted repair: `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`, suffix base `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`; observer reused. Installed stash restoration confirmed `resumed`, applied, and dropped only owned OID `ee02bd66f48f8e8223178165da8f77ac362baa52` before slice 3 resumed.
 Accepted increment: `e5102464e72cbf2ab796e15ab5cebe50c8a55756`, suffix base `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`; observer reused, no reconciliation.
 Accepted increment: `3bd5e0ded7a431041d56bf5e6386f8a694fb85ee`, suffix base `e5102464e72cbf2ab796e15ab5cebe50c8a55756`; observer reused, no reconciliation.
+Accepted increment: `e09d47511a6824331f44bd4772182b75c9f1f74e`, suffix base `3bd5e0ded7a431041d56bf5e6386f8a694fb85ee`; observer reused, no reconciliation.
 Checkout setup: `npm ci --ignore-scripts`, then `npm run typecheck:dashboard`
 passed on 2026-10-12. No numeric slice budget or exception is configured;
 existing planned refinement authority is retained.
@@ -233,3 +234,10 @@ paid/native/live-GitHub premise is needed, and no exception is authorized.
 Reported: slice 3 — "No verification has run since that final reader adjustment."
 Story clause: "Keep process-table reading and exit recognition shared while retaining each owner's identity and signaling policy"
 Disposition: proved by slice 3: github-request-owned-calls.test.mjs (sync/async live/departed reads and no-signal/recheck assertions), ci-mailbox-complete-exit-cases.mjs, denied-inspection, installed completion/delivery/closure tests; final current commands passed after restoration.
+
+## Execution complete
+
+Product advice: No further product correction or backlog change recommended. The six related published revisions above fulfill the original cause/log/structure/proof contract; distinct reader, recovery, observer and installation coverage survives consolidation. Accepted ADRs and current direction remain aligned. Preserve background session delivery/protocol decisions with the sibling story; no new feature or architectural exception is needed.
+Implementation/product review: no findings; correction planning unchanged. End-to-end reader/CLI proof drove the behavior changes; structure preserved existing integrations and bounded real-consumer fault proof precedes deletion. Review used coordinator history and agent handoffs; detailed internal agent histories were unavailable.
+Process review: new occurrences reuse DD-259 (whole-text consumer omission, owned CI repair) and ODF-218 (formatter expansion after size review). `DearDough.md` is 998 lines, above its 500-line warning threshold; bounded retention replaced lower-priority DD-269 and a repeated ODF-110 description with exact recovery at `3bd5e0ded7a431041d56bf5e6386f8a694fb85ee:DearDough.md`.
+Applicable CI remains pending for the retained execution-branch observer until the coordinator's single completion operation covers this record's accepted publication; no pending result is claimed as passing.

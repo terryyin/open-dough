@@ -156,8 +156,6 @@ Evidence and response: [ODF-074](https://github.com/terryyin/open-dough/blob/mai
 
 Former local code: DD-213.
 
-A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop.
-
 Follow-up: delivered, unreleased: [Observe decisive planning premises through the full promised journey](https://github.com/terryyin/open-dough/blob/c1875574c4f0b5a6703d7a3e45e981e5e9cd9227/.planning/seeds/SEED-108-planning-observations-cover-promised-journeys.md#observe-promised-journey) — SEED-108#observe-promised-journey.
 
 Evidence and response: [ODF-110](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-110).
@@ -303,6 +301,13 @@ Evidence and response: [ODF-218](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: unknown.
   - Evidence: coordinator format output `/tmp/slow-startup-format-1.log` and fresh refactor1's formatter follow-up; three checked files expanded to 252–257 lines after the independent pass. Final accepted replacement is `02ec9aec`.
   - Observed effect: another mechanical refactor and formatter pass before publication. Later passes checked formatted counts with headroom without taking formatting ownership.
+
+- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`.
+  - Timestamp: unknown.
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: slice 1 independent refactor returned no edits with `github-request-owner-endpoint.mjs` at 250 lines; the coordinator's required formatter expanded it to 252. The coordinator shortened its redundant header comment and reran formatting before accepting `bbc0b6f2` (2026-10-12 local date).
+  - Observed effect: a mechanical size correction and repeated formatter pass before publication; no scope or behavior change.
 
 ## ODF-201 — The Codex observer binding has no durable failure acknowledgment step
 
@@ -475,6 +480,14 @@ word-boundary pattern, and the reorder put a boundary before “Running”.
   - Evidence: run 38010086816 `dashboard (3/9)`, `published-work.spec.ts:175`; repair `f64da99b`; plan 279 slice 1 learnings. The plan's verification section says the hosted dashboard checks are not an extra local all-suite gate.
   - Observed effect: one CI failure on a published slice, one stash/repair/refactor/publish cycle while slice 2 was in progress.
   - Inference: qualified to this execution. A change to where text sits in the page reaches assertions over a container's whole text; a search by selector cannot find them. Possibly the same family as ODF-110, whose rows concern plan premises rather than a slice's own search.
+
+- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`.
+  - Timestamp: 2026-10-11T22:33:26.3432757Z (CI failure).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: slice 2 `e169cd39` changed `references/ci-monitor.md`; the selected consumer proof omitted `ci-custom-guidance.test.mjs`, whose prose assertions failed in [run 38180782958/1](https://github.com/terryyin/open-dough/actions/runs/38180782958). `e9a3b231` reproduced the assertion and repaired assessment with equivalent prose and independently missing-safeguard counterexamples.
+  - Observed effect: one owned CI failure and a pause/stash/repair/refactor/publication/restoration cycle while slice 3 was unfinished.
+  - Inference: searches of changed failure/log/recovery consumers missed an assertion over the guidance text itself; this repeats the whole-text consumer omission rather than a product-plan premise.
 
 ## DD-260 — A CI repair stash was taken while a failed agent's test run was still observing the tree
 
@@ -662,22 +675,6 @@ numbers noted in an effect) that would have opened the gate one render late.
   - Evidence: plan 291 slice 1 Proof, "A scratch change of the start's `--workspace` to a new path makes the Story Branch assertion `created: false` fail" (`cffb354b:.planning/slice-plans/291-execution-handoff-in-preparation-worktree/PLAN.md`); slice 1's return (the start answered `setup-failed`, "a branch named 'claude/story-c' already exists", failing at `receipt.ok` instead); the corrected Proof and Accepted note in the delivered plan (`e5183b6c:` same path). The plan's scratch chain had observed the passing run only.
   - Observed effect: the implementation agent ran the named scratch change, reported the different failure, and added a new-path-and-new-branch variant that fails at `created: false`. The coordinator corrected the plan's wording and carried the `setup-failed` refusal into slice 2's recovery guidance. No rework followed.
   - Inference: here the claim concerned a discriminating scratch change, not a pre-fix failure; the same cause applies, a failure stated from reading. The delegation's requirement to run the check caught it at small cost.
-
-## DD-269 — A ready refinement named execution as its next step while its result was unpublished
-
-Refinement reported a ready plan with execution as the one next step, but the
-readiness lived in an uncommitted draft, execution start reads the published
-preparation, and keeping a draft needs an explicit instruction.
-
-### Occurrences
-- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
-  - Timestamp: unknown (2026-10-10, between the readiness record and the keep commit `c6aa657b` at 17:16 +09:00).
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `c6aa657b`; base 0.3.57
-  - Evidence: the refinement report ended "Next step: in that workspace, run `/dough-execute-plan …`" beside "Draft: uncommitted"; the developer answered "ok. Do the next step"; `execution-start.mjs start` "checks the published selected source and preparation" (`dough-execute-plan/SKILL.md`), and `preparation-disposition.md` counts only an explicit instruction as keep. The coordinator landed the draft as `c6aa657b` on that reply, then reused the preparation worktree for execution instead of retiring it as Dough Land describes.
-  - Observed effect: the coordinator inferred a keep and a workspace reuse that neither reference grants, and said so in its report; the developer did not object.
-  - Inference: qualified to a ready outcome followed by execution in the same session. The outcome wording offers a step the workflow cannot take without a second, unstated decision.
 
 ## DD-270 — Guidance stating an unobserved host fact was accepted with the gap filed as pending native evidence
 
@@ -996,5 +993,6 @@ The plan's architecture and slice 2 said an unattached launch's reporting contex
 ## Retention
 
 - Highest allocated local number: 291
-- Recovery: `4befa38c3c9bdfa575436fa51dca1a82818d21a1:DearDough.md` and `7aa7d85b63aef00efe20a2332ddc6a7f9dc82e1a:DearDough.md`
+- Recovery: `3bd5e0ded7a431041d56bf5e6386f8a694fb85ee:DearDough.md`, `4befa38c3c9bdfa575436fa51dca1a82818d21a1:DearDough.md` and `7aa7d85b63aef00efe20a2332ddc6a7f9dc82e1a:DearDough.md`
 - Occurrence history is partial
+- Retained new DD-259/ODF-218 evidence over DD-269's isolated, qualified authority inference and a repeated ODF-110 description; removed material is recoverable above.
