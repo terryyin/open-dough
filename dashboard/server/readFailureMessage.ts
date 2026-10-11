@@ -5,6 +5,7 @@
 // from the boundary's HTTP wrapper or rendered prose).
 
 import { notAskedOfGitHub } from "../src/authenticatedReadRules.ts";
+import { ownerFailureText } from "../../src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   GhFailure,
@@ -72,6 +73,8 @@ function failureMessage(
 ): string {
   const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`;
   switch (reason.kind) {
+    case "owner-unavailable":
+      return `${ownerFailureText(reason.cause)} ${reading} could not be read; reload after correcting the endpoint.`;
     case "not-logged-in":
       return `The local GitHub CLI is not logged in, so ${reading} could not be read. Run \`gh auth login\` (check with \`gh auth status\`), then reload the page.`;
     case "not-installed":

@@ -9,6 +9,7 @@
 
 import { ReadBoundReached } from "./github-request-outstanding.mjs";
 import { longestDirectedWaitSeconds } from "./github-request-rules.mjs";
+/** @import { OwnerUnavailableFailure } from "./github-request-owner-failure.mjs" */
 
 // Why a `gh` call did not answer, as far as can be said without repeating
 // anything `gh` printed. A `rate-limited` wait is how long the asking process
@@ -31,6 +32,7 @@ import { longestDirectedWaitSeconds } from "./github-request-rules.mjs";
  *   | { readonly kind: "unreachable" }
  *   | { readonly kind: "timed-out" }
  *   | { readonly kind: "not-installed" }
+ *   | OwnerUnavailableFailure
  *   | { readonly kind: "failed" }} GhRequestFailure
  */
 

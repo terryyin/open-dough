@@ -3,6 +3,7 @@
 // request source (`./github-requests.mjs`), whose owner this process shares
 // with every dashboard and CI observer of this user.
 import { GitHubRequests } from "./github-requests.mjs";
+import { ownerFailureText } from "./github-request-owner-failure.mjs";
 
 // Workflow identity is the selector every listing requests; the display name
 // is not a second, independent filter (`./ci-runs.mjs` checks a supplied one).
@@ -28,6 +29,8 @@ export class GitHubAcquisitionHeld extends Error {
 }
 
 function failureText(failure) {
+  if (failure.kind === "owner-unavailable")
+    return ownerFailureText(failure.cause);
   if (failure.kind === "http") return `HTTP ${failure.status}`;
   return (
     {

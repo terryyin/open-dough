@@ -10,6 +10,10 @@
 import { lstatSync } from "node:fs";
 import { connect } from "node:net";
 import { basename } from "node:path";
+import {
+  OwnerUnavailable,
+  safeOwnerCause,
+} from "./github-request-owner-failure.mjs";
 
 /** @import { Socket } from "node:net" */
 /** @import { GhAnswer } from "./github-request-answer.mjs" */
@@ -80,11 +84,15 @@ export const reachable = (path) =>
 // The owner `record` names, greeted: its connection, or undefined when
 // nothing answers there. Throws when it is another user's or refuses this
 // caller. `onMessage` hears what it says after its welcome.
-export function greeted({ socket: path, token }, onMessage) {
+export function greeted(
+  { socket: path, token },
+  onMessage,
+  inspect = lstatSync,
+) {
   return new Promise((resolve, reject) => {
     try {
-      if (lstatSync(path).uid !== process.getuid?.())
-        throw new Error("The GitHub request owner is another user's.");
+      if (inspect(path).uid !== process.getuid?.())
+        throw new OwnerUnavailable("another-user");
     } catch (error) {
       if (error.code === "ENOENT") resolve(undefined);
       else reject(error);
@@ -93,11 +101,21 @@ export function greeted({ socket: path, token }, onMessage) {
     const socket = connect(path);
     const gone = () => {
       clearTimeout(limit);
-      resolve(undefined);
+      reject(new OwnerUnavailable("connection-failed"));
     };
-    const limit = setTimeout(() => socket.destroy(), greetingLimitMs);
+    const limit = setTimeout(() => {
+      socket.off("close", gone);
+      socket.destroy();
+      reject(new OwnerUnavailable("unknown"));
+    }, greetingLimitMs);
     let welcomed = false;
-    socket.on("error", () => undefined);
+    socket.on("error", (error) => {
+      socket.off("close", gone);
+      clearTimeout(limit);
+      if (error.code === "ENOENT" || error.code === "ECONNREFUSED")
+        resolve(undefined);
+      else reject(new OwnerUnavailable("connection-failed"));
+    });
     socket.once("close", gone);
     socket.once("connect", () => send(socket, { hello: protocol, token }));
     receive(socket, (message) => {
@@ -107,13 +125,20 @@ export function greeted({ socket: path, token }, onMessage) {
       }
       clearTimeout(limit);
       socket.off("close", gone);
-      if (message.welcome === protocol) {
+      if (message?.welcome === protocol) {
         welcomed = true;
         resolve(socket);
         return;
       }
       socket.destroy();
-      reject(new Error("The GitHub request owner refused this caller."));
+      const cause = message?.refused;
+      reject(
+        new OwnerUnavailable(
+          cause === "incompatible" || cause === "unauthenticated"
+            ? cause
+            : "unknown",
+        ),
+      );
     });
   });
 }
@@ -135,7 +160,10 @@ export const answerFromWire = ({
   status,
   headers: new Map(headers),
   body,
-  failure,
+  failure:
+    failure?.kind === "owner-unavailable"
+      ? { kind: "owner-unavailable", cause: safeOwnerCause(failure.cause) }
+      : failure,
   askedAt,
 });
 

@@ -83,10 +83,10 @@ test("an owner killed with eight calls at GitHub is replaced by one that ends th
   for (const { settled } of waits)
     assert.deepEqual(await settled, {
       settled: (await settled).settled,
-      failure: { kind: "failed" },
+      failure: { kind: "owner-unavailable", cause: "connection-failed" },
       body: "",
     });
-  assert.deepEqual(consumers[0].failed, Array(4).fill("failed"));
+  assert.deepEqual(consumers[0].failed, Array(4).fill("owner-unavailable"));
 
   const again = asking(6, 100);
   await until(() => logsAsked() === 16, "eight more logs were asked");
@@ -222,7 +222,9 @@ test("an owner whose record is overtaken while its calls are at GitHub asks noth
 
   for (const { settled } of waits) {
     const answer = await settled;
-    assert.deepEqual(answer.failure, { kind: "failed" });
+    if (answer.failure.kind === "owner-unavailable")
+      assert.equal(answer.failure.cause, "connection-failed");
+    else assert.deepEqual(answer.failure, { kind: "failed" });
     assert.equal(answer.status, undefined);
   }
   assert.equal(logsAsked(), 8);
