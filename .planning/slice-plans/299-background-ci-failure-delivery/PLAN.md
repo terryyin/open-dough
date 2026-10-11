@@ -11,6 +11,13 @@ rest as slices 1–10. The split plan is recoverable at
 `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`.
 Terry authorized slice 1's paid native probes on 2026-10-11.
 
+**Deferred by Terry (2026-10-12):** execution is stopped and this story is
+returned to the Backlog list for later execution. Slice 1 remains incomplete;
+its Claude evidence and probe helpers are retained. The Claude delivery
+decision and the Codex/Cursor native probes remain outstanding. This deferral
+authorizes no further paid probes or implementation. A later execution must
+establish its own workspace and agent assignment and resume from this evidence.
+
 ## Goal and boundaries
 
 Execution and wrap-up end the agent turn while background CI obligations
