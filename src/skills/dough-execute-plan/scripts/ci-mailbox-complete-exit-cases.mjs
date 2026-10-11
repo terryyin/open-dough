@@ -17,7 +17,11 @@ import {
   mailboxWithUnrelatedWorker,
   sha,
 } from "./ci-mailbox-process-test-fixtures.mjs";
-import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import {
+  checkMailboxWorkerLiveness,
+  terminateMailboxWorker,
+} from "./ci-mailbox-worker-process.mjs";
+import { shownProcessSync } from "./process-table.mjs";
 import {
   deferChildExit,
   fixtureTeardown,
@@ -204,4 +208,25 @@ test("stop reports a worker lost when it shows a transient command while exiting
   assert.equal(terminal.coverage.state, "lost");
   assert.equal(terminal.coverage.reason, workerLossReason);
   assert.deepEqual(reads, []);
+});
+
+test("a worker whose identity changes after TERM is never killed", async (t) => {
+  const { directory, child } = await mailboxWithStubWorker(
+    t,
+    "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000);",
+  );
+  let reads = 0;
+  const readCommand = (pid) => {
+    const command = shownProcessSync(pid)?.command;
+    return ++reads === 1 ? command : "another process";
+  };
+
+  await assert.rejects(
+    terminateMailboxWorker({ pid: child.pid }, directory, { readCommand }),
+    /does not match this mailbox/,
+  );
+  assert.equal(reads, 2);
+  assert.doesNotThrow(() => process.kill(child.pid, 0));
+  assert.equal(child.exitCode, null);
+  assert.equal(child.signalCode, null);
 });

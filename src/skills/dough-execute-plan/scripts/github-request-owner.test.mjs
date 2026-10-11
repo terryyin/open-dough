@@ -19,6 +19,31 @@ import {
 
 const logRoute = (job) => `repos/owner/repo/actions/jobs/${job}/logs`;
 const log = (job) => ["api", logRoute(job)];
+const observationMs = 5_000;
+
+// A missing settlement is an assertion failure, even when a disabled rule
+// leaves the real consumer waiting on a held upstream call.
+async function observed(promise, description) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((...[, reject]) => {
+        timer = setTimeout(
+          () =>
+            reject(
+              new assert.AssertionError({
+                message: `${description} did not settle within ${observationMs} ms`,
+              }),
+            ),
+          observationMs,
+        );
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // A `gh` whose job logs wait for `releaseLogs`, the consumers asking it
 // through one owner, and how many logs it was asked for.
@@ -29,6 +54,10 @@ function heldLogs(t) {
     jobs: [],
     holdLogs: true,
     log: "the log",
+  });
+  github.teardown.defer(() => {
+    github.releaseLogs();
+    github.releaseRequests();
   });
   const root = github.env.DOUGH_GITHUB_REQUEST_OWNER_ROOT;
   return {
@@ -73,11 +102,19 @@ test("at most eight calls are at GitHub at once across processes, and the rest a
   const waits = consumers.flatMap((process, index) =>
     Array.from(Array(6).keys(), (job) => process.ask(log(index * 6 + job))),
   );
-  await Promise.all(consumers.map((process) => process.reached()));
-  await until(() => logsAsked() === 8, "eight logs were asked");
+  await observed(
+    Promise.all(consumers.map((process) => process.reached())),
+    "both consumers reached the owner",
+  );
+  await until(() => logsAsked() >= 8, "eight logs were asked", observationMs);
+  assert.equal(logsAsked(), 8, "only eight held logs may reach GitHub");
 
   github.releaseLogs();
-  for (const { settled } of waits) assert.equal((await settled).status, 200);
+  const answered = await observed(
+    Promise.all(waits.map(({ settled }) => settled)),
+    "all twelve logs",
+  );
+  assert.ok(answered.every(({ status }) => status === 200));
   assert.equal(logsAsked(), 12);
   assert.equal(github.mostUnderWay(), 8);
 });
@@ -86,14 +123,20 @@ test("a rate limit one process meets holds back every other process unasked, a n
   const { github, consumer } = heldLogs(t);
   github.limit(1, "jobs/1/", 600);
   const [limited, peer] = [consumer(), consumer()];
-  const refused = await limited.ask(log(1)).settled;
+  const refused = await observed(
+    limited.ask(log(1)).settled,
+    "the limited log",
+  );
   assert.deepEqual(refused.failure, {
     kind: "rate-limited",
     status: 429,
     waitSeconds: 600,
   });
 
-  const held = await peer.ask(log(2)).settled;
+  const held = await observed(
+    peer.ask(log(2)).settled,
+    "the peer's held-back log",
+  );
   assert.equal(held.status, undefined);
   assert.equal(held.failure.kind, "held-back");
   assert.ok(held.failure.waitSeconds > 590 && held.failure.waitSeconds <= 600);
@@ -108,7 +151,7 @@ test("a rate limit one process meets holds back every other process unasked, a n
     "workflow",
     "owner/repo",
   ]);
-  assert.equal(await diagnostic.exited, 75);
+  assert.equal(await observed(diagnostic.exited, "the held diagnostic"), 75);
   assert.match(diagnostic.stderr(), /GitHub directed a wait of \d+ s/);
   assert.deepEqual(github.asked(), [`api --include ${logRoute(1)}`]);
 });
@@ -117,18 +160,41 @@ test("once a wait ends one request goes first for every process, and the others 
   const { github, consumer, logsAsked } = heldLogs(t);
   github.limit(1, "jobs/1/", 1);
   const consumers = [consumer(), consumer()];
-  const refused = await consumers[0].ask(log(1)).settled;
+  const refused = await observed(
+    consumers[0].ask(log(1)).settled,
+    "the limited log",
+  );
   const waitOver = Date.now() + refused.failure.waitSeconds * 1000;
-  await until(() => Date.now() >= waitOver, "the directed wait ended");
+  await until(
+    () => Date.now() >= waitOver,
+    "the directed wait ended",
+    observationMs,
+  );
 
   const waits = consumers.flatMap((process, index) =>
     [2, 3, 4].map((job) => process.ask(log(index * 10 + job))),
   );
-  await Promise.all(consumers.map((process) => process.reached()));
-  await until(() => logsAsked() === 2, "the first request was asked");
+  await observed(
+    Promise.all(consumers.map((process) => process.reached())),
+    "both consumers reached the owner after the wait",
+  );
+  await until(
+    () => logsAsked() >= 2,
+    "the first request was asked",
+    observationMs,
+  );
+  assert.equal(
+    logsAsked(),
+    2,
+    "only one held log may follow the directed wait",
+  );
 
   github.releaseLogs();
-  for (const { settled } of waits) assert.equal((await settled).status, 200);
+  const answered = await observed(
+    Promise.all(waits.map(({ settled }) => settled)),
+    "the six post-wait logs",
+  );
+  assert.ok(answered.every(({ status }) => status === 200));
   assert.equal(logsAsked(), 7);
   // The refused call, then the one that went first: answered before any
   // other was asked.

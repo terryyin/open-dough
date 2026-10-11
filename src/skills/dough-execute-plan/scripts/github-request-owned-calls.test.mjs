@@ -17,6 +17,7 @@ import {
   OwnedCalls,
   shownProcess,
 } from "./github-request-owned-calls.mjs";
+import { shownProcessSync } from "./process-table.mjs";
 
 const args = (job) => [
   "api",
@@ -94,6 +95,50 @@ test("a call that does not end when asked is looked at again and killed a second
   assert.deepEqual(records(), []);
 });
 
+test("a call whose identity changes after TERM is never killed", async (t) => {
+  const { github, directory, records, call } = leftCalls(t, "stay");
+  const left = await call(1);
+  new OwnedCalls(directory, 1).started(left.pid, args(1), "core");
+  let reads = 0;
+  const changed = async (pid) => {
+    const seen = await shownProcess(pid);
+    return ++reads === 1 ? seen : { ...seen, command: "another process" };
+  };
+
+  assert.deepEqual(await earlierCallsEnded(directory, 2, changed), []);
+  assert.equal(reads, 2);
+  assert.ok(left.running());
+  assert.equal(
+    github.calls().filter(({ phase }) => phase === "told-to-end").length,
+    1,
+  );
+  assert.deepEqual(records(), []);
+});
+
+for (const [form, seen] of [
+  ["disappeared", undefined],
+  ["zombie", { state: "Z", command: "gh" }],
+  ["macOS bare name", { state: "S", command: "(gh)" }],
+  ["defunct main thread", { state: "Sl", command: "[gh] <defunct>" }],
+]) {
+  test(`a recorded call shown as ${form} is gone without a signal`, async (t) => {
+    const { github, directory, records, call } = leftCalls(t, "end");
+    const left = await call(1);
+    new OwnedCalls(directory, 1).started(left.pid, args(1), "core");
+
+    assert.deepEqual(
+      await earlierCallsEnded(directory, 2, async () => seen),
+      [],
+    );
+    assert.ok(left.running());
+    assert.equal(
+      github.calls().some(({ phase }) => phase === "told-to-end"),
+      false,
+    );
+    assert.deepEqual(records(), []);
+  });
+}
+
 test("a process running under a recorded process ID is never signalled unless it runs the recorded arguments and started when the record says", async (t) => {
   const { directory, records, call } = leftCalls(t, "end");
   const [otherArguments, otherStart] = [await call(1), await call(2)];
@@ -154,6 +199,9 @@ test("the process table shows a running process's command and start, and nothing
   const asked = Date.now();
   const running = await call(1);
   const shown = await shownProcess(running.pid);
+  const syncShown = shownProcessSync(running.pid);
+  assert.equal(syncShown.command, shown.command);
+  assert.ok(!syncShown.state.startsWith("Z"));
   assert.ok(shown.command.endsWith(`/gh ${args(1).join(" ")}`));
   assert.ok(shown.startedFromMs <= Date.now() && shown.startedByMs >= asked);
   assert.ok(shown.startedByMs - shown.startedFromMs < 60_000);
@@ -161,4 +209,5 @@ test("the process table shows a running process's command and start, and nothing
   process.kill(running.pid, "SIGKILL");
   await running.exit;
   assert.equal(await shownProcess(running.pid), undefined);
+  assert.equal(shownProcessSync(running.pid), undefined);
 });

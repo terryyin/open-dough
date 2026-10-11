@@ -4,9 +4,15 @@
 // it, each through the one request source.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { chmodSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import {
+  ownerSecret,
+  refusingOwner,
+} from "./github-request-owner-refusal-test-fixtures.mjs";
+import { ownerlessRequestRoot } from "./github-request-owner-test-fixtures.mjs";
 import {
   apiCall,
   completedJobs,
@@ -16,6 +22,44 @@ import {
 } from "./ci-github-test-fixtures.mjs";
 
 const exec = promisify(execFile);
+
+for (const [fault, message] of [
+  ["privacy", "endpoint is open to other users"],
+  ["path", "endpoint path is too long"],
+  ["incompatible", "explicitly refused the protocol"],
+  ["unauthenticated", "explicitly refused this caller"],
+  ["unknown", "gave no usable answer"],
+]) {
+  test(`the diagnostic entry reports observed owner ${fault} without login advice or upstream requests`, async (t) => {
+    const github = instrumentedGithubFixture(t, {});
+    const root = github.env.DOUGH_GITHUB_REQUEST_OWNER_ROOT;
+    if (fault === "privacy") chmodSync(root, 0o755);
+    else if (fault === "path")
+      github.env.DOUGH_GITHUB_REQUEST_OWNER_ROOT = ownerlessRequestRoot(root);
+    else
+      await refusingOwner(github, {
+        refused: fault === "unknown" ? ownerSecret : fault,
+      });
+    const diagnostic = startInstalledScript(
+      github,
+      "ci-github-diagnostic.mjs",
+      ["workflow", "owner/repo"],
+    );
+    assert.equal(await diagnostic.exited, 1);
+    assert.ok(diagnostic.stderr().includes(message), diagnostic.stderr());
+    assert.match(
+      diagnostic.stderr(),
+      /Check the local request-owner endpoint configuration/,
+    );
+    for (const secret of [root, ownerSecret, "gh auth", "gh failed"])
+      assert.equal(
+        diagnostic.stderr().includes(secret),
+        false,
+        diagnostic.stderr(),
+      );
+    assert.deepEqual(github.asked(), []);
+  });
+}
 
 const stamped = (line) => `2026-09-05T10:00:00.0000000Z ${line}`;
 const failedLog = [

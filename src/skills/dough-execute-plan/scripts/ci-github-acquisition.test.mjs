@@ -1,22 +1,17 @@
 // The installed CI engine's GitHub default against an instrumented `gh` on
 // PATH that counts upstream requests per route and page: the observer asks
 // GitHub only `gh api` requests through the one request source, a rate limit
-// suspends acquisition, and a pending request asked twice costs once.
+// suspends acquisition without ending coverage. Shared calls, held requests
+// and post-wait admission belong to `./github-request-owner.test.mjs`;
 // `./ci-github-diagnostic.test.mjs` covers the diagnostic entry.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
-  createGitHubActions,
-  GitHubAcquisitionHeld,
-  readGitHubActions,
-} from "./ci-github-actions.mjs";
-import {
   apiCall,
   completedJobs,
   instrumentedGithubFixture,
   startInstalledScript,
-  until,
 } from "./ci-github-test-fixtures.mjs";
 
 const sha = "a".repeat(40);
@@ -140,36 +135,6 @@ test("a rate limit suspends the observer until the directed time without losing 
     );
 });
 
-test("the same pending request asked twice reaches GitHub once", async (t) => {
-  const github = instrumentedGithubFixture(t, {
-    attempts: {},
-    jobs: completedJobs([120]),
-  });
-  github.enter();
-  github.holdRequests();
-  const signal = new AbortController().signal;
-  const observers = [
-    createGitHubActions({ repo: "owner/repo" }),
-    createGitHubActions({ repo: "owner/repo" }),
-  ];
-
-  const reading = Promise.all(
-    observers.map((observer) => observer.attemptJobs(42, 2, signal)),
-  );
-  await until(() => github.asked().length === 1, "the first page asked");
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  assert.equal(github.asked().length, 1);
-  github.releaseRequests();
-  const [first, second] = await reading;
-
-  assert.equal(first.length, 150);
-  assert.deepEqual(second, first);
-  assert.deepEqual(github.asked(), [
-    apiCall("runs/42/attempts/2/jobs?per_page=100&page=1"),
-    apiCall("runs/42/attempts/2/jobs?per_page=100&page=2"),
-  ]);
-});
-
 test("no installed file asks gh outside the one request source or names a gh run command", () => {
   const installer = readFileSync(
     new URL("../../../../install.sh", import.meta.url),
@@ -202,48 +167,4 @@ test("no installed file asks gh outside the one request source or names a gh run
     ),
     [],
   );
-});
-
-// Last in this file: it leaves this process's requests held back.
-test("nothing is asked while a wait stands, and one request goes first once it ends", async (t) => {
-  const github = instrumentedGithubFixture(t, {
-    attempts: {
-      "42/1": { status: "completed", conclusion: "success" },
-      "42/2": { status: "completed", conclusion: "failure" },
-      "42/3": { status: "completed", conclusion: "failure" },
-    },
-  });
-  github.enter();
-  const signal = new AbortController().signal;
-  const attempt = (number) =>
-    readGitHubActions(
-      ["api", `repos/owner/repo/actions/runs/42/attempts/${number}`],
-      signal,
-    );
-  const held = (error) =>
-    error instanceof GitHubAcquisitionHeld && error.waitSeconds === 1;
-
-  github.limit(1, "/attempts/1");
-  await assert.rejects(attempt(1), held);
-  await assert.rejects(attempt(2), held);
-  await assert.rejects(attempt(3), held);
-  assert.deepEqual(github.asked(), [apiCall("runs/42/attempts/1")]);
-
-  // Once the wait is over one request goes first; the limit it meets holds
-  // the others back unasked.
-  await new Promise((resolve) => setTimeout(resolve, 1100));
-  github.limit(1, "/attempts/1");
-  const probed = await Promise.allSettled([attempt(1), attempt(2), attempt(3)]);
-  assert.ok(probed.every(({ reason }) => held(reason)));
-  assert.deepEqual(github.asked(), [
-    apiCall("runs/42/attempts/1"),
-    apiCall("runs/42/attempts/1"),
-  ]);
-
-  await new Promise((resolve) => setTimeout(resolve, 1100));
-  assert.deepEqual(await attempt(2), {
-    status: "completed",
-    conclusion: "failure",
-  });
-  assert.equal(github.asked().length, 3);
 });

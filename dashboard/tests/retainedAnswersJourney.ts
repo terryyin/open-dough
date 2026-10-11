@@ -206,7 +206,8 @@ export async function readProject(server: DashboardServer, branch: string) {
       await read(server, `${at}&branch=${branch}&head=${head}${query}`),
     );
   }
-  // Last, so a rate limit met here holds back no other read of this process.
+  // Last in this journey; a rate limit here still holds subsequent reads by
+  // every process sharing this API host and login's request owner.
   answers.push(
     await read(
       server,

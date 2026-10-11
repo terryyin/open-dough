@@ -18,6 +18,7 @@ export type DiagnosticFailure = {
   readonly category: string;
   readonly pin?: string;
   readonly cause: string;
+  readonly ownerCause?: string;
   readonly elapsedMs: number;
   readonly status?: number;
   readonly requestId?: string;

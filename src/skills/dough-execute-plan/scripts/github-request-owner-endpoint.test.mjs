@@ -4,17 +4,25 @@
 // only the one fixed read, asked under the owner's own login, is asked of
 // `gh`.
 import assert from "node:assert/strict";
-import { chmodSync, existsSync } from "node:fs";
-import { basename } from "node:path";
+import { chmodSync, existsSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
 import { test } from "node:test";
 import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
 import { enterEnvironment } from "./fixture-teardown-test-fixtures.mjs";
-import { privacyRefusal } from "./github-request-owner-endpoint.mjs";
+import {
+  privacyRefusal,
+  privateDirectory,
+} from "./github-request-owner-endpoint.mjs";
+import {
+  ownerSecret,
+  refusingOwner,
+} from "./github-request-owner-refusal-test-fixtures.mjs";
 import {
   ownerlessRequestRoot,
   ownerRecords,
   saidToOwner,
 } from "./github-request-owner-test-fixtures.mjs";
+import { greeted } from "./github-request-owner-endpoint-connection.mjs";
 import { protocol } from "./github-request-owner-wire.mjs";
 import { GitHubRequests } from "./github-requests.mjs";
 
@@ -145,8 +153,11 @@ test("a consumer whose endpoint is open to other users is answered as failed, as
   chmodSync(root, 0o755);
   const answer = await requests.request(workflow, never());
   assert.equal(answer.status, undefined);
-  assert.deepEqual(answer.failure, { kind: "failed" });
-  assert.deepEqual(failed, ["failed"]);
+  assert.deepEqual(answer.failure, {
+    kind: "owner-unavailable",
+    cause: "not-private",
+  });
+  assert.deepEqual(failed, ["owner-unavailable"]);
   assert.deepEqual(github.asked(), []);
   assert.deepEqual(ownerRecords(root), []);
 });
@@ -158,9 +169,80 @@ test("a consumer at the root that admits no owner makes that root, is answered a
   const ownerless = ownerlessRequestRoot(root);
   enterEnvironment(t, { DOUGH_GITHUB_REQUEST_OWNER_ROOT: ownerless });
   const answer = await requests.request(workflow, never());
-  assert.deepEqual(answer.failure, { kind: "failed" });
-  assert.deepEqual(failed, ["failed"]);
+  assert.deepEqual(answer.failure, {
+    kind: "owner-unavailable",
+    cause: "path-too-long",
+  });
+  assert.deepEqual(failed, ["owner-unavailable"]);
   assert.deepEqual(github.asked(), []);
   assert.equal(existsSync(ownerless), true);
   assert.deepEqual(ownerRecords(ownerless), []);
+});
+
+test("another user's directory and socket refuse with safe ownership causes", async (t) => {
+  const { github, root } = consumer(t);
+  const metadata = () => ({ isDirectory: () => true, uid: -1, mode: 0o700 });
+  assert.throws(
+    () => privateDirectory(root, metadata),
+    (error) =>
+      error.failure?.cause === "another-user" && !error.message.includes(root),
+  );
+  const { socket } = await refusingOwner(github, { refused: "incompatible" });
+  await assert.rejects(
+    greeted({ socket, token: ownerSecret }, () => {}, metadata),
+    (error) => error.failure?.cause === "another-user",
+  );
+  assert.deepEqual(github.asked(), []);
+});
+
+test("a file used as an endpoint is a known directory fault with no upstream call", async (t) => {
+  const { github, root, requests } = consumer(t);
+  const file = join(root, "secret-path-sentinel");
+  writeFileSync(file, ownerSecret);
+  enterEnvironment(t, { DOUGH_GITHUB_REQUEST_OWNER_ROOT: file });
+  const answer = await requests.request(workflow, never());
+  assert.deepEqual(answer.failure, {
+    kind: "owner-unavailable",
+    cause: "not-directory",
+  });
+  assert.deepEqual(github.asked(), []);
+  assert.doesNotMatch(
+    JSON.stringify(answer),
+    new RegExp(`${root}|${ownerSecret}`),
+  );
+});
+
+for (const [greeting, cause] of [
+  [{ refused: "incompatible" }, "incompatible"],
+  [{ refused: "unauthenticated" }, "unauthenticated"],
+  [{ refused: ownerSecret }, "unknown"],
+  [null, "unknown"],
+  ["close", "connection-failed"],
+  ["silent", "unknown"],
+  ["unanswered", "unknown"],
+]) {
+  test(`a reader names ${cause} from greeting ${JSON.stringify(greeting)} without asking GitHub`, async (t) => {
+    const { github, root, requests, failed } = consumer(t);
+    await refusingOwner(github, greeting);
+    const answer = await requests.request(workflow, never());
+    assert.deepEqual(answer.failure, { kind: "owner-unavailable", cause });
+    assert.deepEqual(failed, ["owner-unavailable"]);
+    assert.deepEqual(github.asked(), []);
+    assert.equal(ownerRecords(root).length, 1);
+    assert.doesNotMatch(
+      JSON.stringify(answer),
+      new RegExp(`${root}|${ownerSecret}`),
+    );
+  });
+}
+
+test("an owner process that exits during startup settles failed without a fallback", async (t) => {
+  const { github } = consumer(t);
+  const requests = new GitHubRequests({ boundMs: 10_000, backoffBaseMs: 0 });
+  const answer = await requests.request(workflow, never());
+  assert.deepEqual(answer.failure, {
+    kind: "owner-unavailable",
+    cause: "start-failed",
+  });
+  assert.deepEqual(github.asked(), []);
 });

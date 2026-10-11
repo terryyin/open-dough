@@ -98,6 +98,17 @@ its last dashboard or observer left, unless a rate limit's wait stands. While
 no owner can be reached or started -- or the one standing speaks another
 version's protocol -- each read fails without asking GitHub.
 
+An unavailable owner names only its observed local cause: an endpoint that is
+not a directory, belongs to another user, is open to others, or has a path too
+long for a socket; failed startup or connection; an explicit protocol or caller
+refusal; or no usable answer. Silence stays unknown, rather than establishing
+a protocol mismatch. Notices and failed-read history keep these safe categories
+without endpoint paths, tokens, credentials or raw error text. Recovery addresses
+the local endpoint configuration and restarts the reader. No private fallback
+asks `gh`. A failure before connection leaves the read unasked; after dispatch,
+a lost connection cannot establish whether GitHub was asked. A waiter's abort
+and timeout retain their own rejection behavior.
+
 An owner that is killed, or lost in any way it could not prepare for, is
 replaced by the next dashboard or observer to need GitHub. Each read waiting
 on the lost owner fails then, as a read GitHub failed to answer does, and is
@@ -111,6 +122,13 @@ alone. One the replacement cannot look at, where it may not read the process
 table, takes one of its eight turns until that process is gone. An owner
 still running after another replaced it asks nothing more and passes no
 answer on.
+
+Request-call and CI-mailbox owners share process-table readings and recognition
+of exited processes. Each retains its own identity checks, inspection-denial
+policy and rechecks before signaling; shared facts grant no new signaling
+authority. Endpoint connections own socket ownership, reachability, greeting
+and host/login scope. Wire encoding owns protocol framing, fixed-read validation
+and safe answer conversion.
 
 Pages and processes that need the same GitHub answer while it is outstanding
 share one `gh` request for it, whatever was asked: two tabs opening one
@@ -187,3 +205,17 @@ the same local same-origin admission as other authenticated-read routes, and a
 refused diagnostic request never launches `gh`. Each dashboard process keeps
 the failed reads it waited on, one entry for a request several of its pages
 shared; a request two dashboards shared is in each one's history.
+
+An actual subprocess output bound is reported as `output-bound`; its partial
+body is discarded, while known upstream status/headers and directed-rate-limit
+precedence remain. It supplies no retry or login advice, and diagnostics invent
+no upstream status or rate evidence.
+
+The installed [CI diagnostic](../src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs)
+retains failed steps and every readable log excerpt when another log is missing.
+A held job carries numeric `logWaitSeconds` alongside `logUnavailable`; any held
+log makes the command exit 75. Expired HTTP 404/410 logs, output bounds and other
+failed requests supply no delay. Other partial diagnostics exit 0; jobs-acquisition
+failure exits 1, or 75 when held. Agents classify from available evidence, retain
+uncertainty when insufficient, and retry only after numeric directed waits end,
+following the shared [CI repair guidance](../src/skills/dough-execute-plan/references/ci-monitor.md#handle-a-notification).

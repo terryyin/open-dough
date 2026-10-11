@@ -9,6 +9,10 @@
 // `./readDiagnosticSanitize.ts`.
 
 import type { FailedGhRequest } from "../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
+import {
+  safeOwnerCause,
+  type OwnerUnavailableCause,
+} from "../../src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
 import type { GhFailureReason } from "./ghFailure.ts";
 import {
   currentReadDiagnosticContext,
@@ -40,6 +44,7 @@ export type ReadDiagnosticEntry = {
   readonly category: DiagnosticCategory;
   readonly pin?: string;
   readonly cause: GhFailureReason["kind"];
+  readonly ownerCause?: OwnerUnavailableCause;
   readonly elapsedMs: number;
   readonly status?: number;
   readonly requestId?: string;
@@ -63,7 +68,7 @@ export function diagnosticsForSource(
 
 // Records one failed shared invocation, as the installed request source
 // tells it (`github-requests.mjs`), when an admitted reader started it.
-// Omits held-back/unasked answers, successful or unchanged (`304`) answers,
+// Omits held-back answers, successful or unchanged (`304`) answers,
 // and calls with no admitted context.
 export function recordFailedRead(input: FailedGhRequest): void {
   const carried = currentReadDiagnosticContext();
@@ -90,6 +95,9 @@ export function recordFailedRead(input: FailedGhRequest): void {
     category: carried.category,
     ...(carried.pin !== undefined && { pin: carried.pin }),
     cause: input.cause,
+    ...(input.answer?.failure?.kind === "owner-unavailable" && {
+      ownerCause: safeOwnerCause(input.answer.failure.cause),
+    }),
     elapsedMs,
     ...(status !== undefined && { status }),
     ...(requestId !== undefined && { requestId }),

@@ -3,12 +3,12 @@
 // authenticated read boundary over real HTTP with the synthetic `gh`
 // (./support/sharedReads.ts publishes the revision): a rate-limited setting
 // file fails its read with the limit rather than being taken as absent; a
-// second server asking through another request owner asks at once (one
-// sharing the owner is held back: ./shared-request-owner.spec.ts); adding a
-// project while the wait stands is held back like a read; and an unmarked
+// project added while the wait stands is held back like a read; and an unmarked
 // `403`, a `404`, a timeout, and an unreachable GitHub hold back nothing. How
 // the wait holds back every read of its process:
-// ./authenticated-read-cooldown.spec.ts.
+// ./authenticated-read-cooldown.spec.ts. Shared-owner wiring belongs to
+// ./shared-request-owner.spec.ts; actual login isolation belongs to
+// ../../src/skills/dough-execute-plan/scripts/github-request-login.test.mjs.
 
 import { expect, test } from "./support/pageTest.ts";
 import {
@@ -18,13 +18,11 @@ import {
 import {
   everyRepository,
   hangs,
-  startFakeGitHub,
   type RepositoryAnswerer,
 } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { onServerOfItsOwn } from "./support/directedWait.ts";
 import {
-  expectHeldBack,
   heldBackPattern,
   servedRefusing,
   timedRead,
@@ -68,38 +66,6 @@ test.describe("authenticated read boundary: what a directed rate limit reaches b
         },
       });
     });
-  });
-
-  test("a second server on the same GitHub, asking through a request owner of its own, asks at once while the first still holds back its reads", async () => {
-    const github = await startFakeGitHub();
-    const limited = await startDashboardServer({ mode: "dev", github });
-    let server: DashboardServer | undefined;
-    try {
-      servedRefusing(limited, revision, (request) =>
-        request.kind === "ref"
-          ? rateLimitedAnswer(429, { "Retry-After": "600" })
-          : undefined,
-      );
-      const refused = await timedRead(limited, "");
-      expect(refused.body).toMatchObject({ retryAfterSeconds: 600 });
-      server = await startDashboardServer({ mode: "dev", github });
-      const before = github.calls.length;
-      const asked = await readAt(server, `&revision=${revision}`);
-      expect(asked.status).toBe(200);
-      expect(askedSince(server, before)).toEqual([
-        `content .planning/PRODUCT-BACKLOG.md@${revision}`,
-      ]);
-      expectHeldBack(
-        await timedRead(limited, `&revision=${revision}`),
-        refused,
-        "the first server",
-      );
-      expect(askedSince(server, before)).toHaveLength(1);
-    } finally {
-      await server?.close();
-      await limited.close();
-      await github.close();
-    }
   });
 });
 
