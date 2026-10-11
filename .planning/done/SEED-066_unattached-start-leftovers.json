@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-066#unattached-start-leftovers",
+  "title": "Leave nothing behind after an unattached start",
+  "completedAt": "2026-10-11T12:49:32.823Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
