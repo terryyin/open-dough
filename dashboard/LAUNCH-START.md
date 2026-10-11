@@ -124,6 +124,9 @@ the Backlog card.
 
 Before a Default main start, the boundary reads the default checkout's
 `git status` (staged, changed, deleted and untracked paths; never content).
+The project row's Start session is such a start: its request carries the
+unattached policy of the shared definition (workspace and landing, no
+tracking), and one naming no policy runs in Default main and waits for review.
 Unless the request names the fingerprint of what it now observes, nothing starts
 and the dialog shows, in place of its choices, “Existing changes in default
 main”, the changed paths and count, “Continuing includes these changes in this

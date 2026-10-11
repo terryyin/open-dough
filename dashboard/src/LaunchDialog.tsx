@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 import type { OfferedShape } from "./commandOptions.ts";
 import {
   launchInstructionLimit,
+  unattachedPolicyOf,
   type AgentLaunchRequest,
   type LaunchChoices,
 } from "./agentLaunch.ts";
@@ -110,9 +111,10 @@ export function LaunchDialog({
     useLaunchSettings(sourceId, host, projectContext);
   const policy = session?.policy;
   // Unless a launch found existing changes to confirm, closes with its answer.
+  // With no Session group, the session is unattached with the default choices.
   const confirmation = useExistingChangesConfirmation({
     id,
-    policy,
+    landing: (policy ?? unattachedPolicyOf({})).landing,
     onStart,
     ended: (answer) => {
       accepted.current = answer;
@@ -134,14 +136,10 @@ export function LaunchDialog({
       aria-labelledby={headingId}
       onCancel={(event) => {
         confirmation.onCancel(event);
-        if (!submitting) {
-          dictation.cancel();
-        }
+        if (!submitting) dictation.cancel();
       }}
       onClose={() => {
-        if (dictation.suspended.current) {
-          return;
-        }
+        if (dictation.suspended.current) return;
         dictation.cancel();
         onClose(accepted.current);
       }}

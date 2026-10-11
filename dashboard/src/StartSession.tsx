@@ -2,7 +2,9 @@
 // to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recently done and the Sessions sidebar, like any
-// launched session; no card lists it. The dialog closes once the local
+// launched session; no card lists it. The session runs on default main, so
+// existing changes there are confirmed in the dialog before anything starts
+// (`LaunchExistingChanges`). The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
 // button, that the startup goes on while the button waits for it. A started
 // session then opens in the page's terminal, with the keyboard in it unless
@@ -21,6 +23,7 @@ import { useCallback, useId, useRef, useState } from "react";
 import { adHocName, type LaunchChoices } from "./agentLaunch.ts";
 import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";
@@ -41,12 +44,13 @@ export function StartSession({
   readonly sourceId: string;
   // The last launch from this row that has not started a session.
   readonly attempt: LaunchAttempt | undefined;
-  // Answers whether the launch was accepted; its session, once launched, is
-  // presented (`onLaunched`) and then takes the keyboard.
+  // Answers whether the launch was accepted, or the existing changes to
+  // confirm; its session, once launched, is presented (`onLaunched`) and then
+  // takes the keyboard.
   readonly onStart: (
     choices: LaunchChoices,
     onLaunched: OnLaunched,
-  ) => Promise<boolean>;
+  ) => Promise<StartAnswer>;
 }) {
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
   const starting = attempt?.kind === "starting";

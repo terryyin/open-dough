@@ -5,6 +5,8 @@ import {
   sessionPolicy,
   sessionPolicyChoices,
   sessionPolicyFlags,
+  unattachedSessionChoices,
+  unattachedSessionPolicy,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 import { type LaunchModel } from "./hostDescription.ts";
@@ -57,6 +59,26 @@ export function policyOf(request: {
   return request.policy ?? defaultSessionPolicy;
 }
 
+// An unattached session's policy, as the shared definition spells the two
+// choices of a session with no workflow (`session-policy.mjs`): workspace and
+// landing, never tracking. A request or record without one has the default:
+// the default checkout, waiting for review.
+export const unattachedSessionPolicySchema = z.strictObject({
+  workspace: z.enum(unattachedSessionChoices.workspace.values),
+  landing: z.enum(unattachedSessionChoices.landing.values),
+});
+
+export type UnattachedSessionPolicy = z.infer<
+  typeof unattachedSessionPolicySchema
+>;
+
+// An unattached request's or record's policy, the default when it names none.
+export function unattachedPolicyOf(request: {
+  readonly policy?: UnattachedSessionPolicy | undefined;
+}): UnattachedSessionPolicy {
+  return unattachedSessionPolicy(request.policy);
+}
+
 // What a story's command line takes after its skill, as every host and the
 // dialog spell it: the work item's identity, the flags of its policy, then
 // the options selected.
@@ -93,12 +115,16 @@ const storyLaunchRequestSchema = z.object({
 
 // A session in a project with no story or skill: the request carries no
 // title or identity, since the server derives the label
-// (`../server/hostLaunch.ts`), and one naming an identity is refused.
+// (`../server/hostLaunch.ts`), and one naming an identity is refused. Its
+// policy is the unattached one, and it confirms existing changes as a story's
+// does.
 const adHocLaunchRequestSchema = z.strictObject({
   source: z.string().min(1).max(launchTextLimit),
   workflow: z.literal("ad-hoc"),
   host: z.enum(agentHosts),
   ...launchOptions,
+  policy: unattachedSessionPolicySchema.optional(),
+  existingChanges: existingChangesSchema.optional(),
 });
 
 export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
@@ -108,6 +134,16 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
+
+// A request as it is kept: without the transient confirmation of existing
+// changes.
+export function withoutConfirmation(
+  request: AgentLaunchRequest,
+): AgentLaunchRequest {
+  const kept = { ...request };
+  delete kept.existingChanges;
+  return kept;
+}
 
 // Retries belong to the same project, host, workflow and subject. New options
 // or story instructions do not replace a retained launch's original intent.
@@ -141,18 +177,17 @@ export type LaunchChoices = {
   readonly existingChanges?: string;
 };
 
-// The choices as a request carries them: the chosen host, trimmed text
-// omitted when empty, and the model, options, policy
-// and confirmation only when chosen.
-export function requestedChoices({
+// The choices every request carries alike: the chosen host, trimmed text
+// omitted when empty, and the model, options and confirmation only when
+// chosen.
+export function requestedSettings({
   host,
   instruction,
   model,
   effort,
   options,
-  policy,
   existingChanges,
-}: LaunchChoices) {
+}: Omit<LaunchChoices, "policy">) {
   const own = instruction.trim();
   return {
     host,
@@ -162,13 +197,21 @@ export function requestedChoices({
     ...(options === undefined || options.length === 0
       ? {}
       : { options: [...options] }),
-    ...(policy === undefined ? {} : { policy }),
     ...(existingChanges === undefined ? {} : { existingChanges }),
   };
 }
 
+// The choices as a story's request carries them: its settings, and its
+// policy only when chosen.
+export function requestedChoices(choices: LaunchChoices) {
+  return {
+    ...requestedSettings(choices),
+    ...(choices.policy === undefined ? {} : { policy: choices.policy }),
+  };
+}
+
 // The request a record keeps: an ad hoc one with the label the server
-// derived as its title, and a story's without a confirmation.
+// derived as its title, and neither kind with a confirmation.
 export const reportingContextSchema = z.object({
   origin: z.url(),
   reference: z.uuid(),
@@ -181,7 +224,7 @@ export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
   storyLaunchRequestSchema
     .omit({ existingChanges: true })
     .extend({ reporting: reportingContextSchema.optional() }),
-  adHocLaunchRequestSchema.extend({
+  adHocLaunchRequestSchema.omit({ existingChanges: true }).extend({
     title: oneLine,
     reporting: reportingContextSchema.optional(),
   }),

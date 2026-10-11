@@ -1,12 +1,13 @@
 // Common launch facts and the request label; native instruction spelling stays
 // with each host. Established facts come from the shared installed start.
-import type {
-  AgentLaunchRequest,
-  RecordedLaunchRequest,
-  LaunchResult,
-  HostSession,
-  SessionPolicy,
-  SessionState,
+import {
+  withoutConfirmation,
+  type AgentLaunchRequest,
+  type RecordedLaunchRequest,
+  type LaunchResult,
+  type HostSession,
+  type SessionPolicy,
+  type SessionState,
 } from "../src/agentLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { Established } from "./startLaunch.ts";
@@ -85,18 +86,17 @@ function adHocLabel(instruction: string | undefined, began: Date): string {
     : text;
 }
 
-// The request a launch keeps: an ad hoc one titled with its label, the one
-// place the label is derived, and a story's without the transient
-// confirmation of existing changes.
+// The request a launch keeps, without the transient confirmation of existing
+// changes: an ad hoc one titled with its label, the one place the label is
+// derived.
 export function recordedRequest(
   request: AgentLaunchRequest,
   began: Date,
 ): RecordedLaunchRequest {
-  if (request.workflow === "ad-hoc")
-    return { ...request, title: adHocLabel(request.instruction, began) };
-  const recorded = { ...request };
-  delete recorded.existingChanges;
-  return recorded;
+  const recorded = withoutConfirmation(request);
+  return recorded.workflow === "ad-hoc"
+    ? { ...recorded, title: adHocLabel(recorded.instruction, began) }
+    : recorded;
 }
 
 // A story's recorded request with the policy its start ran with, a kept

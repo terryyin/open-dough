@@ -131,8 +131,12 @@ a change reaches their surface (the dialog, the boundary answer, the hosts).
 
 ### 1. An unattached start in Default main confirms existing changes before starting
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new spec and the existing ad hoc specs in the proof table.
+Accepted proof: `agent-launch-start-session-existing-changes.spec.ts` (3 tests:
+the dialog journey, the clean start, the raw boundary answers); the ten
+`agent-launch-ad-hoc*.spec.ts` files and the default-checkout warning spec; the
+`agent-launch*` and `one-shot-*` suites; `session-policy.test.mjs`.
 
 Behavior: the project's default checkout holds a changed, a deleted, a staged
 and an untracked file; the developer opens Start session, types an
@@ -293,7 +297,38 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
   blocks and is owned by the session policy's skill.
 - The developer runs slice 6; automated fakes do not substitute for it.
 
+## Story obligations
+
+### G1. A non-default unattached policy is accepted but not honored
+Reported: slice 1 — "A raw request with `policy: { workspace: "isolated", … }` or `landing: "auto-land"` is accepted, recorded with that policy, and launched in the project folder with no block."
+Story clause: "The native session opens in that worktree."
+Disposition: interim until slices 2, 3
+
+### G2. The isolated branch of the existing-changes check is untested
+Reported: slice 1 — "No test covers "an isolated ad hoc workspace skips the check", because asserting it now would cement the interim launch above."
+Story clause: "A Default main start, including the default choices, follows the shared existing-changes contract"
+Disposition: receiving slice 3
+
+### G3. The confirmation's landing line is fixed at the unattached default
+Reported: slice 1 — "The dialog's landing line is fixed at the unattached default."
+Story clause: "never changes the landing choice"
+Disposition: receiving slice 2
+
+### G4. Codex and Cursor are untested for the confirmation
+Reported: slice 1 — "The new spec exercises Claude only. The check runs before host selection matters, so it is host-independent by construction, but that is unproven."
+Story clause: "Back and Cancel start nothing"
+Disposition: receiving slice 2
+
 ## Learnings
+
+- Continue from Startup recovery runs the same pre-acceptance existing-changes
+  check for a kept ad hoc attempt, whose kept request carries no fingerprint:
+  with a dirty default checkout it answers “did not confirm” and cannot be
+  confirmed from recovery, as a story's Default main start does. Slice 4
+  accounts for it; an isolated recovery skips the check.
 
 - A fresh `.worktrees/` checkout has no `node_modules`; run
   `node scripts/setup-native.mjs npm` before Playwright proof there.
+- `LaunchDialog.tsx` (248 lines) and `launchAttemptOwner.ts` (247) sit at the
+  250-line limit; the Session choices of slices 2 and 3 need their own seam
+  rather than more lines in the dialog.

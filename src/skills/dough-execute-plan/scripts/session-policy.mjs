@@ -29,6 +29,37 @@ export const sessionPolicyChoices = Object.freeze({
   }),
 });
 
+// The choices of a session started with no workflow to track, each with its
+// default first: it runs in the default checkout unless an isolated workspace
+// is chosen, and its landing waits for review unless automatic landing is.
+// It has no tracking; a workflow invoked in it later carries its own.
+export const unattachedSessionChoices = Object.freeze({
+  workspace: Object.freeze({
+    values: Object.freeze(
+      /** @type {const} */ (["default-checkout", "isolated"]),
+    ),
+  }),
+  landing: Object.freeze({
+    values: sessionPolicyChoices.landing.values,
+  }),
+});
+
+// An unattached session's policy: each choice `selected` names, and the
+// default of every choice it does not.
+/** @typedef {{workspace: "default-checkout" | "isolated", landing: "review" | "auto-land"}} UnattachedSessionPolicy */
+/** @param {Partial<UnattachedSessionPolicy>} [selected]
+ * @returns {UnattachedSessionPolicy} */
+export function unattachedSessionPolicy(selected = {}) {
+  return /** @type {UnattachedSessionPolicy} */ (
+    Object.fromEntries(
+      Object.entries(unattachedSessionChoices).map(([choice, { values }]) => [
+        choice,
+        selected[choice] ?? values[0],
+      ]),
+    )
+  );
+}
+
 // Each invocation flag and the request option it sets to true.
 export const sessionPolicyToggles = Object.freeze(
   Object.fromEntries(

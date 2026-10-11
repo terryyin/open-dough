@@ -29,19 +29,20 @@ export type StartAnswer = boolean | ExistingChangesFound;
 // is submitted (`submitting`) from that moment until an answer finds changes;
 // changes it finds are shown (`view`, the choices hidden behind it) until
 // Back, Escape, or a launch answer, and Continue sends that Start's choices
-// again with the confirmation. Back returns the keyboard to Start
+// again with the confirmation; `landing` is what stays selected after checks,
+// said under them. Back returns the keyboard to Start
 // (`startButton`) once the choices show again. Any other answer is the
 // dialog's to end with (`ended`). While a launch is submitted, nothing
 // dismisses the dialog: neither its cancel nor Escape, wherever the keyboard
 // is once its controls are disabled.
 export function useExistingChangesConfirmation({
   id,
-  policy,
+  landing,
   onStart,
   ended,
 }: {
   readonly id: string;
-  readonly policy: SessionPolicy | undefined;
+  readonly landing: SessionPolicy["landing"];
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
   readonly ended: (accepted: boolean) => void;
 }): {
@@ -94,11 +95,11 @@ export function useExistingChangesConfirmation({
     setFound(undefined);
   };
   return {
-    view: found !== undefined && policy !== undefined && (
+    view: found !== undefined && (
       <LaunchExistingChanges
         id={id}
         found={found}
-        policy={policy}
+        landing={landing}
         starting={submitting}
         onBack={back}
         onContinue={() => {
@@ -126,8 +127,8 @@ export function useExistingChangesConfirmation({
 const existingChangesHeading = "Existing changes in default main";
 
 // What stays selected after checks, said under the changes.
-function landingRemains(policy: SessionPolicy): string {
-  return policy.landing === "auto-land"
+function landingRemains(landing: SessionPolicy["landing"]): string {
+  return landing === "auto-land"
     ? "Automatically land remains selected; verified changes may land without another review."
     : "Wait for review remains selected.";
 }
@@ -135,14 +136,14 @@ function landingRemains(policy: SessionPolicy): string {
 function LaunchExistingChanges({
   id,
   found,
-  policy,
+  landing,
   starting,
   onBack,
   onContinue,
 }: {
   readonly id: string;
   readonly found: ExistingChangesFound;
-  readonly policy: SessionPolicy;
+  readonly landing: SessionPolicy["landing"];
   readonly starting: boolean;
   readonly onBack: () => void;
   readonly onContinue: () => void;
@@ -188,7 +189,7 @@ function LaunchExistingChanges({
           ))}
         </ul>
         {more > 0 && <p className="quiet">and {more} more</p>}
-        <p className="launch-changes-landing">{landingRemains(policy)}</p>
+        <p className="launch-changes-landing">{landingRemains(landing)}</p>
       </div>
       <div className="launch-dialog-footer">
         <div className="launch-dialog-actions">

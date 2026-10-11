@@ -28,7 +28,7 @@ const established = (workspace: string) => ({
 function launched(
   launchedAt: string,
   facts: Pick<LaunchRecord, "start" | "preparation">,
-  request: Partial<LaunchRecord["request"]> = {},
+  request: Partial<Extract<LaunchRecord["request"], { identity: string }>> = {},
 ): LaunchRecord {
   return {
     request: {

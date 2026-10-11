@@ -5,6 +5,7 @@
 // since, answer with what was observed, and nothing starts.
 import {
   policyOf,
+  unattachedPolicyOf,
   type AgentLaunchRequest,
   type ExistingChangesFound,
   type LaunchRecord,
@@ -67,20 +68,32 @@ function startFailed(
   };
 }
 
-// What a story launch's start answers before the launch is accepted, with
-// nothing run: a kept start another host owns is refused, and changes in the
-// default checkout the request did not confirm, or that changed since, are
-// answered for the developer to confirm.
+// The workspace a launch's session runs in: an unattached session's own
+// choice, the default checkout when it names none; a story start's policy, a
+// kept start's own, whose kept start another host owns is refused; none for a
+// story workflow with no start.
+async function startWorkspace(
+  source: PublishedSource,
+  request: AgentLaunchRequest,
+): Promise<SessionPolicy["workspace"] | undefined> {
+  if (request.workflow === "ad-hoc")
+    return unattachedPolicyOf(request).workspace;
+  if (startOf(request.workflow) === undefined) return undefined;
+  const kept = await keptStart(source.id, request.identity, request.workflow);
+  requireStartHost(request.host, kept);
+  return policyOf(kept ?? request).workspace;
+}
+
+// What a launch's start answers before the launch is accepted, with nothing
+// run: a kept start another host owns is refused, and changes in the default
+// checkout the request did not confirm, or that changed since, are answered
+// for the developer to confirm.
 export async function unconfirmedStart(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
 ): Promise<ExistingChangesFound | undefined> {
-  if (request.workflow === "ad-hoc" || startOf(request.workflow) === undefined)
-    return undefined;
-  const kept = await keptStart(source.id, request.identity, request.workflow);
-  requireStartHost(request.host, kept);
-  if (policyOf(kept ?? request).workspace !== "default-checkout")
+  if ((await startWorkspace(source, request)) !== "default-checkout")
     return undefined;
   const found = await existingChanges(folder);
   return found !== undefined && found.fingerprint !== request.existingChanges

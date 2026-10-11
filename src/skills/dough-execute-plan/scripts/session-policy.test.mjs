@@ -10,6 +10,8 @@ import {
   sessionPolicyChoices,
   sessionPolicyFlags,
   sessionPolicyToggles,
+  unattachedSessionChoices,
+  unattachedSessionPolicy,
   withSelectedLanding,
 } from "./session-policy.mjs";
 
@@ -148,4 +150,31 @@ test("only non-default workspace and landing choices need one-shot tracking", ()
       [],
     );
   }
+});
+
+test("an unattached session chooses workspace and landing only, from the default checkout waiting for review", () => {
+  assert.deepEqual(Object.keys(unattachedSessionChoices), [
+    "workspace",
+    "landing",
+  ]);
+  assert.deepEqual(unattachedSessionPolicy(), {
+    workspace: "default-checkout",
+    landing: "review",
+  });
+  assert.deepEqual(unattachedSessionPolicy({ landing: "auto-land" }), {
+    workspace: "default-checkout",
+    landing: "auto-land",
+  });
+  assert.deepEqual(unattachedSessionPolicy({ workspace: "isolated" }), {
+    workspace: "isolated",
+    landing: "review",
+  });
+});
+
+test("an unattached session's values are the shared policy's own", () => {
+  for (const [choice, { values }] of Object.entries(unattachedSessionChoices))
+    assert.deepEqual(
+      [...values].sort(),
+      [...sessionPolicyChoices[choice].values].sort(),
+    );
 });

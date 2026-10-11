@@ -21,14 +21,15 @@ import {
   rememberTerminalHandoff,
   terminalHandoffRequested,
 } from "./terminalHandoff.ts";
-import type {
-  Acceptance,
-  AgentLaunchRequest,
-  AttemptObservation,
-  LaunchAttemptRecord,
-  LaunchRecord,
-  ReconciledAnswer,
-  VerifiedAnswer,
+import {
+  withoutConfirmation,
+  type Acceptance,
+  type AgentLaunchRequest,
+  type AttemptObservation,
+  type LaunchAttemptRecord,
+  type LaunchRecord,
+  type ReconciledAnswer,
+  type VerifiedAnswer,
 } from "../src/agentLaunch.ts";
 import {
   alreadySubmitted,
@@ -82,14 +83,11 @@ export class LaunchAttemptOwner {
     reportingOrigin?: string,
   ): Promise<Acceptance> {
     if ((await keptAttempts()) === undefined) return unreadableEvidence;
-    // The confirmation of existing changes is transient: never kept.
-    const keptRequest = { ...request };
-    if (keptRequest.workflow !== "ad-hoc") delete keptRequest.existingChanges;
     return this.admit(
       request,
       {
         id: randomUUID(),
-        request: keptRequest,
+        request: withoutConfirmation(request),
         acceptedAt: new Date().toISOString(),
         ...(reportingOrigin === undefined ? {} : { reportingOrigin }),
         publication: {

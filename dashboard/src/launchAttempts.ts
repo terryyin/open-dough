@@ -15,6 +15,7 @@ import type { HostOperations } from "./sessionCapabilities.ts";
 import { useCallback } from "react";
 import {
   requestedChoices,
+  requestedSettings,
   type AttemptObservation,
   type LaunchChoices,
   type LaunchWithState,
@@ -74,12 +75,12 @@ export type LaunchAttempts = StartupRecoveries & {
     onLaunched: OnLaunched,
   ): Promise<StartAnswer>;
   // Asks for an ad hoc session in the project, with the developer's optional
-  // first message, and answers whether it was accepted.
+  // first message, and answers as `start` does.
   startAdHoc(
     sourceId: string,
     choices: LaunchChoices,
     onLaunched: OnLaunched,
-  ): Promise<boolean>;
+  ): Promise<StartAnswer>;
   // The project's ad hoc launch from this page in flight, or its last failed
   // or uncertain answer.
   adHocAttemptOf(sourceId: string): LaunchAttempt | undefined;
@@ -140,20 +141,20 @@ export function useLaunchAttempts({
     [launch],
   );
 
-  // An ad hoc session selects no default checkout, so it has no changes to
-  // confirm.
+  // An ad hoc session carries no story policy; its own choices are not yet
+  // offered, so it runs with the unattached default.
   const startAdHoc = useCallback(
-    async (sourceId: string, choices: LaunchChoices, onLaunched: OnLaunched) =>
-      (await launch(
+    (sourceId: string, choices: LaunchChoices, onLaunched: OnLaunched) =>
+      launch(
         adHocKey(sourceId),
         {
           source: sourceId,
           workflow: "ad-hoc",
-          ...requestedChoices(choices),
+          ...requestedSettings(choices),
         },
         onLaunched,
         choices.host === "cursor",
-      )) === true,
+      ),
     [launch],
   );
 
