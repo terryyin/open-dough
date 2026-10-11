@@ -159,7 +159,7 @@ now holds; recognizing the story's own commits there would let it list them.
 
 **Identity:** SEED-088#resolved-integration-survives-reruns
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/295-resolved-integration-survives-reruns/PLAN.md","assessment":"not-ready","reasons":["Slice 3's decision to take only a trunk-first merge narrows what plan 294 delivered; the developer has not confirmed it.","Slice 1's receiver journey assumes a spec can close and restart the real receiver on the same launch record; that restart was not run in story-branch-landing-conflict.spec.ts's fixtures."],"basis":{"document":"b1defacb96aa5c7b63f1f88dacab5001460956599c4f007310b36ac6a69fa12a","plan":"1328c55bbb03f9b700f68ec2bf5f376226a8e1e89c9d98ecc75d14edb0c78246"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/295-resolved-integration-survives-reruns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8fa28c620f7a52ecc9d49ebc45a32e7819646ea9386314738b4de962f741c278","plan":"1b481fe15525b3870db59534042070259959e0aa9c93eb5d191934bb7750f917"}}
 ```
 **Slice plan:** [A resolved integration survives a failed or early rerun](../slice-plans/295-resolved-integration-survives-reruns/PLAN.md).
 
@@ -172,9 +172,9 @@ promise.
 
 **Scope:** The `integrate` command keeps a resolved merge in the workspace
 when landing retention fails, reports an uncommitted merge as a preserved
-result, and takes only the merge it stopped, trunk first; the guidance names
-those states; the conflict proof's duplicated fault seam and repeated
-assertions go.
+result, and preserves the existing acceptance of resolved merges in either
+parent order; the guidance names those states and the moved-target rerun;
+the conflict proof's duplicated fault seam and repeated assertions go.
 
 ## Breadcrumbs
 

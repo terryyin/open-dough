@@ -14,7 +14,7 @@ plan grants no Take, execution, or publication.
 ## Goal and boundaries
 
 Plan 294 made `integrate` take a hand-resolved merge as its candidate. The
-resolution is now work only the agent holds, and three reruns the guidance
+resolution is now work only the agent holds, and early or failed reruns the guidance
 invites lose it or stop without a result. This correction makes each of those
 reruns keep the resolution and answer with a printed result, and removes the
 residue the review found.
@@ -44,18 +44,13 @@ Excluded: Trunk Mode; where `install.sh`'s payload declaration lives.
    leaves, falls through to `git checkout --detach`, which drops `MERGE_HEAD`;
    the merge then fails with no printed result and the staged content left on
    detached trunk. Plan 294's obligation G5 called this rerun costless.
-3. **A merge with the story as first parent is published.** `headMerges`
-   ignores parent order, so a merge of trunk into the checked-out story branch
-   is taken, without the backlog adapter, and trunk's first-parent line then
-   runs through the story's commits. Plan 294's obligation G1 assumed only the
-   stopped merge reaches this check.
-4. **The guidance omits what these states need.**
+3. **The guidance omits what these states need.**
    `preserve-published-history.md` says a moved target "computes the merge
    again" without saying the committed resolution is set aside and the conflict
    is resolved again, and it covers only `reason: conflict`: an adapter
    `blocked` or `refused` result is also labelled `conflict` with an empty
    `conflictedPaths`, where no merge may be stopped.
-5. **Residue.** `closure-story-integration-agent-credit.test.mjs` names
+4. **Residue.** `closure-story-integration-agent-credit.test.mjs` names
    `publish-the-candidate.md` for a command now in
    `preserve-published-history.md`; `racingTrunkWriter` in
    `story-branch-landing-conflict.spec.ts` builds a second PATH `git` wrapper
@@ -70,12 +65,12 @@ Excluded: Trunk Mode; where `install.sh`'s payload declaration lives.
   resolved `HEAD`, the workspace stays on it, so the same command takes it
   again. Considered: writing a rescue ref; rejected because the detached
   `HEAD` already is the state the rerun reads.
-- **Only the merge `integrate` stopped is taken.** The candidate's first
-  parent is the fetched target's tip and its second the published tip.
-  Considered: accepting either order, as plan 294 delivered; rejected because
-  it reorders trunk's first-parent history and bypasses the backlog adapter
-  for a merge made elsewhere. This narrows plan 294's delivered behavior and
-  is the developer's to overrule before Take.
+- **Existing accepted merge parent orders remain accepted.** Plan 294 takes a
+  resolved merge in either parent order. The proposed trunk-first restriction
+  changed that delivered behavior and contradicted this correction's preserved
+  boundary. Terry's 2026-10-11 instruction to resolve readiness is satisfied by
+  preserving the current contract and removing that proposed restriction and
+  its slice. Changing which merges are accepted is outside this correction.
 - **An uncommitted merge is a preserved result.** A `MERGE_HEAD` naming the
   published tip with nothing unmerged answers `preserved` with its own reason
   and leaves the workspace untouched; committing it is the agent's step, as
@@ -93,7 +88,35 @@ directory (bare origin; `main` and `story` each change `f.txt`), running
 | A failed retention on a resolved `HEAD` returns to the branch and the next run meets the conflict again | Slice 1 | Add `--landing-context` whose origin is `http://127.0.0.1:9`; run, resolve, commit, run, run | Run 2: stderr `fetch failed` with a `Retry reporting only:` command, exit 2, workspace on `story`, `git branch --contains <resolved>` empty. Run 3: `preserved` / `conflict`, `UU f.txt` |
 | A staged, uncommitted resolution makes the rerun exit 2 and drops `MERGE_HEAD` | Slice 2 | Run, resolve, `git add`, run | `error: Your local changes … would be overwritten by merge`, exit 2, no printed result, `MERGE_HEAD` gone, change staged on detached trunk |
 | A clean merge left in progress behaves the same | Slice 2 | `git merge --no-ff --no-commit <B>` on detached trunk without a conflict, run | Same error and exit 2 |
-| A merge of trunk into the story branch is published | Slice 3 | On `story`: `git merge origin/main`, resolve, commit, run | `published`; `git log --first-parent origin/main` lists merge, story commit, base, with the trunk commit off that line |
+| A merge of trunk into the story branch is currently accepted | Preserved compatibility | On `story`: `git merge origin/main`, resolve, commit, run | `published`; this correction preserves that behavior |
+
+### Receiver restart premise settled on 2026-10-11
+
+Observed in this preparation's checkout,
+`.worktrees/a-resolved-integration-survives-a-failed-or-earl`, at
+`7b941f04135db373428fee05148d608ee48b26db`, with the actual
+`startOrigin`, `startPreview`, `claimedLaunchWithStoryCommit`, and
+`startDashboardServer` fixtures used by `story-branch-landing-conflict.spec.ts`.
+The disposable `preparation-receiver-restart-probe.spec.ts` ran with:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/preparation-receiver-restart-probe.spec.ts
+```
+
+One selected test passed, exit 0. It launched a conflicted Story Branch
+integration, resolved and committed it, closed the real receiver, and observed
+the integration fail with `fetch failed` while origin stayed at the fetched
+trunk tip. It restarted `startDashboardServer` with the same `machine`,
+`prebuilt: builtDashboardDir`, and `port: Number(new URL(oldOrigin).port)`.
+The original endpoint, session, and reporting context were unchanged. A later
+integration recorded the resolved merge and one retained pair on that same
+launch record, using the original landing context.
+
+The current product loses the detached resolution on the offline run, so the
+probe explicitly restored that scratch precondition before the final run.
+This observation proves the receiver restart setup, not the retention repair;
+Slice 1's permanent regression must omit that restoration and assert the
+resolved `HEAD` survives the failed run. The disposable probe was removed.
 
 ## Outside-in proof ownership
 
@@ -101,8 +124,8 @@ directory (bare origin; `main` and `story` each change `f.txt`), running
 | --- | --- |
 | A resolved merge survives a failed retention and is published by the next run | Slice 1: node test in `closure-story-conflict-cases.mjs` with a landing context whose origin refuses (thrown error, `HEAD` still the resolved merge, the rerun with a reachable receiver or no context publishes it); `story-branch-landing-conflict.spec.ts` closes the real receiver before the resolved run, restarts it, and asserts the pair recorded |
 | An uncommitted merge is preserved with a result | Slice 2: node test through the CLI for a staged resolution and for an identity-refused merge: exit 1, `preserved` with the new reason, `MERGE_HEAD` and index unchanged; after the commit the rerun publishes |
-| Only the stopped merge is taken | Slice 3: node test: a merge with the story as first parent is not taken (the merge is computed again from the fetched target); the existing resolved journeys stay green |
-| The residue is gone | Slice 4: the conflict and agent-credit node tests and the four `story-branch-landing-*` specs; typecheck |
+| Existing accepted resolved merges remain accepted | Keep `headMerges`' existing parent-order behavior unchanged; the existing resolved journeys stay green |
+| The residue is gone | Slice 3: the conflict and agent-credit node tests and the four `story-branch-landing-*` specs; typecheck |
 
 ## Ordered slices
 
@@ -115,6 +138,9 @@ Behavior: A launch's conflicted integration is resolved and committed; the
 dashboard cannot be reached → `integrate` fails as today with its retry
 command, and the workspace stays on the resolved merge → the same command run
 again takes that merge, retains its pair, pushes and records it.
+The receiver journey uses the verified same-machine, same-port restart above,
+checks the original launch/session and landing context, and contains no
+scratch restoration of the resolved merge.
 `preserve-published-history.md` says the resolved merge stays in the workspace
 when the run fails before its push.
 
@@ -135,19 +161,7 @@ adapter's status instead of the two steps.
 
 Safe stopping point: a conflict with unmerged paths answers as today.
 
-### 3. Only the merge `integrate` stopped is taken
-Type: Behavior
-Status: planned
-Proof: The node test above; the resolved journeys of plan 294 stay green.
-
-Behavior: `HEAD` is a merge whose first parent is the published tip → it is
-not taken; the merge is computed again from the fetched target. The guidance
-says a moved target sets the committed resolution aside and the conflict is
-resolved again on the new merge.
-
-Safe stopping point: the stopped merge, trunk first, is taken as today.
-
-### 4. The conflict proof has one fault seam and no repeated assertions
+### 3. The conflict proof has one fault seam and no repeated assertions
 Type: Structure
 Status: planned
 Proof: The conflict and agent-credit node tests; the four
@@ -158,6 +172,8 @@ Internal change: `launchLandingFault.ts` gains the racing writer and
 receiver's record and preparations and drops the assertions the node test
 owns; the agent-credit test's comment names `preserve-published-history.md`;
 `mergeCount` counts only merges that ran. Owned directly by this correction
-(finding 5).
+(finding 4). The moved-target guidance says the committed resolution is set
+aside and the conflict is resolved again on the new merge. It adds no
+parent-order restriction.
 
 Safe stopping point: no behavior changes.
