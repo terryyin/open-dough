@@ -119,7 +119,7 @@ export async function publishHistoryPreservingCandidate({
       publishedTip,
       backlogPath,
     );
-    if (!prepared.resolved) mergeCount += 1;
+    if (prepared.mergeRan) mergeCount += 1;
     if (prepared.adapterStatus) {
       adapterStatuses.push(prepared.adapterStatus);
     }
@@ -150,9 +150,9 @@ export async function publishHistoryPreservingCandidate({
           targetRef,
         });
       } catch (error) {
-        // A resolved merge is on no ref: the workspace stays on it so the
-        // next run takes it again.
-        if (!prepared.resolved) await returnToBranch(ownedWorkspace, branch);
+        // A resolved merge taken from the workspace is on no ref: the
+        // workspace stays on it so the next run takes it again.
+        if (prepared.mergeRan) await returnToBranch(ownedWorkspace, branch);
         throw error;
       }
     }

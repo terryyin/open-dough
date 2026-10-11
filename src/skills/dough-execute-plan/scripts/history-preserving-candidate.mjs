@@ -113,12 +113,10 @@ async function headMerges(workspace, trunkRef, publishedTip) {
   return parents.length === 2 && sides.every((side) => parents.includes(side));
 }
 
-export async function constructCandidate(
-  workspace,
-  trunkRef,
-  publishedTip,
-  file,
-) {
+// Answers what the workspace already holds for this integration, without
+// merging: a stopped or uncommitted merge to preserve, or the resolved merge
+// commit to take. Null when the merge has yet to run.
+async function candidateInWorkspace(workspace, trunkRef, publishedTip) {
   const unresolved = await unmergedPaths(workspace);
   if (unresolved.length > 0) {
     return { ok: false, reason: "conflict", conflictedPaths: unresolved };
@@ -130,11 +128,14 @@ export async function constructCandidate(
   if (await headMerges(workspace, trunkRef, publishedTip)) {
     return {
       ok: true,
-      resolved: true,
       sha: await revParse(workspace, "HEAD"),
       adapterStatus: null,
     };
   }
+  return null;
+}
+
+async function mergedCandidate(workspace, trunkRef, publishedTip, file) {
   await git(workspace, "checkout", "--detach", trunkRef);
   if (await backlogTouched(workspace, publishedTip, file)) {
     const merged = await mergeThroughAdapter(workspace, publishedTip, file);
@@ -173,4 +174,19 @@ export async function constructCandidate(
     sha: await revParse(workspace, "HEAD"),
     adapterStatus: null,
   };
+}
+
+// `mergeRan` marks an answer this run's own merge produced.
+export async function constructCandidate(
+  workspace,
+  trunkRef,
+  publishedTip,
+  file,
+) {
+  return (
+    (await candidateInWorkspace(workspace, trunkRef, publishedTip)) ?? {
+      ...(await mergedCandidate(workspace, trunkRef, publishedTip, file)),
+      mergeRan: true,
+    }
+  );
 }

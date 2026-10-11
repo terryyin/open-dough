@@ -6,14 +6,12 @@
 // against the real installed start and a real bare origin
 // (./support/startOrigin.ts) with the synthetic `claude`.
 
-import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { expect, test } from "./support/pageTest.ts";
-import { quote } from "./support/completionRecovery.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { capturedPublicationSchema, git } from "./support/launchLanding.ts";
+import { landingGitFault } from "./support/launchLandingFault.ts";
 import { restartPreview, startPreview } from "./support/launchPreview.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 import {
@@ -39,41 +37,23 @@ test.afterEach(async () => {
   origin.cleanup();
 });
 
-// A `git` whose first push lets another writer's conflicting trunk commit
-// land first, so that push is rejected.
+// Another writer's conflicting trunk commit, which lands ahead of the next
+// push so that push is rejected.
 function racingTrunkWriter(origin: StartOrigin) {
-  const { machine } = origin;
   const writer = anotherWriterClone(origin, "racing");
   writeShared(writer, "trunk\n");
   git(writer, "add", "shared.txt");
   git(writer, "commit", "-m", "Trunk shared.txt");
-  const actual = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
-  const bin = path.join(machine, "racing-git-bin");
-  mkdirSync(bin);
-  const armed = path.join(machine, "racing-armed");
-  writeFileSync(armed, "armed\n");
-  writeFileSync(
-    path.join(bin, "git"),
-    `#!/bin/sh
-if [ "$1" = push ] && [ -f ${quote(armed)} ]; then
- rm ${quote(armed)}
- ${quote(actual)} -C ${quote(writer)} push --quiet origin HEAD:refs/heads/main || exit $?
-fi
-exec ${quote(actual)} "$@"
-`,
-    { mode: 0o755 },
-  );
-  return {
-    tip: git(writer, "rev-parse", "HEAD"),
-    env: { ...process.env, PATH: `${bin}:${process.env["PATH"] ?? ""}` },
-  };
+  const fault = landingGitFault(origin.machine);
+  fault.raceNextPush(writer);
+  return { tip: git(writer, "rev-parse", "HEAD"), env: fault.env };
 }
 
 test("a conflicted trunk integration is preserved, and its resolved merge is published and recorded as the launch's landing", async () => {
-  const { reporting, workspace, branch, trunkTip, storyTip, ...story } =
+  const { reporting, workspace, branch, trunkTip, ...story } =
     await conflictedLaunch(origin, server);
 
-  // The conflict stops the integration with the merge left in the worktree.
+  // The conflict stops the integration with nothing pushed or retained.
   const stopped = await story.integrate();
   expect((stopped as { code?: unknown }).code, stopped.stderr).toBe(1);
   expect(JSON.parse(stopped.stdout)).toMatchObject({
@@ -83,9 +63,6 @@ test("a conflicted trunk integration is preserved, and its resolved merge is pub
     pushCount: 0,
     receipt: null,
   });
-  expect(git(workspace, "rev-parse", "HEAD")).toBe(trunkTip);
-  expect(git(workspace, "rev-parse", "MERGE_HEAD")).toBe(storyTip);
-  expect(git(workspace, "status", "--porcelain")).toContain("AA shared.txt");
   expect((await origin.originGit("rev-parse", "main")).trim()).toBe(trunkTip);
   const untouched = await claimedRecord(server);
   expect(untouched.landing).toBeUndefined();
@@ -101,8 +78,6 @@ test("a conflicted trunk integration is preserved, and its resolved merge is pub
     landing: { state: "recorded" },
   });
   expect((await origin.originGit("rev-parse", "main")).trim()).toBe(resolved);
-  expect(git(workspace, "rev-parse", `${resolved}^1`)).toBe(trunkTip);
-  expect(git(workspace, "rev-parse", `${resolved}^2`)).toBe(storyTip);
   expect(git(workspace, "branch", "--show-current")).toBe(branch);
 
   const receipt = integrated.landing.receipt;
@@ -128,10 +103,6 @@ test("a conflicted trunk integration is preserved, and its resolved merge is pub
     base: trunkTip,
     revision: resolved,
   });
-  expect(
-    git(workspace, "show", `${resolved}:shared.txt`),
-    "the published merge holds the resolution",
-  ).toBe("story and trunk");
 });
 
 test("a resolved merge stays checked out when the dashboard is closed, and the run after its restart publishes and records it", async () => {

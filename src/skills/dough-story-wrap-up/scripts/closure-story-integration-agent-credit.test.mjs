@@ -119,7 +119,7 @@ test("an agent's conflicted integration merge committed through agent-commit.mjs
   assert.deepEqual(stopped.conflictedPaths, ["shared.txt"]);
 
   await stageSharedResolution(execution, "story and trunk\n");
-  // The command publish-the-candidate.md names for this commit.
+  // The command preserve-published-history.md names for this commit.
   const command = `"$NODE" "$AGENT_COMMIT" -F "$(git rev-parse --git-path MERGE_MSG)"`;
   const committed = await new Promise((resolve, reject) => {
     const env = { ...process.env, NODE: process.execPath };

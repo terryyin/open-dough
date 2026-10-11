@@ -84,9 +84,11 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   });
   await assertConflictLeftOn(trunkSha);
 
-  // Run again before it is resolved, the same conflict is reported in place.
+  // Run again before it is resolved, the same conflict is reported in place
+  // and no merge runs.
   const unresolved = await publish();
   assert.equal(unresolved.classification, "preserved");
+  assert.equal(unresolved.mergeCount, 0);
   assert.deepEqual(unresolved.conflictedPaths, ["shared.txt"]);
   await assertConflictLeftOn(trunkSha);
 
@@ -98,6 +100,7 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   assert.equal(recomputed.classification, "preserved");
   assert.equal(recomputed.reason, "conflict");
   assert.deepEqual(recomputed.conflictedPaths, ["shared.txt"]);
+  assert.equal(recomputed.mergeCount, 1);
   await assertConflictLeftOn(movedSha);
 
   const resolved = await resolve("story and trunk\n");

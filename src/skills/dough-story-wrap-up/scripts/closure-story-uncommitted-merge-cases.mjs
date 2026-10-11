@@ -43,6 +43,7 @@ async function assertPreservedThenPublished(
   assert.equal(result.classification, "preserved");
   assert.equal(result.reason, "uncommitted-merge");
   assert.equal("conflictedPaths" in result, false);
+  assert.equal(result.mergeCount, 0);
   assert.equal(result.pushCount, 0);
   assert.equal(result.receipt, null);
   assert.deepEqual(await mergeState(execution), before);

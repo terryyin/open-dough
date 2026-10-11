@@ -178,9 +178,14 @@ Safe stopping point: a conflict with unmerged paths answers as today.
 
 ### 3. The conflict proof has one fault seam and no repeated assertions
 Type: Structure
-Status: planned
+Status: done
 Proof: The conflict and agent-credit node tests; the four
-`story-branch-landing-*` specs; typecheck.
+`story-branch-landing-*` specs; typecheck. Accepted: those, plus the
+`one-shot-landing-recovery*` specs that share `launchLandingFault.ts`;
+`closure-story-conflict-cases.mjs` and
+`closure-story-uncommitted-merge-cases.mjs` assert `mergeCount` 0 for the
+unmerged-paths rerun and the uncommitted merge and 1 for the moved-target
+recompute.
 
 Internal change: `launchLandingFault.ts` gains the racing writer and
 `racingTrunkWriter`'s wrapper goes; the first receiver journey keeps the
@@ -203,7 +208,7 @@ Disposition: proved by slice 1: `publishHistoryPreservingCandidate` has one catc
 ### G2. `mergeCount` reads 1 for an uncommitted merge
 Reported: slice 2 — "the `uncommitted-merge` result currently reports `mergeCount: 1` although no merge ran, the same residue as the unmerged-paths return."
 Story clause: "the conflict proof's duplicated fault seam and repeated assertions go"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `closure-story-uncommitted-merge-cases.mjs` `assertPreservedThenPublished` asserts `mergeCount` 0, and `closure-story-conflict-cases.mjs` asserts 0 for the unmerged-paths rerun
 
 ### G3. Other merges in progress are not exercised
 Reported: slice 2 — "for a truly foreign merge, \"commit it, then run the same command\" makes the rerun detach to trunk and rebuild, as it already does for any `HEAD` that is not the expected merge. [...] This case is untested." and "Adapter `refused-before-commit`: this status also leaves a merge in progress, so its rerun now takes the `uncommitted-merge` path too. Not tested."
@@ -221,7 +226,8 @@ Story Branch Mode in `.worktrees/a-resolved-integration-survives-a-failed-or-ear
 on `claude/a-resolved-integration-survives-a-failed-or-earl`, remote `origin`,
 trunk `main`. Claim `85c000159d24762067a585c36cf690d2a77aab41` accepted on
 `main`; increments publish to the execution branch. Slice 1 accepted there
-at `475f4a45d3d7e1c0808950de1ab51ca5b2651790`.
+at `475f4a45d3d7e1c0808950de1ab51ca5b2651790` and slice 2 at
+`b3812abe9b061c499c8837731cdb0d2a39f010e5`.
 
 ## Learnings
 
@@ -234,3 +240,6 @@ at `475f4a45d3d7e1c0808950de1ab51ca5b2651790`.
 - `mergeInProgress` is exported from `history-preserving-candidate.mjs` and
   `returnToBranch` uses it; `integrateCommand`, `runScript` and
   `agentStoryBehindTrunk` live in `closure-git-fixtures.mjs`.
+- `constructCandidate`'s answer carries one provenance flag, `mergeRan`; both
+  `mergeCount` and staying on a taken resolved merge after a failed retention
+  read it.
