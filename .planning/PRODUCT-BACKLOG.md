@@ -19,3 +19,4 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Slow startup continues automatically and unsafe outcomes stop safely](seeds/SEED-130-slow-startup-safe-recovery.md#slow-startup-safe-recovery) — SEED-130#slow-startup-safe-recovery
