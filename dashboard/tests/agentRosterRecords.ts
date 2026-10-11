@@ -139,7 +139,8 @@ export function expectRoute(
   }
 }
 
-export const backlogUnreadable = `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${pygardon.revision}.`;
+export const backlogUnreadable =
+  "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Pygardon (HTTP 404).";
 
 export async function expectOpenDoughAssignments(
   members: Locator,

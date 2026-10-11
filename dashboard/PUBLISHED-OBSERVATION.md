@@ -218,10 +218,10 @@ another project stays available throughout: a failed or still-reading project
 never blocks switching to another, and returning to a project starts a fresh
 read rather than replaying the failure.
 
-If reading a project fails, the read problem names that project's repository
-and what the local `gh` could establish -- for example that it is not logged
-in, or GitHub's HTTP status -- never `gh`'s own output, and never that the
-repository does not exist, since an inaccessible read is not proof of that.
+Read problems name the repository and what local `gh` established, such as login
+failure or HTTP status; they never expose raw output or assert the repository is absent.
+Projects without a backlog can be added. A backlog HTTP 404 briefly names the
+project and missing or inaccessible file, without CLI advice or a full hash.
 Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, reload the page (or, with a snapshot shown, let the next check find it).

@@ -95,6 +95,10 @@ export async function perform(
   read: RequestedRead,
 ): Promise<Outcome> {
   let reading = readingOf(source, read);
+  let readTarget: "backlog" | undefined =
+    read.kind === "file-at" && read.path === source.backlogPath
+      ? "backlog"
+      : undefined;
   const naming = (now: string) => {
     reading = now;
   };
@@ -109,6 +113,7 @@ export async function perform(
           // itself; only those detail reads at a revision the ref names next are
           // compared with the last one answered here (`./pinnedTexts.ts`).
           const backlogAt = async (revision: string) => {
+            readTarget = "backlog";
             const backlog = await pinned.reader(
               source,
               revision,
@@ -236,6 +241,9 @@ export async function perform(
         }),
     );
   } catch (error) {
-    return { kind: "failed", ...reportedFailure(error, source, reading) };
+    return {
+      kind: "failed",
+      ...reportedFailure(error, source, reading, readTarget),
+    };
   }
 }

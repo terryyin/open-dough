@@ -51,10 +51,11 @@ export function reportedFailure(
   error: unknown,
   source: PublishedSource,
   reading: string,
+  readTarget?: "backlog",
 ): ReportedFailure {
   const reason = failureReasonOf(error);
   return {
-    message: failureMessage(reason, source, reading),
+    message: failureMessage(reason, source, reading, readTarget),
     retryAfterSeconds: rateLimitStop(error)?.waitSeconds,
     recovery: recoveryOf(reason),
   };
@@ -67,6 +68,7 @@ function failureMessage(
   reason: GhFailureReason,
   source: PublishedSource,
   reading: string,
+  readTarget: "backlog" | undefined,
 ): string {
   const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`;
   switch (reason.kind) {
@@ -89,6 +91,9 @@ function failureMessage(
     case "timed-out":
       return `The local GitHub CLI did not answer within ${String(readTimeoutMs() / 1000)} seconds while reading ${reading}.`;
     case "http": {
+      if (reason.status === 404 && readTarget === "backlog") {
+        return `The published backlog (${source.backlogPath}) is missing or inaccessible in ${source.label} (HTTP 404).`;
+      }
       const access =
         reason.status === 401 || reason.status === 403 || reason.status === 404
           ? ` ${checkAccess}`

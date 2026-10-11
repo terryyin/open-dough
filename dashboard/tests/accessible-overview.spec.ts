@@ -174,9 +174,9 @@ test("accessible overview keeps a read problem and the retained work reachable i
   origin.answerWith(missing, notFoundAnswer());
   await passTimeUntilChecked(page);
 
-  // The problem names a path and a 40-character revision no line can hold.
+  // The concise problem still names the backlog path at narrow widths.
   await expect(problem).toContainText(
-    `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${missing}.`,
+    "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
   );
   await expectNoSidewaysScrollAndWholeText(page);
   await expectStackedInOrder([source, problem, stages]);
