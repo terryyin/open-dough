@@ -955,7 +955,7 @@ proof and observed only the failing-first premise. The rule it added changes
 the answer of a neighbouring case in the very spec file it extends.
 
 ### Occurrences
-- Execution: `SEED-088#found-worktree-matches-published-agent` / plan 297 (`.planning/slice-plans/297-found-worktree-matches-published-agent/PLAN.md`), first implementation `b23a4427`.
+- Execution: `SEED-088#found-worktree-matches-published-agent` / plan 297 (spent plan recoverable at `c56607bde018c7bbd008e3c7041b3f8c6f818324:.planning/slice-plans/297-found-worktree-matches-published-agent/PLAN.md`), first implementation `b23a4427`.
   - Timestamp: unknown (2026-10-11, slice 1 implementation return, before `b23a4427` at 11:16 +09:00).
   - Tool: Claude Code
   - Model: claude-opus-5-5

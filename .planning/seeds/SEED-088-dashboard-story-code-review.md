@@ -177,27 +177,6 @@ changes since). The Proposed [ADR 0008](../../docs/adrs/0008-project-dashboard-d
 and [ADR 0009](../../docs/adrs/0009-git-branching-and-integration.md) inform
 this and bind nothing; no Accepted ADR applies.
 
-<a id="found-worktree-matches-published-agent"></a>
-
-### A found worktree is reviewed only for the agent trunk publishes
-
-**Identity:** SEED-088#found-worktree-matches-published-agent
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/297-found-worktree-matches-published-agent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7fbb4649fd07956eb922d4ce8eed74ad3bba4726eaf44296f2a752eebbe1efcb","plan":"d2b3be0d99807cf53466c17677abd4ff4bcf5cb3ab30743bff845daefd2e570a"}}
-```
-**Slice plan:** [A found worktree is reviewed only for the agent trunk publishes](../slice-plans/297-found-worktree-matches-published-agent/PLAN.md).
-
-**Goal:** A developer reviewing a story that another agent held earlier on
-this machine gets the review of the worktree of the agent that holds it now,
-although the earlier agent's worktree is still listed at its old claim. A
-bounded correction from the execution retrospective of
-`SEED-088#review-trunk-mode-story-worktree`; it adds no feature promise.
-
-**Scope:** The local worktree scan counts a worktree for a story only while
-trunk, as the project's checkout last fetched it, publishes that worktree's
-author as the story's agent; the workspace doc states it; the two-agent
-wording of the ambiguity, which nothing then reaches, goes.
-
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
