@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-066#unattached-start-leftovers",
+  "mode": "story-branch",
+  "branch": "codex/leave-nothing-behind-after-an-unattached-start",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

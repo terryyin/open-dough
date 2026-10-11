@@ -15,8 +15,8 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring ([plan](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md))
+- [Leave nothing behind after an unattached start](seeds/SEED-066-composable-lightweight-session-options.md#unattached-start-leftovers) — SEED-066#unattached-start-leftovers ([plan](slice-plans/300-unattached-start-leftovers/PLAN.md))
 
 ## Backlog list
 
-- [Leave nothing behind after an unattached start](seeds/SEED-066-composable-lightweight-session-options.md#unattached-start-leftovers) — SEED-066#unattached-start-leftovers
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
