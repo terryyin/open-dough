@@ -110,7 +110,7 @@ Do not prescribe components or slices merely from these conceptual boundaries.
 
 **Identity:** SEED-066#unattached-session-native-observation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"not-ready","reasons":["The required established-session payload is not released or installed in an observed target project: establishesUnattached returned false for Claude Code, Codex and Cursor in the preparation checkout. Terry must arrange release/install under the approved exception, then obtain a fresh capability result in the selected observation project before native Start journeys can run."],"basis":{"document":"6b836ece32660f61b6eec6d845ec28a69298762befa45e8f816b91bdc407707b","plan":"865737d770301c9fc115a0c38b924f2ee5b2bf29a19dc4c607c102f328ab1283"}}
 ```
 
 **Goal:** A developer who relies on Start session's Workspace and After checks
@@ -136,6 +136,9 @@ Boundary assumptions:
 - Each native run is paid and manual; an agent does not run it.
 - The starting state needs the release that carries the delivered story's
   payload installed for each observed host.
+- A host without the required payload can demonstrate the compatibility
+  guard only. Its workflow and landing observations remain pending; disabled
+  choices do not establish native acceptance for that host.
 
 #### Key examples
 
@@ -148,28 +151,47 @@ Boundary assumptions:
   the two non-default choices and says why; the observation for that host ends
   there.
 
-#### Decisions before running
+#### Decisions and release prerequisite
 
-- Release order: ADR 0005 asks for native acceptance before affected behavior
-  is released, while this observation needs a release that installs the
-  payload. The delivering execution's coordinator recommended releasing first
-  and treating this story as the acceptance gate, since the two non-default
-  choices stay disabled wherever the payload is absent.
-- Coverage: the observation below does not cover Isolated workspace · Wait
-  for review landed later by Dough Land, a Default main session invoking
-  refinement, or `landing: review` being honored. Their only proof is the
-  guidance and start-script tests. The recommendation was to add the first two
-  as journeys.
+- On 2026-10-11 Terry approved the seed's release-first recommendation as an
+  explicit exception to [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+  for the unattached Start session payload: release and install that payload
+  before these paid native observations. The reason is that the observation
+  needs the released installation and non-default choices stay disabled without
+  it. Native acceptance remains pending, never inferred from the release.
+  This exception does not change ADR 0005 generally or itself perform a release.
+- Terry also selected both missing review journeys: Isolated workspace · Wait
+  for review followed by a later Dough Land, and Default main · Wait for review
+  followed by one-shot refinement with its result retained for review.
+- The required payload is not in `v0.3.59`, the highest numeric remote release
+  observed on 2026-10-11. Release ownership remains with Terry; execution needs
+  the release carrying this payload installed for each selected host. No release
+  number is selected by this preparation.
+
+Current preparation evidence (2026-10-11, revision `4e4c2c01`):
+`git ls-remote --tags origin 'v0.3.*'` identifies `v0.3.59` as the highest remote
+numeric release. `git ls-tree v0.3.59
+src/skills/dough-execute-plan/references/established-session.md` returns no
+entry; `git tag --contains e5e26130` returns no tag. The source reference and
+helper are declared in `install.sh`, but source presence is neither installed
+payload nor native acceptance. The plan records the actual installation
+capability check and its unavailable result for all three hosts.
 
 #### Observation
 
-Three paid native sessions and one short Claude Code session:
+Five paid native sessions, run manually by the developer: three auto-land
+journeys and two review journeys. Each journey is bounded to one initial
+attempt; a failure is assessed before any separately agreed retry.
 
 - Starting state: a project whose installed skills, for each host observed,
   include `established-session.mjs`, `references/established-session.md`, the
   `dashboard-landing.mjs` that exports `acceptsLandingWithoutIdentity`, and
-  the start with the path-identity comparison; a dashboard built from this
-  branch; a clean default checkout; one queued trivial story per host.
+  the start with the path-identity comparison; a dashboard revision carrying
+  Start session choices; a clean default checkout; one unassigned queued
+  trivial story per execution journey and one
+  unassigned queued story with sufficient refinement input for the default-main
+  journey. Use an observation project and publication target selected by the
+  developer; record its actual paths and revisions before running.
   Without that payload the dialog disables the two non-default choices, which
   is the expected answer and ends the observation for that host.
 - Per host (Claude Code, Codex, Cursor), in breadth first:
@@ -182,15 +204,32 @@ Three paid native sessions and one short Claude Code session:
      worktree; origin unchanged.
   2. Ask a question. Expect an answer and nothing committed, pushed, or
      reported complete.
-  3. Type `/dough-execute-plan <queued trivial story> --one-shot`. Expect the
+  3. Invoke `dough-execute-plan <queued trivial story> --one-shot` using
+     that host's native skill syntax. Expect the
      start to answer `prepared` with `created: false` for that worktree, no
      second worktree, the story left queued until the result commit closes it,
      the verified result landed on origin with no landing request, the launch
      record holding the landing with no identity, and the worktree retired.
-- Claude Code only: with one uncommitted file in the default checkout, Start
-  session with the default choices and a line of text. Expect “Existing
-  changes in default main”, Back keeping the text, and Continue starting in
-  the project folder with the file untouched and no block.
+- Claude Code, Isolated workspace · Wait for review: start a fresh blank
+  conversation, then invoke one-shot execution of a different queued trivial
+  story without landing flags. Expect the established worktree reused, a
+  verified committed result retained there, no push, and no retirement. Later
+  explicitly invoke Dough Land in that conversation. Expect that exact
+  retained result published to the established target, the original launch's
+  landing context captured, queued-story closure handled by the invoked
+  workflow, and the owned worktree retired. Record before-review and
+  after-landing evidence separately.
+- Claude Code, Default main · Wait for review: with one harmless uncommitted
+  file and a line of text, expect “Existing changes in default main”, Back
+  preserving the text, and Continue opening in the project folder with the
+  file untouched and no Established session block. Invoke
+  `dough-story-refinement <queued story> --one-shot --default-main` there.
+  Expect refinement and the existing file committed together in default main,
+  the result retained for review, no Preparing/Take, no push, and no checkout
+  retirement. These default launch choices send no block: the explicit
+  `--default-main` invocation selects the refinement workspace; do not claim
+  this case proves block inheritance. Confirmation includes the existing
+  file in the result but does not authorize automatic landing.
 - Depth, if time remains: let one Isolated start outlast its wait
   (`DOUGH_START_TIMEOUT_MS`) and Continue it from Startup recovery, expecting
   the same worktree; start a second blank Start session with other choices
@@ -199,7 +238,13 @@ Three paid native sessions and one short Claude Code session:
   was observed against each expectation, and any discrepancy with its
   evidence.
 
-Safe stopping point: ADR 0005 evidence recorded; the story is complete.
+Plan: [301-unattached-session-native-observation](../slice-plans/301-unattached-session-native-observation/PLAN.md).
+
+Safe stopping point: every required native expectation has passing evidence
+or justified reuse for each affected host, and discrepancies have been resolved
+through bounded corrections before closure. Missing payload, unavailable
+hosts, failed runs, and inconclusive observations remain pending; recording
+them alone does not complete the story.
 
 <a id="unattached-start-leftovers"></a>
 
