@@ -3,7 +3,8 @@
 // the backlog merge adapter when either side touched the backlog or its done
 // records, and as an agent-credited merge commit otherwise. A merge Git stops
 // on a conflict stays as Git left it; once it is resolved and committed, that
-// commit is the candidate.
+// commit is the candidate. A merge in progress with nothing unmerged is left
+// untouched for its commit.
 import { fileURLToPath } from "node:url";
 import { doneDirectoryBeside } from "../../dough-product-backlog/scripts/product-backlog-git-done-catalog.mjs";
 import {
@@ -65,6 +66,17 @@ async function unmergedPaths(workspace) {
   return stdout.split("\n").filter(Boolean);
 }
 
+// Whether a merge is in progress in the workspace.
+export async function mergeInProgress(workspace) {
+  try {
+    await git(workspace, "rev-parse", "--verify", "--quiet", "MERGE_HEAD");
+    return true;
+  } catch (error) {
+    if (error.code === 1) return false;
+    throw error;
+  }
+}
+
 // Answers the unmerged paths when Git stopped the merge on a conflict, and
 // null once the merge is committed.
 async function historyPreservingMerge(workspace, ref) {
@@ -110,6 +122,10 @@ export async function constructCandidate(
   const unresolved = await unmergedPaths(workspace);
   if (unresolved.length > 0) {
     return { ok: false, reason: "conflict", conflictedPaths: unresolved };
+  }
+  // Checking out the target would drop the merge and what it staged.
+  if (await mergeInProgress(workspace)) {
+    return { ok: false, reason: "uncommitted-merge" };
   }
   if (await headMerges(workspace, trunkRef, publishedTip)) {
     return {

@@ -74,7 +74,10 @@ Excluded: Trunk Mode; where `install.sh`'s payload declaration lives.
 - **An uncommitted merge is a preserved result.** A `MERGE_HEAD` naming the
   published tip with nothing unmerged answers `preserved` with its own reason
   and leaves the workspace untouched; committing it is the agent's step, as
-  for a conflict.
+  for a conflict. Slice 2 answers this for any merge in progress with nothing
+  unmerged, whatever `MERGE_HEAD` names: checking out the target would drop
+  that merge too, and the conflict answer likewise does not ask which merge
+  left the unmerged paths.
 
 ## Observed premises
 
@@ -155,9 +158,14 @@ Safe stopping point: a rebuilt candidate still returns to its branch.
 
 ### 2. An uncommitted integration merge is preserved
 Type: Behavior
-Status: planned
+Status: done
 Proof: The node test above; `closure-story-integration-agent-credit.test.mjs`
-stays green.
+stays green. Accepted: `closure-story-uncommitted-merge-cases.mjs` (run by
+`closure-story-integration.test.mjs`) runs the CLI for a staged resolution and
+for an identity-refused merge; `assertPreservedThenPublished` asserts exit 1,
+`preserved` / `uncommitted-merge`, unchanged `HEAD`, `MERGE_HEAD`, index tree,
+status and branch, nothing pushed, and the committed merge published by the
+next run.
 
 Behavior: The stopped merge is resolved and staged, or was left clean by an
 identity refusal → `integrate` prints `preserved` with a reason naming the
@@ -192,12 +200,28 @@ Reported: slice 1 — "A receiver refusal (HTTP non-ok) or the 10-second timeout
 Story clause: "keeps a resolved merge in the workspace when landing retention fails"
 Disposition: proved by slice 1: `publishHistoryPreservingCandidate` has one catch around `retainLandingComparison` for every thrown retention failure; `closure-story-landing-retention-cases.mjs` and the closed-receiver journey observe that catch keeping the resolved `HEAD`
 
+### G2. `mergeCount` reads 1 for an uncommitted merge
+Reported: slice 2 — "the `uncommitted-merge` result currently reports `mergeCount: 1` although no merge ran, the same residue as the unmerged-paths return."
+Story clause: "the conflict proof's duplicated fault seam and repeated assertions go"
+Disposition: receiving slice 3
+
+### G3. Other merges in progress are not exercised
+Reported: slice 2 — "for a truly foreign merge, \"commit it, then run the same command\" makes the rerun detach to trunk and rebuild, as it already does for any `HEAD` that is not the expected merge. [...] This case is untested." and "Adapter `refused-before-commit`: this status also leaves a merge in progress, so its rerun now takes the `uncommitted-merge` path too. Not tested."
+Story clause: "reports an uncommitted merge as a preserved result"
+Disposition: proved by slice 2: `constructCandidate` has one `mergeInProgress` check ahead of every checkout, whatever the merge; `closure-story-uncommitted-merge-cases.mjs` observes that check leaving the merge state unchanged
+
+### G4. The adapter `blocked` or `refused` guidance has no test
+Reported: slice 2 — "the `blocked`/`refused` wording is guidance only; no test in this slice exercises an adapter `blocked` result."
+Story clause: "the guidance names those states and the moved-target rerun"
+Disposition: proved by slice 2: `preserve-published-history.md` "Resolve a conflicted integration" names the empty-`conflictedPaths` adapter answer; the result shape it describes is `constructCandidate`'s existing adapter return, unchanged by this correction
+
 ## Execution context
 
 Story Branch Mode in `.worktrees/a-resolved-integration-survives-a-failed-or-earl`
 on `claude/a-resolved-integration-survives-a-failed-or-earl`, remote `origin`,
 trunk `main`. Claim `85c000159d24762067a585c36cf690d2a77aab41` accepted on
-`main`; increments publish to the execution branch.
+`main`; increments publish to the execution branch. Slice 1 accepted there
+at `475f4a45d3d7e1c0808950de1ab51ca5b2651790`.
 
 ## Learnings
 
@@ -207,3 +231,6 @@ trunk `main`. Claim `85c000159d24762067a585c36cf690d2a77aab41` accepted on
   `dashboard/tests/support/storyBranchIntegration.ts`; `restartPreview` in
   `support/launchPreview.ts` is the same-port restart. Slices 2 and 3 build on
   those.
+- `mergeInProgress` is exported from `history-preserving-candidate.mjs` and
+  `returnToBranch` uses it; `integrateCommand`, `runScript` and
+  `agentStoryBehindTrunk` live in `closure-git-fixtures.mjs`.

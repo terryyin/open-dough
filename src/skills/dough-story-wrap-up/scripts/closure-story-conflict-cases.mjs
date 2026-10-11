@@ -2,7 +2,6 @@
 // merge is preserved as Git left it, and the commit that resolves it is the
 // candidate the next run publishes.
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -21,19 +20,14 @@ import {
   currentBranch,
   executionBranch,
   git,
+  integrateCommand,
   lsRemoteSha,
   porcelainStatus,
   publishStoryConflictingWithTrunk,
   revParse,
+  runScript,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
-
-const cli = fileURLToPath(
-  new URL(
-    "../../dough-execute-plan/scripts/history-preserving-publication.mjs",
-    import.meta.url,
-  ),
-);
 
 const mergeAdapter = fileURLToPath(
   new URL(
@@ -42,21 +36,6 @@ const mergeAdapter = fileURLToPath(
   ),
 );
 const titled = (title) => backlogOf([], [`- [${title}](seeds/C.md#c)`]);
-
-// A script's exit code and what it printed.
-const run = (script, ...args) =>
-  new Promise((resolve) => {
-    execFile(process.execPath, [script, ...args], (error, stdout, stderr) => {
-      resolve({ code: error?.code ?? 0, stdout, stderr });
-    });
-  });
-
-// The installed integration command.
-function integrateCommand(workspace, publishedTip) {
-  const args = ["integrate", "--workspace", workspace];
-  args.push("--published-tip", publishedTip, "--branch", executionBranch);
-  return run(cli, ...args);
-}
 
 test("a conflicted integration is preserved as Git left it, and its resolved merge commit is published as the candidate", async (t) => {
   const fixture = await createCleanTrunkFixture();
@@ -190,7 +169,12 @@ test("a backlog conflict the merge adapter stops on is published once its `conti
   const decided = titled("Item C, resolved by hand");
   writeFileSync(join(execution, backlogPath), decided);
   await git(execution, "add", backlogPath);
-  const continued = await run(mergeAdapter, "continue", "--cwd", execution);
+  const continued = await runScript(
+    mergeAdapter,
+    "continue",
+    "--cwd",
+    execution,
+  );
   assert.equal(continued.code, 0, continued.stdout + continued.stderr);
   const resolved = await revParse(execution, "HEAD");
   assert.deepEqual(prepared, []);

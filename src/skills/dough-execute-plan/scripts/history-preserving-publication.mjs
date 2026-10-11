@@ -2,21 +2,24 @@
 // Git mechanics for references/preserve-published-history.md.
 // One owned workspace merges an already-published tip onto fetched trunk,
 // pushes that candidate SHA through pushExactRef, and recomputes the merge
-// once after a rejected push. A conflicted merge is preserved for the agent
-// to resolve and commit; the next run publishes that commit as the candidate.
+// once after a rejected push. A conflicted or uncommitted merge is preserved
+// for the agent to resolve and commit; the next run publishes that commit as
+// the candidate.
 // With a launch's landing context, each attempt's candidate and the fetched
 // tip it was built on are retained before its push, and the accepted pair is
 // recorded as that launch's landing. Installed guidance is the agent's
 // contract.
-import { existsSync } from "node:fs";
-import { isAbsolute, join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { flagValues, isDirectCliEntry } from "./ci-direct-entry.mjs";
 import {
   captureAcceptedLanding,
   retainLandingComparison,
 } from "./dashboard-landing.mjs";
-import { constructCandidate } from "./history-preserving-candidate.mjs";
+import {
+  constructCandidate,
+  mergeInProgress,
+} from "./history-preserving-candidate.mjs";
 import {
   git,
   lsRemoteSha,
@@ -39,14 +42,6 @@ async function isAncestor(workspace, ancestor, descendant) {
   }
 }
 
-async function pathExists(workspace, name) {
-  const printed = (
-    await git(workspace, "rev-parse", "--git-path", name)
-  ).stdout.trim();
-  const path = isAbsolute(printed) ? printed : join(workspace, printed);
-  return existsSync(path);
-}
-
 async function pushRejected(workspace, sha, remote, targetRef) {
   try {
     await pushExactRef(workspace, sha, remote, targetRef);
@@ -61,7 +56,7 @@ async function pushRejected(workspace, sha, remote, targetRef) {
 }
 
 async function returnToBranch(workspace, branch) {
-  if (!branch || (await pathExists(workspace, "MERGE_HEAD"))) {
+  if (!branch || (await mergeInProgress(workspace))) {
     return;
   }
   const status = (await git(workspace, "status", "--porcelain")).stdout;

@@ -1,7 +1,9 @@
 // Shared Git-mechanics setup for wrap-up closure proofs.
 // These helpers do not prove that an agent follows the guidance.
+import { execFile } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
@@ -14,6 +16,8 @@ import {
   plantHumanEdit,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { configureAgentAuthorship } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
+import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export {
   advanceOriginFromAnotherWriter,
@@ -30,6 +34,28 @@ export {
 
 export const trunkTarget = "refs/heads/main";
 export const executionBranch = "exec/story";
+
+// A script's exit code and what it printed.
+export const runScript = (script, ...args) =>
+  new Promise((resolve) => {
+    execFile(process.execPath, [script, ...args], (error, stdout, stderr) => {
+      resolve({ code: error?.code ?? 0, stdout, stderr });
+    });
+  });
+
+const integrationCli = fileURLToPath(
+  new URL(
+    "../../dough-execute-plan/scripts/history-preserving-publication.mjs",
+    import.meta.url,
+  ),
+);
+
+// The installed integration command.
+export function integrateCommand(workspace, publishedTip) {
+  const args = ["integrate", "--workspace", workspace];
+  args.push("--published-tip", publishedTip, "--branch", executionBranch);
+  return runScript(integrationCli, ...args);
+}
 
 export async function commitFile(workspace, file, body, message) {
   writeFileSync(join(workspace, file), body);
@@ -63,6 +89,20 @@ export async function publishStoryConflictingWithTrunk(origin, execution) {
     body: "trunk\n",
   });
   return { closureSha, trunkSha };
+}
+
+// An owned workspace whose agent authors its commits and whose configured Git
+// user is the developer, with a published Story Branch tip that trunk has
+// moved past, so integrating it needs a merge commit.
+export async function agentStoryBehindTrunk(t) {
+  const fixture = await createCleanTrunkFixture();
+  t.after(fixture.cleanup);
+  const { origin, execution } = fixture;
+  await configureAgentAuthorship(execution, agentIdentity("Yui"));
+  const closureSha = await revParse(execution, "HEAD");
+  await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);
+  const trunkBefore = await advanceOriginFromAnotherWriter(origin);
+  return { ...fixture, closureSha, trunkBefore };
 }
 
 // Stages `body` as the resolution of that conflict, leaving the commit.

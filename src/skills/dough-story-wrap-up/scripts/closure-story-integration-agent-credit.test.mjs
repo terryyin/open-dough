@@ -11,7 +11,7 @@ import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scri
 import { configureAgentAuthorship } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
-  advanceOriginFromAnotherWriter,
+  agentStoryBehindTrunk,
   createCleanTrunkFixture,
   executionBranch,
   git,
@@ -22,20 +22,6 @@ import {
   stageSharedResolution,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
-
-// An owned workspace whose agent authors its commits and whose configured Git
-// user is the developer, with a published Story Branch tip that trunk has
-// moved past, so integrating it needs a merge commit.
-async function agentStoryBehindTrunk(t) {
-  const fixture = await createCleanTrunkFixture();
-  t.after(fixture.cleanup);
-  const { origin, execution } = fixture;
-  await configureAgentAuthorship(execution, agentIdentity("Yui"));
-  const closureSha = await revParse(execution, "HEAD");
-  await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);
-  const trunkBefore = await advanceOriginFromAnotherWriter(origin);
-  return { ...fixture, closureSha, trunkBefore };
-}
 
 const developer = "Execution Worktree <execution@example.test>";
 

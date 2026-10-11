@@ -40,6 +40,7 @@ import {
 import "./closure-story-conflict-cases.mjs";
 import "./closure-story-fast-forward-cases.mjs";
 import "./closure-story-landing-retention-cases.mjs";
+import "./closure-story-uncommitted-merge-cases.mjs";
 
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);
 const storyBacklog = backlogOf([itemB], [itemC]);
