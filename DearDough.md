@@ -302,7 +302,7 @@ Evidence and response: [ODF-218](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: coordinator format output `/tmp/slow-startup-format-1.log` and fresh refactor1's formatter follow-up; three checked files expanded to 252–257 lines after the independent pass. Final accepted replacement is `02ec9aec`.
   - Observed effect: another mechanical refactor and formatter pass before publication. Later passes checked formatted counts with headroom without taking formatting ownership.
 
-- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`.
+- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`. Plan and correction source recoverable at `79a991b8ac325d6ebfa636276a7ca3bbc3241f5e:.planning/slice-plans/300-request-owner-says-why/PLAN.md`.
   - Timestamp: unknown.
   - Tool: Codex.
   - Open Dough release: unknown.
@@ -481,7 +481,7 @@ word-boundary pattern, and the reorder put a boundary before “Running”.
   - Observed effect: one CI failure on a published slice, one stash/repair/refactor/publish cycle while slice 2 was in progress.
   - Inference: qualified to this execution. A change to where text sits in the page reaches assertions over a container's whole text; a search by selector cannot find them. Possibly the same family as ODF-110, whose rows concern plan premises rather than a slice's own search.
 
-- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`.
+- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`. Plan and correction source recoverable at `79a991b8ac325d6ebfa636276a7ca3bbc3241f5e:.planning/slice-plans/300-request-owner-says-why/PLAN.md`.
   - Timestamp: 2026-10-11T22:33:26.3432757Z (CI failure).
   - Tool: Codex.
   - Open Dough release: unknown.
