@@ -60,7 +60,8 @@ for (const { when, origin, problem } of [
       ref: commitAnswer(revisionA),
       backlog: { revision: revisionA, answer: notFoundAnswer() },
     },
-    problem: `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revisionA}. Check that \`gh auth status\` succeeds and that this login can read terryyin/open-dough, then reload the page.`,
+    problem:
+      "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
   },
   {
     when: "an unknown CLI failure",
