@@ -20,11 +20,16 @@ export type RawRequestOptions = {
   readonly body?: string;
 };
 
+// Every request opens its own connection (`agent: false`). A kept-alive one
+// is closed by the server once idle, and a test that blocked its own loop
+// meanwhile (a synchronous child, say) would send its next request on that
+// closed socket and fail with "socket hang up".
 export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
   const url = new URL(options.url);
   return new Promise((resolve, reject) => {
     const req = http.request(
       {
+        agent: false,
         hostname: url.hostname,
         port: url.port,
         path: `${url.pathname}${url.search}`,
@@ -57,6 +62,7 @@ export function abandonedRequest(options: RawRequestOptions): {
 } {
   const url = new URL(options.url);
   const req = http.request({
+    agent: false,
     hostname: url.hostname,
     port: url.port,
     path: `${url.pathname}${url.search}`,

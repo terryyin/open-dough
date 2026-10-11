@@ -340,9 +340,13 @@ Safe stopping point: unattached landings are captured as story landings are.
 
 ### 7. A Start session with different choices starts a new session
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-start-session-identity.spec.ts`; the
 existing ad hoc recovery and continuation specs.
+Accepted proof: `agent-launch-start-session-identity.spec.ts` (a pending
+Isolated conversation left to its own continuation, a pending default one not
+resumed by Isolated, the landing axis, the same choices resuming); the
+duplicate, continuation, recovery, launch and landing suites.
 
 Behavior: a blank Start session on Codex with Isolated workspace whose first
 input is unconfirmed, then a blank Start session on Codex with the default
@@ -353,7 +357,7 @@ distinguishes launches as before.
 
 Change: `sameLaunch` (`dashboard/src/launchRequest.ts`) compares an ad hoc
 launch's unattached policy (the default when none is named) beside project,
-host and instruction; its comment and `AGENT-LAUNCH.md` say so. Closes
+host and instruction; its comment and `LAUNCH-START.md` “Start session” say so. Closes
 obligation G8.
 
 Safe stopping point: an unattached launch's identity includes its choices.
@@ -449,7 +453,7 @@ Disposition: proved by slice 4: `dashboard/tests/agent-launch-start-session-reco
 ### G8. A pending blank Start session is resumed by the next blank one, whatever its choices
 Reported: slice 4 — "A pending blank non-default conversation is therefore recovered by the next blank Start session on that host, whatever its Workspace / After checks choice, in the pending conversation's own workspace."
 Story clause: "The native session opens in that worktree."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: `dashboard/tests/agent-launch-start-session-identity.spec.ts`, "a pending Isolated workspace conversation is left to its own continuation by a Start session with the default choices"
 
 ## Learnings
 
@@ -511,3 +515,11 @@ Disposition: receiving slice 7
   claude` inside a Claude session starts a real CI observer of this repository;
   the landing specs land Claude sessions through the shared publication API and
   use the delivery command only with `--host codex`.
+- Two story-launch specs failed intermittently under load for reasons in the
+  tests, unchanged since the story's base: raw test requests reused a
+  keep-alive connection the server had closed after five idle seconds
+  (`dashboard/tests/support/rawHttp.ts` now opens one per request), and bounds
+  shorter than a real start subprocess under load (the landing-context poll in
+  `one-shot-landing-capture-binding.spec.ts`; the 3 s start wait of
+  `responsive-session-recovery.spec.ts` and
+  `agent-launch-uncertain-continuation.spec.ts`).

@@ -79,6 +79,14 @@ export function unattachedPolicyOf(request: {
   return unattachedSessionPolicy(request.policy);
 }
 
+// Whether two unattached policies make the same choices.
+export function sameUnattachedPolicy(
+  a: UnattachedSessionPolicy,
+  b: UnattachedSessionPolicy,
+): boolean {
+  return a.workspace === b.workspace && a.landing === b.landing;
+}
+
 // What a story's command line takes after its skill, as every host and the
 // dialog spell it: the work item's identity, the flags of its policy, then
 // the options selected.
@@ -147,17 +155,23 @@ export function withoutConfirmation(
 
 // Retries belong to the same project, host, workflow and subject. New options
 // or story instructions do not replace a retained launch's original intent.
+// An unattached launch's subject is its instruction with its Workspace and
+// After checks choices, so one with other choices is another launch.
 export function sameLaunch(
   a: AgentLaunchRequest | RecordedLaunchRequest,
   b: AgentLaunchRequest | RecordedLaunchRequest,
 ): boolean {
+  if (a.source !== b.source || a.host !== b.host) return false;
+  if (a.workflow !== "ad-hoc" || b.workflow !== "ad-hoc")
+    return (
+      a.workflow === b.workflow &&
+      "identity" in a &&
+      "identity" in b &&
+      a.identity === b.identity
+    );
   return (
-    a.source === b.source &&
-    a.host === b.host &&
-    a.workflow === b.workflow &&
-    ("identity" in a && "identity" in b
-      ? a.identity === b.identity
-      : a.instruction === b.instruction)
+    a.instruction === b.instruction &&
+    sameUnattachedPolicy(unattachedPolicyOf(a), unattachedPolicyOf(b))
   );
 }
 

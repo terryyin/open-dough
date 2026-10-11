@@ -79,7 +79,10 @@ test.describe("a story start whose launch wait expired", () => {
 startTest.describe(
   "a story start that settled before it knew whether it published",
   () => {
-    startTest.use({ startTimeoutMs: 3_000, launchTimeoutMs: 60_000 });
+    // The first start is held at its push, so it outlasts any wait; the
+    // continuation runs the real installed start again within this same
+    // wait, which must cover that run on a loaded machine.
+    startTest.use({ startTimeoutMs: 10_000, launchTimeoutMs: 60_000 });
 
     startTest(
       "blocks a fresh start of its story from any workflow, and is resumed only by its own continuation",

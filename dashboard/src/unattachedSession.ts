@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import {
+  sameUnattachedPolicy,
   unattachedPolicyOf,
   unattachedSessionPolicySchema,
   type UnattachedSessionPolicy,
@@ -21,11 +22,7 @@ type UnattachedChoices = {
 export function isDefaultUnattachedPolicy(
   policy: UnattachedSessionPolicy,
 ): boolean {
-  const defaults = unattachedPolicyOf({});
-  return (
-    policy.workspace === defaults.workspace &&
-    policy.landing === defaults.landing
-  );
+  return sameUnattachedPolicy(policy, unattachedPolicyOf({}));
 }
 
 // Whether an unattached launch establishes its session: the shared start

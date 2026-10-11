@@ -37,11 +37,14 @@ test("a landing accepted before native binding imports only that original launch
   );
   expect(answer.kind).toBe("accepted");
   if (answer.kind !== "accepted") throw new Error("No accepted launch");
+  // Kept once the real installed start has made the workspace: as long as
+  // that start takes on this machine.
   await expect
     .poll(
       () =>
         keptAttempts(dashboard).find((entry) => entry.id === answer.attempt.id)
           ?.reporting?.landingContext,
+      { timeout: 30_000 },
     )
     .toBeDefined();
   const attempt = keptAttempts(dashboard).find(

@@ -55,3 +55,23 @@ test("ad hoc matching retains exact instruction including omitted and empty text
   expect(sameLaunch(blank, { ...blank, host: "codex" })).toBe(false);
   expect(sameLaunch(blank, story)).toBe(false);
 });
+
+test("ad hoc matching includes the Workspace and After checks choices, the default ones when none are named", () => {
+  const blank: AgentLaunchRequest = {
+    source: "open-dough",
+    host: "codex",
+    workflow: "ad-hoc",
+  };
+  const defaults = {
+    workspace: "default-checkout",
+    landing: "review",
+  } as const;
+  expect(sameLaunch(blank, { ...blank, policy: defaults })).toBe(true);
+  for (const policy of [
+    { ...defaults, workspace: "isolated" },
+    { ...defaults, landing: "auto-land" },
+  ] as const) {
+    expect(sameLaunch(blank, { ...blank, policy })).toBe(false);
+    expect(sameLaunch({ ...blank, policy }, { ...blank, policy })).toBe(true);
+  }
+});

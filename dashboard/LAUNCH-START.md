@@ -189,6 +189,13 @@ nothing, and a later Start session chooses its workspace afresh. A
 conversation whose first input is unconfirmed is recovered by the same
 continuation with no start run.
 
+An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
+project, host and instruction with its Workspace and After checks choices, a
+request naming none having the default ones. A Start session repeating all of
+them recovers a kept conversation whose first input is unconfirmed; one whose
+choices differ starts a new session in its own place and leaves that
+conversation and its workspace to their own continuation.
+
 ### Existing changes in default main
 
 Before a Default main start, the boundary reads the default checkout's
