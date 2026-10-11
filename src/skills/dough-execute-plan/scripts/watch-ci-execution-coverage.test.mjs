@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { executionBudgetMs, watchCiExecution } from "./watch-ci-execution.mjs";
 
@@ -12,10 +13,10 @@ const observeUntilCoverageLoss = async (gh) => {
     branch: "main",
     emit: (event) => events.push(event),
     sleep: async () => undefined,
-    gh: async (args, signal) => {
+    gh: githubApi((request, signal) => {
       requestSignal = signal;
-      return gh(args);
-    },
+      return gh(request);
+    }),
   });
 
   return { events, requestSignal };
@@ -25,15 +26,15 @@ for (const [source, gh] of [
   ["discovery", async () => Promise.reject(new Error("run listing failed"))],
   [
     "attempt history",
-    async (args) => {
-      if (args[1] === "list") return [run({ attempt: 2 })];
+    async ({ kind }) => {
+      if (kind === "runs") return [run({ attempt: 2 })];
       throw new Error("attempt history failed");
     },
   ],
   [
     "unfinished job inspection",
-    async (args) => {
-      if (args[1] === "list")
+    async ({ kind }) => {
+      if (kind === "runs")
         return [run({ status: "in_progress", conclusion: null })];
       throw new Error("job inspection failed");
     },
@@ -64,9 +65,9 @@ test("worker failure retains prior evidence before reporting lost coverage", asy
       if (poll === 1) return;
       throw new Error("polling worker failed");
     },
-    gh: async (args, signal) => {
+    gh: githubApi(({ kind }, signal) => {
       requestSignal = signal;
-      if (args[1] === "list") {
+      if (kind === "runs") {
         poll += 1;
         return poll === 1
           ? [run({ conclusion: "failure" })]
@@ -75,7 +76,7 @@ test("worker failure retains prior evidence before reporting lost coverage", asy
       return {
         jobs: [{ databaseId: 101, name: "Backend", conclusion: "failure" }],
       };
-    },
+    }),
   });
 
   assert.deepEqual(
@@ -100,8 +101,8 @@ test("the declared execution budget expires once and is not renewed by pushes", 
     sleep: async (milliseconds) => {
       elapsed += milliseconds;
     },
-    gh: async (args) => {
-      if (args[1] === "list") {
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
         pushes += 1;
         return [
           run({
@@ -113,7 +114,7 @@ test("the declared execution budget expires once and is not renewed by pushes", 
         ];
       }
       return { jobs: [] };
-    },
+    }),
   });
 
   assert.equal(executionBudgetMs, 8 * 60 * 60 * 1000);
@@ -153,19 +154,19 @@ test("registered revisions suppress unrelated target-branch failures", async () 
       if (event.type === "CI_FAILURE") controller.abort();
     },
     sleep: async () => undefined,
-    gh: async (args) => {
-      if (args[1] === "list")
+    gh: githubApi(({ kind, runId }) => {
+      if (kind === "runs")
         return [
           run({ databaseId: 1, headSha: oldSha, conclusion: "failure" }),
           run({ databaseId: 2, headSha: unrelatedSha, conclusion: "failure" }),
           run({ databaseId: 3, headSha: finalSha, conclusion: "failure" }),
         ];
-      if (args.includes("3"))
+      if (runId === 3)
         return {
           jobs: [{ databaseId: 301, name: "Owned", conclusion: "failure" }],
         };
-      throw new Error(`unexpected job inspection ${args.join(" ")}`);
-    },
+      throw new Error(`unexpected job inspection ${kind} ${runId}`);
+    }),
   });
 
   assert.deepEqual(
@@ -203,7 +204,7 @@ test("normal shutdown cancels polling immediately without a coverage-loss event"
         });
       });
     },
-    gh: async () => [],
+    gh: githubApi(() => []),
   });
 
   await started;

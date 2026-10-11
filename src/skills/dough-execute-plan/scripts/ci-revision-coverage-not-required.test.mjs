@@ -12,6 +12,7 @@ import {
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import {
   deferWorkerStop,
@@ -36,7 +37,7 @@ import {
 //
 // The fake distinguishes the ordinary per-poll run listing from the extra
 // bounded-history listing ci-runs.mjs's discoverApplicabilityCandidateRuns
-// issues (limit 100, no --created) when a revision's local candidates cannot
+// issues (limit 100, no `created` bound) when a revision's local candidates cannot
 // prove any ancestor: real GitHub commonly drops an old completed run out of
 // the ordinary short-window listing, which is exactly why that broader,
 // on-demand lookup exists.
@@ -44,11 +45,9 @@ function ignoredOnlyGithub({ repo, branch, shaA, databaseIdA }) {
   let regularCalls = 0;
   let historyCalls = 0;
   let exactRun;
-  const gh = async (args) => {
-    if (args[0] === "run" && args[1] === "list") {
-      const limit = Number(args[args.indexOf("--limit") + 1]);
-      const hasCreated = args.includes("--created");
-      if (limit === 100 && !hasCreated) {
+  const gh = githubApi((request) => {
+    if (request.kind === "runs") {
+      if (request.limit === 100 && request.created === undefined) {
         historyCalls += 1;
         return [
           run({
@@ -66,8 +65,8 @@ function ignoredOnlyGithub({ repo, branch, shaA, databaseIdA }) {
       regularCalls += 1;
       return exactRun ? [exactRun] : [];
     }
-    throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
-  };
+    throw new Error(`unexpected gh call ${JSON.stringify(request)}`);
+  });
   return {
     gh,
     regularCallCount: () => regularCalls,

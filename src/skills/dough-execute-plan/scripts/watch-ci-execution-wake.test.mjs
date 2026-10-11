@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { setTimeout as pause } from "node:timers/promises";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 
 const neverScheduled = 10 * 60 * 1000;
@@ -56,7 +57,7 @@ test("a registration during an in-flight poll brings exactly one more immediate 
     pollMs: neverScheduled,
     sleep,
     armRegistrationWake: registration.armRegistrationWake,
-    gh: async () => {
+    gh: githubApi(async () => {
       polls += 1;
       if (polls === 1)
         await new Promise((release) => {
@@ -64,7 +65,7 @@ test("a registration during an in-flight poll brings exactly one more immediate 
           finishFirstPoll();
         });
       return [];
-    },
+    }),
   });
   await firstPollRunning;
   registration.register();
@@ -95,10 +96,10 @@ test("registrations do not shorten the retry after a poll error, and three error
     sleep: async (milliseconds, ...[, { signal }]) => {
       retries.push({ milliseconds, aborted: signal.aborted });
     },
-    gh: async () => {
+    gh: githubApi(() => {
       polls += 1;
       throw new Error(`provider outage ${polls}`);
-    },
+    }),
   });
   assert.equal(polls, 3);
   assert.deepEqual(retries, [
@@ -123,11 +124,11 @@ test("registrations cannot extend observation past its budget", async () => {
     now: () => elapsed,
     pollMs: neverScheduled,
     armRegistrationWake: () => AbortSignal.abort(),
-    gh: async () => {
+    gh: githubApi(() => {
       polls += 1;
       elapsed += 1_000;
       return [];
-    },
+    }),
   });
   assert.equal(polls, 5);
   assert.deepEqual(
@@ -155,10 +156,10 @@ test("aborting observation still ends a wakeable pause silently", async () => {
     pollMs: neverScheduled,
     sleep,
     armRegistrationWake: registration.armRegistrationWake,
-    gh: async () => {
+    gh: githubApi(() => {
       polls += 1;
       return [];
-    },
+    }),
   });
   await pausesBegun(1);
   observation.abort();

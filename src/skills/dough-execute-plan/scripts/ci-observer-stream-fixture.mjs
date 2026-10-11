@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { streamMailboxWorker } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
@@ -28,8 +29,8 @@ function waitForRelease(signal) {
 
 let poll = 0;
 const fixtureAbort = new AbortController();
-const fakeGitHub = async (args) => {
-  if (args[1] === "list") {
+const fakeGitHub = githubApi(({ kind }) => {
+  if (kind === "runs") {
     poll += 1;
     return [
       run({
@@ -57,7 +58,7 @@ const fakeGitHub = async (args) => {
           ]),
     ],
   };
-};
+});
 
 await streamMailboxWorker(
   {

@@ -10,6 +10,7 @@ import {
   fixtureTeardown,
   sharedCommandDirectory,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { apiRun } from "./github-actions-api-test-fixtures.mjs";
 import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
 
 export const exec = promisify(execFile);
@@ -48,8 +49,9 @@ const workerRecheckProbe = `data:text/javascript,${encodeURIComponent(
   ),
 )}`;
 
-// Records the worker it serves under CI_TEST_ROOT and answers `run list` with
-// the runs released there, blocking until they are.
+// A `gh api --include` that answers as GitHub's API does. It records the
+// worker it serves under CI_TEST_ROOT and answers a run listing with the runs
+// released there, blocking until they are.
 const githubCommand = `#!${process.execPath}
 (async () => {
 const fs = require('node:fs');
@@ -58,7 +60,14 @@ const root = process.env.CI_TEST_ROOT;
 const { guardFixtureProcess, waitForFixtureRelease } = await import(${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)});
 guardFixtureProcess(root);
 const release = path.join(root, 'release');
-if (process.argv[3] === 'list') {
+const route = process.argv[4] ?? '';
+const answer = (body) => process.stdout.write('HTTP/2.0 200 OK\\r\\n\\r\\n' + body);
+if (process.argv[2] !== 'api' || process.argv[3] !== '--include') {
+  process.stderr.write('unexpected gh call ' + process.argv.slice(2).join(' '));
+  process.exit(1);
+} else if (/\\/workflows\\/[^/]+$/.test(route)) {
+  answer(JSON.stringify({ id: 7001, name: 'CI' }));
+} else if (/\\/workflows\\/7001\\/runs\\?/.test(route)) {
   fs.writeFileSync(path.join(root, 'worker-pid'), String(process.ppid));
   fs.writeFileSync(path.join(root, 'github-pid'), String(process.pid));
   fs.writeFileSync(path.join(root, 'started'), '');
@@ -67,14 +76,14 @@ if (process.argv[3] === 'list') {
     process.exit(0);
   });
   await waitForFixtureRelease(release);
-  process.stdout.write(fs.readFileSync(release));
+  answer(fs.readFileSync(release, 'utf8'));
   fs.writeFileSync(path.join(root, 'observed'), '');
-} else { process.stdout.write(JSON.stringify({jobs: []})); }
+} else { answer(JSON.stringify({ total_count: 0, jobs: [] })); }
 })();
 `;
 
 // The environment of a process fixture rooted at `directory`: mailboxes live
-// there, and its `gh` answers `run list` with the runs `releaseRun` released.
+// there, and its `gh` answers a run listing with the runs `releaseRun` released.
 export function processMailboxEnvironment(
   directory,
   { observeWorkerRechecks = false } = {},
@@ -132,7 +141,7 @@ export async function setupProcessMailbox(
   return { directory, mailbox, stdout, deliver, env, teardown };
 }
 
-// Releases the fixture's blocked `gh run list` with one run per overrides
+// Releases the fixture's blocked run listing with one run per overrides
 // object, each a completed failing push run of `sha` unless overridden.
 export function releaseRun(directory, ...runOverrides) {
   const runs = (runOverrides.length ? runOverrides : [{}]).map((overrides) => ({
@@ -146,7 +155,10 @@ export function releaseRun(directory, ...runOverrides) {
     conclusion: "failure",
     ...overrides,
   }));
-  publishJson(directory, "release", runs);
+  publishJson(directory, "release", {
+    total_count: runs.length,
+    workflow_runs: runs.map(apiRun),
+  });
 }
 
 // A mailbox whose recorded worker identity is a live but unrelated process,

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { test } from "node:test";
 import { promisify } from "node:util";
+import { githubRequest } from "./github-actions-api-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const observer = new URL("./watch-ci-execution.mjs", import.meta.url).href;
@@ -55,8 +56,23 @@ test("client workflow and non-main branch select failures and exclude deployment
     DOUGH_CI_WORKFLOW: "checks.yaml",
     DOUGH_CI_WORKFLOW_NAME: "Client checks",
   });
-  assert.equal(calls[0][calls[0].indexOf("--workflow") + 1], "checks.yaml");
-  assert.equal(calls[0][calls[0].indexOf("--branch") + 1], "release/next");
+  const requests = calls.map(githubRequest);
+  assert.deepEqual(requests[0], {
+    kind: "workflow",
+    repo: "client/project",
+    workflow: "checks.yaml",
+  });
+  // The workflow is resolved once, and every listing asks that workflow's
+  // own runs on the target branch.
+  assert.equal(requests.filter(({ kind }) => kind === "workflow").length, 1);
+  const listings = requests.filter(({ kind }) => kind === "runs");
+  assert.equal(listings.length, 3);
+  assert.ok(
+    listings.every(
+      ({ workflowId, branch, event }) =>
+        workflowId === "1" && branch === "release/next" && event === "push",
+    ),
+  );
   assert.deepEqual(selectedFailures(events), [
     { runId: 1, workflow: "checks.yaml", branch: "release/next" },
   ]);

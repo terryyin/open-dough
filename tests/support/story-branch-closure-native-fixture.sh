@@ -33,15 +33,23 @@ story_closure_write_gh() {
     '#!/usr/bin/env bash' \
     'set -euo pipefail' \
     'printf "%s\n" "$*" >> "${STORY_CLOSURE_GH_LOG}"' \
-    'if [[ " $* " != *" run list "* ]]; then' \
-    '  jq -n '\''{attempt:1,status:"completed",conclusion:"success",url:"https://ci.invalid/run"}'\''' \
-    'elif [[ " $* " == *" --branch exec/story "* ]]; then' \
-    '  jq -n --arg sha "${STORY_CLOSURE_BRANCH_SHA}" '\''[{databaseId:11,attempt:1,headSha:$sha,headBranch:"exec/story",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/branch",createdAt:"2026-09-22T00:01:00Z"}]'\''' \
+    'route=${3:-}' \
+    'printf "HTTP/2.0 200 OK\r\n\r\n"' \
+    'run='\''{id:$id,run_attempt:1,head_sha:$sha,head_branch:$branch,event:"push",status:"completed",conclusion:"success",html_url:$url,created_at:$created}'\''' \
+    'base=(--argjson id 21 --arg sha "${STORY_CLOSURE_TRUNK_SHA}" --arg branch main --arg url https://ci.invalid/trunk-base --arg created 2026-09-22T00:02:00Z)' \
+    'if [[ ${route} == */jobs\?* ]]; then' \
+    '  jq -n '\''{total_count:0,jobs:[]}'\''' \
+    'elif [[ ${route} != */actions/workflows/* ]]; then' \
+    '  jq -n '\''{run_attempt:1,status:"completed",conclusion:"success",html_url:"https://ci.invalid/run"}'\''' \
+    'elif [[ ${route} != */runs\?* ]]; then' \
+    '  jq -n '\''{id:7001,name:"CI"}'\''' \
+    'elif [[ ${route} == *branch=exec%2Fstory* ]]; then' \
+    '  jq -n --argjson id 11 --arg sha "${STORY_CLOSURE_BRANCH_SHA}" --arg branch exec/story --arg url https://ci.invalid/branch --arg created 2026-09-22T00:01:00Z "{total_count:1,workflow_runs:[${run}]}"' \
     'elif [[ -f ${STORY_CLOSURE_RELEASE} && -s ${STORY_CLOSURE_INTEGRATED_SHA_FILE} ]]; then' \
     '  candidate=$(cat "${STORY_CLOSURE_INTEGRATED_SHA_FILE}")' \
-    '  jq -n --arg base "${STORY_CLOSURE_TRUNK_SHA}" --arg candidate "${candidate}" '\''[{databaseId:21,attempt:1,headSha:$base,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/trunk-base",createdAt:"2026-09-22T00:02:00Z"},{databaseId:22,attempt:1,headSha:$candidate,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/integrated",createdAt:"2026-09-22T00:03:00Z"}]'\''' \
+    '  jq -n "${base[@]}" "${run}" | jq --argjson id 22 --arg sha "${candidate}" --arg branch main --arg url https://ci.invalid/integrated --arg created 2026-09-22T00:03:00Z "{total_count:2,workflow_runs:[.,${run}]}"' \
     'else' \
-    '  jq -n --arg base "${STORY_CLOSURE_TRUNK_SHA}" '\''[{databaseId:21,attempt:1,headSha:$base,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/trunk-base",createdAt:"2026-09-22T00:02:00Z"}]'\''' \
+    '  jq -n "${base[@]}" "{total_count:1,workflow_runs:[${run}]}"' \
     'fi' > "${destination}"
   chmod +x "${destination}"
 }

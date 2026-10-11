@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { run, scriptedGithub } from "./watch-ci-test-fixtures.mjs";
+import {
+  githubApi,
+  scriptedGithub,
+} from "./github-actions-api-test-fixtures.mjs";
+import { run } from "./watch-ci-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
 
 test("startup reports only the newest completed run and retained attempts", async () => {
@@ -90,7 +94,7 @@ test("startup reports only the newest completed run and retained attempts", asyn
     },
   ]);
   assert.equal(
-    calls.some((args) => args.includes("30")),
+    calls.some(({ runId }) => runId === 30),
     false,
   );
   assert.equal(responses.length, 0);
@@ -114,16 +118,16 @@ test("startup keeps a run that completes while its snapshot is pending", async (
     sleep: async () => {
       if (events.length) controller.abort();
     },
-    gh: async (args) => {
-      if (args[1] === "list") {
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
         listCalls += 1;
         return listCalls === 1 ? snapshot : [];
       }
-      if (args.includes("--attempt")) {
+      if (kind === "jobs") {
         return { jobs: [{ name: "Racing run", conclusion: "failure" }] };
       }
       return { status: "completed", conclusion: "failure" };
-    },
+    }),
   });
 
   await Promise.resolve();
@@ -154,7 +158,7 @@ test("empty startup history is quiet", async () => {
     signal: controller.signal,
     emit: (event) => events.push(event),
     sleep: async () => controller.abort(),
-    gh: async () => [],
+    gh: githubApi(() => []),
   });
 
   assert.deepEqual(events, []);
@@ -175,8 +179,8 @@ test("observes a run created after an empty snapshot in the startup second", asy
     sleep: async () => {
       if (listPoll === 3) controller.abort();
     },
-    gh: async (args) => {
-      if (args[1] === "list") {
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
         listPoll += 1;
         if (listPoll === 1) return [];
         return [
@@ -189,7 +193,7 @@ test("observes a run created after an empty snapshot in the startup second", asy
       }
       jobInspections += 1;
       return { jobs: [{ name: "Backend", conclusion: "failure" }] };
-    },
+    }),
   });
 
   assert.deepEqual(

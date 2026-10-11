@@ -69,22 +69,32 @@ export class GitHubRequests {
 
   #failed;
 
+  #maxBufferBytes;
+
   // `boundMs` is how long one `gh` call may run from its start however many
   // requesters wait on it; `backoffBaseMs`, how long this process first waits
   // after a rate limit that directs no wait, doubling while the limit
   // continues. `failed` hears of each failed call once, including a bound
   // that ends it; held-back and ordinary requester departures are not told.
+  // `maxBufferBytes` is the most one answer may print before its call fails.
   /**
    * @param {{
    *   readonly boundMs: number;
    *   readonly backoffBaseMs: number;
    *   readonly failed?: (request: FailedGhRequest) => void;
+   *   readonly maxBufferBytes?: number;
    * }} options
    */
-  constructor({ boundMs, backoffBaseMs, failed = () => undefined }) {
+  constructor({
+    boundMs,
+    backoffBaseMs,
+    failed = () => undefined,
+    maxBufferBytes = 1024 * 1024,
+  }) {
     this.#outstanding = new OutstandingReads(boundMs);
     this.#admission = new ReadAdmission(backoffBaseMs);
     this.#failed = failed;
+    this.#maxBufferBytes = maxBufferBytes;
   }
 
   // One `gh api` answer, settled whatever its exit: `--include` makes `gh`
@@ -144,7 +154,7 @@ export class GitHubRequests {
         [...args],
         {
           signal,
-          maxBuffer: 1024 * 1024,
+          maxBuffer: this.#maxBufferBytes,
           encoding: "utf8",
           env: { ...process.env, GH_PROMPT_DISABLED: "1" },
         },

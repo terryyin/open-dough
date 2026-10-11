@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2034,SC2310,SC2312
-# SC2034: force, replace_verified, and version are read by install_declared_payload.
+# shellcheck disable=SC1091,SC2034,SC2310,SC2312 # SC2034: force, replace_verified, and version are read by install_declared_payload.
 set -euo pipefail
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -160,6 +159,8 @@ managed_files=(
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
+  dough-execute-plan/scripts/ci-github-actions.mjs
+  dough-execute-plan/scripts/ci-github-diagnostic.mjs
   dough-execute-plan/scripts/ci-host-bridge.mjs
   dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs
@@ -244,7 +245,6 @@ managed_files=(
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )
 require_declared_payload
-release_helper="${source_dir}/src/install/open-dough-release.sh"
-[[ -f "${release_helper}" ]] || { echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
-version=$(bash "${release_helper}" validate-checkout "${source_dir}")
+[[ -f "${source_dir}/src/install/open-dough-release.sh" ]] || { echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
+version=$(bash "${source_dir}/src/install/open-dough-release.sh" validate-checkout "${source_dir}")
 install_declared_payload

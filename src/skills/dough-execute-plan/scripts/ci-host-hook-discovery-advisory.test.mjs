@@ -14,6 +14,7 @@ import {
   input,
   setup,
   stopHookName,
+  throttleAdvisory,
 } from "./ci-host-hook-test-fixtures.mjs";
 
 for (const host of ["cursor", "claude"]) {
@@ -35,6 +36,28 @@ for (const host of ["cursor", "claude"]) {
     assert.deepEqual(readMailboxEvents(directory, 0), [
       { sequence: 1, event: discoveryAdvisory },
     ]);
+  });
+
+  test(`${host}: a suspended acquisition alone does not interrupt stop and surfaces with the next delivery`, () => {
+    const options = setup();
+    const directory = createMailbox({}, options);
+    deliverCiEvents(input(host, directory), host, options);
+    publishMailboxEvent(directory, throttleAdvisory);
+
+    assert.deepEqual(
+      deliverCiEvents(
+        input(host, undefined, { hook_event_name: stopHookName(host) }),
+        host,
+        options,
+      ),
+      {},
+    );
+    assert.deepEqual(readDeliveryProgress(directory), { deliveredThrough: 0 });
+
+    const selection = selectCiEvents(input(host), host, options);
+    assert.match(context(selection.output), /CI_MONITOR_THROTTLED/);
+    selection.acknowledge();
+    assert.deepEqual(readDeliveryProgress(directory), { deliveredThrough: 1 });
   });
 
   test(`${host}: a following ordinary delivery surfaces a held advisory`, () => {

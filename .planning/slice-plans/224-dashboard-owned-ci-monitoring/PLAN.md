@@ -273,7 +273,25 @@ Immediately enables slice 3; do not add a second local admission class.
 
 ### 3. Ask GitHub for CI evidence through admitted API requests
 Type: Behavior
-Status: planned
+Status: done
+
+Delivered: `ci-github-actions.mjs` holds the CI engine's one `GitHubRequests`
+instance and its `repos/OWNER/REPO/actions/` routes (workflow, run listing,
+run, attempt, paginated attempt jobs, job log); `ci-runs.mjs` and
+`ci-command-adapter.mjs` each offer one acquisition factory to
+`watch-ci-execution.mjs`. A hold emits `CI_MONITOR_THROTTLED` and sleeps to
+the directed time within the budget. `ci-github-diagnostic.mjs` offers
+`failure OWNER/REPO RUN_ID ATTEMPT` and `workflow OWNER/REPO`; `ci-monitor.md`
+and `runtime-setup.md` name it. Accepted proof: `node --test
+src/skills/dough-execute-plan/scripts/*.test.mjs` (638 passed), notably
+`ci-github-acquisition.test.mjs`, `ci-github-diagnostic.test.mjs` and
+`watch-ci-execution-hold.test.mjs`; `bash scripts/test.sh
+tests/execution-payload-update.sh tests/payload-declaration-links.sh
+tests/install-public-payload.sh tests/update-removes-dropped-files.sh`; and a
+read-only run of both diagnostic subcommands against the real `gh`. Measured
+for one failed run with a prior attempt and 150 jobs plus one diagnostic:
+before, 4 unadmitted `gh run` invocations of unobservable HTTP cost; after, 8
+admitted API requests (observer 5, diagnostic 3).
 
 Result: the installed CI engine's GitHub default acquires discovery, attempt,
 jobs, applicability and failure diagnostics as explicit `gh api` requests
@@ -579,7 +597,7 @@ source: GitHub Actions default. Overrun replanning is allowed.
 ### G1. Installed CI requests bypass the shared request source
 Reported: slice 2 — "No installed CI script imports the new modules yet, so installed-runtime use is proven only by the module-load check."
 Story clause: "one admission owner per allowance scope"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs "the observer asks GitHub one admitted API request per route and page" and "no installed file asks gh outside the one request source or names a gh run command"; tests/execution-payload-update.sh runs the installed observer and diagnostic against a logging gh
 
 ### G2. Admission state is process-local and unkeyed
 Reported: slice 2 — "the outstanding-call key is `JSON.stringify(args)` only, with no API host or principal, and `ReadAdmission` is a single allowance."
@@ -590,6 +608,31 @@ Disposition: interim until slices 4, 5
 Reported: slice 2 — "`ReadAdmission` and `OutstandingReads` have no isolated unit tests."
 Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
 Disposition: proved by slice 2: dashboard/tests/authenticated-read-turns.spec.ts, authenticated-read-cooldown.spec.ts, authenticated-read-backoff.spec.ts and limit-recovery-check.spec.ts exercise eight turns, cooldown, backoff doubling and the single recovery probe through the dashboard HTTP boundary on the moved source
+
+### G4. Diagnostic excerpt lacks per-step log attribution
+Reported: slice 3 — "The job-log route has no step attribution, so the excerpt is the lines around `##[error]` markers (or the last 40 lines) plus failed step names from the jobs answer."
+Story clause: "failure-diagnostic requests pass through"
+Disposition: no user cost "sends a follow-up to the owning native session only for an actionable failure": the excerpt keeps the error-marked lines and the failed step names, which a real failed run showed sufficient to classify; a missing or oversized log is reported as `logUnavailable`, never as evidence
+
+### G5. Diagnostic entry does not share the observer's hold
+Reported: slice 3 — "A rerun in a new process probes immediately because the cooldown is not shared or persisted (G2)."
+Story clause: "Cooldown refusal costs no upstream call."
+Disposition: receiving slice 4
+
+### G6. Workflow selector no longer accepts a display name
+Reported: slice 3 — "`gh run list --workflow` also accepted a workflow display name; the API route takes only a filename or numeric ID."
+Story clause: "Reuse the installed non-AI observer and provider classification."
+Disposition: no user cost "Monitoring continues and sends a follow-up to the owning native session only for an actionable failure": the documented selector was already a workflow filename or ID, an unknown selector fails visibly at setup with HTTP 404, and the default `ci.yml` is unaffected
+
+### G7. Native closure fixtures converted without their native journeys
+Reported: slice 3 — "I converted their `gh` shims and only checked the shims' answers per route with a standalone script, not the native journeys."
+Story clause: "Paid native runs require explicit native-check authority"
+Disposition: excluded "Paid native runs require explicit native-check authority and are outside this planning request and routine CI."
+
+### G8. A long limit can repeat the throttling advisory
+Reported: slice 3 — "A long-lived limit with short directed waits could produce several advisories."
+Story clause: "Throttling suspends acquisition visibly"
+Disposition: no user cost "Pending or success never creates a new agent turn.": the advisory alone never blocks Stop or starts a turn (`ci-host-hook-discovery-advisory.test.mjs`), and each one reports a real suspension
 
 ## Proof ownership and acceptance
 
@@ -653,3 +696,9 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
 - 2026-10-11: former slice 3 combined four proof loops — admitted CI API
   routes, a cross-process owner, principal scoping and replacement recovery.
   It is now slices 3–6 and former slices 4–12 are 7–15; no promise was removed.
+- 2026-10-11 (slice 3): the CI engine's request owner is one module-level
+  instance in `ci-github-actions.mjs` with `askGitHub` its only caller, so
+  slice 4 swaps one place. Log reads need a 16 MiB answer bound that a
+  cross-process owner must carry per request. `install.sh` and `ci-monitor.md`
+  sit at the 250-line limit; the next payload file or guidance line needs a
+  structural move.
