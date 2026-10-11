@@ -924,7 +924,7 @@ two baselines' ids, stayed unchanged. It reasoned from a mark already taken
 on a tree baseline. A mark taken before the first publication holds a commit.
 
 ### Occurrences
-- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297, first implementation `0b6138cc`
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297 (spent plan recoverable at `6fef8b6869a532a7a127d755fb3326b6dddd8ebd:.planning/slice-plans/297-trunk-mode-own-changes-review/PLAN.md`), first implementation `0b6138cc`
   - Timestamp: unknown (2026-10-11, slice 3 implementation, between `58e5386e` at 11:20:13+09:00 and `15685dc7` at 11:44:40+09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -941,7 +941,7 @@ pass deleted the override so one rule remained, which changed that caller's
 result in an edge case the story preserves as it is.
 
 ### Occurrences
-- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297, first implementation `0b6138cc`
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297 (spent plan recoverable at `6fef8b6869a532a7a127d755fb3326b6dddd8ebd:.planning/slice-plans/297-trunk-mode-own-changes-review/PLAN.md`), first implementation `0b6138cc`
   - Timestamp: unknown (2026-10-11, slice 3 refactor pass, between `58e5386e` at 11:20:13+09:00 and `15685dc7` at 11:44:40+09:00)
   - Tool: Claude Code (delegated refactor agent)
   - Model: claude-opus-5-5

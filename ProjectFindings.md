@@ -167,7 +167,7 @@ executions; repeated agents within each execution count once.
   - Evidence: slice 1's refactor return: "the default reporter printed no summary", rerun with `--reporter=line`; slices 3, 5, and 7's refactor returns invoked `npx playwright test ... --reporter=line|list` directly "because the default reporter's output did not show".
   - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
   - Inference: Qualified; the same recurring cost, unchanged by the release.
-- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297, first related implementation commit `0b6138cc`
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297 (spent plan recoverable at `6fef8b6869a532a7a127d755fb3326b6dddd8ebd:.planning/slice-plans/297-trunk-mode-own-changes-review/PLAN.md`), first related implementation commit `0b6138cc`
   - Timestamp: unknown (implementation returns of slices 1 to 4, 2026-10-11, between the claim `99898cd7` and `1c8329e4` at 11:57:40+09:00)
   - Tool: Claude Code (delegated agents)
   - Model: claude-opus-5-5
