@@ -124,6 +124,15 @@ lives in its own test file so it runs beside the other closure cases, and
 `tests/longest-first` lists it. `docs/maintainer/execution-publication-design.md`
 paraphrased the gate in its Closure row and now names `success` too.
 
+## Execution complete
+
+Product advice: no backlog change. This repository's own closures run the
+installed `finish`, which keeps the earlier gate until a release carries this
+change, so the next release is what puts the rule in force here. The
+no-verdict journey's 34 s comes from the observer's fixed 30 s poll pause;
+SEED-063's rewrite of this path is the place to make an ended observation
+quick to reach in a test.
+
 ## Current decisions
 
 - Retirement requires `verdict: "success"` with confirmed shutdown, the rule
