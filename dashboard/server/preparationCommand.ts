@@ -1,7 +1,5 @@
 // The installed preparation command and its handoff formatter. These stay in
 // the selected host installation; the dashboard runs their public contracts.
-import { stat } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
 import type {
   EstablishedPreparation,
   SessionPolicy,
@@ -9,7 +7,7 @@ import type {
 } from "../src/agentLaunch.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { isFile, runStartCommand } from "./startLaunch.ts";
+import { installedExports, isFile, runStartCommand } from "./startLaunch.ts";
 import { policyArguments } from "./startPolicy.ts";
 import {
   readPreparationResult,
@@ -107,10 +105,9 @@ export async function formattedPreparation(
     "scripts",
     formatterScript,
   );
-  const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;
-  const formatter = (await import(/* @vite-ignore */ url)) as {
+  const formatter = await installedExports<{
     formatEstablishedPreparation: (preparation: object) => string;
-  };
+  }>(file);
   return formatter.formatEstablishedPreparation({
     ...preparation,
     integration: project.path,

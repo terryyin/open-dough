@@ -141,8 +141,8 @@ export function useLaunchAttempts({
     [launch],
   );
 
-  // An ad hoc session carries no story policy; its own choices are not yet
-  // offered, so it runs with the unattached default.
+  // An ad hoc session carries no story policy, only its own unattached one
+  // when chosen.
   const startAdHoc = useCallback(
     (sourceId: string, choices: LaunchChoices, onLaunched: OnLaunched) =>
       launch(
@@ -151,6 +151,9 @@ export function useLaunchAttempts({
           source: sourceId,
           workflow: "ad-hoc",
           ...requestedSettings(choices),
+          ...(choices.unattached === undefined
+            ? {}
+            : { policy: choices.unattached }),
         },
         onLaunched,
         choices.host === "cursor",

@@ -12,6 +12,7 @@ import {
   sessionPolicyToggles,
   unattachedSessionChoices,
   unattachedSessionPolicy,
+  unattachedStartPolicy,
   withSelectedLanding,
 } from "./session-policy.mjs";
 
@@ -177,4 +178,32 @@ test("an unattached session's values are the shared policy's own", () => {
       [...values].sort(),
       [...sessionPolicyChoices[choice].values].sort(),
     );
+});
+
+test("an unattached session's place is established by the one-shot start, with authority only to land automatically", () => {
+  const flags = (selected) =>
+    sessionPolicyFlags(unattachedStartPolicy(selected));
+  assert.deepEqual(flags(), ["--one-shot", "--default-main"]);
+  assert.deepEqual(flags({ landing: "auto-land" }), [
+    "--one-shot",
+    "--default-main",
+    "--auto-land",
+  ]);
+  assert.deepEqual(flags({ workspace: "isolated" }), ["--one-shot"]);
+  assert.deepEqual(flags({ workspace: "isolated", landing: "auto-land" }), [
+    "--one-shot",
+    "--auto-land",
+  ]);
+  for (const workspace of unattachedSessionChoices.workspace.values) {
+    assert.equal(
+      needsPublicationAuthority(unattachedStartPolicy({ workspace })),
+      false,
+    );
+    assert.equal(
+      needsPublicationAuthority(
+        unattachedStartPolicy({ workspace, landing: "auto-land" }),
+      ),
+      true,
+    );
+  }
 });

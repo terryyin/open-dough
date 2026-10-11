@@ -160,9 +160,16 @@ session; nothing else changed.
 
 ### 2. After checks: Automatically land hands the session its landing intent
 Type: Behavior
-Status: planned
+Status: done
 Proof: the landing spec, the formatter unit test, and the Codex and Cursor
 first-input cases in the proof table.
+Accepted proof: `agent-launch-start-session-landing.spec.ts`,
+`-landing-boundary.spec.ts`, `-stops.spec.ts` and `-layout.spec.ts`;
+`agent-launch-ad-hoc-codex-input.spec.ts` and
+`agent-launch-ad-hoc-cursor-established.spec.ts`;
+`established-session.test.mjs`; the `agent-launch*` and `one-shot-*` suites;
+the installer checks that read `managed_files`. Delivered without the two
+pending decisions under Current decisions.
 
 Behavior: Start session with a blank instruction, After checks set to
 Automatically land → the line beside Start reads `Default main · Automatically
@@ -296,6 +303,26 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
 - The “Established session” block is distinct from the “Established start”
   blocks and is owned by the session policy's skill.
 - The developer runs slice 6; automated fakes do not substitute for it.
+- Pending with the developer: the story's first key example starts default
+  choices with an instruction “as today: no established block”, while its
+  scope sends the block “when any choice is non-default or an instruction
+  exists”. Delivered behavior follows the key example: the default choices run
+  no start and send no block, whatever the instruction (`establishesSession`
+  in `dashboard/src/unattachedSession.ts` is the one predicate). Slice 2's
+  “Wait for review and an instruction … the block says `landing: review`” is
+  not built until this is decided.
+- Pending with the developer: landing capture requires a story identity end to
+  end (`launchLanding.ts`, `launchLandingReporting.ts`,
+  `launchLandingAdmission.ts`, the installed `dashboard-landing.mjs`) and
+  refuses ad hoc launches, so an unattached launch sends no
+  `--landing-context` (obligation G5). The decision is what identifies an
+  unattached launch's landing; it needs its own slice before slices 5 and 6.
+- A raw `workspace: "isolated"` request is refused with a 400 until slice 3
+  replaces that refusal and its assertion in
+  `agent-launch-start-session-stops.spec.ts`.
+- `established-session.mjs` is declared in `install.sh` `managed_files`; until
+  a release installs it here, this repository's own dashboard refuses a
+  non-default Start session choice.
 
 ## Story obligations
 
@@ -312,12 +339,22 @@ Disposition: receiving slice 3
 ### G3. The confirmation's landing line is fixed at the unattached default
 Reported: slice 1 — "The dialog's landing line is fixed at the unattached default."
 Story clause: "never changes the landing choice"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `dashboard/tests/agent-launch-start-session-landing.spec.ts`, "existing changes are confirmed with Automatically land still selected"
 
 ### G4. Codex and Cursor are untested for the confirmation
 Reported: slice 1 — "The new spec exercises Claude only. The check runs before host selection matters, so it is host-independent by construction, but that is unproven."
 Story clause: "Back and Cancel start nothing"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: the existing-changes cases in `dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts` and `dashboard/tests/agent-launch-ad-hoc-cursor-established.spec.ts`
+
+### G5. An unattached launch's reporting context carries no landing context
+Reported: slice 2 — "the reporting context **is** sent with the block, even for a blank instruction, but with **no** `--landing-context`."
+Story clause: "with the launch's landing context"
+Disposition: interim until slices 5, 6
+
+### G6. Start session does not gate a choice on what the installed skills can establish
+Reported: slice 2 — "The Start session dialog does not gate Automatically land on installed capability; the server refuses with a 400 after Start."
+Story clause: "The Start session dialog offers the Session group's"
+Disposition: receiving slice 3
 
 ## Learnings
 
@@ -332,3 +369,14 @@ Disposition: receiving slice 2
 - `LaunchDialog.tsx` (248 lines) and `launchAttemptOwner.ts` (247) sit at the
   250-line limit; the Session choices of slices 2 and 3 need their own seam
   rather than more lines in the dialog.
+- `sameLaunch` identifies an ad hoc launch by its instruction alone: a blank
+  Automatically land launch whose first input is unconfirmed makes the next
+  blank Start session on that host recover that conversation. Slice 4 decides
+  whether the policy joins that identity.
+- The unattached start keeps nothing on expiry yet: it answers uncertain and
+  Continue reruns the start, which is idempotent for Default main only.
+- `unattachedStarted` (`dashboard/server/unattachedStart.ts`) fixes the project
+  folder and trunk as workspace and branch; slice 3 changes that spot, and
+  `policyArguments(unattachedStartPolicy(policy), project)` already emits
+  `--integration` for isolated. Test support for slices 3 and 4:
+  `dashboard/tests/support/startSessionLanding.ts`.

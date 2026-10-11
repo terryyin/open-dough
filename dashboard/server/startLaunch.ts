@@ -9,6 +9,7 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import { hostname } from "node:os";
+import { pathToFileURL } from "node:url";
 import {
   policyOf,
   type EstablishedContext,
@@ -132,6 +133,16 @@ export async function isFile(file: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// What an installed script exports, as the selected installation ships it:
+// keyed by its modification time, so a skill updated while the server runs is
+// read anew.
+export async function installedExports<Exports>(
+  file: string,
+): Promise<Exports> {
+  const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;
+  return (await import(/* @vite-ignore */ url)) as Exports;
 }
 
 // One stable publisher per machine and project: the same start asked again is

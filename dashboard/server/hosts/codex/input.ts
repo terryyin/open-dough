@@ -8,6 +8,7 @@ import {
   type RecordedLaunchRequest,
 } from "../../../src/agentLaunch.ts";
 import type { EstablishedLaunch } from "../../hostLaunch.ts";
+import { unattachedInput } from "../../unattachedInput.ts";
 export function codexInput(
   request: RecordedLaunchRequest,
   workspace: string,
@@ -25,9 +26,8 @@ export function codexInput(
           type: "text",
           text:
             saved ??
-            [request.instruction ?? "", reportingInstruction(request)]
-              .filter(Boolean)
-              .join("\n\n"),
+            unattachedInput(request, established?.handoff.formatted) ??
+            "",
         },
       ]
     : [

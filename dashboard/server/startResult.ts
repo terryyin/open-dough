@@ -16,6 +16,8 @@ export type StartResult =
       readonly role?: "default-checkout";
       readonly fetched?: string;
       readonly landing?: "auto-land";
+      // Whether the start created the workspace, when it said.
+      readonly created?: boolean;
     }
   | {
       readonly kind: "accepted";
@@ -56,6 +58,7 @@ const preparedSchema = z.looseObject({
   role: z.literal("default-checkout").optional(),
   fetched: z.string().min(1).optional(),
   landing: z.literal("auto-land").optional(),
+  created: z.boolean().optional(),
 });
 
 const stoppedSchema = z.looseObject({
@@ -103,13 +106,14 @@ export function readStartResult(stdout: string): StartResult {
   }
   const prepared = preparedSchema.safeParse(parsed);
   if (prepared.success) {
-    const { startingRevision, role, fetched, landing } = prepared.data;
+    const { startingRevision, role, fetched, landing, created } = prepared.data;
     return {
       kind: "prepared",
       startingRevision,
       ...(role === undefined ? {} : { role }),
       ...(fetched === undefined ? {} : { fetched }),
       ...(landing === undefined ? {} : { landing }),
+      ...(created === undefined ? {} : { created }),
     };
   }
   const stopped = stoppedSchema.safeParse(parsed);

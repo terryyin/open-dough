@@ -44,6 +44,7 @@ import {
 import { Play, PencilLine, type LucideIcon } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import { storySession } from "./LaunchSessionPolicy.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
@@ -208,13 +209,13 @@ export function StartLaunch({
             `${hostDescription(host).skillSigil}${skill}`,
             ...launchArguments({ identity: work.identity, policy }),
           ].join(" ")}
-          session={{
+          session={storySession({
             policy,
             onPolicy: setPolicy,
             offer: sessionPolicyForHost?.(host) ?? "unavailable",
             kept: resumes !== undefined,
             workflowName: named,
-          }}
+          })}
           optionsReading={options?.kind === "reading"}
           options={options?.kind === "offered" ? options : undefined}
           optionsLabel={`${name} options`}

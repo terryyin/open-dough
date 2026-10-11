@@ -95,6 +95,17 @@ export function sessionPolicyFlags(policy = {}) {
     .map(([, { flag }]) => flag);
 }
 
+// The policy the shared start runs with to establish an unattached session's
+// place: the one-shot start, which takes no identity and publishes nothing,
+// with the session's own workspace and landing. Its flags and publication
+// authority are that policy's (`sessionPolicyFlags`,
+// `needsPublicationAuthority`); the session itself stays untracked.
+/** @param {Partial<UnattachedSessionPolicy>} [selected]
+ * @returns {SessionPolicy} */
+export function unattachedStartPolicy(selected = {}) {
+  return { tracking: "one-shot", ...unattachedSessionPolicy(selected) };
+}
+
 // Whether a session's start needs trunk publication authority: tracked work
 // publishes its claim, and one-shot work publishes only a result that lands
 // automatically.

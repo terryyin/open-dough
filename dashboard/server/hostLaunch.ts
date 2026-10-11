@@ -3,6 +3,7 @@
 import {
   withoutConfirmation,
   type AgentLaunchRequest,
+  type EstablishedSession,
   type RecordedLaunchRequest,
   type LaunchResult,
   type HostSession,
@@ -112,14 +113,21 @@ export function withStartPolicy(
   return policy.tracking === "standard" ? recorded : { ...recorded, policy };
 }
 
-// What a launch's start established, and how the instruction carries it.
-export type EstablishedHandoff = {
-  readonly established: Established;
+// What an unattached launch's start established, under the key its launch
+// record keeps it by.
+export type UnattachedEstablished = {
+  readonly establishedSession: EstablishedSession;
+};
+
+// What a launch's start established, a story's or an unattached session's,
+// and how the first input carries it.
+export type EstablishedHandoff<Facts = Established | UnattachedEstablished> = {
+  readonly established: Facts;
   readonly formatted: string;
 };
 
 // A launch's established start with the workspace its session opens in.
-export type EstablishedLaunch = {
-  readonly handoff: EstablishedHandoff;
+export type EstablishedLaunch<Facts = Established | UnattachedEstablished> = {
+  readonly handoff: EstablishedHandoff<Facts>;
   readonly workspace: ProjectFolder;
 };

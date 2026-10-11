@@ -31,6 +31,7 @@ import {
 export * from "./launchWorkflow.ts";
 export * from "./launchRequest.ts";
 export * from "./launchRecord.ts";
+export * from "./unattachedSession.ts";
 export * from "./launchOutcome.ts";
 
 // One project's launch records among the machine's sessions, oldest first,

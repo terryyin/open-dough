@@ -27,12 +27,19 @@ export function launchStartContext(
   };
 }
 
+// What a launch's start established, under the key its record keeps it by:
+// a story's start or preparation, or an unattached session.
+export type EstablishedRecordFacts = Pick<
+  LaunchRecord,
+  "start" | "preparation" | "establishedSession"
+>;
+
 // A confirmation's durable record. Callers supply the evidence's own time;
 // native input evidence may extend it without re-forming its start facts.
 export function launchRecord(
   request: RecordedLaunchRequest,
   session: HostSession,
-  facts: Pick<LaunchRecord, "start" | "preparation">,
+  facts: EstablishedRecordFacts,
   launchedAt: string,
 ): LaunchRecord {
   return {
@@ -42,6 +49,9 @@ export function launchRecord(
     ...(facts.preparation === undefined
       ? {}
       : { preparation: facts.preparation }),
+    ...(facts.establishedSession === undefined
+      ? {}
+      : { establishedSession: facts.establishedSession }),
     launchedAt,
   };
 }

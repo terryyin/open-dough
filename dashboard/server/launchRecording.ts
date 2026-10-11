@@ -11,7 +11,7 @@ import {
   removeCreation,
   updateRecord,
 } from "./launchRecordStore.ts";
-import { launchRecord } from "./launchRecord.ts";
+import { launchRecord, type EstablishedRecordFacts } from "./launchRecord.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
 export type LaunchRecording = {
@@ -22,7 +22,7 @@ export type LaunchRecording = {
 export function launchRecording(
   request: RecordedLaunchRequest,
   began: Date,
-  facts: Pick<LaunchRecord, "start" | "preparation">,
+  facts: EstablishedRecordFacts,
   previous: LaunchRecord | undefined,
   doneMarks: NativeDoneMarks,
 ) {

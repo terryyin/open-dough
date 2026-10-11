@@ -11,6 +11,7 @@ import {
   sessionPolicySchema,
 } from "./launchRequest.ts";
 
+import { establishedSessionSchema } from "./unattachedSession.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -140,6 +141,8 @@ export const launchRecordSchema = z.object({
   start: establishedStartSchema.optional(),
   // What a refinement launch's preparation established.
   preparation: establishedPreparationSchema.optional(),
+  // What an unattached launch's start established (`./unattachedSession.ts`).
+  establishedSession: establishedSessionSchema.optional(),
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
   completion: completionSchema.optional(),

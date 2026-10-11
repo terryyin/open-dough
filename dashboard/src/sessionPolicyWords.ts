@@ -4,7 +4,10 @@
 // session does. The meanings and flags are the shared definition's
 // (`session-policy.mjs`); only the words are spelled here.
 
-import type { SessionPolicy } from "./launchRequest.ts";
+import type {
+  SessionPolicy,
+  UnattachedSessionPolicy,
+} from "./launchRequest.ts";
 import type { LaunchWorkflow } from "./launchWorkflow.ts";
 
 type ChoiceWords<Value extends string> = {
@@ -59,6 +62,10 @@ export function oneShotEffect(
     : `No assignment is published; the ${result} waits for review and nothing is pushed.`;
 }
 
+// Where a session in the default checkout runs.
+const onDefaultMain =
+  "in this project's folder on default main, with its existing changes";
+
 // Where a one-shot session runs, for Command details: a kept start's shown
 // workspace when it continues one.
 export function oneShotWhere(policy: SessionPolicy, keptIn?: string): string {
@@ -66,7 +73,38 @@ export function oneShotWhere(policy: SessionPolicy, keptIn?: string): string {
     keptIn !== undefined
       ? `in workspace ${keptIn}`
       : policy.workspace === "default-checkout"
-        ? "in this project's folder on default main, with its existing changes"
+        ? onDefaultMain
         : "in a new workspace under .worktrees/"
   }.`;
+}
+
+// `Default main · Automatically land`: where an unattached session runs and
+// what follows the checks of what it later verifies. It has no tracking.
+export function unattachedSummary(policy: UnattachedSessionPolicy): string {
+  return [
+    sessionChoiceWords.workspace.values[policy.workspace],
+    sessionChoiceWords.landing.values[policy.landing],
+  ].join(" · ");
+}
+
+// What starting an unattached session does, for the dialog's line beside
+// Start under its summary: where it runs, and whether what it later verifies
+// lands.
+export function unattachedEffect(policy: UnattachedSessionPolicy): string {
+  return `The session runs ${onDefaultMain}; ${
+    policy.landing === "auto-land"
+      ? "verified results land on origin without another review. Pressing Start authorizes that push."
+      : "nothing is published."
+  }`;
+}
+
+// Where an unattached session runs, for Command details, and the fields of
+// the established session its first message carries when its launch
+// establishes one.
+export function unattachedWhere(establishes: boolean): string {
+  return `The session runs ${onDefaultMain}.${
+    establishes
+      ? " Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, starting revision, and fetched trunk."
+      : ""
+  }`;
 }

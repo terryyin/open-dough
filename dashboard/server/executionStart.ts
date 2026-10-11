@@ -1,8 +1,6 @@
 // Execution start uses the selected installed skill's script and formatter;
 // the dashboard owns arguments, while the script owns publication/recovery.
 
-import { stat } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
 import {
   type EstablishedStart,
   type StoryLaunchRequest,
@@ -15,6 +13,7 @@ import { continuedStart, policyArguments } from "./startPolicy.ts";
 import { lostStartArguments, ownerOf } from "./startGit.ts";
 import {
   gatedStart,
+  installedExports,
   isFile,
   startChoice,
   publisherId,
@@ -46,13 +45,27 @@ const startScript = "execution-start.mjs";
 const formatterScript = "established-start.mjs";
 const workflow = "execution";
 
-async function runScript(
+// A script the selected host's installed execution skill ships.
+export const executePlanScript = (
+  project: ProjectFolder,
+  host: StoryLaunchRequest["host"],
+  name: string,
+) => installedSkillPath(host, project, executePlanSkill, "scripts", name);
+
+// Whether the installation ships the shared start command.
+export const shipsStartScript = (
+  project: ProjectFolder,
+  host: StoryLaunchRequest["host"],
+) => isFile(executePlanScript(project, host, startScript));
+
+// The installed start command's result for these arguments.
+export async function runStartScript(
   args: readonly string[],
   project: ProjectFolder,
   host: StoryLaunchRequest["host"],
 ): Promise<StartResult> {
   const stdout = await runStartCommand(
-    installedSkillPath(host, project, executePlanSkill, "scripts", startScript),
+    executePlanScript(project, host, startScript),
     args,
     project,
   );
@@ -68,11 +81,9 @@ export async function establishesStart(
   project: ProjectFolder,
   host: StoryLaunchRequest["host"],
 ): Promise<boolean> {
-  const script = (name: string) =>
-    installedSkillPath(host, project, executePlanSkill, "scripts", name);
   return (
-    (await isFile(script(startScript))) &&
-    (await isFile(script(formatterScript)))
+    (await shipsStartScript(project, host)) &&
+    (await isFile(executePlanScript(project, host, formatterScript)))
   );
 }
 
@@ -152,7 +163,7 @@ async function runningStart(
     },
     workflow,
   );
-  const attempt = runScript(
+  const attempt = runStartScript(
     [
       ...policyArguments(policy, project),
       "--workspace",
@@ -224,18 +235,8 @@ export async function formattedStart(
   start: EstablishedStart,
   host: StoryLaunchRequest["host"],
 ): Promise<string> {
-  const file = installedSkillPath(
-    host,
-    project,
-    executePlanSkill,
-    "scripts",
-    formatterScript,
-  );
-  // Keyed by its modification time, so a skill updated while the server runs
-  // is read anew.
-  const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;
-  const formatter = (await import(/* @vite-ignore */ url)) as {
+  const formatter = await installedExports<{
     formatEstablishedStart: (start: EstablishedStart) => string;
-  };
+  }>(executePlanScript(project, host, formatterScript));
   return formatter.formatEstablishedStart(start);
 }

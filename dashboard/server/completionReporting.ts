@@ -4,7 +4,10 @@ import path from "node:path";
 import type { IncomingMessage } from "node:http";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
-import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
+import {
+  sendsFirstInput,
+  type LaunchAttemptRecord,
+} from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
 import type { LandingRepository } from "../src/launchLanding.ts";
 import { installedSkillPath } from "./launchHosts.ts";
@@ -34,8 +37,7 @@ export async function reportingContext(
 ): Promise<PreparedReporting | undefined> {
   if (
     attempt.reportingOrigin === undefined ||
-    (attempt.request.workflow === "ad-hoc" &&
-      !attempt.request.instruction?.trim())
+    (attempt.request.workflow === "ad-hoc" && !sendsFirstInput(attempt.request))
   )
     return undefined;
   const installed = installedSkillPath(

@@ -171,8 +171,10 @@ export type LaunchChoices = {
   readonly effort?: string;
   // The flags selected, absent when none.
   readonly options?: readonly string[];
-  // The session's policy, absent for the default.
+  // A story session's policy, absent for the default.
   readonly policy?: SessionPolicy;
+  // An unattached session's policy, absent for the default.
+  readonly unattached?: UnattachedSessionPolicy;
   // The fingerprint of the existing changes the developer confirmed.
   readonly existingChanges?: string;
 };
@@ -187,7 +189,7 @@ export function requestedSettings({
   effort,
   options,
   existingChanges,
-}: Omit<LaunchChoices, "policy">) {
+}: Omit<LaunchChoices, "policy" | "unattached">) {
   const own = instruction.trim();
   return {
     host,

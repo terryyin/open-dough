@@ -2,7 +2,9 @@
 // to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recently done and the Sessions sidebar, like any
-// launched session; no card lists it. The session runs on default main, so
+// launched session; no card lists it. Its Session group chooses what follows
+// the checks of what the session later verifies; the line beside Start names
+// the choices and what Start authorizes. The session runs on default main, so
 // existing changes there are confirmed in the dialog before anything starts
 // (`LaunchExistingChanges`). The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
@@ -20,7 +22,18 @@
 import { embeddedTerminal, hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useCallback, useId, useRef, useState } from "react";
-import { adHocName, type LaunchChoices } from "./agentLaunch.ts";
+import {
+  adHocName,
+  establishesSession,
+  unattachedPolicyOf,
+  type LaunchChoices,
+} from "./agentLaunch.ts";
+import { unattachedSession } from "./LaunchSessionPolicy.tsx";
+import {
+  unattachedEffect,
+  unattachedSummary,
+  unattachedWhere,
+} from "./sessionPolicyWords.ts";
 import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
@@ -53,6 +66,8 @@ export function StartSession({
   ) => Promise<StartAnswer>;
 }) {
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
+  // Each opening starts from the default choices.
+  const [policy, setPolicy] = useState(unattachedPolicyOf({}));
   const starting = attempt?.kind === "starting";
   const answerId = useId();
   const progress = useRef<HTMLParagraphElement>(null);
@@ -110,6 +125,16 @@ export function StartSession({
           heading={`Start a session in ${project} in ${hostName(host)}`}
           description={`${hostName(host)} starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
+          session={unattachedSession(policy, setPolicy)}
+          effects={
+            <>
+              <strong className="launch-dialog-summary">
+                {unattachedSummary(policy)}
+              </strong>{" "}
+              {unattachedEffect(policy)}
+            </>
+          }
+          details={<p>{unattachedWhere(establishesSession({ policy }))}</p>}
           onStart={(choices) =>
             onStart(choices, (record) => {
               if (
@@ -129,7 +154,10 @@ export function StartSession({
               setAnnouncement("Ad hoc session started");
             })
           }
-          onClose={closeDialog}
+          onClose={(accepted) => {
+            setPolicy(unattachedPolicyOf({}));
+            closeDialog(accepted);
+          }}
         />
       )}
     </>

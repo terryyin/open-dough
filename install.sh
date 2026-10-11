@@ -191,6 +191,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-increment-resume.mjs
   dough-execute-plan/scripts/execution-start.mjs
   dough-execute-plan/scripts/established-start.mjs
+  dough-execute-plan/scripts/established-session.mjs
   dough-execute-plan/scripts/agent-assignments.mjs
   dough-execute-plan/scripts/agent-commit.mjs
   dough-execute-plan/scripts/execution-start-agent.mjs

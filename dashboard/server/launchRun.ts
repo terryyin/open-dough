@@ -10,7 +10,12 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
-import { publicationOf, started, type Started } from "./launchStart.ts";
+import {
+  establishedLaunch,
+  publicationOf,
+  started,
+  type Started,
+} from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
@@ -70,7 +75,7 @@ export async function attemptRun(
       kept === undefined
         ? await reportingContext(
             attempt,
-            start.kind === "established" ? start.workspace : folder,
+            establishedLaunch(start)?.workspace ?? folder,
             pending?.start ??
               pending?.preparation ??
               (start.kind === "established"
@@ -129,7 +134,7 @@ async function launchRun(
   const evidence = launchRecording(
     recording,
     began,
-    pending ?? (start.kind === "established" ? start.handoff.established : {}),
+    pending ?? establishedLaunch(start)?.handoff.established ?? {},
     pending,
     doneMarks,
   );
@@ -140,7 +145,7 @@ async function launchRun(
           recording,
           folder,
           controller.signal,
-          start.kind === "established" ? start : undefined,
+          establishedLaunch(start),
           evidence,
         )
       : host.recover === undefined
@@ -164,7 +169,7 @@ async function launchRun(
     launchRecord(
       recording,
       launched.session,
-      start.kind === "established" ? start.handoff.established : {},
+      establishedLaunch(start)?.handoff.established ?? {},
       new Date().toISOString(),
     );
   if (evidence.retained === undefined)

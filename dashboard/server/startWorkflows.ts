@@ -34,6 +34,9 @@ import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import type { StartsWorkflow } from "./startStore.ts";
 
+// A story launch's established start or preparation.
+type StoryLaunch = EstablishedLaunch<Established>;
+
 // Where a running start is and the policy it runs with, for the words that
 // say what was kept.
 export type StartPlace = {
@@ -54,8 +57,22 @@ const oneShot = {
     `The start did not finish within the wait; a one-shot start publishes nothing. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }: StartPlace) =>
     `The one-shot start was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
-  publishedWithoutSession: ({ workspace }: EstablishedLaunch) =>
+  publishedWithoutSession: ({ workspace }: StoryLaunch) =>
     `No session started; nothing was published. Workspace ${workspace.shown}.`,
+};
+
+// What an unattached session's start says (`./unattachedStart.ts`): it has
+// no story, so nothing is Taken or Preparing, and it publishes nothing.
+type UnattachedPlace = Pick<StartPlace, "workspace" | "branch">;
+export const unattachedStartWords = {
+  uncertain: ({ workspace, branch }: UnattachedPlace) =>
+    `The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ${workspace} on branch ${branch}.`,
+  formatFailed: ({ workspace, branch }: UnattachedPlace) =>
+    `The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
+  unreadable:
+    "The start command gave no result this dashboard could read. A session's start publishes nothing. Nothing was launched.",
+  notInstalled: (project: string) =>
+    `The installed skills in ${project} do not establish a session with these choices. Nothing was launched.`,
 };
 
 const isOneShot = ({ policy }: StartPlace) => policy.tracking === "one-shot";
@@ -98,7 +115,7 @@ export type StartWorkflow = {
   // What the launch answers when the formatter could not be read.
   formatFailed(place: StartPlace): string;
   // What a failed session launch adds once the start published.
-  publishedWithoutSession({ handoff, workspace }: EstablishedLaunch): string;
+  publishedWithoutSession({ handoff, workspace }: StoryLaunch): string;
 };
 
 const execution: StartWorkflow = {
