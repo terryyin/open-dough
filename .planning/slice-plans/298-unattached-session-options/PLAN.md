@@ -258,9 +258,17 @@ Safe stopping point: the launch contract's recovery covers unattached starts.
 
 ### 5. Installed skills continue in an established session
 Type: Behavior
-Status: planned
+Status: done
 Proof: the guidance test and the start-behavior test in the proof table, plus
 the existing guidance tests of the linking references.
+Accepted proof: `established-session-guidance.test.mjs` (the rule's statements
+and its eight links) and `established-session-start.test.mjs` (reuse at the
+Take, `pending-edit`, `unpublished-commits`, admission, one-shot reuse, a
+symlinked workspace path, the default checkout); every
+`src/skills/*/scripts/*.test.mjs`; the installer, payload, link and
+native-evidence-identity checks; the Start session and one-shot dashboard
+specs. The landing-context sentence is conditional on the reporting context
+naming one (obligation G5).
 
 Behavior: a session whose first message carries “Established session:” later
 receives `/dough-execute-plan SEED-X#story --one-shot` → the one-shot start is
@@ -429,3 +437,14 @@ Disposition: interim until slices 6
   terminal; `presentTerminal` (`dashboard/src/pageSidePanel.ts`) now reads them
   when it runs. This was the intermittent failure of the Cursor start specs
   under load.
+- In a `default-checkout` session a tracked start selects its own owned
+  workspace with the block's workspace as its integration checkout, as a
+  direct invocation there does: the start refuses the main worktree as an
+  owned workspace and `--default-main` is one-shot only. An admission from an
+  isolated session keeps the project's default checkout as `--integration`.
+- Slice 6's native journey reaches the one-shot reuse path only while the
+  conversation has made no edits or commits in the worktree; otherwise the
+  expected native behavior is the reported `pending-edit` or
+  `unpublished-commits` refusal.
+- The dashboard's real-path argument on a kept rerun (`asGitNames`) stays until
+  a release carries the start's path-identity comparison.

@@ -15,7 +15,10 @@ selection, refine under
 
 An instruction that carries an established preparation continues it under
 [established preparation](established-preparation.md), even when it also
-names one-shot.
+names one-shot. In an
+[established session](../../dough-execute-plan/references/established-session.md),
+the start below is given that session's workspace and branch, and its
+`landing` is the landing selection.
 
 ## Start without an assignment
 
