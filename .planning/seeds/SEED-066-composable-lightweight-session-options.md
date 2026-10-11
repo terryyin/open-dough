@@ -350,6 +350,19 @@ Boundary assumptions:
   the two non-default choices and says why; the observation for that host ends
   there.
 
+#### Decisions before running
+
+- Release order: ADR 0005 asks for native acceptance before affected behavior
+  is released, while this observation needs a release that installs the
+  payload. The delivering execution's coordinator recommended releasing first
+  and treating this story as the acceptance gate, since the two non-default
+  choices stay disabled wherever the payload is absent.
+- Coverage: the observation below does not cover Isolated workspace · Wait
+  for review landed later by Dough Land, a Default main session invoking
+  refinement, or `landing: review` being honored. Their only proof is the
+  guidance and start-script tests. The recommendation was to add the first two
+  as journeys.
+
 #### Observation
 
 Three paid native sessions and one short Claude Code session:
