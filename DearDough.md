@@ -63,6 +63,14 @@ Follow-up: delivered, unreleased: [Observe decisive planning premises through th
 
 Evidence and response: [ODF-110](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-110).
 
+### Occurrences
+- Execution: `SEED-130#slow-startup-safe-recovery` / plan 299, first implementation `02ec9aec40800c5162039f07fd4e7aac864eba44`.
+  - Timestamp: unknown (2026-10-11, execution slices 2, 3 and 5).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: original plan at `3ec282610148afb245a710642b486318d5388d57:.planning/slice-plans/299-slow-startup-safe-recovery/PLAN.md` assumed running kept starts were projected and observed a reparented pid alone; `9fc81fad` and `25cdc5f6` corrected projection and initial/server handoff facts. Own-record reuse missed pending first input; `e41af375` and plan G4 preserve native recovery. G5 replaces a dirty-script ordering claim with fresh Accept's actual `folder-not-found` refusal before own-record Continue.
+  - Observed effect: extra consumer and handoff investigation/proof, including the required full browser run after the shared projection fixture changed; the initial own-record shortcut was returned before delivery because it bypassed native input recovery. No unsupported cost estimate.
+
 ## ODF-156 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
 
 Former local code: DD-126.
@@ -114,20 +122,6 @@ Follow-up: Open, unqueued.
 Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-141).
 
 ### Occurrences
-- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
-  - Timestamp: unknown (2026-10-10, between 09:43 and 13:31 +09:00).
-  - Tool: Claude Code coordinator and delegated agents.
-  - Model: `claude-opus-5-5`.
-  - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
-  - Evidence: CI repair `f64da99b` changed nine lines of one spec (`published-work.spec.ts`); its delegated refactor pass reported no edits (about 48.6k subagent tokens, 38 s). The second repair's pass (`722a7b36`) did find and remove a duplication, so the pass is not always empty on a small repair.
-  - Observed effect: one full refactor delegation with no change.
-- Execution: `SEED-128#continue-refinement-to-slice-planning` / plan 287, first implementation `a0d57653`.
-  - Timestamp: 2026-10-10T17:31:56+09:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `91d8439e`; base 0.3.57
-  - Evidence: slice 2 (`909da1ef`) changed six lines of ADR 0007 that no test reads; its delegated refactor pass reported `none — already clean` (about 50k subagent tokens, 29 s). The same execution's slice 1 pass did find a 250-line file-size breach and duplicated rule text, so the pass earned its cost there.
-  - Observed effect: one full refactor delegation with no change.
 - Execution: `SEED-123#recently-done-waits-for-added-project-sessions` / plan 288, first implementation `f365eb2b`.
   - Timestamp: unknown (2026-10-10, between 18:10 and 18:37 +09:00)
   - Tool: Claude Code
@@ -142,22 +136,6 @@ Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/mai
   - Open Dough release: modified; revision `650918e4`; base 0.3.58.
   - Evidence: slice 1 (`89ca7d25`) moved 51 lines byte-identically into a reference and declared the file; slice 3 (`08d914ad`) added one options entry, one clause and one test. Both delegated refactor passes returned "none — already clean" (about 59.9k tokens and 54 s; about 57.0k tokens and 52 s). The passes on slices 2 and 4 of the same execution did edit: a contradictory report order, a retired authority sentence, a duplicate pin, and a diagram label that read as its opposite.
   - Observed effect: two of four full refactor delegations changed nothing.
-- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
-  - Timestamp: unknown (2026-10-10, between 20:02 and 20:44 +09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
-  - Evidence: slice 3 (`7e27929f`) changed nine lines of one test file; its delegated refactor pass reported `none — already clean` (about 55k subagent tokens, 34 s). Slice 1's pass extracted a fixture three tests share and split an oversized test file, and slice 2's removed test-only exports, so both earned their cost.
-  - Observed effect: one full refactor delegation with no change.
-- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first implementation `5f539d6a`; plan recoverable at `7aa2238582b58277e227394d6d07037c1967ed55:.planning/slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md`.
-  - Timestamp: 2026-10-10T22:50Z
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown.
-  - Evidence: CI repair `cb4d46c9` added a four-line test budget to one spec (`authenticated-project-overview.spec.ts`); its delegated refactor pass reported `none — already clean` (about 47k subagent tokens, 20 s). Both slice passes earned their cost: slice 1's (`5f539d6a`) split two files that crossed 250 lines and removed two duplications, and slice 2's (`63ad82d6`) brought a design doc back to 250 lines.
-  - Observed effect: one full refactor delegation with no change.
-
-
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
 Former local code: DD-200.
@@ -333,6 +311,14 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-218](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-218).
 
+### Occurrences
+- Execution: `SEED-130#slow-startup-safe-recovery` / plan 299, first implementation `02ec9aec40800c5162039f07fd4e7aac864eba44`.
+  - Timestamp: unknown (2026-10-11, slice 1 delivery).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: coordinator format output `/tmp/slow-startup-format-1.log` and fresh refactor1's formatter follow-up; three checked files expanded to 252–257 lines after the independent pass. Final accepted replacement is `02ec9aec`.
+  - Observed effect: another mechanical refactor and formatter pass before publication. Later passes checked formatted counts with headroom without taking formatting ownership.
+
 ## ODF-201 — The Codex observer binding has no durable failure acknowledgment step
 
 Former local code: DD-242.
@@ -410,6 +396,13 @@ Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: coordinator chained `npm run format … | tail -1; git add … && agent-commit … && deliver` for the Vite port repair; output "Format failed: unresolved findings or tool failures remain."
   - Observed effect: staging and the agent commit still ran; the commit hook refused it (`@typescript-eslint/unbound-method` in `dashboard/tests/support/viteAddress.ts:63`), and a no-op delivery re-confirmed the previous SHA c51ab4b0.
   - Inference: the `;` after the formatter let a visible failure through; the hook was the only gate, so no bad commit landed.
+
+- Execution: `SEED-130#slow-startup-safe-recovery` / plan 299, first implementation `02ec9aec40800c5162039f07fd4e7aac864eba44`.
+  - Timestamp: unknown (2026-10-11, slice 3 delivery).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: coordinator tool history, staged `git diff --check` followed by the successful obligations command and agent commit; the new startup guide's blank EOF was reported but did not gate the batched commit. Unpublished `4d853d69` was corrected and amended to accepted `25cdc5f647bb8cfbcd0e40889b867773f56c04b1` before managed delivery.
+  - Observed effect: one avoidable amendment and repeated hook; nothing invalid was published. Subsequent staged checks were inspected before starting commit.
 
 ## ODF-222 — Managed story-branch delivery can stall after a successful agent-commit
 
@@ -997,3 +990,9 @@ result in an edge case the story preserves as it is.
   - Evidence: slice 3's refactor return, "Decision for you": "I removed the override so there is one rule in one place", naming the changed edge (two baseline commits with identical trees) and that no test covers it; plan 297 "Goal and boundaries" preserves "Commits with its Uncommitted changes item"; the coordinator restored `trunkIntegrated: fromBaseline !== baseline` in `dashboard/server/storyReviewRange.ts` before `15685dc7`. The slice 4 delegation then added "A refactor preserves behaviour: if you see a behaviour you would change, report it and leave it", and that pass reported none.
   - Observed effect: no wrong behaviour was published; the coordinator made one manual edit and reran typecheck and the suite. The return did say what changed and how to revert it, which is what made the catch cheap.
   - Inference: qualified. The pass treated two forms of a rule as duplication without first establishing that they answer the same for every caller; reporting the change after making it left the preserving choice to acceptance. One sample.
+
+## Retention
+
+- Highest allocated local number: 286
+- Recovery: `4befa38c3c9bdfa575436fa51dca1a82818d21a1:DearDough.md`
+- Occurrence history is partial

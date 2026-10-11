@@ -180,6 +180,10 @@ Command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --con
 Refactor command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/launch-attempt-worker.spec.ts dashboard/tests/agent-launch-worker-handoff.spec.ts dashboard/tests/agent-launch-second-server.spec.ts dashboard/tests/agent-launch-own-record-continuation-race.spec.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-publication-receipt-failure.spec.ts dashboard/tests/launch-attempt-admission-close.spec.ts dashboard/tests/one-shot-landing-recovery-retention.spec.ts`.
 Behavior: an unsettled or uncertain attempt with its own completed launch record → Continue → the same attempt settles launched from the latest matching record before pre-launch checks, without scripts or native calls. Recheck shares the original own-record selection; canonical pending first input keeps native recovery priority. Locked readmission rechecks fresh machine facts before effects; a closed owner starts nothing.
 
+## Execution complete
+
+Product advice: no additional backlog work recommended. The delivered recovery rules fulfill the selected story; automatic restart continuation and cancellation remain deferred.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation (this workspace, 2026-10-11) | Result |
