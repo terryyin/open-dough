@@ -45,7 +45,7 @@ determine whether startup can proceed, and asked to queue this work first.
 
 **Identity:** SEED-130#slow-startup-safe-recovery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/299-slow-startup-safe-recovery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"61342a396280854a14696c08fab5dfb2ba5722d2b1edf683853876d193600dd8","plan":"a94aa74d965a369526dd41b0c650e67d28f65e5ed08ed10b64303291670f30bc"}}
 ```
 
 **Beneficiary:** A developer starting execution or refinement from the dashboard
