@@ -1,3 +1,18 @@
+## 0.3.60 - 2026-10-12
+
+- Give Start session an isolated workspace or a confirmed default checkout and a choice to retain results for review or land verified results automatically; carry that workspace and landing intent through later workflow invocations, and keep failed starts resumable in their original workspace.
+- Keep slow startups running beyond their warning threshold, show their phase, elapsed time, workspace, and branch across dashboard reloads and servers, and continue interrupted starts from retained launch evidence without duplicating established sessions.
+- Review worktrees found through local Git only while their published story assignment matches, explain ambiguous matches, and show a Trunk Mode story's own published changes and review baseline while flagging files also changed by intervening trunk work.
+- Share GitHub request admission, outstanding answers, concurrency limits, and directed rate-limit waits across dashboard processes and CI observers through one machine owner per API host and login; preserve those limits through owner replacement and use admitted API requests for CI evidence.
+- Preserve resolved and uncommitted integration merges through failed or interrupted landing attempts, recover unpublished preparation starts without losing foreign edits, and require a successful CI receipt with confirmed observer shutdown before retiring completed execution worktrees.
+- Declare the shared GitHub request runtime and established-session guidance in the released payload, and keep installer request parsing, payload validation, copying, and host-hook registration behind their shared helpers.
+
+Native acceptance was explicitly skipped for `0.3.60` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed unattached-session workflow, startup warning and recovery, Trunk Mode review, shared GitHub request ownership, preparation recovery, integration retention, and execution cleanup behavior, together with previously pending requirements, remains pending and is not reported as passing.
+
+The full credential-free deterministic suite, lint, dashboard typecheck, and self-installation check passed locally. The dashboard browser suite exposed a startup-phase display failure: a timed-out Claude Code launch stayed on “Preparing execution…” until reconciliation instead of showing “Starting execution in Claude Code…”. This browser failure is unresolved and is not reported as passing. The browser run also reported conflicting `NO_COLOR` and `FORCE_COLOR` warnings from passing checks, which its quiet-output policy treats as failures. The maintainer authorized publication with the browser failure documented.
+
+Background CI failure delivery into an unattached native session remains unfinished and is not included as a delivered capability. Follow-up work for request-owner diagnostics and native session observation remains active.
+
 ## 0.3.59 - 2026-10-11
 
 - Continue ready story refinement into slice planning in the same session and workspace, land completed preparation by default, and offer `--refine-only` and `--retain` to stop at refinement or retain a draft for review.
