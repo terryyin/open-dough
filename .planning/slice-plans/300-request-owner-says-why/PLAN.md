@@ -162,6 +162,8 @@ Accepted: actual CLI held-only/mixed/404/410/failed/17 MiB cases in `ci-github-d
 Type: Structure
 Status: planned
 
+CI repair for published slice 2 (`e169cd39`, run 38180782958/1): `ci-custom-guidance.test.mjs` rejected equivalent wrapping/wording. `PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-custom-guidance.test.mjs` failed before the test-only repair and passed afterward; actual guidance plus three paraphrases and four missing-safeguard counterexamples were inspected. All eight deterministic guidance consumers passed; runtime guidance is unchanged. Independent refactor required no edits, formatting passed, and slice 3 remains planned with its unfinished work preserved.
+
 Own finding 4's duplicate process-table knowledge. Share reading and exit
 recognition while retaining request-call PID/argument/start-window and mailbox/
 stream identity, denied-inspection handling and rechecks before signals.
