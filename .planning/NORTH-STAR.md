@@ -104,36 +104,6 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
-## One owner admits reads to GitHub
-
-For [background CI monitoring](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
-evolve the dashboard's existing request admission into one installed
-machine-local owner serving dashboard reads and background CI. Sharing a
-module across processes is insufficient: allowance state belongs to the API
-host and effective authenticated principal, with applicable resource limits,
-while acquisition sharing also respects authorization context. All Open Dough
-CI discovery and diagnostic paths use this same owner; unrelated tools and
-other machines remain outside its scope.
-
-The owner is one installed implementation running one process per allowance
-scope: a process can authenticate only as its own environment's login, and no
-credential crosses the local endpoint (plan 224 slice 5).
-
-Reuse the current admission, outstanding-request cancellation and rate-limit
-interpretation once. Persist active cooldown through owner replacement, bound
-combined demand, and admit one recovery request after the hold. Explicit
-provider requests, including pagination, are admitted individually. Publication
-registration cannot bypass the hold; a known throttle suspension retains
-pending observation rather than becoming success or exhausting error retries.
-Dashboard source validation and immutable-content reuse keep their owners;
-the browser and Vite process are clients of the installed request runtime.
-Session ownership remains separate from acquisition sharing. Direct mapping
-and proof are in [plan 224](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md);
-update maintained request-cost documentation as implementation changes it.
-This revises earlier process-local direction for the newly authorized
-standalone outcome, following Accepted ADRs 0002, 0004 and 0006. Retire this
-topic once the maintained runtime and request documentation carry its rules.
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard

@@ -35,8 +35,9 @@ permission, CI rerun-until-green behavior, generic queue framework or database.
 
 ## Direction, domain mapping and PFE
 
-Follow [North Star](../../NORTH-STAR.md) topics "One owner admits reads to
-GitHub" and "Background CI monitoring and session delivery", revised by this
+Follow the [North Star](../../NORTH-STAR.md) topic "Background CI monitoring
+and session delivery" and the delivered request ownership described in
+[GitHub requests](../../../dashboard/GITHUB-REQUESTS.md), revised by this
 preparation because the old process-local dashboard ownership cannot serve
 standalone obligations. This is feature design, not acceptance of Proposed
 ADRs 0007–0009. Current Accepted constraints:
