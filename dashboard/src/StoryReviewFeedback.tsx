@@ -3,11 +3,12 @@
 import { shortRevision } from "./publishedWork.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
-import type {
-  MarkReviewedAnswer,
-  ReviewComparison,
-  ReviewRange,
-  StoryReview,
+import {
+  baselineRevision,
+  type MarkReviewedAnswer,
+  type ReviewComparison,
+  type ReviewRange,
+  type StoryReview,
 } from "./storyReview.ts";
 import type { useReviewRead } from "./useReviewRead.ts";
 
@@ -63,7 +64,7 @@ export function ReviewFeedback({
           <p>
             Review refreshed:{" "}
             {changedFiles((comparison ?? snapshot).files.length)} against
-            baseline <code>{shortRevision(snapshot.baseline)}</code>.
+            baseline <code>{shortRevision(baselineRevision(snapshot))}</code>.
           </p>
         ) : (
           <p>

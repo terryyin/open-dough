@@ -64,7 +64,7 @@ function restatementFrom(stdout: string) {
   return undefined;
 }
 
-async function restatedPoint(
+export async function restatedPoint(
   from: ReviewPoint,
   baseline: string,
   call: GitCall,

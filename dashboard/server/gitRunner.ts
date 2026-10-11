@@ -12,6 +12,8 @@ export type GitCall = {
   // Variables added to the server's environment for this call only.
   readonly env?: Readonly<Record<string, string>>;
   readonly signal?: AbortSignal;
+  // What the call reads on its standard input, which is otherwise empty.
+  readonly input?: string;
   // Bytes each of stdout and stderr may hold before the call is ended.
   readonly maxBuffer: number;
 };
@@ -47,12 +49,12 @@ export const defaultGitOutputLimit = 1024 * 1024;
 
 export async function runGit(
   args: readonly string[],
-  { cwd, env, signal, maxBuffer }: GitCall,
+  { cwd, env, signal, input, maxBuffer }: GitCall,
 ): Promise<GitOutput> {
   const { error, stdout, stderr } = await new Promise<
     GitOutput & { readonly error: ExecException | null }
   >((resolve) => {
-    execFile(
+    const child = execFile(
       "git",
       [...args],
       {
@@ -66,6 +68,11 @@ export async function runGit(
         resolve({ error, stdout, stderr });
       },
     );
+    if (input !== undefined) {
+      // A call that ends without reading its input fails by its own exit.
+      child.stdin?.on("error", () => undefined);
+      child.stdin?.end(input);
+    }
   });
   if (error) throw new GitFailure(error, { stdout, stderr });
   return { stdout, stderr };

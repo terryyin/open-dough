@@ -6,7 +6,11 @@
 
 import { useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
-import { reviewTargetName, type TakenStoryReview } from "./storyReview.ts";
+import {
+  baselineRevision,
+  reviewTargetName,
+  type TakenStoryReview,
+} from "./storyReview.ts";
 
 // The file browser as the review places it: its element's id, and whether
 // the developer shows it.
@@ -20,7 +24,8 @@ export type FileBrowserPlace = {
 // shown lists files, Hide files or Show files. Values that do not fit are
 // shortened. Activating the line shows every value in full, and activating
 // it again returns to the one line. Its name reads every value in full in
-// either state.
+// either state. A baseline with the story's published commits taken out
+// names the trunk revision they were taken out of and how many.
 export function ContextLine({
   snapshot,
   browser,
@@ -31,8 +36,18 @@ export function ContextLine({
   readonly onShowBrowser: (shown: boolean) => void;
 }) {
   const [full, setFull] = useState(false);
-  const { branch, baseline, workspace } = snapshot;
+  const { branch, published, workspace } = snapshot;
+  const baseline = baselineRevision(snapshot);
   const trunk = <code>{reviewTargetName(snapshot)}</code>;
+  const noun = published?.commits === 1 ? "commit" : "commits";
+  const commits =
+    published === undefined
+      ? undefined
+      : `${String(published.commits)} story ${noun}`;
+  const lessPublished =
+    published === undefined
+      ? undefined
+      : `, less the story's ${String(published.commits)} published ${noun}`;
   return (
     <div className="story-review-context-line">
       <button
@@ -52,6 +67,7 @@ export function ContextLine({
           {full ? (
             <>
               <code>{baseline}</code> where <code>{branch}</code> meets {trunk}
+              {lessPublished}
             </>
           ) : (
             <>
@@ -59,7 +75,19 @@ export function ContextLine({
               <span className="visually-hidden">
                 {baseline} where {branch} meets
               </span>{" "}
-              {trunk}
+              {commits === undefined ? (
+                trunk
+              ) : (
+                <>
+                  <span aria-hidden="true">
+                    {trunk} less {commits}
+                  </span>
+                  <span className="visually-hidden">
+                    {reviewTargetName(snapshot)}
+                    {lessPublished}
+                  </span>
+                </>
+              )}
             </>
           )}
         </span>{" "}

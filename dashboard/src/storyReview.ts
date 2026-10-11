@@ -13,7 +13,7 @@ import {
   landedReviewContextSchema,
   reviewRunChoiceSchema,
 } from "./storyReviewLandedRun.ts";
-import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
+import { markUncomparableSchema, reviewMarkSchema } from "./reviewMark.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
 
@@ -70,43 +70,18 @@ export {
   type LineCounts,
   type ReviewedFile,
 } from "./storyReviewFiles.ts";
-// A story's mark: the snapshot the developer marked reviewed, by its tree and
-// the baseline it was compared with, and when.
-export const reviewMarkSchema = z.object({
-  tree: objectIdSchema,
-  baseline: objectIdSchema,
-  markedAt: z.iso.datetime(),
-});
-export type ReviewMark = z.infer<typeof reviewMarkSchema>;
-
-// Whether trunk was integrated since the mark: a snapshot from `baseline` no
-// longer shares the marked snapshot's baseline.
-export const trunkIntegratedSince = (mark: ReviewMark, baseline: string) =>
-  mark.baseline !== baseline;
-
-// Names the snapshot shown to mark: the project, the work identity, and the
-// snapshot's `tree` and `baseline`, never a path.
-export const markReviewedRequestSchema = z.strictObject({
-  source: z.string().min(1).max(launchTextLimit),
-  identity: workIdentitySchema,
-  tree: objectIdSchema,
-  baseline: objectIdSchema,
-});
-export type MarkReviewedRequest = z.infer<typeof markReviewedRequestSchema>;
-
-// The answer to Mark reviewed: the story's mark now, or why the snapshot
-// could not be marked.
-export const markReviewedAnswerSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("marked"), mark: reviewMarkSchema }),
-  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
-]);
-export type MarkReviewedAnswer = z.infer<typeof markReviewedAnswerSchema>;
-
-// The answer that the snapshot could not be marked reviewed, and why.
-export const markUnavailable = (why: string): MarkReviewedAnswer => ({
-  kind: "unavailable",
-  explanation: `The snapshot could not be marked reviewed: ${why}`,
-});
+export {
+  markReviewedAnswerSchema,
+  markReviewedRequestSchema,
+  markUnavailable,
+  markUncomparableSchema,
+  reviewMarkSchema,
+  trunkIntegratedSince,
+  type MarkReviewedAnswer,
+  type MarkReviewedRequest,
+  type MarkUncomparable,
+  type ReviewMark,
+} from "./reviewMark.ts";
 
 // A snapshot's changed files from one *from* tree to the snapshot's tree.
 export const reviewComparisonSchema = z.object({
@@ -160,12 +135,6 @@ export const reviewRangeSchema = z.discriminatedUnion("kind", [
 ]);
 export type ReviewRange = z.infer<typeof reviewRangeSchema>;
 
-// Why the earlier review cannot be compared: the repository no longer holds
-// the mark's tree or baseline, or this machine's Git cannot restate the
-// marked tree on trunk's changes since.
-export const markUncomparableSchema = z.enum(["unreadable", "not-restated"]);
-export type MarkUncomparable = z.infer<typeof markUncomparableSchema>;
-
 export const storyReviewSchema = z
   .discriminatedUnion("kind", [
     z.object({
@@ -187,8 +156,19 @@ export const storyReviewSchema = z
       branch: z.string().min(1),
       remote: z.string().min(1),
       target: z.string().min(1),
-      // The merge-base of `head` and the freshly fetched `<remote>/<target>`.
+      // The merge-base of `head` and the freshly fetched `<remote>/<target>`,
+      // or, with `published`, that revision's tree with the story's published
+      // commits taken out.
       baseline: objectIdSchema,
+      // A Trunk Mode story's commits its agent already published on trunk,
+      // taken out of `baseline`: the trunk revision they were taken out of,
+      // the merge-base, and how many.
+      published: z
+        .object({
+          trunk: objectIdSchema,
+          commits: z.number().int().positive(),
+        })
+        .optional(),
       head: objectIdSchema,
       // The workspace's files as observed, written as a tree object: every
       // file diff of this snapshot compares the *from* tree of the comparison
@@ -231,6 +211,15 @@ export const storyReviewSchema = z
 export type StoryReview = z.infer<typeof storyReviewSchema>;
 // A review whose snapshot was taken.
 export type TakenStoryReview = Extract<StoryReview, { kind: "snapshot" }>;
+
+// The revision a snapshot's baseline is named by wherever the review shows
+// it: the trunk revision the story's published commits were taken out of, or
+// the baseline itself.
+export const baselineRevision = ({
+  baseline,
+  published,
+}: Pick<TakenStoryReview, "baseline" | "published">) =>
+  published?.trunk ?? baseline;
 
 // Git's unified diff of one file of a snapshot, as printed
 // (`./unifiedDiff.ts` reads it), or why it could not be read.

@@ -28,6 +28,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import {
+  baselineRevision,
   trunkIntegratedSince,
   type ReviewComparison,
   type ReviewedFile,
@@ -89,7 +90,7 @@ function NoChanges({
     return (
       <p>
         No changes: the worktree matches baseline{" "}
-        <code>{shortRevision(snapshot.baseline)}</code>.
+        <code>{shortRevision(baselineRevision(snapshot))}</code>.
       </p>
     );
   return (

@@ -1,7 +1,9 @@
 // Takes a story review's snapshot (`../src/storyReview.ts`) of one launch
 // workspace the launch boundary resolved from its kept records: fetches the
 // record's trunk target, takes the review baseline as the merge-base of the
-// workspace's head and the fetched `<remote>/<target>`, writes the
+// workspace's head and the fetched `<remote>/<target>`, or, for a Trunk
+// Mode story whose agent already published commits there, as that revision's
+// tree with those commits taken out (`./storyPublishedCommits.ts`), writes the
 // workspace's files -- commits, staged, unstaged, and untracked, never
 // ignored -- into a tree object through a temporary index, and lists what
 // changed from the baseline to that tree with each file's line counts
@@ -27,6 +29,13 @@
 // path.
 
 import { landedStoryReview } from "./storyReviewLanded.ts";
+import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
+import { knownSource } from "./sessionAdmission.ts";
+import {
+  publishedStoryCommits,
+  trunkLess,
+  type ReviewedStory,
+} from "./storyPublishedCommits.ts";
 import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import { mkdtemp, realpath, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
@@ -79,6 +88,10 @@ export async function storyReviewResponse(
     async (signal) => {
       const snapshot = await storyReviewSnapshot(
         established,
+        {
+          identity,
+          profileDirectory: agentProfileDirectoryOf(knownSource(sourceId)),
+        },
         shown,
         mark,
         signal,
@@ -97,6 +110,7 @@ export async function storyReviewResponse(
 
 async function storyReviewSnapshot(
   established: EstablishedContext,
+  story: ReviewedStory,
   // The workspace as the page shows it.
   shown: string,
   mark: ReviewMark | undefined,
@@ -143,13 +157,21 @@ async function storyReviewSnapshot(
   const index = await mkdtemp(path.join(tmpdir(), "dough-review-"));
   try {
     const head = await git(["rev-parse", "--verify", "HEAD"]);
-    const baseline = await git(["merge-base", "HEAD", `${remote}/${target}`]);
+    const trunk = await git(["merge-base", "HEAD", `${remote}/${target}`]);
+    // Trunk less the story's published commits, when it has some and this
+    // machine's Git can take them out.
+    const taken = await publishedStoryCommits(story, trunk, call);
+    const less =
+      taken.length === 0 ? undefined : await trunkLess(taken, trunk, call);
+    const baseline = less ?? trunk;
     const temporaryIndex = { GIT_INDEX_FILE: path.join(index, "index") };
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
+    // The worktree's own commits and uncommitted changes keep trunk's
+    // revision as their points.
     const commits = await storyCommits(
-      baseline,
+      trunk,
       head,
       `${remote}/${target}`,
       call,
@@ -185,6 +207,9 @@ async function storyReviewSnapshot(
       remote,
       target,
       baseline,
+      ...(less === undefined
+        ? {}
+        : { published: { trunk, commits: taken.length } }),
       head,
       tree,
       files,
@@ -196,9 +221,9 @@ async function storyReviewSnapshot(
             uncommitted: {
               kind: "uncommitted",
               tree,
-              baseline,
+              baseline: trunk,
               fromTree: headTree,
-              fromBaseline: baseline,
+              fromBaseline: trunk,
             },
           }),
       ...marked,

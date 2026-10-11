@@ -24,17 +24,20 @@ export const reviewFeedback = (review: Locator) =>
   review.locator(".story-review-top").getByRole("status");
 
 // What the context line's values read aloud in either state: every value in
-// full.
+// full, the baseline less the story's published commits when it says how
+// many were taken out.
 export const contextWords = ({
   branch,
   baseline,
+  published,
   workspace,
 }: {
   readonly branch: string;
   readonly baseline: string;
+  readonly published?: number;
   readonly workspace: string;
 }) =>
-  `Branch ${branch} Baseline ${baseline} where ${branch} meets origin/main Worktree ${workspace}`;
+  `Branch ${branch} Baseline ${baseline} where ${branch} meets origin/main${published === undefined ? "" : `, less the story's ${String(published)} published commits`} Worktree ${workspace}`;
 
 // The review's file browser, which scrolls on its own.
 export const fileBrowser = (review: Locator) =>

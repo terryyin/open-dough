@@ -21,6 +21,35 @@ plus staged, unstaged and untracked files, and leaves out ignored ones. It is
 written as a tree object through a temporary index, so the workspace's own
 index and status stay as they were.
 
+A Trunk Mode story's agent publishes each increment onto trunk, where other
+people's commits interleave with it, so that merge-base already holds the
+story's published work. Its baseline is then the merge-base's tree with the
+story's published commits taken out, so all changes lists the published,
+unpublished and uncommitted changes together and leaves out every other
+commit on trunk, even one that changed another part of a file the story
+changed (`server/storyPublishedCommits.ts`). The agent is the one the reviewed
+worktree's own Git config names as author (`author.name` and `author.email`
+read with `git config --worktree`, as the execution start writes them); a
+worktree naming none is reviewed against the merge-base. Among the commits
+that agent authored that the merge-base holds
+(`git rev-list --topo-order --parents --fixed-strings --author=<email>`), a
+commit is the story's when it has one parent and the agent's profile in that
+parent's tree names the story and records a `mode`, an execution claim; the
+profiles are read with one `git cat-file --batch-check` and one `--batch` of
+the distinct blobs. The walk runs newest first and stops at the claim, the
+commit whose own profile names the story while its parent's does not, so the
+claim, preparation commits, merges, and the agent's commits for another story
+stay trunk's. Each story commit is taken out newest first by
+`git merge-tree --write-tree --name-only -z --merge-base=<commit> <tree so far>
+<commit's first parent>`, the restatement the changes since the review use,
+which writes tree objects and touches no index, worktree, or ref. The answer
+then carries `published`, the trunk revision the commits were taken out of
+(`trunk`, the merge-base) and how many (`commits`), and `baseline` names the
+resulting tree; with nothing published since the claim it carries no
+`published` and `baseline` is the merge-base. Commits and its Uncommitted
+changes item stay the worktree's own, with the merge-base as their points, so
+a published commit is not listed there.
+
 The file browser shows the snapshot's changed files under the folders that
 hold them, each file by its name, with files at the repository root at the
 top level (`src/reviewFileTree.ts`). A chain of folders that each hold only
@@ -95,7 +124,13 @@ files for the file browser. Values that do not fit are shortened, the
 worktree first. Activating the line, by pointer or keyboard, shows every value
 in full, the whole baseline revision and where the branch meets trunk
 included, and activating it again returns it to one line; its name reads
-every value in full in either state. That the review is read-only is the
+every value in full in either state. With the story's published commits taken
+out, the baseline names the trunk revision they were taken out of: the one
+line reads `<short revision> <remote>/<target> less <n> story commits` and the
+full form `<revision> where <branch> meets <remote>/<target>, less the story's
+<n> published commits`. The review's other mentions of the baseline, with no
+changes and after Refresh, name that trunk revision too (`baselineRevision` in
+`src/storyReview.ts`). That the review is read-only is the
 review's accessible description, not a visible line. The feedback region,
 beneath the context line, announces reading, refreshing, refreshed, and
 problem messages, and an unavailable review's explanation. A review with no

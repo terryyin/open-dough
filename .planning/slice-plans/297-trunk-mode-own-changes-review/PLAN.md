@@ -179,11 +179,51 @@ author and so keep today's baseline.
 | An older Git keeps the published commits in and says why | Slice 4 spec on `olderGit`: rows `notes.md`, feedback text, `published.kept` |
 | Existing review behavior unchanged | Each slice: `dashboard/tests/story-review*.spec.ts`, `recently-done-one-shot-review.spec.ts` green; `npm run typecheck:dashboard` and `npm run lint` clean |
 
+## Story obligations
+
+### G1. Mark reviewed refused on a tree baseline
+Reported: slice 1 — "Mark reviewed is refused on a published Trunk Mode story until slice 3."
+Story clause: "Mark reviewed act on this comparison as they do today"
+Disposition: receiving slice 3
+
+### G2. Inseparable file listed without its flag
+Reported: slice 1 — "It is listed from the restated tree without a flag, and that tree holds Git's conflict markers for it."
+Story clause: "A file whose story change and trunk change Git cannot separate is listed flagged"
+Disposition: receiving slice 2
+
+### G3. A Git that cannot restate says nothing
+Reported: slice 1 — "Baseline stays the merge-base and no `published` is answered; `kept: \"not-restated\"` and its feedback are slice 4."
+Story clause: "its feedback says the story's published commits could not be taken out of trunk and why"
+Disposition: receiving slice 4
+
+### G4. Singular commit wording untested
+Reported: slice 1 — "Singular wording is my choice and untested"
+Story clause: "its one-line form says how many"
+Disposition: receiving slice 2
+
+### G5. Preparation profile with activity not exercised
+Reported: slice 1 — "The fixture uses it only as a Git author of `prep.md`, with no profile file, so \"profile with `activity`\" is not exercised directly."
+Story clause: "the preparation agent's commits for this story"
+Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-own-changes.spec.ts` lists exactly `d.md`, `notes.md`, `src/a.ts`, leaving out the preparation agent's `prep.md`
+
 ## Ordered slices
 
 ### 1. All changes shows a Trunk Mode story's published changes beside its unpublished ones
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- dashboard/tests/story-review-trunk-own-changes.spec.ts`
+(two tests); `npm run test:dashboard -- dashboard/tests/story-review dashboard/tests/recently-done-one-shot-review.spec.ts`;
+`npm run typecheck:dashboard`; `npm run lint`.
+Learnings: `server/storyPublishedCommits.ts` holds the scan
+(`publishedStoryCommits`), `trunkLess`, and the shared `namesExecutionClaim`;
+`gitRunner`'s `GitCall` gained `input` for the batched profile reads. The page
+names a tree baseline by `baselineRevision` (`published.trunk`) in the context
+line, the refreshed feedback and the no-changes text. The mark's schemas moved
+to `src/reviewMark.ts`, re-exported by `storyReview.ts`.
+`storyReviewSnapshot.ts` is at 240 of 250 lines, so slices 2 to 4 place their
+listing and failure detail outside it. The kept launch record stays
+`story-branch` shaped: the launch schema admits no other mode, and Trunk Mode
+is recognized from the worktree's author and the profile.
 Proof: New spec `dashboard/tests/story-review-trunk-own-changes.spec.ts` on
 the new fixture for the first five proof rows; the story-review spec suite;
 `npm run typecheck:dashboard` and `npm run lint`.
