@@ -25,7 +25,7 @@ watchers and coordinate GitHub demand with dashboard reads.
 
 **Identity:** SEED-063#dashboard-owned-ci-monitoring
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34b0f943e34423e26063e267d4d2942ae918cd7d8b0de7bb6fcc18f3c8c5dcb5","plan":"39d641cafcfa16cf3a5253183b052e61c00bbcb3b4bc974d75c30067f86eadb0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34b0f943e34423e26063e267d4d2942ae918cd7d8b0de7bb6fcc18f3c8c5dcb5","plan":"5cedcbab3fc3afec31e7131d058f04b6c5d8932d7a868d065cb00d3733c922c7"}}
 ```
 **Slice plan:** [Background CI monitoring](../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md).
 
