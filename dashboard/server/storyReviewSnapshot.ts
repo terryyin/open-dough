@@ -1,11 +1,14 @@
 // Takes a story review's snapshot (`../src/storyReview.ts`) of one workspace
 // the launch boundary resolved from its kept records or local Git: fetches
 // its trunk target, takes the review baseline as the merge-base of the
-// workspace's head and the fetched `<remote>/<target>`, writes the
+// workspace's head and the fetched `<remote>/<target>`, or, for a Trunk
+// Mode story whose agent already published commits there, as that revision's
+// tree with those commits taken out (`./storyPublishedCommits.ts`), writes the
 // workspace's files -- commits, staged, unstaged, and untracked, never
 // ignored -- into a tree object through a temporary index, and lists what
 // changed from the baseline to that tree with each file's line counts
-// (`./storyReviewFiles.ts`). The workspace's own index and
+// (`./storyReviewFiles.ts`), a file Git could not separate from trunk's
+// changes from its own tree instead. The workspace's own index and
 // status stay as they were; the tree is an ordinary unreachable object of
 // its repository. A step Git cannot take answers why, never a partial list:
 // a worktree no longer on disk is said to be missing before any Git runs,
@@ -27,6 +30,14 @@
 // path.
 
 import { landedStoryReview } from "./storyReviewLanded.ts";
+import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
+import { knownSource } from "./sessionAdmission.ts";
+import {
+  publishedAnswer,
+  publishedStoryCommits,
+  trunkLess,
+  type ReviewedStory,
+} from "./storyPublishedCommits.ts";
 import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import { mkdtemp, realpath, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
@@ -39,9 +50,8 @@ import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { storyCommits } from "./storyReviewCommits.ts";
-import { changedFrom } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
-import { compareReviewPoints } from "./storyReviewComparison.ts";
+import { compareReviewPoints, listedFrom } from "./storyReviewComparison.ts";
 import type { AdmittedReview } from "./storyReviewAdmission.ts";
 
 const outputLimit = 64 * 1024 * 1024;
@@ -88,6 +98,10 @@ export async function storyReviewResponse(
     async (signal) => {
       const snapshot = await storyReviewSnapshot(
         established,
+        {
+          identity,
+          profileDirectory: agentProfileDirectoryOf(knownSource(sourceId)),
+        },
         shown,
         mark,
         signal,
@@ -106,6 +120,7 @@ export async function storyReviewResponse(
 
 async function storyReviewSnapshot(
   reviewed: ReviewedWorkspace,
+  story: ReviewedStory,
   // The workspace as the page shows it.
   shown: string,
   mark: ReviewMark | undefined,
@@ -152,28 +167,38 @@ async function storyReviewSnapshot(
   const index = await mkdtemp(path.join(tmpdir(), "dough-review-"));
   try {
     const head = await git(["rev-parse", "--verify", "HEAD"]);
-    const baseline = await git(["merge-base", "HEAD", `${remote}/${target}`]);
+    const trunk = await git(["merge-base", "HEAD", `${remote}/${target}`]);
+    // Trunk less the story's published commits, when it has some and this
+    // machine's Git can take them out; else they stay in the baseline.
+    const published = await publishedStoryCommits(story, trunk, call);
+    const less =
+      published.length === 0
+        ? undefined
+        : await trunkLess(published, trunk, call);
+    const baseline = less?.tree ?? trunk;
+    // The files from the baseline; one Git cannot separate from trunk's
+    // changes is listed from where the story first changed it.
+    const changed = (to: string) =>
+      listedFrom(baseline, to, less?.inseparable ?? new Map(), trunk, call);
     const temporaryIndex = { GIT_INDEX_FILE: path.join(index, "index") };
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
     const tree = await git(["write-tree"], temporaryIndex);
+    // The worktree's own commits and uncommitted changes keep trunk's
+    // revision as their points.
     const commits = await storyCommits(
-      baseline,
+      trunk,
       head,
       `${remote}/${target}`,
       call,
     );
     const headTree = await git(["rev-parse", `${head}^{tree}`]);
-    const files = await changedFrom(baseline, tree, call);
+    const files = await changed(tree);
     // The committed work alone, when the snapshot holds more than it.
     const committed =
       tree === headTree
         ? undefined
-        : {
-            from: baseline,
-            tree: headTree,
-            files: await changedFrom(baseline, headTree, call),
-          };
+        : { from: baseline, tree: headTree, files: await changed(headTree) };
     const comparison =
       mark === undefined
         ? undefined
@@ -194,6 +219,7 @@ async function storyReviewSnapshot(
       remote,
       target,
       baseline,
+      ...publishedAnswer(published, trunk, less),
       head,
       tree,
       files,
@@ -205,9 +231,9 @@ async function storyReviewSnapshot(
             uncommitted: {
               kind: "uncommitted",
               tree,
-              baseline,
+              baseline: trunk,
               fromTree: headTree,
-              fromBaseline: baseline,
+              fromBaseline: trunk,
             },
           }),
       ...marked,

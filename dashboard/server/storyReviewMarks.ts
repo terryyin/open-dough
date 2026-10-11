@@ -6,7 +6,10 @@
 // tree is an unreachable object, so the mark also points
 // `refs/open-dough/reviewed/<identity>` of the story's repository at it,
 // replaced with the mark, which keeps it through Git's housekeeping and
-// touches no tracked file, index, or status. Local evidence only, never a
+// touches no tracked file, index, or status. The baseline of a Trunk Mode
+// story with published commits is such a tree too, so the mark points
+// `refs/open-dough/reviewed-baseline/<identity>` at its baseline the same
+// way, whichever kind it is. Local evidence only, never a
 // story fact. The file is read afresh, replaced atomically, and moved aside
 // when unreadable as `./machineJsonStore.ts` describes.
 
@@ -44,16 +47,19 @@ const markStore = (): MachineJsonStore<StoredMarks> => ({
 // How long marking, its Git calls included, may take.
 const markWaitMs = 30_000;
 
-// The ref that keeps a story's marked tree: its work identity as one ref
-// component, each character other than a letter, digit, `#`, `_`, or `-`
-// written as `%XX`, so Git never refuses it.
-function reviewedRef(identity: string): string {
+// The refs that keep a story's marked tree and the baseline it was compared
+// with: its work identity as one ref component, each character other than a
+// letter, digit, `#`, `_`, or `-` written as `%XX`, so Git never refuses it.
+function reviewedRefs(identity: string) {
   const component = identity.replace(/[^A-Za-z0-9#_-]/gu, (character) =>
     [...new TextEncoder().encode(character)]
       .map((byte) => `%${byte.toString(16).toUpperCase().padStart(2, "0")}`)
       .join(""),
   );
-  return `refs/open-dough/reviewed/${component}`;
+  return {
+    tree: `refs/open-dough/reviewed/${component}`,
+    baseline: `refs/open-dough/reviewed-baseline/${component}`,
+  };
 }
 
 // The story's mark, or undefined when it has none (or the file is
@@ -77,9 +83,10 @@ export interface AdmittedReviewMark {
   readonly baseline: string;
 }
 
-// Marks the named snapshot reviewed: the repository must hold its objects. The ref is set before the
-// mark is kept, so a kept mark's tree is always held. A write, so it runs to
-// its end even when the page leaves, within its bounded wait.
+// Marks the named snapshot reviewed: the repository must hold its objects.
+// The refs are set before the mark is kept, so a kept mark's tree and
+// baseline are always held. A write, so it runs to its end even when the
+// page leaves, within its bounded wait.
 export async function markReviewedResponse({
   sourceId,
   identity,
@@ -95,10 +102,12 @@ export async function markReviewedResponse({
       maxBuffer: defaultGitOutputLimit,
     });
   try {
-    for (const object of reviewPointObjects({ tree, baseline })) {
+    for (const object of reviewPointObjects({ tree, baseline }, "tree")) {
       await git(["cat-file", "-e", object]);
     }
-    await git(["update-ref", reviewedRef(identity), tree]);
+    const refs = reviewedRefs(identity);
+    await git(["update-ref", refs.baseline, baseline]);
+    await git(["update-ref", refs.tree, tree]);
   } catch (error) {
     return { status: 200, body: markUnavailable(gitProblem(error)) };
   }

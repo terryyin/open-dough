@@ -28,7 +28,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import {
-  trunkIntegratedSince,
+  baselineRevision,
   type ReviewComparison,
   type ReviewedFile,
   type TakenStoryReview,
@@ -89,13 +89,12 @@ function NoChanges({
     return (
       <p>
         No changes: the worktree matches baseline{" "}
-        <code>{shortRevision(snapshot.baseline)}</code>.
+        <code>{shortRevision(baselineRevision(snapshot))}</code>.
       </p>
     );
   return (
     <p>
-      {snapshot.mark !== undefined &&
-      trunkIntegratedSince(snapshot.mark, snapshot.baseline)
+      {snapshot.since?.trunkIntegrated === true
         ? "Nothing changed since the review beyond what trunk now holds."
         : "Nothing changed since the review."}
     </p>

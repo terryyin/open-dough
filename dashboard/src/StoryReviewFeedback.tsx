@@ -1,13 +1,16 @@
 // The story review's one status region: snapshot and range read progress,
-// Refresh's displayed comparison counts, marking, and read failures.
+// Refresh's displayed comparison counts, marking, read failures, and, for as
+// long as the snapshot is shown, that this machine's Git kept a Trunk Mode
+// story's published commits in its baseline.
 import { shortRevision } from "./publishedWork.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
-import type {
-  MarkReviewedAnswer,
-  ReviewComparison,
-  ReviewRange,
-  StoryReview,
+import {
+  baselineRevision,
+  type MarkReviewedAnswer,
+  type ReviewComparison,
+  type ReviewRange,
+  type StoryReview,
 } from "./storyReview.ts";
 import type { useReviewRead } from "./useReviewRead.ts";
 
@@ -35,6 +38,8 @@ export function ReviewFeedback({
   readonly made: MarkReviewedAnswer | undefined;
 }) {
   const snapshot = review?.kind === "snapshot" ? review : undefined;
+  const kept =
+    snapshot?.published?.kept === undefined ? undefined : snapshot.published;
   return (
     <div role="status">
       {shown === "commits" && <RangeFeedback range={range} />}
@@ -63,7 +68,7 @@ export function ReviewFeedback({
           <p>
             Review refreshed:{" "}
             {changedFiles((comparison ?? snapshot).files.length)} against
-            baseline <code>{shortRevision(snapshot.baseline)}</code>.
+            baseline <code>{shortRevision(baselineRevision(snapshot))}</code>.
           </p>
         ) : (
           <p>
@@ -75,6 +80,13 @@ export function ReviewFeedback({
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the captured
           landed comparison.
+        </p>
+      )}
+      {kept !== undefined && (
+        <p>
+          This machine&apos;s Git cannot take the story&apos;s {kept.commits}{" "}
+          published {kept.commits === 1 ? "commit" : "commits"} out of trunk, so
+          All changes shows only what is not yet published.
         </p>
       )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}

@@ -2,7 +2,9 @@
 // to baseline when they differ, leaving trunk's intervening changes out.
 // Inseparable files are compared from the original from tree, or from the
 // to baseline when kept as they were. The comparison's paths, counts and
-// file diffs therefore all describe the same observation. Missing from
+// file diffs therefore all describe the same observation. All changes lists
+// a Trunk Mode story's inseparable files through the same listing
+// (`./storyPublishedCommits.ts`). Missing from
 // objects and unsupported restatement remain distinct; aborted responses
 // and Git failures outside restatement belong to the caller.
 // A selected range can also supply the listed points of its integrations:
@@ -12,12 +14,16 @@
 import {
   objectIdSchema,
   type MarkUncomparable,
-  type ReviewComparison,
+  type RestatedComparison,
   type ReviewedFile,
   type ReviewIntegration,
 } from "../src/storyReview.ts";
 import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
-import { reviewPointObjects, type ReviewPoint } from "./storyReviewPoints.ts";
+import {
+  baselinesDiffer,
+  reviewPointObjects,
+  type ReviewPoint,
+} from "./storyReviewPoints.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 
 // Git exited 1: the merge has conflicts, having printed its result, or a
@@ -28,10 +34,15 @@ const exitedOne = (error: unknown): error is GitFailure =>
   "code" in error.cause &&
   error.cause.code === 1;
 
-// Whether the repository holds the from point's tree and baseline commit.
-async function holdsPoint(point: ReviewPoint, call: GitCall) {
+// Whether the repository holds the point's tree and its baseline: a commit,
+// or for a from point, which a mark can supply, a tree as well.
+async function holdsPoint(
+  point: ReviewPoint,
+  call: GitCall,
+  baselineType?: "tree",
+) {
   try {
-    for (const object of reviewPointObjects(point)) {
+    for (const object of reviewPointObjects(point, baselineType)) {
       await runGit(["rev-parse", "--verify", "--quiet", object], call);
     }
     return true;
@@ -64,7 +75,7 @@ function restatementFrom(stdout: string) {
   return undefined;
 }
 
-async function restatedPoint(
+export async function restatedPoint(
   from: ReviewPoint,
   baseline: string,
   call: GitCall,
@@ -103,17 +114,71 @@ const byPath = (a: ReviewedFile, b: ReviewedFile) =>
 const touches = (file: ReviewedFile, paths: ReadonlySet<string>) =>
   paths.has(file.path) || (file.kind === "renamed" && paths.has(file.oldPath));
 
-// The points' comparison, or why the from point cannot be compared.
+// The files changed from the restated tree to `to`, with each inseparable
+// path listed instead from its origin, the tree given for it, and flagged
+// with that tree as including trunk's changes.
+export async function listedFrom(
+  restatedTree: string,
+  to: string,
+  inseparable: ReadonlyMap<string, string>,
+  // Where an inseparable file with no diff from its origin is compared from.
+  keptFrom: string,
+  call: GitCall,
+): Promise<ReviewedFile[]> {
+  const restated = await changedFrom(restatedTree, to, call);
+  // A file renamed from an inseparable one is compared from that one's
+  // origin with it, so its content is not hidden.
+  const origins = new Map(inseparable);
+  for (const file of restated) {
+    const origin =
+      file.kind === "renamed" ? inseparable.get(file.oldPath) : undefined;
+    if (origin !== undefined && !origins.has(file.path)) {
+      origins.set(file.path, origin);
+    }
+  }
+  const flagged = new Map<string, ReviewedFile>();
+  const flagFrom = async (tree: string, paths: ReadonlySet<string>) => {
+    for (const file of await changedFrom(tree, to, call)) {
+      if (touches(file, paths) && !flagged.has(file.path)) {
+        flagged.set(file.path, { ...file, includesTrunkFrom: tree });
+      }
+    }
+  };
+  for (const tree of new Set(origins.values())) {
+    await flagFrom(
+      tree,
+      new Set([...origins.keys()].filter((file) => origins.get(file) === tree)),
+    );
+  }
+  // An inseparable file kept as its origin has it is compared from
+  // `keptFrom` instead, so its diff shows the story's version against trunk's.
+  const differed = new Set(
+    [...flagged.values()].flatMap((file) =>
+      file.kind === "renamed" ? [file.path, file.oldPath] : [file.path],
+    ),
+  );
+  const keptAsOrigin = new Set(
+    [...inseparable.keys()].filter((file) => !differed.has(file)),
+  );
+  if (keptAsOrigin.size > 0) await flagFrom(keptFrom, keptAsOrigin);
+  return [
+    ...restated.filter((file) => !touches(file, new Set(origins.keys()))),
+    ...flagged.values(),
+  ].sort(byPath);
+}
+
+// The points' comparison, with whether trunk was integrated between them,
+// or why the from point cannot be compared.
 export async function compareReviewPoints(
   from: ReviewPoint,
   to: ReviewPoint,
   call: GitCall,
   integrations: readonly ReviewIntegration[] = [],
 ): Promise<
-  | { readonly kind: "comparison"; readonly comparison: ReviewComparison }
+  | { readonly kind: "comparison"; readonly comparison: RestatedComparison }
   | { readonly kind: "uncomparable"; readonly reason: MarkUncomparable }
 > {
-  if (!(await holdsPoint(from, call)))
+  if (!(await holdsPoint(from, call, "tree")))
     return { kind: "uncomparable", reason: "unreadable" };
   const restatement = await restatedPoint(from, to.baseline, call);
   if (restatement === undefined)
@@ -162,47 +227,18 @@ export async function compareReviewPoints(
       }
     }
   }
-  const restated = await changedFrom(tree, to.tree, call);
-  // A file renamed from an inseparable one is compared from the original from tree
-  // with it, so its content is not hidden.
-  const flaggedPaths = new Set(inseparable);
-  for (const file of restated) {
-    if (touches(file, inseparable)) {
-      flaggedPaths.add(file.path);
-    }
-  }
-  const separated = restated.filter((file) => !touches(file, flaggedPaths));
-  const fromOriginal =
-    flaggedPaths.size === 0
-      ? []
-      : (await changedFrom(from.tree, to.tree, call)).filter((file) =>
-          touches(file, flaggedPaths),
-        );
-  // An inseparable file kept as it was is compared from the to baseline
-  // instead, so its diff shows the story's version against trunk's.
-  const differed = new Set(
-    fromOriginal.flatMap((file) =>
-      file.kind === "renamed" ? [file.path, file.oldPath] : [file.path],
-    ),
-  );
-  const keptAsFrom = new Set(
-    [...inseparable].filter((file) => !differed.has(file)),
-  );
-  const fromBaseline =
-    keptAsFrom.size === 0
-      ? []
-      : (await changedFrom(to.baseline, to.tree, call)).filter((file) =>
-          touches(file, keptAsFrom),
-        );
-  const flagged = [
-    ...fromOriginal.map((file) => ({ ...file, includesTrunkFrom: from.tree })),
-    ...fromBaseline.map((file) => ({
-      ...file,
-      includesTrunkFrom: to.baseline,
-    })),
-  ];
   return {
     kind: "comparison",
-    comparison: { from: tree, files: [...separated, ...flagged].sort(byPath) },
+    comparison: {
+      trunkIntegrated: await baselinesDiffer(from, to, call),
+      from: tree,
+      files: await listedFrom(
+        tree,
+        to.tree,
+        new Map([...inseparable].map((file) => [file, from.tree])),
+        to.baseline,
+        call,
+      ),
+    },
   };
 }

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-088_review-trunk-mode-story-changes.json",
+      "identity": "SEED-088#review-trunk-mode-story-changes",
+      "completedAt": "2026-10-11T03:20:11.436Z",
+      "blob": "e7d9920f74bf1a78ca9c9105dd9a0297dac6b9f1"
+    },
+    {
       "fileName": "SEED-088_found-worktree-matches-published-agent.json",
       "identity": "SEED-088#found-worktree-matches-published-agent",
       "completedAt": "2026-10-11T02:27:21.169Z",

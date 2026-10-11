@@ -21,6 +21,54 @@ plus staged, unstaged and untracked files, and leaves out ignored ones. It is
 written as a tree object through a temporary index, so the workspace's own
 index and status stay as they were.
 
+A Trunk Mode story's agent publishes each increment onto trunk, where other
+people's commits interleave with it, so that merge-base already holds the
+story's published work. Its baseline is then the merge-base's tree with the
+story's published commits taken out, so all changes lists the published,
+unpublished and uncommitted changes together and leaves out every other
+commit on trunk, even one that changed another part of a file the story
+changed (`server/storyPublishedCommits.ts`). The agent is the one the reviewed
+worktree's own Git config names as author (`author.name` and `author.email`
+read with `git config --worktree`, as the execution start writes them); a
+worktree naming none is reviewed against the merge-base. Among the commits
+that agent authored that the merge-base holds
+(`git rev-list --topo-order --parents --fixed-strings --author=<email>`), a
+commit is the story's when it has one parent and the agent's profile in that
+parent's tree names the story and records a `mode`, an execution claim; the
+profiles are read with one `git cat-file --batch-check` and one `--batch` of
+the distinct blobs. The walk runs newest first and stops at the claim, the
+commit whose own profile names the story while its parent's does not, so the
+claim, preparation commits, merges, and the agent's commits for another story
+stay trunk's. Each story commit is taken out newest first by
+`git merge-tree --write-tree --name-only -z --merge-base=<commit> <tree so far>
+<commit's first parent>`, the restatement the changes since the review use,
+which writes tree objects and touches no index, worktree, or ref. A file
+whose story change Git cannot take out, because trunk then changed the same
+lines, is conflicted in that restatement: all changes lists it with its kind,
+counts and diff from trunk as it was before the story's first change to it,
+the tree of the first parent of the oldest story commit that changed its path
+(`git diff-tree --no-commit-id -r --name-only -z <commit>`), which is the
+file's `includesTrunkFrom`, so the line's net change by both is shown rather
+than hidden. Its control's name, its row, and its diff heading say it
+“includes trunk's changes”, as in the changes since the review, and the
+committed work alone lists it the same way. The answer
+then carries `published`, the trunk revision the commits were taken out of
+(`trunk`, the merge-base) and how many (`commits`), and `baseline` names the
+resulting tree; with nothing published since the claim it carries no
+`published` and `baseline` is the merge-base. Commits and its Uncommitted
+changes item stay the worktree's own, with the merge-base as their points, so
+a published commit is not listed there. Taking the commits out needs Git 2.45
+or later, as restating the mark does; when this machine's Git cannot (an
+older one says the tree is not a commit, and any other failed restatement
+counts the same), the review is not failed: nothing is taken out, `baseline`
+stays the merge-base, `published` also carries `kept: "not-restated"`, the
+context line reads as for any worktree, and the review's status region says,
+for as long as that snapshot is shown, “This machine's Git cannot take the
+story's 2 published commits out of trunk, so All changes shows only what is
+not yet published.” (`src/StoryReviewFeedback.tsx`). A mark taken against
+trunk less the story's commits is then one this Git cannot restate on the
+merge-base, which the review explains as below.
+
 The file browser shows the snapshot's changed files under the folders that
 hold them, each file by its name, with files at the repository root at the
 top level (`src/reviewFileTree.ts`). A chain of folders that each hold only
@@ -95,7 +143,13 @@ files for the file browser. Values that do not fit are shortened, the
 worktree first. Activating the line, by pointer or keyboard, shows every value
 in full, the whole baseline revision and where the branch meets trunk
 included, and activating it again returns it to one line; its name reads
-every value in full in either state. That the review is read-only is the
+every value in full in either state. With the story's published commits taken
+out, the baseline names the trunk revision they were taken out of: the one
+line reads `<short revision> <remote>/<target> less <n> story commits` and the
+full form `<revision> where <branch> meets <remote>/<target>, less the story's
+<n> published commits`. The review's other mentions of the baseline, with no
+changes and after Refresh, name that trunk revision too (`baselineRevision` in
+`src/storyReview.ts`). That the review is read-only is the
 review's accessible description, not a visible line. The feedback region,
 beneath the context line, announces reading, refreshing, refreshed, and
 problem messages, and an unavailable review's explanation. A review with no
@@ -147,9 +201,16 @@ snapshot's `tree` and `baseline`, never a path; the workspace comes from
 `reviewWorkspaceOf` as for the review. Marking points
 `refs/open-dough/reviewed/<identity>` of the story's repository at the marked
 tree, replaced with the mark, so Git's housekeeping keeps that otherwise
-unreachable tree; the ref touches no tracked file, index, or status. In the
-ref, each identity character other than a letter, digit, `#`, `_`, or `-` is
-written as `%XX`.
+unreachable tree; the ref touches no tracked file, index, or status. The
+baseline of a Trunk Mode story with published commits is an unreachable tree
+as well, so marking first points
+`refs/open-dough/reviewed-baseline/<identity>` at the snapshot's baseline, a
+tree or a commit, replaced with the mark the same way: the baseline tree is
+kept for the next review to restate the mark from. Both refs are set before
+the mark is kept, and a mark requires its tree and its baseline's tree, which
+a baseline commit peels to; a commit range's points keep commits as their
+baselines. In each ref, each identity character other than a
+letter, digit, `#`, `_`, or `-` is written as `%XX`.
 
 With a mark, the review opens on **the changes since the review**: the same
 snapshot compared with the marked tree restated on the current baseline
@@ -215,7 +276,11 @@ index, worktree, or ref. A merge driver can print lines before the result;
 the first object ID among NUL- or newline-separated fields is the restated
 tree. Conflicted filenames after that tree remain NUL-separated, preserving
 newlines within their names. A story slice
-that landed on trunk after the mark is therefore not listed. Each file Git
+that landed on trunk after the mark is therefore not listed. A Trunk Mode
+story's commit published after the mark is listed, since the current baseline
+is trunk less the story's published commits and so never holds it; the marked
+baseline may be a commit and the current one a tree, or the reverse, and
+`--merge-base` takes either. Each file Git
 names as conflicted, one trunk and the story both changed in a way it cannot
 separate, is listed with its kind and diff from the marked tree to the
 snapshot tree (the file's `includesTrunkFrom`), so no story change is hidden.
@@ -224,13 +289,18 @@ instead with its kind and diff from the current baseline (its
 `includesTrunkFrom`), showing the story's version against trunk's. A
 conflicted file's control's name, its row, and its diff heading say it
 “includes trunk's changes”. When the snapshot's baseline differs from the
-mark's, the heading says “Trunk was integrated since the mark”, and with no
+mark's as a tree (`since.trunkIntegrated`, so a mark taken against the
+merge-base commit before the story published anything equals the later tree
+of trunk less the story's commits), the heading says “Trunk was integrated
+since the mark”, which for a Trunk Mode story with published commits is when
+trunk gained a change other than the story's own publication, and with no
 file left the review says “Nothing changed since the review beyond what trunk
 now holds.”, since story work that reached trunk after the mark counts as
 trunk's. Exit 0 is a clean restatement and exit 1 is a conflicted restatement
 when that object ID is present; other exits cannot restate the mark.
 Restating needs Git 2.45 or later, which merges trees given with
-`--merge-base`; when this machine's Git cannot restate the mark (an older one
+`--merge-base`, as taking a Trunk Mode story's published commits out of trunk
+does; when this machine's Git cannot restate the mark (an older one
 says the tree is not a commit), the review is not failed: the answer carries
 the mark and `markUncomparable: "not-restated"` in place of `since`, and the
 review says this machine's Git cannot leave out trunk's changes integrated

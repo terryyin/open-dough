@@ -6,7 +6,8 @@
 // unpublished commit and untracked file under All changes, Commits with
 // Uncommitted changes above the one commit, and the worktree's branch and
 // folder in the context line. Once the agent publishes the commit the head
-// equals trunk, and Refresh leaves the untracked file alone with Uncommitted
+// equals trunk, and Refresh still lists its file beside the untracked one,
+// taken out of trunk as the story's own, while Commits offers Uncommitted
 // changes and no commit. Mark reviewed marks that worktree's snapshot, and
 // after Refresh a later edit is what Since the review lists.
 
@@ -88,19 +89,23 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
       .check();
   });
 
-  await test.step("once the commit is published, Refresh lists the untracked file alone and Commits offers Uncommitted changes with no commit", async () => {
+  await test.step("once the commit is published, Refresh still lists its file as the story's own and Commits offers Uncommitted changes with no commit", async () => {
     git(workspace, "push", "--quiet", "origin", "HEAD:main");
     const refreshed = nextSnapshot(page);
     await review.getByRole("button", { name: "Refresh" }).click();
     const published = await refreshed;
-    expect(published.baseline).toBe(published.head);
+    expect(published.published).toEqual({
+      trunk: published.head,
+      commits: 1,
+    });
+    expect(published.baseline).not.toBe(published.head);
     expect(published.commits).toEqual([]);
     expect(published.uncommitted).toBeDefined();
     await expect
       .poll(() =>
-        treeRows(review.getByRole("list", { name: "1 changed file" })),
+        treeRows(review.getByRole("list", { name: "2 changed files" })),
       )
-      .toEqual(["notes.md"]);
+      .toEqual(["notes.md", "slice.txt"]);
     await review.getByRole("radio", { name: "Commits", exact: true }).check();
     await expect(commits).toHaveText(["Uncommitted changes"]);
     await review

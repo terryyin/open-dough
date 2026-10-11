@@ -58,6 +58,17 @@ export async function openReview(page: Page, card: Locator) {
   return snapshot;
 }
 
+// Refreshes the review and answers the snapshot it then shows.
+export async function refreshReview(review: Locator) {
+  const refreshed = nextSnapshot(review.page());
+  await review.getByRole("button", { name: "Refresh" }).click();
+  return refreshed;
+}
+
+// The paths of a comparison's changed files, as listed.
+export const changedPaths = (files: TakenStoryReview["files"] | undefined) =>
+  files?.map(({ path: file }) => file);
+
 // Closes the review and opens it again from the card, answering the fresh
 // snapshot it shows.
 export async function reopenReview(page: Page, card: Locator) {
@@ -134,14 +145,18 @@ export async function expectSinceTheReview(
   );
 }
 
-// The refs keeping marked trees in the project's repository, each as
+// The refs keeping marked trees in the project's repository, or with
+// `reviewed-baseline` the baselines they were marked against, each as
 // `<ref> <object>`.
-export const reviewedRefs = (project: string) =>
+export const reviewedRefs = (
+  project: string,
+  kept: "reviewed" | "reviewed-baseline" = "reviewed",
+) =>
   git(
     project,
     "for-each-ref",
     "--format=%(refname) %(objectname)",
-    "refs/open-dough/reviewed/",
+    `refs/open-dough/${kept}/`,
   );
 
 // A story file's name by its number.

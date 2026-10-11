@@ -5,7 +5,18 @@ import path from "node:path";
 import { test } from "./preparationPage.ts";
 
 // The dashboard's Git as one before 2.45: `merge-tree` refuses the marked
-// tree as not a commit; every other call reaches the real Git.
+// tree as not a commit; every other call reaches the real Git. `gitRestates`
+// makes it the real Git throughout, or the older one again.
+const restates = "restates";
+
+// Whether the dashboard's Git of `olderGit`, on the path it prefixed, can
+// restate trees after all.
+export function gitRestates(pathPrefix: readonly string[], able: boolean) {
+  const marker = path.join(pathPrefix[0] ?? "", restates);
+  if (able) writeFileSync(marker, "");
+  else rmSync(marker, { force: true });
+}
+
 export const olderGit = test.extend({
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
@@ -17,7 +28,7 @@ export const olderGit = test.extend({
       wrapper,
       [
         "#!/bin/sh",
-        'if [ "$1" = merge-tree ]; then',
+        `if [ "$1" = merge-tree ] && [ ! -e '${path.join(bin, restates)}' ]; then`,
         '  echo "fatal: $6 is not a commit" >&2',
         "  exit 128",
         "fi",

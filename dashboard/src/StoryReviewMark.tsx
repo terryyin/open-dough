@@ -4,8 +4,8 @@
 // review cannot be compared when its snapshot cannot be read or this
 // machine's Git cannot leave trunk's changes out of it; or, heading
 // the changes since the review, the mark they compare with and when it was
-// made, and whether trunk was integrated since: its baseline is not the
-// snapshot's. The review's marking controls gather these, with its
+// made, and whether trunk was integrated since, as the snapshot's comparison
+// with the mark says. The review's marking controls gather these, with its
 // Mark reviewed beside the panel's comparison switch, in its fixed top.
 // While all changes of a snapshot holding uncommitted changes are shown, the
 // controls offer to leave those out, and say in words that they are and that
@@ -23,7 +23,6 @@ import {
   type MarkReviewedAnswer,
   type MarkReviewedRequest,
   type MarkUncomparable,
-  trunkIntegratedSince,
   type ReviewMark,
   type TakenStoryReview,
   type ReviewItem,
@@ -85,14 +84,14 @@ export function MarkStatement({
   }
 }
 
-// The changes since the review of a snapshot from `baseline`, headed by the
-// mark they compare with.
+// The changes since the review, headed by the mark they compare with and
+// whether trunk was integrated since.
 export function SinceTheReviewHeading({
   mark,
-  baseline,
+  trunkIntegrated,
 }: {
   readonly mark: ReviewMark;
-  readonly baseline: string;
+  readonly trunkIntegrated: boolean;
 }) {
   return (
     <div className="story-review-since">
@@ -101,7 +100,7 @@ export function SinceTheReviewHeading({
         From the snapshot marked reviewed{" "}
         <Moment at={new Date(mark.markedAt)} /> to this snapshot.
       </p>
-      {trunkIntegratedSince(mark, baseline) && (
+      {trunkIntegrated && (
         <p>
           Trunk was integrated since the mark: changes that came only from trunk
           are left out.
@@ -185,7 +184,7 @@ export function MarkingControls({
       {sinceReview && snapshot.mark !== undefined && (
         <SinceTheReviewHeading
           mark={snapshot.mark}
-          baseline={snapshot.baseline}
+          trunkIntegrated={snapshot.since?.trunkIntegrated === true}
         />
       )}
       {uncommitted !== undefined && <UncommittedCheck {...uncommitted} />}

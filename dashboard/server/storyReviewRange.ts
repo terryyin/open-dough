@@ -51,6 +51,7 @@ export async function storyReviewRangeResponse(
           kind: "comparison",
           ...compared.comparison,
           tree,
+          // A range's points are commits, compared as the commits they are.
           trunkIntegrated: fromBaseline !== baseline,
         };
       } catch (error) {
