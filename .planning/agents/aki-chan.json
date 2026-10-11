@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-088#resolved-integration-survives-reruns",
+  "mode": "story-branch",
+  "branch": "claude/a-resolved-integration-survives-a-failed-or-earl",
+  "host": "claude"
+}

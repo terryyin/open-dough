@@ -15,10 +15,10 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [A Trunk Mode story started outside the dashboard offers Review changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-worktree) — SEED-088#review-trunk-mode-story-worktree ([plan](slice-plans/296-trunk-mode-worktree-review/PLAN.md))
+- [A resolved integration survives a failed or early rerun](seeds/SEED-088-dashboard-story-code-review.md#resolved-integration-survives-reruns) — SEED-088#resolved-integration-survives-reruns ([plan](slice-plans/295-resolved-integration-survives-reruns/PLAN.md))
 
 ## Backlog list
 
-- [A resolved integration survives a failed or early rerun](seeds/SEED-088-dashboard-story-code-review.md#resolved-integration-survives-reruns) — SEED-088#resolved-integration-survives-reruns
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options
