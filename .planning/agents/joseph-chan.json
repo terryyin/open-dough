@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "identity": "SEED-063#dashboard-owned-ci-monitoring",
+  "mode": "story-branch",
+  "branch": "claude/monitor-ci-in-the-background-and-wake-execution",
+  "host": "claude"
+}
