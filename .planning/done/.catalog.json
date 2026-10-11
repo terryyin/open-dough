@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-130_slow-startup-safe-recovery.json",
+      "identity": "SEED-130#slow-startup-safe-recovery",
+      "completedAt": "2026-10-11T09:37:41.486Z",
+      "blob": "2eddc4bb9cf9603467c29993469919fb419a248d"
+    },
+    {
       "fileName": "SEED-121_finish-retirement-without-verdict.json",
       "identity": "SEED-121#finish-retirement-without-verdict",
       "completedAt": "2026-10-11T06:12:06.990Z",

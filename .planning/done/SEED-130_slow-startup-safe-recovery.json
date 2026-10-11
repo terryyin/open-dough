@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-130#slow-startup-safe-recovery",
+  "title": "Slow startup continues automatically and unsafe outcomes stop safely",
+  "completedAt": "2026-10-11T09:37:41.486Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
