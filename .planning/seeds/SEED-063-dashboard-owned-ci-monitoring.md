@@ -149,7 +149,7 @@ an installed skill in the owning session, without a dashboard launch.
 
 | Host | Required native form | Recipient and candidate route | Proof state |
 | --- | --- | --- | --- |
-| Claude Code | Dashboard background session; standalone interactive CLI session, including a session that exits after its turn | Original native session plus originating coordinator/child identity. Existing background resume/attach is a candidate; safe foreground continuation still needs proof. | Unobserved; slice 1 gate. |
+| Claude Code | Dashboard background session; standalone interactive CLI session, including a session that exits after its turn | Original native session plus originating coordinator/child identity. Existing background resume/attach is a candidate; safe foreground continuation still needs proof. | Probed 2026-10-11 (plan 299 slice 1): a stopped background session and an exited standalone session continue under their own ID; a background session whose process is alive does not, and the exited session loses its permission mode. Capability decision with Terry. |
 | Codex | Dashboard App Server thread; standalone Codex CLI and desktop conversation | Actual native thread ID, coordinator identity and its verified continuation endpoint. Existing turn-start/history reconciliation is a candidate; arbitrary desktop/CLI binding is not established. | Unobserved; slice 1 gate. |
 | Cursor | Dashboard runner-backed CLI; standalone Cursor agent CLI and IDE conversation | Original conversation and originating coordinator/generation where relevant. Existing terminal transport is a candidate for CLI; idle IDE delivery remains unestablished. | Unobserved; slice 1 gate. |
 

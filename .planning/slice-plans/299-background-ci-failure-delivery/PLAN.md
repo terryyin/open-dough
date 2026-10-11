@@ -237,6 +237,41 @@ implementation. If native form cannot meet the source outcome, return the
 explicit scope/capability decision to Terry; do not call a gap acceptance.
 Independent request-boundary work may continue.
 
+#### Claude Code evidence (2026-10-11, Claude Code 2.1.296, 16 budgeted steps, 13 model turns)
+
+Probe: `tests/support/background-ci-wakeup-native-probe.sh --native claude`
+with its PTY and transcript helpers, in a private fixture project. Retained
+transcripts, logs and ledger: `~/.claude/jobs/6f44ebc2/tmp/native-claude/`
+(machine-local). Tokens named below appear in those transcripts.
+
+| Route | Command | Observed |
+| --- | --- | --- |
+| Exited standalone session | `claude -p TEXT --resume ID` and `claude --bg --resume ID TEXT` | Same session ID and transcript, token once, working directory kept. Permission mode fell from the session's `default` to the developer's own setting (`auto`). Re-passing the mode was not observed. |
+| Background session whose process is alive and idle | `claude --bg --resume ID TEXT` | Exit 0 but started a copy under a new ID ("already running in the background, so this started a copy"); the copy consumed the text. Not same-session delivery. |
+| Same, or busy, or waiting on approval | `claude -p TEXT --resume ID` | Exit 1, "That session is running in the background", no model call, session undisturbed. A clean not-delivered. |
+| Stopped background session | `claude stop SHORT`, then `claude --bg --resume ID TEXT` with no other option | Same ID, saved name, permission mode and model kept, token once. With any extra option it starts a copy instead. |
+| Idle or busy, typed into `claude attach` | PTY typing | Idle: becomes the next turn. Busy: queued and absorbed at a tool boundary of the running turn. |
+| Waiting on approval, typed into `claude attach` | PTY typing | The pending permission prompt was accepted and the text was lost. Unsafe. |
+| Coordinator and child identity | transcript records | A subagent shares the `sessionId` and has its own `agentId` and `isSidechain: true`; delivery by session ID lands in the main thread. |
+| State without AI | `claude agents --json --all --cwd DIR` | `status` busy, idle or waiting and `waitingFor`, only while the process lives. |
+
+Capability gaps against the required forms, returned to Terry:
+
+1. A dashboard background session keeps its process after a turn. No observed
+   command hands text to that live session under its own ID without typing
+   into its terminal. The one same-ID, policy-preserving route requires
+   stopping it first.
+2. An exited standalone session continues under its ID but under the
+   developer's current permission setting, not the one it ran with.
+3. A standalone session still open in a terminal was not probed; no route
+   other than terminal typing is known.
+
+Slice 4 and the Claude part of slices 2 and 7 wait for that decision. The
+existing hook delivery at a tool or Stop boundary is unaffected and still
+reaches a busy coordinator. Early evidence for G11: a background session's
+shell reached a private request owner under `/tmp` and was answered; that
+covers only an unsandboxed host. Codex and Cursor are not yet probed.
+
 While a native host session of each kind is running, also observe whether a
 process it starts can reach the request owner's endpoint and be answered
 (early evidence for obligation G11, which slice 10 still owns).
@@ -566,3 +601,8 @@ Carried from plan 224's execution; its own record keeps the per-slice detail.
   limit; the next payload file or guidance line needs a structural move.
 - 2026-10-11: any change to CI acquisition or the request path is accepted
   only on full `npm test` and the whole dashboard suite on the final state.
+- 2026-10-11 (slice 1, Claude Code): exit status 0 from `claude --bg --resume`
+  does not mean the session received the text; it can start a copy, announced
+  only on stderr. A sender must compare the printed id with the session's own,
+  persist its token first, and reconcile from the transcript. Typing into
+  `claude attach` can answer a pending permission prompt.
