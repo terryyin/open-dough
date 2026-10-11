@@ -46,16 +46,16 @@ rule narrowly (worker as a machine fact, liveness observed), with the
 
 - **One attempt model, one more fact.** `LaunchAttemptRecord`
   (`dashboard/src/launchOutcome.ts`) gains an optional `worker`: the process
-  id performing the current step (`start` while the installed script runs,
-  `launch` while this server starts the native session) and when it was
-  noted; and an optional `slowSince`, noted by the running server when the
+  id performing the current step (`start` through preparation and the installed
+  script, `launch` through handoff and the native session), the accepting
+  `serverPid` retaining liveness through worker replacement, and note time; and an optional `slowSince`, noted by the running server when the
   threshold passes. Both are written through the existing `note` path in
   `launchAttemptSettlement.ts` and cleared with the outcome. No new store,
   registry, or daemon.
 - **Running is derived, owned is a right.** `AttemptObservation` gains
   `running`, computed by the answering server: owned and unsettled here, or
-  unsettled with a worker that is alive (`process.kill(pid, 0)`; `EPERM`
-  counts as alive). `needsReconciliation` and `unresolvedAttempt`
+  unsettled with either recorded worker or accepting server alive
+  (`process.kill(pid, 0)`; `EPERM` counts as alive). `needsReconciliation` and `unresolvedAttempt`
   (`launchAttemptSelection.ts`) read `running` where they read `owned`
   today; `notContinued` and `conflicting` refuse while running. `owned`
   stays the server's right to run and change the attempt.
@@ -102,7 +102,6 @@ Proof: the three rewritten start specs above; `npm run typecheck:dashboard`
 Accepted: held execution/refinement starts note and clear `slowSince`, refuse duplicate Starts and Continue, and launch the original request once after release; late refusal settles normally. The ten-spec command below and typecheck passed; refactor's full start-resume rerun passed after moving its sole-consumer lost-server fixture to `keptExecutionStart.ts`. Native deadline, interrupted continuation and pending-input consumers remain green.
 Command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts dashboard/tests/responsive-session-recovery.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-launch-start-duplicate.spec.ts dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts`.
 Diagnosed proof corrections: wrong fixture title/slug, hook-entry observation race, conflicting NO_COLOR/FORCE_COLOR, and duplicate check including its continued self. Corrected full selection passed; no retry substituted for diagnosis. Warning display and cross-server liveness remain G1/G2.
-
 Behavior: a story start whose installed script is still running at the
 threshold → the threshold passes → the attempt stays unsettled and owned with
 `slowSince` noted; a second start of the story answers `already-starting`
@@ -121,7 +120,6 @@ does today; the owning server refuses its continuation as running.
 Type: Behavior
 Status: done
 Proof: `responsive-session-recovery.spec.ts` rewritten case; typecheck and the full browser suite passed (terminal exit 0). Its real held push and actual `slowSince` produce the exact two-minute warning, phase, indicator and one announcement across another machine read; reload preserves protection, and release launches one session/claim/workspace. Browser Date supplies only the elapsed display. Focused recovery/access/start-phases/start-codex/start-taken/session-kept-start/codex-model-boundary specs also passed.
-
 Behavior: a progressing story card → its attempt carries `slowSince` → the
 status keeps the phase sentence and the moving indicator and adds "Still
 starting after N minutes. The start goes on in workspace `<path>` on branch
@@ -136,18 +134,17 @@ run the whole browser suite because this changes shared launch fixtures.
 
 ### 3. A live worker keeps an attempt running on every server
 Type: Behavior
-Status: planned
-Proof: new `agent-launch-second-server.spec.ts`; existing lost-server case; focused liveness unit proof
-
+Status: done
+Proof: the returned 24-spec command, typecheck and diff check passed (terminal exit 0). `agent-launch-second-server.spec.ts` observes running/protected/warning across reload/project switch, refuses Start/Continue, waits its bounded interval and shows one session. `agent-launch-second-server-orphan.spec.ts` kills only the server before a warning note; the live child stays running, its death becomes interrupted after reload, and Continue reuses one claim/workspace/session. `agent-launch-worker-handoff.spec.ts` holds real worker replacements before retained spawn and after child exit; live server facts refuse duplicate effects. `launch-attempt-worker.spec.ts` observes live/dead/EPERM and serialized notes; native timeout and own-record Recheck specs prove clearing. Initial page-read lag was corrected by observing reload; held-lock fresh Accept was repaired through the shared read-only conflict precheck plus authoritative locked recheck. Diagnostics: `dashboard/test-results/2026-10-11T08-13-20.614Z` and `2026-10-11T08-17-24.547Z`. Independent refactor consolidated worker construction/liveness and run bindings and split the linked startup guide. Its nine-spec run exposed exact warning-timestamp equality: the projected acceptance threshold can be replaced by the owning timer timestamp; only presence is contractual. Other selected observations passed; corrected full start/preparation-resume specs passed, then preparation passed again after existing-parser reuse. Typecheck passed; unchanged consumer proof is retained.
 Behavior: an attempt one server runs → a page on another server, a reload,
 or a restarted server reads it → it is `running` with the worker's step as
 its phase and the same warning past the threshold; that server's accept
 answers `already-starting` and its continue is refused as still running;
 when the owning server settles it, every server shows the outcome. An
 unsettled attempt whose worker is dead → it is interrupted, with Recheck and
-Continue as today. The worker is noted when the script is spawned (its pid)
-and when the native launch begins (this server's pid), and cleared with the
-outcome; `runningStarts` stays this server's phases for its own starts.
+Continue as today. The accepted/readmitted record starts with this server as its worker;
+script spawn replaces its pid while retaining `serverPid`, and native handoff
+replaces it with this server's pid. Both facts clear with the outcome; `runningStarts` stays this server's phases for its own starts.
 `AGENT-LAUNCH.md`'s startup handoff describes running, worker, and
 interrupted. A server killed before noting `slowSince` may leave its child alive;
 an answering server derives the past-threshold warning from the recorded
@@ -155,12 +152,14 @@ attempt's acceptance time using the existing threshold. Prove this orphan case b
 killing only the owned server pid, keeping its held installed script alive,
 then observing running/protected/warning before release and interrupted after
 the child exits; Continue safely reuses the kept claim. No automatic resume.
+Execution found a dead-script/live-owner handoff gap: retaining `serverPid`
+closes that interval without a registry. Hold a real worker replacement write
+after script exit and prove the second server still refuses Continue.
 
 ### 4. An unkept publication receipt stops before the native launch
 Type: Behavior
 Status: planned
 Proof: `agent-launch-preparation-store-failure.spec.ts` rewritten at the HTTP boundary
-
 Behavior: an established start whose `published` receipt cannot be kept in
 `launch-attempts.json` → `attemptRun` stops with `failed`/`unrecorded`:
 "Publication succeeded (Taken by <Agent>, workspace <path>), but the receipt
@@ -171,14 +170,16 @@ start, workspace, branch, and assignment stay; the outcome is answered from
 memory when it too cannot be kept, so a restart finds the attempt interrupted.
 After repair, Continue reruns the kept request; the installed command answers
 `existing` or continues the preparation, the receipt is kept, and one session
-launches. `LAUNCH-START.md` names the receipt as the checkpoint before the
-session.
+launches. The shared unresolved/Continue predicate includes this failed
+recording stop even when its publication is known; the existing recovery UI
+says that known publication stopped before launch, preserving the failed answer
+and Continue. A rejected publication note must not poison later settlement notes.
+`LAUNCH-START.md` names the receipt as the checkpoint before the session.
 
 ### 5. Continue settles from the attempt's own launch record
 Type: Behavior
 Status: planned
 Proof: new case in `agent-launch-uncertain-continuation.spec.ts`
-
 Behavior: an unsettled or uncertain attempt whose story has a launch record
 launched since the attempt was accepted → Continue → the attempt settles as
 launched with that record's session, with no start run and no native call,
@@ -237,4 +238,9 @@ Disposition: proved by slice 2: `responsive-session-recovery.spec.ts`, "warns on
 ### G2. Another server still reads a live start as interrupted
 Reported: slice 1 — "The owning server reports owned; another server still treats an unsettled attempt as interrupted. No running observation field or worker fact was added here."
 Story clause: "A page served by any dashboard server, after a reload, project switch, or server restart, shows an attempt whose recorded worker is verifiably alive as running"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `agent-launch-second-server.spec.ts`, `agent-launch-second-server-orphan.spec.ts` and `agent-launch-worker-handoff.spec.ts`
+
+### G3. An unrecorded child cannot be observed after its server dies
+Reported: slice 3 — "If recording the script pid fails and its server subsequently dies while that unrecorded child lives, the durable server-only worker cannot reveal the surviving child."
+Story clause: "verified facts decide whether startup proceeds."
+Disposition: no user cost "verified facts decide whether startup proceeds.": an actual recording failure leaves no verifiable live worker in the store, so the existing interrupted recovery correctly applies; the dead server cannot launch, and Continue reuses the durable kept start. The source promises observation of recorded live workers, not inference of an unrecorded process.

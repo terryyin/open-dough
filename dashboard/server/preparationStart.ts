@@ -57,6 +57,7 @@ export async function beginPreparation(
   request: StoryLaunchRequest,
   project: ProjectFolder,
   progress: WorkflowProgress,
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
   if (!(await establishesPreparation(project, request.host))) {
     const kept = await keptStart(source.id, request.identity, workflow);
@@ -84,7 +85,7 @@ export async function beginPreparation(
     project,
     progress,
     "Preparing announcement",
-    () => runningPreparation(source, request, project, progress),
+    () => runningPreparation(source, request, project, progress, noteWorker),
   );
 }
 
@@ -93,6 +94,7 @@ async function runningPreparation(
   request: StoryLaunchRequest,
   project: ProjectFolder,
   progress: WorkflowProgress,
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was:
   // the same workspace, branch and policy, so the script answers `continued`.
@@ -182,6 +184,7 @@ async function runningPreparation(
     },
     project,
     continuing ? "continue" : "start",
+    noteWorker,
   ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established" || result.kind === "prepared") {
       progress.set(source.id, request.identity, {

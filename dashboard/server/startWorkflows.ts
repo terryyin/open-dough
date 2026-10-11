@@ -78,6 +78,7 @@ export type StartWorkflow = {
     request: StoryLaunchRequest,
     project: ProjectFolder,
     progress: WorkflowProgress,
+    noteWorker: (pid: number) => Promise<void>,
   ): Promise<PlannedStart>;
   format(
     project: ProjectFolder,

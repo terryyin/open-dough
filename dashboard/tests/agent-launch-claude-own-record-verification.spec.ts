@@ -4,7 +4,10 @@ import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions } from "./dashboardPage.ts";
-import { openSessionStartReason } from "../src/agentLaunch.ts";
+import {
+  openSessionStartReason,
+  type LaunchAttemptRecord,
+} from "../src/agentLaunch.ts";
 import {
   expect,
   test,
@@ -28,6 +31,31 @@ for (const count of [1, 2]) {
     test.setTimeout(90_000);
     dashboard.claudeScenario("hang");
     const { card, start, acceptedAt } = await uncertainLaunch(page, dashboard);
+    // An older writer left worker facts on a settled uncertain attempt.
+    // They cannot make it running, and Recheck must clear them with its outcome.
+    const attemptFile = path.join(
+      dashboard.home,
+      ".open-dough/dashboard/launch-attempts.json",
+    );
+    const retained = JSON.parse(readFileSync(attemptFile, "utf8")) as Record<
+      string,
+      LaunchAttemptRecord[]
+    >;
+    retained["open-dough"] = (retained["open-dough"] ?? []).map((entry) => ({
+      ...entry,
+      worker: {
+        pid: dashboard.pid,
+        serverPid: dashboard.pid,
+        step: "launch",
+        notedAt: entry.acceptedAt,
+      },
+      slowSince: entry.acceptedAt,
+    }));
+    writeFileSync(attemptFile, JSON.stringify(retained));
+    expect((await attempts(dashboard))[0]).toMatchObject({
+      running: false,
+      worker: { pid: dashboard.pid },
+    });
     const file = path.join(
       dashboard.home,
       ".open-dough/dashboard/agent-launches.json",
@@ -76,6 +104,8 @@ for (const count of [1, 2]) {
       kind: "launched",
       session: { host: "claude", sessionId: latest?.session.sessionId },
     });
+    expect((await attempts(dashboard))[0]?.worker).toBeUndefined();
+    expect((await attempts(dashboard))[0]?.slowSince).toBeUndefined();
     expect(verificationListings()).toEqual(before);
     expect(readFileSync(file, "utf8")).toBe(stored);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);

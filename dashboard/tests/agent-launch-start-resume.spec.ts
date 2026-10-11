@@ -1,6 +1,5 @@
 // Slow execution starts keep running through their warning threshold and launch
 // automatically; real installed commands against a bare origin prove recovery.
-
 import { rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -61,7 +60,6 @@ test.describe("a kept execution start", () => {
   });
 
   const latest = async () => (await attempts(server)).at(-1)?.id ?? "";
-
   test("a push slower than the warning threshold keeps running and launches automatically with one claim", async () => {
     await serve(3000);
     const push = origin.holdPushes();
@@ -105,8 +103,10 @@ test.describe("a kept execution start", () => {
       kind: "uncertain",
       explanation: expect.stringContaining("already running"),
     });
-    expect(await attempts(server)).toEqual([slow]);
-
+    // The owning timer may replace a warning derived from acceptance time.
+    expect(await attempts(server)).toEqual([
+      { ...slow, slowSince: expect.any(String) },
+    ]);
     push.release();
     const launched = await launching;
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");

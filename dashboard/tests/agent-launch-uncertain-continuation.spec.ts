@@ -51,7 +51,13 @@ test.describe("a story start whose launch wait expired", () => {
       reason: "timed-out",
     });
     const [uncertain] = await attempts(dashboard);
-    expect(uncertain).toMatchObject({ id, publication: { kind: "none" } });
+    expect(uncertain).toMatchObject({
+      id,
+      running: false,
+      publication: { kind: "none" },
+    });
+    expect(uncertain?.worker).toBeUndefined();
+    expect(uncertain?.slowSince).toBeUndefined();
 
     for (const workflow of ["refinement", "execution"])
       expect(

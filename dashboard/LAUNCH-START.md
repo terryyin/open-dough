@@ -32,7 +32,7 @@ collide. The same descriptions supply collision lookup for `claude/`, `codex/`,
 and `cursor/`.
 
 Start runs only when origin is the catalog repository and the story has no
-unresolved [launch attempt](AGENT-LAUNCH.md#startup-handoff-and-reconciliation)
+unresolved [launch attempt](AGENT-LAUNCH-STARTUP.md)
 on this machine. Progress is registered synchronously before running: preparing,
 then launching. Another request for the story, in either workflow, is refused
 without a second start. Every page reads those local phases, but the card stays

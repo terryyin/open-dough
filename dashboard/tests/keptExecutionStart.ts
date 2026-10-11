@@ -110,7 +110,7 @@ export async function loseServerAfterClaimCommit(
   server = await serve();
   // No server runs the unsettled attempt now; only its continuation resumes it.
   const [interrupted] = await attempts(server);
-  expect(interrupted).toMatchObject({ owned: false });
+  expect(interrupted).toMatchObject({ owned: false, running: false });
   expect(interrupted?.outcome).toBeUndefined();
   expect(await answerOf<Problem>(launch(server, request))).toMatchObject({
     kind: "failed",

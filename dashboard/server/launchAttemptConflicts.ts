@@ -104,7 +104,7 @@ export const sessionOpen: Unaccepted = {
 export function notContinued(
   attempt: AttemptObservation,
 ): Unaccepted | undefined {
-  if (attempt.owned) return runningAttempt;
+  if (attempt.running) return runningAttempt;
   return needsReconciliation(attempt) ? undefined : settledAttempt;
 }
 
@@ -121,7 +121,7 @@ export function alreadySubmitted(
     running.some((other) => sameStory(request, other)) &&
     known.some(
       (attempt) =>
-        attempt.owned &&
+        attempt.running &&
         attempt.publication.kind === "unknown" &&
         sameStory(request, attempt.request),
     );
@@ -190,7 +190,7 @@ export function conflicting(
     return {
       kind: "failed",
       reason: "already-starting",
-      explanation: unresolved.owned
+      explanation: unresolved.running
         ? alreadyStarting
         : unresolvedStart(unresolved),
     };

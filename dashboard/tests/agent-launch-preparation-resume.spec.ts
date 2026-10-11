@@ -18,6 +18,7 @@ import {
   accept,
 } from "./agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
+import { answerOf } from "./keptExecutionStart.ts";
 import {
   keptPreparation,
   preparationSlug as slug,
@@ -62,33 +63,28 @@ test.describe("a kept preparation start", () => {
     });
     expect(push.isHeld()).toBe(true);
     expect(
-      JSON.parse(
-        (
-          await accept(preparation.server, {
-            ...request,
-            workflow: "execution",
-          })
-        ).body,
+      await answerOf<unknown>(
+        accept(preparation.server, { ...request, workflow: "execution" }),
       ),
     ).toMatchObject({
       kind: "failed",
       reason: "already-starting",
     });
     expect(
-      JSON.parse(
-        (await continueAttempt(preparation.server, slow?.id ?? "")).body,
+      await answerOf<unknown>(
+        continueAttempt(preparation.server, slow?.id ?? ""),
       ),
     ).toMatchObject({
       kind: "uncertain",
       explanation: expect.stringContaining("already running"),
     });
-    expect(await attempts(preparation.server)).toEqual([slow]);
+    // The owning timer may replace a warning derived from acceptance time.
+    expect(await attempts(preparation.server)).toEqual([
+      { ...slow, slowSince: expect.any(String) },
+    ]);
     push.release();
-    await preparation.expectResumed(
-      async () =>
-        JSON.parse((await launching).body) as Awaited<
-          ReturnType<KeptPreparation["ask"]>
-        >,
+    await preparation.expectResumed(() =>
+      answerOf<Awaited<ReturnType<KeptPreparation["ask"]>>>(launching),
     );
     expect(preparation.server.claudeLaunchCalls()).toHaveLength(1);
     const [settled] = await attempts(preparation.server);

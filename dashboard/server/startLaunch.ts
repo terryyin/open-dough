@@ -148,22 +148,29 @@ export function runStartCommand(
   args: readonly string[],
   project: ProjectFolder,
   operation: "start" | "continue" = "start",
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<string | undefined> {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, [script, operation, ...args], {
       cwd: project.path,
       stdio: ["ignore", "pipe", "ignore"],
     });
+    const noted =
+      child.pid === undefined ? Promise.resolve() : noteWorker(child.pid);
     let stdout = "";
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (chunk: string) => {
       stdout += chunk;
     });
     child.on("error", () => {
-      resolve(undefined);
+      void noted.then(() => {
+        resolve(undefined);
+      });
     });
     child.on("close", () => {
-      resolve(stdout);
+      void noted.then(() => {
+        resolve(stdout);
+      });
     });
   });
 }

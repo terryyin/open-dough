@@ -27,7 +27,7 @@ export function reconciliationCause(
     case "unacknowledged":
       return `the answer to this ${start} was lost, so it may or may not have been accepted.`;
     case "interrupted":
-      return `this machine accepted this ${start}, but no running dashboard server owns it and it never settled, so its session may or may not have started.`;
+      return `this machine accepted this ${start}, but its recorded worker is no longer running and it never settled, so its session may or may not have started.`;
     default:
       return `this ${start} settled without confirming whether its session or published assignment exists.`;
   }
@@ -73,7 +73,14 @@ export function StartupStatus({
   }
   const words = startPhaseWords(
     workflow,
-    running?.phase ?? (establishesStart ? "preparing" : "launching"),
+    running?.phase ??
+      (startup.attempt?.worker === undefined
+        ? establishesStart
+          ? "preparing"
+          : "launching"
+        : startup.attempt.worker.step === "start"
+          ? "preparing"
+          : "launching"),
     running?.host ?? host,
   );
   return (

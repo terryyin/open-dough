@@ -32,6 +32,7 @@ import { preAcceptanceAnswer } from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
+import type { AttemptRun } from "./launchAttemptSettlement.ts";
 import { verifyLaunch } from "./launchVerification.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import {
@@ -157,10 +158,18 @@ export class AgentLaunches {
       expired.unref();
     });
     try {
-      const changed = await Promise.race([
-        this.owner.changed(id).then(() => true),
-        waited,
-      ]);
+      const observed =
+        this.owner.observation(id) ??
+        (await this.owner.attempts()).attempts.find(
+          (attempt) => attempt.id === id,
+        );
+      const changed =
+        observed?.running === true && !observed.owned
+          ? await waited
+          : await Promise.race([
+              this.owner.changed(id).then(() => true),
+              waited,
+            ]);
       const attempt = this.owner.observation(id);
       return attempt === undefined ? { changed } : { changed, attempt };
     } finally {
@@ -181,19 +190,7 @@ export class AgentLaunches {
       this.owner.submitted(request) ??
       (await preAcceptanceAnswer(source, request));
     if (answer !== undefined) return answer;
-    return this.owner.accept(
-      request,
-      (own, notePublication, noteSlow) =>
-        attemptRun(
-          source,
-          own,
-          notePublication,
-          noteSlow,
-          this.progress,
-          this.doneMarks,
-        ),
-      reportingOrigin,
-    );
+    return this.owner.accept(request, this.runAttempt(source), reportingOrigin);
   }
 
   // Continues the kept attempt through the same pre-launch checks and run.
@@ -208,16 +205,13 @@ export class AgentLaunches {
         this.progress.for(request.workflow).running(source.id, request.identity)
           ? startStillRunning
           : preAcceptanceAnswer(source, request),
-      (own, notePublication, noteSlow) =>
-        attemptRun(
-          source,
-          own,
-          notePublication,
-          noteSlow,
-          this.progress,
-          this.doneMarks,
-        ),
+      this.runAttempt(source),
     );
+  }
+
+  private runAttempt(source: PublishedSource): AttemptRun {
+    return (...args) =>
+      attemptRun(source, ...args, this.progress, this.doneMarks);
   }
 
   reconcile(source: PublishedSource, id: string) {

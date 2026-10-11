@@ -52,7 +52,7 @@ test("a start a closed server left unsettled stays protected after restart, relo
     await reloadUntilRead(page);
     await expectStaticallyProtected(takenStory);
     await expect(takenStory).toContainText(
-      "no running dashboard server owns it",
+      "its recorded worker is no longer running",
     );
     await expectRecoveryOffered(page);
     await expect(recoveryOf(page)).toContainText("It never settled.");

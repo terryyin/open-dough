@@ -179,7 +179,7 @@ export function useLaunchAttempts({
 
   useAttemptChangeWaits(
     known
-      .filter((attempt) => attempt.owned && attempt.outcome === undefined)
+      .filter((attempt) => attempt.running && attempt.outcome === undefined)
       .map((attempt) => attempt.id),
     reads,
     reread,

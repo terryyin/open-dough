@@ -17,6 +17,9 @@ export type AttemptRun = (
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
   noteSlow: (slowSince: string) => Promise<void>,
+  noteWorker: (
+    worker: NonNullable<LaunchAttemptRecord["worker"]>,
+  ) => Promise<void>,
 ) => Promise<LaunchResult>;
 
 // Keeps a change to an owned attempt, then answers it: this server never
@@ -49,12 +52,18 @@ export async function settleAttempt(
   own: OwnedAttempt,
   run: AttemptRun,
 ): Promise<void> {
+  let pending = Promise.resolve();
+  const change = (fields: Partial<LaunchAttemptRecord>) => {
+    pending = pending.then(() => note(owned, own.attempt.id, fields));
+    return pending;
+  };
   let result: LaunchResult;
   try {
     result = await run(
       own,
-      (publication) => note(owned, own.attempt.id, { publication }),
-      (slowSince) => note(owned, own.attempt.id, { slowSince }),
+      (publication) => change({ publication }),
+      (slowSince) => change({ slowSince }),
+      (worker) => change({ worker }),
     );
   } catch (error) {
     result = {
@@ -63,7 +72,8 @@ export async function settleAttempt(
       explanation: `The launch ended unexpectedly (${new HostOperationFailure(error instanceof Error ? error.message : String(error)).message}), so a session may or may not have started. Check this machine's sessions for it.`,
     };
   }
-  await note(owned, own.attempt.id, {
+  await change({
+    worker: undefined,
     slowSince: undefined,
     outcome: attemptOutcome(result),
     settledAt: new Date().toISOString(),

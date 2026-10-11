@@ -104,7 +104,7 @@ export function storyStartup(
   if (submitting !== undefined) return startupOf(submitting, "submitting");
   const ofStory = known.filter((attempt) => of(attempt.request));
   const unresolved = unresolvedAttempt(ofStory);
-  if (unresolved?.owned === true) {
+  if (unresolved?.running === true) {
     const kept = keptStarts.find(
       (start) =>
         start.source === sourceId &&

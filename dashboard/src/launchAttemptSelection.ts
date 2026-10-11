@@ -7,7 +7,7 @@ import type { AttemptObservation } from "./launchOutcome.ts";
 // settles it; recheck or continuation does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
   return attempt.outcome === undefined
-    ? !attempt.owned
+    ? !attempt.running
     : attempt.outcome.kind === "uncertain" ||
         attempt.publication.kind === "unknown";
 }
@@ -31,7 +31,7 @@ export function unresolvedAttempt(
     undefined,
   );
   return (
-    unsettled.find((attempt) => attempt.owned) ??
+    unsettled.find((attempt) => attempt.running) ??
     unsettled[0] ??
     (latest !== undefined && needsReconciliation(latest) ? latest : undefined)
   );

@@ -79,8 +79,9 @@ export type LaunchResult = z.infer<typeof launchResultSchema>;
 // (`none`: no assignment is published by this launch) from one not yet known
 // (`unknown`) and an accepted one (`published`, with the revision when the
 // start reported it). Its outcome names the launched session by reference,
-// or why nothing (or maybe nothing) was launched. `owned` says the answering
-// server is running it now; an unsettled attempt nobody owns needs
+// or why nothing (or maybe nothing) was launched. `running` observes a live
+// worker on this machine; `owned` says the answering
+// server owns its execution; an unsettled attempt with no live worker needs
 // reconciliation, never a fresh start.
 export const agentAcceptEndpoint = `${agentLaunchEndpoint}/accept`;
 
@@ -146,6 +147,15 @@ export const launchAttemptSchema = z.object({
   completionReceipts: z.array(completionReceiptSchema).optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),
+  worker: z
+    .object({
+      pid: z.number().int().positive(),
+      // The server keeps preparing and consumes the script result across handoff.
+      serverPid: z.number().int().positive().optional(),
+      step: z.enum(["start", "launch"]),
+      notedAt: z.iso.datetime(),
+    })
+    .optional(),
   // When the start crossed its warning threshold while still running.
   slowSince: z.iso.datetime().optional(),
   publication: publicationReceiptSchema,
@@ -160,6 +170,7 @@ export type LaunchAttemptRecord = z.infer<typeof launchAttemptSchema>;
 
 export const attemptObservationSchema = launchAttemptSchema.extend({
   owned: z.boolean(),
+  running: z.boolean(),
 });
 
 export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
@@ -203,7 +214,7 @@ export const launchVerifiable = (
   operations: HostOperations,
 ): attempt is AttemptObservation & { readonly request: StoryLaunchRequest } =>
   attempt.request.workflow !== "ad-hoc" &&
-  !attempt.owned &&
+  !attempt.running &&
   attempt.outcome?.kind === "uncertain" &&
   attempt.publication.kind !== "unknown" &&
   operations[attempt.request.host]?.launchedSessions === true;

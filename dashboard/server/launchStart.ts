@@ -30,7 +30,7 @@ const defaultStartWaitMs = 120_000;
 
 // How long a start may run before a slow-start warning is noted; elapsed
 // time never aborts the script or settles its attempt. Tests may shorten it.
-function startTimeoutMs(): number {
+export function startTimeoutMs(): number {
   const configured = Number(process.env["DOUGH_START_TIMEOUT_MS"]);
   return Number.isFinite(configured) && configured > 0
     ? configured
@@ -95,6 +95,7 @@ export async function started(
   folder: ProjectFolder,
   progress: StartProgress,
   noteSlow: (slowSince: string) => Promise<void> = async () => {},
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<Started> {
   if (request.workflow === "ad-hoc") {
     return { kind: "none" };
@@ -104,7 +105,13 @@ export async function started(
     return { kind: "none" };
   }
   const scoped = progress.for(request.workflow);
-  const planned = await workflow.begin(source, request, folder, scoped);
+  const planned = await workflow.begin(
+    source,
+    request,
+    folder,
+    scoped,
+    noteWorker,
+  );
   if (planned.kind === "not-applicable") {
     return { kind: "none" };
   }

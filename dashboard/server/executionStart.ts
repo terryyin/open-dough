@@ -50,11 +50,14 @@ async function runScript(
   args: readonly string[],
   project: ProjectFolder,
   host: StoryLaunchRequest["host"],
+  noteWorker: (pid: number) => Promise<void>,
 ): Promise<StartResult> {
   const stdout = await runStartCommand(
     installedSkillPath(host, project, executePlanSkill, "scripts", startScript),
     args,
     project,
+    "start",
+    noteWorker,
   );
   // A command that could not run leaves no result to read.
   return stdout === undefined
@@ -82,12 +85,13 @@ export async function beginStart(
   request: StoryLaunchRequest,
   project: ProjectFolder,
   progress: WorkflowProgress,
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
   if (!(await establishesStart(project, request.host))) {
     return { kind: "not-applicable" };
   }
   return gatedStart(source, request, project, progress, "Take", () =>
-    runningStart(source, request, project, progress),
+    runningStart(source, request, project, progress, noteWorker),
   );
 }
 
@@ -100,6 +104,7 @@ async function runningStart(
   request: StoryLaunchRequest,
   project: ProjectFolder,
   progress: WorkflowProgress,
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
   const kept = await keptStart(source.id, request.identity, workflow);
@@ -176,6 +181,7 @@ async function runningStart(
     ],
     project,
     request.host,
+    noteWorker,
   ).then(async (result): Promise<StartAttempt> => {
     // The record follows the script's result even when the launch stopped
     // waiting for it.

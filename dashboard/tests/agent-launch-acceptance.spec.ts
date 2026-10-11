@@ -110,12 +110,18 @@ test.describe("an accepted launch", () => {
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },
+        worker: {
+          pid: server.pid,
+          serverPid: server.pid,
+          step: "start",
+          notedAt: expect.any(String),
+        },
       },
     ]);
     await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
     expect(await origin.takenProfiles()).toEqual([]);
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
 
     // No workflow's launch of the story is accepted while it is unsettled.
@@ -138,7 +144,7 @@ test.describe("an accepted launch", () => {
       .toBe(1);
     const revision = (await origin.originGit("rev-parse", "main")).trim();
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
     expect(keptAttempts()[0]?.publication).toEqual({
       kind: "published",
@@ -165,7 +171,7 @@ test.describe("an accepted launch", () => {
       },
     });
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: false },
+      { ...keptAttempts()[0], owned: false, running: false },
     ]);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(workspaces()).toHaveLength(1);
@@ -220,13 +226,14 @@ test.describe("an accepted launch", () => {
     // What was kept stays as it was written before the failure: unsettled,
     // its publication not yet known, to be reconciled.
     expect(keptAttempts()).toEqual([
-      {
+      expect.objectContaining({
         id: answered.attempt?.id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },
-      },
+        worker: expect.objectContaining({ step: "start" }),
+      }),
     ]);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(await runningStarts(server)).toEqual([]);
