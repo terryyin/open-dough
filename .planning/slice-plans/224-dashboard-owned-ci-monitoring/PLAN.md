@@ -1,383 +1,543 @@
-# Dashboard-owned CI monitoring for Claude Code execution sessions
+# Background CI monitoring and failure delivery
 
 **Identity:** SEED-063#dashboard-owned-ci-monitoring
 **Source:** [refined story](../../seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring).
-**Prepared:** 2026-10-03; replanned 2026-10-11 after plan 220 landed, in the
-established preparation workspace. Planning only.
+**Prepared:** 2026-10-03; revised 2026-10-11 for Terry's standalone,
+replacement, shared-throttling and integrity direction. Planning only.
+**Preparation workspace:** `/Users/terryyin/git/open-dough/.worktrees/background-ci-preparation`,
+branch `codex/background-ci-preparation`, fetched base `b8e3e6694634bcac9b7353e179f1aec9fda12116`;
+assignment `030446f5e2a5f34f7c485f757a1661afdd13024b`.
 
 ## Goal and boundaries
 
-A Claude Code execution session started from the dashboard no longer waits on
-CI. The dashboard observes every revision the session registers, shows each
-one's CI state on the session card, completes the session quietly once the
-last accepted revision succeeds, retires its execution resources then, and
-wakes the session with one follow-up per actionable failure. In that mode the
-skill starts no observer, runs no completion wait, and never claims CI
-success.
+Execution and wrap-up end the agent turn while background CI obligations
+continue. Only actionable failure wakes the owning native session. Dashboard
+launch and standalone invocation use one installed runtime, replacing legacy
+watchers and sharing actual GitHub request admission with dashboard reads.
+The source story owns scope, domain meanings, constraints and examples; this
+plan maps them into one implementation and proof sequence.
 
-Scope, decisions, and key examples are those of the source story. Material
-exclusions:
+Included: all accepted publication kinds, Story Branch and Trunk Mode,
+standalone runtime startup without a dashboard server, Claude/Codex/Cursor
+session binding and verified delivery, completion boundaries, closure retirement,
+restart and transfer, and all product-controlled CI diagnostic request paths.
+Native form feasibility precedes dependent implementation; unavailable delivery
+never restores a final wait or second observer. Acceptance cannot declare an
+unproved promised host/form supported.
 
-- Codex and Cursor delivery.
-- Refinement and ad hoc sessions.
-- Deployment.
-- General dashboard-to-agent messaging.
-- Any change to standalone observation, the hook bridge, `complete-revision`,
-  or Trunk Mode `finish`, which the dashboard never starts.
-- Any fallback from lost dashboard coverage to the skill's own observer.
+Excluded: deployment, general messaging, refinement/ad hoc monitoring,
+remote-machine coordination, unrelated tools' requests, and changes to ordinary
+Land/one-shot retirement where no CI obligation exists. No new execution
+permission, CI rerun-until-green behavior, generic queue framework or database.
 
-## Direction and PFE
+## Direction, domain mapping and PFE
 
-Follow the [North Star](../../NORTH-STAR.md) topic “Dashboard-owned CI
-observation and session delivery”, revised with this replanning. Accepted ADRs
-apply as follows:
+Follow [North Star](../../NORTH-STAR.md) topics "One owner admits reads to
+GitHub" and "Background CI monitoring and session delivery", revised by this
+preparation because the old process-local dashboard ownership cannot serve
+standalone obligations. This is feature design, not acceptance of Proposed
+ADRs 0007–0009. Current Accepted constraints:
 
-- [0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md): one
-  meaning and owner per fact (CI coverage, session Done, story completion,
-  resource retirement).
-- [0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md):
-  small, verifiable increments.
-- [0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) and
-  [0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md):
-  self-contained installed dependencies.
-- [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md): native
-  acceptance kept separate from deterministic proof.
-- [0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md):
-  one shared skill source written for the executing agent.
+- [0001 — Ubiquitous language](../../../docs/adrs/0001-ubiquitous-language-accepted.md):
+  preserve distinct published story facts and local session/CI facts.
+- [0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md):
+  one conceptual solution, direct domain mapping, bounded proof and necessary
+  whole-product structure rather than component-local duplicates.
+- [0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+  and [0004 — Client installation and update](../../../docs/adrs/0004-client-installation-and-update-accepted.md):
+  self-contained installed dependencies; runtime support is not fetched during use.
+- [0005 — Native acceptance](../../../docs/adrs/0005-cross-tool-validation-accepted.md):
+  feasibility before dependent work; separate native acceptance before release.
+- [0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md):
+  one instruction source, minimal host adaptation and project-local perspective.
 
-PFE findings and choices:
+### One runtime, two entry adapters
 
-- **The option is a session-policy choice.** `session-policy.mjs` owns policy
-  spelling: three choices, each a flag the dashboard and every host spell the
-  same way (`launchArguments` in `dashboard/src/launchRequest.ts`). External
-  observation becomes the fourth choice, `observation: own | external`, flag
-  `--external-ci`, selected by the dashboard from the host's `deliver` fact,
-  never offered in the dialog. The recorded policy then says how a session
-  was observed.
-- **Registration reuses the reporting channel.** Explicit completion
-  (`dashboard/AGENT-LAUNCH-COMPLETION.md`) delivered the loopback
-  request/receipt boundary, the launch reference, the installed CLI copied to
-  `~/.open-dough/dashboard/reporting/<attempt>/` with `ci-direct-entry.mjs`,
-  and the launch's context file (`landing-context.json`: origin, source,
-  host, reference, identity, remote, target). A CI registration is a second
-  request on that boundary, sent by a sibling installed script from the same
-  copied directory and the same context file. No second channel, registry,
-  daemon, or MCP tool.
-- **The dashboard is the coordinator.** The Codex adapter already lets an
-  external coordinator own the observer: `ci-mailbox.mjs stream --execution
-  OWNER/REPO BRANCH --coordinator VALUE` records the owner at creation, and
-  managed delivery registers on that owner's directory
-  (`--coordinator`/`--observer-directory`, verified by
-  `execution-increment-observation.mjs`). The dashboard arms one observer per
-  launch and target with `--coordinator <launch reference>` under its own
-  mailbox root (`DOUGH_CI_MAILBOX_ROOT` under the machine dashboard
-  directory), reads the mailbox's durable records, and acknowledges delivered
-  sequences, as the Codex binding does. Standalone hooks never see that root,
-  so they never claim those mailboxes. The dashboard never uses the stream's
-  stdout as its store, so a server restart re-reads the mailbox.
-- **Skill external mode.** It is one branch where `deliverManagedExecutionIncrement`
-  today calls `establishObservation` and then `registerPushedRevision`, plus
-  the same branch in `execution-increment-resume.mjs` and the integrated-SHA
-  registration of Story Branch wrap-up. The branch registers with the launch
-  and reports `observation.state: "external"` with the receipt, or the
-  existing gap vocabulary when unacknowledged. Shared guidance in
-  `ci-monitor.md`, `trunk-publication.md`, `ci-completion-wait.md`, and
-  `wrap-up-closure-publication.md` gains the external branch once.
-- **Session delivery** becomes a new optional `deliver` operation on
-  `LaunchHost` (`dashboard/server/launchHosts.ts`) beside `attach` and `stop`,
-  projected as a `deliver` fact in `hostOperationsSchema`
-  (`dashboard/src/sessionCapabilities.ts`). Claude's operation continues an
-  exited session with `claude --bg --resume <sessionId> <message>`
-  (`hosts/claude/runtime.ts`) and types into a loaded idle session through the
-  attachment path the done rename already uses (`hosts/claude/rename.ts`:
-  `waitForIdle`, `withAttachment`, `claudePromptReady`). Cursor's Recover
-  continuation is the other existing typed delivery; both inform the shape.
-- **Completion and Done.** `deliverCompletion` (`dashboard/server/completionDelivery.ts`)
-  decides a quiet report's Done (`doneSessionRecord`, `doneMarks.reported`).
-  It gains one condition: registered revisions without a success verdict for
-  the last accepted one defer Done. The later verdict applies the same Done
-  operation.
-- **Retirement** reuses `dough-land/scripts/worktree-retirement.mjs retire`
-  with `--remote-branch` and `--contained`, run from the project folder's
-  installed skills (`installedSkillPath`), which outlive the worktree. The
-  established start supplies workspace, branch, remote, target, and identity.
-- **Test support** already simulates CI: `dashboard/tests/support/completionCi.ts`
-  gives a synthetic `gh` provider with a controllable release and its own
-  `DOUGH_CI_MAILBOX_ROOT`; `installedCompletionClosure.ts` runs the real
-  installed closure and retirement against a local origin; `fake-claude`
-  emulates `--bg` launch and listing (no `--resume` yet).
+The installed runtime owns durable subscriptions, evidence, delivery and
+completion. It is started on demand by dashboard or installed skill entry
+points, retained outside removable worktrees, and independent of Vite/browser
+lifetime. A private per-user local endpoint and singleton lease identify one
+owner. Clients verify protocol/runtime compatibility and project/session
+binding before acknowledgment. A retained installed launcher watches the runtime child and restarts a failed
+owner with bounded backoff. The launcher does no provider observation or AI
+work. Replacement verifies the old owner and its exact upstream children have
+ended/reconciled, then takes a fenced generation; PID existence alone is not
+ownership. Launcher loss/reboot is resumed by the next installed, status or
+dashboard entry. That unobserved interval remains a visible gap, reconciled
+before completion; no unattended reboot-resurrection promise is inferred.
 
-## Premises and observations
+Reuse existing machine-JSON write discipline and mailbox ordered records,
+extending them for recoverable ownership rather than inventing a second
+journal. Keep native session identity/continuation in one retained session
+representation: evolve current launch persistence to accommodate standalone
+origin without fabricating a dashboard launch request. Subscription records
+reference that binding. For a claim accepted before native launch, retain a
+pending binding by the existing execution/start identity, reusing pending-native
+reporting semantics. Store coverage while delivery is held, then bind exactly
+the launched recipient; never discover a newest session by story/repository.
+An authorized coordinator transfer requires a new binding generation preserving
+obligations and revoking the old route, not silent rebinding. Dashboard launch/report receipts stay adapters of their
+current authorization contract, not a competing CI registry. Active obligations
+pin required records past normal retention.
 
-| Premise consumed by the plan | Literal observation and result |
+The local protocol accepts fixed domain operations, not arbitrary commands,
+paths or upstream URLs. Preserve the dashboard's loopback/same-origin/project
+refusal. Standalone enrollment verifies repository, execution ownership and
+native recipient through the installed entry path. Authenticate local callers,
+protect endpoint/state for the same OS user, and keep credentials out of
+receipts, browser state and persisted request keys.
+
+### Domain-to-code responsibility map
+
+New module names below are proposed responsibilities, not existing files.
+Place shared runtime sources/dependencies in the declared installed payload;
+use the existing execute-plan script graph unless modularization proves a
+narrower shared home. Dashboard and host imports consume it, never copy it.
+
+| Story concept | Existing candidate and planned ownership |
 | --- | --- |
-| The reporting channel, launch reference, context file, and copied installed CLI exist on trunk and reach Done for a quiet Claude report | `git ls-tree origin/main` lists `dashboard/AGENT-LAUNCH-COMPLETION.md`, `dashboard/server/completionReporting.ts`, `completionDelivery.ts`, `src/skills/dough-execute-plan/scripts/dashboard-completion.mjs`. In this workspace at `86cf795d`: `npm run test:dashboard -- agent-completion-quiet-claude.spec.ts` → exit 0 (real reporting CLI → boundary → store → fake Claude rename). `~/.open-dough/dashboard/reporting/<attempt>/` of this very launch holds `dashboard-completion.mjs`, `dashboard-landing.mjs`, `ci-direct-entry.mjs`, `landing-context.json`. **Settled.** |
-| An external coordinator's stream is a working observer owner for managed delivery | `npm test -- src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-codex.test.mjs` → exit 0. `ci-mailbox.mjs` `takeCoordinator` applies to `stream` only; `start` records no coordinator (slice 2 adds it). **Settled for stream; `start` gap recorded.** |
-| Project-command CI verdicts can be controlled in fixtures without `gh` | `npm test -- src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs` → exit 0; `completionCi.ts` also fakes `gh run list/view` with a release file. **Settled.** |
-| Managed delivery is the single place the skill establishes observation and registers ordinary increments and repairs | `execution-increment-delivery.mjs`: `establishObservation` before publication, `registerPushedRevision(observation.directory, sha)` after. Resume and Story Branch integration are the other registration paths named in `wrap-up-closure-publication.md`. Read, consistent with the codex test above. |
-| Dashboard execution starts are Story Branch Mode or one-shot | `dashboard/server/executionStart.ts` builds `mode: "story-branch"` only; `claimedStartSchema.mode` is the literal `story-branch`. Trunk Mode `finish` is therefore outside this plan. |
-| A standalone session's hook could claim a dashboard mailbox in the shared root | `establishObservation` calls `findLiveMatchingMailbox` before starting; `ci-host-hook.mjs` claims with `owner` written `wx`. Hence the separate root decision. |
-| Claude exited sessions can be continued under the same ID; running ones must not be resumed | `claude --version` → `2.1.296`; `claude --help`: `--bg` with `--resume <session-id>` “continues that session in the background under the same ID, or starts a copy and says so when the session is already running”. Presence only; **slice 1 observes it.** |
-| Typing into a loaded Claude session is processed once | `hosts/claude/rename.ts` types only after `waitForIdle`; whether input typed during a turn is queued, lost, or duplicated is **not observed**: slice 1. |
-| Host operations today | `hostOperations()` projects `attach`, `stop`, `launchedSessions`; Claude's boundary has `attach` and `stop`. Read. |
-| `fake-claude` has no `--resume` continuation | Fixture header lists launch, listing, stop, rm, attach. Slice 6 extends it. |
-| Next free plan number | This plan keeps 224; `origin/main` plans end at 297. |
+| Session binding | `dashboard/src/sessionReference.ts`, `hostSession.ts`, host identity and continuation modules. Expose the shared installed contract once; generalize retained session storage for standalone origin. Host adapters own native route validation. |
+| Monitoring subscription | `ci-observer-owner.mjs`, `ci-mailbox-store.mjs`, `ci-mailbox-revision-coverage.mjs`, `launchRecordStore.ts`/`machineJsonStore.ts`. A runtime supervision module owns subscription transitions; mailbox compatibility reads do not claim it as a host-hook observer. |
+| Accepted publication | `execution-increment-delivery.mjs`, `execution-increment-resume.mjs`, `history-preserving-publication.mjs`, installed landing/closure receipts. Retain operation ID, accepted evidence and publication sequence outside the worktree; registration recovers from these receipts. |
+| CI evidence | `watch-ci-execution.mjs`, `ci-runs.mjs`, `ci-failures.mjs`, applicability/coverage classifiers. Reuse normalization and classification; separate shared acquisition evidence from per-subscription delivery dedup. |
+| Failure delivery | Current Codex first-input intent/reconciliation, Claude attachment, Cursor terminal transport behind one session delivery port. Runtime owns durable delivery intents; hosts return accepted evidence, refusal or uncertainty. |
+| Failure disposition | Existing `ci-monitor.md` handling and repair publication. One installed reporting operation records disposition/repair links; the supervisor does not diagnose test defects or invent repair authority. |
+| Completion boundary | Existing completion record/report and `trunk-closure.mjs`/wrap-up integration. One runtime completion decision uses explicit acknowledged-publication fence and generation. Dashboard quiet-Done projection consumes that result. |
+| Retirement request | `dough-land/scripts/worktree-retirement.mjs`; retain repository management context and closure authority outside the checkout. No duplicate cleanup checks in dashboard/runtime. |
+| GitHub request admission | `ghRead.ts`, `ReadAdmission`, `OutstandingReads`, `ghAnswer.ts`, `rateLimitDirection.ts`. Extract once into installed transport ownership used by all Open Dough consumers. Dashboard keeps source admission, immutable caching, timing and rendering adapters. |
+
+### GitHub transport and ownership
+
+One runtime process owns admission state, keyed by API host and effective
+principal with resource-specific limits. Authentication binding is established
+once and revalidated on a credential/account change; sharing admission is not
+sharing answers across incompatible permissions. Request keys include the
+actual authorization context without secrets. Separate sessions, projects,
+dev/production dashboards and worker processes cannot create private copies
+of the same allowance controller. Other machines/tools remain outside its scope.
+
+Use explicit separately admitted `gh api --include` requests for CI provider
+transport, including each pagination page and failure logs. Opaque `gh run`
+commands cannot be counted as one HTTP request or reliably expose rate-limit
+headers. Resolve workflow once per valid binding, then preserve existing
+workflow/run/attempt/job and applicability semantics. Agent diagnostic reads
+must use the same installed diagnostic path; leaving `gh run view --log-failed`
+in shared guidance would bypass admission.
+
+Reuse the current eight-turn concurrency, directed cooldown, exponential
+fallback and one recovery probe. Persist active cooldown before acknowledging
+rate-limit outcome, and carry it through runtime replacement. Retain ownership
+of actual upstream children; replacing a killed broker cannot open eight new
+turns while eight orphaned old requests still run. Reconcile or terminate exact
+owned children before reopening admission. Credential changes requalify pending
+requests and reject stale incompatible live answers while preserving existing
+user-owned private immutable-content cache retention. Preserve individual
+waiter cancellation/bounds: dashboard shutdown ends its waiters, not standalone
+subscriptions. A known hold suspends acquisition to its allowed time rather
+than incrementing the observer's three-error counter. Registration can request
+one shared recheck but cannot bypass admission. Poll only while unsettled
+obligations need acquisition; dormant enrollment needs no periodic GitHub reads.
+
+Share acquisition by repository/target/provider/auth context and cadence where
+requests are equivalent; keep subscription evidence and delivery ownership
+separate. A failure seen by one subscription cannot suppress another's event.
+Pending/no-run evidence remains refreshable; terminal evidence is attempt-specific
+and later attempts remain discoverable. Stop acquisition only when no subscriber
+needs it. Preserve bounded observation and visible budget expiry.
+
+### Publication, completion and native delivery integrity
+
+Retain publication intent before push, exact accepted receipt after confirmed
+acceptance, and idempotent registration before coverage acknowledgment. Resume
+never infers publication from current HEAD or a moving target tip. Completion
+submits the acknowledged publication IDs/targets and a generation; service
+arrival order or alphabetic coverage filenames cannot establish the final SHA.
+Reserve the next boundary generation before admitting repair work or a new
+publication, so runtime settlement cannot race an active writer. An accepted
+repair then binds that generation to its new acknowledged publication fence. Recover missing registration instead of fencing past it.
+
+Every covered publication needs applicable terminal evidence or a disposition
+per existing guidance; the final boundary needs affirmative effective success.
+Unresolved older failures, missing evidence, uncertain delivery and attention
+hold settlement. A failure disposition may link an owned repair, whose relevant
+CI must settle; a newer unrelated green publication is insufficient. Preserve
+ignored-only basis, incomplete/cancelled and infrastructure/flaky-test rules.
+
+Write a stable failure delivery intent before the native call. Serialize sends
+per recipient; confirm native acceptance with turn/message/history evidence.
+Replayed events with accepted receipts are suppressed. Possible acceptance with
+missing acknowledgment enters reconciliation; if the host cannot establish the
+answer, hold uncertain delivery without blind retry. Avoid a claim of exactly
+once across the native-call/storage crash window. Do not replace a session,
+fork a running Claude session, overwrite a developer's composer, or inherit
+Cursor Recover's replacement fallback. Host capability is specific to native
+session form and continuation route, not just a host-name boolean.
+
+Only actionable CI failure starts an agent turn. Coverage, throttle and
+retirement gaps remain visible for developer judgment. Delivery/repair authorization has a durable generation, rechecked at dispatch.
+Stop/delete revokes it before later sends. Already-dispatched input cannot be
+promised recalled: retain accepted/revoked-after-dispatch or uncertain evidence
+and reconcile it without resending. A missing worktree or session yields a gap;
+supervision never recreates them. A retirement permit uses the same per-execution
+transition serialization as publication/repair admission, so active owned writers
+or a newly reserved generation prevent cleanup.
+
+## Premises, observations and open native proof
+
+Evidence below was read in the preparation checkout at `030446f5`; inspections
+locate reusable boundaries but do not establish new behavior. Native feasibility
+is deliberately bounded by slice 1; no native wakeup pass is claimed.
+
+| Premise / consuming operation | Literal observation and consequence |
+| --- | --- |
+| Current dashboard admission and cancellation are reusable contracts | In this workspace: `env -u NO_COLOR npm run test:dashboard -- authenticated-read-turns.spec.ts authenticated-read-shared-waiters.spec.ts` → exit 0, seven tests through the real local HTTP boundary and synthetic `gh`. Covers eight slots/FIFO, cancellation/bound before admission, other-waiter preservation, last-waiter cancellation/retry and shutdown. Does not prove cross-process ownership. |
+| Current CI bypasses dashboard throttling | `ci-runs.mjs` directly invokes `gh`; `ghRead.ts` has process-local singleton admission/coalescing. Code path inspection: hosted mailbox spawning alone cannot deliver shared throttling. Slices 2–3 replace that responsibility. |
+| Opaque CLI commands expose several upstream operations | Current `ci-runs.mjs` uses `run list/view`; headers are only included for `api` by `ghRead.ts`. Exact installed HTTP-cost behavior remains unmeasured; slice 3 proves separately admitted API pages with an instrumented provider instead of assuming CLI call count. |
+| Durable observer restart needs more than retained SHA files | Startup filtering drops older completed runs; tracked attempts and failure dedup are memory state; coverage filenames sort by SHA. Inspection rejects reuse of startup filtering as recovery or sorted filenames as publication order. Slices 4–5 reconcile exact outstanding registrations. |
+| Existing publication resume/classification is a usable entry point | Current scripts retain accepted revision and inject acquisition/coverage. `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs` in this checkout → exit 0, four tests. Another target owner is not adopted; command-provider pending/success, opaque attempt retention and startup history behavior reach their fixtures. New supervision is owned by slices 4–5, not an inherited pass. |
+| Native idle/busy delivery and standalone binding | Cheap presence/help checks found Claude 2.1.296 (`--bg`/`--resume`), Codex CLI 0.162.1 (App Server daemon/proxy and native listen transports), Cursor desktop 3.24.12 and agent CLI 2026.10.01-e373342 (`--resume`). These are candidate routes, not observed same-session delivery. Slice 1 must establish exact recipient, accepted input and safe busy/idle handling for each promised mechanism before its dependent slice. |
+| Installed runtime and state must survive worktree/dashboard removal | Reporting already retains installed entry support outside the checkout; that alone proves neither daemon lifetime nor split-brain fencing. Slice 4 owns new enrollment/lifetime fault proof; installation self-containment is included in its proof. |
+| Final integration receipt must remain the owner's publication | `history-preserving-publication.mjs` returns to execution branch; already-accepted recovery can return fetched tip with null receipt. Slice 10 recovers the owned integration evidence and authorized trunk repair route rather than consuming that tip as completion. |
+
+Cheap proof routes: existing dashboard specs ran from this owned checkout with
+temporarily reused local dependencies, no native agents or real GitHub reads.
+The default sandbox refused localhost listening; scoped test escalation and
+removing conflicting `NO_COLOR` made the runner usable. Temporary dependency
+symlink was removed. Paid native parts remain with explicit native-check authority.
 
 ## Ordered slices
 
-### 1. Observe native Claude delivery once
+All slices are planned. Each owns implementation, focused proof and cleanup
+for its named result. No numeric slice target/hard limit is configured; use one
+cohesive proof loop and stop/reassess when a native probe or integration outcome
+invalidates the approach. Keep unchanged installed client behavior until its
+replacement is accepted; interim gates below are removed by their named slice.
+
+### 1. Prove native failure delivery to the original session
 Type: Behavior
 Status: planned
-Proof: One isolated, bounded native Claude Code observation against a private
-fixture project, inspecting the native transcript and `claude agents --json
---all` rather than a self-report. (a) A session listed `done` receives a
-`--bg --resume <id> <message>` and acts on it once under the same session ID,
-and the listing shows that ID again, with the short id and name the dashboard
-recorded still identifying it. (b) A loaded idle session receives the same
-text as terminal input once. (c) Text typed while a turn runs: record whether
-it is queued and processed after the current tool call, lost, or duplicated.
 
-Behavior: A maintainer sends a delivery message to an idle, an exited, and a
-running Claude background session. Each session receives it exactly once, as
-a new user input, under its original session ID.
+Evaluator/result: a maintainer observes the same native session accept one
+identified failure after an execution turn ends, and a busy session receive it
+at a safe boundary without changing identity or permission/workspace policy.
 
-If (a) shows a copy or a new ID, slice 6 continues an exited session through
-the host's recorded means instead and the card says so; revise slice 6
-before building it. If (c) shows loss or duplication, slice 6 delivers only
-to an idle session and waits for idle, as the rename does. Paid native runs
-are manual: they need the execution instruction's explicit authority and are
-tracked in linked native-acceptance work under ADR 0005. This slice delivers
-evidence, not shipping behavior; it does not block slices 2–5.
+Proof: manually authorized bounded private native fixtures, Claude first,
+then Codex and Cursor. Use the source story's authoritative Required native coverage table, including
+its standalone CLI, desktop and IDE rows. Record a result for each distinct route. Observe transcript plus
+native ID and accepted turn/input evidence; test native exit, busy-to-idle,
+waiting on approval/input, and lost response where each mechanism differs.
+Success and pending send no input. Do not infer a supported form from another.
+Cheap prefix records installed binaries, invocation/endpoint availability and
+fixture trust before paid work. Map requirements/results to
+[separate acceptance](../../seeds/SEED-053-native-guidance-acceptance.md#background-ci-failure-wakeup).
 
-### 2. The skill registers externally observed publications instead of observing
+This is feasibility evidence, not shipping behavior. Failure stops the affected
+host enrollment/delivery/nonblocking path and changes its plan before dependent
+implementation. If native form cannot meet the source outcome, return the
+explicit scope/capability decision to Terry; do not call a gap acceptance.
+Independent request-boundary work may continue.
+
+### 2. Expose one installed GitHub request implementation
+Type: Structure
+Status: planned
+
+Internal result: move the existing admission, answer/rate-limit interpretation
+and outstanding-request lifecycle into one payload-owned runtime source.
+Dashboard callers use its adapter; preserve current external behavior and
+immutable answer-cache/source validation ownership.
+
+Proof: existing admission/shared-waiter/shared-failure/limit-recovery specs
+through their HTTP boundaries plus focused contract tests for extracted answer
+classification. Every current `execGh` caller still reaches the one source;
+static import/dependency checks complement, rather than replace, runtime proof.
+Preserve installation/update self-containment for the moved dependency graph.
+Immediately enables slice 3; do not add a second local admission class.
+
+### 3. Share actual GitHub admission across dashboard and CI consumers
 Type: Behavior
 Status: planned
-Proof: Focused node tests beside `execution-increment-managed-delivery*.test.mjs`
-with a local HTTP receiver standing in for the dashboard:
 
-- With `--external-ci` and a launch context file, `deliver` and `resume`
-  call neither `establishObservation` nor `register-push`; they publish, then
-  send one registration (source, host, reference, repo, target, full SHA) and
-  report `observation.state: "external"` with the receipt.
-- With the receiver unavailable, the receipt reports one coverage gap in the
-  existing gap vocabulary, publication acceptance stands, and no observer
-  starts.
-- `--external-ci` without a context file, or a receiver refusal (unknown
-  reference, malformed SHA or target), is the same gap, named.
-- Without the option, the existing managed-delivery suites pass unchanged.
-- `session-policy.mjs` tests: the fourth choice round-trips through
-  `sessionPolicy`, `sessionPolicyFlags`, and `launchArguments`; the dialog's
-  policy line and one-shot-only rule are unchanged.
-- `ci-mailbox.mjs start --execution ... --coordinator VALUE` records the
-  owner as `stream` does (small Structure within this slice).
+Result: two dashboard processes and the existing CI acquisition engine share
+one machine runtime's allowance state. No new session supervision is needed
+for this slice; each existing observer remains its single current owner until
+slice 11 activates the transfer staged and proved in slice 4.
 
-Behavior: Example 1's skill half and example 5's first half. A dashboard
-session's `deliver` registers the accepted SHA with the launch through the
-installed registration client and starts no observer, probe, or hook
-binding. Guidance in `trunk-publication.md` and `ci-monitor.md` gains the
-external branch once: “externally observed CI” and a registration receipt,
-no dashboard vocabulary.
+Proof: an instrumented local GitHub provider counts actual upstream requests
+for dashboard HTTP reads and installed CI discovery/attempt/jobs/applicability/
+diagnostics, including pagination. Eight combined calls maximum; a limit in
+any consumer holds every peer, zero calls during hold, one recovery probe,
+account/authorization scopes isolated, and restart preserves cooldown.
+Kill the broker with eight held upstream calls: its replacement reconciles exact
+children before admitting new work. Switch principal or rotate credential
+permissions while requests/subscriptions are pending, then deliver old answers
+and restart under the changed binding: no incompatible live sharing occurs and
+existing private immutable-cache retention is preserved. Identical
+pending acquisition costs once; cancelling one waiter preserves another.
+Run one `gh api --include` route against that provider to prove header/result
+interpretation. Registration-like recheck cannot bypass cooldown. Hold is
+suspension, not the observer's three-error loss path. Report measured request
+counts and update `dashboard/GITHUB-REQUESTS.md` ownership/cost descriptions.
 
-Deliver the registration client as a sibling of `dashboard-completion.mjs`
-that shares its request code, so `completionReporting.ts` copies it beside
-the completion script. Declare it in the installed payload.
+Every in-scope CI provider request and agent diagnostic entry uses the same
+transport; preserve run/attempt/job normalization and provider-specific rules.
+No production GitHub credentials or extra live requests are needed for proof.
 
-### 3. The dashboard observes registered revisions and shows CI per revision
+### 4. Retain enrollment and recoverable ownership transfer for both origins
 Type: Behavior
 Status: planned
-Proof: A new focused Playwright journey through the real preview-server
-boundary. It launches a Claude execution with `fake-claude` (the first input
-carries `--external-ci`), then runs the real installed `deliver` from slice 2
-against a local Git fixture and remote with `completionCi`'s provider. The
-card shows the revision pending, then success after the release; a second
-registration whose provider answers failure shows failure. Assertions:
 
-- The registration receipt arrives only after the launch record holds it,
-  and a page reload still shows it.
-- No mailbox exists under the default root for that repository/branch; one
-  exists under the dashboard root with the launch reference as owner.
-- Repeated registration of the same SHA is idempotent.
-- Launch-argument unit tests: `--external-ci` only for Claude execution
-  starts with the `deliver` fact; Codex, Cursor, refinement, ad hoc, and the
-  dialog's own policy line are unchanged. Claude's `deliver` is an interim
-  stub that slice 6 replaces.
-- Classification follows the observer's records: a `not_required` revision
-  shows its basis's state; incomplete is not success.
+Result: installed standalone enrollment without a dashboard server and dashboard
+enrollment retain the same session binding/subscription model, including
+pending-native claims and an explicit inactive/held coverage state. Runtime
+lifetime, staged transfer and support outside worktrees are established.
 
-Behavior: Examples 1 and 7's dashboard halves. The dashboard acknowledges a
-registration after storing it, arms or reuses its own observer for that
-launch and target, registers the SHA on it, reads the mailbox's records, and
-shows pending, success, or failure on the session card.
+Proof: real installed enrollment entry → private runtime → machine state/status,
+with no browser/Vite for standalone. Concurrent dev/production/standalone entry
+yields one fenced owner. Replay enrollment, pending binding, wrong child,
+stale generation, unread evidence, incompatible installed version and crash
+at transfer stages retain identity/evidence or a named hold. The retained launcher
+restarts a killed owner; missing launcher/reboot is recovered on next entry,
+with the interrupted interval named. Verify complete installed dependency graph
+and run support after removing the originating fixture worktree.
 
-Deliver the `deliver` host fact and its projection, the registration
-endpoint and refusals, the dashboard observation module (observer per launch
-and target, mailbox reading and acknowledgment), the per-revision CI model
-with one card rendering for all states, and `dashboard/AGENT-LAUNCH-CI.md`
-linked from `AGENT-LAUNCH.md`.
+Stage transfer from legacy registrations/events, verify exact old-worker shutdown,
+then commit new ownership; an uncertain transfer never creates another observer.
+Use an isolated provider/native fixture to prove this sequence here. Production
+activation is deliberately withheld until slice 11 has accepted publication,
+delivery, execution/wrap-up completion, target-preserving repair and retirement
+paths for that native form. Until then its one existing
+observer, safe-boundary delivery and completion remain in force; inactive new
+enrollment claims no replacement coverage and makes no provider requests.
+Test failure arriving during this interval reaches the existing owner once.
+Slice 11 atomically activates replacement and removes this interim gate.
 
-### 4. Completion ends the turn and finishes quietly on the last success
+Generalize retained native session storage once, without fabricated launch
+requests or a second session registry. Active obligations pin necessary records.
+
+### 5. Register exact accepted publications durably and recover lost receipts
 Type: Behavior
 Status: planned
-Proof: Two kinds.
 
-- Skill behavior review under AGENTS.md of the changed guidance: completion
-  under `--external-ci` publishes the execution-complete record, reports “CI
-  pending under external observation”, and ends without `complete-revision`;
-  the existing `ci-completion-lifecycle-guidance.test.mjs` and
-  `execution-completion-record-guidance.test.mjs` stay green, updated only
-  where they assert wording that now has an external branch.
-- Playwright: the slice 3 journey continues with the real installed
-  `dashboard-completion.mjs --outcome completed` while a registered revision
-  is pending. The card shows “Waiting for CI” and the session stays open with
-  no rename. After the release, the session becomes Done through the existing
-  quiet disposition (`fake-claude` records exactly one rename). Variants: a
-  completion with an attention message stays open after success; a failure
-  verdict keeps the session open and shows failure; a completion report with
-  no registrations behaves as today (existing quiet specs unchanged).
+Result: claim, increment, repair, execution record, closure and integration
+receipts enter the same registration operation with explicit publication ID,
+target/full SHA and retained sequence. Dashboard and standalone use identical
+managed-delivery/resume machinery.
 
-Behavior: Example 2. The agent ends its turn with CI pending; success of the
-last accepted registered revision completes the session quietly, and the
-agent receives no message.
+Proof: real installed publisher with local Git origin and runtime receiver;
+fault before/after push acceptance, durable registration, and acknowledgment.
+Retry recovers without second push/registration/observer. Delayed registration,
+nonalphabetic SHA order, rebase, another writer advancing target, multiple
+targets and same SHA in two subscriptions preserve exact owner evidence.
+A known retained start identity admits a pre-native claim with delivery pending
+binding; unknown execution identity or unauthorized target refuses with a gap.
+Test accepted claim before native ID → exact binding → owned failure delivery;
+failed/unconfirmed launch, deletion and lost early acknowledgment retain their
+proper evidence without another claim/push.
+Restart discovers older unresolved failures, not merely the newest startup run.
 
-Change `ci-monitor.md` (“Await the applicable revision at completion”) and
-`ci-completion-wait.md` with one external branch for the execution/review
-handoff and wrap-up boundaries. Automatic retrospective still starts while
-CI is pending. `deliverCompletion` and the verdict handler share one Done
-decision.
+Retain recoverable accepted evidence outside removable worktrees. Receipt
+vocabulary and registration rules have one runtime/guidance home; do not add
+standalone/dashboard publication recipes.
 
-### 5. Retire the launch's execution resources after the integration succeeds
+### 6. Deliver Claude failures with durable acceptance and uncertainty
 Type: Behavior
 Status: planned
-Proof: Playwright with `installedCompletionClosure`'s Story Branch Wrap Up
-path under `--external-ci`: the real installed integration publishes onto the
-fixture trunk with the landing context, registers the integrated SHA, and
-ends without completion or retirement; the worktree, branch, and remote
-execution branch exist and the card says “Waiting for CI”. After the release,
-the session is Done and all three are gone, the card shows the retirement
-result, and `fake-claude` shows no extra call. Variants: a dirty worktree is
-kept with the hold named on the card; Mark as done before the verdict leaves
-the resources in place after success; a failure leaves them in place and
-shows failure.
 
-Behavior: Example 8 and the retirement half of example 6. Quiet Done through
-the last registered revision's success retires the execution worktree,
-branch, and remote execution branch with wrap-up's checks unchanged.
+Result: one registered failure reaches the original verified Claude session,
+active or idle, using slice 1's proved route. Pending/success creates no input.
 
-Change `wrap-up-closure-publication.md` (“Observe Story Branch integration”)
-and `dough-story-wrap-up`'s resource section with the external branch:
-register the integrated SHA, report pending, keep resources. The dashboard
-runs `worktree-retirement.mjs retire` from the project folder's installed
-skills with the established start's facts and `--contained <integrated SHA>`.
-One-shot sessions keep today's retirement, without a CI gate.
+Proof: installed supervisor → shared delivery intent → synthetic native adapter
+→ session/card/status facts. Inject crash before call, after native acceptance
+and before local receipt, rejection and ambiguous history. Confirmed tokens
+are not resent; uncertainty reconciles or stays visible without blind retry.
+Busy/idle/exit races never fork, double-send or overwrite developer input.
+Native acceptance remains separately required. Durable revocation before dispatch prevents a new send; revoke-during-send
+preserves accepted or uncertain evidence without promising recall. Neither path
+starts a replacement session or blindly retries revoked delivery.
 
-### 6. Wake the session with one follow-up per CI failure
+Extract one host delivery port and runtime dispatch/intent state machine;
+reuse existing native helpers only where their acceptance/readiness contracts
+fit. Accepted input, handled failure and repaired publication remain distinct.
+
+### 7. Deliver Codex failures through the same dispatch model
 Type: Behavior
 Status: planned
-Proof: Playwright journeys with `fake-claude` extended to record
-`--bg --resume` continuations and typed attachment input:
 
-- A failure for an exited session produces exactly one continuation under
-  the same session ID carrying revision, target, run/attempt, failed jobs,
-  and the handling line.
-- A failure for a loaded idle session produces exactly one typed input; a
-  loaded busy session gets it once idle (or as slice 1 decided).
-- A repeated failure event or a dashboard restart sends nothing new; the card
-  shows “failure delivered”.
-- A registered repair SHA is observed and its success completes the session
-  as in slice 4.
-- Two sessions registering the same SHA each keep their own evidence.
+Result: verified Codex native thread receives failure under its actual thread
+ID and enrolled continuation endpoint, preserving fork/coordinator isolation.
 
-The skill behavior review covers the delivered-result guidance: accepted
-only for a SHA this session registered; results for another session, an
-older superseded publication, or an unregistered SHA are neither completion
-evidence nor its repair (example 4); an owned failure enters “Handle a
-notification” unchanged and the repair is registered as in slice 2.
+Proof: synthetic App Server fixture exercises real adapter requests, returned
+turn ID and retained-history reconciliation; active-turn strategy follows slice
+1 evidence. Uncertain input resumes reconciliation without starting another
+turn, missing endpoint is a gap, and two forks cannot consume one another's
+failure. Same shared intent/dispatch/dedup tests as slice 6, no second model.
+Native fixture proves the in-scope standalone route before acceptance.
 
-Behavior: Example 3. CI fails for a registered revision while the session is
-idle or busy. The dashboard sends one follow-up, the session acts on it at
-its next input boundary, repairs, publishes, registers the repair, and that
-revision's success completes the session. The same failure is never resent.
-
-Implement Claude's `deliver` (replacing slice 3's stub), the per-failure
-delivery record keyed by repository, run, attempt, and job when present, and
-the message text. CI text is quoted as data, never as an instruction. Update
-the terminal/host documentation for the new operation.
-
-### 7. Keep observation through restarts and make every gap visible
+### 8. Deliver Cursor failures without replacing the owning conversation
 Type: Behavior
 Status: planned
-Proof: Playwright fault journeys plus focused store tests, inspecting stored
-records, mailboxes, and `fake-claude` calls:
 
-- Server restart while a revision is pending: observation resumes from the
-  stored registration and mailbox; the verdict then arrives and is acted on.
-- A worker lost or a mailbox unreadable after restart: “CI not observed”, the
-  session stays open, no success, no retirement.
-- Mark as done, then a failure: “not delivered”, no native call.
-- A delivery the host refuses: “not delivered”, retained, no retry storm.
-- Deleting the session record stops its observers through `ci-mailbox.mjs
-  stop` and confirms the exact mailboxes ended.
-- A revision with a recorded verdict that needs no delivery ends its
-  observation; a launch's observer stops when none of its revisions is
-  pending.
+Result: verified Cursor conversation/runner route receives failure safely
+under its original ID and originating coordinator boundary.
 
-Behavior: Examples 5 (second half) and 6. Restarts, lost observation, a done
-or stopped session, and refused delivery each leave an explicit card state
-and never become success. Observation ends when its verdict is recorded and
-delivered as required, or when the session record is deleted.
+Proof: native transport fixture plus separate actual-host evidence from slice
+1. Already-held terminal, unsent developer input, busy/idle transition, runner
+exit, waiting on input and uncertain typed acceptance preserve ownership and
+produce explicit accepted/refused/uncertain results. No Recover replacement
+fallback, permissive mode change or delivery into a child. Reuse the shared
+port/dispatch; native transport is the only host difference.
 
-Name the lifecycle owner, the dashboard server's observation module started
-with the server, and prove it observes worker loss and cleans up on server
-shutdown under the observer's terminal-result contract. No background retry
-scheduler or generic message queue; the observer's lifetime budget bounds
-orphaned workers.
+### 9. End execution and wrap-up turns with an explicit nonblocking boundary
+Type: Behavior
+Status: planned
+
+Result: after its acknowledged publication fence, dashboard or standalone
+execution/review handoff and wrap-up return while CI remains pending. Build and
+prove these paths under the inactive enrollment gate; production cutover remains
+with slice 11, after target repair and retirement are complete.
+No `complete-revision`, AI polling, host probe/stream or success
+input remains on replaced paths, including Trunk Mode `finish`. Old in-flight
+completion handles cannot be left waiting on a retired mailbox.
+
+Proof: installed completion operation with a controlled pending provider must
+return before its release, leave runtime alive and keep owned resources. Then
+failure wakes through the corresponding verified adapter. Tests vary execution
+versus closure, verdict-before-report, report-before-verdict, old report after
+new repair, old owned failure plus newer green, missing registration, ignored-only
+pending basis and cancellation/incomplete. Stale boundaries cannot settle newer
+work. Disposition/linked repair is required where the earlier failure persists.
+Interleave begin-repair/new-generation reservation with final success and
+retirement admission; active repair blocks stale settlement before it publishes.
+
+One runtime fence decision serves dashboard completion, standalone status and
+wrap-up. Completion with attention stays open; completion without CI obligations
+keeps its existing behavior. Canonical lifecycle/handling instructions stay in
+`ci-monitor.md`; completion mechanics and execute-plan/wrap-up/host references
+link there rather than duplicate no-wait or failure-handling rules. Remove
+`--external-ci` as a fourth session-policy choice and old waiting recipes for
+these paths. Guidance behavior review follows repository `AGENTS.md`.
+
+### 10. Preserve target coverage and repair a final integration failure
+Type: Behavior
+Status: planned
+
+Result: Story Branch wrap-up observes unsettled branch publications and its
+accepted trunk integration independently. A post-turn trunk failure is repaired
+in owned work and published/integrated to the original authorized trunk target,
+then registers a new closure boundary. Trunk Mode uses the same model.
+
+Proof: real installed Story Branch/Trunk Mode closure with local origin,
+controlled CI and native fixture: late branch failure, trunk failure after
+execution branch restoration, unrelated later trunk advance, lost integration
+receipt and crash during repair publication. Neither branch green nor fetched
+newer tip can satisfy trunk closure. Recovery uses the owner's accepted
+integration evidence and existing history-preserving publication semantics.
+No new merge/repair authority or repair workspace is invented.
+
+### 11. Retire only resources authorized by a settled wrap-up closure
+Type: Behavior
+Status: planned
+
+Result: current closure success with covered obligations resolved invokes the
+installed retirement operation quietly. Execution handoff alone retains the
+worktree; manual Done/stop, missing evidence and attention retain resources.
+With all lifecycle paths accepted, atomically activate replacement for each
+proved native form under slice 4's transfer protocol. Remove the inactive gate
+and old watcher/wait paths together; no existing execution can be left with a
+wrap-up path that cannot consume its monitoring records.
+
+Proof: real installed retirement against fixture worktree/local and remote
+execution branch. Pending/failed/unobserved/uncertain closure and earlier
+undisposed failure retain all three. Settled authorized closure removes them;
+dirty/foreign/default/unique-work holds stay named. Crash between removal steps
+recovers from retained management context without republishing or waking the
+agent. Automatic Done and retirement result remain separate projections.
+At cutover, interleave failure, old in-flight completion, execution handoff and
+wrap-up entry: each obligation retains one owner, failures remain attributable,
+and old completion handles terminate through the replacement contract.
+
+Change `trunk-closure.mjs`'s unresolved-receipt retirement path for the new
+background contract; positive settlement is required. Reuse containment and
+creation checks exactly once. Reconcile the overlap with SEED-121 at that
+story's canonical home through the backlog workflow; this plan does not remove
+or claim it completed merely because its intended fix is included here.
+
+### 12. Recover the whole lifecycle without duplicate monitoring or requests
+Type: Behavior
+Status: planned
+
+Result: runtime, dashboard and native restarts, cancellation, manual Done and
+record deletion preserve truthful monitoring/delivery/completion facts with
+one owner and coordinated requests.
+
+Proof: fault journey from enrollment → real publication → agent turn end →
+server/runtime loss → offline CI failure → recovered native delivery → repair
+→ closure → retirement. Exercise writes interrupted at every durable boundary,
+unreadable state, expired budget, stale lease, reordered/replayed events and
+deleted recipient. Separate subscribers sharing acquisition keep their facts;
+last removal/dormancy stops upstream polling. Dashboard/browser shutdown has
+no effect on standalone obligations. Missing worktree/session remains a gap.
+
+Compare equivalent old/new synthetic workloads: same publications, pending
+and completed attempts, polling window, diagnostic demand and simultaneous
+sessions. Count HTTP operations; migrated old watchers contribute zero and
+identical demand is acquired once. Any increase must be explained by required
+coverage/diagnostics rather than duplicated observers or hidden CLI requests.
+Verify cooldown/recovery/concurrency jointly with dashboard traffic and preserve
+existing dashboard reader behavior. Finish payload/reference and representative
+install/update/coexistence checks for shared dependencies; no per-tool copies.
+Required final native acceptance stays in the linked acceptance home and must
+finish before release, independently of deterministic implementation completion.
 
 ## Proof ownership and acceptance
 
-| Source promise | Owner and decisive signal |
+| Source promise / constraint | Decisive owner |
 | --- | --- |
-| Option only for hosts with a delivery operation; other hosts, workflows, and direct invocation unchanged (example 7) | 2 policy tests, 3 launch-argument tests, unchanged managed-delivery and completion guidance suites |
-| Skill registers every accepted publication, starts no observer, acknowledgment after storage (examples 1, 5) | 2 node tests with the stand-in receiver; 3 real CLI → boundary → store journey |
-| Dashboard observes with the existing engine, isolated from standalone mailboxes | 3 mailbox-root and owner assertions, controlled provider verdicts |
-| Card CI states: pending, success, failure delivered, not observed, not delivered | 3 (pending/success/failure), 6 (failure delivered), 7 (not observed, not delivered) |
-| Completion ends the turn, “Waiting for CI”, quiet Done on last success, attention stays open (example 2) | 4 journey plus skill behavior review |
-| Retirement after success, holds kept and named, Mark as done keeps resources (examples 6, 8) | 5 |
-| One follow-up per actionable failure, wakes idle or busy session, repair registered and completes (example 3) | 6 journeys; 1 plus native acceptance for real delivery |
-| Foreign, superseded, or unregistered results never satisfy completion (example 4) | 6 skill review plus attribution test |
-| Restart, lost observation, refused or undeliverable delivery never become success; no fallback observer (examples 5, 6) | 2 (unreachable at registration), 7 fault journeys |
-| Lifecycle: observation ends on verdict or record deletion; Done/stop ends delivery only | 7 |
-| Self-contained installed dependencies, payload declarations | 2 and 3 `tests/payload-declaration-links.sh` plus the existing install/update journey for the new script |
+| Dashboard and standalone end turns, wake exact session only for failure (examples 1–3) | 1 native feasibility, 4 enrollment, 6–8 delivery, 9 handoff; separate SEED-053 final native acceptance |
+| Sole background owner, replacing legacy observers (constraint 1) | 4 staged fenced transfer/restart tests; 11 complete-lifecycle cutover; 12 watcher/request accounting |
+| Exact accepted publication, durable/idempotent registration (2–3, example 5) | 5 real publisher and fault boundaries; 10 exact integration recovery |
+| Late failure, disposition and stale-boundary protection (4, example 4) | 6 shared handling receipt, 9 completion races, 10 late target repair |
+| No routine duplicate after acceptance; uncertainty retained (5, example 6) | 6 shared intent crash tests; 7–8 adapter acceptance evidence; native acceptance |
+| Shared upstream throttling and acquisition, no cooldown bypass (6, example 7) | 2 preserved contracts, 3 mixed HTTP request counts, 12 restart/comparative demand |
+| CI text/authority, applicability/incomplete/loss truth (7, example 9) | 5–6 attribution/guidance review, 9 negative completion cases, 12 explicit gaps |
+| Closure-only safe retirement (8) | 11 installed operation and fault/hold journey |
+| Manual lifecycle and independent subscriptions (example 8) | 6 dispatch revocation; 12 subscriber cancellation/deletion |
+| Shared domain/source and installed dependency closure | Each slice's import/representation review; 4 installation/support survival; 9 guidance behavior review; 12 final integration |
 
-Local focused verification: `npm run test:dashboard -- <affected specs>`,
-`npm run typecheck:dashboard`, and `npm test -- <affected node checks>`
-(managed delivery, session policy, completion guidance, mailbox). Broaden
-only for a newly affected consumer or an unresolved failure. Usual execution
-publication, slice-local refactoring, review, and CI gates apply when
-execution is authorized; planning invokes none.
+Keep deterministic provider/native fixtures in CI; never count them as native
+behavior evidence. Native requirements and representative cases are recorded
+once in [SEED-053](../../seeds/SEED-053-native-guidance-acceptance.md#background-ci-failure-wakeup).
+Paid sessions are manually selected under explicit authority. Native same-session
+wakeup, safe busy delivery and send/receipt reconciliation are feasibility gates,
+not assumptions that fake executables settle.
 
-Native acceptance (ADR 0005, manual and paid): slice 1's observation, plus
-one end-to-end Claude Code journey after slice 6 in which a real execution
-session registers, ends its turn at completion, is woken by a real failure,
-repairs, completes quietly, and has its resources retired. Static guidance,
-synthetic executables, and exit codes do not establish native acceptance.
+Focused checks during implementation: affected Node runtime/provider/ownership/
+publication tests, `npm run test:dashboard -- <affected specs>`, and
+`npm run typecheck:dashboard`. Broaden only for a newly affected consumer or
+unresolved failure. Publication, slice-local refactoring and CI requirements
+remain with the execution workflow when execution is authorized. Planning does
+not arm observers, modify runtime/skills, Take the story or run paid sessions.
 
 ## Current decisions
 
-- The option is the fourth session-policy choice, spelled `--external-ci`,
-  set by the dashboard from the `deliver` host fact and never shown in the
-  dialog. Agent-facing wording is “externally observed CI”.
-- The dashboard is the observer coordinator, one observer per launch and
-  target under its own mailbox root; registration goes through the reporting
-  channel with the launch's existing context file.
-- The dashboard retires Story Branch execution resources on quiet Done after
-  the last registered revision succeeds; Mark as done, failure, and holds
-  keep them.
-- No fallback to the skill's own observer when dashboard coverage is lost.
+- One installed machine runtime owns supervision and actual GitHub admission;
+  dashboard and standalone are origins, not separate observation policies.
+- The source story's domain model is used directly at persistence/protocol/UI
+  boundaries; host adapters contain only native identity/input transport.
+- Shared acquisition does not share execution ownership or failure disposition.
+- Completion uses an explicit acknowledged-publication generation/fence; only
+  settled closure plus retained authority permits existing retirement.
+- Uncertain delivery reconciles or remains visible; exactly-once native input
+  is not claimed without evidence. No fallback watcher or final wait.
+- Host/form feasibility must precede dependent behavior; Claude is observed
+  first without excluding the other promised hosts from acceptance.
 
 ## Learnings
 
-- 2026-10-11: plan 220 is delivered, so the former blocking dependency is
-  gone. Dashboard execution starts are Story Branch Mode or one-shot, so Trunk
-  Mode `finish` needs no external branch. The Codex coordinator stream is the
-  precedent for an externally owned observer; registration reuses its owner
-  model rather than a new one.
+- 2026-10-11: old plan's separate dashboard mailbox root would isolate hooks
+  but not GitHub throttling or standalone wakeup. Code-sharing alone cannot
+  share admission state across processes; one request owner is needed.
+- 2026-10-11: older accepted failure and current completion fence are different
+  facts. Sorted SHA files and fetched target tips cannot decide completion.
+- 2026-10-11: native input acceptance, handling and CI repair need distinct
+  durable evidence. Existing attach/Recover actions are not acceptance proofs.

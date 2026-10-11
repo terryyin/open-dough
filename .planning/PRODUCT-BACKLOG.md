@@ -19,5 +19,5 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
-- [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
+- [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Finish retires the worktree only by a decided rule when CI gave no verdict](seeds/SEED-121-execution-observer-ownership.md#finish-retirement-without-verdict) — SEED-121#finish-retirement-without-verdict

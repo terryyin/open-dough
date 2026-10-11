@@ -88,8 +88,10 @@ UI choices stay in the separate
 For the dashboard, every configured project is read through the
 launching person's local `gh` authentication (Terry's decisions of 2026-09-21
 for Pygardon and 2026-09-23 for Open Dough and Doughnut). Keep
-credential/process responsibility in one narrow loopback read boundary of the
-existing local dashboard launch, shared by dev and built preview. It returns
+dashboard origin/project admission in one narrow loopback boundary shared by
+dev and built preview. Under the background-CI direction below, authenticated
+upstream process/admission responsibility moves to the shared installed runtime;
+the dashboard boundary remains its validated client. It returns
 published revision and pinned file data for the same browser interpretation;
 no direct browser-to-GitHub path remains. Credentials never enter browser
 assets. Configured project identity bounds the local reader's requests; no arbitrary proxy
@@ -104,41 +106,29 @@ continues to own project state.
 
 ## One owner admits reads to GitHub
 
-The local read boundary of one launched dashboard server owns what reaches
-GitHub. Its single `gh` invocation is the only place every tab, project, and
-kind of read passes, so the login's allowance has one owner there. Pages do not
-coordinate with one another, and nothing is stored outside that process's
-memory.
+For [background CI monitoring](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
+evolve the dashboard's existing request admission into one installed
+machine-local owner serving dashboard reads and background CI. Sharing a
+module across processes is insufficient: allowance state belongs to the API
+host and effective authenticated principal, with applicable resource limits,
+while acquisition sharing also respects authorization context. All Open Dough
+CI discovery and diagnostic paths use this same owner; unrelated tools and
+other machines remain outside its scope.
 
-- **Admission precedes a read.** A read reaches GitHub only when no cooldown
-  stands and a turn is free. Admission, reachability, and interpretation of the
-  answer stay with each dashboard request above it; a request refused there
-  takes no turn.
-- **A cooldown is one fact of the process**: the time before which nothing is
-  asked. Any read's rate-limit refusal sets it, from GitHub's direction or from
-  the backoff when GitHub directs none, and only ever later. It is not a
-  property of a page, a project, or a kind of read, and the page's own resume
-  time is only what the boundary told it.
-- **The direction is learned once.** How a refusal is recognized as a rate
-  limit, and what wait it directs, has one representation for every `gh` call,
-  generalizing what the revision check and commit comparison learn today.
-- **Turns bound demand.** One count of reads under way covers the process and
-  is the only rule for GitHub demand across groups, tabs, and projects. A
-  group's own pool still orders that group's requests and stops it at its
-  first failure. After a cooldown one read goes first; however it ends
-  without a rate limit, the turns reopen.
-- **Admission counts reads, not waiters.** Where one outstanding read serves
-  several requests under the topic above, it holds one turn, and a cooldown
-  refuses the read once for all of them. A request waiting for a turn is owned
-  as a waiting request is there: its disconnect and its 30-second bound end its
-  wait, and closing the server ends all of them.
-- **One recovery on the page.** A limited read, check, or detail reports the
-  same thing, a limit and a resume time, and the page has one way to show it
-  and to read again what was withheld.
-
-Proactive use of the remaining allowance, coordination beyond one process, and
-priority among kinds of read are not built ahead. Retire this topic when the
-stories whose plans cite it are delivered.
+Reuse the current admission, outstanding-request cancellation and rate-limit
+interpretation once. Persist active cooldown through owner replacement, bound
+combined demand, and admit one recovery request after the hold. Explicit
+provider requests, including pagination, are admitted individually. Publication
+registration cannot bypass the hold; a known throttle suspension retains
+pending observation rather than becoming success or exhausting error retries.
+Dashboard source validation and immutable-content reuse keep their owners;
+the browser and Vite process are clients of the installed request runtime.
+Session ownership remains separate from acquisition sharing. Direct mapping
+and proof are in [plan 224](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md);
+update maintained request-cost documentation as implementation changes it.
+This revises earlier process-local direction for the newly authorized
+standalone outcome, following Accepted ADRs 0002, 0004 and 0006. Retire this
+topic once the maintained runtime and request documentation carry its rules.
 
 ## Agent launch as a requested assignment
 
@@ -279,29 +269,31 @@ adapters consume that context. Default-checkout confirmation stays a launch-time
 acknowledgment that never activates auto-land. Retire this topic when that story
 is delivered; keep any lasting rule in `dashboard/LAUNCH-START.md`.
 
-## Dashboard-owned CI observation and session delivery
+## Background CI monitoring and session delivery
 
-For [dashboard-owned CI monitoring](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
-an execution session started with `--external-ci`, the fourth session-policy
-choice, registers each accepted publication through the same installed
-reporting channel and launch context as explicit completion. It starts no
-observer and does not wait at completion.
+For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
+one installed background runtime owns monitoring subscriptions for dashboard
+and standalone execution/wrap-up. The source story owns the domain model;
+[plan 224](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md) maps it directly
+to existing publication, mailbox, session, request and retirement solutions.
+Dashboard launch is one enrollment origin, not a second observation policy or
+service. The runtime survives agent-turn, worktree and dashboard lifetime as
+required by retained obligations, with one fenced owner and shared GitHub
+admission. Reuse existing machine persistence and native session identity;
+do not fabricate a launch or duplicate a session registry for standalone use.
 
-The dashboard is the observer coordinator for the sessions it launched, as a
-Codex coordinator is for its stream: one observer per launch and target from
-the session workspace's installed engine, under the dashboard's own mailbox
-root, so standalone hooks never claim those mailboxes. It keeps registrations
-and per-revision CI state in the existing machine-local launch records. A
-quiet completion becomes Done only after the last registered revision
-succeeds, and that Done retires the Story Branch execution resources through
-the installed retirement operation. When a failure needs action, the dashboard
-wakes the session through an optional `deliver` operation on the host
-boundary. That operation's presence alone decides whether the option is
-offered. Claude Code continues an exited session with `--bg --resume` and types
-into a loaded idle one.
+A nonblocking completion boundary names acknowledged accepted publications
+and its generation. Earlier owned failures and missing evidence stay accountable.
+Failure delivery has durable intent, exact native recipient and accepted or
+uncertain evidence; only actionable failure wakes the agent. Host/form
+feasibility must precede dependent behavior. No final wait or fallback observer
+hides unavailable delivery. Execution completion alone retains resources;
+only a settled closure with retained authority invokes the installed retirement
+operation. Mark as done, stop and lost coverage remain distinct from success.
 
-Lost observation or delivery stays visible and never becomes success. The
-standalone observer, hook bridge, completion wait, and Trunk Mode `finish` are
-unchanged. This is supported by Accepted ADRs 0001, 0004, 0005, and 0006. Move
-the lasting feature rules to the dashboard launch documentation at wrap-up, and
-retire this topic when Codex and Cursor delivery no longer need it.
+Canonical CI lifecycle and repair guidance is written once for the executing
+agent and linked from both skills and native adapters. Install dependencies
+locally; no ordinary use fetches Open Dough support. Follow Accepted ADRs 0002,
+0004, 0005 and 0006; no Proposed ADR changes status. Transfer lasting feature
+rules to maintained runtime/dashboard documentation at wrap-up, then retire
+this topic when affected work no longer needs it.
