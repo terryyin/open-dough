@@ -361,6 +361,29 @@ obligation G8.
 
 Safe stopping point: an unattached launch's identity includes its choices.
 
+## Execution complete
+
+Product advice: the story's dashboard promises are delivered and observed;
+its native proof and three follow-ups remain.
+
+- Decide the order of release and native acceptance. ADR 0005 asks for native
+  acceptance before affected behavior is released, while
+  [the native observation](../../seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation)
+  needs a release that installs this story's payload.
+- Widen that observation before running it: it covers Isolated workspace ·
+  Automatically land followed by a one-shot, and the existing-changes
+  confirmation. The key examples for Isolated workspace · Wait for review
+  landed later by Dough Land, a Default main session invoking refinement, and
+  `landing: review` being honored have only guidance-text and start-script
+  proof.
+- Queue or drop the retrospective's correction,
+  [Leave nothing behind after an unattached start](../../seeds/SEED-066-composable-lightweight-session-options.md#unattached-start-leftovers)
+  ([plan](../300-unattached-start-leftovers/PLAN.md)): a failed native launch
+  after an Isolated start leaves its worktree unnamed and unkept, and kept
+  starts of attempts never continued are never removed.
+- An unattached session's landed run is captured and shown nowhere; a surface
+  for it is unbuilt by decision.
+
 ## Current decisions
 
 - Default main · Wait for review is the no-selection default; a blank

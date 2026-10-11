@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 284. Removed local codes are never reused.
+- Highest allocated local number: 288. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -410,6 +410,14 @@ Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: coordinator chained `npm run format … | tail -1; git add … && agent-commit … && deliver` for the Vite port repair; output "Format failed: unresolved findings or tool failures remain."
   - Observed effect: staging and the agent commit still ran; the commit hook refused it (`@typescript-eslint/unbound-method` in `dashboard/tests/support/viteAddress.ts:63`), and a no-op delivery re-confirmed the previous SHA c51ab4b0.
   - Inference: the `;` after the formatter let a visible failure through; the hook was the only gate, so no bad commit landed.
+- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
+  - Timestamp: unknown (2026-10-11, slice 6 delivery, between `e5e26130` at 15:40:03+09:00 and `eabbe51c` at 16:30:32+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: the coordinator chained `npm run format … ; story-obligations check && git add -A && agent-commit … | tail -3 && deliver …`; output "Format failed" and `commit-failed` (`no-return-assign` in `dashboard-landing.test.mjs:34`), then `deliver` ran and re-confirmed the previous SHA `e5e26130`.
+  - Observed effect: no bad commit; a no-op delivery started a new observer, then a one-line fix, formatter rerun, commit, and a second delivery.
+  - Inference: piping the commit's result into `tail` hid its exit status from `&&`, so both the failed format and the failed commit reached the publication step.
 
 ## ODF-222 — Managed story-branch delivery can stall after a successful agent-commit
 
@@ -963,3 +971,30 @@ the answer of a neighbouring case in the very spec file it extends.
   - Evidence: plan 297 "Outside-in proof ownership" row "Everything plan 296 proved" and "Preserved … a worktree … on another story's claim passed over"; at `dd6d315c`, `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts` first case expected the sessions answer to list `closed-b` for `SEED-B#b` while trunk publishes that agent for `SEED-A#a`. The implementation return stopped with that one failure (104 selected, 1 failed) and a question; the plan's "Observed premises" ran the pure rule and a real start, not that spec against the rule. The plan also named "Aki-chan", which `agentNameOf` rejects. Plan 297 slice 1 "Learnings".
   - Observed effect: the implementer stopped instead of finishing; the coordinator judged the changed expectation a consequence of the story's Scope, edited the assertion itself, and reran the 104-test selection (2.5 minutes) before the refactor pass.
   - Inference: reading the extended spec's other cases against the new rule at planning time would have put the changed expectation in the plan. Possibly the same problem as ODF-110 (a consumer premise that missed specs); recorded separately because here the missed consumer was the plan's own named proof. One sample.
+
+## DD-285 — A plan promised a launch's landing context for a launch kind the capture pipeline refuses
+
+The plan's architecture and slice 2 said an unattached launch's reporting context carries `--landing-context`; landing capture required a story identity in the schema, both admissions, the reservation, and the installed script, and refused ad hoc launches. Possibly the same problem as ODF-074 (a premise about a shared mechanism left unobserved).
+
+### Occurrences
+- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
+  - Timestamp: unknown (2026-10-11, slice 2 return, before `01743f09` at 12:53:43+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: plan 298 at `2c14aa25`, Architecture “Handoff” and slice 2; the premise table observes the start and the harness, not capture; `launchLandingReporting.ts` and `launchLandingAdmission.ts` answered 409 for `ad-hoc`, `dashboard-landing.mjs` threw “Missing landing identity”.
+  - Observed effect: slice 2 was delivered without the promise, a developer decision was needed, and one slice (6, `eabbe51c`) was added; that slice then found the landed run has no surface to show it.
+  - Inference: the story's architecture section asked planning to probe the start's receipt, and nothing asked for a probe of the capture path the same sentence relied on.
+
+## DD-286 — A delegated agent's test ran managed delivery with `--host claude` and started CI observers of the real repository
+
+`execution-increment-delivery.mjs deliver --host claude` takes its coordinator identity from the ambient `CLAUDE_CODE_SESSION_ID`, so a subagent's spec that ran it against a scratch origin established live observers of the repository named by `--repo`. One occurrence; delegation guidance does not warn of it.
+
+### Occurrences
+- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
+  - Timestamp: unknown (2026-10-11, slice 6 implementation, between `e5e26130` at 15:40:03+09:00 and `eabbe51c` at 16:30:32+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: the slice 6 implementation return: two `ci-mailbox.mjs worker` processes observing `terryyin/open-dough` (PIDs 53113, 54616) under the tests' temp directories, killed by the agent; the specs were changed to the shared publication API and `--host codex`.
+  - Observed effect: read-only observers of the real repository ran outside the coordinator's observer until killed; no publication reached the real remote.

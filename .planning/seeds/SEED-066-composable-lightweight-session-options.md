@@ -390,6 +390,34 @@ Three paid native sessions and one short Claude Code session:
 
 Safe stopping point: ADR 0005 evidence recorded; the story is complete.
 
+<a id="unattached-start-leftovers"></a>
+
+### Leave nothing behind after an unattached start
+
+**Identity:** SEED-066#unattached-start-leftovers
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/300-unattached-start-leftovers/PLAN.md"}
+```
+
+**Goal:** A developer whose Isolated workspace start succeeded but whose native
+session did not start is told which worktree was left and reuses it on the
+next try, and this machine's kept unattached starts do not outlive their
+attempts. This is a bounded correction from the execution retrospective of
+[Choose workspace and automatic landing for unattached Start session](#unattached-session-options);
+it adds no feature promise.
+
+#### Scope
+
+- A failed native launch after an established unattached session names the
+  workspace and branch left and keeps the start, so Continue or the same Start
+  again reuses it.
+- A kept unattached start is removed when its attempt is pruned.
+- The story's interim residue is removed: the unread `created` fact and the
+  documentation sentence the source no longer supports.
+- Each Start session rule is proved once at the boundary that owns it.
+
+Plan: [300-unattached-start-leftovers](../slice-plans/300-unattached-start-leftovers/PLAN.md).
+
 ## Existing Behavior to Reconcile
 
 - [Current one-shot guidance](../../src/skills/dough-execute-plan/references/one-shot.md)
