@@ -82,11 +82,13 @@ export async function verifyAttempt(
     if (
       now === undefined ||
       now.settledAt !== before.settledAt ||
-      owned.observed(now).owned
+      owned.observed(now).running
     )
       return changed;
     const settled = {
       ...now,
+      worker: undefined,
+      slowSince: undefined,
       outcome: verified,
       settledAt: new Date().toISOString(),
     };

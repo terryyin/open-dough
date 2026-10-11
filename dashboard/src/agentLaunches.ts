@@ -127,6 +127,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   }, []);
   const attempts = useLaunchAttempts({
     observed,
+    keptStarts,
     hostOperations: sessions.hostOperations,
     attemptEvidence: !readAnswered
       ? readsSettled === 0

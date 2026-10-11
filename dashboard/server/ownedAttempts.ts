@@ -1,7 +1,10 @@
 // What this server holds in memory of the launch attempts it accepted
 // (`./launchAttemptOwner.ts`): each attempt it runs, or whose settled state no
-// read has found kept yet, by id, with what waits for its next change. Once
-// closed, none is said to run and every wait ends.
+// read has found kept yet, by id, with what waits for its next change. Closing
+// ends ownership and every wait; recorded workers may remain alive.
+
+import { startTimeoutMs } from "./launchStart.ts";
+import { attemptWorkerRunning } from "./launchAttemptWorker.ts";
 
 import type {
   AgentLaunchRequest,
@@ -94,16 +97,26 @@ export class OwnedAttempts {
     };
   }
 
-  // An attempt as this server knows it: an owned one as held, said to run
-  // while it is unsettled and this server open.
+  // An attempt as held here or kept: ownership grants execution rights;
+  // recorded process liveness protects unsettled work on every server.
   observed(attempt: LaunchAttemptRecord): AttemptObservation {
     const own = this.byId.get(attempt.id);
-    return own === undefined
-      ? { ...attempt, owned: false }
-      : {
-          ...own.attempt,
-          owned: !this.closedNow && own.attempt.outcome === undefined,
-        };
+    const held = own?.attempt ?? attempt;
+    const owned =
+      own !== undefined && !this.closedNow && held.outcome === undefined;
+    const running = owned || attemptWorkerRunning(held);
+    const threshold = Date.parse(held.acceptedAt) + startTimeoutMs();
+    return {
+      ...held,
+      owned,
+      running,
+      ...(running &&
+      held.worker?.step === "start" &&
+      held.slowSince === undefined &&
+      Date.now() >= threshold
+        ? { slowSince: new Date(threshold).toISOString() }
+        : {}),
+    };
   }
 
   own(request: AgentLaunchRequest, attempt: LaunchAttemptRecord): OwnedAttempt {

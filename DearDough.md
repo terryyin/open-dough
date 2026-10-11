@@ -63,6 +63,14 @@ Follow-up: delivered, unreleased: [Observe decisive planning premises through th
 
 Evidence and response: [ODF-110](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-110).
 
+### Occurrences
+- Execution: `SEED-130#slow-startup-safe-recovery` / plan 299, first implementation `02ec9aec40800c5162039f07fd4e7aac864eba44`.
+  - Timestamp: unknown (2026-10-11, execution slices 2, 3 and 5).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: original plan at `3ec282610148afb245a710642b486318d5388d57:.planning/slice-plans/299-slow-startup-safe-recovery/PLAN.md` assumed running kept starts were projected and observed a reparented pid alone; `9fc81fad` and `25cdc5f6` corrected projection and initial/server handoff facts. Own-record reuse missed pending first input; `e41af375` preserves native recovery. G4/G5 remain recoverable at `95289184a68ea0a840f6c90020eb118cc9321438:.planning/slice-plans/299-slow-startup-safe-recovery/PLAN.md`: native recovery and fresh Accept's actual `folder-not-found` refusal before own-record Continue.
+  - Observed effect: extra consumer and handoff investigation/proof, including the required full browser run after the shared projection fixture changed; the initial own-record shortcut was returned before delivery because it bypassed native input recovery. No unsupported cost estimate.
+
 ## ODF-156 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
 
 Former local code: DD-126.
@@ -112,16 +120,6 @@ Every small slice launches a fresh full refactor agent even when the accepted di
 Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-141).
-
-### Occurrences
-- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first implementation `5f539d6a`; plan recoverable at `7aa2238582b58277e227394d6d07037c1967ed55:.planning/slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md`.
-  - Timestamp: 2026-10-10T22:50Z
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown.
-  - Evidence: CI repair `cb4d46c9` added a four-line test budget to one spec (`authenticated-project-overview.spec.ts`); its delegated refactor pass reported `none — already clean` (about 47k subagent tokens, 20 s). Both slice passes earned their cost: slice 1's (`5f539d6a`) split two files that crossed 250 lines and removed two duplications, and slice 2's (`63ad82d6`) brought a design doc back to 250 lines.
-  - Observed effect: one full refactor delegation with no change.
-
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -298,6 +296,14 @@ Follow-up: Open, unqueued.
 
 Evidence and response: [ODF-218](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-218).
 
+### Occurrences
+- Execution: `SEED-130#slow-startup-safe-recovery` / plan 299, first implementation `02ec9aec40800c5162039f07fd4e7aac864eba44`.
+  - Timestamp: unknown (2026-10-11, slice 1 delivery).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: coordinator format output `/tmp/slow-startup-format-1.log` and fresh refactor1's formatter follow-up; three checked files expanded to 252–257 lines after the independent pass. Final accepted replacement is `02ec9aec`.
+  - Observed effect: another mechanical refactor and formatter pass before publication. Later passes checked formatted counts with headroom without taking formatting ownership.
+
 ## ODF-201 — The Codex observer binding has no durable failure acknowledgment step
 
 Former local code: DD-242.
@@ -359,22 +365,6 @@ Follow-up: Open, unqueued.
 Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-097).
 
 ### Occurrences
-- Execution: SEED-008#bound-managed-git-transport (plan 285, first implementation commit `4d2cf148`)
-  - Timestamp: unknown (2026-10-10, slice 3 delivery, before commit `b87bcde7`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.57
-  - Evidence: the coordinator ran `npm run format … | grep …; <plan edit>; git add … && agent-commit.mjs` as one command; the formatter printed `'origin' is assigned a value but never used` and `Format failed`, and the commit still ran and was refused by the check-only hook (`commit-failed`).
-  - Observed effect: no bad commit; one extra hook run, then a one-line fix, formatter rerun, and commit.
-  - Inference: chaining format, staging, and commit with `;` after a filtered pipeline lets a failed format reach the commit; the hook was the only gate.
-- Execution: SEED-123#dashboard-suite-stable-under-load (plan 282, first implementation commit 210b335d)
-  - Timestamp: unknown (between 2026-10-10T13:00+09:00 and the ef27acdf commit at 2026-10-10T13:50:19+09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: coordinator chained `npm run format … | tail -1; git add … && agent-commit … && deliver` for the Vite port repair; output "Format failed: unresolved findings or tool failures remain."
-  - Observed effect: staging and the agent commit still ran; the commit hook refused it (`@typescript-eslint/unbound-method` in `dashboard/tests/support/viteAddress.ts:63`), and a no-op delivery re-confirmed the previous SHA c51ab4b0.
-  - Inference: the `;` after the formatter let a visible failure through; the hook was the only gate, so no bad commit landed.
 - Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
   - Timestamp: unknown (2026-10-11, slice 6 delivery, between `e5e26130` at 15:40:03+09:00 and `eabbe51c` at 16:30:32+09:00)
   - Tool: Claude Code
@@ -383,6 +373,13 @@ Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: the coordinator chained `npm run format … ; story-obligations check && git add -A && agent-commit … | tail -3 && deliver …`; output "Format failed" and `commit-failed` (`no-return-assign` in `dashboard-landing.test.mjs:34`), then `deliver` ran and re-confirmed the previous SHA `e5e26130`.
   - Observed effect: no bad commit; a no-op delivery started a new observer, then a one-line fix, formatter rerun, commit, and a second delivery.
   - Inference: piping the commit's result into `tail` hid its exit status from `&&`, so both the failed format and the failed commit reached the publication step.
+
+- Execution: `SEED-130#slow-startup-safe-recovery` / plan 299, first implementation `02ec9aec40800c5162039f07fd4e7aac864eba44`.
+  - Timestamp: unknown (2026-10-11, slice 3 delivery).
+  - Tool: Codex.
+  - Open Dough release: unknown.
+  - Evidence: coordinator tool history, staged `git diff --check` followed by the successful obligations command and agent commit; the new startup guide's blank EOF was reported but did not gate the batched commit. Unpublished `4d853d69` was corrected and amended to accepted `25cdc5f647bb8cfbcd0e40889b867773f56c04b1` before managed delivery.
+  - Observed effect: one avoidable amendment and repeated hook; nothing invalid was published. Subsequent staged checks were inspected before starting commit.
 
 ## ODF-222 — Managed story-branch delivery can stall after a successful agent-commit
 
@@ -443,7 +440,6 @@ Evidence and response: [ODF-221](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: run 38024406264 `dashboard (4/9)` failed `agent-launch-done-prompt.spec.ts:44`; the repair report named four older specs with the same wall-clock rename deadline and wider margins (`agent-launch-done.spec.ts`, `-rename-wait`, `-question`, `agent-completion-quiet-claude.spec.ts`) and left them, as the delegation's scope said.
   - Observed effect: the diagnosed class of race remains in sibling specs; none has failed yet. The siblings predate this execution, unlike the original finding's same-slice sibling.
   - Inference: matching is by cause, with that difference; the retrospective recommended a follow-up story rather than widening the repair.
-
 
 ## DD-258 — Native replay fixtures changed the retained acceptance checkpoint
 
@@ -997,3 +993,8 @@ The plan's architecture and slice 2 said an unattached launch's reporting contex
   - Open Dough release: unknown
   - Evidence: the slice 6 implementation return: two `ci-mailbox.mjs worker` processes observing `terryyin/open-dough` (PIDs 53113, 54616) under the tests' temp directories, killed by the agent; the specs were changed to the shared publication API and `--host codex`.
   - Observed effect: read-only observers of the real repository ran outside the coordinator's observer until killed; no publication reached the real remote.
+## Retention
+
+- Highest allocated local number: 290
+- Recovery: `4befa38c3c9bdfa575436fa51dca1a82818d21a1:DearDough.md` and `7aa7d85b63aef00efe20a2332ddc6a7f9dc82e1a:DearDough.md`
+- Occurrence history is partial

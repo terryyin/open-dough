@@ -21,6 +21,7 @@ import {
   type LaunchWithState,
   type LaunchWorkflow,
   type StoryLaunchRequest,
+  type KeptStart,
 } from "./agentLaunch.ts";
 import { useAskedLaunches } from "./askedLaunches.ts";
 import { useAttemptChangeWaits } from "./attemptChangeWaits.ts";
@@ -92,6 +93,7 @@ export type LaunchAttempts = StartupRecoveries & {
 // runs gets once it changes. `reads` counts the reads answered so far.
 export function useLaunchAttempts({
   observed,
+  keptStarts,
   hostOperations,
   attemptEvidence,
   answeredAsk,
@@ -102,6 +104,7 @@ export function useLaunchAttempts({
   published,
 }: {
   readonly observed: readonly AttemptObservation[];
+  readonly keptStarts: readonly KeptStart[];
   readonly hostOperations: HostOperations;
   readonly attemptEvidence: AttemptEvidence;
   // Which read of the machine's sessions, counted as asked, answered
@@ -180,7 +183,7 @@ export function useLaunchAttempts({
 
   useAttemptChangeWaits(
     known
-      .filter((attempt) => attempt.owned && attempt.outcome === undefined)
+      .filter((attempt) => attempt.running && attempt.outcome === undefined)
       .map((attempt) => attempt.id),
     reads,
     reread,
@@ -188,7 +191,7 @@ export function useLaunchAttempts({
 
   const asked = askedRequests([...attempts.values()]);
   const storyStartupOf = (sourceId: string, identity: string) =>
-    storyStartup(asked, known, sourceId, identity, reconciled);
+    storyStartup(asked, known, sourceId, identity, reconciled, keptStarts);
   const recoveries = useStartupRecovery({
     known,
     hostOperations,

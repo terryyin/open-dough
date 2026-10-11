@@ -35,6 +35,7 @@ export async function runPreparationCommand(
   },
   project: ProjectFolder,
   operation: "start" | "continue",
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PreparationResult> {
   const { host, model, assigned } = start;
   const args = [
@@ -70,6 +71,7 @@ export async function runPreparationCommand(
     args,
     project,
     operation,
+    noteWorker,
   );
   return stdout === undefined
     ? { kind: "unreadable" }

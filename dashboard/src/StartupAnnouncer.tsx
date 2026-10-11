@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { startName } from "./agentLaunch.ts";
 import type { StoryStartup } from "./storyStartup.ts";
 
-type Told = "in progress" | "waiting" | "needs reconciliation";
+type Told = "in progress" | "slow" | "waiting" | "needs reconciliation";
 
 // What is told of one story's startup: its identity, how it stands, and
 // what it is: the story's title and the start, such as "execution start".
@@ -20,9 +20,15 @@ type Telling = {
   readonly identity: string;
   readonly told: Told;
   readonly subject: string;
+  readonly warning?: string;
 };
 
-function tellingOf({ request, workflow, state }: StoryStartup): Telling {
+function tellingOf({
+  request,
+  workflow,
+  state,
+  warning,
+}: StoryStartup): Telling {
   return {
     identity: request.identity,
     told:
@@ -30,15 +36,20 @@ function tellingOf({ request, workflow, state }: StoryStartup): Telling {
         ? "waiting"
         : state === "needs-reconciliation"
           ? "needs reconciliation"
-          : "in progress",
+          : warning === undefined
+            ? "in progress"
+            : "slow",
     subject: `${request.title}: ${startName(workflow)}`,
+    ...(warning === undefined ? {} : { warning }),
   };
 }
 
-function said({ told, subject }: Telling): string {
+function said({ told, subject, warning }: Telling): string {
   switch (told) {
     case "in progress":
       return `${subject}, local startup in progress.`;
+    case "slow":
+      return `${subject}. ${warning}`;
     case "waiting":
       return `${subject} settled on this machine; waiting for published story state.`;
     default:

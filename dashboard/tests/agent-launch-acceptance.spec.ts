@@ -6,7 +6,7 @@
 // the launch settles after its caller is gone, its publication receipt and
 // outcome observable through the machine's sessions and its kept attempt.
 // While it is unsettled no workflow's launch of the story is accepted; the
-// same launch is answered as already submitted. An
+// same pending story start is refused as already starting. An
 // acceptance that cannot be kept starts nothing, and a failure after
 // acceptance is the owner's kept outcome rather than a crashed server.
 // Open-session refusal of a story start is
@@ -20,7 +20,6 @@ import type { AttemptObservation } from "../src/agentLaunch.ts";
 import {
   accept,
   alreadyStarting,
-  alreadySubmitted,
   attempts,
   keptStarts,
   launch,
@@ -111,18 +110,24 @@ test.describe("an accepted launch", () => {
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },
+        worker: {
+          pid: server.pid,
+          serverPid: server.pid,
+          step: "start",
+          notedAt: expect.any(String),
+        },
       },
     ]);
     await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
     expect(await origin.takenProfiles()).toEqual([]);
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
 
     // No workflow's launch of the story is accepted while it is unsettled.
     const refinement = { ...request, workflow: "refinement" };
     expect(await answerOf(accept(server, refinement))).toEqual(alreadyStarting);
-    expect(await answerOf(accept(server, request))).toEqual(alreadySubmitted);
+    expect(await answerOf(accept(server, request))).toEqual(alreadyStarting);
     expect(server.claudeCalls()).toEqual([]);
     expect(workspaces()).toHaveLength(1);
     expect(await attempts(server)).toHaveLength(1);
@@ -139,7 +144,7 @@ test.describe("an accepted launch", () => {
       .toBe(1);
     const revision = (await origin.originGit("rev-parse", "main")).trim();
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
     expect(keptAttempts()[0]?.publication).toEqual({
       kind: "published",
@@ -166,7 +171,7 @@ test.describe("an accepted launch", () => {
       },
     });
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: false },
+      { ...keptAttempts()[0], owned: false, running: false },
     ]);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(workspaces()).toHaveLength(1);
@@ -195,7 +200,7 @@ test.describe("an accepted launch", () => {
     expect(await attempts(server)).toEqual([]);
   });
 
-  test("whose run fails after acceptance keeps that outcome with its owner while the server goes on", async () => {
+  test("whose publication receipt cannot be kept retains the known recording stop while the server goes on", async () => {
     test.setTimeout(120_000);
     server.claudeScenario("launched");
     const answered = await answerOf(accept(server, request));
@@ -210,24 +215,27 @@ test.describe("an accepted launch", () => {
         timeout: 30_000,
       })
       .toMatchObject({
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation: expect.stringContaining("The launch ended unexpectedly"),
+        kind: "failed",
+        reason: "unrecorded",
+        explanation: expect.stringContaining("Publication succeeded (Taken by"),
       });
     expect((await attempts(server))[0]).toMatchObject({
       id: answered.attempt?.id,
       owned: false,
+      running: false,
+      publication: expect.objectContaining({ kind: "published" }),
     });
     // What was kept stays as it was written before the failure: unsettled,
     // its publication not yet known, to be reconciled.
     expect(keptAttempts()).toEqual([
-      {
+      expect.objectContaining({
         id: answered.attempt?.id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },
-      },
+        worker: expect.objectContaining({ step: "start" }),
+      }),
     ]);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(await runningStarts(server)).toEqual([]);

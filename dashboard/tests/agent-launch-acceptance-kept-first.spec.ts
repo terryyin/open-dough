@@ -124,7 +124,7 @@ test.describe("an accepted launch whose change is being kept", () => {
     });
     expect(keptAttempts()[0]?.reporting).toBeUndefined();
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
 
     rmSync(hold());
@@ -135,7 +135,7 @@ test.describe("an accepted launch whose change is being kept", () => {
       .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
       .toBe(1);
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
 
     // Launched; the write that keeps its outcome is held.
@@ -144,7 +144,7 @@ test.describe("an accepted launch whose change is being kept", () => {
     await expect.poll(heldField, { timeout: 30_000 }).toBe("outcome");
     expect(keptAttempts()[0]?.outcome).toBeUndefined();
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true },
+      { ...keptAttempts()[0], owned: true, running: true },
     ]);
 
     rmSync(hold());
@@ -152,7 +152,7 @@ test.describe("an accepted launch whose change is being kept", () => {
       .poll(() => keptAttempts()[0]?.outcome?.kind, { timeout: 30_000 })
       .toBe("launched");
     expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: false },
+      { ...keptAttempts()[0], owned: false, running: false },
     ]);
   });
 });

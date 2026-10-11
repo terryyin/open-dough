@@ -1,23 +1,14 @@
 import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
-// A card's launches: on a Backlog card, one Start action per workflow in the
-// order `launchWorkflows` offers them, together in the card's launch group,
-// each with its note in its tooltip and its answer beside it; while the card
-// lists an open session (`cardSessionsOf`), every Start is unavailable and
-// described why (`openSessionStartReason`), and the launch boundary refuses a
-// second start the same way; on the card of a story starting on this machine,
-// whichever page asked for it, what its local startup is doing
-// (`StartupStatus`), with the answer of one in need of reconciliation left to
-// Startup recovery; on every card, the story's sessions that have not been
-// marked done (`./CardSessions.tsx`). A Taken card whose story this machine
-// started and holds the start of, with no session yet, also offers Start
-// execution, which opens the session in the kept workspace without a second
-// Take — and that Start is unavailable the same way while an open session
-// remains. A launch from the card lists its session here once it settles and
-// takes the keyboard to it. A launch this page asked for whose answer no Start
-// on the card shows, as when origin moved the story to Taken meanwhile, keeps
-// that answer on the card. Review changes belongs to the card's inspection
-// group (`./WorkCard.tsx`).
+// A card's launches: Backlog cards offer Start per workflow, with each note
+// and answer; an open session makes every Start unavailable with its reason.
+// A story starting on this machine shows StartupStatus wherever it is listed,
+// with reconciliation answers left to Startup recovery. Every card shows
+// sessions not marked done. A Taken card with a kept start offers execution
+// in that workspace without a second Take; an open session gates it too.
+// A launch lists its session here and takes the keyboard to it. An answer no
+// Start shows, as when origin moved the story to Taken meanwhile, stays on
+// the card. Review changes belongs to WorkCard's inspection group.
 // Sessions are local evidence: whatever they show, origin places the story.
 
 import { useId, useState } from "react";
@@ -25,6 +16,7 @@ import type { LaunchChoices, LaunchWorkflow } from "./agentLaunch.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import {
   cardSessionsOf,
+  publicationRecordingStopped,
   keptStartNote,
   launchWorkflowNames,
   launchWorkflows,
@@ -51,8 +43,7 @@ export function CardLaunches({
   sourceId: string;
   entry: WorkEntry;
   launches: MachineSessions;
-  // Backlog cards only: Taken work offers no launch of its own, except the
-  // Start of a start this machine kept.
+  // Backlog offers every workflow; Taken offers only a kept execution.
   offersStart: boolean;
   // The id of what says the story's startup, which the card is described by.
   statusId: string;
@@ -79,26 +70,31 @@ export function CardLaunches({
   };
   const startup = launches.storyStartupOf(sourceId, entry.identity);
   const unavailable = startup !== undefined;
-  // No Start is offered before this machine's launch evidence was read: an
-  // earlier startup of the story may be unresolved.
+  // No Start before local evidence is read: an earlier startup may be unresolved.
   const unoffered = unavailable || launches.attemptEvidence !== "read";
   const evidenceId = `${statusId}-evidence`;
   const unread = !unavailable && unoffered ? evidenceId : undefined;
   const sessionOpenId = `${statusId}-session-open`;
   // A startup in need of reconciliation is answered under Startup
-  // recovery, not beside the card's unavailable actions.
-  const attemptOf = (workflow: LaunchWorkflow) =>
-    startup?.state === "needs-reconciliation"
+  // recovery; a recording stop also keeps its failed answer beside Start.
+  const attemptOf = (workflow: LaunchWorkflow) => {
+    const attempt = startup?.attempt;
+    if (
+      publicationRecordingStopped(attempt) &&
+      attempt.request.workflow === workflow
+    )
+      return attempt.outcome;
+    return startup?.state === "needs-reconciliation"
       ? undefined
       : launches.attemptOf(sourceId, entry.identity, workflow);
+  };
   const dependencyProblem = dependencyStartProblem(entry.dependencies);
   // Dependencies gate a new execution, not continuation of a kept one-shot.
   const dependencyBlocksStart =
     keptOneShot === undefined && dependencyProblem !== undefined;
   const dependencyId = `${statusId}-dependencies`;
-  // Open session and unread evidence gate every Start; dependency layers on
-  // for a Backlog execution Start only. Kept-start Start execution shares the
-  // open-session and unread gates, not the dependency one.
+  // Open session and unread evidence gate all Starts; dependencies gate only a
+  // fresh Backlog execution. Kept execution shares the first two gates.
   const startBlocked = unoffered || hasOpenSession;
   const startBlockedReason = hasOpenSession ? sessionOpenId : unread;
   const startUnavailable = (workflow: LaunchWorkflow) =>
@@ -178,7 +174,7 @@ export function CardLaunches({
               establishesStart
               options={undefined}
               resumes={keptStart}
-              note={keptStartNote}
+              note={unavailable ? undefined : keptStartNote}
               attempt={attemptOf("execution")}
               unavailable={startBlocked}
               unavailableReason={startBlockedReason}
@@ -204,7 +200,7 @@ export function CardLaunches({
                 }
                 {...resumesOf(workflow)}
                 note={
-                  "resumes" in resumesOf(workflow)
+                  "resumes" in resumesOf(workflow) && !unavailable
                     ? keptStartNote
                     : launchWorkflows[workflow].note(entry)
                 }

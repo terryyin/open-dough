@@ -89,6 +89,13 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
       // This project's refinement has no installed start to publish.
       publication: { kind: "none" },
       owned: true,
+      running: true,
+      worker: {
+        pid: dashboard.pid,
+        serverPid: dashboard.pid,
+        step: "launch",
+        notedAt: expect.any(String),
+      },
     },
   ]);
 
@@ -116,6 +123,13 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
         reportingOrigin: dashboard.origin,
         publication: { kind: "none" },
         owned: false,
+        running: false,
+        worker: {
+          pid: dashboard.pid,
+          serverPid: dashboard.pid,
+          step: "launch",
+          notedAt: expect.any(String),
+        },
       },
     ]);
     expect(

@@ -6,6 +6,7 @@ import {
   establishedPlace,
   establishesSession,
   type PublicationReceipt,
+  type LaunchAttemptRecord,
   type RecordedLaunchRequest,
   type LaunchRecord,
   type LaunchResult,
@@ -27,7 +28,9 @@ import { removeLaunchedStart } from "./startStore.ts";
 import { settleSessionStart } from "./sessionStartStore.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
+import { attemptWorker } from "./launchAttemptWorker.ts";
 import { establishedFacts } from "./startLaunch.ts";
+import { publishedAssignment } from "./startWorkflows.ts";
 import type { StartProgress } from "./startProgress.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
@@ -52,6 +55,10 @@ export async function attemptRun(
   source: PublishedSource,
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
+  noteSlow: (slowSince: string) => Promise<void>,
+  noteWorker: (
+    worker: NonNullable<LaunchAttemptRecord["worker"]>,
+  ) => Promise<void>,
   progress: StartProgress,
   doneMarks: NativeDoneMarks,
 ): Promise<LaunchResult> {
@@ -59,6 +66,8 @@ export async function attemptRun(
     source,
     own,
     notePublication,
+    noteSlow,
+    noteWorker,
     progress,
     doneMarks,
   );
@@ -73,6 +82,10 @@ async function startedRun(
   source: PublishedSource,
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
+  noteSlow: (slowSince: string) => Promise<void>,
+  noteWorker: (
+    worker: NonNullable<LaunchAttemptRecord["worker"]>,
+  ) => Promise<void>,
   progress: StartProgress,
   doneMarks: NativeDoneMarks,
 ): Promise<LaunchResult> {
@@ -85,12 +98,29 @@ async function startedRun(
   const pending = await pendingInputOf(source.id, request);
   const start =
     pending === undefined
-      ? await started(source, request, folder, progress, attempt.id)
+      ? await started(
+          source,
+          request,
+          folder,
+          progress,
+          attempt.id,
+          noteSlow,
+          (pid) => noteWorker(attemptWorker("start", pid)),
+        )
       : ({ kind: "none" } as const);
-  await notePublication(publicationOf(start, pending));
-  if (start.kind === "stopped") return start.result;
   let timer: NodeJS.Timeout | undefined;
   try {
+    try {
+      await notePublication(publicationOf(start, pending));
+    } catch (error) {
+      if (start.kind !== "established") throw error;
+      return {
+        kind: "failed",
+        reason: "unrecorded",
+        explanation: `Publication succeeded (${publishedAssignment(start)}, workspace ${start.workspace.shown}), but the receipt could not be recorded in ~/.open-dough/dashboard/launch-attempts.json: ${error instanceof Error ? error.message : String(error)}. Repair the file, then Continue; nothing more was started.`,
+      };
+    }
+    if (start.kind === "stopped") return start.result;
     const baseRecording =
       pending?.request ??
       (start.kind === "established"
@@ -117,6 +147,7 @@ async function startedRun(
     }
     const recording =
       reporting === undefined ? baseRecording : { ...baseRecording, reporting };
+    await noteWorker(attemptWorker("launch"));
     timer = setTimeout(() => {
       controller.abort();
     }, launchTimeoutMs());

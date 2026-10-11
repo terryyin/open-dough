@@ -105,6 +105,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
       source: "open-dough",
       identity: queuedIdentity,
       workspace: "~/git/open-dough/.worktrees/story-a",
+      branch: "codex/story-a",
       agent: profile?.["agent"],
     },
   ]);

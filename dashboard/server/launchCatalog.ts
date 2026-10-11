@@ -19,7 +19,6 @@ import { readDefinition } from "./launchOptions.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptStartsByProject } from "./startStore.ts";
 import { startOf } from "./startWorkflows.ts";
-import type { StartProgress } from "./startProgress.ts";
 
 // The catalog projects whose selected host installation establishes a workflow's
 // start, by id, in catalog order.
@@ -76,36 +75,31 @@ export async function offeredDefinitions(): Promise<
 // The starts kept without a session, in catalog order: each names the
 // workspace as the page shows a project's folders and the Agent its claim
 // named, when the start reported one.
-export async function keptStarts(
-  progress: StartProgress,
-): Promise<readonly KeptStart[]> {
+export async function keptStarts(): Promise<readonly KeptStart[]> {
   const kept = {
     execution: await keptStartsByProject("execution"),
     refinement: await keptStartsByProject("refinement"),
   };
   return configuredProjects().flatMap((source) =>
     (["execution", "refinement"] as const).flatMap((workflow) =>
-      (kept[workflow].get(source.id) ?? [])
-        .filter(
-          (start) => !progress.for(workflow).running(source.id, start.identity),
-        )
-        .map((start) => {
-          const agent = assignedAgent(start.start ?? start.preparation);
-          return {
-            workflow,
-            host: start.host,
-            ...(start.model === undefined ? {} : { model: start.model }),
-            ...(start.effort === undefined ? {} : { effort: start.effort }),
-            source: source.id,
-            identity: start.identity,
-            workspace: shownStartWorkspace(
-              projectFolder(source),
-              start.workspace,
-            ),
-            ...(agent === undefined ? {} : { agent }),
-            ...(start.policy === undefined ? {} : { policy: start.policy }),
-          };
-        }),
+      (kept[workflow].get(source.id) ?? []).map((start) => {
+        const agent = assignedAgent(start.start ?? start.preparation);
+        return {
+          workflow,
+          host: start.host,
+          ...(start.model === undefined ? {} : { model: start.model }),
+          ...(start.effort === undefined ? {} : { effort: start.effort }),
+          source: source.id,
+          identity: start.identity,
+          branch: start.branch,
+          workspace: shownStartWorkspace(
+            projectFolder(source),
+            start.workspace,
+          ),
+          ...(agent === undefined ? {} : { agent }),
+          ...(start.policy === undefined ? {} : { policy: start.policy }),
+        };
+      }),
     ),
   );
 }

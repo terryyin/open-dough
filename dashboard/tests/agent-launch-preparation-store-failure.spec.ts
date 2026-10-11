@@ -1,6 +1,6 @@
 // A result-store failure is beyond the page's control: the real installed
 // script publishes, then a bare-origin hook denies machine-directory writes.
-// Shared started() must preserve its result, including after its wait expires.
+// Shared started() must preserve its result, including past its warning threshold.
 import { chmodSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
@@ -18,7 +18,7 @@ import {
 } from "./support/startOrigin.ts";
 
 for (const expired of [false, true]) {
-  test(`post-publication recording failure preserves preparation (${expired ? "expired wait" : "ordinary wait"})`, async () => {
+  test(`post-publication recording failure preserves preparation (${expired ? "slow start" : "ordinary wait"})`, async () => {
     const origin = await startOrigin(
       "terryyin/open-dough",
       "open-dough",
@@ -54,24 +54,14 @@ for (const expired of [false, true]) {
         progress,
         "attempt",
       );
-      if (expired) {
-        expect(outcome).toMatchObject({
-          kind: "stopped",
-          result: { kind: "uncertain", reason: "timed-out" },
-        });
-        await expect
-          .poll(() => progress.all(), { timeout: 20_000 })
-          .toEqual([]);
-      } else {
-        expect(outcome).toMatchObject({ kind: "established" });
-        if (outcome.kind !== "established")
-          throw new Error("Published handoff missing.");
-        expect(outcome.handoff.established).toMatchObject({
-          preparation: { identity: queuedIdentity },
-        });
-        expect(outcome.handoff.formatted).toContain("Established preparation:");
-        progress.for("refinement").clear(defaultSource.id, queuedIdentity);
-      }
+      expect(outcome).toMatchObject({ kind: "established" });
+      if (outcome.kind !== "established")
+        throw new Error("Published handoff missing.");
+      expect(outcome.handoff.established).toMatchObject({
+        preparation: { identity: queuedIdentity },
+      });
+      expect(outcome.handoff.formatted).toContain("Established preparation:");
+      progress.for("refinement").clear(defaultSource.id, queuedIdentity);
       expect(statSync(directory).mode & 0o777).toBe(0o555);
       const retained = await keptStart(
         defaultSource.id,
@@ -101,14 +91,12 @@ for (const expired of [false, true]) {
         host: "codex",
         identity: queuedIdentity,
       });
-      if (outcome.kind === "established") {
-        expect(outcome.handoff.established).toMatchObject({
-          preparation: { publishedSha: published },
-        });
-        expect(outcome.handoff.formatted).toContain(
-          `- publishedSha: ${published}`,
-        );
-      }
+      expect(outcome.handoff.established).toMatchObject({
+        preparation: { publishedSha: published },
+      });
+      expect(outcome.handoff.formatted).toContain(
+        `- publishedSha: ${published}`,
+      );
       await new Promise<void>((resolve) => setImmediate(resolve));
       expect(unhandled).toEqual([]);
       chmodSync(directory, 0o755);

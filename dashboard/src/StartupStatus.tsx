@@ -11,6 +11,7 @@
 
 import {
   startName,
+  publicationRecordingStopped,
   startPhaseWords,
   type RunningStart,
 } from "./agentLaunch.ts";
@@ -20,14 +21,16 @@ import "./agent-launch.css";
 // What is known of a startup in need of reconciliation, by its cause.
 // `start` names it, such as "execution start".
 export function reconciliationCause(
-  { cause }: Pick<StoryStartup, "cause">,
+  { cause, attempt }: Pick<StoryStartup, "cause" | "attempt">,
   start: string,
 ): string {
+  if (publicationRecordingStopped(attempt))
+    return `this ${start} published its assignment, but its receipt could not be recorded, so no session was started. Repair the file, then Continue.`;
   switch (cause) {
     case "unacknowledged":
       return `the answer to this ${start} was lost, so it may or may not have been accepted.`;
     case "interrupted":
-      return `this machine accepted this ${start}, but no running dashboard server owns it and it never settled, so its session may or may not have started.`;
+      return `this machine accepted this ${start}, but its recorded worker is no longer running and it never settled, so its session may or may not have started.`;
     default:
       return `this ${start} settled without confirming whether its session or published assignment exists.`;
   }
@@ -43,7 +46,7 @@ export function StartupStatus({
   // Whether the project's installed skill establishes the workflow's start.
   readonly establishesStart: boolean;
 }) {
-  const { workflow, host, state, problem } = startup;
+  const { workflow, host, state, problem, warning } = startup;
   const named = startName(workflow);
   if (state === "reconciling") {
     return (
@@ -73,13 +76,21 @@ export function StartupStatus({
   }
   const words = startPhaseWords(
     workflow,
-    running?.phase ?? (establishesStart ? "preparing" : "launching"),
+    running?.phase ??
+      (startup.attempt?.worker === undefined
+        ? establishesStart
+          ? "preparing"
+          : "launching"
+        : startup.attempt.worker.step === "start"
+          ? "preparing"
+          : "launching"),
     running?.host ?? host,
   );
   return (
     <>
       <p className="launch-answer quiet card-startup card-startup-progressing">
         {words}
+        {warning !== undefined && <> {warning}</>}
       </p>
       <p className="card-startup-note quiet">
         Local startup in progress; this story's actions are unavailable until it

@@ -33,6 +33,7 @@ import { preAcceptanceAnswer } from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
+import type { AttemptRun } from "./launchAttemptSettlement.ts";
 import { verifyLaunch } from "./launchVerification.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import {
@@ -107,7 +108,7 @@ export class AgentLaunches {
   }
 
   keptStarts(): Promise<readonly KeptStart[]> {
-    return keptStarts(this.progress);
+    return keptStarts();
   }
 
   runningStarts(): readonly RunningStart[] {
@@ -158,10 +159,18 @@ export class AgentLaunches {
       expired.unref();
     });
     try {
-      const changed = await Promise.race([
-        this.owner.changed(id).then(() => true),
-        waited,
-      ]);
+      const observed =
+        this.owner.observation(id) ??
+        (await this.owner.attempts()).attempts.find(
+          (attempt) => attempt.id === id,
+        );
+      const changed =
+        observed?.running === true && !observed.owned
+          ? await waited
+          : await Promise.race([
+              this.owner.changed(id).then(() => true),
+              waited,
+            ]);
       const attempt = this.owner.observation(id);
       return attempt === undefined ? { changed } : { changed, attempt };
     } finally {
@@ -182,20 +191,12 @@ export class AgentLaunches {
       this.owner.submitted(request) ??
       (await preAcceptanceAnswer(source, request));
     if (answer !== undefined) return answer;
-    return this.owner.accept(
-      request,
-      (own, notePublication) =>
-        attemptRun(source, own, notePublication, this.progress, this.doneMarks),
-      reportingOrigin,
-    );
+    return this.owner.accept(request, this.runAttempt(source), reportingOrigin);
   }
 
-  // Continues the project's kept attempt `id` that needs reconciliation
-  // through the same pre-launch answers and run as a launch, so its kept
-  // start, host creation, or unconfirmed input is recovered by the existing
-  // rules; answering once it is accepted again, or why it was not. While its
-  // earlier start still runs here, it is not continued, so that start's
-  // result is not mistaken for this attempt's.
+  // Continues the kept attempt through the same pre-launch checks and run.
+  // Its kept start, creation, or unconfirmed input is recovered by existing
+  // rules; an earlier start still running here must finish first.
   continueAttempt(source: PublishedSource, id: string): Promise<Acceptance> {
     return this.owner.continueAttempt(
       source.id,
@@ -211,9 +212,13 @@ export class AgentLaunches {
           ? startStillRunning(session ? "session" : "story")
           : preAcceptanceAnswer(source, request);
       },
-      (own, notePublication) =>
-        attemptRun(source, own, notePublication, this.progress, this.doneMarks),
+      this.runAttempt(source),
     );
+  }
+
+  private runAttempt(source: PublishedSource): AttemptRun {
+    return (...args) =>
+      attemptRun(source, ...args, this.progress, this.doneMarks);
   }
 
   reconcile(source: PublishedSource, id: string) {
@@ -235,8 +240,7 @@ export class AgentLaunches {
   }
 
   // Detaches native clients and ends launch waits when the server closes.
-  // Kept attempts stay as last written, for reconciliation; native work goes
-  // on.
+  // Kept attempts stay for reconciliation; native work goes on.
   close(): void {
     this.savedSessionServices.close();
     this.owner.close();

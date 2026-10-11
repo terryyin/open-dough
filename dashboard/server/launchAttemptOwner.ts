@@ -1,20 +1,6 @@
-// The launch attempts this server accepted for the launch lifetime
-// (`./agentLaunches.ts`): each is kept with its exact request
-// (`./launchAttemptStore.ts`) before its run has any side effect, then run to
-// its outcome whatever happens to the caller (`./launchAttemptSettlement.ts`).
-// Of a story's launches in any workflow, and of the same launch on any host,
-// one at a time is accepted; a story whose unresolved attempt
-// (`unresolvedAttempt`) no server runs any more accepts only that attempt's
-// continuation, which runs its kept request again under the same identity. A
-// story that already has an open launch record on this machine is refused
-// until that session is marked done or its record deleted, except a
-// continuation whose open record is that attempt's own launched session. A
-// settled attempt a page found reconciled with published state keeps when it
-// was (`./launchAttemptReconciliation.ts`); a
-// story attempt whose launch is uncertain settles when a recheck finds its
-// host's own evidence unambiguous (`./launchAttemptVerification.ts`).
-// Once a read finds its settled state kept, an attempt is answered from this
-// machine's store rather than from memory (`./ownedAttempts.ts`).
+// Keeps one attempt per story before effects, then settles independently of
+// its caller. Interrupted attempts resume their kept request and identity;
+// reconciliation and verification settle them from retained evidence.
 
 import { randomUUID } from "node:crypto";
 import {
@@ -34,9 +20,6 @@ import {
 import {
   alreadySubmitted,
   conflicting,
-  notContinued,
-  recheckRunning,
-  unknownAttempt,
   unreadableEvidence,
   unrecordedAcceptance,
   type Unaccepted,
@@ -50,6 +33,11 @@ import { settleAttempt, type AttemptRun } from "./launchAttemptSettlement.ts";
 import { keepAttemptIf, keptAttempts } from "./launchAttemptStore.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { OwnedAttempts } from "./ownedAttempts.ts";
+import {
+  continueAttempt,
+  continuationRecord,
+} from "./launchAttemptContinuation.ts";
+import { attemptWorker } from "./launchAttemptWorker.ts";
 
 export class LaunchAttemptOwner {
   private readonly owned = new OwnedAttempts();
@@ -71,7 +59,11 @@ export class LaunchAttemptOwner {
 
   // The answer to a launch matching one this server still runs, if any.
   submitted(request: AgentLaunchRequest): Unaccepted | undefined {
-    return alreadySubmitted(request, this.owned.unsettledRequests());
+    return alreadySubmitted(
+      request,
+      this.owned.unsettledRequests(),
+      this.owned.known([]),
+    );
   }
 
   // Accepts a request nothing else answered: its exact request is kept
@@ -82,7 +74,11 @@ export class LaunchAttemptOwner {
     run: AttemptRun,
     reportingOrigin?: string,
   ): Promise<Acceptance> {
-    if ((await keptAttempts()) === undefined) return unreadableEvidence;
+    const kept = await keptAttempts();
+    if (kept === undefined) return unreadableEvidence;
+    // Refuse live workers before waiting on their note; admission rechecks under lock.
+    const conflict = this.conflictWith(request, kept, new Map());
+    if (conflict !== undefined) return conflict;
     return this.admit(
       request,
       {
@@ -98,52 +94,21 @@ export class LaunchAttemptOwner {
     );
   }
 
-  // Continues the project's kept attempt `id` that needs reconciliation:
-  // what `before` answers its kept request is answered with the attempt
-  // kept as it was; otherwise its kept request runs again under the same
-  // identity, from its kept publication receipt.
-  async continueAttempt(
+  // Continue first settles from its own launch record, otherwise readmits the
+  // kept request after the existing pre-launch checks.
+  continueAttempt(
     sourceId: string,
     id: string,
     before: (request: AgentLaunchRequest) => Promise<Unaccepted | undefined>,
     run: AttemptRun,
   ): Promise<Acceptance> {
-    const read = await keptAttempts();
-    if (read === undefined) return unreadableEvidence;
-    const found = read.find(
-      (attempt) => attempt.id === id && attempt.request.source === sourceId,
-    );
-    if (found === undefined) return unknownAttempt;
-    const unneeded = notContinued(this.owned.observed(found));
-    if (unneeded !== undefined) return unneeded;
-    if (this.verifying.has(id)) return recheckRunning;
-    const answer = await before(found.request);
-    if (answer !== undefined) return answer;
-    // Read again: the attempt may have been continued or settled meanwhile.
-    const kept = await keptAttempts();
-    if (kept === undefined) return unreadableEvidence;
-    const now =
-      kept.find((entry) => entry.id === id) ?? this.owned.get(id)?.attempt;
-    const stillUnneeded =
-      now === undefined
-        ? unknownAttempt
-        : notContinued(this.owned.observed(now));
-    if (stillUnneeded !== undefined) return stillUnneeded;
-    // A recheck of it may settle it meanwhile.
-    if (this.verifying.has(id)) return recheckRunning;
-    return this.admit(
-      found.request,
-      {
-        id,
-        request: found.request,
-        acceptedAt: found.acceptedAt,
-        publication: found.publication,
-        reportingOrigin: found.reportingOrigin,
-        reporting: found.reporting,
-        completion: found.completion,
-      },
-      run,
+    return continueAttempt(
+      this.owned,
+      this.verifying,
+      sourceId,
       id,
+      before,
+      (attempt) => this.admit(attempt.request, attempt, run, id),
     );
   }
 
@@ -182,12 +147,8 @@ export class LaunchAttemptOwner {
     return conflicting(request, unsettled, known, records, continued);
   }
 
-  // Owns the attempt and keeps it before `run` has any side effect, then
-  // runs it whatever happens to the caller; one that cannot be kept is not
-  // accepted and starts nothing. Per-server registration is synchronous with
-  // the owned-only conflict check; machine attempts and launch records are
-  // rechecked inside the attempt store's locked write so two servers share
-  // one acceptance.
+  // Locked machine evidence admits one acceptance across servers, then local
+  // registration precedes effects. An attempt that cannot be kept starts nothing.
   private async admit(
     request: AgentLaunchRequest,
     attempt: LaunchAttemptRecord,
@@ -195,15 +156,43 @@ export class LaunchAttemptOwner {
     continued?: string,
   ): Promise<Acceptance> {
     const attachTerminal = terminalHandoffRequested();
-    // Checked and registered in one step so one story accepts once per server.
-    // Machine evidence is empty here; the locked keep rechecks it.
+    // The locked keep rechecks machine facts before local registration and effects.
     const local = this.conflictWith(request, [], new Map(), continued);
     if (local !== undefined) return local;
-    const own = this.owned.own(request, attempt);
+    // Preparation runs in this server before spawn, and across the script's
+    // exit and the next worker note. Keep that worker before any effect.
+    const working = {
+      ...attempt,
+      worker: attemptWorker(request.workflow === "ad-hoc" ? "launch" : "start"),
+    };
+    let keptAttempt: LaunchAttemptRecord = working;
     let refusal: Unaccepted | undefined;
     try {
-      const recorded = await keepAttemptIf(attempt, async (machine) => {
+      const recorded = await keepAttemptIf(working, async (machine) => {
         const records = await readableRecordsByProject();
+        if (continued !== undefined) {
+          const selected = continuationRecord(
+            this.owned,
+            this.verifying,
+            request.source,
+            continued,
+            machine,
+            records,
+          );
+          if (!("attempt" in selected)) {
+            refusal = selected;
+            return false;
+          }
+          keptAttempt = selected.ownLaunch
+            ? selected.attempt
+            : {
+                ...selected.attempt,
+                worker: working.worker,
+                outcome: undefined,
+                settledAt: undefined,
+              };
+          if (selected.ownLaunch) return keptAttempt;
+        }
         refusal = this.conflictWith(
           request,
           machine,
@@ -211,24 +200,32 @@ export class LaunchAttemptOwner {
           continued,
           attempt.id,
         );
-        return refusal === undefined;
+        return refusal === undefined ? keptAttempt : false;
       });
       if (!recorded) {
-        this.owned.release(attempt.id);
         return refusal ?? unrecordedAcceptance;
       }
     } catch {
-      this.owned.release(attempt.id);
       return unrecordedAcceptance;
     }
+    if (keptAttempt.outcome?.kind === "launched") {
+      this.owned.release(attempt.id);
+      return { kind: "accepted", attempt: this.owned.observed(keptAttempt) };
+    }
+    if (this.owned.closed)
+      return {
+        kind: "failed",
+        reason: "refused",
+        explanation:
+          "This dashboard stopped before admission finished. The attempt was kept for recovery; nothing was started or launched.",
+      };
+    const own = this.owned.own(request, keptAttempt);
     rememberTerminalHandoff(attempt.id, attachTerminal);
     void settleAttempt(this.owned, own, run);
-    return { kind: "accepted", attempt: this.owned.observed(attempt) };
+    return { kind: "accepted", attempt: this.owned.observed(keptAttempt) };
   }
 
-  // Settles once the attempt this server runs under `id` changes (its
-  // publication receipt is noted or it settles), or at once when it runs no
-  // such unsettled attempt.
+  // Waits for an owned attempt's next change; other attempts answer immediately.
   changed(id: string): Promise<void> {
     return this.owned.nextChange(id);
   }

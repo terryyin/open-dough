@@ -32,7 +32,7 @@ workspace folders or any known host namespace collide. The same descriptions
 supply collision lookup for `claude/`, `codex/`, and `cursor/`.
 
 Start runs only when origin is the catalog repository and the story has no
-unresolved [launch attempt](AGENT-LAUNCH.md#startup-handoff-and-reconciliation)
+unresolved [launch attempt](AGENT-LAUNCH-STARTUP.md)
 on this machine. Progress is registered synchronously before running: preparing,
 then launching. Another request for the story, in either workflow, is refused
 without a second start. Every page reads those local phases, but the card stays
@@ -52,15 +52,30 @@ or gave no readable result, is retained with workspace/branch and recovery.
 A stop that made no assignment removes its record; refinement also removes
 only the workspace/branch that attempt created.
 
-The script is never aborted by its bounded wait (two minutes by default,
-`DOUGH_START_TIMEOUT_MS` for tests). Expiry reports uncertain, so the start
-needs reconciliation, and the script continues recording its result.
-Continuing that attempt from Startup recovery, or a kept start's Start, resumes
-the kept workspace/branch, publisher/model and recovery, yielding
-existing/resumed execution or continued preparation instead of a second
-publication. An execution interrupted before
-its result is retained uses workspace HEAD/parent only on its kept branch;
-the installed script validates the isolated claim or refuses it.
+The start wait is a warning threshold (two minutes by default,
+`DOUGH_START_TIMEOUT_MS` for tests). Crossing it notes `slowSince` on the
+attempt, which stays unsettled and owned while the script runs; time alone
+never aborts the script or settles the attempt. A second start is refused and
+Continue starts nothing while it runs. When the script finishes, its answer
+proceeds normally: a refusal stops, or an established start records its receipt
+and launches one native session automatically, without a manual continuation.
+
+A published receipt must be retained in
+`~/.open-dough/dashboard/launch-attempts.json` before the native session.
+If recording it fails, the attempt answers `failed`/`unrecorded`: publication
+succeeded, with the known agent and workspace, but the receipt could not be
+recorded in that file. No native session starts. The kept start, workspace,
+branch and assignment remain; repair the file and Continue to keep the receipt
+and launch once through the installed command's `existing` or `continue`
+answer. Other failed attempt notes remain answered from memory while the file
+keeps its earlier conservative state; a restart reads that interrupted state.
+
+Continuing an interrupted or failed attempt from Startup recovery, or a kept
+start's Start, resumes the kept workspace/branch, publisher/model and recovery,
+yielding existing/resumed execution or continued preparation instead of a
+second publication. An execution interrupted before its result is retained
+uses workspace HEAD/parent only on its kept branch; the installed script
+validates the isolated claim or refuses it.
 
 Refinement retry uses the installed command's `continue` operation. It verifies
 the retained workspace, branch and exact allocation on fetched origin before

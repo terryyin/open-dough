@@ -225,7 +225,6 @@ table, never a second flow. Model it in the launch vocabulary above.
 | **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the dashboard for every host, never by a host's own worktree feature: `<project folder>/.worktrees/<story slug>`. Inside the project folder the folder's trust covers it (Claude Code probed; Codex resolves a linked worktree's trust to its main repository; Cursor inherits trust down the folder tree, observed 2026-09-30), and outside `~/.codex/worktrees` and `~/.cursor/worktrees` those tools' automatic cleanup does not reach it. The branch names the selected host, such as `claude/<slug>`, `codex/<slug>`, or `cursor/<slug>`. | The shared pure function `server/launchWorkspace.ts`; host branches and workspace folders share collision checks. |
 | **Established start** | The start's typed result: identity, publisher id, workspace, branch, mode, remote and target, agent, `publishedSha`, `startingRevision`, `candidateSha`, plan. The handoff to the session. | Shared type in `src/agentLaunch.ts`. |
 | **Start record** | Machine-local, write-ahead evidence of one start: written *before* the script runs (publisher id, workspace, branch), updated with the established start, removed when a launch record keeps it. It is what a retry resumes. Never a story fact; origin's Take decides Taken. | `server/startStore.ts`, beside `launchRecordStore.ts` on the same file discipline (one shared JSON-file helper). |
-| **Start progress** | Which phase a running start is in (`preparing`, then `launching`), held in server memory for this server's own starts, and the attempt's **worker**: the process performing its current step, noted on the attempt record so a page on any server tells a running attempt from an interrupted one by observed liveness, never by age. A kept start whose worker is dead is *interrupted*, not running; a slow one past the warning threshold is still running, with a warning (SEED-130, 2026-10-11 incident). | `AgentLaunches` (`server/agentLaunches.ts`) owns the phases; the attempt record (`launchAttemptStore.ts`) carries the worker. |
 | **Handoff** | The host spells the skill invocation plus the installed established-start handoff; the skill consumes it as its own start result. | The host's private input builder consumes the selected installed formatter; the invoked skill owns established-start reuse. |
 
 Rules that keep later stories additive:
@@ -233,13 +232,6 @@ Rules that keep later stories additive:
 - **Order.** Admit, then start, then session. The record store and the host see a
   session only once the start is established; a failed session leaves the start
   record, so the story's claim never loses its workspace.
-- **Ownership.** One start per project and identity on this machine (a second
-  request is refused as already starting while the attempt's worker is alive,
-  on any server). Across servers and machines the
-  script's publisher-id and origin ownership check decides; a story Taken by
-  another agent is refused with its owner. Retry reuses the story's start record,
-  so the same publisher id, workspace, and branch make the script's answer
-  `existing` or `resumed` instead of a second claim or workspace.
 - **Agent.** The claim names host and the chosen model (omitted on Default). A
   retry after a published claim keeps that claim's model; the session's requested
   model may differ, and the record says what was requested.

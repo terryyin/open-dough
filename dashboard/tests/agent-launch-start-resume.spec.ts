@@ -1,28 +1,21 @@
-// An uncertain or interrupted execution start is kept and resumed
-// (../server/executionStart.ts, ../server/startStore.ts), over raw HTTP
-// against the real installed `execution-start.mjs` and a real bare origin
-// (./support/startOrigin.ts) whose `pre-receive` hook makes a push slow or
-// refuses it once: the start wait expiring answers "Launch uncertain" naming
-// workspace and branch and leaves the script to finish, its result recorded
-// by the still-running attempt; a stop that carries `recovery` keeps its SHAs;
-// and continuing that attempt resumes the kept start in the same workspace
-// with one claim on origin, never a second workspace. A start lost with the server
-// (no result, no `recovery`) refuses a fresh start of its story and is resumed
-// from its workspace by its attempt's continuation: the retry derives
-// the SHAs from the workspace HEAD and its parent, and a workspace that is not
-// the isolated claim stops with the script's own reason.
-
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+// Slow execution starts keep running through their warning threshold and launch
+// automatically; real installed commands against a bare origin prove recovery.
+import { rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
-import { attempts, continued, launch } from "./agentLaunchBoundary.ts";
+import {
+  attempts,
+  continued,
+  continueAttempt,
+  launch,
+} from "./agentLaunchBoundary.ts";
 import {
   answerOf,
   expectOneClaim,
   installHook,
-  keptFacts,
   keptStartOf,
+  loseServerAfterClaimCommit,
   removeHook,
   request,
   slug,
@@ -49,7 +42,6 @@ test.describe("a kept execution start", () => {
     origin = await startOrigin();
   });
 
-  // The dashboard server, its start wait as short or long as the case needs.
   async function serve(startWaitMs: number): Promise<void> {
     server = await startDashboardServer({
       mode: "preview",
@@ -67,51 +59,112 @@ test.describe("a kept execution start", () => {
     origin.cleanup();
   });
 
-  // The story's latest attempt, which only its continuation resumes.
   const latest = async () => (await attempts(server)).at(-1)?.id ?? "";
-
-  test("a push slower than the start wait is uncertain, finishes, and its continuation resumes it with one claim", async () => {
-    // The wait bounds real Git work on both requests. Hold the first push
-    // until its wait expires, without making the ordinary resume race a
-    // one-second deadline when other tests are running.
-    await serve(5000);
-    const held = path.join(origin.machine, "push-held");
-    writeFileSync(held, "");
-    installHook(origin, `while [ -e "${held}" ]; do sleep 0.2; done\n`);
-    const first = await answerOf<Problem>(launch(server, request));
-    expect(first).toMatchObject({ kind: "uncertain", reason: "timed-out" });
-    expect(first.explanation).toContain(
-      `workspace ${keptFacts} on branch claude/${slug}`,
-    );
-    expect(first.explanation).toContain("where it can be resumed");
-    expect(server.claudeCalls()).toEqual([]);
-    // Written ahead of the script, before any result.
+  test("a push slower than the warning threshold keeps running and launches automatically with one claim", async () => {
+    await serve(3000);
+    const push = origin.holdPushes();
+    const launching = answerOf<Launched>(launch(server, request));
+    await expect.poll(() => push.isHeld(), { timeout: 20_000 }).toBe(true);
+    await expect
+      .poll(async () => (await attempts(server))[0]?.slowSince, {
+        timeout: 20_000,
+      })
+      .toBeDefined();
+    const [slow] = await attempts(server);
+    expect(slow).toMatchObject({
+      owned: true,
+      publication: { kind: "unknown" },
+    });
+    expect(slow?.outcome).toBeUndefined();
+    expect(slow?.settledAt).toBeUndefined();
+    expect(push.isHeld()).toBe(true);
+    expect(server.claudeLaunchCalls()).toEqual([]);
     expect(keptStartOf(origin)).toMatchObject({
       identity: queuedIdentity,
       workspace: workspaceOf(origin),
       branch: `claude/${slug}`,
     });
     expect(keptStartOf(origin)?.["start"]).toBeUndefined();
-
-    // The script was left to finish, and its result is recorded.
-    rmSync(held);
-    await expect
-      .poll(() => keptStartOf(origin)?.["start"], { timeout: 20_000 })
-      .toMatchObject({
-        identity: queuedIdentity,
-        branch: `claude/${slug}`,
-      });
-    removeHook(origin);
-
-    const second = await answerOf<Launched>(continued(server, await latest()));
-    expect(second.kind, JSON.stringify(second)).toBe("launched");
+    expect(await answerOf<Problem>(launch(server, request))).toMatchObject({
+      kind: "failed",
+      reason: "already-starting",
+    });
+    expect(
+      await answerOf<Problem>(
+        launch(server, { ...request, workflow: "refinement" }),
+      ),
+    ).toMatchObject({
+      kind: "failed",
+      reason: "already-starting",
+    });
+    expect(
+      await answerOf<Problem>(continueAttempt(server, slow?.id ?? "")),
+    ).toMatchObject({
+      kind: "uncertain",
+      explanation: expect.stringContaining("already running"),
+    });
+    // The owning timer may replace a warning derived from acceptance time.
+    expect(await attempts(server)).toEqual([
+      { ...slow, slowSince: expect.any(String) },
+    ]);
+    push.release();
+    const launched = await launching;
+    expect(launched.kind, JSON.stringify(launched)).toBe("launched");
     await expectOneClaim(origin);
-    expect(second.record.start?.workspace).toBe(workspaceOf(origin));
-    expect(second.record.start?.publishedSha).toBe(
+    expect(launched.record.start?.workspace).toBe(workspaceOf(origin));
+    expect(launched.record.start?.publishedSha).toBe(
       (await origin.originGit("rev-parse", "main")).trim(),
     );
-    // The session carries the start now.
+    const [settled] = await attempts(server);
+    expect(settled).toMatchObject({
+      id: slow?.id,
+      outcome: { kind: "launched" },
+    });
+    expect(settled?.slowSince).toBeUndefined();
+    expect(server.claudeLaunchCalls()).toHaveLength(1);
     expect(keptStartOf(origin)).toBeUndefined();
+  });
+
+  test("a refusal after the warning threshold settles normally and starts no session", async () => {
+    await serve(3000);
+    const held = path.join(origin.machine, "script-held");
+    writeFileSync(held, "");
+    // The installed-command boundary supplies only a delayed refusal, never
+    // publication or a session; the dashboard must interpret its late answer.
+    const script = path.join(
+      origin.project,
+      ".claude/skills/dough-execute-plan/scripts/execution-start.mjs",
+    );
+    writeFileSync(
+      script,
+      `import { existsSync } from "node:fs";
+while (existsSync(${JSON.stringify(held)})) await new Promise(resolve => setTimeout(resolve, 20));
+console.log(JSON.stringify({ok:false,status:"story-left-queue"}));
+`,
+    );
+    const launching = answerOf<Problem>(launch(server, request));
+    await expect
+      .poll(async () => (await attempts(server))[0]?.slowSince, {
+        timeout: 20_000,
+      })
+      .toBeDefined();
+    const [slow] = await attempts(server);
+    expect(slow?.outcome).toBeUndefined();
+    rmSync(held);
+    const refused = await launching;
+    expect(refused).toMatchObject({ kind: "failed", reason: "start-refused" });
+    expect(refused.explanation).toContain(
+      "The start stopped (story-left-queue).",
+    );
+    expect(server.claudeLaunchCalls()).toEqual([]);
+    expect(await origin.takenProfiles()).toEqual([]);
+    expect(keptStartOf(origin)).toBeUndefined();
+    const [settled] = await attempts(server);
+    expect(settled).toMatchObject({
+      publication: { kind: "none" },
+      outcome: refused,
+    });
+    expect(settled?.slowSince).toBeUndefined();
   });
 
   test("a stop that carries recovery keeps its SHAs and its continuation resumes with them", async () => {
@@ -144,47 +197,14 @@ test.describe("a kept execution start", () => {
     expect(keptStartOf(origin)).toBeUndefined();
   });
 
-  // The server dies with the start's push held after the claim commit, so no
-  // result and no `recovery` was recorded; a new server runs on the same
-  // machine state.
-  async function loseServerAfterClaimCommit(): Promise<string> {
-    const held = path.join(origin.machine, "push-held");
-    await serve(60_000);
-    installHook(
-      origin,
-      `touch ${held}\nwhile [ -e ${held} ]; do sleep 0.2; done\nexit 1\n`,
-    );
-    void launch(server, request).catch(() => undefined);
-    await expect.poll(() => existsSync(held), { timeout: 20_000 }).toBe(true);
-    // The server ends and the script dies with it, its push never answered.
-    const closing = server.close();
-    try {
-      execFileSync("pkill", ["-f", origin.machine]);
-    } catch {
-      // Nothing of the start was left running.
-    }
-    // Releases the held hook, which belongs to the server's process group.
-    rmSync(held);
-    await closing;
-    removeHook(origin);
-    expect(keptStartOf(origin)?.["start"]).toBeUndefined();
-    expect(keptStartOf(origin)?.["candidateSha"]).toBeUndefined();
-    expect(await origin.takenProfiles()).toEqual([]);
-    await serve(60_000);
-    // No server runs the attempt now and it never settled: only its own
-    // continuation resumes it.
-    const [interrupted] = await attempts(server);
-    expect(interrupted).toMatchObject({ owned: false });
-    expect(interrupted?.outcome).toBeUndefined();
-    expect(await answerOf<Problem>(launch(server, request))).toMatchObject({
-      kind: "failed",
-      reason: "already-starting",
+  const loseServer = () =>
+    loseServerAfterClaimCommit(origin, async () => {
+      await serve(60_000);
+      return server;
     });
-    return interrupted?.id ?? "";
-  }
 
   test("a start lost with the server is resumed by its continuation from its workspace with one claim", async () => {
-    const interrupted = await loseServerAfterClaimCommit();
+    const interrupted = await loseServer();
     const head = execFileSync(
       "git",
       ["-C", workspaceOf(origin), "rev-parse", "HEAD"],
@@ -200,14 +220,12 @@ test.describe("a kept execution start", () => {
     });
     await expectOneClaim(origin);
     expect((await origin.originGit("rev-parse", "main")).trim()).toBe(head);
-    expect(
-      server.claudeCalls().filter((call) => call.argv[0] === "--bg"),
-    ).toHaveLength(1);
+    expect(server.claudeLaunchCalls()).toHaveLength(1);
     expect(keptStartOf(origin)).toBeUndefined();
   });
 
   test("a lost start whose workspace is not the isolated claim stops its continuation with the script's reason", async () => {
-    const interrupted = await loseServerAfterClaimCommit();
+    const interrupted = await loseServer();
     execFileSync("git", [
       "-C",
       workspaceOf(origin),

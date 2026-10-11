@@ -86,6 +86,7 @@ export async function scriptSession(
       ],
       project,
       request.host,
+      async () => {},
     );
     if (result.kind !== "prepared") {
       await record(() => removeSessionStart(source.id, attempt));

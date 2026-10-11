@@ -2,8 +2,8 @@
 // memory by `AgentLaunches` (`./agentLaunches.ts`): from the moment its script
 // begins (`preparing`) until its session launch ends or the start stops
 // (`launching` once the script established the start). A start kept in the
-// store with no entry here is not running, whatever its record says: the
-// server that ran it is gone or it stopped. A story's starts of different
+// store with no entry here may run on another server; its recorded worker
+// and observed liveness, rather than this local map, decide that. A story's starts of different
 // workflows are separate entries.
 
 import type { LaunchWorkflow, RunningStart } from "../src/agentLaunch.ts";

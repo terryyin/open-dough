@@ -105,7 +105,7 @@ export const sessionOpen: Unaccepted = {
 export function notContinued(
   attempt: AttemptObservation,
 ): Unaccepted | undefined {
-  if (attempt.owned) return runningAttempt;
+  if (attempt.running) return runningAttempt;
   return needsReconciliation(attempt) ? undefined : settledAttempt;
 }
 
@@ -114,7 +114,24 @@ export function notContinued(
 export function alreadySubmitted(
   request: AgentLaunchRequest,
   running: readonly AgentLaunchRequest[],
+  known: readonly AttemptObservation[] = [],
 ): Unaccepted | undefined {
+  // A fresh story Start duplicates its pending start, while a native
+  // submission whose publication is already known keeps its recovery answer.
+  const pendingStart =
+    running.some((other) => sameStory(request, other)) &&
+    known.some(
+      (attempt) =>
+        attempt.running &&
+        attempt.publication.kind === "unknown" &&
+        sameStory(request, attempt.request),
+    );
+  if (pendingStart)
+    return {
+      kind: "failed",
+      reason: "already-starting",
+      explanation: alreadyStarting,
+    };
   return running.some((other) => sameLaunch(other, request))
     ? {
         kind: "uncertain",
@@ -165,7 +182,7 @@ export function conflicting(
   records: ReadonlyMap<string, readonly LaunchRecord[]> | undefined,
   continued?: string,
 ): Unaccepted | undefined {
-  const submitted = alreadySubmitted(request, running);
+  const submitted = alreadySubmitted(request, running, known);
   if (submitted !== undefined) return submitted;
   const unresolved = unresolvedAttempt(
     known.filter((attempt) => sameStory(request, attempt.request)),
@@ -174,7 +191,7 @@ export function conflicting(
     return {
       kind: "failed",
       reason: "already-starting",
-      explanation: unresolved.owned
+      explanation: unresolved.running
         ? alreadyStarting
         : unresolvedStart(unresolved),
     };

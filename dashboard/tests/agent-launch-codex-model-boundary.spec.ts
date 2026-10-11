@@ -129,6 +129,7 @@ test("unavailable discovery still permits configured default, blank input and pr
       source: "open-dough",
       identity: "A",
       workspace: "/workspace",
+      branch: "main",
     }),
   ).not.toHaveProperty("model");
   expect(

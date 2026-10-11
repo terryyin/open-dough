@@ -14,6 +14,7 @@ import {
   type AgentLaunchRequest,
   type AttemptObservation,
   type LaunchWorkflow,
+  type KeptStart,
   type StoryLaunchRequest,
 } from "./agentLaunch.ts";
 import type { AskedRequests } from "./pageAttempt.ts";
@@ -49,6 +50,8 @@ export type StoryStartup = {
   readonly cause?: ReconciliationCause;
   // The accepted attempt it is told from, if any.
   readonly attempt?: AttemptObservation;
+  // A warning derived from a running attempt's age and its kept start.
+  readonly warning?: string;
 };
 
 // The project's stories, each once, whose startup `requests` may tell.
@@ -68,7 +71,7 @@ export function storiesAsked(
 function startupOf(
   request: AgentLaunchRequest,
   state: StoryStartup["state"],
-  facts: Pick<StoryStartup, "cause" | "attempt" | "problem"> = {},
+  facts: Pick<StoryStartup, "cause" | "attempt" | "problem" | "warning"> = {},
 ): StoryStartup | undefined {
   return request.workflow === "ad-hoc"
     ? undefined
@@ -93,6 +96,7 @@ export function storyStartup(
   sourceId: string,
   identity: string,
   reconciled: (attempt: AttemptObservation) => Reconciliation,
+  keptStarts: readonly KeptStart[],
 ): StoryStartup | undefined {
   const of = (request: AgentLaunchRequest) =>
     request.source === sourceId && storyOf(request) === identity;
@@ -100,10 +104,26 @@ export function storyStartup(
   if (submitting !== undefined) return startupOf(submitting, "submitting");
   const ofStory = known.filter((attempt) => of(attempt.request));
   const unresolved = unresolvedAttempt(ofStory);
-  if (unresolved?.owned === true)
+  if (unresolved?.running === true) {
+    const kept = keptStarts.find(
+      (start) =>
+        start.source === sourceId &&
+        start.identity === identity &&
+        start.workflow === unresolved.request.workflow,
+    );
+    const minutes = Math.max(
+      0,
+      Math.floor((Date.now() - Date.parse(unresolved.acceptedAt)) / 60_000),
+    );
     return startupOf(unresolved.request, "progressing", {
       attempt: unresolved,
+      ...(unresolved.slowSince === undefined || kept === undefined
+        ? {}
+        : {
+            warning: `Still starting after ${minutes} minutes. The start goes on in workspace ${kept.workspace} on branch ${kept.branch}; its session starts when it finishes.`,
+          }),
     });
+  }
   const lost = asked.unacknowledged.find(({ request }) => of(request));
   if (lost !== undefined)
     return startupOf(lost.request, "needs-reconciliation", {

@@ -151,30 +151,39 @@ function withAttempt(
 // when none is: a newly accepted attempt, or one whose earlier state was lost
 // when an unreadable file was moved aside. A failed write keeps nothing.
 export function keepAttempt(attempt: LaunchAttemptRecord): Promise<void> {
-  return replaceAttempts(async (kept) => {
-    const next = withAttempt(kept, attempt);
-    const saved = next[attempt.request.source]?.find(
-      (entry) => entry.id === attempt.id,
-    );
-    if (saved !== undefined) await retainLandingSettlement(saved);
-    return next;
-  });
+  return replaceAttempts((kept) => withRetainedAttempt(kept, attempt));
+}
+
+// Every kept update retains landing evidence from the merged record.
+async function withRetainedAttempt(
+  kept: StoredAttempts,
+  attempt: LaunchAttemptRecord,
+): Promise<StoredAttempts> {
+  const next = withAttempt(kept, attempt);
+  const saved = next[attempt.request.source]?.find(
+    (entry) => entry.id === attempt.id,
+  );
+  if (saved !== undefined) await retainLandingSettlement(saved);
+  return next;
 }
 
 // Under the attempt store's write lock, lets `allow` decide from the freshly
 // read attempts whether to keep `attempt`. When `allow` is false, the
 // document is left unchanged (no new attempt). `allow` may await another
-// machine read while the lock is held.
+// machine read while the lock is held, and return the freshly selected record
+// instead when a continuation settles from its own launch evidence.
 export async function keepAttemptIf(
   attempt: LaunchAttemptRecord,
-  allow: (kept: readonly LaunchAttemptRecord[]) => boolean | Promise<boolean>,
+  allow: (
+    kept: readonly LaunchAttemptRecord[],
+  ) => boolean | LaunchAttemptRecord | Promise<boolean | LaunchAttemptRecord>,
 ): Promise<boolean> {
   let recorded = false;
   await replaceAttempts(async (stored) => {
     const allowed = await allow(listedAttempts(stored));
     if (!allowed) return leaveMachineJson;
     recorded = true;
-    return withAttempt(stored, attempt);
+    return withRetainedAttempt(stored, allowed === true ? attempt : allowed);
   });
   return recorded;
 }

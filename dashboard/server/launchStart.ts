@@ -1,5 +1,5 @@
 // Run the shared workflow's deterministic start and format its handoff before
-// the native session begins. An expired wait leaves that start running.
+// the native session begins. A slow start warns while it keeps running.
 // Before a launch is accepted, a start in the default checkout first observes
 // its existing changes: changes the request did not confirm, or that changed
 // since, answer with what was observed, and nothing starts.
@@ -26,7 +26,6 @@ import type { StartProgress } from "./startProgress.ts";
 import { startOf, type StartWorkflow } from "./startWorkflows.ts";
 import { keptStart } from "./startStore.ts";
 import { launchStartContext } from "./launchRecord.ts";
-import { withinStartWait } from "./startWait.ts";
 import { unattachedStarted } from "./unattachedStart.ts";
 
 // The established start a launch's session is handed, if its start made one.
@@ -34,6 +33,17 @@ export function establishedLaunch(
   start: Exclude<Started, { kind: "stopped" }>,
 ): EstablishedLaunch | undefined {
   return start.kind === "none" ? undefined : start;
+}
+
+const defaultStartWaitMs = 120_000;
+
+// How long a start may run before a slow-start warning is noted; elapsed
+// time never aborts the script or settles its attempt. Tests may shorten it.
+export function startTimeoutMs(): number {
+  const configured = Number(process.env["DOUGH_START_TIMEOUT_MS"]);
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : defaultStartWaitMs;
 }
 
 // How a launch's start ended: there was none to run, it established the
@@ -100,16 +110,16 @@ export async function unconfirmedStart(
     : undefined;
 }
 
-// The start a launch's attempt (`attemptId`) runs before its session, a story
-// workflow's or an unattached session's own, kept by that attempt, waiting for
-// it only so long (`./startWait.ts`); the script goes on running when the
-// wait ends.
+// The start a launch's workflow runs before its session. Past the warning
+// threshold the attempt keeps following the script through its result.
 export async function started(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
   progress: StartProgress,
   attemptId: string,
+  noteSlow: (slowSince: string) => Promise<void> = async () => {},
+  noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<Started> {
   if (request.workflow === "ad-hoc") {
     return unattachedStarted(source, request, folder, attemptId);
@@ -119,7 +129,13 @@ export async function started(
     return { kind: "none" };
   }
   const scoped = progress.for(request.workflow);
-  const planned = await workflow.begin(source, request, folder, scoped);
+  const planned = await workflow.begin(
+    source,
+    request,
+    folder,
+    scoped,
+    noteWorker,
+  );
   if (planned.kind === "not-applicable") {
     return { kind: "none" };
   }
@@ -132,22 +148,16 @@ export async function started(
     branch: planned.branch,
     policy: planned.policy,
   };
-  const attempt = await withinStartWait(planned.attempt);
-  if (attempt === "expired") {
-    // No launch follows the script that goes on running, so its phase ends
-    // with it.
-    void planned.attempt.finally(() => {
-      scoped.clear(source.id, request.identity);
-    });
-    return {
-      kind: "stopped",
-      result: {
-        kind: "uncertain",
-        reason: "timed-out",
-        explanation: workflow.uncertain(place),
-      },
-    };
-  }
+  let slowNoted: Promise<void> | undefined;
+  const timer = setTimeout(() => {
+    slowNoted = noteSlow(new Date().toISOString());
+  }, startTimeoutMs());
+  const attempt = await planned.attempt.finally(async () => {
+    clearTimeout(timer);
+    // Finish the warning write before a publication receipt or outcome can
+    // follow it, so a slow note never overwrites later evidence.
+    await slowNoted;
+  });
   if (attempt.kind === "refused") {
     return startFailed(attempt.explanation, attempt.publishedNothing === true);
   }
@@ -181,7 +191,7 @@ export async function started(
 // announcement is published, at the revision the start reported when it
 // reported one; a one-shot start, a launch with no start, or a start refused
 // knowing it published nothing publishes nothing; a start that stopped
-// otherwise, its wait expired included, may or may not have published. A
+// otherwise may or may not have published. A
 // conversation resumed from its kept record carries the start it was launched
 // with.
 export function publicationOf(
