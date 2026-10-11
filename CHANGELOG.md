@@ -1,3 +1,16 @@
+## 0.3.59 - 2026-10-11
+
+- Continue ready story refinement into slice planning in the same session and workspace, land completed preparation by default, and offer `--refine-only` and `--retain` to stop at refinement or retain a draft for review.
+- Land uncommitted preparation before an authorized execution starts, reuse its workspace and branch for the execution, and keep the preparation assignment and recovery path coherent through publication and handoff.
+- Recover CI observation through the coordinator that owns it, reach retained mailboxes after worktree retirement, name a concrete recovery step for each coverage gap, and prefer a live observer for final closure while settling ended observers only from recorded CI verdicts.
+- Review landed Story Branch runs from the exact captured trunk base and accepted revision after their workspace and branches are retired, including hand-resolved conflicted integrations; preserve the original comparison when later dependency work is published.
+- Let All changes include or exclude uncommitted Story Branch changes, keep that choice through Refresh and comparison switches, and explain that Mark reviewed still marks the whole snapshot.
+- Wait for sessions belonging to newly added projects before showing Recently done, expose authenticated-read timing in `Server-Timing`, and stabilize dashboard browser journeys with waits for actual answers, one-time fixture startup, and twelve measured CI shares.
+
+Native acceptance was explicitly skipped for `0.3.59` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed preparation journey, execution handoff, CI observer recovery and closure, landed Story Branch review, uncommitted-change review, and dashboard loading and test behavior, together with previously pending requirements, remains pending and is not reported as passing. The full credential-free deterministic suite, lint, dashboard typecheck, and self-installation check passed locally; all twelve dashboard browser shards passed in CI on the included code and payload revision.
+
+Known follow-ups remain queued for preserving a hand-resolved integration through failed or early reruns, and for deciding and testing worktree retirement when a live closure observer provides no CI verdict.
+
 ## 0.3.58 - 2026-10-10
 
 - Keep dashboard cards and keyboard focus steady during refreshes, show basic story facts before expensive validation, size paged columns to their visible content, and open Near-future direction across the full project actions row.
