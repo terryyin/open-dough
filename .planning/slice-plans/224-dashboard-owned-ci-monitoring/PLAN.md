@@ -871,3 +871,10 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
   test compared the server's answer with the kept record while the separate
   settled-time write could land between the two reads. It now retries the
   comparison until both agree. The race does not involve the request owner.
+- 2026-10-11 (second repair after slice 6): CI run 38134518549 failed
+  `authenticated-read-diagnostics.spec.ts:83`, which answered two reads on a
+  server with a 300 ms read bound; the rate-limited read now includes a `gh`
+  spawn and the durable hold write and crossed that bound on a slow runner. A
+  read's bound covering the whole call is designed, so the spec now uses the
+  short bound only for the read meant to time out. A short `readTimeoutMs` is
+  only for reads meant to time out.
