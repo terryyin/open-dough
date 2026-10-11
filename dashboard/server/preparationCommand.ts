@@ -55,7 +55,9 @@ export async function runPreparationCommand(
     host,
     ...(model === undefined ? [] : ["--model", model]),
     ...(assigned === undefined
-      ? []
+      ? operation === "continue"
+        ? ["--recover-unannounced"]
+        : []
       : [
           ...(assigned.agent === undefined
             ? []

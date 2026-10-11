@@ -1,164 +1,74 @@
-// A kept refinement preparation start is resumed by the next run of it
-// (../server/preparationStart.ts, ../server/startStore.ts), over raw HTTP
-// against the real installed `preparation-assignment.mjs` and a real bare
-// origin (./support/startOrigin.ts) whose `pre-receive` hook makes the
-// announcement slow or refused: a start that outlasts the wait, an
-// `unpublished` stop, and a `claude` refusal after the announcement each keep
-// the start. Continuing the attempt that still needs reconciliation -- or,
-// once the announcement is published, pressing Start again -- reruns the
-// script in the same workspace and branch, which answers `continued`, opens
-// the session there, and leaves exactly one preparation profile on origin and
-// no kept start.
-
+// Retained refinement starts through real HTTP, installed preparation commands,
+// and a bare origin. The shared fixture observes the same workspace, one
+// published preparation, the session instruction, and removal of the kept start.
 import {
   chmodSync,
   copyFileSync,
+  mkdirSync,
   readFileSync,
-  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
+import { runningStarts } from "./agentLaunchBoundary.ts";
+import { queuedIdentity } from "./support/startOrigin.ts";
 import {
-  attempts,
-  continued,
-  launch,
-  launchRequest,
-  runningStarts,
-} from "./agentLaunchBoundary.ts";
-import {
-  builtDashboardDir,
-  startDashboardServer,
-  type DashboardServer,
-} from "./support/dashboardServer.ts";
-import {
-  queuedIdentity,
-  queuedTitle,
-  startOrigin,
-  type StartOrigin,
-} from "./support/startOrigin.ts";
+  keptPreparation,
+  preparationSlug as slug,
+  type KeptPreparation,
+} from "./support/keptPreparation.ts";
 
-const request = {
-  ...launchRequest,
-  workflow: "refinement",
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
-const slug = "prepare-the-queued-start";
 const kept = `workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}`;
 
-type Answer = { kind: string; reason?: string; explanation: string };
-
 test.describe("a kept preparation start", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
+  let preparation: KeptPreparation;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    preparation = await keptPreparation();
   });
 
   test.afterEach(async () => {
-    await server.close();
-    origin.cleanup();
+    await preparation.close();
   });
-
-  async function serve(startWaitMs: number): Promise<void> {
-    server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-      extraEnv: { DOUGH_START_TIMEOUT_MS: String(startWaitMs) },
-    });
-  }
-
-  const hook = () => path.join(origin.origin, "hooks", "pre-receive");
-  function installHook(body: string): void {
-    writeFileSync(hook(), `#!/bin/sh\n${body}`);
-    chmodSync(hook(), 0o755);
-  }
-  const keptStart = () =>
-    (
-      JSON.parse(
-        readFileSync(
-          path.join(
-            origin.machine,
-            "home/.open-dough/dashboard/refinement-starts.json",
-          ),
-          "utf8",
-        ),
-      ) as { "open-dough"?: Record<string, Record<string, unknown>> }
-    )["open-dough"]?.[queuedIdentity];
-  const preparing = async () =>
-    (await origin.takenProfiles()).filter(
-      (profile) => profile["activity"] === "preparation",
-    );
-
-  async function ask(): Promise<Answer> {
-    return JSON.parse((await launch(server, request)).body) as Answer;
-  }
-
-  // Continues the story's latest attempt, which still needs reconciliation.
-  async function resume(): Promise<Answer> {
-    const latest = (await attempts(server)).at(-1)?.id ?? "";
-    return JSON.parse((await continued(server, latest)).body) as Answer;
-  }
-
-  // The start resumed by `again`: one session in the kept workspace, one
-  // preparation profile, one workspace, and nothing kept.
-  async function expectResumed(again = resume): Promise<void> {
-    const second = await again();
-    expect(second.kind, second.explanation).toBe("launched");
-    const workspace = path.join(origin.project, ".worktrees", slug);
-    const [call] = server.claudeLaunchCalls().slice(-1);
-    expect(call?.cwd).toContain(slug);
-    const instruction = call?.argv.at(-1) ?? "";
-    expect(instruction).toContain("Established preparation:");
-    expect(instruction).toContain(`- workspace: ${workspace}`);
-    expect(instruction).toContain(`- branch: claude/${slug}`);
-    expect(await preparing()).toHaveLength(1);
-    expect(readdirSync(path.join(origin.project, ".worktrees"))).toEqual([
-      slug,
-    ]);
-    expect(keptStart()).toBeUndefined();
-  }
 
   test("a start that outlasts the wait is kept and its continuation resumes it with one profile", async () => {
     // Both starts share this wait. Hold the first push until it expires,
     // leaving the ordinary continuation enough time for real Git work.
-    await serve(5000);
-    server.claudeScenario("launched");
-    const push = origin.holdPushes();
-    const first = await ask();
+    await preparation.serve(5000);
+    preparation.server.claudeScenario("launched");
+    const push = preparation.origin.holdPushes();
+    const first = await preparation.ask();
     expect(first).toMatchObject({ kind: "uncertain", reason: "timed-out" });
     expect(first.explanation).toContain(
       `The start was kept and goes on in ${kept}, where it can be resumed.`,
     );
-    expect(server.claudeLaunchCalls()).toEqual([]);
-    expect(keptStart()).toMatchObject({
+    expect(preparation.server.claudeLaunchCalls()).toEqual([]);
+    expect(preparation.keptStart()).toMatchObject({
       identity: queuedIdentity,
-      workspace: path.join(origin.project, ".worktrees", slug),
+      workspace: path.join(preparation.origin.project, ".worktrees", slug),
       branch: `claude/${slug}`,
     });
     expect(push.isHeld()).toBe(true);
     push.release();
     // The script was left to finish; the announcement lands.
-    await expect.poll(preparing, { timeout: 20_000 }).toHaveLength(1);
+    await expect
+      .poll(preparation.preparing, { timeout: 20_000 })
+      .toHaveLength(1);
     // Its continuation is refused while the script still runs.
     await expect
-      .poll(() => runningStarts(server), { timeout: 20_000 })
+      .poll(() => runningStarts(preparation.server), { timeout: 20_000 })
       .toEqual([]);
-    rmSync(hook());
-    await expectResumed();
+    rmSync(preparation.hook());
+    await preparation.expectResumed();
   });
 
   test("an unpublished stop keeps the start and its continuation settles it with one profile", async () => {
-    await serve(60_000);
-    server.claudeScenario("launched");
-    installHook("echo refused >&2\nexit 1\n");
-    const first = await ask();
+    await preparation.serve(60_000);
+    preparation.server.claudeScenario("launched");
+    preparation.installHook("echo refused >&2\nexit 1\n");
+    const first = await preparation.ask();
     expect(first, first.explanation).toMatchObject({
       kind: "failed",
       reason: "start-refused",
@@ -166,41 +76,116 @@ test.describe("a kept preparation start", () => {
     expect(first.explanation).toContain(
       `Workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}. The start was kept and can be resumed. Nothing was launched.`,
     );
-    expect(server.claudeLaunchCalls()).toEqual([]);
-    expect(await preparing()).toEqual([]);
-    expect(keptStart()).toBeDefined();
-    rmSync(hook());
-    await expectResumed();
+    expect(preparation.server.claudeLaunchCalls()).toEqual([]);
+    expect(await preparation.preparing()).toEqual([]);
+    expect(preparation.keptStart()).toBeDefined();
+    rmSync(preparation.hook());
+    await preparation.expectResumed();
+  });
+
+  test("an interrupted precommit start recovers in its workspace without replacing an occupied agent", async () => {
+    await preparation.serve(60_000);
+    preparation.server.claudeScenario("launched");
+    const hooks = path.join(preparation.origin.machine, "commit-hooks");
+    mkdirSync(hooks);
+    const precommit = path.join(hooks, "pre-commit");
+    writeFileSync(precommit, "#!/bin/sh\nexit 1\n");
+    chmodSync(precommit, 0o755);
+    execFileSync("git", ["config", "core.hooksPath", hooks], {
+      cwd: preparation.origin.project,
+    });
+    const first = await preparation.ask();
+    expect(first.kind).toBe("failed");
+    expect(first.explanation).toContain("gave no result");
+    expect(preparation.keptStart()?.["preparation"]).toBeUndefined();
+    expect(preparation.keptStart()?.["preparationUnannounced"]).toBeUndefined();
+    expect(await preparation.preparing()).toEqual([]);
+    rmSync(precommit);
+    const workspace = path.join(preparation.origin.project, ".worktrees", slug);
+    const foreign = path.join(workspace, "foreign-draft.txt");
+    writeFileSync(foreign, "Keep this unrelated work.\n");
+    execFileSync("git", ["add", "--", "foreign-draft.txt"], { cwd: workspace });
+    const staged = execFileSync("git", ["diff", "--cached"], {
+      cwd: workspace,
+    }).toString();
+    const refused = await preparation.resume();
+    expect(refused.kind).toBe("failed");
+    expect(refused.explanation).toContain(
+      "assignment ownership remains unverified",
+    );
+    expect(
+      execFileSync("git", ["diff", "--cached"], { cwd: workspace }).toString(),
+    ).toBe(staged);
+    expect(readFileSync(foreign, "utf8")).toBe("Keep this unrelated work.\n");
+    expect(await preparation.preparing()).toEqual([]);
+    execFileSync("git", ["rm", "--cached", "--", "foreign-draft.txt"], {
+      cwd: workspace,
+    });
+    rmSync(foreign);
+    const occupied = await preparation.origin.takenByAnotherAgent("SEED-B#b");
+    expect(occupied).toBe("Yui-chan");
+    const before = (await preparation.origin.takenProfiles()).find(
+      (profile) => profile["agent"] === occupied,
+    );
+    const occupiedAllocation = await preparation.origin.originGit(
+      "log",
+      "-1",
+      "--diff-filter=A",
+      "--format=%H",
+      "main",
+      "--",
+      ".planning/agents/yui-chan.json",
+    );
+    await preparation.expectResumed(preparation.ask);
+    expect(
+      (await preparation.origin.takenProfiles()).find(
+        (profile) => profile["agent"] === occupied,
+      ),
+    ).toEqual(before);
+    expect(
+      await preparation.origin.originGit(
+        "log",
+        "-1",
+        "--diff-filter=A",
+        "--format=%H",
+        "main",
+        "--",
+        ".planning/agents/yui-chan.json",
+      ),
+    ).toBe(occupiedAllocation);
+    expect((await preparation.preparing())[0]?.["agent"]).toBe("Akiho-chan");
   });
 
   test("a claude refusal after the announcement keeps the start and Start again resumes with one assignment", async () => {
-    await serve(60_000);
-    server.claudeScenario("refused");
-    const first = await ask();
+    await preparation.serve(60_000);
+    preparation.server.claudeScenario("refused");
+    const first = await preparation.ask();
     expect(first, first.explanation).toMatchObject({ kind: "failed" });
     expect(first.explanation).toMatch(
       new RegExp(
         `Preparing as [A-Za-z]+-chan; no session started\\. Workspace ~/git/open-dough/\\.worktrees/${slug}\\.$`,
       ),
     );
-    expect(await preparing()).toHaveLength(1);
-    expect(keptStart()).toMatchObject({ identity: queuedIdentity });
-    server.claudeScenario("launched");
-    await expectResumed(ask);
+    expect(await preparation.preparing()).toHaveLength(1);
+    expect(preparation.keptStart()).toMatchObject({ identity: queuedIdentity });
+    preparation.server.claudeScenario("launched");
+    await preparation.expectResumed(preparation.ask);
   });
 
   test("an unannounced retry clears its old disposition before a newly published result is lost", async () => {
-    await serve(60_000);
-    server.claudeScenario("launched");
-    installHook("echo refused >&2\nexit 1\n");
-    expect((await ask()).kind).toBe("failed");
-    expect(keptStart()).toMatchObject({ preparationUnannounced: true });
-    expect(await preparing()).toEqual([]);
-    rmSync(hook());
+    await preparation.serve(60_000);
+    preparation.server.claudeScenario("launched");
+    preparation.installHook("echo refused >&2\nexit 1\n");
+    expect((await preparation.ask()).kind).toBe("failed");
+    expect(preparation.keptStart()).toMatchObject({
+      preparationUnannounced: true,
+    });
+    expect(await preparation.preparing()).toEqual([]);
+    rmSync(preparation.hook());
     // Run the actual installed command, losing only its start stdout. This
     // transport fault supplies neither an assignment nor a worktree effect.
     const script = path.join(
-      origin.project,
+      preparation.origin.project,
       ".claude/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
     );
     const original = path.join(
@@ -212,19 +197,23 @@ test.describe("a kept preparation start", () => {
       script,
       `import { spawnSync } from "node:child_process";\nconst result = spawnSync(process.execPath, [${JSON.stringify(original)}, ...process.argv.slice(2)], { stdio: ["ignore", process.argv[2] === "start" ? "ignore" : "inherit", "inherit"] });\nprocess.exitCode = result.status ?? 1;\n`,
     );
-    const uncertain = await resume();
+    const uncertain = await preparation.resume();
     expect(uncertain.kind).toBe("failed");
     expect(uncertain.explanation).toContain("gave no result");
-    expect(keptStart()).toMatchObject({ preparationUnannounced: false });
-    expect(keptStart()?.["preparation"]).toBeUndefined();
-    expect(server.claudeLaunchCalls()).toEqual([]);
-    const profiles = await preparing();
+    expect(preparation.keptStart()).toMatchObject({
+      preparationUnannounced: false,
+    });
+    expect(preparation.keptStart()?.["preparation"]).toBeUndefined();
+    expect(preparation.server.claudeLaunchCalls()).toEqual([]);
+    const profiles = await preparation.preparing();
     expect(profiles).toHaveLength(1);
-    const publication = (await origin.originGit("rev-parse", "main")).trim();
-    await expectResumed();
-    expect(await preparing()).toEqual(profiles);
-    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
-      publication,
-    );
+    const publication = (
+      await preparation.origin.originGit("rev-parse", "main")
+    ).trim();
+    await preparation.expectResumed();
+    expect(await preparation.preparing()).toEqual(profiles);
+    expect(
+      (await preparation.origin.originGit("rev-parse", "main")).trim(),
+    ).toBe(publication);
   });
 });

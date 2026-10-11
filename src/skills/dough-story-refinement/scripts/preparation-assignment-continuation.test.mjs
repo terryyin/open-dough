@@ -37,6 +37,7 @@ test("retained continuation requires its branch, published allocation and agent,
   refineStoryC(workspace);
   const before = await snapshot(workspace, [seedC, profile]);
   const flags = [
+    "--recover-unannounced",
     "--branch",
     branch,
     "--expected-agent",
@@ -61,12 +62,10 @@ test("retained continuation requires its branch, published allocation and agent,
     ["--branch", branch, "--expected-agent", "Akiho-chan"],
     ["--branch", branch, "--expected-allocation", `${allocation}^`],
   ]) {
-    const stopped = await continuePreparation(
-      trunk,
-      workspace,
-      identityC,
-      wrong,
-    );
+    const stopped = await continuePreparation(trunk, workspace, identityC, [
+      "--recover-unannounced",
+      ...wrong,
+    ]);
     assert.equal(stopped.code, 1);
     assert.equal(
       stopped.receipt.status,
@@ -133,6 +132,7 @@ test("retained continuation never recreates a missing workspace or branch", asyn
     const stopped = await continuePreparation(trunk, workspace, identityC, [
       "--branch",
       branch,
+      "--recover-unannounced",
       "--expected-allocation",
       announced.allocation,
       "--expected-agent",
@@ -162,4 +162,71 @@ test("retained continuation never recreates a missing workspace or branch", asyn
     );
     assert.equal(await remoteFile(trunk, "main", profile), bytes);
   }
+});
+
+test("raw recovery without an allocation cannot announce when origin already holds this story", async (t) => {
+  const trunk = await createPreparationTrunk();
+  t.after(trunk.cleanup);
+  const first = await createWorkspace(trunk, "announced");
+  const { receipt: announced } = await startPreparation(
+    trunk,
+    first.workspace,
+    identityC,
+  );
+  assert.equal(announced.status, "announced");
+  const retained = await createWorkspace(trunk, "raw");
+  await git(retained.workspace, "reset", "--hard", `${announced.allocation}^`);
+  const before = await snapshot(retained.workspace, [seedC]);
+  const stopped = await continuePreparation(
+    trunk,
+    retained.workspace,
+    identityC,
+    ["--branch", retained.branch, "--recover-unannounced"],
+  );
+  assert.equal(
+    stopped.receipt.status,
+    "continuation-refused",
+    JSON.stringify(stopped),
+  );
+  assert.deepEqual(await snapshot(retained.workspace, [seedC]), before);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    announced.allocation,
+  );
+  assert.deepEqual(await remoteProfileNames(trunk), [profileOf("Yui")]);
+});
+
+test("a clean raw retained start announces once and its next recovery continues the same allocation", async (t) => {
+  const trunk = await createPreparationTrunk();
+  t.after(trunk.cleanup);
+  const { workspace, branch } = await createWorkspace(trunk, "clean-raw");
+  assert.equal((await git(workspace, "status", "--porcelain")).stdout, "");
+  assert.equal(
+    (
+      await git(
+        workspace,
+        "for-each-ref",
+        "--format=%(objectname)",
+        "refs/worktree/dough/preparation-assignment",
+      )
+    ).stdout,
+    "",
+  );
+  const flags = ["--branch", branch, "--recover-unannounced"];
+  const first = await continuePreparation(trunk, workspace, identityC, flags);
+  assert.equal(first.code, 0, JSON.stringify(first));
+  assert.equal(first.receipt.status, "announced");
+  const { allocation, profile } = first.receipt;
+  const tip = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  const bytes = await remoteFile(trunk, "main", profile);
+  assert.equal(tip, allocation);
+  assert.deepEqual(await remoteProfileNames(trunk), [profile]);
+  const second = await continuePreparation(trunk, workspace, identityC, flags);
+  assert.equal(second.code, 0, JSON.stringify(second));
+  assert.equal(second.receipt.status, "continued");
+  assert.equal(second.receipt.allocation, allocation);
+  assert.equal(second.receipt.profile, profile);
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
+  assert.equal(await remoteFile(trunk, "main", profile), bytes);
+  assert.deepEqual(await remoteProfileNames(trunk), [profile]);
 });
