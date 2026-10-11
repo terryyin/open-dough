@@ -3,8 +3,6 @@
 // sidebar without a story card. The real boundary launches synthetic Claude
 // (./fixtures/fake-claude); naming is in ./agent-launch-ad-hoc-boundary.spec.ts.
 
-import { realpathSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -28,6 +26,10 @@ import {
 } from "./publishedOrigin.ts";
 import { expectTooltipLine, sidebarParts } from "./sessionSidebarPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import {
+  expectNamedAdHocCall,
+  expectNoSessionEstablishment,
+} from "./support/unattachedLaunchAssertions.ts";
 
 let journey: LaunchJourney;
 // Publishing runs production backlog commands against a local origin; give
@@ -162,13 +164,8 @@ test("starting with text sends it in the Open Dough folder, and the session read
   expect(launchedAt).toBeGreaterThanOrEqual(before - 1_000);
   expect(launchedAt).toBeLessThanOrEqual(Date.now());
 
-  const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
-  expect(dashboard.claudeLaunchCalls()).toEqual([
-    {
-      argv: ["--bg", "--name", `Open Dough · Ad hoc · ${text}`, text],
-      cwd: folder,
-    },
-  ]);
+  expectNamedAdHocCall(dashboard, "open-dough", "Open Dough", text);
+  await expectNoSessionEstablishment(dashboard);
 
   await stories();
   await expect(
@@ -205,6 +202,9 @@ for (const blank of ["", "   "]) {
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     const [call] = dashboard.claudeLaunchCalls();
     expect(call?.argv).toHaveLength(3);
+    const record = await expectNoSessionEstablishment(dashboard);
+    for (const absent of ["instruction", "reporting"])
+      expect(record?.request).not.toHaveProperty(absent);
     expect(call?.argv[2]).toMatch(
       /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
     );
@@ -230,18 +230,12 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   await button.click();
   await expect(entries).toHaveCount(1);
   await expectTooltipLine(entries.first(), "Pygardon · Ad hoc");
-  const folder = realpathSync(path.join(dashboard.home, "git", "pygardon"));
-  expect(dashboard.claudeLaunchCalls()).toEqual([
-    {
-      argv: [
-        "--bg",
-        "--name",
-        "Pygardon · Ad hoc · what changed last week?",
-        "what changed last week?",
-      ],
-      cwd: folder,
-    },
-  ]);
+  expectNamedAdHocCall(
+    dashboard,
+    "pygardon",
+    "Pygardon",
+    "what changed last week?",
+  );
 
   await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
   await expect(recentlyDone).toContainText(

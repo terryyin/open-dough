@@ -1,14 +1,13 @@
 // The launch boundary honors an unattached request's isolated workspace,
 // with a real bare origin (./support/startOrigin.ts), the installed start
-// recorded as it runs (./support/startSessionLanding.ts), and the synthetic
-// `claude`: the slug is the session's label text, `session` when it has
-// none, numbered when a workspace folder or any host's branch has it. A host
+// recorded as it runs (./support/startSessionLanding.ts): slug variations
+// and collisions belong to ./launch-workspace.spec.ts. A host
 // whose installation cannot establish a session offers only the default
 // choices in the dialog, and Codex starts with the worktree as its working
 // directory. The dialog's journeys are in
 // ./agent-launch-start-session-isolated.spec.ts.
 
-import { existsSync, realpathSync } from "node:fs";
+import { realpathSync } from "node:fs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch, recordsOf } from "./agentLaunchBoundary.ts";
 import { startSession, startSessionDialog } from "./launchCardPage.ts";
@@ -18,7 +17,6 @@ import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
 import {
   established,
-  git,
   isolatedSession,
   isolatedStart,
   originHeads,
@@ -42,47 +40,6 @@ const request = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
 const isolated = (landing: "review" | "auto-land") => ({
   workspace: "isolated",
   landing,
-});
-
-test("a raw isolated request is honored, and its slug is numbered when a workspace folder or any host's branch has it", async ({
-  dashboard,
-  origin,
-}) => {
-  const starts = recordStarts(origin);
-  const before = await originMain(origin);
-  const heads = await originHeads(origin);
-  // Another host's branch already has the blank session's slug.
-  git(origin.project, "branch", "codex/session");
-  dashboard.claudeScenario("launched");
-
-  // No text, then text with no usable word: both are `session`, numbered.
-  const asked = [
-    { body: {}, slug: "session-2" },
-    { body: { instruction: "???" }, slug: "session-3" },
-    // The same text again takes the next number after its own workspace.
-    { body: { instruction: text }, slug },
-    { body: { instruction: `${text}!` }, slug: `${slug}-2` },
-  ];
-  for (const [index, { body, slug: expected }] of asked.entries()) {
-    const answer = await launched(dashboard, {
-      ...request,
-      ...body,
-      policy: isolated("review"),
-    });
-    expect(answer.kind).toBe("launched");
-    expect(answer.record?.establishedSession).toEqual(
-      isolatedSession(origin.project, expected, "review", before),
-    );
-    expect(starts().at(-1)?.argv).toEqual(
-      isolatedStart(origin.project, expected, "review"),
-    );
-    expect(dashboard.claudeLaunchCalls()[index]?.cwd).toBe(
-      realpathSync(worktree(origin.project, expected)),
-    );
-  }
-  expect(worktrees(origin.project)).toEqual(asked.map((start) => start.slug));
-  expect(existsSync(worktree(origin.project, "session"))).toBe(false);
-  expect(await originHeads(origin)).toBe(heads);
 });
 
 test("a host whose installation cannot establish a session offers only the default choices, and says why", async ({

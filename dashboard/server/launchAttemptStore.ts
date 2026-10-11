@@ -30,6 +30,8 @@ import {
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { retainLandingSettlement } from "./launchLandingRecord.ts";
+import { removeSessionStart } from "./sessionStartStore.ts";
+import { record } from "./startRecording.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
@@ -74,7 +76,8 @@ let writing: Promise<unknown> = Promise.resolve();
 // Applies `change` after every earlier write of this server, dropping settled
 // attempts past retention first. `change` may be async so a caller can read
 // launch records under the same write lock that keeps a new attempt, and may
-// return `leaveMachineJson` so a refusal writes nothing.
+// return `leaveMachineJson` so a refusal writes nothing. Only after a successful
+// replacement are the starts belonging to actually expired attempts removed.
 export function replaceAttempts(
   change: (
     kept: StoredAttempts,
@@ -83,8 +86,9 @@ export function replaceAttempts(
     | typeof leaveMachineJson
     | Promise<StoredAttempts | typeof leaveMachineJson>,
 ): Promise<void> {
-  const write = writing.then(() =>
-    replaceMachineJson(attemptStore(), async (stored) => {
+  const write = writing.then(async () => {
+    const expired: { source: string; attempt: string }[] = [];
+    await replaceMachineJson(attemptStore(), async (stored) => {
       const now = Date.now();
       const kept: StoredAttempts = {};
       for (const [id, attempts] of Object.entries(stored)) {
@@ -92,9 +96,25 @@ export function replaceAttempts(
           attemptWithinRetention(attempt, now),
         );
       }
-      return change(kept);
-    }),
-  );
+      const next = await change(kept);
+      if (next !== leaveMachineJson) {
+        for (const [source, attempts] of Object.entries(stored)) {
+          for (const attempt of attempts) {
+            if (
+              !attemptWithinRetention(attempt, now) &&
+              !next[source]?.some((entry) => entry.id === attempt.id)
+            ) {
+              expired.push({ source, attempt: attempt.id });
+            }
+          }
+        }
+      }
+      return next;
+    });
+    for (const { source, attempt } of expired) {
+      await record(() => removeSessionStart(source, attempt));
+    }
+  });
   writing = write.catch(() => undefined);
   return write;
 }

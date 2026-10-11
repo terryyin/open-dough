@@ -19,6 +19,7 @@ import { useId } from "react";
 import {
   startName,
   publicationRecordingStopped,
+  sessionStartRetained,
   type AgentLaunchRequest,
   type AttemptObservation,
 } from "./agentLaunch.ts";
@@ -96,7 +97,9 @@ function RecoveryEntry({
   const continues =
     attempt !== undefined && cause !== "waiting" && cause !== "unacknowledged";
   const nativeCheckAdvice =
-    continues && !publicationRecordingStopped(attempt)
+    continues &&
+    !publicationRecordingStopped(attempt) &&
+    !sessionStartRetained(attempt)
       ? hostDescription(request.host).nativeCheckAdvice
       : undefined;
   return (

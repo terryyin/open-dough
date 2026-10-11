@@ -4,7 +4,6 @@
 // and reconciliation.
 import {
   establishedPlace,
-  establishesSession,
   type PublicationReceipt,
   type LaunchAttemptRecord,
   type RecordedLaunchRequest,
@@ -25,7 +24,7 @@ import { shownLaunchWorkspace } from "./launchWorkspace.ts";
 import { launchRecord } from "./launchRecord.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
-import { settleSessionStart } from "./sessionStartStore.ts";
+import { settleSessionResult } from "./sessionStartSettlement.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { attemptWorker } from "./launchAttemptWorker.ts";
@@ -49,8 +48,7 @@ export function launchTimeoutMs(): number {
     : defaultLaunchWaitMs;
 }
 
-// An unattached attempt's kept start is spent once the attempt settled with
-// nothing left to continue (`./sessionStartStore.ts`).
+// Runs the attempt and settles its retained session establishment.
 export async function attemptRun(
   source: PublishedSource,
   own: OwnedAttempt,
@@ -71,11 +69,7 @@ export async function attemptRun(
     progress,
     doneMarks,
   );
-  // Only a launch that establishes a session keeps a start: any other takes
-  // no further step before its result is answered.
-  if (own.request.workflow === "ad-hoc" && establishesSession(own.request))
-    await settleSessionStart(source.id, own.attempt.id, result);
-  return result;
+  return settleSessionResult(source, own.request, own.attempt.id, result);
 }
 
 async function startedRun(

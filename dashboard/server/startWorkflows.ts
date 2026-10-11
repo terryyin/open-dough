@@ -64,10 +64,12 @@ const oneShot = {
 // What an unattached session's start says (`./unattachedStart.ts`): it has
 // no story, so nothing is Taken or Preparing, and it publishes nothing.
 export const unattachedStartWords = {
+  retained: ({ workspace, branch }: StartWhere) =>
+    `Nothing was published. The established start was kept in workspace ${workspace} on branch ${branch}, where Continue or the same Start request can resume it.`,
   uncertain: (place: StartWhere) =>
     `The session's start did not finish within the wait; it publishes nothing. ${keptGoingOn(place)}`,
-  formatFailed: ({ workspace, branch }: StartWhere) =>
-    `The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
+  formatFailed: () =>
+    `The session's place was established, but the installed skill's formatter could not be read, so no session was started.`,
   unreadable:
     "The start command gave no result this dashboard could read. A session's start publishes nothing. Nothing was launched.",
   notInstalled: (project: string) =>

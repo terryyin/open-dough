@@ -38,6 +38,16 @@ test("numbers the slug when another workspace or branch already has it", () => {
   expect(
     launchWorkspace(project, "Fix it!", new Set(["other"]), "claude").branch,
   ).toBe("claude/fix-it");
+  for (const title of ["", "???"])
+    expect(
+      launchWorkspace(
+        project,
+        title,
+        new Set(["session", "session-2"]),
+        "claude",
+        "session",
+      ).branch,
+    ).toBe("claude/session-3");
 });
 
 test("makes a plain, bounded slug from any title", () => {
@@ -45,6 +55,11 @@ test("makes a plain, bounded slug from any title", () => {
     "cafe-naive-resume-more",
   );
   expect(slugOf("!!!")).toBe("story");
+  for (const title of ["", "   ", "???"])
+    expect(slugOf(title, "session")).toBe("session");
+  expect(slugOf("Tidy the README wording!", "session")).toBe(
+    "tidy-the-readme-wording",
+  );
   const long = slugOf(`${"word ".repeat(30)}end`);
   expect(long.length).toBeLessThanOrEqual(48);
   expect(long).not.toMatch(/^-|-$/);

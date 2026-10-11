@@ -35,9 +35,10 @@ const running = new Set<string>();
 // continuation must not be mistaken for.
 export const runsSessionStart = (attempt: string) => running.has(attempt);
 
-// A kept start's workspace as the start is handed it again: the installed
-// start takes an existing workspace as it is only under the path Git names
-// its top level by, the real one.
+// Hand a kept workspace to older installed starts by its real path: those
+// starts require the spelling Git uses for its top level. Current source
+// accepts equivalent symlinks; keep this conversion until the installed
+// release payload includes that comparison.
 const asGitNames = (workspace: string) =>
   realpath(workspace).catch(() => workspace);
 
@@ -98,7 +99,6 @@ export async function scriptSession(
       landing: policy.landing,
       startingRevision: result.startingRevision,
       ...(result.fetched === undefined ? {} : { fetched: result.fetched }),
-      ...(result.created === undefined ? {} : { created: result.created }),
     };
     await record(() => keepEstablishedSession(source.id, attempt, session));
     return session;

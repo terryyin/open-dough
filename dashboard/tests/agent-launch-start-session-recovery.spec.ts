@@ -233,10 +233,9 @@ for (const when of ["before", "after"] as const) {
         start.map((arg) => (made && arg === kept ? realpathSync(kept) : arg)),
       ]);
       expect(worktrees(origin.project)).toEqual(["session"]);
-      expect(answer.record?.establishedSession).toEqual({
-        ...isolatedSession(origin.project, "session", "review", before),
-        created: !made,
-      });
+      expect(answer.record?.establishedSession).toEqual(
+        isolatedSession(origin.project, "session", "review", before),
+      );
       const [call, ...others] = restarted.claudeLaunchCalls();
       expect(others).toEqual([]);
       expect(call?.cwd).toBe(realpathSync(worktree(origin.project, "session")));

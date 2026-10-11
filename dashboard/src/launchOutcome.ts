@@ -55,6 +55,9 @@ const unlaunchedSchemas = [
   z.object({
     kind: z.literal("failed"),
     reason: z.enum(launchFailureReasons),
+    // Definite refusal after establishment: no native session started, but
+    // this attempt keeps its unattached start for Continue or identical Start.
+    sessionStartKept: z.literal(true).optional(),
     explanation: z.string().min(1),
   }),
   z.object({
@@ -177,6 +180,7 @@ export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
 
 export {
   needsReconciliation,
+  sessionStartRetained,
   publicationRecordingStopped,
   laterAttempt,
   unresolvedAttempt,

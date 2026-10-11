@@ -24,6 +24,7 @@ export function holdStarts(origin: StartOrigin, when: "before" | "after") {
 // What this machine keeps of the project's unattached starts, by attempt.
 export function keptSessionStarts(
   origin: StartOrigin,
+  source = "open-dough",
 ): Record<string, Record<string, unknown>> {
   const file = path.join(
     origin.machine,
@@ -34,7 +35,7 @@ export function keptSessionStarts(
     string,
     Record<string, Record<string, unknown>>
   >;
-  return kept["open-dough"] ?? {};
+  return kept[source] ?? {};
 }
 
 // What an unattached start that outlasts its wait answers: it publishes

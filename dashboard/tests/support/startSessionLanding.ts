@@ -167,7 +167,6 @@ export const isolatedSession = (
   target: "main",
   landing,
   startingRevision: revision,
-  created: true,
 });
 
 // What a session established in the project's default checkout at `revision`
@@ -185,7 +184,6 @@ export const defaultMainSession = (
   landing,
   startingRevision: revision,
   fetched: revision,
-  created: false,
 });
 
 export const sessionBlock = (session: EstablishedSession) =>

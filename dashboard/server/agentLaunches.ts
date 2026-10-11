@@ -4,6 +4,8 @@
 // whatever happens to the caller. Origin alone decides every story fact.
 
 import {
+  needsReconciliation,
+  laterAttempt,
   type Acceptance,
   type AgentLaunchRequest,
   type ChangedAnswer,
@@ -14,6 +16,7 @@ import {
   type LaunchWithState,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
+import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -21,6 +24,7 @@ import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
+import { changedAttempt } from "./launchAttemptChanges.ts";
 import { startStillRunning } from "./launchAttemptConflicts.ts";
 import { runsSessionStart } from "./unattachedStartScript.ts";
 import {
@@ -149,33 +153,9 @@ export class AgentLaunches {
     return this.owner.attempts();
   }
 
-  // Whether the attempt this server runs under `id` changed within `waitMs`
-  // (true at once when it runs no such unsettled attempt), with the attempt
-  // as this server knows it.
-  async changed(id: string, waitMs: number): Promise<ChangedAnswer> {
-    let expired: NodeJS.Timeout | undefined;
-    const waited = new Promise<false>((resolve) => {
-      expired = setTimeout(resolve, waitMs, false);
-      expired.unref();
-    });
-    try {
-      const observed =
-        this.owner.observation(id) ??
-        (await this.owner.attempts()).attempts.find(
-          (attempt) => attempt.id === id,
-        );
-      const changed =
-        observed?.running === true && !observed.owned
-          ? await waited
-          : await Promise.race([
-              this.owner.changed(id).then(() => true),
-              waited,
-            ]);
-      const attempt = this.owner.observation(id);
-      return attempt === undefined ? { changed } : { changed, attempt };
-    } finally {
-      clearTimeout(expired);
-    }
+  // Waits for a change, then answers the attempt as this server knows it.
+  changed(id: string, waitMs: number): Promise<ChangedAnswer> {
+    return changedAttempt(this.owner, id, waitMs);
   }
 
   // Accepts a launch, answering once it is accepted; the launch goes on
@@ -185,11 +165,19 @@ export class AgentLaunches {
     request: AgentLaunchRequest,
     reportingOrigin?: string,
   ): Promise<Acceptance> {
-    // A matching launch still running is answered before its own creation
-    // evidence or kept start could be mistaken for this request's.
-    const answer =
-      this.owner.submitted(request) ??
-      (await preAcceptanceAnswer(source, request));
+    // A matching live launch is answered before its evidence can be mistaken
+    // for a retry. Settled recoverable session starts reuse locked continuation.
+    const submitted = this.owner.submitted(request);
+    if (submitted !== undefined) return submitted;
+    if (request.workflow === "ad-hoc") {
+      const { attempts } = await this.owner.attempts();
+      const retained = attempts
+        .filter((attempt) => sameLaunch(attempt.request, request))
+        .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
+      if (retained !== undefined && needsReconciliation(retained))
+        return this.continueAttempt(source, retained.id);
+    }
+    const answer = await preAcceptanceAnswer(source, request);
     if (answer !== undefined) return answer;
     return this.owner.accept(request, this.runAttempt(source), reportingOrigin);
   }

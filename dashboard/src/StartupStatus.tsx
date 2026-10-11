@@ -12,6 +12,7 @@
 import {
   startName,
   publicationRecordingStopped,
+  sessionStartRetained,
   startPhaseWords,
   type RunningStart,
 } from "./agentLaunch.ts";
@@ -24,6 +25,8 @@ export function reconciliationCause(
   { cause, attempt }: Pick<StoryStartup, "cause" | "attempt">,
   start: string,
 ): string {
+  if (sessionStartRetained(attempt))
+    return `this ${start} established its workspace, but no session was started. Continue resumes the kept start.`;
   if (publicationRecordingStopped(attempt))
     return `this ${start} published its assignment, but its receipt could not be recorded, so no session was started. Repair the file, then Continue.`;
   switch (cause) {

@@ -246,40 +246,6 @@ through bounded corrections before closure. Missing payload, unavailable
 hosts, failed runs, and inconclusive observations remain pending; recording
 them alone does not complete the story.
 
-<a id="unattached-start-leftovers"></a>
-
-### Leave nothing behind after an unattached start
-
-**Identity:** SEED-066#unattached-start-leftovers
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/300-unattached-start-leftovers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86f09fb99b1956eb3ab5a1369fb22a7bfbd61c38a85e75d95d375de90920f979","plan":"bd534b19e18368bbd68685936ac80609f0b0f312276007e42685b36ca3f33c5a"}}
-```
-
-**Goal:** A developer whose Isolated workspace start succeeded but whose native
-session did not start is told which workspace and branch remain and can resume
-that established start on the next try. This machine's kept start records
-expire with their attempts. This is a bounded correction from the execution
-retrospective of
-the delivered Start session choices (`dashboard/LAUNCH-START.md`, “Start
-session”); it adds no feature promise.
-
-#### Scope
-
-- A failed native launch after an established unattached session names the
-  workspace and branch left and keeps the start, so Continue or the same Start
-  again reuses it.
-- A kept unattached start is removed when its attempt is pruned.
-- The story's interim residue is removed: the unread `created` fact and the
-  documentation sentence the source no longer supports.
-- Each Start session rule is proved once at the boundary that owns it.
-
-Deferred promises: deleting a worktree that never lands, displaying a landed
-run, and observing the real native hosts stay outside this correction. The
-last remains the separate native-observation story above. Key examples,
-findings, preserved promises, and executable proof stay in the correction plan.
-
-Plan: [300-unattached-start-leftovers](../slice-plans/300-unattached-start-leftovers/PLAN.md).
-
 ## Existing Behavior to Reconcile
 
 - [Current one-shot guidance](../../src/skills/dough-execute-plan/references/one-shot.md)

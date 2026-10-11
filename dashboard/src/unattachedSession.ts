@@ -43,9 +43,8 @@ export function sendsFirstInput(request: UnattachedChoices): boolean {
 // What an unattached session's start established, as the installed start
 // reported it: where the session works (an isolated owned workspace or the
 // default checkout taken as it is), its branch and trunk target, the landing
-// the developer chose, the revision its results build on, the fetched trunk,
-// and whether the start created the workspace. It names no tracking,
-// identity, or agent: nothing was published or assigned.
+// the developer chose, the revision its results build on, and the fetched trunk.
+// It names no tracking, identity, or agent: nothing was published or assigned.
 export const establishedSessionSchema = z.object({
   workspace: z.string().min(1),
   role: unattachedSessionPolicySchema.shape.workspace,
@@ -55,7 +54,6 @@ export const establishedSessionSchema = z.object({
   landing: unattachedSessionPolicySchema.shape.landing,
   startingRevision: z.string().min(1).optional(),
   fetched: z.string().min(1).optional(),
-  created: z.boolean().optional(),
 });
 
 export type EstablishedSession = z.infer<typeof establishedSessionSchema>;
