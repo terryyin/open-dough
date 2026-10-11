@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-121#finish-retirement-without-verdict",
+  "host": "claude",
+  "model": "fable"
+}
