@@ -458,9 +458,9 @@ and old completion handles terminate through the replacement contract.
 
 Change `trunk-closure.mjs`'s unresolved-receipt retirement path for the new
 background contract; positive settlement is required. Reuse containment and
-creation checks exactly once. Reconcile the overlap with SEED-121 at that
-story's canonical home through the backlog workflow; this plan does not remove
-or claim it completed merely because its intended fix is included here.
+creation checks exactly once. `finish` already keeps the worktree and branch
+unless the receipt is a `success` with confirmed shutdown; keep that gate and
+its journey in `trunk-closure-completion-gate.test.mjs` green.
 
 ### 12. Recover the whole lifecycle without duplicate monitoring or requests
 Type: Behavior

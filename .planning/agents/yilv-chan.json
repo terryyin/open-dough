@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yilv-chan",
-  "email": "yilv-chan@example.org",
-  "identity": "SEED-121#finish-retirement-without-verdict",
-  "mode": "story-branch",
-  "branch": "claude/finish-retires-the-worktree-only-by-a-decided-ru",
-  "host": "claude"
-}

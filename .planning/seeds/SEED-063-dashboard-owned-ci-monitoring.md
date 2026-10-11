@@ -242,10 +242,10 @@ constrain cohesion, standalone dependencies and instruction ownership.
 
 **Deferred promises:** Deployment, general messaging, refinement/ad hoc CI,
 remote-machine supervision, controlling unrelated GitHub tools, and generic
-scheduling/queue infrastructure. Related
-[SEED-121](SEED-121-execution-observer-ownership.md#finish-retirement-without-verdict)
-remains queued: implementation must reconcile its overlap with background
-closure settlement without silently deleting or completing that work.
+scheduling/queue infrastructure. Trunk Mode `finish` retires the worktree and
+branch only on a `success` receipt with confirmed shutdown, pinned by
+[its completion gate journey](../../src/skills/dough-story-wrap-up/scripts/trunk-closure-completion-gate.test.mjs):
+background closure settlement keeps that gate.
 
 **Delivery and acceptance:** Deterministic proofs cover mixed enrollment,
 request accounting, faults at durable boundaries, owner transfer, restart,
