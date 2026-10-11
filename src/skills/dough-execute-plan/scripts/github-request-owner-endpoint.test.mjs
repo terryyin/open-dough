@@ -4,12 +4,14 @@
 // only the one fixed read, asked under the owner's own login, is asked of
 // `gh`.
 import assert from "node:assert/strict";
-import { chmodSync } from "node:fs";
+import { chmodSync, existsSync } from "node:fs";
 import { basename } from "node:path";
 import { test } from "node:test";
 import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
+import { enterEnvironment } from "./fixture-teardown-test-fixtures.mjs";
 import { privacyRefusal } from "./github-request-owner-endpoint.mjs";
 import {
+  ownerlessRequestRoot,
   ownerRecords,
   saidToOwner,
 } from "./github-request-owner-test-fixtures.mjs";
@@ -147,4 +149,18 @@ test("a consumer whose endpoint is open to other users is answered as failed, as
   assert.deepEqual(failed, ["failed"]);
   assert.deepEqual(github.asked(), []);
   assert.deepEqual(ownerRecords(root), []);
+});
+
+// What a suite gives every process it starts, so a test asking GitHub
+// through no owner of its own is refused and leaves the root to be found.
+test("a consumer at the root that admits no owner makes that root, is answered as failed, asks nothing and starts no owner", async (t) => {
+  const { github, root, requests, failed } = consumer(t);
+  const ownerless = ownerlessRequestRoot(root);
+  enterEnvironment(t, { DOUGH_GITHUB_REQUEST_OWNER_ROOT: ownerless });
+  const answer = await requests.request(workflow, never());
+  assert.deepEqual(answer.failure, { kind: "failed" });
+  assert.deepEqual(failed, ["failed"]);
+  assert.deepEqual(github.asked(), []);
+  assert.equal(existsSync(ownerless), true);
+  assert.deepEqual(ownerRecords(ownerless), []);
 });

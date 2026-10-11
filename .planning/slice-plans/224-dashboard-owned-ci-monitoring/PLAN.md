@@ -813,3 +813,12 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
   failed once in a subset run under machine load with no error captured, then
   passed 20 consecutive repeats and the whole suite. Cause unknown; capture
   the error if it recurs.
+- 2026-10-11 (repair after slice 5): CI run 38126614188 on `deb540bb` was
+  cancelled at the six-minute job limit because
+  `tests/git-publication-native.sh` and
+  `tests/git-publication-native-owned-context.sh` asked their `gh` shims
+  through no request owner of their own. `publishedMainFixture` leaked the
+  same way. Each now has a private owner, and `scripts/test.sh` and the
+  dashboard global teardown fail a run that asks GitHub without one. Slice
+  acceptance for a change to the request path needs the full `npm test`, not
+  only the install subset.

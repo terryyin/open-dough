@@ -54,13 +54,14 @@ export async function endFakeGh(gh: FakeGhPaths): Promise<void> {
 
 // The environment that puts this synthetic `gh` first on PATH, points it at
 // a fake GitHub, and asks it through this installation's own request owner.
+// Given no fake GitHub, that `gh` fails every request without asking anyone.
 export function fakeGhEnv(
   gh: FakeGhPaths,
-  githubUrl: string,
+  githubUrl?: string,
 ): Record<string, string> {
   return {
     PATH: `${gh.binDir}${path.delimiter}${process.env["PATH"] ?? ""}`,
-    FAKE_GH_ORIGIN: githubUrl,
+    ...(githubUrl === undefined ? {} : { FAKE_GH_ORIGIN: githubUrl }),
     FAKE_GH_PIDFILE: gh.pidPath,
     ...requestOwnerEnvironmentAt(gh.requestOwnerRoot),
   };

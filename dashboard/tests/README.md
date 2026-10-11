@@ -232,6 +232,15 @@ full-source fixture (`publishedMainFixture(true)`) declares its own
 `test.setTimeout`: the copy and `git add` take about 2 seconds alone and 13
 to 20 when eight workers build it at once.
 
+Every process a test starts that can run `gh` asks it through a GitHub
+request owner of that test's own: `startDashboardServer` and
+`publishedMainFixture` give one, and a test wiring `gh` itself takes
+`installFakeGh`, `fakeGhEnv` and `endFakeGh` (`support/fakeGh.ts`). The run's
+global setup gives every process a request owner root that admits no owner,
+so a process given none of those is answered by no owner — another test's or
+this machine's real one included — and the run then fails at its end with
+`A test asked GitHub without a request owner of its own`.
+
 Every answer of the local read boundary carries a `Server-Timing` header
 (`../server/readTiming.ts`): `admission` (waiting for a turn at GitHub), `gh`
 (spawn to answer, with the number of calls), `rest`, and `total`, in whole

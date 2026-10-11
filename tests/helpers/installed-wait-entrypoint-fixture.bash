@@ -3,20 +3,23 @@
 # shellcheck shell=bash
 : "${temporary_dir:?temporary_dir must be set before sourcing this helper}"
 : "${source_dir:?source_dir must be set before sourcing this helper}"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/private-request-owner.bash
+source "${source_dir}/tests/helpers/private-request-owner.bash"
 
 assert_installed_wait_entrypoints() {
   local target=$1
   local provider_bin="${temporary_dir}/installed-wait-bin"
   local storage="${temporary_dir}/installed-wait-mailboxes"
-  local root route canonical_root receipt mailbox awaited diagnostic owner_root
+  local root route canonical_root receipt mailbox awaited diagnostic
   local gh_calls="${temporary_dir}/installed-wait-gh-calls"
   mkdir -p -- "${provider_bin}" "${storage}"
   : > "${gh_calls}"
   export INSTALLED_WAIT_GH_CALLS="${gh_calls}"
   # The installed requests' owner stands at an endpoint of this journey's
-  # own, short enough for its socket path, and ends as its consumers leave.
-  owner_root=$(mktemp -d "${TMPDIR:-/tmp}/ghr-XXXXXX")
-  export DOUGH_GITHUB_REQUEST_OWNER_ROOT="${owner_root}" DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS=100
+  # own and ends as its consumers leave.
+  enter_private_request_owner
+  export DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS=100
   cat > "${provider_bin}/gh" << 'EOF'
 #!/usr/bin/env node
 // Answers as `gh api --include` does, and logs each call's arguments.
@@ -100,7 +103,6 @@ EOF
       return 1
     }
   done
-  node -e 'import(process.argv[1]).then((fixtures) => fixtures.endRequestOwners(process.argv[2]))' \
-    "${source_dir}/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs" "${owner_root}"
-  unset INSTALLED_WAIT_GH_CALLS DOUGH_GITHUB_REQUEST_OWNER_ROOT DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS
+  leave_private_request_owner
+  unset INSTALLED_WAIT_GH_CALLS DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS
 }

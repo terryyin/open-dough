@@ -149,7 +149,7 @@ test("failed builds and real preview activation keep or restore working producti
   } finally {
     await page.close();
     await watcher?.stop();
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });
 
@@ -217,6 +217,6 @@ test("failed restoration reports both causes, exits and cleans up; an unexpected
     watcher = undefined;
   } finally {
     await watcher?.stop();
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

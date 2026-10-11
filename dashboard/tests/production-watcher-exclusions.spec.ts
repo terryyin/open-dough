@@ -137,6 +137,6 @@ test("npm watcher skips excluded-only main ranges, builds accumulated and mixed 
   } finally {
     await page.close();
     await watcher?.stop();
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

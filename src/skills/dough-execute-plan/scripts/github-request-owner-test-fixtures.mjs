@@ -103,6 +103,19 @@ export function requestOwnerEnvironmentAt(root) {
   };
 }
 
+// A request owner root under `parent` that admits no owner: lying too deep
+// for any socket path, it is refused to every consumer pointed at it, which
+// makes it first (`./github-request-owner-endpoint.mjs`). A suite gives it to
+// every process it starts, so a test that asks GitHub through no owner of its
+// own is answered by none, another test's or this machine's real one
+// included, and the suite finds the root standing.
+export function ownerlessRequestRoot(parent) {
+  return join(
+    parent,
+    "asked-github-without-a-private-request-owner-root".padEnd(110, "-"),
+  );
+}
+
 // A GitHub request owner endpoint of a test's own, kept short for the socket
 // path it holds: `env` points a consumer process at it; `end` ends every
 // owner there.

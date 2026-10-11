@@ -30,7 +30,7 @@ test("deployment selects origin main's commit, never local commits or edits", as
       await resolvePublishedMain(fixture.development, fixture.env),
     ).toEqual({ origin: fixture.origin, commit: published });
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });
 
@@ -47,7 +47,7 @@ test("deployment verifies the exact selected commit before running its code", as
       verifyPublishedCommit(fixture.development, published, fixture.env),
     ).rejects.toThrow(`did not match selected main commit ${published.commit}`);
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });
 
@@ -158,7 +158,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
   } finally {
     await preview?.stop();
     await staged?.remove();
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });
 
@@ -215,6 +215,6 @@ test("deployment cancellation ends an installing commit's children and removes i
   } finally {
     cancellation.abort();
     await staging?.catch(() => undefined);
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

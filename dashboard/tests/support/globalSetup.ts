@@ -10,18 +10,27 @@
 // Before building, it runs the committed fixture executables once
 // (./fixtureExecutable.ts), so a fresh checkout's first run of each happens
 // here and not inside a page's first read.
+//
+// Every test asks GitHub through a request owner of its own (./fakeGh.ts).
+// The run's processes otherwise inherit a root that admits no owner, so a
+// test that names none asks neither another test's owner nor this machine's
+// real one, and the teardown fails the run when that root was reached.
 
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { buildDashboardTo, builtDashboardVariable } from "./dashboardBuild.ts";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
 
 export default function globalSetup(): () => void {
   runFixtureExecutablesOnce();
   const outDir = mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-"));
+  const requests = mkdtempSync(path.join(tmpdir(), "dough-dashboard-gh-"));
+  const ownerless = ownerlessRequestRoot(requests);
   const remove = (): void => {
     rmSync(outDir, { recursive: true, force: true });
+    rmSync(requests, { recursive: true, force: true });
   };
   try {
     buildDashboardTo(outDir);
@@ -30,5 +39,13 @@ export default function globalSetup(): () => void {
     throw error;
   }
   process.env[builtDashboardVariable] = outDir;
-  return remove;
+  process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
+  return () => {
+    const reached = existsSync(ownerless);
+    remove();
+    if (reached)
+      throw new Error(
+        "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/tests/support/fakeGh.ts).",
+      );
+  };
 }
