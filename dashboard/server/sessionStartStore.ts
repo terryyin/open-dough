@@ -9,6 +9,8 @@
 // It is removed when its script stops, having left nothing to resume, and
 // once its session started or a failure left no established session. A
 // failed native launch or formatter keeps its established session for retry.
+// When retention prunes its settled attempt, its start is removed too; the
+// workspace and branch remain available in Git.
 // Local evidence only. The file is read
 // afresh, replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.

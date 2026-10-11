@@ -4,6 +4,10 @@ Proof for [the active correction plan](PLAN.md), retained for retrospective and 
 
 ## Slice 1
 
+Delivered: `2dac32158d73f4775e99776ada25d2f049477472` on
+`origin/refs/heads/codex/leave-nothing-behind-after-an-unattached-start`; suffix base
+`00039df490c81724ed6d1118b97490eb7e51b9f8`; observation reused the recorded stream.
+
 The coordinator inspected settlement/schema/selection/admission/UI and the actual
 real-origin setups and assertions. Native and formatter failures stay definite;
 Continue and identical Start resume one original attempt/worktree with its landing
@@ -47,3 +51,34 @@ The refactor completed with no unresolved gap. Setup uses Node24.21.0 and the
 checkout-bound native setup in the plan; every dashboard run builds fresh assets.
 Pre-change defect evidence is the unchanged-source preparation probes in
 [PREPARATION.md](PREPARATION.md); new regressions were not rerun against old code.
+
+## Slice 2
+
+The coordinator inspected `launchAttemptStore.ts` successful-write cleanup and
+new real-start/store assertions. Only expired keys absent from the actual saved
+replacement are removed; refusal, rename failure and restored entries retain
+starts. The real held-start journey completes after its wait, then the isolated
+clock advances 31 days and `dropExpiredAttempts` exercises actual pruning. Current,
+unsettled and other-project controls survive; all Git refs/worktrees remain.
+`launch-attempt-retention.spec.ts` exercises refusal byte preservation, restoring
+an expired entry, successful pruning and actual late `keepEstablishedSession`
+not recreating its key; injected attempt-file rename failure preserves both files.
+
+Implementation proof passed (10 retention/landing/admission cases, 9 admission/
+completion consumers), with Node24.21.0 and fresh per-run dashboard assets:
+
+```sh
+npm run typecheck:dashboard
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-session-kept.spec.ts dashboard/tests/launch-attempt-retention.spec.ts dashboard/tests/agent-launch-start-session-landing-retained.spec.ts dashboard/tests/one-shot-landing-recovery-retention.spec.ts dashboard/tests/one-shot-landing-recovery-deletion.spec.ts dashboard/tests/launch-attempt-admission-close.spec.ts --workers=3
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-completion-binding.spec.ts dashboard/tests/agent-completion-attempt-loss.spec.ts --workers=3
+```
+
+Refactoring extracted the real-start journey unchanged into
+`agent-launch-start-session-retention.spec.ts`. The coordinator inspected its
+actual start/late-result setup and both-store/Git observations; store and consumer
+boundaries stayed unchanged. The refactor completed; four cases and typecheck passed:
+
+```sh
+npm run typecheck:dashboard
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-session-kept.spec.ts dashboard/tests/agent-launch-start-session-retention.spec.ts --workers=3
+```

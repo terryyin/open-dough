@@ -209,6 +209,12 @@ nothing, and a later Start session chooses its workspace afresh. A
 conversation whose first input is unconfirmed is recovered by the same
 continuation with no start run.
 
+When a successful attempt-store write prunes a settled attempt past its 30-day
+retention, it also removes that attempt's kept session start. A refused or failed
+write removes neither. Current and unsettled attempts retain their starts, and a
+late script result cannot recreate a pruned start. This removes machine records;
+the Git workspace and branch remain available.
+
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
 project, host and instruction with its Workspace and After checks choices, a
 request naming none having the default ones. A Start session repeating all of

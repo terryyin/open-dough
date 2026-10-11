@@ -108,12 +108,9 @@ and proof deduplication can follow independently.
 
 ### 2. Kept unattached records expire with their attempts
 Type: Behavior
-Status: planned
-Proof: extend the kept-start boundary with the real start, advance its isolated
-clock 31 days, invoke the real retention write, and inspect both stores and Git;
-retain unexpired/unsettled and other-project controls. Cover a write refusal
-without treating filtered-but-unwritten attempts as pruned. Run the existing
-landing-retention journey because it consumes the same attempt store.
+Status: done
+Proof: [accepted retention/store/consumer observations](PROOF.md#slice-2), with
+real-start pruning, retained controls, refused/failed writes and unchanged Git.
 
 Behavior: retention successfully removes an attempt that still keeps an
 unattached start → only that attempt's kept start is removed. A still-running
