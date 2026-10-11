@@ -19,5 +19,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Finish retires the worktree only by a decided rule when CI gave no verdict](seeds/SEED-121-execution-observer-ownership.md#finish-retirement-without-verdict) — SEED-121#finish-retirement-without-verdict

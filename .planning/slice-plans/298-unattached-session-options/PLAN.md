@@ -33,7 +33,7 @@ stated decision in the story; an unattached request carries workspace and
 landing only, and the one-shot-only rule for those choices is a story-workflow
 rule that does not apply here; confirming existing changes never selects
 automatic landing; direct skill invocations keep their contracts; native host
-proof (ADR 0005) is a paid manual observation.
+proof (ADR 0005) is the follow-up story's paid manual observation.
 
 ## Architecture
 
@@ -121,7 +121,6 @@ lived under the job's temp directory and were removed.
 | Installed skills continue in the established session: workspace from the block, tracking from the invocation, landing inherited, no second workspace; pending edits are reported, not bypassed | Slice 5, `established-session-guidance.test.mjs` on the reference and its links, and `established-session-start.test.mjs` recording the start behavior in the premise table |
 | An unattached landing is captured for its launch with no story identity | Slice 6, `agent-launch-start-session-landing-context.spec.ts` and the `dashboard-landing.mjs` tests |
 | A Start session with different choices starts a new session | Slice 7, `agent-launch-start-session-identity.spec.ts` |
-| Native behavior on Claude Code, Codex, and Cursor (ADR 0005) | Slice 8, manual observation record |
 | Everything the launch contract already proves | `dashboard/tests/agent-launch*.spec.ts`, `one-shot-*.spec.ts`; `npm run typecheck:dashboard`; `npm run lint`; `node --test` over the touched skill scripts |
 
 Local gates: `npm run lint` and `npm run typecheck:dashboard` are the
@@ -362,65 +361,6 @@ obligation G8.
 
 Safe stopping point: an unattached launch's identity includes its choices.
 
-### 8. Native hosts honor the unattached session on this machine
-Type: Behavior
-Status: planned
-Proof: a manual observation record in this plan under
-[dough-manual-testing](../../../src/skills/dough-manual-testing/SKILL.md),
-run by the developer because each native run is paid.
-
-Behavior: on each of Claude Code, Codex, and Cursor, Start session with
-Isolated workspace · Automatically land and a blank instruction → the native
-conversation opens in the worktree with the block; asking a question lands
-nothing; invoking `/dough-execute-plan <queued trivial story> --one-shot`
-there uses that worktree, lands the result with the launch's landing context,
-and the launch record keeps the landing evidence (whether the dashboard shows
-that landed run is the pending decision under Current decisions). On Claude
-Code also: Default main with a dirty checkout → the confirmation, then
-Continue.
-
-Change: none expected; a discrepancy becomes a learning and a slice before
-wrap-up.
-
-Observation plan (the developer runs it; three paid native sessions and one
-short Claude Code session):
-
-- Starting state: a project whose installed skills, for each host observed,
-  include `established-session.mjs`, `references/established-session.md`, the
-  `dashboard-landing.mjs` that exports `acceptsLandingWithoutIdentity`, and
-  the start with the path-identity comparison; a dashboard built from this
-  branch; a clean default checkout; one queued trivial story per host.
-  Without that payload the dialog disables the two non-default choices, which
-  is the expected answer and ends the observation for that host.
-- Per host (Claude Code, Codex, Cursor), in breadth first:
-  1. Start session, Isolated workspace · Automatically land, no text. Expect
-     the line beside Start to name the push Start authorizes; one worktree
-     `.worktrees/session` on `<host>/session`; the conversation opening there;
-     its first message being the block (`workspace role: isolated`, `landing:
-     auto-land`, a `startingRevision`, no `fetched` line) then the reporting
-     context naming `--landing-context`; the Sessions sidebar naming the
-     worktree; origin unchanged.
-  2. Ask a question. Expect an answer and nothing committed, pushed, or
-     reported complete.
-  3. Type `/dough-execute-plan <queued trivial story> --one-shot`. Expect the
-     start to answer `prepared` with `created: false` for that worktree, no
-     second worktree, the story left queued until the result commit closes it,
-     the verified result landed on origin with no landing request, the launch
-     record holding the landing with no identity, and the worktree retired.
-- Claude Code only: with one uncommitted file in the default checkout, Start
-  session with the default choices and a line of text. Expect “Existing
-  changes in default main”, Back keeping the text, and Continue starting in
-  the project folder with the file untouched and no block.
-- Depth, if time remains: let one Isolated start outlast its wait
-  (`DOUGH_START_TIMEOUT_MS`) and Continue it from Startup recovery, expecting
-  the same worktree; start a second blank Start session with other choices
-  while one is pending, expecting a new session.
-- Record per host: the dashboard version, the installed payload version, what
-  was observed against each expectation, and any discrepancy with its
-  evidence.
-
-Safe stopping point: ADR 0005 evidence recorded; the story is complete.
-
 ## Current decisions
 
 - Default main · Wait for review is the no-selection default; a blank
@@ -429,7 +369,11 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
   fabricated for it.
 - The “Established session” block is distinct from the “Established start”
   blocks and is owned by the session policy's skill.
-- The developer runs slice 8; automated fakes do not substitute for it.
+- Decided by the developer on 2026-10-11: the native observation (ADR 0005)
+  is split out to
+  [SEED-066#unattached-session-native-observation](../../seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation),
+  first in the backlog, because it needs a released payload that exists only
+  after this story lands. This story concludes at slice 7.
 - Decided by the developer on 2026-10-11: the default choices establish no
   session and send no block, with or without an instruction
   (`establishesSession` in `dashboard/src/unattachedSession.ts`); the story's
@@ -443,14 +387,14 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
   `acceptsLandingWithoutIdentity`; an older installation gets the block and
   reporting context with none, so its landing is not captured and never fails
   on a context it cannot validate.
-- Pending with the developer: nothing shows an unattached launch's landed run.
-  The landed-run review is card-bound (story identity, execution or refinement
-  only); the evidence is kept on the launch record. Slice 8's “the dashboard
-  shows the landed comparison” waits on this.
+- Decided by the coordinator on 2026-10-11, the developer having left it to
+  the coordinator: an unattached launch's landing is captured only. The
+  evidence is kept on the launch record; the card-bound landed-run review does
+  not list it, and this story adds no surface for it.
 - `established-session.mjs` and `references/established-session.md` are
-  declared in `install.sh` `managed_files`; until a release installs them
-  here, this repository's own dashboard disables a non-default Start session
-  choice.
+  declared in `install.sh` `managed_files`; until a release installs them and
+  the changed `dashboard-landing.mjs` here, this repository's own dashboard
+  disables a non-default Start session choice.
 
 ## Story obligations
 
@@ -544,7 +488,7 @@ Disposition: proved by slice 7: `dashboard/tests/agent-launch-start-session-iden
   direct invocation there does: the start refuses the main worktree as an
   owned workspace and `--default-main` is one-shot only. An admission from an
   isolated session keeps the project's default checkout as `--integration`.
-- Slice 8's native journey reaches the one-shot reuse path only while the
+- The native observation's journey reaches the one-shot reuse path only while the
   conversation has made no edits or commits in the worktree; otherwise the
   expected native behavior is the reported `pending-edit` or
   `unpublished-commits` refusal.

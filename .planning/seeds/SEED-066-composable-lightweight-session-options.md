@@ -202,9 +202,11 @@ Boundary assumptions:
   session later commits; it never selects automatic landing.
 - A direct skill invocation outside a dashboard launch keeps its existing
   contracts: no clean-main prerequisite, no confirmation.
-- Native behavior proof on Claude Code, Codex, and Cursor (ADR 0005) is a
-  paid manual observation the developer runs; deterministic launch tests do
-  not substitute for it.
+- Native behavior proof on Claude Code, Codex, and Cursor (ADR 0005) is the
+  paid manual observation of
+  [Observe an unattached Start session on the native hosts](#unattached-session-native-observation),
+  run once a release installs this story's payload; deterministic launch
+  tests do not substitute for it.
 
 #### Key examples
 
@@ -303,6 +305,90 @@ The shared session policy, one-shot refinement and execution, the
 default-checkout confirmation, and the launch landing context are delivered;
 this story extends them to the project row's Start session. The story dialogs
 stay useful without it.
+
+<a id="unattached-session-native-observation"></a>
+
+### Observe an unattached Start session on the native hosts
+
+**Identity:** SEED-066#unattached-session-native-observation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** A developer who relies on Start session's Workspace and After checks
+choices knows, from an observation on real Claude Code, Codex, and Cursor
+sessions, that each native host opens in the established place, reads the
+“Established session” block, and lets a later invoked workflow use that place
+and landing intent. This is the ADR 0005 proof of
+[Choose workspace and automatic landing for unattached Start session](#unattached-session-options),
+split from it because the observation needs a released payload that exists
+only after that story lands.
+
+#### Scope
+
+Required behavior:
+
+- The developer runs the observation below on each of Claude Code, Codex, and
+  Cursor and records what was observed against each expectation.
+- A discrepancy becomes a bounded correction before this story closes; an
+  observation with no discrepancy changes no product behavior.
+
+Boundary assumptions:
+
+- Each native run is paid and manual; an agent does not run it.
+- The starting state needs the release that carries the delivered story's
+  payload installed for each observed host.
+
+#### Key examples
+
+- Claude Code, Isolated workspace · Automatically land, no text → the
+  conversation opens in `.worktrees/session` with the block as its first
+  message; a question lands nothing; `/dough-execute-plan <queued trivial
+  story> --one-shot` reuses that worktree and lands the verified result with
+  no landing request.
+- A project whose installed skills predate the payload → the dialog disables
+  the two non-default choices and says why; the observation for that host ends
+  there.
+
+#### Observation
+
+Three paid native sessions and one short Claude Code session:
+
+- Starting state: a project whose installed skills, for each host observed,
+  include `established-session.mjs`, `references/established-session.md`, the
+  `dashboard-landing.mjs` that exports `acceptsLandingWithoutIdentity`, and
+  the start with the path-identity comparison; a dashboard built from this
+  branch; a clean default checkout; one queued trivial story per host.
+  Without that payload the dialog disables the two non-default choices, which
+  is the expected answer and ends the observation for that host.
+- Per host (Claude Code, Codex, Cursor), in breadth first:
+  1. Start session, Isolated workspace · Automatically land, no text. Expect
+     the line beside Start to name the push Start authorizes; one worktree
+     `.worktrees/session` on `<host>/session`; the conversation opening there;
+     its first message being the block (`workspace role: isolated`, `landing:
+     auto-land`, a `startingRevision`, no `fetched` line) then the reporting
+     context naming `--landing-context`; the Sessions sidebar naming the
+     worktree; origin unchanged.
+  2. Ask a question. Expect an answer and nothing committed, pushed, or
+     reported complete.
+  3. Type `/dough-execute-plan <queued trivial story> --one-shot`. Expect the
+     start to answer `prepared` with `created: false` for that worktree, no
+     second worktree, the story left queued until the result commit closes it,
+     the verified result landed on origin with no landing request, the launch
+     record holding the landing with no identity, and the worktree retired.
+- Claude Code only: with one uncommitted file in the default checkout, Start
+  session with the default choices and a line of text. Expect “Existing
+  changes in default main”, Back keeping the text, and Continue starting in
+  the project folder with the file untouched and no block.
+- Depth, if time remains: let one Isolated start outlast its wait
+  (`DOUGH_START_TIMEOUT_MS`) and Continue it from Startup recovery, expecting
+  the same worktree; start a second blank Start session with other choices
+  while one is pending, expecting a new session.
+- Record per host: the dashboard version, the installed payload version, what
+  was observed against each expectation, and any discrepancy with its
+  evidence.
+
+Safe stopping point: ADR 0005 evidence recorded; the story is complete.
 
 ## Existing Behavior to Reconcile
 
