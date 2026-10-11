@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-130#slow-startup-safe-recovery",
+  "host": "claude",
+  "model": "fable"
+}
