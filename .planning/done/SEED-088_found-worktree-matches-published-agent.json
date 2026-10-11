@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-088#found-worktree-matches-published-agent",
+  "title": "A found worktree is reviewed only for the agent trunk publishes",
+  "completedAt": "2026-10-11T02:27:21.169Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "claude"
+}

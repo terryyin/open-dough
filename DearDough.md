@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 283. Removed local codes are never reused.
+- Highest allocated local number: 284. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -947,3 +947,19 @@ a CI failure on whichever execution published the revision.
   - Evidence: run 38099358635 `test (2/3)`: “OVER BUDGET: all jobs took 470.2 job-seconds; the total ceiling is 470”; its `test-times-2` lists the same 109 jobs as base trunk run 38097405961, which totalled 292.7 (ratio 1.61, every large job slower); `f2e6e131` changes only `dashboard/` and `.planning/`; `bash scripts/ci-test-times.sh` reported share totals 271.8–412.7, 275.0–421.4 and 423.5–457.1 against 470, all `thin`.
   - Observed effect: the coordinator spent about ten tool calls classifying the failure and made no repair, since `tests/time-budget` makes raising a ceiling a reviewed edit; the revision's CI stays failed.
   - Inference: the ceiling was calibrated at 1.5 times a largest share of 312.1, and trunk's largest share is now 457.1, so the calibration rule no longer holds. One sample of a breach; the thin headroom is measured over ten trunk runs.
+
+## DD-284 — A plan promised an earlier story's whole spec stays green while its new rule reverses one assertion in that spec
+
+A correction plan listed "everything the earlier plan proved" as preserved
+proof and observed only the failing-first premise. The rule it added changes
+the answer of a neighbouring case in the very spec file it extends.
+
+### Occurrences
+- Execution: `SEED-088#found-worktree-matches-published-agent` / plan 297 (spent plan recoverable at `c56607bde018c7bbd008e3c7041b3f8c6f818324:.planning/slice-plans/297-found-worktree-matches-published-agent/PLAN.md`), first implementation `b23a4427`.
+  - Timestamp: unknown (2026-10-11, slice 1 implementation return, before `b23a4427` at 11:16 +09:00).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `7b941f04`; base 0.3.59
+  - Evidence: plan 297 "Outside-in proof ownership" row "Everything plan 296 proved" and "Preserved … a worktree … on another story's claim passed over"; at `dd6d315c`, `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts` first case expected the sessions answer to list `closed-b` for `SEED-B#b` while trunk publishes that agent for `SEED-A#a`. The implementation return stopped with that one failure (104 selected, 1 failed) and a question; the plan's "Observed premises" ran the pure rule and a real start, not that spec against the rule. The plan also named "Aki-chan", which `agentNameOf` rejects. Plan 297 slice 1 "Learnings".
+  - Observed effect: the implementer stopped instead of finishing; the coordinator judged the changed expectation a consequence of the story's Scope, edited the assertion itself, and reran the 104-test selection (2.5 minutes) before the refactor pass.
+  - Inference: reading the extended spec's other cases against the new rule at planning time would have put the changed expectation in the plan. Possibly the same problem as ODF-110 (a consumer premise that missed specs); recorded separately because here the missed consumer was the plan's own named proof. One sample.

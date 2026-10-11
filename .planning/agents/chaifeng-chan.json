@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "chaifeng-chan",
-  "email": "chaifeng-chan@example.org",
-  "identity": "SEED-088#found-worktree-matches-published-agent",
-  "mode": "story-branch",
-  "branch": "claude/a-found-worktree-is-reviewed-only-for-the-agent",
-  "host": "claude"
-}
