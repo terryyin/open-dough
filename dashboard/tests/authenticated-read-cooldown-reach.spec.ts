@@ -1,5 +1,5 @@
 // What a rate limit GitHub directed reaches beyond reads of its own server
-// process (../server/readAdmission.ts), and what starts no wait, at the local
+// process (github-request-admission.mjs), and what starts no wait, at the local
 // authenticated read boundary over real HTTP with the synthetic `gh`
 // (./support/sharedReads.ts publishes the revision): a rate-limited setting
 // file fails its read with the limit rather than being taken as absent; a

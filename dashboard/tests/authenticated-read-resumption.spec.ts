@@ -1,4 +1,4 @@
-// Reading resumes with one read first (../server/readAdmission.ts), at the
+// Reading resumes with one read first (github-request-admission.mjs), at the
 // local authenticated read boundary over real HTTP with the synthetic `gh`:
 // once a wait has passed, directed or backed off, one read reaches GitHub
 // while the others wait; refused with a new wait, it answers every waiting

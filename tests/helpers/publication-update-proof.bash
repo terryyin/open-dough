@@ -34,6 +34,7 @@ assert_installed_publication_modules() {
       "dough-execute-plan/scripts/story-obligations.mjs",
       "dough-execute-plan/scripts/execution-source.mjs",
       "dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs",
+      "dough-execute-plan/scripts/github-requests.mjs",
       "dough-execute-plan/scripts/history-preserving-publication.mjs",
       "dough-execute-plan/scripts/maintain-default-checkout.mjs",
       "dough-execute-plan/scripts/owned-suffix-reconciliation.mjs",

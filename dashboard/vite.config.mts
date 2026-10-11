@@ -10,15 +10,21 @@ import { authenticatedReadPlugin } from "./server/authenticatedReadPlugin.ts";
 
 const dashboardRoot = fileURLToPath(new URL(".", import.meta.url));
 // The product sources the dashboard shares: the backlog reader that owns
-// what a published backlog means, and the session policy every workflow's
-// start reads. The dev server may serve them and nothing else outside the
-// dashboard.
+// what a published backlog means, the session policy every workflow's
+// start reads, and the rules of asking GitHub every consumer shares. The dev
+// server may serve them and nothing else outside the dashboard.
 const sharedBacklogReader = fileURLToPath(
   new URL("../src/skills/dough-product-backlog/scripts/", import.meta.url),
 );
 const sharedSessionPolicy = fileURLToPath(
   new URL(
     "../src/skills/dough-execute-plan/scripts/session-policy.mjs",
+    import.meta.url,
+  ),
+);
+const sharedGitHubRequestRules = fileURLToPath(
+  new URL(
+    "../src/skills/dough-execute-plan/scripts/github-request-rules.mjs",
     import.meta.url,
   ),
 );
@@ -54,7 +60,12 @@ export default defineConfig(({ command }) => {
       port: 43127,
       strictPort: true,
       fs: {
-        allow: [dashboardRoot, sharedBacklogReader, sharedSessionPolicy],
+        allow: [
+          dashboardRoot,
+          sharedBacklogReader,
+          sharedSessionPolicy,
+          sharedGitHubRequestRules,
+        ],
       },
     },
     preview: {

@@ -14,8 +14,8 @@ import {
 } from "./ghRead.ts";
 
 // Upstream HTTP statuses the page may recover from on its own. Validated here
-// from GitHub's included status (`./ghAnswer.ts`), never from the boundary's
-// generic 502 response status.
+// from GitHub's included status (`github-request-answer.mjs`), never from the
+// boundary's generic 502 response status.
 const transientHttpStatuses = new Set([408, 500, 502, 503, 504]);
 
 export type ReportedFailure = {

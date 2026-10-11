@@ -182,6 +182,11 @@ managed_files=(
   dough-execute-plan/scripts/ci-revisions.mjs
   dough-execute-plan/scripts/ci-runs.mjs
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
+  dough-execute-plan/scripts/github-request-admission.mjs
+  dough-execute-plan/scripts/github-request-answer.mjs
+  dough-execute-plan/scripts/github-request-outstanding.mjs
+  dough-execute-plan/scripts/github-request-rules.mjs
+  dough-execute-plan/scripts/github-requests.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
   dough-execute-plan/scripts/execution-increment-observation-gaps.mjs

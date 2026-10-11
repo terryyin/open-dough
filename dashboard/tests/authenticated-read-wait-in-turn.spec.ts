@@ -1,4 +1,4 @@
-// A wait that starts while reads wait their turn (../server/readAdmission.ts),
+// A wait that starts while reads wait their turn (github-request-admission.mjs),
 // at the local authenticated read boundary over real HTTP with the synthetic
 // `gh`: every waiting read is answered as limited at once and none of them
 // reaches GitHub, while the reads already under way are still answered. The

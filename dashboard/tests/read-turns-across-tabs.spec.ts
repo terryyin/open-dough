@@ -1,5 +1,5 @@
 // Two tabs of one dashboard opening different projects never have more than
-// eight reads under way at GitHub together (../server/readAdmission.ts):
+// eight reads under way at GitHub together (github-request-admission.mjs):
 // while GitHub holds every record answer, eight reach it and the tabs' other
 // reads wait their turn; once the answers come, both tabs settle on their
 // projects' facts. The page, its local read boundary, and the `gh`

@@ -3,8 +3,10 @@
 // numeric values finite nonnegative safe integers. Never retains bodies,
 // credentials, raw CLI output, or arbitrary headers.
 
-import { directedWaitSeconds } from "./rateLimitDirection.ts";
-import type { GhAnswer } from "./ghAnswer.ts";
+import {
+  directedWaitSeconds,
+  type GhAnswer,
+} from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 import type { GhFailureReason } from "./ghFailure.ts";
 
 export const textFieldLimit = 256;

@@ -1,5 +1,5 @@
 // One rate limit GitHub directed holds back every read of the server process
-// (../server/readAdmission.ts), at the local authenticated read boundary
+// (github-request-admission.mjs), at the local authenticated read boundary
 // over real HTTP with the synthetic `gh` (./support/sharedReads.ts publishes
 // the revision): until GitHub's time, any read of any project is answered at
 // once as limited -- not asked, with the whole seconds left -- and reaches

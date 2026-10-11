@@ -68,7 +68,7 @@ export async function startDashboardServer(
     // The server's own bound when unset.
     readonly readTimeoutMs?: number | undefined;
     // The server's first wait after a rate limit that directs none
-    // (`../../server/readAdmission.ts`); one minute when unset.
+    // (`github-request-admission.mjs`); one minute when unset.
     readonly limitBackoffMs?: number | undefined;
     // The byte budget of answers retained on this machine
     // (`../../server/retainedAnswers.ts`); 64 MiB when unset.

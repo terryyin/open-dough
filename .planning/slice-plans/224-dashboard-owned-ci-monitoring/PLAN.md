@@ -217,6 +217,13 @@ replacement is accepted; interim gates below are removed by their named slice.
 Type: Behavior
 Status: planned
 
+Execution 2026-10-11: the unpaid prefix was rerun in the execution checkout —
+Claude Code 2.1.296 (`--bg`, `--resume`), Codex CLI 0.162.1 (`app-server`,
+`resume`), Cursor desktop 3.24.12 and agent CLI 2026.10.01-e373342
+(`--resume`), unchanged from preparation. The paid native probes await Terry's
+explicit native-check authority; slices 4–11 stay behind this gate while the
+independent request-boundary slices 2–3 proceed.
+
 Evaluator/result: a maintainer observes the same native session accept one
 identified failure after an execution turn ends, and a busy session receive it
 at a safe boundary without changing identity or permission/workspace policy.
@@ -239,7 +246,18 @@ Independent request-boundary work may continue.
 
 ### 2. Expose one installed GitHub request implementation
 Type: Structure
-Status: planned
+Status: done
+
+Delivered: `src/skills/dough-execute-plan/scripts/github-requests.mjs`
+(`GitHubRequests.request(args, signal)`) with `github-request-admission.mjs`,
+`-answer.mjs`, `-outstanding.mjs` and `-rules.mjs`, declared in `install.sh`.
+`dashboard/server/ghRead.ts` and `ghFailure.ts` are its dashboard adapters; the
+four former dashboard modules are removed. Accepted proof: whole dashboard
+suite (`env -u NO_COLOR npm run test:dashboard -- --reporter=line`, 1470
+passed), `node --test` on `github-request-answer.test.mjs` and
+`github-requests.test.mjs` (17 passed), `npm run typecheck:dashboard`, and
+`bash tests/execution-payload-update.sh`, which loads the installed module and
+fails when a dependency is left undeclared.
 
 Internal result: move the existing admission, answer/rate-limit interpretation
 and outstanding-request lifecycle into one payload-owned runtime source.
@@ -489,6 +507,31 @@ install/update/coexistence checks for shared dependencies; no per-tool copies.
 Required final native acceptance stays in the linked acceptance home and must
 finish before release, independently of deterministic implementation completion.
 
+## Execution state
+
+Story Branch Mode in `.worktrees/monitor-ci-in-the-background-and-wake-execution`
+on `claude/monitor-ci-in-the-background-and-wake-execution`; remote `origin`,
+trunk `main`. Claim `eac731e5a4d0e5082aef73a2766b7694eefcbe3f` accepted on
+`main` (starting revision `7e212a019295f5e86e5639ec61def0c873828a2d`). CI
+source: GitHub Actions default. Overrun replanning is allowed.
+
+## Story obligations
+
+### G1. Installed CI requests bypass the shared request source
+Reported: slice 2 — "No installed CI script imports the new modules yet, so installed-runtime use is proven only by the module-load check."
+Story clause: "one admission owner per allowance scope"
+Disposition: receiving slice 3
+
+### G2. Admission state is process-local and unkeyed
+Reported: slice 2 — "the outstanding-call key is `JSON.stringify(args)` only, with no API host or principal, and `ReadAdmission` is a single allowance."
+Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
+Disposition: receiving slice 3
+
+### G3. Admission and outstanding classes have no isolated unit tests
+Reported: slice 2 — "`ReadAdmission` and `OutstandingReads` have no isolated unit tests."
+Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
+Disposition: proved by slice 2: dashboard/tests/authenticated-read-turns.spec.ts, authenticated-read-cooldown.spec.ts, authenticated-read-backoff.spec.ts and limit-recovery-check.spec.ts exercise eight turns, cooldown, backoff doubling and the single recovery probe through the dashboard HTTP boundary on the moved source
+
 ## Proof ownership and acceptance
 
 | Source promise / constraint | Decisive owner |
@@ -541,3 +584,10 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
   facts. Sorted SHA files and fetched target tips cannot decide completion.
 - 2026-10-11: native input acceptance, handling and CI repair need distinct
   durable evidence. Existing attach/Recover actions are not acceptance proofs.
+- 2026-10-11 (slice 2): `GitHubRequests` adds `--include` only when the first
+  argument is `api`; `gh run list/view` calls would pass unadmitted in effect,
+  so slice 3 converts CI acquisition to `gh api` routes. A waiter's bound is
+  classified as timed out only when it aborts with the payload's `GhFailure`.
+  The dashboard's failed-read diagnostics rely on the `failed` observer running
+  in the starting request's async context; a cross-process owner must carry
+  that context explicitly.
