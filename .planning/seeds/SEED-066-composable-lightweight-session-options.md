@@ -110,51 +110,192 @@ Do not prescribe components or slices merely from these conceptual boundaries.
 
 **Identity:** SEED-066#unattached-session-options
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/298-unattached-session-options/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d601ff0c6d9ee30420947ecdda1c73244c5b703e4b29a6956928e3872f3b9643","plan":"408b2067d132ade57d007392461c8834db1f310f40d167e58bc65bf4543912bc"}}
 ```
 
-**Goal:** Developers starting an unattached dashboard conversation can choose its
-workspace and landing intent without those choices creating a story or assignment.
+**Goal:** A developer starting an unattached Start session from the project row
+chooses where that conversation runs, the default checkout or an isolated
+workspace, and whether results it later verifies land automatically, with the
+same words and the same existing-changes confirmation as one-shot story
+sessions. The choices create no story, Take, or assignment; they only
+establish where the session works and what the developer has authorized in
+advance. This gives lightweight conversations the workspace and landing control
+the one-shot story dialogs already have, through one shared policy.
 
 #### Scope
 
-- Offer the same independent workspace and auto-land choices in Start session,
-  using the shared contract delivered by the preceding story.
-- Carry the choices and actual workspace into the existing native hosts without
-  silently invoking story refinement/execution or manufacturing a selected task.
-- Follow the shared default-checkout warning contract: any uncommitted change
-  warns before dashboard launch; explicit confirmation allows continuation.
-- A conversation alone creates no result to land. If the developer later requests
-  work or invokes a skill, its instruction and applicable workflow determine
-  tracking, verification, and completion. Turning one-shot off does not itself
-  admit or assign work. Preserve recoverable review-waiting results.
-- Require careful upfront architecture review of the ad hoc launch path and
-  subsequent workflow handoff before implementation, using the shared direction
-  above. Do not duplicate the first story's runtime policies in host prompts.
+Required behavior:
+
+- The Start session dialog offers the Session group's **Workspace** (Isolated
+  workspace / Default main) and **After checks** (Wait for review /
+  Automatically land) choices with the shared words, the line beside Start
+  that names the choices and what Start authorizes, and a Command details
+  disclosure that says where the session runs. It offers no Tracking choice:
+  an unattached session has no work to track at launch, and a workflow the
+  developer later invokes carries its own tracking in its instruction.
+- The no-selection default is **Default main · Wait for review**. Decision:
+  this keeps today's behavior, a conversation in the project folder; an
+  isolated worktree for every conversation would accumulate workspaces that no
+  landing retires; the existing-changes confirmation covers the remaining
+  risk. The default is a stated choice, not an inference from the configured
+  folder.
+- A Default main start, including the default choices, follows the shared
+  existing-changes contract: any uncommitted change in the default checkout
+  shows the confirmation screen in place of the choices; Back and Cancel start
+  nothing; Continue with existing changes starts the session with those
+  changes preserved and never changes the landing choice. A clean checkout
+  starts without a warning.
+- An Isolated workspace start establishes one owned worktree under
+  `.worktrees/` at fetched trunk, on the selected host's branch namespace,
+  through the installed shared start, never by dashboard reimplementation, and
+  publishes nothing. The native session opens in that worktree. The slug comes
+  from the session's label (its instruction text, or `session` when the label
+  is a time), numbered on collision as story workspaces are.
+- The launch hands the established session context to the native session
+  once, as a block in its first message beside the reporting context, on every
+  host: workspace, its role (`isolated` or `default-checkout`), branch, remote,
+  trunk target, landing intent, and starting revision. The block is sent when
+  any choice is non-default or an instruction exists; a blank instruction with
+  the default choices stays a blank native launch, as today. Launch and
+  session records keep the policy and the workspace as local evidence, and
+  the Sessions sidebar shows that workspace as it does for one-shot starts.
+- A workflow or skill the developer later invokes in that session applies the
+  established context instead of selecting a place of its own: the installed
+  skills' one-shot, planless, and contextual paths work in the established
+  workspace and branch and retain its starting revision; a standard tracked
+  invocation is given the established workspace and branch and reports the
+  installed start's answer, so no second workspace is created silently. The
+  session's landing intent is the developer's advance keep for results that
+  session lands, through one-shot delivery or Dough Land, with the launch's
+  landing context. It grants no execution, admission, or Take: tracking,
+  verification, and completion come from the invoked workflow and its
+  instruction.
+- A start that stops or expires keeps the workspace and branch it established
+  with the attempt, so Continue from Startup recovery resumes that place and
+  creates no second worktree.
+
+Deferred promises (not built or verified here):
+
+- No Tracking choice in Start session, no automatic story or task selection,
+  and no change to the execution and refinement dialogs.
+- No new cleanup for an unattached isolated worktree that never lands. Dough
+  Land's existing retirement handles a worktree whose work trunk contains;
+  otherwise it stays, as a review-waiting one-shot result does.
+- Review-waiting results of an unattached session are not represented as
+  published preparation or completion; origin alone decides story facts.
+- No new hosts.
+
+Boundary assumptions:
+
+- The shared policy definition stays the one owner of values, flags, and
+  words; an unattached request carries workspace and landing only. The rule
+  that non-default workspace and landing need one-shot tracking is a story
+  workflow rule and does not apply to a session with no workflow.
+- Confirming existing changes authorizes including them in whatever the
+  session later commits; it never selects automatic landing.
+- A direct skill invocation outside a dashboard launch keeps its existing
+  contracts: no clean-main prerequisite, no confirmation.
+- Native behavior proof on Claude Code, Codex, and Cursor (ADR 0005) is a
+  paid manual observation the developer runs; deterministic launch tests do
+  not substitute for it.
 
 #### Key examples
 
-- Unattached conversation + either/both choices → launch in the selected location
-  with the stated landing intent, without a story, Take, or assignment publication.
-- Unattached conversation + no work requested → no automatic landing or fabricated
-  completion; ordinary conversation remains possible.
-- Default checkout has uncommitted changes + Start → warning; cancel starts
-  nothing, confirmation starts while preserving those changes.
-- Unattached session later explicitly invokes a workflow → apply that workflow
-  using the established context rather than silently creating a second workspace
-  or granting execution from a workspace/publication option.
+- Clean default checkout; the developer opens Start session, keeps the
+  defaults, types “Explain how launch records are stored”, Start → the
+  session starts in the project folder with that text and the reporting
+  context, as today: no established block, no story, Take, or assignment.
+- Default checkout with two uncommitted files; Start session with the default
+  choices, Start → “Existing changes in default main” lists the two paths and
+  says that continuing includes them in this session's result and that Wait
+  for review remains selected. Back returns to the choices unchanged; Cancel
+  starts nothing; Continue with existing changes starts the session in the
+  project folder with both files untouched.
+- Isolated workspace · Wait for review, instruction “Tidy the README wording”
+  → a worktree `.worktrees/tidy-the-readme-wording` on
+  `claude/tidy-the-readme-wording` at fetched trunk; the session opens there,
+  its first message carries the established session block and the reporting
+  context; nothing is pushed and no card changes. The session edits and
+  commits; the result waits in that worktree until the developer asks the
+  session to land it, which Dough Land does from that worktree and then retires
+  it.
+- Isolated workspace · Automatically land, blank instruction → the line beside
+  Start says verified results land on origin without another review and that
+  pressing Start authorizes that push; the session's first message is the
+  established block alone. The developer only asks questions → nothing lands
+  and nothing claims completion. Later they type
+  `/dough-execute-plan SEED-X#story --one-shot` → the one-shot start uses the
+  established worktree, the story stays queued, and the verified result lands
+  automatically with the launch's landing context, closing the story in that
+  commit.
+- Default main session; the developer types
+  `/dough-story-refinement SEED-Y#story` → the refinement announces its
+  Preparing assignment and prepares in its own owned workspace exactly as a
+  direct invocation from the default checkout does today; the session's
+  landing choice grants that tracked lifecycle nothing.
+- Codex selected, Isolated workspace · Wait for review → the native
+  conversation starts with the worktree as its working directory and the same
+  block; Cursor starts with that worktree as `--workspace`, and a blank Cursor
+  start with a chosen model stays refused.
+- Isolated workspace start whose script wait expires → “Startup needs
+  reconciliation” beside Start session names the worktree; Continue resumes
+  the kept workspace and branch and creates no second worktree.
 
-#### Dependency, boundary, and open decisions
+#### UI
 
-Reuse the delivered shared session policy and publication contracts; the story
-dialogs remain useful without this dialog extension. Do not add new hosts or automatic task selection.
+Follow the story dialogs' hierarchy rather than a second design: instruction
+(focused on opening), Host and Model on one row, the Session group in view
+with Workspace and After checks radio groups and no Tracking group, then the
+Command details disclosure, Cancel and Start. The line always in view beside
+Start reads `Default main · Wait for review` with “The session runs in this
+project's folder on default main, with its existing changes; nothing is
+published.”, or for Automatically land “…verified results land on origin
+without another review. Pressing Start authorizes that push.” Command details
+say where the session runs and show the established block's fields; Start
+session has no command line. The existing-changes screen is the story
+dialogs' screen. Validate narrow widths and 200% zoom before accepting the
+dialog; there is no story title to stretch it.
 
-This is a captured follow-up, not a completed refinement. Settle the no-selection
-workspace default for unattached conversations (currently the configured project
-folder) and how later workflow invocation inherits established options. Warning
-confirmation includes existing content, independently of landing policy. Review the
-actual ad hoc handoff before planning; do not infer default main or review policy
-from today's configured folder alone.
+#### Architecture
+
+The seed's shared direction above places each responsibility; this story adds
+only the unattached handoff. Planning names the reused operations and probes
+the contracts below before dependent slices.
+
+- **Request and records.** An unattached request carries `policy` (workspace,
+  landing) and the transient `existingChanges` fingerprint; the launch
+  boundary runs the same unconfirmed-changes check for it as for a story
+  start. Records keep policy and workspace, never the fingerprint.
+- **Establishment.** The launch boundary establishes an isolated workspace
+  through the installed shared start for unlisted one-shot work (an owned
+  workspace at fetched trunk, publishing nothing) or the default checkout
+  taken as it is, with its branch and ongoing-operation checks. Probe which
+  installed operation accepts a start with no identity and what its receipt
+  carries before choosing between reusing it and adding a thin shared session
+  operation beside it. The dashboard creates no worktree itself and the native
+  session creates none.
+- **Handoff.** An “Established session” block, distinct from the established
+  one-shot start and preparation blocks because it names no tracking,
+  identity, or agent, spelled by the shared session policy's owner and
+  prepended by each host adapter where it prepends established starts.
+- **Inheritance.** The installed skills gain one shared rule for an established
+  session: one-shot, planless, and contextual paths take workspace, role,
+  branch, and starting revision from the block and skip workspace selection;
+  tracking comes from the invocation; the block's landing is the advance keep
+  for that session's landings and is independent of workspace. Probe whether
+  the installed tracked start accepts an existing established worktree
+  (`existing` or `continued`) so the standard-invocation example promises
+  only what the start answers.
+- **Evidence.** Everything here is local launch evidence; origin decides story
+  facts. ADRs 0002, 0005, and 0006 apply as the shared direction records; no
+  new ADR or status change.
+
+#### Dependency and boundary
+
+The shared session policy, one-shot refinement and execution, the
+default-checkout confirmation, and the launch landing context are delivered;
+this story extends them to the project row's Start session. The story dialogs
+stay useful without it.
 
 ## Existing Behavior to Reconcile
 

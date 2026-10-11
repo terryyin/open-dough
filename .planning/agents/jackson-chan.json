@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jackson-chan",
-  "email": "jackson-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-066#unattached-session-options",
-  "host": "claude",
-  "model": "fable"
-}
