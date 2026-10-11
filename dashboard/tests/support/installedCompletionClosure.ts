@@ -234,5 +234,6 @@ export async function withInstalledCompletionClosure(
           ).status,
         ).toMatch(/^(finished|stopped)$/);
     }
+    await ci?.endRequests();
   }
 }

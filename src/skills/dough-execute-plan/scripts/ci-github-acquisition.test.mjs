@@ -190,8 +190,11 @@ test("no installed file asks gh outside the one request source or names a gh run
     );
 
   // The command a script runs is a quoted name; prose quotes it in backticks.
+  // The request owner's calls run it; its endpoint only finds which `gh` a
+  // consumer would run.
   assert.deepEqual(matching(/["']gh["']/), [
-    "dough-execute-plan/scripts/github-requests.mjs",
+    "dough-execute-plan/scripts/github-request-calls.mjs",
+    "dough-execute-plan/scripts/github-request-owner-endpoint.mjs",
   ]);
   assert.deepEqual(
     matching(

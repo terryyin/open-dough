@@ -11,7 +11,12 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { authenticatedReadPlugin } from "../server/authenticatedReadPlugin.ts";
-import { fakeGhEnv, installFakeGh, readPid } from "./support/fakeGh.ts";
+import {
+  endFakeGh,
+  fakeGhEnv,
+  installFakeGh,
+  readPid,
+} from "./support/fakeGh.ts";
 import { processAlive } from "./support/processGroup.ts";
 import {
   everyRepository,
@@ -122,6 +127,7 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
         });
       });
       restoreEnv();
+      await endFakeGh(gh);
       await github.close();
       rmSync(tempRoot, { recursive: true, force: true });
     }

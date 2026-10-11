@@ -1,6 +1,7 @@
 // GitHub Actions as the CI engine reads it: the selected workflow's runs,
 // attempts, jobs and job logs, each one `gh api` request through the one
-// request source this process shares (`./github-requests.mjs`).
+// request source (`./github-requests.mjs`), whose owner this process shares
+// with every dashboard and CI observer of this user.
 import { GitHubRequests } from "./github-requests.mjs";
 
 // Workflow identity is the selector every listing requests; the display name
@@ -8,7 +9,7 @@ import { GitHubRequests } from "./github-requests.mjs";
 export const ciWorkflowFile = process.env.DOUGH_CI_WORKFLOW ?? "ci.yml";
 
 // Every request this process asks of GitHub for CI evidence: one `gh api`
-// call each, sharing the process's turns at GitHub and any wait GitHub
+// call each, sharing the owner's turns at GitHub and any wait GitHub
 // directed. One call may run 20 seconds; a failed job's log may print up to
 // 16 MiB.
 const requests = new GitHubRequests({

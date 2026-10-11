@@ -1,15 +1,27 @@
 // Installs the synthetic `gh` (../fixtures/fake-gh) on a temp PATH directory
 // and reads back the pid files it writes. What that `gh` answers comes from
 // the test's own fake GitHub (./fakeGitHub.ts); nothing here launches a Vite
-// dev/preview server (./dashboardServer.ts does).
+// dev/preview server (./dashboardServer.ts does). Every process given this
+// `gh` asks it through a GitHub request owner (github-request-owner.mjs) at
+// an endpoint of this installation's own, so no test shares another's owner,
+// rate-limit wait or turns, nor this machine's real one.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
+import {
+  endRequestOwners,
+  privateRequestOwner,
+  requestOwnerEnvironmentAt,
+  withdrawRequestOwners,
+} from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
+import { endAtExit } from "./processGroup.ts";
 
 export type FakeGhPaths = {
   binDir: string;
   pidPath: string;
+  // Kept short and apart from `tempRoot`: it holds the owner's socket path.
+  requestOwnerRoot: string;
 };
 
 // Exported so a test that wants the plugin's own hooks directly (rather than
@@ -17,11 +29,31 @@ export type FakeGhPaths = {
 export function installFakeGh(tempRoot: string): FakeGhPaths {
   const binDir = path.join(tempRoot, "bin");
   installFixtureExecutable("fake-gh", binDir, "gh");
-  return { binDir, pidPath: path.join(tempRoot, "gh.pid") };
+  const { root: requestOwnerRoot } = privateRequestOwner();
+  // An owner a teardown never reached is ended, and its endpoint removed,
+  // when this process exits.
+  ownerEndsAtExit.set(
+    requestOwnerRoot,
+    endAtExit(() => {
+      withdrawRequestOwners(requestOwnerRoot);
+      rmSync(requestOwnerRoot, { recursive: true, force: true });
+    }),
+  );
+  return { binDir, pidPath: path.join(tempRoot, "gh.pid"), requestOwnerRoot };
 }
 
-// The environment that puts this synthetic `gh` first on PATH and points it
-// at a fake GitHub.
+const ownerEndsAtExit = new Map<string, () => void>();
+
+// Ends every request owner started at this installation's endpoint, waits
+// until its process is gone, and removes the endpoint.
+export async function endFakeGh(gh: FakeGhPaths): Promise<void> {
+  await endRequestOwners(gh.requestOwnerRoot);
+  ownerEndsAtExit.get(gh.requestOwnerRoot)?.();
+  ownerEndsAtExit.delete(gh.requestOwnerRoot);
+}
+
+// The environment that puts this synthetic `gh` first on PATH, points it at
+// a fake GitHub, and asks it through this installation's own request owner.
 export function fakeGhEnv(
   gh: FakeGhPaths,
   githubUrl: string,
@@ -30,6 +62,7 @@ export function fakeGhEnv(
     PATH: `${gh.binDir}${path.delimiter}${process.env["PATH"] ?? ""}`,
     FAKE_GH_ORIGIN: githubUrl,
     FAKE_GH_PIDFILE: gh.pidPath,
+    ...requestOwnerEnvironmentAt(gh.requestOwnerRoot),
   };
 }
 

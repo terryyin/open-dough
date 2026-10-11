@@ -16,6 +16,7 @@ import {
   fixtureTeardown,
   sharedCommandDirectory,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import {
   awaitSignalWhileRunning,
   processEnded,
@@ -117,6 +118,7 @@ export function blockingGithubEnvironment(t) {
     teardown,
     env: {
       ...process.env,
+      ...requestOwnerEnvironment(teardown),
       DOUGH_CI_MAILBOX_ROOT: root,
       TMPDIR: root,
       CI_TEST_ROOT: root,

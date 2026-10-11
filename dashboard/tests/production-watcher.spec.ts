@@ -9,7 +9,7 @@ import {
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
-import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
+import { endFakeGh, installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
 import { startFakeGitHub } from "./support/fakeGitHub.ts";
 import {
   productionActivation,
@@ -229,6 +229,7 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
     await developmentPage.close();
     await watcher?.stop();
     await development?.stop();
+    await endFakeGh(gh);
     await github.close();
     fixture.cleanup();
   }

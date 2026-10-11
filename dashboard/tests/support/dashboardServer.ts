@@ -26,7 +26,8 @@ import {
   type FakeClaudeControls,
   type FakeClaudeOptions,
 } from "./fakeClaude.ts";
-import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
+import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { endFakeGh, fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
@@ -76,6 +77,10 @@ export async function startDashboardServer(
     // The fake GitHub this server's `gh` asks; a fresh one, closed with the
     // server, when omitted.
     readonly github?: FakeGitHub;
+    // The request owner endpoint this server asks GitHub through, shared
+    // with whatever else the test points there and ended by the test; an
+    // endpoint and owner of this server's own, ended with it, when omitted.
+    readonly requestOwnerRoot?: string | undefined;
     // Preview only: serve this already-built directory instead of building a
     // private copy.
     readonly prebuilt?: string | undefined;
@@ -125,6 +130,9 @@ export async function startDashboardServer(
     ].join(path.delimiter),
     // Avatars are fetched from the same fake GitHub, never GitHub itself.
     DOUGH_AVATAR_ORIGIN: github.url.replace(/\/$/, ""),
+    ...(options.requestOwnerRoot === undefined
+      ? {}
+      : requestOwnerEnvironmentAt(options.requestOwnerRoot)),
     ...options.extraEnv,
   };
   if (options.readTimeoutMs !== undefined) {
@@ -172,6 +180,8 @@ export async function startDashboardServer(
     if (ownsMachine) await stopCursorRunner(home);
     withdrawRunnerStopAtExit();
     if (options.codexProtocol === undefined) await codex.close();
+    // Its owner's `gh` calls write into `tempRoot` and ask `github`.
+    await endFakeGh(gh);
     if (ownsGitHub) {
       await github.close();
     }

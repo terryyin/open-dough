@@ -1,0 +1,223 @@
+// This machine's one owner of requests to GitHub, for every Open Dough
+// consumer running with the same `gh` and login settings: started by the
+// first consumer that finds none (`./github-request-owner-link.mjs`), in its
+// own process group, with that consumer's environment for every `gh` it
+// runs. It holds the one record of a rate limit, the eight turns at GitHub
+// and every outstanding call (`./github-request-calls.mjs`), so consumers in
+// separate processes share them. It stands while its record is the highest
+// in its endpoint directory (`./github-request-owner-endpoint.mjs`), and
+// ends once no consumer is connected and no rate limit's wait stands for
+// `DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS` (five seconds), or ten seconds after
+// its start when no consumer ever reached it. Nothing is kept past its end:
+// an owner started later asks GitHub at once.
+//
+// Usage: node github-request-owner.mjs <endpoint directory> <backoff base ms>
+import { randomBytes, timingSafeEqual } from "node:crypto";
+import { lstatSync, rmSync } from "node:fs";
+import { connect, createServer } from "node:net";
+import { join } from "node:path";
+import { GhFailure } from "./github-request-answer.mjs";
+import { AdmittedCalls } from "./github-request-calls.mjs";
+import {
+  claimedRecord,
+  newSocketName,
+  privacyRefusal,
+  standingRecord,
+} from "./github-request-owner-endpoint.mjs";
+import {
+  fixedRequest,
+  greetingLimitMs,
+  protocol,
+  receive,
+  send,
+  wireAnswer,
+} from "./github-request-owner-wire.mjs";
+
+const directory = process.argv[2] ?? "";
+const backoffBaseMs = Number(process.argv[3]);
+const idleMs = Number(process.env.DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS ?? 5_000);
+// The longest one consumer message may be.
+const messageBytesLimit = 256 * 1024;
+
+if (
+  !(backoffBaseMs > 0) ||
+  privacyRefusal(lstatSync(directory), process.getuid?.()) !== undefined
+)
+  process.exit(1);
+
+const reachable = (path) =>
+  new Promise((resolve) => {
+    const socket = connect(path);
+    socket.once("connect", () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once("error", () => resolve(false));
+  });
+
+const earlier = standingRecord(directory);
+if (earlier?.socket !== undefined && (await reachable(earlier.socket)))
+  process.exit(0);
+
+// Every failed call's answer, so each consumer waiting on it is told so.
+const failedAnswers = new WeakSet();
+const calls = new AdmittedCalls({
+  backoffBaseMs,
+  failed: (answer) => failedAnswers.add(answer),
+});
+
+const token = randomBytes(32).toString("hex");
+const admitted = (offered) =>
+  typeof offered === "string" &&
+  offered.length === token.length &&
+  timingSafeEqual(Buffer.from(offered), Buffer.from(token));
+
+// Every connected consumer, and every requester waiting on a call.
+const consumers = new Set();
+const requesters = new Set();
+const left = new Error("The requester left.");
+let ending = false;
+
+// One consumer process: greeted with this owner's token, then asking the one
+// fixed operation or ending a wait it began. Its disconnection ends its own
+// waits only. An owner already ending greets nobody, so the consumer finds or
+// starts the next one.
+function serve(socket) {
+  if (ending) {
+    socket.destroy();
+    return;
+  }
+  const waits = new Map();
+  let welcomed = false;
+  consumers.add(socket);
+  const greeting = setTimeout(() => socket.destroy(), greetingLimitMs);
+  const refuse = (refused) => {
+    send(socket, { refused });
+    socket.end();
+  };
+  socket.on("error", () => undefined);
+  socket.on("close", () => {
+    clearTimeout(greeting);
+    consumers.delete(socket);
+    for (const wait of waits.values()) wait.abort(left);
+  });
+  receive(
+    socket,
+    (message) => {
+      if (!welcomed) {
+        if (!admitted(message?.token)) refuse("unauthenticated");
+        else if (message.hello !== protocol) refuse("incompatible");
+        else {
+          welcomed = true;
+          clearTimeout(greeting);
+          send(socket, { welcome: protocol });
+        }
+        return;
+      }
+      const { id, cancel, request } = message ?? {};
+      if (!Number.isSafeInteger(id)) refuse("unknown operation");
+      else if (cancel === "left" || cancel === "bound")
+        waits
+          .get(id)
+          ?.abort(
+            cancel === "left" ? left : new GhFailure({ kind: "timed-out" }),
+          );
+      else if (request === undefined || waits.has(id))
+        refuse("unknown operation");
+      else ask(socket, waits, id, fixedRequest(request));
+    },
+    messageBytesLimit,
+  );
+}
+
+function ask(socket, waits, id, fixed) {
+  if (fixed === undefined) {
+    send(socket, { id, refused: "not a GitHub API read" });
+    return;
+  }
+  const wait = new AbortController();
+  waits.set(id, wait);
+  requesters.add(wait);
+  calls
+    .request(fixed.args, wait.signal, fixed)
+    .then(
+      (answer) =>
+        send(socket, {
+          id,
+          answer: wireAnswer(answer),
+          told: failedAnswers.has(answer),
+        }),
+      (error) => {
+        if (wait.signal.aborted) return;
+        const timedOut =
+          error instanceof GhFailure && error.reason.kind === "timed-out";
+        send(socket, timedOut ? { id, timedOut } : { id });
+      },
+    )
+    .finally(() => {
+      waits.delete(id);
+      requesters.delete(wait);
+    });
+}
+
+const socketFile = newSocketName();
+const socketPath = join(directory, socketFile);
+const server = createServer(serve);
+await new Promise((resolve, reject) => {
+  server.once("error", reject);
+  server.listen(socketPath, resolve);
+});
+
+// Ends every call no later requester could reach, then -- once each `gh` it
+// ran is gone, or two seconds on -- this process. Its record stays, so no
+// later owner takes its generation.
+function end() {
+  if (ending) return;
+  ending = true;
+  for (const wait of requesters) wait.abort(left);
+  server.close();
+  for (const consumer of consumers) consumer.destroy();
+  rmSync(socketPath, { force: true });
+  const lastAt = Date.now() + 2_000;
+  setInterval(() => {
+    if (calls.running === 0 || Date.now() > lastAt) process.exit(0);
+  }, 10);
+}
+
+const generation = (earlier?.generation ?? 0) + 1;
+if (
+  !claimedRecord(directory, generation, {
+    pid: process.pid,
+    protocol,
+    token,
+    socket: socketFile,
+  })
+)
+  end();
+
+// Whether this owner's record is still the highest: withdrawn, overtaken or
+// without its directory, it stands no more. A directory that cannot be read
+// just now proves none of those.
+function stands() {
+  try {
+    return standingRecord(directory)?.generation === generation;
+  } catch (error) {
+    return error.code !== "ENOENT";
+  }
+}
+
+// The consumer that started this owner may take this long to reach it:
+// until then it is not idle.
+const firstConsumerLimitMs = 10_000;
+let idleSince = Date.now() + firstConsumerLimitMs;
+setInterval(
+  () => {
+    const now = Date.now();
+    if (!stands()) end();
+    else if (consumers.size > 0 || calls.heldBack(now) !== undefined)
+      idleSince = now;
+    else if (now - idleSince >= idleMs) end();
+  },
+  Math.min(idleMs, 1_000),
+);
+for (const signal of ["SIGTERM", "SIGINT", "SIGHUP"]) process.on(signal, end);

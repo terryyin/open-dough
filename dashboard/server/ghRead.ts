@@ -1,11 +1,12 @@
 // The `gh`-invocation concern for the local authenticated read boundary
 // (`./authenticatedRead.ts`): this process's adapter of the one installed
-// GitHub request source (`github-requests.mjs`, shared with every other Open
-// Dough consumer), which runs one `gh api` call with GitHub's status line and
+// GitHub request source (`github-requests.mjs`), which asks this machine's
+// request owner, shared with every other dashboard process and CI observer
+// of this user, to run one `gh api` call with GitHub's status line and
 // headers included, read once -- a rate limit and the wait GitHub directed,
 // whichever read met it -- one call shared by every request asking it while
-// it is outstanding, admitted once for all of them and taking one of its
-// turns at GitHub. This module owns only what is the boundary's: its bounds,
+// it is outstanding, admitted once for all of them and taking one of the
+// owner's turns at GitHub. This module owns only what is the boundary's: its bounds,
 // its local diagnostics of a failed read (`./readDiagnostics.ts`), and each
 // request's timing (`./readTiming.ts`).
 // Which commit a ref or published branch names is asked in `./ghRevision.ts`;
@@ -42,18 +43,17 @@ export function readTimeoutMs(): number {
   return configuredLimit("DOUGH_READ_TIMEOUT_MS", readWaitLimitMs);
 }
 
-// How long this process first waits after a rate limit that directs no
-// wait, doubling while the limit continues: GitHub's own guidance of at
-// least one minute.
+// How long a request owner this process starts first waits after a rate
+// limit that directs no wait, doubling while the limit continues: GitHub's
+// own guidance of at least one minute.
 function limitBackoffBaseMs(): number {
   return configuredLimit("DOUGH_LIMIT_BACKOFF_MS", 60_000);
 }
 
-// This server process's requests to GitHub: every `gh` call still
-// outstanding, whether the process may ask GitHub now, and its turns there.
-// A failed call is recorded once for local diagnostics
-// (`./readDiagnostics.ts`), including a bound that ends it; held-back and
-// ordinary waiter departures are not.
+// This server process's requests to GitHub, asked through the machine's
+// request owner. A failed call this process waited on is recorded once for
+// local diagnostics (`./readDiagnostics.ts`), including a bound that ends
+// it; held-back and ordinary waiter departures are not.
 const github = new GitHubRequests({
   boundMs: readTimeoutMs(),
   backoffBaseMs: limitBackoffBaseMs(),

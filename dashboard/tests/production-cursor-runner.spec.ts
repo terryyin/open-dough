@@ -17,7 +17,7 @@ import { dashboardCommand } from "./support/dashboardCommand.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor } from "./support/fakeCursor.ts";
 import { installFakeClaude } from "./support/fakeClaude.ts";
-import { fakeGhEnv, installFakeGh } from "./support/fakeGh.ts";
+import { endFakeGh, fakeGhEnv, installFakeGh } from "./support/fakeGh.ts";
 import { startFakeGitHub } from "./support/fakeGitHub.ts";
 import { keptCursor } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
@@ -138,6 +138,7 @@ test("the production command starts one Cursor runner and leaves that client up 
     await watcher?.stop();
     await stopCursorRunner(fixture.home);
     cursor.cleanup();
+    await endFakeGh(gh);
     await github.close();
     fixture.cleanup();
   }

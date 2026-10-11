@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import { blockingGithubCommandDirectory } from "./watch-ci-test-fixtures.mjs";
 
 const exec = promisify(execFile);
@@ -68,6 +69,7 @@ export async function installedCheckouts(t, prefix) {
   );
   const env = {
     ...process.env,
+    ...requestOwnerEnvironment(teardown),
     DOUGH_CI_MAILBOX_ROOT: join(fixture, "mailboxes"),
     CI_TEST_ROOT: fixture,
     PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,

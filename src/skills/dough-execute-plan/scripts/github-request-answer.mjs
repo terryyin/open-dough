@@ -7,6 +7,7 @@
 // ever leave here; raw stderr may name local paths or echo configuration and
 // is never forwarded.
 
+import { ReadBoundReached } from "./github-request-outstanding.mjs";
 import { longestDirectedWaitSeconds } from "./github-request-rules.mjs";
 
 // Why a `gh` call did not answer, as far as can be said without repeating
@@ -78,6 +79,29 @@ export class GhFailure extends Error {
     /** @readonly @type {Reason} */
     this.reason = reason;
   }
+}
+
+// An answer that never came from GitHub: held back, or -- `failed` -- for a
+// call no requester waits on any more, whether waiting its turn or already
+// asked.
+/**
+ * @param {GhRequestFailure} failure
+ * @param {string} [askedAt]
+ * @returns {GhAnswer}
+ */
+export function unasked(failure, askedAt = new Date().toISOString()) {
+  return { status: undefined, headers: new Map(), body: "", failure, askedAt };
+}
+
+// The shared call's own bound (`ReadBoundReached`) or a waiter's own bound
+// ended it -- not ordinary departure or shutdown.
+/** @param {AbortSignal} signal */
+export function endedAtBound(signal) {
+  return (
+    signal.reason instanceof ReadBoundReached ||
+    (signal.reason instanceof GhFailure &&
+      signal.reason.reason.kind === "timed-out")
+  );
 }
 
 const wholeNumber = /^\d+$/;

@@ -11,15 +11,17 @@ import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   deferChildExit,
+  enterEnvironment,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 
 // A `gh` that answers `gh api --include` as GitHub's API does from the
 // `github.json` beside it, and records each call twice in `calls.jsonl`: when
 // asked and when answered. While `limited.json` counts down, a matching
-// route answers a rate limit directing a one-second wait. A job's log waits
-// for `release-logs` when the state says `holdLogs`, and any call waits for
-// `release` while `hold` stands.
+// route answers a rate limit directing the wait it names, one second unless
+// told. A job's log waits for `release-logs` when the state says `holdLogs`,
+// and any call waits for `release` while `hold` stands.
 const instrumentedGithub = `#!${process.execPath}
 const fs = require('node:fs');
 const path = require('node:path');
@@ -48,10 +50,10 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
   await released('hold', 'release');
   const limited = path.join(root, 'limited.json');
   if (fs.existsSync(limited)) {
-    const { count, match } = JSON.parse(fs.readFileSync(limited, 'utf8'));
+    const { count, match, wait } = JSON.parse(fs.readFileSync(limited, 'utf8'));
     if (count > 0 && route.includes(match)) {
-      fs.writeFileSync(limited, JSON.stringify({ count: count - 1, match }));
-      return finish('HTTP/2.0 429 Too Many Requests\\r\\nRetry-After: 1', '{}', 1, 'gh: slow down (HTTP 429)');
+      fs.writeFileSync(limited, JSON.stringify({ count: count - 1, match, wait }));
+      return finish('HTTP/2.0 429 Too Many Requests\\r\\nRetry-After: ' + wait, '{}', 1, 'gh: slow down (HTTP 429)');
     }
   }
   const { pathname, searchParams } = new URL(route, 'https://api.github.test/');
@@ -99,6 +101,7 @@ export function instrumentedGithubFixture(t, state) {
           .map((line) => JSON.parse(line))
       : [];
   const environment = {
+    ...requestOwnerEnvironment(teardown),
     CI_GH_FIXTURE: directory,
     PATH: `${directory}${delimiter}${process.env.PATH}`,
   };
@@ -106,19 +109,7 @@ export function instrumentedGithubFixture(t, state) {
     teardown,
     env: { ...process.env, ...environment },
     // Routes this process's own requests through the fixture for this test.
-    enter() {
-      const before = {
-        CI_GH_FIXTURE: process.env.CI_GH_FIXTURE,
-        PATH: process.env.PATH,
-      };
-      Object.assign(process.env, environment);
-      t.after(() => {
-        process.env.PATH = before.PATH;
-        if (before.CI_GH_FIXTURE === undefined)
-          delete process.env.CI_GH_FIXTURE;
-        else process.env.CI_GH_FIXTURE = before.CI_GH_FIXTURE;
-      });
-    },
+    enter: () => enterEnvironment(t, environment),
     set,
     calls,
     // Every upstream request so far, as the arguments `gh` was given.
@@ -136,8 +127,11 @@ export function instrumentedGithubFixture(t, state) {
       }
       return most;
     },
-    limit: (count, match) =>
-      writeFileSync(file("limited.json"), JSON.stringify({ count, match })),
+    limit: (count, match, wait = 1) =>
+      writeFileSync(
+        file("limited.json"),
+        JSON.stringify({ count, match, wait }),
+      ),
     holdRequests: () => writeFileSync(file("hold"), ""),
     releaseRequests: () => writeFileSync(file("release"), ""),
     releaseLogs: () => writeFileSync(file("release-logs"), ""),

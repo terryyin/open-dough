@@ -1,7 +1,8 @@
-// The installed GitHub request source through its one entry, against a
-// synthetic `gh` on PATH: every call asks for GitHub's head, requesters of one
-// outstanding call share it, a rate limit holds back the requests that
-// follow unasked, and each failed call is told once to the owner.
+// The installed GitHub request source through its one entry and a request
+// owner of each test's own, against a synthetic `gh` on PATH: every call
+// asks for GitHub's head, requesters of one outstanding call share it, a rate
+// limit holds back the requests that follow unasked, and each failed call is
+// told once to the owner.
 import assert from "node:assert/strict";
 import {
   chmodSync,
@@ -15,12 +16,14 @@ import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { test } from "node:test";
 import { GhFailure } from "./github-request-answer.mjs";
+import { enterPrivateRequestOwner } from "./github-request-owner-test-fixtures.mjs";
 import { GitHubRequests } from "./github-requests.mjs";
 
 // A `gh` that logs its arguments, one call per line, waits for `release`
 // while a `hold` file stands (removed with the fixture), then answers by the
 // route asked.
 function syntheticGh(t) {
+  enterPrivateRequestOwner(t);
   const directory = mkdtempSync(join(tmpdir(), "dough-github-requests-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const log = join(directory, "calls.log");

@@ -13,6 +13,7 @@ import {
   launcher,
 } from "./ci-cursor-lifecycle-test-fixtures.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import {
   awaitWorkerSignal,
   waitForFile,
@@ -29,6 +30,7 @@ test("Cursor reuses one execution observer through pushes and stops its exact ma
   mkdirSync(nativeTmp);
   const shared = {
     ...process.env,
+    ...requestOwnerEnvironment(teardown),
     DOUGH_CI_MAILBOX_ROOT: root,
     CI_TEST_ROOT: root,
     PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,

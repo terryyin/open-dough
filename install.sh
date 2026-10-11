@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2034,SC2310,SC2312 # SC2034: force, replace_verified, and version are read by install_declared_payload.
+# shellcheck disable=SC1091,SC2034,SC2310,SC2312 # SC2034: force and replace_verified are read by install_declared_payload.
 set -euo pipefail
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-source "${source_dir}/src/install/open-dough-platform.sh"
-source "${source_dir}/src/install/open-dough-register-hooks.sh"
 # shellcheck source=src/install/open-dough-install-payload.sh
 source "${source_dir}/src/install/open-dough-install-payload.sh"
 # shellcheck source=src/install/open-dough-install-request.sh
@@ -185,7 +183,12 @@ managed_files=(
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/github-request-admission.mjs
   dough-execute-plan/scripts/github-request-answer.mjs
+  dough-execute-plan/scripts/github-request-calls.mjs
   dough-execute-plan/scripts/github-request-outstanding.mjs
+  dough-execute-plan/scripts/github-request-owner-endpoint.mjs
+  dough-execute-plan/scripts/github-request-owner-link.mjs
+  dough-execute-plan/scripts/github-request-owner-wire.mjs
+  dough-execute-plan/scripts/github-request-owner.mjs
   dough-execute-plan/scripts/github-request-rules.mjs
   dough-execute-plan/scripts/github-requests.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
@@ -244,7 +247,4 @@ managed_files=(
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )
-require_declared_payload
-[[ -f "${source_dir}/src/install/open-dough-release.sh" ]] || { echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
-version=$(bash "${source_dir}/src/install/open-dough-release.sh" validate-checkout "${source_dir}")
 install_declared_payload

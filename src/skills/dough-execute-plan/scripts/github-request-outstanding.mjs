@@ -24,7 +24,8 @@ export class OutstandingReads {
   #boundMs;
 
   // `boundMs` is how long one read may run from its start before it is
-  // aborted with `ReadBoundReached`.
+  // aborted with `ReadBoundReached`, unless its first requester names its
+  // own.
   /** @param {number} boundMs */
   constructor(boundMs) {
     this.#boundMs = boundMs;
@@ -62,13 +63,15 @@ export class OutstandingReads {
    * @param {string} key
    * @param {AbortSignal} waiter
    * @param {(signal: AbortSignal) => Promise<T>} start
+   * @param {number} [boundMs]
    * @returns {Promise<T>}
    */
-  waitFor(key, waiter, start) {
+  waitFor(key, waiter, start, boundMs) {
     if (waiter.aborted) {
       return Promise.reject(waiter.reason);
     }
-    const outstanding = this.#reading.get(key) ?? this.#started(key, start);
+    const outstanding =
+      this.#reading.get(key) ?? this.#started(key, start, boundMs);
     outstanding.waiters += 1;
     return new Promise((resolve, reject) => {
       const leave = () => {
@@ -90,12 +93,12 @@ export class OutstandingReads {
     });
   }
 
-  #started(key, start) {
+  #started(key, start, boundMs = this.#boundMs) {
     const controller = new AbortController();
     const timer = setTimeout(() => {
       this.#ended(key, outstanding);
       controller.abort(new ReadBoundReached());
-    }, this.#boundMs);
+    }, boundMs);
     const outstanding = {
       read: start(controller.signal).finally(() => {
         clearTimeout(timer);

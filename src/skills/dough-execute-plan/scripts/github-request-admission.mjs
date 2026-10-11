@@ -1,12 +1,13 @@
-// Whether this process may ask GitHub now, for the one `gh` invocation every
-// request reaches (`./github-requests.mjs`): the one record of a rate limit,
-// whichever request met it and whoever asks next, and the turns that bound
-// how many requests are under way at GitHub at once. After any wait, directed
-// or backed off, one request goes first: however it ends without a rate
-// limit -- answered, GitHub unreachable, its requester gone, or at its own
-// bound -- the turns reopen, while a limit it meets starts the wait again
-// with nothing else asked. It lives in this process's memory only, so a newly
-// started process asks GitHub at once.
+// Whether this process -- the machine's request owner
+// (`./github-request-owner.mjs`) -- may ask GitHub now, for the one `gh`
+// invocation every consumer's request reaches (`./github-request-calls.mjs`):
+// the one record of a rate limit, whichever request met it and whoever asks
+// next, and the turns that bound how many requests are under way at GitHub
+// at once. After any wait, directed or backed off, one request goes first:
+// however it ends without a rate limit -- answered, GitHub unreachable, its
+// requester gone, or at its own bound -- the turns reopen, while a limit it
+// meets starts the wait again with nothing else asked. It lives in the
+// owner's memory only, so a newly started owner asks GitHub at once.
 
 import { longestDirectedWaitSeconds } from "./github-request-rules.mjs";
 
@@ -99,8 +100,8 @@ export class ReadAdmission {
 
   // A turn's end, which gives turns to the requests waiting longest while
   // turns are open. While a wait stands every waiting request is given one at
-  // once: it is held back when its turn comes (`./github-requests.mjs`) and
-  // never reaches GitHub, so a wait answers them all without delay.
+  // once: it is held back when its turn comes (`./github-request-calls.mjs`)
+  // and never reaches GitHub, so a wait answers them all without delay.
   #endOfTurn() {
     let over = false;
     return () => {

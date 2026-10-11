@@ -151,8 +151,9 @@ unreachable, its request left, or it timed out; if GitHub limits it again,
 they are answered as limited with the new resume time and only that read
 reached GitHub. A read waiting its turn when a wait starts is answered as
 limited at once and never reaches GitHub. An unmarked `403`, a `404`, a timeout,
-or an unreachable GitHub holds back nothing. The wait is kept in the process's memory,
-so a newly started dashboard asks at once. A page told of such a wait by any of its
+or an unreachable GitHub holds back nothing. The wait is kept by this user's one
+request owner on the machine ([GitHub requests](GITHUB-REQUESTS.md)), so every
+dashboard and CI observer waits, a newly started one included. A page told of such a wait by any of its
 reads -- the membership read, a detail, or a revision check -- keeps that time
 as its one record of the limit, across project selection, and a later limited
 answer only moves it later; until then it asks the local boundary nothing --

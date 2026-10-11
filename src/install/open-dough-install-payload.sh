@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154,SC2310,SC2312
+# shellcheck disable=SC1091,SC2154,SC2310,SC2312
 # Check the caller's managed_files declaration against the source checkout and
 # copy it into each native destination.
-# Sourced by install.sh after platform and host-hook helpers. The declaration
-# stays in install.sh: historical checkouts are read from that literal array.
-# Caller assigns managed_files, source_dir, target, recorded_source, force,
-# replace_verified, and version.
+# Sourced by install.sh, bringing the platform and host-hook helpers. The
+# declaration stays in install.sh: historical checkouts are read from that
+# literal array. Caller assigns managed_files, source_dir, target,
+# recorded_source, force, and replace_verified.
+# shellcheck source=src/install/open-dough-platform.sh
+source "${source_dir}/src/install/open-dough-platform.sh"
+# shellcheck source=src/install/open-dough-register-hooks.sh
+source "${source_dir}/src/install/open-dough-register-hooks.sh"
 
 # Compare or copy the declared files between the source skills and one
 # native root through the shared payload_bytes_run.
@@ -40,6 +44,9 @@ create_payload_directories() {
 }
 
 install_declared_payload() {
+  require_declared_payload
+  [[ -f "${source_dir}/src/install/open-dough-release.sh" ]] || { echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
+  version=$(bash "${source_dir}/src/install/open-dough-release.sh" validate-checkout "${source_dir}")
   if host_hook_fragments_present "${source_dir}"; then
     preflight_host_hook_destinations "${source_dir}" "${target}" || exit 1
   fi

@@ -314,7 +314,30 @@ behavior review follows repository `AGENTS.md`.
 
 ### 4. Share one machine owner of admission across processes
 Type: Behavior
-Status: planned
+Status: done
+
+Delivered: `github-request-owner.mjs` is a detached, on-demand owner running
+`AdmittedCalls` (`github-request-calls.mjs`); `GitHubRequests` is the consumer
+side over a Unix socket (`github-request-owner-link.mjs`, `-wire.mjs`) in a
+0700 per-user directory with a token record (`-endpoint.mjs`). Default root
+`/tmp/dough-github-requests-<uid>`, beside the CI mailboxes, overridable with
+`DOUGH_GITHUB_REQUEST_OWNER_ROOT`. Consumers whose `gh` or login settings
+differ get separate owners. No private fallback: an unreachable owner is a
+failed read. The owner ends five seconds after its last consumer unless a hold
+stands. Accepted proof: `github-request-owner.test.mjs`,
+`github-request-owner-endpoint.test.mjs`, `github-requests-real-gh.test.mjs`
+(installed `gh` against a loopback provider) and
+`dashboard/tests/shared-request-owner.spec.ts` within the whole script
+directory (647 passed) and whole dashboard suite; the install, update, payload
+and release shell tests; one real read through the default endpoint. Measured:
+two dashboards reading ten records plus the CI engine's workflow read cost 11
+requests, eight at GitHub at a time; five processes asking one call cost one;
+after a limit, zero from every peer and then one probe.
+
+CI repair recorded here: run 38112217052 on `93f43b59` failed
+`agent-completion-quiet.spec.ts` and `agent-completion-recovery.spec.ts`
+because slice 3 left `dashboard/tests/support/completionCi.ts` answering
+`gh run` JSON. This slice's publication carries the converted fixture.
 
 Result: two dashboard processes and the CI engine ask GitHub through one
 on-demand machine runtime behind `GitHubRequests.request`, reached over a
@@ -602,7 +625,7 @@ Disposition: proved by slice 3: src/skills/dough-execute-plan/scripts/ci-github-
 ### G2. Admission state is process-local and unkeyed
 Reported: slice 2 — "the outstanding-call key is `JSON.stringify(args)` only, with no API host or principal, and `ReadAdmission` is a single allowance."
 Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
-Disposition: interim until slices 4, 5
+Disposition: receiving slice 5
 
 ### G3. Admission and outstanding classes have no isolated unit tests
 Reported: slice 2 — "`ReadAdmission` and `OutstandingReads` have no isolated unit tests."
@@ -617,7 +640,7 @@ Disposition: no user cost "sends a follow-up to the owning native session only f
 ### G5. Diagnostic entry does not share the observer's hold
 Reported: slice 3 — "A rerun in a new process probes immediately because the cooldown is not shared or persisted (G2)."
 Story clause: "Cooldown refusal costs no upstream call."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs "a rate limit one process meets holds back every other process unasked, a newly started diagnostic entry included"
 
 ### G6. Workflow selector no longer accepts a display name
 Reported: slice 3 — "`gh run list --workflow` also accepted a workflow display name; the API route takes only a filename or numeric ID."
@@ -633,6 +656,31 @@ Disposition: excluded "Paid native runs require explicit native-check authority 
 Reported: slice 3 — "A long-lived limit with short directed waits could produce several advisories."
 Story clause: "Throttling suspends acquisition visibly"
 Disposition: no user cost "Pending or success never creates a new agent turn.": the advisory alone never blocks Stop or starts a turn (`ci-host-hook-discovery-advisory.test.mjs`), and each one reports a real suspension
+
+### G9. No connection from a real second OS user was run
+Reported: slice 4 — "A real second-user connection was not run."
+Story clause: "Scope is Open Dough requests on this machine"
+Disposition: proved by slice 4: src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.test.mjs observes refusal of a foreign owner, group or other access and a non-directory, and "a consumer whose endpoint is open to other users is answered as failed, asks nothing and starts no owner"; the 0700 directory leaves the rest to the operating system
+
+### G10. Owner kill loses the hold and is untested mid-request
+Reported: slice 4 — "The hold is still lost on owner kill or reboot (slice 6)."
+Story clause: "Restart cannot reset a hold"
+Disposition: receiving slice 6
+
+### G11. A host that cannot reach the endpoint fails every CI read
+Reported: slice 4 — "An observer in a sandbox that cannot write `~/.open-dough`, connect to a Unix socket, or spawn a detached process will see every request fail as `gh failed` and hit the three-error path."
+Story clause: "Missing observation or delivery is visible, never success."
+Disposition: receiving slice 15
+
+### G12. Mixed installed protocol versions fail every read
+Reported: slice 4 — "A consumer with an older installed protocol fails every read while a newer owner lives, and vice versa."
+Story clause: "Installation and mixed-version startup must preserve one runtime owner."
+Disposition: receiving slice 7
+
+### G13. Default owner timings and failed-read notice details are unexercised
+Reported: slice 4 — "The 30 s start limit, the default 5 s idle and the 10 s first-consumer grace (only 100 ms idle is exercised)."
+Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
+Disposition: no user cost "Open Dough monitoring and dashboard reads share one GitHub request-admission owner on this machine.": the limits are constants on the paths the 100 ms runs exercise, and the changed failed-read notice fields keep `authenticated-read-diagnostics*.spec.ts` green
 
 ## Proof ownership and acceptance
 
@@ -702,3 +750,15 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
   cross-process owner must carry per request. `install.sh` and `ci-monitor.md`
   sit at the 250-line limit; the next payload file or guidance line needs a
   structural move.
+- 2026-10-11 (slice 4): the endpoint root moved from `~/.open-dough` to
+  `/tmp/dough-github-requests-<uid>` — a coordinator decision for Terry to
+  confirm — so hosts that can already write CI mailboxes can reach it and the
+  socket path stays within 103 bytes. Slice 15 must observe a sandboxed host.
+  Owner records carry pid, protocol, token and a never-reused generation;
+  withdrawing or overtaking a record ends that owner (slice 6's lever).
+  Principal keying belongs in `AdmittedCalls.request` and can replace the
+  directory fingerprint (slice 5). `AdmittedCalls` reports no timed-out call.
+  Any test with a fake `gh` must set a private owner root and end its owner.
+- 2026-10-11 (slice 3 acceptance): the dashboard completion specs consume the
+  installed CI engine through their own `gh` fixture; a change to CI
+  acquisition needs the whole dashboard suite, not only the reader specs.

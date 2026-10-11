@@ -53,7 +53,7 @@ async function armDocumentedStream(t) {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-ack-test-"));
   const teardown = fixtureTeardown(root);
   t.after(teardown.cleanup);
-  const env = processMailboxEnvironment(root);
+  const env = processMailboxEnvironment(root, teardown);
   const host = processBackedCodexTools({
     env,
     startStream: (nodeArguments) => {
