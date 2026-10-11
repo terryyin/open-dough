@@ -36,12 +36,14 @@ The release makes the required installed payload available; acceptance remains
 pending until this story's native evidence passes. The exception grants neither
 a release version nor execution authority to this preparation.
 
-**Before Take:** Terry arranges a tagged release carrying the established-session
-payload and its installation in the observation project for each host. Recheck
-the actual dashboard capability consumer there and record its result. The
-current installation cannot run the non-default journeys, so this plan is
-not ready for execution until that prerequisite is observed. Do not renew
-readiness merely because a release number exists.
+**Before Take:** Terry selects the actual observation project and authorized
+publication target. A disposable test project is recommended, not yet selected.
+Verify its complete tagged installation for each host, then run the actual
+dashboard capability consumer against that path and record the result. The
+release prerequisite is resolved by v0.3.60 and the preparation checkout is
+capable, but it is not the selected observation project. This plan remains
+not-ready until target-project verification settles that prerequisite. Do not
+renew readiness from this checkout's result or a release number alone.
 
 [ADR 0003 — Release lifecycle](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 requires tagged payload;
@@ -71,7 +73,7 @@ changes only when that commit lands. Judge these two locations separately.
 
 Preparation workspace:
 `/Users/terryyin/git/open-dough/.worktrees/observe-an-unattached-start-session-on-the-nativ`,
-revision `20189a6a4d9e5dee91eb6ae767d8da13ca9aba4e`. This is a preparation
+revision `d1948bd95a6d3360aaa0c387b4cb3daf55c613e1`. This is a preparation
 checkout, not an assumed native test project. On 2026-10-12 the following fresh
 unpaid, read-only prefix reached the
 consumer that decides whether non-default Start choices can be offered:
@@ -84,29 +86,47 @@ for (const host of ['claude', 'codex', 'cursor']) console.log(JSON.stringify({ho
 JS
 ```
 
-Result: exit 0, `available: false` for all three hosts. The transform-types
+Result: exit 0, `available: true` for all three hosts. The transform-types
 invocation reached the consumer successfully. No native process, workspace creation,
-assignment or publication was attempted. This proves current unavailability,
-not native behavior or the visible disabled-control wording.
+assignment or publication was attempted. This proves the capability consumer
+enables non-default choices here, not native behavior or visible control rendering.
 
-`git ls-remote --tags origin 'v0.3.*'` identified `v0.3.59` as the highest
-numeric release. `git ls-tree v0.3.59
-src/skills/dough-execute-plan/references/established-session.md` returned no
-entry; `git tag --contains e5e26130` returned no tag. Both
-`.agents/skills/dough-update/VERSION` (Codex/Cursor) and
-`.claude/skills/dough-update/VERSION` (Claude Code) read `0.3.59`.
-These locate the missing release prerequisite; file presence alone cannot clear it.
+`git ls-remote --tags origin 'v0.3.*'` identified `v0.3.60` as the highest
+numeric release, with peeled revision
+`f87b344806b899b1ef3d79bd8eaea013b63d3ad2`; `git rev-parse 'v0.3.60^{}'`
+matched that remote revision. Both installed version records read `0.3.60`.
+The following read-only comparison against the tagged declaration returned
+`compared: 242, mismatches: []` for each installed root:
+
+```sh
+python3 - <<'PYTHON'
+import io, tarfile, subprocess, pathlib, json
+release = 'v0.3.60'
+data = subprocess.check_output(['git', 'archive', release])
+with tarfile.open(fileobj=io.BytesIO(data)) as tar:
+    declaration = tar.extractfile('install.sh').read().decode().split('managed_files=(\n', 1)[1].split('\n)', 1)[0]
+    files = [line.strip() for line in declaration.splitlines() if line.strip()]
+    for root in ['.agents/skills', '.claude/skills']:
+        mismatches = [f for f in files if not (pathlib.Path(root) / f).is_file() or (pathlib.Path(root) / f).read_bytes() != tar.extractfile('src/skills/' + f).read()]
+        print(json.dumps({'release': release, 'root': root, 'compared': len(files), 'mismatches': mismatches}))
+PYTHON
+```
+
+This fresh observation replaces the earlier 0.3.59 missing-payload result.
+It verifies the complete tagged installation in the named preparation checkout;
+it neither proves native acceptance nor verifies an as-yet-unselected project.
 
 The inspected capability consumer checks three installed files: start, shared
 session policy and formatter. It does not evaluate the full payload, native
 skill consumption, path-identity handling or identity-free landing capture.
-A later `available: true` is necessary to offer non-default choices, but the
+`available: true` is necessary to offer non-default choices, but the
 operator must also identify the complete installed tagged release carrying the
 story's required payload. The paid probe then settles native behavior. Do not
 turn this observation into a new capability validator.
 
-After release/install, repeat the capability observation against the selected
-project through the matching dashboard revision (set `project.path` and
+Before Take, verify the complete tagged installation and repeat the capability
+observation against the selected project through the matching dashboard revision
+(set `project.path` and
 `project.shown` to that project's actual absolute path; do not accidentally
 check this preparation checkout again), then the developer runs slice
 1 as the early paid probe. Native instruction consumption, actual CWD, workflow
@@ -221,9 +241,13 @@ observation cleanup. Safe stop records the result and its location accurately.
 The sequence uses one established-session model and one proof loop per native
 journey. No implementation structure is prescribed. Slice-plan refinement is
 not needed: no fragmented outcome, duplicated implementation or unmapped promise
-was identified. Current blocking concern: all non-default native journeys lack
-a released, installed capable payload in an observed target project. Record
-`not-ready` until a fresh consuming-operation observation clears that prerequisite.
+was identified. Current blocking concern: the actual observation project and
+publication target remain unselected, so its installed payload and capability
+consumer have not been observed. The release is now available and the complete
+preparation-checkout installation passes; record `not-ready` until a fresh
+consuming-operation observation in the selected project clears the remaining
+prerequisite. This is an execution setup decision, not an unresolved story scope
+question; the completed preparation can land with this assessment.
 Paid host behavior is bounded by slice 1's early probe; it is not claimed settled.
 
 Use the project's existing execution delivery/refactoring gates when execution

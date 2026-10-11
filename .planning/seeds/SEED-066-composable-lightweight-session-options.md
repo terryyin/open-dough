@@ -110,7 +110,7 @@ Do not prescribe components or slices merely from these conceptual boundaries.
 
 **Identity:** SEED-066#unattached-session-native-observation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"not-ready","reasons":["The required established-session payload remains unreleased and unavailable in the observed preparation checkout: on 2026-10-12 the highest numeric remote release and both installed version records were 0.3.59, and establishesUnattached returned false for Claude Code, Codex and Cursor. Before Take, Terry must arrange the complete tagged payload installation in the selected observation project and obtain a fresh capability result there; native Start, workflow reuse and landing remain unobserved and belong to the paid probe and subsequent journeys."],"basis":{"document":"4660f7f68520f86b0b422b2b6ada1ad73bcbc1503a17c8b50bca5b4ab2424511","plan":"5ceccaac5a15c86c0ba1c6009978715c72cf491b1b19022a02f6dcd105c206d4"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"not-ready","reasons":["Before Take, Terry must select the observation project and authorized publication target, verify its complete tagged installation for each host, and record a fresh establishesUnattached result against that actual project. Release v0.3.60 is available and all 242 managed files in both preparation-checkout roots match it; the capability consumer returns true for all three hosts here. Those fresh results clear the old release blocker but do not verify an unselected observation project. Paid native behavior remains owned by the early probe and subsequent journeys."],"basis":{"document":"5fc6598b50c939ea2cdac7e2f35a2405e43e8779dc1c443ad87f8dea2496beb3","plan":"d0b4646b98c2f4eb4f48334fc6ee43cc69969470141836b41a91411fa4540438"}}
 ```
 
 **Goal:** A developer who relies on Start session's Workspace and After checks
@@ -191,22 +191,24 @@ ADRs 0007–0009 add no binding constraint.
 - Terry also selected both missing review journeys: Isolated workspace · Wait
   for review followed by a later Dough Land, and Default main · Wait for review
   followed by one-shot refinement with its result retained for review.
-- The required payload is not in `v0.3.59`, the highest numeric remote release
-  rechecked on 2026-10-12. Release ownership remains with Terry; execution needs
-  the release carrying this payload installed for each selected host. No release
-  number is selected by this preparation.
+- The required payload is released in `v0.3.60` (tagged revision
+  `f87b344806b899b1ef3d79bd8eaea013b63d3ad2`), freshly confirmed on origin on
+  2026-10-12. Both installed roots in this preparation checkout match the
+  complete tagged payload. No further release is a prerequisite for this story.
+- Terry selects the actual observation project and authorized publication target
+  before Take. A disposable test project is recommended; no project selection
+  is inferred from this preparation's checkout. Verify that project's complete
+  installed release and capability result before the paid journeys.
 
-Current preparation evidence (2026-10-12, revision `20189a6a`):
-`git ls-remote --tags origin 'v0.3.*'` identifies `v0.3.59` as the highest remote
-numeric release. `git ls-tree v0.3.59
-src/skills/dough-execute-plan/references/established-session.md` returns no
-entry; `git tag --contains e5e26130` returns no tag. The source reference and
-helper are declared in `install.sh`, but source presence is neither installed
-payload nor native acceptance. Both installed version records in this checkout
-(`.agents/skills/dough-update/VERSION` and `.claude/skills/dough-update/VERSION`)
-read `0.3.59`. A fresh call to `establishesUnattached` returns `false` for
-Claude Code, Codex and Cursor. The plan records the literal consumer invocation
-and its boundary; no paid native journey has been run by this preparation.
+Current preparation evidence (2026-10-12, revision `d1948bd9`): the highest
+numeric remote release is `v0.3.60`. Both installed version records read
+`0.3.60`; all 242 files declared by that tag's `install.sh` match byte for byte
+in both `.agents/skills` and `.claude/skills`. A fresh call to the dashboard's
+`establishesUnattached` consumer returns `true` for Claude Code, Codex and
+Cursor in this preparation checkout. This supersedes the earlier 0.3.59
+unavailability evidence, but does not select this checkout as the observation
+project or prove native acceptance. The plan records the literal observations
+and their boundaries. No paid native journey has been run by this preparation.
 
 #### Observation
 
