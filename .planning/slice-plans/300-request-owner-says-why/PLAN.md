@@ -20,6 +20,7 @@ Accepted increment: `bbc0b6f2280377363b4c903ff22433ab7334bd83`, suffix base `0ca
 Accepted increment: `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`, suffix base `bbc0b6f2280377363b4c903ff22433ab7334bd83`; observer reused, no reconciliation.
 Accepted repair: `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`, suffix base `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`; observer reused. Installed stash restoration confirmed `resumed`, applied, and dropped only owned OID `ee02bd66f48f8e8223178165da8f77ac362baa52` before slice 3 resumed.
 Accepted increment: `e5102464e72cbf2ab796e15ab5cebe50c8a55756`, suffix base `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`; observer reused, no reconciliation.
+Accepted increment: `3bd5e0ded7a431041d56bf5e6386f8a694fb85ee`, suffix base `e5102464e72cbf2ab796e15ab5cebe50c8a55756`; observer reused, no reconciliation.
 Checkout setup: `npm ci --ignore-scripts`, then `npm run typecheck:dashboard`
 passed on 2026-10-12. No numeric slice budget or exception is configured;
 existing planned refinement authority is retained.
@@ -179,27 +180,17 @@ Accepted: direct relocation into `github-request-owner-endpoint-connection.mjs` 
 
 ### 5. Keep discriminating request-rule proofs at their owners
 Type: Structure
-Status: planned
+Status: done
 
-Own finding 5. First make turns/hold/post-wait-probe observations and teardown
-bounded under disabled behavior; preparation showed the existing route can
-hang. At the established consumer fixture, pass each rule, disable it (nine
-turns, no hold, unrestricted post-wait admission), obtain its expected bounded
-failure, restore and pass again. No scratch mutation survives.
-
-Only then remove the fixture-supplied second-server independence case and
-redundant generic sharing/hold acquisition cases. Retain request-level failure
-attribution, backoff, abort, bound and post-settlement reread distinctions even
-when their cases also mention sharing. Each deletion names a surviving owner;
-keep any case with distinct value. Move backoff variations only when cheaper
-request-rule proof covers them; retain one dashboard integration journey.
-
-Proof: keep `shared-request-owner.spec.ts` for dashboard/CI wiring, login tests
-for isolation, `watch-ci-execution-hold.test.mjs` and acquisition's observer-
-suspension case for coverage, and dashboard recovery/attribution. Time the
-acquisition file immediately before/after under the same runner/concurrency;
-report measured time, not presumed speedup. One coverage-consolidation outcome,
-not a benchmark framework or permission to weaken proof.
+Own finding 5: bound turns/hold/probe observations and teardown before removing duplication. Accepted: real consumers/gh provide admission discrimination; each temporary mutation failed via its expected assertion and terminal teardown, then byte-exact restoration and owner proof passed. Nine turns: 9 !== 8 (3.3 s); no hold: missing settlement within 5,000 ms (8.5 s); unrestricted probe: 4 !== 2 (3.5 s). Admission SHA256 stays `3989ff7e9d10b660f4fca09c9e20048f43b045bf4c518da3185b2b57c9e4bedf`; no scratch edit survives.
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs` passed initially/after each restoration. Expected-failure commands: `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/request-owner-slice5-nine-turns.times npm test -- src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs`; `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/request-owner-slice5-no-hold.times npm test -- src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs`; `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/request-owner-slice5-unrestricted-probe.times npm test -- src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs`.
+Deleted acquisition sharing → owner's five-consumer/one-call test, retained route/page acquisition and dashboard/CI wiring. Deleted acquisition hold/probe → bounded owner hold/probe, dashboard renewed-wait resumption and observer suspension. Deleted fixture-root second-server independence → actual login isolation plus shared dashboard/CI owner. Distinct attribution/backoff/abort/bound/later-reread tests and all dashboard backoff variations remain. No user-visible removal or later-slice conflict. Final commands terminal/pass:
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs src/skills/dough-execute-plan/scripts/github-requests.test.mjs src/skills/dough-execute-plan/scripts/github-request-login.test.mjs src/skills/dough-execute-plan/scripts/github-request-login-secrecy.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs src/skills/dough-execute-plan/scripts/github-request-kept-admissions.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition-owner.test.mjs src/skills/dough-execute-plan/scripts/ci-github-diagnostic.test.mjs src/skills/dough-execute-plan/scripts/ci-github-diagnostic-logs.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-hold.test.mjs src/skills/dough-execute-plan/scripts/github-request-answer.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.test.mjs src/skills/dough-execute-plan/scripts/github-request-owned-calls.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-failure.test.mjs`
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-read-cooldown-reach.spec.ts shared-request-owner.spec.ts authenticated-read-backoff.spec.ts authenticated-read-shared.spec.ts authenticated-read-shared-failures.spec.ts authenticated-read-shared-waiters.spec.ts authenticated-read-turns.spec.ts authenticated-read-turns-timing.spec.ts authenticated-read-wait-in-turn.spec.ts authenticated-read-resumption.spec.ts project-read-recovery.spec.ts transient-read-recovery.spec.ts authenticated-read-diagnostics.spec.ts authenticated-read-owner-failures.spec.ts --workers=2`
+`npm run typecheck:dashboard`; `git diff --check`. Runtime/dependencies/declarations unchanged; no installation rerun needed.
+Measured acquisition under HEAD `3bd5e0de` plus the same bounded owner test (`62811de289a669bb9aeabb42f0ca12d746142d56822e3d254e0dc078252f1288`), Node v24.21.0, Bash 5.3.20, one runner job: 7.7 s before, 4.2 s after; one observation pair. Acquisition SHA256 before `558939a8059ee0b6ff02abdc5206ad4f8d0af2aa79b196631b752d9443414a91`, after `3d551ef79121accfd3ce931b30eba753c427a2a8203177ca8a297ab6b012427f`.
+`PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES=/tmp/request-owner-slice5-acquisition-before.times npm test -- src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs`; `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES=/tmp/request-owner-slice5-acquisition-after.times npm test -- src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs` both passed before/after deletion.
+Independent refactor found no edits or gaps. `PATH=/opt/homebrew/bin:$PATH npm run format` initially caught an unused promise callback parameter; its mechanical correction preserved observations and current owner proof passed again. Final formatting passed; all changed files stay within 250 lines.
 
 ## Proof ownership and local checks
 
