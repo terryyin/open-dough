@@ -175,6 +175,6 @@ export function continuationRefusal(
 ): Extract<StartAttempt, { kind: "refused" }> {
   return {
     kind: "refused",
-    explanation: `The retained preparation${agent === undefined ? "" : ` for ${agent}`} could not continue. ${detail} Workspace ${workspace} on branch ${branch}. The start and published assignment were kept; reconcile their ownership before retrying. Releasing a lost workspace's assignment requires explicit confirmation of its profile and allocation. Nothing was launched.`,
+    explanation: `The retained preparation${agent === undefined ? "" : ` for ${agent}`} could not continue. ${detail} Workspace ${workspace} on branch ${branch}. The start was kept; assignment ownership remains unverified and must be reconciled before retrying. Releasing a lost workspace's assignment requires explicit confirmation of its profile and allocation. Nothing was launched.`,
   };
 }
