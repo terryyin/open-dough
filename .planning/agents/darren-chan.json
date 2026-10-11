@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-063#background-ci-failure-delivery",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
