@@ -14,109 +14,259 @@ Plan 224 delivered shared GitHub request admission in `b5cb2f7b`, `93f43b59`,
 obligations G4 and G11 are the original contract. Findings below were read at
 `3e2e6138`.
 
-## Current findings
+## Goal and scope
 
-1. An owner that cannot be reached reads as "gh failed" although `gh` was
-   never asked: `github-request-owner-link.mjs` swallows the endpoint error,
-   `github-requests.mjs` answers `failed`, and `ci-github-actions.mjs` prints
-   "gh failed". A root open to other users, a root owned by another user, a
-   path too deep for a socket, an owner that did not start and a refused
-   greeting all look alike. Observed: `DOUGH_GITHUB_REQUEST_OWNER_ROOT` set to
-   a 0755 directory, then `ci-github-diagnostic.mjs workflow owner/repo` printed
-   `failed: gh failed`, exit 1, with no `gh api` call.
-2. `references/ci-monitor.md` step 1 tells the agent to rerun after "the stated
-   wait" for any `logUnavailable`, but only a hold states a wait, as free text.
-   An expired log, a log over the answer bound and a failed request have none,
-   and a hold on one job's log exits 0.
-3. `github-request-owned-calls.mjs` and `ci-mailbox-worker-process.mjs` each
-   read the process table with separately learned rules (zombie state, the
-   macOS `(name)` form, `<defunct>`, a denied `ps`).
-   `github-request-owner-wire.mjs` holds endpoint knowledge (`greeted`'s socket
-   ownership check, `scopeOf`, `reachable`) that the 250-line limit moved there.
-4. Eight turns, zero calls during a hold, one probe after it and pending-call
-   sharing are each proved in `github-requests.test.mjs`,
-   `github-request-owner.test.mjs`, `ci-github-acquisition.test.mjs`,
-   `dashboard/tests/shared-request-owner.spec.ts` and the older
-   `authenticated-read-{turns,cooldown,backoff}` specs.
-   `authenticated-read-cooldown-reach.spec.ts:73` asserts an independence only
-   its per-server private owner supplies.
-   `dashboard/tests/retainedAnswersJourney.ts:209` still describes a limit as
-   holding back "no other read of this process".
+A developer reading the dashboard, or an agent diagnosing CI, can distinguish
+an unasked request from an upstream failure and a directed wait from missing
+log evidence. Preserve this correction's structural and test-proof repairs.
+Background session delivery and protocol placement remain with the sibling;
+no automatic endpoint repair, new retry policy or feature promise is added.
 
-## Preserved promises and constraints
+## Investigation and current findings
 
-The `request(args, signal)` contract: it rejects only with the waiter's abort
-reason or a timed-out failure, and an unreachable owner stays a failed read
-with no private fallback and no upstream call. No credential, path secret or
-token in any message or receipt. The fixed `api` operation, privacy checks,
-single claim, durable hold and child reconciliation are unchanged. CI text
-stays untrusted data. Guidance follows ADR 0006 and the repository's behavior
-review.
+Observed on 2026-10-12 at `887ec1c7475add6d3b782a0ab3042f5eba865ba9` in
+`/Users/terryyin/git/open-dough/.worktrees/a-github-request-or-failed-log-that-could-not-be`.
+All upstream answers were local fixtures. Scratch changes/specs were removed.
+
+1. **Owner cause loss.** `instrumentedGithubFixture` / `startInstalledScript`
+   ran `node src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs workflow owner/repo`
+   with a root chmod 0755, then a private root with a 100-character child.
+   Both exited 1 with `failed: gh failed`, zero upstream calls. Local sockets
+   replying `refused: incompatible` or `refused: unauthenticated` likewise
+   yielded `{kind: "failed"}` through `GitHubRequests.request`, zero calls.
+   `OwnerLink` drops the reason before `GitHubRequests` and its readers see it.
+2. **Consumers reached.** With the 0755 fixture,
+   `node src/skills/dough-execute-plan/scripts/watch-ci.mjs --execution owner/repo main 1000`
+   reached budget expiry before its third retry. A subsequent
+   `node --input-type=module` call to `watchCiExecution` with `pollMs: 1`,
+   `maxDurationMs: 1000` and an event collector reached `CI_MONITOR_UNAVAILABLE`
+   with `failed: gh failed`, zero calls. A disposable Playwright spec using
+   `startDashboardServer({mode: "dev", requestOwnerRoot})` reached HTTP 502,
+   diagnostic history cause `failed`, the browser's generic failed-read notice
+   advising `gh auth status`, and zero calls. Passed command:
+   `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- preparation-owner-cause.spec.ts --workers=1`.
+   Earlier attempts failed the quiet reporter on conflicting color variables;
+   the passing run included the actual browser assertion. The spec was removed.
+3. **Log recovery.** With one failed job/step, the same fixture ran
+   `node src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs failure owner/repo 42 2`.
+   A log 429 with `Retry-After: 60` returned free-text `logUnavailable`, exit 0;
+   a 17 MiB log returned `gh failed`, exit 0. A log response `HTTP/2.0 410 Gone`
+   with stderr `gh: Gone (HTTP 410)` correctly retained `HTTP 410` and steps,
+   exit 0. An earlier synthetic response without gh's stderr shape is not
+   evidence of a real expired-log parser defect. `ci-monitor.md` step 1 still
+   directs retry after a stated wait for every unavailable log, including 410.
+4. **Structure.** `github-request-owned-calls.mjs` reads state, elapsed time
+   and command asynchronously; `ci-mailbox-worker-process.mjs` reads state and
+   command synchronously. Both recognize zombie, macOS `(name)`, `<defunct>`
+   and disappearing processes; their identity/denied-inspection policies differ
+   legitimately. Wire encoding also holds endpoint scope, socket ownership
+   and reachability knowledge. Baselines below exercise both actual owners.
+5. **Proof weakness.** Admission rules recur in request, owner, CI acquisition
+   and dashboard tests. The second-server cooldown-reach case supplies separate
+   owners itself. Scratch mutations disproved the assumption that the proposed
+   retained proofs always finish: nine turns exited 1 once; disabling the hold
+   exceeded a 55-second outer bound; nine turns with `--test-timeout=10000`
+   exceeded a 20-second outer bound. Command form:
+   `node --test --test-reporter=tap --test-timeout=10000 --test-name-pattern='at most eight' src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs`.
+   The probe mutation was not reached. Do not claim all three rules proven;
+   slice 5 must establish bounded discrimination before deleting duplicates.
+
+Baseline: `PATH=/opt/homebrew/bin:$PATH npm test -- <files>` passed for
+`github-request-owner-endpoint`, `ci-github-diagnostic`,
+`github-request-owned-calls`, `ci-mailbox-worker-loss`, `ci-github-acquisition`,
+`github-request-owner`, `github-request-owner-replacement` and
+`github-request-login` (each `.test.mjs` under `src/skills/dough-execute-plan/scripts/`).
+The default Bash 3.2 was refused; installed Bash 5 works. Product scratch edits
+were reverted for the final baseline. No speed comparison is claimed.
+
+## Key examples and interaction
+
+- Privacy/path validation refuses → a dashboard or CI reader asks → name the
+  observed local cause at its existing notice/history or unavailable reason,
+  with no upstream call/fallback. Recovery addresses endpoint configuration;
+  never print its secret path or recommend login for a known endpoint fault.
+- Greeting explicitly refuses protocol/caller → name that refusal. Startup or
+  connection silence → bounded unknown/start failure, never inferred version
+  mismatch. Preserve the existing waiter abort and timed-out rejection contract.
+- One failed attempt has a held log alongside readable/unavailable logs → keep
+  all available evidence, name the held job and numeric wait, exit 75. The agent
+  retries only as directed; it does not parse a wait from prose.
+- A log is expired (404/410), too large, or its request fails without a wait →
+  retain steps/other logs and the observed cause, name missing evidence, supply
+  no invented delay. Classify from what is available; retain uncertainty when
+  insufficient. Partial diagnostics without holds retain exit 0; inability to
+  acquire jobs retains exit 1 (75 when held).
+- PID is reused, exits or cannot be inspected → both owners use shared facts
+  with their existing identity/signaling decisions. No new authority to signal.
+- Duplicate proof is removed → a turns/hold/probe fault → its surviving owning
+  test fails within a bound, while distinct consumer integration remains green.
+
+The existing notice and diagnostic output suffice; no layout choice is needed.
+Fixed causes give useful recovery while preserving secrecy. Numeric holds
+support directed waiting; other missing evidence remains uncertainty. These
+are consequences of the existing correction, not new scope choices.
+
+## Architecture, reuse and constraints
+
+Reuse `github-request-answer.mjs`'s safe categories, the owner link,
+`GitHubAcquisitionHeld`, and dashboard `ghFailure.ts`, `readFailureMessage.ts`,
+`readDiagnostics.ts` / sanitization. Extend one cause representation through
+those consumers, with an unknown fallback; never forward arbitrary exceptions.
+Recognize the output bound at the subprocess/answer boundary where it is known.
+
+Modularize process reading/exit recognition for the two actual owners, exposing
+only needed sync/async access. Keep each owner's identity and signaling policy.
+Return endpoint knowledge from wire encoding without changing protocol/admission.
+This PFE outcome restores existing responsibilities; it adds no supervisor.
+
+Preserve `request(args, signal)` rejection only for waiter abort or timeout;
+other unavailable-owner reads settle failed, with no upstream call or private
+fallback. Preserve privacy, fixed `api`, single claim, durable hold, login
+isolation, child reconciliation and untrusted CI text. Messages, receipts and
+retained diagnostics expose no token, credential, raw stderr or secret path.
+
+Follow Accepted [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+(whole-product correction), [0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+(source/release separation), [0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
+(complete local dependencies), [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
+(proof ownership), and [0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+(single executing-agent guidance home). Index/statuses agree, with no conflict
+or exception; 0007–0009 remain Proposed. Follow [AGENTS.md](../../../AGENTS.md)'s
+behavior review and author in `src/skills`, never hand-edit installed copies.
+The [North Star monitoring topic](../../NORTH-STAR.md#background-ci-monitoring-and-session-delivery)
+keeps shared admission and standalone dependencies with the sibling. No new
+ADR/topic is needed; its G12 protocol-placement decision remains there.
 
 ## Ordered slices
 
-### 1. Say why a request or failed log could not be read
+### 1. Explain an unasked request at each reader
 Type: Behavior
 Status: planned
 
-Result: a request that never reached `gh` carries a cause a reader can act on
-— endpoint not private, endpoint path too long, owner did not start, owner
-speaks another version — through the diagnostic entry, the observer's
-unavailable reason and the dashboard's failed-read notice. The diagnostic
-entry reports a held job log distinctly with its wait in seconds, exits 75 for
-it, and reports every other unavailable log with its cause. `ci-monitor.md`
-step 1 retries only a directed wait and otherwise classifies from failed steps
-and names the missing log. Correct the stale comment in
-`retainedAnswersJourney.ts`.
+Behavior: endpoint/start/connection/greeting fails → reader asks → safe observed
+cause reaches dashboard notice/history, diagnostic and observer unavailable
+reason, without fallback or upstream call. Preserve unknown and timeout semantics.
+Correct `retainedAnswersJourney.ts`'s stale claim that a hold affects no other read.
 
-Proof: `github-request-owner-endpoint.test.mjs` cases for each cause through a
-consumer process; `ci-github-diagnostic.test.mjs` cases for held versus
-unavailable logs and the exit status; the existing diagnostics specs for the
-dashboard notice; a secrecy scan of the new messages; a behavior-review walk
-of step 1 for an expired log. Full `npm test` and the whole dashboard suite.
+Proof: extend `github-request-owner-endpoint.test.mjs` through consumers for
+privacy/path/start/refusal, using local sockets and a focused ownership-metadata
+seam where another OS user would be needed. Extend `ci-github-diagnostic.test.mjs`
+and acquisition's observer path (short poll interval), plus browser notice and
+`authenticated-read-diagnostics*.spec.ts`. Use real endpoint refusal rather than
+preclassified failures; assert recovery, zero calls and absent secret/path
+sentinels. Preserve `github-requests.test.mjs` cancellation/timeout and dashboard
+`authenticated-read-subprocess-lifecycle.spec.ts`. One classified-answer contract
+and existing readers; safe to ship before log work.
 
-### 2. Read the process table in one place
+### 2. Distinguish waiting for a log from missing evidence
+Type: Behavior
+Status: planned
+
+Behavior: held/expired/oversized/failed logs → diagnostic → per-job safe causes,
+available steps/excerpts retained, numeric hold and exit 75 for any held log;
+other partial diagnostics remain exit 0, with no invented delay. Jobs-acquisition
+failure retains its fatal/held exit behavior. Preserve `logUnavailable`'s useful
+text and add structured wait information without parsing prose.
+
+Proof: extend diagnostic CLI tests for held-only/mixed/expired/oversized/failed
+requests; shared answer tests own bound classification, acquisition and
+`watch-ci-execution-hold.test.mjs` preserve hold semantics. Check dashboard
+consumers if the shared failure union changes. Update only the authoritative
+repair step in `src/skills/dough-execute-plan/references/ci-monitor.md`; walk
+expired and mixed held-log cases under AGENTS.md: directed waits only, available
+evidence used, uncertainty retained, CI content never treated as instructions.
+One diagnostic/recovery contract; no observer cadence or excerpt redesign.
+
+### 3. Share process facts without sharing signaling policy
 Type: Structure
 Status: planned
 
-Internal result: one process-table reading serves the request owner's child
-identity and the mailbox worker's validation, and endpoint knowledge returns
-from the wire module to the endpoint module. External behavior is unchanged.
-A new payload file needs room in `install.sh`'s declaration list at its
-250-line limit; make it by a structural move, not by packing.
+Own finding 4's duplicate process-table knowledge. Share reading and exit
+recognition while retaining request-call PID/argument/start-window and mailbox/
+stream identity, denied-inspection handling and rechecks before signals.
+Proof: owned-calls, replacement, mailbox-worker-loss and existing mailbox stop,
+stream and denied-inspection tests exercise disappearing/zombie/name-only/defunct,
+reused and unreadable processes through both owners, preserving no-signal and
+lost-coverage behavior. If a new runtime dependency is added, declare and test
+its complete installation/update under the shared checks below. Make room in
+`install.sh` structurally within the 250-line limit, never by packing or exception.
+This Structure owns an evidenced correction directly; no new feature is needed.
 
-Proof: `github-request-owned-calls.test.mjs`,
-`github-request-owner-replacement.test.mjs` and the mailbox worker's existing
-tests pass on the shared reader; the installed-payload checks in `npm test`.
-
-### 3. Prove each request rule once per layer that owns it
+### 4. Keep endpoint responsibility with the endpoint
 Type: Structure
 Status: planned
 
-Internal result: remove the retitled `authenticated-read-cooldown-reach` case,
-the two generic sharing and hold cases in `ci-github-acquisition.test.mjs`
-(with their fixed sleeps) and the two in `github-requests.test.mjs` that the
-multi-process tests repeat. Consider moving `authenticated-read-backoff`'s
-rule variations to the request source's tests, keeping one dashboard journey.
+Own finding 4's misplaced endpoint knowledge: return socket ownership,
+reachability and scope from wire encoding to cohesive endpoint modules, within
+the line limit. Preserve greeting/protocol validation and slice 1's safe causes.
+Proof: endpoint, owner, replacement, login and login-secrecy tests, plus slice
+1's consumer cases. Run installation checks when declarations/dependencies
+change. No protocol-directory decision or unrelated module reorganization.
+This has a separate preservation loop from process-reader consolidation.
 
-Proof: each surviving title still fails when its rule is broken (mutate
-turns, hold and probe once each); `shared-request-owner.spec.ts`,
-`github-request-owner.test.mjs`, `github-request-login.test.mjs`,
-`watch-ci-execution-hold.test.mjs` and "a rate limit suspends the observer"
-survive; report the acquisition file's time before and after.
+### 5. Keep discriminating request-rule proofs at their owners
+Type: Structure
+Status: planned
 
-## Proof ownership
+Own finding 5. First make turns/hold/post-wait-probe observations and teardown
+bounded under disabled behavior; preparation showed the existing route can
+hang. At the established consumer fixture, pass each rule, disable it (nine
+turns, no hold, unrestricted post-wait admission), obtain its expected bounded
+failure, restore and pass again. No scratch mutation survives.
 
-| Finding | Owner |
+Only then remove the fixture-supplied second-server independence case and
+redundant generic sharing/hold acquisition cases. Retain request-level failure
+attribution, backoff, abort, bound and post-settlement reread distinctions even
+when their cases also mention sharing. Each deletion names a surviving owner;
+keep any case with distinct value. Move backoff variations only when cheaper
+request-rule proof covers them; retain one dashboard integration journey.
+
+Proof: keep `shared-request-owner.spec.ts` for dashboard/CI wiring, login tests
+for isolation, `watch-ci-execution-hold.test.mjs` and acquisition's observer-
+suspension case for coverage, and dashboard recovery/attribution. Time the
+acquisition file immediately before/after under the same runner/concurrency;
+report measured time, not presumed speedup. One coverage-consolidation outcome,
+not a benchmark framework or permission to weaken proof.
+
+## Proof ownership and local checks
+
+| Promise/finding | Owner / observable boundary |
 | --- | --- |
-| 1 unreachable owner reads as "gh failed" | Slice 1 |
-| 2 unbounded retry instruction for an unavailable log | Slice 1 |
-| 3 process identity twice; endpoint knowledge in the wire module | Slice 2 |
-| 4 repeated request-rule proofs and a fixture-supplied assertion | Slice 3 |
+| Safe cause, no call/fallback/secrets | 1: consumer, CLI, observer, browser/history |
+| Held versus missing logs, exits/evidence/recovery | 2: CLI and guidance walk |
+| Shared facts, unchanged identity/signaling | 3: both process owners and installed use |
+| Endpoint cohesion, unchanged admission | 4: endpoint/replacement/login |
+| Reduced duplication, preserved discrimination | 5: bounded faults and surviving integrations |
 
-## Current decisions
+Run script suites with the baseline command above, using full `.test.mjs`
+paths. Dashboard: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- <specs>`.
+`npm ci --ignore-scripts` established this checkout's dependency route. Run
+`npm run typecheck:dashboard` for shared type/import changes. Search changed
+unions/literals and recovery/retained-answer consumers; include their proof.
+Run the entire affected surface suite when it fits focused feedback, including
+consumers outside it; hosted CI alone adds no whole-repository local gate.
 
-- Whether the owner protocol belongs in the endpoint directory name stays with
-  SEED-063#background-ci-failure-delivery (its obligation G12).
-- Whether the 250-line limit applies to `install.sh`'s declaration list and to
-  guidance files is Terry's decision; this plan works within the limit.
+For changed runtime dependencies/declarations, run
+`tests/install-public-payload.sh`, `tests/install-all-tools.sh`,
+`tests/execution-payload-update.sh`, `tests/payload-declaration-links.sh` through
+`npm test -- <files>` with Bash 5. These verify complete installation across
+supported layouts and updates, not merely file presence. Execution retains
+its independent post-change refactoring and delivery gates; AGENTS.md owns the
+guidance review. No numeric slice target was supplied and no exception is needed.
+
+## Current decisions and refinement assessment
+
+- Original slice 1: **Split** into cause propagation (1) and log recovery (2),
+  independent user contracts with safe stopping points.
+- Original slice 2: **Split** into process facts (3) and endpoint cohesion (4),
+  independent structural corrections with different preservation proofs.
+- Original slice 3: **Retain** as 5, strengthened to repair observed unbounded
+  proof before deleting duplication. Do not blindly delete whole request tests.
+- Five slices extend one classified-answer model and restore responsibilities
+  to existing owners. No scope/ADR/boundary/proof-owner decision remains; no
+  resplit recommendation. The recorder owns the readiness assessment.
+- G12 stays with the sibling. Respect the 250-line rule; no exception is decided.
+- No paid/native or live-GitHub premise is needed for the local proof route.
+  New startup/failure simulations are acceptance inputs, not claims of already
+  reproduced host failures. No speedup, full mutation success or implementation
+  completion is claimed. Execution still requires its own authorization.

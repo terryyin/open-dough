@@ -281,7 +281,7 @@ outside this planning request and routine CI.
 
 **Identity:** SEED-063#request-owner-says-why
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/300-request-owner-says-why/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/300-request-owner-says-why/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f7e22a1a06dc984af88805380be7b3a43a132b737acc09a4a561b8568b0aa61d","plan":"1b6f9771755a7cc22c96dd14e3694906593f037d07e9f52656b085164e3e479a"}}
 ```
 **Slice plan:** [Request owner says why](../slice-plans/300-request-owner-says-why/PLAN.md).
 
@@ -292,11 +292,16 @@ from the retrospective of shared GitHub request admission, whose closed
 story is recoverable at
 `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
 
-**Scope:** The request owner's unreachable-owner causes and the diagnostic
-entry's unavailable-log causes, with the guidance that names them; one shared
-reading of the process table for the request owner and the CI mailbox; and
-removal of request-rule proofs repeated across test layers. No new feature
-promise.
+**Scope:** Carry safe, observed request-owner failure causes through CI and
+dashboard readers; distinguish a directed wait for a failed-job log from
+unavailable evidence that supplies no wait, preserving failed-step evidence.
+Keep process-table reading and exit recognition shared while retaining each
+owner's identity and signaling policy; restore endpoint responsibility to its
+owner; remove repeated request-rule proofs only with discriminating retained
+coverage. This is the existing bounded retrospective correction, with no new
+feature promise. Background session delivery and endpoint protocol placement
+remain with the sibling story. The [plan](../slice-plans/300-request-owner-says-why/PLAN.md)
+holds current findings, examples, UI/architecture consequences, and proof.
 
 ## Breadcrumbs
 
