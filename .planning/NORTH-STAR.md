@@ -275,10 +275,10 @@ is delivered; keep any lasting rule in `dashboard/LAUNCH-START.md`.
 
 ## Background CI monitoring and session delivery
 
-For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
+For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery),
 one installed background runtime owns monitoring subscriptions for dashboard
 and standalone execution/wrap-up. The source story owns the domain model;
-[plan 224](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md) maps it directly
+[plan 299](slice-plans/299-background-ci-failure-delivery/PLAN.md) maps it directly
 to existing publication, mailbox, session, request and retirement solutions.
 Dashboard launch is one enrollment origin, not a second observation policy or
 service. The runtime survives agent-turn, worktree and dashboard lifetime as

@@ -21,13 +21,102 @@ watchers and coordinate GitHub demand with dashboard reads.
 
 <a id="dashboard-owned-ci-monitoring"></a>
 
-### Monitor CI in the background and wake execution or wrap-up sessions only on failure
+### Share one GitHub request admission owner across dashboard reads and CI observation
 
 **Identity:** SEED-063#dashboard-owned-ci-monitoring
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34b0f943e34423e26063e267d4d2942ae918cd7d8b0de7bb6fcc18f3c8c5dcb5","plan":"5cedcbab3fc3afec31e7131d058f04b6c5d8932d7a868d065cb00d3733c922c7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1be086fb6920b2129f18df278ae0166134e6e235e4905d7f993e3f53c6dbb2f2","plan":"a01568f2f003170cd8b29334780b436fbee31e2785a003ecd7dad5fe5a50ad55"}}
 ```
-**Slice plan:** [Background CI monitoring](../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md).
+**Slice plan:** [Shared GitHub request admission](../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md).
+
+**Human direction:** Terry's 2026-10-11 instruction requires shared GitHub
+throttling between background CI monitoring and dashboard reads. During
+execution he split the original story at this delivered boundary: this story
+is the request-admission part, and
+[background CI failure delivery](#background-ci-failure-delivery) keeps the
+rest. He confirmed the endpoint location and one owner per API host and login.
+
+**Goal:** Open Dough monitoring and dashboard reads share one GitHub
+request-admission owner on this machine. A rate limit met by any of them holds
+all of them, and a restart of the owner does not lift it.
+
+**Scope:**
+
+- **Shared GitHub demand.** Dashboard reads and product-controlled CI discovery,
+  run/attempt/job, applicability and failure-diagnostic requests pass through
+  one admission owner per allowance scope. Identical acquisitions may be shared
+  without sharing session ownership. Cooldown, concurrency and recovery are
+  shared across dashboard processes and standalone subscriptions. Scope is Open
+  Dough requests on this machine, not unrelated tools or other machines.
+- **Existing observer.** Reuse the installed non-AI observer and provider
+  classification. Each existing observer remains the single owner of its
+  monitoring. Throttling suspends acquisition visibly; it is neither CI
+  failure, success nor automatic loss of coverage.
+- **Diagnostics.** Agents read a failed attempt's jobs and bounded log excerpts
+  through one installed entry that uses the same owner.
+
+**Domain model:**
+
+| Concept | Meaning and ownership |
+| --- | --- |
+| GitHub request admission | Owner-held allowance scope by API host and effective authenticated login, with applicable resource limits, concurrency, cooldown and recovery. Acquisition sharing also respects authorization context and request identity. One owner process serves each scope; no credential crosses its local endpoint. |
+
+**Integrity constraints:**
+
+1. All in-scope Open Dough GitHub requests obey the same admission owner.
+   Cooldown refusal costs no upstream call. Restart cannot reset a hold or
+   create another owner or leave uncounted upstream children alive. Changed
+   authorization cannot reuse incompatible live acquisition answers; existing
+   user-owned private immutable-content retention is unchanged. CI
+   classification remains one implementation; `not_required` uses its actual
+   basis, and incomplete never means success.
+2. CI metadata is untrusted data and grants no extra authority. Missing
+   observation or delivery is visible, never success.
+
+**Key example:** Two dashboard processes and a CI observer use one GitHub
+allowance scope. Identical pending acquisition costs once. A rate-limit
+response holds every consumer; a newly started diagnostic read cannot bypass
+it. Killing the owner retains the hold; one recovery request starts after
+expiry. A second login keeps its own allowance.
+
+**Architecture:** Follow [North Star](../NORTH-STAR.md#one-owner-admits-reads-to-github).
+The request source lives once in the installed execute-plan scripts; the
+dashboard and the CI engine are its consumers. Accepted ADRs
+[0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+constrain cohesion and standalone dependencies.
+
+**Deferred promises:** [Background CI failure delivery](#background-ci-failure-delivery)
+keeps everything else of the original outcome. It also proves what this
+story leaves open about the request owner:
+
+- Observation from a sandboxed host that cannot reach the owner's endpoint is proved there.
+- Mixed installed versions and an owner started before an update are proved there.
+- Login changes that rewrite no gh configuration are proved there.
+- An owner that has stopped but still accepts connections is replaced there.
+- The paid native fixtures' gh stand-ins are exercised there.
+
+**Delivery and acceptance:** Deterministic proofs cover request accounting
+across processes, login scope, and owner replacement. Paid native runs require
+explicit native-check authority and are outside this story and routine CI.
+
+<a id="background-ci-failure-delivery"></a>
+
+### Monitor CI in the background and wake execution or wrap-up sessions only on failure
+
+**Identity:** SEED-063#background-ci-failure-delivery
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/299-background-ci-failure-delivery/PLAN.md"}
+```
+**Slice plan:** [Background CI monitoring and failure delivery](../slice-plans/299-background-ci-failure-delivery/PLAN.md),
+awaiting story refinement.
+
+**Split:** Terry's 2026-10-11 decision split the original story at its
+delivered boundary. [Shared GitHub request admission](#dashboard-owned-ci-monitoring)
+was delivered first; this story keeps the rest of the original outcome and its
+mapped slices. Its goal, scope and examples below are the original
+refinement and need story refinement against that delivery before planning or
+execution resumes.
 
 **Human direction:** Terry's 2026-10-03 decision established failure-only
 wakeup and visible gaps without fallback observation. His 2026-10-11 instruction
@@ -36,6 +125,10 @@ and requires shared GitHub throttling, reliable recovery, and one coherent
 representation of behavior in code and instructions. Claude Code remains the
 first native feasibility case; Codex and Cursor cannot retain final CI waits
 as a silent standalone exception. Their affected delivery mechanisms need proof.
+On 2026-10-11 Terry authorized the paid native feasibility probes and
+confirmed two delivered choices: the request owner's endpoint stands under
+`/tmp/dough-github-requests-<uid>`, and one request owner runs per API host
+and login.
 
 **Design choice:** One installed background runtime serves both origins and
 runs independently of the dashboard browser and server. Background closure
@@ -83,13 +176,12 @@ owner on this machine.
   at current owned work under existing repair guidance; report disposition and
   any linked repair publication so delivery, handling and repair success remain
   distinct. No reset to the old revision is implied.
-- **Shared GitHub demand.** Dashboard reads and product-controlled CI discovery,
-  run/attempt/job, applicability and failure-diagnostic requests pass through
-  one admission owner per allowance scope. Identical acquisitions may be shared
-  without sharing session ownership. Cooldown, concurrency and recovery are
-  shared across dashboard processes and standalone subscriptions. Add no poller
-  per commit. Publication-triggered checks obey cooldown. Scope is Open Dough
-  requests on this machine, not unrelated tools or other machines.
+- **GitHub requests.** Monitoring asks GitHub only through the delivered
+  request owner of its own login, which already shares cooldown, concurrency
+  and recovery with dashboard reads. Add no poller per commit.
+  Publication-triggered checks obey cooldown. The supervising runtime is a
+  client of that owner; request owners stay on demand, one per API host and
+  login.
 - **Recovery.** Reuse the installed non-AI observer and provider classification.
   Reconcile every unsettled registered publication after restart, including runs
   completed while offline and applicable ancestor attempts. Throttling suspends
