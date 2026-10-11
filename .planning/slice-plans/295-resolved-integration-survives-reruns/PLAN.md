@@ -198,6 +198,17 @@ parent-order restriction.
 
 Safe stopping point: no behavior changes.
 
+## Execution complete
+
+Product advice: no backlog change. The review found no bug or regression and
+planned no correction. Two low-impact observations stay unplanned: the
+`uncommitted-merge` guidance says to commit and rerun, and for a merge that is
+not this integration's on a detached `HEAD` the rerun publishes a rebuilt
+merge and sets that commit aside (the command cannot produce that state, and
+the earlier behavior lost more); the first receiver journey in
+`story-branch-landing-conflict.spec.ts` is now mostly contained in the
+second, at the cost of one real start.
+
 ## Story obligations
 
 ### G1. Receiver refusal and timeout are not exercised separately
@@ -227,7 +238,8 @@ on `claude/a-resolved-integration-survives-a-failed-or-earl`, remote `origin`,
 trunk `main`. Claim `85c000159d24762067a585c36cf690d2a77aab41` accepted on
 `main`; increments publish to the execution branch. Slice 1 accepted there
 at `475f4a45d3d7e1c0808950de1ab51ca5b2651790` and slice 2 at
-`b3812abe9b061c499c8837731cdb0d2a39f010e5`.
+`b3812abe9b061c499c8837731cdb0d2a39f010e5`, slice 3 at
+`8420aaf3d8457628c6471d1b73ea5dce5bf61aa2`.
 
 ## Learnings
 
