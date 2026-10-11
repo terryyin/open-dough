@@ -200,7 +200,7 @@ test.describe("an accepted launch", () => {
     expect(await attempts(server)).toEqual([]);
   });
 
-  test("whose run fails after acceptance keeps that outcome with its owner while the server goes on", async () => {
+  test("whose publication receipt cannot be kept retains the known recording stop while the server goes on", async () => {
     test.setTimeout(120_000);
     server.claudeScenario("launched");
     const answered = await answerOf(accept(server, request));
@@ -215,13 +215,15 @@ test.describe("an accepted launch", () => {
         timeout: 30_000,
       })
       .toMatchObject({
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation: expect.stringContaining("The launch ended unexpectedly"),
+        kind: "failed",
+        reason: "unrecorded",
+        explanation: expect.stringContaining("Publication succeeded (Taken by"),
       });
     expect((await attempts(server))[0]).toMatchObject({
       id: answered.attempt?.id,
       owned: false,
+      running: false,
+      publication: expect.objectContaining({ kind: "published" }),
     });
     // What was kept stays as it was written before the failure: unsettled,
     // its publication not yet known, to be reconciled.

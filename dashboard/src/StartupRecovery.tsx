@@ -18,6 +18,7 @@
 import { useId } from "react";
 import {
   startName,
+  publicationRecordingStopped,
   type AgentLaunchRequest,
   type AttemptObservation,
 } from "./agentLaunch.ts";
@@ -94,9 +95,10 @@ function RecoveryEntry({
   const named = startName(request.workflow);
   const continues =
     attempt !== undefined && cause !== "waiting" && cause !== "unacknowledged";
-  const nativeCheckAdvice = continues
-    ? hostDescription(request.host).nativeCheckAdvice
-    : undefined;
+  const nativeCheckAdvice =
+    continues && !publicationRecordingStopped(attempt)
+      ? hostDescription(request.host).nativeCheckAdvice
+      : undefined;
   return (
     <article
       className="startup-recovery-entry"
@@ -115,7 +117,10 @@ function RecoveryEntry({
         ) : (
           <>
             Startup needs reconciliation:{" "}
-            {reconciliationCause({ cause }, named)}
+            {reconciliationCause(
+              { cause, ...(attempt === undefined ? {} : { attempt }) },
+              named,
+            )}
           </>
         )}
       </p>

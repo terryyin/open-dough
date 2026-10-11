@@ -91,6 +91,23 @@ export type StartWorkflow = {
   publishedWithoutSession({ handoff, workspace }: EstablishedLaunch): string;
 };
 
+// The published assignment's words, shared by native and recording stops.
+export function publishedAssignment({ handoff }: EstablishedLaunch): string {
+  const established = handoff.established;
+  const agent = assignedAgent(establishedFacts(established));
+  return "start" in established
+    ? agent === undefined
+      ? "Taken"
+      : `Taken by ${agent}`
+    : agent === undefined
+      ? "Preparing"
+      : `Preparing as ${agent}`;
+}
+
+function publishedWithoutSession(launch: EstablishedLaunch): string {
+  return `${publishedAssignment(launch)}; no session started. Workspace ${launch.workspace.shown}.`;
+}
+
 const execution: StartWorkflow = {
   workflow: "execution",
   establishes: establishesStart,
@@ -103,10 +120,7 @@ const execution: StartWorkflow = {
   },
   formatFailed: ({ workspace, branch }) =>
     `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
-  publishedWithoutSession: ({ handoff, workspace }) => {
-    const agent = assignedAgent(establishedFacts(handoff.established));
-    return `${agent === undefined ? "Taken" : `Taken by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
-  },
+  publishedWithoutSession,
 };
 
 const refinement: StartWorkflow = {
@@ -121,10 +135,7 @@ const refinement: StartWorkflow = {
   },
   formatFailed: ({ workspace, branch }) =>
     `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
-  publishedWithoutSession: ({ handoff, workspace }) => {
-    const agent = assignedAgent(establishedFacts(handoff.established));
-    return `${agent === undefined ? "Preparing" : `Preparing as ${agent}`}; no session started. Workspace ${workspace.shown}.`;
-  },
+  publishedWithoutSession,
 };
 
 const startWorkflows: Partial<Record<LaunchWorkflow, StartWorkflow>> = {

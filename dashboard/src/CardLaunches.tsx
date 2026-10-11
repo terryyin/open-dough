@@ -16,6 +16,7 @@ import type { LaunchChoices, LaunchWorkflow } from "./agentLaunch.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import {
   cardSessionsOf,
+  publicationRecordingStopped,
   keptStartNote,
   launchWorkflowNames,
   launchWorkflows,
@@ -42,8 +43,7 @@ export function CardLaunches({
   sourceId: string;
   entry: WorkEntry;
   launches: MachineSessions;
-  // Backlog cards only: Taken work offers no launch of its own, except the
-  // Start of a start this machine kept.
+  // Backlog offers every workflow; Taken offers only a kept execution.
   offersStart: boolean;
   // The id of what says the story's startup, which the card is described by.
   statusId: string;
@@ -70,26 +70,31 @@ export function CardLaunches({
   };
   const startup = launches.storyStartupOf(sourceId, entry.identity);
   const unavailable = startup !== undefined;
-  // No Start is offered before this machine's launch evidence was read: an
-  // earlier startup of the story may be unresolved.
+  // No Start before local evidence is read: an earlier startup may be unresolved.
   const unoffered = unavailable || launches.attemptEvidence !== "read";
   const evidenceId = `${statusId}-evidence`;
   const unread = !unavailable && unoffered ? evidenceId : undefined;
   const sessionOpenId = `${statusId}-session-open`;
   // A startup in need of reconciliation is answered under Startup
-  // recovery, not beside the card's unavailable actions.
-  const attemptOf = (workflow: LaunchWorkflow) =>
-    startup?.state === "needs-reconciliation"
+  // recovery; a recording stop also keeps its failed answer beside Start.
+  const attemptOf = (workflow: LaunchWorkflow) => {
+    const attempt = startup?.attempt;
+    if (
+      publicationRecordingStopped(attempt) &&
+      attempt.request.workflow === workflow
+    )
+      return attempt.outcome;
+    return startup?.state === "needs-reconciliation"
       ? undefined
       : launches.attemptOf(sourceId, entry.identity, workflow);
+  };
   const dependencyProblem = dependencyStartProblem(entry.dependencies);
   // Dependencies gate a new execution, not continuation of a kept one-shot.
   const dependencyBlocksStart =
     keptOneShot === undefined && dependencyProblem !== undefined;
   const dependencyId = `${statusId}-dependencies`;
-  // Open session and unread evidence gate every Start; dependency layers on
-  // for a Backlog execution Start only. Kept-start Start execution shares the
-  // open-session and unread gates, not the dependency one.
+  // Open session and unread evidence gate all Starts; dependencies gate only a
+  // fresh Backlog execution. Kept execution shares the first two gates.
   const startBlocked = unoffered || hasOpenSession;
   const startBlockedReason = hasOpenSession ? sessionOpenId : unread;
   const startUnavailable = (workflow: LaunchWorkflow) =>

@@ -177,6 +177,7 @@ export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
 
 export {
   needsReconciliation,
+  publicationRecordingStopped,
   laterAttempt,
   unresolvedAttempt,
 } from "./launchAttemptSelection.ts";

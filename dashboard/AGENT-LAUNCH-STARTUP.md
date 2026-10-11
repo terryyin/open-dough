@@ -106,7 +106,14 @@ Restart, reload, project switch and a second page recover from that file; a
 removed story keeps its recovery there. An ad hoc start shows its progress
 beside Start session and its recovery in the same region, never a card.
 
-Where Continue is eligible, story and ad hoc recovery use their host description's
+A failed publication-receipt recording stop stays protected and offers Continue
+under Startup recovery even though publication is known. Its failed answer
+appears beside Start, including after reload on the owning server, and the
+recovery entry says the known publication stopped before a session. It offers
+no native-check advice because no native launch occurred. After repairing the
+attempt file, Continue retains the receipt before launching.
+
+Where Continue is eligible, other story and ad hoc recovery use their host description's
 optional native-check advice. Claude Code says “Check `claude agents` before
 continuing: continuing starts its session again unless its kept evidence resumes
 it.” Codex says “Check the dashboard history and native Codex conversations before

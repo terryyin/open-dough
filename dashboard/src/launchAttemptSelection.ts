@@ -1,15 +1,33 @@
 // Select unresolved retained attempts independently of launch result schemas.
 import type { AttemptObservation } from "./launchOutcome.ts";
 
+// A known publication whose required receipt could not be kept stops before
+// any native launch. Continue retries its recording checkpoint.
+export function publicationRecordingStopped(
+  attempt: Pick<AttemptObservation, "publication" | "outcome"> | undefined,
+): attempt is Pick<AttemptObservation, "publication" | "outcome"> & {
+  outcome: Extract<
+    NonNullable<AttemptObservation["outcome"]>,
+    { kind: "failed" }
+  >;
+} {
+  return (
+    attempt?.publication.kind === "published" &&
+    attempt.outcome?.kind === "failed" &&
+    attempt.outcome.reason === "unrecorded"
+  );
+}
+
 // Whether an accepted attempt needs reconciliation before its story's
 // startup is known: unsettled while no server runs it, or settled while its
-// session or its publication may or may not exist. Elapsed time never
+// session or publication may or may not exist, or a required receipt failed. Elapsed time never
 // settles it; recheck or continuation does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
   return attempt.outcome === undefined
     ? !attempt.running
     : attempt.outcome.kind === "uncertain" ||
-        attempt.publication.kind === "unknown";
+        attempt.publication.kind === "unknown" ||
+        publicationRecordingStopped(attempt);
 }
 
 export const laterAttempt = (

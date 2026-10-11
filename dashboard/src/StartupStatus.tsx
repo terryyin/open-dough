@@ -11,6 +11,7 @@
 
 import {
   startName,
+  publicationRecordingStopped,
   startPhaseWords,
   type RunningStart,
 } from "./agentLaunch.ts";
@@ -20,9 +21,11 @@ import "./agent-launch.css";
 // What is known of a startup in need of reconciliation, by its cause.
 // `start` names it, such as "execution start".
 export function reconciliationCause(
-  { cause }: Pick<StoryStartup, "cause">,
+  { cause, attempt }: Pick<StoryStartup, "cause" | "attempt">,
   start: string,
 ): string {
+  if (publicationRecordingStopped(attempt))
+    return `this ${start} published its assignment, but its receipt could not be recorded, so no session was started. Repair the file, then Continue.`;
   switch (cause) {
     case "unacknowledged":
       return `the answer to this ${start} was lost, so it may or may not have been accepted.`;

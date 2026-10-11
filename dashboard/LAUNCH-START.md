@@ -60,6 +60,16 @@ Continue starts nothing while it runs. When the script finishes, its answer
 proceeds normally: a refusal stops, or an established start records its receipt
 and launches one native session automatically, without a manual continuation.
 
+A published receipt must be retained in
+`~/.open-dough/dashboard/launch-attempts.json` before the native session.
+If recording it fails, the attempt answers `failed`/`unrecorded`: publication
+succeeded, with the known agent and workspace, but the receipt could not be
+recorded in that file. No native session starts. The kept start, workspace,
+branch and assignment remain; repair the file and Continue to keep the receipt
+and launch once through the installed command's `existing` or `continue`
+answer. Other failed attempt notes remain answered from memory while the file
+keeps its earlier conservative state; a restart reads that interrupted state.
+
 Continuing an interrupted or failed attempt from Startup recovery, or a kept
 start's Start, resumes the kept workspace/branch, publisher/model and recovery,
 yielding existing/resumed execution or continued preparation instead of a

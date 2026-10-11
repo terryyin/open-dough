@@ -25,7 +25,9 @@ export type AttemptRun = (
 // Keeps a change to an owned attempt, then answers it: this server never
 // answers a change its store could still be writing. When the change cannot
 // be written, this server still answers it while the store keeps the
-// earlier, more conservative state; a closed server writes nothing more.
+// earlier, more conservative state. A failed published receipt throws after
+// answering that fact from memory, so its dependent effect cannot proceed;
+// a closed server writes nothing more.
 async function note(
   owned: OwnedAttempts,
   id: string,
@@ -34,15 +36,20 @@ async function note(
   const own = owned.get(id);
   if (own === undefined) return;
   const changed = { ...own.attempt, ...change };
+  let recordingError: Error | undefined;
   if (!owned.closed) {
     try {
       await keepAttempt(changed);
-    } catch {
-      // Answered from memory; see above.
+    } catch (error) {
+      recordingError =
+        error instanceof Error ? error : new Error(String(error));
     }
   }
   own.attempt = changed;
   owned.changed(id);
+  // A published receipt is the checkpoint for the dependent native effect.
+  if (change.publication?.kind === "published" && recordingError !== undefined)
+    throw recordingError;
 }
 
 // Runs an accepted attempt to its outcome and keeps it; anything the run
@@ -54,8 +61,9 @@ export async function settleAttempt(
 ): Promise<void> {
   let pending = Promise.resolve();
   const change = (fields: Partial<LaunchAttemptRecord>) => {
-    pending = pending.then(() => note(owned, own.attempt.id, fields));
-    return pending;
+    const written = pending.then(() => note(owned, own.attempt.id, fields));
+    pending = written.catch(() => undefined);
+    return written;
   };
   let result: LaunchResult;
   try {
