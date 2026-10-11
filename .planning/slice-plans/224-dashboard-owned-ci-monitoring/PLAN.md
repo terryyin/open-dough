@@ -398,7 +398,21 @@ immutable-cache specs stay green.
 
 ### 6. Keep the hold and owned calls through owner replacement
 Type: Behavior
-Status: planned
+Status: done
+
+Delivered: `github-request-kept-admissions.mjs` stores each resource's wait as
+`hold.<resource>.json` in the scope's endpoint directory (draft, fsync, rename,
+directory fsync) before any answer reveals it; a wait that cannot be stored is
+answered `failed` and told to nobody. `github-request-owned-calls.mjs` records
+each running `gh` child as `call.<generation>.<pid>.json`; a replacement, after
+claiming its generation and before admitting, ends each earlier child it can
+identify by pid, command line and start time, and lets one it cannot inspect
+occupy a turn. An overtaken owner asks nothing more. Waiters of a killed owner
+get `failed`. Accepted proof: `github-request-owner-replacement.test.mjs`,
+`github-request-owned-calls.test.mjs` and
+`github-request-kept-admissions.test.mjs` within the whole script directory
+(671 passed), full `npm test`, the whole dashboard suite (1474 passed) and
+typecheck.
 
 Owners are per allowance scope and several may live at once: persist each
 hold with its endpoint directory and resource, and reconcile each owner's
@@ -683,7 +697,7 @@ Disposition: proved by slice 4: src/skills/dough-execute-plan/scripts/github-req
 ### G10. Owner kill loses the hold and is untested mid-request
 Reported: slice 4 — "The hold is still lost on owner kill or reboot (slice 6)."
 Story clause: "Restart cannot reset a hold"
-Disposition: receiving slice 6
+Disposition: proved by slice 6: src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs "a rate limit's wait is stored before it is answered and holds back each owner started after the one that met it was killed" and "an owner killed with eight calls at GitHub is replaced by one that ends those eight before it asks anything"
 
 ### G11. A host that cannot reach the endpoint fails every CI read
 Reported: slice 4 — "An observer in a sandbox that cannot write `~/.open-dough`, connect to a Unix socket, or spawn a detached process will see every request fail as `gh failed` and hit the three-error path."
@@ -719,6 +733,31 @@ Disposition: no user cost "Open Dough monitoring and dashboard reads share one G
 Reported: slice 5 — "I did not check whether their `gh` shims reach the request owner. If they do, each needs the same `auth` early exit."
 Story clause: "Paid native runs require explicit native-check authority"
 Disposition: receiving slice 15
+
+### G18. Child identity through Linux ps was not run locally
+Reported: slice 6 — "the Linux `ps` path was not run locally (the Docker VM's storage is broken), so CI's Ubuntu jobs will be its first exercise."
+Story clause: "leave uncounted upstream children alive"
+Disposition: interim until slices 7
+
+### G19. A reboot that clears the endpoint root loses the hold
+Reported: slice 6 — "A reboot that clears `/tmp` still loses the hold, because of where the root lives; the docs say so."
+Story clause: "Restart cannot reset a hold"
+Disposition: no user cost "Open Dough monitoring and dashboard reads share one GitHub request-admission owner on this machine.": a hold lasts at most an hour, and after such a reboot the first request GitHub still refuses stores the hold again, so the cost is bounded to that one refused request
+
+### G20. Two narrow windows can leave one call uncounted
+Reported: slice 6 — "An owner killed between spawn and the record write (same tick) leaves one unrecorded child."
+Story clause: "leave uncounted upstream children alive"
+Disposition: no user cost "Open Dough monitoring and dashboard reads share one GitHub request-admission owner on this machine.": the window is one synchronous step of one call, which then ends at its own bound; no test can place a kill inside it and no held request is repeated
+
+### G21. A stopped owner that still accepts connections is not replaced
+Reported: slice 6 — "A stopped owner whose socket still accepts connections is not replaced. This predates the slice."
+Story clause: "The retained launcher restarts a failed runtime owner with fenced recovery."
+Disposition: receiving slice 7
+
+### G22. An owner from before an update serves without persistence until idle
+Reported: slice 6 — "An owner from before this slice that is still running after an update serves without persistence or child records until it idles out."
+Story clause: "Installation and mixed-version startup must preserve one runtime owner."
+Disposition: receiving slice 7
 
 ## Proof ownership and acceptance
 
@@ -822,3 +861,8 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
   dashboard global teardown fail a run that asks GitHub without one. Slice
   acceptance for a change to the request path needs the full `npm test`, not
   only the install subset.
+- 2026-10-11 (slice 6): an endpoint directory now holds `hold.*.json` and
+  `call.*.json` beside `owner.*.json`; anything that enumerates or transfers it
+  must carry or tolerate them. Request owners stay on demand: a replacement
+  appears only when a consumer next asks. A consumer of a killed owner gets
+  `failed` and must ask again.

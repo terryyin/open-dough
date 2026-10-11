@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import {
   existsSync,
   mkdtempSync,
@@ -144,4 +145,36 @@ export function requestOwnerEnvironment(teardown) {
   const owner = privateRequestOwner();
   teardown.defer(owner.end);
   return owner.env;
+}
+
+function runningCommand(pid) {
+  try {
+    return execFileSync("ps", ["-ww", "-p", String(pid), "-o", "command="], {
+      encoding: "utf8",
+    });
+  } catch {
+    return "";
+  }
+}
+
+// Kills the owner standing under `root` outright, as nothing it could
+// prepare for does, and answers its record.
+export function killStandingOwner(root) {
+  const [owner, ...others] = ownerRecords(root);
+  if (owner === undefined || others.length > 0)
+    throw new Error("Not one request owner stands to be killed");
+  process.kill(owner.pid, "SIGKILL");
+  return owner;
+}
+
+// Kills, once the test is over, each call still running as the instrumented
+// `gh` of `github` (`./ci-github-test-fixtures.mjs`): one whose owner was
+// killed outlives it. Only a process still running that very `gh` is
+// signalled.
+export function endCallsLeftRunning(github) {
+  const gh = join(github.env.CI_GH_FIXTURE, "gh");
+  github.teardown.defer(() => {
+    for (const pid of new Set(github.calls().map((call) => call.pid)))
+      if (runningCommand(pid).includes(`${gh} `)) process.kill(pid, "SIGKILL");
+  });
 }

@@ -3,9 +3,7 @@
 set -euo pipefail
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=src/install/open-dough-install-payload.sh
 source "${source_dir}/src/install/open-dough-install-payload.sh"
-# shellcheck source=src/install/open-dough-install-request.sh
 source "${source_dir}/src/install/open-dough-install-request.sh"
 managed_files=(
   dough-update/SKILL.md
@@ -184,7 +182,9 @@ managed_files=(
   dough-execute-plan/scripts/github-request-admission.mjs
   dough-execute-plan/scripts/github-request-answer.mjs
   dough-execute-plan/scripts/github-request-calls.mjs
+  dough-execute-plan/scripts/github-request-kept-admissions.mjs
   dough-execute-plan/scripts/github-request-outstanding.mjs
+  dough-execute-plan/scripts/github-request-owned-calls.mjs
   dough-execute-plan/scripts/github-request-owner-endpoint.mjs
   dough-execute-plan/scripts/github-request-owner-link.mjs
   dough-execute-plan/scripts/github-request-owner-wire.mjs

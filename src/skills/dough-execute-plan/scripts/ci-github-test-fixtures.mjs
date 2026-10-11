@@ -25,7 +25,8 @@ import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mj
 // of the fixture login it holds, if any (`fixtureLogin`): GH_TOKEN's, or
 // else the one stored under GH_CONFIG_DIR. `gh auth token` prints that
 // login's token; each call records its user, a log names it, and a limit
-// naming a user refuses only that user.
+// naming a user refuses only that user. Once `on-end` stands, a call asked
+// to end records `told-to-end` and ends, or stays when the file says `stay`.
 const instrumentedGithub = `#!${process.execPath}
 const fs = require('node:fs');
 const path = require('node:path');
@@ -44,6 +45,12 @@ const record = (phase) =>
     path.join(root, 'calls.jsonl'),
     JSON.stringify({ args, phase, at: Date.now(), pid: process.pid, user }) + '\\n',
   );
+const onEnd = path.join(root, 'on-end');
+if (fs.existsSync(onEnd))
+  process.on('SIGTERM', () => {
+    record('told-to-end');
+    if (fs.readFileSync(onEnd, 'utf8') !== 'stay') process.exit(143);
+  });
 const released = async (hold, release) => {
   while (fs.existsSync(path.join(root, hold)) && !fs.existsSync(path.join(root, release)))
     await new Promise((resolve) => setTimeout(resolve, 20));
@@ -147,6 +154,8 @@ export function instrumentedGithubFixture(t, state) {
     holdRequests: () => writeFileSync(file("hold"), ""),
     releaseRequests: () => writeFileSync(file("release"), ""),
     releaseLogs: () => writeFileSync(file("release-logs"), ""),
+    // From now on each call records being asked to end, and `stay` or ends.
+    recordEndings: (then = "end") => writeFileSync(file("on-end"), then),
   };
 }
 

@@ -65,6 +65,18 @@ export function receive(socket, onMessage, limitBytes = Infinity) {
   });
 }
 
+// Whether anything accepts a connection at `path`.
+/** @param {string} path */
+export const reachable = (path) =>
+  new Promise((resolve) => {
+    const socket = connect(path);
+    socket.once("connect", () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once("error", () => resolve(false));
+  });
+
 // The owner `record` names, greeted: its connection, or undefined when
 // nothing answers there. Throws when it is another user's or refuses this
 // caller. `onMessage` hears what it says after its welcome.

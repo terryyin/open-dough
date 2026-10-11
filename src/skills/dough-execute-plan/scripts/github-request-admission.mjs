@@ -6,12 +6,14 @@
 // at once. After any wait, directed or backed off, one request goes first:
 // however it ends without a rate limit -- answered, GitHub unreachable, its
 // requester gone, or at its own bound -- the turns reopen, while a limit it
-// meets starts the wait again with nothing else asked. It lives in the
-// owner's memory only, so a newly started owner asks GitHub at once.
+// meets starts the wait again with nothing else asked. What a later owner
+// must know of it to go on as this one would (`kept`) is given to it when it
+// starts (`./github-request-kept-admissions.mjs`).
 
 import { longestDirectedWaitSeconds } from "./github-request-rules.mjs";
 
 /** @import { GhAnswer, GhPrintedFailure, GhRequestFailure } from "./github-request-answer.mjs" */
+/** @import { KeptHold } from "./github-request-kept-admissions.mjs" */
 
 // How many requests one process has under way at GitHub at once, whoever
 // asks; further requests wait their turn in arrival order.
@@ -43,10 +45,30 @@ export class ReadAdmission {
 
   #backoffBaseMs;
 
-  // `backoffBaseMs` is the wait after the first rate limit that directs none.
-  /** @param {number} backoffBaseMs */
-  constructor(backoffBaseMs) {
+  // `backoffBaseMs` is the wait after the first rate limit that directs
+  // none; `kept`, what an earlier owner knew of a wait when it ended.
+  /**
+   * @param {number} backoffBaseMs
+   * @param {KeptHold} [kept]
+   */
+  constructor(backoffBaseMs, kept) {
     this.#backoffBaseMs = backoffBaseMs;
+    this.#resumesAtMs = kept?.resumesAtMs ?? 0;
+    this.#backoffStep = kept?.backoffStep ?? 0;
+    this.#resuming = kept?.resuming ?? false;
+  }
+
+  // What an owner replacing this one must know to hold back, resume and
+  // back off as this one would; undefined while that is nothing.
+  /** @returns {KeptHold | undefined} */
+  get kept() {
+    return this.#resuming || this.#backoffStep > 0
+      ? {
+          resumesAtMs: this.#resumesAtMs,
+          backoffStep: this.#backoffStep,
+          resuming: this.#resuming,
+        }
+      : undefined;
   }
 
   // Why a request may not be asked now, carrying the whole seconds left,

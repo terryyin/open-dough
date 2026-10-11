@@ -130,6 +130,7 @@ test("no token is written under the endpoint root, said over an owner's socket, 
     diagnostic.stderr(),
   ];
   assert.ok(kept(root).some((path) => /owner\.\d+\.json\n/.test(path)));
+  assert.ok(kept(root).some((path) => /hold\.core\.json\n/.test(path)));
   assert.match(saidByOwner, /the log for alice/);
   for (const text of everything)
     assert.doesNotMatch(text, new RegExp(fixtureToken("")));

@@ -94,10 +94,23 @@ outstanding under the earlier login is answered to nobody and asked again
 under the new one: one more request each. The earlier login's owner then asks
 GitHub nothing, and stays only while its rate-limit wait stands, which holds
 that login again if it returns. Otherwise an owner ends five seconds after
-its last dashboard or observer left, unless a rate limit's wait stands, and
-keeps nothing past its end. While no owner can be reached or started -- or
-the one standing speaks another version's protocol -- each read fails without
-asking GitHub.
+its last dashboard or observer left, unless a rate limit's wait stands. While
+no owner can be reached or started -- or the one standing speaks another
+version's protocol -- each read fails without asking GitHub.
+
+An owner that is killed, or lost in any way it could not prepare for, is
+replaced by the next dashboard or observer to need GitHub. Each read waiting
+on the lost owner fails then, as a read GitHub failed to answer does, and is
+asked again only when its page or observer next asks: one more request each.
+The lost owner's `gh` requests still at GitHub -- already counted by GitHub
+-- are recorded in its directory by process, exact arguments and start time,
+and the replacement ends each before it asks anything, so the eight at once
+hold through a replacement: a request that does not end when asked is killed
+a second later. A recorded process ID now running anything else is left
+alone. One the replacement cannot look at, where it may not read the process
+table, takes one of its eight turns until that process is gone. An owner
+still running after another replaced it asks nothing more and passes no
+answer on.
 
 Pages and processes that need the same GitHub answer while it is outstanding
 share one `gh` request for it, whatever was asked: two tabs opening one
@@ -136,8 +149,16 @@ limited; ended any other way -- answered, GitHub unreachable, the request gone,
 or timed out -- the others proceed up to eight at once. A request waiting its
 turn when a wait starts is answered as limited and never asked. The owner
 stays while a wait stands, so a dashboard or observer started during it waits
-too; only an owner that is ended or lost with the machine forgets the wait,
-and what is asked next then reaches GitHub at once.
+too. Each wait -- its end, the doubling reached, and whether one request
+still goes first -- is also stored in the owner's directory, and flushed to
+disk, before any read is answered as limited: an owner killed during a wait
+is replaced by one that asks nothing until the wait ends and then lets one
+request go first, as does an owner started after the wait ended with nobody
+asking. While a wait cannot be stored, the read that met the limit and each
+read after it fail as unanswered reads do instead of being answered as
+limited, and still none is asked before the wait ends. Only a restart of the
+machine that clears `/tmp`, or removing the directory, forgets a wait: what is
+asked next then reaches GitHub at once.
 
 When the wait ends, each visible page asks again on its own, and a page
 hidden then asks when it is next seen; nothing waits for a reload. A page

@@ -9,7 +9,6 @@
 // array -- never a shell string.
 
 import { execFile } from "node:child_process";
-import { ReadAdmission } from "./github-request-admission.mjs";
 import {
   endedAtBound,
   GhFailure,
@@ -20,6 +19,8 @@ import { OutstandingReads } from "./github-request-outstanding.mjs";
 import { readRoutes } from "./github-request-owner-wire.mjs";
 
 /** @import { GhAnswer } from "./github-request-answer.mjs" */
+/** @import { KeptAdmissions } from "./github-request-kept-admissions.mjs" */
+/** @import { OwnedCalls } from "./github-request-owned-calls.mjs" */
 
 // How long one call may run from its start however many requesters wait on
 // it, and the most its answer may print before it fails: its first
@@ -56,36 +57,38 @@ export class AdmittedCalls {
   #outstanding = new OutstandingReads(0);
 
   // Whether GitHub may be asked now, and the turns at GitHub, for each
-  // rate-limit resource asked so far. Every call `#outstanding` starts is
-  // admitted once, for all the requesters waiting on it, and takes one turn
-  // however many wait on it.
-  /** @type {Map<string, ReadAdmission>} */
-  #admissions = new Map();
-
-  #backoffBaseMs;
+  // rate-limit resource. Every call `#outstanding` starts is admitted once,
+  // for all the requesters waiting on it, and takes one turn however many
+  // wait on it.
+  #admissions;
 
   #loginStands;
 
   #failed;
 
+  #owned;
+
   // How many `gh` processes run now.
   #running = 0;
 
-  // `backoffBaseMs` is the first wait after a rate limit that directs none,
-  // doubling while the limit continues. `loginStands` says whether this
+  // `admissions` says whether each resource may be asked, and keeps each
+  // rate limit's wait for the owner that replaces this one; `owned` records
+  // each `gh` process while it runs. `loginStands` says whether this
   // process's `gh` still asks with the API host and login these calls are
   // asked under. `failed` hears once of each failed answer `gh` gave; a
   // held-back request, a requester's departure, a bound that ends a call
   // and a call another login answered give none.
   /**
    * @param {{
-   *   readonly backoffBaseMs: number;
+   *   readonly admissions: KeptAdmissions;
+   *   readonly owned: OwnedCalls;
    *   readonly loginStands: () => Promise<boolean>;
    *   readonly failed?: (answer: GhAnswer) => void;
    * }} options
    */
-  constructor({ backoffBaseMs, loginStands, failed = () => undefined }) {
-    this.#backoffBaseMs = backoffBaseMs;
+  constructor({ admissions, owned, loginStands, failed = () => undefined }) {
+    this.#admissions = admissions;
+    this.#owned = owned;
     this.#loginStands = loginStands;
     this.#failed = failed;
   }
@@ -121,20 +124,49 @@ export class AdmittedCalls {
   // limit's wait stands.
   /** @param {number} nowMs */
   heldBack(nowMs) {
-    for (const admission of this.#admissions.values()) {
-      const refused = admission.heldBack(nowMs);
-      if (refused !== undefined) return refused;
-    }
-    return undefined;
+    return this.#admissions.heldBack(nowMs);
   }
 
-  #admissionFor(resource) {
-    let admission = this.#admissions.get(resource);
-    if (admission === undefined) {
-      admission = new ReadAdmission(this.#backoffBaseMs);
-      this.#admissions.set(resource, admission);
-    }
-    return admission;
+  // Holds one of `resource`'s turns at GitHub until `gone` resolves, for a
+  // call at GitHub that is not one of this owner's own: it counts toward
+  // the turns like any other.
+  /**
+   * @param {string} resource
+   * @param {Promise<unknown>} gone
+   */
+  occupied(resource, gone) {
+    void this.#admissions
+      .of(resource)
+      .turn(new AbortController().signal)
+      .then((turnEnds) => gone.finally(turnEnds));
+  }
+
+  // Runs `gh` once, recorded while it runs; a process that cannot be
+  // recorded is ended at once, and its call fails.
+  #ran(args, signal, maxBufferBytes, resource) {
+    return new Promise((resolve) => {
+      let gone = () => undefined;
+      const child = execFile(
+        "gh",
+        [...args],
+        {
+          signal,
+          maxBuffer: maxBufferBytes,
+          encoding: "utf8",
+          env: { ...process.env, GH_PROMPT_DISABLED: "1" },
+        },
+        (...ended) => {
+          gone();
+          resolve(ended);
+        },
+      );
+      if (child.pid === undefined) return;
+      try {
+        gone = this.#owned.started(child.pid, args, resource);
+      } catch {
+        child.kill("SIGKILL");
+      }
+    });
   }
 
   // One call `#outstanding` started: refused while a rate limit holds its
@@ -145,8 +177,8 @@ export class AdmittedCalls {
   // once `gh` asks with another login than these calls are asked under:
   // that answer is nobody's here, teaches no limit and is told to no one.
   async #spawned(args, signal, maxBufferBytes, resource) {
-    const admission = this.#admissionFor(resource);
-    const refused = admission.heldBack(Date.now());
+    const admission = this.#admissions.of(resource);
+    const refused = this.#admissions.refusal(resource);
     if (refused !== undefined) {
       return unasked(refused);
     }
@@ -159,7 +191,7 @@ export class AdmittedCalls {
       }
       return unasked({ kind: "failed" });
     }
-    const heldBack = admission.heldBack(Date.now());
+    const heldBack = this.#admissions.refusal(resource);
     if (heldBack !== undefined) {
       turnEnds();
       return unasked(heldBack);
@@ -172,19 +204,12 @@ export class AdmittedCalls {
     }
     const askedAt = new Date().toISOString();
     this.#running += 1;
-    const [error, stdout, stderr] = await new Promise((resolve) => {
-      execFile(
-        "gh",
-        [...args],
-        {
-          signal,
-          maxBuffer: maxBufferBytes,
-          encoding: "utf8",
-          env: { ...process.env, GH_PROMPT_DISABLED: "1" },
-        },
-        (...ended) => resolve(ended),
-      );
-    });
+    const [error, stdout, stderr] = await this.#ran(
+      args,
+      signal,
+      maxBufferBytes,
+      resource,
+    );
     this.#running -= 1;
     // However the call ended, admission learns of it before the turn passes
     // on, so a limit this answer starts holds back the request that takes
@@ -192,6 +217,7 @@ export class AdmittedCalls {
     const answered = !signal.aborted && (await this.#loginStands());
     if (!answered || signal.aborted) {
       admission.endedUnanswered(askedAt);
+      this.#admissions.keep(resource);
       turnEnds();
       if (endedAtBound(signal)) {
         throw new GhFailure({ kind: "timed-out" });
@@ -200,10 +226,17 @@ export class AdmittedCalls {
       // retained retryable failure, and not classified as an upstream answer.
       return unasked({ kind: "failed" }, askedAt);
     }
-    const answer = admission.answered(
+    const learned = admission.answered(
       readAnswer(error, stdout, stderr, askedAt),
       Date.now(),
     );
+    // A rate limit is answered only once its wait is kept: otherwise the
+    // call fails, and tells nothing of the limit.
+    const answer =
+      this.#admissions.keep(resource) ||
+      learned.failure?.kind !== "rate-limited"
+        ? learned
+        : unasked({ kind: "failed" }, askedAt);
     if (answer.failure !== undefined) {
       this.#failed(answer);
     }

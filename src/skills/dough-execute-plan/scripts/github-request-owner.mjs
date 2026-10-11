@@ -6,21 +6,29 @@
 // and every outstanding call (`./github-request-calls.mjs`), so consumers in
 // separate processes share them, and consumers under another host or login
 // share none of them. It stands while its record is the highest in its
-// endpoint directory (`./github-request-owner-endpoint.mjs`), and ends once
-// no consumer is connected and no rate limit's wait stands for
-// `DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS` (five seconds), or ten seconds after
-// its start when no consumer ever reached it. While its own `gh` asks with
-// another login than its endpoint's it asks GitHub nothing, and stays only
-// for a rate limit's wait: the login may come back to it. Nothing is kept
-// past its end: an owner started later asks GitHub at once.
+// endpoint directory (`./github-request-owner-endpoint.mjs`), asking nothing
+// once it is not, and ends once no consumer is connected and no rate limit's
+// wait stands for `DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS` (five seconds), or
+// ten seconds after its start when no consumer ever reached it. While its
+// own `gh` asks with another login than its endpoint's it asks GitHub
+// nothing, and stays only for a rate limit's wait. An owner that replaces
+// one that was killed begins with the waits that one kept
+// (`./github-request-kept-admissions.mjs`), and asks GitHub nothing before
+// each `gh` that one left running is ended or counted as a turn of its own
+// (`./github-request-owned-calls.mjs`).
 //
 // Usage: node github-request-owner.mjs <endpoint directory> <backoff base ms>
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { lstatSync, rmSync } from "node:fs";
-import { connect, createServer } from "node:net";
+import { createServer } from "node:net";
 import { join } from "node:path";
 import { GhFailure } from "./github-request-answer.mjs";
 import { AdmittedCalls } from "./github-request-calls.mjs";
+import { KeptAdmissions } from "./github-request-kept-admissions.mjs";
+import {
+  earlierCallsEnded,
+  OwnedCalls,
+} from "./github-request-owned-calls.mjs";
 import {
   claimedRecord,
   EndpointBinding,
@@ -32,6 +40,7 @@ import {
   fixedRequest,
   greetingLimitMs,
   protocol,
+  reachable,
   receive,
   scopeOf,
   send,
@@ -50,16 +59,6 @@ if (
 )
   process.exit(1);
 
-const reachable = (path) =>
-  new Promise((resolve) => {
-    const socket = connect(path);
-    socket.once("connect", () => {
-      socket.destroy();
-      resolve(true);
-    });
-    socket.once("error", () => resolve(false));
-  });
-
 const earlier = standingRecord(directory);
 if (earlier?.socket !== undefined && (await reachable(earlier.socket)))
   process.exit(0);
@@ -73,14 +72,6 @@ const loginLeft = async () => {
   return own !== undefined && own !== directory;
 };
 const scope = scopeOf(directory);
-
-// Every failed call's answer, so each consumer waiting on it is told so.
-const failedAnswers = new WeakSet();
-const calls = new AdmittedCalls({
-  backoffBaseMs,
-  loginStands: async () => (await ownEndpoint()) === directory,
-  failed: (answer) => failedAnswers.add(answer),
-});
 
 const token = randomBytes(32).toString("hex");
 const admitted = (offered) =>
@@ -157,8 +148,8 @@ function ask(socket, waits, id, fixed) {
   const wait = new AbortController();
   waits.set(id, wait);
   requesters.add(wait);
-  calls
-    .request(fixed.args, wait.signal, fixed)
+  earlierEnded
+    .then(() => calls.request(fixed.args, wait.signal, fixed))
     .then(
       (answer) =>
         send(socket, {
@@ -203,16 +194,29 @@ function end() {
   }, 10);
 }
 
+// An owner that claimed the generation first stands instead: this one was
+// never spoken to.
 const generation = (earlier?.generation ?? 0) + 1;
-if (
-  !claimedRecord(directory, generation, {
-    pid: process.pid,
-    protocol,
-    token,
-    socket: socketFile,
-  })
-)
-  end();
+const record = { pid: process.pid, protocol, token, socket: socketFile };
+if (!claimedRecord(directory, generation, record)) {
+  rmSync(socketPath, { force: true });
+  process.exit(0);
+}
+
+// Every failed call's answer, so each consumer waiting on it is told so.
+const failedAnswers = new WeakSet();
+const calls = new AdmittedCalls({
+  admissions: new KeptAdmissions(directory, backoffBaseMs),
+  owned: new OwnedCalls(directory, generation),
+  loginStands: async () => stands() && (await ownEndpoint()) === directory,
+  failed: (answer) => failedAnswers.add(answer),
+});
+// No call is asked before each `gh` an earlier owner left running is ended,
+// or holds one of this owner's turns until it is gone.
+const earlierEnded = earlierCallsEnded(directory, generation).then((left) => {
+  for (const { resource, gone } of left) calls.occupied(resource, gone);
+});
+earlierEnded.catch(end);
 
 // Whether this owner's record is still the highest: withdrawn, overtaken or
 // without its directory, it stands no more. A directory that cannot be read
