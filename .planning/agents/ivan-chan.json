@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ivan-chan",
-  "email": "ivan-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-066#unattached-start-leftovers",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
