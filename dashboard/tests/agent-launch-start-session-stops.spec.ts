@@ -3,8 +3,8 @@
 // (./support/startOrigin.ts) and the synthetic `claude`: a choice the
 // installation cannot establish, in default main or a new workspace, is
 // refused before anything is accepted, and a start that stops, cannot be
-// formatted, or outlasts its wait answers in the session's own words, which
-// name no story, Take, or assignment.
+// formatted answers in the session's own words, which name no story, Take,
+// or assignment. Expiry wording belongs to the kept/recovery journeys.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -17,7 +17,7 @@ import {
   launch,
   recordsOf,
 } from "./agentLaunchBoundary.ts";
-import { keptWords, keptSessionStarts } from "./support/keptSessionStart.ts";
+import { keptSessionStarts } from "./support/keptSessionStart.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   isolatedSession,
@@ -161,28 +161,4 @@ test("a start that answers nothing readable launches nothing and says it publish
   });
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
-});
-
-test.describe("a start that outlasts its wait", () => {
-  test.use({ startTimeoutMs: 1 });
-
-  test("answers uncertain, naming where its kept start goes on and that it publishes nothing", async ({
-    dashboard,
-  }) => {
-    // In default main or a new workspace, the start is kept where it goes on
-    // (./agent-launch-start-session-recovery.spec.ts).
-    for (const [policy, workspace, branch] of [
-      [request.policy, "~/git/open-dough", "main"],
-      [isolated, "~/git/open-dough/.worktrees/session", "claude/session"],
-    ] as const)
-      expect(
-        await explanation(launch(dashboard, { ...request, policy })),
-      ).toMatchObject({
-        kind: "uncertain",
-        reason: "timed-out",
-        explanation: keptWords(workspace, branch),
-      });
-    expect(dashboard.claudeLaunchCalls()).toEqual([]);
-    expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
-  });
 });

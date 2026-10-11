@@ -66,12 +66,21 @@ test("ad hoc matching includes the Workspace and After checks choices, the defau
     workspace: "default-checkout",
     landing: "review",
   } as const;
-  expect(sameLaunch(blank, { ...blank, policy: defaults })).toBe(true);
-  for (const policy of [
+  const choices = [
+    undefined,
+    defaults,
     { ...defaults, workspace: "isolated" },
     { ...defaults, landing: "auto-land" },
-  ] as const) {
-    expect(sameLaunch(blank, { ...blank, policy })).toBe(false);
-    expect(sameLaunch({ ...blank, policy }, { ...blank, policy })).toBe(true);
+    { workspace: "isolated", landing: "auto-land" },
+  ] as const;
+  for (const left of choices) {
+    for (const right of choices) {
+      const a = left ?? defaults;
+      const b = right ?? defaults;
+      expect(
+        sameLaunch({ ...blank, policy: left }, { ...blank, policy: right }),
+        `${a.workspace}/${a.landing} versus ${b.workspace}/${b.landing}`,
+      ).toBe(a.workspace === b.workspace && a.landing === b.landing);
+    }
   }
 });

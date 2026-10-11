@@ -2,31 +2,23 @@
 // checks choices, over raw HTTP with a real bare origin
 // (./support/startOrigin.ts), the installed start recorded
 // (./support/startSessionLanding.ts) and the protocol-only Codex: while a
-// conversation's first input is unconfirmed, a Start session with other
-// choices starts a new session in its own place and leaves that conversation
-// and its workspace to their own continuation, and one repeating the choices
-// recovers it. Continuation of a kept start:
-// ./agent-launch-start-session-kept.spec.ts.
+// conversation's first input is unconfirmed, a Start session with another
+// landing choice starts a new session in its own place and leaves that
+// conversation and workspace intact; repeating its choices recovers it. Both
+// matching axes are proved in ./agent-launch-matching-rules.spec.ts. Kept
+// start continuation belongs to ./agent-launch-start-session-kept.spec.ts.
 
-import { realpathSync } from "node:fs";
 import type { LaunchWithState } from "../src/launchRecord.ts";
-import {
-  attempts,
-  continued,
-  launch,
-  recordsOf,
-} from "./agentLaunchBoundary.ts";
+import { launch, recordsOf } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { stored } from "./support/codexLaunch.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
-import { keptSessionStarts } from "./support/keptSessionStart.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { originMain } from "./support/sessionDialog.ts";
 import {
   isolatedSession,
   isolatedStart,
   recordStarts,
-  worktree,
   worktrees,
 } from "./support/startSessionLanding.ts";
 
@@ -41,11 +33,6 @@ const answerOf = async (answer: Promise<{ body: string }>) =>
 
 const callsOf = (native: FakeCodex, method: string) =>
   native.calls.filter((call) => call.method === method);
-
-const created = (native: FakeCodex) =>
-  callsOf(native, "thread/start").map((call) =>
-    realpathSync(String(call.params["cwd"])),
-  );
 
 // Leaves a conversation of `body` whose first input is unconfirmed: its
 // acknowledgment is lost with the connection. Answers what the native side
@@ -89,104 +76,6 @@ function anotherConversation(native: FakeCodex, threadId: string) {
 }
 
 test.use({ preparationHost: "codex" });
-
-test("a pending Isolated workspace conversation is left to its own continuation by a Start session with the default choices, which opens a new one in the project folder", async ({
-  dashboard,
-  codexProtocol,
-  origin,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  const starts = recordStarts(origin, "codex");
-  const before = await originMain(origin);
-  const session = isolatedSession(
-    origin.project,
-    "session",
-    "review",
-    before,
-    "codex",
-  );
-  const pending = await pendingInput(dashboard, native, {
-    ...request,
-    policy: isolated,
-  });
-  expect(pending.saved?.establishedSession).toEqual(session);
-  const [uncertain] = await attempts(dashboard);
-  const id = uncertain?.id ?? "";
-  const kept = keptSessionStarts(origin)[id];
-  expect(kept).toMatchObject({ session });
-
-  anotherConversation(native, "default-thread-id");
-  const launched = await answerOf(launch(dashboard, request));
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(launched.record?.session.sessionId).toBe("default-thread-id");
-  expect(launched.record).not.toHaveProperty("establishedSession");
-  expect(created(native)).toEqual([
-    realpathSync(worktree(origin.project, "session")),
-    realpathSync(origin.project),
-  ]);
-  // The default session got no input, and no start ran for it.
-  expect(callsOf(native, "turn/start")).toHaveLength(1);
-  expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, "session", "review", "codex"),
-  ]);
-  // The pending conversation and its worktree stay as they were.
-  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
-  expect(stored(dashboard.home)).toContainEqual(pending.saved);
-  expect(worktrees(origin.project)).toEqual(["session"]);
-  expect(keptSessionStarts(origin)[id]).toEqual(kept);
-
-  // Its own continuation still recovers it, where it was established.
-  holdAgain(native, pending);
-  const recovered = await answerOf(continued(dashboard, id));
-  expect(recovered.kind, JSON.stringify(recovered)).toBe("launched");
-  expect(recovered.record?.session).toEqual(pending.saved?.session);
-  expect(recovered.record?.establishedSession).toEqual(session);
-  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
-  expect(callsOf(native, "thread/start")).toHaveLength(2);
-  expect(callsOf(native, "turn/start")).toHaveLength(1);
-  expect(starts()).toHaveLength(1);
-  expect(worktrees(origin.project)).toEqual(["session"]);
-});
-
-test("a pending default blank conversation is not resumed by a Start session in an Isolated workspace, which opens a new one in a new worktree", async ({
-  dashboard,
-  codexProtocol,
-  origin,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  const starts = recordStarts(origin, "codex");
-  const before = await originMain(origin);
-  // The blank conversation's persistence is never read back.
-  native.beforeRead = (includeTurns) => {
-    if (includeTurns) native.failConnection();
-  };
-  expect((await answerOf(launch(dashboard, request))).kind).toBe("uncertain");
-  delete native.beforeRead;
-  const [saved] = stored(dashboard.home);
-  expect(saved?.firstInput).toEqual({ state: "awaiting", intent: "blank" });
-
-  anotherConversation(native, "isolated-thread-id");
-  const launched = await answerOf(
-    launch(dashboard, { ...request, policy: isolated }),
-  );
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(launched.record?.session.sessionId).toBe("isolated-thread-id");
-  expect(launched.record?.establishedSession).toEqual(
-    isolatedSession(origin.project, "session", "review", before, "codex"),
-  );
-  expect(created(native)).toEqual([
-    realpathSync(origin.project),
-    realpathSync(worktree(origin.project, "session")),
-  ]);
-  expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, "session", "review", "codex"),
-  ]);
-  expect(worktrees(origin.project)).toEqual(["session"]);
-  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
-  expect(stored(dashboard.home)).toContainEqual(saved);
-});
 
 test("a pending Isolated workspace conversation waiting for review is not resumed by one landing automatically, and is resumed by the same choices again", async ({
   dashboard,

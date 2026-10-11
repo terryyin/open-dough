@@ -5,10 +5,11 @@
 // holding staged, changed, deleted, or untracked files shows them in the same
 // dialog (paths and count, never content) before anything starts. Back
 // returns to the text as typed, Cancel starts nothing, and Continue with
-// existing changes starts the session as an unattached start always did: in
-// the project folder with the changes untouched, the developer's text and the
-// reporting context, no established block, and no story, Take, or assignment.
-// A clean default checkout starts at once.
+// existing changes starts the session in the project folder with the changes
+// untouched, the developer's text and reporting context, and no story, Take,
+// or assignment. Switching to automatic
+// landing preserves the choice through Back and carries its established block.
+// Clean default launches belong to ./agent-launch-ad-hoc.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import { appendFileSync, realpathSync } from "node:fs";
@@ -33,12 +34,13 @@ import {
   existingChangesHeading as heading,
   status,
 } from "./support/defaultCheckoutChanges.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";
-import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
-import { openBacklog, originMain } from "./support/sessionDialog.ts";
+import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
+import { recordStarts } from "./support/startSessionLanding.ts";
+import { expectDefaultMainSessionLaunch } from "./support/unattachedLaunchAssertions.ts";
 
 const text = "Explain how launch records are stored";
+const autoLand = { workspace: "default-checkout", landing: "auto-land" };
 
 const worktrees = (project: string) =>
   execFileSync("git", ["-C", project, "worktree", "list", "--porcelain"], {
@@ -47,31 +49,12 @@ const worktrees = (project: string) =>
 
 type Recorded = { readonly request: RecordedLaunchRequest };
 
-// The one session started as an unattached start always was: in the project
-// folder, named by the developer's text, sent with only that text and the
-// reporting context. Answers what was sent and the record kept.
-async function startedUnattached(dashboard: DashboardServer, project: string) {
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  const [call] = dashboard.claudeLaunchCalls();
-  expect(call?.cwd).toBe(realpathSync(project));
-  expect(call?.argv.slice(0, 3)).toEqual([
-    "--bg",
-    "--name",
-    `Open Dough · Ad hoc · ${text}`,
-  ]);
-  expect(call?.argv).toHaveLength(4);
-  const sent = call?.argv[3] ?? "";
-  await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
-  const [record] = (await recordsOf(dashboard, "open-dough")) as Recorded[];
-  expectAdHocReportingInput(sent, text, record?.request, dashboard);
-  return { sent, record };
-}
-
 test("existing changes warn before a session starts, Back keeps the text, Cancel starts nothing, and Continue starts in the project folder with them untouched", async ({
   page,
   dashboard,
   origin,
 }) => {
+  const starts = recordStarts(origin);
   await openBacklog(page, origin);
   const before = await originMain(origin);
   dirty(origin.project);
@@ -121,6 +104,19 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
   await button.click();
   await expect(instruction).toHaveValue("");
   await instruction.fill(text);
+  const chosen = radio(dialog, "After checks", "Automatically land");
+  await chosen.check();
+  await start.click();
+  await expect(warning).toBeFocused();
+  await expect(dialog).toContainText(
+    "Automatically land remains selected; verified changes may land without another review.",
+  );
+  await expect(dialog).not.toContainText("Wait for review remains selected.");
+  expect(starts()).toEqual([]);
+  await dialog.getByRole("button", { name: "Back" }).click();
+  await expect(start).toBeFocused();
+  await expect(chosen).toBeChecked();
+  await expect(instruction).toHaveValue(text);
   await start.click();
   await expect(warning).toBeFocused();
 
@@ -137,21 +133,27 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   const confirmed = status(origin.project);
 
-  // Continue starts the session as an unattached start always did.
+  // Continue uses the selected landing and retains the developer's text.
   dashboard.claudeScenario("launched");
   await proceed.click();
   await expect(dialog).toBeHidden();
-  const { sent, record } = await startedUnattached(dashboard, origin.project);
-  expect(sent).not.toContain("Established");
+  const record = await expectDefaultMainSessionLaunch(
+    dashboard,
+    origin.project,
+    "auto-land",
+    before,
+    text,
+    starts,
+  );
   expect(record?.request).toMatchObject({
     source: "open-dough",
     workflow: "ad-hoc",
     host: "claude",
     title: text,
     instruction: text,
+    policy: autoLand,
   });
-  // Local evidence keeps no confirmation, policy, story, or established place.
-  for (const absent of ["existingChanges", "policy", "identity"])
+  for (const absent of ["existingChanges", "identity"])
     expect(record?.request).not.toHaveProperty(absent);
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
@@ -159,32 +161,10 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
     expect(attempt.request).not.toHaveProperty("existingChanges");
 
   // The existing changes stay as they were; nothing was taken, assigned,
-  // established, or published.
+  // or published.
   expect(status(origin.project)).toBe(confirmed);
   expect(worktrees(origin.project)).toBe(places);
   expect(await keptStarts(dashboard)).toEqual([]);
-  expect(await originMain(origin)).toBe(before);
-  expect(await origin.takenProfiles()).toEqual([]);
-});
-
-test("a clean default checkout starts the session at once, exactly as before", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  await openBacklog(page, origin);
-  const before = await originMain(origin);
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSession(page, "Open Dough").click();
-  await startSessionField(dialog).fill(text);
-  dashboard.claudeScenario("launched");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(dialog).toBeHidden();
-  await expect(page.getByRole("heading", { name: heading })).toHaveCount(0);
-  // Accepted: the launch goes on after the dialog closed.
-  const { record } = await startedUnattached(dashboard, origin.project);
-  expect(record?.request).not.toHaveProperty("policy");
-  expect(status(origin.project)).toBe("");
   expect(await originMain(origin)).toBe(before);
   expect(await origin.takenProfiles()).toEqual([]);
 });

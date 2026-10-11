@@ -139,11 +139,10 @@ current behavior; repeated proof can be reduced next.
 
 ### 4. Start session rules have one sufficient proof owner
 Type: Structure
-Status: planned
-Proof: preserve the ownership below, demonstrate that retained rule tests fail
-when their rule is disabled, run the surviving affected suites, and compare the
-same selection's aggregate test time before and after. No speedup claim is
-accepted without a comparable pre-change baseline.
+Status: done
+Proof: [accepted ownership, mutation, and timing evidence](PROOF.md#slice-4);
+79 surviving cases passed, with eight equivalent Start cases removed and
+22.05% less aggregate test time in one comparable pair.
 
 Change: remove equivalent slow-harness repetitions and move their data
 variations to existing rule tests. Keep distinct consuming purposes rather than

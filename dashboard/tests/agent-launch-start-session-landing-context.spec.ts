@@ -7,7 +7,8 @@
 // launch, its remote and trunk target and no identity; the installed shared
 // publication, as Dough Land runs it, given that file, prepares the
 // comparison before its push and records the accepted one, which the launch
-// record keeps, from a new worktree and from the default checkout. Which
+// record keeps. Default-main handoff belongs to the automatic-landing page
+// journey; shared capture variations belong to the one-shot landing suite. Which
 // launches a landing is captured for, and the installed delivery command,
 // are in ./agent-launch-start-session-landing-admission.spec.ts.
 
@@ -19,8 +20,6 @@ import { openBacklog, radio } from "./support/sessionDialog.ts";
 import {
   expectCapturedLanding,
   expectLandingHandoff,
-  launched,
-  type UnattachedPolicy,
 } from "./support/startSessionLandingCapture.ts";
 import { worktree } from "./support/startSessionLanding.ts";
 
@@ -55,27 +54,4 @@ test("Isolated workspace · Automatically land with no text hands the session it
     landing: "auto-land",
   });
   await expectCapturedLanding(dashboard, origin, record, "isolated.txt");
-});
-
-test("Default main · Automatically land hands the session its landing context, and a landing from the default checkout is captured for the launch", async ({
-  dashboard,
-  origin,
-}) => {
-  const policy: UnattachedPolicy = {
-    workspace: "default-checkout",
-    landing: "auto-land",
-  };
-  const { record, sent } = await launched(dashboard, { policy });
-  const { session } = expectLandingHandoff(
-    record,
-    sent,
-    dashboard,
-    origin.project,
-  );
-  expect(session).toMatchObject({
-    workspace: origin.project,
-    role: "default-checkout",
-    branch: "main",
-  });
-  await expectCapturedLanding(dashboard, origin, record, "default.txt");
 });
