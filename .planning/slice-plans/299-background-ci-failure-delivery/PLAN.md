@@ -606,3 +606,8 @@ Carried from plan 224's execution; its own record keeps the per-slice detail.
   only on stderr. A sender must compare the printed id with the session's own,
   persist its token first, and reconcile from the transcript. Typing into
   `claude attach` can answer a pending permission prompt.
+- 2026-10-11 (repair after slice 1): CI run 38146357255 on `cd35b4fa` failed
+  `agent-launch-start-resume.spec.ts:128`, which read a launch attempt right
+  after the launch's answer, before the separate write that keeps its
+  outcome. Both such reads in that spec now wait through
+  `dashboard/tests/settledAttempt.ts`. The revision changed no dashboard code.

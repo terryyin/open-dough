@@ -10,6 +10,7 @@ import {
   continueAttempt,
   launch,
 } from "./agentLaunchBoundary.ts";
+import { settledAttempt } from "./settledAttempt.ts";
 import {
   answerOf,
   expectOneClaim,
@@ -115,12 +116,10 @@ test.describe("a kept execution start", () => {
     expect(launched.record.start?.publishedSha).toBe(
       (await origin.originGit("rev-parse", "main")).trim(),
     );
-    const [settled] = await attempts(server);
-    expect(settled).toMatchObject({
+    await settledAttempt(server, {
       id: slow?.id,
       outcome: { kind: "launched" },
     });
-    expect(settled?.slowSince).toBeUndefined();
     expect(server.claudeLaunchCalls()).toHaveLength(1);
     expect(keptStartOf(origin)).toBeUndefined();
   });
@@ -159,12 +158,10 @@ console.log(JSON.stringify({ok:false,status:"story-left-queue"}));
     expect(server.claudeLaunchCalls()).toEqual([]);
     expect(await origin.takenProfiles()).toEqual([]);
     expect(keptStartOf(origin)).toBeUndefined();
-    const [settled] = await attempts(server);
-    expect(settled).toMatchObject({
+    await settledAttempt(server, {
       publication: { kind: "none" },
       outcome: refused,
     });
-    expect(settled?.slowSince).toBeUndefined();
   });
 
   test("a stop that carries recovery keeps its SHAs and its continuation resumes with them", async () => {
