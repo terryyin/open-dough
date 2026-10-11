@@ -57,7 +57,17 @@ then carries `published`, the trunk revision the commits were taken out of
 resulting tree; with nothing published since the claim it carries no
 `published` and `baseline` is the merge-base. Commits and its Uncommitted
 changes item stay the worktree's own, with the merge-base as their points, so
-a published commit is not listed there.
+a published commit is not listed there. Taking the commits out needs Git 2.45
+or later, as restating the mark does; when this machine's Git cannot (an
+older one says the tree is not a commit, and any other failed restatement
+counts the same), the review is not failed: nothing is taken out, `baseline`
+stays the merge-base, `published` also carries `kept: "not-restated"`, the
+context line reads as for any worktree, and the review's status region says,
+for as long as that snapshot is shown, “This machine's Git cannot take the
+story's 2 published commits out of trunk, so All changes shows only what is
+not yet published.” (`src/StoryReviewFeedback.tsx`). A mark taken against
+trunk less the story's commits is then one this Git cannot restate on the
+merge-base, which the review explains as below.
 
 The file browser shows the snapshot's changed files under the folders that
 hold them, each file by its name, with files at the repository root at the
@@ -289,7 +299,8 @@ now holds.”, since story work that reached trunk after the mark counts as
 trunk's. Exit 0 is a clean restatement and exit 1 is a conflicted restatement
 when that object ID is present; other exits cannot restate the mark.
 Restating needs Git 2.45 or later, which merges trees given with
-`--merge-base`; when this machine's Git cannot restate the mark (an older one
+`--merge-base`, as taking a Trunk Mode story's published commits out of trunk
+does; when this machine's Git cannot restate the mark (an older one
 says the tree is not a commit), the review is not failed: the answer carries
 the mark and `markUncomparable: "not-restated"` in place of `since`, and the
 review says this machine's Git cannot leave out trunk's changes integrated

@@ -194,7 +194,7 @@ Disposition: proved by slice 2: `dashboard/tests/story-review-trunk-own-flagged.
 ### G3. A Git that cannot restate says nothing
 Reported: slice 1 — "Baseline stays the merge-base and no `published` is answered; `kept: \"not-restated\"` and its feedback are slice 4."
 Story clause: "its feedback says the story's published commits could not be taken out of trunk and why"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/tests/story-review-trunk-own-older-git.spec.ts`, steps "the feedback says why" and "Refresh keeps saying it"
 
 ### G4. Singular commit wording untested
 Reported: slice 1 — "Singular wording is my choice and untested"
@@ -214,12 +214,17 @@ Disposition: proved by slice 2: All changes and Since the review list flagged fi
 ### G7. A mark on a tree baseline compared with a later commit baseline
 Reported: slice 3 — "Tree-baseline mark later compared against a commit baseline (the `not-restated` path on older Git) — slice 4."
 Story clause: "the review shows the unpublished and uncommitted changes against trunk as today"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/tests/story-review-trunk-own-older-git.spec.ts`, "a mark taken against trunk less the story's commits is explained by a Git that cannot take them out, beside all changes"
 
 ### G8. Trunk advanced by commits that leave its tree unchanged
 Reported: slice 3 — "if trunk advanced between mark and snapshot by commits whose net tree is identical (empty commit, or a change and its revert), the heading no longer shows."
 Story clause: "sees the story's own changes, published, unpublished and uncommitted, in one review"
 Disposition: no user cost "sees the story's own changes, published, unpublished and uncommitted, in one review": trunk holding the same files as at the mark brought nothing into the changes since the review, so the heading has nothing to explain
+
+### G9. Mark reviewed beside the older-Git explanation untested
+Reported: slice 4 — "Mark reviewed on a kept snapshot is not exercised."
+Story clause: "Mark reviewed act on this comparison as they do today"
+Disposition: no user cost "sees the story's own changes, published, unpublished and uncommitted, in one review": a snapshot whose published commits stayed in trunk has a commit baseline, so marking it is the path `dashboard/tests/story-review-mark.spec.ts` observes for any worktree; the status region only keeps its explanation beside "Marked reviewed."
 
 ## Ordered slices
 
@@ -335,7 +340,19 @@ Safe stopping point: the story's outcome is delivered for current Git.
 
 ### 4. An older Git keeps the published commits in and says why
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- dashboard/tests/story-review-trunk-own-older-git.spec.ts`
+(two tests); the story-review suite and `recently-done-one-shot-review.spec.ts`;
+`npm run typecheck:dashboard`; `npm run lint`.
+Learnings: the explanation is in the review's status region
+(`StoryReviewFeedback.tsx`) for as long as the snapshot is shown, after any
+"Review refreshed" line; the uncomparable mark's own explanation is beside
+Mark reviewed in `StoryReviewMark.tsx`, not in that region. Any failed
+restatement answers `kept: "not-restated"`; a Git failure outside restating
+still answers that the workspace's changes could not be read. A mark taken on
+a tree baseline and later read by a Git that cannot restate is the existing
+uncomparable mark. The `olderGit` fixture switches capability within a test
+through `gitRestates`.
 Proof: New case on the `olderGit` fixture; the story-review spec suite;
 typecheck and lint.
 

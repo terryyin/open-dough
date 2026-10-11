@@ -25,6 +25,7 @@ import {
   agentProfileDirectory,
   parseAgentProfileFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { TakenStoryReview } from "../src/storyReview.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { restatedPoint } from "./storyReviewComparison.ts";
 
@@ -186,6 +187,21 @@ export async function publishedStoryCommits(
 export interface TrunkLess {
   readonly tree: string;
   readonly inseparable: ReadonlyMap<string, string>;
+}
+
+// What a snapshot answers of the published commits: taken out of `trunk`,
+// kept in it when this machine's Git could not take them out, or nothing
+// when the story has none.
+export function publishedAnswer(
+  published: readonly PublishedCommit[],
+  trunk: string,
+  less: TrunkLess | undefined,
+): Pick<TakenStoryReview, "published"> {
+  if (published.length === 0) return {};
+  const taken = { trunk, commits: published.length };
+  return {
+    published: less === undefined ? { ...taken, kept: "not-restated" } : taken,
+  };
 }
 
 // The tree of `trunk` with the published commits, newest first, taken out;

@@ -25,7 +25,8 @@ export type FileBrowserPlace = {
 // shortened. Activating the line shows every value in full, and activating
 // it again returns to the one line. Its name reads every value in full in
 // either state. A baseline with the story's published commits taken out
-// names the trunk revision they were taken out of and how many.
+// names the trunk revision they were taken out of and how many; one this
+// machine's Git kept them in reads as any baseline.
 export function ContextLine({
   snapshot,
   browser,
@@ -36,7 +37,9 @@ export function ContextLine({
   readonly onShowBrowser: (shown: boolean) => void;
 }) {
   const [full, setFull] = useState(false);
-  const { branch, published, workspace } = snapshot;
+  const { branch, workspace } = snapshot;
+  const published =
+    snapshot.published?.kept === undefined ? snapshot.published : undefined;
   const baseline = baselineRevision(snapshot);
   const trunk = <code>{reviewTargetName(snapshot)}</code>;
   const noun = published?.commits === 1 ? "commit" : "commits";

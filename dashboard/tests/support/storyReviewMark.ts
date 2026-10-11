@@ -58,6 +58,17 @@ export async function openReview(page: Page, card: Locator) {
   return snapshot;
 }
 
+// Refreshes the review and answers the snapshot it then shows.
+export async function refreshReview(review: Locator) {
+  const refreshed = nextSnapshot(review.page());
+  await review.getByRole("button", { name: "Refresh" }).click();
+  return refreshed;
+}
+
+// The paths of a comparison's changed files, as listed.
+export const changedPaths = (files: TakenStoryReview["files"] | undefined) =>
+  files?.map(({ path: file }) => file);
+
 // Closes the review and opens it again from the card, answering the fresh
 // snapshot it shows.
 export async function reopenReview(page: Page, card: Locator) {

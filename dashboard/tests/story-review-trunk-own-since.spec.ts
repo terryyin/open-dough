@@ -10,19 +10,19 @@
 // tree baseline.
 
 import type { Locator, Page } from "@playwright/test";
-import type { TakenStoryReview } from "../src/storyReview.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
+  changedPaths,
   comparison,
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
-  nextSnapshot,
   openReview,
+  refreshReview,
   reviewedRefs,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
@@ -35,9 +35,6 @@ import {
 import { git } from "./support/storyReviewWorktree.ts";
 
 const integrated = "Trunk was integrated since the mark";
-
-const paths = (files: TakenStoryReview["files"] | undefined) =>
-  files?.map(({ path: file }) => file);
 
 // Story A in Trunk Mode with as many story commits published as said and one
 // unpublished, its review opened from its Taken card and marked reviewed.
@@ -56,12 +53,6 @@ async function markedStory(
   const review = reviewRegion(page);
   await markReviewed(review);
   return { workspace, trunk, shown, review };
-}
-
-async function refresh(review: Locator) {
-  const refreshed = nextSnapshot(review.page());
-  await review.getByRole("button", { name: "Refresh" }).click();
-  return refreshed;
 }
 
 // The changes since the review list the later story commit's file alone.
@@ -104,14 +95,14 @@ test("a Trunk Mode story's mark is kept with its baseline tree, and a story comm
   });
 
   const later = publishLater(origin.project, workspace, true);
-  const since = await refresh(review);
+  const since = await refreshReview(review);
 
   await test.step("since the review lists the later story commit's file and not trunk's", async () => {
     expect(since.published).toEqual({ trunk: later, commits: 3 });
     expect(since.baseline).not.toBe(shown.baseline);
     expect(since.markUncomparable).toBeUndefined();
     // Not `src/f.ts`, which another developer published.
-    expect(paths(since.since?.files)).toEqual(["src/e.ts"]);
+    expect(changedPaths(since.since?.files)).toEqual(["src/e.ts"]);
     await expectSinceTheReview(review, mark);
     await expect(review.locator(".story-review-since")).toContainText(
       integrated,
@@ -120,7 +111,7 @@ test("a Trunk Mode story's mark is kept with its baseline tree, and a story comm
   });
 
   await test.step("all changes lists the story's published, unpublished and uncommitted files", async () => {
-    expect(paths(since.files)).toEqual([
+    expect(changedPaths(since.files)).toEqual([
       "d.md",
       "notes.md",
       "src/a.ts",
@@ -140,9 +131,9 @@ test("a Trunk Mode story's mark is kept with its baseline tree, and a story comm
   await test.step("after Git's housekeeping, Refresh still compares with the mark", async () => {
     git(origin.project, "gc", "--quiet", "--prune=now");
     expect(git(origin.project, "cat-file", "-t", shown.baseline)).toBe("tree");
-    const kept = await refresh(review);
+    const kept = await refreshReview(review);
     expect(kept.markUncomparable).toBeUndefined();
-    expect(paths(kept.since?.files)).toEqual(["src/e.ts"]);
+    expect(changedPaths(kept.since?.files)).toEqual(["src/e.ts"]);
     await comparison(review)
       .getByRole("radio", { name: "Since the review" })
       .check();
@@ -164,12 +155,12 @@ test("a story commit published after the mark with nothing else on trunk is list
   );
 
   const later = publishLater(origin.project, workspace, false);
-  const since = await refresh(review);
+  const since = await refreshReview(review);
 
   expect(since.published).toEqual({ trunk: later, commits: 3 });
   // Trunk less the story's commits is the tree it was.
   expect(since.baseline).toBe(shown.baseline);
-  expect(paths(since.since?.files)).toEqual(["src/e.ts"]);
+  expect(changedPaths(since.since?.files)).toEqual(["src/e.ts"]);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expectLaterStoryFileAlone(review);
   await expect(review.locator(".story-review-since")).not.toContainText(
@@ -193,12 +184,12 @@ for (const trunkToo of [false, true]) {
     expect(shown.baseline).toBe(trunk);
 
     const later = publishLater(origin.project, workspace, trunkToo);
-    const since = await refresh(review);
+    const since = await refreshReview(review);
 
     expect(since.published).toEqual({ trunk: later, commits: 1 });
     expect(git(workspace, "cat-file", "-t", since.baseline)).toBe("tree");
     expect(since.markUncomparable).toBeUndefined();
-    expect(paths(since.since?.files)).toEqual(["src/e.ts"]);
+    expect(changedPaths(since.since?.files)).toEqual(["src/e.ts"]);
     await expectSinceTheReview(review, keptStoryAMark(dashboard));
     await expectLaterStoryFileAlone(review);
     // The story's own publication alone is not trunk integrated.

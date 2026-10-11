@@ -168,11 +168,13 @@ export const storyReviewSchema = z
       baseline: objectIdSchema,
       // A Trunk Mode story's commits its agent already published on trunk,
       // taken out of `baseline`: the trunk revision they were taken out of,
-      // the merge-base, and how many.
+      // the merge-base, and how many. With `kept`, this machine's Git could
+      // not take them out, so `baseline` is that revision still holding them.
       published: z
         .object({
           trunk: objectIdSchema,
           commits: z.number().int().positive(),
+          kept: z.literal("not-restated").optional(),
         })
         .optional(),
       head: objectIdSchema,

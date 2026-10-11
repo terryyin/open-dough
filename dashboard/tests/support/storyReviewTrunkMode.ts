@@ -1,6 +1,7 @@
 // Story A held in Trunk Mode for its review
 // (../story-review-trunk-own-changes.spec.ts,
 // ../story-review-trunk-own-flagged.spec.ts,
+// ../story-review-trunk-own-older-git.spec.ts,
 // ../story-review-trunk-own-since.spec.ts), off a real bare origin
 // (./startOrigin.ts): the roster agent Yui-chan's claim on trunk moves Story
 // A to Taken, and her worktree authors its commits as her through its own

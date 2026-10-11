@@ -33,6 +33,7 @@ import { landedStoryReview } from "./storyReviewLanded.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import {
+  publishedAnswer,
   publishedStoryCommits,
   trunkLess,
   type ReviewedStory,
@@ -159,10 +160,12 @@ async function storyReviewSnapshot(
     const head = await git(["rev-parse", "--verify", "HEAD"]);
     const trunk = await git(["merge-base", "HEAD", `${remote}/${target}`]);
     // Trunk less the story's published commits, when it has some and this
-    // machine's Git can take them out.
-    const taken = await publishedStoryCommits(story, trunk, call);
+    // machine's Git can take them out; else they stay in the baseline.
+    const published = await publishedStoryCommits(story, trunk, call);
     const less =
-      taken.length === 0 ? undefined : await trunkLess(taken, trunk, call);
+      published.length === 0
+        ? undefined
+        : await trunkLess(published, trunk, call);
     const baseline = less?.tree ?? trunk;
     // The files from the baseline; one Git cannot separate from trunk's
     // changes is listed from where the story first changed it.
@@ -207,9 +210,7 @@ async function storyReviewSnapshot(
       remote,
       target,
       baseline,
-      ...(less === undefined
-        ? {}
-        : { published: { trunk, commits: taken.length } }),
+      ...publishedAnswer(published, trunk, less),
       head,
       tree,
       files,
