@@ -16,7 +16,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options ([plan](slice-plans/298-unattached-session-options/PLAN.md))
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring ([plan](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md))
+- [Finish retires the worktree only by a decided rule when CI gave no verdict](seeds/SEED-121-execution-observer-ownership.md#finish-retirement-without-verdict) — SEED-121#finish-retirement-without-verdict ([plan](slice-plans/299-finish-retirement-success-verdict/PLAN.md))
 
 ## Backlog list
 
-- [Finish retires the worktree only by a decided rule when CI gave no verdict](seeds/SEED-121-execution-observer-ownership.md#finish-retirement-without-verdict) — SEED-121#finish-retirement-without-verdict
