@@ -56,7 +56,8 @@ export function withoutSessionFormatter(
 
 // Puts a recorder in front of the project's installed start, published, and
 // answers the invocations recorded so far: the arguments and the folder each
-// ran in. The real start still runs, with the same arguments and result.
+// ran in. The real start still runs, with the same arguments and result,
+// unless a hold (./keptSessionStart.ts) keeps it from beginning or from answering.
 export function recordStarts(origin: StartOrigin, host: Host = "claude") {
   const scripts = installedScripts(origin, host);
   const log = path.join(origin.machine, "start-calls.jsonl");
@@ -66,10 +67,21 @@ export function recordStarts(origin: StartOrigin, host: Host = "claude") {
     path.join(scripts, "execution-start.mjs"),
     [
       'import { spawnSync } from "node:child_process";',
-      'import { appendFileSync } from "node:fs";',
+      'import { appendFileSync, existsSync, writeFileSync } from "node:fs";',
       "const argv = process.argv.slice(2);",
       `appendFileSync(${JSON.stringify(log)}, JSON.stringify({ argv, cwd: process.cwd() }) + "\\n");`,
-      `const run = spawnSync(process.execPath, [${JSON.stringify(real)}, ...argv], { stdio: "inherit" });`,
+      "const held = (when) => {",
+      `  const hold = ${JSON.stringify(path.join(origin.machine, "start-hold-"))} + when;`,
+      "  if (!existsSync(hold)) return;",
+      '  writeFileSync(hold + "-reached", "");',
+      "  const wait = new Int32Array(new SharedArrayBuffer(4));",
+      "  // Bounded, so a failed case's server can still close.",
+      "  for (let waited = 0; existsSync(hold) && waited < 600; waited += 1) Atomics.wait(wait, 0, 0, 50);",
+      "};",
+      'held("before");',
+      `const run = spawnSync(process.execPath, [${JSON.stringify(real)}, ...argv], { stdio: ["ignore", "pipe", "inherit"] });`,
+      'held("after");',
+      "process.stdout.write(run.stdout);",
       "process.exitCode = run.status ?? 1;",
       "",
     ].join("\n"),

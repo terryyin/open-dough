@@ -230,8 +230,16 @@ Safe stopping point: all four workspace and landing combinations launch.
 
 ### 4. A stopped or expired unattached start keeps its worktree for Continue
 Type: Behavior
-Status: planned
+Status: done
 Proof: the recovery spec in the proof table.
+Accepted proof: `agent-launch-start-session-recovery.spec.ts` (expiry, Continue
+in the kept worktree, a start lost with its server before and after its
+workspace existed) and `-kept.spec.ts` (a refused start, Default main, an
+unconfirmed Codex first input); the stops spec's uncertain words;
+`agent-terminal-cursor-launch-page.spec.ts`, “a session started before the
+page first read the machine's sessions still opens its terminal”; the
+`agent-launch*`, `one-shot-*`, sidebar and start-store suites. The kept start
+is `session-starts.json`, keyed by project and attempt.
 
 Behavior: an Isolated workspace start whose script wait expires
 (`DOUGH_START_TIMEOUT_MS`) → “Startup needs reconciliation” beside Start
@@ -324,11 +332,12 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
   refuses ad hoc launches, so an unattached launch sends no
   `--landing-context` (obligation G5). The decision is what identifies an
   unattached launch's landing; it needs its own slice before slices 5 and 6.
-- Until slice 4, an expired isolated start keeps nothing: its uncertain words
-  end “Starting again creates another workspace; that one stays until it is
-  removed.” (`unattachedStartWords.uncertain`, pinned in
-  `agent-launch-start-session-stops.spec.ts`). Slice 4 replaces the sentence
-  and that assertion.
+- Pending with the developer: `sameLaunch` identifies an ad hoc launch by
+  project, host and instruction, so a blank Start session whose first input is
+  unconfirmed is resumed by the next blank Start session on that host, in its
+  own workspace, whatever the new choices (obligation G8). The decision is
+  whether an unattached launch's identity includes its policy, or the dialog
+  shows the conversation Start will resume.
 - `established-session.mjs` is declared in `install.sh` `managed_files`; until
   a release installs it here, this repository's own dashboard refuses a
   non-default Start session choice.
@@ -368,7 +377,12 @@ Disposition: proved by slice 3: `dashboard/tests/agent-launch-start-session-isol
 ### G7. Continue after an expired isolated start creates a second worktree
 Reported: slice 3 — "Continue on that attempt is accepted and reruns the start with a fresh slug."
 Story clause: "creates no second worktree"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/tests/agent-launch-start-session-recovery.spec.ts`, "an Isolated workspace start that outlasts its wait names its worktree and branch, and Continue resumes it there without a second workspace"
+
+### G8. A pending blank Start session is resumed by the next blank one, whatever its choices
+Reported: slice 4 — "A pending blank non-default conversation is therefore recovered by the next blank Start session on that host, whatever its Workspace / After checks choice, in the pending conversation's own workspace."
+Story clause: "The native session opens in that worktree."
+Disposition: interim until slices 6
 
 ## Learnings
 
@@ -402,3 +416,16 @@ Disposition: receiving slice 4
   ships `execution-start.mjs`, `session-policy.mjs` and
   `established-session.mjs`; the real-start origin fixture does, the
   launch-journey fixture does not.
+- The installed start reuses an existing one-shot workspace only under the path
+  Git names its top level by: a symlinked path answers `setup-failed`,
+  `not-the-workspace-toplevel` (`workspace-publication-select.mjs` compares
+  `git rev-parse --show-toplevel` with the request verbatim near line 126 and
+  uses `realpathSync` near line 225). Slice 5's start-behavior test uses real
+  paths or fixes that comparison.
+- A reused workspace holding the session's own commits is refused with
+  `unpublished-commits`, beside `pending-edit`; slice 5's reference names both.
+- Start session captured the page's host operations when Start was pressed, so
+  a Cursor session started before the first sessions read never opened its
+  terminal; `presentTerminal` (`dashboard/src/pageSidePanel.ts`) now reads them
+  when it runs. This was the intermittent failure of the Cursor start specs
+  under load.

@@ -156,9 +156,35 @@ no card. Its `prepared` receipt becomes the launch record's
 `landing`, `startingRevision`, and `fetched` for Default main), which the
 installed formatter writes as the first input's “Established session” block
 before the reporting context and the text, and which supplies the Sessions
-sidebar's and the terminal's saved workspace as a one-shot start does. An
-isolated start whose wait expires is not kept: its answer names the workspace
-that start goes on in and says that starting again creates another.
+sidebar's and the terminal's saved workspace as a one-shot start does.
+
+A session has no story, so its start is kept by its launch attempt:
+`session-starts.json` beside the workflows' start stores holds, per project
+and attempt, the host, workspace, branch and time, written before the script
+runs (`server/sessionStartStore.ts`). The script is never aborted by its wait.
+Expiry answers uncertain: “The session's start did not finish within the wait;
+it publishes nothing. The start was kept and goes on in workspace … on branch
+…, where it can be resumed.”, for Default main as for an isolated workspace.
+When the script ends, its established session is kept with the start; a
+script that stopped left nothing to resume and removes it. Continuing that
+attempt from Startup recovery goes on in the kept workspace on the kept branch
+and selects no other: with an established session kept, the session opens
+there with that block and the script does not run again; with none kept (the
+server ended before the script answered), the same start runs again for that
+workspace and branch, which makes it or takes a clean existing one as it is
+(`prepared`, `created: false`). The installed start takes an existing
+workspace only under the path Git names its top level by, so a kept workspace
+is handed to it as its real path. While the earlier script still runs in this
+server, the continuation is answered “This session's earlier start is still
+running on this machine, so it was not continued.” and the attempt stays as it
+was. An isolated continuation is not asked about default main's changes; a
+Default main one is, and changes it did not confirm stop it as they stop a
+story's Default main continuation. The kept start is removed once its attempt
+settles as anything but uncertain: its session started, or it failed and
+nothing of it continues. A start refused before any workspace existed keeps
+nothing, and a later Start session chooses its workspace afresh. A
+conversation whose first input is unconfirmed is recovered by the same
+continuation with no start run.
 
 ### Existing changes in default main
 

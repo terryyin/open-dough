@@ -183,7 +183,12 @@ session too: it says what is known and what to check, and leaves the action to
 the control beside it, so an unresolved attempt's answer never directs to Start.
 Restart, reload, project switch and a second page recover from that file; a
 removed story keeps its recovery there. An ad hoc start shows its progress
-beside Start session and its recovery in the same region, never a card.
+beside Start session and its recovery in the same region, never a card. A
+Start session whose start outlasted its wait says there, and beside Start
+session, the workspace and branch that kept start goes on in and that it
+publishes nothing; Continue resumes that workspace and branch under the
+[session's kept start](LAUNCH-START.md#start-session), never a second
+workspace.
 
 Where Continue is eligible, story and ad hoc recovery use their host description's
 optional native-check advice. Claude Code says “Check `claude agents` before

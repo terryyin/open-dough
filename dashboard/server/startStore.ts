@@ -29,10 +29,13 @@ import {
   launchSettingSchema,
 } from "../src/launchHostOptions.ts";
 import {
-  readMachineJson,
-  replaceMachineJson,
-  type MachineJsonStore,
-} from "./machineJsonStore.ts";
+  changeKept,
+  keepIn,
+  keptIn,
+  removeKept,
+  type ProjectStarts,
+} from "./keptStarts.ts";
+import { readMachineJson, type MachineJsonStore } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 
 export const startRecordSchema = z.object({
@@ -65,8 +68,6 @@ const storeSchema = z.record(
   z.record(z.string(), startRecordSchema),
 );
 
-type StoredStarts = z.infer<typeof storeSchema>;
-
 // The workflows whose Start is kept here, and the default of every function
 // below: the one workflow whose file existed first.
 export type StartsWorkflow = Extract<
@@ -74,7 +75,9 @@ export type StartsWorkflow = Extract<
   "execution" | "refinement"
 >;
 
-function startStore(workflow: StartsWorkflow): MachineJsonStore<StoredStarts> {
+function startStore(
+  workflow: StartsWorkflow,
+): MachineJsonStore<ProjectStarts<StartRecord>> {
   return {
     file: machineDashboardPath(`${workflow}-starts.json`),
     schema: storeSchema,
@@ -84,16 +87,12 @@ function startStore(workflow: StartsWorkflow): MachineJsonStore<StoredStarts> {
 
 // The kept start of one story, or undefined when none is kept (or the file is
 // unreadable, which the next write moves aside).
-export async function keptStart(
+export const keptStart = (
   sourceId: string,
   identity: string,
   workflow: StartsWorkflow = "execution",
-): Promise<StartRecord | undefined> {
-  const read = await readMachineJson(startStore(workflow));
-  return read.kind === "document"
-    ? read.document[sourceId]?.[identity]
-    : undefined;
-}
+): Promise<StartRecord | undefined> =>
+  keptIn(startStore(workflow), sourceId, identity);
 
 // Every project's kept starts, by project id.
 export async function keptStartsByProject(
@@ -111,59 +110,35 @@ export async function keptStartsByProject(
 }
 
 // Writes a start ahead of its script, replacing any kept start of the story.
-export async function keepStart(
+export const keepStart = (
   sourceId: string,
   record: Omit<StartRecord, "host"> & { readonly host?: StartRecord["host"] },
   workflow: StartsWorkflow = "execution",
-): Promise<void> {
-  await replaceMachineJson(startStore(workflow), (stored) => ({
-    ...stored,
-    [sourceId]: {
-      ...stored[sourceId],
-      [record.identity]: { ...record, host: record.host ?? "claude" },
-    },
-  }));
-}
+): Promise<void> =>
+  keepIn(startStore(workflow), sourceId, record.identity, {
+    ...record,
+    host: record.host ?? "claude",
+  });
 
 // Merges what the script reported into the story's kept start; nothing when
 // none is kept any more.
-export async function updateStart(
+export const updateStart = (
   sourceId: string,
   identity: string,
   change: Partial<StartRecord>,
   workflow: StartsWorkflow = "execution",
-): Promise<void> {
-  await replaceMachineJson(startStore(workflow), (stored) => {
-    const kept = stored[sourceId]?.[identity];
-    return kept === undefined
-      ? stored
-      : {
-          ...stored,
-          [sourceId]: {
-            ...stored[sourceId],
-            [identity]: { ...kept, ...change },
-          },
-        };
-  });
-}
+): Promise<void> =>
+  changeKept(startStore(workflow), sourceId, identity, (kept) => ({
+    ...kept,
+    ...change,
+  }));
 
 // Removes the story's kept start, leaving the project's others.
-export async function removeStart(
+export const removeStart = (
   sourceId: string,
   identity: string,
   workflow: StartsWorkflow = "execution",
-): Promise<void> {
-  await replaceMachineJson(startStore(workflow), (stored) => {
-    const starts = stored[sourceId];
-    if (starts === undefined || !(identity in starts)) {
-      return stored;
-    }
-    const remaining = Object.fromEntries(
-      Object.entries(starts).filter(([kept]) => kept !== identity),
-    );
-    return { ...stored, [sourceId]: remaining };
-  });
-}
+): Promise<void> => removeKept(startStore(workflow), sourceId, identity);
 
 // Removes the story's kept start whose established facts the launched
 // session's record holds: once its session is recorded, the start is spent.

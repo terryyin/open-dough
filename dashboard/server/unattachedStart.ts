@@ -5,9 +5,12 @@
 // `.worktrees/` that the start creates. The dashboard owns the arguments and
 // reads the receipt; the installed formatter spells the "Established session"
 // block handed to the session. A launch that establishes no session
-// (`establishesSession`) runs nothing here.
+// (`establishesSession`) runs nothing here. The start is kept with its launch
+// attempt (`./sessionStartStore.ts`) before its script runs, so continuing
+// that attempt goes on in the same workspace on the same branch: from the
+// session its script established, without running it again, or by running it
+// again for that workspace when no result was kept.
 
-import { unattachedStartPolicy } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
   establishesSession,
   unattachedPolicyOf,
@@ -15,23 +18,26 @@ import {
   type EstablishedSession,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  executePlanScript,
-  runStartScript,
-  shipsStartScript,
-} from "./executionStart.ts";
+import { executePlanScript, shipsStartScript } from "./executionStart.ts";
 import { adHocLabelText } from "./hostLaunch.ts";
 import type { Started } from "./launchStart.ts";
-import { launchWorkspace, type WorkspaceChoice } from "./launchWorkspace.ts";
+import {
+  launchWorkspace,
+  startWorkspaceFolder,
+  type WorkspaceChoice,
+} from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { installedExports, isFile } from "./startLaunch.ts";
-import { policyArguments, shipsSessionPolicy } from "./startPolicy.ts";
+import { shipsSessionPolicy } from "./startPolicy.ts";
 import { takenSlugs } from "./startGit.ts";
+import { keptSessionStart } from "./sessionStartStore.ts";
 import { refusal } from "./startResult.ts";
+import {
+  scriptSession,
+  type UnattachedRequest,
+} from "./unattachedStartScript.ts";
 import { withinStartWait } from "./startWait.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
-
-type UnattachedRequest = Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>;
 
 const formatterScript = "established-session.mjs";
 
@@ -96,76 +102,62 @@ async function sessionWorkspace(
   );
 }
 
-// The start of an unattached launch, waiting for its script as a story's
-// start is waited for: none for a launch that establishes no session;
+// The start of an unattached launch's `attempt`, waiting for its script as a
+// story's start is waited for: none for a launch that establishes no session;
 // otherwise the session the installed start established, with its block, in
 // the project's default checkout on the trunk target or in the new workspace
-// its policy chose, where the native session then opens.
+// its policy chose, where the native session then opens. A start kept from
+// the attempt's earlier run goes on where it was: from its established
+// session as it is, else by its script run again there.
 export async function unattachedStarted(
   source: PublishedSource,
   request: UnattachedRequest,
   project: ProjectFolder,
+  attempt: string,
 ): Promise<Started> {
   if (!establishesSession(request)) return { kind: "none" };
-  const policy = unattachedPolicyOf(request);
   if (!(await establishesUnattached(project, request.host))) {
     return stopped(unattachedStartWords.notInstalled(project.shown));
   }
-  const isolated = policy.workspace === "isolated";
-  const chosen = isolated
-    ? await sessionWorkspace(project, request)
-    : { workspace: project, branch: source.ref };
-  const where = {
-    workspace: chosen.workspace.path,
-    branch: chosen.branch,
-    remote: "origin",
-    target: source.ref,
-  } as const;
-  const place = { workspace: chosen.workspace.shown, branch: where.branch };
-  const result = await withinStartWait(
-    runStartScript(
-      [
-        ...policyArguments(unattachedStartPolicy(policy), project),
-        "--workspace",
-        where.workspace,
-        "--branch",
-        where.branch,
-        "--mode",
-        "story-branch",
-        "--remote",
-        where.remote,
-        "--target",
-        where.target,
-        "--workspace-authorized",
-      ],
-      project,
-      request.host,
-    ),
-  );
+  const kept = await keptSessionStart(source.id, attempt);
+  const chosen: WorkspaceChoice =
+    kept !== undefined
+      ? {
+          workspace: startWorkspaceFolder(project, kept.workspace),
+          branch: kept.branch,
+        }
+      : unattachedPolicyOf(request).workspace === "isolated"
+        ? await sessionWorkspace(project, request)
+        : { workspace: project, branch: source.ref };
+  const place = { workspace: chosen.workspace.shown, branch: chosen.branch };
+  const result =
+    kept?.session ??
+    (await withinStartWait(
+      scriptSession(
+        source,
+        request,
+        project,
+        attempt,
+        chosen,
+        kept !== undefined,
+      ),
+    ));
   if (result === "expired") {
+    return stopped(unattachedStartWords.uncertain(place), "uncertain");
+  }
+  if ("kind" in result) {
     return stopped(
-      unattachedStartWords.uncertain(place, isolated),
-      "uncertain",
+      result.kind === "stopped"
+        ? refusal(result)
+        : unattachedStartWords.unreadable,
     );
   }
-  if (result.kind === "unreadable" || result.kind === "accepted") {
-    return stopped(unattachedStartWords.unreadable);
-  }
-  if (result.kind === "stopped") return stopped(refusal(result));
-  const session: EstablishedSession = {
-    ...where,
-    role: result.role ?? "isolated",
-    landing: policy.landing,
-    startingRevision: result.startingRevision,
-    ...(result.fetched === undefined ? {} : { fetched: result.fetched }),
-    ...(result.created === undefined ? {} : { created: result.created }),
-  };
   try {
     return {
       kind: "session",
       handoff: {
-        established: { establishedSession: session },
-        formatted: await formattedSession(project, session, request.host),
+        established: { establishedSession: result },
+        formatted: await formattedSession(project, result, request.host),
       },
       workspace: chosen.workspace,
     };

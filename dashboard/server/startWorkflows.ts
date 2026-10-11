@@ -37,17 +37,19 @@ import type { StartsWorkflow } from "./startStore.ts";
 // A story launch's established start or preparation.
 type StoryLaunch = EstablishedLaunch<Established>;
 
-// Where a running start is and the policy it runs with, for the words that
-// say what was kept.
-export type StartPlace = {
+// Where a start is, for the words that say so.
+type StartWhere = {
   readonly workspace: string;
   readonly branch: string;
-  readonly policy: SessionPolicy;
 };
+
+// Where a running story start is and the policy it runs with, for the words
+// that say what was kept.
+export type StartPlace = StartWhere & { readonly policy: SessionPolicy };
 
 // What every uncertain start says of itself: it was kept, where it goes on,
 // and that it can be resumed there.
-const keptGoingOn = ({ workspace, branch }: StartPlace) =>
+const keptGoingOn = ({ workspace, branch }: StartWhere) =>
   `The start was kept and goes on in workspace ${workspace} on branch ${branch}, where it can be resumed.`;
 
 // What a one-shot start of either workflow says in place of its workflow's
@@ -63,12 +65,10 @@ const oneShot = {
 
 // What an unattached session's start says (`./unattachedStart.ts`): it has
 // no story, so nothing is Taken or Preparing, and it publishes nothing.
-type UnattachedPlace = Pick<StartPlace, "workspace" | "branch">;
 export const unattachedStartWords = {
-  // A start in a new workspace is not kept: starting again makes another.
-  uncertain: ({ workspace, branch }: UnattachedPlace, isolated: boolean) =>
-    `The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ${workspace} on branch ${branch}.${isolated ? " Starting again creates another workspace; that one stays until it is removed." : ""}`,
-  formatFailed: ({ workspace, branch }: UnattachedPlace) =>
+  uncertain: (place: StartWhere) =>
+    `The session's start did not finish within the wait; it publishes nothing. ${keptGoingOn(place)}`,
+  formatFailed: ({ workspace, branch }: StartWhere) =>
     `The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
   unreadable:
     "The start command gave no result this dashboard could read. A session's start publishes nothing. Nothing was launched.",

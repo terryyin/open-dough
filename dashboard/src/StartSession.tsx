@@ -19,7 +19,7 @@
 // beside the button, which stays enabled to start again. Nothing here makes
 // a card or a story.
 
-import { embeddedTerminal, hostName } from "./sessionCapabilities.ts";
+import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useCallback, useId, useRef, useState } from "react";
 import {
@@ -85,7 +85,7 @@ export function StartSession({
     starting,
     useCallback(() => progress.current, []),
   );
-  const { presentTerminal, hostOperations } = usePageSessions();
+  const { presentTerminal } = usePageSessions();
   const [announcement, setAnnouncement] = useState("");
 
   return (
@@ -156,10 +156,7 @@ export function StartSession({
           }
           onStart={(choices) =>
             onStart(choices, (record) => {
-              if (
-                embeddedTerminal(hostOperations, record.session.host) &&
-                launcher.current !== null
-              )
+              if (launcher.current !== null)
                 presentTerminal({
                   record,
                   control: launcher.current,

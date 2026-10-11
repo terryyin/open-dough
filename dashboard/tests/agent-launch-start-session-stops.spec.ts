@@ -11,6 +11,7 @@ import { existsSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { installedSkillPath } from "../server/launchHosts.ts";
 import { accept, launch, recordsOf } from "./agentLaunchBoundary.ts";
+import { keptWords } from "./support/keptSessionStart.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
@@ -119,24 +120,22 @@ test("a start that answers nothing readable launches nothing and says it publish
 test.describe("a start that outlasts its wait", () => {
   test.use({ startTimeoutMs: 1 });
 
-  test("answers uncertain, naming where it goes on and that it publishes nothing", async ({
+  test("answers uncertain, naming where its kept start goes on and that it publishes nothing", async ({
     dashboard,
   }) => {
-    expect(await explanation(launch(dashboard, request))).toMatchObject({
-      kind: "uncertain",
-      reason: "timed-out",
-      explanation:
-        "The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ~/git/open-dough on branch main.",
-    });
-    // A new workspace's start is not kept, which the answer says.
-    expect(
-      await explanation(launch(dashboard, { ...request, policy: isolated })),
-    ).toMatchObject({
-      kind: "uncertain",
-      reason: "timed-out",
-      explanation:
-        "The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ~/git/open-dough/.worktrees/session on branch claude/session. Starting again creates another workspace; that one stays until it is removed.",
-    });
+    // In default main or a new workspace, the start is kept where it goes on
+    // (./agent-launch-start-session-recovery.spec.ts).
+    for (const [policy, workspace, branch] of [
+      [request.policy, "~/git/open-dough", "main"],
+      [isolated, "~/git/open-dough/.worktrees/session", "claude/session"],
+    ] as const)
+      expect(
+        await explanation(launch(dashboard, { ...request, policy })),
+      ).toMatchObject({
+        kind: "uncertain",
+        reason: "timed-out",
+        explanation: keptWords(workspace, branch),
+      });
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
     expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
   });

@@ -100,17 +100,19 @@ export async function unconfirmedStart(
     : undefined;
 }
 
-// The start a launch runs before its session, a story workflow's or an
-// unattached session's own, waiting for it only so long (`./startWait.ts`);
-// the script goes on running when the wait ends.
+// The start a launch's attempt (`attemptId`) runs before its session, a story
+// workflow's or an unattached session's own, kept by that attempt, waiting for
+// it only so long (`./startWait.ts`); the script goes on running when the
+// wait ends.
 export async function started(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
   progress: StartProgress,
+  attemptId: string,
 ): Promise<Started> {
   if (request.workflow === "ad-hoc") {
-    return unattachedStarted(source, request, folder);
+    return unattachedStarted(source, request, folder, attemptId);
   }
   const workflow = startOf(request.workflow);
   if (workflow === undefined) {
