@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Review only a Trunk Mode story's own changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-changes) — SEED-088#review-trunk-mode-story-changes ([plan](slice-plans/297-trunk-mode-own-changes-review/PLAN.md))
-- [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options ([plan](slice-plans/298-unattached-session-options/PLAN.md))
 
 ## Backlog list
 

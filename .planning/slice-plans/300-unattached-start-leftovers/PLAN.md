@@ -2,8 +2,11 @@
 
 **Identity:** SEED-066#unattached-start-leftovers
 **Source:** [correction story](../../seeds/SEED-066-composable-lightweight-session-options.md#unattached-start-leftovers),
-from the execution retrospective of SEED-066#unattached-session-options
-(commits `0601f38b`, `01743f09`, `b78790cd`, `4a9bd745`, `e5e26130`,
+from the execution retrospective of SEED-066#unattached-session-options (its
+story and plan are at `5a971a91`:
+`.planning/seeds/SEED-066-composable-lightweight-session-options.md` and
+`.planning/slice-plans/298-unattached-session-options/PLAN.md`;
+commits `0601f38b`, `01743f09`, `b78790cd`, `4a9bd745`, `e5e26130`,
 `eabbe51c`, `b1f662b7` on `claude/choose-workspace-and-automatic-landing-for-unatt`).
 Planning only; this plan grants no Take, execution, or publication.
 
