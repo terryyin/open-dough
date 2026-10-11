@@ -31,17 +31,32 @@ export const requestFor = (workflow: Workflow, policy?: SessionPolicy) => ({
   ...(policy === undefined ? {} : { policy }),
 });
 
+const previewOf = (origin: StartOrigin) => ({
+  mode: "preview" as const,
+  prebuilt: builtDashboardDir,
+  machine: origin.machine,
+  projectFolders: ["open-dough"],
+  launchTimeoutMs: 30_000,
+});
+
 // A preview dashboard on the origin's machine, reading its project folder.
 export function startPreview(
   origin: StartOrigin,
   codexProtocol?: FakeCodex,
 ): Promise<DashboardServer> {
   return startDashboardServer({
-    mode: "preview",
-    prebuilt: builtDashboardDir,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    launchTimeoutMs: 30_000,
+    ...previewOf(origin),
     ...(codexProtocol === undefined ? {} : { codexProtocol }),
+  });
+}
+
+// That dashboard again, on the address a closed one served.
+export function restartPreview(
+  origin: StartOrigin,
+  address: string,
+): Promise<DashboardServer> {
+  return startDashboardServer({
+    ...previewOf(origin),
+    port: Number(new URL(address).port),
   });
 }

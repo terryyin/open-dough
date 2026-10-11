@@ -882,6 +882,14 @@ path into that state: resolve a conflicted integration by hand and push it.
   - Evidence: plan 294 `## Story obligations` G1 ("Git and the merge adapter write the fetched trunk tip first") and G5 ("it runs the code it ran before this slice"), both `no user cost`; the independent outcome review's scratch repositories (a merge of trunk into the story branch answered `published` with the story on trunk's first-parent line; a rerun on a staged or identity-refused merge exited 2 and dropped `MERGE_HEAD`); plan 295 findings 2 and 3.
   - Observed effect: slice 1 was accepted and published with both states reachable from the two steps its own guidance gives; correction plan 295 carries them. In the same slice the coordinator did ask which guided paths lacked an observation for three other gaps (the adapter's `continue`, the `agent-commit.mjs` command, retention across runs) and returned them, and those now have tests.
   - Inference: the dispositions that held were the ones checked by running the path; G1 and G5 were reasoned from the code as read. Fourteen entries were written in this execution, twelve as `no user cost`, so the entry count itself may crowd out the check. Second sample.
+- Execution: `SEED-088#resolved-integration-survives-reruns` / plan 295 (spent plan recoverable at `1417faf986a208084aa0a774ed3dd27f917bbb05:.planning/slice-plans/295-resolved-integration-survives-reruns/PLAN.md`), first implementation `475f4a45`
+  - Timestamp: unknown (2026-10-11, slice 2 acceptance before `b3812abe` at 10:09 +09:00; found by the retrospective about 10:30 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `0bd3c557`; base 0.3.59
+  - Evidence: plan 295 `## Story obligations` G3 (`proved by slice 2`, resting on the one `mergeInProgress` check); slice 2's return listed a merge that is not this integration's as untested and named the rerun that sets its commit aside; the independent outcome review's scratch repository (detached on trunk, `MERGE_HEAD` naming an unrelated commit: `uncommitted-merge`, then after the guided commit the rerun answered `published` with another SHA and that commit on no ref).
+  - Observed effect: slice 2 was accepted and published with `preserve-published-history.md` saying "Commit that merge the same way, then run the same command" for a state where the rerun does not publish that commit. The command itself cannot produce that state, the earlier behavior lost more, and the review planned no correction.
+  - Inference: the return had already described the guided path's result, so the disposition needed only its sentence carried into the guidance or a `return`; it was closed on the code path instead. Third sample, the smallest in effect.
 
 ## DD-281 — A slice made hand-made work the publication candidate, and no one traced the paths that move the workspace off it
 

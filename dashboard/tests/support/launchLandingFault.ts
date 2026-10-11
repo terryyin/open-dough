@@ -1,6 +1,6 @@
 // An external Git fault seam for any launch's landing: a `git` first on PATH
-// that counts pushes, can lose one accepted push response, and can fail one
-// pin cleanup.
+// that counts pushes, can let another writer's trunk commit land ahead of one
+// push, can lose one accepted push response, and can fail one pin cleanup.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -11,6 +11,7 @@ export function landingGitFault(machine: string) {
   const bin = path.join(machine, "landing-git-bin");
   mkdirSync(bin);
   const pushes = path.join(machine, "landing-pushes");
+  const racingWriter = path.join(machine, "landing-racing-writer");
   const losePush = path.join(machine, "landing-lose-push");
   const failCleanup = path.join(machine, "landing-fail-cleanup");
   writeFileSync(
@@ -18,6 +19,11 @@ export function landingGitFault(machine: string) {
     `#!/bin/sh
 if [ "$1" = push ]; then
  printf 'push\\n' >> ${quote(pushes)}
+ if [ -f ${quote(racingWriter)} ]; then
+  writer=$(cat ${quote(racingWriter)})
+  rm ${quote(racingWriter)}
+  ${quote(actual)} -C "$writer" push --quiet origin HEAD:refs/heads/main || exit $?
+ fi
  if [ -f ${quote(losePush)} ]; then
   rm ${quote(losePush)}
   ${quote(actual)} "$@" || exit $?
@@ -36,6 +42,11 @@ exec ${quote(actual)} "$@"
   );
   return {
     env: { ...process.env, PATH: `${bin}:${process.env["PATH"] ?? ""}` },
+    // The next push is rejected: `writer`'s checked-out commit lands on trunk
+    // first.
+    raceNextPush: (writer: string) => {
+      writeFileSync(racingWriter, writer);
+    },
     losePush: () => {
       writeFileSync(losePush, "lose\n");
     },

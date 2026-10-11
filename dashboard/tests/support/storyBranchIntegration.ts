@@ -170,3 +170,35 @@ export async function claimedLaunchWithStoryCommit(
     },
   };
 }
+
+export const writeShared = (checkout: string, body: string) => {
+  writeFileSync(path.join(checkout, "shared.txt"), body);
+};
+
+// Story work that commits its own `shared.txt`.
+export const storyChangesShared = (checkout: string) => {
+  writeShared(checkout, "story\n");
+  git(checkout, "add", "shared.txt");
+  git(checkout, "commit", "-m", "Story shared.txt");
+};
+
+// A claimed launch whose story commit and trunk both change `shared.txt`, so
+// its integration stops on a conflict.
+export const conflictedLaunch = (
+  origin: StartOrigin,
+  server: DashboardServer,
+) =>
+  claimedLaunchWithStoryCommit(origin, server, true, {
+    storyWork: storyChangesShared,
+    trunkWork: (writer) => {
+      writeShared(writer, "trunk\n");
+    },
+  });
+
+// Resolves that conflict in the workspace and answers the committed merge.
+export const resolveMerge = (workspace: string) => {
+  writeShared(workspace, "story and trunk\n");
+  git(workspace, "add", "shared.txt");
+  git(workspace, "commit", "--no-edit");
+  return git(workspace, "rev-parse", "HEAD");
+};
