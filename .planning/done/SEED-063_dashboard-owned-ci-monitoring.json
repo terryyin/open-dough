@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-063#dashboard-owned-ci-monitoring",
+  "title": "Share one GitHub request admission owner across dashboard reads and CI observation",
+  "completedAt": "2026-10-11T13:11:10.459Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "claude"
+}

@@ -3,7 +3,8 @@
 **Identity:** SEED-063#background-ci-failure-delivery
 **Source:** [story](../../seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery).
 **Status:** awaiting story refinement — not ready for slice-plan refinement or execution.
-**Split:** 2026-10-11, from [plan 224](../224-dashboard-owned-ci-monitoring/PLAN.md),
+**Split:** 2026-10-11, from plan 224 (recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`),
 whose slices 2–6 delivered shared GitHub request admission. This plan keeps
 plan 224's former slice 1 and slices 7–15 as slices 1–10, as provisional
 planning input. Resuming requires `dough-story-refinement` to clarify the

@@ -3,7 +3,8 @@
 **Identity:** SEED-063#request-owner-says-why
 **Source:** [correction story](../../seeds/SEED-063-dashboard-owned-ci-monitoring.md#request-owner-says-why).
 **Prepared:** 2026-10-11 by the execution retrospective of
-SEED-063#dashboard-owned-ci-monitoring (plan 224). Planning only; not queued.
+SEED-063#dashboard-owned-ci-monitoring (plan 224, recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`).
 
 ## Provenance
 

@@ -969,7 +969,7 @@ the answer of a neighbouring case in the very spec file it extends.
 The changed runtime was reached by tests through their own `gh` stand-ins, which a search for the changed modules' names does not find.
 
 ### Occurrences
-- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224, first implementation `b5cb2f7b`
+- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224 (spent plan recoverable at `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`), first implementation `b5cb2f7b`
   - Timestamp: unknown (2026-10-11; CI runs 38112217052 and 38126614188)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -981,7 +981,7 @@ The changed runtime was reached by tests through their own `gh` stand-ins, which
 ## DD-286 — A slice added per-user machine state and no rule that tests keep out of it, so suites used the developer's real state until a directory listing showed it
 
 ### Occurrences
-- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224, first implementation `b5cb2f7b`
+- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224 (spent plan recoverable at `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`), first implementation `b5cb2f7b`
   - Timestamp: 2026-10-11T17:57:18+09:00 (the listing of `/tmp/dough-github-requests-501`)
   - Tool: Claude Code
   - Model: claude-opus-5-5

@@ -19,87 +19,6 @@ watchers and coordinate GitHub demand with dashboard reads.
 
 ## Story
 
-<a id="dashboard-owned-ci-monitoring"></a>
-
-### Share one GitHub request admission owner across dashboard reads and CI observation
-
-**Identity:** SEED-063#dashboard-owned-ci-monitoring
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1be086fb6920b2129f18df278ae0166134e6e235e4905d7f993e3f53c6dbb2f2","plan":"a01568f2f003170cd8b29334780b436fbee31e2785a003ecd7dad5fe5a50ad55"}}
-```
-**Slice plan:** [Shared GitHub request admission](../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md).
-
-**Human direction:** Terry's 2026-10-11 instruction requires shared GitHub
-throttling between background CI monitoring and dashboard reads. During
-execution he split the original story at this delivered boundary: this story
-is the request-admission part, and
-[background CI failure delivery](#background-ci-failure-delivery) keeps the
-rest. He confirmed the endpoint location and one owner per API host and login.
-
-**Goal:** Open Dough monitoring and dashboard reads share one GitHub
-request-admission owner on this machine. A rate limit met by any of them holds
-all of them, and a restart of the owner does not lift it.
-
-**Scope:**
-
-- **Shared GitHub demand.** Dashboard reads and product-controlled CI discovery,
-  run/attempt/job, applicability and failure-diagnostic requests pass through
-  one admission owner per allowance scope. Identical acquisitions may be shared
-  without sharing session ownership. Cooldown, concurrency and recovery are
-  shared across dashboard processes and standalone subscriptions. Scope is Open
-  Dough requests on this machine, not unrelated tools or other machines.
-- **Existing observer.** Reuse the installed non-AI observer and provider
-  classification. Each existing observer remains the single owner of its
-  monitoring. Throttling suspends acquisition visibly; it is neither CI
-  failure, success nor automatic loss of coverage.
-- **Diagnostics.** Agents read a failed attempt's jobs and bounded log excerpts
-  through one installed entry that uses the same owner.
-
-**Domain model:**
-
-| Concept | Meaning and ownership |
-| --- | --- |
-| GitHub request admission | Owner-held allowance scope by API host and effective authenticated login, with applicable resource limits, concurrency, cooldown and recovery. Acquisition sharing also respects authorization context and request identity. One owner process serves each scope; no credential crosses its local endpoint. |
-
-**Integrity constraints:**
-
-1. All in-scope Open Dough GitHub requests obey the same admission owner.
-   Cooldown refusal costs no upstream call. Restart cannot reset a hold or
-   create another owner or leave uncounted upstream children alive. Changed
-   authorization cannot reuse incompatible live acquisition answers; existing
-   user-owned private immutable-content retention is unchanged. CI
-   classification remains one implementation; `not_required` uses its actual
-   basis, and incomplete never means success.
-2. CI metadata is untrusted data and grants no extra authority. Missing
-   observation or delivery is visible, never success.
-
-**Key example:** Two dashboard processes and a CI observer use one GitHub
-allowance scope. Identical pending acquisition costs once. A rate-limit
-response holds every consumer; a newly started diagnostic read cannot bypass
-it. Killing the owner retains the hold; one recovery request starts after
-expiry. A second login keeps its own allowance.
-
-**Architecture:** Follow [North Star](../NORTH-STAR.md#one-owner-admits-reads-to-github).
-The request source lives once in the installed execute-plan scripts; the
-dashboard and the CI engine are its consumers. Accepted ADRs
-[0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-and [0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)
-constrain cohesion and standalone dependencies.
-
-**Deferred promises:** [Background CI failure delivery](#background-ci-failure-delivery)
-keeps everything else of the original outcome. It also proves what this
-story leaves open about the request owner:
-
-- Observation from a sandboxed host that cannot reach the owner's endpoint is proved there.
-- Mixed installed versions and an owner started before an update are proved there.
-- Login changes that rewrite no gh configuration are proved there.
-- An owner that has stopped but still accepts connections is replaced there.
-- The paid native fixtures' gh stand-ins are exercised there.
-
-**Delivery and acceptance:** Deterministic proofs cover request accounting
-across processes, login scope, and owner replacement. Paid native runs require
-explicit native-check authority and are outside this story and routine CI.
-
 <a id="background-ci-failure-delivery"></a>
 
 ### Monitor CI in the background and wake execution or wrap-up sessions only on failure
@@ -112,9 +31,11 @@ explicit native-check authority and are outside this story and routine CI.
 awaiting story refinement.
 
 **Split:** Terry's 2026-10-11 decision split the original story at its
-delivered boundary. [Shared GitHub request admission](#dashboard-owned-ci-monitoring)
-was delivered first; this story keeps the rest of the original outcome and its
-mapped slices. Its goal, scope and examples below are the original
+delivered boundary. Shared GitHub request admission was delivered first and
+is described in [GitHub requests](../../dashboard/GITHUB-REQUESTS.md); its
+closed story is recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
+This story keeps the rest of the original outcome and its mapped slices. Its goal, scope and examples below are the original
 refinement and need story refinement against that delivery before planning or
 execution resumes.
 
@@ -362,7 +283,9 @@ outside this planning request and routine CI.
 **Goal:** A developer or agent whose GitHub request never reached `gh`, or
 whose failed-job log could not be read, is told the actual cause instead of
 "gh failed" or an unbounded retry instruction. This bounded correction comes
-from the retrospective of [shared GitHub request admission](#dashboard-owned-ci-monitoring).
+from the retrospective of shared GitHub request admission, whose closed
+story is recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
 
 **Scope:** The request owner's unreachable-owner causes and the diagnostic
 entry's unavailable-log causes, with the guidance that names them; one shared
