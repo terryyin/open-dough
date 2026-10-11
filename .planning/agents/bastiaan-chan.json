@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-130#slow-startup-safe-recovery",
+  "mode": "story-branch",
+  "branch": "codex/slow-startup-continues-automatically-and-unsafe",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
