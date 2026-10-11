@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ziqing-chan",
-  "email": "ziqing-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-088#review-trunk-mode-story-changes",
-  "host": "claude",
-  "model": "fable"
-}
