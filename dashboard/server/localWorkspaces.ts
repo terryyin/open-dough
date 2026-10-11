@@ -1,14 +1,16 @@
 // The linked worktrees of each configured project's local checkout that hold
 // a story's claim on this machine, read from local Git alone: the checkout's
 // worktree list, each worktree's own author config
-// (`workspace-agent-authorship.mjs` writes it for an owned workspace), and the
-// profile its head commits for that agent beside the backlog. A worktree
-// whose author is a known agent and whose head's profile for that agent names
-// a story holds that story's claim, whether or not a dashboard launch started
-// it. The main worktree and a worktree without a branch are passed over. A
-// Git failure on one worktree passes that worktree over, and a failure
-// listing a project's worktrees leaves that project without any. Nothing is
-// kept between reads and nothing is published.
+// (`workspace-agent-authorship.mjs` writes it for an owned workspace), the
+// profile its head commits for that agent beside the backlog, and the
+// profile the project's trunk on `origin` publishes for that agent as last
+// fetched. A worktree whose author is a known agent and whose head's profile
+// for that agent names a story holds that story's claim while trunk's profile
+// for the agent names the same story, whether or not a dashboard launch
+// started it. The main worktree and a worktree without a branch are passed
+// over. A Git failure on one worktree passes that worktree over, and a
+// failure listing a project's worktrees leaves that project without any.
+// Nothing is fetched, nothing is kept between reads and nothing is published.
 
 import { realpath } from "node:fs/promises";
 import path from "node:path";
@@ -90,11 +92,22 @@ export async function localWorkspacesOf(
           if (name === undefined) return [];
           const { agent, path: profilePath } = agentIdentity(name);
           const fileName = path.posix.basename(profilePath);
-          const read = parseAgentProfileFile(
-            fileName,
-            await git(listedPath, "show", `HEAD:${profiles}/${fileName}`),
-          ) as { ok: boolean; profile?: { identity: string } };
-          if (!read.ok || read.profile === undefined) return [];
+          const profileAt = async (revision: string) => {
+            const read = parseAgentProfileFile(
+              fileName,
+              await git(
+                listedPath,
+                "show",
+                `${revision}:${profiles}/${fileName}`,
+              ),
+            ) as { ok: boolean; profile?: { identity: string } };
+            return read.ok ? read.profile : undefined;
+          };
+          const held = await profileAt("HEAD");
+          if (held === undefined) return [];
+          // Trunk publishes the agent for the story the head names.
+          const published = await profileAt(`origin/${source.ref}`);
+          if (published?.identity !== held.identity) return [];
           const relative = path.relative(resolved, listedPath);
           const workspace =
             relative.split(path.sep)[0] === ".." || path.isAbsolute(relative)
@@ -103,7 +116,7 @@ export async function localWorkspacesOf(
           return [
             {
               source: source.id,
-              identity: read.profile.identity,
+              identity: held.identity,
               agent,
               workspace: shownStartWorkspace(project, workspace),
               branch,

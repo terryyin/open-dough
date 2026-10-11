@@ -90,8 +90,21 @@ with Node 24.21.0; the scratch spec was removed afterwards.
 
 ### 1. The scan counts a worktree only while trunk publishes its agent for the story
 Type: Behavior
-Status: planned
-Proof: the new case and the suites in the proof table.
+Status: done
+Proof: the new case and the suites in the proof table. Accepted on
+2026-10-11: `npx playwright test --config dashboard/playwright.config.ts
+dashboard/tests/story-review*.spec.ts
+dashboard/tests/recently-done-one-shot-review.spec.ts
+dashboard/tests/agent-launch-start-refusal.spec.ts
+dashboard/tests/responsive-session-reconciliation-refusals.spec.ts` (104
+passed) and `npm run typecheck:dashboard`; the new case failed first with
+Akiho-chan's `earlier-agent` listed beside Yui-chan's `trunk-a` for Story A.
+
+Learnings: “Aki-chan” is no known agent name, so the case uses Akiho-chan.
+Plan 296's first case expected the sessions answer to list `closed-b` (the
+story's agent, its head naming Story B) for Story B; trunk publishes that
+agent for Story A, so under this rule it counts for no story and the case
+now expects `trunk-a` alone.
 
 Behavior: Yui-chan holds Story A by the real Trunk Mode start in
 `.worktrees/trunk-a`; the checkout also lists `.worktrees/earlier-agent`,
@@ -109,3 +122,15 @@ rule in the found-worktree paragraph. Remove
 reaches, with its wording in the doc if any.
 
 Safe stopping point: the correction's outcome is delivered.
+
+## Story obligations
+
+### G1. No case for an unparseable profile on trunk
+Reported: slice 1 — "No case covers a missing or unparseable profile on `origin/<ref>`."
+Story clause: "gets the review of the worktree of the agent that holds it now"
+Disposition: no user cost "gets the review of the worktree of the agent that holds it now": a missing profile on trunk is the new case's own path (trunk publishes no Akiho-chan profile, so the read fails and the worktree is passed over); an unparseable one takes the same pass-over branch and can only hide a worktree, never show a wrong one
+
+### G2. No dedicated Backlog-card case for an abandoned worktree
+Reported: slice 1 — "a Backlog card no longer offering an abandoned worktree's review before a second Take, has no dedicated case."
+Story clause: "The local worktree scan counts a worktree for a story only while"
+Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts`, first case — `closed-b` at Story B's unpublished claim is absent from the sessions answer's `workspaces`, the only source a card's found-worktree review reads

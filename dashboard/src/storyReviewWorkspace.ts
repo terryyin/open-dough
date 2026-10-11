@@ -73,7 +73,6 @@ export function reviewWorkspaceOf<
 export function severalWorktreesExplanation(
   found: readonly LocalWorkspace[],
 ): string {
-  const agents = [...new Set(found.map(({ agent }) => agent))];
   const shown = found.map(({ workspace }) => workspace).sort();
-  return `Several worktrees on this machine hold this story's claim for ${agents.join(", ")}: ${shown.join(", ")}. The review cannot choose one.`;
+  return `Several worktrees on this machine hold this story's claim for ${found[0]?.agent ?? ""}: ${shown.join(", ")}. The review cannot choose one.`;
 }
