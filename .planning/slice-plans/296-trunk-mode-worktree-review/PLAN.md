@@ -252,6 +252,12 @@ Slice 2 decisions: an `unavailable` review names its worktree only when it
 has one; the file, range and mark requests of an ambiguous story answer 409
 with the explanation; the explanation lists paths in path order.
 
+Slice 2 published as `bc36167e` on the remote execution branch. The
+retrospective found G9's disposition wrong: a story returned to the backlog
+and taken by another agent leaves two agents' worktrees naming it, and the
+rule does not apply the story's “names the card's agent”. Correction
+[plan 297](../297-found-worktree-matches-published-agent/PLAN.md) carries it.
+
 ## Story obligations
 
 ### G1. Several qualifying worktrees offer no review
@@ -298,3 +304,15 @@ Disposition: no user cost "can open the story review on that agent's worktree": 
 Reported: slice 2 — "If the ambiguous worktrees named different agents, `<agent>` becomes the distinct agents joined by \", \"."
 Story clause: "Two worktrees authored by Yui-chan both hold this story's claim"
 Disposition: no user cost "can open the story review on that agent's worktree": the story's ambiguity is one agent's worktrees; two agents' heads both committing a profile for one story is not a state the start leaves.
+
+## Execution complete
+
+Product advice: Queue the correction
+`SEED-088#found-worktree-matches-published-agent`
+([plan 297](../297-found-worktree-matches-published-agent/PLAN.md)) ahead of
+the sibling `SEED-088#review-trunk-mode-story-changes`, which reads the same
+resolved worktree. Until it lands, a story that changed agents on this machine
+can answer a two-agent ambiguity while the earlier worktree is still listed.
+Separately, the suite's total time ceiling (470) is within runner variance of
+trunk's largest share (457.1); recalibrating `tests/time-budget` is a
+reviewed edit for the developer.
