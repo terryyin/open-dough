@@ -51,8 +51,7 @@ const isDefault = (policy: SessionPolicy) =>
   sessionPolicyFlags(policy).length === 0;
 
 // An unattached request with its policy as the boundary keeps it (none for
-// the default policy), or the refusal: an isolated workspace, which Start
-// session does not establish yet, or a session to establish that the
+// the default policy), or the refusal: a session to establish that the
 // selected host's installation cannot.
 async function withUnattachedPolicy(
   request: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>,
@@ -60,12 +59,6 @@ async function withUnattachedPolicy(
 ): Promise<AgentLaunchRequest> {
   const { policy: asked, ...rest } = request;
   const policy = unattachedPolicyOf({ policy: asked });
-  if (policy.workspace === "isolated") {
-    throw new RefusedRequest(
-      400,
-      `${sessionChoiceWords.workspace.values.isolated} cannot be selected for a session without a story yet.`,
-    );
-  }
   if (
     establishesSession(request) &&
     !(await establishesUnattached(project, request.host))

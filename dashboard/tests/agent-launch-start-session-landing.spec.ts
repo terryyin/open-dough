@@ -1,6 +1,7 @@
 // The project row's Start session offers what follows the checks of what the
 // session later verifies (After checks), with the story dialogs' words and no
-// Tracking or Workspace choice. With a real bare origin
+// Tracking choice; where it runs (Workspace) is
+// ./agent-launch-start-session-isolated.spec.ts's. With a real bare origin
 // (./support/startOrigin.ts), the installed start recorded as it runs
 // (./support/startSessionLanding.ts), and the synthetic `claude`:
 // Automatically land runs the installed one-shot start with no identity in
@@ -16,6 +17,7 @@ import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { attempts, keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
+import { parts } from "./dashboardPage.ts";
 import { startSession, startSessionDialog } from "./launchCardPage.ts";
 import {
   dirty,
@@ -67,10 +69,11 @@ test("Automatically land with no text names the push beside Start, runs the inst
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
 
-  // The Session group offers After checks alone, from the default.
+  // The Session group offers After checks from the default, with no
+  // Tracking; Workspace stays Default main.
   await expect(dialog.getByRole("group", { name: "Session" })).toBeVisible();
-  for (const absent of ["Tracking", "Workspace"])
-    await expect(dialog.getByRole("group", { name: absent })).toHaveCount(0);
+  await expect(dialog.getByRole("group", { name: "Tracking" })).toHaveCount(0);
+  await expect(radio(dialog, "Workspace", "Default main")).toBeChecked();
   await expect(
     dialog.getByRole("group", { name: "After checks" }).getByRole("radio"),
   ).toHaveCount(2);
@@ -120,6 +123,10 @@ test("Automatically land with no text names the push beside Start, runs the inst
   expect(record.establishedSession).toEqual(session);
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
+  // The session's entry names the default checkout it was established in.
+  await expect(parts(page).taken.locator(".session-entry")).toContainText(
+    "Workspace ~/git/open-dough (default main)",
+  );
   for (const kept of [record, ...(await attempts(dashboard))])
     expect(JSON.stringify(kept)).not.toContain("existingChanges");
 

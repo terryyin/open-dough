@@ -165,9 +165,14 @@ export function recordedWorkspace(record: LaunchRecord): string | undefined {
   if (record.session.host === "codex")
     return record.session.continuation?.workspace;
   if (record.session.host === "claude")
-    return (record.start ?? record.preparation)?.workspace;
+    return establishedPlace(record)?.workspace;
   return undefined;
 }
+
+// Where a launch's start established its session to work, a story's or an
+// unattached session's, if its start did.
+export const establishedPlace = (record: LaunchRecord) =>
+  record.start ?? record.preparation ?? record.establishedSession;
 
 // Current native availability and activity, normalized by the host. A retained
 // conversation can be continued even when unloaded. Unknown observation is

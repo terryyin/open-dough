@@ -70,14 +70,21 @@ function launchTime(at: Date): string {
   return `${String(at.getDate())} ${months[at.getMonth()] ?? ""}, ${clock}`;
 }
 
-// An ad hoc session's label: the developer's text with whitespace runs
-// collapsed, cut at `labelLimit` characters with an ellipsis; the time the
-// launch began when the text is blank or holds a control character.
-function adHocLabel(instruction: string | undefined, began: Date): string {
+// The text an ad hoc session is labeled with: the developer's, with
+// whitespace runs collapsed; none when it is blank or holds a control
+// character, so the label is a time.
+export function adHocLabelText(
+  instruction: string | undefined,
+): string | undefined {
   const text = (instruction ?? "").replace(/\s+/g, " ").trim();
-  if (text === "" || /\p{Cc}/u.test(text)) {
-    return launchTime(began);
-  }
+  return text === "" || /\p{Cc}/u.test(text) ? undefined : text;
+}
+
+// An ad hoc session's label: its text, cut at `labelLimit` characters with
+// an ellipsis; the time the launch began when it has none.
+function adHocLabel(instruction: string | undefined, began: Date): string {
+  const text = adHocLabelText(instruction);
+  if (text === undefined) return launchTime(began);
   const characters = Array.from(
     new Intl.Segmenter().segment(text),
     ({ segment }) => segment,

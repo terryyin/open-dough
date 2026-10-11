@@ -6,23 +6,21 @@
 // isolated workspace that waits for review. One-shot is offered only when the
 // selected host's installed skills take the policy at their start; a kept
 // start shows the policy it was started with instead of choices. A session
-// started with no story (`UnattachedSessionPolicy`) offers its own subset of
-// the same choices, with the same words and no Tracking. A launch dialog
-// takes either group as its `DialogSession`.
+// started with no story offers its own subset of the same choices
+// (`./UnattachedSessionPolicy.tsx`). A launch dialog takes either group as
+// its `DialogSession`.
 
 import type { ReactNode } from "react";
-import { unattachedSessionChoices } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
   defaultSessionPolicy,
-  isDefaultUnattachedPolicy,
   type LaunchChoices,
   type SessionPolicy,
-  type UnattachedSessionPolicy,
 } from "./agentLaunch.ts";
 import type { SessionPolicyOffer } from "./launchOffers.ts";
 import {
   autoLandHint,
   oneShotHint,
+  notOfferedHint,
   sessionChoiceWords,
   sessionSummary,
 } from "./sessionPolicyWords.ts";
@@ -52,7 +50,7 @@ function sessionBlocksStart(session: LaunchSessionChoices): boolean {
 // One choice of a policy, a story's or an unattached session's, as a labeled
 // radio group. The values are the choice's own, or those `offered`, in that
 // order.
-function Choice<Choice extends keyof SessionPolicy>({
+export function SessionChoice<Choice extends keyof SessionPolicy>({
   id,
   choice,
   selected,
@@ -124,16 +122,14 @@ function LaunchSessionPolicy({
     );
   }
   const oneShot = policy.tracking === "one-shot";
-  const why =
-    offer === "unavailable"
-      ? `One-shot is not offered: the installed skills in this project do not start ${workflowName} with a session policy for this host.`
-      : offer === "reading"
-        ? "Reading session choices…"
-        : undefined;
+  const why = notOfferedHint(
+    offer,
+    `One-shot is not offered: the installed skills in this project do not start ${workflowName} with a session policy for this host.`,
+  );
   return (
     <fieldset className="launch-session">
       <legend>Session</legend>
-      <Choice
+      <SessionChoice
         id={id}
         choice="tracking"
         selected={policy.tracking}
@@ -147,7 +143,7 @@ function LaunchSessionPolicy({
       />
       {oneShot && (
         <>
-          <Choice
+          <SessionChoice
             id={id}
             choice="workspace"
             selected={policy.workspace}
@@ -155,7 +151,7 @@ function LaunchSessionPolicy({
               onPolicy({ ...policy, workspace });
             }}
           />
-          <Choice
+          <SessionChoice
             id={id}
             choice="landing"
             selected={policy.landing}
@@ -166,35 +162,6 @@ function LaunchSessionPolicy({
           />
         </>
       )}
-    </fieldset>
-  );
-}
-
-// The Session group of a session started with no story: what follows the
-// checks of what it later verifies. It offers no Tracking, since a workflow
-// invoked in the session carries its own.
-function UnattachedSessionPolicy({
-  id,
-  policy,
-  onPolicy,
-}: {
-  readonly id: string;
-  readonly policy: UnattachedSessionPolicy;
-  readonly onPolicy: (policy: UnattachedSessionPolicy) => void;
-}) {
-  return (
-    <fieldset className="launch-session">
-      <legend>Session</legend>
-      <Choice
-        id={id}
-        choice="landing"
-        selected={policy.landing}
-        onSelect={(landing) => {
-          onPolicy({ ...policy, landing });
-        }}
-        offered={unattachedSessionChoices.landing.values}
-        hint={autoLandHint}
-      />
     </fieldset>
   );
 }
@@ -217,19 +184,5 @@ export function storySession(session: LaunchSessionChoices): DialogSession {
     chosen:
       session.policy.tracking === "one-shot" ? { policy: session.policy } : {},
     blocksStart: sessionBlocksStart(session),
-  };
-}
-
-export function unattachedSession(
-  policy: UnattachedSessionPolicy,
-  onPolicy: (policy: UnattachedSessionPolicy) => void,
-): DialogSession {
-  return {
-    group: (id) => (
-      <UnattachedSessionPolicy id={id} policy={policy} onPolicy={onPolicy} />
-    ),
-    landing: policy.landing,
-    chosen: isDefaultUnattachedPolicy(policy) ? {} : { unattached: policy },
-    blocksStart: false,
   };
 }

@@ -202,6 +202,10 @@ export function ConfiguredDashboard({
               sourceId={source.id}
               project={source.label}
               attempt={launches.adHocAttemptOf(source.id)}
+              sessionPolicy={(host) =>
+                launches.sessionPolicyOffer(source.id, "ad-hoc", host)
+              }
+              onHostChanged={launches.rereadOffers}
               onStart={(choices, onLaunched) =>
                 launches.startAdHoc(source.id, choices, onLaunched)
               }

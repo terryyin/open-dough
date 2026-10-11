@@ -65,8 +65,9 @@ const oneShot = {
 // no story, so nothing is Taken or Preparing, and it publishes nothing.
 type UnattachedPlace = Pick<StartPlace, "workspace" | "branch">;
 export const unattachedStartWords = {
-  uncertain: ({ workspace, branch }: UnattachedPlace) =>
-    `The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ${workspace} on branch ${branch}.`,
+  // A start in a new workspace is not kept: starting again makes another.
+  uncertain: ({ workspace, branch }: UnattachedPlace, isolated: boolean) =>
+    `The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ${workspace} on branch ${branch}.${isolated ? " Starting again creates another workspace; that one stays until it is removed." : ""}`,
   formatFailed: ({ workspace, branch }: UnattachedPlace) =>
     `The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
   unreadable:

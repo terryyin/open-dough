@@ -1,12 +1,14 @@
 // An unattached Start session whose choices cannot be honored starts no
 // native session and silently runs nowhere else, with a real bare origin
 // (./support/startOrigin.ts) and the synthetic `claude`: a choice the
-// installation cannot establish is refused before anything is accepted, and
-// a start that stops, cannot be formatted, or outlasts its wait answers in
-// the session's own words, which name no story, Take, or assignment.
+// installation cannot establish, in default main or a new workspace, is
+// refused before anything is accepted, and a start that stops, cannot be
+// formatted, or outlasts its wait answers in the session's own words, which
+// name no story, Take, or assignment.
 
 import { execFileSync } from "node:child_process";
-import { rmSync, writeFileSync } from "node:fs";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { installedSkillPath } from "../server/launchHosts.ts";
 import { accept, launch, recordsOf } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./support/preparationPage.ts";
@@ -18,6 +20,8 @@ const request = {
   host: "claude",
   policy: { workspace: "default-checkout", landing: "auto-land" },
 };
+
+const isolated = { workspace: "isolated", landing: "review" };
 
 const installed = (origin: StartOrigin, script: string) =>
   installedSkillPath(
@@ -45,27 +49,23 @@ const explanation = async (answer: Promise<{ body: string }>) =>
     explanation?: string;
   };
 
-test("a choice the installation cannot establish, and an isolated workspace, are refused before anything is accepted", async ({
+test("a choice the installation cannot establish is refused before anything is accepted", async ({
   dashboard,
   origin,
 }) => {
-  // Start session does not establish an isolated workspace yet.
-  const isolated = await accept(dashboard, {
-    ...request,
-    policy: { workspace: "isolated", landing: "auto-land" },
-  });
-  expect(isolated.status).toBe(400);
-  expect(isolated.body).toContain(
-    "Isolated workspace cannot be selected for a session without a story yet.",
-  );
-
   rmSync(installed(origin, "established-session.mjs"));
   commit(origin);
-  const refused = await accept(dashboard, request);
-  expect(refused.status).toBe(400);
-  expect(refused.body).toContain(
-    `Default main · Automatically land cannot be selected: the installed skills in ~/git/open-dough do not establish a session without a story.`,
-  );
+  for (const [policy, named] of [
+    [request.policy, "Default main · Automatically land"],
+    [isolated, "Isolated workspace · Wait for review"],
+  ] as const) {
+    const refused = await accept(dashboard, { ...request, policy });
+    expect(refused.status).toBe(400);
+    expect(refused.body).toContain(
+      `${named} cannot be selected: the installed skills in ~/git/open-dough do not establish a session without a story.`,
+    );
+  }
+  expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
   // The default choices need nothing of the installation.
   dashboard.claudeScenario("launched");
   const plain = await explanation(
@@ -127,6 +127,15 @@ test.describe("a start that outlasts its wait", () => {
       reason: "timed-out",
       explanation:
         "The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ~/git/open-dough on branch main.",
+    });
+    // A new workspace's start is not kept, which the answer says.
+    expect(
+      await explanation(launch(dashboard, { ...request, policy: isolated })),
+    ).toMatchObject({
+      kind: "uncertain",
+      reason: "timed-out",
+      explanation:
+        "The session's start did not finish within the wait; it publishes nothing. It goes on in workspace ~/git/open-dough/.worktrees/session on branch claude/session. Starting again creates another workspace; that one stays until it is removed.",
     });
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
     expect(await recordsOf(dashboard, "open-dough")).toEqual([]);

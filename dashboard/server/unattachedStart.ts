@@ -1,10 +1,11 @@
 // An unattached session's start: the project's installed shared start
 // establishes where the conversation works before its native session begins,
 // as the start for one-shot work that names no identity, which publishes
-// nothing. The dashboard owns the arguments and reads the receipt; the
-// installed formatter spells the "Established session" block handed to the
-// session. A launch that establishes no session (`establishesSession`) runs
-// nothing here.
+// nothing: in the default checkout as it is, or in a new workspace under
+// `.worktrees/` that the start creates. The dashboard owns the arguments and
+// reads the receipt; the installed formatter spells the "Established session"
+// block handed to the session. A launch that establishes no session
+// (`establishesSession`) runs nothing here.
 
 import { unattachedStartPolicy } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
@@ -19,10 +20,13 @@ import {
   runStartScript,
   shipsStartScript,
 } from "./executionStart.ts";
+import { adHocLabelText } from "./hostLaunch.ts";
 import type { Started } from "./launchStart.ts";
+import { launchWorkspace, type WorkspaceChoice } from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { installedExports, isFile } from "./startLaunch.ts";
 import { policyArguments, shipsSessionPolicy } from "./startPolicy.ts";
+import { takenSlugs } from "./startGit.ts";
 import { refusal } from "./startResult.ts";
 import { withinStartWait } from "./startWait.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
@@ -74,10 +78,29 @@ function stopped(
   };
 }
 
+// The new workspace of an isolated unattached session, chosen as a story's
+// is (`./launchWorkspace.ts`): its slug comes from the session's label text,
+// `session` when the label is a time or holds no usable word, numbered when
+// a workspace folder or a host branch already has it.
+async function sessionWorkspace(
+  project: ProjectFolder,
+  request: UnattachedRequest,
+): Promise<WorkspaceChoice> {
+  const nameless = "session";
+  return launchWorkspace(
+    project,
+    adHocLabelText(request.instruction) ?? nameless,
+    await takenSlugs(project),
+    request.host,
+    nameless,
+  );
+}
+
 // The start of an unattached launch, waiting for its script as a story's
 // start is waited for: none for a launch that establishes no session;
-// otherwise the session the installed start established in the project's
-// default checkout on the trunk target, with its block.
+// otherwise the session the installed start established, with its block, in
+// the project's default checkout on the trunk target or in the new workspace
+// its policy chose, where the native session then opens.
 export async function unattachedStarted(
   source: PublishedSource,
   request: UnattachedRequest,
@@ -85,16 +108,20 @@ export async function unattachedStarted(
 ): Promise<Started> {
   if (!establishesSession(request)) return { kind: "none" };
   const policy = unattachedPolicyOf(request);
-  const where = {
-    workspace: project.path,
-    branch: source.ref,
-    remote: "origin",
-    target: source.ref,
-  } as const;
-  const place = { workspace: project.shown, branch: where.branch };
   if (!(await establishesUnattached(project, request.host))) {
     return stopped(unattachedStartWords.notInstalled(project.shown));
   }
+  const isolated = policy.workspace === "isolated";
+  const chosen = isolated
+    ? await sessionWorkspace(project, request)
+    : { workspace: project, branch: source.ref };
+  const where = {
+    workspace: chosen.workspace.path,
+    branch: chosen.branch,
+    remote: "origin",
+    target: source.ref,
+  } as const;
+  const place = { workspace: chosen.workspace.shown, branch: where.branch };
   const result = await withinStartWait(
     runStartScript(
       [
@@ -116,7 +143,10 @@ export async function unattachedStarted(
     ),
   );
   if (result === "expired") {
-    return stopped(unattachedStartWords.uncertain(place), "uncertain");
+    return stopped(
+      unattachedStartWords.uncertain(place, isolated),
+      "uncertain",
+    );
   }
   if (result.kind === "unreadable" || result.kind === "accepted") {
     return stopped(unattachedStartWords.unreadable);
@@ -137,7 +167,7 @@ export async function unattachedStarted(
         established: { establishedSession: session },
         formatted: await formattedSession(project, session, request.host),
       },
-      workspace: project,
+      workspace: chosen.workspace,
     };
   } catch {
     return stopped(unattachedStartWords.formatFailed(place));

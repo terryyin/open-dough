@@ -196,12 +196,13 @@ export const launchRecordsSchema = z.object({
     )
     .default([]),
   // The projects, workflows, and hosts whose installed skills take the shared
-  // session policy at their start.
+  // session policy at their start; `ad-hoc` where they establish a session
+  // with no story.
   sessionPolicies: z
     .array(
       z.object({
         source: z.string(),
-        workflow: z.enum(launchWorkflowNames),
+        workflow: z.enum([...launchWorkflowNames, "ad-hoc"]),
         host: sessionHostSchema,
       }),
     )

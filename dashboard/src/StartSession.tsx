@@ -2,11 +2,11 @@
 // to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recently done and the Sessions sidebar, like any
-// launched session; no card lists it. Its Session group chooses what follows
-// the checks of what the session later verifies; the line beside Start names
-// the choices and what Start authorizes. The session runs on default main, so
-// existing changes there are confirmed in the dialog before anything starts
-// (`LaunchExistingChanges`). The dialog closes once the local
+// launched session; no card lists it. Its Session group chooses where the
+// session runs and what follows the checks of what it later verifies; the
+// line beside Start names the choices and what Start authorizes. A session on
+// default main has existing changes there confirmed in the dialog before
+// anything starts (`LaunchExistingChanges`). The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
 // button, that the startup goes on while the button waits for it. A started
 // session then opens in the page's terminal, with the keyboard in it unless
@@ -28,7 +28,8 @@ import {
   unattachedPolicyOf,
   type LaunchChoices,
 } from "./agentLaunch.ts";
-import { unattachedSession } from "./LaunchSessionPolicy.tsx";
+import type { SessionPolicyOffer } from "./launchOffers.ts";
+import { unattachedSession } from "./UnattachedSessionPolicy.tsx";
 import {
   unattachedEffect,
   unattachedSummary,
@@ -50,6 +51,8 @@ export function StartSession({
   project,
   sourceId,
   attempt,
+  sessionPolicy,
+  onHostChanged,
   onStart,
 }: {
   // The selected project's name.
@@ -57,6 +60,13 @@ export function StartSession({
   readonly sourceId: string;
   // The last launch from this row that has not started a session.
   readonly attempt: LaunchAttempt | undefined;
+  // Whether the selected host's installed skills establish a session with no
+  // story; without it only the default choices are offered.
+  readonly sessionPolicy: (
+    host: AgentLaunchRequest["host"],
+  ) => SessionPolicyOffer;
+  // The developer chose another host, whose offers are read again.
+  readonly onHostChanged: () => void;
   // Answers whether the launch was accepted, or the existing changes to
   // confirm; its session, once launched, is presented (`onLaunched`) and then
   // takes the keyboard.
@@ -121,11 +131,18 @@ export function StartSession({
           sourceId={sourceId}
           projectContext
           host={host}
-          onHost={setHost}
+          onHost={(next) => {
+            setHost(next);
+            onHostChanged();
+          }}
           heading={`Start a session in ${project} in ${hostName(host)}`}
-          description={`${hostName(host)} starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
+          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's folder"}, with no story or skill. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
-          session={unattachedSession(policy, setPolicy)}
+          session={unattachedSession({
+            policy,
+            onPolicy: setPolicy,
+            offer: sessionPolicy(host),
+          })}
           effects={
             <>
               <strong className="launch-dialog-summary">
@@ -134,7 +151,9 @@ export function StartSession({
               {unattachedEffect(policy)}
             </>
           }
-          details={<p>{unattachedWhere(establishesSession({ policy }))}</p>}
+          details={
+            <p>{unattachedWhere(policy, establishesSession({ policy }))}</p>
+          }
           onStart={(choices) =>
             onStart(choices, (record) => {
               if (

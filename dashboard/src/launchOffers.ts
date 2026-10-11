@@ -4,7 +4,11 @@
 // and the workflow's options (`./optionsOffer.ts`).
 
 import type { SessionReference } from "./sessionReference.ts";
-import type { LaunchWorkflow, MachineAnswer } from "./agentLaunch.ts";
+import type {
+  AgentLaunchRequest,
+  LaunchWorkflow,
+  MachineAnswer,
+} from "./agentLaunch.ts";
 import { optionsOfferOf, type OptionsOffer } from "./optionsOffer.ts";
 
 // Whether a launch dialog can offer session choices: while the read answers,
@@ -19,10 +23,11 @@ export type LaunchOffers = {
     host: SessionReference["host"],
   ): boolean;
   // Whether the installed skills take a session policy at the workflow's
-  // start for the host, at the latest read; `reading` until one answered.
+  // start for the host, or establish a session with no story (`ad-hoc`), at
+  // the latest read; `reading` until one answered.
   sessionPolicyOffer(
     sourceId: string,
-    workflow: LaunchWorkflow,
+    workflow: AgentLaunchRequest["workflow"],
     host: SessionReference["host"],
   ): SessionPolicyOffer;
   // Installed options at the latest read; absent for workflows without options.
@@ -47,7 +52,7 @@ export function launchOffers(
   answered: boolean,
 ): LaunchOffers {
   const isFor =
-    (sourceId: string, workflow: LaunchWorkflow, host: string) =>
+    (sourceId: string, workflow: string, host: string) =>
     (entry: { source: string; workflow: string; host: string }) =>
       entry.source === sourceId &&
       entry.workflow === workflow &&

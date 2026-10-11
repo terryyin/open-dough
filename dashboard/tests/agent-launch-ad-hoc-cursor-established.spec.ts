@@ -2,7 +2,8 @@
 // the real installed start (./support/cursorStart.ts) and the fixture
 // `cursor-agent`: existing changes in default main are confirmed before
 // create-chat, and the first prompt is the "Established session" block, then
-// the reporting context, with no skill line and nothing of the developer's.
+// the reporting context, with no skill line and nothing of the developer's;
+// an isolated session starts with its new worktree as Cursor's workspace.
 // ./agent-launch-ad-hoc-cursor.spec.ts stays the proof of the unattached
 // Cursor session that establishes none, and of the blank start with a chosen
 // model that is refused.
@@ -15,6 +16,7 @@ import { dirty, status } from "./support/defaultCheckoutChanges.ts";
 import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 import {
   defaultMainSession,
+  isolatedSession,
   sessionBlock,
 } from "./support/startSessionLanding.ts";
 
@@ -121,4 +123,44 @@ test("with no text and a chosen model, a session that lands automatically starts
   expect(cursor.input(client.pid).split("\n\n")[0]).toBe(
     sessionBlock(defaultMainSession(origin.project, "auto-land", revision)),
   );
+});
+
+test("an isolated session starts Cursor with the new worktree as its workspace and the same block", async ({
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  test.setTimeout(120_000);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
+  const slug = "tidy-the-readme-wording";
+  expect(
+    JSON.parse(
+      (
+        await launch(dashboard, {
+          source: "open-dough",
+          workflow: "ad-hoc",
+          host: "cursor",
+          instruction: "Tidy the README wording",
+          policy: { workspace: "isolated", landing: "review" },
+        })
+      ).body,
+    ),
+  ).toMatchObject({ kind: "launched" });
+  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  const session = isolatedSession(
+    origin.project,
+    slug,
+    "review",
+    revision,
+    "cursor",
+  );
+  expect(record?.establishedSession).toEqual(session);
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+  expect(cursor.calls()[0]?.cwd).toBe(realpathSync(session.workspace));
+  await expect.poll(() => cursor.attaches()).toHaveLength(1);
+  const client = cursor.attaches()[0];
+  if (client === undefined) throw new Error("Cursor started no client.");
+  expect(client.args.slice(0, 2)).toEqual(["--workspace", session.workspace]);
+  await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
+  expect(cursor.input(client.pid).split("\n\n")[0]).toBe(sessionBlock(session));
 });

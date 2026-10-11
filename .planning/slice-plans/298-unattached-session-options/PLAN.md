@@ -200,8 +200,15 @@ Isolated workspace is not yet offered.
 
 ### 3. Isolated workspace starts the session in a new worktree
 Type: Behavior
-Status: planned
+Status: done
 Proof: the isolated spec and its Codex case in the proof table.
+Accepted proof: `agent-launch-start-session-isolated.spec.ts` and
+`-isolated-boundary.spec.ts` (Claude, Codex, slug numbering, capability
+gating); the isolated Cursor case in
+`agent-launch-ad-hoc-cursor-established.spec.ts`; the stops, landing and layout
+specs; the `agent-launch*`, `one-shot-*`, sidebar and workspace suites. The
+open terminal shows no workspace for any session kind; the worktree is named by
+the sidebar entry and the saved workspace, as for one-shot starts.
 
 Behavior: Start session, Workspace set to Isolated workspace, instruction
 “Tidy the README wording” → the start creates `.worktrees/tidy-the-readme-wording`
@@ -317,9 +324,11 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
   refuses ad hoc launches, so an unattached launch sends no
   `--landing-context` (obligation G5). The decision is what identifies an
   unattached launch's landing; it needs its own slice before slices 5 and 6.
-- A raw `workspace: "isolated"` request is refused with a 400 until slice 3
-  replaces that refusal and its assertion in
-  `agent-launch-start-session-stops.spec.ts`.
+- Until slice 4, an expired isolated start keeps nothing: its uncertain words
+  end “Starting again creates another workspace; that one stays until it is
+  removed.” (`unattachedStartWords.uncertain`, pinned in
+  `agent-launch-start-session-stops.spec.ts`). Slice 4 replaces the sentence
+  and that assertion.
 - `established-session.mjs` is declared in `install.sh` `managed_files`; until
   a release installs it here, this repository's own dashboard refuses a
   non-default Start session choice.
@@ -329,12 +338,12 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
 ### G1. A non-default unattached policy is accepted but not honored
 Reported: slice 1 — "A raw request with `policy: { workspace: "isolated", … }` or `landing: "auto-land"` is accepted, recorded with that policy, and launched in the project folder with no block."
 Story clause: "The native session opens in that worktree."
-Disposition: interim until slices 2, 3
+Disposition: proved by slice 3: `dashboard/tests/agent-launch-start-session-isolated-boundary.spec.ts`, "a raw isolated request is honored, and its slug is numbered"
 
 ### G2. The isolated branch of the existing-changes check is untested
 Reported: slice 1 — "No test covers "an isolated ad hoc workspace skips the check", because asserting it now would cement the interim launch above."
 Story clause: "A Default main start, including the default choices, follows the shared existing-changes contract"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/agent-launch-start-session-isolated.spec.ts`, "with existing changes in default main, Isolated workspace · Automatically land starts at once"
 
 ### G3. The confirmation's landing line is fixed at the unattached default
 Reported: slice 1 — "The dialog's landing line is fixed at the unattached default."
@@ -354,7 +363,12 @@ Disposition: interim until slices 5, 6
 ### G6. Start session does not gate a choice on what the installed skills can establish
 Reported: slice 2 — "The Start session dialog does not gate Automatically land on installed capability; the server refuses with a 400 after Start."
 Story clause: "The Start session dialog offers the Session group's"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/agent-launch-start-session-isolated-boundary.spec.ts`, "a host whose installation cannot establish a session offers only the default choices, and says why"
+
+### G7. Continue after an expired isolated start creates a second worktree
+Reported: slice 3 — "Continue on that attempt is accepted and reruns the start with a fresh slug."
+Story clause: "creates no second worktree"
+Disposition: receiving slice 4
 
 ## Learnings
 
@@ -380,3 +394,11 @@ Disposition: receiving slice 3
   `policyArguments(unattachedStartPolicy(policy), project)` already emits
   `--integration` for isolated. Test support for slices 3 and 4:
   `dashboard/tests/support/startSessionLanding.ts`.
+- The installed start's isolated `prepared` receipt reports `startingRevision`
+  (the fetched-trunk base) and `created`, and `fetched` only for
+  `--default-main`: an isolated block has no `fetched` line. Slice 5's
+  reference and example expect none.
+- Start session's non-default choices are enabled only where the installation
+  ships `execution-start.mjs`, `session-policy.mjs` and
+  `established-session.mjs`; the real-start origin fixture does, the
+  launch-journey fixture does not.

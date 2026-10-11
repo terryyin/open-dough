@@ -14,6 +14,7 @@ import { configuredProjects } from "./projectConfiguration.ts";
 import { offeredShape } from "../src/commandOptions.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { sessionPolicyCapable } from "./launchSessionPolicy.ts";
+import { establishesUnattached } from "./unattachedStart.ts";
 import { readDefinition } from "./launchOptions.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptStartsByProject } from "./startStore.ts";
@@ -125,13 +126,17 @@ export async function establishingHosts() {
 }
 
 // The catalog projects, workflows, and hosts whose installed skills take the
-// shared session policy at their start, in catalog order.
+// shared session policy at their start, in catalog order; after a host's
+// workflows, `ad-hoc` where its installation establishes a session with no
+// story.
 export async function sessionPolicies() {
   const rows = await Promise.all(
     configuredProjects().flatMap((source) =>
       launchHosts.flatMap((host) =>
-        launchWorkflowNames.map(async (workflow) =>
-          (await sessionPolicyCapable(projectFolder(source), workflow, host))
+        ([...launchWorkflowNames, "ad-hoc"] as const).map(async (workflow) =>
+          (await (workflow === "ad-hoc"
+            ? establishesUnattached(projectFolder(source), host)
+            : sessionPolicyCapable(projectFolder(source), workflow, host)))
             ? { source: source.id, workflow, host }
             : undefined,
         ),
