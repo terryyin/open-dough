@@ -134,6 +134,33 @@ test("failures without GitHub's direction fall into fixed categories", () => {
   });
 });
 
+test("a subprocess output bound names its cause and discards partial output", () => {
+  const error = exited("ERR_CHILD_PROCESS_STDIO_MAXBUFFER");
+  const answer = readAnswer(
+    error,
+    included(200, {}, "secret body"),
+    "gh auth login: secret path (HTTP 404)",
+    askedAt,
+    nowMs,
+  );
+  assert.deepEqual(answer.failure, { kind: "output-bound" });
+  assert.equal(answer.body, "");
+  assert.equal(answer.status, 200);
+  const directed = readAnswer(
+    error,
+    included(429, { "Retry-After": "17" }, "partial secret body"),
+    "secret stderr",
+    askedAt,
+    nowMs,
+  );
+  assert.deepEqual(directed.failure, {
+    kind: "rate-limited",
+    status: 429,
+    waitSeconds: 17,
+  });
+  assert.equal(directed.body, "");
+});
+
 test("a directed wait is whole seconds: Retry-After seconds or date, else the reset once nothing remains", () => {
   const wait = (headers) =>
     directedWaitSeconds(new Map(Object.entries(headers)), nowMs);

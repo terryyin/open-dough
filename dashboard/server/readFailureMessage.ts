@@ -93,6 +93,8 @@ function failureMessage(
       return `GitHub's answer for ${reading} did not name a commit.`;
     case "timed-out":
       return `The local GitHub CLI did not answer within ${String(readTimeoutMs() / 1000)} seconds while reading ${reading}.`;
+    case "output-bound":
+      return `The local GitHub CLI output exceeded the request's size limit while reading ${reading}.`;
     case "http": {
       if (reason.status === 404 && readTarget === "backlog") {
         return `The published backlog (${source.backlogPath}) is missing or inaccessible in ${source.label} (HTTP 404).`;

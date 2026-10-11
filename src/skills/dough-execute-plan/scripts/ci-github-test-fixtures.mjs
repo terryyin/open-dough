@@ -51,8 +51,8 @@ if (fs.existsSync(onEnd))
     record('told-to-end');
     if (fs.readFileSync(onEnd, 'utf8') !== 'stay') process.exit(143);
   });
-const released = async (hold, release) => {
-  while (fs.existsSync(path.join(root, hold)) && !fs.existsSync(path.join(root, release)))
+const waitForRelease = async (release, hold) => {
+  while ((hold === undefined || fs.existsSync(path.join(root, hold))) && !fs.existsSync(path.join(root, release)))
     await new Promise((resolve) => setTimeout(resolve, 20));
 };
 const finish = (head, body, exitCode = 0, stderr = '') => {
@@ -66,7 +66,7 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
   const route = args[2] ?? '';
   if (args[0] !== 'api' || args[1] !== '--include' || args.length !== 3)
     return finish('', '', 2, 'unexpected gh call');
-  await released('hold', 'release');
+  await waitForRelease('release', 'hold');
   const limited = path.join(root, 'limited.json');
   if (fs.existsSync(limited)) {
     const { count, match, wait, only } = JSON.parse(fs.readFileSync(limited, 'utf8'));
@@ -80,6 +80,17 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
   const perPage = Number(searchParams.get('per_page') ?? 30);
   const json = (body) => finish('HTTP/2.0 200 OK', JSON.stringify(body));
   const asked = pathname.replace(/^\\/repos\\/owner\\/repo\\/actions\\//, '');
+  let answer = state.answers?.[asked];
+  if (!answer && /^jobs\\/\\d+\\/logs$/.test(asked))
+    answer = {
+      head: 'HTTP/2.0 200 OK',
+      body: state.log + (user ? ' for ' + user : ''),
+      holdLogs: state.holdLogs,
+    };
+  if (answer) {
+    if (answer.holdLogs) await waitForRelease('release-logs');
+    return finish(answer.head ?? '', answer.body ?? '', answer.code ?? 0, answer.stderr ?? '');
+  }
   let found;
   if (asked === 'workflows/ci.yml')
     return json({ id: 7001, name: 'CI', path: '.github/workflows/ci.yml', state: 'active' });
@@ -92,10 +103,6 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
       total_count: state.jobs.length,
       jobs: state.jobs.slice((page - 1) * perPage, page * perPage),
     });
-  if (/^jobs\\/\\d+\\/logs$/.test(asked)) {
-    if (state.holdLogs) while (!fs.existsSync(path.join(root, 'release-logs'))) await new Promise((resolve) => setTimeout(resolve, 20));
-    return finish('HTTP/2.0 200 OK', state.log + (user ? ' for ' + user : ''));
-  }
   finish('HTTP/2.0 404 Not Found', '{}', 1, 'gh: Not Found (HTTP 404)');
 })();
 `;

@@ -16,6 +16,7 @@ branch `codex/a-github-request-or-failed-log-that-could-not-be`, agent
 `0cacaa7fe1b5917a2b03515a39d80fd23b032ba1` on `origin/main`.
 Ordinary increments target the same execution branch on `origin`. The owned
 worktree is reused; the default checkout is `/Users/terryyin/git/open-dough`.
+Accepted increment: `bbc0b6f2280377363b4c903ff22433ab7334bd83`, suffix base `0cacaa7fe1b5917a2b03515a39d80fd23b032ba1`; observer reused, no reconciliation.
 Checkout setup: `npm ci --ignore-scripts`, then `npm run typecheck:dashboard`
 passed on 2026-10-12. No numeric slice budget or exception is configured;
 existing planned refinement authority is retained.
@@ -141,7 +142,7 @@ All terminal commands passed from this checkout:
 
 ### 2. Distinguish waiting for a log from missing evidence
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: held/expired/oversized/failed logs → diagnostic → per-job safe causes,
 available steps/excerpts retained, numeric hold and exit 75 for any held log;
@@ -149,14 +150,13 @@ other partial diagnostics remain exit 0, with no invented delay. Jobs-acquisitio
 failure retains its fatal/held exit behavior. Preserve `logUnavailable`'s useful
 text and add structured wait information without parsing prose.
 
-Proof: extend diagnostic CLI tests for held-only/mixed/expired/oversized/failed
-requests; shared answer tests own bound classification, acquisition and
-`watch-ci-execution-hold.test.mjs` preserve hold semantics. Check dashboard
-consumers if the shared failure union changes. Update only the authoritative
-repair step in `src/skills/dough-execute-plan/references/ci-monitor.md`; walk
-expired and mixed held-log cases under AGENTS.md: directed waits only, available
-evidence used, uncertainty retained, CI content never treated as instructions.
-One diagnostic/recovery contract; no observer cadence or excerpt redesign.
+Accepted: actual CLI held-only/mixed/404/410/failed/17 MiB cases in `ci-github-diagnostic-logs.test.mjs` observe numeric waits/exit 75, retained steps/excerpts, safe causes and absent invented waits/secrets; answer assertions observe body discard and rate-header precedence. Browser output-bound/history/ref-fallback assertions use actual oversized subprocesses. Mixed evidence is event-gated. Expired/mixed guidance walks retain uncertainty and untrusted-text handling. Refactor shares one fixture release rule; its affected proof passed again. All commands terminal/pass:
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-github-diagnostic.test.mjs src/skills/dough-execute-plan/scripts/ci-github-diagnostic-logs.test.mjs src/skills/dough-execute-plan/scripts/github-request-answer.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition-owner.test.mjs src/skills/dough-execute-plan/scripts/watch-ci-execution-hold.test.mjs src/skills/dough-execute-plan/scripts/github-requests.test.mjs`
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-github-diagnostic-logs.test.mjs src/skills/dough-execute-plan/scripts/ci-github-diagnostic.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition-owner.test.mjs src/skills/dough-execute-plan/scripts/github-request-owned-calls.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-start.test.mjs src/skills/dough-execute-plan/scripts/github-request-login.test.mjs src/skills/dough-execute-plan/scripts/github-request-login-secrecy.test.mjs src/skills/dough-execute-plan/scripts/github-request-kept-admissions.test.mjs`
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-read-output-bound.spec.ts authenticated-read-diagnostics.spec.ts authenticated-read-diagnostics-bounds.spec.ts authenticated-read-transient-eligibility.spec.ts authenticated-read-boundary.spec.ts --workers=2`
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-read-retained-answers.spec.ts authenticated-read-retained-answers-bounded.spec.ts authenticated-read-retained-answers-reload.spec.ts authenticated-read-retained-answers-moved.spec.ts project-read-recovery.spec.ts transient-read-recovery.spec.ts --workers=2`
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-read-output-bound.spec.ts authenticated-read-revision-check.spec.ts authenticated-read-revision-check-failures.spec.ts authenticated-avatar.spec.ts --workers=2`
+`npm run typecheck:dashboard`; `git diff --check`; `PATH=/opt/homebrew/bin:$PATH npm run format`. The browser fixture initially failed before output acquisition; valid oversized JSON corrected the precondition. No runtime dependencies changed.
 
 ### 3. Share process facts without sharing signaling policy
 Type: Structure
