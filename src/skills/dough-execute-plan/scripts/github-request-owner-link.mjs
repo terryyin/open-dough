@@ -15,7 +15,11 @@ import {
   EndpointBinding,
   standingRecord,
 } from "./github-request-owner-endpoint.mjs";
-import { greeted, scopeOf, send } from "./github-request-owner-wire.mjs";
+import {
+  greeted,
+  scopeOf,
+} from "./github-request-owner-endpoint-connection.mjs";
+import { send } from "./github-request-owner-wire.mjs";
 import {
   OwnerUnavailable,
   ownerFailure,

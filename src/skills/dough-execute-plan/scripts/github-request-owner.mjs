@@ -37,12 +37,14 @@ import {
   standingRecord,
 } from "./github-request-owner-endpoint.mjs";
 import {
-  fixedRequest,
   greetingLimitMs,
-  protocol,
   reachable,
-  receive,
   scopeOf,
+} from "./github-request-owner-endpoint-connection.mjs";
+import {
+  fixedRequest,
+  protocol,
+  receive,
   send,
   wireAnswer,
 } from "./github-request-owner-wire.mjs";

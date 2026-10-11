@@ -183,6 +183,7 @@ managed_files=(
   dough-execute-plan/scripts/github-request-owned-calls.mjs
   dough-execute-plan/scripts/process-table.mjs
   dough-execute-plan/scripts/github-request-owner-endpoint.mjs
+  dough-execute-plan/scripts/github-request-owner-endpoint-connection.mjs
   dough-execute-plan/scripts/github-request-owner-failure.mjs
   dough-execute-plan/scripts/github-request-owner-link.mjs
   dough-execute-plan/scripts/github-request-owner-wire.mjs

@@ -19,6 +19,7 @@ worktree is reused; the default checkout is `/Users/terryyin/git/open-dough`.
 Accepted increment: `bbc0b6f2280377363b4c903ff22433ab7334bd83`, suffix base `0cacaa7fe1b5917a2b03515a39d80fd23b032ba1`; observer reused, no reconciliation.
 Accepted increment: `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`, suffix base `bbc0b6f2280377363b4c903ff22433ab7334bd83`; observer reused, no reconciliation.
 Accepted repair: `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`, suffix base `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`; observer reused. Installed stash restoration confirmed `resumed`, applied, and dropped only owned OID `ee02bd66f48f8e8223178165da8f77ac362baa52` before slice 3 resumed.
+Accepted increment: `e5102464e72cbf2ab796e15ab5cebe50c8a55756`, suffix base `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`; observer reused, no reconciliation.
 Checkout setup: `npm ci --ignore-scripts`, then `npm run typecheck:dashboard`
 passed on 2026-10-12. No numeric slice budget or exception is configured;
 existing planned refinement authority is retained.
@@ -165,15 +166,16 @@ Accepted: `process-table.mjs` owns reads/exit facts only. Both owners retain ide
 
 ### 4. Keep endpoint responsibility with the endpoint
 Type: Structure
-Status: planned
+Status: done
 
 Own finding 4's misplaced endpoint knowledge: return socket ownership,
 reachability and scope from wire encoding to cohesive endpoint modules, within
 the line limit. Preserve greeting/protocol validation and slice 1's safe causes.
-Proof: endpoint, owner, replacement, login and login-secrecy tests, plus slice
-1's consumer cases. Run installation checks when declarations/dependencies
-change. No protocol-directory decision or unrelated module reorganization.
-This has a separate preservation loop from process-reader consolidation.
+Accepted: direct relocation into `github-request-owner-endpoint-connection.mjs` owns socket ownership/reachability/greeting/scope and the unchanged five-second deadline; wire owns protocol/framing/validation/answer conversion. Inspected unchanged bodies and all owner/link/test imports. Endpoint/refusal/secrecy/zero-call, admission/replacement/login, CLI/observer and browser observations remain current. Refactor found no edits; all commands terminal/pass:
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs src/skills/dough-execute-plan/scripts/github-request-login.test.mjs src/skills/dough-execute-plan/scripts/github-request-login-secrecy.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-failure.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-start.test.mjs src/skills/dough-execute-plan/scripts/github-request-kept-admissions.test.mjs src/skills/dough-execute-plan/scripts/github-request-owned-calls.test.mjs src/skills/dough-execute-plan/scripts/github-requests-real-gh.test.mjs src/skills/dough-execute-plan/scripts/github-requests.test.mjs src/skills/dough-execute-plan/scripts/github-request-answer.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition-owner.test.mjs src/skills/dough-execute-plan/scripts/ci-github-diagnostic.test.mjs src/skills/dough-execute-plan/scripts/ci-github-diagnostic-logs.test.mjs`
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- authenticated-read-owner-failures.spec.ts shared-request-owner.spec.ts authenticated-read-boundary.spec.ts authenticated-read-diagnostics.spec.ts authenticated-read-diagnostics-bounds.spec.ts authenticated-read-subprocess-lifecycle.spec.ts authenticated-read-transient-eligibility.spec.ts --workers=2`
+`PATH=/opt/homebrew/bin:$PATH npm test -- tests/install-public-payload.sh tests/install-all-tools.sh tests/execution-payload-update.sh tests/payload-declaration-links.sh`
+`npm run typecheck:dashboard`; `git diff --check`; `PATH=/opt/homebrew/bin:$PATH npm run format`.
 
 ### 5. Keep discriminating request-rule proofs at their owners
 Type: Structure

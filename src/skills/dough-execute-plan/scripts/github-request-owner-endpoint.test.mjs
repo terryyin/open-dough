@@ -22,7 +22,8 @@ import {
   ownerRecords,
   saidToOwner,
 } from "./github-request-owner-test-fixtures.mjs";
-import { greeted, protocol } from "./github-request-owner-wire.mjs";
+import { greeted } from "./github-request-owner-endpoint-connection.mjs";
+import { protocol } from "./github-request-owner-wire.mjs";
 import { GitHubRequests } from "./github-requests.mjs";
 
 const never = () => new AbortController().signal;
