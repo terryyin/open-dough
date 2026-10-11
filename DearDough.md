@@ -882,7 +882,7 @@ path into that state: resolve a conflicted integration by hand and push it.
   - Evidence: plan 294 `## Story obligations` G1 ("Git and the merge adapter write the fetched trunk tip first") and G5 ("it runs the code it ran before this slice"), both `no user cost`; the independent outcome review's scratch repositories (a merge of trunk into the story branch answered `published` with the story on trunk's first-parent line; a rerun on a staged or identity-refused merge exited 2 and dropped `MERGE_HEAD`); plan 295 findings 2 and 3.
   - Observed effect: slice 1 was accepted and published with both states reachable from the two steps its own guidance gives; correction plan 295 carries them. In the same slice the coordinator did ask which guided paths lacked an observation for three other gaps (the adapter's `continue`, the `agent-commit.mjs` command, retention across runs) and returned them, and those now have tests.
   - Inference: the dispositions that held were the ones checked by running the path; G1 and G5 were reasoned from the code as read. Fourteen entries were written in this execution, twelve as `no user cost`, so the entry count itself may crowd out the check. Second sample.
-- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (`.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
+- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (spent plan recoverable at `0ff0e2421c6260ef25d584323d62b86c51758f3b:.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
   - Timestamp: unknown (2026-10-11, slice 2 acceptance before `bc36167e` at 09:57 +09:00; found by the retrospective about 10:00 +09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -931,7 +931,7 @@ a split job can breach it with no slow change behind it. The breach reads as
 a CI failure on whichever execution published the revision.
 
 ### Occurrences
-- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (`.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
+- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (spent plan recoverable at `0ff0e2421c6260ef25d584323d62b86c51758f3b:.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
   - Timestamp: 2026-10-11T09:46:15+09:00 (the job's `OVER BUDGET` line)
   - Tool: Claude Code
   - Model: claude-opus-5-5

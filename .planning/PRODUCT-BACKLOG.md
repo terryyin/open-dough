@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [A Trunk Mode story started outside the dashboard offers Review changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-worktree) — SEED-088#review-trunk-mode-story-worktree ([plan](slice-plans/296-trunk-mode-worktree-review/PLAN.md))
-
 ## Backlog list
 
 - [A found worktree is reviewed only for the agent trunk publishes](seeds/SEED-088-dashboard-story-code-review.md#found-worktree-matches-published-agent) — SEED-088#found-worktree-matches-published-agent

@@ -3,8 +3,11 @@
 **Identity:** SEED-088#found-worktree-matches-published-agent
 **Source:** [story](../../seeds/SEED-088-dashboard-story-code-review.md#found-worktree-matches-published-agent),
 a bounded correction from the execution retrospective of
-`SEED-088#review-trunk-mode-story-worktree` (plan 296; reviewed commits
-`f2e6e131` and `bc36167e` on its execution branch). Planning only; this plan
+`SEED-088#review-trunk-mode-story-worktree` (plan 296, recoverable at
+`0ff0e2421c6260ef25d584323d62b86c51758f3b:.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`;
+its story at the same revision in
+`.planning/seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-worktree`;
+reviewed commits `f2e6e131` and `bc36167e`). Planning only; this plan
 grants no Take, execution, or publication.
 
 ## Goal and boundaries
