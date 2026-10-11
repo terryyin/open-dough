@@ -133,8 +133,9 @@ terminal start. No Accepted ADR applies.
 ### Review only a Trunk Mode story's own changes
 
 **Identity:** SEED-088#review-trunk-mode-story-changes
+**Slice plan:** [Review only a Trunk Mode story's own changes](../slice-plans/297-trunk-mode-own-changes-review/PLAN.md).
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/297-trunk-mode-own-changes-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fdf4af3242064982d06b0d8a208b4e95ea2a094a62634b42104f91b93295f25c","plan":"368e2a0a9b7a0862aeb71d3164253ed000e7b786ea0e48350059e220a1a9fe87"}}
 ```
 
 **Goal:** A developer reviewing a Trunk Mode story, whose agent publishes each
@@ -226,8 +227,8 @@ Deferred, not built or verified here:
   `exec/story`, the trunk revision less 2 story commits, and `.worktrees/story`.
 - Ken-chan's `o3` then rewrites the very line `s2` changed in `c.ts` →
   Refresh → `c.ts` is listed flagged “includes trunk's changes”, its diff
-  running from trunk before `s2` to the snapshot, so neither the story's nor
-  trunk's change to that line is hidden; `a.ts`, `d.md` and `notes.md` stay as
+  running from trunk before `s2` to the snapshot, so the line's net change by
+  both is shown rather than hidden; `a.ts`, `d.md` and `notes.md` stay as
   before.
 - The developer activates Mark reviewed; Yui-chan publishes `s3`, changing
   `e.ts`, and Ken-chan publishes `o4`, changing `f.ts` → Refresh → Since the
