@@ -70,14 +70,6 @@ const failedOpenings: {
       "GitHub's answer for main of terryyin/open-dough did not name a commit.",
   },
   {
-    when: "the backlog file is missing at the resolved revision",
-    origin: {
-      ref: commitAnswer(revision),
-      backlog: { revision, answer: notFoundAnswer() },
-    },
-    problem: `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revision}. Check that \`gh auth status\` succeeds and that this login can read terryyin/open-dough, then reload the page.`,
-  },
-  {
     when: "one entry line among valid ones is malformed",
     origin: publishedAs(
       backlogWith([claimsEntry, "- Queue trunk integration, without a link"]),
@@ -117,6 +109,24 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
     }
   });
 }
+
+test("read failure names a missing published backlog concisely and keeps project switching available", async ({
+  page,
+}) => {
+  await publishOrigin(page, {
+    ref: commitAnswer(revision),
+    backlog: { revision, answer: notFoundAnswer() },
+  });
+  await page.goto("/");
+  const message =
+    "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
+  await expectProblemAndNoSnapshot(page, message);
+  const { problem, project } = parts(page);
+  await expect(problem.locator("p").first()).toHaveText(message);
+  await expect(
+    project.getByRole("radio", { name: "Doughnut", exact: true }),
+  ).toBeEnabled();
+});
 
 test("read failure and retry is not caused by an unknown section, which adds no stage, card, or control", async ({
   page,

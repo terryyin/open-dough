@@ -15,9 +15,8 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery) — SEED-063#background-ci-failure-delivery ([plan](slice-plans/299-background-ci-failure-delivery/PLAN.md))
-- [Missing published backlog](seeds/SEED-119-clear-missing-backlog-message.md#missing-published-backlog) — SEED-119#missing-published-backlog
+- [A GitHub request or failed log that could not be read says why](seeds/SEED-063-dashboard-owned-ci-monitoring.md#request-owner-says-why) — SEED-063#request-owner-says-why ([plan](slice-plans/300-request-owner-says-why/PLAN.md))
 
 ## Backlog list
 
-- [A GitHub request or failed log that could not be read says why](seeds/SEED-063-dashboard-owned-ci-monitoring.md#request-owner-says-why) — SEED-063#request-owner-says-why
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
