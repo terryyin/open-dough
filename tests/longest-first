@@ -22,6 +22,7 @@ src/skills/dough-execute-plan/scripts/one-shot-queued-races.test.mjs
 tests/native-delivery-updated-use.sh
 tests/support/lint-file-set.test.mjs
 tests/update-refuses-unverifiable.sh
+src/skills/dough-story-wrap-up/scripts/trunk-closure-completion-gate.test.mjs
 src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs
 tests/native-stream-replay.sh
 tests/install-ci-host-hooks.sh

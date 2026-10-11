@@ -119,7 +119,7 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
   assert.match(
     closurePublication,
-    /retained or unconfirmed\s+shutdown keeps the worktree and branch/,
+    /a CI failure, a receipt with no verdict, or retained or unconfirmed\s+shutdown keeps the worktree and branch/,
   );
   assert.match(
     closurePublication,
@@ -184,7 +184,7 @@ test("wrap-up retires execution resources through Dough Land with its completion
   );
   assert.match(
     wrapUpRetirement,
-    /gate[\s\S]+completion receipt[\s\S]+whose shutdown\s+is confirmed/,
+    /gate: a `success` completion receipt[\s\S]+whose shutdown\s+is confirmed/,
   );
   assert.match(
     wrapUpRetirement,
@@ -201,15 +201,15 @@ test("wrap-up retires execution resources through Dough Land with its completion
   assert.match(wrapUpRetirement, /direct-current-branch mode/);
   assert.match(
     closureRetirement,
-    /receipt whose shutdown is confirmed retires the\s+worktree and branch under Dough Land's\s+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
+    /only after a `success` receipt whose shutdown is confirmed retires\s+the\s+worktree and branch under Dough Land's\s+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
   );
   assert.match(
     wrapUpRetirement,
-    /In Trunk Mode, `finish` retires[\s\S]+completion receipt confirms shutdown/,
+    /In Trunk Mode, `finish` retires[\s\S]+completion receipt holds `success` with confirmed shutdown/,
   );
   assert.match(
     integrationRetirement,
-    /confirmed shutdown as its gate[\s\S]+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
+    /a `success` receipt with confirmed shutdown as its\s+gate[\s\S]+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
   );
   // Closure takes ownership from the shared lifecycle's creation-record rule
   // by link.

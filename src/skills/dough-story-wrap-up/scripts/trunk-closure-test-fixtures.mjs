@@ -2,6 +2,7 @@
 // worktree with story wrap-up and Dough Land installed beside execute-plan,
 // a real observer mailbox, and a controlled CI adapter. `finish` runs as the
 // agent runs it: the installed command in a child process.
+import assert from "node:assert/strict";
 import { execFile, execFileSync } from "node:child_process";
 import {
   appendFileSync,
@@ -15,6 +16,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { publishJson } from "../../dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
+import { deliverThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
   createManagedFixture,
   deploySkill,
@@ -91,6 +93,18 @@ export function recordPushes(fixture, env = fixture.env) {
     pushes: () =>
       existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [],
   };
+}
+
+// The before-cleanup commit accepted through the installed `deliver`, leaving
+// its observer live for `finish` to recover. `options` reach `deliverThroughCli`.
+export async function deliverBeforeCleanupThroughCli(fixture, options = {}) {
+  const { delivered } = await deliverThroughCli(fixture, {
+    base: fixture.trunkSha,
+    ...options,
+  });
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.state, "attached");
+  return delivered;
 }
 
 // Commits the final closure in the execution worktree and returns its SHA.

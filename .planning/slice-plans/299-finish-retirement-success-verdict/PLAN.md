@@ -78,7 +78,7 @@ case in it.
 
 ### 1. `finish` keeps the worktree and branch unless the closure's receipt is a success
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new `trunk-closure.test.mjs` case and the updated guidance test in
 the proof table; the wrap-up closure suite stays green.
 
@@ -109,6 +109,21 @@ Run the wrap-up closure suite and both guidance tests; run `npm run lint`.
 
 Safe stopping point: the story is complete; nothing interim remains.
 
+Accepted proof: `node --test src/skills/dough-story-wrap-up/scripts/*.test.mjs`
+(56 pass). The no-verdict journey is "a receipt with no CI verdict for the
+final closure stops at completion, …" in
+`trunk-closure-completion-gate.test.mjs`, which also holds the failure and
+retained-shutdown stops; it failed before the predicate change with exit 0 and
+`step: "done"`. `node --test` of `ci-completion-lifecycle-guidance.test.mjs`
+and `observer-owner-guidance.test.mjs` (7 pass), and of the other
+`deliverThroughCli` consumers (81 pass).
+
+Learnings: the observer rechecks its budget only after its fixed 30 s poll
+pause, so the journey takes about 34 s whatever short budget it is given; it
+lives in its own test file so it runs beside the other closure cases, and
+`tests/longest-first` lists it. `docs/maintainer/execution-publication-design.md`
+paraphrased the gate in its Closure row and now names `success` too.
+
 ## Current decisions
 
 - Retirement requires `verdict: "success"` with confirmed shutdown, the rule
@@ -116,3 +131,20 @@ Safe stopping point: the story is complete; nothing interim remains.
 - The shared completion operation keeps stopping the observer on an unresolved
   receipt; the rerun's recovery through `deliver` is existing behavior and is
   cited, not changed.
+
+## Story obligations
+
+### G1. Only one unresolved reason runs through finish
+Reported: slice 1 — "Only `observation_unavailable` / `monitor_unavailable` is exercised through `finish`. The other unresolved reasons rely on the same predicate, as the plan assumes."
+Story clause: "The fixture's observer budget is the practical way to reach an unresolved receipt in a test; the ten-minute deadline is the same rule, not a separate case."
+Disposition: excluded "The fixture's observer budget is the practical way to reach an unresolved receipt in a test; the ten-minute deadline is the same rule, not a separate case."
+
+### G2. Rerun after the unresolved stop is not run in the new journey
+Reported: slice 1 — "A rerun of `finish` after the unresolved stop is not exercised; the plan treats it as existing behaviour."
+Story clause: "the ended observer holds no verdict, so `step: "observation"` names the existing recovery"
+Disposition: proved by slice 1: `trunk-closure-owner-gaps.test.mjs` "finish whose coordinator's ended observers each registered the final closure reports them ended with the deliver step; its rerun after that deliver completes on the new observer and retires…" and `trunk-closure-observer-ended-selection.test.mjs` "closure selects its coordinator's one ended observer that registered the final closure when its record holds a verdict, and none while it holds nothing or only a cancelled attempt", both green in the slice's wrap-up closure suite run
+
+### G3. The no-verdict journey takes about 34 seconds
+Reported: slice 1 — "the new test takes about 34 s, not a few seconds"
+Story clause: "by a rule the product states and tests"
+Disposition: no user cost "by a rule the product states and tests": the rule is tested through the installed finish; the duration is the observer's fixed 30 s poll pause, which this story leaves unchanged, and the case runs in its own file beside the other closure cases

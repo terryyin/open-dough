@@ -12,7 +12,8 @@ import { receiptPrefix } from "./ci-mailbox-location.mjs";
 // branch, or of the supplied `workspace` and `branch`, with only the supplied
 // environment under the supplied `mode` and optional `tracking`; `extra` adds
 // flags such as `--session-json` or `--authority`. `mode: null` omits
-// `--mode`. The reported observer stops at teardown.
+// `--mode`. `maxDurationMs` is the observer's execution observation budget.
+// The reported observer stops at teardown.
 export async function deliverThroughCli(
   fixture,
   {
@@ -25,6 +26,7 @@ export async function deliverThroughCli(
     mode = "trunk",
     tracking,
     targetRef = "refs/heads/main",
+    maxDurationMs = 60_000,
   },
 ) {
   const args = [
@@ -43,7 +45,7 @@ export async function deliverThroughCli(
     "--host",
     host,
     "--max-duration-ms",
-    "60000",
+    String(maxDurationMs),
     ...extra,
   ];
   const script = join(

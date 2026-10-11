@@ -1,12 +1,13 @@
 // Trunk Mode wrap-up closure through the installed `finish` command, run as a
 // child process after the before-cleanup commit was accepted: the final
 // closure is published and registered on the coordinator's observer, one
-// completion receipt covers it, and only a receipt with confirmed shutdown
-// retires the worktree and branch. Every stop preserves both closure commits.
+// completion receipt covers it, and only a `success` receipt with confirmed
+// shutdown retires the worktree and branch. Every stop preserves both closure
+// commits. The receipts that stop at completion are in
+// `trunk-closure-completion-gate.test.mjs`.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
-import { deliverThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
   advanceOriginFromAnotherWriter,
   lsRemoteSha,
@@ -16,6 +17,7 @@ import {
   branchSha,
   commitFinalClosure,
   createTrunkClosureFixture,
+  deliverBeforeCleanupThroughCli,
   finishThroughCli,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
@@ -23,20 +25,9 @@ import { git } from "../../dough-execute-plan/scripts/execution-increment-manage
 
 const main = "refs/heads/main";
 
-// The before-cleanup commit accepted through the installed `deliver`, leaving
-// its observer live for `finish` to recover.
-async function deliverBeforeCleanup(fixture) {
-  const { delivered } = await deliverThroughCli(fixture, {
-    base: fixture.trunkSha,
-  });
-  assert.equal(delivered.publication, "accepted");
-  assert.equal(delivered.observation.state, "attached");
-  return delivered;
-}
-
 test("finish publishes the final closure, completes it once on its coordinator's observer, refreshes the default checkout, and then retires", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
-  const before = await deliverBeforeCleanup(fixture);
+  const before = await deliverBeforeCleanupThroughCli(fixture);
   const beforeCleanup = before.receipt.sha;
   const final = await commitFinalClosure(fixture);
   releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
@@ -71,7 +62,7 @@ test("a stopped default-checkout refresh keeps the accepted closure, still retir
   const remoteBranch = "refs/heads/exec/story";
   await git(fixture.execution, "push", "-q", "origin", `HEAD:${remoteBranch}`);
   const remoteExecutionTip = await lsRemoteSha(fixture.origin, remoteBranch);
-  const before = await deliverBeforeCleanup(fixture);
+  const before = await deliverBeforeCleanupThroughCli(fixture);
   const final = await commitFinalClosure(fixture);
   releaseCi(fixture, { [before.receipt.sha]: "success", [final]: "success" });
   await git(fixture.integration, "switch", "-q", "-c", "side");
@@ -135,7 +126,7 @@ test("finish establishes its coordinator's observer on a non-default remote and 
 
 test("a conflicting trunk advance stops finish with the worktree, branch, and both closure commits preserved and names the recovery step", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
-  const before = await deliverBeforeCleanup(fixture);
+  const before = await deliverBeforeCleanupThroughCli(fixture);
   const beforeCleanup = before.receipt.sha;
   const final = await commitFinalClosure(fixture, "trunk.txt");
   const theirs = await advanceOriginFromAnotherWriter(fixture.origin, {
@@ -183,35 +174,6 @@ test("a before-cleanup commit the target lacks stops finish before anything is p
   assert.equal(existsSync(fixture.storage), false);
   assert.equal(await branchSha(fixture), final);
 });
-
-// A CI failure, or a success whose shutdown is retained by an earlier
-// revision's unread CI failure, never retires.
-for (const [receipt, beforeCi, finalCi, verdict] of [
-  ["a failed CI receipt", "success", "failure", "failure"],
-  ["a success receipt with retained shutdown", "failure", "success", "success"],
-]) {
-  test(`${receipt} stops at completion and preserves the worktree and branch`, async (t) => {
-    const fixture = await createTrunkClosureFixture(t);
-    const before = await deliverBeforeCleanup(fixture);
-    const final = await commitFinalClosure(fixture);
-    releaseCi(fixture, { [before.receipt.sha]: beforeCi, [final]: finalCi });
-
-    const { result, code } = await finishThroughCli(fixture, {
-      beforeCleanup: before.receipt.sha,
-      final,
-      extra: ["--created-for-work"],
-    });
-
-    assert.equal(code, 1);
-    assert.equal(result.step, "completion");
-    assert.equal(result.acceptedSha, final);
-    assert.equal(result.completion.verdict, verdict);
-    assert.equal(result.completion.shutdown.status, "retained");
-    assert.equal(result.cleanup, "not-performed");
-    assert.equal(existsSync(fixture.execution), true);
-    assert.equal(await branchSha(fixture), final);
-  });
-}
 
 test("finish refuses incomplete arguments as a usage error", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
