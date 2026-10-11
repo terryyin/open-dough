@@ -172,8 +172,8 @@ export const storyReviewSchema = z
       head: objectIdSchema,
       // The workspace's files as observed, written as a tree object: every
       // file diff of this snapshot compares the *from* tree of the comparison
-      // shown with it: `baseline` for `files`; for `since`, its `from` or the
-      // file's `includesTrunkFrom`.
+      // shown with it: `baseline` for `files`; for `since`, its `from`; or in
+      // either, the file's `includesTrunkFrom`.
       tree: objectIdSchema,
       files: z.array(reviewedFileSchema),
       commits: z.array(reviewCommitSchema),

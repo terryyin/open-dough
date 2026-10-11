@@ -189,7 +189,7 @@ Disposition: receiving slice 3
 ### G2. Inseparable file listed without its flag
 Reported: slice 1 — "It is listed from the restated tree without a flag, and that tree holds Git's conflict markers for it."
 Story clause: "A file whose story change and trunk change Git cannot separate is listed flagged"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `dashboard/tests/story-review-trunk-own-flagged.spec.ts`, "a file trunk rewrote where the story changed it is flagged as including trunk's changes"
 
 ### G3. A Git that cannot restate says nothing
 Reported: slice 1 — "Baseline stays the merge-base and no `published` is answered; `kept: \"not-restated\"` and its feedback are slice 4."
@@ -199,12 +199,17 @@ Disposition: receiving slice 4
 ### G4. Singular commit wording untested
 Reported: slice 1 — "Singular wording is my choice and untested"
 Story clause: "its one-line form says how many"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `dashboard/tests/story-review-trunk-own-flagged.spec.ts`, step "the context line counts one published commit"
 
 ### G5. Preparation profile with activity not exercised
 Reported: slice 1 — "The fixture uses it only as a Git author of `prep.md`, with no profile file, so \"profile with `activity`\" is not exercised directly."
 Story clause: "the preparation agent's commits for this story"
 Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-own-changes.spec.ts` lists exactly `d.md`, `notes.md`, `src/a.ts`, leaving out the preparation agent's `prep.md`
+
+### G6. Flagged file kept as its origin, or renamed, untested in All changes
+Reported: slice 2 — "The kept-as-origin fallback: a flagged file whose snapshot content equals its origin is listed from the merge-base."
+Story clause: "as Since the review flags such a file today"
+Disposition: proved by slice 2: All changes and Since the review list flagged files through the one `listedFrom` of `dashboard/server/storyReviewComparison.ts`, whose kept and renamed paths `dashboard/tests/story-review-since-trunk.spec.ts` ("a conflicted file the story kept as marked is flagged and diffed from the baseline") observes
 
 ## Ordered slices
 
@@ -254,7 +259,17 @@ Safe stopping point: the story's main outcome is delivered.
 
 ### 2. A file trunk and the story both changed is flagged with trunk's changes included
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- dashboard/tests/story-review-trunk-own-changes.spec.ts dashboard/tests/story-review-trunk-own-flagged.spec.ts`
+(four tests); the story-review suite and `recently-done-one-shot-review.spec.ts`;
+`npm run typecheck:dashboard`; `npm run lint`.
+Learnings: `listedFrom` in `server/storyReviewComparison.ts` is the one
+listing of flagged files, for All changes and Since the review; `trunkLess`
+answers `{ tree, inseparable }`, each inseparable path with its origin tree.
+The flagged cases live in `tests/story-review-trunk-own-flagged.spec.ts`; the
+fixture takes `published: 0 | 1 | 2` and `publishRewrittenLine` stages named
+paths so the untracked `notes.md` stays out of a story commit. Slice 3's
+cases go in their own spec file.
 Proof: New case in `story-review-trunk-own-changes.spec.ts` for the flagged
 file; the story-review spec suite; typecheck and lint.
 

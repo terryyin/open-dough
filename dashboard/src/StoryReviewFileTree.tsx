@@ -19,7 +19,7 @@ export const kindWords: Record<ReviewedFile["kind"], string> = {
   renamed: "Renamed",
 };
 
-// The flag of a file that includes trunk's changes since the review.
+// The flag of a file that includes trunk's changes.
 export const includesTrunkWords = "includes trunk's changes";
 
 // A file's kind and full path in words, and its flag, as its control is

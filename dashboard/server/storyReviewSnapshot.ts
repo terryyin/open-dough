@@ -7,7 +7,8 @@
 // workspace's files -- commits, staged, unstaged, and untracked, never
 // ignored -- into a tree object through a temporary index, and lists what
 // changed from the baseline to that tree with each file's line counts
-// (`./storyReviewFiles.ts`). The workspace's own index and
+// (`./storyReviewFiles.ts`), a file Git could not separate from trunk's
+// changes from its own tree instead. The workspace's own index and
 // status stay as they were; the tree is an ordinary unreachable object of
 // its repository. A step Git cannot take answers why, never a partial list:
 // a worktree no longer on disk is said to be missing before any Git runs,
@@ -48,9 +49,8 @@ import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { storyCommits } from "./storyReviewCommits.ts";
-import { changedFrom } from "./storyReviewFiles.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
-import { compareReviewPoints } from "./storyReviewComparison.ts";
+import { compareReviewPoints, listedFrom } from "./storyReviewComparison.ts";
 import type { AdmittedReview } from "./storyReviewAdmission.ts";
 
 const outputLimit = 64 * 1024 * 1024;
@@ -163,7 +163,11 @@ async function storyReviewSnapshot(
     const taken = await publishedStoryCommits(story, trunk, call);
     const less =
       taken.length === 0 ? undefined : await trunkLess(taken, trunk, call);
-    const baseline = less ?? trunk;
+    const baseline = less?.tree ?? trunk;
+    // The files from the baseline; one Git cannot separate from trunk's
+    // changes is listed from where the story first changed it.
+    const changed = (to: string) =>
+      listedFrom(baseline, to, less?.inseparable ?? new Map(), trunk, call);
     const temporaryIndex = { GIT_INDEX_FILE: path.join(index, "index") };
     await git(["read-tree", "HEAD"], temporaryIndex);
     await git(["add", "--all"], temporaryIndex);
@@ -177,16 +181,12 @@ async function storyReviewSnapshot(
       call,
     );
     const headTree = await git(["rev-parse", `${head}^{tree}`]);
-    const files = await changedFrom(baseline, tree, call);
+    const files = await changed(tree);
     // The committed work alone, when the snapshot holds more than it.
     const committed =
       tree === headTree
         ? undefined
-        : {
-            from: baseline,
-            tree: headTree,
-            files: await changedFrom(baseline, headTree, call),
-          };
+        : { from: baseline, tree: headTree, files: await changed(headTree) };
     const comparison =
       mark === undefined
         ? undefined

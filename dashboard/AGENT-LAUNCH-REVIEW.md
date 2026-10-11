@@ -42,7 +42,16 @@ claim, preparation commits, merges, and the agent's commits for another story
 stay trunk's. Each story commit is taken out newest first by
 `git merge-tree --write-tree --name-only -z --merge-base=<commit> <tree so far>
 <commit's first parent>`, the restatement the changes since the review use,
-which writes tree objects and touches no index, worktree, or ref. The answer
+which writes tree objects and touches no index, worktree, or ref. A file
+whose story change Git cannot take out, because trunk then changed the same
+lines, is conflicted in that restatement: all changes lists it with its kind,
+counts and diff from trunk as it was before the story's first change to it,
+the tree of the first parent of the oldest story commit that changed its path
+(`git diff-tree --no-commit-id -r --name-only -z <commit>`), which is the
+file's `includesTrunkFrom`, so the line's net change by both is shown rather
+than hidden. Its control's name, its row, and its diff heading say it
+“includes trunk's changes”, as in the changes since the review, and the
+committed work alone lists it the same way. The answer
 then carries `published`, the trunk revision the commits were taken out of
 (`trunk`, the merge-base) and how many (`commits`), and `baseline` names the
 resulting tree; with nothing published since the claim it carries no

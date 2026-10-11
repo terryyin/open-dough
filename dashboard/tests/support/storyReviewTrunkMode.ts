@@ -1,12 +1,14 @@
 // Story A held in Trunk Mode for its review
-// (../story-review-trunk-own-changes.spec.ts), off a real bare origin
+// (../story-review-trunk-own-changes.spec.ts,
+// ../story-review-trunk-own-flagged.spec.ts), off a real bare origin
 // (./startOrigin.ts): the roster agent Yui-chan's claim on trunk moves Story
 // A to Taken, and her worktree authors its commits as her through its own
 // Git config. She publishes each story commit from the worktree onto
 // `origin/main`, where other developers' commits, a preparation agent's, and
 // a merge she authored interleave with them; the worktree is rebased onto
 // fetched trunk, so its head is trunk's. An earlier story she closed stays
-// on trunk before the claim. Its kept launch record names the worktree
+// on trunk before the claim. Another developer can also rewrite the very
+// line her second commit changed. Its kept launch record names the worktree
 // (./storyLaunchRecord.ts).
 
 import { execFileSync } from "node:child_process";
@@ -77,17 +79,21 @@ function writeClaim(project: string, identity: string) {
   );
 }
 
-// Story A's Trunk Mode worktree. Published, it holds `s1`, the first line of
-// `src/a.ts`, and `s2`, adding `d.md`, on trunk, with `o1` changing
-// `src/b.ts`, Mina-chan's `prep.md`, a merge Yui-chan authored bringing
-// `merged.md`, and `o2`, the last line of `src/a.ts`, between them. Either
-// way `notes.md` is untracked and the head is trunk's, which is returned.
+// The worktree as the review's context line shows it.
+export const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
+
+// Story A's Trunk Mode worktree, with as many story commits published as
+// said. The first is `s1`, the first line of `src/a.ts`, followed on trunk
+// by `o1` changing `src/b.ts`, Mina-chan's `prep.md`, a merge Yui-chan
+// authored bringing `merged.md`, and `o2`, the last line of `src/a.ts`; the
+// second is `s2`, adding `d.md`. Either way `notes.md` is untracked and the
+// head is trunk's, which is returned.
 export function trunkModeStory(
   origin: StartOrigin,
-  { published }: { readonly published: boolean },
+  { published }: { readonly published: 0 | 1 | 2 },
 ) {
   const project = origin.project;
-  for (const word of ["a", "b"])
+  for (const word of ["a", "b", "c"])
     writeAt(project, `src/${word}.ts`, lines(word));
   commitAllAs(project, "trunk files");
 
@@ -119,7 +125,7 @@ export function trunkModeStory(
   // Trunk as another developer's checkout meets it before writing.
   const pull = () =>
     git(project, "pull", "--quiet", "--ff-only", "origin", "main");
-  if (published) {
+  if (published > 0) {
     writeAt(workspace, "src/a.ts", lines("a").replace("a 0\n", "a one\n"));
     commitAllAs(workspace, "s1");
     push(workspace);
@@ -147,15 +153,62 @@ export function trunkModeStory(
     commitAllAs(project, "o2");
     push(project);
 
-    git(workspace, "fetch", "--quiet", "origin", "main");
-    git(workspace, "rebase", "--quiet", "origin/main");
-    writeAt(workspace, "d.md", "story document\n");
-    commitAllAs(workspace, "s2");
-    push(workspace);
-    git(workspace, "fetch", "--quiet", "origin", "main");
+    rebaseOntoTrunk(workspace);
   }
+  if (published > 1) publishSecond(workspace);
   writeAt(workspace, "notes.md", "notes\n");
   return { workspace, trunk: git(workspace, "rev-parse", "origin/main") };
+}
+
+// The worktree's commits replayed onto freshly fetched trunk.
+function rebaseOntoTrunk(workspace: string) {
+  git(workspace, "fetch", "--quiet", "origin", "main");
+  git(workspace, "rebase", "--quiet", "origin/main");
+}
+
+// Yui-chan publishes `s2`, adding `d.md` and holding the changed files also
+// named, leaving the worktree's untracked file as it is.
+function publishSecond(workspace: string, ...also: string[]) {
+  writeAt(workspace, "d.md", "story document\n");
+  git(workspace, "add", "d.md", ...also);
+  git(workspace, "commit", "--quiet", "-m", "s2");
+  push(workspace);
+  git(workspace, "fetch", "--quiet", "origin", "main");
+}
+
+// `src/c.ts` with the lines given in place of its own, by line number.
+const cWith = (changed: Readonly<Record<number, string>>) =>
+  Object.entries(changed).reduce(
+    (text, [line, now]) => text.replace(`c ${line}\n`, `${now}\n`),
+    lines("c"),
+  );
+
+// Yui-chan publishes `s2`, which here also changes a line of `src/c.ts`, and
+// another developer's `o3` then rewrites that very line; the worktree is
+// rebased onto fetched trunk. With `earlier`, she first publishes a story
+// commit changing another line of that file. Returns trunk and the tree
+// before her first change to the file.
+export function publishRewrittenLine(
+  origin: StartOrigin,
+  workspace: string,
+  { earlier = false }: { readonly earlier?: boolean } = {},
+) {
+  const beforeStory = git(workspace, "rev-parse", "HEAD^{tree}");
+  const kept = earlier ? { 9: "c nine" } : {};
+  if (earlier) {
+    writeAt(workspace, "src/c.ts", cWith(kept));
+    git(workspace, "add", "src/c.ts");
+    git(workspace, "commit", "--quiet", "-m", "s1 more");
+    push(workspace);
+  }
+  writeAt(workspace, "src/c.ts", cWith({ ...kept, 3: "c story" }));
+  publishSecond(workspace, "src/c.ts");
+  git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
+  writeAt(origin.project, "src/c.ts", cWith({ ...kept, 3: "c trunk" }));
+  commitAllAs(origin.project, "o3");
+  push(origin.project);
+  rebaseOntoTrunk(workspace);
+  return { trunk: git(workspace, "rev-parse", "origin/main"), beforeStory };
 }
 
 // Yui-chan's unpublished commit `u1`, adding `src/g.ts` and leaving the

@@ -37,7 +37,7 @@ export const contextWords = ({
   readonly published?: number;
   readonly workspace: string;
 }) =>
-  `Branch ${branch} Baseline ${baseline} where ${branch} meets origin/main${published === undefined ? "" : `, less the story's ${String(published)} published commits`} Worktree ${workspace}`;
+  `Branch ${branch} Baseline ${baseline} where ${branch} meets origin/main${published === undefined ? "" : `, less the story's ${String(published)} published ${published === 1 ? "commit" : "commits"}`} Worktree ${workspace}`;
 
 // The review's file browser, which scrolls on its own.
 export const fileBrowser = (review: Locator) =>

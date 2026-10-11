@@ -8,6 +8,8 @@
 // names the trunk revision less the story's published commits. Commits stays
 // the worktree's own. With nothing published since the claim the review is
 // the one every worktree has: the merge-base as baseline.
+// ./story-review-trunk-own-flagged.spec.ts covers a file trunk rewrote where
+// the story changed it, and the context line's one published commit.
 
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -26,18 +28,17 @@ import {
 import {
   commitUnpublished,
   openTaken,
+  shownWorkspace,
   trunkModeStory,
 } from "./support/storyReviewTrunkMode.ts";
 import { branch, git } from "./support/storyReviewWorktree.ts";
-
-const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 
 test("all changes lists a Trunk Mode story's published changes beside its unpublished ones and leaves trunk's out", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const { workspace, trunk } = trunkModeStory(origin, { published: true });
+  const { workspace, trunk } = trunkModeStory(origin, { published: 2 });
   expect(git(workspace, "rev-parse", "HEAD")).toBe(trunk);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
@@ -133,7 +134,7 @@ test("a Trunk Mode story with nothing published since its claim is reviewed agai
   dashboard,
   origin,
 }) => {
-  const { workspace, trunk } = trunkModeStory(origin, { published: false });
+  const { workspace, trunk } = trunkModeStory(origin, { published: 0 });
   commitUnpublished(workspace);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);

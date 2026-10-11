@@ -16,7 +16,9 @@ export type LineCounts = z.infer<typeof lineCountsSchema>;
 // cannot separate, that it includes trunk's changes -- its kind, diff, and
 // line counts then run from this tree instead of the comparison's *from*
 // tree: the marked one, or the baseline when the story kept its marked
-// version.
+// version. A file of all changes whose published story change trunk then
+// changed inseparably says the same, from trunk's tree before the story
+// first changed it.
 const fileFacts = {
   lines: lineCountsSchema.optional(),
   includesTrunkFrom: objectIdSchema.optional(),

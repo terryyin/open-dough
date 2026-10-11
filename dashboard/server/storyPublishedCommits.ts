@@ -14,7 +14,10 @@
 // merges, and the agent's commits for another story stay trunk's.
 // Trunk less those commits is a tree, built by reverse-applying each one,
 // newest first, with the restatement of `./storyReviewComparison.ts`; it
-// writes tree objects and touches no index, worktree, or ref.
+// writes tree objects and touches no index, worktree, or ref. A path whose
+// story change Git cannot take out from under trunk's later change is
+// inseparable: the review lists it from trunk before the oldest story commit
+// that changed it.
 
 import {
   agentIdentity,
@@ -177,16 +180,27 @@ export async function publishedStoryCommits(
   return published;
 }
 
+// Trunk less the story's published commits: its tree, and each path Git
+// could not separate from trunk's changes with the tree it is compared from
+// instead, trunk as it was before the story's first change to that path.
+export interface TrunkLess {
+  readonly tree: string;
+  readonly inseparable: ReadonlyMap<string, string>;
+}
+
 // The tree of `trunk` with the published commits, newest first, taken out;
 // undefined when this machine's Git cannot restate a tree.
 export async function trunkLess(
   published: readonly PublishedCommit[],
   trunk: string,
   call: GitCall,
-): Promise<string | undefined> {
-  let tree = (
-    await runGit(["rev-parse", "--verify", `${trunk}^{tree}`], call)
-  ).stdout.trim();
+): Promise<TrunkLess | undefined> {
+  const git = async (...args: string[]) => (await runGit(args, call)).stdout;
+  const treeOf = async (revision: string) =>
+    (await git("rev-parse", "--verify", `${revision}^{tree}`)).trim();
+  let tree = await treeOf(trunk);
+  const inseparable = new Map<string, string>();
+  const pending = new Set<string>();
   for (const { commit, parent } of published) {
     const restated = await restatedPoint(
       { tree, baseline: commit },
@@ -195,6 +209,18 @@ export async function trunkLess(
     );
     if (restated === undefined) return undefined;
     ({ tree } = restated);
+    for (const file of restated.inseparable) pending.add(file);
+    if (pending.size === 0) continue;
+    // An older story commit that also changed the path moves its origin
+    // back to that commit's parent.
+    const names = ["diff-tree", "--no-commit-id", "-r", "--name-only", "-z"];
+    const changed = new Set((await git(...names, commit)).split("\0"));
+    const before = await treeOf(parent);
+    for (const file of pending) {
+      if (changed.has(file) || !inseparable.has(file)) {
+        inseparable.set(file, before);
+      }
+    }
   }
-  return tree;
+  return { tree, inseparable };
 }
