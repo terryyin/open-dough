@@ -15,6 +15,7 @@ import { resolve } from "node:path";
 import { completeRevision } from "../../dough-execute-plan/scripts/ci-mailbox-complete.mjs";
 import { mailboxRoot } from "../../dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import { isDirectCliEntry } from "../../dough-execute-plan/scripts/ci-direct-entry.mjs";
+import { withExplicitSession } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
 import { refreshDefaultCheckout } from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
 import {
   git,
@@ -24,10 +25,8 @@ import {
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { retireWorktree } from "../../dough-land/scripts/worktree-retirement.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
-import {
-  observerRoot,
-  settleFinalClosure,
-} from "./trunk-closure-settlement.mjs";
+import { observerAccess } from "./trunk-closure-observer.mjs";
+import { settleFinalClosure } from "./trunk-closure-settlement.mjs";
 
 const recoveries = {
   "before-cleanup":
@@ -35,7 +34,7 @@ const recoveries = {
   context:
     "rerun finish with --repository set to the management context an earlier finish result reported",
   observation:
-    "rerun finish with the owner input observation.reason names, or report the lost coverage; the worktree and branch stay until a completion receipt confirms shutdown",
+    "follow observation.reason and rerun finish, or report the lost coverage; the worktree and branch stay until a completion receipt confirms shutdown",
   completion:
     "report the completion receipt; the worktree and branch stay for diagnosis or a later completion",
 };
@@ -99,7 +98,7 @@ export async function finishTrunkClosure({
       reason: `${tracking} does not contain the before-cleanup commit`,
     });
   }
-  const root = observerRoot(workspace);
+  const root = await observerAccess(workspace, repository);
   const published = await settleFinalClosure({
     workspace,
     inspection,
@@ -212,11 +211,7 @@ function argumentsOf(argv) {
     }
   }
   targetBranchName(result.targetRef);
-  if (result.sessionJson) {
-    result.session = JSON.parse(result.sessionJson);
-    delete result.sessionJson;
-  }
-  return result;
+  return withExplicitSession(result);
 }
 
 if (isDirectCliEntry(import.meta.url, process.argv[1])) {

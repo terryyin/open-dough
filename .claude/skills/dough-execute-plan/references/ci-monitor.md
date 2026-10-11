@@ -5,8 +5,8 @@ repository, branch, runtime, and host-bridge readiness before launching.
 ## Own one observer
 Managed ordinary increments and authorized repairs use
 [managed delivery](trunk-publication.md#publish-an-execution-increment-or-repair)
-for establish/reuse and exact-revision attachment — no separate probe, start, or
-`register-push` recipe on that path.
+to establish or reuse this coordinator's own observer and attach the exact
+revision — no separate probe, start, or `register-push` recipe on that path.
 
 For callers not yet on managed delivery (claims before the story-branch
 observer is armed, wrap-up closure recovering an ended observer, and other
@@ -18,9 +18,9 @@ execution branch it publishes. Reuse across claim, normal, and repair pushes.
 Register delivered revisions through [slice delivery](wrap-up.md#deliver-the-change)
 on the explicit path; register a Trunk Mode claim once the workspace exists and
 the observer is armed. A Story Branch claim publishes to trunk before that
-observer is armed: report `pendingCi: unobserved` unless matching
-observer/coverage for that exact trunk target already exists with verified
-ownership and receipts. Do not start a second observer or register that claim on
+observer is armed: report `pendingCi: unobserved` unless this coordinator's own
+observer of that exact trunk target already covers it, with verified ownership
+and receipts. Do not start a second observer or register that claim on
 the story-branch observer; that observer still covers ordinary delivery once
 armed. Discovery continues after later publications without new setup.
 Publication success closes routine delivery without waiting for CI or
@@ -54,8 +54,8 @@ Select the **non-model notification bridge for the current host**:
   its readiness probe, and use its mailbox launcher. Skip the Codex adapter;
   notification handling and repair stay shared.
 - **Codex:** read [ci-notify-codex.md](ci-notify-codex.md) and, with its tools,
-  arm its yielded stream at execution start, before the first publication, for
-  managed delivery to reuse; otherwise report the bridge unavailable as it says.
+  arm this coordinator's yielded stream at execution start, before the first publication:
+  managed delivery registers only on it; otherwise report the bridge unavailable as it says.
 
 Notifications arrive at the current host's next safe boundary. Act after a
 foreground agent or command returns; do not assume interruption.

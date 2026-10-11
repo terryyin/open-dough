@@ -106,7 +106,7 @@ interruption before a keep or discard decision leaves the draft exactly as it
 is in its owned workspace: nothing is committed, published, or discarded
 merely by pausing. See
 [Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
-for what only an explicit instruction can trigger.
+for the decisions that keep or discard it.
 
 On resume, before continuing to write into the workspace, apply [own a
 temporary exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)
