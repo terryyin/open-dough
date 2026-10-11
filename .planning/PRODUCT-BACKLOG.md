@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [A Trunk Mode story started outside the dashboard offers Review changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-worktree) — SEED-088#review-trunk-mode-story-worktree ([plan](slice-plans/296-trunk-mode-worktree-review/PLAN.md))
-- [A refinement launch recovers an interrupted unpublished preparation](seeds/SEED-123-unpublished-preparation-recovery.md#unpublished-preparation-recovery) — SEED-123#unpublished-preparation-recovery
 
 ## Backlog list
 

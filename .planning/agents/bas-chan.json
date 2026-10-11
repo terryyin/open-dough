@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "identity": "SEED-123#unpublished-preparation-recovery",
-  "mode": "story-branch",
-  "branch": "codex/recover-unpublished-preparation",
-  "host": "codex"
-}

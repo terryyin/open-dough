@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-123#unpublished-preparation-recovery",
+  "title": "A refinement launch recovers an interrupted unpublished preparation",
+  "completedAt": "2026-10-11T00:36:51.878Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "codex"
+}
