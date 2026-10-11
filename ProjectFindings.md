@@ -167,6 +167,14 @@ executions; repeated agents within each execution count once.
   - Evidence: slice 1's refactor return: "the default reporter printed no summary", rerun with `--reporter=line`; slices 3, 5, and 7's refactor returns invoked `npx playwright test ... --reporter=line|list` directly "because the default reporter's output did not show".
   - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
   - Inference: Qualified; the same recurring cost, unchanged by the release.
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297, first related implementation commit `0b6138cc`
+  - Timestamp: unknown (implementation returns of slices 1 to 4, 2026-10-11, between the claim `99898cd7` and `1c8329e4` at 11:57:40+09:00)
+  - Tool: Claude Code (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (installed guidance at `7b941f04`)
+  - Evidence: slice 1's return: "The reporter prints nothing on a pass, so I could not read the 92-test count"; slices 2, 3 and 4's returns each obtained their selection from a separate `npx playwright test --config dashboard/playwright.config.ts <paths> --list --reporter=list` or a `--reporter=list` rerun; the slice 1 and slice 4 refactor returns reported exit 0 alone for the suite.
+  - Observed effect: one listing or rerun per implementation return (seconds each); the coordinator reran the 90 to 100 test suite itself after each refactor to hold a final-state exit code.
+  - Inference: Qualified; the same recurring cost. From slice 2 the delegation named the `--list --reporter=list` listing, which replaced a second full run with a listing.
 
 ## Shell observations can invert a result on Linux (open, unqueued)
 

@@ -366,3 +366,16 @@ Change: the baseline point's failure path answers `kept`;
 it beside the mark's.
 
 Safe stopping point: the story's outcome is delivered.
+
+## Execution complete
+
+Product advice: no backlog change. The review found no correction to plan.
+When the sibling story `SEED-088#review-trunk-mode-story-worktree` lands, its
+head check should adopt `namesExecutionClaim` from
+`dashboard/server/storyPublishedCommits.ts` instead of a second rule, as this
+plan's architecture records. The story's deferred items (Commits listing
+published commits, reviewing a completed Trunk Mode story from Recently done)
+stay deferred; nothing observed here raises their priority. The older-Git
+explanation sits in the review's status region, while the uncomparable mark's
+explanation is beside Mark reviewed; whether the two should share one place is
+the developer's choice at wrap-up.

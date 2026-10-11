@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 282. Removed local codes are never reused.
+- Highest allocated local number: 284. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -915,3 +915,37 @@ selection, so its behavior changed too, with no promise or proof in the plan.
   - Evidence: plan 295 "Current findings" and "Outside-in proof ownership" name `ownedObservers.select` and journeys on Claude Code; neither names Codex. `closureObservers` builds `ownedObservers([stream.directory], …)` for `host === "codex"` in `trunk-closure-observer.mjs`. Slice 2's return listed "Codex: a retained stream that registered the closure and ended without a verdict … no test covers this" under untested; the coordinator returned it, and with the deleted candidate restored the new Codex journey failed (`finish` exited 0 and retired). Plan 295 `## Story obligations` G6 and slice 2 "Accepted proof".
   - Observed effect: one extra implementation round (about 6.5 minutes and 19k subagent tokens by the task notifications) added the Codex journey before delivery; slice 1 needed a similar round for several live observers beside one ended. The Codex `ended` gap keeps its stream wording and does not say the stream registered the closure without a verdict.
   - Inference: the plan's PFE note that "the selection already lives in one place" was correct and is why the change reached Codex; listing that place's callers when the plan was written would have put the Codex case in slice 2's proof. One sample.
+
+## DD-283 — A plan declared a neighbouring rule unchanged by reasoning from one state, and a mark taken in the other state contradicted it
+
+The plan generalized a review baseline from a commit to a tree and decided
+the page's "trunk was integrated since the mark" rule, which compared the
+two baselines' ids, stayed unchanged. It reasoned from a mark already taken
+on a tree baseline. A mark taken before the first publication holds a commit.
+
+### Occurrences
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297, first implementation `0b6138cc`
+  - Timestamp: unknown (2026-10-11, slice 3 implementation, between `58e5386e` at 11:20:13+09:00 and `15685dc7` at 11:44:40+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (installed guidance at `7b941f04`)
+  - Evidence: plan 297 "Current decisions", Mark: "`trunkIntegratedSince` is unchanged: only a change on trunk other than the story's own publication changes the baseline tree"; its observed premises cover `merge-tree` on a tree and pruning, none a commit-baseline mark compared with a later tree baseline. Slice 3's return: a probe (published 0, mark, `s3` alone) "failed with the heading present", reported "Not fixed … beyond this slice". The coordinator returned it; `baselinesDiffer` in `dashboard/server/storyReviewPoints.ts` and `since.trunkIntegrated` replaced the page rule; plan 297 slice 3 Learnings.
+  - Observed effect: one extra implementation round in slice 3 (about 4.5 minutes and 17k subagent tokens by the task notifications) and a contract change the plan had not listed (`since.trunkIntegrated`); the defect did not reach a published increment.
+  - Inference: the decision named the states the new baseline creates but checked the rule in one of them. Listing each pairing of old and new representation that a comparison can meet (commit with commit, commit with tree, tree with tree) when the plan was written would have put the case in slice 3's proof. One sample.
+
+## DD-284 — A refactor pass changed a rule's behaviour for a neighbouring caller to remove a duplicate, and reported it as a decision
+
+After a slice moved a rule into shared code, a caller outside the slice kept
+its own older form of the rule by overriding the shared answer. The refactor
+pass deleted the override so one rule remained, which changed that caller's
+result in an edge case the story preserves as it is.
+
+### Occurrences
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297, first implementation `0b6138cc`
+  - Timestamp: unknown (2026-10-11, slice 3 refactor pass, between `58e5386e` at 11:20:13+09:00 and `15685dc7` at 11:44:40+09:00)
+  - Tool: Claude Code (delegated refactor agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (installed guidance at `7b941f04`)
+  - Evidence: slice 3's refactor return, "Decision for you": "I removed the override so there is one rule in one place", naming the changed edge (two baseline commits with identical trees) and that no test covers it; plan 297 "Goal and boundaries" preserves "Commits with its Uncommitted changes item"; the coordinator restored `trunkIntegrated: fromBaseline !== baseline` in `dashboard/server/storyReviewRange.ts` before `15685dc7`. The slice 4 delegation then added "A refactor preserves behaviour: if you see a behaviour you would change, report it and leave it", and that pass reported none.
+  - Observed effect: no wrong behaviour was published; the coordinator made one manual edit and reran typecheck and the suite. The return did say what changed and how to revert it, which is what made the catch cheap.
+  - Inference: qualified. The pass treated two forms of a rule as duplication without first establishing that they answer the same for every caller; reporting the change after making it left the preserving choice to acceptance. One sample.
