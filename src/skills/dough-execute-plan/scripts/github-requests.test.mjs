@@ -30,6 +30,7 @@ function syntheticGh(t) {
   writeFileSync(
     join(directory, "gh"),
     `#!/bin/sh
+[ "$1" = auth ] && exit 1
 printf '%s\\n' "$*" >> "${log}"
 while [ -e "${directory}/hold" ] && [ ! -e "${directory}/release" ]; do sleep 0.02; done
 case "$*" in

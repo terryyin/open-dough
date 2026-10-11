@@ -21,6 +21,7 @@ assert_installed_wait_entrypoints() {
 #!/usr/bin/env node
 // Answers as `gh api --include` does, and logs each call's arguments.
 const [api, include, route = ''] = process.argv.slice(2);
+if (api === 'auth') process.exit(1);
 require('node:fs').appendFileSync(process.env.INSTALLED_WAIT_GH_CALLS, `${process.argv.slice(2).join(' ')}\n`);
 if (api !== 'api' || include !== '--include') process.exit(1);
 const answer = (body) => process.stdout.write(`HTTP/2.0 200 OK\r\n\r\n${JSON.stringify(body)}`);

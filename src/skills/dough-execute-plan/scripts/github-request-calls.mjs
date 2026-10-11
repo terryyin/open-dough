@@ -1,12 +1,12 @@
-// The `gh` calls this machine's one request owner
-// (`./github-request-owner.mjs`) has outstanding for every Open Dough
-// consumer: one `gh api` call run with GitHub's status line and headers
-// included, read once (`./github-request-answer.mjs`) -- a rate limit and
-// the wait GitHub directed, whichever request met it -- one call shared by
-// every requester asking it while it is outstanding
-// (`./github-request-outstanding.mjs`), admitted once for all of them
-// (`./github-request-admission.mjs`) and taking one of the owner's turns at
-// GitHub. Each call has a fixed argument array -- never a shell string.
+// The `gh` calls one request owner (`./github-request-owner.mjs`) has
+// outstanding for every Open Dough consumer of its API host and login: one
+// `gh api` call run with GitHub's status line and headers included, read once
+// (`./github-request-answer.mjs`) -- a rate limit and the wait GitHub
+// directed, whichever request met it -- one call shared by every requester
+// asking it while it is outstanding (`./github-request-outstanding.mjs`),
+// admitted once for all of them (`./github-request-admission.mjs`) and
+// taking one of the owner's turns at GitHub. Each call has a fixed argument
+// array -- never a shell string.
 
 import { execFile } from "node:child_process";
 import { ReadAdmission } from "./github-request-admission.mjs";
@@ -17,6 +17,7 @@ import {
   unasked,
 } from "./github-request-answer.mjs";
 import { OutstandingReads } from "./github-request-outstanding.mjs";
+import { readRoutes } from "./github-request-owner-wire.mjs";
 
 /** @import { GhAnswer } from "./github-request-answer.mjs" */
 
@@ -37,18 +38,33 @@ function includedArgs(args) {
   return ["api", "--include", ...args.slice(1)];
 }
 
+// Which of GitHub's rate-limit resources a call counts against: its search
+// and GraphQL allowances are apart from every other route's.
+function resourceOf(args) {
+  const [route = ""] = readRoutes(args) ?? [];
+  const [first] = route.replace(/^\/+/, "").split(/[/?]/);
+  return first === "search" || first === "graphql" ? first : "core";
+}
+
 export class AdmittedCalls {
-  // Every `gh` call still outstanding, keyed by its argument array and its
-  // answer's bound: the question asked of GitHub, any conditional hint
-  // included. Requesters asking it while it is outstanding wait on that one
-  // call, which ends once none of them waits or at its own bound: its first
-  // requester's, so none is set here. No settled answer is kept here.
+  // Every `gh` call still outstanding, keyed by the API host and login it
+  // is asked under, its argument array and its answer's bound: the question
+  // asked of GitHub, any conditional hint included. Requesters asking it
+  // while it is outstanding wait on that one call, which ends once none of
+  // them waits or at its own bound: its first requester's, so none is set
+  // here. No settled answer is kept here.
   #outstanding = new OutstandingReads(0);
 
-  // Whether GitHub may be asked now, and the turns at GitHub. Every call
-  // `#outstanding` starts is admitted here once, for all the requesters
-  // waiting on it, and takes one turn however many wait on it.
-  #admission;
+  // Whether GitHub may be asked now, and the turns at GitHub, for each
+  // rate-limit resource asked so far. Every call `#outstanding` starts is
+  // admitted once, for all the requesters waiting on it, and takes one turn
+  // however many wait on it.
+  /** @type {Map<string, ReadAdmission>} */
+  #admissions = new Map();
+
+  #backoffBaseMs;
+
+  #loginStands;
 
   #failed;
 
@@ -56,17 +72,21 @@ export class AdmittedCalls {
   #running = 0;
 
   // `backoffBaseMs` is the first wait after a rate limit that directs none,
-  // doubling while the limit continues. `failed` hears once of each failed
-  // answer `gh` gave; a held-back request, a requester's departure and a
-  // bound that ends a call give none.
+  // doubling while the limit continues. `loginStands` says whether this
+  // process's `gh` still asks with the API host and login these calls are
+  // asked under. `failed` hears once of each failed answer `gh` gave; a
+  // held-back request, a requester's departure, a bound that ends a call
+  // and a call another login answered give none.
   /**
    * @param {{
    *   readonly backoffBaseMs: number;
+   *   readonly loginStands: () => Promise<boolean>;
    *   readonly failed?: (answer: GhAnswer) => void;
    * }} options
    */
-  constructor({ backoffBaseMs, failed = () => undefined }) {
-    this.#admission = new ReadAdmission(backoffBaseMs);
+  constructor({ backoffBaseMs, loginStands, failed = () => undefined }) {
+    this.#backoffBaseMs = backoffBaseMs;
+    this.#loginStands = loginStands;
     this.#failed = failed;
   }
 
@@ -77,15 +97,16 @@ export class AdmittedCalls {
   /**
    * @param {readonly string[]} args
    * @param {AbortSignal} signal
-   * @param {CallBounds} bounds
+   * @param {CallBounds & { readonly scope: string }} bounds
    * @returns {Promise<GhAnswer>}
    */
-  request(args, signal, { boundMs, maxBufferBytes }) {
+  request(args, signal, { boundMs, maxBufferBytes, scope }) {
     const asked = includedArgs(args);
+    const resource = resourceOf(args);
     return this.#outstanding.waitFor(
-      JSON.stringify([asked, maxBufferBytes]),
+      JSON.stringify([scope, asked, maxBufferBytes]),
       signal,
-      (shared) => this.#spawned(asked, shared, maxBufferBytes),
+      (shared) => this.#spawned(asked, shared, maxBufferBytes, resource),
       boundMs,
     );
   }
@@ -96,45 +117,62 @@ export class AdmittedCalls {
     return this.#running;
   }
 
-  // Why nothing may be asked of GitHub now, when a rate limit's wait stands.
+  // Why nothing of some resource may be asked of GitHub now, when a rate
+  // limit's wait stands.
   /** @param {number} nowMs */
   heldBack(nowMs) {
-    return this.#admission.heldBack(nowMs);
+    for (const admission of this.#admissions.values()) {
+      const refused = admission.heldBack(nowMs);
+      if (refused !== undefined) return refused;
+    }
+    return undefined;
   }
 
-  // One call `#outstanding` started: refused while a rate limit holds
-  // requests back, otherwise run once it has a turn -- unless a limit met
-  // while it waited holds it back then. Its bound runs from before its turn,
-  // so waiting counts toward it; a call that ends while waiting never reaches
-  // GitHub.
-  async #spawned(args, signal, maxBufferBytes) {
-    const refused = this.#admission.heldBack(Date.now());
+  #admissionFor(resource) {
+    let admission = this.#admissions.get(resource);
+    if (admission === undefined) {
+      admission = new ReadAdmission(this.#backoffBaseMs);
+      this.#admissions.set(resource, admission);
+    }
+    return admission;
+  }
+
+  // One call `#outstanding` started: refused while a rate limit holds its
+  // resource's requests back, otherwise run once it has a turn -- unless a
+  // limit met while it waited holds it back then. Its bound runs from before
+  // its turn, so waiting counts toward it; a call that ends while waiting
+  // never reaches GitHub. A call is never run, and its answer never read,
+  // once `gh` asks with another login than these calls are asked under:
+  // that answer is nobody's here, teaches no limit and is told to no one.
+  async #spawned(args, signal, maxBufferBytes, resource) {
+    const admission = this.#admissionFor(resource);
+    const refused = admission.heldBack(Date.now());
     if (refused !== undefined) {
       return unasked(refused);
     }
     let turnEnds;
     try {
-      turnEnds = await this.#admission.turn(signal);
+      turnEnds = await admission.turn(signal);
     } catch {
       if (endedAtBound(signal)) {
         throw new GhFailure({ kind: "timed-out" });
       }
       return unasked({ kind: "failed" });
     }
-    // A turn can pass to this call while every requester is being ended, as
-    // when their owner closes: a call already ended is never run.
-    if (signal.aborted) {
-      turnEnds();
-      return unasked({ kind: "failed" });
-    }
-    const heldBack = this.#admission.heldBack(Date.now());
+    const heldBack = admission.heldBack(Date.now());
     if (heldBack !== undefined) {
       turnEnds();
       return unasked(heldBack);
     }
+    // A turn can pass to this call while every requester is being ended, as
+    // when their owner closes: a call already ended is never run.
+    if (!(await this.#loginStands()) || signal.aborted) {
+      turnEnds();
+      return unasked({ kind: "failed" });
+    }
     const askedAt = new Date().toISOString();
     this.#running += 1;
-    return new Promise((resolve, reject) => {
+    const [error, stdout, stderr] = await new Promise((resolve) => {
       execFile(
         "gh",
         [...args],
@@ -144,35 +182,32 @@ export class AdmittedCalls {
           encoding: "utf8",
           env: { ...process.env, GH_PROMPT_DISABLED: "1" },
         },
-        (error, stdout, stderr) => {
-          this.#running -= 1;
-          // However the call ended, admission learns of it before the turn
-          // passes on, so a limit this answer starts holds back the request
-          // that takes the turn next, and an ending without one reopens the
-          // turns.
-          if (signal.aborted) {
-            this.#admission.endedUnanswered(askedAt);
-            turnEnds();
-            if (endedAtBound(signal)) {
-              reject(new GhFailure({ kind: "timed-out" }));
-              return;
-            }
-            // Ordinary departure or shutdown ended the call: not a retained
-            // retryable failure, and not classified as an upstream answer.
-            resolve(unasked({ kind: "failed" }, askedAt));
-            return;
-          }
-          const answer = this.#admission.answered(
-            readAnswer(error, stdout, stderr, askedAt),
-            Date.now(),
-          );
-          if (answer.failure !== undefined) {
-            this.#failed(answer);
-          }
-          turnEnds();
-          resolve(answer);
-        },
+        (...ended) => resolve(ended),
       );
     });
+    this.#running -= 1;
+    // However the call ended, admission learns of it before the turn passes
+    // on, so a limit this answer starts holds back the request that takes
+    // the turn next, and an ending without one reopens the turns.
+    const answered = !signal.aborted && (await this.#loginStands());
+    if (!answered || signal.aborted) {
+      admission.endedUnanswered(askedAt);
+      turnEnds();
+      if (endedAtBound(signal)) {
+        throw new GhFailure({ kind: "timed-out" });
+      }
+      // Ordinary departure, shutdown or another login ended the call: not a
+      // retained retryable failure, and not classified as an upstream answer.
+      return unasked({ kind: "failed" }, askedAt);
+    }
+    const answer = admission.answered(
+      readAnswer(error, stdout, stderr, askedAt),
+      Date.now(),
+    );
+    if (answer.failure !== undefined) {
+      this.#failed(answer);
+    }
+    turnEnds();
+    return answer;
   }
 }

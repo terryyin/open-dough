@@ -1,10 +1,11 @@
 // Every Open Dough request to GitHub, as one consumer process asks it: one
-// `gh api` call that this machine's one request owner runs
+// `gh api` call that the one request owner of its API host and login runs
 // (`./github-request-owner.mjs`, reached through
 // `./github-request-owner-link.mjs`), so every dashboard process and CI
-// observer of this user shares its turns at GitHub, any wait GitHub directed
-// and each outstanding call. Requesters in this process asking one call
-// while it is outstanding wait on it together
+// observer of this user asking with them shares its turns at GitHub, any
+// wait GitHub directed and each outstanding call, and shares none of them
+// with a process asking with another login. Requesters in this process
+// asking one call while it is outstanding wait on it together
 // (`./github-request-outstanding.mjs`). Each call has a fixed argument array
 // beginning with `api` -- never a shell string. What a caller may ask, what
 // it keeps of an answer, and how it reports one stay with the caller.
@@ -29,10 +30,12 @@ import { answerFromWire } from "./github-request-owner-wire.mjs";
  */
 
 export class GitHubRequests {
-  // Every call this process still waits on, keyed by its argument array: the
-  // question asked of GitHub, any conditional hint included. Its requesters
-  // here share one wait on the owner, which ends once none of them waits or
-  // at its bound. No settled answer is kept here.
+  // Every call this process still waits on, keyed by the API host and login
+  // it is asked under -- named as each request names them, without a secret
+  // -- and its argument array: the question asked of GitHub, any conditional
+  // hint included. Its requesters here share one wait on the owner, which
+  // ends once none of them waits or at its bound. No settled answer is kept
+  // here.
   #outstanding;
 
   #owner;
@@ -81,9 +84,11 @@ export class GitHubRequests {
    * @param {AbortSignal} signal
    * @returns {Promise<GhAnswer>}
    */
-  request(args, signal) {
-    return this.#outstanding.waitFor(JSON.stringify(args), signal, (shared) =>
-      this.#asked(args, shared),
+  async request(args, signal) {
+    return this.#outstanding.waitFor(
+      JSON.stringify([await this.#owner.scope(), args]),
+      signal,
+      (shared) => this.#asked(args, shared),
     );
   }
 

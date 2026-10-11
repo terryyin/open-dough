@@ -1,28 +1,30 @@
-// The private endpoint of this machine's one GitHub request owner
+// The private endpoint of one GitHub request owner
 // (`./github-request-owner.mjs`): where it stands and who may reach it; what
 // is said there is `./github-request-owner-wire.mjs`'s. It stands in a
 // directory only this user can enter, under `/tmp/dough-github-requests-UID/`
 // unless `DOUGH_GITHUB_REQUEST_OWNER_ROOT` names another -- beside the CI
 // mailboxes (`./ci-mailbox-location.mjs`), where every host that can run an
 // observer can write, and short enough for a socket path -- one directory
-// for each `gh` and `gh` login settings a consumer runs with, so no consumer
-// is answered with another's login. The owner standing there is the one its
-// highest-numbered record names; a record is claimed once and never reused.
+// for each API host and login `gh` asks with, however a process comes by
+// that login, so each has one owner and no consumer is answered with
+// another's login. The owner standing there is the one its highest-numbered
+// record names; a record is claimed once and never reused.
+import { execFile } from "node:child_process";
 import { createHmac, randomBytes } from "node:crypto";
 import {
-  accessSync,
-  constants,
   linkSync,
   lstatSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
-import { delimiter, join } from "node:path";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
-export function endpointRoot(env = process.env) {
+function endpointRoot(env) {
   return (
     env.DOUGH_GITHUB_REQUEST_OWNER_ROOT ??
     join("/tmp", `dough-github-requests-${process.getuid?.() ?? "user"}`)
@@ -67,7 +69,7 @@ function writtenOnce(file, text) {
 }
 
 // This user's secret under `root`, which names endpoint directories without
-// keeping any login setting in a name.
+// keeping any login in a name.
 function namingSecret(root) {
   const file = join(root, "key");
   try {
@@ -78,51 +80,104 @@ function namingSecret(root) {
   }
 }
 
-function installedGh(env) {
-  for (const directory of (env.PATH ?? "").split(delimiter)) {
-    const candidate = join(directory || ".", "gh");
-    try {
-      accessSync(candidate, constants.X_OK);
-      return candidate;
-    } catch {
-      continue;
-    }
+// Everything a change of host or login shows in, read without asking `gh`:
+// each setting named for `gh` or GitHub, where this endpoint's root is, and
+// the state of the file `gh` stores its logins in.
+function loginSignature(env) {
+  const settings = Object.entries(env).filter(([name]) =>
+    /^(GH|GITHUB|DOUGH_GITHUB)_/.test(name),
+  );
+  const configured =
+    env.GH_CONFIG_DIR ||
+    join(env.XDG_CONFIG_HOME || join(env.HOME || homedir(), ".config"), "gh");
+  let stored = null;
+  try {
+    const { mtimeMs, ctimeMs, size, ino } = statSync(
+      join(configured, "hosts.yml"),
+    );
+    stored = [configured, mtimeMs, ctimeMs, size, ino];
+  } catch {
+    // No stored login.
   }
-  return "";
+  return JSON.stringify([settings, stored]);
 }
 
-// What decides whose answers `gh` gives besides the `gh` run.
-const loginSettings = [
-  "GH_HOST",
-  "GH_TOKEN",
-  "GITHUB_TOKEN",
-  "GH_ENTERPRISE_TOKEN",
-  "GITHUB_ENTERPRISE_TOKEN",
-  "GH_CONFIG_DIR",
-  "XDG_CONFIG_HOME",
-  "HOME",
-];
+// How long `gh` may take to name its login before a request goes unanswered.
+const loginLimitMs = 10_000;
+
+// The token `gh` would ask its host with now -- from a token variable or its
+// stored logins, as `gh` itself decides -- read on this machine, never asked
+// of GitHub; empty without a login. It names the endpoint directory only
+// through this user's secret and is not kept, written or said. Rejects when
+// `gh` gave no answer in time.
+function loginToken(env) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "gh",
+      ["auth", "token"],
+      {
+        env: { ...env, GH_PROMPT_DISABLED: "1" },
+        timeout: loginLimitMs,
+        encoding: "utf8",
+      },
+      (error, stdout) => {
+        if (error?.killed) reject(new Error("gh did not name its login"));
+        else resolve(error ? "" : stdout.trim());
+      },
+    );
+  });
+}
 
 // The longest path a socket may be bound at on every supported system.
 const socketPathBytes = 103;
 
-// The directory holding the endpoint a process with `env` asks through,
-// created private when missing; throws when it is not this user's alone or
-// lies too deep for a socket.
-export function endpointDirectory(env = process.env) {
+// The directory holding the endpoint for the API host and login a process
+// with `env` asks with now, created private when missing; throws when it is
+// not this user's alone or lies too deep for a socket. The host is the one
+// `GH_HOST` names, `github.com` otherwise.
+async function endpointDirectory(env) {
   const root = privateDirectory(endpointRoot(env));
-  const settings = [
-    installedGh(env),
-    ...loginSettings.map((name) => env[name] ?? null),
-  ];
+  const host = (env.GH_HOST || "github.com").toLowerCase();
   const name = createHmac("sha256", namingSecret(root))
-    .update(JSON.stringify(settings))
+    .update(JSON.stringify([host, await loginToken(env)]))
     .digest("hex")
     .slice(0, 12);
   const directory = privateDirectory(join(root, name));
   if (Buffer.byteLength(join(directory, newSocketName())) > socketPathBytes)
     throw new Error("GitHub request endpoint is too deep for a socket path");
   return directory;
+}
+
+// The endpoint a process asks through, established once and again whenever
+// its host or login may have changed.
+export class EndpointBinding {
+  #env;
+
+  /** @type {{ readonly signature: string; readonly directory: Promise<string> } | undefined} */
+  #established;
+
+  constructor(env = process.env) {
+    this.#env = env;
+  }
+
+  // The endpoint directory for the host and login `gh` asks with now. A
+  // directory that could not be established is established again when next
+  // asked for.
+  /** @returns {Promise<string>} */
+  directory() {
+    const signature = loginSignature(this.#env);
+    if (this.#established?.signature !== signature) {
+      const established = {
+        signature,
+        directory: endpointDirectory(this.#env),
+      };
+      this.#established = established;
+      established.directory.catch(() => {
+        if (this.#established === established) this.#established = undefined;
+      });
+    }
+    return this.#established.directory;
+  }
 }
 
 const recordName = /^owner\.(\d+)\.json$/;

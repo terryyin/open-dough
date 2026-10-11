@@ -61,7 +61,7 @@ them in any project tooling wrapper):
 | `DOUGH_CI_WORKFLOW` | GitHub default only: workflow filename or numeric ID; it alone selects the observed workflow, whatever its display name; default `ci.yml` must be verified |
 | `DOUGH_CI_WORKFLOW_NAME` | GitHub default only, optional, no default: the selected workflow's exact display name, as a consistency check; a selected run reporting another name ends observation with `CI_MONITOR_UNAVAILABLE` |
 | `DOUGH_CI_MAILBOX_ROOT` | Optional private shared mailbox directory; default `/tmp/dough-ci-$UID` |
-| `DOUGH_GITHUB_REQUEST_OWNER_ROOT` | GitHub default only, optional: private directory, writable by the observer, through which this user's observers and dashboards share one GitHub request owner and its rate-limit wait; default `/tmp/dough-github-requests-$UID`. Where it cannot be written, each request fails as `gh failed` without asking GitHub |
+| `DOUGH_GITHUB_REQUEST_OWNER_ROOT` | GitHub default only, optional: private directory, writable by the observer, through which this user's observers and dashboards asking with one `gh` host and login share one GitHub request owner and its rate-limit wait; default `/tmp/dough-github-requests-$UID`. Where it cannot be written, each request fails as `gh failed` without asking GitHub |
 
 The branch is a required positional argument for the authorized target, never
 an inferred `main` or the execution branch name.

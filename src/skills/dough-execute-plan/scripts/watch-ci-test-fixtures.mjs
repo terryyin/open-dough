@@ -131,6 +131,7 @@ export function blockingGithubEnvironment(t) {
 // until SIGTERM, which it records as `github-request-stopped`.
 const blockingGithubCommand = `#!${process.execPath}
 (async () => {
+if (process.argv[2] === 'auth') process.exit(1);
 const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.CI_TEST_ROOT;

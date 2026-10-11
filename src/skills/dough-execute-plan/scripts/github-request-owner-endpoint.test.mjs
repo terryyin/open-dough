@@ -1,14 +1,18 @@
 // The request owner's private endpoint, spoken to directly over its socket
 // and through a consumer whose endpoint is not private: only this user's
 // directory holds it, only a caller with the owner's token is heard, and
-// only the one fixed read is asked of `gh`.
+// only the one fixed read, asked under the owner's own login, is asked of
+// `gh`.
 import assert from "node:assert/strict";
 import { chmodSync } from "node:fs";
-import { connect } from "node:net";
+import { basename } from "node:path";
 import { test } from "node:test";
 import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
 import { privacyRefusal } from "./github-request-owner-endpoint.mjs";
-import { ownerRecords } from "./github-request-owner-test-fixtures.mjs";
+import {
+  ownerRecords,
+  saidToOwner,
+} from "./github-request-owner-test-fixtures.mjs";
 import { protocol } from "./github-request-owner-wire.mjs";
 import { GitHubRequests } from "./github-requests.mjs";
 
@@ -33,30 +37,6 @@ function consumer(t) {
       failed: ({ cause }) => failed.push(cause),
     }),
   };
-}
-
-// Says `messages` to the owner at `path` and answers what it said back once
-// it said `replies` lines or closed the connection.
-function said(path, messages, replies = Infinity) {
-  return new Promise((resolve, reject) => {
-    const socket = connect(path);
-    let heard = "";
-    const lines = () => heard.split("\n").filter(Boolean);
-    const done = (closed) => {
-      socket.destroy();
-      resolve({ closed, lines: lines().map((line) => JSON.parse(line)) });
-    };
-    socket.on("error", reject);
-    socket.on("close", () => done(true));
-    socket.on("data", (chunk) => {
-      heard += chunk;
-      if (lines().length >= replies && heard.endsWith("\n")) done(false);
-    });
-    socket.on("connect", () => {
-      for (const message of messages)
-        socket.write(`${JSON.stringify(message)}\n`);
-    });
-  });
 }
 
 test("a directory is private only as this user's own directory closed to everyone else", () => {
@@ -91,18 +71,21 @@ test("the owner hears only a caller holding its token and speaking its protocol,
   const [{ socket, token, directory }] = ownerRecords(root);
   const path = `${directory}/${socket}`;
   const bounds = { boundMs: 5_000, maxBufferBytes: 1_000_000 };
-  const read = (id, args) => ({ id, request: { args, ...bounds } });
+  const read = (id, args, scope = basename(directory)) => ({
+    id,
+    request: { args, ...bounds, scope },
+  });
 
   for (const greeting of [
     { hello: protocol, token: "f".repeat(token.length) },
     { hello: protocol },
     read(1, workflow),
   ])
-    assert.deepEqual(await said(path, [greeting, read(1, workflow)]), {
+    assert.deepEqual(await saidToOwner(path, [greeting, read(1, workflow)]), {
       closed: true,
       lines: [{ refused: "unauthenticated" }],
     });
-  assert.deepEqual(await said(path, [{ hello: protocol + 1, token }]), {
+  assert.deepEqual(await saidToOwner(path, [{ hello: protocol + 1, token }]), {
     closed: true,
     lines: [{ refused: "incompatible" }],
   });
@@ -118,32 +101,38 @@ test("the owner hears only a caller holding its token and speaking its protocol,
     ["api", "repos/{owner}/{repo}"],
     ["api", "repos/owner/repo", "repos/owner/other"],
   ];
-  const heard = await said(
+  const heard = await saidToOwner(
     path,
     [
       { hello: protocol, token },
       ...refusedReads.map((args, index) => read(index + 1, args)),
       { id: 20, request: { args: workflow, boundMs: 5_000 } },
-      read(21, workflow),
+      { id: 21, request: { args: workflow, ...bounds } },
+      read(22, workflow, "0".repeat(12)),
+      read(23, workflow),
     ],
-    refusedReads.length + 3,
+    refusedReads.length + 5,
   );
   assert.equal(heard.closed, false);
   assert.deepEqual(heard.lines.slice(0, -1), [
     { welcome: protocol },
-    ...[...refusedReads.keys(), 19].map((index) => ({
+    ...[...refusedReads.keys(), 19, 20].map((index) => ({
       id: index + 1,
       refused: "not a GitHub API read",
     })),
+    { id: 22, refused: "another login" },
   ]);
-  assert.equal(heard.lines.at(-1).id, 21);
+  assert.equal(heard.lines.at(-1).id, 23);
   assert.equal(heard.lines.at(-1).answer.status, 200);
 
   for (const other of [{ run: ["sh", "-c", "true"] }, { id: 1, stop: true }])
-    assert.deepEqual(await said(path, [{ hello: protocol, token }, other]), {
-      closed: true,
-      lines: [{ welcome: protocol }, { refused: "unknown operation" }],
-    });
+    assert.deepEqual(
+      await saidToOwner(path, [{ hello: protocol, token }, other]),
+      {
+        closed: true,
+        lines: [{ welcome: protocol }, { refused: "unknown operation" }],
+      },
+    );
 
   const asked = `api --include ${workflow[1]}`;
   assert.deepEqual(github.asked(), [asked, asked]);

@@ -1,25 +1,21 @@
-// One process's connection to this machine's GitHub request owner
-// (`./github-request-owner.mjs`) over its private endpoint
+// One process's connection to the GitHub request owner
+// (`./github-request-owner.mjs`) of the API host and login its `gh` asks
+// with, over that owner's private endpoint
 // (`./github-request-owner-endpoint.mjs`): found by its standing record,
 // started when none answers, greeted with its caller token, and kept for
-// every request this process asks. An owner that cannot be reached or
-// started, speaks another protocol or refuses the greeting leaves each
-// request unanswered -- never asked of GitHub by this process itself, so no
-// second owner of the allowance appears.
+// every request this process asks while its login stands. Once the login
+// changes, whatever was asked under the earlier one is asked again under
+// this one, and no answer to the earlier is passed on. An owner that cannot
+// be reached or started, speaks another protocol or refuses the greeting
+// leaves each request unanswered -- never asked of GitHub by this process
+// itself, so no second owner of the allowance appears.
 import { spawn } from "node:child_process";
-import { lstatSync } from "node:fs";
-import { connect } from "node:net";
 import { fileURLToPath } from "node:url";
 import {
-  endpointDirectory,
+  EndpointBinding,
   standingRecord,
 } from "./github-request-owner-endpoint.mjs";
-import {
-  greetingLimitMs,
-  protocol,
-  receive,
-  send,
-} from "./github-request-owner-wire.mjs";
+import { greeted, scopeOf, send } from "./github-request-owner-wire.mjs";
 
 /** @import { Socket } from "node:net" */
 
@@ -43,46 +39,6 @@ function readable(read) {
   }
 }
 
-// The owner `record` names, greeted: its connection, or undefined when
-// nothing answers there. Throws when it refuses this caller.
-function greeted({ socket: path, token }, onMessage) {
-  return new Promise((resolve, reject) => {
-    try {
-      if (lstatSync(path).uid !== process.getuid?.())
-        throw new Error("The GitHub request owner is another user's.");
-    } catch (error) {
-      if (error.code === "ENOENT") resolve(undefined);
-      else reject(error);
-      return;
-    }
-    const socket = connect(path);
-    const gone = () => {
-      clearTimeout(limit);
-      resolve(undefined);
-    };
-    const limit = setTimeout(() => socket.destroy(), greetingLimitMs);
-    let welcomed = false;
-    socket.on("error", () => undefined);
-    socket.once("close", gone);
-    socket.once("connect", () => send(socket, { hello: protocol, token }));
-    receive(socket, (message) => {
-      if (welcomed) {
-        onMessage(message);
-        return;
-      }
-      clearTimeout(limit);
-      socket.off("close", gone);
-      if (message.welcome === protocol) {
-        welcomed = true;
-        resolve(socket);
-        return;
-      }
-      socket.destroy();
-      reject(new Error("The GitHub request owner refused this caller."));
-    });
-  });
-}
-
 /**
  * @typedef {{
  *   readonly left?: true;
@@ -95,13 +51,12 @@ function greeted({ socket: path, token }, onMessage) {
 export class OwnerLink {
   #backoffBaseMs;
 
-  /** @type {Promise<Socket> | undefined} */
-  #connecting;
+  #binding = new EndpointBinding();
 
-  // Each request still waiting for the owner's reply, by its number on this
-  // connection.
-  /** @type {Map<number, (reply: OwnerReply) => void>} */
-  #waiting = new Map();
+  // The connection to the owner this process last asked, and each request
+  // still waiting for that owner's reply, by its number.
+  /** @type {{ readonly directory: string; connecting?: Promise<Socket>; readonly waiting: Map<number, (reply: OwnerReply) => void> } | undefined} */
+  #link;
 
   #asked = 0;
 
@@ -112,29 +67,61 @@ export class OwnerLink {
     this.#backoffBaseMs = backoffBaseMs;
   }
 
+  // How a request names the API host and login this process asks under
+  // now, without a secret; undefined while their endpoint cannot be
+  // established.
+  /** @returns {Promise<string | undefined>} */
+  async scope() {
+    const directory = await this.#endpoint();
+    return directory && scopeOf(directory);
+  }
+
+  #endpoint() {
+    return this.#binding.directory().catch(() => undefined);
+  }
+
   // The owner's reply to one request: its `answer`, and whether the call
   // failed (`told`); `timedOut` when the call reached its own bound; `left`
   // once `signal` ended this wait, which tells the owner so, at this
   // requester's own bound when `leavingAtBound` says so; and nothing when
-  // the owner refused the request or cannot be asked.
+  // the owner refused the request or cannot be asked. A reply to what was
+  // asked under a login this process has no more is dropped, and the
+  // request asked again under the one it has.
   /**
    * @param {{ readonly args: readonly string[]; readonly boundMs: number; readonly maxBufferBytes: number }} request
    * @param {AbortSignal} signal
    * @param {() => boolean} leavingAtBound
    * @returns {Promise<OwnerReply>}
    */
-  ask(request, signal, leavingAtBound) {
+  async ask(request, signal, leavingAtBound) {
+    for (;;) {
+      const directory = await this.#endpoint();
+      if (directory === undefined) return {};
+      const asked = { ...request, scope: scopeOf(directory) };
+      const reply = await this.#askedUnder(
+        directory,
+        asked,
+        signal,
+        leavingAtBound,
+      );
+      if (reply.left || reply.timedOut) return reply;
+      if (directory === (await this.#endpoint())) return reply;
+    }
+  }
+
+  #askedUnder(directory, request, signal, leavingAtBound) {
     return new Promise((resolve) => {
       if (signal.aborted) {
         resolve({ left: true });
         return;
       }
+      const link = this.#linked(directory);
       let sent;
       const settle = (reply) => {
         signal.removeEventListener("abort", leave);
         if (sent !== undefined) {
-          this.#waiting.delete(sent.id);
-          if (this.#waiting.size === 0) sent.socket.unref();
+          link.waiting.delete(sent.id);
+          if (link.waiting.size === 0) sent.socket.unref();
         }
         resolve(reply);
       };
@@ -147,12 +134,12 @@ export class OwnerLink {
         settle({ left: true });
       };
       signal.addEventListener("abort", leave, { once: true });
-      this.#connected().then(
+      this.#connected(directory).then(
         (socket) => {
           if (signal.aborted) return;
           this.#asked += 1;
           sent = { id: this.#asked, socket };
-          this.#waiting.set(sent.id, settle);
+          link.waiting.set(sent.id, settle);
           socket.ref();
           send(socket, { id: sent.id, request });
         },
@@ -161,26 +148,42 @@ export class OwnerLink {
     });
   }
 
-  #connected() {
-    this.#connecting ??= this.#connect().then(
+  // The link to the owner standing in `directory`. The link to another
+  // login's owner ends first, which leaves each request waiting there
+  // without a reply.
+  #linked(directory) {
+    if (this.#link?.directory !== directory) {
+      this.#link?.connecting?.then(
+        (socket) => socket.destroy(),
+        () => undefined,
+      );
+      this.#link = { directory, waiting: new Map() };
+    }
+    return this.#link;
+  }
+
+  // The connection of the link to the owner standing in `directory`, made
+  // once for every request asked over it.
+  #connected(directory) {
+    const link = this.#linked(directory);
+    link.connecting ??= this.#connect(link).then(
       (socket) => {
         socket.unref();
         socket.once("close", () => {
-          this.#connecting = undefined;
-          for (const settle of [...this.#waiting.values()]) settle({});
+          link.connecting = undefined;
+          for (const settle of [...link.waiting.values()]) settle({});
         });
         return socket;
       },
       (error) => {
-        this.#connecting = undefined;
+        link.connecting = undefined;
         throw error;
       },
     );
-    return this.#connecting;
+    return link.connecting;
   }
 
-  async #connect() {
-    const directory = endpointDirectory();
+  async #connect({ directory, waiting }) {
     const deadline = Date.now() + startLimitMs;
     let starting;
     for (;;) {
@@ -189,7 +192,7 @@ export class OwnerLink {
         record?.socket === undefined
           ? undefined
           : await greeted(record, ({ id, ...reply }) =>
-              this.#waiting.get(id)?.(reply),
+              waiting.get(id)?.(reply),
             );
       if (socket !== undefined) return socket;
       if (Date.now() > deadline)

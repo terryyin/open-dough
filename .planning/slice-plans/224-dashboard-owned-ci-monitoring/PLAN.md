@@ -366,7 +366,21 @@ starts on demand and ends when idle or is replaced under slice 6.
 
 ### 5. Scope allowance and answers by API host and principal
 Type: Behavior
-Status: planned
+Status: done
+
+Delivered: one owner process per allowance scope. A consumer learns its scope
+locally — API host plus an HMAC, under the per-user naming key, of the token
+its own `gh auth token` yields — and the endpoint directory carries that name;
+every wire request names its scope and an owner refuses another. A cheap
+signature (the `GH_*`, `GITHUB_*` and `DOUGH_GITHUB_*` environment and the
+stat of gh's `hosts.yml`) triggers re-resolution. After a switch, owner and
+consumer both discard answers asked under the earlier login and the consumer
+asks again under the new one; a hold stays with its login. Each owner keeps
+one admission per resource (`core`, `search`, `graphql`, by route). Wire
+protocol 2. Accepted proof: `github-request-login.test.mjs` and
+`github-request-login-secrecy.test.mjs` within the whole script directory
+(654 passed), the whole dashboard suite (1474 passed), typecheck, and the
+install, update, payload and release shell tests.
 
 Result: admission state is keyed by API host and effective authenticated
 principal with resource-specific limits, and request keys carry the
@@ -385,6 +399,10 @@ immutable-cache specs stay green.
 ### 6. Keep the hold and owned calls through owner replacement
 Type: Behavior
 Status: planned
+
+Owners are per allowance scope and several may live at once: persist each
+hold with its endpoint directory and resource, and reconcile each owner's
+children within its own directory.
 
 Result: an active cooldown is persisted before its rate-limit outcome is
 acknowledged and survives owner restart; a replacement owner reconciles or
@@ -625,7 +643,7 @@ Disposition: proved by slice 3: src/skills/dough-execute-plan/scripts/ci-github-
 ### G2. Admission state is process-local and unkeyed
 Reported: slice 2 — "the outstanding-call key is `JSON.stringify(args)` only, with no API host or principal, and `ReadAdmission` is a single allowance."
 Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: src/skills/dough-execute-plan/scripts/github-request-login.test.mjs "each API host and login has one endpoint, whether a token variable or gh's stored login names it" and "one login's rate limit holds back its processes however they come by it, and no process of another login"
 
 ### G3. Admission and outstanding classes have no isolated unit tests
 Reported: slice 2 — "`ReadAdmission` and `OutstandingReads` have no isolated unit tests."
@@ -681,6 +699,26 @@ Disposition: receiving slice 7
 Reported: slice 4 — "The 30 s start limit, the default 5 s idle and the 10 s first-consumer grace (only 100 ms idle is exercised)."
 Story clause: "Cooldown, concurrency and recovery are shared across dashboard processes and standalone subscriptions."
 Disposition: no user cost "Open Dough monitoring and dashboard reads share one GitHub request-admission owner on this machine.": the limits are constants on the paths the 100 ms runs exercise, and the changed failed-read notice fields keep `authenticated-read-diagnostics*.spec.ts` green
+
+### G14. One account reached by two tokens has two allowances
+Reported: slice 5 — "Same account, two different tokens is two scopes; the account behind a token cannot be learned without a GitHub request."
+Story clause: "one admission owner per allowance scope"
+Disposition: no user cost "Open Dough monitoring and dashboard reads share one GitHub request-admission owner on this machine.": dashboards and observers of one developer resolve the same stored or exported token and so one scope; learning the account would cost a GitHub request per process, and answers stay correctly separated
+
+### G15. Some login changes are noticed only at process restart
+Reported: slice 5 — "A keyring-only token change that does not rewrite `hosts.yml`, and the Windows config location, are not picked up until the process restarts."
+Story clause: "Changed authorization cannot reuse incompatible live acquisition answers"
+Disposition: receiving slice 15
+
+### G16. A discarded stale answer leaves no dashboard diagnostic
+Reported: slice 5 — "A discarded stale answer is not recorded in the dashboard's failed-read history."
+Story clause: "Changed authorization cannot reuse incompatible live acquisition answers"
+Disposition: no user cost "Open Dough monitoring and dashboard reads share one GitHub request-admission owner on this machine.": the discarded call is asked again under the new login and its reader receives that answer, so no read failed
+
+### G17. Paid native fixtures' gh shims may not answer the login read
+Reported: slice 5 — "I did not check whether their `gh` shims reach the request owner. If they do, each needs the same `auth` early exit."
+Story clause: "Paid native runs require explicit native-check authority"
+Disposition: receiving slice 15
 
 ## Proof ownership and acceptance
 
@@ -762,3 +800,16 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
 - 2026-10-11 (slice 3 acceptance): the dashboard completion specs consume the
   installed CI engine through their own `gh` fixture; a change to CI
   acquisition needs the whole dashboard suite, not only the reader specs.
+- 2026-10-11 (slice 5): a process can authenticate only as its own
+  environment's login and no credential may cross the endpoint, so the request
+  owner is one process per allowance scope, not one keyed process. Slice 7's
+  supervising runtime is therefore a client of the request owner of its own
+  login and cannot supervise or restart "the" request owner; request owners
+  stay on demand. Installs speaking different protocols name their directories
+  differently and never meet, so G12 is a duplicate allowance per version
+  rather than failed reads. Every fake `gh` must answer `auth` before it
+  records, counts or blocks.
+- 2026-10-11 (slice 5 refactor): `agent-completion-quiet-claude.spec.ts:195`
+  failed once in a subset run under machine load with no error captured, then
+  passed 20 consecutive repeats and the whole suite. Cause unknown; capture
+  the error if it recurs.

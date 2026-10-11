@@ -70,15 +70,30 @@ than reuse when no commit between touched it, and none when one did. A recorded 
 costs one read of its plan and one of its last commit time at the new head,
 and never a comparison.
 
-Every `gh` request is made by one request owner on this machine: a process
-the first dashboard or CI observer to need GitHub starts, which every
-dashboard process and CI observer of this user then asks through a socket
-under `/tmp/dough-github-requests-UID/`, in a directory only this user can
-enter, with a token only this user can read. It asks GitHub nothing of its
-own, accepts only `gh api` reads, and runs `gh` with the environment of the
-process that started it; processes whose `gh` or `gh` login settings
-(`GH_HOST`, a token variable, `GH_CONFIG_DIR`, `XDG_CONFIG_HOME`, `HOME`)
-differ have separate owners, which share nothing. It ends five seconds after
+Every `gh` request is made by the one request owner, on this machine, of the
+API host and login it is asked with: a process the first dashboard or CI
+observer to need GitHub starts, which every dashboard process and CI observer
+of this user asking with that host and login then asks through a socket under
+`/tmp/dough-github-requests-UID/`, in a directory only this user can enter,
+with a token only this user can read. The host is the one `GH_HOST` names,
+`github.com` otherwise. The login is the token `gh auth token` prints for the
+asking process: read on this machine without a GitHub request, once per
+process and again when a `GH_` or `GITHUB_` setting or `gh`'s stored logins
+change. A token variable and a stored login holding the same token therefore
+share one owner; two tokens of one GitHub account do not. The token names the
+owner's directory only through a secret of this user's, and is never written
+there or sent to the owner. An owner asks GitHub nothing of its own, accepts
+only `gh api` reads asked under its own host and login, and runs `gh` with
+the environment of the process that started it. Owners of different hosts or
+logins share nothing: no turn, rate-limit wait, or outstanding request. Within
+one owner, GitHub's search and GraphQL allowances each have their own turns
+and wait, apart from every other route's; no dashboard or CI read uses either.
+
+After `gh auth switch`, a new login, or a changed token, a request still
+outstanding under the earlier login is answered to nobody and asked again
+under the new one: one more request each. The earlier login's owner then asks
+GitHub nothing, and stays only while its rate-limit wait stands, which holds
+that login again if it returns. Otherwise an owner ends five seconds after
 its last dashboard or observer left, unless a rate limit's wait stands, and
 keeps nothing past its end. While no owner can be reached or started -- or
 the one standing speaks another version's protocol -- each read fails without
@@ -94,9 +109,10 @@ share outstanding requests, turns, and the rate-limit wait, and the content
 and history either already read, but no finished ref, branch-head, or check
 answer.
 
-This user's dashboards and CI observers together have at most eight `gh`
-requests under way at GitHub at once, across every page, project, project
-addition, and observed run; a shared request counts once. Two dashboards
+This user's dashboards and CI observers asking with one host and login
+together have at most eight `gh` requests under way at GitHub at once, across
+every page, project, project addition, and observed run; a shared request
+counts once. Two dashboards
 reading ten different records between them, one of them from both, while a CI
 observer reads its workflow, cost eleven requests, eight of them at GitHub at
 a time. Further requests wait their turn in the order they were asked, which

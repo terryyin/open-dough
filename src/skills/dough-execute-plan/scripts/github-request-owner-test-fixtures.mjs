@@ -5,6 +5,7 @@ import {
   readFileSync,
   rmSync,
 } from "node:fs";
+import { connect } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { enterEnvironment } from "./fixture-teardown-test-fixtures.mjs";
@@ -29,6 +30,30 @@ export function ownerRecords(root) {
   return records;
 }
 
+// Says `messages` to the owner at `path` and answers what it said back once
+// it said `replies` lines or closed the connection.
+export function saidToOwner(path, messages, replies = Infinity) {
+  return new Promise((resolve, reject) => {
+    const socket = connect(path);
+    let heard = "";
+    const lines = () => heard.split("\n").filter(Boolean);
+    const done = (closed) => {
+      socket.destroy();
+      resolve({ closed, lines: lines().map((line) => JSON.parse(line)) });
+    };
+    socket.on("error", reject);
+    socket.on("close", () => done(true));
+    socket.on("data", (chunk) => {
+      heard += chunk;
+      if (lines().length >= replies && heard.endsWith("\n")) done(false);
+    });
+    socket.on("connect", () => {
+      for (const message of messages)
+        socket.write(`${JSON.stringify(message)}\n`);
+    });
+  });
+}
+
 export function processGone(pid) {
   try {
     process.kill(pid, 0);
@@ -48,17 +73,25 @@ export function withdrawRequestOwners(root) {
 
 // Withdraws every owner under `root`, waits until each owner process is
 // gone, and removes the endpoint; fails when an owner outlives ten seconds.
+// An owner still starting when its consumer ended writes its record only
+// then, so it is withdrawn in turn until nothing is left under `root`.
 export async function endRequestOwners(root) {
-  const owners = withdrawRequestOwners(root);
   const deadline = Date.now() + 10_000;
-  for (const { pid } of owners) {
-    while (!processGone(pid)) {
-      if (Date.now() > deadline)
-        throw new Error(`GitHub request owner ${pid} did not end`);
-      await new Promise((resolve) => setTimeout(resolve, 20));
+  for (;;) {
+    for (const { pid } of withdrawRequestOwners(root)) {
+      while (!processGone(pid)) {
+        if (Date.now() > deadline)
+          throw new Error(`GitHub request owner ${pid} did not end`);
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+    }
+    try {
+      rmSync(root, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (error.code !== "ENOTEMPTY" || Date.now() > deadline) throw error;
     }
   }
-  rmSync(root, { recursive: true, force: true });
 }
 
 // The environment that points a process at the request owner endpoint under

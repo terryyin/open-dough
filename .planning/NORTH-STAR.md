@@ -115,6 +115,10 @@ while acquisition sharing also respects authorization context. All Open Dough
 CI discovery and diagnostic paths use this same owner; unrelated tools and
 other machines remain outside its scope.
 
+The owner is one installed implementation running one process per allowance
+scope: a process can authenticate only as its own environment's login, and no
+credential crosses the local endpoint (plan 224 slice 5).
+
 Reuse the current admission, outstanding-request cancellation and rate-limit
 interpretation once. Persist active cooldown through owner replacement, bound
 combined demand, and admit one recovery request after the hold. Explicit

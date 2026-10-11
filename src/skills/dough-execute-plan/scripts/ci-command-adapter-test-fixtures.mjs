@@ -19,6 +19,7 @@ export const checkedSha = "c".repeat(40);
 // A `gh` that counts its calls in CI_TEST_GH_CALLS and lists no runs.
 const countingGithubCommand = `#!${process.execPath}
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+if (process.argv[2] === 'auth') process.exit(1);
 const path = process.env.CI_TEST_GH_CALLS;
 const count = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
 writeFileSync(path, String(count));

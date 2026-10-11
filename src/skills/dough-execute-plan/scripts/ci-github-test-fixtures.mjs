@@ -21,16 +21,28 @@ import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mj
 // asked and when answered. While `limited.json` counts down, a matching
 // route answers a rate limit directing the wait it names, one second unless
 // told. A job's log waits for `release-logs` when the state says `holdLogs`,
-// and any call waits for `release` while `hold` stands.
+// and any call waits for `release` while `hold` stands. It asks as the user
+// of the fixture login it holds, if any (`fixtureLogin`): GH_TOKEN's, or
+// else the one stored under GH_CONFIG_DIR. `gh auth token` prints that
+// login's token; each call records its user, a log names it, and a limit
+// naming a user refuses only that user.
 const instrumentedGithub = `#!${process.execPath}
 const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.CI_GH_FIXTURE;
 const args = process.argv.slice(2);
+const stored = path.join(process.env.GH_CONFIG_DIR ?? root, 'hosts.yml');
+const [token, user] = /secret-(\\w+)/.exec(
+  process.env.GH_TOKEN || (fs.existsSync(stored) ? fs.readFileSync(stored, 'utf8') : ''),
+) ?? [];
+if (args[0] === 'auth') {
+  process.stdout.write(token ?? '');
+  process.exit(token ? 0 : 1);
+}
 const record = (phase) =>
   fs.appendFileSync(
     path.join(root, 'calls.jsonl'),
-    JSON.stringify({ args, phase, at: Date.now(), pid: process.pid }) + '\\n',
+    JSON.stringify({ args, phase, at: Date.now(), pid: process.pid, user }) + '\\n',
   );
 const released = async (hold, release) => {
   while (fs.existsSync(path.join(root, hold)) && !fs.existsSync(path.join(root, release)))
@@ -50,9 +62,9 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
   await released('hold', 'release');
   const limited = path.join(root, 'limited.json');
   if (fs.existsSync(limited)) {
-    const { count, match, wait } = JSON.parse(fs.readFileSync(limited, 'utf8'));
-    if (count > 0 && route.includes(match)) {
-      fs.writeFileSync(limited, JSON.stringify({ count: count - 1, match, wait }));
+    const { count, match, wait, only } = JSON.parse(fs.readFileSync(limited, 'utf8'));
+    if (count > 0 && route.includes(match) && (only ?? user) === user) {
+      fs.writeFileSync(limited, JSON.stringify({ count: count - 1, match, wait, only }));
       return finish('HTTP/2.0 429 Too Many Requests\\r\\nRetry-After: ' + wait, '{}', 1, 'gh: slow down (HTTP 429)');
     }
   }
@@ -75,7 +87,7 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
     });
   if (/^jobs\\/\\d+\\/logs$/.test(asked)) {
     if (state.holdLogs) while (!fs.existsSync(path.join(root, 'release-logs'))) await new Promise((resolve) => setTimeout(resolve, 20));
-    return finish('HTTP/2.0 200 OK', state.log);
+    return finish('HTTP/2.0 200 OK', state.log + (user ? ' for ' + user : ''));
   }
   finish('HTTP/2.0 404 Not Found', '{}', 1, 'gh: Not Found (HTTP 404)');
 })();
@@ -127,10 +139,10 @@ export function instrumentedGithubFixture(t, state) {
       }
       return most;
     },
-    limit: (count, match, wait = 1) =>
+    limit: (count, match, wait = 1, only = undefined) =>
       writeFileSync(
         file("limited.json"),
-        JSON.stringify({ count, match, wait }),
+        JSON.stringify({ count, match, wait, only }),
       ),
     holdRequests: () => writeFileSync(file("hold"), ""),
     releaseRequests: () => writeFileSync(file("release"), ""),

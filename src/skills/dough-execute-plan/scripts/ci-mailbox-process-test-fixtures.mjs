@@ -64,6 +64,7 @@ const workerRecheckProbe = `data:text/javascript,${encodeURIComponent(
 // listing with the runs released under CI_TEST_ROOT, blocking until they are.
 const githubCommand = `#!${process.execPath}
 (async () => {
+if (process.argv[2] === 'auth') process.exit(1);
 const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.CI_TEST_ROOT;

@@ -26,6 +26,7 @@ export function completionCi(machine: string, revisions: readonly string[]) {
     provider,
     `#!/usr/bin/env node
 import { existsSync } from 'node:fs';
+if (process.argv[2] === 'auth') process.exit(1);
 const route = process.argv[4] ?? '';
 const runs = ${JSON.stringify(runs)};
 const answer = (body) =>

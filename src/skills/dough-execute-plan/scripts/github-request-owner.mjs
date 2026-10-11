@@ -1,15 +1,18 @@
-// This machine's one owner of requests to GitHub, for every Open Dough
-// consumer running with the same `gh` and login settings: started by the
-// first consumer that finds none (`./github-request-owner-link.mjs`), in its
-// own process group, with that consumer's environment for every `gh` it
+// The one owner of this user's requests to GitHub under one API host and
+// login, for every Open Dough consumer whose `gh` asks with them: started by
+// the first consumer that finds none (`./github-request-owner-link.mjs`), in
+// its own process group, with that consumer's environment for every `gh` it
 // runs. It holds the one record of a rate limit, the eight turns at GitHub
 // and every outstanding call (`./github-request-calls.mjs`), so consumers in
-// separate processes share them. It stands while its record is the highest
-// in its endpoint directory (`./github-request-owner-endpoint.mjs`), and
-// ends once no consumer is connected and no rate limit's wait stands for
+// separate processes share them, and consumers under another host or login
+// share none of them. It stands while its record is the highest in its
+// endpoint directory (`./github-request-owner-endpoint.mjs`), and ends once
+// no consumer is connected and no rate limit's wait stands for
 // `DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS` (five seconds), or ten seconds after
-// its start when no consumer ever reached it. Nothing is kept past its end:
-// an owner started later asks GitHub at once.
+// its start when no consumer ever reached it. While its own `gh` asks with
+// another login than its endpoint's it asks GitHub nothing, and stays only
+// for a rate limit's wait: the login may come back to it. Nothing is kept
+// past its end: an owner started later asks GitHub at once.
 //
 // Usage: node github-request-owner.mjs <endpoint directory> <backoff base ms>
 import { randomBytes, timingSafeEqual } from "node:crypto";
@@ -20,6 +23,7 @@ import { GhFailure } from "./github-request-answer.mjs";
 import { AdmittedCalls } from "./github-request-calls.mjs";
 import {
   claimedRecord,
+  EndpointBinding,
   newSocketName,
   privacyRefusal,
   standingRecord,
@@ -29,6 +33,7 @@ import {
   greetingLimitMs,
   protocol,
   receive,
+  scopeOf,
   send,
   wireAnswer,
 } from "./github-request-owner-wire.mjs";
@@ -59,10 +64,21 @@ const earlier = standingRecord(directory);
 if (earlier?.socket !== undefined && (await reachable(earlier.socket)))
   process.exit(0);
 
+// The endpoint of the API host and login this process's own `gh` asks with
+// now; undefined while it cannot be established.
+const binding = new EndpointBinding();
+const ownEndpoint = () => binding.directory().catch(() => undefined);
+const loginLeft = async () => {
+  const own = await ownEndpoint();
+  return own !== undefined && own !== directory;
+};
+const scope = scopeOf(directory);
+
 // Every failed call's answer, so each consumer waiting on it is told so.
 const failedAnswers = new WeakSet();
 const calls = new AdmittedCalls({
   backoffBaseMs,
+  loginStands: async () => (await ownEndpoint()) === directory,
   failed: (answer) => failedAnswers.add(answer),
 });
 
@@ -99,6 +115,7 @@ function serve(socket) {
   socket.on("close", () => {
     clearTimeout(greeting);
     consumers.delete(socket);
+    if (welcomed) idleSince = Date.now();
     for (const wait of waits.values()) wait.abort(left);
   });
   receive(
@@ -131,8 +148,10 @@ function serve(socket) {
 }
 
 function ask(socket, waits, id, fixed) {
-  if (fixed === undefined) {
-    send(socket, { id, refused: "not a GitHub API read" });
+  if (fixed === undefined || fixed.scope !== scope) {
+    const refused =
+      fixed === undefined ? "not a GitHub API read" : "another login";
+    send(socket, { id, refused });
     return;
   }
   const wait = new AbortController();
@@ -207,15 +226,16 @@ function stands() {
 }
 
 // The consumer that started this owner may take this long to reach it:
-// until then it is not idle.
+// until then it is not idle. Once a consumer leaves, it is idle from then.
 const firstConsumerLimitMs = 10_000;
 let idleSince = Date.now() + firstConsumerLimitMs;
 setInterval(
-  () => {
+  async () => {
     const now = Date.now();
     if (!stands()) end();
-    else if (consumers.size > 0 || calls.heldBack(now) !== undefined)
-      idleSince = now;
+    else if (calls.heldBack(now) !== undefined) idleSince = now;
+    else if (await loginLeft()) end();
+    else if (consumers.size > 0) idleSince = now;
     else if (now - idleSince >= idleMs) end();
   },
   Math.min(idleMs, 1_000),
