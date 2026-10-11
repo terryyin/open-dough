@@ -134,3 +134,11 @@ Disposition: no user cost "gets the review of the worktree of the agent that hol
 Reported: slice 1 — "a Backlog card no longer offering an abandoned worktree's review before a second Take, has no dedicated case."
 Story clause: "The local worktree scan counts a worktree for a story only while"
 Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts`, first case — `closed-b` at Story B's unpublished claim is absent from the sessions answer's `workspaces`, the only source a card's found-worktree review reads
+
+## Execution complete
+
+Product advice: no backlog change. The correction delivers the story's rule
+with its proof. One consequence to know at wrap-up: a worktree an agent left
+at an earlier story's claim now counts for no story once trunk publishes that
+agent elsewhere, so the earlier story's card offers no found-worktree review
+(plan 296's first case was updated to say so).
