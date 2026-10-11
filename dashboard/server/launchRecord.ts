@@ -1,6 +1,7 @@
 // The start context and record shared by native launch and verification.
 import {
   policyOf,
+  type establishedPlace,
   type HostSession,
   type LaunchRecord,
   type RecordedLaunchRequest,
@@ -33,6 +34,16 @@ export type EstablishedRecordFacts = Pick<
   LaunchRecord,
   "start" | "preparation" | "establishedSession"
 >;
+
+// The story what a launch's start established names: a story's start or
+// preparation names its own, an unattached session none.
+export function establishedStory(
+  established: ReturnType<typeof establishedPlace>,
+): string | undefined {
+  return established !== undefined && "identity" in established
+    ? established.identity
+    : undefined;
+}
 
 // A confirmation's durable record. Callers supply the evidence's own time;
 // native input evidence may extend it without re-forming its start facts.

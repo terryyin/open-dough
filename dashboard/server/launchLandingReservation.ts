@@ -70,7 +70,7 @@ export async function reserveLandingComparison(
     );
   const landing: LaunchLanding = prepared ?? {
     repository: authority.repository,
-    identity: report.identity,
+    ...(report.identity === undefined ? {} : { identity: report.identity }),
     remote: report.remote,
     target: report.target,
     reference: report.reference,

@@ -155,8 +155,9 @@ Required behavior:
   once, as a block in its first message beside the reporting context, on every
   host: workspace, its role (`isolated` or `default-checkout`), branch, remote,
   trunk target, landing intent, and starting revision. The block is sent when
-  any choice is non-default or an instruction exists; a blank instruction with
-  the default choices stays a blank native launch, as today. Launch and
+  any choice is non-default; the default choices start as today, with or
+  without an instruction, and a blank instruction with them stays a blank
+  native launch. Launch and
   session records keep the policy and the workspace as local evidence, and
   the Sessions sidebar shows that workspace as it does for one-shot starts.
 - A workflow or skill the developer later invokes in that session applies the
@@ -173,6 +174,12 @@ Required behavior:
 - A start that stops or expires keeps the workspace and branch it established
   with the attempt, so Continue from Startup recovery resumes that place and
   creates no second worktree.
+- A Start session whose Workspace or After checks choice differs from a
+  pending session's starts a new session; it never resumes that pending
+  conversation in its workspace.
+- An unattached session's landing is captured for its launch with no story
+  identity: a result it lands, through one-shot delivery or Dough Land, keeps
+  its landing evidence with the launch record.
 
 Deferred promises (not built or verified here):
 

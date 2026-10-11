@@ -3,6 +3,7 @@
 // original request and established facts while its host owns native input
 // and reconciliation.
 import {
+  establishedPlace,
   establishesSession,
   type PublicationReceipt,
   type RecordedLaunchRequest,
@@ -101,11 +102,10 @@ async function startedRun(
         ? await reportingContext(
             attempt,
             establishedLaunch(start)?.workspace ?? folder,
-            pending?.start ??
-              pending?.preparation ??
-              (start.kind === "established"
-                ? establishedFacts(start.handoff.established)
-                : undefined),
+            // A story's start or preparation, or an unattached session.
+            establishedPlace(
+              pending ?? establishedLaunch(start)?.handoff.established ?? {},
+            ),
           )
         : { reporting: kept };
     const reporting = prepared?.reporting;

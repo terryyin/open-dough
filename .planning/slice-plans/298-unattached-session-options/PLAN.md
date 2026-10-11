@@ -119,7 +119,9 @@ lived under the job's temp directory and were removed.
 | Isolated workspace creates one worktree at fetched trunk on the host's namespace, the session opens there, nothing is published, Command details and the sidebar name it | Slice 3, `dashboard/tests/agent-launch-start-session-isolated.spec.ts` (Claude), one Codex case |
 | A stopped or expired start names its worktree and Continue resumes it without a second worktree | Slice 4, `dashboard/tests/agent-launch-start-session-recovery.spec.ts` with `DOUGH_START_TIMEOUT_MS` |
 | Installed skills continue in the established session: workspace from the block, tracking from the invocation, landing inherited, no second workspace; pending edits are reported, not bypassed | Slice 5, `established-session-guidance.test.mjs` on the reference and its links, and `established-session-start.test.mjs` recording the start behavior in the premise table |
-| Native behavior on Claude Code, Codex, and Cursor (ADR 0005) | Slice 6, manual observation record |
+| An unattached landing is captured for its launch with no story identity | Slice 6, `agent-launch-start-session-landing-context.spec.ts` and the `dashboard-landing.mjs` tests |
+| A Start session with different choices starts a new session | Slice 7, `agent-launch-start-session-identity.spec.ts` |
+| Native behavior on Claude Code, Codex, and Cursor (ADR 0005) | Slice 8, manual observation record |
 | Everything the launch contract already proves | `dashboard/tests/agent-launch*.spec.ts`, `one-shot-*.spec.ts`; `npm run typecheck:dashboard`; `npm run lint`; `node --test` over the touched skill scripts |
 
 Local gates: `npm run lint` and `npm run typecheck:dashboard` are the
@@ -179,10 +181,9 @@ that pressing Start authorizes that push; Start runs the installed
 --push-authorized` in the project folder and the session's first message is
 “Established session:” with `workspace role: default-checkout`, `branch`,
 `remote`, `target`, `landing: auto-land`, `startingRevision`, `fetched`, then
-the reporting context carrying `--landing-context`. With Wait for review and
-an instruction, the start still runs and the block says `landing: review`;
-with Wait for review and no instruction, nothing runs and the launch stays
-blank. The record keeps the policy. Codex and Cursor place the same block in
+the reporting context (its `--landing-context` arrives with slice 6). With the
+default choices nothing runs and no block is sent, with or without an
+instruction; a blank instruction stays a blank launch. The record keeps the policy. Codex and Cursor place the same block in
 their first input; a blank Cursor start with a chosen model stays refused.
 
 Change: `session-policy.mjs` exports the unattached choices and their flags;
@@ -297,7 +298,67 @@ hand-synchronized.
 Safe stopping point: the whole story is deliverable by the installed payload;
 only native proof remains.
 
-### 6. Native hosts honor the unattached session on this machine
+### 6. An unattached session's landing is captured for its launch
+Type: Behavior
+Status: done
+Proof: `dashboard/tests/agent-launch-start-session-landing-context.spec.ts`
+with the real-start harness; the installed `dashboard-landing.mjs` unit tests;
+the existing launch-landing specs.
+Accepted proof: `agent-launch-start-session-landing-context.spec.ts`,
+`-landing-admission.spec.ts` and `-landing-retained.spec.ts` (the handoff, a
+real landing captured before and after the push, the older-installation case,
+Codex's delivery command, capture after the attempt expired);
+`dashboard-landing.test.mjs`; `one-shot-landing-capture-admission.spec.ts`;
+the landing, completion and launch suites; every
+`src/skills/*/scripts/*.test.mjs`; the payload and publication shell checks.
+
+Behavior: Start session, Isolated workspace · Automatically land, blank
+instruction → the reporting context in the first message carries
+`--landing-context <file>`, and that file names the launch's base, remote and
+target with no story identity. A publication from that worktree given the
+context (the installed publication command, as one-shot delivery and Dough
+Land run it) records its landing before the push and its accepted evidence
+after, kept with the launch record. A Default main ·
+Automatically land session does the same from the default checkout. A story
+launch's landing context still requires and carries its identity, and a
+context naming an identity is still matched on it. Wait for review sessions
+carry the context too: the developer may ask the session to land later.
+
+Change: the landing identity becomes optional where the launch is unattached:
+`landingRepositorySchema` (`dashboard/src/launchLanding.ts`),
+`completionReporting.ts` (writes `landing-context.json` from an established
+session), `launchLandingReporting.ts` and `launchLandingAdmission.ts` (admit an
+ad hoc launch that has an established session), `launchLandingReservation.ts`
+(match by launch reference when no identity is named), and the installed
+`src/skills/dough-execute-plan/scripts/dashboard-landing.mjs` `validate`.
+`reportingInstruction` names the context for an unattached launch that
+establishes a session. `established-session.md`'s landing-context sentence and
+`dashboard/STORY-REVIEW-LANDED-RUNS.md` / `AGENT-LAUNCH-COMPLETION.md` state
+the unattached case. Closes obligation G5.
+
+Safe stopping point: unattached landings are captured as story landings are.
+
+### 7. A Start session with different choices starts a new session
+Type: Behavior
+Status: planned
+Proof: `dashboard/tests/agent-launch-start-session-identity.spec.ts`; the
+existing ad hoc recovery and continuation specs.
+
+Behavior: a blank Start session on Codex with Isolated workspace whose first
+input is unconfirmed, then a blank Start session on Codex with the default
+choices → a new session in the project folder; the pending conversation and
+its worktree stay as they were for their own continuation. The same choices
+again resume the pending conversation, as today. An instruction still
+distinguishes launches as before.
+
+Change: `sameLaunch` (`dashboard/src/launchRequest.ts`) compares an ad hoc
+launch's unattached policy (the default when none is named) beside project,
+host and instruction; its comment and `AGENT-LAUNCH.md` say so. Closes
+obligation G8.
+
+Safe stopping point: an unattached launch's identity includes its choices.
+
+### 8. Native hosts honor the unattached session on this machine
 Type: Behavior
 Status: planned
 Proof: a manual observation record in this plan under
@@ -325,30 +386,28 @@ Safe stopping point: ADR 0005 evidence recorded; the story is complete.
   fabricated for it.
 - The “Established session” block is distinct from the “Established start”
   blocks and is owned by the session policy's skill.
-- The developer runs slice 6; automated fakes do not substitute for it.
-- Pending with the developer: the story's first key example starts default
-  choices with an instruction “as today: no established block”, while its
-  scope sends the block “when any choice is non-default or an instruction
-  exists”. Delivered behavior follows the key example: the default choices run
-  no start and send no block, whatever the instruction (`establishesSession`
-  in `dashboard/src/unattachedSession.ts` is the one predicate). Slice 2's
-  “Wait for review and an instruction … the block says `landing: review`” is
-  not built until this is decided.
-- Pending with the developer: landing capture requires a story identity end to
-  end (`launchLanding.ts`, `launchLandingReporting.ts`,
-  `launchLandingAdmission.ts`, the installed `dashboard-landing.mjs`) and
-  refuses ad hoc launches, so an unattached launch sends no
-  `--landing-context` (obligation G5). The decision is what identifies an
-  unattached launch's landing; it needs its own slice before slices 5 and 6.
-- Pending with the developer: `sameLaunch` identifies an ad hoc launch by
-  project, host and instruction, so a blank Start session whose first input is
-  unconfirmed is resumed by the next blank Start session on that host, in its
-  own workspace, whatever the new choices (obligation G8). The decision is
-  whether an unattached launch's identity includes its policy, or the dialog
-  shows the conversation Start will resume.
-- `established-session.mjs` is declared in `install.sh` `managed_files`; until
-  a release installs it here, this repository's own dashboard refuses a
-  non-default Start session choice.
+- The developer runs slice 8; automated fakes do not substitute for it.
+- Decided by the developer on 2026-10-11: the default choices establish no
+  session and send no block, with or without an instruction
+  (`establishesSession` in `dashboard/src/unattachedSession.ts`); the story's
+  scope sentence now says so.
+- Decided by the developer on 2026-10-11: an unattached launch's landing is
+  captured with no story identity, keyed by its launch (slice 6).
+- Decided by the developer on 2026-10-11: an unattached launch's identity
+  includes its policy (slice 7).
+- An unattached launch is handed a landing context only where the selected
+  host's installed `dashboard-landing.mjs` exports
+  `acceptsLandingWithoutIdentity`; an older installation gets the block and
+  reporting context with none, so its landing is not captured and never fails
+  on a context it cannot validate.
+- Pending with the developer: nothing shows an unattached launch's landed run.
+  The landed-run review is card-bound (story identity, execution or refinement
+  only); the evidence is kept on the launch record. Slice 8's “the dashboard
+  shows the landed comparison” waits on this.
+- `established-session.mjs` and `references/established-session.md` are
+  declared in `install.sh` `managed_files`; until a release installs them
+  here, this repository's own dashboard disables a non-default Start session
+  choice.
 
 ## Story obligations
 
@@ -375,7 +434,7 @@ Disposition: proved by slice 2: the existing-changes cases in `dashboard/tests/a
 ### G5. An unattached launch's reporting context carries no landing context
 Reported: slice 2 — "the reporting context **is** sent with the block, even for a blank instruction, but with **no** `--landing-context`."
 Story clause: "with the launch's landing context"
-Disposition: interim until slices 5, 6
+Disposition: proved by slice 6: `dashboard/tests/agent-launch-start-session-landing-context.spec.ts`, "Isolated workspace · Automatically land with no text hands the session its landing context, and a landing from its worktree is captured for the launch with no story"
 
 ### G6. Start session does not gate a choice on what the installed skills can establish
 Reported: slice 2 — "The Start session dialog does not gate Automatically land on installed capability; the server refuses with a 400 after Start."
@@ -390,7 +449,7 @@ Disposition: proved by slice 4: `dashboard/tests/agent-launch-start-session-reco
 ### G8. A pending blank Start session is resumed by the next blank one, whatever its choices
 Reported: slice 4 — "A pending blank non-default conversation is therefore recovered by the next blank Start session on that host, whatever its Workspace / After checks choice, in the pending conversation's own workspace."
 Story clause: "The native session opens in that worktree."
-Disposition: interim until slices 6
+Disposition: receiving slice 7
 
 ## Learnings
 
@@ -407,8 +466,8 @@ Disposition: interim until slices 6
   rather than more lines in the dialog.
 - `sameLaunch` identifies an ad hoc launch by its instruction alone: a blank
   Automatically land launch whose first input is unconfirmed makes the next
-  blank Start session on that host recover that conversation. Slice 4 decides
-  whether the policy joins that identity.
+  blank Start session on that host recover that conversation. Slice 7 adds the
+  policy to that identity.
 - The unattached start keeps nothing on expiry yet: it answers uncertain and
   Continue reruns the start, which is idempotent for Default main only.
 - `unattachedStarted` (`dashboard/server/unattachedStart.ts`) fixes the project
@@ -442,9 +501,13 @@ Disposition: interim until slices 6
   direct invocation there does: the start refuses the main worktree as an
   owned workspace and `--default-main` is one-shot only. An admission from an
   isolated session keeps the project's default checkout as `--integration`.
-- Slice 6's native journey reaches the one-shot reuse path only while the
+- Slice 8's native journey reaches the one-shot reuse path only while the
   conversation has made no edits or commits in the worktree; otherwise the
   expected native behavior is the reported `pending-edit` or
   `unpublished-commits` refusal.
 - The dashboard's real-path argument on a kept rerun (`asGitNames`) stays until
   a release carries the start's path-identity comparison.
+- A test or agent that runs `execution-increment-delivery.mjs deliver --host
+  claude` inside a Claude session starts a real CI observer of this repository;
+  the landing specs land Claude sessions through the shared publication API and
+  use the delivery command only with `--host codex`.

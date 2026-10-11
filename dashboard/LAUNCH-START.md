@@ -156,7 +156,10 @@ no card. Its `prepared` receipt becomes the launch record's
 `landing`, `startingRevision`, and `fetched` for Default main), which the
 installed formatter writes as the first input's “Established session” block
 before the reporting context and the text, and which supplies the Sessions
-sidebar's and the terminal's saved workspace as a one-shot start does.
+sidebar's and the terminal's saved workspace as a one-shot start does. The
+reporting context of a launch that established a session names the launch's
+[landing context](AGENT-LAUNCH-COMPLETION.md), which carries no story identity,
+where the installed landing module takes one.
 
 A session has no story, so its start is kept by its launch attempt:
 `session-starts.json` beside the workflows' start stores holds, per project

@@ -10,7 +10,9 @@ revision, so trunk changes merged into a story branch during execution are no
 part of the comparison. Every retained one-shot launch is listed. A claimed
 launch is listed once it holds a captured landing, or once its workspace is gone,
 then as its evidence gap; a claimed launch with a workspace and no landing has
-not landed.
+not landed. An unattached Start session's captured landing is kept with its
+launch record under the same capture rules, but it names no story and has no
+card, so no story review lists it.
 
 Queued refinement results remain reachable from their active story card. A
 completed execution offers the same **Review changes** on its Recently

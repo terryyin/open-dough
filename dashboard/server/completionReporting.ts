@@ -3,6 +3,7 @@ import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { IncomingMessage } from "node:http";
 import type { EstablishedContext } from "../src/launchRecord.ts";
+import type { EstablishedSession } from "../src/unattachedSession.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import {
   sendsFirstInput,
@@ -11,6 +12,8 @@ import {
 import type { ReportingContext } from "../src/launchRequest.ts";
 import type { LandingRepository } from "../src/launchLanding.ts";
 import { installedSkillPath } from "./launchHosts.ts";
+import { establishedStory } from "./launchRecord.ts";
+import { installedExports } from "./startLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { deliverCompletion } from "./completionDelivery.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
@@ -28,12 +31,26 @@ export type PreparedReporting = {
   readonly reporting: ReportingContext;
   readonly landingRepository?: LandingRepository;
 };
+// Whether the installed landing module takes a context that names no story,
+// as an unattached session's does. One that requires an identity would refuse
+// the context inside the publication, before its push, so such a session is
+// named no landing context there.
+async function acceptsStoryless(landingModule: string): Promise<boolean> {
+  try {
+    const installed = await installedExports<{
+      acceptsLandingWithoutIdentity?: unknown;
+    }>(landingModule);
+    return installed.acceptsLandingWithoutIdentity === true;
+  } catch {
+    return false;
+  }
+}
 // Prepare a standalone installed script outside the launch workspace, which may retire.
 // This is an executable copy; the existing attempts/records remain the only evidence stores.
 export async function reportingContext(
   attempt: LaunchAttemptRecord,
   folder: ProjectFolder,
-  established?: EstablishedContext,
+  established?: EstablishedContext | EstablishedSession,
 ): Promise<PreparedReporting | undefined> {
   if (
     attempt.reportingOrigin === undefined ||
@@ -79,8 +96,14 @@ export async function reportingContext(
       landingModule,
       path.join(directory, "dashboard-landing.mjs"),
     );
-  // Every established start or preparation names its trunk target.
-  if (capturesLanding && established !== undefined) {
+  // Every established start, preparation or unattached session names its
+  // trunk target; only a story's names an identity.
+  const identity = establishedStory(established);
+  if (
+    capturesLanding &&
+    established !== undefined &&
+    (identity !== undefined || (await acceptsStoryless(landingModule)))
+  ) {
     const repository = (
       await runGit(
         ["rev-parse", "--path-format=absolute", "--git-common-dir"],
@@ -94,14 +117,14 @@ export async function reportingContext(
       repository,
       workspace: established.workspace,
       branch: established.branch,
-      identity: established.identity,
+      ...(identity === undefined ? {} : { identity }),
       remote: established.remote,
       target: `refs/heads/${established.target}`,
     };
     landingContext = path.join(directory, "landing-context.json");
     await writeFile(
       landingContext,
-      `${JSON.stringify({ origin: attempt.reportingOrigin, source: attempt.request.source, host: attempt.request.host, reference: attempt.id, identity: landingRepository.identity, remote: landingRepository.remote, target: landingRepository.target }, null, 2)}\n`,
+      `${JSON.stringify({ origin: attempt.reportingOrigin, source: attempt.request.source, host: attempt.request.host, reference: attempt.id, identity, remote: landingRepository.remote, target: landingRepository.target }, null, 2)}\n`,
       { mode: 0o600 },
     );
   }
