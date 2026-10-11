@@ -2,22 +2,21 @@
 
 **Identity:** SEED-063#background-ci-failure-delivery
 **Source:** [story](../../seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery).
-**Status:** awaiting story refinement — not ready for slice-plan refinement or execution.
-**Split:** 2026-10-11, from plan 224 (recoverable at
-`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`),
-whose slices 2–6 delivered shared GitHub request admission. This plan keeps
-plan 224's former slice 1 and slices 7–15 as slices 1–10, as provisional
-planning input. Resuming requires `dough-story-refinement` to clarify the
-story's goal, scope and examples against that delivery, then realignment of
-this plan, before slice-plan refinement or execution. The readiness recorded
-for plan 224 does not carry over.
+**Prepared:** 2026-10-03; revised 2026-10-11 twice — for Terry's standalone,
+replacement, shared-throttling and integrity direction, then realigned after
+his split of the original story. Shared GitHub request admission is delivered
+(`ceac3b25` on `main`, described in
+[GitHub requests](../../../dashboard/GITHUB-REQUESTS.md)); this plan keeps the
+rest as slices 1–10. The split plan is recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`.
+Terry authorized slice 1's paid native probes on 2026-10-11.
 
 ## Goal and boundaries
 
 Execution and wrap-up end the agent turn while background CI obligations
 continue. Only actionable failure wakes the owning native session. Dashboard
 launch and standalone invocation use one installed runtime, replacing legacy
-watchers and sharing actual GitHub request admission with dashboard reads.
+watchers. It asks GitHub only through the delivered request owner.
 The source story owns scope, domain meanings, constraints and examples; this
 plan maps them into one implementation and proof sequence.
 
@@ -59,7 +58,9 @@ ADRs 0007–0009. Current Accepted constraints:
 ### One runtime, two entry adapters
 
 The installed runtime owns durable subscriptions, evidence, delivery and
-completion. It is started on demand by dashboard or installed skill entry
+completion. It does not own GitHub admission: it is a client of the delivered
+request owner of its own login, which stays on demand and which it neither
+supervises nor restarts. It is started on demand by dashboard or installed skill entry
 points, retained outside removable worktrees, and independent of Vite/browser
 lifetime. A private per-user local endpoint and singleton lease identify one
 owner. Clients verify protocol/runtime compatibility and project/session
@@ -109,39 +110,27 @@ narrower shared home. Dashboard and host imports consume it, never copy it.
 | Failure disposition | Existing `ci-monitor.md` handling and repair publication. One installed reporting operation records disposition/repair links; the supervisor does not diagnose test defects or invent repair authority. |
 | Completion boundary | Existing completion record/report and `trunk-closure.mjs`/wrap-up integration. One runtime completion decision uses explicit acknowledged-publication fence and generation. Dashboard quiet-Done projection consumes that result. |
 | Retirement request | `dough-land/scripts/worktree-retirement.mjs`; retain repository management context and closure authority outside the checkout. No duplicate cleanup checks in dashboard/runtime. |
-| GitHub request admission | `ghRead.ts`, `ReadAdmission`, `OutstandingReads`, `ghAnswer.ts`, `rateLimitDirection.ts`. Extract once into installed transport ownership used by all Open Dough consumers. Dashboard keeps source admission, immutable caching, timing and rendering adapters. |
+| GitHub request admission | Delivered: `github-requests.mjs` and the request owner modules beside it, one owner process per API host and login. The runtime acquires CI evidence through `ci-github-actions.mjs`; it adds no admission of its own. |
 
 ### GitHub transport and ownership
 
-One runtime process owns admission state, keyed by API host and effective
-principal with resource-specific limits. Authentication binding is established
-once and revalidated on a credential/account change; sharing admission is not
-sharing answers across incompatible permissions. Request keys include the
-actual authorization context without secrets. Separate sessions, projects,
-dev/production dashboards and worker processes cannot create private copies
-of the same allowance controller. Other machines/tools remain outside its scope.
+Delivered and unchanged by this plan: every Open Dough GitHub request is an
+explicit `gh api` request admitted by the request owner of its API host and
+login, with eight turns, directed cooldown, exponential fallback, one recovery
+probe, a hold that survives owner replacement, and reconciliation of an
+earlier owner's children. A known hold suspends acquisition instead of
+counting toward the observer's three-error loss path. Agent diagnostics use
+`ci-github-diagnostic.mjs`.
 
-Use explicit separately admitted `gh api --include` requests for CI provider
-transport, including each pagination page and failure logs. Opaque `gh run`
-commands cannot be counted as one HTTP request or reliably expose rate-limit
-headers. Resolve workflow once per valid binding, then preserve existing
-workflow/run/attempt/job and applicability semantics. Agent diagnostic reads
-must use the same installed diagnostic path; leaving `gh run view --log-failed`
-in shared guidance would bypass admission.
-
-Reuse the current eight-turn concurrency, directed cooldown, exponential
-fallback and one recovery probe. Persist active cooldown before acknowledging
-rate-limit outcome, and carry it through runtime replacement. Retain ownership
-of actual upstream children; replacing a killed broker cannot open eight new
-turns while eight orphaned old requests still run. Reconcile or terminate exact
-owned children before reopening admission. Credential changes requalify pending
-requests and reject stale incompatible live answers while preserving existing
-user-owned private immutable-content cache retention. Preserve individual
-waiter cancellation/bounds: dashboard shutdown ends its waiters, not standalone
-subscriptions. A known hold suspends acquisition to its allowed time rather
-than incrementing the observer's three-error counter. Registration can request
-one shared recheck but cannot bypass admission. Poll only while unsettled
-obligations need acquisition; dormant enrollment needs no periodic GitHub reads.
+What remains here: the runtime asks under its own environment's login, so a
+subscription whose session used another login needs a decision in slice 2 —
+serve it from a runtime started under that login, or name a gap. Registration
+can request one shared recheck but cannot bypass admission. Poll only while
+unsettled obligations need acquisition; dormant enrollment needs no periodic
+GitHub reads. Mixed installed versions must still leave one owner per login:
+a newer install replaces an older owner through the existing generation claim,
+carrying its stored hold, and an older consumer that meets a newer owner gets
+a named failure, never a second allowance (obligations G12 and G22).
 
 Share acquisition by repository/target/provider/auth context and cadence where
 requests are equivalent; keep subscription evidence and delivery ownership
@@ -195,9 +184,7 @@ is deliberately bounded by slice 1; no native wakeup pass is claimed.
 
 | Premise / consuming operation | Literal observation and consequence |
 | --- | --- |
-| Current dashboard admission and cancellation are reusable contracts | In this workspace: `env -u NO_COLOR npm run test:dashboard -- authenticated-read-turns.spec.ts authenticated-read-shared-waiters.spec.ts` → exit 0, seven tests through the real local HTTP boundary and synthetic `gh`. Covers eight slots/FIFO, cancellation/bound before admission, other-waiter preservation, last-waiter cancellation/retry and shutdown. Does not prove cross-process ownership. |
-| Current CI bypasses dashboard throttling | `ci-runs.mjs` directly invokes `gh`; `ghRead.ts` has process-local singleton admission/coalescing. Code path inspection: hosted mailbox spawning alone cannot deliver shared throttling. plan 224's slices 2–6 replace that responsibility. |
-| Opaque CLI commands expose several upstream operations | Current `ci-runs.mjs` uses `run list/view`; headers are only included for `api` by `ghRead.ts`. Exact installed HTTP-cost behavior remains unmeasured; plan 224's slice 3 proves separately admitted API pages with an instrumented provider instead of assuming CLI call count. |
+| GitHub request admission is delivered and shared | `main` at `ceac3b25`: `github-request-owner.test.mjs`, `github-request-login.test.mjs`, `github-request-owner-replacement.test.mjs` and `dashboard/tests/shared-request-owner.spec.ts` pass in `npm test` and the dashboard suite (trunk CI run 38143815776). The CI engine asks through `ci-github-actions.mjs`. Consumed by every slice that acquires CI evidence; not re-proved here. |
 | Durable observer restart needs more than retained SHA files | Startup filtering drops older completed runs; tracked attempts and failure dedup are memory state; coverage filenames sort by SHA. Inspection rejects reuse of startup filtering as recovery or sorted filenames as publication order. Slices 2–3 reconcile exact outstanding registrations. |
 | Existing publication resume/classification is a usable entry point | Current scripts retain accepted revision and inject acquisition/coverage. `node --test src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume-ownership.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs` in this checkout → exit 0, four tests. Another target owner is not adopted; command-provider pending/success, opaque attempt retention and startup history behavior reach their fixtures. New supervision is owned by slices 2–3, not an inherited pass. |
 | Native idle/busy delivery and standalone binding | Cheap presence/help checks found Claude 2.1.296 (`--bg`/`--resume`), Codex CLI 0.162.1 (App Server daemon/proxy and native listen transports), Cursor desktop 3.24.12 and agent CLI 2026.10.01-e373342 (`--resume`). These are candidate routes, not observed same-session delivery. Slice 1 must establish exact recipient, accepted input and safe busy/idle handling for each promised mechanism before its dependent slice. |
@@ -212,8 +199,10 @@ symlink was removed. Paid native parts remain with explicit native-check authori
 
 ## Ordered slices
 
-All slices are planned. Each owns implementation, focused proof and cleanup
-for its named result. No numeric slice target/hard limit is configured; use one
+All slices are planned. Slice 1 is an early probe: its native evidence decides
+each host's delivery route, so slices 2–10 are reassessed and resized at that
+boundary before any of them is delegated. Each owns implementation, focused
+proof and cleanup for its named result. No numeric slice target/hard limit is configured; use one
 cohesive proof loop and stop/reassess when a native probe or integration outcome
 invalidates the approach. Keep unchanged installed client behavior until its
 replacement is accepted; interim gates below are removed by their named slice.
@@ -248,6 +237,10 @@ implementation. If native form cannot meet the source outcome, return the
 explicit scope/capability decision to Terry; do not call a gap acceptance.
 Independent request-boundary work may continue.
 
+While a native host session of each kind is running, also observe whether a
+process it starts can reach the request owner's endpoint and be answered
+(early evidence for obligation G11, which slice 10 still owns).
+
 ### 2. Retain enrollment and recoverable ownership transfer for both origins
 Type: Behavior
 Status: planned
@@ -279,6 +272,13 @@ Slice 9 atomically activates replacement and removes this interim gate.
 
 Generalize retained native session storage once, without fabricated launch
 requests or a second session registry. Active obligations pin necessary records.
+
+Request-owner obligations owned here (G12, G21, G22): a newer install's
+consumer replaces an older request owner through the generation claim and the
+stored hold carries over; an older consumer meeting a newer owner gets a named
+failure and asks nothing; an owner that has stopped but still accepts
+connections is detected by an unanswered greeting and replaced. Decide and
+prove how a subscription whose session used another login is observed.
 
 ### 3. Register exact accepted publications durably and recover lost receipts
 Type: Behavior
@@ -545,8 +545,7 @@ Carried from plan 224's execution; its own record keeps the per-slice detail.
 - 2026-10-11: the request owner is one process per API host and login, on
   demand, under `/tmp/dough-github-requests-<uid>`. The supervising runtime of
   slice 2 is a client of the request owner of its own login and cannot
-  supervise or restart it. The plan text above still describes one runtime
-  process owning admission; realign it at story refinement.
+  supervise or restart it.
 - 2026-10-11: an endpoint directory holds `owner.*.json`, `hold.*.json` and
   `call.*.json`; anything that enumerates or transfers it must carry or
   tolerate them. A consumer of a killed owner gets `failed` and asks again.
@@ -555,8 +554,9 @@ Carried from plan 224's execution; its own record keeps the per-slice detail.
   starter is refused at greeting and every read of its fails while the other's
   owner lives; for an observer that is three errors and lost coverage (G12).
   The dashboard reads the request source from its checkout while observers run
-  the installed payload, so a protocol change can separate them. Whether the
-  protocol belongs in the directory name is decided at story refinement.
+  the installed payload, so a protocol change can separate them. Decided at
+  refinement: the directory name keeps host and login only, so there is still
+  one owner per login; slice 2 makes a newer install replace an older owner.
 - 2026-10-11: a change to CI acquisition or the request path needs full
   `npm test` and the whole dashboard suite; the dashboard completion specs and
   the native closure checks consume the installed CI engine through their own
@@ -564,3 +564,5 @@ Carried from plan 224's execution; its own record keeps the per-slice detail.
   owner, and the stand-in must answer `auth` before it records or blocks.
 - 2026-10-11: `install.sh` and `references/ci-monitor.md` sit at the 250-line
   limit; the next payload file or guidance line needs a structural move.
+- 2026-10-11: any change to CI acquisition or the request path is accepted
+  only on full `npm test` and the whole dashboard suite on the final state.

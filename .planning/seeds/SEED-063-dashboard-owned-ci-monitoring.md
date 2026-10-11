@@ -25,19 +25,17 @@ watchers and coordinate GitHub demand with dashboard reads.
 
 **Identity:** SEED-063#background-ci-failure-delivery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/299-background-ci-failure-delivery/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/299-background-ci-failure-delivery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a0d907f684a663c634c8f12656e09c14530caacdf43597ce0d8e4f429c13282b","plan":"69926f7cac9fc62afb9b323103a4cebeaa053ec6b63c362a6d87516e8e3a1b98"}}
 ```
-**Slice plan:** [Background CI monitoring and failure delivery](../slice-plans/299-background-ci-failure-delivery/PLAN.md),
-awaiting story refinement.
+**Slice plan:** [Background CI monitoring and failure delivery](../slice-plans/299-background-ci-failure-delivery/PLAN.md).
 
 **Split:** Terry's 2026-10-11 decision split the original story at its
 delivered boundary. Shared GitHub request admission was delivered first and
 is described in [GitHub requests](../../dashboard/GITHUB-REQUESTS.md); its
 closed story is recoverable at
 `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
-This story keeps the rest of the original outcome and its mapped slices. Its goal, scope and examples below are the original
-refinement and need story refinement against that delivery before planning or
-execution resumes.
+This story keeps the rest of the original outcome, refined again on
+2026-10-11 against that delivery with no change to its promises.
 
 **Human direction:** Terry's 2026-10-03 decision established failure-only
 wakeup and visible gaps without fallback observation. His 2026-10-11 instruction
@@ -61,8 +59,8 @@ that any quiet session Done retires its resources.
 obligations, and end the agent turn without polling or awaiting CI. Monitoring
 continues and sends a follow-up to the owning native session only for an
 actionable failure. Dashboard and standalone status show the same evidence.
-Open Dough monitoring and dashboard reads share one GitHub request-admission
-owner on this machine.
+Monitoring asks GitHub only through the delivered request owner it shares with
+dashboard reads.
 
 **Scope:**
 
@@ -103,6 +101,13 @@ owner on this machine.
   Publication-triggered checks obey cooldown. The supervising runtime is a
   client of that owner; request owners stay on demand, one per API host and
   login.
+- **Request owner on real hosts.** Carried from the delivered story: an
+  observer on a sandboxed host that cannot reach the owner's endpoint, mixed
+  installed versions and an owner started before an update, login changes that
+  rewrite no gh configuration, an owner that has stopped but still accepts
+  connections, and the paid native fixtures' gh stand-ins are proved here.
+  Each stays a named gap or a visible failure until then, never a second
+  allowance.
 - **Recovery.** Reuse the installed non-AI observer and provider classification.
   Reconcile every unsettled registered publication after restart, including runs
   completed while offline and applicable ancestor attempts. Throttling suspends
@@ -166,7 +171,7 @@ maps them to runtime owners rather than introducing a parallel dashboard model.
 | Failure disposition | Owned diagnosis, coordination/attention decision, or linked repair and proof under existing authority. Unrelated later success is not disposition. |
 | Completion boundary | Execution/review handoff or wrap-up closure naming acknowledged publications and its generation. Only the current boundary may settle; new owned repair work supersedes it. |
 | Retirement request | Explicit closure resource authority and retained management context, settled through existing containment/ownership checks. Session Done alone grants none. |
-| GitHub request admission | Runtime-owned allowance scope by API host and effective authenticated principal, with applicable resource limits, concurrency, cooldown and recovery. Acquisition sharing also respects authorization context and request identity. |
+| GitHub request admission | Delivered. One request owner per API host and login holds the allowance, concurrency, cooldown and recovery; the supervising runtime is its client. Acquisition sharing between subscriptions respects authorization context and request identity. |
 
 **Integrity constraints:**
 
