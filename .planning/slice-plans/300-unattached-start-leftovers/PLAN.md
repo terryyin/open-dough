@@ -169,6 +169,11 @@ sufficient discriminating owner, retain it or add that proof in the same slice.
 Safe stopping point: every correction promise has accepted proof; execution can
 proceed to its ordinary retrospective and wrap-up.
 
+## Execution complete
+
+Product advice: No additional product work recommended. Retain the separate
+native-host acceptance story and deferred unlanded-worktree cleanup.
+
 ## Verification and sizing
 
 Each slice has one cohesive outcome and proof loop. No numeric slice target or
