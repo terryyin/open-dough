@@ -4,7 +4,7 @@
 // ends ownership and every wait; recorded workers may remain alive.
 
 import { startTimeoutMs } from "./launchStart.ts";
-import { workerAlive } from "./launchAttemptWorker.ts";
+import { attemptWorkerRunning } from "./launchAttemptWorker.ts";
 
 import type {
   AgentLaunchRequest,
@@ -104,13 +104,7 @@ export class OwnedAttempts {
     const held = own?.attempt ?? attempt;
     const owned =
       own !== undefined && !this.closedNow && held.outcome === undefined;
-    const running =
-      held.outcome === undefined &&
-      (owned ||
-        (held.worker !== undefined &&
-          (workerAlive(held.worker.pid) ||
-            (held.worker.serverPid !== undefined &&
-              workerAlive(held.worker.serverPid)))));
+    const running = owned || attemptWorkerRunning(held);
     const threshold = Date.parse(held.acceptedAt) + startTimeoutMs();
     return {
       ...held,

@@ -99,9 +99,7 @@ Type: Behavior
 Status: done
 Proof: the three rewritten start specs above; `npm run typecheck:dashboard`
 
-Accepted: held execution/refinement starts note and clear `slowSince`, refuse duplicate Starts and Continue, and launch the original request once after release; late refusal settles normally. The ten-spec command below and typecheck passed; refactor's full start-resume rerun passed after moving its sole-consumer lost-server fixture to `keptExecutionStart.ts`. Native deadline, interrupted continuation and pending-input consumers remain green.
-Command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts dashboard/tests/responsive-session-recovery.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-launch-start-duplicate.spec.ts dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts`.
-Diagnosed proof corrections: wrong fixture title/slug, hook-entry observation race, conflicting NO_COLOR/FORCE_COLOR, and duplicate check including its continued self. Corrected full selection passed; no retry substituted for diagnosis. Warning display and cross-server liveness remain G1/G2.
+Accepted: held execution/refinement starts note and clear `slowSince`, refuse duplicate Starts and Continue, and launch the original request once after release; late refusal settles normally. The ten-spec command below and typecheck passed; refactor's full start-resume rerun passed after moving its sole-consumer lost-server fixture to `keptExecutionStart.ts`. Native deadline, interrupted continuation and pending-input consumers remain green. Command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts dashboard/tests/responsive-session-recovery.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-launch-start-duplicate.spec.ts dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts`. Diagnosed proof corrections: wrong fixture title/slug, hook-entry observation race, conflicting NO_COLOR/FORCE_COLOR, and duplicate check including its continued self. Corrected full selection passed; no retry substituted for diagnosis. Warning display and cross-server liveness remain G1/G2.
 Behavior: a story start whose installed script is still running at the
 threshold → the threshold passes → the attempt stays unsettled and owned with
 `slowSince` noted; a second start of the story answers `already-starting`
@@ -112,9 +110,7 @@ launch record, and removes the kept start. `started()` in `launchStart.ts`
 no longer races the script against the expiry; the timer only notes
 `slowSince`. The `uncertain`/`timed-out` words for an expired start wait and
 `StartWorkflow.uncertain` leave with their tests. `LAUNCH-START.md`'s
-bounded-wait paragraph describes the threshold. Interim, until slice 3: a
-page on another server still reads a running attempt as interrupted, as it
-does today; the owning server refuses its continuation as running.
+bounded-wait paragraph describes the threshold. The temporary cross-server gap was proved closed by slice 3 (G2).
 
 ### 2. The card warns about a slow start and keeps following it
 Type: Behavior
@@ -178,14 +174,11 @@ and Continue. A rejected publication note must not poison later settlement notes
 
 ### 5. Continue settles from the attempt's own launch record
 Type: Behavior
-Status: planned
-Proof: new case in `agent-launch-uncertain-continuation.spec.ts`
-Behavior: an unsettled or uncertain attempt whose story has a launch record
-launched since the attempt was accepted → Continue → the attempt settles as
-launched with that record's session, with no start run and no native call,
-and the answer says so. The own-record rule moves from `launchVerification.ts`
-into a shared function Recheck keeps using; Continue calls it in
-`continueAttempt`'s pre-acceptance answer.
+Status: done
+Proof: the literal 16-spec selection below, extra race/uncertain/admission-close selection, typecheck and whitespace check passed to terminal exit 0. Four raw HTTP workflow/outcome cases settle the latest matching cross-host own record, keep identity/time and record bytes, clear worker/warning and trap all scripts/native calls. Missing project proves ordering: fresh Accept refuses `folder-not-found`, while Continue settles; read-only attempts and unreadable records start nothing. Real file-operation holds prove newer running/settled evidence survives and a newly appearing record suppresses effects at locked admission; closing during durable admission starts nothing. G4's native pending-input consumers retain their original assertions. Corrected setup capture and subprocess TypeScript flags, then reran affected full specs; diagnostics `2026-10-11T09-03-09.427Z`, `09-08-40.448Z`, `09-09-11.768Z`. Independent refactor shared worker liveness and merged landing retention; the eight-spec command below, typecheck and diff check passed. Before-checks proof was strengthened after acceptance found dirty scripts did not force that check to refuse (G5); full uncertain-continuation passed, independent narrow review found no edits, repaired formatter passed. All modified/new files stay at most 250 formatted lines.
+Command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-open-session-continue.spec.ts dashboard/tests/agent-launch-continuation.spec.ts dashboard/tests/agent-launch-claude-own-record-verification.spec.ts dashboard/tests/responsive-session-recovery-verification.spec.ts dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-launch-acceptance-kept-first.spec.ts dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-worker-handoff.spec.ts dashboard/tests/agent-launch-second-server.spec.ts dashboard/tests/agent-launch-own-record-continuation-race.spec.ts dashboard/tests/agent-launch-publication-receipt-failure.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts`.
+Refactor command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/launch-attempt-worker.spec.ts dashboard/tests/agent-launch-worker-handoff.spec.ts dashboard/tests/agent-launch-second-server.spec.ts dashboard/tests/agent-launch-own-record-continuation-race.spec.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-publication-receipt-failure.spec.ts dashboard/tests/launch-attempt-admission-close.spec.ts dashboard/tests/one-shot-landing-recovery-retention.spec.ts`.
+Behavior: an unsettled or uncertain attempt with its own completed launch record → Continue → the same attempt settles launched from the latest matching record before pre-launch checks, without scripts or native calls. Recheck shares the original own-record selection; canonical pending first input keeps native recovery priority. Locked readmission rechecks fresh machine facts before effects; a closed owner starts nothing.
 
 ## Decisive premises
 
@@ -207,10 +200,7 @@ into a shared function Recheck keeps using; Continue calls it in
 
 ## Current decisions
 
-- `slowSince` and `worker` are attempt facts noted through the existing
-  `note`; a failed note of either is answered from memory, as today, because
-  no effect depends on them. Only the `published` receipt is a required
-  checkpoint before the native launch.
+- `slowSince` and `worker` use existing attempt notes; failed notes stay answered from memory. Only the `published` receipt is a required checkpoint before native launch.
 - `running` is computed by the answering server, never by the page, so pid
   checks stay server-side.
 - Existing recovery states and their words are kept; only the warning and the
@@ -244,3 +234,13 @@ Disposition: proved by slice 3: `agent-launch-second-server.spec.ts`, `agent-lau
 Reported: slice 3 — "If recording the script pid fails and its server subsequently dies while that unrecorded child lives, the durable server-only worker cannot reveal the surviving child."
 Story clause: "verified facts decide whether startup proceeds."
 Disposition: no user cost "verified facts decide whether startup proceeds.": an actual recording failure leaves no verifiable live worker in the store, so the existing interrupted recovery correctly applies; the dead server cannot launch, and Continue reuses the durable kept start. The source promises observation of recorded live workers, not inference of an unrecorded process.
+
+### G4. Own-record shortcut must preserve pending-input recovery
+Reported: slice 5 — "The own-record shortcut can settle a pending-input conversation without recovering its first input."
+Story clause: "the shared native recovery for ad hoc and pending-input sessions."
+Disposition: proved by slice 5: canonical `pendingInputRecord` plus unchanged Codex reconciliation, preparation recovery, start and lifetime consumer assertions; terminal 16-spec selection passed.
+
+### G5. Before-checks proof lacks a refusing precondition
+Reported: slice 5 — "Dirty installed scripts prove settlement precedes pre-acceptance checks."
+Story clause: "Continuing an attempt whose own launched session this machine already records settles it as launched and starts nothing."
+Disposition: proved by slice 5: `agent-launch-uncertain-continuation.spec.ts` execution/unsettled case observes fresh Accept refuse `folder-not-found`, then Continue settles its own record with zero effects; full spec and typecheck passed.

@@ -21,6 +21,7 @@ import {
   type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { ownLaunchRecord } from "./ownLaunchRecord.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import {
   recordedRequest,
@@ -43,18 +44,6 @@ const unresolved = (explanation: string): Verified => ({
   kind: "unresolved",
   explanation,
 });
-
-// Whether the record is of the attempt's story and launched since it was
-// accepted: the attempt's own.
-const ownRecord = (
-  record: LaunchRecord,
-  request: StoryLaunchRequest,
-  acceptedAt: string,
-) =>
-  record.request.workflow === request.workflow &&
-  record.request.identity === request.identity &&
-  record.request.source === request.source &&
-  Date.parse(record.launchedAt) >= Date.parse(acceptedAt);
 
 // Of the listed sessions, those no launch record holds. An own record has
 // already settled the attempt before this listing is read.
@@ -86,9 +75,7 @@ export async function verifyLaunch(
     return unresolved(
       "This machine's launch records could not be read, so whether a listed session belongs to this launch is not known.",
     );
-  const own = (records.get(source.id) ?? [])
-    .filter((record) => ownRecord(record, request, acceptedAt))
-    .sort((a, b) => Date.parse(b.launchedAt) - Date.parse(a.launchedAt))[0];
+  const own = ownLaunchRecord(records, { request, acceptedAt });
   if (own !== undefined)
     return {
       kind: "launched",

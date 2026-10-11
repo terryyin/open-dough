@@ -98,7 +98,16 @@ test.describe("continuing while a story session is open", () => {
     server.claudeScenario("launched");
     expect(await answerOf(continueAttempt(server, ownAttempt))).toMatchObject({
       kind: "accepted",
-      attempt: { id: ownAttempt },
+      attempt: {
+        id: ownAttempt,
+        outcome: {
+          kind: "launched",
+          session: { host: "claude", sessionId: ownId },
+        },
+        owned: false,
+        running: false,
+      },
     });
+    await nothingStarted(origin, server, push, false);
   });
 });

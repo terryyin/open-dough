@@ -52,18 +52,27 @@ export async function keptSession(
   );
 }
 
-// A kept conversation of this launch whose first input is unconfirmed.
-export async function pendingInputOf(
-  sourceId: string,
+// The canonical pending-input selection, shared by native recovery and
+// continuation admission. A durable conversation alone does not confirm input.
+export function pendingInputRecord(
+  records: readonly LaunchRecord[],
   request: AgentLaunchRequest,
-): Promise<LaunchRecord | undefined> {
-  return (await keptRecords(sourceId)).find(
+): LaunchRecord | undefined {
+  return records.find(
     (record) =>
       sameLaunch(record.request, request) &&
       record.firstInput !== undefined &&
       record.firstInput.state !== "confirmed" &&
       record.firstInput.state !== "not-requested",
   );
+}
+
+// A kept conversation of this launch whose first input is unconfirmed.
+export async function pendingInputOf(
+  sourceId: string,
+  request: AgentLaunchRequest,
+): Promise<LaunchRecord | undefined> {
+  return pendingInputRecord(await keptRecords(sourceId), request);
 }
 
 export { bindRecord, keepRecord } from "./launchRecordBinding.ts";

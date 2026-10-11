@@ -22,3 +22,14 @@ export function workerAlive(pid: number): boolean {
     return error instanceof Error && "code" in error && error.code === "EPERM";
   }
 }
+
+// An unsettled attempt runs while its script or consuming server still lives.
+export function attemptWorkerRunning(attempt: LaunchAttemptRecord): boolean {
+  return (
+    attempt.outcome === undefined &&
+    attempt.worker !== undefined &&
+    (workerAlive(attempt.worker.pid) ||
+      (attempt.worker.serverPid !== undefined &&
+        workerAlive(attempt.worker.serverPid)))
+  );
+}

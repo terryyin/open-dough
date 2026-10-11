@@ -96,7 +96,11 @@ listing or more than one such session leaves it unresolved and the answer says
 why; Continue stays available. Recheck never launches a session. Starts whose
 host offers no listing (including Codex) and ad hoc starts reread evidence and
 published state without native verification. Continue posts to
-`POST /__agent-launch/continue`, which runs the same kept request under the same
+`POST /__agent-launch/continue`. For a story, its latest own launch record
+(same workflow, identity and source, launched since acceptance) first settles
+the attempt as launched with that session; no start script or native launch runs.
+A conversation whose first input remains unconfirmed retains its existing native
+recovery instead. Otherwise Continue runs the same kept request under the same
 attempt and the existing [start recovery](LAUNCH-START.md#mechanical-start-and-recovery)
 and native rules, or answers why not; it never creates a replacement attempt.
 A launch answer is shown there as it was formed, beside the card's Start or Start

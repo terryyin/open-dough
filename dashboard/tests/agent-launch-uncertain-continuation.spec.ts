@@ -4,6 +4,8 @@
 // started, and only that attempt's own continuation resumes it, under the same
 // attempt identity.
 
+import { renameSync } from "node:fs";
+import { ownRecordContinuation } from "./ownRecordContinuation.ts";
 import type { AttemptObservation } from "../src/agentLaunch.ts";
 import {
   accept,
@@ -141,3 +143,70 @@ startTest.describe("a story start that crosses its warning threshold", () => {
     },
   );
 });
+
+for (const workflow of ["execution", "refinement"] as const)
+  for (const uncertain of [false, true])
+    startTest(
+      `Continue settles ${workflow}'s ${uncertain ? "uncertain" : "unsettled"} own record before checks, scripts or native calls`,
+      async ({ dashboard, origin }) => {
+        const proof = ownRecordContinuation(
+          dashboard,
+          origin,
+          workflow,
+          uncertain,
+        );
+        const missingProject = workflow === "execution" && !uncertain;
+        const movedProject = `${origin.project}.temporarily-missing`;
+        if (missingProject) renameSync(origin.project, movedProject);
+        try {
+          if (missingProject) {
+            expect(
+              answerOf(
+                await accept(dashboard, {
+                  ...launchRequest,
+                  identity: queuedIdentity,
+                  title: "Story A",
+                  workflow,
+                }),
+              ),
+            ).toMatchObject({ kind: "failed", reason: "folder-not-found" });
+            proof.unchanged();
+          }
+          const answered = answerOf(await continueAttempt(dashboard, proof.id));
+          expect(answered).toMatchObject({
+            kind: "accepted",
+            attempt: {
+              id: proof.id,
+              acceptedAt: proof.acceptedAt,
+              outcome: proof.outcome,
+              owned: false,
+              running: false,
+            },
+          });
+          expect(answered.attempt?.worker).toBeUndefined();
+          expect(answered.attempt?.slowSince).toBeUndefined();
+          expect(await attempts(dashboard)).toEqual([answered.attempt]);
+          proof.settled(answered.attempt);
+          await proof.nothingStarted();
+        } finally {
+          if (missingProject) renameSync(movedProject, origin.project);
+        }
+      },
+    );
+
+startTest(
+  "Continue cannot settle an own record when the attempt file cannot be written, and starts nothing",
+  async ({ dashboard, origin }) => {
+    const proof = ownRecordContinuation(dashboard, origin, "execution", false);
+    proof.readOnly(true);
+    try {
+      expect(
+        answerOf(await continueAttempt(dashboard, proof.id)),
+      ).toMatchObject({ kind: "failed", reason: "unrecorded" });
+      proof.unchanged();
+      await proof.nothingStarted();
+    } finally {
+      proof.readOnly(false);
+    }
+  },
+);
