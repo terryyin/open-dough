@@ -50,8 +50,8 @@ It confirms the fetched target contains the before-cleanup commit, publishes
 the final closure through managed delivery on this coordinator's own observer,
 runs [the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
 once for the accepted SHA there, attempts the default-checkout refresh when one is
-given, and only after a receipt whose shutdown is confirmed retires the
-worktree and branch under Dough Land's
+given, and only after a `success` receipt whose shutdown is confirmed retires
+the worktree and branch under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree), which
 removes the worktree only when its
 [creation record](../../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it)
@@ -73,7 +73,7 @@ usage error:
 | `step: "context"`                 | The worktree is gone. Follow its `recovery`: rerun with `--repository`, rerun with an earlier result's `acceptedSha` as `--final`, or report the unpublished final closure                                                                                                                                                            |
 | `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery`                                                                                                                                                                                                                                |
 | `step: "observation"`             | The final closure is accepted and `finish`, which completes it on this coordinator's live observer before any ended one, completed it on none of this coordinator's observers: its owner was not named, it holds no live observer and its ended ones leave none to repeat completion on (for example, none registered the closure, or those that did, whether one or several, recorded no CI verdict for it or verdicts that differ), or it holds several live ones. Follow the step `observation.reason` names: rerun, with this coordinator's own owner input when that was missing; keep the retained one of several live observers, stop the others, and rerun; as a session that replaces the coordinator stop the recorded observer; when this coordinator's observers have ended, run `deliver` from the execution worktree to establish its own, and rerun; otherwise report lost coverage. Resources stay |
-| `step: "completion"`              | Report the receipt: a CI failure or retained or unconfirmed shutdown keeps the worktree and branch                                                                                                                                                                                                                                    |
+| `step: "completion"`              | Report the receipt: a CI failure, a receipt with no verdict, or retained or unconfirmed shutdown keeps the worktree and branch. Follow its `recovery`                                                                                                                                                                                 |
 | `step: "retire"`                  | Act on `cleanup` as Dough Land's retirement result table says                                                                                                                                                                                                                                                                         |
 | `step: "git"`                     | Report `error` as the unfinished step; nothing after it ran                                                                                                                                                                                                                                                                           |
 
@@ -147,8 +147,8 @@ printed receipt, with the trunk observer. A saved branch tip or superseded merge
 candidate is not that receipt. Invoke
 [the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
 once for the accepted integrated SHA on that trunk observer and handle its
-combined receipt. With confirmed shutdown as its gate, wrap-up then retires
-the execution resources under the same
+combined receipt. With a `success` receipt with confirmed shutdown as its
+gate, wrap-up then retires the execution resources under the same
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree).
 After retirement and final wording settle, apply the
 [final dashboard operation](../../dough-land/references/dashboard-completion.md)

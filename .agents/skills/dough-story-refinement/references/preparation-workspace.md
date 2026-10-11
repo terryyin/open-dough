@@ -28,7 +28,8 @@ or confirm the workspace immediately before making it.
 
 When your instruction carries an established preparation, use its workspace and
 skip this selection, as [established preparation](established-preparation.md)
-says.
+says. In an [established session](../../dough-execute-plan/references/established-session.md),
+that reference decides which workspace the announcement or one-shot start is given.
 
 Apply [own a temporary exploration workspace](../../dough-manual-testing/references/exploration-workspace.md)
 "Select the checkout", "Record local checkout role and target selection",

@@ -3,7 +3,8 @@
 // the backlog merge adapter when either side touched the backlog or its done
 // records, and as an agent-credited merge commit otherwise. A merge Git stops
 // on a conflict stays as Git left it; once it is resolved and committed, that
-// commit is the candidate.
+// commit is the candidate. A merge in progress with nothing unmerged is left
+// untouched for its commit.
 import { fileURLToPath } from "node:url";
 import { doneDirectoryBeside } from "../../dough-product-backlog/scripts/product-backlog-git-done-catalog.mjs";
 import {
@@ -65,6 +66,17 @@ async function unmergedPaths(workspace) {
   return stdout.split("\n").filter(Boolean);
 }
 
+// Whether a merge is in progress in the workspace.
+export async function mergeInProgress(workspace) {
+  try {
+    await git(workspace, "rev-parse", "--verify", "--quiet", "MERGE_HEAD");
+    return true;
+  } catch (error) {
+    if (error.code === 1) return false;
+    throw error;
+  }
+}
+
 // Answers the unmerged paths when Git stopped the merge on a conflict, and
 // null once the merge is committed.
 async function historyPreservingMerge(workspace, ref) {
@@ -101,24 +113,29 @@ async function headMerges(workspace, trunkRef, publishedTip) {
   return parents.length === 2 && sides.every((side) => parents.includes(side));
 }
 
-export async function constructCandidate(
-  workspace,
-  trunkRef,
-  publishedTip,
-  file,
-) {
+// Answers what the workspace already holds for this integration, without
+// merging: a stopped or uncommitted merge to preserve, or the resolved merge
+// commit to take. Null when the merge has yet to run.
+async function candidateInWorkspace(workspace, trunkRef, publishedTip) {
   const unresolved = await unmergedPaths(workspace);
   if (unresolved.length > 0) {
     return { ok: false, reason: "conflict", conflictedPaths: unresolved };
   }
+  // Checking out the target would drop the merge and what it staged.
+  if (await mergeInProgress(workspace)) {
+    return { ok: false, reason: "uncommitted-merge" };
+  }
   if (await headMerges(workspace, trunkRef, publishedTip)) {
     return {
       ok: true,
-      resolved: true,
       sha: await revParse(workspace, "HEAD"),
       adapterStatus: null,
     };
   }
+  return null;
+}
+
+async function mergedCandidate(workspace, trunkRef, publishedTip, file) {
   await git(workspace, "checkout", "--detach", trunkRef);
   if (await backlogTouched(workspace, publishedTip, file)) {
     const merged = await mergeThroughAdapter(workspace, publishedTip, file);
@@ -157,4 +174,19 @@ export async function constructCandidate(
     sha: await revParse(workspace, "HEAD"),
     adapterStatus: null,
   };
+}
+
+// `mergeRan` marks an answer this run's own merge produced.
+export async function constructCandidate(
+  workspace,
+  trunkRef,
+  publishedTip,
+  file,
+) {
+  return (
+    (await candidateInWorkspace(workspace, trunkRef, publishedTip)) ?? {
+      ...(await mergedCandidate(workspace, trunkRef, publishedTip, file)),
+      mergeRan: true,
+    }
+  );
 }

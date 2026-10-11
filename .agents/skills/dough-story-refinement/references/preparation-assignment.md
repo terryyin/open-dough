@@ -115,6 +115,17 @@ when the kept result lands, under
 [Release it with the kept result](#release-it-with-the-kept-result), or on an
 explicit abandonment, under [Abandon the preparation](#abandon-the-preparation).
 
+A dashboard retry that retained only its start request uses `continue
+--recover-unannounced` in the same existing workspace and branch. A recorded
+allocation is still continued only after its exact published ownership is
+verified. Without an allocation or saved receipt, recovery may announce only
+when the workspace has no commits outside fetched trunk, no earlier announcement
+of this identity, no held assignment for this identity, and no edits except one
+canonical staged preparation profile matching the request's identity, host, and
+model. The command removes only that isolated precommit artifact, refreshes from
+trunk, and selects a currently free agent. Foreign or changed edits, missing
+workspaces, and uncertain or ended allocations stop for reconciliation.
+
 ## Release it with the kept result
 
 After a validated keep instruction, per

@@ -109,10 +109,10 @@ preconditions](references/trunk-publication.md#preconditions), including the
 authorized remote/trunk, before a Story Branch or Trunk Mode startup that publishes
 a claim. Existing current-branch and host-owned checkout restrictions still apply.
 
-When your instruction carries an established start, follow [established
-start](references/established-start.md) instead of the start command below.
+When your instruction carries an established start, follow [established start](references/established-start.md) instead of the start command below.
 When your session holds this story's Preparing workspace with unlanded preparation, first follow
 [hand off to execution in the same session](../dough-story-refinement/references/preparation-journey.md#hand-off-to-execution-in-the-same-session) before that command.
+When your session's first message carried an established session, give that command the workspace and branch [established session](references/established-session.md) decides.
 
 For authorized queued Story Branch or Trunk Mode work, invoke the installed
 `scripts/execution-start.mjs start` once with the originating integration
