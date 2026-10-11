@@ -83,7 +83,13 @@ export function ReviewFeedback({
       {problem !== undefined && <p>The review could not be read: {problem}</p>}
       {review?.kind === "unavailable" && (
         <p>
-          {review.explanation} Worktree <code>{review.workspace}</code>.
+          {review.explanation}
+          {review.workspace !== undefined && (
+            <>
+              {" "}
+              Worktree <code>{review.workspace}</code>.
+            </>
+          )}
         </p>
       )}
     </div>

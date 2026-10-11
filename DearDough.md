@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 282. Removed local codes are never reused.
+- Highest allocated local number: 283. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -890,6 +890,14 @@ path into that state: resolve a conflicted integration by hand and push it.
   - Evidence: plan 295 `## Story obligations` G3 (`proved by slice 2`, resting on the one `mergeInProgress` check); slice 2's return listed a merge that is not this integration's as untested and named the rerun that sets its commit aside; the independent outcome review's scratch repository (detached on trunk, `MERGE_HEAD` naming an unrelated commit: `uncommitted-merge`, then after the guided commit the rerun answered `published` with another SHA and that commit on no ref).
   - Observed effect: slice 2 was accepted and published with `preserve-published-history.md` saying "Commit that merge the same way, then run the same command" for a state where the rerun does not publish that commit. The command itself cannot produce that state, the earlier behavior lost more, and the review planned no correction.
   - Inference: the return had already described the guided path's result, so the disposition needed only its sentence carried into the guidance or a `return`; it was closed on the code path instead. Third sample, the smallest in effect.
+- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (spent plan recoverable at `0ff0e2421c6260ef25d584323d62b86c51758f3b:.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
+  - Timestamp: unknown (2026-10-11, slice 2 acceptance before `bc36167e` at 09:57 +09:00; found by the retrospective about 10:00 +09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (checkout base `5c0c3b03`, the release commit)
+  - Evidence: plan 296 `## Story obligations` G9 (`no user cost`: “two agents' heads both committing a profile for one story is not a state the start leaves”); `reviewWorkspaceOf` in `dashboard/src/storyReviewWorkspace.ts` filters found worktrees by source and identity only, while the story requires an author config that “names the card's agent”; the default checkout lists `make-story-cards-modern-compact-information-radi`, authored by aki-chan at the claim of `SEED-091#story-card-information-radiator`, while `origin/main` publishes aki-chan for another story.
+  - Observed effect: both slices were accepted and published with a story returned to the backlog and taken by another agent answering a two-agent ambiguity that blocks the live worktree's review; correction plan 297 was written.
+  - Inference: the plan's Architecture had already restated the Required clause as “whose author is a known agent”, dropping the card's agent, so the plan, both returns and both acceptances checked the narrower rule. G9 was the one place the state surfaced, and it was reasoned from the start command alone, not from what leaves a worktree behind. Fourth sample.
 
 ## DD-281 — A slice made hand-made work the publication candidate, and no one traced the paths that move the workspace off it
 
@@ -923,3 +931,19 @@ selection, so its behavior changed too, with no promise or proof in the plan.
   - Evidence: plan 295 "Current findings" and "Outside-in proof ownership" name `ownedObservers.select` and journeys on Claude Code; neither names Codex. `closureObservers` builds `ownedObservers([stream.directory], …)` for `host === "codex"` in `trunk-closure-observer.mjs`. Slice 2's return listed "Codex: a retained stream that registered the closure and ended without a verdict … no test covers this" under untested; the coordinator returned it, and with the deleted candidate restored the new Codex journey failed (`finish` exited 0 and retired). Plan 295 `## Story obligations` G6 and slice 2 "Accepted proof".
   - Observed effect: one extra implementation round (about 6.5 minutes and 19k subagent tokens by the task notifications) added the Codex journey before delivery; slice 1 needed a similar round for several live observers beside one ended. The Codex `ended` gap keeps its stream wording and does not say the stream registered the closure without a verdict.
   - Inference: the plan's PFE note that "the selection already lives in one place" was correct and is why the change reached Codex; listing that place's callers when the plan was written would have put the Codex case in slice 2's proof. One sample.
+
+## DD-283 — A slower CI runner failed the time budget on a revision that changed none of the timed jobs
+
+The suite's total ceiling sits within the spread of ordinary runner speed, so
+a split job can breach it with no slow change behind it. The breach reads as
+a CI failure on whichever execution published the revision.
+
+### Occurrences
+- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (spent plan recoverable at `0ff0e2421c6260ef25d584323d62b86c51758f3b:.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
+  - Timestamp: 2026-10-11T09:46:15+09:00 (the job's `OVER BUDGET` line)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (checkout base `5c0c3b03`, the release commit)
+  - Evidence: run 38099358635 `test (2/3)`: “OVER BUDGET: all jobs took 470.2 job-seconds; the total ceiling is 470”; its `test-times-2` lists the same 109 jobs as base trunk run 38097405961, which totalled 292.7 (ratio 1.61, every large job slower); `f2e6e131` changes only `dashboard/` and `.planning/`; `bash scripts/ci-test-times.sh` reported share totals 271.8–412.7, 275.0–421.4 and 423.5–457.1 against 470, all `thin`.
+  - Observed effect: the coordinator spent about ten tool calls classifying the failure and made no repair, since `tests/time-budget` makes raising a ceiling a reviewed edit; the revision's CI stays failed.
+  - Inference: the ceiling was calibrated at 1.5 times a largest share of 312.1, and trunk's largest share is now 457.1, so the calibration rule no longer holds. One sample of a breach; the thin headroom is measured over ten trunk runs.

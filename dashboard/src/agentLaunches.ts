@@ -35,6 +35,8 @@ type ReadSessions = {
   readonly hostOperations: MachineAnswer["hostOperations"];
   // Records oldest first per project, with latest observations; unread until supplied.
   readonly records: readonly LaunchWithState[] | undefined;
+  // Worktrees local Git found holding a story's claim at the latest read.
+  readonly workspaces: MachineAnswer["workspaces"];
   // Whether a read asked after the latest change of the project list has
   // ended, answered or not: until then what is known predates the list.
   readonly sessionsSettled: boolean;
@@ -87,6 +89,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     starts: [],
     definitions: [],
     sessionPolicies: [],
+    workspaces: [],
   });
   const {
     known,
@@ -208,6 +211,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       reread();
     },
     records: readAnswered ? configuredKnown : undefined,
+    workspaces: sessions.workspaces,
     sessionsSettled: settledFor === projects,
     creations,
     hostOperations: sessions.hostOperations,

@@ -1,7 +1,7 @@
 // Story review shows a launch workspace snapshot or a landed run's
 // fixed delivered comparison. The local launch boundary resolves the project,
 // work identity and optional launch reference, never a repository path.
-// reviewWorkspaceOf owns the latest workspace selection on both sides; the
+// `./storyReviewWorkspace.ts` owns the workspace selection on both sides; the
 // historical comparison comes from the run's captured landing facts.
 // Only a workspace snapshot can be marked reviewed: the story's one mark on
 // this machine. Its changes since the mark exclude trunk's changes when the
@@ -14,8 +14,7 @@ import {
   reviewRunChoiceSchema,
 } from "./storyReviewLandedRun.ts";
 import { launchTextLimit, workIdentitySchema } from "./launchRequest.ts";
-import { launchSubject } from "./launchWorkflow.ts";
-import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
+import type { EstablishedContext } from "./launchRecord.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
 // One file's diff within a snapshot: named by the `baseline` and `tree`
@@ -35,34 +34,6 @@ export const reviewTargetName = ({
   target,
 }: Pick<EstablishedContext, "remote" | "target">) =>
   `${remote}/${target.replace(/^refs\/heads\//, "")}`;
-
-// The kept launch record a story's review reads, with what it established:
-// the most recent by `launchedAt` of the story's records whose start or
-// preparation names a workspace, or undefined when none does.
-export function reviewWorkspaceOf<Kept extends LaunchRecord>(
-  records: readonly Kept[] | undefined,
-  sourceId: string,
-  identity: string,
-):
-  | { readonly record: Kept; readonly established: EstablishedContext }
-  | undefined {
-  let latest: ReturnType<typeof reviewWorkspaceOf<Kept>>;
-  for (const record of records ?? []) {
-    const established = record.start ?? record.preparation;
-    if (
-      established === undefined ||
-      record.request.source !== sourceId ||
-      launchSubject(record.request).identity !== identity
-    )
-      continue;
-    if (
-      latest === undefined ||
-      Date.parse(record.launchedAt) >= Date.parse(latest.record.launchedAt)
-    )
-      latest = { record, established };
-  }
-  return latest;
-}
 
 export {
   objectIdSchema,
@@ -218,7 +189,9 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("unavailable"),
-      workspace: z.string().min(1),
+      // The one workspace that could not be read; absent when the review
+      // could not choose a workspace at all.
+      workspace: z.string().min(1).optional(),
       explanation: z.string().min(1),
     }),
   ])

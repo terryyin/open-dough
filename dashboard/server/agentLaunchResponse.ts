@@ -13,6 +13,7 @@ import type {
   VerifiedAnswer,
 } from "../src/agentLaunch.ts";
 import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
+import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import type { RunningCursorSessions } from "../src/cursorRunnerSessions.ts";
 import type { RecoverSessionAnswer } from "../src/sessionRecovery.ts";
 import type { SessionResult } from "../src/sessionResult.ts";
@@ -66,6 +67,7 @@ export type AgentLaunchAnswer =
           ReturnType<AgentLaunches["establishingHosts"]>
         >;
         sessionPolicies: Awaited<ReturnType<AgentLaunches["sessionPolicies"]>>;
+        workspaces: readonly LocalWorkspace[];
       };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }

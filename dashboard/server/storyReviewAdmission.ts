@@ -17,13 +17,13 @@ import {
 import { reviewedRunFile } from "./storyReviewRunAdmission.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
-import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
   markReviewedRequestSchema,
   objectIdSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
 } from "../src/storyReview.ts";
+import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
@@ -31,7 +31,7 @@ import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
 
 export interface AdmittedFileDiff {
   readonly kind: "review-file";
-  readonly established: EstablishedContext;
+  readonly established: ReviewedWorkspace;
   readonly repository?: string;
   // The tree the file diff compares from.
   readonly baseline: string;
@@ -43,7 +43,7 @@ export interface AdmittedFileDiff {
 
 export interface AdmittedReviewRange {
   readonly kind: "review-range";
-  readonly established: EstablishedContext;
+  readonly established: ReviewedWorkspace;
   readonly fromTree: string;
   readonly fromBaseline: string;
   readonly tree: string;
@@ -130,7 +130,7 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       "The file diff names a malformed object or path.",
     );
   const { baseline, tree, path, oldPath } = query.data;
-  let established: EstablishedContext;
+  let established: ReviewedWorkspace;
   let repository: string | undefined;
   if (url.searchParams.has("reference")) {
     ({ established, repository } = await reviewedRunFile(url, {

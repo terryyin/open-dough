@@ -16,6 +16,7 @@ import { offeredShapeSchema } from "./commandOptions.ts";
 import { sessionPolicySchema } from "./launchRequest.ts";
 import { attemptObservationSchema } from "./launchOutcome.ts";
 import { sessionShown } from "./sessionShown.ts";
+import { localWorkspaceSchema } from "./localWorkspace.ts";
 import {
   launchSubject,
   launchWorkflowNames,
@@ -167,9 +168,10 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // Start execution is pressed, by project id, the projects whose installed
 // skill establishes a preparation when Start refinement is pressed, the starts
 // kept without a session, the starts running now with their phases, the
-// options each project offers, and the launch attempts this machine accepted,
+// options each project offers, the launch attempts this machine accepted,
 // with whether its kept attempts could be read (when not, an earlier startup
-// may be unresolved and nothing tells which).
+// may be unresolved and nothing tells which), and the worktrees local Git
+// found holding a story's claim (`./localWorkspace.ts`).
 export const launchRecordsSchema = z.object({
   // Missing or unread capabilities never borrow an operation from another host.
   hostOperations: hostOperationsSchema.default({}),
@@ -203,6 +205,7 @@ export const launchRecordsSchema = z.object({
       }),
     )
     .default([]),
+  workspaces: z.array(localWorkspaceSchema).default([]),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;
