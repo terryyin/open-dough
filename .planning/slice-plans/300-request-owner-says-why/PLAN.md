@@ -17,6 +17,8 @@ branch `codex/a-github-request-or-failed-log-that-could-not-be`, agent
 Ordinary increments target the same execution branch on `origin`. The owned
 worktree is reused; the default checkout is `/Users/terryyin/git/open-dough`.
 Accepted increment: `bbc0b6f2280377363b4c903ff22433ab7334bd83`, suffix base `0cacaa7fe1b5917a2b03515a39d80fd23b032ba1`; observer reused, no reconciliation.
+Accepted increment: `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`, suffix base `bbc0b6f2280377363b4c903ff22433ab7334bd83`; observer reused, no reconciliation.
+Accepted repair: `e9a3b2314ee25a2de9b930b3f1d7a561e77c4c29`, suffix base `e169cd39dfd71fc761d95d626cb6a8a2d030ddbe`; observer reused. Installed stash restoration confirmed `resumed`, applied, and dropped only owned OID `ee02bd66f48f8e8223178165da8f77ac362baa52` before slice 3 resumed.
 Checkout setup: `npm ci --ignore-scripts`, then `npm run typecheck:dashboard`
 passed on 2026-10-12. No numeric slice budget or exception is configured;
 existing planned refinement authority is retained.
@@ -43,24 +45,12 @@ no automatic endpoint repair, new retry policy or feature promise is added.
 
 ## Investigation and current findings
 
-Observed at `887ec1c7475add6d3b782a0ab3042f5eba865ba9`; full preparation
-observations are recoverable from this plan at the accepted claim revision.
-Local fixtures proved owner privacy/path and explicit greeting refusals lose
-causes before CLI/observer/browser, with zero upstream calls. Held logs lose
-structured waits; 17 MiB logs lose the known output-bound cause. Real gh-shaped
-410 answers already retain HTTP status. Both process owners duplicate exited
-process recognition; wire encoding mixes endpoint responsibilities. Existing
-turns/hold mutation checks could hang, so slice 5 must first establish bounds.
-
-Baseline: `PATH=/opt/homebrew/bin:$PATH npm test -- <files>` passed for
-`github-request-owner-endpoint`, `ci-github-diagnostic`,
-`github-request-owned-calls`, `ci-mailbox-worker-loss`, `ci-github-acquisition`,
-`github-request-owner`, `github-request-owner-replacement` and
-`github-request-login` (full `.test.mjs` paths under the execution scripts).
-Use installed Bash 5; default Bash 3.2 was refused. Browser baseline used
-`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- preparation-owner-cause.spec.ts --workers=1`.
-Scratch edits were removed. No speed comparison or successful mutation proof
-was established during preparation.
+Preparation at `887ec1c7475add6d3b782a0ab3042f5eba865ba9` reproduced cause
+loss, missing structured log waits, duplicate process/endpoint knowledge and
+unbounded turns/hold fault proof. Full observations and the Bash 5 baseline
+are recoverable from this plan at the accepted claim revision. Scratch edits
+were removed. Slice 5 must establish bounded discrimination before deletions;
+no speed comparison or successful mutation proof was established in preparation.
 
 ## Key examples and interaction
 
@@ -160,20 +150,18 @@ Accepted: actual CLI held-only/mixed/404/410/failed/17 MiB cases in `ci-github-d
 
 ### 3. Share process facts without sharing signaling policy
 Type: Structure
-Status: planned
+Status: done
 
 CI repair for published slice 2 (`e169cd39`, run 38180782958/1): `ci-custom-guidance.test.mjs` rejected equivalent wrapping/wording. `PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-custom-guidance.test.mjs` failed before the test-only repair and passed afterward; actual guidance plus three paraphrases and four missing-safeguard counterexamples were inspected. All eight deterministic guidance consumers passed; runtime guidance is unchanged. Independent refactor required no edits, formatting passed, and slice 3 remains planned with its unfinished work preserved.
 
 Own finding 4's duplicate process-table knowledge. Share reading and exit
 recognition while retaining request-call PID/argument/start-window and mailbox/
 stream identity, denied-inspection handling and rechecks before signals.
-Proof: owned-calls, replacement, mailbox-worker-loss and existing mailbox stop,
-stream and denied-inspection tests exercise disappearing/zombie/name-only/defunct,
-reused and unreadable processes through both owners, preserving no-signal and
-lost-coverage behavior. If a new runtime dependency is added, declare and test
-its complete installation/update under the shared checks below. Make room in
-`install.sh` structurally within the 250-line limit, never by packing or exception.
-This Structure owns an evidenced correction directly; no new feature is needed.
+Accepted: `process-table.mjs` owns reads/exit facts only. Both owners retain identity/denial/signaling policy. Inspected live/departed sync/async reads, all four exit forms, PID/argument/start mismatches, unreadable accounting, no-signal and pre-KILL rechecks in owned-calls and mailbox tests; installed delivery/completion/closure owners also pass. G1 is proved. Bootstrap owns setup/invocation after the unchanged inline declaration. Refactor found no edits. Final commands terminal/pass:
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/github-request-owned-calls.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-worker-loss.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-complete.test.mjs src/skills/dough-execute-plan/scripts/ci-observer-stream.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-denied-inspection.test.mjs`
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs src/skills/dough-execute-plan/scripts/github-request-kept-admissions.test.mjs src/skills/dough-execute-plan/scripts/github-request-login.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-launch.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-await.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-completion.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-stop-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-codex-observation-loss-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook-worker-loss.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-owner.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-codex-owner.test.mjs`
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-story-wrap-up/scripts/trunk-closure-owner.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-owner-gaps.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-codex-owner.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-owner-ended-record.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-owner-ambient-rerun.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-rebased-rerun.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-below-toplevel.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-observation-gaps.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox.test.mjs`
+`PATH=/opt/homebrew/bin:$PATH npm test -- tests/install-public-payload.sh tests/install-all-tools.sh tests/execution-payload-update.sh` freshly observes final installed bytes/use; prior four-check command's `tests/payload-declaration-links.sh` result remains applicable because declaration/link selection is unchanged. `git diff --check` and `PATH=/opt/homebrew/bin:$PATH npm run format` pass.
 
 ### 4. Keep endpoint responsibility with the endpoint
 Type: Structure
@@ -245,3 +233,10 @@ removing duplication. G12 and background session delivery stay with the sibling.
 Preserve the 250-line rule, safe categories, unknown/timeout semantics and all
 original correction promises. No scope/ADR/proof-owner decision remains, no
 paid/native/live-GitHub premise is needed, and no exception is authorized.
+
+## Story obligations
+
+### G1. Final synchronous-reader adjustment needs current proof
+Reported: slice 3 — "No verification has run since that final reader adjustment."
+Story clause: "Keep process-table reading and exit recognition shared while retaining each owner's identity and signaling policy"
+Disposition: proved by slice 3: github-request-owned-calls.test.mjs (sync/async live/departed reads and no-signal/recheck assertions), ci-mailbox-complete-exit-cases.mjs, denied-inspection, installed completion/delivery/closure tests; final current commands passed after restoration.

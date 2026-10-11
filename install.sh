@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2034,SC2310,SC2312 # SC2034: force and replace_verified are read by install_declared_payload.
-set -euo pipefail
-source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"
 managed_files=(
   dough-update/SKILL.md
   dough-bug-fixing/SKILL.md
@@ -183,6 +181,7 @@ managed_files=(
   dough-execute-plan/scripts/github-request-kept-admissions.mjs
   dough-execute-plan/scripts/github-request-outstanding.mjs
   dough-execute-plan/scripts/github-request-owned-calls.mjs
+  dough-execute-plan/scripts/process-table.mjs
   dough-execute-plan/scripts/github-request-owner-endpoint.mjs
   dough-execute-plan/scripts/github-request-owner-failure.mjs
   dough-execute-plan/scripts/github-request-owner-link.mjs
@@ -247,4 +246,4 @@ managed_files=(
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )
-install_declared_payload
+source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"
