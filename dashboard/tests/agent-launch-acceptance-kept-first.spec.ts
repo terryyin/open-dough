@@ -151,8 +151,12 @@ test.describe("an accepted launch whose change is being kept", () => {
     await expect
       .poll(() => keptAttempts()[0]?.outcome?.kind, { timeout: 30_000 })
       .toBe("launched");
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: false },
-    ]);
+    // The settled time is kept in a write of its own after the outcome, so
+    // the answer and the kept record agree once that write has landed.
+    await expect(async () => {
+      expect(await attempts(server)).toEqual([
+        { ...keptAttempts()[0], owned: false },
+      ]);
+    }).toPass({ timeout: 30_000 });
   });
 });

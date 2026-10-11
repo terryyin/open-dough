@@ -737,7 +737,7 @@ Disposition: receiving slice 15
 ### G18. Child identity through Linux ps was not run locally
 Reported: slice 6 — "the Linux `ps` path was not run locally (the Docker VM's storage is broken), so CI's Ubuntu jobs will be its first exercise."
 Story clause: "leave uncounted upstream children alive"
-Disposition: interim until slices 7
+Disposition: proved by slice 6: CI run 38134105125 on `752f8606` passed all three Ubuntu `test` jobs, which run `github-request-owned-calls.test.mjs` and `github-request-owner-replacement.test.mjs` against procps `ps`
 
 ### G19. A reboot that clears the endpoint root loses the hold
 Reported: slice 6 — "A reboot that clears `/tmp` still loses the hold, because of where the root lives; the docs say so."
@@ -866,3 +866,8 @@ not arm observers, modify runtime/skills, Take the story or run paid sessions.
   must carry or tolerate them. Request owners stay on demand: a replacement
   appears only when a consumer next asks. A consumer of a killed owner gets
   `failed` and must ask again.
+- 2026-10-11 (repair after slice 6): CI run 38134105125 failed
+  `agent-launch-acceptance-kept-first.spec.ts:154` in one dashboard job. The
+  test compared the server's answer with the kept record while the separate
+  settled-time write could land between the two reads. It now retries the
+  comparison until both agree. The race does not involve the request owner.
