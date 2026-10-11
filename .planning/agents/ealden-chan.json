@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-119#missing-published-backlog",
+  "mode": "story-branch",
+  "branch": "codex/missing-backlog-message",
+  "host": "codex"
+}

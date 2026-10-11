@@ -15,6 +15,7 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery) — SEED-063#background-ci-failure-delivery ([plan](slice-plans/299-background-ci-failure-delivery/PLAN.md))
+- [Missing published backlog](seeds/SEED-119-clear-missing-backlog-message.md#missing-published-backlog) — SEED-119#missing-published-backlog
 
 ## Backlog list
 
