@@ -1,13 +1,17 @@
-// The review workspace rule (../src/storyReview.ts `reviewWorkspaceOf`),
+// The review workspace rule (../src/storyReviewWorkspace.ts `reviewWorkspaceOf`),
 // which both the card and the launch boundary use: of one project's kept
 // launch records for one work identity, the most recent by `launchedAt` whose
 // start or preparation names a workspace, preparation and start alike.
 // Records naming no workspace, another identity, or another project are
-// passed over, and none at all leaves the story with nothing to review.
+// passed over. Without such a record, the one worktree local Git found
+// holding the story's claim is reviewed; a kept launch workspace keeps
+// precedence over it, several found worktrees are not chosen between, and
+// none at all leaves the story with nothing to review.
 
 import { expect, test } from "./support/pageTest.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { reviewWorkspaceOf } from "../src/storyReview.ts";
+import type { LocalWorkspace } from "../src/localWorkspace.ts";
+import { reviewWorkspaceOf } from "../src/storyReviewWorkspace.ts";
 
 const established = (workspace: string) => ({
   identity: "SEED-A#a",
@@ -54,8 +58,33 @@ const prepared = (workspace: string) => ({
   preparation: established(workspace),
 });
 
-const workspaceOf = (records: readonly LaunchRecord[]) =>
-  reviewWorkspaceOf(records, "open-dough", "SEED-A#a")?.established.workspace;
+const found = (
+  workspace: string,
+  holding: Partial<LocalWorkspace> = {},
+): LocalWorkspace => ({
+  source: "open-dough",
+  identity: "SEED-A#a",
+  agent: "Yui-chan",
+  workspace,
+  branch: "exec/trunk-a",
+  ...holding,
+});
+
+// The workspace the rule picks, whichever kind of evidence names it.
+function workspaceOf(
+  records: readonly LaunchRecord[],
+  workspaces: readonly LocalWorkspace[] = [],
+) {
+  const reviewed = reviewWorkspaceOf(
+    records,
+    workspaces,
+    "open-dough",
+    "SEED-A#a",
+  );
+  return reviewed?.kind === "launched"
+    ? reviewed.established.workspace
+    : reviewed?.found.workspace;
+}
 
 test("the most recent launch by launchedAt is reviewed, whatever order the records are kept in", () => {
   expect(
@@ -79,9 +108,13 @@ test("a preparation's workspace counts like a start's", () => {
       workflow: "refinement",
     }),
   ];
-  const found = reviewWorkspaceOf(records, "open-dough", "SEED-A#a");
-  expect(found?.record).toBe(records[1]);
-  expect(found?.established).toBe(records[1]?.preparation);
+  expect(
+    reviewWorkspaceOf(records, [], "open-dough", "SEED-A#a"),
+  ).toStrictEqual({
+    kind: "launched",
+    record: records[1],
+    established: records[1]?.preparation,
+  });
 });
 
 test("records naming no workspace, another identity, or another project are passed over", () => {
@@ -104,7 +137,50 @@ test("a story with no launch record naming a workspace has nothing to review", (
     undefined,
   );
   expect(workspaceOf([])).toBe(undefined);
-  expect(reviewWorkspaceOf(undefined, "open-dough", "SEED-A#a")).toBe(
-    undefined,
-  );
+  expect(
+    reviewWorkspaceOf(undefined, undefined, "open-dough", "SEED-A#a"),
+  ).toBe(undefined);
+});
+
+test("without a launch workspace, the one worktree found holding the story's claim is reviewed", () => {
+  const holding = found("~/git/open-dough/.worktrees/trunk-a");
+  expect(
+    reviewWorkspaceOf(
+      [launched("2026-10-01T09:00:00.000Z", {})],
+      [
+        found("/other-story", { identity: "SEED-B#b" }),
+        holding,
+        found("/other-project", { source: "elsewhere" }),
+      ],
+      "open-dough",
+      "SEED-A#a",
+    ),
+  ).toStrictEqual({ kind: "found", found: holding });
+  expect(
+    reviewWorkspaceOf(undefined, [holding], "open-dough", "SEED-A#a"),
+  ).toStrictEqual({ kind: "found", found: holding });
+});
+
+test("a kept launch workspace keeps precedence over a found worktree", () => {
+  const records = [launched("2026-10-01T09:00:00.000Z", started("/launched"))];
+  expect(workspaceOf(records, [found("/found")])).toBe("/launched");
+  expect(
+    reviewWorkspaceOf(records, [found("/found")], "open-dough", "SEED-A#a")
+      ?.kind,
+  ).toBe("launched");
+  // A preparation's workspace too, and whatever the found worktrees number.
+  expect(
+    workspaceOf(
+      [
+        launched("2026-10-02T09:00:00.000Z", prepared("/prepared"), {
+          workflow: "refinement",
+        }),
+      ],
+      [found("/one"), found("/another")],
+    ),
+  ).toBe("/prepared");
+});
+
+test("several found worktrees holding the story's claim are not chosen between", () => {
+  expect(workspaceOf([], [found("/one"), found("/another")])).toBe(undefined);
 });

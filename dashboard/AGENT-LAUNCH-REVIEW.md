@@ -5,15 +5,15 @@ story's read-only review of its workspace or a landed run's change in the side p
 
 A story with a kept launch record naming a workspace or landed run
 offers **Review changes** on its active card beside **Inspect story**, or on
-its Recently done card. It opens a read-only review, defaulting to the readable
+its Recently done card. An active story without a launch workspace offers it
+too when local Git finds its worktree on this machine; the [reviewed workspace](STORY-REVIEW-WORKSPACE.md)
+says which workspace a review reads. It opens a read-only review, defaulting to the readable
 workspace's change against trunk; otherwise it opens the newest captured landed
 run, or the newest landed run's evidence gap. The [landed comparison](STORY-REVIEW-LANDED-RUNS.md)
 uses its fixed delivered pair after workspace retirement. The action leads with
 a compare icon and ends with an arrow
 toward the side panel where the review opens; both are decorative, so its name
-stays “Review changes”. For a workspace review, the most recent record by `launchedAt`, whether
-it names a start or a preparation, picks the workspace (`reviewWorkspaceOf` in
-`src/storyReview.ts`, shared by the card and the boundary). The review
+stays “Review changes”. The review
 compares a snapshot of the workspace with the merge-base of its head and
 freshly fetched `<remote>/<target>`, so trunk changes merged into the story
 and the story's already-landed commits stay out. The snapshot covers commits

@@ -47,7 +47,7 @@ The sessions answer (`case "sessions"` in `server/launchBoundaryAnswer.ts`,
 parsed by `launchRecordsSchema`) carries the result as `workspaces`: one
 entry per qualifying worktree with its project, identity, agent, path as the
 page shows it, and branch. The shared rule `reviewWorkspaceOf` in
-`src/storyReview.ts`, used by the card's `StoryReviewAction` and by
+`src/storyReviewWorkspace.ts`, used by the card's `StoryReviewAction` and by
 `reviewRequest` and `reviewedWorkspace` on the server, takes these entries
 beside the records: the most recent record naming a workspace wins as today;
 without one, a single entry for the story is the workspace, and several
@@ -140,7 +140,7 @@ offer Review changes, since that Story Branch Mode worktree qualifies too.
 
 ### 1. A Taken story's worktree found by local Git offers Review changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: New spec `dashboard/tests/story-review-trunk-worktree.spec.ts` for the
 first four rows of the proof table on the new Trunk Mode fixture; new cases in
 `story-review-workspace.spec.ts` for precedence; the story-review spec suite
@@ -198,7 +198,73 @@ browser, diff, or marking controls.
 Change: the server answers the ambiguity as an `unavailable` review with the
 decided words; `StoryReviewAction` offers the action for an ambiguity too;
 `reviewWorkspaceOf`'s unit cases cover a stale entry (none is produced for
-it, since the scan already requires the claim) and two entries. Complete the
-doc paragraph with the stale and ambiguous rules.
+it, since the scan already requires the claim) and two entries. Complete
+`dashboard/STORY-REVIEW-WORKSPACE.md`, where slice 1's refactor moved the
+workspace rule, with the stale and ambiguous rules.
 
 Safe stopping point: the story's outcome is delivered.
+
+## Execution
+
+Story Branch Mode in `.worktrees/a-trunk-mode-story-started-outside-the-dashboard`
+on `claude/a-trunk-mode-story-started-outside-the-dashboard`, agent
+stanly-chan; claim `2cb26084` accepted on `origin/main`. Increments publish to
+the remote execution branch, observed there through managed delivery (GitHub
+Actions, `ci.yml`).
+
+Slice 1 accepted proof: `npm run test:dashboard --
+dashboard/tests/story-review-trunk-worktree.spec.ts
+dashboard/tests/story-review-workspace.spec.ts` (8 passed after the refactor);
+the full `npm run test:dashboard` before the refactor, green except the
+failure below; `npm run typecheck:dashboard` and `npm run lint` clean.
+
+Learnings for remaining work:
+
+- The rule and `ReviewedWorkspace` live in `src/storyReviewWorkspace.ts`; the
+  server resolves through `resolvedWorkspace` in
+  `server/storyReviewWorkspaceAdmission.ts`, which reads local Git only when no
+  record names a workspace. Slice 2's ambiguity answer belongs on that path.
+- Refresh keeps the comparison shown, so the spec selects Since the review
+  after Refresh, as the launched-workspace specs do.
+- The scan was measured on this repository's checkout: 15 worktrees, about
+  0.6 s read one after another, so no caching.
+- One full-suite failure is unrelated and unrepaired:
+  `project-read-recovery.spec.ts` “a later failed check keeps only Pygardon's
+  previous snapshot” reported “No revision check was made within a minute.”
+  under a load average near 29. Its trace
+  (`dashboard/test-results/2026-10-11T00-23-28.895Z/`) shows the sessions
+  answers returning in 2–7 ms, four detail reads aborted, then a whole
+  Pygardon read answered 502 before the step's check was noted. 27 further
+  repeats passed, so the cause is located but not reproduced.
+
+## Story obligations
+
+### G1. Several qualifying worktrees offer no review
+Reported: slice 1 — "several qualifying worktrees offer no Review changes until slice 2 explains them"
+Story clause: "Review changes opens a review that says so and names them"
+Disposition: receiving slice 2
+
+### G2. Scan failure paths have no test
+Reported: slice 1 — "Scan failure paths have no test: a Git failure on one worktree, a failed worktree listing, a detached worktree, or a project folder that is itself a linked worktree."
+Story clause: "the card offers no Review changes"
+Disposition: no user cost "can open the story review on that agent's worktree": a worktree that cannot be read is passed over, which leaves the card as it is today on a machine without the worktree.
+
+### G3. Story Branch cards in the start-refusal specs are not asserted
+Reported: slice 1 — "that Story A's card in the two start-refusal specs now shows Review changes (its Story Branch worktree qualifies) is expected but not asserted anywhere"
+Story clause: "this story verifies Trunk Mode only"
+Disposition: excluded "this story verifies Trunk Mode only"
+
+### G4. No new spec for another machine
+Reported: slice 1 — "no new spec; it relies on existing specs where no worktree qualifies"
+Story clause: "the card offers no Review changes"
+Disposition: proved by slice 1: `dashboard/tests/story-review-nothing.spec.ts` “a story whose kept launch record names no workspace offers no review”, whose card has no Review changes button and whose review request answers 404 with the scan running
+
+### G5. Scan cost was not measured
+Reported: slice 1 — "A checkout with many worktrees, such as this repository's, pays that every read. This was not measured."
+Story clause: "the project's local checkout lists a linked worktree"
+Disposition: no user cost "can open the story review on that agent's worktree": measured at acceptance, 15 worktrees read in about 0.6 s one after another on the 15 s schedule.
+
+### G6. Since the review is selected after Refresh
+Reported: slice 1 — "the spec selects the \"Since the review\" radio after Refresh rather than expecting Refresh to open on it"
+Story clause: "as for a launched workspace"
+Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-worktree.spec.ts` asserts the refreshed snapshot's `since.files` and the Since the review rows; `story-review-comparison.spec.ts` “Refresh keeps all changes shown” is the launched behavior

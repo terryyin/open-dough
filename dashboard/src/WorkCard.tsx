@@ -150,6 +150,7 @@ export function WorkCard({
             </button>
             <StoryReviewAction
               records={launches.records}
+              workspaces={launches.workspaces}
               sourceId={sourceId}
               work={entry}
             />
