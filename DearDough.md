@@ -68,7 +68,7 @@ Evidence and response: [ODF-110](https://github.com/terryyin/open-dough/blob/mai
   - Timestamp: unknown (2026-10-11, execution slices 2, 3 and 5).
   - Tool: Codex.
   - Open Dough release: unknown.
-  - Evidence: original plan at `3ec282610148afb245a710642b486318d5388d57:.planning/slice-plans/299-slow-startup-safe-recovery/PLAN.md` assumed running kept starts were projected and observed a reparented pid alone; `9fc81fad` and `25cdc5f6` corrected projection and initial/server handoff facts. Own-record reuse missed pending first input; `e41af375` and plan G4 preserve native recovery. G5 replaces a dirty-script ordering claim with fresh Accept's actual `folder-not-found` refusal before own-record Continue.
+  - Evidence: original plan at `3ec282610148afb245a710642b486318d5388d57:.planning/slice-plans/299-slow-startup-safe-recovery/PLAN.md` assumed running kept starts were projected and observed a reparented pid alone; `9fc81fad` and `25cdc5f6` corrected projection and initial/server handoff facts. Own-record reuse missed pending first input; `e41af375` preserves native recovery. G4/G5 remain recoverable at `95289184a68ea0a840f6c90020eb118cc9321438:.planning/slice-plans/299-slow-startup-safe-recovery/PLAN.md`: native recovery and fresh Accept's actual `folder-not-found` refusal before own-record Continue.
   - Observed effect: extra consumer and handoff investigation/proof, including the required full browser run after the shared projection fixture changed; the initial own-record shortcut was returned before delivery because it bypassed native input recovery. No unsupported cost estimate.
 
 ## ODF-156 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation

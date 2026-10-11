@@ -37,6 +37,8 @@ server died before noting the warning, the answering server derives it from the
 attempt's acceptance time and that threshold. Age never ends a worker or settles
 an attempt. Once its worker dies without an outcome, it is interrupted and needs
 manual recovery; restarting the dashboard never automatically continues it.
+The slow-start warning follows the phase sentence in the card's status. Startup
+announcements announces it once across rereads, elapsed-minute changes and reloads.
 
 From submission, the dialog says “Starting…” with Cancel, Start and every choice
 unavailable, ignores Escape, and says “Startup is underway and can no longer be
