@@ -548,9 +548,13 @@ Carried from plan 224's execution; its own record keeps the per-slice detail.
 - 2026-10-11: an endpoint directory holds `owner.*.json`, `hold.*.json` and
   `call.*.json`; anything that enumerates or transfers it must carry or
   tolerate them. A consumer of a killed owner gets `failed` and asks again.
-- 2026-10-11: installs speaking different owner protocols name their
-  directories differently and never meet, so a mixed install has one
-  allowance per version (G12).
+- 2026-10-11: installs speaking different owner protocols share one endpoint
+  directory, since its name carries only the API host and login. The later
+  starter is refused at greeting and every read of its fails while the other's
+  owner lives; for an observer that is three errors and lost coverage (G12).
+  The dashboard reads the request source from its checkout while observers run
+  the installed payload, so a protocol change can separate them. Whether the
+  protocol belongs in the directory name is decided at story refinement.
 - 2026-10-11: a change to CI acquisition or the request path needs full
   `npm test` and the whole dashboard suite; the dashboard completion specs and
   the native closure checks consume the installed CI engine through their own

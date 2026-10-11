@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 284. Removed local codes are never reused.
+- Highest allocated local number: 286. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -963,3 +963,28 @@ the answer of a neighbouring case in the very spec file it extends.
   - Evidence: plan 297 "Outside-in proof ownership" row "Everything plan 296 proved" and "Preserved … a worktree … on another story's claim passed over"; at `dd6d315c`, `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts` first case expected the sessions answer to list `closed-b` for `SEED-B#b` while trunk publishes that agent for `SEED-A#a`. The implementation return stopped with that one failure (104 selected, 1 failed) and a question; the plan's "Observed premises" ran the pure rule and a real start, not that spec against the rule. The plan also named "Aki-chan", which `agentNameOf` rejects. Plan 297 slice 1 "Learnings".
   - Observed effect: the implementer stopped instead of finishing; the coordinator judged the changed expectation a consequence of the story's Scope, edited the assertion itself, and reran the 104-test selection (2.5 minutes) before the refactor pass.
   - Inference: reading the extended spec's other cases against the new rule at planning time would have put the changed expectation in the plan. Possibly the same problem as ODF-110 (a consumer premise that missed specs); recorded separately because here the missed consumer was the plan's own named proof. One sample.
+
+## DD-285 — A coordinator accepted two slices on the implementer's consumer selection and published revisions whose other suites failed in CI
+
+The changed runtime was reached by tests through their own `gh` stand-ins, which a search for the changed modules' names does not find.
+
+### Occurrences
+- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224, first implementation `b5cb2f7b`
+  - Timestamp: unknown (2026-10-11; CI runs 38112217052 and 38126614188)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed copy at checkout base `7e212a01`; `VERSION` 0.3.59)
+  - Evidence: slice 3 (`93f43b59`) was accepted on the script directory and three reader specs; `dashboard/tests/support/completionCi.ts` still answered `gh run` JSON and two completion specs failed. Slice 5 (`deb540bb`) was accepted on an install-subset shell run; `tests/git-publication-native.sh` and `-owned-context.sh` hung to the six-minute job limit. Plan 224 "Learnings", slice 3 acceptance and repair after slice 5.
+  - Observed effect: two failed CI runs and two repair publications (`c6c8f9d6`, `f9ef7368`); from slice 5's repair on, the coordinator ran full `npm test` and the whole dashboard suite before each publication, about 15 minutes each.
+  - Inference: possibly the same problem as ODF-110 and DD-259 (a consumer search that misses specs); recorded separately because the miss was at coordinator acceptance, where the guidance already says a known consumer may not be left for CI.
+
+## DD-286 — A slice added per-user machine state and no rule that tests keep out of it, so suites used the developer's real state until a directory listing showed it
+
+### Occurrences
+- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224, first implementation `b5cb2f7b`
+  - Timestamp: 2026-10-11T17:57:18+09:00 (the listing of `/tmp/dough-github-requests-501`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed copy at checkout base `7e212a01`; `VERSION` 0.3.59)
+  - Evidence: slice 4 (`c6c8f9d6`) introduced the request owner root; its brief required private roots per test but named no check. Nine directories appeared in the real root during suite runs; `publishedMainFixture` and the native closure harness asked through it. `f9ef7368` added a runner and teardown guard that fails such a run.
+  - Observed effect: green suites hid the sharing; the same leak hung two shell checks in CI (DD-285). The repair agent's first guarded `npm test` caught two leaking checks nobody had named.

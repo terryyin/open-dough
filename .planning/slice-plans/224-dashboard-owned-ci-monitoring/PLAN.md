@@ -394,6 +394,30 @@ Finish `dashboard/GITHUB-REQUESTS.md` restart and ownership wording.
 
 Slices 3–6 use no production GitHub credentials and no extra live requests.
 
+## Execution complete
+
+Product advice: The retrospective found no broken promise of this story.
+
+- Its one behavior correction is planned as
+  [SEED-063#request-owner-says-why](../300-request-owner-says-why/PLAN.md): a
+  request that never reached `gh`, or a failed log that cannot be read, should
+  say why. It is not queued; queue it ahead of the next release of this
+  payload if agents are to diagnose a sandboxed or mismatched owner unaided.
+- Before a release carries this payload, observe one sandboxed host reaching
+  the request owner (obligation G11, kept by plan 299). An observer that cannot
+  reach it loses coverage visibly after three failed reads.
+- The dashboard reads the request source from its checkout while observers
+  run the installed payload, and both use one endpoint directory per login. A
+  later owner-protocol change makes the later starter's reads fail while the
+  other's owner lives. Plan 299 keeps the decision whether the protocol belongs
+  in the directory name.
+- The CI mailbox root `/tmp/dough-ci-<uid>` is created without the ownership
+  and mode check the new request-owner root has. That is an older weakness and
+  a backlog candidate.
+- `install.sh`'s declaration list and `references/ci-monitor.md` sit at the
+  250-line limit and were packed to stay there. Whether the limit should apply
+  to them is Terry's decision.
+
 ## Execution state
 
 Story Branch Mode in `.worktrees/monitor-ci-in-the-background-and-wake-execution`
@@ -583,9 +607,10 @@ run that asks GitHub without one.
   owner is one process per allowance scope, not one keyed process. plan 299's slice 2's
   supervising runtime is therefore a client of the request owner of its own
   login and cannot supervise or restart "the" request owner; request owners
-  stay on demand. Installs speaking different protocols name their directories
-  differently and never meet, so G12 is a duplicate allowance per version
-  rather than failed reads. Every fake `gh` must answer `auth` before it
+  stay on demand. Retrospective correction: installs speaking different owner
+  protocols share one endpoint directory, since its name carries only the API
+  host and login; the later starter is refused at greeting and every read of
+  its fails while the other's owner lives (G12). Every fake `gh` must answer `auth` before it
   records, counts or blocks.
 - 2026-10-11 (slice 5 refactor): `agent-completion-quiet-claude.spec.ts:195`
   failed once in a subset run under machine load with no error captured, then

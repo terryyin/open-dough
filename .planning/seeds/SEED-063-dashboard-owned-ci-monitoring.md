@@ -349,6 +349,27 @@ Record native forms explicitly; documentation or fake processes do not prove
 idle wakeup. Paid native runs require explicit native-check authority and are
 outside this planning request and routine CI.
 
+<a id="request-owner-says-why"></a>
+
+### A GitHub request or failed log that could not be read says why
+
+**Identity:** SEED-063#request-owner-says-why
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/300-request-owner-says-why/PLAN.md"}
+```
+**Slice plan:** [Request owner says why](../slice-plans/300-request-owner-says-why/PLAN.md).
+
+**Goal:** A developer or agent whose GitHub request never reached `gh`, or
+whose failed-job log could not be read, is told the actual cause instead of
+"gh failed" or an unbounded retry instruction. This bounded correction comes
+from the retrospective of [shared GitHub request admission](#dashboard-owned-ci-monitoring).
+
+**Scope:** The request owner's unreachable-owner causes and the diagnostic
+entry's unavailable-log causes, with the guidance that names them; one shared
+reading of the process table for the request owner and the CI mailbox; and
+removal of request-rule proofs repeated across test layers. No new feature
+promise.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
