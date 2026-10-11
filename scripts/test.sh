@@ -53,17 +53,27 @@ elapsed_seconds() {
 
 node_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
 check_stop_report="${source_dir}/tests/support/check-stop-report.bash"
+# A check that asks GitHub names a request owner root of its own. Each job is
+# given one that admits no owner -- too deep for any socket path, so a consumer
+# pointed there makes it and is refused -- and fails when it was reached.
+printf -v ownerless_root '%-110s' asked-github-without-a-private-request-owner-root
+ownerless_root=${ownerless_root// /-}
 run_job() {
   exec 2>&4 4>&-
   local index=$1 kind=$2 label=$3
   local log="${output_root}/${index}.log" launch="${output_root}/${index}.launch"
   local job_status=0 started=${EPOCHREALTIME}
+  export DOUGH_GITHUB_REQUEST_OWNER_ROOT="${output_root}/${index}.${ownerless_root}"
   if [[ ${kind} == node ]]; then
     node --test --test-reporter="${node_reporter}" "${label}" > "${log}" 2>&1 \
       || job_status=$?
   else
     BASH_ENV="${check_stop_report}" "${test_bash}" "${label}" > "${log}" 2>&1 \
       || job_status=$?
+  fi
+  if [[ -e ${DOUGH_GITHUB_REQUEST_OWNER_ROOT} ]]; then
+    printf 'Asked GitHub without a request owner root of its own.\n' >> "${log}"
+    job_status=1
   fi
   # Only a lost setpgid race's launch line is emptied; any other launch output
   # stays and fails the run.

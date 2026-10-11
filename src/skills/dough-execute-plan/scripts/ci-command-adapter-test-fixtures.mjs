@@ -4,18 +4,22 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { sharedCommandDirectory } from "./fixture-teardown-test-fixtures.mjs";
+import {
+  fixtureTeardown,
+  sharedCommandDirectory,
+} from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 
 export const checkedSha = "c".repeat(40);
 
 // A `gh` that counts its calls in CI_TEST_GH_CALLS and lists no runs.
 const countingGithubCommand = `#!${process.execPath}
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+if (process.argv[2] === 'auth') process.exit(1);
 const path = process.env.CI_TEST_GH_CALLS;
 const count = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
 writeFileSync(path, String(count));
@@ -61,9 +65,11 @@ process.stdout.write(JSON.stringify({ attempts: [attempt] }));
       join(planning, "open-dough.json"),
       JSON.stringify(configuration(adapter)),
     );
-  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
   const env = {
     ...process.env,
+    ...requestOwnerEnvironment(teardown),
     CI_TEST_GH_CALLS: ghCalls,
     PATH: `${sharedCommandDirectory("gh", countingGithubCommand)}:${process.env.PATH}`,
   };

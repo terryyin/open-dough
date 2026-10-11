@@ -1,9 +1,14 @@
 // The `gh`-invocation concern for the local authenticated read boundary
-// (`./authenticatedRead.ts`): running one `gh api` call with GitHub's status
-// line and headers included, read once (`./ghAnswer.ts`) -- a rate limit and
-// the wait GitHub directed, whichever read met it -- one call shared by every
-// request asking it while it is outstanding, admitted once for all of them
-// (`./readAdmission.ts`) and taking one of its turns at GitHub.
+// (`./authenticatedRead.ts`): this process's adapter of the one installed
+// GitHub request source (`github-requests.mjs`), which asks this machine's
+// request owner, shared with every other dashboard process and CI observer
+// of this user, to run one `gh api` call with GitHub's status line and
+// headers included, read once -- a rate limit and the wait GitHub directed,
+// whichever read met it -- one call shared by every request asking it while
+// it is outstanding, admitted once for all of them and taking one of the
+// owner's turns at GitHub. This module owns only what is the boundary's: its bounds,
+// its local diagnostics of a failed read (`./readDiagnostics.ts`), and each
+// request's timing (`./readTiming.ts`).
 // Which commit a ref or published branch names is asked in `./ghRevision.ts`;
 // content pinned to a resolved commit is read in `./ghContents.ts`; when one
 // path was last committed, in `./ghCommitTime.ts`. Each call
@@ -13,14 +18,12 @@
 // trusts that the request was allowed to reach this point.
 // Failure kinds and JSON helpers: `./ghFailure.ts`.
 
-import { execFile } from "node:child_process";
+import type { GhAnswer } from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+import { GitHubRequests } from "../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
-import { readAnswer, type GhAnswer } from "./ghAnswer.ts";
-import { OutstandingReads, ReadBoundReached } from "./outstandingReads.ts";
-import { ReadAdmission } from "./readAdmission.ts";
 import { recordFailedRead } from "./readDiagnostics.ts";
 import { timedGhWait } from "./readTiming.ts";
-import { GhFailure, type GhFailureReason } from "./ghFailure.ts";
+import { GhFailure } from "./ghFailure.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 
 export {
@@ -40,136 +43,22 @@ export function readTimeoutMs(): number {
   return configuredLimit("DOUGH_READ_TIMEOUT_MS", readWaitLimitMs);
 }
 
-// How long this process first waits after a rate limit that directs no
-// wait (`./readAdmission.ts`), doubling while the limit continues: GitHub's
+// How long a request owner this process starts first waits after a rate
+// limit that directs no wait, doubling while the limit continues: GitHub's
 // own guidance of at least one minute.
 function limitBackoffBaseMs(): number {
   return configuredLimit("DOUGH_LIMIT_BACKOFF_MS", 60_000);
 }
 
-// Every call asks for GitHub's status line and headers (`--include`), right
-// after `api`, so a refusal's status and direction are read here whatever
-// was asked.
-function includedArgs(args: readonly string[]): readonly string[] {
-  return args[0] === "api" ? ["api", "--include", ...args.slice(1)] : args;
-}
-
-// Every `gh` call still outstanding in this server process, keyed by its
-// argument array: the question asked of GitHub, any conditional hint
-// included. Requests asking it while it is outstanding wait on that one
-// call, which ends once none of them waits, at its own bound, or -- by
-// ending every request waiting on it -- when the boundary closes. No settled
-// answer is kept here.
-const outstandingGh = new OutstandingReads<GhAnswer>(readTimeoutMs());
-
-// Whether this process may ask GitHub now, and its turns at GitHub. Every
-// call `outstandingGh` starts is admitted here once, for all the requests
-// waiting on it, and takes one turn however many wait on it.
-const admission = new ReadAdmission(limitBackoffBaseMs());
-
-// One call `outstandingGh` started: refused while a rate limit holds reads
-// back, otherwise run once it has a turn -- unless a limit met while it
-// waited holds it back then. Its bound runs from before its turn, so waiting
-// counts toward it; a call that ends while waiting never reaches GitHub.
-// A failed call is recorded once here for local diagnostics
-// (`./readDiagnostics.ts`), including a bound that ends it; held-back and
-// ordinary waiter departures are not.
-async function spawnedGh(
-  args: readonly string[],
-  signal: AbortSignal,
-): Promise<GhAnswer> {
-  const startedAtMs = Date.now();
-  const refused = admission.heldBack(Date.now());
-  if (refused !== undefined) {
-    return unasked(refused);
-  }
-  let turnEnds: () => void;
-  try {
-    turnEnds = await admission.turn(signal);
-  } catch {
-    if (endedAtReadBound(signal)) {
-      recordFailedRead({ cause: "timed-out", startedAtMs });
-      throw new GhFailure({ kind: "timed-out" });
-    }
-    return unasked({ kind: "failed" });
-  }
-  // A turn can pass to this call while every request is being ended, as
-  // when the boundary closes: a call already ended is never run.
-  if (signal.aborted) {
-    turnEnds();
-    return unasked({ kind: "failed" });
-  }
-  const heldBack = admission.heldBack(Date.now());
-  if (heldBack !== undefined) {
-    turnEnds();
-    return unasked(heldBack);
-  }
-  const askedAt = new Date().toISOString();
-  return new Promise((resolve, reject) => {
-    execFile(
-      "gh",
-      [...args],
-      {
-        signal,
-        maxBuffer: 1024 * 1024,
-        encoding: "utf8",
-        env: { ...process.env, GH_PROMPT_DISABLED: "1" },
-      },
-      (error, stdout, stderr) => {
-        // However the call ended, admission learns of it before the turn
-        // passes on, so a limit this answer starts holds back the read that
-        // takes the turn next, and an ending without one reopens the turns.
-        if (signal.aborted) {
-          admission.endedUnanswered(askedAt);
-          turnEnds();
-          if (endedAtReadBound(signal)) {
-            recordFailedRead({ cause: "timed-out", startedAtMs, askedAt });
-            reject(new GhFailure({ kind: "timed-out" }));
-            return;
-          }
-          // Ordinary departure or shutdown ended the call: not a retained
-          // retryable failure, and not classified as an upstream answer.
-          resolve(unasked({ kind: "failed" }, askedAt));
-          return;
-        }
-        const answer = admission.answered(
-          readAnswer(error, stdout, stderr, askedAt),
-          Date.now(),
-        );
-        if (answer.failure !== undefined) {
-          recordFailedRead({
-            cause: answer.failure.kind,
-            startedAtMs,
-            askedAt,
-            answer,
-          });
-        }
-        turnEnds();
-        resolve(answer);
-      },
-    );
-  });
-}
-
-// An answer that never came from GitHub: held back, or -- `failed` -- for a
-// call no request waits on any more, whether waiting its turn or already
-// asked.
-function unasked(
-  failure: GhFailureReason,
-  askedAt = new Date().toISOString(),
-): GhAnswer {
-  return { status: undefined, headers: new Map(), body: "", failure, askedAt };
-}
-
-// The shared call's own bound (`ReadBoundReached`) or a waiter's owned read
-// bound (`./trackedGh.ts`) ended it — not ordinary departure or shutdown.
-function endedAtReadBound(signal: AbortSignal): boolean {
-  return (
-    signal.reason instanceof ReadBoundReached ||
-    (signal.reason instanceof GhFailure &&
-      signal.reason.reason.kind === "timed-out")
-  );
-}
+// This server process's requests to GitHub, asked through the machine's
+// request owner. A failed call this process waited on is recorded once for
+// local diagnostics (`./readDiagnostics.ts`), including a bound that ends
+// it; held-back and ordinary waiter departures are not.
+const github = new GitHubRequests({
+  boundMs: readTimeoutMs(),
+  backoffBaseMs: limitBackoffBaseMs(),
+  failed: recordFailedRead,
+});
 
 // One `gh api` answer, settled whatever its exit: `--include` makes `gh`
 // print GitHub's status line on stdout even when it exits non-zero, so a
@@ -182,12 +71,7 @@ export function execGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<GhAnswer> {
-  const asked = includedArgs(args);
-  return timedGhWait(() =>
-    outstandingGh.waitFor(JSON.stringify(asked), signal, (shared) =>
-      spawnedGh(asked, shared),
-    ),
-  );
+  return timedGhWait(() => github.request(args, signal));
 }
 
 // One `gh` answer's body, and when it was asked of GitHub.

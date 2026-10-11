@@ -18,6 +18,13 @@ const args = process.argv.slice(2);
 const origin = process.env.FAKE_GH_ORIGIN;
 const pidPath = process.env.FAKE_GH_PIDFILE;
 
+// Asked which login it holds (`gh auth token`), it prints the token its
+// environment names and asks the fake GitHub nothing.
+if (args[0] === "auth") {
+  process.stdout.write(process.env.GH_TOKEN || "");
+  process.exit(process.env.GH_TOKEN ? 0 : 1);
+}
+
 if (pidPath) {
   fs.writeFileSync(pidPath, String(process.pid));
 }

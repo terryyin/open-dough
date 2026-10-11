@@ -120,7 +120,7 @@ test("qualification spans the whole published range, including deletions and bot
       qualifying: [`app/${tabbed}`],
     });
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });
 
@@ -181,7 +181,7 @@ test("qualification removes its inspection without racing Git's background maint
     ).toEqual({ qualifies: true, changed: ["app.js"], qualifying: ["app.js"] });
     expect(await readdir(inspectionsRoot)).toEqual([]);
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });
 
@@ -243,6 +243,6 @@ test("qualification uses the selected commit's push policy and reports an unread
     );
     expect(await readdir(inspectionsRoot)).toEqual([]);
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

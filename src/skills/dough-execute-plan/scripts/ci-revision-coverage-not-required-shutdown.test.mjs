@@ -14,6 +14,7 @@ import {
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import {
   deferWorkerStop,
@@ -39,11 +40,9 @@ const exec = promisify(execFile);
 // for CI.
 function fourAncestorsGithub({ branch, ancestors }) {
   let historyCalls = 0;
-  const gh = async (args) => {
-    if (args[0] === "run" && args[1] === "list") {
-      const limit = Number(args[args.indexOf("--limit") + 1]);
-      const hasCreated = args.includes("--created");
-      if (limit === 100 && !hasCreated) {
+  const gh = githubApi((request) => {
+    if (request.kind === "runs") {
+      if (request.limit === 100 && request.created === undefined) {
         historyCalls += 1;
         return ancestors.map((ancestor) =>
           run({
@@ -64,8 +63,8 @@ function fourAncestorsGithub({ branch, ancestors }) {
       // ignoredOnlyGithub.
       return [];
     }
-    if (args[0] === "run" && args[1] === "view" && args.at(-1) === "jobs") {
-      const runId = Number(args[2]);
+    if (request.kind === "jobs") {
+      const { runId } = request;
       const ancestor = ancestors.find((a) => a.databaseId === runId);
       return {
         jobs: [
@@ -77,8 +76,8 @@ function fourAncestorsGithub({ branch, ancestors }) {
         ],
       };
     }
-    throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
-  };
+    throw new Error(`unexpected gh call ${JSON.stringify(request)}`);
+  });
   return { gh, historyCallCount: () => historyCalls };
 }
 

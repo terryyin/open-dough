@@ -1,5 +1,5 @@
 // One dashboard process has at most eight reads under way at GitHub
-// (../server/readAdmission.ts), at the local authenticated read boundary
+// (github-request-admission.mjs), at the local authenticated read boundary
 // over real HTTP with the synthetic `gh`: further reads wait their turn and
 // begin in arrival order as answers come; a waiting request that leaves never
 // reaches GitHub, and one waiting past its bound is answered as timed out

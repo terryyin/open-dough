@@ -1,6 +1,8 @@
 // Disposable origin/main publication with the actual current dashboard/package
 // scripts. Every repository, deployment directory, and machine HOME belongs to
-// this test.
+// this test, and so does the `gh` its commands find: the synthetic one
+// (./fakeGh.ts), asked through a request owner of this fixture's own, which
+// fails every request until a test points it at a fake GitHub.
 import { execFile } from "node:child_process";
 import {
   cpSync,
@@ -13,6 +15,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
 const exec = promisify(execFile);
@@ -28,7 +31,14 @@ export async function publishedMainFixture(fullSource = false) {
   const deploymentsRoot = path.join(root, "deployments");
   mkdirSync(development);
   mkdirSync(home);
-  const env = { ...process.env, HOME: home };
+  const gh = installFakeGh(root);
+  const env = { ...process.env, HOME: home, ...fakeGhEnv(gh) };
+  // Ends the request owner this fixture's commands asked `gh` through, then
+  // removes everything the fixture made.
+  const cleanup = async () => {
+    await endFakeGh(gh);
+    rmSync(root, { recursive: true, force: true });
+  };
   const git = async (...args: string[]) =>
     (await exec("git", args, { cwd: development, env })).stdout.trim();
   try {
@@ -121,6 +131,7 @@ export async function publishedMainFixture(fullSource = false) {
       home,
       deploymentsRoot,
       env,
+      gh,
       git,
       commit,
       push,
@@ -146,12 +157,10 @@ export async function publishedMainFixture(fullSource = false) {
           },
         );
       },
-      cleanup() {
-        rmSync(root, { recursive: true, force: true });
-      },
+      cleanup,
     };
   } catch (error) {
-    rmSync(root, { recursive: true, force: true });
+    await cleanup();
     throw error;
   }
 }

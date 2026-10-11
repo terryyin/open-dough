@@ -19,15 +19,25 @@ watchers and coordinate GitHub demand with dashboard reads.
 
 ## Story
 
-<a id="dashboard-owned-ci-monitoring"></a>
+<a id="background-ci-failure-delivery"></a>
 
 ### Monitor CI in the background and wake execution or wrap-up sessions only on failure
 
-**Identity:** SEED-063#dashboard-owned-ci-monitoring
+**Identity:** SEED-063#background-ci-failure-delivery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34b0f943e34423e26063e267d4d2942ae918cd7d8b0de7bb6fcc18f3c8c5dcb5","plan":"39d641cafcfa16cf3a5253183b052e61c00bbcb3b4bc974d75c30067f86eadb0"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/299-background-ci-failure-delivery/PLAN.md"}
 ```
-**Slice plan:** [Background CI monitoring](../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md).
+**Slice plan:** [Background CI monitoring and failure delivery](../slice-plans/299-background-ci-failure-delivery/PLAN.md),
+awaiting story refinement.
+
+**Split:** Terry's 2026-10-11 decision split the original story at its
+delivered boundary. Shared GitHub request admission was delivered first and
+is described in [GitHub requests](../../dashboard/GITHUB-REQUESTS.md); its
+closed story is recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
+This story keeps the rest of the original outcome and its mapped slices. Its goal, scope and examples below are the original
+refinement and need story refinement against that delivery before planning or
+execution resumes.
 
 **Human direction:** Terry's 2026-10-03 decision established failure-only
 wakeup and visible gaps without fallback observation. His 2026-10-11 instruction
@@ -36,6 +46,10 @@ and requires shared GitHub throttling, reliable recovery, and one coherent
 representation of behavior in code and instructions. Claude Code remains the
 first native feasibility case; Codex and Cursor cannot retain final CI waits
 as a silent standalone exception. Their affected delivery mechanisms need proof.
+On 2026-10-11 Terry authorized the paid native feasibility probes and
+confirmed two delivered choices: the request owner's endpoint stands under
+`/tmp/dough-github-requests-<uid>`, and one request owner runs per API host
+and login.
 
 **Design choice:** One installed background runtime serves both origins and
 runs independently of the dashboard browser and server. Background closure
@@ -83,13 +97,12 @@ owner on this machine.
   at current owned work under existing repair guidance; report disposition and
   any linked repair publication so delivery, handling and repair success remain
   distinct. No reset to the old revision is implied.
-- **Shared GitHub demand.** Dashboard reads and product-controlled CI discovery,
-  run/attempt/job, applicability and failure-diagnostic requests pass through
-  one admission owner per allowance scope. Identical acquisitions may be shared
-  without sharing session ownership. Cooldown, concurrency and recovery are
-  shared across dashboard processes and standalone subscriptions. Add no poller
-  per commit. Publication-triggered checks obey cooldown. Scope is Open Dough
-  requests on this machine, not unrelated tools or other machines.
+- **GitHub requests.** Monitoring asks GitHub only through the delivered
+  request owner of its own login, which already shares cooldown, concurrency
+  and recovery with dashboard reads. Add no poller per commit.
+  Publication-triggered checks obey cooldown. The supervising runtime is a
+  client of that owner; request owners stay on demand, one per API host and
+  login.
 - **Recovery.** Reuse the installed non-AI observer and provider classification.
   Reconcile every unsettled registered publication after restart, including runs
   completed while offline and applicable ancestor attempts. Throttling suspends
@@ -256,6 +269,29 @@ under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 Record native forms explicitly; documentation or fake processes do not prove
 idle wakeup. Paid native runs require explicit native-check authority and are
 outside this planning request and routine CI.
+
+<a id="request-owner-says-why"></a>
+
+### A GitHub request or failed log that could not be read says why
+
+**Identity:** SEED-063#request-owner-says-why
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/300-request-owner-says-why/PLAN.md"}
+```
+**Slice plan:** [Request owner says why](../slice-plans/300-request-owner-says-why/PLAN.md).
+
+**Goal:** A developer or agent whose GitHub request never reached `gh`, or
+whose failed-job log could not be read, is told the actual cause instead of
+"gh failed" or an unbounded retry instruction. This bounded correction comes
+from the retrospective of shared GitHub request admission, whose closed
+story is recoverable at
+`2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
+
+**Scope:** The request owner's unreachable-owner causes and the diagnostic
+entry's unavailable-log causes, with the guidance that names them; one shared
+reading of the process table for the request owner and the CI mailbox; and
+removal of request-rule proofs repeated across test layers. No new feature
+promise.
 
 ## Breadcrumbs
 

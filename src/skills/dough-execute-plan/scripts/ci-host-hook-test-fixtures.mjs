@@ -24,6 +24,12 @@ export const discoveryAdvisory = {
   revisions: ["abc1234"],
 };
 
+export const throttleAdvisory = {
+  type: "CI_MONITOR_THROTTLED",
+  waitSeconds: 40,
+  resumesAt: "2026-09-05T12:00:40.000Z",
+};
+
 export const stopHookName = (host) => (host === "cursor" ? "stop" : "Stop");
 
 export const input = (host, directory, overrides = {}) => ({

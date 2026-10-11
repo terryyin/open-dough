@@ -10,7 +10,7 @@ import {
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
-import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
+import { fakeGhEnv } from "./support/fakeGh.ts";
 import { installFakeClaude } from "./support/fakeClaude.ts";
 import { publishes, startFakeGitHub } from "./support/fakeGitHub.ts";
 import {
@@ -40,7 +40,7 @@ test("npm watcher replaces production with each newly published main commit at t
   test.setTimeout(360_000);
   const fixture = await publishedMainFixture(true);
   const github = await startFakeGitHub();
-  const gh = installFakeGh(fixture.root);
+  const { gh } = fixture;
   const ghEnv = fakeGhEnv(gh, github.url);
   const claude = installFakeClaude(
     fixture.root,
@@ -240,7 +240,7 @@ test("npm watcher replaces production with each newly published main commit at t
     await page.close();
     await watcher?.stop();
     await development?.stop();
+    await fixture.cleanup();
     await github.close();
-    fixture.cleanup();
   }
 });

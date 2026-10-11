@@ -7,7 +7,7 @@
 // images are disposable display aids, never an assignment or identity
 // authority.
 
-import { OutstandingReads } from "./outstandingReads.ts";
+import { OutstandingReads } from "../../src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 
 // Where GitHub serves account avatars, as its commit answers name them.
 const avatarHost = "avatars.githubusercontent.com";
@@ -131,10 +131,10 @@ async function fetchAvatar(
 
 // Each usable avatar source's image, fetched at most once while this process
 // keeps it: concurrent displays of one source share the same fetch
-// (`./outstandingReads.ts`). Kept by source rather than login, so a changed
-// avatar version, or a login reused by another account, is fetched afresh
-// instead of showing an earlier image. A failed fetch is not kept, so a later
-// display may ask again.
+// (`github-request-outstanding.mjs`). Kept by source rather than login, so a
+// changed avatar version, or a login reused by another account, is fetched
+// afresh instead of showing an earlier image. A failed fetch is not kept, so
+// a later display may ask again.
 export class AvatarImages {
   private readonly kept = new Map<string, AvatarImage>();
   private readonly fetching = new OutstandingReads<AvatarImage>(

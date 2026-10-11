@@ -104,32 +104,6 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
-## One owner admits reads to GitHub
-
-For [background CI monitoring](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
-evolve the dashboard's existing request admission into one installed
-machine-local owner serving dashboard reads and background CI. Sharing a
-module across processes is insufficient: allowance state belongs to the API
-host and effective authenticated principal, with applicable resource limits,
-while acquisition sharing also respects authorization context. All Open Dough
-CI discovery and diagnostic paths use this same owner; unrelated tools and
-other machines remain outside its scope.
-
-Reuse the current admission, outstanding-request cancellation and rate-limit
-interpretation once. Persist active cooldown through owner replacement, bound
-combined demand, and admit one recovery request after the hold. Explicit
-provider requests, including pagination, are admitted individually. Publication
-registration cannot bypass the hold; a known throttle suspension retains
-pending observation rather than becoming success or exhausting error retries.
-Dashboard source validation and immutable-content reuse keep their owners;
-the browser and Vite process are clients of the installed request runtime.
-Session ownership remains separate from acquisition sharing. Direct mapping
-and proof are in [plan 224](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md);
-update maintained request-cost documentation as implementation changes it.
-This revises earlier process-local direction for the newly authorized
-standalone outcome, following Accepted ADRs 0002, 0004 and 0006. Retire this
-topic once the maintained runtime and request documentation carry its rules.
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard
@@ -254,10 +228,10 @@ code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
 
 ## Background CI monitoring and session delivery
 
-For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
+For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery),
 one installed background runtime owns monitoring subscriptions for dashboard
 and standalone execution/wrap-up. The source story owns the domain model;
-[plan 224](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md) maps it directly
+[plan 299](slice-plans/299-background-ci-failure-delivery/PLAN.md) maps it directly
 to existing publication, mailbox, session, request and retirement solutions.
 Dashboard launch is one enrollment origin, not a second observation policy or
 service. The runtime survives agent-turn, worktree and dashboard lifetime as

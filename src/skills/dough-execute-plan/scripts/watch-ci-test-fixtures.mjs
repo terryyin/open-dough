@@ -8,9 +8,15 @@ import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import {
+  apiAnswer,
+  apiWorkflow,
+  githubRequest,
+} from "./github-actions-api-test-fixtures.mjs";
+import {
   fixtureTeardown,
   sharedCommandDirectory,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import {
   awaitSignalWhileRunning,
   processEnded,
@@ -32,16 +38,6 @@ export const run = (overrides = {}) => ({
   url: "https://github.com/example/example/actions/runs/42",
   ...overrides,
 });
-
-export const scriptedGithub =
-  (responses, calls = []) =>
-  async (args) => {
-    calls.push(args);
-    if (!responses.length) throw new Error("unexpected GitHub request");
-    const response = responses.shift();
-    if (response instanceof Error) throw response;
-    return response;
-  };
 
 export async function waitForFile(path, timeoutMs = 5000) {
   const deadline = Date.now() + timeoutMs;
@@ -122,6 +118,7 @@ export function blockingGithubEnvironment(t) {
     teardown,
     env: {
       ...process.env,
+      ...requestOwnerEnvironment(teardown),
       DOUGH_CI_MAILBOX_ROOT: root,
       TMPDIR: root,
       CI_TEST_ROOT: root,
@@ -134,6 +131,7 @@ export function blockingGithubEnvironment(t) {
 // until SIGTERM, which it records as `github-request-stopped`.
 const blockingGithubCommand = `#!${process.execPath}
 (async () => {
+if (process.argv[2] === 'auth') process.exit(1);
 const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.CI_TEST_ROOT;
@@ -154,43 +152,52 @@ export function blockingGithubCommandDirectory() {
 }
 
 // A modeled GitHub Actions repository behind the `gh` seam. Unlike scripted
-// responses, it answers each `gh run list` the way GitHub would for that
-// request: only runs of the requested workflow file (unknown selectors fail
-// like gh does), branch, commit and event, each carrying the display name its
+// responses, it answers each request the way GitHub's API would: a workflow
+// selector resolves only when the repository has that file (an unknown one
+// fails like GitHub's 404), and a listing holds only runs of the resolved
+// workflow, branch, commit and event. Runs carry the display name their
 // workflow declares. Tests mutate `runs` between polls to stage CI progress.
 export function modeledGithubActions({ workflows, runs = [], jobs = {} }) {
-  const listCalls = [];
-  const option = (args, name) =>
-    args.includes(name) ? args[args.indexOf(name) + 1] : undefined;
+  const listed = [];
+  const files = Object.keys(workflows);
   const gh = async (args) => {
-    if (args[0] === "run" && args[1] === "list") {
-      listCalls.push(args);
-      const workflow = option(args, "--workflow");
-      if (!Object.hasOwn(workflows, workflow))
-        throw new Error(`could not find any workflows named ${workflow}`);
-      const [branch, commit, event] = ["--branch", "--commit", "--event"].map(
-        (name) => option(args, name),
+    const request = githubRequest(args);
+    if (request.kind === "workflow") {
+      if (!Object.hasOwn(workflows, request.workflow))
+        throw new Error(
+          `GitHub request ${args[1]} failed: HTTP 404 (no workflow ${request.workflow})`,
+        );
+      return apiWorkflow(
+        request.workflow,
+        workflows[request.workflow],
+        files.indexOf(request.workflow) + 1,
       );
-      return runs
-        .filter((candidate) => candidate.workflow === workflow)
-        .map(({ workflow: file, ...candidate }) =>
-          run({ ...candidate, workflowName: workflows[file] }),
-        )
-        .filter(
-          (candidate) =>
-            (!branch || candidate.headBranch === branch) &&
-            (!commit || candidate.headSha === commit) &&
-            (!event || candidate.event === event),
-        )
-        .slice(0, Number(option(args, "--limit") ?? 20));
     }
-    if (args[0] === "run" && args[1] === "view") {
-      const runId = Number(args[2]);
-      if (args.at(-1) === "jobs") return { jobs: jobs[runId] ?? [] };
-      const found = runs.find(({ databaseId }) => databaseId === runId);
-      if (!found) throw new Error(`run ${runId} not found`);
-      const { attempt, status, conclusion, url } = run(found);
-      return { attempt, status, conclusion, url };
+    if (request.kind === "runs") {
+      listed.push(request);
+      const workflow = files[Number(request.workflowId) - 1];
+      const { branch, commit, event } = request;
+      return apiAnswer(
+        request,
+        runs
+          .filter((candidate) => candidate.workflow === workflow)
+          // eslint-disable-next-line no-unused-vars -- The workflow file is the model's own key, not a run field.
+          .map(({ workflow: file, ...candidate }) => run(candidate))
+          .filter(
+            (candidate) =>
+              (!branch || candidate.headBranch === branch) &&
+              (!commit || candidate.headSha === commit) &&
+              (!event || candidate.event === event),
+          )
+          .slice(0, request.limit),
+      );
+    }
+    if (request.kind === "jobs")
+      return apiAnswer(request, { jobs: jobs[request.runId] ?? [] });
+    if (request.kind === "run") {
+      const found = runs.find(({ databaseId }) => databaseId === request.runId);
+      if (!found) throw new Error(`run ${request.runId} not found`);
+      return apiAnswer(request, run(found));
     }
     throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
   };
@@ -199,6 +206,6 @@ export function modeledGithubActions({ workflows, runs = [], jobs = {} }) {
     runs,
     jobs,
     listCallCount: (branch) =>
-      listCalls.filter((args) => option(args, "--branch") === branch).length,
+      listed.filter((request) => request.branch === branch).length,
   };
 }

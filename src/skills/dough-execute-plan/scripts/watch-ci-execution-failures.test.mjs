@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
 
@@ -16,9 +17,8 @@ test("reports each failed job while its workflow remains unfinished", async () =
     sleep: async () => {
       if (poll === 5) controller.abort();
     },
-    gh: async (args) => {
-      const fields = args[args.indexOf("--json") + 1];
-      if (args[1] === "list") {
+    gh: githubApi(({ kind, attempt }) => {
+      if (kind === "runs") {
         poll += 1;
         if (poll < 4) {
           return [
@@ -41,10 +41,10 @@ test("reports each failed job while its workflow remains unfinished", async () =
         }
         return [run({ attempt: 2, createdAt: "2026-09-05T10:00:00Z" })];
       }
-      if (fields === "status,conclusion") {
+      if (kind === "attempt") {
         return { status: "completed", conclusion: "failure" };
       }
-      if (args[args.indexOf("--attempt") + 1] === "2") {
+      if (attempt === 2) {
         return {
           jobs: [
             {
@@ -72,7 +72,7 @@ test("reports each failed job while its workflow remains unfinished", async () =
                 },
               ],
       };
-    },
+    }),
   });
 
   assert.deepEqual(
@@ -117,8 +117,8 @@ test("keeps run fallback distinct from later job evidence and cancellation", asy
     sleep: async () => {
       if (poll === 3) controller.abort();
     },
-    gh: async (args) => {
-      if (args[1] === "list") {
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
         poll += 1;
         if (poll < 3) {
           return [
@@ -141,7 +141,7 @@ test("keeps run fallback distinct from later job evidence and cancellation", asy
       return {
         jobs: [{ databaseId: 501, name: "Backend", conclusion: "failure" }],
       };
-    },
+    }),
   });
 
   assert.deepEqual(
@@ -180,8 +180,8 @@ test("reports a failed prior attempt after the latest attempt succeeds", async (
     signal: controller.signal,
     emit: (event) => events.push(event),
     sleep: async () => controller.abort(),
-    gh: async (args) => {
-      if (args[1] === "list") {
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
         return [
           run({
             attempt: 2,
@@ -190,7 +190,7 @@ test("reports a failed prior attempt after the latest attempt succeeds", async (
           }),
         ];
       }
-      if (args[args.indexOf("--json") + 1] === "status,conclusion") {
+      if (kind === "attempt") {
         return { status: "completed", conclusion: "failure" };
       }
       return {
@@ -202,7 +202,7 @@ test("reports a failed prior attempt after the latest attempt succeeds", async (
           },
         ],
       };
-    },
+    }),
   });
 
   assert.deepEqual(

@@ -81,35 +81,31 @@ test.describe("authenticated read diagnostics (dev launch mode)", () => {
   });
 
   test("names a shared timeout, an unmarked 403, and a marked rate limit with available evidence", async () => {
-    const short = await startDashboardServer({
-      mode: "dev",
-      readTimeoutMs: 300,
-    });
+    // The stalled read ends at a bound of its own server, short so the test
+    // is quick. The answered reads are asked of a server with the ordinary
+    // bound: a read's bound covers its whole call -- the `gh` process and,
+    // for a rate limit, storing its wait before the answer is passed on --
+    // so a short one would time an answered read out on a slow machine.
+    const [short, answering] = await Promise.all([
+      startDashboardServer({ mode: "dev", readTimeoutMs: 300 }),
+      startDashboardServer({ mode: "dev" }),
+    ]);
+    const read = (server: DashboardServer) =>
+      rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+        headers: { Origin: server.origin },
+      });
     try {
       short.github.serve(everyRepository, hangs);
-      expect(
-        (
-          await rawRequest({
-            url: `${short.baseURL}/__authenticated-read?source=${knownSourceId}`,
-            headers: { Origin: short.origin },
-          })
-        ).status,
-      ).toBe(502);
+      expect((await read(short)).status).toBe(502);
 
-      short.github.serve(everyRepository, () =>
+      answering.github.serve(everyRepository, () =>
         Promise.resolve(httpErrorAnswer(403, `forbidden body ${secretMarker}`)),
       );
-      expect(
-        (
-          await rawRequest({
-            url: `${short.baseURL}/__authenticated-read?source=${knownSourceId}`,
-            headers: { Origin: short.origin },
-          })
-        ).status,
-      ).toBe(502);
+      expect((await read(answering)).status).toBe(502);
 
       const reset = Math.floor(Date.now() / 1000) + 90;
-      short.github.serve(everyRepository, () =>
+      answering.github.serve(everyRepository, () =>
         Promise.resolve(
           rateLimitedAnswer(403, {
             "Retry-After": "60",
@@ -122,44 +118,41 @@ test.describe("authenticated read diagnostics (dev launch mode)", () => {
           }),
         ),
       );
-      expect(
-        (
-          await rawRequest({
-            url: `${short.baseURL}/__authenticated-read?source=${knownSourceId}`,
-            headers: { Origin: short.origin },
-          })
-        ).status,
-      ).toBe(502);
+      expect((await read(answering)).status).toBe(502);
 
-      const seen = await inspect(short);
+      const stalled = await inspect(short);
+      expect(stalled.status).toBe(200);
+      expect(stalled.failures.map((entry) => entry.cause)).toEqual([
+        "timed-out",
+      ]);
+      expect(stalled.failures[0]).toMatchObject({
+        source: knownSourceId,
+        category: "ref",
+        cause: "timed-out",
+      });
+      expect(stalled.failures[0]?.status).toBeUndefined();
+      expect(stalled.failures[0]?.requestId).toBeUndefined();
+      expect(stalled.failures[0]?.elapsedMs).toBeGreaterThan(0);
+
+      const seen = await inspect(answering);
       expect(seen.status).toBe(200);
       expect(seen.body).not.toContain(secretMarker);
       expect(seen.body).not.toContain("forbidden body");
       expect(seen.body).not.toContain("X-Secret-Header");
       expect(seen.body).not.toContain("bearer ");
       expect(seen.failures.map((entry) => entry.cause)).toEqual([
-        "timed-out",
         "http",
         "rate-limited",
       ]);
       expect(seen.failures[0]).toMatchObject({
         source: knownSourceId,
         category: "ref",
-        cause: "timed-out",
-      });
-      expect(seen.failures[0]?.status).toBeUndefined();
-      expect(seen.failures[0]?.requestId).toBeUndefined();
-      expect(seen.failures[0]?.elapsedMs).toBeGreaterThan(0);
-
-      expect(seen.failures[1]).toMatchObject({
-        source: knownSourceId,
-        category: "ref",
         cause: "http",
         status: 403,
       });
-      expect(seen.failures[1]?.requestId).toBeUndefined();
+      expect(seen.failures[0]?.requestId).toBeUndefined();
 
-      expect(seen.failures[2]).toMatchObject({
+      expect(seen.failures[1]).toMatchObject({
         source: knownSourceId,
         category: "ref",
         cause: "rate-limited",
@@ -174,7 +167,7 @@ test.describe("authenticated read diagnostics (dev launch mode)", () => {
         },
       });
     } finally {
-      await short.close();
+      await Promise.all([short.close(), answering.close()]);
     }
   });
 

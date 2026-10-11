@@ -1,5 +1,5 @@
 // Meeting a rate limit GitHub directs a wait for, which holds back every
-// later read of the server that met it (../../server/readAdmission.ts).
+// later read of the server that met it (github-request-admission.mjs).
 // A case directs a short wait to see reading resume, and never waits out a
 // long one.
 

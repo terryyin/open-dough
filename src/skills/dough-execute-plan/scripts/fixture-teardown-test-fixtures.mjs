@@ -31,6 +31,21 @@ export function fixtureTeardown(...roots) {
   };
 }
 
+// Points this test process's own environment at `environment` for one test,
+// restoring what stood before -- unset names included -- after it.
+export function enterEnvironment(t, environment) {
+  const before = Object.fromEntries(
+    Object.keys(environment).map((name) => [name, process.env[name]]),
+  );
+  Object.assign(process.env, environment);
+  t.after(() => {
+    for (const [name, value] of Object.entries(before)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  });
+}
+
 // Registers, on a `fixtureTeardown`, stopping an in-process worker right after
 // it starts: `requestStop` asks it to stop, then its promise is awaited so a
 // rejection fails the test. Requesting a stop the test already made inline is

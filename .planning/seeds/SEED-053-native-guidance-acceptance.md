@@ -78,15 +78,15 @@ acceptance selection retain their own authority boundaries.
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
-**Covered work:** [SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring)
-and [plan 224](../slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md).
+**Covered work:** [SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery)
+and [plan 299](../slice-plans/299-background-ci-failure-delivery/PLAN.md).
 **Outcome:** Execution and wrap-up can end their turns with CI pending and
 later receive actionable failure in the original native session, from a
 dashboard launch or standalone invocation. This home tracks required native
 proof separately; it adds no queue assignment or execution authority.
 
 **Required coverage:** Use the authoritative host/native-form table in
-[SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring).
+[SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery).
 Record each required row's continuation route and result, without reproducing
 the scope table here. Another form's result, documented commands and synthetic
 adapters are not proof.
@@ -105,7 +105,7 @@ publication reach the same original session. Standalone observation continues
 with no dashboard server. Success creates no agent turn. Cover native exit,
 busy/idle and waiting on approval/input representatively per distinct route;
 the shared intent/restart/request-control mechanics keep deterministic proof
-in plan 224 rather than being retested as a general agent-conformance matrix.
+in plans 224 and 299 rather than being retested as a general agent-conformance matrix.
 
 **Skill behavior acceptance:** Fresh execution and wrap-up use the installed
 registration/completion path, end while CI is pending, handle late owned

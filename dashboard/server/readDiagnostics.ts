@@ -8,7 +8,7 @@
 // Attribution context: `./readDiagnosticContext.ts`. Field sanitization:
 // `./readDiagnosticSanitize.ts`.
 
-import type { GhAnswer } from "./ghAnswer.ts";
+import type { FailedGhRequest } from "../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
 import type { GhFailureReason } from "./ghFailure.ts";
 import {
   currentReadDiagnosticContext,
@@ -61,15 +61,11 @@ export function diagnosticsForSource(
   return failures.filter((entry) => entry.source === sourceId);
 }
 
-// Records one failed shared invocation when an admitted reader started it.
+// Records one failed shared invocation, as the installed request source
+// tells it (`github-requests.mjs`), when an admitted reader started it.
 // Omits held-back/unasked answers, successful or unchanged (`304`) answers,
 // and calls with no admitted context.
-export function recordFailedRead(input: {
-  readonly cause: GhFailureReason["kind"];
-  readonly startedAtMs: number;
-  readonly askedAt?: string;
-  readonly answer?: GhAnswer;
-}): void {
+export function recordFailedRead(input: FailedGhRequest): void {
   const carried = currentReadDiagnosticContext();
   if (carried === undefined) {
     return;

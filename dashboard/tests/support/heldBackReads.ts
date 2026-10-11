@@ -1,5 +1,5 @@
 // Observing reads that a rate limit GitHub directed holds back
-// (../../server/readAdmission.ts), at the local authenticated read boundary
+// (github-request-admission.mjs), at the local authenticated read boundary
 // over real HTTP: each answer timed by this machine's clock, and what an
 // answer held back unasked says.
 

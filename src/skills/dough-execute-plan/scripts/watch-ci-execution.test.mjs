@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { run, scriptedGithub } from "./watch-ci-test-fixtures.mjs";
+import {
+  githubApi,
+  scriptedGithub,
+} from "./github-actions-api-test-fixtures.mjs";
+import { run } from "./watch-ci-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
 
 test("execution observation emits only new main push CI failures", async () => {
@@ -9,8 +13,8 @@ test("execution observation emits only new main push CI failures", async () => {
   const events = [];
   const responses = [
     new Error("temporary GitHub outage"),
-    // Other workflows are excluded by the `--workflow` request itself (see
-    // ci-client-configuration.test.mjs); a listing never returns them.
+    // Other workflows are excluded by the resolved workflow's own listing
+    // (see ci-client-configuration.test.mjs); it never returns them.
     [
       run({ databaseId: 2, headBranch: "feature", conclusion: "failure" }),
       run({ databaseId: 3, event: "workflow_dispatch", conclusion: "failure" }),
@@ -60,16 +64,25 @@ test("execution observation emits only new main push CI failures", async () => {
     ],
   );
   assert.deepEqual(sleeps, [30_000, 30_000, 30_000]);
-  assert.ok(
-    calls.every(
-      ([resource, operation]) =>
-        resource === "run" && ["list", "view"].includes(operation),
-    ),
+  assert.deepEqual(
+    calls.map(({ kind }) => kind),
+    ["workflow", "runs", "runs", "jobs", "runs", "run", "jobs"],
   );
+  assert.deepEqual(calls[0], {
+    kind: "workflow",
+    repo: "example/example",
+    workflow: "ci.yml",
+  });
   assert.ok(
     calls
-      .filter(([, operation]) => operation === "list")
-      .every((args) => !args.includes("--commit")),
+      .filter(({ kind }) => kind === "runs")
+      .every(
+        ({ commit, branch, event, page }) =>
+          commit === undefined &&
+          branch === "main" &&
+          event === "push" &&
+          page === 1,
+      ),
   );
   assert.equal(responses.length, 0);
 });
@@ -86,14 +99,13 @@ test("execution observation has one finite budget across all polls", async () =>
     sleep: async (milliseconds) => {
       elapsed += milliseconds;
     },
-    gh: async (args) => {
-      const [, operation] = args;
-      if (args[args.indexOf("--json") + 1] === "jobs") return { jobs: [] };
-      if (operation === "view")
+    gh: githubApi(({ kind }) => {
+      if (kind === "jobs") return { jobs: [] };
+      if (kind !== "runs")
         return { status: "completed", conclusion: "success" };
       polls += 1;
       return [run({ databaseId: polls, status: "queued", conclusion: null })];
-    },
+    }),
   });
 
   assert.equal(polls, 2);
@@ -162,16 +174,14 @@ test("retains unfinished runs discovered beyond the newest page", async () => {
     ],
   );
   assert.equal(new Set(events.map(({ runId }) => runId)).size, 2);
-  assert.ok(calls[0].includes("--created"));
-  assert.equal(calls[0][calls[0].indexOf("--limit") + 1], "100");
+  const listings = calls.filter(({ kind }) => kind === "runs");
+  assert.equal(listings[0].created, "<=1970-01-01T00:00:00.000Z");
+  assert.equal(listings[0].limit, 100);
   assert.ok(
-    calls
+    listings
       .slice(1)
-      .some(
-        (args) =>
-          args.includes("21") &&
-          args.some((arg) => arg.includes("status,conclusion")),
-      ),
+      .every(({ created, limit }) => created === undefined && limit === 20),
   );
+  assert.ok(calls.some(({ kind, runId }) => kind === "run" && runId === 21));
   assert.equal(elapsed, 150_000);
 });

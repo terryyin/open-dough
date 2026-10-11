@@ -1,12 +1,14 @@
 // What a rate limit GitHub directed reaches beyond reads of its own server
-// process (../server/readAdmission.ts), and what starts no wait, at the local
+// process (github-request-admission.mjs), and what starts no wait, at the local
 // authenticated read boundary over real HTTP with the synthetic `gh`
 // (./support/sharedReads.ts publishes the revision): a rate-limited setting
 // file fails its read with the limit rather than being taken as absent; a
-// second server asks at once; adding a project while the wait stands is held
-// back like a read; and an unmarked `403`, a `404`, a timeout, and an
-// unreachable GitHub hold back nothing. How the wait holds back every
-// read of its process: ./authenticated-read-cooldown.spec.ts.
+// second server asking through another request owner asks at once (one
+// sharing the owner is held back: ./shared-request-owner.spec.ts); adding a
+// project while the wait stands is held back like a read; and an unmarked
+// `403`, a `404`, a timeout, and an unreachable GitHub hold back nothing. How
+// the wait holds back every read of its process:
+// ./authenticated-read-cooldown.spec.ts.
 
 import { expect, test } from "./support/pageTest.ts";
 import {
@@ -68,7 +70,7 @@ test.describe("authenticated read boundary: what a directed rate limit reaches b
     });
   });
 
-  test("a second server on the same GitHub asks at once while the first still holds back its reads", async () => {
+  test("a second server on the same GitHub, asking through a request owner of its own, asks at once while the first still holds back its reads", async () => {
     const github = await startFakeGitHub();
     const limited = await startDashboardServer({ mode: "dev", github });
     let server: DashboardServer | undefined;

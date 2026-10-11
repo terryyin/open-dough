@@ -141,6 +141,6 @@ test("npm watcher keeps its baseline through an unsupported published policy and
   } finally {
     await page.close();
     await watcher?.stop();
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

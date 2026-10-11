@@ -10,6 +10,7 @@ import {
   createClaudeReplay,
 } from "./ci-claude-lifecycle-test-fixtures.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import {
   awaitWorkerSignal,
   waitForFile,
@@ -22,6 +23,7 @@ test("Claude Code reuses one execution observer through pushes and stops its exa
   t.after(teardown.cleanup);
   const env = {
     ...process.env,
+    ...requestOwnerEnvironment(teardown),
     DOUGH_CI_MAILBOX_ROOT: root,
     CI_TEST_ROOT: root,
     PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,

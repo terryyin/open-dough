@@ -60,6 +60,6 @@ test("a documentation-only publication pushes only its requested paths to origin
         await readFile(path.join(repoRoot, file), "utf8"),
       );
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

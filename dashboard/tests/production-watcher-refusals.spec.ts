@@ -38,6 +38,6 @@ test("npm watcher refuses invalid options and an origin without published main",
     expect(watcher.output()).toContain("has no published main branch");
     expect(watcher.output()).not.toContain("at http://");
   } finally {
-    fixture.cleanup();
+    await fixture.cleanup();
   }
 });

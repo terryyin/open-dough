@@ -6,7 +6,7 @@
 // here decides admission, ordering, or an answer.
 //
 // - `admission`: this request's waits before each `gh` call it waited on was
-//   asked of GitHub (`./readAdmission.ts`'s turns), summed.
+//   asked of GitHub (`github-request-admission.mjs`'s turns), summed.
 // - `gh`: its waits from each call being asked until its answer, summed, with
 //   how many calls it waited on, counting one answered while held back and
 //   never asked. A request that joins a call already asked counts only its
@@ -19,7 +19,7 @@
 // `total` only. Whole milliseconds by this server's clock, as `askedAt` is.
 
 import { AsyncLocalStorage } from "node:async_hooks";
-import type { GhAnswer } from "./ghAnswer.ts";
+import type { GhAnswer } from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 
 class ReadTiming {
   private readonly arrivedAtMs = Date.now();

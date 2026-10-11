@@ -1,5 +1,5 @@
 // A rate limit that directs no wait holds back every read of the server
-// process (../server/readAdmission.ts) as a directed one does, for a wait of
+// process (github-request-admission.mjs) as a directed one does, for a wait of
 // the process's own, at the local authenticated read boundary over real HTTP
 // with the synthetic `gh` (./support/sharedReads.ts publishes the revision):
 // one minute, doubling while the limit continues, up to an hour, and the base

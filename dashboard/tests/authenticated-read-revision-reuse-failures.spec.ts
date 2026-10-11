@@ -141,7 +141,7 @@ test.describe("authenticated read reuse failures at a newly named revision (dev 
 });
 
 // A rate limit holds back every later read of its server's process
-// (../server/readAdmission.ts), so the case that meets one has a server of its
+// (github-request-admission.mjs), so the case that meets one has a server of its
 // own.
 test.describe("authenticated read reuse at a newly named revision under a rate limit (dev launch mode)", () => {
   const { at, asked, publishedAt, movedTo } = revisionReuseBoundary();

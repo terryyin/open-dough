@@ -1,3 +1,4 @@
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 
 // Controlled GitHub provider responses only: these never inject the expected
@@ -16,7 +17,7 @@ import { run } from "./watch-ci-test-fixtures.mjs";
 // must keep following A's real attempt across polls — discovered only
 // through the bounded-history candidate search, distinguished from the
 // ordinary per-poll listing the same way ignoredOnlyGithub tells them apart
-// (limit 100 with no `--created` vs. the ordinary short-window listing) —
+// (limit 100 with no `created` bound vs. the ordinary short-window listing) —
 // rather than waiting for a descendant run that never exists.
 export function lateFailureWithIgnoredOnlyDescendantsGithub({
   branch,
@@ -26,11 +27,9 @@ export function lateFailureWithIgnoredOnlyDescendantsGithub({
   let regularCalls = 0;
   let historyCalls = 0;
   let stage = "pending";
-  const gh = async (args) => {
-    if (args[0] === "run" && args[1] === "list") {
-      const limit = Number(args[args.indexOf("--limit") + 1]);
-      const hasCreated = args.includes("--created");
-      if (limit === 100 && !hasCreated) {
+  const gh = githubApi((request) => {
+    if (request.kind === "runs") {
+      if (request.limit === 100 && request.created === undefined) {
         historyCalls += 1;
         return [
           run({
@@ -52,7 +51,7 @@ export function lateFailureWithIgnoredOnlyDescendantsGithub({
       regularCalls += 1;
       return [];
     }
-    if (args[0] === "run" && args[1] === "view" && args.at(-1) === "jobs")
+    if (request.kind === "jobs")
       return {
         jobs: [
           {
@@ -62,8 +61,8 @@ export function lateFailureWithIgnoredOnlyDescendantsGithub({
           },
         ],
       };
-    throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
-  };
+    throw new Error(`unexpected gh call ${JSON.stringify(request)}`);
+  });
   return {
     gh,
     regularCallCount: () => regularCalls,

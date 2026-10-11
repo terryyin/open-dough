@@ -318,6 +318,29 @@ had to request the run explicitly.
   - Observed effect: the execution could not complete as planned; the developer chose a split and the observation moved to a new story first in the backlog.
   - Inference: the plan treated ADR 0005 proof as the story's final slice without checking that the starting state can exist before the story lands.
 
+## Tests could reach the developer's real request-owner state (repaired, guard added)
+
+**Follow-up:** repaired in `f9ef7368`. `scripts/test.sh` and the dashboard
+global teardown now fail a run in which any process asks GitHub without a
+request owner root of its own. A bare `node --test` run has no such guard.
+
+<a id="dd-291"></a>
+
+### DD-291 — A slice added per-user machine state and no rule that tests keep out of it
+
+Suites used the developer's real request-owner root until a directory listing
+showed it. Green suites hid the sharing.
+
+#### Occurrences
+
+- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224 (spent plan recoverable at `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`), first implementation `b5cb2f7b`
+  - Timestamp: 2026-10-11T17:57:18+09:00 (the listing of `/tmp/dough-github-requests-501`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Evidence: slice 4 (`c6c8f9d6`) introduced the request owner root; its brief required private roots per test but named no check. Nine directories appeared in the real root during suite runs; `dashboard/tests/support/publishedMainFixture.ts` and `tests/support/native-harness-observation.sh` asked through it.
+  - Observed effect: the same leak hung `tests/git-publication-native.sh` and `tests/git-publication-native-owned-context.sh` to CI's six-minute job limit on `deb540bb` (run 38126614188). The repair agent's first guarded `npm test` caught two leaking checks nobody had named.
+  - Inference: the coordinator had also accepted that slice on an install-subset shell run rather than full `npm test`; that acceptance lesson is not in `DearDough.md`, which was at its 1,000-line ceiling, and is recoverable as DD-285 at `ecd915a1df7fb53a5d94e56d9ee57d41ef5cd05e:DearDough.md`.
+
 ## Review and recovery
 
 Moved from DearDough.md on 2026-10-09: DD-243, DD-246, DD-247, DD-252.

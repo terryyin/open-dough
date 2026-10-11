@@ -9,7 +9,7 @@
 // production ones; the fake GitHub behind the synthetic `gh`
 // (./support/fakeGitHub.ts) only publishes commits and limits answers. The
 // page's clock is paused and advanced by the test. The server keeps GitHub's
-// wait by its own real clock (../server/readAdmission.ts), so GitHub directs
+// wait by its own real clock (github-request-admission.mjs), so GitHub directs
 // waits the real clock can pass here -- two seconds, seen again before it
 // ends, and a reset time just beyond the steady pace -- and the real time a
 // wait names passes before the page's time reaches it.

@@ -40,6 +40,15 @@ environment in `scripts/test-environment.bash`, before any check starts:
   identity or default branch, so a commit fails unless the check sets one (a
   shell fixture gets it from `tests/helpers/release-fixture.bash`'s
   `configure_fixture_git`).
+- **No GitHub request owner.** `DOUGH_GITHUB_REQUEST_OWNER_ROOT` names a
+  root of the job's own that admits no owner, so a check whose processes ask
+  GitHub (`src/skills/dough-execute-plan/scripts/github-requests.mjs`) without
+  naming a private root is answered by none, this machine's real one included,
+  and fails with `Asked GitHub without a request owner root of its own.` Such
+  a shell check gives those processes its own root and ends the owner there
+  with `tests/helpers/private-request-owner.bash`, a node test with
+  `github-request-owner-test-fixtures.mjs` beside that script
+  (`tests/test-runner-github-requests.sh` proves both).
 - **Chosen checks follow the same rules**, silence included, but are not held
   to the time budget (`tests/test-runner-selection.sh` proves a chosen run).
 

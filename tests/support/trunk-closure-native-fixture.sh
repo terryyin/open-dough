@@ -35,15 +35,23 @@ trunk_closure_write_gh() {
     '#!/usr/bin/env bash' \
     'set -euo pipefail' \
     'printf "%s\n" "$*" >> "${TRUNK_CLOSURE_GH_LOG}"' \
-    'if [[ " $* " == *" run list "* ]]; then' \
+    'route=${3:-}' \
+    'printf "HTTP/2.0 200 OK\r\n\r\n"' \
+    'run='\''{id:$id,run_attempt:1,head_sha:$sha,head_branch:"main",event:"push",status:"completed",conclusion:"success",html_url:$url,created_at:$created}'\''' \
+    'base=(--argjson id 1 --arg sha "${TRUNK_CLOSURE_BASE_SHA}" --arg url https://ci.invalid/base --arg created 2026-09-22T00:00:00Z)' \
+    'if [[ ${route} == */actions/workflows/*/runs\?* ]]; then' \
     '  if [[ ${TRUNK_CLOSURE_SCENARIO} == source && -f ${TRUNK_CLOSURE_RELEASE} ]]; then' \
     '    printf "%s\n" "${TRUNK_CLOSURE_CANDIDATE_SHA}" >> "${TRUNK_CLOSURE_GH_LOG}"' \
-    '    jq -n --arg base "${TRUNK_CLOSURE_BASE_SHA}" --arg candidate "${TRUNK_CLOSURE_CANDIDATE_SHA}" '\''[{databaseId:1,attempt:1,headSha:$base,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/base",createdAt:"2026-09-22T00:00:00Z"},{databaseId:2,attempt:1,headSha:$candidate,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/candidate",createdAt:"2026-09-22T00:01:00Z"}]'\''' \
+    '    jq -n "${base[@]}" "${run}" | jq --argjson id 2 --arg sha "${TRUNK_CLOSURE_CANDIDATE_SHA}" --arg url https://ci.invalid/candidate --arg created 2026-09-22T00:01:00Z "{total_count:2,workflow_runs:[.,${run}]}"' \
     '  else' \
-    '    jq -n --arg base "${TRUNK_CLOSURE_BASE_SHA}" '\''[{databaseId:1,attempt:1,headSha:$base,headBranch:"main",workflowName:"CI",event:"push",status:"completed",conclusion:"success",url:"https://ci.invalid/base",createdAt:"2026-09-22T00:00:00Z"}]'\''' \
+    '    jq -n "${base[@]}" "{total_count:1,workflow_runs:[${run}]}"' \
     '  fi' \
+    'elif [[ ${route} == */actions/workflows/* ]]; then' \
+    '  jq -n '\''{id:7001,name:"CI"}'\''' \
+    'elif [[ ${route} == */jobs\?* ]]; then' \
+    '  jq -n '\''{total_count:0,jobs:[]}'\''' \
     'else' \
-    '  jq -n '\''{attempt:1,status:"completed",conclusion:"success",url:"https://ci.invalid/run"}'\''' \
+    '  jq -n '\''{run_attempt:1,status:"completed",conclusion:"success",html_url:"https://ci.invalid/run"}'\''' \
     'fi' > "${destination}"
   chmod +x "${destination}"
 }

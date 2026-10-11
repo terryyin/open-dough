@@ -3,39 +3,22 @@
 // three-digit status — ever leave the invocation; raw stderr may name local
 // paths or echo configuration and is never forwarded.
 
-// Why a `gh` call did not answer, as far as this boundary can say without
-// repeating anything `gh` printed.
-export type GhFailureReason =
-  | { readonly kind: "not-logged-in" }
-  | { readonly kind: "http"; readonly status: number }
-  | {
-      readonly kind: "rate-limited";
-      readonly status: number;
-      // How long this process waits before asking GitHub again
-      // (`./readAdmission.ts`): the wait GitHub directed
-      // (`./rateLimitDirection.ts`), already validated and bounded, never a
-      // header value as GitHub sent it; or, marked `backoff`, this process's
-      // own when GitHub directed none.
-      readonly waitSeconds: number;
-      readonly backoff?: true;
-    }
-  // Not asked of GitHub at all: a rate limit GitHub met earlier still
-  // holds back every read of this process (`./readAdmission.ts`) for these
-  // whole seconds. Never GitHub's status, so never an absence either.
-  | { readonly kind: "held-back"; readonly waitSeconds: number }
-  | { readonly kind: "unreachable" }
-  | { readonly kind: "no-commit" }
-  | { readonly kind: "timed-out" }
-  | { readonly kind: "not-installed" }
-  | { readonly kind: "failed" };
+import {
+  GhFailure as GhRequestFailed,
+  type GhRequestFailure,
+} from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 
-export class GhFailure extends Error {
-  readonly reason: GhFailureReason;
-  constructor(reason: GhFailureReason) {
-    super(`gh did not answer: ${reason.kind}`);
-    this.reason = reason;
-  }
-}
+// Why a `gh` call did not answer, as far as this boundary can say without
+// repeating anything `gh` printed: how the request itself failed
+// (`github-request-answer.mjs`), or -- `no-commit` -- an answer in which the
+// boundary found no commit.
+export type GhFailureReason = GhRequestFailure | { readonly kind: "no-commit" };
+
+// The installed request source's one failure, carrying this boundary's
+// reasons: a request's wait ended with it is recognised there as well.
+export type GhFailure = GhRequestFailed<GhFailureReason>;
+export const GhFailure: new (reason: GhFailureReason) => GhFailure =
+  GhRequestFailed;
 
 // A read GitHub's rate limit stopped: GitHub refused it, or a rate limit met
 // earlier held it back unasked. Either says nothing of what was asked, so it

@@ -1,5 +1,5 @@
 // Failures of the local authenticated read boundary's revision check
-// (../server/revisionChecks.ts, ../server/rateLimitDirection.ts), tested
+// (../server/revisionChecks.ts, github-request-answer.mjs), tested
 // directly against real HTTP and the synthetic `gh`
 // (./revisionCheckBoundary.ts): a failed listing is classified as a failure;
 // a rate limit passes on the wait GitHub directs, or the process's own when

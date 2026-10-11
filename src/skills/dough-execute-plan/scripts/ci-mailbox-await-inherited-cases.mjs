@@ -24,6 +24,7 @@ import {
   deferWorkerStop,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 
 test("ignored-only coverage follows successful and failed unregistered ancestors, until an exact attempt supersedes it", async (t) => {
@@ -65,8 +66,8 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
     ],
     [unrelated, { status: "completed", conclusion: "success", databaseId: 73 }],
   ]);
-  const gh = async (args) => {
-    if (args[0] === "run" && args[1] === "list")
+  const gh = githubApi((request) => {
+    if (request.kind === "runs")
       return [...attempts].map(([headSha, attempt]) =>
         run({
           headSha,
@@ -77,9 +78,9 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
           ...attempt,
         }),
       );
-    if (args[0] === "run" && args[1] === "view") return { jobs: [] };
-    throw new Error(`Unexpected gh call: ${JSON.stringify(args)}`);
-  };
+    if (request.kind === "jobs") return { jobs: [] };
+    throw new Error(`Unexpected gh call: ${JSON.stringify(request)}`);
+  });
   const polls = controllableSleep();
   const worker = runMailboxWorker(directory, {
     root: repo,

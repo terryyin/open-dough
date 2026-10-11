@@ -10,6 +10,9 @@
 # shellcheck source=tests/support/native-harness-login-shell.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-login-shell.sh"
+# shellcheck source=tests/helpers/private-request-owner.bash
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/../helpers/private-request-owner.bash"
 
 # Writes to $1 a node wrapper that appends each call to $NATIVE_NODE_CALL_LOG
 # and then runs real node $2 in its own process.
@@ -31,7 +34,9 @@ native_harness_write_node() {
 # fixtures also put shims such as gh, first in the agent's zsh login shell.
 # Codex (host $3) runs each command in a login shell whose profile may rebuild
 # PATH without that wrapper, so there node also records its own calls through
-# candidate source $2's in-process recorder. native_harness_restore undoes all.
+# candidate source $2's in-process recorder. Whatever asks a fixture's gh shim
+# asks it through a GitHub request owner of this harness's own.
+# native_harness_restore undoes all and ends that owner.
 native_harness_observe_node() {
   local harness=$1 source_dir=$2 host=$3 real_node
   real_node=$(command -v node)
@@ -44,6 +49,7 @@ native_harness_observe_node() {
   native_harness_recording=false
   export PATH="${harness}/bin:${PATH}"
   export NATIVE_NODE_CALL_LOG=${native_harness_node_log}
+  enter_private_request_owner
   native_harness_keep_login_path "${harness}"
   [[ ${host} == codex ]] || return 0
   cp -- "${source_dir}/tests/support/native-node-call-recorder.mjs" "${harness}/bin/"
@@ -59,6 +65,7 @@ native_harness_restore() {
   fi
   unset NATIVE_NODE_CALL_LOG
   native_harness_release_login_path
+  leave_private_request_owner
 }
 
 # Fixture fallback: stops every observer in mailbox storage $2 the session

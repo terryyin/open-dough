@@ -22,11 +22,10 @@ export const authenticatedReadDiagnosticsEndpoint =
   "/__authenticated-read-diagnostics";
 
 // The longest wait, in whole seconds, the boundary ever passes on from a
-// GitHub rate limit's direction (`../server/rateLimitDirection.ts`): GitHub's
-// own primary rate-limit window. A header naming a later time is either wrong
-// or will be repeated by the next refused answer, and a page left open must
-// still check again. The browser reader refuses anything longer as malformed.
-export const longestDirectedWaitSeconds = 60 * 60;
+// GitHub rate limit's direction: the installed GitHub request source's own
+// rule (`github-request-rules.mjs`), which every Open Dough consumer shares.
+// The browser reader refuses anything longer as malformed.
+export { longestDirectedWaitSeconds } from "../../src/skills/dough-execute-plan/scripts/github-request-rules.mjs";
 
 // A full commit id as GitHub names one; anything else is not a revision.
 export const commitShaPattern = /^[0-9a-f]{40}$/;

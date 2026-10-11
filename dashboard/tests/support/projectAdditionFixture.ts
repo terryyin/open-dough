@@ -8,7 +8,7 @@ import {
   initializeProjectConfiguration,
   projectConfigurationFile,
 } from "../../server/projectConfiguration.ts";
-import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
+import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { everyRepository, publishes, startFakeGitHub } from "./fakeGitHub.ts";
 import { withRestoredEnv } from "./testEnv.ts";
 
@@ -18,7 +18,8 @@ export async function projectAdditionFixture() {
   const home = mkdtempSync(path.join(tmpdir(), "dough-project-validation-"));
   const github = await startFakeGitHub();
   github.serve(everyRepository, publishes({ revision: "ab".repeat(20) }));
-  const next = { HOME: home, ...fakeGhEnv(installFakeGh(home), github.url) };
+  const gh = installFakeGh(home);
+  const next = { HOME: home, ...fakeGhEnv(gh, github.url) };
   const restoreEnv = withRestoredEnv(next);
   initializeProjectConfiguration("development");
   const checkout = path.join(home, "checkout");
@@ -52,6 +53,7 @@ export async function projectAdditionFixture() {
       localPath: checkout,
     },
     async close() {
+      await endFakeGh(gh);
       await github.close();
       restoreEnv();
       rmSync(home, { recursive: true, force: true });
