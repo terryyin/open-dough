@@ -5,6 +5,7 @@
 // since, answer with what was observed, and nothing starts.
 import {
   policyOf,
+  unattachedPolicyOf,
   type AgentLaunchRequest,
   type ExistingChangesFound,
   type LaunchRecord,
@@ -14,7 +15,7 @@ import {
 } from "../src/agentLaunch.ts";
 import { existingChanges } from "./defaultCheckoutChanges.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { EstablishedLaunch } from "./hostLaunch.ts";
+import type { EstablishedLaunch, UnattachedEstablished } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import {
   establishedFacts,
@@ -25,22 +26,20 @@ import type { StartProgress } from "./startProgress.ts";
 import { startOf, type StartWorkflow } from "./startWorkflows.ts";
 import { keptStart } from "./startStore.ts";
 import { launchStartContext } from "./launchRecord.ts";
+import { withinStartWait } from "./startWait.ts";
+import { unattachedStarted } from "./unattachedStart.ts";
 
-const defaultStartWaitMs = 120_000;
-
-// How long an execution's start may run before the launch answers uncertain;
-// the start itself is never aborted. A test may shorten it through the
-// environment.
-function startTimeoutMs(): number {
-  const configured = Number(process.env["DOUGH_START_TIMEOUT_MS"]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : defaultStartWaitMs;
+// The established start a launch's session is handed, if its start made one.
+export function establishedLaunch(
+  start: Exclude<Started, { kind: "stopped" }>,
+): EstablishedLaunch | undefined {
+  return start.kind === "none" ? undefined : start;
 }
 
 // How a launch's start ended: there was none to run, it established the
-// workspace the session opens in, or the launch stops with this answer,
-// knowing it published nothing (`publishedNothing`) or not.
+// workspace a story's session opens in (`established`) or an unattached
+// session's place (`session`), or the launch stops with this answer, knowing
+// it published nothing (`publishedNothing`) or not.
 export type Started =
   | { readonly kind: "none" }
   | ({
@@ -48,7 +47,8 @@ export type Started =
       readonly workflow: StartWorkflow;
       // The policy the start ran with, a kept start's own.
       readonly policy: SessionPolicy;
-    } & EstablishedLaunch)
+    } & EstablishedLaunch<Established>)
+  | ({ readonly kind: "session" } & EstablishedLaunch<UnattachedEstablished>)
   | {
       readonly kind: "stopped";
       readonly result: LaunchResult;
@@ -67,20 +67,32 @@ function startFailed(
   };
 }
 
-// What a story launch's start answers before the launch is accepted, with
-// nothing run: a kept start another host owns is refused, and changes in the
-// default checkout the request did not confirm, or that changed since, are
-// answered for the developer to confirm.
+// The workspace a launch's session runs in: an unattached session's own
+// choice, the default checkout when it names none; a story start's policy, a
+// kept start's own, whose kept start another host owns is refused; none for a
+// story workflow with no start.
+async function startWorkspace(
+  source: PublishedSource,
+  request: AgentLaunchRequest,
+): Promise<SessionPolicy["workspace"] | undefined> {
+  if (request.workflow === "ad-hoc")
+    return unattachedPolicyOf(request).workspace;
+  if (startOf(request.workflow) === undefined) return undefined;
+  const kept = await keptStart(source.id, request.identity, request.workflow);
+  requireStartHost(request.host, kept);
+  return policyOf(kept ?? request).workspace;
+}
+
+// What a launch's start answers before the launch is accepted, with nothing
+// run: a kept start another host owns is refused, and changes in the default
+// checkout the request did not confirm, or that changed since, are answered
+// for the developer to confirm.
 export async function unconfirmedStart(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
 ): Promise<ExistingChangesFound | undefined> {
-  if (request.workflow === "ad-hoc" || startOf(request.workflow) === undefined)
-    return undefined;
-  const kept = await keptStart(source.id, request.identity, request.workflow);
-  requireStartHost(request.host, kept);
-  if (policyOf(kept ?? request).workspace !== "default-checkout")
+  if ((await startWorkspace(source, request)) !== "default-checkout")
     return undefined;
   const found = await existingChanges(folder);
   return found !== undefined && found.fingerprint !== request.existingChanges
@@ -88,16 +100,19 @@ export async function unconfirmedStart(
     : undefined;
 }
 
-// The start a launch's workflow runs before its session, waiting at most
-// `startTimeoutMs()` for it; the script goes on running when the wait ends.
+// The start a launch's attempt (`attemptId`) runs before its session, a story
+// workflow's or an unattached session's own, kept by that attempt, waiting for
+// it only so long (`./startWait.ts`); the script goes on running when the
+// wait ends.
 export async function started(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
   progress: StartProgress,
+  attemptId: string,
 ): Promise<Started> {
   if (request.workflow === "ad-hoc") {
-    return { kind: "none" };
+    return unattachedStarted(source, request, folder, attemptId);
   }
   const workflow = startOf(request.workflow);
   if (workflow === undefined) {
@@ -117,14 +132,7 @@ export async function started(
     branch: planned.branch,
     policy: planned.policy,
   };
-  let timer: NodeJS.Timeout | undefined;
-  const expiry = new Promise<"expired">((resolve) => {
-    timer = setTimeout(() => {
-      resolve("expired");
-    }, startTimeoutMs());
-  });
-  const attempt = await Promise.race([planned.attempt, expiry]);
-  clearTimeout(timer);
+  const attempt = await withinStartWait(planned.attempt);
   if (attempt === "expired") {
     // No launch follows the script that goes on running, so its phase ends
     // with it.

@@ -1,12 +1,14 @@
 // Common launch facts and the request label; native instruction spelling stays
 // with each host. Established facts come from the shared installed start.
-import type {
-  AgentLaunchRequest,
-  RecordedLaunchRequest,
-  LaunchResult,
-  HostSession,
-  SessionPolicy,
-  SessionState,
+import {
+  withoutConfirmation,
+  type AgentLaunchRequest,
+  type EstablishedSession,
+  type RecordedLaunchRequest,
+  type LaunchResult,
+  type HostSession,
+  type SessionPolicy,
+  type SessionState,
 } from "../src/agentLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { Established } from "./startLaunch.ts";
@@ -68,14 +70,21 @@ function launchTime(at: Date): string {
   return `${String(at.getDate())} ${months[at.getMonth()] ?? ""}, ${clock}`;
 }
 
-// An ad hoc session's label: the developer's text with whitespace runs
-// collapsed, cut at `labelLimit` characters with an ellipsis; the time the
-// launch began when the text is blank or holds a control character.
-function adHocLabel(instruction: string | undefined, began: Date): string {
+// The text an ad hoc session is labeled with: the developer's, with
+// whitespace runs collapsed; none when it is blank or holds a control
+// character, so the label is a time.
+export function adHocLabelText(
+  instruction: string | undefined,
+): string | undefined {
   const text = (instruction ?? "").replace(/\s+/g, " ").trim();
-  if (text === "" || /\p{Cc}/u.test(text)) {
-    return launchTime(began);
-  }
+  return text === "" || /\p{Cc}/u.test(text) ? undefined : text;
+}
+
+// An ad hoc session's label: its text, cut at `labelLimit` characters with
+// an ellipsis; the time the launch began when it has none.
+function adHocLabel(instruction: string | undefined, began: Date): string {
+  const text = adHocLabelText(instruction);
+  if (text === undefined) return launchTime(began);
   const characters = Array.from(
     new Intl.Segmenter().segment(text),
     ({ segment }) => segment,
@@ -85,18 +94,17 @@ function adHocLabel(instruction: string | undefined, began: Date): string {
     : text;
 }
 
-// The request a launch keeps: an ad hoc one titled with its label, the one
-// place the label is derived, and a story's without the transient
-// confirmation of existing changes.
+// The request a launch keeps, without the transient confirmation of existing
+// changes: an ad hoc one titled with its label, the one place the label is
+// derived.
 export function recordedRequest(
   request: AgentLaunchRequest,
   began: Date,
 ): RecordedLaunchRequest {
-  if (request.workflow === "ad-hoc")
-    return { ...request, title: adHocLabel(request.instruction, began) };
-  const recorded = { ...request };
-  delete recorded.existingChanges;
-  return recorded;
+  const recorded = withoutConfirmation(request);
+  return recorded.workflow === "ad-hoc"
+    ? { ...recorded, title: adHocLabel(recorded.instruction, began) }
+    : recorded;
 }
 
 // A story's recorded request with the policy its start ran with, a kept
@@ -112,14 +120,21 @@ export function withStartPolicy(
   return policy.tracking === "standard" ? recorded : { ...recorded, policy };
 }
 
-// What a launch's start established, and how the instruction carries it.
-export type EstablishedHandoff = {
-  readonly established: Established;
+// What an unattached launch's start established, under the key its launch
+// record keeps it by.
+export type UnattachedEstablished = {
+  readonly establishedSession: EstablishedSession;
+};
+
+// What a launch's start established, a story's or an unattached session's,
+// and how the first input carries it.
+export type EstablishedHandoff<Facts = Established | UnattachedEstablished> = {
+  readonly established: Facts;
   readonly formatted: string;
 };
 
 // A launch's established start with the workspace its session opens in.
-export type EstablishedLaunch = {
-  readonly handoff: EstablishedHandoff;
+export type EstablishedLaunch<Facts = Established | UnattachedEstablished> = {
+  readonly handoff: EstablishedHandoff<Facts>;
   readonly workspace: ProjectFolder;
 };

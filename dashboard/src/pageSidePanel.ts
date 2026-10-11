@@ -13,6 +13,7 @@ import {
 } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { sessionAccess, type SessionAccess } from "./sessionAccess.ts";
+import { embeddedTerminal } from "./sessionCapabilities.ts";
 import { sessionKey } from "./sessionReference.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import { deletedEntryHome, sessionEntry } from "./pageEntries.ts";
@@ -79,6 +80,12 @@ export function usePageSidePanel({
   }, [panel]);
   // After `latest` follows the panel, so a return sees what the panel shows.
   const setReturning = useKeyboardReturn<Shown>(latest, range);
+  // What each host offers as the page reads it now: a launch asked before a
+  // read presents its terminal by what the page knows once it started.
+  const operations = useRef(hostOperations);
+  useLayoutEffect(() => {
+    operations.current = hostOperations;
+  }, [hostOperations]);
   // The sessions whose terminal the developer opened themselves on this page,
   // which a launch's presentation then leaves as the developer left them.
   const openedByDeveloper = useRef(new Set<string>());
@@ -180,7 +187,11 @@ export function usePageSidePanel({
   const sessions: PageSessions = {
     hostOperations,
     presentTerminal: (request) => {
-      if (!openedByDeveloper.current.has(sessionKey(request.record.session)))
+      const { session } = request.record;
+      if (
+        embeddedTerminal(operations.current, session.host) &&
+        !openedByDeveloper.current.has(sessionKey(session))
+      )
         openTerminal(request);
     },
     openSession: (request) => {

@@ -27,9 +27,9 @@ The workspace is `<project>/.worktrees/<title slug>`, independent of native host
 worktree features; the branch uses that host's namespace from
 `src/hostDescription.ts` (`claude/`, `codex/`, or `cursor/`). Slugs are
 lowercase hyphenated words, accents removed, at most 48 characters, `story` for
-no usable words, and numbered when workspace folders or any known host namespace
-collide. The same descriptions supply collision lookup for `claude/`, `codex/`,
-and `cursor/`.
+no usable words (`session` for a session with no story), and numbered when
+workspace folders or any known host namespace collide. The same descriptions
+supply collision lookup for `claude/`, `codex/`, and `cursor/`.
 
 Start runs only when origin is the catalog repository and the story has no
 unresolved [launch attempt](AGENT-LAUNCH.md#startup-handoff-and-reconciliation)
@@ -120,10 +120,91 @@ whatever the reopened dialog would choose; once established, it reuses its
 context without rerunning the start. One-shot execution's kept start stays on
 the Backlog card.
 
+### Start session
+
+The project row's Start session offers the same Session group with two
+choices and no Tracking: Workspace (Isolated workspace or Default main) and
+After checks (Wait for review or Automatically land), in the story dialogs'
+words. A session with no story has nothing to track at launch; a workflow
+invoked in it later carries its own tracking. No selection is Default main ·
+Wait for review, a stated default rather than an inference from the folder.
+The line beside Start names the choices (`Isolated workspace · Automatically
+land`), where the session runs, and that nothing is published or that verified
+results land on origin, which Start then authorizes. Command details say where
+it runs and name the established session's fields; there is no command line.
+The other choices are offered only when the selected host's installation ships
+the start, the shared policy and `established-session.mjs` (`ad-hoc` in the
+machine answer's `sessionPolicies`); otherwise those radios are disabled with
+why, a choice left from another host disables Start, and the boundary refuses
+such a request before anything starts.
+
+Default main · Wait for review runs no start and sends no block: the session
+opens in the project folder with only the developer's text and the reporting
+context, or blank. Every other combination runs `execution-start.mjs start
+--one-shot` with no identity or publisher (`server/unattachedStart.ts`), adding
+`--auto-land --push-authorized` only for Automatically land. Default main
+passes `--default-main` with the project folder on the target branch, and the
+session opens in the project folder. Isolated workspace passes `--integration
+<project>` and a new `<project>/.worktrees/<slug>` on the selected host's
+branch namespace, which the start, never the dashboard, creates at fetched
+trunk; the session opens in that worktree (Claude Code's working directory,
+Codex's `cwd`, Cursor's `--workspace`). Its slug follows the workspace rule
+above from the session's label text, `session` when the label is a time or
+holds no usable word. The start publishes nothing, Takes nothing and changes
+no card. Its `prepared` receipt becomes the launch record's
+`establishedSession` (workspace and its `role`, branch, remote/target,
+`landing`, `startingRevision`, and `fetched` for Default main), which the
+installed formatter writes as the first input's “Established session” block
+before the reporting context and the text, and which supplies the Sessions
+sidebar's and the terminal's saved workspace as a one-shot start does. The
+reporting context of a launch that established a session names the launch's
+[landing context](AGENT-LAUNCH-COMPLETION.md), which carries no story identity,
+where the installed landing module takes one.
+
+A session has no story, so its start is kept by its launch attempt:
+`session-starts.json` beside the workflows' start stores holds, per project
+and attempt, the host, workspace, branch and time, written before the script
+runs (`server/sessionStartStore.ts`). The script is never aborted by its wait.
+Expiry answers uncertain: “The session's start did not finish within the wait;
+it publishes nothing. The start was kept and goes on in workspace … on branch
+…, where it can be resumed.”, for Default main as for an isolated workspace.
+When the script ends, its established session is kept with the start; a
+script that stopped left nothing to resume and removes it. Continuing that
+attempt from Startup recovery goes on in the kept workspace on the kept branch
+and selects no other: with an established session kept, the session opens
+there with that block and the script does not run again; with none kept (the
+server ended before the script answered), the same start runs again for that
+workspace and branch, which makes it or takes a clean existing one as it is
+(`prepared`, `created: false`). The installed start takes an existing
+workspace only under the path Git names its top level by, so a kept workspace
+is handed to it as its real path. While the earlier script still runs in this
+server, the continuation is answered “This session's earlier start is still
+running on this machine, so it was not continued.” and the attempt stays as it
+was. An isolated continuation is not asked about default main's changes; a
+Default main one is, and changes it did not confirm stop it as they stop a
+story's Default main continuation. The kept start is removed once its attempt
+settles as anything but uncertain: its session started, or it failed and
+nothing of it continues. A start refused before any workspace existed keeps
+nothing, and a later Start session chooses its workspace afresh. A
+conversation whose first input is unconfirmed is recovered by the same
+continuation with no start run.
+
+An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
+project, host and instruction with its Workspace and After checks choices, a
+request naming none having the default ones. A Start session repeating all of
+them recovers a kept conversation whose first input is unconfirmed; one whose
+choices differ starts a new session in its own place and leaves that
+conversation and its workspace to their own continuation.
+
 ### Existing changes in default main
 
 Before a Default main start, the boundary reads the default checkout's
 `git status` (staged, changed, deleted and untracked paths; never content).
+The project row's Start session in Default main is such a start: its request
+carries the unattached policy of the shared definition (workspace and landing,
+no tracking), and one naming no policy runs in Default main and waits for
+review. An Isolated workspace session is not asked, and leaves the default
+checkout's changes as they are.
 Unless the request names the fingerprint of what it now observes, nothing starts
 and the dialog shows, in place of its choices, “Existing changes in default
 main”, the changed paths and count, “Continuing includes these changes in this

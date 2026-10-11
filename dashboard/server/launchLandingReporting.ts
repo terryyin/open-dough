@@ -16,6 +16,7 @@ import {
 } from "./launchLandingReservation.ts";
 import { submitRetainedLanding } from "./launchLandingRetained.ts";
 import { boundLandingReporting } from "./launchLandingRecord.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
 import { keptRecords } from "./launchRecordStore.ts";
@@ -56,10 +57,8 @@ export async function submitLanding(
         origin,
       );
       const authority = authorizedLanding(attempt.landingRepository, report);
-      if (
-        attempt.request.workflow === "ad-hoc" ||
-        attempt.request.identity !== report.identity
-      )
+      // A launch with no story names none, and neither does its landing.
+      if (storyOf(attempt.request) !== report.identity)
         throw new RefusedRequest(
           409,
           "This is not the established launch's authorized landing.",

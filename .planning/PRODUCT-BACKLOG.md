@@ -14,9 +14,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options ([plan](slice-plans/298-unattached-session-options/PLAN.md))
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring ([plan](slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md))
 - [Slow startup continues automatically and unsafe outcomes stop safely](seeds/SEED-130-slow-startup-safe-recovery.md#slow-startup-safe-recovery) — SEED-130#slow-startup-safe-recovery ([plan](slice-plans/299-slow-startup-safe-recovery/PLAN.md))
 
 ## Backlog list
 
+- [Leave nothing behind after an unattached start](seeds/SEED-066-composable-lightweight-session-options.md#unattached-start-leftovers) — SEED-066#unattached-start-leftovers
+- [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation

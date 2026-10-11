@@ -44,7 +44,9 @@ Resolve both before any commit:
   Ownership comes from
   that context or the worktree's
   [creation record](../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it);
-  do not infer it from a clean directory.
+  do not infer it from a clean directory. In an
+  [established session](../dough-execute-plan/references/established-session.md),
+  the session's block names this checkout, its role, starting revision, and target.
 - **Default checkout.** The project's established checkout for ordinary work,
   when the context supplies one; the refresh step inspects it. Landing needs no
   default checkout. When the landing checkout is a worktree, the default

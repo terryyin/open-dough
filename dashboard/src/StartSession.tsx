@@ -2,7 +2,11 @@
 // to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recently done and the Sessions sidebar, like any
-// launched session; no card lists it. The dialog closes once the local
+// launched session; no card lists it. Its Session group chooses where the
+// session runs and what follows the checks of what it later verifies; the
+// line beside Start names the choices and what Start authorizes. A session on
+// default main has existing changes there confirmed in the dialog before
+// anything starts (`LaunchExistingChanges`). The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
 // button, that the startup goes on while the button waits for it. A started
 // session then opens in the page's terminal, with the keyboard in it unless
@@ -15,12 +19,25 @@
 // beside the button, which stays enabled to start again. Nothing here makes
 // a card or a story.
 
-import { embeddedTerminal, hostName } from "./sessionCapabilities.ts";
+import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useCallback, useId, useRef, useState } from "react";
-import { adHocName, type LaunchChoices } from "./agentLaunch.ts";
+import {
+  adHocName,
+  establishesSession,
+  unattachedPolicyOf,
+  type LaunchChoices,
+} from "./agentLaunch.ts";
+import type { SessionPolicyOffer } from "./launchOffers.ts";
+import { unattachedSession } from "./UnattachedSessionPolicy.tsx";
+import {
+  unattachedEffect,
+  unattachedSummary,
+  unattachedWhere,
+} from "./sessionPolicyWords.ts";
 import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";
@@ -34,6 +51,8 @@ export function StartSession({
   project,
   sourceId,
   attempt,
+  sessionPolicy,
+  onHostChanged,
   onStart,
 }: {
   // The selected project's name.
@@ -41,14 +60,24 @@ export function StartSession({
   readonly sourceId: string;
   // The last launch from this row that has not started a session.
   readonly attempt: LaunchAttempt | undefined;
-  // Answers whether the launch was accepted; its session, once launched, is
-  // presented (`onLaunched`) and then takes the keyboard.
+  // Whether the selected host's installed skills establish a session with no
+  // story; without it only the default choices are offered.
+  readonly sessionPolicy: (
+    host: AgentLaunchRequest["host"],
+  ) => SessionPolicyOffer;
+  // The developer chose another host, whose offers are read again.
+  readonly onHostChanged: () => void;
+  // Answers whether the launch was accepted, or the existing changes to
+  // confirm; its session, once launched, is presented (`onLaunched`) and then
+  // takes the keyboard.
   readonly onStart: (
     choices: LaunchChoices,
     onLaunched: OnLaunched,
-  ) => Promise<boolean>;
+  ) => Promise<StartAnswer>;
 }) {
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
+  // Each opening starts from the default choices.
+  const [policy, setPolicy] = useState(unattachedPolicyOf({}));
   const starting = attempt?.kind === "starting";
   const answerId = useId();
   const progress = useRef<HTMLParagraphElement>(null);
@@ -56,7 +85,7 @@ export function StartSession({
     starting,
     useCallback(() => progress.current, []),
   );
-  const { presentTerminal, hostOperations } = usePageSessions();
+  const { presentTerminal } = usePageSessions();
   const [announcement, setAnnouncement] = useState("");
 
   return (
@@ -102,16 +131,32 @@ export function StartSession({
           sourceId={sourceId}
           projectContext
           host={host}
-          onHost={setHost}
+          onHost={(next) => {
+            setHost(next);
+            onHostChanged();
+          }}
           heading={`Start a session in ${project} in ${hostName(host)}`}
-          description={`${hostName(host)} starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
+          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's folder"}, with no story or skill. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
+          session={unattachedSession({
+            policy,
+            onPolicy: setPolicy,
+            offer: sessionPolicy(host),
+          })}
+          effects={
+            <>
+              <strong className="launch-dialog-summary">
+                {unattachedSummary(policy)}
+              </strong>{" "}
+              {unattachedEffect(policy)}
+            </>
+          }
+          details={
+            <p>{unattachedWhere(policy, establishesSession({ policy }))}</p>
+          }
           onStart={(choices) =>
             onStart(choices, (record) => {
-              if (
-                embeddedTerminal(hostOperations, record.session.host) &&
-                launcher.current !== null
-              )
+              if (launcher.current !== null)
                 presentTerminal({
                   record,
                   control: launcher.current,
@@ -125,7 +170,10 @@ export function StartSession({
               setAnnouncement("Ad hoc session started");
             })
           }
-          onClose={closeDialog}
+          onClose={(accepted) => {
+            setPolicy(unattachedPolicyOf({}));
+            closeDialog(accepted);
+          }}
         />
       )}
     </>

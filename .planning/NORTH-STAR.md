@@ -260,16 +260,6 @@ Rules that keep later stories additive:
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
 
-## Composable session policy and workflow-owned start
-
-For the queued [unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options)
-story, reuse the delivered session policy rather than adding ad hoc controls:
-tracking, workspace, and landing come from the one installed policy contract,
-workflow start establishes the actual context once, and dashboard and native
-adapters consume that context. Default-checkout confirmation stays a launch-time
-acknowledgment that never activates auto-land. Retire this topic when that story
-is delivered; keep any lasting rule in `dashboard/LAUNCH-START.md`.
-
 ## Background CI monitoring and session delivery
 
 For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),

@@ -6,6 +6,7 @@ import { hostName, marksDone } from "./sessionCapabilities.ts";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  establishedPlace,
   launchSubject,
   workspaceWords,
   type LaunchWithState,
@@ -55,7 +56,7 @@ export function SessionEntry({
     policyWords,
   } = launchSubject(record.request);
   const workspace = workspaceWords(
-    record.start ?? record.preparation,
+    establishedPlace(record),
     record.shownWorkspace,
   );
   const markedDone = record.doneAt !== undefined;

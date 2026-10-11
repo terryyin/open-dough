@@ -11,6 +11,7 @@ import {
   sessionPolicySchema,
 } from "./launchRequest.ts";
 
+import { establishedSessionSchema } from "./unattachedSession.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -140,6 +141,8 @@ export const launchRecordSchema = z.object({
   start: establishedStartSchema.optional(),
   // What a refinement launch's preparation established.
   preparation: establishedPreparationSchema.optional(),
+  // What an unattached launch's start established (`./unattachedSession.ts`).
+  establishedSession: establishedSessionSchema.optional(),
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
   completion: completionSchema.optional(),
@@ -162,9 +165,15 @@ export function recordedWorkspace(record: LaunchRecord): string | undefined {
   if (record.session.host === "codex")
     return record.session.continuation?.workspace;
   if (record.session.host === "claude")
-    return (record.start ?? record.preparation)?.workspace;
+    return establishedPlace(record)?.workspace;
   return undefined;
 }
+
+// Where a launch's start established its session to work, a story's or an
+// unattached session's, if its start did.
+export const establishedPlace = (
+  record: Pick<LaunchRecord, "start" | "preparation" | "establishedSession">,
+) => record.start ?? record.preparation ?? record.establishedSession;
 
 // Current native availability and activity, normalized by the host. A retained
 // conversation can be continued even when unloaded. Unknown observation is

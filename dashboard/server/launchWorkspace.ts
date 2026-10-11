@@ -2,7 +2,7 @@
 // The caller supplies occupied slugs across folders and host branches.
 
 import { hostDescription } from "../src/hostDescription.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
+import { establishedPlace, type LaunchRecord } from "../src/launchRecord.ts";
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import path from "node:path";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -17,9 +17,9 @@ export type WorkspaceChoice = {
 };
 
 // The title in lowercase words joined by hyphens, accents dropped, cut at
-// `slugLimit` characters on a word edge where it can be; `story` when
-// nothing usable is left.
-export function slugOf(title: string): string {
+// `slugLimit` characters on a word edge where it can be; `nameless` (`story`
+// for a story's title) when nothing usable is left.
+export function slugOf(title: string, nameless = "story"): string {
   const words = title
     .normalize("NFKD")
     .replace(/\p{M}/gu, "")
@@ -27,7 +27,7 @@ export function slugOf(title: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   const cut = words.slice(0, slugLimit).replace(/-+$/, "");
-  return cut === "" ? "story" : cut;
+  return cut === "" ? nameless : cut;
 }
 
 // The first of `slug`, `slug-2`, `slug-3`, ... that `taken` does not hold.
@@ -71,8 +71,9 @@ export function launchWorkspace(
   title: string,
   taken: ReadonlySet<string>,
   host: AgentLaunchRequest["host"],
+  nameless?: string,
 ): WorkspaceChoice {
-  const slug = freeSlug(slugOf(title), taken);
+  const slug = freeSlug(slugOf(title, nameless), taken);
   return {
     workspace: {
       path: path.join(project.path, worktreesFolder, slug),
@@ -87,7 +88,7 @@ export function shownLaunchWorkspace(
   record: LaunchRecord,
   project?: ProjectFolder,
 ): { readonly shownWorkspace?: string } {
-  const established = record.start ?? record.preparation;
+  const established = establishedPlace(record);
   if (established === undefined) return {};
   return {
     shownWorkspace:

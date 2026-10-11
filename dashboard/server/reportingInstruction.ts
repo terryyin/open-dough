@@ -1,12 +1,13 @@
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { RecordedLaunchRequest } from "../src/launchRequest.ts";
+import { sendsFirstInput } from "../src/unattachedSession.ts";
 // All host grammars carry the same explicit channel; blank native launches stay blank.
 export function reportingInstruction(
   request: RecordedLaunchRequest,
 ): string | undefined {
   if (
     request.reporting === undefined ||
-    (request.workflow === "ad-hoc" && !request.instruction?.trim())
+    (request.workflow === "ad-hoc" && !sendsFirstInput(request))
   )
     return undefined;
   const landing =

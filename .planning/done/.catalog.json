@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-066_unattached-session-options.json",
+      "identity": "SEED-066#unattached-session-options",
+      "completedAt": "2026-10-11T09:38:56.744Z",
+      "blob": "ed9bc2a3c04aff01f3833cc447fdb5dc8ca8dd13"
+    },
+    {
       "fileName": "SEED-121_finish-retirement-without-verdict.json",
       "identity": "SEED-121#finish-retirement-without-verdict",
       "completedAt": "2026-10-11T06:12:06.990Z",

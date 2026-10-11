@@ -12,6 +12,7 @@ import type {
   RecordedLaunchRequest,
 } from "./launchRequest.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
+import type { EstablishedSession } from "./unattachedSession.ts";
 import { sessionSummary } from "./sessionPolicyWords.ts";
 import { readyBadge } from "./storyPreparation.ts";
 
@@ -169,7 +170,7 @@ export function launchSubject(request: RecordedLaunchRequest) {
 // The local server projects the displayed workspace; established facts retain
 // the actual path for recovery and native continuation.
 export function workspaceWords(
-  established: EstablishedContext | undefined,
+  established: EstablishedContext | EstablishedSession | undefined,
   shownWorkspace: string | undefined,
 ): string | undefined {
   if (established === undefined) return undefined;

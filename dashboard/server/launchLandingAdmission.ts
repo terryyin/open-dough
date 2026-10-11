@@ -3,8 +3,10 @@ import { z } from "zod";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
 import { launchLandingSchema } from "../src/launchLanding.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
+import { establishedStory } from "./launchRecord.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 export const landingSubmissionSchema = launchLandingSchema
@@ -44,20 +46,21 @@ export async function expiredAttemptRecord(
     );
   if (retained.deletedAt !== undefined)
     throw new RefusedRequest(409, "The reporting session was deleted.");
+  // The workflow a record names decides which of its facts is its own; an
+  // unattached launch's is its established session, which names no story.
   const established =
     record?.request.workflow === "execution"
       ? record.start
       : record?.request.workflow === "refinement"
         ? record.preparation
-        : undefined;
+        : record?.establishedSession;
   const authority = retained.authority;
   if (
     record?.request.host !== report.host ||
     record.request.reporting?.origin !== origin ||
-    record.request.workflow === "ad-hoc" ||
-    record.request.identity !== report.identity ||
+    storyOf(record.request) !== report.identity ||
     established === undefined ||
-    established.identity !== authority.identity ||
+    establishedStory(established) !== authority.identity ||
     established.workspace !== authority.workspace ||
     established.branch !== authority.branch ||
     established.remote !== authority.remote ||

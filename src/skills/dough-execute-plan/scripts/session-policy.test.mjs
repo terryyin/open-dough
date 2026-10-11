@@ -10,6 +10,9 @@ import {
   sessionPolicyChoices,
   sessionPolicyFlags,
   sessionPolicyToggles,
+  unattachedSessionChoices,
+  unattachedSessionPolicy,
+  unattachedStartPolicy,
   withSelectedLanding,
 } from "./session-policy.mjs";
 
@@ -146,6 +149,61 @@ test("only non-default workspace and landing choices need one-shot tracking", ()
     assert.deepEqual(
       oneShotOnlyChoices(sessionPolicy({ ...options, oneShot: true })),
       [],
+    );
+  }
+});
+
+test("an unattached session chooses workspace and landing only, from the default checkout waiting for review", () => {
+  assert.deepEqual(Object.keys(unattachedSessionChoices), [
+    "workspace",
+    "landing",
+  ]);
+  assert.deepEqual(unattachedSessionPolicy(), {
+    workspace: "default-checkout",
+    landing: "review",
+  });
+  assert.deepEqual(unattachedSessionPolicy({ landing: "auto-land" }), {
+    workspace: "default-checkout",
+    landing: "auto-land",
+  });
+  assert.deepEqual(unattachedSessionPolicy({ workspace: "isolated" }), {
+    workspace: "isolated",
+    landing: "review",
+  });
+});
+
+test("an unattached session's values are the shared policy's own", () => {
+  for (const [choice, { values }] of Object.entries(unattachedSessionChoices))
+    assert.deepEqual(
+      [...values].sort(),
+      [...sessionPolicyChoices[choice].values].sort(),
+    );
+});
+
+test("an unattached session's place is established by the one-shot start, with authority only to land automatically", () => {
+  const flags = (selected) =>
+    sessionPolicyFlags(unattachedStartPolicy(selected));
+  assert.deepEqual(flags(), ["--one-shot", "--default-main"]);
+  assert.deepEqual(flags({ landing: "auto-land" }), [
+    "--one-shot",
+    "--default-main",
+    "--auto-land",
+  ]);
+  assert.deepEqual(flags({ workspace: "isolated" }), ["--one-shot"]);
+  assert.deepEqual(flags({ workspace: "isolated", landing: "auto-land" }), [
+    "--one-shot",
+    "--auto-land",
+  ]);
+  for (const workspace of unattachedSessionChoices.workspace.values) {
+    assert.equal(
+      needsPublicationAuthority(unattachedStartPolicy({ workspace })),
+      false,
+    );
+    assert.equal(
+      needsPublicationAuthority(
+        unattachedStartPolicy({ workspace, landing: "auto-land" }),
+      ),
+      true,
     );
   }
 });

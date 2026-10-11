@@ -18,11 +18,7 @@ import { useLaunchInstruction } from "./LaunchInstruction.tsx";
 import { useLaunchSettings } from "./useLaunchSettings.ts";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
 import { LaunchOptions, useOptionSelection } from "./LaunchOptions.tsx";
-import {
-  LaunchSessionPolicy,
-  sessionBlocksStart,
-  type LaunchSessionChoices,
-} from "./LaunchSessionPolicy.tsx";
+import type { DialogSession } from "./LaunchSessionPolicy.tsx";
 import "./agent-launch.css";
 import "./launch-dialog.css";
 import "./launch-session.css";
@@ -76,8 +72,8 @@ export function LaunchDialog({
   // options' flags, in the order `options` offers them.
   readonly command?: string;
   readonly optionsReading?: boolean;
-  // A story's Session group; none for an ad hoc session.
-  readonly session?: LaunchSessionChoices | undefined;
+  // The Session group: a story's choices, or an unattached session's.
+  readonly session: DialogSession;
   readonly options?: OfferedShape | undefined;
   // The name of the options' disclosure.
   readonly optionsLabel?: string;
@@ -108,11 +104,10 @@ export function LaunchDialog({
   const { selected, flags } = selection;
   const { model, setModel, effort, setEffort, catalog, settingsBlocked } =
     useLaunchSettings(sourceId, host, projectContext);
-  const policy = session?.policy;
   // Unless a launch found existing changes to confirm, closes with its answer.
   const confirmation = useExistingChangesConfirmation({
     id,
-    policy,
+    landing: session.landing,
     onStart,
     ended: (answer) => {
       accepted.current = answer;
@@ -134,14 +129,10 @@ export function LaunchDialog({
       aria-labelledby={headingId}
       onCancel={(event) => {
         confirmation.onCancel(event);
-        if (!submitting) {
-          dictation.cancel();
-        }
+        if (!submitting) dictation.cancel();
       }}
       onClose={() => {
-        if (dictation.suspended.current) {
-          return;
-        }
+        if (dictation.suspended.current) return;
         dictation.cancel();
         onClose(accepted.current);
       }}
@@ -160,7 +151,7 @@ export function LaunchDialog({
             ...(model === "" ? {} : { model }),
             ...(host !== "codex" || effort === "" ? {} : { effort }),
             ...(flags.length === 0 ? {} : { options: flags }),
-            ...(policy?.tracking === "one-shot" ? { policy } : {}),
+            ...session.chosen,
           });
         }}
       >
@@ -193,9 +184,7 @@ export function LaunchDialog({
               onEffort={setEffort}
               catalog={catalog}
             />
-            {session !== undefined && (
-              <LaunchSessionPolicy id={id} {...session} />
-            )}
+            {session.group(id)}
             {options !== undefined && options.options.length > 0 ? (
               <LaunchOptions
                 id={id}
@@ -235,7 +224,7 @@ export function LaunchDialog({
               settingsBlocked ||
               dictation.busy ||
               (optionsReading && selected.size > 0) ||
-              (session !== undefined && sessionBlocksStart(session))
+              session.blocksStart
             }
             startButton={confirmation.startButton}
             onCancel={() => {

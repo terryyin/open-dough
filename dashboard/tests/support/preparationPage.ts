@@ -32,7 +32,10 @@ export const test = base.extend<{
     await use(native);
     await native?.close();
   },
-  dashboard: async ({ github, origin, codexProtocol, pathPrefix }, use) => {
+  dashboard: async (
+    { github, origin, codexProtocol, pathPrefix, startTimeoutMs },
+    use,
+  ) => {
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
@@ -42,6 +45,9 @@ export const test = base.extend<{
       launchTimeoutMs: launchWaitMs,
       codexProtocol,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
+      ...(startTimeoutMs === undefined
+        ? {}
+        : { extraEnv: { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) } }),
     });
     await use(server);
     await server.close();

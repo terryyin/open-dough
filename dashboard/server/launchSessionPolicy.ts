@@ -4,14 +4,18 @@
 // (`withSessionPolicy`). The policy's meaning and flags are the shared
 // definition's (`session-policy.mjs`); the installed start owns what it does.
 // A policy that cannot be honored is refused before anything starts, so no
-// session silently runs with another location or landing.
+// session silently runs with another location or landing. An unattached
+// request carries its own two choices (`withUnattachedPolicy`).
 
 import {
   oneShotOnlyChoices,
   sessionPolicyFlags,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
+  establishesSession,
+  isDefaultUnattachedPolicy,
   launchKindName,
+  unattachedPolicyOf,
   type AgentLaunchRequest,
   type LaunchWorkflow,
   type SessionPolicy,
@@ -19,17 +23,13 @@ import {
 import {
   sessionChoiceWords,
   sessionSummary,
+  unattachedSummary,
 } from "../src/sessionPolicyWords.ts";
-import { installedSkillPath } from "./launchHosts.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { isFile } from "./startLaunch.ts";
+import { shipsSessionPolicy } from "./startPolicy.ts";
 import { startOf } from "./startWorkflows.ts";
-
-// The installed skill that ships the shared policy every workflow's start
-// reads.
-const policySkill = "dough-execute-plan";
-const policyScript = "session-policy.mjs";
+import { establishesUnattached } from "./unattachedStart.ts";
 
 // Whether the selected host's installation in the project starts the
 // workflow itself and ships the shared policy that start reads.
@@ -42,9 +42,7 @@ export async function sessionPolicyCapable(
   return (
     start !== undefined &&
     (await start.establishes(project, host)) &&
-    (await isFile(
-      installedSkillPath(host, project, policySkill, "scripts", policyScript),
-    ))
+    (await shipsSessionPolicy(project, host))
   );
 }
 
@@ -52,15 +50,37 @@ export async function sessionPolicyCapable(
 const isDefault = (policy: SessionPolicy) =>
   sessionPolicyFlags(policy).length === 0;
 
+// An unattached request with its policy as the boundary keeps it (none for
+// the default policy), or the refusal: a session to establish that the
+// selected host's installation cannot.
+async function withUnattachedPolicy(
+  request: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>,
+  project: ProjectFolder,
+): Promise<AgentLaunchRequest> {
+  const { policy: asked, ...rest } = request;
+  const policy = unattachedPolicyOf({ policy: asked });
+  if (
+    establishesSession(request) &&
+    !(await establishesUnattached(project, request.host))
+  ) {
+    throw new RefusedRequest(
+      400,
+      `${unattachedSummary(policy)} cannot be selected: the installed skills in ${project.shown} do not establish a session without a story.`,
+    );
+  }
+  return isDefaultUnattachedPolicy(policy) ? rest : { ...rest, policy };
+}
+
 // The request with its policy as the boundary keeps it (none for the default
-// policy), or the refusal: a request without a story, a default main or
-// automatic landing without one-shot tracking, or an installation that does
-// not take the policy at its start.
+// policy), or the refusal: a default main or automatic landing without
+// one-shot tracking, or an installation that does not take the policy at its
+// start. An unattached request is admitted with its own policy.
 export async function withSessionPolicy(
   request: AgentLaunchRequest,
   project: ProjectFolder,
 ): Promise<AgentLaunchRequest> {
-  if (request.workflow === "ad-hoc") return request;
+  if (request.workflow === "ad-hoc")
+    return withUnattachedPolicy(request, project);
   const { policy, ...rest } = request;
   if (policy === undefined || isDefault(policy)) return rest;
   const unsupported = oneShotOnlyChoices(policy);

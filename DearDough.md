@@ -4,9 +4,9 @@ Retained material shared-process findings, reviewed 2026-10-09. Only an explicit
 queued follow-up is planned work; other entries are open and unqueued. A retained
 released response is not proof of effectiveness. Unknown provenance stays unknown.
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
-Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`. Older narratives live in Git, not a second archive.
+Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; later trims: `a41f9d577be06030ed6da17a4ddd2139c7f79aea:DearDough.md`, `56e7b8944eabf6e49230b1ee4046be30183e11e2:DearDough.md`, `3ec282610148afb245a710642b486318d5388d57:DearDough.md` (five earlier ODF-141 occurrences; its occurrence history is partial). Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 286. Removed local codes are never reused.
+- Highest allocated local number: 290. Removed local codes are never reused.
 
 Detailed retained observations are consolidated in the linked Open Dough
 record; headings and former local aliases preserve traceability. Review date:
@@ -114,41 +114,6 @@ Follow-up: Open, unqueued.
 Evidence and response: [ODF-141](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-141).
 
 ### Occurrences
-- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
-  - Timestamp: unknown (2026-10-10, between 09:43 and 13:31 +09:00).
-  - Tool: Claude Code coordinator and delegated agents.
-  - Model: `claude-opus-5-5`.
-  - Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
-  - Evidence: CI repair `f64da99b` changed nine lines of one spec (`published-work.spec.ts`); its delegated refactor pass reported no edits (about 48.6k subagent tokens, 38 s). The second repair's pass (`722a7b36`) did find and remove a duplication, so the pass is not always empty on a small repair.
-  - Observed effect: one full refactor delegation with no change.
-- Execution: `SEED-128#continue-refinement-to-slice-planning` / plan 287, first implementation `a0d57653`.
-  - Timestamp: 2026-10-10T17:31:56+09:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `91d8439e`; base 0.3.57
-  - Evidence: slice 2 (`909da1ef`) changed six lines of ADR 0007 that no test reads; its delegated refactor pass reported `none — already clean` (about 50k subagent tokens, 29 s). The same execution's slice 1 pass did find a 250-line file-size breach and duplicated rule text, so the pass earned its cost there.
-  - Observed effect: one full refactor delegation with no change.
-- Execution: `SEED-123#recently-done-waits-for-added-project-sessions` / plan 288, first implementation `f365eb2b`.
-  - Timestamp: unknown (2026-10-10, between 18:10 and 18:37 +09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `fba8d90c`; base 0.3.58
-  - Evidence: slice 2 (`56203263`) changed one fixture value in one spec and slice 3 (`2f070f91`) two lines of a test-support close; both delegated refactor passes reported `none — already clean` (about 50k and 59k subagent tokens, 33 s and 37 s). Slice 1's pass (`f365eb2b`) renamed the gate and extracted a duplicated spec fixture, so it earned its cost.
-  - Observed effect: two full refactor delegations with no change.
-- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`.
-  - Timestamp: unknown (2026-10-10, between 19:45 and 20:25 +09:00).
-  - Tool: Claude Code coordinator and delegated agents.
-  - Model: `claude-opus-5-5`.
-  - Open Dough release: modified; revision `650918e4`; base 0.3.58.
-  - Evidence: slice 1 (`89ca7d25`) moved 51 lines byte-identically into a reference and declared the file; slice 3 (`08d914ad`) added one options entry, one clause and one test. Both delegated refactor passes returned "none — already clean" (about 59.9k tokens and 54 s; about 57.0k tokens and 52 s). The passes on slices 2 and 4 of the same execution did edit: a contradictory report order, a retired authority sentence, a duplicate pin, and a diagram label that read as its opposite.
-  - Observed effect: two of four full refactor delegations changed nothing.
-- Execution: `SEED-121#recovery-steps-reach-their-observer` / plan 291, first implementation `f8baebc9`.
-  - Timestamp: unknown (2026-10-10, between 20:02 and 20:44 +09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `48ec2ca9`; base 0.3.58
-  - Evidence: slice 3 (`7e27929f`) changed nine lines of one test file; its delegated refactor pass reported `none — already clean` (about 55k subagent tokens, 34 s). Slice 1's pass extracted a fixture three tests share and split an oversized test file, and slice 2's removed test-only exports, so both earned their cost.
-  - Observed effect: one full refactor delegation with no change.
 - Execution: `SEED-088#review-uncommitted-changes` / plan 293, first implementation `5f539d6a`; plan recoverable at `7aa2238582b58277e227394d6d07037c1967ed55:.planning/slice-plans/293-leave-uncommitted-changes-out-of-review/PLAN.md`.
   - Timestamp: 2026-10-10T22:50Z
   - Tool: Claude Code
@@ -410,6 +375,14 @@ Evidence and response: [ODF-097](https://github.com/terryyin/open-dough/blob/mai
   - Evidence: coordinator chained `npm run format … | tail -1; git add … && agent-commit … && deliver` for the Vite port repair; output "Format failed: unresolved findings or tool failures remain."
   - Observed effect: staging and the agent commit still ran; the commit hook refused it (`@typescript-eslint/unbound-method` in `dashboard/tests/support/viteAddress.ts:63`), and a no-op delivery re-confirmed the previous SHA c51ab4b0.
   - Inference: the `;` after the formatter let a visible failure through; the hook was the only gate, so no bad commit landed.
+- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
+  - Timestamp: unknown (2026-10-11, slice 6 delivery, between `e5e26130` at 15:40:03+09:00 and `eabbe51c` at 16:30:32+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: the coordinator chained `npm run format … ; story-obligations check && git add -A && agent-commit … | tail -3 && deliver …`; output "Format failed" and `commit-failed` (`no-return-assign` in `dashboard-landing.test.mjs:34`), then `deliver` ran and re-confirmed the previous SHA `e5e26130`.
+  - Observed effect: no bad commit; a no-op delivery started a new observer, then a one-line fix, formatter rerun, commit, and a second delivery.
+  - Inference: piping the commit's result into `tail` hid its exit status from `&&`, so both the failed format and the failed commit reached the publication step.
 
 ## ODF-222 — Managed story-branch delivery can stall after a successful agent-commit
 
@@ -997,3 +970,30 @@ result in an edge case the story preserves as it is.
   - Evidence: slice 3's refactor return, "Decision for you": "I removed the override so there is one rule in one place", naming the changed edge (two baseline commits with identical trees) and that no test covers it; plan 297 "Goal and boundaries" preserves "Commits with its Uncommitted changes item"; the coordinator restored `trunkIntegrated: fromBaseline !== baseline` in `dashboard/server/storyReviewRange.ts` before `15685dc7`. The slice 4 delegation then added "A refactor preserves behaviour: if you see a behaviour you would change, report it and leave it", and that pass reported none.
   - Observed effect: no wrong behaviour was published; the coordinator made one manual edit and reran typecheck and the suite. The return did say what changed and how to revert it, which is what made the catch cheap.
   - Inference: qualified. The pass treated two forms of a rule as duplication without first establishing that they answer the same for every caller; reporting the change after making it left the preserving choice to acceptance. One sample.
+
+## DD-289 — A plan promised a launch's landing context for a launch kind the capture pipeline refuses
+
+The plan's architecture and slice 2 said an unattached launch's reporting context carries `--landing-context`; landing capture required a story identity in the schema, both admissions, the reservation, and the installed script, and refused ad hoc launches. Possibly the same problem as ODF-074 (a premise about a shared mechanism left unobserved).
+
+### Occurrences
+- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
+  - Timestamp: unknown (2026-10-11, slice 2 return, before `01743f09` at 12:53:43+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: plan 298 at `2c14aa25`, Architecture “Handoff” and slice 2; the premise table observes the start and the harness, not capture; `launchLandingReporting.ts` and `launchLandingAdmission.ts` answered 409 for `ad-hoc`, `dashboard-landing.mjs` threw “Missing landing identity”.
+  - Observed effect: slice 2 was delivered without the promise, a developer decision was needed, and one slice (6, `eabbe51c`) was added; that slice then found the landed run has no surface to show it.
+  - Inference: the story's architecture section asked planning to probe the start's receipt, and nothing asked for a probe of the capture path the same sentence relied on.
+
+## DD-290 — A delegated agent's test ran managed delivery with `--host claude` and started CI observers of the real repository
+
+`execution-increment-delivery.mjs deliver --host claude` takes its coordinator identity from the ambient `CLAUDE_CODE_SESSION_ID`, so a subagent's spec that ran it against a scratch origin established live observers of the repository named by `--repo`. One occurrence; delegation guidance does not warn of it.
+
+### Occurrences
+- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
+  - Timestamp: unknown (2026-10-11, slice 6 implementation, between `e5e26130` at 15:40:03+09:00 and `eabbe51c` at 16:30:32+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: the slice 6 implementation return: two `ci-mailbox.mjs worker` processes observing `terryyin/open-dough` (PIDs 53113, 54616) under the tests' temp directories, killed by the agent; the specs were changed to the shared publication API and `--host codex`.
+  - Observed effect: read-only observers of the real repository ran outside the coordinator's observer until killed; no publication reached the real remote.

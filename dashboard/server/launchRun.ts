@@ -2,21 +2,29 @@
 // start, then the common native launch/recovery lifetime, which preserves the
 // original request and established facts while its host owns native input
 // and reconciliation.
-import type {
-  PublicationReceipt,
-  RecordedLaunchRequest,
-  LaunchRecord,
-  LaunchResult,
+import {
+  establishedPlace,
+  establishesSession,
+  type PublicationReceipt,
+  type RecordedLaunchRequest,
+  type LaunchRecord,
+  type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
-import { publicationOf, started, type Started } from "./launchStart.ts";
+import {
+  establishedLaunch,
+  publicationOf,
+  started,
+  type Started,
+} from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
 import { launchRecord } from "./launchRecord.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
+import { settleSessionStart } from "./sessionStartStore.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { establishedFacts } from "./startLaunch.ts";
@@ -38,7 +46,30 @@ export function launchTimeoutMs(): number {
     : defaultLaunchWaitMs;
 }
 
+// An unattached attempt's kept start is spent once the attempt settled with
+// nothing left to continue (`./sessionStartStore.ts`).
 export async function attemptRun(
+  source: PublishedSource,
+  own: OwnedAttempt,
+  notePublication: (publication: PublicationReceipt) => Promise<void>,
+  progress: StartProgress,
+  doneMarks: NativeDoneMarks,
+): Promise<LaunchResult> {
+  const result = await startedRun(
+    source,
+    own,
+    notePublication,
+    progress,
+    doneMarks,
+  );
+  // Only a launch that establishes a session keeps a start: any other takes
+  // no further step before its result is answered.
+  if (own.request.workflow === "ad-hoc" && establishesSession(own.request))
+    await settleSessionStart(source.id, own.attempt.id, result);
+  return result;
+}
+
+async function startedRun(
   source: PublishedSource,
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
@@ -54,7 +85,7 @@ export async function attemptRun(
   const pending = await pendingInputOf(source.id, request);
   const start =
     pending === undefined
-      ? await started(source, request, folder, progress)
+      ? await started(source, request, folder, progress, attempt.id)
       : ({ kind: "none" } as const);
   await notePublication(publicationOf(start, pending));
   if (start.kind === "stopped") return start.result;
@@ -70,12 +101,11 @@ export async function attemptRun(
       kept === undefined
         ? await reportingContext(
             attempt,
-            start.kind === "established" ? start.workspace : folder,
-            pending?.start ??
-              pending?.preparation ??
-              (start.kind === "established"
-                ? establishedFacts(start.handoff.established)
-                : undefined),
+            establishedLaunch(start)?.workspace ?? folder,
+            // A story's start or preparation, or an unattached session.
+            establishedPlace(
+              pending ?? establishedLaunch(start)?.handoff.established ?? {},
+            ),
           )
         : { reporting: kept };
     const reporting = prepared?.reporting;
@@ -129,7 +159,7 @@ async function launchRun(
   const evidence = launchRecording(
     recording,
     began,
-    pending ?? (start.kind === "established" ? start.handoff.established : {}),
+    pending ?? establishedLaunch(start)?.handoff.established ?? {},
     pending,
     doneMarks,
   );
@@ -140,7 +170,7 @@ async function launchRun(
           recording,
           folder,
           controller.signal,
-          start.kind === "established" ? start : undefined,
+          establishedLaunch(start),
           evidence,
         )
       : host.recover === undefined
@@ -164,7 +194,7 @@ async function launchRun(
     launchRecord(
       recording,
       launched.session,
-      start.kind === "established" ? start.handoff.established : {},
+      establishedLaunch(start)?.handoff.established ?? {},
       new Date().toISOString(),
     );
   if (evidence.retained === undefined)

@@ -47,7 +47,13 @@ for (const expired of [false, true]) {
     const project = { path: origin.project, shown: "~/git/open-dough" };
     const progress = new StartProgress();
     try {
-      const outcome = await started(defaultSource, request, project, progress);
+      const outcome = await started(
+        defaultSource,
+        request,
+        project,
+        progress,
+        "attempt",
+      );
       if (expired) {
         expect(outcome).toMatchObject({
           kind: "stopped",
@@ -108,7 +114,13 @@ for (const expired of [false, true]) {
       chmodSync(directory, 0o755);
       chmodSync(hook, 0o644);
       process.env["DOUGH_START_TIMEOUT_MS"] = "60000";
-      const resumed = await started(defaultSource, request, project, progress);
+      const resumed = await started(
+        defaultSource,
+        request,
+        project,
+        progress,
+        "attempt",
+      );
       expect(resumed).toMatchObject({ kind: "established" });
       expect(await origin.takenProfiles()).toEqual(profiles);
       expect((await origin.originGit("rev-parse", "main")).trim()).toBe(

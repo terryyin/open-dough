@@ -65,6 +65,11 @@ test("capture refuses unaccepted, foreign, malformed and changed launch comparis
   ])
     expect((await post(payload, true)).status).toBeGreaterThanOrEqual(400);
   expect((await post(body)).status).toBe(409);
+  // A story launch's landing names its story: only a launch with no story
+  // has a landing that names none.
+  const storyless: Partial<typeof body> = { ...body };
+  delete storyless.identity;
+  expect((await post(storyless, true)).status).toBe(409);
   expect(stored(dashboard.home)[0]?.landing).toBeUndefined();
   expect(keptAttempts(dashboard)[0]?.landingPreparations).toBeUndefined();
   expect(refs(established.workspace)).toBe(beforeRefs);

@@ -72,12 +72,13 @@ const runningAttempt: Unaccepted = {
     "This start is already running on this machine. Wait for its result; nothing new was started.",
 };
 
-export const startStillRunning: Unaccepted = {
+// A continuation while the earlier start of its story, or of its unattached
+// session, still runs on this server.
+export const startStillRunning = (whose: "story" | "session"): Unaccepted => ({
   kind: "uncertain",
   reason: "unconfirmed",
-  explanation:
-    "This story's earlier start is still running on this machine, so it was not continued. Recheck once it ends; nothing new was started.",
-};
+  explanation: `This ${whose}'s earlier start is still running on this machine, so it was not continued. Recheck once it ends; nothing new was started.`,
+});
 
 export const recheckRunning: Unaccepted = {
   kind: "uncertain",

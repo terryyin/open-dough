@@ -9,46 +9,18 @@
 // still selected, whichever it is, and a change made after the warning was
 // shown asks again. A clean default checkout starts without a warning.
 
-import { execFileSync } from "node:child_process";
-import {
-  appendFileSync,
-  mkdirSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { appendFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
+import {
+  changedContent as content,
+  changedPaths,
+  dirty,
+  existingChangesHeading as heading,
+  status,
+} from "./support/defaultCheckoutChanges.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
-
-const heading = "Existing changes in default main";
-// In Git status order: tracked changes, then untracked files.
-const changedPaths = [
-  ".gitignore",
-  ".planning/slice-plans/B/PLAN.md",
-  "staged.txt",
-  "notes/untracked.txt",
-];
-
-// What the new files hold, which the dialog never shows.
-const content = "private-file-content";
-
-// Leaves the default checkout with a changed, a deleted, a staged, and an
-// untracked file.
-function dirty(project: string) {
-  appendFileSync(path.join(project, ".gitignore"), "tmp/\n");
-  rmSync(path.join(project, ".planning/slice-plans/B/PLAN.md"));
-  writeFileSync(path.join(project, "staged.txt"), `${content}\n`);
-  execFileSync("git", ["-C", project, "add", "staged.txt"]);
-  mkdirSync(path.join(project, "notes"));
-  writeFileSync(path.join(project, "notes/untracked.txt"), `${content}\n`);
-}
-
-const status = (project: string) =>
-  execFileSync("git", ["-C", project, "status", "--porcelain"], {
-    encoding: "utf8",
-  });
 
 for (const [workflow, landing, landingLine] of [
   [

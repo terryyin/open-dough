@@ -22,6 +22,7 @@ import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import { startStillRunning } from "./launchAttemptConflicts.ts";
+import { runsSessionStart } from "./unattachedStartScript.ts";
 import {
   keptCreations,
   keptSession,
@@ -199,11 +200,17 @@ export class AgentLaunches {
     return this.owner.continueAttempt(
       source.id,
       id,
-      async (request) =>
-        request.workflow !== "ad-hoc" &&
-        this.progress.for(request.workflow).running(source.id, request.identity)
-          ? startStillRunning
-          : preAcceptanceAnswer(source, request),
+      async (request) => {
+        const session = request.workflow === "ad-hoc";
+        const running = session
+          ? runsSessionStart(id)
+          : this.progress
+              .for(request.workflow)
+              .running(source.id, request.identity);
+        return running
+          ? startStillRunning(session ? "session" : "story")
+          : preAcceptanceAnswer(source, request);
+      },
       (own, notePublication) =>
         attemptRun(source, own, notePublication, this.progress, this.doneMarks),
     );

@@ -5,13 +5,22 @@
 // landing choices are offered only for one-shot work, starting from an
 // isolated workspace that waits for review. One-shot is offered only when the
 // selected host's installed skills take the policy at their start; a kept
-// start shows the policy it was started with instead of choices.
+// start shows the policy it was started with instead of choices. A session
+// started with no story offers its own subset of the same choices
+// (`./UnattachedSessionPolicy.tsx`). A launch dialog takes either group as
+// its `DialogSession`.
 
-import { defaultSessionPolicy, type SessionPolicy } from "./agentLaunch.ts";
+import type { ReactNode } from "react";
+import {
+  defaultSessionPolicy,
+  type LaunchChoices,
+  type SessionPolicy,
+} from "./agentLaunch.ts";
 import type { SessionPolicyOffer } from "./launchOffers.ts";
 import {
   autoLandHint,
   oneShotHint,
+  notOfferedHint,
   sessionChoiceWords,
   sessionSummary,
 } from "./sessionPolicyWords.ts";
@@ -30,7 +39,7 @@ export type LaunchSessionChoices = {
 
 // Whether the choices hold Start back: one-shot chosen while the selected
 // host's installed skills do not take it.
-export function sessionBlocksStart(session: LaunchSessionChoices): boolean {
+function sessionBlocksStart(session: LaunchSessionChoices): boolean {
   return (
     !session.kept &&
     session.policy.tracking === "one-shot" &&
@@ -38,18 +47,23 @@ export function sessionBlocksStart(session: LaunchSessionChoices): boolean {
   );
 }
 
-function Choice<Choice extends keyof SessionPolicy>({
+// One choice of a policy, a story's or an unattached session's, as a labeled
+// radio group. The values are the choice's own, or those `offered`, in that
+// order.
+export function SessionChoice<Choice extends keyof SessionPolicy>({
   id,
   choice,
-  policy,
-  onPolicy,
+  selected,
+  onSelect,
+  offered,
   disabled = () => false,
   hint,
 }: {
   readonly id: string;
   readonly choice: Choice;
-  readonly policy: SessionPolicy;
-  readonly onPolicy: (policy: SessionPolicy) => void;
+  readonly selected: SessionPolicy[Choice];
+  readonly onSelect: (value: SessionPolicy[Choice]) => void;
+  readonly offered?: readonly SessionPolicy[Choice][];
   readonly disabled?: (value: SessionPolicy[Choice]) => boolean;
   readonly hint?: string | undefined;
 }) {
@@ -62,21 +76,23 @@ function Choice<Choice extends keyof SessionPolicy>({
     >
       <legend>{legend}</legend>
       <div className="launch-session-values">
-        {(Object.keys(values) as SessionPolicy[Choice][]).map((value) => (
-          <label key={value}>
-            <input
-              type="radio"
-              name={`${id}-${choice}`}
-              value={value}
-              checked={policy[choice] === value}
-              disabled={disabled(value)}
-              onChange={() => {
-                onPolicy({ ...policy, [choice]: value });
-              }}
-            />{" "}
-            {values[value]}
-          </label>
-        ))}
+        {(offered ?? (Object.keys(values) as SessionPolicy[Choice][])).map(
+          (value) => (
+            <label key={value}>
+              <input
+                type="radio"
+                name={`${id}-${choice}`}
+                value={value}
+                checked={selected === value}
+                disabled={disabled(value)}
+                onChange={() => {
+                  onSelect(value);
+                }}
+              />{" "}
+              {values[value]}
+            </label>
+          ),
+        )}
       </div>
       {hint !== undefined && (
         <p id={hintId} className="launch-session-hint">
@@ -87,7 +103,7 @@ function Choice<Choice extends keyof SessionPolicy>({
   );
 }
 
-export function LaunchSessionPolicy({
+function LaunchSessionPolicy({
   id,
   policy,
   onPolicy,
@@ -106,44 +122,67 @@ export function LaunchSessionPolicy({
     );
   }
   const oneShot = policy.tracking === "one-shot";
-  const why =
-    offer === "unavailable"
-      ? `One-shot is not offered: the installed skills in this project do not start ${workflowName} with a session policy for this host.`
-      : offer === "reading"
-        ? "Reading session choices…"
-        : undefined;
+  const why = notOfferedHint(
+    offer,
+    `One-shot is not offered: the installed skills in this project do not start ${workflowName} with a session policy for this host.`,
+  );
   return (
     <fieldset className="launch-session">
       <legend>Session</legend>
-      <Choice
+      <SessionChoice
         id={id}
         choice="tracking"
-        policy={policy}
-        onPolicy={(next) => {
+        selected={policy.tracking}
+        onSelect={(tracking) => {
           // One-shot starts isolated and waits for review; standard keeps
           // its workflow's own workspace and publication.
-          onPolicy({ ...defaultSessionPolicy, tracking: next.tracking });
+          onPolicy({ ...defaultSessionPolicy, tracking });
         }}
         disabled={(value) => value === "one-shot" && offer !== "offered"}
         hint={why ?? oneShotHint}
       />
       {oneShot && (
         <>
-          <Choice
+          <SessionChoice
             id={id}
             choice="workspace"
-            policy={policy}
-            onPolicy={onPolicy}
+            selected={policy.workspace}
+            onSelect={(workspace) => {
+              onPolicy({ ...policy, workspace });
+            }}
           />
-          <Choice
+          <SessionChoice
             id={id}
             choice="landing"
-            policy={policy}
-            onPolicy={onPolicy}
+            selected={policy.landing}
+            onSelect={(landing) => {
+              onPolicy({ ...policy, landing });
+            }}
             hint={autoLandHint}
           />
         </>
       )}
     </fieldset>
   );
+}
+
+// What a launch dialog needs of its Session group, whichever choices it
+// offers: the group itself, the landing that stays selected after checks,
+// the policy its request carries (none for the default), and whether the
+// choices hold Start back.
+export type DialogSession = {
+  readonly group: (id: string) => ReactNode;
+  readonly landing: SessionPolicy["landing"];
+  readonly chosen: Pick<LaunchChoices, "policy" | "unattached">;
+  readonly blocksStart: boolean;
+};
+
+export function storySession(session: LaunchSessionChoices): DialogSession {
+  return {
+    group: (id) => <LaunchSessionPolicy id={id} {...session} />,
+    landing: session.policy.landing,
+    chosen:
+      session.policy.tracking === "one-shot" ? { policy: session.policy } : {},
+    blocksStart: sessionBlocksStart(session),
+  };
 }

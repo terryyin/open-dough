@@ -175,7 +175,12 @@ fact. Its returned `thread.id` is the
 conversation ID, never the initialization/session ID. The common store awaits
 durable identity before `turn/start`. First input contains `$<skill> <identity> <flags>`,
 the installed handoff, optional instruction and native skill input identifying
-the workspace's `.agents/skills/<skill>/SKILL.md`; ad hoc sends only optional text.
+the workspace's `.agents/skills/<skill>/SKILL.md`. An ad hoc first input has no
+skill line or skill input on any host: when its launch established a session
+(`server/unattachedStart.ts`), it is the installed formatter's
+"Established session" block, the reporting context, then the optional text;
+otherwise the optional text and its reporting context, and nothing when that
+text is blank (`server/unattachedInput.ts`).
 
 Creation refusal submits no input, keeps preparation and reports a validated, bounded
 native error message without dumping error data. A daemon whose working directory was

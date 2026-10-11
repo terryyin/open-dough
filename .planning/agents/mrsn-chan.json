@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-066#unattached-session-options",
-  "mode": "story-branch",
-  "branch": "claude/choose-workspace-and-automatic-landing-for-unatt",
-  "host": "claude"
-}

@@ -31,7 +31,10 @@ import { expectProtected, openStories, test } from "./responsiveStart.ts";
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
 test.describe("a start whose wait expires", () => {
-  test.use({ startTimeoutMs: 3_000 });
+  // The first start is held at its push, so it outlasts any wait; the
+  // continuation runs the real installed start again within this same wait,
+  // which must cover that run on a loaded machine.
+  test.use({ startTimeoutMs: 10_000 });
 
   test("is protected statically until its continuation, refused while its start runs, resumes that start once", async ({
     page,

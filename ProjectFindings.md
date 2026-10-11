@@ -43,6 +43,12 @@ execution. A repaired individual race does not resolve every suite failure.
    unqueued.** DD-280 has one timeout on a slower runner, repaired by a
    60-second budget for that case. Its preview case and other specs near the
    30-second default have no margin check.
+7. **Node's compile cache fills the disk under the dashboard suite — open,
+   unqueued.** DD-287 has one verification run lost to a full disk. The
+   cache is regenerable and nothing bounds or clears it.
+8. **A story's native proof slice needs that story's own release — open,
+   unqueued.** DD-288 has one execution whose last slice could not run
+   inside it and was split into a follow-up story.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -277,6 +283,40 @@ had to request the run explicitly.
   - Evidence: the coordinator conversation: "approve all" → `tests/git-publication-native.sh --native claude` refused by the host's auto-mode classifier as agent creation. Run 1 started once the developer sent the command as a message; run 2 on "run 2".
   - Observed effect: two extra developer round trips before paid runs started.
   - Inference: Qualified. The request for go-ahead could offer the exact command, or the permission rule, the developer can use, instead of assuming approval lets the coordinator launch it.
+
+## Node's compile cache fills the disk under the dashboard suite (open, unqueued)
+
+<a id="dd-287"></a>
+
+### DD-287 — A wide dashboard run failed with ENOSPC while `$TMPDIR/node-compile-cache` held 134 GB
+
+#### Occurrences
+
+- Execution: `SEED-066#unattached-session-options` / plan 298, first related implementation commit `0601f38b`
+  - Timestamp: unknown (2026-10-11, about 15:05+09:00, slice 4 refactor verification)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: the refactor return reported `ENOSPC` at about test 678 of 801 with 132 MiB free; `du` showed `node-compile-cache` at 134,421 MB, of it 120,374 MB and 244,880 files under `v24.21.0-arm64-…` and 14,045 MB under `v24.5.0-…`; after deleting entries older than three hours, 37,531 MB remained and 98 GiB were free.
+  - Observed effect: one 15-minute wide run was lost and rerun; the refactor pass could not report completion until the coordinator cleared the cache.
+  - Inference: qualified. About 37 GB was written within three hours while this execution and other sessions ran dashboard suites, yet one measured wide run afterwards added about 1 GiB; which runs write the bulk is not established. Scratch fixture projects under new temp paths would give each run new cache keys.
+
+## A story's native proof slice needs that story's own release (open, unqueued)
+
+<a id="dd-288"></a>
+
+### DD-288 — A plan's last slice was a paid native observation that needs installed skills only a release after landing provides
+
+#### Occurrences
+
+- Execution: `SEED-066#unattached-session-options` / plan 298, first related implementation commit `0601f38b`
+  - Timestamp: unknown (2026-10-11, recognized at the slice 5 stop, about 15:45+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: plan 298 at `2c14aa25`, slice 6 “Native hosts honor the unattached session on this machine”; the dashboard reads a project's installed skills, and the story's formatter, reference, and landing script are in `install.sh` `managed_files` but in no release; split at `8308056f` into `SEED-066#unattached-session-native-observation`.
+  - Observed effect: the execution could not complete as planned; the developer chose a split and the observation moved to a new story first in the backlog.
+  - Inference: the plan treated ADR 0005 proof as the story's final slice without checking that the starting state can exist before the story lands.
 
 ## Review and recovery
 

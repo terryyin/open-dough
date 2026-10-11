@@ -70,7 +70,8 @@ export const launchCodex: LaunchHost["launch"] = async (
       },
     };
     const input = codexInput(request, workspace, established);
-    const blank = request.workflow === "ad-hoc" && !request.instruction?.trim();
+    // An unattached launch with no text and no established session.
+    const blank = request.workflow === "ad-hoc" && input[0]?.text === "";
     const modelMatches =
       request.model === undefined || native.model === request.model;
     const effortMatches =
