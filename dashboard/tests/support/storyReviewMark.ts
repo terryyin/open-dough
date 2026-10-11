@@ -134,14 +134,18 @@ export async function expectSinceTheReview(
   );
 }
 
-// The refs keeping marked trees in the project's repository, each as
+// The refs keeping marked trees in the project's repository, or with
+// `reviewed-baseline` the baselines they were marked against, each as
 // `<ref> <object>`.
-export const reviewedRefs = (project: string) =>
+export const reviewedRefs = (
+  project: string,
+  kept: "reviewed" | "reviewed-baseline" = "reviewed",
+) =>
   git(
     project,
     "for-each-ref",
     "--format=%(refname) %(objectname)",
-    "refs/open-dough/reviewed/",
+    `refs/open-dough/${kept}/`,
   );
 
 // A story file's name by its number.

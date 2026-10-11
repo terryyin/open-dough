@@ -76,7 +76,6 @@ export {
   markUnavailable,
   markUncomparableSchema,
   reviewMarkSchema,
-  trunkIntegratedSince,
   type MarkReviewedAnswer,
   type MarkReviewedRequest,
   type MarkUncomparable,
@@ -89,6 +88,14 @@ export const reviewComparisonSchema = z.object({
   files: z.array(reviewedFileSchema),
 });
 export type ReviewComparison = z.infer<typeof reviewComparisonSchema>;
+
+// A comparison whose `from` is an earlier point's tree restated on the later
+// point's baseline, with whether trunk was integrated between them: the two
+// baselines differ as trees, whichever of them is a commit.
+export const restatedComparisonSchema = reviewComparisonSchema.extend({
+  trunkIntegrated: z.boolean(),
+});
+export type RestatedComparison = z.infer<typeof restatedComparisonSchema>;
 
 // Two repository points supplied by the snapshot's first-parent commit list.
 export const reviewCommitSchema = z.object({
@@ -126,10 +133,9 @@ export const reviewIntegrationSchema = z.strictObject({
 export type ReviewIntegration = z.infer<typeof reviewIntegrationSchema>;
 
 export const reviewRangeSchema = z.discriminatedUnion("kind", [
-  reviewComparisonSchema.extend({
+  restatedComparisonSchema.extend({
     kind: z.literal("comparison"),
     tree: objectIdSchema,
-    trunkIntegrated: z.boolean(),
   }),
   z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
 ]);
@@ -190,9 +196,9 @@ export const storyReviewSchema = z
       // the changes since the review. Its `from` is the marked tree restated on `baseline`, leaving
       // out what came only from trunk -- the marked tree itself while
       // `baseline` is the mark's -- and its file diffs compare `from`, or a
-      // file's `includesTrunkFrom`, with `tree`. Trunk was integrated since the
-      // mark exactly when the mark's baseline differs from `baseline`.
-      since: reviewComparisonSchema.optional(),
+      // file's `includesTrunkFrom`, with `tree`. Its baselines are the mark's
+      // and `baseline`.
+      since: restatedComparisonSchema.optional(),
       // With a mark that cannot be compared, in place of `since`: why.
       markUncomparable: markUncomparableSchema.optional(),
     }),

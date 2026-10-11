@@ -191,9 +191,16 @@ snapshot's `tree` and `baseline`, never a path; the workspace comes from
 `reviewWorkspaceOf` as for the review. Marking points
 `refs/open-dough/reviewed/<identity>` of the story's repository at the marked
 tree, replaced with the mark, so Git's housekeeping keeps that otherwise
-unreachable tree; the ref touches no tracked file, index, or status. In the
-ref, each identity character other than a letter, digit, `#`, `_`, or `-` is
-written as `%XX`.
+unreachable tree; the ref touches no tracked file, index, or status. The
+baseline of a Trunk Mode story with published commits is an unreachable tree
+as well, so marking first points
+`refs/open-dough/reviewed-baseline/<identity>` at the snapshot's baseline, a
+tree or a commit, replaced with the mark the same way: the baseline tree is
+kept for the next review to restate the mark from. Both refs are set before
+the mark is kept, and a mark requires its tree and its baseline's tree, which
+a baseline commit peels to; a commit range's points keep commits as their
+baselines. In each ref, each identity character other than a
+letter, digit, `#`, `_`, or `-` is written as `%XX`.
 
 With a mark, the review opens on **the changes since the review**: the same
 snapshot compared with the marked tree restated on the current baseline
@@ -259,7 +266,11 @@ index, worktree, or ref. A merge driver can print lines before the result;
 the first object ID among NUL- or newline-separated fields is the restated
 tree. Conflicted filenames after that tree remain NUL-separated, preserving
 newlines within their names. A story slice
-that landed on trunk after the mark is therefore not listed. Each file Git
+that landed on trunk after the mark is therefore not listed. A Trunk Mode
+story's commit published after the mark is listed, since the current baseline
+is trunk less the story's published commits and so never holds it; the marked
+baseline may be a commit and the current one a tree, or the reverse, and
+`--merge-base` takes either. Each file Git
 names as conflicted, one trunk and the story both changed in a way it cannot
 separate, is listed with its kind and diff from the marked tree to the
 snapshot tree (the file's `includesTrunkFrom`), so no story change is hidden.
@@ -268,7 +279,11 @@ instead with its kind and diff from the current baseline (its
 `includesTrunkFrom`), showing the story's version against trunk's. A
 conflicted file's control's name, its row, and its diff heading say it
 “includes trunk's changes”. When the snapshot's baseline differs from the
-mark's, the heading says “Trunk was integrated since the mark”, and with no
+mark's as a tree (`since.trunkIntegrated`, so a mark taken against the
+merge-base commit before the story published anything equals the later tree
+of trunk less the story's commits), the heading says “Trunk was integrated
+since the mark”, which for a Trunk Mode story with published commits is when
+trunk gained a change other than the story's own publication, and with no
 file left the review says “Nothing changed since the review beyond what trunk
 now holds.”, since story work that reached trunk after the mark counts as
 trunk's. Exit 0 is a clean restatement and exit 1 is a conflicted restatement

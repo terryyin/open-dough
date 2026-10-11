@@ -184,7 +184,7 @@ author and so keep today's baseline.
 ### G1. Mark reviewed refused on a tree baseline
 Reported: slice 1 — "Mark reviewed is refused on a published Trunk Mode story until slice 3."
 Story clause: "Mark reviewed act on this comparison as they do today"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/story-review-trunk-own-since.spec.ts`, step "the snapshot is marked as any story's is, its baseline tree kept beside its tree"
 
 ### G2. Inseparable file listed without its flag
 Reported: slice 1 — "It is listed from the restated tree without a flag, and that tree holds Git's conflict markers for it."
@@ -210,6 +210,16 @@ Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-own-changes.
 Reported: slice 2 — "The kept-as-origin fallback: a flagged file whose snapshot content equals its origin is listed from the merge-base."
 Story clause: "as Since the review flags such a file today"
 Disposition: proved by slice 2: All changes and Since the review list flagged files through the one `listedFrom` of `dashboard/server/storyReviewComparison.ts`, whose kept and renamed paths `dashboard/tests/story-review-since-trunk.spec.ts` ("a conflicted file the story kept as marked is flagged and diffed from the baseline") observes
+
+### G7. A mark on a tree baseline compared with a later commit baseline
+Reported: slice 3 — "Tree-baseline mark later compared against a commit baseline (the `not-restated` path on older Git) — slice 4."
+Story clause: "the review shows the unpublished and uncommitted changes against trunk as today"
+Disposition: receiving slice 4
+
+### G8. Trunk advanced by commits that leave its tree unchanged
+Reported: slice 3 — "if trunk advanced between mark and snapshot by commits whose net tree is identical (empty commit, or a change and its revert), the heading no longer shows."
+Story clause: "sees the story's own changes, published, unpublished and uncommitted, in one review"
+Disposition: no user cost "sees the story's own changes, published, unpublished and uncommitted, in one review": trunk holding the same files as at the mark brought nothing into the changes since the review, so the heading has nothing to explain
 
 ## Ordered slices
 
@@ -287,7 +297,22 @@ Safe stopping point: All changes is complete.
 
 ### 3. Since the review follows the story-only baseline and keeps it
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- dashboard/tests/story-review-trunk-own-since.spec.ts`
+(four tests); the story-review suite and `recently-done-one-shot-review.spec.ts`;
+`one-shot-landing-recovery.spec.ts` and `one-shot-landing-recovery-retention.spec.ts`;
+`npm run typecheck:dashboard`; `npm run lint`.
+Learnings: only the mark and the comparison's from point accept a tree
+baseline (`reviewPointObjects(point, "tree")`); a commit range's points stay
+commits, since `story-review-commit-admission.spec.ts` requires a tree there to
+be refused. Whether trunk was integrated since the mark is answered by the
+server as `since.trunkIntegrated`, the two baselines compared as trees
+(`baselinesDiffer`), because a mark taken before the first publication holds a
+commit whose tree equals the later baseline tree; the page's
+`trunkIntegratedSince` is gone. A commit range keeps comparing its commits.
+Marks are replaced, never deleted, and the baseline ref follows the same
+overwrite. The fixture's authorship and publication helpers are in
+`tests/support/storyReviewTrunkCommits.ts`.
 Proof: New cases in `story-review-trunk-own-changes.spec.ts` (or a sibling
 `story-review-trunk-own-since.spec.ts` if the file grows past its
 neighbours') for the Since the review row; `story-review-mark.spec.ts`,

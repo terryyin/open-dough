@@ -29,7 +29,6 @@ import { shortRevision } from "./publishedWork.ts";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import {
   baselineRevision,
-  trunkIntegratedSince,
   type ReviewComparison,
   type ReviewedFile,
   type TakenStoryReview,
@@ -95,8 +94,7 @@ function NoChanges({
     );
   return (
     <p>
-      {snapshot.mark !== undefined &&
-      trunkIntegratedSince(snapshot.mark, snapshot.baseline)
+      {snapshot.since?.trunkIntegrated === true
         ? "Nothing changed since the review beyond what trunk now holds."
         : "Nothing changed since the review."}
     </p>

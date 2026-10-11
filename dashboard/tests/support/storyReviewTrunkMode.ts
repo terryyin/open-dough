@@ -1,9 +1,10 @@
 // Story A held in Trunk Mode for its review
 // (../story-review-trunk-own-changes.spec.ts,
-// ../story-review-trunk-own-flagged.spec.ts), off a real bare origin
+// ../story-review-trunk-own-flagged.spec.ts,
+// ../story-review-trunk-own-since.spec.ts), off a real bare origin
 // (./startOrigin.ts): the roster agent Yui-chan's claim on trunk moves Story
 // A to Taken, and her worktree authors its commits as her through its own
-// Git config. She publishes each story commit from the worktree onto
+// Git config (./storyReviewTrunkCommits.ts). She publishes each story commit from the worktree onto
 // `origin/main`, where other developers' commits, a preparation agent's, and
 // a merge she authored interleave with them; the worktree is rebased onto
 // fetched trunk, so its head is trunk's. An earlier story she closed stays
@@ -15,10 +16,7 @@ import { execFileSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { backlogOf } from "../../../tests/support/product-backlog-fixture.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -29,41 +27,20 @@ import {
   type StartOrigin,
 } from "./startOrigin.ts";
 import {
+  authoredBy,
+  commitAllAs,
+  mina,
+  pull,
+  push,
+  rebaseOntoTrunk,
+  yui,
+} from "./storyReviewTrunkCommits.ts";
+import {
   addStoryWorktree,
   git,
   lines,
   writeAt,
 } from "./storyReviewWorktree.ts";
-
-const yui = agentIdentity("Yui");
-// A preparation agent, whose commits are never the story's.
-const mina = { agent: "Mina-chan", email: "mina-chan@example.org" };
-
-type Author = { readonly agent: string; readonly email: string };
-
-// The environment in which Git names the agent given as a commit's author,
-// or else the checkout's own author.
-const authoredBy = (author?: Author) =>
-  author === undefined
-    ? process.env
-    : {
-        ...process.env,
-        GIT_AUTHOR_NAME: author.agent,
-        GIT_AUTHOR_EMAIL: author.email,
-      };
-
-// Commits everything in a checkout, authored by the agent given or else by
-// the checkout's own author.
-function commitAllAs(cwd: string, message: string, author?: Author) {
-  git(cwd, "add", "--all");
-  execFileSync("git", ["commit", "--quiet", "-m", message], {
-    cwd,
-    env: authoredBy(author),
-  });
-}
-
-const push = (cwd: string) =>
-  git(cwd, "push", "--quiet", "origin", "HEAD:main");
 
 // Yui-chan's profile on trunk naming the story she executes in Trunk Mode.
 function writeClaim(project: string, identity: string) {
@@ -122,15 +99,12 @@ export function trunkModeStory(
   git(workspace, "config", "extensions.worktreeConfig", "true");
   git(workspace, "config", "--worktree", "author.name", yui.agent);
   git(workspace, "config", "--worktree", "author.email", yui.email);
-  // Trunk as another developer's checkout meets it before writing.
-  const pull = () =>
-    git(project, "pull", "--quiet", "--ff-only", "origin", "main");
   if (published > 0) {
     writeAt(workspace, "src/a.ts", lines("a").replace("a 0\n", "a one\n"));
     commitAllAs(workspace, "s1");
     push(workspace);
 
-    pull();
+    pull(project);
     writeAt(project, "src/b.ts", `${lines("b")}b more\n`);
     commitAllAs(project, "o1");
     writeAt(project, "prep.md", "preparation\n");
@@ -158,12 +132,6 @@ export function trunkModeStory(
   if (published > 1) publishSecond(workspace);
   writeAt(workspace, "notes.md", "notes\n");
   return { workspace, trunk: git(workspace, "rev-parse", "origin/main") };
-}
-
-// The worktree's commits replayed onto freshly fetched trunk.
-function rebaseOntoTrunk(workspace: string) {
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  git(workspace, "rebase", "--quiet", "origin/main");
 }
 
 // Yui-chan publishes `s2`, adding `d.md` and holding the changed files also
@@ -203,12 +171,30 @@ export function publishRewrittenLine(
   }
   writeAt(workspace, "src/c.ts", cWith({ ...kept, 3: "c story" }));
   publishSecond(workspace, "src/c.ts");
-  git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
+  pull(origin.project);
   writeAt(origin.project, "src/c.ts", cWith({ ...kept, 3: "c trunk" }));
   commitAllAs(origin.project, "o3");
   push(origin.project);
-  rebaseOntoTrunk(workspace);
-  return { trunk: git(workspace, "rev-parse", "origin/main"), beforeStory };
+  return { trunk: rebaseOntoTrunk(workspace), beforeStory };
+}
+
+// Yui-chan's later story commit `s3`, adding `src/e.ts`, reaches trunk from
+// the project's checkout, leaving the worktree's own commit unpublished, then
+// with `trunkToo` another developer's `o4`, adding `src/f.ts`. Returns trunk.
+export function publishLater(
+  project: string,
+  workspace: string,
+  trunkToo: boolean,
+) {
+  pull(project);
+  writeAt(project, "src/e.ts", "e\n");
+  commitAllAs(project, "s3", yui);
+  if (trunkToo) {
+    writeAt(project, "src/f.ts", "f\n");
+    commitAllAs(project, "o4");
+  }
+  push(project);
+  return rebaseOntoTrunk(workspace);
 }
 
 // Yui-chan's unpublished commit `u1`, adding `src/g.ts` and leaving the
