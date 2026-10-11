@@ -16,6 +16,7 @@ import type { OwnedAttempt, OwnedAttempts } from "./ownedAttempts.ts";
 export type AttemptRun = (
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
+  noteSlow: (slowSince: string) => Promise<void>,
 ) => Promise<LaunchResult>;
 
 // Keeps a change to an owned attempt, then answers it: this server never
@@ -50,8 +51,10 @@ export async function settleAttempt(
 ): Promise<void> {
   let result: LaunchResult;
   try {
-    result = await run(own, (publication) =>
-      note(owned, own.attempt.id, { publication }),
+    result = await run(
+      own,
+      (publication) => note(owned, own.attempt.id, { publication }),
+      (slowSince) => note(owned, own.attempt.id, { slowSince }),
     );
   } catch (error) {
     result = {
@@ -61,6 +64,7 @@ export async function settleAttempt(
     };
   }
   await note(owned, own.attempt.id, {
+    slowSince: undefined,
     outcome: attemptOutcome(result),
     settledAt: new Date().toISOString(),
   });

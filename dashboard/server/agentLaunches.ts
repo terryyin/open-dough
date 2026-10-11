@@ -183,18 +183,22 @@ export class AgentLaunches {
     if (answer !== undefined) return answer;
     return this.owner.accept(
       request,
-      (own, notePublication) =>
-        attemptRun(source, own, notePublication, this.progress, this.doneMarks),
+      (own, notePublication, noteSlow) =>
+        attemptRun(
+          source,
+          own,
+          notePublication,
+          noteSlow,
+          this.progress,
+          this.doneMarks,
+        ),
       reportingOrigin,
     );
   }
 
-  // Continues the project's kept attempt `id` that needs reconciliation
-  // through the same pre-launch answers and run as a launch, so its kept
-  // start, host creation, or unconfirmed input is recovered by the existing
-  // rules; answering once it is accepted again, or why it was not. While its
-  // earlier start still runs here, it is not continued, so that start's
-  // result is not mistaken for this attempt's.
+  // Continues the kept attempt through the same pre-launch checks and run.
+  // Its kept start, creation, or unconfirmed input is recovered by existing
+  // rules; an earlier start still running here must finish first.
   continueAttempt(source: PublishedSource, id: string): Promise<Acceptance> {
     return this.owner.continueAttempt(
       source.id,
@@ -204,8 +208,15 @@ export class AgentLaunches {
         this.progress.for(request.workflow).running(source.id, request.identity)
           ? startStillRunning
           : preAcceptanceAnswer(source, request),
-      (own, notePublication) =>
-        attemptRun(source, own, notePublication, this.progress, this.doneMarks),
+      (own, notePublication, noteSlow) =>
+        attemptRun(
+          source,
+          own,
+          notePublication,
+          noteSlow,
+          this.progress,
+          this.doneMarks,
+        ),
     );
   }
 
@@ -228,8 +239,7 @@ export class AgentLaunches {
   }
 
   // Detaches native clients and ends launch waits when the server closes.
-  // Kept attempts stay as last written, for reconciliation; native work goes
-  // on.
+  // Kept attempts stay for reconciliation; native work goes on.
   close(): void {
     this.savedSessionServices.close();
     this.owner.close();

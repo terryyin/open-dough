@@ -1,8 +1,8 @@
 // The Start a workflow runs before its session, as `AgentLaunches`
 // (`./agentLaunches.ts`) uses it: whether a project's installed skill
 // establishes it, how it begins, how its formatter hands it to the session,
-// and the words of what it says when its wait ends uncertain, its formatter
-// cannot be read, or its session fails after it published. A workflow with no
+// and the words of what it says when its formatter cannot be read or its
+// session fails after it published. A workflow with no
 // entry here only starts the session. Each entry is the one place its words
 // are spelled; the mechanics are its own module (`./executionStart.ts`).
 
@@ -42,16 +42,9 @@ export type StartPlace = {
   readonly policy: SessionPolicy;
 };
 
-// What every uncertain start says of itself: it was kept, where it goes on,
-// and that it can be resumed there.
-const keptGoingOn = ({ workspace, branch }: StartPlace) =>
-  `The start was kept and goes on in workspace ${workspace} on branch ${branch}, where it can be resumed.`;
-
 // What a one-shot start of either workflow says in place of its workflow's
 // own words: it publishes no assignment, so nothing is Taken or Preparing.
 const oneShot = {
-  uncertain: (place: StartPlace) =>
-    `The start did not finish within the wait; a one-shot start publishes nothing. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }: StartPlace) =>
     `The one-shot start was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ workspace }: EstablishedLaunch) =>
@@ -64,8 +57,6 @@ const isOneShot = ({ policy }: StartPlace) => policy.tracking === "one-shot";
 function withOneShotWords(spec: StartWorkflow): StartWorkflow {
   return {
     ...spec,
-    uncertain: (place) =>
-      isOneShot(place) ? oneShot.uncertain(place) : spec.uncertain(place),
     formatFailed: (place) =>
       isOneShot(place) ? oneShot.formatFailed(place) : spec.formatFailed(place),
     publishedWithoutSession: (launch) =>
@@ -93,8 +84,6 @@ export type StartWorkflow = {
     established: Established,
     host: StoryLaunchRequest["host"],
   ): Promise<string>;
-  // What the launch answers when the wait ends before the start does.
-  uncertain(place: StartPlace): string;
   // What the launch answers when the formatter could not be read.
   formatFailed(place: StartPlace): string;
   // What a failed session launch adds once the start published.
@@ -111,8 +100,6 @@ const execution: StartWorkflow = {
     }
     return formattedStart(project, established.start, host);
   },
-  uncertain: (place) =>
-    `The start did not finish within the wait, so the story may or may not be Taken. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
@@ -131,8 +118,6 @@ const refinement: StartWorkflow = {
     }
     return formattedPreparation(project, established.preparation, host);
   },
-  uncertain: (place) =>
-    `The start did not finish within the wait, so the story may or may not be Preparing. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {

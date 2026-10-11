@@ -1,5 +1,5 @@
 // Run the shared workflow's deterministic start and format its handoff before
-// the native session begins. An expired wait leaves that start running.
+// the native session begins. A slow start warns while it keeps running.
 // Before a launch is accepted, a start in the default checkout first observes
 // its existing changes: changes the request did not confirm, or that changed
 // since, answer with what was observed, and nothing starts.
@@ -28,9 +28,8 @@ import { launchStartContext } from "./launchRecord.ts";
 
 const defaultStartWaitMs = 120_000;
 
-// How long an execution's start may run before the launch answers uncertain;
-// the start itself is never aborted. A test may shorten it through the
-// environment.
+// How long a start may run before a slow-start warning is noted; elapsed
+// time never aborts the script or settles its attempt. Tests may shorten it.
 function startTimeoutMs(): number {
   const configured = Number(process.env["DOUGH_START_TIMEOUT_MS"]);
   return Number.isFinite(configured) && configured > 0
@@ -88,13 +87,14 @@ export async function unconfirmedStart(
     : undefined;
 }
 
-// The start a launch's workflow runs before its session, waiting at most
-// `startTimeoutMs()` for it; the script goes on running when the wait ends.
+// The start a launch's workflow runs before its session. Past the warning
+// threshold the attempt keeps following the script through its result.
 export async function started(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
   progress: StartProgress,
+  noteSlow: (slowSince: string) => Promise<void> = async () => {},
 ): Promise<Started> {
   if (request.workflow === "ad-hoc") {
     return { kind: "none" };
@@ -117,29 +117,16 @@ export async function started(
     branch: planned.branch,
     policy: planned.policy,
   };
-  let timer: NodeJS.Timeout | undefined;
-  const expiry = new Promise<"expired">((resolve) => {
-    timer = setTimeout(() => {
-      resolve("expired");
-    }, startTimeoutMs());
+  let slowNoted: Promise<void> | undefined;
+  const timer = setTimeout(() => {
+    slowNoted = noteSlow(new Date().toISOString());
+  }, startTimeoutMs());
+  const attempt = await planned.attempt.finally(async () => {
+    clearTimeout(timer);
+    // Finish the warning write before a publication receipt or outcome can
+    // follow it, so a slow note never overwrites later evidence.
+    await slowNoted;
   });
-  const attempt = await Promise.race([planned.attempt, expiry]);
-  clearTimeout(timer);
-  if (attempt === "expired") {
-    // No launch follows the script that goes on running, so its phase ends
-    // with it.
-    void planned.attempt.finally(() => {
-      scoped.clear(source.id, request.identity);
-    });
-    return {
-      kind: "stopped",
-      result: {
-        kind: "uncertain",
-        reason: "timed-out",
-        explanation: workflow.uncertain(place),
-      },
-    };
-  }
   if (attempt.kind === "refused") {
     return startFailed(attempt.explanation, attempt.publishedNothing === true);
   }
@@ -173,7 +160,7 @@ export async function started(
 // announcement is published, at the revision the start reported when it
 // reported one; a one-shot start, a launch with no start, or a start refused
 // knowing it published nothing publishes nothing; a start that stopped
-// otherwise, its wait expired included, may or may not have published. A
+// otherwise may or may not have published. A
 // conversation resumed from its kept record carries the start it was launched
 // with.
 export function publicationOf(

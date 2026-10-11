@@ -1,20 +1,12 @@
-// The launch attempts this server accepted for the launch lifetime
-// (`./agentLaunches.ts`): each is kept with its exact request
-// (`./launchAttemptStore.ts`) before its run has any side effect, then run to
-// its outcome whatever happens to the caller (`./launchAttemptSettlement.ts`).
-// Of a story's launches in any workflow, and of the same launch on any host,
-// one at a time is accepted; a story whose unresolved attempt
-// (`unresolvedAttempt`) no server runs any more accepts only that attempt's
-// continuation, which runs its kept request again under the same identity. A
-// story that already has an open launch record on this machine is refused
-// until that session is marked done or its record deleted, except a
-// continuation whose open record is that attempt's own launched session. A
-// settled attempt a page found reconciled with published state keeps when it
-// was (`./launchAttemptReconciliation.ts`); a
-// story attempt whose launch is uncertain settles when a recheck finds its
-// host's own evidence unambiguous (`./launchAttemptVerification.ts`).
-// Once a read finds its settled state kept, an attempt is answered from this
-// machine's store rather than from memory (`./ownedAttempts.ts`).
+// Launch attempts are kept before effects (`./launchAttemptStore.ts`) and run
+// through settlement whatever happens to the caller (`./launchAttemptSettlement.ts`).
+// One launch per story or matching launch runs at a time. An interrupted
+// attempt resumes only its own request and identity. An open story session
+// refuses other starts until done or deleted; its own continuation may recover it.
+// Reconciliation keeps when published state was observed (`./launchAttemptReconciliation.ts`);
+// rechecking uncertain launches uses host evidence (`./launchAttemptVerification.ts`).
+// Once settlement is found kept, reads use the store rather than memory
+// (`./ownedAttempts.ts`).
 
 import { randomUUID } from "node:crypto";
 import {
@@ -70,7 +62,11 @@ export class LaunchAttemptOwner {
 
   // The answer to a launch matching one this server still runs, if any.
   submitted(request: AgentLaunchRequest): Unaccepted | undefined {
-    return alreadySubmitted(request, this.owned.unsettledRequests());
+    return alreadySubmitted(
+      request,
+      this.owned.unsettledRequests(),
+      this.owned.known([]),
+    );
   }
 
   // Accepts a request nothing else answered: its exact request is kept

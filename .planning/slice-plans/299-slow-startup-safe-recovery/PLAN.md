@@ -96,8 +96,12 @@ is run whole only when a slice changes shared launch fixtures.
 
 ### 1. The start wait warns instead of settling
 Type: Behavior
-Status: planned
+Status: done
 Proof: the three rewritten start specs above; `npm run typecheck:dashboard`
+
+Accepted: held execution/refinement starts note and clear `slowSince`, refuse duplicate Starts and Continue, and launch the original request once after release; late refusal settles normally. The ten-spec command below and typecheck passed; refactor's full start-resume rerun passed after moving its sole-consumer lost-server fixture to `keptExecutionStart.ts`. Native deadline, interrupted continuation and pending-input consumers remain green.
+Command: `env -u NO_COLOR PATH=/opt/homebrew/bin:$PATH npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-uncertain-continuation.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts dashboard/tests/responsive-session-recovery.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-launch-start-duplicate.spec.ts dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts`.
+Diagnosed proof corrections: wrong fixture title/slug, hook-entry observation race, conflicting NO_COLOR/FORCE_COLOR, and duplicate check including its continued self. Corrected full selection passed; no retry substituted for diagnosis. Warning display and cross-server liveness remain G1/G2.
 
 Behavior: a story start whose installed script is still running at the
 threshold → the threshold passes → the attempt stays unsettled and owned with
@@ -183,6 +187,26 @@ into a shared function Recheck keeps using; Continue calls it in
 | The fixture's `close()` ends the server's whole process group | slice 3's dead-worker proof | `dashboard/tests/support/processGroup.ts` | settled by reading: the group leader and every subprocess end together, so the orphan-script case needs the existing explicit `pkill` of the lost-server case, which this plan reuses |
 | The page follows a running attempt without a bound of its own | slice 2 | `attemptChangeWaits.ts` re-waits after each read while the attempt runs; the server's `changed` wait is bounded and answers `changed: false` | presence only; slice 2's proof observes the card past the threshold and through the launch |
 
+## Execution context
+
+- Established execution: `SEED-130#slow-startup-safe-recovery`, publisher
+  `dashboard-territory.local-open-dough`, agent `bastiaan-chan`.
+- Story Branch Mode; reused owned workspace
+  `/Users/terryyin/git/open-dough/.worktrees/slow-startup-continues-automatically-and-unsafe`,
+  branch `codex/slow-startup-continues-automatically-and-unsafe`.
+- Integration checkout: `/Users/terryyin/git/open-dough`; authorized remote
+  `origin`, trunk `main`; increments publish to the execution branch.
+- Starting revision `377970db89e0c2e2bde14f765fc2be9d9b58b9a3`; accepted
+  claim/base `3ec282610148afb245a710642b486318d5388d57` on origin/main and
+  the remote execution branch. No second start or claim.
+- Exact-checkout `npm ci` and `npm run typecheck:dashboard` passed with
+  `/opt/homebrew/bin` first on PATH. Existing planning authority is retained;
+  no numeric slice budget is configured.
+- CI: GitHub Actions, verified `ci.yml` push workflow; execution branch observer
+  coordinator `bastiaan-chan-243b529b`, directory `/tmp/dough-ci-501/watch-F8Nh94`,
+  PID `1364`, session `44765`, yielded cell `12`. Claim publication on trunk
+  predates this observer and has unobserved CI coverage.
+
 ## Current decisions
 
 - `slowSince` and `worker` are attempt facts noted through the existing
@@ -205,3 +229,15 @@ into a shared function Recheck keeps using; Continue calls it in
   step already says it.
 - Changing the start store's swallow of a post-script write failure: the
   write-ahead start already resumes safely through `existing`.
+
+## Story obligations
+
+### G1. Slow warning is not yet rendered
+Reported: slice 1 — "The card progresses and launches automatically, but does not render or announce the slow-start warning or prove its reload persistence."
+Story clause: "The Startup announcements log announces the slow start once."
+Disposition: receiving slice 2
+
+### G2. Another server still reads a live start as interrupted
+Reported: slice 1 — "The owning server reports owned; another server still treats an unsettled attempt as interrupted. No running observation field or worker fact was added here."
+Story clause: "A page served by any dashboard server, after a reload, project switch, or server restart, shows an attempt whose recorded worker is verifiably alive as running"
+Disposition: receiving slice 3

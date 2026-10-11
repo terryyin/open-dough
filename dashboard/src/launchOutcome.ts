@@ -146,6 +146,8 @@ export const launchAttemptSchema = z.object({
   completionReceipts: z.array(completionReceiptSchema).optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),
+  // When the start crossed its warning threshold while still running.
+  slowSince: z.iso.datetime().optional(),
   publication: publicationReceiptSchema,
   outcome: attemptOutcomeSchema.optional(),
   settledAt: z.iso.datetime().optional(),

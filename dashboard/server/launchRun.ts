@@ -42,6 +42,7 @@ export async function attemptRun(
   source: PublishedSource,
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
+  noteSlow: (slowSince: string) => Promise<void>,
   progress: StartProgress,
   doneMarks: NativeDoneMarks,
 ): Promise<LaunchResult> {
@@ -54,7 +55,7 @@ export async function attemptRun(
   const pending = await pendingInputOf(source.id, request);
   const start =
     pending === undefined
-      ? await started(source, request, folder, progress)
+      ? await started(source, request, folder, progress, noteSlow)
       : ({ kind: "none" } as const);
   await notePublication(publicationOf(start, pending));
   if (start.kind === "stopped") return start.result;

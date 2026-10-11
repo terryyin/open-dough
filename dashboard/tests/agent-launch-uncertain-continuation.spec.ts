@@ -76,64 +76,62 @@ test.describe("a story start whose launch wait expired", () => {
   });
 });
 
-startTest.describe(
-  "a story start that settled before it knew whether it published",
-  () => {
-    startTest.use({ startTimeoutMs: 3_000, launchTimeoutMs: 60_000 });
+startTest.describe("a story start that crosses its warning threshold", () => {
+  startTest.use({ startTimeoutMs: 3_000, launchTimeoutMs: 60_000 });
 
-    startTest(
-      "blocks a fresh start of its story from any workflow, and is resumed only by its own continuation",
-      async ({ dashboard, origin }) => {
-        startTest.setTimeout(150_000);
-        const push = origin.holdPushes();
-        const story = {
-          ...launchRequest,
-          identity: queuedIdentity,
-          title: "Story A",
-        };
-        const id = answerOf(await accept(dashboard, story)).attempt?.id ?? "";
-        await expect
-          .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
-            timeout: 30_000,
-          })
-          .toBe("uncertain");
-        push.release();
-        await expect
-          .poll(() => runningStarts(dashboard), { timeout: 30_000 })
-          .toEqual([]);
-        const [uncertain] = await attempts(dashboard);
-        expect(uncertain).toMatchObject({
-          id,
-          publication: { kind: "unknown" },
-          owned: false,
-        });
-
-        for (const workflow of ["refinement", "execution"])
-          expect(
-            answerOf(await accept(dashboard, { ...story, workflow })),
-          ).toMatchObject(unresolvedStart);
-        expect(await attempts(dashboard)).toEqual([uncertain]);
-        expect(dashboard.claudeLaunchCalls()).toEqual([]);
-
-        expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
-          kind: "accepted",
-          attempt: { id, acceptedAt: uncertain?.acceptedAt },
-        });
-        expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
-          kind: "uncertain",
-        });
-        expect(await settledOutcome(dashboard, id)).toMatchObject({
-          kind: "launched",
-        });
-        expect(await attempts(dashboard)).toEqual([
-          expect.objectContaining({
-            id,
-            publication: expect.objectContaining({ kind: "published" }),
-          }),
-        ]);
-        expect(await origin.takenProfiles()).toHaveLength(1);
-        expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-      },
-    );
-  },
-);
+  startTest(
+    "refuses duplicates and Continue while running, then launches automatically",
+    async ({ dashboard, origin }) => {
+      startTest.setTimeout(150_000);
+      const push = origin.holdPushes();
+      const story = {
+        ...launchRequest,
+        identity: queuedIdentity,
+        title: "Story A",
+      };
+      const id = answerOf(await accept(dashboard, story)).attempt?.id ?? "";
+      await expect
+        .poll(async () => (await attempts(dashboard))[0]?.slowSince, {
+          timeout: 30_000,
+        })
+        .toBeDefined();
+      const [slow] = await attempts(dashboard);
+      expect(slow).toMatchObject({
+        id,
+        owned: true,
+        publication: { kind: "unknown" },
+      });
+      expect(slow?.outcome).toBeUndefined();
+      expect(
+        answerOf(await accept(dashboard, { ...story, workflow: "refinement" })),
+      ).toMatchObject({
+        kind: "failed",
+        reason: "already-starting",
+      });
+      expect(answerOf(await accept(dashboard, story))).toMatchObject({
+        kind: "failed",
+        reason: "already-starting",
+      });
+      expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
+        kind: "uncertain",
+        explanation: expect.stringContaining("already running"),
+      });
+      expect(await attempts(dashboard)).toEqual([slow]);
+      expect(dashboard.claudeLaunchCalls()).toEqual([]);
+      push.release();
+      expect(await settledOutcome(dashboard, id)).toMatchObject({
+        kind: "launched",
+      });
+      const [launched] = await attempts(dashboard);
+      expect(launched).toMatchObject({
+        id,
+        acceptedAt: slow?.acceptedAt,
+        publication: { kind: "published" },
+      });
+      expect(launched?.slowSince).toBeUndefined();
+      expect(await runningStarts(dashboard)).toEqual([]);
+      expect(await origin.takenProfiles()).toHaveLength(1);
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+    },
+  );
+});

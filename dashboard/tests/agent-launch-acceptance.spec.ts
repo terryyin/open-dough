@@ -6,7 +6,7 @@
 // the launch settles after its caller is gone, its publication receipt and
 // outcome observable through the machine's sessions and its kept attempt.
 // While it is unsettled no workflow's launch of the story is accepted; the
-// same launch is answered as already submitted. An
+// same pending story start is refused as already starting. An
 // acceptance that cannot be kept starts nothing, and a failure after
 // acceptance is the owner's kept outcome rather than a crashed server.
 // Open-session refusal of a story start is
@@ -20,7 +20,6 @@ import type { AttemptObservation } from "../src/agentLaunch.ts";
 import {
   accept,
   alreadyStarting,
-  alreadySubmitted,
   attempts,
   keptStarts,
   launch,
@@ -122,7 +121,7 @@ test.describe("an accepted launch", () => {
     // No workflow's launch of the story is accepted while it is unsettled.
     const refinement = { ...request, workflow: "refinement" };
     expect(await answerOf(accept(server, refinement))).toEqual(alreadyStarting);
-    expect(await answerOf(accept(server, request))).toEqual(alreadySubmitted);
+    expect(await answerOf(accept(server, request))).toEqual(alreadyStarting);
     expect(server.claudeCalls()).toEqual([]);
     expect(workspaces()).toHaveLength(1);
     expect(await attempts(server)).toHaveLength(1);

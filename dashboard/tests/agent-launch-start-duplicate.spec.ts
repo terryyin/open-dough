@@ -1,8 +1,8 @@
 // A second start of a story this server is already starting is refused before
 // any second start runs (../server/agentLaunches.ts), over raw HTTP
 // against the real installed `execution-start.mjs` and a real bare origin
-// (./support/startOrigin.ts): the second launch is answered "uncertain" with
-// reason "unconfirmed", and origin holds one claim, the project one
+// (./support/startOrigin.ts): the second launch is refused as already starting,
+// and origin holds one claim, the project one
 // workspace, and the synthetic `claude` at most one call. One case holds the
 // first start on origin's `pre-receive` hook so the two overlap
 // deterministically; the other sends the pair at once. A story Taken by
@@ -12,7 +12,7 @@ import { readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import {
-  alreadySubmitted,
+  alreadyStarting,
   launch,
   launchRequest,
   recordsOf,
@@ -84,7 +84,7 @@ test.describe("a second start of the same story", () => {
     ]);
 
     const second = await answerOf(launch(server, request));
-    expect(second).toEqual(alreadySubmitted);
+    expect(second).toEqual(alreadyStarting);
     expect(server.claudeCalls()).toEqual([]);
     expect(workspaces()).toHaveLength(1);
 
@@ -109,9 +109,10 @@ test.describe("a second start of the same story", () => {
     );
     expect(answers).toHaveLength(2);
     const refused = answers.find((answer) => answer.kind !== "launched");
-    expect(refused?.kind === "uncertain" || refused?.kind === "failed").toBe(
-      true,
-    );
+    expect(refused).toMatchObject({
+      kind: "failed",
+      reason: "already-starting",
+    });
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(workspaces()).toHaveLength(1);
     expect(await recordsOf(server, "open-dough")).toHaveLength(1);

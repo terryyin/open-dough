@@ -1,6 +1,4 @@
-// Retained refinement starts through real HTTP, installed preparation commands,
-// and a bare origin. The shared fixture observes the same workspace, one
-// published preparation, the session instruction, and removal of the kept start.
+// Refinement starts through real HTTP, installed commands, and a bare origin.
 import {
   chmodSync,
   copyFileSync,
@@ -12,38 +10,50 @@ import {
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
-import { runningStarts } from "./agentLaunchBoundary.ts";
-import { queuedIdentity } from "./support/startOrigin.ts";
+import {
+  attempts,
+  launch,
+  launchRequest,
+  continueAttempt,
+  accept,
+} from "./agentLaunchBoundary.ts";
+import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
 import {
   keptPreparation,
   preparationSlug as slug,
   type KeptPreparation,
 } from "./support/keptPreparation.ts";
-
-const kept = `workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}`;
-
 test.describe("a kept preparation start", () => {
   let preparation: KeptPreparation;
-
   test.beforeEach(async () => {
     preparation = await keptPreparation();
   });
-
   test.afterEach(async () => {
     await preparation.close();
   });
-
-  test("a start that outlasts the wait is kept and its continuation resumes it with one profile", async () => {
-    // Both starts share this wait. Hold the first push until it expires,
-    // leaving the ordinary continuation enough time for real Git work.
-    await preparation.serve(5000);
+  test("a start that outlasts the warning threshold keeps running and launches automatically with one profile", async () => {
+    await preparation.serve(3000);
     preparation.server.claudeScenario("launched");
     const push = preparation.origin.holdPushes();
-    const first = await preparation.ask();
-    expect(first).toMatchObject({ kind: "uncertain", reason: "timed-out" });
-    expect(first.explanation).toContain(
-      `The start was kept and goes on in ${kept}, where it can be resumed.`,
-    );
+    const request = {
+      ...launchRequest,
+      workflow: "refinement",
+      identity: queuedIdentity,
+      title: queuedTitle,
+    };
+    const launching = launch(preparation.server, request);
+    await expect.poll(() => push.isHeld(), { timeout: 20_000 }).toBe(true);
+    await expect
+      .poll(async () => (await attempts(preparation.server))[0]?.slowSince, {
+        timeout: 20_000,
+      })
+      .toBeDefined();
+    const [slow] = await attempts(preparation.server);
+    expect(slow).toMatchObject({
+      owned: true,
+      publication: { kind: "unknown" },
+    });
+    expect(slow?.outcome).toBeUndefined();
     expect(preparation.server.claudeLaunchCalls()).toEqual([]);
     expect(preparation.keptStart()).toMatchObject({
       identity: queuedIdentity,
@@ -51,19 +61,43 @@ test.describe("a kept preparation start", () => {
       branch: `claude/${slug}`,
     });
     expect(push.isHeld()).toBe(true);
+    expect(
+      JSON.parse(
+        (
+          await accept(preparation.server, {
+            ...request,
+            workflow: "execution",
+          })
+        ).body,
+      ),
+    ).toMatchObject({
+      kind: "failed",
+      reason: "already-starting",
+    });
+    expect(
+      JSON.parse(
+        (await continueAttempt(preparation.server, slow?.id ?? "")).body,
+      ),
+    ).toMatchObject({
+      kind: "uncertain",
+      explanation: expect.stringContaining("already running"),
+    });
+    expect(await attempts(preparation.server)).toEqual([slow]);
     push.release();
-    // The script was left to finish; the announcement lands.
-    await expect
-      .poll(preparation.preparing, { timeout: 20_000 })
-      .toHaveLength(1);
-    // Its continuation is refused while the script still runs.
-    await expect
-      .poll(() => runningStarts(preparation.server), { timeout: 20_000 })
-      .toEqual([]);
-    rmSync(preparation.hook());
-    await preparation.expectResumed();
+    await preparation.expectResumed(
+      async () =>
+        JSON.parse((await launching).body) as Awaited<
+          ReturnType<KeptPreparation["ask"]>
+        >,
+    );
+    expect(preparation.server.claudeLaunchCalls()).toHaveLength(1);
+    const [settled] = await attempts(preparation.server);
+    expect(settled).toMatchObject({
+      id: slow?.id,
+      outcome: { kind: "launched" },
+    });
+    expect(settled?.slowSince).toBeUndefined();
   });
-
   test("an unpublished stop keeps the start and its continuation settles it with one profile", async () => {
     await preparation.serve(60_000);
     preparation.server.claudeScenario("launched");
@@ -82,7 +116,6 @@ test.describe("a kept preparation start", () => {
     rmSync(preparation.hook());
     await preparation.expectResumed();
   });
-
   test("an interrupted precommit start recovers in its workspace without replacing an occupied agent", async () => {
     await preparation.serve(60_000);
     preparation.server.claudeScenario("launched");
@@ -155,7 +188,6 @@ test.describe("a kept preparation start", () => {
     ).toBe(occupiedAllocation);
     expect((await preparation.preparing())[0]?.["agent"]).toBe("Akiho-chan");
   });
-
   test("a claude refusal after the announcement keeps the start and Start again resumes with one assignment", async () => {
     await preparation.serve(60_000);
     preparation.server.claudeScenario("refused");
@@ -171,7 +203,6 @@ test.describe("a kept preparation start", () => {
     preparation.server.claudeScenario("launched");
     await preparation.expectResumed(preparation.ask);
   });
-
   test("an unannounced retry clears its old disposition before a newly published result is lost", async () => {
     await preparation.serve(60_000);
     preparation.server.claudeScenario("launched");
