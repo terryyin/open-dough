@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-088#review-trunk-mode-story-changes",
+  "mode": "story-branch",
+  "branch": "claude/review-only-a-trunk-mode-story-s-own-changes",
+  "host": "claude"
+}
