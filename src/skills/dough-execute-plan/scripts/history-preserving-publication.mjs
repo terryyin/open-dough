@@ -155,7 +155,9 @@ export async function publishHistoryPreservingCandidate({
           targetRef,
         });
       } catch (error) {
-        await returnToBranch(ownedWorkspace, branch);
+        // A resolved merge is on no ref: the workspace stays on it so the
+        // next run takes it again.
+        if (!prepared.resolved) await returnToBranch(ownedWorkspace, branch);
         throw error;
       }
     }

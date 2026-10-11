@@ -7,19 +7,23 @@
 // (./support/startOrigin.ts) with the synthetic `claude`.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { expect, test } from "./support/pageTest.ts";
 import { quote } from "./support/completionRecovery.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { capturedPublicationSchema, git } from "./support/launchLanding.ts";
-import { startPreview } from "./support/launchPreview.ts";
+import { restartPreview, startPreview } from "./support/launchPreview.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 import {
   anotherWriterClone,
   claimedLaunchWithStoryCommit,
   claimedRecord,
+  conflictedLaunch,
+  resolveMerge,
+  storyChangesShared,
+  writeShared,
 } from "./support/storyBranchIntegration.ts";
 
 let origin: StartOrigin;
@@ -35,27 +39,12 @@ test.afterEach(async () => {
   origin.cleanup();
 });
 
-const shared = (checkout: string, body: string) => {
-  writeFileSync(path.join(checkout, "shared.txt"), body);
-};
-const storyChangesShared = (checkout: string) => {
-  shared(checkout, "story\n");
-  git(checkout, "add", "shared.txt");
-  git(checkout, "commit", "-m", "Story shared.txt");
-};
-const resolveMerge = (workspace: string) => {
-  shared(workspace, "story and trunk\n");
-  git(workspace, "add", "shared.txt");
-  git(workspace, "commit", "--no-edit");
-  return git(workspace, "rev-parse", "HEAD");
-};
-
 // A `git` whose first push lets another writer's conflicting trunk commit
 // land first, so that push is rejected.
 function racingTrunkWriter(origin: StartOrigin) {
   const { machine } = origin;
   const writer = anotherWriterClone(origin, "racing");
-  shared(writer, "trunk\n");
+  writeShared(writer, "trunk\n");
   git(writer, "add", "shared.txt");
   git(writer, "commit", "-m", "Trunk shared.txt");
   const actual = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
@@ -82,12 +71,7 @@ exec ${quote(actual)} "$@"
 
 test("a conflicted trunk integration is preserved, and its resolved merge is published and recorded as the launch's landing", async () => {
   const { reporting, workspace, branch, trunkTip, storyTip, ...story } =
-    await claimedLaunchWithStoryCommit(origin, server, true, {
-      storyWork: storyChangesShared,
-      trunkWork: (writer) => {
-        shared(writer, "trunk\n");
-      },
-    });
+    await conflictedLaunch(origin, server);
 
   // The conflict stops the integration with the merge left in the worktree.
   const stopped = await story.integrate();
@@ -148,6 +132,58 @@ test("a conflicted trunk integration is preserved, and its resolved merge is pub
     git(workspace, "show", `${resolved}:shared.txt`),
     "the published merge holds the resolution",
   ).toBe("story and trunk");
+});
+
+test("a resolved merge stays checked out when the dashboard is closed, and the run after its restart publishes and records it", async () => {
+  const { reporting, landingContext, workspace, branch, trunkTip, ...story } =
+    await conflictedLaunch(origin, server);
+  const context = readFileSync(landingContext, "utf8");
+  const launched = await claimedRecord(server);
+  expect((await story.integrate()).ok).toBe(false);
+  const resolved = resolveMerge(workspace);
+
+  // The pair cannot be retained: nothing is pushed and the merge stays.
+  const dashboard = server.origin;
+  await server.close();
+  const failed = await story.integrate();
+  expect((failed as { code?: unknown }).code, failed.stdout).toBe(2);
+  expect(failed.stderr).toContain("fetch failed");
+  expect(failed.stderr).toContain("Retry reporting only: ");
+  expect(git(workspace, "rev-parse", "HEAD")).toBe(resolved);
+  expect(git(workspace, "branch", "--show-current")).toBe("");
+  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(trunkTip);
+
+  // The dashboard is back on its address with the same launch, session and
+  // landing context.
+  server = await restartPreview(origin, dashboard);
+  expect(server.origin).toBe(dashboard);
+  const restarted = await claimedRecord(server);
+  expect(restarted.start).toEqual(launched.start);
+  expect(restarted.session).toEqual(launched.session);
+  expect(restarted.request.reporting).toEqual(reporting);
+  expect(restarted.landing).toBeUndefined();
+  expect(readFileSync(landingContext, "utf8")).toBe(context);
+  expect(git(workspace, "rev-parse", "HEAD")).toBe(resolved);
+
+  const integrated = capturedPublicationSchema.parse(await story.integrated());
+  expect(integrated).toMatchObject({
+    classification: "published",
+    pushCount: 1,
+    receipt: { sha: resolved, target: "refs/heads/main" },
+    landing: { state: "recorded" },
+  });
+  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(resolved);
+  expect(git(workspace, "branch", "--show-current")).toBe(branch);
+  const landed = await claimedRecord(server);
+  expect(landed.landing).toMatchObject({
+    reference: reporting.reference,
+    base: trunkTip,
+    revision: resolved,
+    receipt: integrated.landing.receipt.receipt,
+  });
+  expect(landed.landingReporting?.preparations).toMatchObject([
+    { base: trunkTip, revision: resolved },
+  ]);
 });
 
 test("a pair retained before a rejected push gives way to the resolved merge's pair, which is the one recorded", async () => {

@@ -122,7 +122,7 @@ resolved `HEAD` survives the failed run. The disposable probe was removed.
 
 | Promise | Owner and observable proof |
 | --- | --- |
-| A resolved merge survives a failed retention and is published by the next run | Slice 1: node test in `closure-story-conflict-cases.mjs` with a landing context whose origin refuses (thrown error, `HEAD` still the resolved merge, the rerun with a reachable receiver or no context publishes it); `story-branch-landing-conflict.spec.ts` closes the real receiver before the resolved run, restarts it, and asserts the pair recorded |
+| A resolved merge survives a failed retention and is published by the next run | Slice 1: node test in `closure-story-landing-retention-cases.mjs` with a landing context whose origin refuses (thrown error, `HEAD` still the resolved merge, the rerun with a reachable receiver or no context publishes it); `story-branch-landing-conflict.spec.ts` closes the real receiver before the resolved run, restarts it, and asserts the pair recorded |
 | An uncommitted merge is preserved with a result | Slice 2: node test through the CLI for a staged resolution and for an identity-refused merge: exit 1, `preserved` with the new reason, `MERGE_HEAD` and index unchanged; after the commit the rerun publishes |
 | Existing accepted resolved merges remain accepted | Keep `headMerges`' existing parent-order behavior unchanged; the existing resolved journeys stay green |
 | The residue is gone | Slice 3: the conflict and agent-credit node tests and the four `story-branch-landing-*` specs; typecheck |
@@ -131,8 +131,15 @@ resolved `HEAD` survives the failed run. The disposable probe was removed.
 
 ### 1. A resolved merge survives a failed landing retention
 Type: Behavior
-Status: planned
-Proof: The node test and receiver journey above.
+Status: done
+Proof: The node test and receiver journey above. Accepted:
+`closure-story-landing-retention-cases.mjs` (run by
+`closure-story-integration.test.mjs`) asserts the rejected run leaves `HEAD`
+detached on the resolved merge with nothing pushed and the next run publishes
+it, and that a rebuilt merge still returns to its branch;
+`story-branch-landing-conflict.spec.ts` "a resolved merge stays checked out
+when the dashboard is closed, and the run after its restart publishes and
+records it" asserts the one recorded pair on the original launch.
 
 Behavior: A launch's conflicted integration is resolved and committed; the
 dashboard cannot be reached → `integrate` fails as today with its retry
@@ -177,3 +184,26 @@ aside and the conflict is resolved again on the new merge. It adds no
 parent-order restriction.
 
 Safe stopping point: no behavior changes.
+
+## Story obligations
+
+### G1. Receiver refusal and timeout are not exercised separately
+Reported: slice 1 — "A receiver refusal (HTTP non-ok) or the 10-second timeout as the retention failure is not tested separately. They go through the same catch; only connection refused and a closed receiver are exercised."
+Story clause: "keeps a resolved merge in the workspace when landing retention fails"
+Disposition: proved by slice 1: `publishHistoryPreservingCandidate` has one catch around `retainLandingComparison` for every thrown retention failure; `closure-story-landing-retention-cases.mjs` and the closed-receiver journey observe that catch keeping the resolved `HEAD`
+
+## Execution context
+
+Story Branch Mode in `.worktrees/a-resolved-integration-survives-a-failed-or-earl`
+on `claude/a-resolved-integration-survives-a-failed-or-earl`, remote `origin`,
+trunk `main`. Claim `85c000159d24762067a585c36cf690d2a77aab41` accepted on
+`main`; increments publish to the execution branch.
+
+## Learnings
+
+- The refactor pass moved the retention node tests into
+  `closure-story-landing-retention-cases.mjs` and the shared-file conflict
+  fixture (`writeShared`, `conflictedLaunch`, `resolveMerge`) into
+  `dashboard/tests/support/storyBranchIntegration.ts`; `restartPreview` in
+  `support/launchPreview.ts` is the same-port restart. Slices 2 and 3 build on
+  those.

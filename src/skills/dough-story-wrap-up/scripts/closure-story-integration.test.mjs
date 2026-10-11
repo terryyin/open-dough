@@ -22,6 +22,7 @@ import {
   authorizedRemote,
   captureCheckout,
   createCleanTrunkFixture,
+  currentBranch,
   executionBranch,
   git,
   lsRemoteSha,
@@ -38,6 +39,7 @@ import {
 
 import "./closure-story-conflict-cases.mjs";
 import "./closure-story-fast-forward-cases.mjs";
+import "./closure-story-landing-retention-cases.mjs";
 
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);
 const storyBacklog = backlogOf([itemB], [itemC]);
@@ -185,10 +187,7 @@ for (const [remote, branch] of [
       (await git(execution, "check-attr", "merge", "--", backlogPath)).stdout,
       /merge: dough-product-backlog/,
     );
-    assert.equal(
-      (await git(execution, "branch", "--show-current")).stdout.trim(),
-      executionBranch,
-    );
+    assert.equal(await currentBranch(execution), executionBranch);
 
     const resolved = await observeClosureDependency(
       fixture,

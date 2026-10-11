@@ -38,6 +38,12 @@ export async function commitFile(workspace, file, body, message) {
   return revParse(workspace, "HEAD");
 }
 
+export const currentBranch = async (workspace) =>
+  (await git(workspace, "branch", "--show-current")).stdout.trim();
+
+export const porcelainStatus = async (workspace) =>
+  (await git(workspace, "status", "--porcelain")).stdout;
+
 export async function remoteCommitCount(remote, ref = trunkTarget) {
   return Number((await git(remote, "rev-list", "--count", ref)).stdout.trim());
 }
@@ -63,4 +69,11 @@ export async function publishStoryConflictingWithTrunk(origin, execution) {
 export async function stageSharedResolution(workspace, body) {
   writeFileSync(join(workspace, "shared.txt"), body);
   await git(workspace, "add", "shared.txt");
+}
+
+// Commits `body` as the resolution of that conflict, answering the merge.
+export async function commitSharedResolution(workspace, body) {
+  await stageSharedResolution(workspace, body);
+  await git(workspace, "commit", "--no-edit");
+  return revParse(workspace, "HEAD");
 }

@@ -16,13 +16,15 @@ import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs
 import {
   advanceOriginFromAnotherWriter,
   commitFile,
+  commitSharedResolution,
   createCleanTrunkFixture,
+  currentBranch,
   executionBranch,
   git,
   lsRemoteSha,
+  porcelainStatus,
   publishStoryConflictingWithTrunk,
   revParse,
-  stageSharedResolution,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
 
@@ -56,9 +58,6 @@ function integrateCommand(workspace, publishedTip) {
   return run(cli, ...args);
 }
 
-const status = async (workspace) =>
-  (await git(workspace, "status", "--porcelain")).stdout;
-
 test("a conflicted integration is preserved as Git left it, and its resolved merge commit is published as the candidate", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
@@ -81,16 +80,15 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   const assertConflictLeftOn = async (base) => {
     assert.equal(await revParse(execution, "HEAD"), base);
     assert.equal(await revParse(execution, "MERGE_HEAD"), closureSha);
-    assert.equal(await status(execution), "A  increment.txt\nAA shared.txt\n");
-    assert.equal((await git(execution, "branch", "--show-current")).stdout, "");
+    assert.equal(
+      await porcelainStatus(execution),
+      "A  increment.txt\nAA shared.txt\n",
+    );
+    assert.equal(await currentBranch(execution), "");
     assert.equal(await lsRemoteSha(origin, trunkTarget), base);
     assert.deepEqual(prepared, []);
   };
-  const resolve = async (body) => {
-    await stageSharedResolution(execution, body);
-    await git(execution, "commit", "--no-edit");
-    return revParse(execution, "HEAD");
-  };
+  const resolve = (body) => commitSharedResolution(execution, body);
 
   const stopped = await integrateCommand(execution, closureSha);
   assert.equal(stopped.code, 1, stopped.stderr);
@@ -145,11 +143,8 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
     (await git(origin, "show", `${trunkTarget}:shared.txt`)).stdout,
     "story and trunk\n",
   );
-  assert.equal(
-    (await git(execution, "branch", "--show-current")).stdout.trim(),
-    executionBranch,
-  );
-  assert.equal(await status(execution), "");
+  assert.equal(await currentBranch(execution), executionBranch);
+  assert.equal(await porcelainStatus(execution), "");
 });
 
 test("a backlog conflict the merge adapter stops on is published once its `continue` commits the resolution", async (t) => {
@@ -216,8 +211,5 @@ test("a backlog conflict the merge adapter stops on is published once its `conti
     (await git(origin, "show", `${trunkTarget}:${backlogPath}`)).stdout,
     decided,
   );
-  assert.equal(
-    (await git(execution, "branch", "--show-current")).stdout.trim(),
-    executionBranch,
-  );
+  assert.equal(await currentBranch(execution), executionBranch);
 });

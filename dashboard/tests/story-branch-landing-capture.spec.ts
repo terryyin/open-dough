@@ -12,18 +12,14 @@ import { expect, test } from "./support/pageTest.ts";
 import { keptAttempts } from "./acceptedAttempts.ts";
 import { landingReceiptSchema } from "../src/launchLanding.ts";
 import { quote, reportingChild } from "./support/completionRecovery.ts";
-import {
-  builtDashboardDir,
-  startDashboardServer,
-  type DashboardServer,
-} from "./support/dashboardServer.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   git,
   refs,
 } from "./support/launchLanding.ts";
 import { landingGitFault } from "./support/launchLandingFault.ts";
-import { startPreview } from "./support/launchPreview.ts";
+import { restartPreview, startPreview } from "./support/launchPreview.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
@@ -187,7 +183,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
 
     // With the receiver away, the rerun reports the accepted integration and
     // an unacknowledged landing with its retry.
-    const port = Number(new URL(server.origin).port);
+    const dashboard = server.origin;
     await server.close();
     const rerun = await integrate(fault.env);
     expect(rerun.ok, rerun.stderr).toBe(true);
@@ -209,13 +205,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
     expect(retry).not.toContain(workspace);
 
     // Once the receiver is back, that retry alone records the pair.
-    server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      port,
-    });
+    server = await restartPreview(origin, dashboard);
     const retried = await reportingChild(retry, origin.machine);
     expect(retried.ok, retried.stderr).toBe(true);
     const receipt = landingReceiptSchema.parse(JSON.parse(retried.stdout));

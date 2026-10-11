@@ -43,3 +43,7 @@ commits apply, or the merge adapter's `continue` for the backlog or its done
 records. Then run the same `integrate` command again: it publishes that commit,
 a merge of the fetched target's tip and the published tip, as the candidate, and
 computes the merge again when the target moved meanwhile.
+
+When that run fails before its push, the resolved merge stays checked out in
+the workspace. Leave it there and run the same command again once the failure
+is cleared: it takes that merge again.
