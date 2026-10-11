@@ -16,10 +16,10 @@ published Preparing announcement. Static inspection reported four fetches, an
 announcement push, remote confirmation, worktree creation, and agent launch in
 a typical fresh setup. Network delay remains a hypothesis, not measured latency.
 
-Current one-shot work applies only to execution, skips Taken and agent profiles,
-uses an owned workspace, and normally publishes the verified result. Developers
-want lightweight refinement too, with independent workspace and landing choices.
-Unattached conversations need those choices through a separately delivered story.
+The original one-shot workflow applied only to execution and normally published
+its result. Lightweight refinement, review by default, and independent workspace
+and landing choices have since been delivered, including unattached Start
+session choices. Their native acceptance remains the selected story below.
 
 ## Shared Architecture Direction
 
@@ -110,7 +110,7 @@ Do not prescribe components or slices merely from these conceptual boundaries.
 
 **Identity:** SEED-066#unattached-session-native-observation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"not-ready","reasons":["The required established-session payload is not released or installed in an observed target project: establishesUnattached returned false for Claude Code, Codex and Cursor in the preparation checkout. Terry must arrange release/install under the approved exception, then obtain a fresh capability result in the selected observation project before native Start journeys can run."],"basis":{"document":"6b836ece32660f61b6eec6d845ec28a69298762befa45e8f816b91bdc407707b","plan":"865737d770301c9fc115a0c38b924f2ee5b2bf29a19dc4c607c102f328ab1283"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"not-ready","reasons":["The required established-session payload remains unreleased and unavailable in the observed preparation checkout: on 2026-10-12 the highest numeric remote release and both installed version records were 0.3.59, and establishesUnattached returned false for Claude Code, Codex and Cursor. Before Take, Terry must arrange the complete tagged payload installation in the selected observation project and obtain a fresh capability result there; native Start, workflow reuse and landing remain unobserved and belong to the paid probe and subsequent journeys."],"basis":{"document":"4660f7f68520f86b0b422b2b6ada1ad73bcbc1503a17c8b50bca5b4ab2424511","plan":"5ceccaac5a15c86c0ba1c6009978715c72cf491b1b19022a02f6dcd105c206d4"}}
 ```
 
 **Goal:** A developer who relies on Start session's Workspace and After checks
@@ -150,6 +150,34 @@ Boundary assumptions:
 - A project whose installed skills predate the payload → the dialog disables
   the two non-default choices and says why; the observation for that host ends
   there.
+- Claude Code, Isolated workspace · Wait for review → one-shot execution
+  commits its verified result and queued-story closure locally; remote trunk
+  still queues the story. A later explicit Dough Land publishes the retained
+  result and closure, captures the original launch, and retires the worktree.
+- Claude Code, Default main · Wait for review, existing harmless changes →
+  warning confirmation preserves those changes at launch; explicit one-shot
+  refinement with `--default-main` commits them with the refinement for review,
+  with no assignment, push, or retirement.
+
+#### Architecture
+
+Observation follows the existing responsibility boundaries: the dashboard
+selects and hands off session policy; the installed shared start establishes
+and reuses the workspace; the invoked workflow owns tracking, verification and
+queued-story closure; Dough Land owns publication and retirement. The launch
+record is local evidence, not story state. No new runtime or storage owner is
+needed for this observation.
+
+The dashboard's `establishesUnattached` consumer checks for the installed start,
+session policy and formatter. A false result blocks non-default starts; a true
+result alone proves neither complete released payload nor native instruction
+consumption, landing capture or workspace reuse. Inspect the complete tagged
+installation under [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+and [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md),
+then obtain native behavior proof under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+The release-first exception below remains the only exception needed; Proposed
+ADRs 0007–0009 add no binding constraint.
 
 #### Decisions and release prerequisite
 
@@ -164,18 +192,21 @@ Boundary assumptions:
   for review followed by a later Dough Land, and Default main · Wait for review
   followed by one-shot refinement with its result retained for review.
 - The required payload is not in `v0.3.59`, the highest numeric remote release
-  observed on 2026-10-11. Release ownership remains with Terry; execution needs
+  rechecked on 2026-10-12. Release ownership remains with Terry; execution needs
   the release carrying this payload installed for each selected host. No release
   number is selected by this preparation.
 
-Current preparation evidence (2026-10-11, revision `4e4c2c01`):
+Current preparation evidence (2026-10-12, revision `20189a6a`):
 `git ls-remote --tags origin 'v0.3.*'` identifies `v0.3.59` as the highest remote
 numeric release. `git ls-tree v0.3.59
 src/skills/dough-execute-plan/references/established-session.md` returns no
 entry; `git tag --contains e5e26130` returns no tag. The source reference and
 helper are declared in `install.sh`, but source presence is neither installed
-payload nor native acceptance. The plan records the actual installation
-capability check and its unavailable result for all three hosts.
+payload nor native acceptance. Both installed version records in this checkout
+(`.agents/skills/dough-update/VERSION` and `.claude/skills/dough-update/VERSION`)
+read `0.3.59`. A fresh call to `establishesUnattached` returns `false` for
+Claude Code, Codex and Cursor. The plan records the literal consumer invocation
+and its boundary; no paid native journey has been run by this preparation.
 
 #### Observation
 
@@ -213,7 +244,8 @@ attempt; a failure is assessed before any separately agreed retry.
 - Claude Code, Isolated workspace · Wait for review: start a fresh blank
   conversation, then invoke one-shot execution of a different queued trivial
   story without landing flags. Expect the established worktree reused, a
-  verified committed result retained there, no push, and no retirement. Later
+  verified committed result and queued-story closure retained there, with the
+  story still queued on remote trunk, no push, and no retirement. Later
   explicitly invoke Dough Land in that conversation. Expect that exact
   retained result published to the established target, the original launch's
   landing context captured, queued-story closure handled by the invoked
@@ -246,19 +278,22 @@ through bounded corrections before closure. Missing payload, unavailable
 hosts, failed runs, and inconclusive observations remain pending; recording
 them alone does not complete the story.
 
-## Existing Behavior to Reconcile
+## Current Implemented Baseline
 
-- [Current one-shot guidance](../../src/skills/dough-execute-plan/references/one-shot.md)
-  excludes refinement and normally publishes execution automatically. The new
-  review default must reconcile startup publication-authority assumptions,
-  retention, later landing, queued-story closure, and recovery.
+- [One-shot execution](../../src/skills/dough-execute-plan/references/one-shot.md)
+  retains verified results for review by default, with queued-story closure in
+  the local result commit. Explicit auto-land publishes after verification;
+  later landing rechecks remote ownership before publication.
+  [One-shot refinement](../../src/skills/dough-story-refinement/references/one-shot-refinement.md)
+  supports the same independent workspace and landing choices without a new
+  Preparing assignment.
 - [Dashboard launch documentation](../../dashboard/AGENT-LAUNCH.md),
   [launch startup](../../dashboard/server/launchStart.ts), and
-  [Claude host launcher](../../dashboard/server/hosts/claude/launch.ts) show that
-  ad hoc launch skips workflow establishment and currently supplies only the
-  user's instruction in the configured project folder. This is not proof of a
-  default-main checkout or review-before-publication contract. The obsolete
-  `dashboard/server/claudeLaunch.ts` reference has been replaced here.
+  [unattached start](../../dashboard/server/unattachedStart.ts) distinguish
+  Default main · Wait for review (no start or Established session block) from
+  the other choices (installed shared start, retained workspace and formatted
+  block). [Start session](../../dashboard/LAUNCH-START.md#start-session) owns
+  the maintained contract. Source inspection is not native acceptance.
 - [Dough Land](../../src/skills/dough-land/SKILL.md) accepts dirty default-checkout
   work and unpublished temporary branches, and lands all checkout changes and
   unpublished commits. It does not itself close backlog work or release

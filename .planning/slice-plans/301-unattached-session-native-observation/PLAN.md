@@ -24,9 +24,9 @@ new test runners, a full host-by-scenario matrix, native Default main auto-land,
 and implementation of hypothetical defects. Optional timeout recovery and
 parallel pending-session exploration stay optional and cannot replace required
 coverage. A discovered discrepancy requires a bounded correction and affected
-re-observation before closure; do not pre-plan unknown repairs. The separately
-owned [start-leftovers correction](../300-unattached-start-leftovers/PLAN.md)
-is not absorbed into this story.
+re-observation before closure; do not pre-plan unknown repairs. The
+[start-leftovers correction](../../done/SEED-066_unattached-start-leftovers.json)
+closed on 2026-10-11; its completion does not supply this story's native proof.
 
 ## Current decisions and prerequisite
 
@@ -44,7 +44,10 @@ not ready for execution until that prerequisite is observed. Do not renew
 readiness merely because a release number exists.
 
 [ADR 0003 — Release lifecycle](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-requires tagged payload; [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
+requires tagged payload;
+[ADR 0004 — Client installation and update](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
+requires the complete locally installed release rather than copied individual
+helpers; [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
 requires evidence per affected host, distinguishes native behavior from
 substitute processes, and owns evidence assessment and cleanup. Follow
 [AGENTS.md](../../../AGENTS.md); do not hand-synchronize managed installations.
@@ -58,13 +61,19 @@ PFE finds the observation route already exists: [Start session](../../../dashboa
 [Established session](../../../src/skills/dough-execute-plan/references/established-session.md).
 The installed workflow start owns workspace reuse; one-shot execution/refinement
 owns tracking and result disposition; Dough Land owns publication and retirement.
-The [North Star host seam](../../NORTH-STAR.md) supports those existing homes.
+The [North Star host seam](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
+supports those existing homes.
 Reuse these operations and their receipts; add no harness or parallel state store.
+PFE rechecked these responsibilities against `unattachedStart.ts`, the source
+`established-session.md` and `one-shot.md` on 2026-10-12. Review disposition
+already closes queued work in the local result commit; remote backlog state
+changes only when that commit lands. Judge these two locations separately.
 
 Preparation workspace:
 `/Users/terryyin/git/open-dough/.worktrees/observe-an-unattached-start-session-on-the-nativ`,
-revision `4e4c2c01`. This is a preparation checkout, not an assumed native test
-project. On 2026-10-11 the following unpaid, read-only prefix reached the
+revision `20189a6a4d9e5dee91eb6ae767d8da13ca9aba4e`. This is a preparation
+checkout, not an assumed native test project. On 2026-10-12 the following fresh
+unpaid, read-only prefix reached the
 consumer that decides whether non-default Start choices can be offered:
 
 ```sh
@@ -75,20 +84,31 @@ for (const host of ['claude', 'codex', 'cursor']) console.log(JSON.stringify({ho
 JS
 ```
 
-Result: `available: false` for all three hosts. Plain Node type stripping first
-refused a TypeScript parameter property; the transform-types invocation above
-reached the consumer successfully. No native process, workspace creation,
+Result: exit 0, `available: false` for all three hosts. The transform-types
+invocation reached the consumer successfully. No native process, workspace creation,
 assignment or publication was attempted. This proves current unavailability,
 not native behavior or the visible disabled-control wording.
 
 `git ls-remote --tags origin 'v0.3.*'` identified `v0.3.59` as the highest
 numeric release. `git ls-tree v0.3.59
 src/skills/dough-execute-plan/references/established-session.md` returned no
-entry; `git tag --contains e5e26130` returned no tag. These locate the missing
-release prerequisite; file presence alone cannot clear it.
+entry; `git tag --contains e5e26130` returned no tag. Both
+`.agents/skills/dough-update/VERSION` (Codex/Cursor) and
+`.claude/skills/dough-update/VERSION` (Claude Code) read `0.3.59`.
+These locate the missing release prerequisite; file presence alone cannot clear it.
+
+The inspected capability consumer checks three installed files: start, shared
+session policy and formatter. It does not evaluate the full payload, native
+skill consumption, path-identity handling or identity-free landing capture.
+A later `available: true` is necessary to offer non-default choices, but the
+operator must also identify the complete installed tagged release carrying the
+story's required payload. The paid probe then settles native behavior. Do not
+turn this observation into a new capability validator.
 
 After release/install, repeat the capability observation against the selected
-project through the matching dashboard revision, then the developer runs slice
+project through the matching dashboard revision (set `project.path` and
+`project.shown` to that project's actual absolute path; do not accidentally
+check this preparation checkout again), then the developer runs slice
 1 as the early paid probe. Native instruction consumption, actual CWD, workflow
 reuse, publication and retirement remain unobserved. A failed probe stops
 its dependent journeys for assessment and correction; earlier native evidence
@@ -113,7 +133,7 @@ reuse; remove spent artifacts under ADR 0005 at closure.
 | Each native host opens the chosen isolated workspace, receives the block, and reuses it for a later workflow | 1–3: native CWD, first input and actual start receipt; exactly one workspace, no new assignment |
 | A question alone claims, commits, pushes and completes nothing | 1–3: before/after Git and launch completion state |
 | Auto-land honors launch intent without another landing request | 1–3: native workflow invocation omits landing flags; accepted result SHA, queued-story closure, original launch capture and retirement |
-| Review retains the isolated result until requested | 4: committed local result and unchanged remote before explicit Dough Land; accepted same result and retired owned workspace afterward |
+| Review retains the isolated result until requested | 4: local result commit includes closure, while remote still queues the story; explicit Dough Land publishes the result and closure, captures the original launch and retires the owned workspace |
 | Default-main warning preserves input and work; refinement waits for review | 5: Back/Continue behavior, unchanged file at launch, same checkout and committed combined result after refinement, no push or new assignment |
 | Older installations cannot offer unsupported choices | Preflight of each affected host: disabled controls and explanation; count only this guard as covered, leave native journey pending |
 | Every discrepancy is resolved before closure | Owning failed slice stays unfinished; link bounded correction and its subsequent native result |
@@ -170,9 +190,10 @@ and owned workspace before review and after explicit Dough Land.
 
 Behavior: Start session · Isolated workspace · Wait for review → established
 `landing: review`; invoke one-shot execution without landing flags → verified
-committed result stays in the same owned workspace, remote unchanged and story
-still queued there. Explicitly invoke Dough Land → the workflow's retained-result
-closure/recheck and landing publish that result, capture the original launch's
+committed result and story closure stay in the same owned workspace; remote
+trunk is unchanged and still queues the story. Explicitly invoke Dough Land →
+the retained-result ownership recheck and landing publish that result and closure,
+capture the original launch's
 landing context and retire the owned workspace. A missing closure or unsolicited
 push is a discrepancy, not permission to revise the expected behavior.
 
