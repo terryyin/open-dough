@@ -7,12 +7,25 @@
 // name no story, Take, or assignment.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { installedSkillPath } from "../server/launchHosts.ts";
-import { accept, launch, recordsOf } from "./agentLaunchBoundary.ts";
-import { keptWords } from "./support/keptSessionStart.ts";
+import {
+  accept,
+  attempts,
+  continued,
+  launch,
+  recordsOf,
+} from "./agentLaunchBoundary.ts";
+import { keptWords, keptSessionStarts } from "./support/keptSessionStart.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import {
+  isolatedSession,
+  isolatedStart,
+  recordStarts,
+  worktrees,
+} from "./support/startSessionLanding.ts";
+import { originMain } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
 const request = {
@@ -77,25 +90,58 @@ test("a choice the installation cannot establish is refused before anything is a
   expect(await recordsOf(dashboard, "open-dough")).toHaveLength(1);
 });
 
-test("a start that stops, or whose block cannot be formatted, launches nothing and says so in the session's words", async ({
+test("a formatter failure keeps the established workspace and repairing it lets Continue launch without a second start", async ({
   dashboard,
   origin,
 }) => {
-  writeFileSync(installed(origin, "established-session.mjs"), "export {\n");
+  const starts = recordStarts(origin);
+  const formatter = installed(origin, "established-session.mjs");
+  const workingFormatter = readFileSync(formatter, "utf8");
+  writeFileSync(formatter, "export {\n");
   commit(origin);
-  expect(await explanation(launch(dashboard, request))).toEqual({
+  const before = await originMain(origin);
+  const failed = await explanation(
+    launch(dashboard, { ...request, policy: isolated }),
+  );
+  expect(failed).toMatchObject({
     kind: "failed",
     reason: "start-refused",
+    sessionStartKept: true,
     explanation:
-      "The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ~/git/open-dough on branch main.",
+      "The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. The established start was kept in workspace ~/git/open-dough/.worktrees/session on branch claude/session, where Continue or the same Start request can resume it.",
   });
+  const [attempt] = await attempts(dashboard);
+  const id = attempt?.id ?? "";
+  const session = isolatedSession(origin.project, "session", "review", before);
+  expect(keptSessionStarts(origin)[id]?.["session"]).toEqual(session);
+  expect(dashboard.claudeLaunchCalls()).toEqual([]);
+  expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
 
+  writeFileSync(formatter, workingFormatter);
+  dashboard.claudeScenario("launched");
+  expect((await explanation(continued(dashboard, id))).kind).toBe("launched");
+  expect((await recordsOf(dashboard, "open-dough"))[0]).toMatchObject({
+    establishedSession: session,
+  });
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+  expect(starts().map(({ argv }) => argv)).toEqual([
+    isolatedStart(origin.project, "session", "review"),
+  ]);
+  expect(worktrees(origin.project)).toEqual(["session"]);
+  expect(keptSessionStarts(origin)).toEqual({});
+});
+
+test("a start that stops before establishment launches nothing and says so in the session's words", async ({
+  dashboard,
+  origin,
+}) => {
   execFileSync("git", ["-C", origin.project, "switch", "-qc", "topic"]);
   const stopped = await explanation(launch(dashboard, request));
   expect(stopped).toMatchObject({ kind: "failed", reason: "start-refused" });
   expect(stopped.explanation).toMatch(
     /^The workspace could not be set up: .*on branch topic, not the target branch main.* Nothing was launched\.$/,
   );
+  expect(keptSessionStarts(origin)).toEqual({});
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
 });

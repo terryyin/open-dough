@@ -18,16 +18,25 @@ export function publicationRecordingStopped(
   );
 }
 
-// Whether an accepted attempt needs reconciliation before its story's
-// startup is known: unsettled while no server runs it, or settled while its
-// session or publication may or may not exist, or a required receipt failed. Elapsed time never
-// settles it; recheck or continuation does.
+// A definite failure whose established unattached start remains resumable.
+// This says nothing uncertain about native session existence.
+export const sessionStartRetained = (
+  attempt: Pick<AttemptObservation, "outcome"> | undefined,
+): boolean =>
+  attempt?.outcome?.kind === "failed" &&
+  attempt.outcome.sessionStartKept === true;
+
+// Whether an accepted attempt needs reconciliation: unsettled while no
+// server runs it, uncertain session or publication, a required receipt that
+// failed, or a definite failure with an established session start kept.
+// Elapsed time never settles it; recheck or continuation does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
   return attempt.outcome === undefined
     ? !attempt.running
     : attempt.outcome.kind === "uncertain" ||
         attempt.publication.kind === "unknown" ||
-        publicationRecordingStopped(attempt);
+        publicationRecordingStopped(attempt) ||
+        sessionStartRetained(attempt);
 }
 
 export const laterAttempt = (

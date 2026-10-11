@@ -32,43 +32,11 @@ the slow-warning, automatic progress, receipt-recording checkpoint, liveness,
 and own-record reconciliation delivered by SEED-130, now documented in
 `dashboard/AGENT-LAUNCH-STARTUP.md`.
 
-## Findings reconciled with current truth
+## Prepared findings
 
-The original retrospective read `8308056f`. Preparation reproduced the first
-two findings in this workspace at `f9bd9a97`, after incorporating the completed
-SEED-130 work from origin.
-
-1. **An established unattached start is lost after native or formatter
-   failure.** `launchRun.ts` appends establishment/recovery words only for
-   story starts, and `settleSessionStart` removes every non-uncertain result.
-   A native refusal can incidentally name its working directory, but it does
-   not name the branch or say the established start was kept. Continue refuses
-   the settled failed attempt, and the same Start again creates `session-2`.
-   A formatter failure names the workspace and branch, but likewise loses its
-   kept established session. Merely changing the removal condition is
-   insufficient: `needsReconciliation`, attempt continuation, and matching
-   Start requests must consume the recoverable establishment too.
-2. **Attempt retention leaves its kept unattached start behind.**
-   `launchAttemptStore.ts` prunes settled attempts after 30 days on a write,
-   without removing their entries from `session-starts.json`. A real expired
-   start, completed after its wait, remains in that file after its attempt is
-   pruned. This is record retention, not authorization to delete its worktree.
-3. **Interim residue.** The established session's `created` value has no
-   production reader; its producer and schema retain it, and the shared
-   `startSessionLanding.ts` fixture predicts it. The prepared start receipt
-   has its own `created` contract and remains intact. `LAUNCH-START.md` and
-   `unattachedStartScript.ts` describe real-path spelling as a current source
-   requirement, although the source start now accepts an equivalent symlink.
-   The dashboard conversion remains an allowance for older installations until
-   a released payload supplies that comparison.
-4. **Repeated Start session proof.** Runner selection finds 36 cases in 13
-   Start session spec files. The retrospective identified repeated request
-   identity, slug numbering, expiry wording, shared change confirmation,
-   default-path, landing capture, and unavailable-choice checks. Retain distinct
-   UI, shared rule, installed-script, and host-adapter purposes; move equivalent
-   data variations to their existing rule owner. The retrospective's proposed
-   changes to the two tracked continuation specs are already superseded by
-   SEED-130's warning/automatic-progress journeys; preserve those journeys.
+The four correction findings and their reproduced pre-change evidence are in
+[preparation evidence](PREPARATION.md). Failure recovery, record retention,
+unused session facts, and repeated proof are owned by slices 1–4 below.
 
 ## Existing solutions and architecture
 
@@ -111,7 +79,7 @@ in this repository's installed managed copies.
 
 | Promise / example | Owning slice and observable proof |
 | --- | --- |
-| Isolated Start establishes `claude/session`; native launch refuses → the answer names workspace, branch, nothing published, and retained continuation; Continue or identical Start later opens there with one start and one worktree | Slice 1: extend the raw launch boundary in `agent-launch-start-session-kept.spec.ts`; include the page's recovery/Start selection in `agent-launch-start-session-recovery.spec.ts` |
+| Isolated Start establishes `claude/session`; native launch refuses → the answer names workspace, branch, nothing published, and retained continuation; Continue or identical Start later opens there with one start and one worktree | Slice 1: raw launch and recovery/Start selection in `agent-launch-start-session-failed.spec.ts` (extracted from kept/recovery during refactoring) |
 | The installed formatter cannot be read after establishment → no native call; repairing it lets the retained attempt resume its established session | Slice 1: extend the existing formatter case in `agent-launch-start-session-stops.spec.ts` and observe the kept record plus successful retry |
 | An expired unattached start finishes and remains uncontinued; its settled attempt passes retention and is pruned → its kept start disappears, other retained starts survive, Git worktree remains | Slice 2: kept-start retention case using `landingRetentionClock` and `dropExpiredAttempts`; cover a refused/non-pruning write at the store boundary |
 | A start refused before establishment keeps nothing; expired or unconfirmed-input starts recover without duplicate work; live workers and story continuations retain their rules | Slices 1–2: existing kept, recovery, own-record continuation, and worker boundary cases |
@@ -123,10 +91,9 @@ in this repository's installed managed copies.
 
 ### 1. A failed established launch tells the developer where to resume
 Type: Behavior
-Status: planned
-Proof: kept, stops, recovery, request-matching, and own-record continuation cases;
-assert the answer, retained attempt/session, successful retry, start call count,
-worktree count, and unchanged origin.
+Status: done
+Proof: [accepted slice 1 observations and commands](PROOF.md#slice-1), including
+failed, kept, stops, recovery, matching and own-record continuation consumers.
 
 Behavior: an isolated unattached start establishes its workspace, then native
 launch or formatting fails → the developer sees the established workspace and
@@ -233,45 +200,34 @@ CI remains independent and is not an extra local all-suite gate.
 - SEED-130 already replaced the tracked continuation timeout design. Extend its
   owners and preserve its journeys rather than reimplement that work.
 
-## Settled premises and observations
+## Execution context
 
-Named checkout for the observations:
-`/Users/terryyin/git/open-dough/.worktrees/leave-nothing-behind-after-an-unattached-start`.
-Scratch probes and mutations were removed before preparation recording.
+- Established identity: `SEED-066#unattached-start-leftovers`; publisher
+  `dashboard-territory.local-open-dough`; agent `jacked-chan`.
+- Owned execution checkout:
+  `/Users/terryyin/git/open-dough/.worktrees/leave-nothing-behind-after-an-unattached-start`;
+  branch `codex/leave-nothing-behind-after-an-unattached-start`; Story Branch Mode.
+  No integration checkout was supplied. The authorized landing target is
+  `origin/main`; increments publish to the remote execution branch.
+- Starting revision: `d68c9e4ad8467764d18fc1dcdbc2ce54e2750347`.
+  Established claim, accepted on `origin/main`:
+  `00039df490c81724ed6d1118b97490eb7e51b9f8` (also the initial increment base).
+- Checkout setup: exact Node `24.21.0`; `node scripts/setup-native.mjs npm`,
+  `node scripts/setup-native.mjs browser`, `node scripts/setup-native.mjs check`,
+  and `npm run typecheck:dashboard` passed in this checkout.
+- No numeric slice budget or exception is supplied; existing planning authority
+  remains in force. The check-only staged lint/typecheck hook is understood.
+- CI: GitHub Actions, verified selector `ci.yml`, repository
+  `terryyin/open-dough`, target `codex/leave-nothing-behind-after-an-unattached-start`.
+  Codex observer coordinator `unattached-leftovers`, directory
+  `/tmp/dough-ci-501/watch-CKBqM3`, PID `3329`, session `16127`, yielded cell `10`.
+  The earlier claim on trunk is unobserved by this branch observer.
 
-- **Failure/reuse and pruning symptoms, at `f9bd9a97`.** Temporary cases reused
-  `preparationPage`, a real `startOrigin`, recorded installed starts, the fake
-  native refusal/formatter failure, and the isolated retention clock.
-  `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/unattached-leftovers-planning-probe.spec.ts --workers=3`
-  reached all three consuming operations and failed on the intended missing
-  behavior: native refusal retained zero starts, omitted the branch, refused
-  Continue, and retried in `session-2`; formatter refusal retained zero starts
-  despite an established worktree and made zero native calls; real pruning
-  removed the attempt but retained its start and worktree. No production code
-  was changed by these probes. Recreate these assertions as the slice-owned
-  regressions; the temporary file is not a delivery artifact.
-- **Current recovery and continuation route, at `f9bd9a97`.**
-  `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-session-kept.spec.ts dashboard/tests/agent-launch-start-session-stops.spec.ts dashboard/tests/agent-launch-own-record-continuation-race.spec.ts --workers=3`
-  passed. This reaches refusal, expiry, unconfirmed input, and the current
-  locked own-record continuation consumers; it does not prove the new fixes.
-- **Session-fact consumer discrimination, at `79107af7`, reused because the
-  producer/schema/fixture contract is unchanged at `f9bd9a97`.** With only
-  session `created` emission disabled,
-  `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-session-isolated.spec.ts --grep 'creates one worktree' --workers=1`
-  failed at the record comparison against the shared fixture, specifically on
-  missing `created`. Restoring emission made the same command pass. The fixture
-  must change with the representation; searching production consumers found
-  no reader of session `created`.
-- **Current source permits equivalent real paths.**
-  `env -u FORCE_COLOR -u NO_COLOR node --test src/skills/dough-execute-plan/scripts/established-session-start.test.mjs`
-  passed eight cases, including the symlink's actual start returning prepared,
-  `created: false`, the original revision, and no second worktree. Its source
-  is unchanged by SEED-130. This proves current source reuse, not installation
-  of that source by a release.
-- **Suite inventory, not a performance baseline.**
-  `env -u FORCE_COLOR -u NO_COLOR node node_modules/playwright/cli.js test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start-session- --list --reporter=list`
-  selected 36 cases in 13 files. Actual before/after timing and retained-test
-  discrimination belong to slice 4, before any test removal invalidates them.
+## Pre-change evidence
+
+[Preparation evidence](PREPARATION.md#settled-premises-and-observations) retains
+the failed real-start probes, existing recovery checks, representation consumer
+discrimination, symlink reuse, and suite inventory with their revision/context.
 
 ## Learnings
 
@@ -281,3 +237,10 @@ Scratch probes and mutations were removed before preparation recording.
 - Updating to `f9bd9a97` did not resolve either leftover defect. It did resolve
   the retrospective's tracked-start timeout concern, so that implementation
   work was removed from the remaining plan without dropping its behavior proof.
+
+## Story obligations
+
+### G1. Native-host acceptance remains separate
+Reported: slice 1 — "Real native-host observation remains explicitly deferred."
+Story clause: "observing the real native hosts stay outside this correction"
+Disposition: excluded "observing the real native hosts stay outside this correction"

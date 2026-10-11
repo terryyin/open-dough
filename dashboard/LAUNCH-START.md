@@ -197,9 +197,14 @@ server, the continuation is answered “This session's earlier start is still
 running on this machine, so it was not continued.” and the attempt stays as it
 was. An isolated continuation is not asked about default main's changes; a
 Default main one is, and changes it did not confirm stop it as they stop a
-story's Default main continuation. The kept start is removed once its attempt
-settles as anything but uncertain: its session started, or it failed and
-nothing of it continues. A start refused before any workspace existed keeps
+story's Default main continuation. A native refusal or formatter failure after
+establishment stays a definite failure: no session was started. Its answer names
+the retained workspace and branch and says nothing was published; Startup recovery
+offers Continue without suggesting that a native session may exist. Continue or
+the same Start request resumes the established session, preserving its workspace,
+landing choice and handoff without running the start again. Successful launch
+removes its spent kept start; a failure before establishment removes it. A start
+refused before any workspace existed keeps
 nothing, and a later Start session chooses its workspace afresh. A
 conversation whose first input is unconfirmed is recovered by the same
 continuation with no start run.
@@ -207,8 +212,8 @@ continuation with no start run.
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
 project, host and instruction with its Workspace and After checks choices, a
 request naming none having the default ones. A Start session repeating all of
-them recovers a kept conversation whose first input is unconfirmed; one whose
-choices differ starts a new session in its own place and leaves that
+them resumes its retained established start or recovers a kept conversation whose
+first input is unconfirmed; one whose choices differ starts a new session in its own place and leaves that
 conversation and its workspace to their own continuation.
 
 ### Existing changes in default main

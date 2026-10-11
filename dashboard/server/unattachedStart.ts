@@ -162,6 +162,6 @@ export async function unattachedStarted(
       workspace: chosen.workspace,
     };
   } catch {
-    return stopped(unattachedStartWords.formatFailed(place));
+    return stopped(unattachedStartWords.formatFailed());
   }
 }

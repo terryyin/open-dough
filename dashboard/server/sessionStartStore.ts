@@ -7,8 +7,9 @@
 // however long after the launch stopped waiting. Continuing that attempt goes
 // on in the same workspace on the same branch instead of choosing new ones.
 // It is removed when its script stops, having left nothing to resume, and
-// once its attempt settles any way but uncertain: its session started, or
-// nothing of it can be continued. Local evidence only. The file is read
+// once its session started or a failure left no established session. A
+// failed native launch or formatter keeps its established session for retry.
+// Local evidence only. The file is read
 // afresh, replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.
 
@@ -76,14 +77,19 @@ export const removeSessionStart = (
   attempt: string,
 ): Promise<void> => removeKept(store(), sourceId, attempt);
 
-// Removes the attempt's kept start once the attempt settled with nothing left
-// to continue: its session started, or it failed. An uncertain attempt keeps
-// its start for its continuation.
+// Settles the kept start: an uncertain attempt keeps it, as does a failed
+// launch with an established session. Return that failed establishment so
+// the attempt can retain its continuation evidence and explain where to resume.
 export async function settleSessionStart(
   sourceId: string,
   attempt: string,
   result: LaunchResult,
-): Promise<void> {
-  if (result.kind !== "uncertain")
-    await record(() => removeSessionStart(sourceId, attempt));
+): Promise<SessionStart | undefined> {
+  if (result.kind === "uncertain") return undefined;
+  if (result.kind === "failed") {
+    const kept = await keptSessionStart(sourceId, attempt);
+    if (kept?.session !== undefined) return kept;
+  }
+  await record(() => removeSessionStart(sourceId, attempt));
+  return undefined;
 }
