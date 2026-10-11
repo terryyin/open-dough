@@ -189,7 +189,9 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("unavailable"),
-      workspace: z.string().min(1),
+      // The one workspace that could not be read; absent when the review
+      // could not choose a workspace at all.
+      workspace: z.string().min(1).optional(),
       explanation: z.string().min(1),
     }),
   ])

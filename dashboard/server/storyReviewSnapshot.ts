@@ -72,6 +72,15 @@ export async function storyReviewResponse(
         selectedRun: reviewRunKey(request.run.record),
       },
     };
+  if ("explanation" in request)
+    return {
+      status: 200,
+      body: {
+        kind: "unavailable",
+        explanation: request.explanation,
+        ...choices,
+      } satisfies StoryReview,
+    };
   const { sourceId, identity, established, shown } = request;
   const mark = await reviewMark(sourceId, identity);
   const body = await withResponseSignal(

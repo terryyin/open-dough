@@ -1,7 +1,8 @@
 // Which workspace a story's review reads, decided the same way by the card
 // that offers the review and by the local launch boundary that answers it: the
 // latest kept launch workspace, else the one worktree local Git found holding
-// the story's claim (`./localWorkspace.ts`).
+// the story's claim (`./localWorkspace.ts`). Several such worktrees are an
+// ambiguity the review explains instead of choosing.
 
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
@@ -19,8 +20,8 @@ export type ReviewedWorkspace = Pick<
 // with what it established: the most recent by `launchedAt` of the story's
 // records whose start or preparation names a workspace. Without one, the
 // single worktree local Git found holding the story's claim. Several such
-// worktrees are not chosen between, and count as none; undefined when nothing
-// names a workspace.
+// worktrees are not chosen between: they are answered together as ambiguous.
+// Undefined when nothing names a workspace.
 export function reviewWorkspaceOf<
   Kept extends LaunchRecord,
   Found extends LocalWorkspace,
@@ -36,6 +37,7 @@ export function reviewWorkspaceOf<
       readonly established: EstablishedContext;
     }
   | { readonly kind: "found"; readonly found: Found }
+  | { readonly kind: "ambiguous"; readonly found: readonly Found[] }
   | undefined {
   let latest:
     | { readonly record: Kept; readonly established: EstablishedContext }
@@ -59,7 +61,19 @@ export function reviewWorkspaceOf<
     (found) => found.source === sourceId && found.identity === identity,
   );
   const [found] = holding;
-  return found !== undefined && holding.length === 1
+  if (found === undefined) return undefined;
+  return holding.length === 1
     ? { kind: "found", found }
-    : undefined;
+    : { kind: "ambiguous", found: holding };
+}
+
+// Why a review of several worktrees holding one story's claim reads none:
+// their agent and each worktree as the context line would show it, in path
+// order.
+export function severalWorktreesExplanation(
+  found: readonly LocalWorkspace[],
+): string {
+  const agents = [...new Set(found.map(({ agent }) => agent))];
+  const shown = found.map(({ workspace }) => workspace).sort();
+  return `Several worktrees on this machine hold this story's claim for ${agents.join(", ")}: ${shown.join(", ")}. The review cannot choose one.`;
 }

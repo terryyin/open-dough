@@ -181,7 +181,7 @@ Safe stopping point: the story's main outcome is delivered.
 
 ### 2. Stale worktrees are passed over and an ambiguous pair is explained
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases in `story-review-trunk-worktree.spec.ts` (or a sibling
 `story-review-trunk-worktree-ambiguity.spec.ts` if the file grows past its
 neighbours' size) for the two remaining proof rows; the story-review spec
@@ -237,12 +237,27 @@ Learnings for remaining work:
   Pygardon read answered 502 before the step's check was noted. 27 further
   repeats passed, so the cause is located but not reproduced.
 
+Slice 1 published as `f2e6e131` on the remote execution branch; CI observer
+`/tmp/dough-ci-501/watch-VRkEsQ`. Its CI run 38099358635 failed only split
+2/3's time budget (470.2 job-seconds against 470). The same 109 jobs took
+292.7 on the base trunk run 38097405961, a uniform 1.6 times slower runner,
+and none reads this story's files, so no repair was made; the ceiling's
+headroom against runner variance is left for the developer.
+
+Slice 2 accepted proof: `npm run test:dashboard --
+dashboard/tests/story-review*.spec.ts
+dashboard/tests/recently-done-one-shot-review.spec.ts` (96 passed after the
+refactor), the two start-refusal specs before it, typecheck and lint clean.
+Slice 2 decisions: an `unavailable` review names its worktree only when it
+has one; the file, range and mark requests of an ambiguous story answer 409
+with the explanation; the explanation lists paths in path order.
+
 ## Story obligations
 
 ### G1. Several qualifying worktrees offer no review
 Reported: slice 1 — "several qualifying worktrees offer no Review changes until slice 2 explains them"
 Story clause: "Review changes opens a review that says so and names them"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts` “two worktrees holding the story's claim open a review that names both and reads neither” asserts the card's action, the `unavailable` answer in the decided words, no context line, list, diff region or marking controls, and the 409 mark, file and range refusals
 
 ### G2. Scan failure paths have no test
 Reported: slice 1 — "Scan failure paths have no test: a Git failure on one worktree, a failed worktree listing, a detached worktree, or a project folder that is itself a linked worktree."
@@ -268,3 +283,18 @@ Disposition: no user cost "can open the story review on that agent's worktree": 
 Reported: slice 1 — "the spec selects the \"Since the review\" radio after Refresh rather than expecting Refresh to open on it"
 Story clause: "as for a launched workspace"
 Disposition: proved by slice 1: `dashboard/tests/story-review-trunk-worktree.spec.ts` asserts the refreshed snapshot's `since.files` and the Since the review rows; `story-review-comparison.spec.ts` “Refresh keeps all changes shown” is the launched behavior
+
+### G7. Refresh after an ambiguity is resolved is untested
+Reported: slice 2 — "Refresh on the ambiguous review after one worktree is removed, recovering to a snapshot."
+Story clause: "Review changes opens a review that says so and names them"
+Disposition: no user cost "can open the story review on that agent's worktree": Refresh asks the same review request again, which resolves the one remaining worktree as the single-worktree spec proves; closing and reopening does the same.
+
+### G8. An ambiguity beside a landed run is untested
+Reported: slice 2 — "An ambiguity while a kept record's landed run exists: the code prefers the landed fallback, as it does for a missing workspace."
+Story clause: "A story with a kept launch record naming a workspace keeps reading it as today"
+Disposition: no user cost "can open the story review on that agent's worktree": a record with a landing names a workspace and wins before any found worktree, so the combination does not arise from real records.
+
+### G9. Differing agents in one ambiguity are untested
+Reported: slice 2 — "If the ambiguous worktrees named different agents, `<agent>` becomes the distinct agents joined by \", \"."
+Story clause: "Two worktrees authored by Yui-chan both hold this story's claim"
+Disposition: no user cost "can open the story review on that agent's worktree": the story's ambiguity is one agent's worktrees; two agents' heads both committing a profile for one story is not a state the start leaves.

@@ -5,13 +5,17 @@
 // Records naming no workspace, another identity, or another project are
 // passed over. Without such a record, the one worktree local Git found
 // holding the story's claim is reviewed; a kept launch workspace keeps
-// precedence over it, several found worktrees are not chosen between, and
-// none at all leaves the story with nothing to review.
+// precedence over it, several found worktrees are not chosen between but
+// answered together as an ambiguity, whose explanation names them, and none
+// at all leaves the story with nothing to review.
 
 import { expect, test } from "./support/pageTest.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
-import { reviewWorkspaceOf } from "../src/storyReviewWorkspace.ts";
+import {
+  reviewWorkspaceOf,
+  severalWorktreesExplanation,
+} from "../src/storyReviewWorkspace.ts";
 
 const established = (workspace: string) => ({
   identity: "SEED-A#a",
@@ -70,7 +74,8 @@ const found = (
   ...holding,
 });
 
-// The workspace the rule picks, whichever kind of evidence names it.
+// The workspace the rule picks, whichever kind of evidence names it; none
+// when it picks none.
 function workspaceOf(
   records: readonly LaunchRecord[],
   workspaces: readonly LocalWorkspace[] = [],
@@ -81,9 +86,8 @@ function workspaceOf(
     "open-dough",
     "SEED-A#a",
   );
-  return reviewed?.kind === "launched"
-    ? reviewed.established.workspace
-    : reviewed?.found.workspace;
+  if (reviewed?.kind === "launched") return reviewed.established.workspace;
+  return reviewed?.kind === "found" ? reviewed.found.workspace : undefined;
 }
 
 test("the most recent launch by launchedAt is reviewed, whatever order the records are kept in", () => {
@@ -181,6 +185,20 @@ test("a kept launch workspace keeps precedence over a found worktree", () => {
   ).toBe("/prepared");
 });
 
-test("several found worktrees holding the story's claim are not chosen between", () => {
-  expect(workspaceOf([], [found("/one"), found("/another")])).toBe(undefined);
+test("several found worktrees holding the story's claim are not chosen between: they are an ambiguity naming each", () => {
+  const holding = [
+    found("~/git/open-dough/.worktrees/trunk-b", { branch: "exec/trunk-b" }),
+    found("~/git/open-dough/.worktrees/trunk-a"),
+  ];
+  const reviewed = reviewWorkspaceOf(
+    [launched("2026-10-01T09:00:00.000Z", {})],
+    [found("/other-story", { identity: "SEED-B#b" }), ...holding],
+    "open-dough",
+    "SEED-A#a",
+  );
+  expect(reviewed).toStrictEqual({ kind: "ambiguous", found: holding });
+  expect(workspaceOf([], holding)).toBe(undefined);
+  expect(severalWorktreesExplanation(holding)).toBe(
+    "Several worktrees on this machine hold this story's claim for Yui-chan: ~/git/open-dough/.worktrees/trunk-a, ~/git/open-dough/.worktrees/trunk-b. The review cannot choose one.",
+  );
 });

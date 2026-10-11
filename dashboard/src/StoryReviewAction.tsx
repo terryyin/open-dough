@@ -1,10 +1,11 @@
 // A story's card action that opens its story review (`./storyReview.ts`) in
 // the page's side panel (`./StoryReviewPanel.tsx`), in place of whatever the
 // panel showed: offered from a kept launch workspace, including a retired
-// landed run's captured result, or from the one worktree local Git found
-// holding the story's claim, by the boundary's same selection rule. Closing the
-// review returns the keyboard to this action. It leads with a review glyph
-// and ends with an arrow toward the panel, both decorative.
+// landed run's captured result, or from the worktrees local Git found holding
+// the story's claim, by the boundary's same selection rule: one is reviewed,
+// and several open a review that names them. Closing the review returns the
+// keyboard to this action. It leads with a review glyph and ends with an
+// arrow toward the panel, both decorative.
 
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
