@@ -106,7 +106,7 @@ export class AgentLaunches {
   }
 
   keptStarts(): Promise<readonly KeptStart[]> {
-    return keptStarts(this.progress);
+    return keptStarts();
   }
 
   runningStarts(): readonly RunningStart[] {

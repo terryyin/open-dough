@@ -43,7 +43,7 @@ export function StartupStatus({
   // Whether the project's installed skill establishes the workflow's start.
   readonly establishesStart: boolean;
 }) {
-  const { workflow, host, state, problem } = startup;
+  const { workflow, host, state, problem, warning } = startup;
   const named = startName(workflow);
   if (state === "reconciling") {
     return (
@@ -80,6 +80,7 @@ export function StartupStatus({
     <>
       <p className="launch-answer quiet card-startup card-startup-progressing">
         {words}
+        {warning !== undefined && <> {warning}</>}
       </p>
       <p className="card-startup-note quiet">
         Local startup in progress; this story's actions are unavailable until it

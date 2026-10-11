@@ -89,7 +89,16 @@ export async function expectStartProgress(
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 20_000 })
     .toEqual(running("preparing"));
-  expect(await keptStarts(dashboard)).toEqual([]);
+  expect(await keptStarts(dashboard)).toEqual([
+    expect.objectContaining({
+      workflow,
+      host,
+      source: "open-dough",
+      identity: queuedIdentity,
+      branch: `${host}/story-a`,
+      workspace: "~/git/open-dough/.worktrees/story-a",
+    }),
+  ]);
   for (const card of [backlogCard, observeCard]) {
     await expect(card).toContainText(`Preparing ${workflow}…`);
     await expect(

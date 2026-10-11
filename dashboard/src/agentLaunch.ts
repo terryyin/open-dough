@@ -102,7 +102,7 @@ export type Alerts = z.infer<typeof alertsSchema>;
 
 // A start this machine keeps whose session did not start
 // (`../server/startStore.ts`): the workflow, the project, the story, the
-// workspace as the page shows a project's folders, and the Agent the start's
+// workspace and branch as the page shows a project's folders, and the Agent the start's
 // claim names when it reported one.
 export const keptStartSchema = z.object({
   host: sessionHostSchema.default("claude"),
@@ -112,6 +112,7 @@ export const keptStartSchema = z.object({
   source: z.string().min(1),
   identity: z.string().min(1),
   workspace: z.string().min(1),
+  branch: z.string().min(1),
   agent: z.string().min(1).optional(),
   // The kept start's policy, absent for the default.
   policy: sessionPolicySchema.optional(),

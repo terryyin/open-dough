@@ -119,16 +119,20 @@ does today; the owning server refuses its continuation as running.
 
 ### 2. The card warns about a slow start and keeps following it
 Type: Behavior
-Status: planned
-Proof: `responsive-session-recovery.spec.ts` rewritten case
+Status: done
+Proof: `responsive-session-recovery.spec.ts` rewritten case; typecheck and the full browser suite passed (terminal exit 0). Its real held push and actual `slowSince` produce the exact two-minute warning, phase, indicator and one announcement across another machine read; reload preserves protection, and release launches one session/claim/workspace. Browser Date supplies only the elapsed display. Focused recovery/access/start-phases/start-codex/start-taken/session-kept-start/codex-model-boundary specs also passed.
 
 Behavior: a progressing story card → its attempt carries `slowSince` → the
 status keeps the phase sentence and the moving indicator and adds "Still
 starting after N minutes. The start goes on in workspace `<path>` on branch
 `<branch>`; its session starts when it finishes."; Startup recovery lists
 nothing for it; the announcements log says it once; a reload shows the same;
-when the session launches the card shows it. The workspace and branch come
-from the kept start the page already reads for the card.
+when the session launches the card shows it. The kept-start projection includes
+running starts and their existing branch so the page can read their context.
+Execution corrected the planning premise: `launchCatalog.keptStarts` currently
+filters running starts, and `support/startProgressPage.ts` asserts that exclusion.
+Remove it while keeping running phase and kept workspace as distinct facts;
+run the whole browser suite because this changes shared launch fixtures.
 
 ### 3. A live worker keeps an attempt running on every server
 Type: Behavior
@@ -145,7 +149,12 @@ Continue as today. The worker is noted when the script is spawned (its pid)
 and when the native launch begins (this server's pid), and cleared with the
 outcome; `runningStarts` stays this server's phases for its own starts.
 `AGENT-LAUNCH.md`'s startup handoff describes running, worker, and
-interrupted.
+interrupted. A server killed before noting `slowSince` may leave its child alive;
+an answering server derives the past-threshold warning from the recorded
+attempt's acceptance time using the existing threshold. Prove this orphan case by
+killing only the owned server pid, keeping its held installed script alive,
+then observing running/protected/warning before release and interrupted after
+the child exits; Continue safely reuses the kept claim. No automatic resume.
 
 ### 4. An unkept publication receipt stops before the native launch
 Type: Behavior
@@ -184,28 +193,16 @@ into a shared function Recheck keeps using; Continue calls it in
 | A late established start proceeds through the same path as an in-time one and launches once | slice 1's launch after release | scratch edit of `launchStart.ts` (await the script, no race) plus a scratch spec: push held 8 s past a 3 s threshold, then released | settled: attempt `owned: true`, no outcome, publication `unknown` while held; on release `launched`, publication `published` with a revision, one Claude launch call, kept start removed; edit and spec reverted |
 | A reparented child's liveness is observable by signal 0 | slice 3's `running` | `tmp/liveness-probe.mjs`: parent spawns `sleep 2` and exits; `process.kill(pid, 0)` at 0 ms and 3 s | settled: alive at 0 ms, not alive after exit |
 | The fixture runs two dashboard servers on one machine store | slice 3's proof route | scratch spec starting two preview servers with the same `machine` | settled: two origins on different ports, both answer `GET /__agent-launch` |
-| The fixture's `close()` ends the server's whole process group | slice 3's dead-worker proof | `dashboard/tests/support/processGroup.ts` | settled by reading: the group leader and every subprocess end together, so the orphan-script case needs the existing explicit `pkill` of the lost-server case, which this plan reuses |
+| The fixture's `close()` ends the server's whole process group | slice 3's dead-worker proof | `dashboard/tests/support/processGroup.ts` | settled by reading: the group leader and every subprocess end together, so the new live orphan case kills only `dashboardServer.pid`; the existing dead-worker case reuses its explicit `pkill` |
 | The page follows a running attempt without a bound of its own | slice 2 | `attemptChangeWaits.ts` re-waits after each read while the attempt runs; the server's `changed` wait is bounded and answers `changed: false` | presence only; slice 2's proof observes the card past the threshold and through the launch |
 
 ## Execution context
 
-- Established execution: `SEED-130#slow-startup-safe-recovery`, publisher
-  `dashboard-territory.local-open-dough`, agent `bastiaan-chan`.
-- Story Branch Mode; reused owned workspace
-  `/Users/terryyin/git/open-dough/.worktrees/slow-startup-continues-automatically-and-unsafe`,
-  branch `codex/slow-startup-continues-automatically-and-unsafe`.
-- Integration checkout: `/Users/terryyin/git/open-dough`; authorized remote
-  `origin`, trunk `main`; increments publish to the execution branch.
-- Starting revision `377970db89e0c2e2bde14f765fc2be9d9b58b9a3`; accepted
-  claim/base `3ec282610148afb245a710642b486318d5388d57` on origin/main and
-  the remote execution branch. No second start or claim.
-- Exact-checkout `npm ci` and `npm run typecheck:dashboard` passed with
-  `/opt/homebrew/bin` first on PATH. Existing planning authority is retained;
-  no numeric slice budget is configured.
-- CI: GitHub Actions, verified `ci.yml` push workflow; execution branch observer
-  coordinator `bastiaan-chan-243b529b`, directory `/tmp/dough-ci-501/watch-F8Nh94`,
-  PID `1364`, session `44765`, yielded cell `12`. Claim publication on trunk
-  predates this observer and has unobserved CI coverage.
+- Established `SEED-130#slow-startup-safe-recovery`, publisher `dashboard-territory.local-open-dough`, agent `bastiaan-chan`; no second claim/start.
+- Story Branch Mode, owned workspace `/Users/terryyin/git/open-dough/.worktrees/slow-startup-continues-automatically-and-unsafe`, branch `codex/slow-startup-continues-automatically-and-unsafe`. Integration checkout `/Users/terryyin/git/open-dough`; origin/main; increments publish to the story branch.
+- Starting revision `377970db89e0c2e2bde14f765fc2be9d9b58b9a3`; accepted claim/base `3ec282610148afb245a710642b486318d5388d57` on origin/main and remote execution branch.
+- Exact-checkout `npm ci` and typecheck passed with `/opt/homebrew/bin` first on PATH; retained planning authority, no numeric slice budget.
+- GitHub Actions `ci.yml` push workflow; observer coordinator `bastiaan-chan-243b529b`, directory `/tmp/dough-ci-501/watch-F8Nh94`, PID `1364`, session `44765`, yielded cell `12`. Claim publication predates observer; claim CI unobserved.
 
 ## Current decisions
 
@@ -235,7 +232,7 @@ into a shared function Recheck keeps using; Continue calls it in
 ### G1. Slow warning is not yet rendered
 Reported: slice 1 — "The card progresses and launches automatically, but does not render or announce the slow-start warning or prove its reload persistence."
 Story clause: "The Startup announcements log announces the slow start once."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `responsive-session-recovery.spec.ts`, "warns once, keeps progressing through reload with no recovery, and launches automatically once"
 
 ### G2. Another server still reads a live start as interrupted
 Reported: slice 1 — "The owning server reports owned; another server still treats an unsettled attempt as interrupted. No running observation field or worker fact was added here."

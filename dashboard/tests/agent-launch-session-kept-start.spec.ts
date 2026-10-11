@@ -51,6 +51,7 @@ test.describe("a kept one-shot start", () => {
           source: "open-dough",
           identity: queuedIdentity,
           workspace: `~/git/open-dough/.worktrees/${slug}`,
+          branch: `claude/${slug}`,
           policy,
         },
       ]);

@@ -129,6 +129,7 @@ test("a refused session launch after a published claim answers the Agent and wor
       source: "open-dough",
       identity: queuedIdentity,
       workspace: workspaceShown,
+      branch: "claude/story-a",
       agent,
     },
   ]);
