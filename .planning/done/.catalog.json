@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-088_resolved-integration-survives-reruns.json",
+      "identity": "SEED-088#resolved-integration-survives-reruns",
+      "completedAt": "2026-10-11T01:41:54.628Z",
+      "blob": "90b8a3a62c0337e27dd685ed261e6b7c71e9a5b2"
+    },
+    {
       "fileName": "SEED-123_unpublished-preparation-recovery.json",
       "identity": "SEED-123#unpublished-preparation-recovery",
       "completedAt": "2026-10-11T00:36:51.878Z",

@@ -153,29 +153,6 @@ current one as trunk's, so story work that reaches trunk after the mark is
 left out and an otherwise empty review says nothing changed beyond what trunk
 now holds; recognizing the story's own commits there would let it list them.
 
-<a id="resolved-integration-survives-reruns"></a>
-
-### A resolved integration survives a failed or early rerun
-
-**Identity:** SEED-088#resolved-integration-survives-reruns
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/295-resolved-integration-survives-reruns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8fa28c620f7a52ecc9d49ebc45a32e7819646ea9386314738b4de962f741c278","plan":"1b481fe15525b3870db59534042070259959e0aa9c93eb5d191934bb7750f917"}}
-```
-**Slice plan:** [A resolved integration survives a failed or early rerun](../slice-plans/295-resolved-integration-survives-reruns/PLAN.md).
-
-**Goal:** An agent that resolved a conflicted Story Branch integration by hand
-keeps that resolution when the integration command is run again early or
-fails before its push, so the story still lands with its landed review. A
-bounded correction from the execution retrospective of
-`SEED-088#landing-capture-after-integration-conflict`; it adds no feature
-promise.
-
-**Scope:** The `integrate` command keeps a resolved merge in the workspace
-when landing retention fails, reports an uncommitted merge as a preserved
-result, and preserves the existing acceptance of resolved merges in either
-parent order; the guidance names those states and the moved-target rerun;
-the conflict proof's duplicated fault seam and repeated assertions go.
-
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-088#resolved-integration-survives-reruns",
+  "title": "A resolved integration survives a failed or early rerun",
+  "completedAt": "2026-10-11T01:41:54.628Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "claude"
+}
