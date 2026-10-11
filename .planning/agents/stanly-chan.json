@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "identity": "SEED-088#review-trunk-mode-story-worktree",
-  "mode": "story-branch",
-  "branch": "claude/a-trunk-mode-story-started-outside-the-dashboard",
-  "host": "claude"
-}

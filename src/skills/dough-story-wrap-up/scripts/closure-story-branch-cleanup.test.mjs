@@ -16,6 +16,7 @@ import {
   captureCheckout,
   commitFile,
   createCleanTrunkFixture,
+  currentBranch,
   executionBranch,
   git,
   lsRemoteSha,
@@ -73,10 +74,7 @@ test("Story Branch cleanup after integration retires the execution worktree, its
     readFileSync(join(other, "other.txt"), "utf8"),
     "other workspace\n",
   );
-  assert.equal(
-    (await git(other, "branch", "--show-current")).stdout.trim(),
-    "other/task",
-  );
+  assert.equal(await currentBranch(other), "other/task");
   assertCheckoutUnchanged(
     integrationBefore,
     await captureCheckout(integration),

@@ -2,7 +2,6 @@
 // merge is preserved as Git left it, and the commit that resolves it is the
 // candidate the next run publishes.
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -16,22 +15,19 @@ import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs
 import {
   advanceOriginFromAnotherWriter,
   commitFile,
+  commitSharedResolution,
   createCleanTrunkFixture,
+  currentBranch,
   executionBranch,
   git,
+  integrateCommand,
   lsRemoteSha,
+  porcelainStatus,
   publishStoryConflictingWithTrunk,
   revParse,
-  stageSharedResolution,
+  runScript,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
-
-const cli = fileURLToPath(
-  new URL(
-    "../../dough-execute-plan/scripts/history-preserving-publication.mjs",
-    import.meta.url,
-  ),
-);
 
 const mergeAdapter = fileURLToPath(
   new URL(
@@ -40,24 +36,6 @@ const mergeAdapter = fileURLToPath(
   ),
 );
 const titled = (title) => backlogOf([], [`- [${title}](seeds/C.md#c)`]);
-
-// A script's exit code and what it printed.
-const run = (script, ...args) =>
-  new Promise((resolve) => {
-    execFile(process.execPath, [script, ...args], (error, stdout, stderr) => {
-      resolve({ code: error?.code ?? 0, stdout, stderr });
-    });
-  });
-
-// The installed integration command.
-function integrateCommand(workspace, publishedTip) {
-  const args = ["integrate", "--workspace", workspace];
-  args.push("--published-tip", publishedTip, "--branch", executionBranch);
-  return run(cli, ...args);
-}
-
-const status = async (workspace) =>
-  (await git(workspace, "status", "--porcelain")).stdout;
 
 test("a conflicted integration is preserved as Git left it, and its resolved merge commit is published as the candidate", async (t) => {
   const fixture = await createCleanTrunkFixture();
@@ -81,16 +59,15 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   const assertConflictLeftOn = async (base) => {
     assert.equal(await revParse(execution, "HEAD"), base);
     assert.equal(await revParse(execution, "MERGE_HEAD"), closureSha);
-    assert.equal(await status(execution), "A  increment.txt\nAA shared.txt\n");
-    assert.equal((await git(execution, "branch", "--show-current")).stdout, "");
+    assert.equal(
+      await porcelainStatus(execution),
+      "A  increment.txt\nAA shared.txt\n",
+    );
+    assert.equal(await currentBranch(execution), "");
     assert.equal(await lsRemoteSha(origin, trunkTarget), base);
     assert.deepEqual(prepared, []);
   };
-  const resolve = async (body) => {
-    await stageSharedResolution(execution, body);
-    await git(execution, "commit", "--no-edit");
-    return revParse(execution, "HEAD");
-  };
+  const resolve = (body) => commitSharedResolution(execution, body);
 
   const stopped = await integrateCommand(execution, closureSha);
   assert.equal(stopped.code, 1, stopped.stderr);
@@ -107,9 +84,11 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   });
   await assertConflictLeftOn(trunkSha);
 
-  // Run again before it is resolved, the same conflict is reported in place.
+  // Run again before it is resolved, the same conflict is reported in place
+  // and no merge runs.
   const unresolved = await publish();
   assert.equal(unresolved.classification, "preserved");
+  assert.equal(unresolved.mergeCount, 0);
   assert.deepEqual(unresolved.conflictedPaths, ["shared.txt"]);
   await assertConflictLeftOn(trunkSha);
 
@@ -121,6 +100,7 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   assert.equal(recomputed.classification, "preserved");
   assert.equal(recomputed.reason, "conflict");
   assert.deepEqual(recomputed.conflictedPaths, ["shared.txt"]);
+  assert.equal(recomputed.mergeCount, 1);
   await assertConflictLeftOn(movedSha);
 
   const resolved = await resolve("story and trunk\n");
@@ -145,11 +125,8 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
     (await git(origin, "show", `${trunkTarget}:shared.txt`)).stdout,
     "story and trunk\n",
   );
-  assert.equal(
-    (await git(execution, "branch", "--show-current")).stdout.trim(),
-    executionBranch,
-  );
-  assert.equal(await status(execution), "");
+  assert.equal(await currentBranch(execution), executionBranch);
+  assert.equal(await porcelainStatus(execution), "");
 });
 
 test("a backlog conflict the merge adapter stops on is published once its `continue` commits the resolution", async (t) => {
@@ -195,7 +172,12 @@ test("a backlog conflict the merge adapter stops on is published once its `conti
   const decided = titled("Item C, resolved by hand");
   writeFileSync(join(execution, backlogPath), decided);
   await git(execution, "add", backlogPath);
-  const continued = await run(mergeAdapter, "continue", "--cwd", execution);
+  const continued = await runScript(
+    mergeAdapter,
+    "continue",
+    "--cwd",
+    execution,
+  );
   assert.equal(continued.code, 0, continued.stdout + continued.stderr);
   const resolved = await revParse(execution, "HEAD");
   assert.deepEqual(prepared, []);
@@ -216,8 +198,5 @@ test("a backlog conflict the merge adapter stops on is published once its `conti
     (await git(origin, "show", `${trunkTarget}:${backlogPath}`)).stdout,
     decided,
   );
-  assert.equal(
-    (await git(execution, "branch", "--show-current")).stdout.trim(),
-    executionBranch,
-  );
+  assert.equal(await currentBranch(execution), executionBranch);
 });

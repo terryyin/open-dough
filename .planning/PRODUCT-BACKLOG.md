@@ -14,11 +14,9 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [A Trunk Mode story started outside the dashboard offers Review changes](seeds/SEED-088-dashboard-story-code-review.md#review-trunk-mode-story-worktree) — SEED-088#review-trunk-mode-story-worktree ([plan](slice-plans/296-trunk-mode-worktree-review/PLAN.md))
-- [A resolved integration survives a failed or early rerun](seeds/SEED-088-dashboard-story-code-review.md#resolved-integration-survives-reruns) — SEED-088#resolved-integration-survives-reruns ([plan](slice-plans/295-resolved-integration-survives-reruns/PLAN.md))
+- [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options ([plan](slice-plans/298-unattached-session-options/PLAN.md))
 
 ## Backlog list
 
-- [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
-- [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options
+- [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Finish retires the worktree only by a decided rule when CI gave no verdict](seeds/SEED-121-execution-observer-ownership.md#finish-retirement-without-verdict) — SEED-121#finish-retirement-without-verdict

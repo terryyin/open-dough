@@ -8,6 +8,24 @@
       "blob": "e7d9920f74bf1a78ca9c9105dd9a0297dac6b9f1"
     },
     {
+      "fileName": "SEED-088_found-worktree-matches-published-agent.json",
+      "identity": "SEED-088#found-worktree-matches-published-agent",
+      "completedAt": "2026-10-11T02:27:21.169Z",
+      "blob": "10d9c0d8b17e034be1186eb593c076aec019bada"
+    },
+    {
+      "fileName": "SEED-088_review-trunk-mode-story-worktree.json",
+      "identity": "SEED-088#review-trunk-mode-story-worktree",
+      "completedAt": "2026-10-11T01:42:20.703Z",
+      "blob": "1eba24a74b1e3c45389d72b3e86f62076051f5ee"
+    },
+    {
+      "fileName": "SEED-088_resolved-integration-survives-reruns.json",
+      "identity": "SEED-088#resolved-integration-survives-reruns",
+      "completedAt": "2026-10-11T01:41:54.628Z",
+      "blob": "90b8a3a62c0337e27dd685ed261e6b7c71e9a5b2"
+    },
+    {
       "fileName": "SEED-123_unpublished-preparation-recovery.json",
       "identity": "SEED-123#unpublished-preparation-recovery",
       "completedAt": "2026-10-11T00:36:51.878Z",

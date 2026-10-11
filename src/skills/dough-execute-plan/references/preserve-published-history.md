@@ -41,5 +41,18 @@ merge there: through
 `agent-commit.mjs -F "$(git rev-parse --git-path MERGE_MSG)"` where agent
 commits apply, or the merge adapter's `continue` for the backlog or its done
 records. Then run the same `integrate` command again: it publishes that commit,
-a merge of the fetched target's tip and the published tip, as the candidate, and
-computes the merge again when the target moved meanwhile.
+a merge of the fetched target's tip and the published tip, as the candidate.
+When the target moved meanwhile, it sets that committed resolution aside and
+computes the merge on the new tip: resolve the conflict again on that merge.
+
+A `conflict` result with empty `conflictedPaths` and an entry in
+`adapterStatuses` is the merge adapter's `blocked` or `refused` answer, where
+no merge may be stopped: follow that status in place of those two steps.
+
+A `preserved` result whose `reason` is `uncommitted-merge` found a merge in
+progress with nothing left unmerged, and left it untouched. Commit that merge
+the same way, then run the same command.
+
+When that run fails before its push, the resolved merge stays checked out in
+the workspace. Leave it there and run the same command again once the failure
+is cleared: it takes that merge again.

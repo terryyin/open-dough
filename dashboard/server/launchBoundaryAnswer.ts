@@ -17,6 +17,7 @@ import { recoverCursorSession } from "./hosts/cursor/recover.ts";
 import { hostOperations } from "./launchHosts.ts";
 import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { localWorkspaces } from "./localWorkspaces.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { noSuchSession } from "./sessionAdmission.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
@@ -153,6 +154,7 @@ export async function answer(
             definitions: await launches.offeredDefinitions(),
             establishingHosts: await launches.establishingHosts(),
             sessionPolicies: await launches.sessionPolicies(),
+            workspaces: await localWorkspaces(),
           },
         };
       }

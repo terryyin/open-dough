@@ -1,12 +1,12 @@
 // One authoritative retained-record read supplies both historical choices and
-// the unchanged latest-workspace opening rule.
-import { reviewWorkspaceOf } from "../src/storyReview.ts";
-import type { EstablishedContext } from "../src/launchRecord.ts";
+// the shared workspace opening rule.
+import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
+import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
@@ -17,7 +17,7 @@ interface AdmittedWorkspaceReview {
   readonly kind: "review";
   readonly sourceId: string;
   readonly identity: string;
-  readonly established: EstablishedContext;
+  readonly established: ReviewedWorkspace;
   // The workspace as the page shows it.
   readonly shown: string;
   readonly fallback?: ReviewLandedRun;
@@ -26,6 +26,13 @@ interface AdmittedWorkspaceReview {
 
 export type AdmittedReview =
   | AdmittedWorkspaceReview
+  // Several worktrees hold the story's claim: the review reads none and says
+  // why.
+  | {
+      readonly kind: "review";
+      readonly explanation: string;
+      readonly runs: readonly ReviewLandedRun[];
+    }
   | {
       readonly kind: "review";
       readonly run: ReviewLandedRun;
@@ -52,31 +59,33 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
     found.runs,
     ({ record }) => record.landing,
   );
-  const workspace = reviewWorkspaceOf(
-    found.records,
-    found.source.id,
-    found.identity,
-  );
-  if (
-    workspace === undefined ||
-    directoryState(workspace.established.workspace).kind !== "available"
-  ) {
-    if (fallback !== undefined)
-      return { kind: "review", run: fallback, runs: found.runs };
-  }
-  if (workspace === undefined)
+  const { source, identity } = found;
+  const resolved = await resolvedWorkspace(source, identity, found.records);
+  const readable =
+    resolved?.kind === "workspace" &&
+    directoryState(resolved.established.workspace).kind === "available";
+  if (!readable && fallback !== undefined)
+    return { kind: "review", run: fallback, runs: found.runs };
+  if (resolved === undefined)
     throw new RefusedRequest(
       404,
       "This story has no launch workspace to review.",
     );
-  const { source, identity } = found;
-  const { established } = workspace;
+  if (resolved.kind === "ambiguous")
+    return {
+      kind: "review",
+      explanation: resolved.explanation,
+      runs: found.runs,
+    };
   return {
     kind: "review",
     sourceId: source.id,
     identity,
-    established,
-    shown: shownStartWorkspace(projectFolder(source), established.workspace),
+    established: resolved.established,
+    shown: shownStartWorkspace(
+      projectFolder(source),
+      resolved.established.workspace,
+    ),
     runs: found.runs,
     ...(fallback === undefined ? {} : { fallback }),
   };

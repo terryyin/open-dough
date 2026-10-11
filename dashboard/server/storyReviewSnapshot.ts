@@ -1,6 +1,6 @@
-// Takes a story review's snapshot (`../src/storyReview.ts`) of one launch
-// workspace the launch boundary resolved from its kept records: fetches the
-// record's trunk target, takes the review baseline as the merge-base of the
+// Takes a story review's snapshot (`../src/storyReview.ts`) of one workspace
+// the launch boundary resolved from its kept records or local Git: fetches
+// its trunk target, takes the review baseline as the merge-base of the
 // workspace's head and the fetched `<remote>/<target>`, or, for a Trunk
 // Mode story whose agent already published commits there, as that revision's
 // tree with those commits taken out (`./storyPublishedCommits.ts`), writes the
@@ -43,8 +43,8 @@ import { mkdtemp, realpath, rm } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { EstablishedContext } from "../src/launchRecord.ts";
 import type { ReviewMark, StoryReview } from "../src/storyReview.ts";
+import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
@@ -82,6 +82,15 @@ export async function storyReviewResponse(
         selectedRun: reviewRunKey(request.run.record),
       },
     };
+  if ("explanation" in request)
+    return {
+      status: 200,
+      body: {
+        kind: "unavailable",
+        explanation: request.explanation,
+        ...choices,
+      } satisfies StoryReview,
+    };
   const { sourceId, identity, established, shown } = request;
   const mark = await reviewMark(sourceId, identity);
   const body = await withResponseSignal(
@@ -110,14 +119,14 @@ export async function storyReviewResponse(
 }
 
 async function storyReviewSnapshot(
-  established: EstablishedContext,
+  reviewed: ReviewedWorkspace,
   story: ReviewedStory,
   // The workspace as the page shows it.
   shown: string,
   mark: ReviewMark | undefined,
   signal: AbortSignal,
 ): Promise<StoryReview> {
-  const { workspace, branch, remote, target } = established;
+  const { workspace, branch, remote, target } = reviewed;
   const call: GitCall = { cwd: workspace, signal, maxBuffer: outputLimit };
   const git = async (
     args: readonly string[],

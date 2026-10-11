@@ -14,13 +14,13 @@
 // when unreadable as `./machineJsonStore.ts` describes.
 
 import { z } from "zod";
-import type { EstablishedContext } from "../src/launchRecord.ts";
 import {
   markUnavailable,
   reviewMarkSchema,
   type MarkReviewedAnswer,
   type ReviewMark,
 } from "../src/storyReview.ts";
+import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { defaultGitOutputLimit, gitProblem, runGit } from "./gitRunner.ts";
 import { reviewPointObjects } from "./storyReviewPoints.ts";
@@ -78,7 +78,7 @@ export interface AdmittedReviewMark {
   readonly kind: "review-mark";
   readonly sourceId: string;
   readonly identity: string;
-  readonly established: EstablishedContext;
+  readonly established: ReviewedWorkspace;
   readonly tree: string;
   readonly baseline: string;
 }
