@@ -137,3 +137,17 @@ test("a failed attempt-file replacement leaves the expired attempt and its start
   expect(readFileSync(file, "utf8")).toBe(before);
   expect(readFileSync(startsFile, "utf8")).toBe(startsBefore);
 });
+
+test("reads an older kept session start without retaining its unread creation fact", async () => {
+  writeFileSync(
+    startsFile,
+    JSON.stringify({
+      "open-dough": {
+        [attempt.id]: { ...start, session: { ...session, created: true } },
+      },
+    }),
+  );
+  const kept = await keptSessionStart("open-dough", attempt.id);
+  expect(kept).toEqual({ ...start, session });
+  expect(kept?.session).not.toHaveProperty("created");
+});

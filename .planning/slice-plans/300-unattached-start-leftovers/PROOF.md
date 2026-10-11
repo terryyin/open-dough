@@ -54,6 +54,9 @@ Pre-change defect evidence is the unchanged-source preparation probes in
 
 ## Slice 2
 
+Delivered: `5eb2d2130ae02b07886f72c0304d15f8624c7616` on the same remote execution
+branch; suffix base `2dac32158d73f4775e99776ada25d2f049477472`; observation reused.
+
 The coordinator inspected `launchAttemptStore.ts` successful-write cleanup and
 new real-start/store assertions. Only expired keys absent from the actual saved
 replacement are removed; refusal, rename failure and restored entries retain
@@ -82,3 +85,39 @@ boundaries stayed unchanged. The refactor completed; four cases and typecheck pa
 npm run typecheck:dashboard
 env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-session-kept.spec.ts dashboard/tests/agent-launch-start-session-retention.spec.ts --workers=3
 ```
+
+## Slice 3
+
+The coordinator inspected the session schema/producer/fixture cleanup and direct
+recovery expectation. Prepared receipt and workspace creation facts are untouched.
+Older launch-record and kept-start tests seed only the legacy field and observe
+real schema/store reads preserving the session while excluding it. The maintained
+path explanation describes compatibility until the installed payload accepts
+equivalent paths; source-start tests observe real symlink reuse and prepared facts.
+
+Passed (40 Start-session cases, eight source-start cases, typecheck):
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npm run typecheck:dashboard
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-session- --workers=3
+env -u FORCE_COLOR -u NO_COLOR node --test src/skills/dough-execute-plan/scripts/established-session-start.test.mjs
+```
+
+All fixture consumers ran:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/launch-record-session-rules.spec.ts dashboard/tests/launch-attempt-retention.spec.ts dashboard/tests/execution-start-result.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-ad-hoc-cursor-established.spec.ts --workers=3
+```
+
+The batch completed 22 cases without failure; the new older-launch fixture lacked
+required recorded `title`. After adding that starting precondition, all eight
+record-schema cases passed, retaining the other unchanged consumer proof:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/launch-record-session-rules.spec.ts --workers=3
+```
+
+No required native acceptance is claimed; the existing explicit exclusion stands.
+
+Independent refactor result: none — already clean; no edits/tests, accepted proof
+unchanged. All changed paths comply with the 250-line limit.

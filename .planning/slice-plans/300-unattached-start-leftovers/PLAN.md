@@ -123,9 +123,9 @@ remain harmless unfinished correction work.
 
 ### 3. Session establishment carries only consumed facts
 Type: Structure
-Status: planned
-Proof: all Start session specs using the shared session fixture, an older-record
-parser case, dashboard typecheck, and `established-session-start.test.mjs`.
+Status: done
+Proof: [accepted session-fact and compatibility proof](PROOF.md#slice-3), including
+all Start session/fixture consumers, legacy parsers and real source symlink reuse.
 
 Change: remove the unused established-session `created` producer, schema member,
 and fixture expectations together. Keep the prepared receipt's `created` and

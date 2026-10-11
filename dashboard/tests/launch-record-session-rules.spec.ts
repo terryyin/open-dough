@@ -3,6 +3,7 @@
 // remain in their host specs.
 import { expect, test } from "./support/pageTest.ts";
 import { hostSessionSchema, launchRecordSchema } from "../src/launchRecord.ts";
+import { defaultMainSession } from "./support/startSessionLanding.ts";
 
 const claude = {
   host: "claude",
@@ -63,6 +64,23 @@ test("accepts a predecessor Codex session without a continuation", () => {
   for (const session of parsedSessions(codex)) {
     expect(session).toEqual(codex);
   }
+});
+
+test("accepts an older launch record's established session without retaining its unread creation fact", () => {
+  const established = defaultMainSession("/project", "auto-land", "revision");
+  const parsed = launchRecordSchema.parse({
+    ...record(codex),
+    request: {
+      source: "open-dough",
+      title: "A session",
+      workflow: "ad-hoc",
+      host: "codex",
+      policy: { workspace: "default-checkout", landing: "auto-land" },
+    },
+    establishedSession: { ...established, created: false },
+  });
+  expect(parsed.establishedSession).toEqual(established);
+  expect(parsed.establishedSession).not.toHaveProperty("created");
 });
 
 test("refuses a Codex continuation without its endpoint", () => {

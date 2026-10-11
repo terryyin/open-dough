@@ -190,9 +190,11 @@ and selects no other: with an established session kept, the session opens
 there with that block and the script does not run again; with none kept (the
 server ended before the script answered), the same start runs again for that
 workspace and branch, which makes it or takes a clean existing one as it is
-(`prepared`, `created: false`). The installed start takes an existing
-workspace only under the path Git names its top level by, so a kept workspace
-is handed to it as its real path. While the earlier script still runs in this
+(`prepared`, `created: false`). Older installed starts require an existing
+workspace's path to match the spelling Git uses for its top level, so a kept
+workspace is handed to them as its real path. Current source accepts equivalent
+symlinks; the conversion remains for compatibility until the installed release
+payload includes that comparison. While the earlier script still runs in this
 server, the continuation is answered “This session's earlier start is still
 running on this machine, so it was not continued.” and the attempt stays as it
 was. An isolated continuation is not asked about default main's changes; a
