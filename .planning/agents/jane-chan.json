@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-132#accept-indirect-consumer-proof-natively",
+  "mode": "story-branch",
+  "branch": "codex/accept-indirect-consumer-discovery-and-proof-jud",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
