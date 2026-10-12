@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery) — SEED-063#background-ci-failure-delivery ([plan](slice-plans/299-background-ci-failure-delivery/PLAN.md))
-- [Accept indirect consumer discovery and proof judgment natively](seeds/SEED-132-acceptance-follows-reachable-behavior.md#accept-indirect-consumer-proof-natively) — SEED-132#accept-indirect-consumer-proof-natively ([plan](slice-plans/306-native-indirect-consumer-proof/PLAN.md))
 
 ## Backlog list
 
