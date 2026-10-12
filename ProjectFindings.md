@@ -17,8 +17,8 @@ execution. A repaired individual race does not resolve every suite failure.
 
 1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
-   extra listings or reruns. [Read a dashboard proof selection without rerunning it or weakening its verdict](.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection)
-   now has same-run selection/attempt evidence through the configured strict
+   extra listings or reruns. [Opt-in selection records](dashboard/tests/README.md)
+   now provide same-run selection/attempt evidence through the configured strict
    reporter: the observed focused run selected and passed 24 tests in 21.999
    seconds, retained its JSON record, and removed its passing output directory.
    Choosing a fresh path and reading it remain manual. The general acceptance mistake of overriding that policy remains

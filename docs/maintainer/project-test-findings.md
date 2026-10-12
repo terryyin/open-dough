@@ -53,8 +53,8 @@ that had asked for nothing.
 
 ## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
-**Follow-up:** [Read a dashboard proof selection without rerunning it or weakening its verdict](../../.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection)
-has locally verified opt-in evidence through the same strict reporter. The
+**Follow-up:** [Opt-in selection records](../../dashboard/tests/README.md)
+provide locally verified opt-in evidence through the same strict reporter. The
 caller still chooses an unused absolute path, reads the record after the run,
 checks its attribution/completeness alongside the command exit, and owns its
 retention. Opt-out runs retain the original silent behavior. This response
