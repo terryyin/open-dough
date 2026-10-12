@@ -15,48 +15,39 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-1. **Local suite disk use — policy implemented and measured; Taken pending wrap-up.** [DD-287](#dd-287) has
-   one execution with a lost 15-minute run and a full shared disk. The 134 GB
-   cache affected the machine, but the share attributable to any one run is
-   unknown. [Bound the dashboard suite's own compile-cache disk use](.planning/seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache)
-   now prevents descendant growth in repeated, overlapping and interrupted
-   proof, including the full strict suite. Its measured outcome is below;
-   existing shared cache remains untouched, and the story remains Taken until
-   wrap-up.
-2. **Proof-selection visibility — queued, not resolved.** [DD-216/DD-243](#dd-216)
+1. **Proof-selection visibility — queued, not resolved.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
    extra listings or reruns. [Read a dashboard proof selection without rerunning it or weakening its verdict](.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection)
-   remains the next queued priority. Preserve silent passes and the configured reporter's failure
+   remains the next test-feedback priority. Preserve silent passes and the configured reporter's failure
    policy. The general acceptance mistake of overriding that policy remains
    DD-262 in DearDough.md; it is not another project occurrence.
-3. **Browser journey stability — open, unqueued.** [DD-278](#dd-278)
+2. **Browser journey stability — open, unqueued.** [DD-278](#dd-278)
    records three CI failures across two executions. Both concrete spec families
    were repaired; plan 293 ran a branch predating the repair, so it is not
    recurrence after the fix. Shared interaction helpers still allow a click
    before all page reads settle. Retain that qualified residual, not a claim
    that the repaired specs still fail.
-4. **Suite timing and diagnosis — open, unqueued.** [DD-279](#dd-279)
+3. **Suite timing and diagnosis — open, unqueued.** [DD-279](#dd-279)
    records two shard deadlines in one execution; a refreshed duration list and
    twelve shares repair those runs, while duration ordering still ages without
    a refresh step. [DD-275](#dd-275) records one separate execution whose
    within-run load was unobserved. These are related diagnostic/margin concerns,
    not one demonstrated cause. The repaired individual timeout DD-280 and
    shell budget breach DD-283 are removed below.
-5. **Shell observation reliability — open, unqueued.** [DD-187](#dd-187)
+4. **Shell observation reliability — open, unqueued.** [DD-187](#dd-187)
    records one Linux SIGPIPE repair cycle. The named observer was fixed;
    early-exit pipelines remain in two repository test helpers. Those are
    residual risks, not additional observed failures.
-6. **Paid native-run permission handoff — low, unqueued.** [DD-161](#dd-161)
+5. **Paid native-run permission handoff — low, unqueued.** [DD-161](#dd-161)
    records one execution's two permission round trips. The boundary is the
    host's; no change to released Open Dough behavior is justified by it.
 
-Both selected stories help parallel contributors obtain reliable local proof.
-Neither changes published skills, shared workflow rules, or the dashboard's
-runtime contract. The cache story owns its implemented and measured outcome
-and remains Taken pending wrap-up; its sibling owns the queued visibility work.
-The existing native-observation queue item and Taken CI-monitoring story stay
-unchanged. Earlier suite repairs remain completed; new or residual causes
-above are not evidence that every earlier fix failed.
+The descendant cache policy is implemented and measured below. The remaining
+selection-visibility story helps parallel contributors obtain reliable local
+proof. Neither changes published skills, shared workflow rules, or the
+dashboard's runtime contract. The existing native-observation queue item and
+Taken CI-monitoring story stay unchanged. Earlier suite repairs remain completed;
+new or residual causes above are not evidence that every earlier fix failed.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -107,7 +98,10 @@ DD-243 remains the same finding; its later occurrences are
 
 ## Node's compile-cache growth under the dashboard suite (descendant policy verified)
 
-**Follow-up:** [Bound the dashboard suite's own compile-cache disk use](.planning/seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache) — implemented and measured below. The test configuration prevents descendant writes without reclaiming existing shared cache. The source of the historical 134 GB remains unknown.
+**Outcome:** Implemented and measured below. The [test configuration](dashboard/playwright.config.ts)
+prevents descendant writes without reclaiming existing shared cache; the
+[tests guide](dashboard/tests/README.md) describes the policy. The source of the
+historical 134 GB remains unknown.
 
 <a id="dd-287"></a>
 
