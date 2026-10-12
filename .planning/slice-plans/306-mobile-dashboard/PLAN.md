@@ -127,6 +127,9 @@ implementation or scratch edit is retained in this preparation.
 - Slice 2 accepted on origin execution branch:
   `ef370423642958deb1f7aa151d17f5a4aefdde84`, suffix base
   `1a843c3efbcd97a068c5c04fe94da007d6a1144e`; observation reused.
+- Slice 3 accepted on origin execution branch:
+  `d465a827be2a7162ae0ea05b621496537a3d27ab`, suffix base
+  `ef370423642958deb1f7aa151d17f5a4aefdde84`; observation reused.
 - Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
   in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
   Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
@@ -310,6 +313,24 @@ Independent refactoring changed comments only in sidebar/session/CSS owners;
 all accepted runtime/setup/assertion boundaries stayed unchanged, so no tests
 reran. `git diff --check` passed. No slice-3 promise gap remains.
 
+Owned CI repair (run 38260224582, attempt1, dashboard12/12): the tablet management
+test asserted xterm output before bringing the stacked panel into view. Full
+job/artifact contained one failure; real WebSocket banner/composer arrived while
+the panel was offscreen, where xterm deliberately pauses rendering. Supported
+reduced-motion setup reproduced the same blank-output failure locally. Moved
+the existing ordinary panel scroll before the output assertion and retained
+reduced motion to discriminate the condition. No product, timeout, native
+fixture or action/identity assertion changed. Red filtered command exited1;
+repaired filtered and full commands exited0 (full two tests):
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- session-management-touch.spec.ts --grep 'tablet session management' --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- session-management-touch.spec.ts --workers=2
+```
+Inspected reduced-motion setup, scroll-before-output and unchanged exact native
+invariants in that spec. Independent refactor found no edits needed; unaffected
+124-file proof reused. Slice4 was quiesced and preserved through the installed
+CI stash protocol; its proof resumes after repair publication/restoration.
+
 ### 4. Continue a terminal session in the available space
 Type: Behavior
 Status: planned
@@ -450,6 +471,11 @@ Disposition: excluded "Tailscale, remote connectivity, and the previously reques
 Reported: slice 3 — "Terminal fitting/input comfort remains slice 4’s work"
 Story clause: "Input, output, and panel controls remain usable with constrained visible height;"
 Disposition: receiving slice 4
+
+### G4. Offscreen terminal observation in session management
+Reported: slice 3 — "the test waited for .xterm-rows before scrolling the stacked terminal into view"
+Story clause: "then open its terminal or available final report."
+Disposition: proved by slice 3: session-management-touch.spec.ts scroll-before-output with reduced motion, complete two-test command above
 
 ## Current decisions and sizing
 

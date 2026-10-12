@@ -36,7 +36,8 @@ const recordOf = async (
 
 for (const { name, portrait, landscape } of launchTouchViewports) {
   test.describe(`${name} session management`, () => {
-    test.use({ viewport: portrait, hasTouch: true });
+    // Immediate card reveal keeps an offscreen terminal from painting first.
+    test.use({ viewport: portrait, hasTouch: true, reducedMotion: "reduce" });
     test("reads attention, keeps incomplete work open, and runs only the explicitly chosen read, done and delete actions", async ({
       page,
       dashboard,
@@ -83,12 +84,13 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await expect(panel.locator(".side-panel-names code")).toHaveText(
         intended.sessionId,
       );
+      // Stacked panels are ordinary page content above the selected card.
+      // Scroll before reading output: xterm pauses rendering offscreen.
+      // Header taps never scroll a control into view.
+      await panel.scrollIntoViewIfNeeded();
       await expect(panel.locator(".xterm-rows")).toContainText(
         `attached ${intended.sessionId.slice(0, 8)}`,
       );
-      // Stacked panels are ordinary page content above the selected card.
-      // Scroll that content explicitly; header taps never scroll a control.
-      await panel.scrollIntoViewIfNeeded();
       await tapWhereShown(
         panel.getByRole("button", { name: "Mark as done", exact: true }),
       );
