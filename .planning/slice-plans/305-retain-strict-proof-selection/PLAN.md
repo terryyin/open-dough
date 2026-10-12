@@ -189,28 +189,16 @@ constrain evidence interpretation; observing only raw runner status is insuffici
 
 ## Execution context
 
-- Established execution: `SEED-131#retain-strict-proof-selection`, publisher
-  `dashboard-territory.local-open-dough`, agent `chaifeng-chan`, Story Branch Mode.
-- Owned linked worktree (reused):
-  `/Users/terryyin/git/open-dough/.worktrees/read-a-dashboard-proof-selection-without-rerunni`;
-  branch `codex/read-a-dashboard-proof-selection-without-rerunni`.
-  The default checkout is `/Users/terryyin/git/open-dough`; execution uses the
-  owned worktree. Origin trunk is `main`; increments target the remote story branch.
-- Starting revision: `cb8242682a653bfdeb00111976f1ed89376f9ff7`.
-  Accepted Take: `a0886605a953dc6af765800a035b6677945699a5` on `origin/main`;
-  first increment's previously published base is that Take.
-- Readiness was reported **Changed since readiness review**. Current selected
-  story and plan align; execution retains the recorded assessment without renewal.
-- Checkout setup: `npm ci --no-audit --no-fund`, then
-  `npm run --silent typecheck:dashboard`, both exited 0 in the owned worktree.
-  No numeric slice limit is supplied; preserve bounded one-slice execution.
-  Replanning authority remains within the selected outcome.
-- CI: GitHub Actions `ci.yml` verified as active workflow `CI` (351271804).
-  Coordinator `proof-selection-299497aa`, target
-  `terryyin/open-dough:codex/read-a-dashboard-proof-selection-without-rerunni`;
-  yielded stream cell `8`, session `62940`, PID `50992`,
-  directory `/tmp/dough-ci-501/watch-yVL0wO`.
-  The Take's earlier trunk CI remains unobserved by this story-branch stream.
+- Established execution: `SEED-131#retain-strict-proof-selection`, publisher `dashboard-territory.local-open-dough`, agent `chaifeng-chan`, Story Branch Mode.
+- Reused owned worktree: `/Users/terryyin/git/open-dough/.worktrees/read-a-dashboard-proof-selection-without-rerunni`; branch `codex/read-a-dashboard-proof-selection-without-rerunni`.
+- Default checkout: `/Users/terryyin/git/open-dough`; execution uses the owned worktree. Origin trunk is `main`; increments target the remote story branch.
+- Starting revision: `cb8242682a653bfdeb00111976f1ed89376f9ff7`; accepted Take `a0886605a953dc6af765800a035b6677945699a5` on `origin/main` is the first increment's published base.
+- Readiness: **Changed since readiness review**; current story/plan align, and execution retains the assessment without renewal.
+- Checkout setup: `npm ci --no-audit --no-fund`, then `npm run --silent typecheck:dashboard`, both exited 0 here.
+- No numeric slice limit; bounded one-slice execution and replanning within the selected outcome.
+- CI: active GitHub Actions `ci.yml`, workflow `CI` (351271804), target `terryyin/open-dough:codex/read-a-dashboard-proof-selection-without-rerunni`.
+- Coordinator `proof-selection-299497aa`; yielded cell `8`, session `62940`, PID `50992`, directory `/tmp/dough-ci-501/watch-yVL0wO`.
+- The Take's earlier trunk CI remains unobserved by this story-branch stream.
 
 ## Accepted slice proof
 
@@ -243,6 +231,18 @@ confirmed the proof unchanged. `npm run --silent format` then exited 0.
 Published slice: `89e561b68dc295b74a67562a31ef785c796cbee0` on the remote story
 branch; suffix base unchanged. Retrospective found no correction, ADR 0000/0002
 conflict, or new process finding in available coordinator/handoff history.
+
+## CI repair
+
+Run `38220702201/1`, dashboard 7/12, exposed inherited outer shard selection in the new independent proof harness; its nested target belongs to 5/12.
+`env -u NO_COLOR NODE_DISABLE_COMPILE_CACHE=1 OPEN_DOUGH_DASHBOARD_SPLIT=7/12 npm run test:dashboard -- proof-record-entry.spec.ts --grep 'normal npm' --workers=1`
+failed at the nested exit assertion with `No tests found`. The harness now
+clears inherited selection; both entry journeys force a real excluding half-share.
+`env -u NO_COLOR NODE_DISABLE_COMPILE_CACHE=1 OPEN_DOUGH_DASHBOARD_SPLIT=7/12 OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-proof-selection-Z5M7mc/ci-repair-shard-final-proof.json npm run test:dashboard -- proof-record-entry.spec.ts --workers=1`
+passed silently: 2 selections/attempts, completed strict success, output removed.
+`env -u NO_COLOR -u OPEN_DOUGH_DASHBOARD_SPLIT NODE_DISABLE_COMPILE_CACHE=1 OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-proof-selection-Z5M7mc/ci-repair-final-proof.json npm run test:dashboard -- quiet-reporter.spec.ts proof-record.spec.ts proof-record-storage.spec.ts proof-record-verdict.spec.ts proof-record-interruption.spec.ts proof-record-entry.spec.ts --workers=2`
+passed silently: 24 selections/attempts, completed strict success, 21,439.782 ms,
+output removed. Typecheck and discovery passed; product split/deadline/recorder behavior and affected review conclusions are unchanged.
 
 ## Execution complete
 

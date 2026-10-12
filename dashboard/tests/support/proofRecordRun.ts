@@ -43,6 +43,7 @@ export function startProofCommand(
       ([name]) =>
         !name.startsWith("TEST_") &&
         !name.startsWith("PW_") &&
+        name !== "OPEN_DOUGH_DASHBOARD_SPLIT" &&
         name !== "OPEN_DOUGH_DASHBOARD_PROOF_RECORD",
     ),
   );

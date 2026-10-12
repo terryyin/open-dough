@@ -2,6 +2,7 @@ import { expect, test } from "./support/pageTest.ts";
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "./support/repositoryRoot.ts";
+import { dashboardTestMatch } from "./support/testFiles.mjs";
 import {
   proofDirectory,
   readProof,
@@ -36,12 +37,31 @@ for (const entry of [
         ]
       : ["run", "--silent", "test:dashboard", "--", ...selection];
     const cwd = direct ? directory : repoRoot;
-    const run = startProofCommand(
-      direct ? process.execPath : "npm",
-      args,
-      cwd,
-      { OPEN_DOUGH_DASHBOARD_PROOF_RECORD: recordPath },
+    // The surrounding CI share excludes the target of this independent run.
+    // Exercise that inherited condition even when this spec runs locally.
+    const splitVariable = "OPEN_DOUGH_DASHBOARD_SPLIT";
+    const inheritedSplit = process.env[splitVariable];
+    const nestedTarget = path.join(
+      repoRoot,
+      "dashboard/tests/quiet-reporter.spec.ts",
     );
+    const excludingSplit = dashboardTestMatch(
+      new URL("./", import.meta.url),
+      "1/2",
+    ).some((pattern: RegExp) => pattern.test(nestedTarget))
+      ? "2/2"
+      : "1/2";
+    let run: ReturnType<typeof startProofCommand>;
+    try {
+      process.env[splitVariable] = excludingSplit;
+      run = startProofCommand(direct ? process.execPath : "npm", args, cwd, {
+        OPEN_DOUGH_DASHBOARD_PROOF_RECORD: recordPath,
+      });
+    } finally {
+      if (inheritedSplit === undefined)
+        delete process.env["OPEN_DOUGH_DASHBOARD_SPLIT"];
+      else process.env[splitVariable] = inheritedSplit;
+    }
     expect(await run.result).toMatchObject({
       status: 0,
       stdout: "",
