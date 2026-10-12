@@ -15,11 +15,13 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-1. **Proof-selection visibility — queued, not resolved.** [DD-216/DD-243](#dd-216)
+1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
    extra listings or reruns. [Read a dashboard proof selection without rerunning it or weakening its verdict](.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection)
-   remains the next test-feedback priority. Preserve silent passes and the configured reporter's failure
-   policy. The general acceptance mistake of overriding that policy remains
+   now has same-run selection/attempt evidence through the configured strict
+   reporter: the observed focused run selected and passed 24 tests in 21.999
+   seconds, retained its JSON record, and removed its passing output directory.
+   Choosing a fresh path and reading it remain manual. The general acceptance mistake of overriding that policy remains
    DD-262 in DearDough.md; it is not another project occurrence.
 2. **Browser journey stability — open, unqueued.** [DD-278](#dd-278)
    records three CI failures across two executions. Both concrete spec families
@@ -42,8 +44,8 @@ execution. A repaired individual race does not resolve every suite failure.
    records one execution's two permission round trips. The boundary is the
    host's; no change to released Open Dough behavior is justified by it.
 
-The descendant cache policy is implemented and measured below. The remaining
-selection-visibility story helps parallel contributors obtain reliable local
+The descendant cache policy and opt-in selection evidence are implemented and
+measured below. The selection record helps parallel contributors obtain reliable local
 proof. Neither changes published skills, shared workflow rules, or the
 dashboard's runtime contract. The existing native-observation queue item and
 Taken CI-monitoring story stay unchanged. Earlier suite repairs remain completed;
@@ -65,13 +67,25 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279).
 
-## Quiet passing checks obscure the selected proof (queued, not resolved)
+## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
 <a id="dd-216"></a>
 
 ### DD-216 — Literal proof commands printed no pass counts, so agents reran passing suites
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-216).
+
+**Observed outcome (2026-10-12):** The opt-in
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` path retained the actual selection, attempts
+and strict verdict of one 24-test focused invocation without a counting rerun.
+The full reporter/capability proof passed in 21.999 seconds; the reporter stayed
+silent and its passing output directory was absent. Normal npm and direct
+config entry from another directory also retained their own outer selection
+across nested runs. [Usage and evidence interpretation](dashboard/tests/README.md)
+cover the remaining cost: supply an unused path before invocation, retain it,
+then read it alongside the strict command exit. Opt-out runs still have no count
+record. This verifies the repository tooling response, not universal adoption
+or a change to published proof-acceptance guidance.
 
 <a id="dd-243"></a>
 

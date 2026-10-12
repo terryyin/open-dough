@@ -51,15 +51,64 @@ that had asked for nothing.
   - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
   - Later evidence: the refreshed order's first run (38091885152, `main` at `3b2b446a`) ended share 6/9 at the deadline with all 147 tests passed; its 49 specs summed to 1,019 test-seconds against 719 in the reference run, about 1.4 times slower across unrelated specs, while other shares took 176 s to 285 s. Nine shares left no room for that runner variance, so the matrix now deals twelve (predicted 463 to 605 test-seconds a share).
 
-## Quiet passing checks obscure the selected proof (queued, not resolved)
+## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
-**Follow-up:** [Read a dashboard proof selection without rerunning it or weakening its verdict](../../.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — queued, not resolved. The current reporter preserves the strict silent-pass contract but retains no passing selection/count. The story changes this repository’s proof tooling only.
+**Follow-up:** [Read a dashboard proof selection without rerunning it or weakening its verdict](../../.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection)
+has locally verified opt-in evidence through the same strict reporter. The
+caller still chooses an unused absolute path, reads the record after the run,
+checks its attribution/completeness alongside the command exit, and owns its
+retention. Opt-out runs retain the original silent behavior. This response
+changes repository proof tooling only; historical occurrences below remain.
 
 <a id="dd-216"></a>
 
 ### DD-216 — Literal proof commands printed no pass counts, so agents reran passing suites
 
 The plan's focused Playwright commands used the default reporter. Under the agents' shell, a passing run printed no summary, and two agents reran the same selection with `--reporter` just to report counts.
+
+#### Same-run evidence evaluation (2026-10-12)
+
+In the execution checkout based on `a0886605`, Node 24.21.0 and locked
+Playwright 1.63.0 ran the normal strict configuration with two workers:
+
+```sh
+env -u NO_COLOR NODE_DISABLE_COMPILE_CACHE=1 OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-proof-selection-Z5M7mc/final-proof.json npm run test:dashboard -- quiet-reporter.spec.ts proof-record.spec.ts proof-record-storage.spec.ts proof-record-verdict.spec.ts proof-record-interruption.spec.ts proof-record-entry.spec.ts --workers=2
+```
+
+The command exited 0. Reading the same invocation's record, without a listing
+or second counting execution, found 24 distinct selections and 24 passed
+attempts in six spec files, `phase: "completed"`, raw and strict passed
+verdicts, and duration 21,998.901 ms. The run ID was
+`d82b923a-f386-4aec-804d-e69e5caed6ba`; its config/checkout attribution matched
+this invocation. The reporter printed no output and its output directory had
+been removed while the requested file survived.
+
+The [capability journeys](../../dashboard/tests/proof-record.spec.ts) compare a
+filtered selection with a fixture's actual execution log and distinguish
+repetitions, retries, skips and listing. The normal npm/direct-config entry
+journeys selected one outer reporter test each; their inner Playwright runs
+did not replace the outer evidence. Verdict journeys observed passed
+assertions/raw runner status alongside strict failure for unexpected test and
+setup output. Deadline and SIGINT proof retained a completed first assertion
+separately from stopped work; SIGKILL after persisted selection left a running
+snapshot without a terminal verdict. Storage journeys verified separate
+overlapping records, byte-preserving destination refusal, canonical rejection
+of an output-directory alias, invalid/unwritable paths, and a controlled
+snapshot collision leaving incomplete evidence with the original passing exit.
+All six existing reporter specs, including the HTML deadline companion and
+literal final `Kept:` behavior, passed in that same selection.
+
+Discrimination: temporarily omitting the serialized `terminal.strictStatus`
+made `proof-record.spec.ts --grep 'a filtered quiet run' --workers=1` exit 1
+at its completed strict-success assertion. The source was restored before
+the passing complete invocation above. Dashboard typecheck and the actual
+twelve-share spec-discovery check also passed.
+
+The repeated counting execution is avoidable when callers opt in. Fresh-path
+selection and one file read remain manual; no automatic archive or universal
+adoption is claimed. Missing, malformed, listed or running evidence is not
+completed executed proof, and valid records do not replace the command exit.
+The [test guide](../../dashboard/tests/README.md) documents these decisions.
 
 #### Occurrences
 

@@ -117,7 +117,7 @@ No implementation remains from preparation.
 
 ### 1. Retain a trustworthy record of a strict dashboard invocation
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the real subprocess journeys in `dashboard/tests/quiet-reporter.spec.ts`
 (and capability-named support/specs if cohesion warrants) to inspect the actual
 requested record and command status across the cases below. Run the complete
@@ -186,3 +186,56 @@ opt-in outcome usable; no interim weaker record is delivered.
 The actual reporter lifecycle reports a listing as passed without attempts and
 an output-rejected run as passed before the reporter's override. Both facts
 constrain evidence interpretation; observing only raw runner status is insufficient.
+
+## Execution context
+
+- Established execution: `SEED-131#retain-strict-proof-selection`, publisher
+  `dashboard-territory.local-open-dough`, agent `chaifeng-chan`, Story Branch Mode.
+- Owned linked worktree (reused):
+  `/Users/terryyin/git/open-dough/.worktrees/read-a-dashboard-proof-selection-without-rerunni`;
+  branch `codex/read-a-dashboard-proof-selection-without-rerunni`.
+  The default checkout is `/Users/terryyin/git/open-dough`; execution uses the
+  owned worktree. Origin trunk is `main`; increments target the remote story branch.
+- Starting revision: `cb8242682a653bfdeb00111976f1ed89376f9ff7`.
+  Accepted Take: `a0886605a953dc6af765800a035b6677945699a5` on `origin/main`;
+  first increment's previously published base is that Take.
+- Readiness was reported **Changed since readiness review**. Current selected
+  story and plan align; execution retains the recorded assessment without renewal.
+- Checkout setup: `npm ci --no-audit --no-fund`, then
+  `npm run --silent typecheck:dashboard`, both exited 0 in the owned worktree.
+  No numeric slice limit is supplied; preserve bounded one-slice execution.
+  Replanning authority remains within the selected outcome.
+- CI: GitHub Actions `ci.yml` verified as active workflow `CI` (351271804).
+  Coordinator `proof-selection-299497aa`, target
+  `terryyin/open-dough:codex/read-a-dashboard-proof-selection-without-rerunni`;
+  yielded stream cell `8`, session `62940`, PID `50992`,
+  directory `/tmp/dough-ci-501/watch-yVL0wO`.
+  The Take's earlier trunk CI remains unobserved by this story-branch stream.
+
+## Accepted slice proof
+
+`env -u NO_COLOR NODE_DISABLE_COMPILE_CACHE=1 OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-proof-selection-Z5M7mc/final-proof.json npm run test:dashboard -- quiet-reporter.spec.ts proof-record.spec.ts proof-record-storage.spec.ts proof-record-verdict.spec.ts proof-record-interruption.spec.ts proof-record-entry.spec.ts --workers=2`
+exited 0 with silent reporter output. The same-run record identifies
+`d82b923a-f386-4aec-804d-e69e5caed6ba`: 24 selections, 24 passed attempts,
+completed runner/strict success, 21,998.901 ms, and no output directory.
+Coordinator inspected product hooks/storage and each spec's setup/assertions:
+selection and execution log, listing/skips/repeats/retries/concurrency;
+assertion versus strict failure and preserved diagnostics; exclusive paths,
+canonical disposable-directory rejection and controlled write failure;
+deadline/SIGINT/SIGKILL; normal npm and foreign-directory config entry with
+nested attribution. The original six reporter regressions include HTML timeout
+and exact report/Kept output. README and DD-216/DD-243 retain interpretation,
+measured outcome and manual opt-in/read/retention cost.
+
+Omitting serialized `terminal.strictStatus` made
+`env -u NO_COLOR NODE_DISABLE_COMPILE_CACHE=1 npm run test:dashboard -- proof-record.spec.ts --grep 'a filtered quiet run' --workers=1`
+exit 1 at the strict-success assertion; exact source was restored before the
+passing full selection. Final `npm run --silent typecheck:dashboard` and
+`node --test --test-reporter=./tests/support/node-test-failures-reporter.mjs tests/support/dashboard-test-files.test.mjs`
+exited 0. Existing inner-run helper and repeat-script literals are unchanged.
+No required slice observation remains open; full dashboard CI remains required
+after publication. Initial proof failures were selection/path/setup expectations,
+corrected without weakening the story or reporter.
+Independent refactoring returned `## REFACTOR COMPLETE` with no edits; after
+mechanical removal of forbidden test non-null assertions, its focused follow-up
+confirmed the proof unchanged. `npm run --silent format` then exited 0.

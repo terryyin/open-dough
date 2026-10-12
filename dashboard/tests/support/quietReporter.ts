@@ -17,12 +17,14 @@ import type {
   FullConfig,
   FullResult,
   Reporter,
+  Suite,
   TestCase,
   TestError,
   TestResult,
 } from "@playwright/test/reporter";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { ProofRecord } from "./proofRecord.ts";
 
 type Write = typeof process.stdout.write;
 
@@ -49,8 +51,9 @@ export default class QuietReporter implements Reporter {
   private outputDir: string | undefined;
   private failed = false;
   private watching = true;
+  private proof: ProofRecord | undefined;
 
-  constructor() {
+  constructor(private readonly options: { proofRecord?: string } = {}) {
     this.writeOut = process.stdout.write.bind(process.stdout);
     this.writeErr = process.stderr.write.bind(process.stderr);
     process.stdout.write = this.watch(this.writeOut);
@@ -62,8 +65,20 @@ export default class QuietReporter implements Reporter {
     return true;
   }
 
-  onBegin(config: FullConfig): void {
+  onBegin(config: FullConfig, suite: Suite): void {
     this.outputDir = config.projects[0]?.outputDir;
+    if (this.options.proofRecord !== undefined) {
+      this.proof = new ProofRecord(
+        this.options.proofRecord,
+        config,
+        suite,
+        (message) => this.writeErr(message),
+      );
+    }
+  }
+
+  onTestBegin(test: TestCase, result: TestResult): void {
+    this.proof?.begin(test, result);
   }
 
   // Output a test wrote arrives with its result; anything else is the run's.
@@ -78,6 +93,7 @@ export default class QuietReporter implements Reporter {
   }
 
   onTestEnd(test: TestCase, result: TestResult): void {
+    this.proof?.end(test, result);
     const outcome = test.outcome();
     const output = [...result.stdout, ...result.stderr].map(text).join("");
     if (outcome === "skipped" || (outcome === "expected" && output === "")) {
@@ -122,7 +138,10 @@ export default class QuietReporter implements Reporter {
       );
     }
     const nothingShown = stray === "" && !this.failed;
-    if (nothingShown && result.status === "passed") {
+    const strictStatus =
+      nothingShown && result.status === "passed" ? "passed" : "failed";
+    this.proof?.finish(result, strictStatus);
+    if (strictStatus === "passed") {
       return Promise.resolve(undefined);
     }
     // A run that ends otherwise (interrupted, timed out) with nothing shown
@@ -131,7 +150,7 @@ export default class QuietReporter implements Reporter {
       this.print(`The test run ended ${result.status}.\n`);
     }
     this.keepReport();
-    return Promise.resolve({ status: "failed" });
+    return Promise.resolve({ status: strictStatus });
   }
 
   // Playwright writes its own `.last-run.json` into the output directory
