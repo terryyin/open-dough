@@ -141,6 +141,16 @@ Former local code: DD-258. A native acceptance replay constructs a fresh current
 
 Former local code: DD-259. Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario. Queued, not resolved. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-150).
 
+### Occurrences
+
+- Execution: SEED-132#accept-indirect-consumer-proof-natively / plan 306; first implementation commit `ef69d8d588d972ed5321488632e60d5fae1c2784`
+  - Timestamp: unknown (2026-10-12)
+  - Tool: Codex
+  - Open Dough release: unknown; coordinator used the established checkout's installed guidance.
+  - Evidence: CI `38212557255`, attempt 1, failed `tests/native-stream-replay.sh` and `tests/native-assessor-counterexample-guard.sh` after the selected `tests/git-publication-native.sh` passed. Both guards scan new native test support. Repair `ccd70eaecdf324b8fb5db71ca01d92ebeed089fe` registered the exact host-shape writer and removed an ignored-input assessor rejection loop; all three suites then passed.
+  - Observed effect: slice 2 paused, its unfinished work was saved/restored through the CI repair operation, and one repair publication was required.
+  - Inference: proof selection omitted repository-wide test-support guards consuming the new fixture. This is a coordinator execution miss, separate from the candidate guidance's completed native acceptance; it does not restart ODF-150's failed watch.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260. Repair quiescence checks only writers, so stashing an interrupted agent’s checkout while read-only tests still observe it invalidates the proof. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-225).

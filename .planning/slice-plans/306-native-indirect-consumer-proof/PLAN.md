@@ -215,10 +215,6 @@ Disposition: proved by slice 3: PROOF-DEFERRED.md authorized Codex retry 2026101
 
 ## Execution context
 
-Execution started 2026-10-12 under the developer's explicit execute-plan request,
-including the plan's bounded native journeys with no automatic retries.
-The established Taken claim is reused; no second start was issued.
-
 - Identity: `SEED-132#accept-indirect-consumer-proof-natively`; publisher
   `dashboard-territory.local-open-dough`; assigned agent `Jane-chan`.
 - Owned execution checkout:
@@ -226,10 +222,8 @@ The established Taken claim is reused; no second start was issued.
   Branch: `codex/accept-indirect-consumer-discovery-and-proof-jud`.
   Story Branch Mode; `origin`, eventual trunk `main`. No default-checkout
   maintenance is requested during increments.
-- Established starting revision: `c39552f8f6776363f01b4511b40d4c9be94af805`.
-  Accepted claim / initial previously published base:
-  `cb8242682a653bfdeb00111976f1ed89376f9ff7`, confirmed on both remote trunk
-  and the execution branch before implementation.
+- Established start: `c39552f8f6776363f01b4511b40d4c9be94af805`; reused accepted
+  claim `cb8242682a653bfdeb00111976f1ed89376f9ff7` without a second start.
 - Checkout setup: `npm ci` and `node scripts/setup-native.mjs check` passed;
   Chromium prerequisite validation reported `153.0.8010.12`.
 - Replanning: retain ordinary existing planning authority; no new scope or
@@ -243,7 +237,14 @@ The established Taken claim is reused; no second start was issued.
   absent-store purposes, safe lazy single-read implementation, seven passing
   assertions and unchanged formatter proof reuse; published as
   `24abad0c9571e1e0b5899a76a339f2da72630286` (current published base).
-- Authorized Codex retry accepted; slice 3 awaits refactor and managed delivery.
+- Authorized Codex retry accepted; slice 3 refactored and published as
+  `19ae9cca5f9cef96f70ab031a6a569c48609942a`. Retrospective found no correction;
+  [PROOF.md](PROOF.md) retains its manifest, process finding and artifact cleanup.
 - Resume observer: coordinator `jane-chan-306-resume`, directory
   `/tmp/dough-ci-501/watch-dQ21sP`, PID `39870`, cell `87`, session `10791`.
   Exact-checkout prerequisite check passed again with unchanged lockfile.
+
+## Execution complete
+
+Product advice: No new product work recommended; native acceptance is complete.
+Existing backlog priorities and ODF-150 watch state remain unchanged.

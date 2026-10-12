@@ -1,5 +1,35 @@
 # Native acceptance evidence
 
+## Execution retrospective
+
+Original source: SEED-132's native acceptance story and plan 306 at established
+claim `cb8242682a653bfdeb00111976f1ed89376f9ff7`. Attributable implementation:
+`ef69d8d5` aggregate journey; `ccd70eae` native guard repair; `24abad0c` no-store
+journey; `19ae9cca` remaining host and deferred-caller acceptance. The contiguous
+owned range contains no sibling implementation. Original promises remain intact.
+
+Reviewed net support changes, real fixture/assertion boundaries, observed native
+results and final product diffs against the seed's five examples and ADRs 0003/0005.
+All requirements have per-host evidence; fixtures discriminate the relevant faults,
+preserve no-store and membership purposes, and do not supply the accepted outcome.
+Existing shared runner, adapters and stream reader remain the owners. No guidance,
+historical application, release/tag, or ODF-150 watch state changed. Refactoring
+consolidated repeated review policy; no supported product correction remains.
+Support test selection now includes reached stream, assessor and identity guards.
+
+Process review used coordinator/sub-agent returns and recorded commands. The
+missed guard selection caused the repaired CI failure; one occurrence is retained
+under ODF-150 in DearDough.md, without changing its watch. The provider-capacity
+failure remained pending until the user's single authorized retry completed.
+Product advice: no new product work recommended. Native acceptance is complete;
+existing backlog priorities and watch state remain unchanged. CI at `19ae9cca`
+remains pending at review; execution's final completion operation owns its verdict.
+
+After coordinator acceptance and review, removed all three owned
+`/tmp/open-dough-plan306-slice{1,2,3}-results` trees under ADR 0005. Paths in these
+records are historical locators; raw artifacts are no longer retained. The
+maintained fixtures and active proof decisions remain until ordinary wrap-up.
+
 Slice 2 evidence and its reviewed limits: [Claude no-store journey](PROOF-NOSTORE.md).
 
 ## Slice 1 CI support repair
