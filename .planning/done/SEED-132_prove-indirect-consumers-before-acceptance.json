@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-132#prove-indirect-consumers-before-acceptance",
+  "title": "Prove affected indirect consumers before accepting a slice",
+  "completedAt": "2026-10-12T03:17:03.245Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

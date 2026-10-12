@@ -86,7 +86,7 @@ Former local code: DD-219. An absolute changed-file size check conflicts with an
   - Timestamp: unknown (2026-10-12 session)
   - Tool: Codex
   - Open Dough release: 0.3.60 (installed refactor-checks at established claim `d3058caf` matches the release blob; installed copies unchanged)
-  - Evidence: `refactor_consumer_proof` returned `REFACTOR JIDOKA STOP` for the 3,380-line finding catalog's four-line ODF-150 update after finding the runtime rule coherent; plan 304 records the catalog exception. The developer explicitly granted that exception and instructed execution to proceed; the agent then returned `REFACTOR COMPLETE` without another review or test run.
+  - Evidence: `refactor_consumer_proof` returned `REFACTOR JIDOKA STOP` for the 3,380-line finding catalog's four-line ODF-150 update after finding the runtime rule coherent; `cfdca05274dc9845b7f9666e35a0ad68ce6ec73b:.planning/slice-plans/304-prove-indirect-consumers/PLAN.md` retains the catalog exception after cleanup. The developer explicitly granted that exception and instructed execution to proceed; the agent then returned `REFACTOR COMPLETE` without another review or test run.
   - Observed effect: delivery paused for human judgment and required a follow-up handoff. The new seed section was shortened from 253 to 250 lines; the canonical catalog stayed intact.
   - Inference: the unconditional size gate reaches intentional evidence collections as well as product modules. No timing precision or broader file-size-policy conclusion is claimed.
 
