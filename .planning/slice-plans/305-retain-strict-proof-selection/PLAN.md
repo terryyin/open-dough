@@ -197,7 +197,7 @@ constrain evidence interpretation; observing only raw runner status is insuffici
 - Checkout setup: `npm ci --no-audit --no-fund`, then `npm run --silent typecheck:dashboard`, both exited 0 here.
 - No numeric slice limit; bounded one-slice execution and replanning within the selected outcome.
 - CI: active GitHub Actions `ci.yml`, workflow `CI` (351271804), target `terryyin/open-dough:codex/read-a-dashboard-proof-selection-without-rerunni`.
-- Coordinator `proof-selection-299497aa`; yielded cell `8`, session `62940`, PID `50992`, directory `/tmp/dough-ci-501/watch-yVL0wO`.
+- Coordinator `proof-selection-299497aa`; recovered yielded cell `5`, session `33005`, PID `35804`, directory `/tmp/dough-ci-501/watch-QmPlpz` (prior stream stopped with lost coverage).
 - The Take's earlier trunk CI remains unobserved by this story-branch stream.
 
 ## Accepted slice proof
