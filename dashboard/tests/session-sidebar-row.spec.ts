@@ -2,7 +2,7 @@
 // ellipsis however long, and at its end how long ago its session was launched,
 // by the largest whole unit (<1m, 5m, 2h, 3d), advancing on the page clock's
 // 30 second tick. Its state words, project, workflow, and launch time are its
-// tooltip, not the row's text. The page clock stands still unless the journey
+// tooltip on desktop; touch has an explicit Session details disclosure. The page clock stands still unless the journey
 // lets it pass; the sessions are launched through the boundary in Doughnut.
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -60,9 +60,9 @@ test.describe("a Sessions sidebar entry", () => {
     await test.step("its text is the title and the elapsed time alone", async () => {
       await expectRowShows(short, shortWork.title, "<1m");
       await expectRowShows(long, longWork.title, "<1m");
-      await expect(
-        short.getByText(/Launched|Doughnut|Execution|input needed/),
-      ).toHaveCount(0);
+      await expect(short.locator(".sidebar-entry-details")).toBeHidden();
+      await expect(short.locator("summary")).toBeHidden();
+      await expect(short.getByRole("button")).toHaveCount(1);
     });
 
     await test.step("its tooltip holds the state reading, project, workflow, and launch time", async () => {

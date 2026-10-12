@@ -124,6 +124,9 @@ implementation or scratch edit is retained in this preparation.
 - Slice 1 accepted on origin execution branch:
   `1a843c3efbcd97a068c5c04fe94da007d6a1144e`, suffix base
   `db0dfb0773236c1ff56ad12851ebdac8f3ee73e8`; observation reused.
+- Slice 2 accepted on origin execution branch:
+  `ef370423642958deb1f7aa151d17f5a4aefdde84`, suffix base
+  `1a843c3efbcd97a068c5c04fe94da007d6a1144e`; observation reused.
 - Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
   in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
   Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
@@ -250,7 +253,7 @@ No slice-2 promise gap remains.
 
 ### 3. Identify and manage the intended session without hover
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `session-sidebar-row.spec.ts`, `session-sidebar-navigation.spec.ts`
 and `agent-launch-done-question.spec.ts`; retain sidebar keyboard and explicit
 report action coverage for any changed controls.
@@ -271,6 +274,41 @@ and published story state. Prove the chosen action, not its neighbour, runs.
 
 Safe stop: sessions can be identified and managed by touch; terminal viewport
 comfort is the next slice's responsibility, not implicitly completed here.
+
+Accepted proof (2026-10-12): inspected `SidebarEntry.tsx`'s single facts array,
+shared frame disclosure and separate Open control; `sidebar-entry.css` preserves
+desktop density while exposing touch details. Session/question/attention
+controls reuse shared touch size in `agent-launch.css` and
+`session-attention-message.css`. New `session-sidebar-touch.spec.ts` observes
+visible full title/identity/project/state/model/time/unread facts, actual badge
+count, disclosure rotation, exact cross-project selected native identity,
+one attachment and no stop/Done. `session-management-touch.spec.ts` observes
+the real submitted unfinished report, panel/card Keep open invariants, exact
+Mark-read receipt, confirmed Done's intended native stop only, and unavailable
+Delete/Keep/confirm record/stop invariants. Setup supplies only disposable
+published work/native-host/report starting conditions. Chromium153.0.8010.12
+at 390×844/844×390 and 768×1024/1024×768; desktop row/keyboard contracts retained.
+Initial red run failed all four new journeys on missing Session details.
+Settled preparation reads are required before geometry measurement; existing
+stacked panels allow ordinary page scrolling, and beside-page sidebar openness
+is preserved. Badge corner overflow exemption has dedicated full-count proof.
+
+Focused proof exited 0, five tests:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- session-sidebar-touch.spec.ts session-management-touch.spec.ts session-sidebar-row.spec.ts --workers=2
+```
+Complete direct consumer proof exited 0, 119 whole files:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-completion-attention.spec.ts agent-completion-binding.spec.ts agent-completion-cursor.spec.ts agent-completion-identity.spec.ts agent-completion-quiet-claude.spec.ts agent-completion-quiet.spec.ts agent-launch-ad-hoc-codex.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-launch-ad-hoc-sessions.spec.ts agent-launch-ad-hoc-terminal.spec.ts agent-launch-ad-hoc.spec.ts agent-launch-attention-clearing.spec.ts agent-launch-attention.spec.ts agent-launch-card-delete-problems.spec.ts agent-launch-card-delete.spec.ts agent-launch-card-done.spec.ts agent-launch-card-open-session.spec.ts agent-launch-card-session-states.spec.ts agent-launch-card-sessions.spec.ts agent-launch-card.spec.ts agent-launch-codex-observation-boundary.spec.ts agent-launch-codex-observation.spec.ts agent-launch-codex.spec.ts agent-launch-cursor-model.spec.ts agent-launch-delete.spec.ts agent-launch-done-close.spec.ts agent-launch-done-codex-intent.spec.ts agent-launch-done-codex-races.spec.ts agent-launch-done-codex.spec.ts agent-launch-done-prompt.spec.ts agent-launch-done-question-follows.spec.ts agent-launch-done-question.spec.ts agent-launch-done-refusal.spec.ts agent-launch-done-rename-wait.spec.ts agent-launch-done-stop.spec.ts agent-launch-done.spec.ts agent-launch-host-identity.spec.ts agent-launch-model-entries.spec.ts agent-launch-open-session.spec.ts agent-launch-preparation-cursor.spec.ts agent-launch-recent-delete-unavailable.spec.ts agent-launch-recent-delete.spec.ts agent-launch-recent-sessions.spec.ts agent-launch-records.spec.ts agent-launch-session-state-pace.spec.ts agent-launch-start-cursor.spec.ts agent-launch-start-session-isolated.spec.ts agent-session-cursor.spec.ts agent-terminal-avatar.spec.ts agent-terminal-codex-page.spec.ts agent-terminal-cursor-launch-page.spec.ts agent-terminal-cursor-page.spec.ts agent-terminal-delete.spec.ts agent-terminal-done-codex-boundary.spec.ts agent-terminal-done-codex-page.spec.ts agent-terminal-done-question.spec.ts agent-terminal-done-reopen.spec.ts agent-terminal-done-report.spec.ts agent-terminal-done.spec.ts agent-terminal-keyboard.spec.ts agent-terminal-lifetime.spec.ts agent-terminal-maximize.spec.ts agent-terminal-reopen.spec.ts agent-terminal-theme.spec.ts agent-terminal.spec.ts cursor-session-recovery-replacement.spec.ts cursor-session-recovery-stops.spec.ts cursor-session-recovery-wait.spec.ts cursor-session-recovery.spec.ts cursor-sidebar-panels.spec.ts cursor-sidebar-resize-lasting.spec.ts dashboard-columns-paging-launch-dialog.spec.ts dashboard-columns-paging-sessions-sidebar.spec.ts dashboard-columns-paging-side-panel.spec.ts dashboard-header.spec.ts done-question-rule.spec.ts frame-sessions-look.spec.ts recently-done-progressive-added-project.spec.ts recently-done-progressive-after-sessions.spec.ts recently-done-progressive-failed-read-refresh.spec.ts recently-done-progressive-loading.spec.ts recently-done-progressive-navigation-cursor.spec.ts recently-done-progressive-navigation-report.spec.ts recently-done-progressive-navigation.spec.ts recently-done-progressive-refresh.spec.ts recently-done-progressive-reset.spec.ts recently-done-progressive-state.spec.ts recently-done-read-latency.spec.ts recently-done-stories.spec.ts recently-done-story-sessions.spec.ts responsive-session-access.spec.ts session-alerts-unavailable.spec.ts session-alerts-unread-report.spec.ts session-alerts.spec.ts session-attribution.spec.ts session-column-membership.spec.ts session-management-touch.spec.ts session-sidebar-keyboard.spec.ts session-sidebar-navigation-cases.spec.ts session-sidebar-navigation.spec.ts session-sidebar-reading.spec.ts session-sidebar-row.spec.ts session-sidebar-state-edge.spec.ts session-sidebar-stays-as-left.spec.ts session-sidebar-touch.spec.ts session-sidebar.spec.ts session-unread-report-message.spec.ts session-unread-report.spec.ts session-workspace-retirement-attach.spec.ts session-workspace-retirement-claude-done.spec.ts session-workspace-retirement-claude.spec.ts session-workspace-retirement-done.spec.ts session-workspace-retirement-lifetime.spec.ts session-workspace-retirement.spec.ts side-panel-width-kept.spec.ts side-panel-width-stacking.spec.ts side-panel-width.spec.ts story-panel-replacement.spec.ts story-panel-switching.spec.ts --workers=2
+```
+Specific transitive populated-row consumers and new-spec partition check exited0:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- cursor-sidebar-size-unkept.spec.ts cursor-sidebar-resize.spec.ts cursor-runner-sessions.spec.ts cursor-sidebar-panels-navigation.spec.ts cursor-sidebar-size-kept.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm test -- tests/support/dashboard-test-files.test.mjs
+```
+Independent refactoring changed comments only in sidebar/session/CSS owners;
+all accepted runtime/setup/assertion boundaries stayed unchanged, so no tests
+reran. `git diff --check` passed. No slice-3 promise gap remains.
 
 ### 4. Continue a terminal session in the available space
 Type: Behavior
@@ -407,6 +445,11 @@ Disposition: excluded "Viewport/touch checks are the accepted local UI proof; th
 Reported: slice 2 — "Physical iOS keyboard and remote-connectivity validation remain outside scope."
 Story clause: "Tailscale, remote connectivity, and the previously requested real-device connection reality check are outside this story."
 Disposition: excluded "Tailscale, remote connectivity, and the previously requested real-device connection reality check are outside this story."
+
+### G3. Terminal fitting and input comfort
+Reported: slice 3 — "Terminal fitting/input comfort remains slice 4’s work"
+Story clause: "Input, output, and panel controls remain usable with constrained visible height;"
+Disposition: receiving slice 4
 
 ## Current decisions and sizing
 

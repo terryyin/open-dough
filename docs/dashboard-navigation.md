@@ -16,7 +16,14 @@ as it does for the project arrows below. Toggling leaves the keyboard where it
 is, except that closing the sidebar while the keyboard is inside it returns
 the keyboard to the Sessions button. The sidebar stays open or closed as left
 across project switches, views, the terminal, and reloads; it is disposable
-per-browser state and starts closed when none is kept. Below the session list,
+per-browser state and starts closed when none is kept. A coarse-input browser
+offers **Session details** on each entry, separately from opening the session.
+It reveals the full title, story identity, project/workflow, state and note,
+requested model, launch time and unread-report label without hover. These are
+the same local session facts as the desktop tooltip; the disclosure and list
+scroll for reading, and orientation changes keep the disclosure open. Desktop
+retains its compact title/elapsed row and keyboard Open control.
+Below the session list,
 the sidebar's **Running Cursor sessions** section starts collapsed on each page
 load, its header alone below the list, which fills the rest of the sidebar.
 Expanding it with the mouse or keyboard gives the session list and the

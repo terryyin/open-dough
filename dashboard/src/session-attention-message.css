@@ -38,3 +38,11 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+
+@media (any-pointer: coarse) {
+  .session-attention-heading {
+    box-sizing: border-box;
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+  }
+}

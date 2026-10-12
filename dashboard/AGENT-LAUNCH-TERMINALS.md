@@ -184,6 +184,15 @@ and leaves the session open.
 **Mark as done**, its own control beside it, closes a reported session as
 above, read or not; an unread report alone is not asked about. Cursor, which has no
 native stop operation, records local Done only, also after its workspace disappears.
+On coarse input, **Session details** in the sidebar exposes the full session
+title, story identity and the same project/state/model/time facts as its tooltip,
+including the unread-report label. Opening the session is a separate touch.
+Attention messages remain on the selected session's entry. Their disclosure,
+Mark as read, Mark as done, Delete record and confirmation answers have touch
+targets of at least 44 pixels; desktop retains its compact controls. Keep open
+on an incomplete session's Done question retains the session and attachment,
+as above. Portrait/landscape browser viewport proof covers these interactions
+locally; it does not establish physical iOS keyboard or remote access behavior.
 An observed native Working signal remains visible separately beside the attention
 or local Done label.
 An explicit attention message is read on the session's entry from machine-local

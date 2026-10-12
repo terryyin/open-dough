@@ -1,8 +1,8 @@
-/* A Sessions sidebar entry (`./SidebarEntry.tsx`) is one line; its state
-   shows by its left border, an unread report by its own mark and tint, and
+/* A Sessions sidebar entry (`./SidebarEntry.tsx`) has a compact desktop row;
+   its state shows by its left border, an unread report by its own mark/tint,
    its tooltip and hidden words carry the words. */
 
-/* Each entry is one control over its whole area, a quiet row in the frame's
+/* On desktop, Open covers the whole entry, a quiet row in the frame's
    radius and edge; the entry the page's terminal shows is current, outlined
    as its card is, on the accent's soft fill. */
 .session-sidebar li.sidebar-entry {
@@ -112,4 +112,56 @@
   font-variant-numeric: tabular-nums;
   color: var(--quiet);
   white-space: nowrap;
+}
+
+/* Desktop keeps its compact row and tooltip. Touch discovery is separate
+   from Open, so reading context cannot accidentally select the session. */
+.sidebar-entry-details {
+  display: none;
+}
+
+@media (any-pointer: coarse) {
+  .session-sidebar li.sidebar-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0 var(--space-2);
+    padding-block: 0 var(--space-2);
+  }
+
+  .sidebar-entry-open {
+    bottom: auto;
+    height: var(--control-size);
+  }
+
+  .sidebar-title {
+    grid-column: 1;
+    min-height: var(--control-size);
+    align-content: center;
+  }
+
+  .sidebar-unread-report {
+    grid-column: 2;
+  }
+
+  .sidebar-elapsed {
+    grid-column: 3;
+  }
+
+  .sidebar-entry-details {
+    position: relative;
+    grid-column: 1 / -1;
+    display: block;
+    min-width: 0;
+  }
+
+  .sidebar-entry-details > summary {
+    color: var(--accent);
+  }
+
+  .sidebar-session-facts {
+    display: grid;
+    gap: var(--space-1);
+    overflow-wrap: anywhere;
+  }
 }

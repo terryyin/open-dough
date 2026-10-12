@@ -29,8 +29,7 @@
   cursor: pointer;
 }
 
-/* A launch action's decorative icons (./Icon.tsx) sit in its own colour at
-   the labelled-button icon size. */
+/* Launch icons use their control's colour and the labelled-button size. */
 .start-launch-button {
   display: inline-flex;
   align-items: center;
@@ -189,7 +188,9 @@
 }
 
 @media (any-pointer: coarse) {
-  .start-launch-button {
+  .start-launch-button,
+  .session-entry .launch-open button,
+  .side-panel-question button {
     box-sizing: border-box;
     min-width: var(--control-size);
     min-height: var(--control-size);
