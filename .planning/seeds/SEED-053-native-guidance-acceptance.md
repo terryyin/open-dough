@@ -80,55 +80,37 @@ acceptance selection retain their own authority boundaries.
 ```
 **Covered work:** [SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery)
 and [plan 299](../slice-plans/299-background-ci-failure-delivery/PLAN.md).
-**Outcome:** Execution and wrap-up can end their turns with CI pending and
-later receive actionable failure in the original native session, from a
-dashboard launch or standalone invocation. This home tracks required native
-proof separately; it adds no queue assignment or execution authority.
+**Reduced outcome (Terry, 2026-10-13):** A still-running interactive Claude
+Code session can end its coding turn with CI pending and receive a later
+failure during an explicit ten-minute window. The selected SEED-063 scope
+supersedes the old all-host/all-form requirement. Codex/Cursor background
+behavior, closed sessions and broader closure/recovery work are deferred.
+This home adds no queue assignment or execution authority.
 
-**Required coverage:** Use the authoritative host/native-form table in
-[SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery).
-Record each required row's continuation route and result, without reproducing
-the scope table here. Another form's result, documented commands and synthetic
-adapters are not proof.
+**Required coverage:** Reuse Claude’s recorded asyncRewake idle, busy,
+permission/question and coordinator/child feasibility. One installed runtime
+case must cross registered pending publication, coding-turn end and later
+actual provider failure into the original live session with retained context
+and repair guidance. Process-backed tests prove pending/success silence,
+expiry/cancellation and duplicate/uncertain delivery. Synthetic transport
+injection alone is not installed acceptance. Native checks stay outside CI.
+ADR 0005 still requires acceptance before affected ordinary release.
 
-**Feasibility before dependent implementation:** Plan native slice 2 (formerly slice 1) owns bounded
-fresh-session probes. Observe exact recipient identity, post-turn input
-acceptance and safe busy-session handling with retained native evidence;
-observe or explicitly retain uncertainty at the send/receipt crash boundary.
-An unavailable form blocks its promised path instead of silently preserving
-final waiting, starting another watcher, or creating a replacement conversation.
-
-**Integration acceptance after implementation:** Use the real installed
-runtime and a private controlled CI provider. Dashboard and standalone
-enrollment, pending handoff, failure-only delivery, authorized repair and
-publication reach the same original session. Standalone observation continues
-with no dashboard server. Success creates no agent turn. Cover native exit,
-busy/idle and waiting on approval/input representatively per distinct route;
-the shared intent/restart/request-control mechanics keep deterministic proof
-in plans 224 and 299 rather than being retested as a general agent-conformance matrix.
-
-**Skill behavior acceptance:** Fresh execution and wrap-up use the installed
-registration/completion path, end while CI is pending, handle late owned
-failures under existing authority, and report gaps without fallback waiting or
-polling. Distinguish actual skill behavior from session-transport acceptance.
-Select representative Story Branch and Trunk Mode closure/repair cases from
-the source examples; reuse evidence only for an unchanged verified mechanism.
-
-**Completion criteria:** Every promised host/form has matching integration
-evidence and representative execution/wrap-up behavior evidence or justified
-reuse. Missing native routes and unresolved acceptance remain active; no release
-of affected behavior before acceptance under ADR 0005. Record requirement,
-runtime version, decisive evidence and judgment during active checks; preserve
-lasting facts in maintained product homes and clean spent proof at closure.
+**Current acceptance (2026-10-13):** Scoped installed live-Claude integration
+passed the real pending-publication → coding-turn end → late provider failure
+→ same-session native wake journey. [Accepted evidence](../slice-plans/299-background-ci-failure-delivery/CLAUDE-INSTALLED-ACCEPTANCE.md)
+retains exact receipts, policy/context checks and owned cleanup. Historical feasibility below remains evidence, not a requirement to
+continue the old native campaign.
 
 **Current state (2026-10-12):** Partial transport feasibility and exact native
 IDs, commands, contexts and private evidence are retained in plan 299 native slice 2 (formerly slice 1).
 Terry accepted the idle-only, unattached Claude stop/resume candidate and kept
 all required native forms in scope. The resumed bounded pass established
 policy-preserving continuation of a Claude session after native CLI exit,
-and of a controlled unattached background fixture after native stop. Automatic
-unattached safety and still-open foreground delivery remain unproved: public
-idle JSON exposed no distinction while the same fixture was attached.
+and of a controlled unattached background fixture after native stop. Documented asyncRewake then passed original live foreground/background idle
+wake and foreground draft preservation under retained model/cwd/policy. Native
+permission and structured-input hold/actor resolution/native ACK passed; original foreground busy/parent-child
+isolation also passed in separate bounded episodes. Public idle JSON does not prove unattached.
 
 Codex App Server idle/busy steering and lost-response reconciliation reached
 the original thread. Genuine approval/input requests remained pending until
@@ -138,27 +120,43 @@ preserved the original restrictive fixture policy. A still-open restrictive
 CLI accepted failure under its own ID with its unsent draft and effective
 policy preserved. The earlier restrictive request-owner success claim was
 withdrawn after inspecting actual full-access context; the restrictive CLI's
-request-owner command timed out. Terry supplied the exact disposable desktop
+request-owner command timed out. Later one-time approval-bound CLI diagnostics passed with defaults unchanged; autonomous/default socket access remains unproved. Terry supplied the exact disposable desktop
 conversation; native origin, READY history, workspace and restrictive policy
 were verified read-only, and he confirmed the unsent draft setup. The managed
 daemon's resume then refused the desktop's existing active writer; direct
-`turn/start` refused the thread as not found. No notice or model turn was
-accepted. Saved history and a native ID establish the recipient but do not
-establish the desktop's live endpoint. Composer preservation under successful
-delivery remains unproved; no further manual setup is needed for this blocked
-route.
+`turn/start` refused the thread as not found; those attempts accepted no input.
+Terry then approved one extra desktop queue test. The original thread
+automatically consumed that submission in one queue-triggered native turn,
+acknowledged the earlier READY and failure tokens, and preserved its model,
+workspace and restrictive policy. Public history and rollout agree; a harness
+record-format error was reconciled read-only without resending. The separate
+extra allowance is 1/1. Terry pasted the visible notification and ACK, then
+confirmed “Draft unchanged”. Busy queue delivery also passed after setup
+completed under unchanged policy; Terry confirms its draft unchanged; desktop app-consent and declared Plan-input hold/actor/ACK passed; [route evidence](../slice-plans/299-background-ci-failure-delivery/NATIVE-INBOUND-ROUTES.md)
+retains exact commands, IDs and observations.
 
 Cursor's actual runner retained its original CLI conversation for idle,
 held-busy and lost-ack delivery, and held input while an unsent draft existed.
 Its unrestricted shell reached the private request owner. A private restrictive
-CLI held failure during a genuine permission request, but post-rejection idle
-and delivery were not established. A genuine native IDE fixture and its exact
+CLI held failure during a genuine permission request; a later original-ID
+interactive resume reached idle and accepted one failure under the unchanged
+allowlist and Auto selection. It proves restrictive post-exit continuation;
+a fresh live episode also held failure through permission and feedback, then
+accepted it at native idle under unchanged policy. A genuine IDE fixture and its exact
 composer identity were verified; ACP refused the ID and CLI resume showed
 different empty history/model, so neither establishes IDE continuation.
+A later disarmed MCP App enrolled in that original IDE conversation, preserving
+its native model/config and observed UI policy. Actual Cursor 3.24.12 handshake
+advertised no message capability: no failure was sent, and targeted project/server
+cleanup completed. [Inbound-route evidence](../slice-plans/299-background-ci-failure-delivery/NATIVE-INBOUND-ROUTES.md)
+retains the negative IDE gate and restrictive CLI proof. Distinct question setup
+offered no picker or failure dispatch; old ledger 16/16, extra 0/1 unused.
+A subsequent native public stop callback passed original IDE idle wake with
+draft/model/policy preserved, separate 2/2 turns and owned cleanup.
 
-Claude automatic background/live-CLI routes, Codex desktop and connection-state
-policy safety, Cursor original IDE and restrictive/input-question delivery,
-and applicable coordinator/child isolation remain open native slice 2 obligations.
+Codex desktop busy draft, app-consent/Plan-input hold/actor/ACK and parent/child isolation passed;
+connection-state policy safety, Cursor IDE busy/wait/race and distinct blocking question handling,
+and applicable coordinator/child isolation remain historical gaps in the deferred broader scope.
 No installed-runtime integration, pending/success filtering or skill-behavior
 wakeup acceptance is claimed. Existing completion-reporting evidence above
 cannot cover these gaps. Paid runs require explicitly authorized native checks;

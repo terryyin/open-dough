@@ -1,5 +1,10 @@
 # Gated runtime slice design and decisive proof
 
+Historical broader design: Terry reduced the active story to live Claude Code
+on 2026-10-13. PLAN.md and the selected story own current work; these details
+are deferred context, not remaining execution slices.
+
+
 Supporting record for [plan 299](PLAN.md); slice status and current execution
 ownership remain in that plan. This record grants no execution authority.
 

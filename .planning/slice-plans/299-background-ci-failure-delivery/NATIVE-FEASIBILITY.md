@@ -1,9 +1,12 @@
 # Required native delivery gate
+**2026-10-13 scope reduction:** Terry deferred the broader native forms; live Claude
+asyncRewake feasibility is accepted from the retained original-session evidence.
+Slice 3 still owns installed integration. Older gaps below remain historical.
 
 Supporting record for [plan 299](PLAN.md); slice status and current execution
 ownership remain in that plan. This record grants no execution authority.
 
-### 2. Prove native failure delivery to the original session
+### 2. Prove native failure delivery for the reduced live Claude scope
 Execution 2026-10-11: the unpaid prefix was rerun in the execution checkout —
 Claude Code 2.1.296 (`--bg`, `--resume`), Codex CLI 0.162.1 (`app-server`,
 `resume`), Cursor desktop 3.24.12 and agent CLI 2026.10.01-e373342
@@ -32,3 +35,7 @@ Independent request-boundary work may continue.
 
 Evidence: [first pass](NATIVE-FIRST-PASS.md),
 [resumed pass and desktop follow-up](NATIVE-RESUMED-PASS.md).
+Later original-host episodes and exact remaining gaps are retained in
+[inbound reassessment](NATIVE-INBOUND-ROUTES.md), [delegated history](NATIVE-CONTINUATION-HISTORY.md),
+[Claude live safety](CLAUDE-LIVE-FEASIBILITY.md), [Codex desktop](CODEX-DESKTOP-FEASIBILITY.md)
+and [Cursor IDE admission](CURSOR-IDE-FEASIBILITY.md). G23 remains an open return.
