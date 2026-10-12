@@ -106,3 +106,12 @@ observed result and acceptance decision; self-report, exit zero and consumer
 lists alone are insufficient. Record candidate, runtime, inputs, decisive
 evidence and judgment while active. Missing proof remains pending; delivery does
 not complete this acceptance story or restart ODF-150's failed watch.
+
+
+**Current acceptance (2026-10-12):** The cross-tool account in
+[plan 306 proof](../slice-plans/306-native-indirect-consumer-proof/PROOF-TOOLS.md)
+records reviewed evidence for every affected requirement on all three tools.
+Codex's initial deferred-caller journey ended with provider capacity failure;
+one explicitly authorized same-configuration retry completed successfully and
+refused dependent delivery while retaining valid independent proof. Native
+acceptance is settled; execution delivery and closure retain their own gates.

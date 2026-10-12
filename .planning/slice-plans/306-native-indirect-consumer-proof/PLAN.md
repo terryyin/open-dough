@@ -119,7 +119,7 @@ One changed precondition and its two meaningful consuming purposes share this lo
 
 ### 3. Complete native acceptance decisions across affected tools
 Type: Behavior
-Status: planned
+Status: done
 Proof: A per-requirement evidence account for Codex, Cursor and Claude Code joins
 fresh command/results and installed skill use to accepted or incomplete promises,
 including the green-return/unrun-caller case and sufficient unchanged proof.
@@ -194,6 +194,13 @@ regression and a purpose-preserving correction before acceptance. The native
 pipelines mask process exit status, so the reviewed assertion outcomes, not shell
 exit 0, supply proof. The support suite passed. No other native promise is implied.
 
+Slice 3's [tool account](PROOF-TOOLS.md) and [deferred-caller proof](PROOF-DEFERRED.md)
+settle each requirement on each host. Codex's first deferred attempt ended with
+provider capacity failure; the user's one authorized same-configuration retry
+completed and safely refused dependent delivery while retaining status proof.
+Root inspected the actual results, setup, final diff and terminal event. No native
+behavior requirement remains pending; this acceptance does not release or tag.
+
 ## Story obligations
 
 ### G1. No-store discovery remains unproved
@@ -201,10 +208,10 @@ Reported: slice 1 — "No-store discovery remains unproved."
 Story clause: "a read changes from conditional to unconditional"
 Disposition: proved by slice 2: PROOF-NOSTORE.md, inspected Claude command/results and unchanged no-store setups
 
-### G2. Remaining host and acceptance requirements
-Reported: slice 1 — "Incomplete-return behavior, unchanged-proof reuse, Codex and Cursor behavior remain unproved."
+### G2. Codex deferred-caller terminal evidence (first reported in slice 1)
+Reported: slice 3 — "Codex deferred-caller acceptance ended with provider capacity error and an incomplete stream; complete native evidence remains unproved."
 Story clause: "Codex, Cursor and Claude Code each need recorded evidence or justified reuse for affected requirements."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: PROOF-DEFERRED.md authorized Codex retry 20261012T070709-0e2e, terminal turn.completed and inspected refusal
 
 ## Execution context
 
@@ -228,14 +235,15 @@ The established Taken claim is reused; no second start was issued.
 - Replanning: retain ordinary existing planning authority; no new scope or
   automatic native retry authority. No numeric slice budget supplied.
 - CI source: GitHub Actions `terryyin/open-dough`, verified `ci.yml` / `CI`,
-  observing the execution branch. Coordinator `jane-chan-306`; stream directory
-  `/tmp/dough-ci-501/watch-yPtpCV`, PID `57824`, exec cell `7`, session `58315`.
-  The pre-existing trunk claim remains unobserved by this branch observer.
-- Published slice 1 `ef69d8d588d972ed5321488632e60d5fae1c2784` and CI support
-  repair `ccd70eaecdf324b8fb5db71ca01d92ebeed089fe` to the execution branch;
-  the latter is the next increment's previously published base. CI repair stash
-  restored successfully before resuming slice 2.
+  observing the execution branch. Prior observer stopped with no unread events
+  and confirmed PID exit at the retry-authority boundary; trunk claim unobserved.
+- Published slice 1 `ef69d8d588d972ed5321488632e60d5fae1c2784` and CI repair
+  `ccd70eaecdf324b8fb5db71ca01d92ebeed089fe`; repair stash restored successfully.
 - Slice 2 proof accepted: [no-store evidence](PROOF-NOSTORE.md) shows both
   absent-store purposes, safe lazy single-read implementation, seven passing
-  assertions and unchanged formatter proof reuse. Independent refactor/delivery
-  follow; slice 3 owns remaining hosts and incomplete-return acceptance.
+  assertions and unchanged formatter proof reuse; published as
+  `24abad0c9571e1e0b5899a76a339f2da72630286` (current published base).
+- Authorized Codex retry accepted; slice 3 awaits refactor and managed delivery.
+- Resume observer: coordinator `jane-chan-306-resume`, directory
+  `/tmp/dough-ci-501/watch-dQ21sP`, PID `39870`, cell `87`, session `10791`.
+  Exact-checkout prerequisite check passed again with unchanged lockfile.

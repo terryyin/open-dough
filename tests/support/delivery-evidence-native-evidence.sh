@@ -2,6 +2,26 @@
 # Evidence identity and retained review artifacts for delivery-evidence journeys.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# These journeys retain observations for explicit review, never prose certification.
+delivery_evidence_requires_review() {
+  case $1 in
+    aggregate | nostore | deferred) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+delivery_evidence_capture_installed_inputs() {
+  local installed_root='.agents/skills'
+  [[ $1 != claude ]] || installed_root='.claude/skills'
+  (
+    cd -- "${delivery_evidence_workspace}" || exit
+    shasum -a 256 \
+      "${installed_root}/dough-execute-plan/references/delegation.md" \
+      "${installed_root}/dough-execute-plan/references/wrap-up.md" \
+      "${installed_root}/dough-story-refinement/references/executable-proof.md"
+  ) > "${delivery_evidence_root}/installed-inputs.sha256"
+}
+
 delivery_evidence_write_evidence_identity() {
   local case_name=$1
   local case_prefix="tests/support/delivery-evidence-${case_name}-native"
@@ -26,15 +46,18 @@ delivery_evidence_write_evidence_identity() {
   native_result_input_hash_lines \
     src/skills/dough-execute-plan/references/wrap-up.md \
     src/skills/dough-execute-plan/references/delegation.md
-  if [[ ${case_name} == nostore ]]; then
+  if [[ ${case_name} == nostore || ${case_name} == deferred ]]; then
     native_result_input_hash_lines tests/support/delivery-evidence-aggregate-native-observe.sh
+  fi
+  if [[ ${case_name} == deferred ]]; then
+    native_result_input_hash_lines tests/support/delivery-evidence-consumers-native-scenario-content.sh
   fi
   if [[ ${case_name} == selection ]]; then
     native_result_input_hash_lines \
       "${case_prefix}-repository-content.sh" \
       "${case_prefix}-proof-logger.sh"
   fi
-  if [[ ${case_name} == consumers || ${case_name} == aggregate || ${case_name} == nostore ]]; then
+  if [[ ${case_name} == consumers ]] || delivery_evidence_requires_review "${case_name}"; then
     native_result_input_hash_lines \
       src/skills/dough-story-refinement/references/executable-proof.md
   fi
@@ -42,6 +65,9 @@ delivery_evidence_write_evidence_identity() {
 
 delivery_evidence_retain_review_artifacts() {
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/status-proof.md" status-proof.md
+  native_result_copy_if_present "${delivery_evidence_workspace}/.planning/producer-proof.md" producer-proof.md
+  native_result_copy_if_present "${delivery_evidence_workspace}/.planning/implementation-return.md" implementation-return.md
+  native_result_copy_if_present "${delivery_evidence_workspace}/.planning/slice-promises.md" slice-promises.md
   native_result_copy_if_present "${delivery_evidence_root}/installed-inputs.sha256" installed-inputs.sha256
   native_result_copy_if_present "${delivery_evidence_root}/command-results.jsonl" command-results.jsonl
   native_result_copy_if_present "${delivery_evidence_root}/file-reads.jsonl" file-reads.jsonl

@@ -34,6 +34,7 @@ identity_writers=(
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity gaps'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity aggregate'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity nostore'
+  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity deferred'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity land-default-checkout'

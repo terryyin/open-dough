@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Shared native journey for the delivery-evidence cases (selection, claims,
-# consumers, gaps, aggregate, nostore): disposable fixture scaffolding, prompt, native command,
+# consumers, gaps, aggregate, nostore, deferred): disposable fixture scaffolding, prompt, native command,
 # assessment, retention, and evidence identity. Promise-status recognition
 # lives in delivery-evidence-promise-status.sh. Each case keeps its own
 # scenario content, observations, and assessor in
@@ -16,7 +16,7 @@ source "${delivery_evidence_support_dir}/native-observation.sh"
 source "${delivery_evidence_support_dir}/delivery-evidence-native-evidence.sh"
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-native-prompt.sh"
-for delivery_evidence_case in selection claims consumers gaps aggregate nostore; do
+for delivery_evidence_case in selection claims consumers gaps aggregate nostore deferred; do
   for delivery_evidence_part in scenario-content observe assess; do
     # shellcheck disable=SC1090,SC1091
     source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
@@ -27,6 +27,8 @@ unset delivery_evidence_case delivery_evidence_part
 source "${delivery_evidence_support_dir}/delivery-evidence-aggregate-native-checks.sh"
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-nostore-native-checks.sh"
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-deferred-native-checks.sh"
 
 delivery_evidence_root=
 delivery_evidence_workspace=
@@ -51,6 +53,10 @@ delivery_evidence_case_profile() {
       ;;
     aggregate)
       delivery_evidence_scenarios='heading-reorder'
+      delivery_evidence_pass_basis='reviewed native command results'
+      ;;
+    deferred)
+      delivery_evidence_scenarios='known-caller'
       delivery_evidence_pass_basis='reviewed native command results'
       ;;
     nostore)
@@ -136,16 +142,8 @@ delivery_evidence_run_scenario() {
   local prompt run_status=0 observations_file
   delivery_evidence_create_fixture \
     "${case_name}" "${source_dir}" "${host}" "${scenario}" "${parent}"
-  if [[ ${case_name} == aggregate || ${case_name} == nostore ]]; then
-    local installed_root='.agents/skills'
-    [[ ${host} != claude ]] || installed_root='.claude/skills'
-    (
-      cd -- "${delivery_evidence_workspace}"
-      shasum -a 256 \
-        "${installed_root}/dough-execute-plan/references/delegation.md" \
-        "${installed_root}/dough-execute-plan/references/wrap-up.md" \
-        "${installed_root}/dough-story-refinement/references/executable-proof.md"
-    ) > "${delivery_evidence_root}/installed-inputs.sha256"
+  if delivery_evidence_requires_review "${case_name}"; then
+    delivery_evidence_capture_installed_inputs "${host}"
   fi
   prompt=$(
     set -e
@@ -187,8 +185,9 @@ delivery_evidence_run_scenario() {
     git_publication_assess_reason="${case_name} acceptance mismatch for ${scenario}"
   fi
   # shellcheck disable=SC2310,SC2311
-  if [[ (${case_name} == aggregate || ${case_name} == nostore) && ${native_run_stream_status:-missing} == complete && ${run_status} -eq 0 &&
-    $(delivery_evidence_obs_get harness-inspected "${observations_file}") == false ]]; then
+  if delivery_evidence_requires_review "${case_name}" \
+    && [[ ${native_run_stream_status:-missing} == complete && ${run_status} -eq 0 &&
+      $(delivery_evidence_obs_get harness-inspected "${observations_file}") == false ]]; then
     git_publication_assess_reason="${case_name} observations retained; explicit review required"
   fi
   if [[ ${run_status} -ne 0 && ${git_publication_assess_status} == pass ]]; then
@@ -201,7 +200,7 @@ delivery_evidence_run_scenario() {
     git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
       "${observations_file}" "delivery-evidence-${case_name}"
-    if [[ ${case_name} == aggregate || ${case_name} == nostore ]]; then
+    if delivery_evidence_requires_review "${case_name}"; then
       delivery_evidence_retain_review_artifacts
     fi
     # Keep the agent-written outcome (and selection log) that observations
