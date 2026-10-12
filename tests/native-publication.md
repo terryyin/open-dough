@@ -172,9 +172,12 @@ Current families, each `<family>-native-<layer>` in `tests/support`:
 - story-branch-closure and trunk-closure: `-fixture`, `-observe`, `-assess`,
   `-counterexamples`, `-run`; trunk-closure's fixture also sources `-arming`.
 - ci-completion: `-fixture`, `-observe`, `-assess`, `-counterexamples`, `-run`.
-- delivery-evidence (selection, claims, consumers, gaps): shared
+- delivery-evidence (selection, claims, consumers, gaps, aggregate, nostore, deferred): shared
   `delivery-evidence-native-run.sh`; each case has `-scenario-content`,
   `-observe` and `-assess`, with counterexamples inside the assessor file.
+  Aggregate/no-store implementation and deferred-caller acceptance journeys retain actual command/results
+  and final product state for explicit review; their automated assessment remains
+  pending and cannot certify native behavior from prose.
 - execution-worktree-prep: `-fixture.mjs`, `-run.sh`, `-observe.mjs`,
   `-assess.mjs`, `-flat.mjs` (observation JSON as `key: value` lines), and
   `-cheap.sh` counterexamples.

@@ -42,6 +42,10 @@ const reader = new Set([
 // read them. Each reason says what the file writes.
 const shapeWriters = new Map([
   [
+    "tests/support/delivery-evidence-aggregate-native-checks.sh",
+    "builds Claude prose, started command and result shapes for reader checks",
+  ],
+  [
     "tests/support/native-agent-admission.sh",
     "substitute agent writing admission streams per host",
   ],

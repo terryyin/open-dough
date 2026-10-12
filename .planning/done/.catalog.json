@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-132_accept-indirect-consumer-proof-natively.json",
+      "identity": "SEED-132#accept-indirect-consumer-proof-natively",
+      "completedAt": "2026-10-12T07:30:18.773Z",
+      "blob": "96bb8ea8f4a7c90bd8575b53b08e2b16d7eb27ed"
+    },
+    {
       "fileName": "SEED-132_prove-indirect-consumers-before-acceptance.json",
       "identity": "SEED-132#prove-indirect-consumers-before-acceptance",
       "completedAt": "2026-10-12T03:17:03.245Z",

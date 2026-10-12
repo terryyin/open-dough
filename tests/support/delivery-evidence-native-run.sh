@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Shared native journey for the delivery-evidence cases (selection, claims,
-# consumers, gaps): disposable fixture scaffolding, prompt, native command,
+# consumers, gaps, aggregate, nostore, deferred): disposable fixture scaffolding, prompt, native command,
 # assessment, retention, and evidence identity. Promise-status recognition
 # lives in delivery-evidence-promise-status.sh. Each case keeps its own
 # scenario content, observations, and assessor in
@@ -12,13 +12,23 @@ delivery_evidence_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd
 source "${delivery_evidence_support_dir}/delivery-evidence-promise-status.sh"
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/native-observation.sh"
-for delivery_evidence_case in selection claims consumers gaps; do
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-native-evidence.sh"
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-native-prompt.sh"
+for delivery_evidence_case in selection claims consumers gaps aggregate nostore deferred; do
   for delivery_evidence_part in scenario-content observe assess; do
     # shellcheck disable=SC1090,SC1091
     source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
   done
 done
 unset delivery_evidence_case delivery_evidence_part
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-aggregate-native-checks.sh"
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-nostore-native-checks.sh"
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-deferred-native-checks.sh"
 
 delivery_evidence_root=
 delivery_evidence_workspace=
@@ -40,6 +50,18 @@ delivery_evidence_case_profile() {
     consumers)
       delivery_evidence_scenarios='changed-contract corrected-consumer unchanged-boundary'
       delivery_evidence_pass_basis='observable consumer applicability'
+      ;;
+    aggregate)
+      delivery_evidence_scenarios='heading-reorder'
+      delivery_evidence_pass_basis='reviewed native command results'
+      ;;
+    deferred)
+      delivery_evidence_scenarios='known-caller'
+      delivery_evidence_pass_basis='reviewed native command results'
+      ;;
+    nostore)
+      delivery_evidence_scenarios='single-read'
+      delivery_evidence_pass_basis='reviewed native command results'
       ;;
     gaps)
       delivery_evidence_scenarios='repair-and-proceed unavailable-proof sufficient-reused'
@@ -99,44 +121,6 @@ delivery_evidence_cleanup() {
   fi
 }
 
-delivery_evidence_write_evidence_identity() {
-  local case_name=$1
-  local case_prefix="tests/support/delivery-evidence-${case_name}-native"
-  printf 'helper-identity: tests/support/delivery-evidence-native-run.sh\n'
-  native_result_print_adapter_identity
-  printf 'fixture-identity: tests/support/delivery-evidence-native-run.sh\n'
-  printf 'scenario-content-identity: %s-scenario-content.sh\n' "${case_prefix}"
-  printf 'observe-identity: %s-observe.sh\n' "${case_prefix}"
-  printf 'assessor-identity: %s-assess.sh\n' "${case_prefix}"
-  native_result_input_hash_lines \
-    tests/git-publication-native.sh \
-    tests/support/git-publication-native-host.sh \
-    tests/support/delivery-evidence-native-run.sh \
-    tests/support/native-observation.sh \
-    "${case_prefix}-assess.sh" \
-    "${case_prefix}-observe.sh" \
-    "${case_prefix}-scenario-content.sh" \
-    tests/support/git-publication-native-run.sh
-  native_result_supervision_input_hash_lines
-  native_result_input_hash_lines \
-    src/skills/dough-execute-plan/references/wrap-up.md \
-    src/skills/dough-execute-plan/references/delegation.md
-  if [[ ${case_name} == selection ]]; then
-    native_result_input_hash_lines \
-      "${case_prefix}-repository-content.sh" \
-      "${case_prefix}-proof-logger.sh"
-  fi
-  if [[ ${case_name} == consumers ]]; then
-    native_result_input_hash_lines \
-      src/skills/dough-story-refinement/references/executable-proof.md
-  fi
-}
-
-delivery_evidence_prompt_for() {
-  printf '%s\n' \
-    "Use this project's installed Open Dough guidance. An implementation agent returned uncommitted work and the proof report at .planning/implementation-return.md for the promises in .planning/slice-promises.md. Apply the existing acceptance workflow to that return. Do not commit. Leave a short acceptance outcome in .planning/acceptance-outcome.md naming each promise as accepted or incomplete with the evidence you inspected. Treat the installed guidance and project files as the task inputs; do not inspect parent processes or external test-harness source."
-}
-
 delivery_evidence_observe_scenario() {
   local case_name=$1 scenario=$2
   case ${case_name} in
@@ -158,9 +142,12 @@ delivery_evidence_run_scenario() {
   local prompt run_status=0 observations_file
   delivery_evidence_create_fixture \
     "${case_name}" "${source_dir}" "${host}" "${scenario}" "${parent}"
+  if delivery_evidence_requires_review "${case_name}"; then
+    delivery_evidence_capture_installed_inputs "${host}"
+  fi
   prompt=$(
     set -e
-    delivery_evidence_prompt_for
+    delivery_evidence_prompt_for "${case_name}"
   )
   native_case_host=${host}
   native_case_id="delivery-evidence/${case_name}"
@@ -197,6 +184,12 @@ delivery_evidence_run_scenario() {
     git_publication_assess_status=fail
     git_publication_assess_reason="${case_name} acceptance mismatch for ${scenario}"
   fi
+  # shellcheck disable=SC2310,SC2311
+  if delivery_evidence_requires_review "${case_name}" \
+    && [[ ${native_run_stream_status:-missing} == complete && ${run_status} -eq 0 &&
+      $(delivery_evidence_obs_get harness-inspected "${observations_file}") == false ]]; then
+    git_publication_assess_reason="${case_name} observations retained; explicit review required"
+  fi
   if [[ ${run_status} -ne 0 && ${git_publication_assess_status} == pass ]]; then
     git_publication_assess_status=fail
     git_publication_assess_reason="native host exited ${run_status} before completing ${scenario}"
@@ -207,6 +200,9 @@ delivery_evidence_run_scenario() {
     git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
       "${observations_file}" "delivery-evidence-${case_name}"
+    if delivery_evidence_requires_review "${case_name}"; then
+      delivery_evidence_retain_review_artifacts
+    fi
     # Keep the agent-written outcome (and selection log) that observations
     # were derived from, so a verdict stays diagnosable after cleanup.
     native_result_copy_if_present \

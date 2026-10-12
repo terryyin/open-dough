@@ -121,7 +121,7 @@ git_publication_write_evidence_identity() {
       story_closure_write_evidence_identity
       ;;
     delivery-evidence-selection | delivery-evidence-claims | \
-      delivery-evidence-consumers | delivery-evidence-gaps)
+      delivery-evidence-consumers | delivery-evidence-gaps | delivery-evidence-aggregate | delivery-evidence-nostore | delivery-evidence-deferred)
       delivery_evidence_write_evidence_identity "${1#delivery-evidence-}"
       ;;
     *) return 2 ;;

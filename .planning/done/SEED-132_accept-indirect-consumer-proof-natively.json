@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-132#accept-indirect-consumer-proof-natively",
+  "title": "Accept indirect consumer discovery and proof judgment natively",
+  "completedAt": "2026-10-12T07:30:18.773Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
