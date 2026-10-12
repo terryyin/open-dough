@@ -1,11 +1,7 @@
-/* A launch dialog's layout (./LaunchDialog.tsx): its reading order, its
-   disclosures, and its effects and actions below a scrolling body. It is the
-   frame's dialog, which the project dialogs (./project-configuration.css)
-   share: a quiet card over the page, with the frame's buttons, fields, and
-   disclosures (./frame-controls.css). */
+/* Launch and project dialogs share this frame layout: a scrolling body with
+   effects and actions below, using ./frame-controls.css for controls. */
 
-/* The dialog is capped to the viewport: its body scrolls, while its effects
-   and actions stay in view below it. */
+/* The body scrolls within the viewport; effects and actions stay in view. */
 .launch-dialog {
   box-sizing: border-box;
   width: min(40rem, calc(100% - 1.5rem));
@@ -83,9 +79,8 @@
   min-width: 0;
 }
 
-/* A disclosure's summary names what it holds and, for options, what is
-   selected, so nothing chosen is hidden by closing it. It is a frame
-   disclosure, its summary wrapping inside the dialog. */
+/* Frame disclosures wrap inside the dialog and name their selected options
+   even when closed. */
 .launch-disclosure {
   border-top: 1px solid var(--line);
   padding-top: var(--space-1);
@@ -150,6 +145,20 @@
   font-size: 0.9rem;
 }
 
+@media (any-pointer: coarse) {
+  .launch-option {
+    align-items: center;
+  }
+
+  .launch-option label,
+  .launch-session-values label {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-size);
+    min-width: var(--control-size);
+  }
+}
+
 /* Selects and text areas are frame fields, as wide as their place. A
    select's value keeps the room its arrow leaves. */
 .launch-dialog select,
@@ -163,6 +172,14 @@
 
 .launch-dialog textarea {
   resize: vertical;
+}
+
+/* Short windows leave the effects and actions visible. The instruction
+   scrolls within its field instead of growing taller than the dialog body. */
+@media (height <= 30rem) {
+  .launch-dialog textarea {
+    max-height: max(var(--control-size), 20dvh);
+  }
 }
 
 /* The dictation controls and their status sit in one quiet group under the
@@ -221,13 +238,12 @@
   display: contents;
 }
 
-.launch-dialog-note {
+.launch-dialog-note,
+.launch-dialog-cutoff {
   font-size: 0.9rem;
   color: var(--quiet);
 }
 
 .launch-dialog-cutoff {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--quiet);
 }

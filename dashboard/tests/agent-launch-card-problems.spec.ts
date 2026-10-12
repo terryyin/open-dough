@@ -10,7 +10,11 @@
 import { expect, test } from "./dashboardTest.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { inspectionGroup, launchGroup } from "./cardControls.ts";
-import { expectOnOneLine, expectStackedInOrder } from "./pageLayout.ts";
+import {
+  expectOnOneLine,
+  expectStackedInOrder,
+  tapWhereShown,
+} from "./pageLayout.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import {
   publishLaunchJourney,
@@ -101,6 +105,73 @@ test.describe("without the project's folder", () => {
 
 test.describe("when Claude Code does not answer within the launch wait", () => {
   test.use({ launchTimeoutMs: 3_000 });
+
+  test.describe("phone touch recovery", () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+    test("a constrained-height Start reports uncertainty and only the explicit recovery choice starts its kept instruction again", async ({
+      page,
+      dashboard,
+    }) => {
+      test.setTimeout(120_000);
+      dashboard.claudeScenario("hang");
+      const { card, start, dialog } = await openTakenBacklog(page, journey);
+      const launcher = start(readyStory);
+      await launcher.scrollIntoViewIfNeeded();
+      await tapWhereShown(launcher);
+      const draft =
+        "Keep this instruction.\n\nExplain an uncertain launch before continuing.";
+      const field = dialog.getByRole("textbox", {
+        name: "Instruction (optional)",
+      });
+      await field.fill(draft);
+      await page.setViewportSize({ width: 390, height: 300 });
+      await expect(field).toHaveValue(draft);
+      expect(dashboard.claudeLaunchCalls()).toEqual([]);
+      await tapWhereShown(
+        dialog.getByRole("button", { name: "Start", exact: true }),
+      );
+      await expect(dialog).toBeHidden();
+      await expect(card(readyStory)).toContainText("Local startup in progress");
+      const recovery = page.getByRole("region", { name: "Startup recovery" });
+      await expect(recovery).toContainText(
+        "Claude Code did not answer in time, so the session may or may not have started.",
+      );
+      await expect(card(readyStory)).toContainText(
+        "Startup needs reconciliation",
+      );
+      await expect(cardSessions(card(readyStory))).toHaveCount(0);
+      await expect(launcher).toBeDisabled();
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+      await page.setViewportSize({ width: 844, height: 300 });
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+      const advice = recovery.getByText(
+        "Check claude agents before continuing:",
+        { exact: false },
+      );
+      await advice.scrollIntoViewIfNeeded();
+      await expect(advice).toBeInViewport({ ratio: 1 });
+      dashboard.claudeScenario("launched");
+      const continueStart = recovery.getByRole("button", {
+        name: /^Continue execution start/,
+      });
+      await continueStart.scrollIntoViewIfNeeded();
+      await tapWhereShown(continueStart);
+      const session = cardSessions(card(readyStory));
+      await expect(session).toHaveCount(1);
+      await expect(session).toContainText("Execution started in Claude Code");
+      await expect(card(readyStory)).not.toContainText(
+        "Startup needs reconciliation",
+      );
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
+      expect(
+        dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1)),
+      ).toEqual([
+        `/dough-execute-plan SEED-B#b\n\n${draft}`,
+        `/dough-execute-plan SEED-B#b\n\n${draft}`,
+      ]);
+    });
+  });
 
   test("Start is disabled while in flight, and the uncertain answer needs reconciliation under Startup recovery while the card stays protected", async ({
     page,

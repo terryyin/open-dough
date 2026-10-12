@@ -121,6 +121,9 @@ implementation or scratch edit is retained in this preparation.
 - Starting revision: `6b16a31681bda3f3dec0be8f9d9c1eb2f4f01fcf`.
   Established claim/candidate and initial published base:
   `db0dfb0773236c1ff56ad12851ebdac8f3ee73e8`.
+- Slice 1 accepted on origin execution branch:
+  `1a843c3efbcd97a068c5c04fe94da007d6a1144e`, suffix base
+  `db0dfb0773236c1ff56ad12851ebdac8f3ee73e8`; observation reused.
 - Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
   in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
   Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
@@ -193,7 +196,7 @@ checks retain unscrollable-overflow proof. No slice-1 promise gap remains.
 
 ### 2. Finish a launch dialog with limited visible height
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `agent-launch-dialog-layout.spec.ts`,
 `agent-launch-start-session-layout.spec.ts`, `agent-launch-card.spec.ts` and
 `agent-launch-card-problems.spec.ts` through their disposable launch fixtures.
@@ -213,6 +216,37 @@ instruction/recording recovery without adding a new dictation promise.
 
 Safe stop: mobile launch editing/submission works end to end; downstream session
 and terminal comfort retain their existing behavior until their owning slices.
+
+Accepted proof (2026-10-12): inspected `launch-dialog.css` short-height field
+cap/touch option and session labels, `launch-session.css`, `startup-recovery.css`,
+and all new setup/observation locations. Actual red measurements were 23.1875px
+session labels, 21px recovery control, and a 110.75px textarea inside a 92.625px
+body at 390×300. Short-height fields retain a 44px minimum and multiline
+scrolling; effects/actions stay in view. Published/native fixtures supply only
+initial work and host scenarios. New touch journey specs observe real coordinate
+taps and typed insertion at the actual caret, exact draft/choices through
+rotation, Cancel focus/zero calls, Start pending then actual session/native1,
+and uncertainty then explicit Continue with exact kept draft/native2. Conditions:
+Chromium 153.0.8010.12, 390×844/844×390, 768×1024/1024×768,
+390×300/768×300 and recovery844×300, alongside existing desktop/zoom cases.
+
+Final implementation proof exited 0 quietly: 134 tests/39 complete specs,
+including every affected dialog/session/recovery/recording consumer found:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-launch-dialog-layout.spec.ts agent-launch-start-session-layout.spec.ts agent-launch-card.spec.ts agent-launch-card-problems.spec.ts frame-launch-look.spec.ts agent-launch-model.spec.ts agent-launch-options.spec.ts agent-launch-options-exclusive.spec.ts agent-launch-options-kept.spec.ts agent-launch-options-entries.spec.ts agent-launch-session-choices.spec.ts agent-launch-default-checkout-warning.spec.ts agent-launch-start-session-existing-changes.spec.ts agent-launch-start-session-failed.spec.ts agent-launch-start-session-recovery.spec.ts agent-launch-uncertain-continuation.spec.ts agent-launch-ad-hoc-problems.spec.ts responsive-session-recovery.spec.ts responsive-session-recovery-ad-hoc.spec.ts responsive-session-recovery-reads.spec.ts responsive-session-recovery-restart.spec.ts responsive-session-recovery-verification.spec.ts responsive-session-reconciliation-kept.spec.ts responsive-session-reconciliation-refusals.spec.ts session-instruction-voice.spec.ts session-instruction-voice-lifecycle.spec.ts session-instruction-voice-overflow.spec.ts session-instruction-voice-key-failures.spec.ts session-instruction-voice-provider-failures.spec.ts session-instruction-voice-capture-failures.spec.ts agent-launch-claude-verification.spec.ts agent-launch-continuation.spec.ts agent-launch-codex-recheck.spec.ts agent-launch-unconfirmed-input.spec.ts agent-launch-start-session-isolated.spec.ts agent-launch-start-session-landing.spec.ts agent-launch-start-session-isolated-boundary.spec.ts agent-launch-start-session-landing-context.spec.ts agent-launch-ad-hoc-terminal.spec.ts --workers=2
+```
+Independent refactoring consolidated unchanged label declarations in the dialog
+owner and extracted complete touch journeys/documentation. Inspected replacement
+locations: `agent-launch-card-touch.spec.ts`, `agent-launch-dialog-touch.spec.ts`,
+`agent-launch-start-session-touch.spec.ts`, `touchLaunchPage.ts`, and
+`LAUNCH-TOUCH.md`. Setup and all assertions retained; typing helper observes
+selection before actual input. Replacement proof exited 0, 18 tests/six specs:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-launch-card.spec.ts agent-launch-card-touch.spec.ts agent-launch-dialog-layout.spec.ts agent-launch-dialog-touch.spec.ts agent-launch-start-session-layout.spec.ts agent-launch-start-session-touch.spec.ts --workers=2
+```
+Other accepted consumers reused; `git diff --check` passed. A caret-at-End test
+assumption was corrected to the actual selection without mutating the field.
+No slice-2 promise gap remains.
 
 ### 3. Identify and manage the intended session without hover
 Type: Behavior
@@ -361,6 +395,18 @@ feedback. No all-suite local gate is invented from CI configuration.
 `.githooks/pre-commit` requires staged lint and dashboard typecheck when scripts
 are staged. Follow ordinary execution's independent post-change refactor and
 delivery gates; keep documentation and proof with their behavior slice.
+
+## Story obligations
+
+### G1. Physical keyboard and engine evidence boundary
+Reported: slice 2 — "Physical iOS keyboard and remote-connectivity validation remain outside scope."
+Story clause: "Viewport/touch checks are the accepted local UI proof; they do not claim physical iOS keyboard behavior or universal browser compatibility."
+Disposition: excluded "Viewport/touch checks are the accepted local UI proof; they do not claim physical iOS keyboard behavior or universal browser compatibility."
+
+### G2. Remote connection evidence boundary
+Reported: slice 2 — "Physical iOS keyboard and remote-connectivity validation remain outside scope."
+Story clause: "Tailscale, remote connectivity, and the previously requested real-device connection reality check are outside this story."
+Disposition: excluded "Tailscale, remote connectivity, and the previously requested real-device connection reality check are outside this story."
 
 ## Current decisions and sizing
 
