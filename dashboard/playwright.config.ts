@@ -3,6 +3,11 @@ import { defineConfig, devices } from "@playwright/test";
 import { remainingSuiteTime } from "./tests/support/suiteDeadline.mjs";
 import { dashboardTestMatch } from "./tests/support/testFiles.mjs";
 
+// Vite and other descendants may explicitly enable Node's compile cache.
+// Disable writes before global setup and workers start, including when a
+// caller supplied NODE_COMPILE_CACHE. No cache allocation or cleanup is needed.
+process.env["NODE_DISABLE_COMPILE_CACHE"] = "1";
+
 // Each run keeps its retained files in its own directory, named by its start
 // time, because Playwright empties a run's output directory before it starts:
 // a later run from the same checkout then removes only its own

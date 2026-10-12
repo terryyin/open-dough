@@ -1,0 +1,197 @@
+# Repository test findings
+
+Detailed active findings linked from [ProjectFindings.md](../../ProjectFindings.md).
+The index owns prioritization; these records retain occurrences and follow-ups.
+
+## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
+
+<a id="dd-278"></a>
+
+### DD-278 — Two dashboard specs lost a mouse press to a reflow between press and release, on two CI runs in one day
+
+A late read answer changed the page's height while Playwright's click was
+between pointer press and release, so the press and release met different
+elements and no click reached the control. Each spec then waited on a page
+that had asked for nothing.
+
+#### Occurrences
+
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first related implementation commit `3354d72b`
+  - Timestamp: 2026-10-10T14:43Z (run 38060703770, story branch) and 2026-10-10T22:04Z (run 38089795734, `main` at `bf901b72`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `8c54b825`; base 0.3.58
+  - Evidence: run 38060703770 failed `story-review-commit-ranges.spec.ts:80` (the range answer changed the status height above the commit list; trace shows no fourth range request); run 38089795734 failed `session-workspace-retirement-claude.spec.ts:162` (the seed, plan and agent-profile reads shortened the page; trace shows no `POST /__agent-launch/done`). Both parents of `bf901b72` passed the workflow. Repairs: `57b2af6e` (`support/storyReviewCommitChoice.ts`) and the commit that adds “a Recently done entry's Mark as done stays where a settled page shows it”.
+  - Observed effect: two failed CI runs on revisions whose code was sound, each costing a diagnosis and a repair commit before completion could proceed.
+  - Inference: qualified. Each repair covers its own spec family. `openStoryStagesJourney` returns after the published-work read alone, and `markDone` treats “no mark noted” as answered, so any spec that mouse-presses before the page settles has the same roughly 30 ms exposure. The loaded-suite acceptance story is closed, so this exposure has no owner.
+
+- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first related implementation commit `5f539d6a`
+  - Timestamp: 2026-10-10T22:33Z (run 38091599194, story branch at `5f539d6a`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown
+  - Evidence: run 38091599194 failed `session-workspace-retirement-claude.spec.ts:162` with the entry still offering Mark as done and no rename attempted, the lost press trunk had repaired in `8df6248b` 20 minutes earlier. The story branch was taken from `b4cb0cb9`, before that repair; it merged trunk at `2783ca92` and the repaired specs passed three times each locally.
+  - Observed effect: one failed CI run on a slice whose code was sound, costing a diagnosis, a pause of the next slice's work, and a trunk merge.
+
+## Dashboard shards run at their time ceiling (open, unqueued)
+
+<a id="dd-279"></a>
+
+### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
+
+#### Occurrences
+
+- Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first related implementation commit `3354d72b`
+  - Timestamp: 2026-10-10T22:24Z (run 38091252477, `main` at `8df6248b`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `8c54b825`; base 0.3.58
+  - Evidence: shard 2/9 failed with “Timed out waiting 305.392s for the test suite to run”. Its job took 310 s on the passing run 38089450687 and 270 s to 306 s across shards of run 38089179190. `longest-first` dated from 2026-10-01 and listed 163 of 443 specs; the per-spec durations in run 38089179190's nine reports put 965 test-seconds in share 1 and 582 in share 6. The refreshed list (200 specs) predicts 786 and 669.
+  - Observed effect: a records-and-tests repair commit failed CI on time alone, costing a third diagnosis during one wrap-up.
+  - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
+  - Later evidence: the refreshed order's first run (38091885152, `main` at `3b2b446a`) ended share 6/9 at the deadline with all 147 tests passed; its 49 specs summed to 1,019 test-seconds against 719 in the reference run, about 1.4 times slower across unrelated specs, while other shares took 176 s to 285 s. Nine shares left no room for that runner variance, so the matrix now deals twelve (predicted 463 to 605 test-seconds a share).
+
+## Quiet passing checks obscure the selected proof (queued, not resolved)
+
+**Follow-up:** [Read a dashboard proof selection without rerunning it or weakening its verdict](../../.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — queued, not resolved. The current reporter preserves the strict silent-pass contract but retains no passing selection/count. The story changes this repository’s proof tooling only.
+
+<a id="dd-216"></a>
+
+### DD-216 — Literal proof commands printed no pass counts, so agents reran passing suites
+
+The plan's focused Playwright commands used the default reporter. Under the agents' shell, a passing run printed no summary, and two agents reran the same selection with `--reporter` just to report counts.
+
+#### Occurrences
+
+- Execution: `SEED-052#cursor-native-activity-and-controls` / plan 217, first related implementation commit `7053bc62`
+  - Timestamp: unknown (slice 1 implementation and refactor, between the claim at 2026-10-02T16:31:54+08:00 and `7053bc62` at 16:42:11+08:00)
+  - Tool: Cursor (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
+  - Evidence: plan 217 slice 1 proof is `env -u NO_COLOR npm run test:dashboard -- … --workers=2` with no reporter. The slice 1 implementer reported "The run exited 0 but printed no summary, so I'm rerunning with the list reporter" (41 passed). The slice 1 refactor agent reported "The test run exited 0 but printed no pass count, so I'm rerunning it with the line reporter" (30 passed). From slice 2 the coordinator added `--reporter=line` to delegated commands, and there were no further count reruns.
+  - Observed effect: two extra Playwright runs of 30–41 tests each.
+  - Inference: Qualified. Diagnosed at refinement on 2026-10-03: the dashboard's quiet reporter (`dashboard/playwright.config.ts`) and the Node runner print nothing on a passing run by design; the shell was not the cause.
+
+<a id="dd-243"></a>
+
+**Same finding, later reports: DD-243.** Retained under DD-216 rather than
+counted as a second cause. Plans 261, 263, 264, and 297 are four additional
+executions; repeated agents within each execution count once.
+
+`npm run test:dashboard` prints nothing on a pass, so a delegated agent cannot see which or how many tests its filtered command selected, which proof acceptance asks it to report. Agents reran passing commands with `--reporter=line`, `--reporter=list`, or `--reporter=dot` to obtain the count.
+
+#### Additional occurrences
+
+- Execution: `SEED-113#share-repeated-observer-reads` / plan 261, first related implementation commit `a1c593a9`
+  - Timestamp: unknown (slice 3 and slice 4 refactor returns, 2026-10-06, before `74f6904b` and `572faa6f`)
+  - Tool: Claude Code (delegated refactor agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: slice 3's refactor return: "The first run of this command without `--reporter=line` cut off its output before the result, so I ran it again"; slice 4's refactor return: "The default reporter printed nothing on a pass, so I added `--reporter=list` to see the counts"; slice 4's implementation reported its whole-suite count from a `--reporter=dot` run.
+  - Observed effect: at least two repeated focused runs (seconds to tens of seconds each); counts were reported for acceptance.
+  - Inference: Qualified. The silence is the project's chosen contract for passing journeys; the cost is small but recurs per agent. Stating in the delegation which reporter yields a selection count would avoid the rerun.
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
+  - Timestamp: unknown (2026-10-07, before commit `11ddc3db`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: coordinator conversation: the plan's focused command `npm run test:dashboard -- <12 specs> --workers=2`, piped to `tail -8`, showed only the npm header; the coordinator reran it as `npx playwright test ... --reporter=line` to see `53 passed`.
+  - Observed effect: one repeated focused run (about 15 seconds).
+  - Inference: Qualified. The plan's literal proof command has the same gap as the delegation; naming a counting reporter in the plan's Proof section would avoid it.
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
+  - Timestamp: unknown (refactor returns of slices 1, 3, 5, and 7, 2026-10-07)
+  - Tool: Claude Code (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 at claim `0edabd1c`; 0.3.57 after the merge at `fefab16d`
+  - Evidence: slice 1's refactor return: "the default reporter printed no summary", rerun with `--reporter=line`; slices 3, 5, and 7's refactor returns invoked `npx playwright test ... --reporter=line|list` directly "because the default reporter's output did not show".
+  - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
+  - Inference: Qualified; the same recurring cost, unchanged by the release.
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297 (spent plan recoverable at `6fef8b6869a532a7a127d755fb3326b6dddd8ebd:.planning/slice-plans/297-trunk-mode-own-changes-review/PLAN.md`), first related implementation commit `0b6138cc`
+  - Timestamp: unknown (implementation returns of slices 1 to 4, 2026-10-11, between the claim `99898cd7` and `1c8329e4` at 11:57:40+09:00)
+  - Tool: Claude Code (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (installed guidance at `7b941f04`)
+  - Evidence: slice 1's return: "The reporter prints nothing on a pass, so I could not read the 92-test count"; slices 2, 3 and 4's returns each obtained their selection from a separate `npx playwright test --config dashboard/playwright.config.ts <paths> --list --reporter=list` or a `--reporter=list` rerun; the slice 1 and slice 4 refactor returns reported exit 0 alone for the suite.
+  - Observed effect: one listing or rerun per implementation return (seconds each); the coordinator reran the 90 to 100 test suite itself after each refactor to hold a final-state exit code.
+  - Inference: Qualified; the same recurring cost. From slice 2 the delegation named the `--list --reporter=list` listing, which replaced a second full run with a listing.
+
+## Shell observations can invert a result on Linux (open, unqueued)
+
+**Follow-up:** open, unqueued. Current `producer | grep -q` sites remain in
+`tests/support/product-backlog-native-use.sh` (unresolved-index and driver
+checks) and `tests/helpers/product-backlog-payload-runtime.bash` (status
+checks). They are repository test helpers, outside the published payload.
+Do not claim these residual sites have failed without an observed occurrence.
+
+<a id="dd-187"></a>
+
+### DD-187 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE
+
+The startup observer read `claim-owned` from `git log --format=%B … | grep -Fq`
+in a suite run under `set -euo pipefail`. When `grep -q` matched and exited
+while git was still writing, git died of SIGPIPE (141) and `pipefail` turned
+the match into `claim-owned: false`. macOS usually let git finish first; the
+Ubuntu runner did not.
+
+#### Occurrences
+
+- Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
+  - Timestamp: 2026-09-29T15:40:33Z (CI failure on `00cc1b62`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
+  - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
+  - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
+
+## Paid native-run permission handoff (low priority, unqueued)
+
+**Follow-up:** open, unqueued. This is the repository’s paid native harness
+meeting a host permission boundary; no public guidance defect or supported
+product repair is established. Keep the observation without claiming resolution.
+
+<a id="dd-161"></a>
+
+### DD-161 — The developer's approval of paid runs did not let the coordinator start them
+
+Paid native runs are manual-only and need the developer's go-ahead. On Claude
+Code in auto mode, the host's permission check refused the coordinator's
+native run after the developer approved all planned runs. The developer then
+had to request the run explicitly.
+
+#### Occurrences
+
+- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
+  - Timestamp: 2026-09-28 (slice 2 start, after "approve all"); exact time unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 0466e5ba
+  - Evidence: the coordinator conversation: "approve all" → `tests/git-publication-native.sh --native claude` refused by the host's auto-mode classifier as agent creation. Run 1 started once the developer sent the command as a message; run 2 on "run 2".
+  - Observed effect: two extra developer round trips before paid runs started.
+  - Inference: Qualified. The request for go-ahead could offer the exact command, or the permission rule, the developer can use, instead of assuming approval lets the coordinator launch it.
+
+## Loaded-suite evidence lacks within-run load (open, unqueued)
+
+**Follow-up:** open, unqueued. `scripts/dashboard-repeat.sh` still samples
+`load_average` only before and after `run_in`; it cannot locate a failure
+against the actual load then. This is repository diagnostic tooling, not a
+request to change published proof-acceptance guidance.
+
+<a id="dd-275"></a>
+
+### DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound
+
+The story treats a failure "while the load was several times the core count"
+differently from a defect, and the repeat script prints the one-minute load
+before and after each run. A loaded run of 826 s failed one test 148 s in,
+with load 16 at the start and 65 at the end.
+
+#### Occurrences
+- Execution: SEED-123#dashboard-suite-passes-loaded-acceptance (plan 289, first implementation commit 065bf393)
+  - Timestamp: 2026-10-10T21:39:08+09:00 (end of the failing loaded run)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `29b9c41c`; base 0.3.58
+  - Evidence: plan 289 slice 6 Learnings (second series); `scripts/dashboard-repeat.sh` `load_average` before and after only; the diagnosis estimated the load at the failure as 25 by interpolation and about 70 from the five- and fifteen-minute averages.
+  - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
+  - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
+

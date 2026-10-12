@@ -126,11 +126,38 @@ not separate implementations.
 | Ordinary commands and test verdicts retain their meaning | A control child outside the suite with the same Node/cache capability still writes to its owned cache; existing strict reporter/assertion checks and affected dashboard journeys keep their verdicts. No production command patch. |
 | Cost and effectiveness are evaluated | Record revision, Node version, selection, workers, run conditions, elapsed time, bytes/files and outcomes before/after in DD-287. Keep historical evidence and qualify any remaining limits. |
 
+## Execution context
+
+Execution uses Story Branch Mode in
+`/Users/terryyin/git/open-dough/.worktrees/bound-the-dashboard-suite-s-own-compile-cache-di`
+on `codex/bound-the-dashboard-suite-s-own-compile-cache-di`, reused from the
+established start. Publisher: `dashboard-territory.local-open-dough`; assigned
+agent: `stanly-chan`. Claim accepted on `origin/main` at
+`48ccb61606d5fb614ca3e5129e2857f8eecc062d`; starting revision:
+`a54368f58f0f4cdd9f267db80a45f82e700132ac`. This claim is not covered by the
+story-branch observer. The first increment's previously published base is the
+claim SHA. No new claim or workspace is required. Replanning retains existing
+planning authority; no numeric slice budget was supplied.
+
+Checkout setup: locked `npm ci --no-audit --no-fund`, then
+`npm run typecheck:dashboard`, both passed on 2026-10-12. The check-only
+`.githooks/pre-commit` owns staged lint and script-triggered dashboard typecheck.
+No generator is triggered by the planned configuration/test/documentation edits.
+
+CI: GitHub Actions `terryyin/open-dough`, verified selector `ci.yml` (name `CI`),
+target `codex/bound-the-dashboard-suite-s-own-compile-cache-di`. Codex yielded
+observer: coordinator `stanly-chan-seed131`, directory
+`/tmp/dough-ci-501/watch-UyPB8W`, PID `70101`, session `41830`, cell `7`;
+runtime is this checkout's `.agents/skills/dough-execute-plan`. Managed delivery
+must reuse this coordinator and directory. Dashboard landing context remains
+`/Users/terryyin/.open-dough/dashboard/reporting/08331263-6cd3-4850-9b83-39a8f63da5f1/landing-context.json`
+for the first later trunk landing.
+
 ## Ordered slices
 
 ### 1. Dashboard proof leaves no descendant compile cache to reclaim
 Type: Behavior
-Status: planned
+Status: done
 Proof: all mapped observations above, a discriminating automated regression,
 the affected strict dashboard suite, and the resulting DD-287 evaluation.
 
@@ -163,16 +190,52 @@ delivered outcome; no deferred cleanup slice or Structure slice is needed.
 Scope is one small policy with a longer shared-suite verification loop. No
 project-specific numeric slice target or hard limit was supplied.
 
-## Review and execution gates
+## Accepted slice proof
 
-Slice-plan refinement is not needed: one common policy owns one cohesive
-outcome, all final promises have proof, and the observed premises support its
-location and approach. No remaining slice-specific concern was identified.
-Concurrency, forced termination and full-suite effectiveness are implementation
-acceptance work, not claimed preparation results.
+On 2026-10-12, the coordinator inspected the configuration policy, regression's
+fresh modules/control seed, `unchanged()` entry/hash comparisons, completed
+exit-17 and SIGTERM assertions, and simultaneous live children's compiled
+markers. Setup never injects disable into suite probes. Inspected global setup,
+build/server/fixture consumers and `/tmp/dcc-qwzrq3gf` orchestration and snapshots
+establish the real-run inheritance, overlapping fresh roots, runner failure and
+interruption after flush, later success, and preserved explicit/default caches.
+Removing the policy in an isolated archive makes the regression fail its first
+no-growth assertion. The DD-287 evaluation retains the baseline and measured cost.
 
-When execution is authorized, use the normal independent post-change refactor,
-focused proof, commit and delivery gates from the installed execution workflow.
-Normal commit hooks remain mandatory. This preparation itself changes only
-records: check their links, recorder output, and whitespace; do not implement,
-Take, or report DD-287 resolved during planning.
+Passing literal commands: `npm run --silent test:dashboard -- compile-cache.spec.ts --workers=1`;
+`npm run --silent test:dashboard -- production-deployment.spec.ts --grep 'deployment installs' --workers=1` (twice);
+`node_modules/.bin/playwright test --config dashboard/playwright.config.ts production-deployment.spec.ts --grep 'deployment installs' --workers=1`;
+`npm run --silent test:dashboard -- authenticated-project-overview.spec.ts --workers=1` (dev and preview);
+`python3 /tmp/dcc-qwzrq3gf/boundaries.py`; `python3 /tmp/dcc-qwzrq3gf/failure-interruption.py`;
+`npm run test:dashboard` (strict exit 0, 1,551 selected / 484 files, eight workers,
+750.830 seconds, unchanged 94 files / 306,427 bytes and every SHA-256);
+`npm run typecheck:dashboard`; `git diff --check`. Independent refactor preserved
+configuration/spec bytes and all runtime proof; it extracted documentation only,
+preserving finding anchors/evidence and checking local links. No generator applies.
+
+## Story obligations
+
+### G1. Caller startup writes before configuration
+Reported: slice 1 — "The first fresh npm caller launch added 93 files / 306,396 bytes before configuration loading."
+Story clause: "A caller explicitly enabling Node caching before Playwright loads its configuration may still cache that runner's startup"
+Disposition: excluded "the promise concerns the suite-created descendants and fresh fixture growth, not changing the calling shell's policy"
+
+### G2. Version and timing measurement limits
+Reported: slice 1 — "Other Node versions were not executed; timing samples establish no stable speedup or full-suite penalty."
+Story clause: "Measure actual disk effects and elapsed proof time against the current launch"
+Disposition: proved by slice 1: DD-287's qualified current-Node baseline/candidate evaluation; feature detection and typecheck preserve the existing engine range without claiming a version matrix or speedup.
+
+### G3. Historical cache attribution
+Reported: slice 1 — "The historical 134 GB attribution remains unknown."
+Story clause: "without those test subprocesses accumulating Node compile cache on the shared machine"
+Disposition: no user cost "without those test subprocesses accumulating Node compile cache on the shared machine": the verified prevention outcome does not require attributing historical writes; the original uncertainty is preserved in DD-287.
+
+### G4. Individual full-run pass and skip counts
+Reported: slice 1 — "Individual full-run pass/skip counts are unavailable from that reporter."
+Story clause: "the sibling proof-selection story are outside this delivery"
+Disposition: excluded "the sibling proof-selection story are outside this delivery"
+
+### G5. Non-cache recovery after hard kill
+Reported: slice 1 — "A hard kill retains existing non-cache cleanup limitations."
+Story clause: "This does not promise that a forcibly killed worker cleans up all its other resources."
+Disposition: excluded "This does not promise that a forcibly killed worker cleans up all its other resources."
