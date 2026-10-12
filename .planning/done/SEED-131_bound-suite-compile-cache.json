@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-131#bound-suite-compile-cache",
+  "title": "Bound the dashboard suite's own compile-cache disk use",
+  "completedAt": "2026-10-12T02:08:36.824Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery) — SEED-063#background-ci-failure-delivery ([plan](slice-plans/299-background-ci-failure-delivery/PLAN.md))
-- [Bound the dashboard suite's own compile-cache disk use](seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache) — SEED-131#bound-suite-compile-cache ([plan](slice-plans/302-bound-suite-compile-cache/PLAN.md))
 - [Prove affected indirect consumers before accepting a slice](seeds/SEED-132-acceptance-follows-reachable-behavior.md#prove-indirect-consumers-before-acceptance) — SEED-132#prove-indirect-consumers-before-acceptance ([plan](slice-plans/304-prove-indirect-consumers/PLAN.md))
 
 ## Backlog list

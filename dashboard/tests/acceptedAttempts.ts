@@ -62,7 +62,12 @@ export async function settledOutcome(
     const { attempt } = JSON.parse(response.body) as {
       attempt?: AttemptObservation;
     };
-    const outcome = attempt?.outcome ?? keptOutcome(server, id);
+    // The replacement can be visible while this live owner's write still
+    // holds its lock. Its change answer follows release; reading the file
+    // ahead of it can let a recovery test stop the server mid-write.
+    const outcome =
+      attempt?.outcome ??
+      (attempt?.owned ? undefined : keptOutcome(server, id));
     if (outcome !== undefined) return outcome;
     if (attempt === undefined) {
       await new Promise((resolve) => setTimeout(resolve, 50));
