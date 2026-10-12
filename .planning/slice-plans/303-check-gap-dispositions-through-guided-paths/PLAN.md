@@ -137,16 +137,15 @@ old `/tmp/dough-ci-501/watch-dkE49C`, PID 53753/session 71016/cell 11 stopped
 (unread 0, ended coverage, CI unobserved), PID exit and terminal stream accounted
 for. New observer `/tmp/dough-ci-501/watch-m7EMbR`, PID 30048/session 38871/cell 34.
 
-Independent refactor found no conceptual candidates, but its 250-line gate
-stopped the catalog/plan. The human rejected a narrow exception and authorized
-conciseness without information loss. Resume preserves claim/workspace/proof;
-condense this plan and organize complete finding records behind stable catalog
-anchors. Independent refactor completed: all 72 records preserve token order,
-194 external destinations, seven equivalent relative destinations and 72 parsed
-CommonMark headings/anchors. Index 169 lines; largest record 245; all 76 files
-within 250. Disposable verification script exited 0, inspected by coordinator
-before cleanup; source proof unchanged. `npm run format` and slice-obligation
-check succeeded. Slice 1 is done; candidate awaits commit/publication.
+Independent refactor found no conceptual candidates, but its 250-line gate stopped the catalog/plan. The human
+rejected a narrow exception and authorized conciseness without information loss. Resume preserves
+claim/workspace/proof; condense this plan and organize complete finding records behind stable catalog anchors.
+Independent refactor completed: all 72 records preserve token order, 194 external destinations, seven equivalent
+relative destinations and 72 parsed CommonMark headings/anchors. Index 169 lines; largest record 245; all 76 files
+within 250. Disposable verification script exited 0, inspected by coordinator before cleanup; source proof
+unchanged. `npm run format` and slice-obligation check succeeded. Slice 1 published as `f91a8dbf729f0094a54fdceefbc4e86385063d82`, suffix base
+`f81dffb23753d7a382e087daa7487184ee8a4129`, on the remote execution branch;
+observer reused with exact-revision registration.
 
 ## Slice 1 proof review
 
@@ -243,4 +242,8 @@ dashboard-wide and older native harness suites were not rerun: no executable or
 rendered contract changed. Tests preserve boundaries, not semantic/native judgment.
 Extra work: three historical traces, small control and authorized record concision.
 Native follow-through/recurrence prevention remain unobserved; no release claim.
-ODF-223 stays unresolved; implementation SHA awaits delivery.
+ODF-223 stays unresolved; its record names the implementation SHA.
+
+## Execution complete
+
+Product advice: no backlog change; existing sibling priority and ODF-223 evidence limits remain.
