@@ -95,8 +95,27 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             ),
           ).toBe(true);
           expect(await titleWordsShown(heading, 0, 28)).toBe(true);
-          const headerSwipe = -(await box(identity)).height;
-          await scrollByTouch(page, identity, headerSwipe);
+          // Read in bounded small strokes: native touch slop and font wrapping
+          // mean one header-height drag need not reach the title ending.
+          const headerSwipe = -(await box(identity)).height / 2;
+          const scrollHeaderUntilShown = async (
+            shown: () => Promise<boolean>,
+          ) => {
+            for (let stroke = 0; stroke < 12 && !(await shown()); stroke += 1) {
+              await scrollByTouch(page, identity, headerSwipe);
+              await page.evaluate(
+                () =>
+                  new Promise<void>((resolve) => {
+                    requestAnimationFrame(() => {
+                      resolve();
+                    });
+                  }),
+              );
+            }
+          };
+          await scrollHeaderUntilShown(() =>
+            titleWordsShown(heading, title.length - 20, title.length),
+          );
           await expect
             .poll(() =>
               titleWordsShown(heading, title.length - 20, title.length),
@@ -104,11 +123,9 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             .toBe(true);
           // Wrapped native identities can occupy another reading position
           // than the title ending. Read both through the same header scroll.
-          await scrollByTouch(page, identity, headerSwipe);
           const session = panel.locator(".side-panel-names code");
-          await expect(session).toBeInViewport({ ratio: 1 });
-          expect(
-            await session.evaluate((element) => {
+          const sessionShown = () =>
+            session.evaluate((element) => {
               const identity = element
                 .closest(".terminal-identity")
                 ?.getBoundingClientRect();
@@ -118,8 +135,10 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
                 shown.top >= identity.top &&
                 shown.bottom <= identity.bottom + 1
               );
-            }),
-          ).toBe(true);
+            });
+          await scrollHeaderUntilShown(sessionShown);
+          await expect(session).toBeInViewport({ ratio: 1 });
+          expect(await sessionShown()).toBe(true);
         }
         await assertIdentity();
         await tapWhereShown(control("Maximize"));

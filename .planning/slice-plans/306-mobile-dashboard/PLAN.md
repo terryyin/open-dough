@@ -440,6 +440,37 @@ removed; cached images/shared resources preserved. Slice5 paused with its real
 red touch-control proof and was preserved through installed CI stash protocol;
 resume only after repair publication and restoration.
 
+Subsequent owned CI repair (run38317464424/attempt1, dashboard12/12): full
+artifact/log contained one phone title-ending failure. Retained snapshot showed
+native movement to46px but title still below the72px header; the zero-move
+failure did not recur. A fixed header-height stroke undershot under CI's font
+geometry. A taller-title diagnostic at the same real browser/PTY boundary
+reproduced the unchanged visibility assertion (exit1,
+`dashboard/test-results/2026-10-12T22-45-17.183Z`); names/word geometry proved
+the missing reading position. Bounded half-header native strokes now stop on
+the existing visible-title/native-ID predicates, with a rendered frame between
+strokes and at most12 per target. The same taller diagnostic passed, observing
+the full title and then full ID at their respective reading positions.
+
+Exact original title and all visibility/native invariants were restored for
+final delivered-file proof. Both complete two-test commands exited0:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:32770/ PW_TEST_CONNECT_EXPOSE_NETWORK='<loopback>' npm run test:dashboard -- agent-terminal-touch.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch.spec.ts --workers=2
+```
+Independent refactor consolidated the repeated reading orchestration into
+`scrollHeaderUntilShown` in that spec; inspected its unchanged predicates,
+bounded movement and actual-frame observation. The second command reran after
+extraction and exited0. Shared gesture/setup/product consumers are unchanged;
+prior native-delivery/geometry evidence remains valid. Hosted CI verdict for
+the repair remains pending until ordinary registered observation/completion.
+The first diagnostic launchServer did not forward loopback and failed at
+navigation only; replacing it with run-server and proving HTTP forwarding
+resolved that setup failure. Cached Linux image was reused, exact diagnostic
+container retired; no dependency/product/CSS/timeout or lifecycle changes.
+Formatter/whitespace passed. Slice5 remains planned and its unfinished review
+proof was preserved through installed pause/stash protocol.
+
 ### 5. Review changes without losing the chosen file
 Type: Behavior
 Status: planned
