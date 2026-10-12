@@ -64,7 +64,7 @@ run_native_host() {
           story_closure_run_journey "${source_dir}" "${host}" "${results_dir}"
           ;;
         delivery-evidence/selection | delivery-evidence/claims | \
-          delivery-evidence/consumers | delivery-evidence/gaps)
+          delivery-evidence/consumers | delivery-evidence/gaps | delivery-evidence/aggregate)
           delivery_evidence_run_journey "${journey#delivery-evidence/}" \
             "${source_dir}" "${host}" "${results_dir}"
           ;;
@@ -158,7 +158,7 @@ native_case_known() {
       return 0
       ;;
     delivery-evidence/selection | delivery-evidence/claims | \
-      delivery-evidence/consumers | delivery-evidence/gaps)
+      delivery-evidence/consumers | delivery-evidence/gaps | delivery-evidence/aggregate)
       return 0
       ;;
     *) return 1 ;;

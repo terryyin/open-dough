@@ -19,81 +19,18 @@ judgment; a failed acceptance run does not authorize that expansion.
 
 ## Existing solutions and decisions
 
-PFE selects the existing `tests/git-publication-native.sh` entry and
-`tests/support/delivery-evidence-native-run.sh` journey for fixture installation,
-shared supervision, host commands, stream decoding and temporary retention.
-Its consumer scenario/observer/assessor files already own factory-contract,
-stale-exclusion and unchanged-badge cases. Extend this family only as needed for
-the new shapes and implementation entry; do not create a second native runner.
-The current prompt starts at an implementation return, so it cannot by itself
-prove discovery during implementation. Add an ordinary implementation request
-alongside acceptance, without supplying missing consumer identities.
+PFE selects the existing `tests/git-publication-native.sh` entry and `tests/support/delivery-evidence-native-run.sh` journey for fixture installation, shared supervision, host commands, stream decoding and temporary retention. Its consumer scenario/observer/assessor files already own factory-contract, stale-exclusion and unchanged-badge cases. Extend this family only as needed for the new shapes and implementation entry; do not create a second native runner. The current prompt starts at an implementation return, so it cannot by itself prove discovery during implementation. Add an ordinary implementation request alongside acceptance, without supplying missing consumer identities.
 
-The existing consumers observer searches response/transcript text for test names
-and acceptance words. That is a useful diagnostic summary, not sufficient proof
-that an assertion ran. Reuse stream command/result observations and the selection
-case's proof-logger concept for actual selected/executed results where suitable;
-review ambiguous prose against the explicit expectations below. Keep observation
-and judgment separate. Do not grow a generic prose classifier or certify a run
-from generated summary fields alone.
+The existing consumers observer searches response/transcript text for test names and acceptance words. That is a useful diagnostic summary, not sufficient proof that an assertion ran. Reuse stream command/result observations and the selection case's proof-logger concept for actual selected/executed results where suitable; review ambiguous prose against the explicit expectations below. Keep observation and judgment separate. Do not grow a generic prose classifier or certify a run from generated summary fields alone.
 
-Recover plan 304 and its PROOF.md at
-`cfdca05274dc9845b7f9666e35a0ad68ce6ec73b` for historical setup, assertion purpose
-and failure observations. [ODF-150](../../../docs/maintainer/findings/ODF-150.md)
-retains the verified Claude Code aggregate-text and no-store recurrences. That
-walkthrough and the factory fixture supply provenance and preservation evidence;
-neither supplies fresh native proof of these examples.
+Recover plan 304 and its PROOF.md at `cfdca05274dc9845b7f9666e35a0ad68ce6ec73b` for historical setup, assertion purpose and failure observations. [ODF-150](../../../docs/maintainer/findings/ODF-150.md) retains the verified Claude Code aggregate-text and no-store recurrences. That walkthrough and the factory fixture supply provenance and preservation evidence; neither supplies fresh native proof of these examples.
 
-The ADR index and in-file statuses agree: 0000–0006 are Accepted; 0007–0009
-remain Proposed. Follow [ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md):
-evidence or justified reuse per affected requirement on Codex, Cursor and Claude
-Code, selected by unresolved risk; separate shared integration from behavior.
-[ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-keeps candidate acceptance separate from release. [ADR 0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-and [AGENTS.md](../../../AGENTS.md) preserve shared source ownership and runtime
-audience if an in-scope guidance correction is later authorized. Do not edit
-installed managed copies. The existing [North Star](../../NORTH-STAR.md) adds no
-consumer-acceptance direction; no new architecture topic or exception is needed.
+The ADR index and in-file statuses agree: 0000–0006 are Accepted; 0007–0009 remain Proposed. Follow [ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md): evidence or justified reuse per affected requirement on Codex, Cursor and Claude Code, selected by unresolved risk; separate shared integration from behavior. [ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) keeps candidate acceptance separate from release. [ADR 0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md) and [AGENTS.md](../../../AGENTS.md) preserve shared source ownership and runtime audience if an in-scope guidance correction is later authorized. Do not edit installed managed copies. The existing [North Star](../../NORTH-STAR.md) adds no consumer-acceptance direction; no new architecture topic or exception is needed.
 
 ## Preparation observations and remaining probes
 
-Observed on 2026-10-12 in
-`/Users/terryyin/git/open-dough/.worktrees/accept-indirect-consumer-discovery-and-proof-jud`
-at base `1a2508307d7f87befed3e03fd1698453f8b9709c`, Node `v24.21.0`.
-All scratch directories were removed before record writes.
-
-1. **Existing proof discriminates its narrower boundary.** Source
-   `tests/support/delivery-evidence-consumers-native-scenario-content.sh` in Bash.
-   For each of `changed-contract`, `corrected-consumer`, `unchanged-boundary`,
-   create a scratch directory under this checkout and call
-   `delivery_evidence_consumers_write_baseline_revision "$fixture"` and
-   `delivery_evidence_consumers_write_promises_and_return "$fixture" "$scenario"`.
-   In it run `node --test --test-reporter=tap tests/producer.test.mjs
-   e2e/stand-in-compat.test.mjs tests/status-badge.test.mjs`.
-   Changed: exit 1, two pass/one fail, `releaseTag is required` at the stand-in;
-   corrected and unchanged: exit 0, three pass each. This observes the actual
-   consumer result, not native discovery or either new fixture shape.
-2. **Installation prefix reaches candidate bytes on each host layout.** Source
-   `tests/support/delivery-evidence-native-run.sh`; for `codex`, `cursor`, `claude`,
-   run `delivery_evidence_create_fixture consumers "$PWD" "$host"
-   changed-contract "$scratch"`, where scratch is under this checkout. `cmp`
-   of `src/skills/dough-story-refinement/references/executable-proof.md` against
-   each installed copy passed: `.agents/skills/` for Codex/Cursor and
-   `.claude/skills/` for Claude. This settles local fixture installation only,
-   not host loading, credentials or useful skill behavior.
-3. **Available entry and unpaid runtime prefix.**
-   `bash tests/git-publication-native.sh --help` exited 0 and exposes selected
-   `--native HOST --case delivery-evidence/consumers --results-dir DIR`.
-   `codex --version` returned `codex-cli 0.162.1`; `cursor agent --version`
-   returned `2026.10.01-e373342`; `claude --version` returned `2.1.296`.
-   No native task was launched. Version output does not prove authentication,
-   installed skill loading or usable streams. Those credentialed operations
-   are the early probe in slice 1 and each newly selected host in slice 3.
-4. **New cases remain new work.** Current case profile contains only the three
-   factory/control scenarios. Aggregate-text and no-store fixtures and their
-   observation discrimination must be built and exercised in their owning slices.
-   No current command is claimed to execute nonexistent cases. Record their
-   exact selected command before each native launch.
+See [preparation observations](PROOF.md#preparation-observations-and-remaining-probes)
+for fixture discrimination, installation checks and remaining native probes.
 
 ## Run authority and bounded selection
 
@@ -127,7 +64,7 @@ outside default tests and CI. Ordinary deterministic support checks remain free.
 
 ### 1. Discover the aggregate assertion in fresh native implementation
 Type: Behavior
-Status: planned
+Status: done
 Proof: One Claude Code implementation-to-acceptance journey starting from a
 heading reorder, with actual aggregate assertion results and a reviewed verdict.
 
@@ -249,5 +186,50 @@ the plan, not native success or execution authority.
 
 ## Learnings
 
-No native behavior is proved during preparation; the observed limits above govern
-execution and evidence reuse.
+No native behavior was proved during preparation. Slice 1's fresh Claude Code
+journey is now accepted after inspecting actual command/results, installed skill
+use, and final product diff; [PROOF.md](PROOF.md) records the candidate, fixture
+discrimination, runtime, exact attempt and judgment. It observed the aggregate
+regression and a purpose-preserving correction before acceptance. The native
+pipelines mask process exit status, so the reviewed assertion outcomes, not shell
+exit 0, supply proof. The support suite passed. No other native promise is implied.
+
+## Story obligations
+
+### G1. No-store discovery remains unproved
+Reported: slice 1 — "No-store discovery remains unproved."
+Story clause: "a read changes from conditional to unconditional"
+Disposition: receiving slice 2
+
+### G2. Remaining host and acceptance requirements
+Reported: slice 1 — "Incomplete-return behavior, unchanged-proof reuse, Codex and Cursor behavior remain unproved."
+Story clause: "Codex, Cursor and Claude Code each need recorded evidence or justified reuse for affected requirements."
+Disposition: receiving slice 3
+
+## Execution context
+
+Execution started 2026-10-12 under the developer's explicit execute-plan request,
+including the plan's bounded native journeys with no automatic retries.
+The established Taken claim is reused; no second start was issued.
+
+- Identity: `SEED-132#accept-indirect-consumer-proof-natively`; publisher
+  `dashboard-territory.local-open-dough`; assigned agent `Jane-chan`.
+- Owned execution checkout:
+  `/Users/terryyin/git/open-dough/.worktrees/accept-indirect-consumer-discovery-and-proof-jud`.
+  Branch: `codex/accept-indirect-consumer-discovery-and-proof-jud`.
+  Story Branch Mode; `origin`, eventual trunk `main`. No default-checkout
+  maintenance is requested during increments.
+- Established starting revision: `c39552f8f6776363f01b4511b40d4c9be94af805`.
+  Accepted claim / initial previously published base:
+  `cb8242682a653bfdeb00111976f1ed89376f9ff7`, confirmed on both remote trunk
+  and the execution branch before implementation.
+- Checkout setup: `npm ci` and `node scripts/setup-native.mjs check` passed;
+  Chromium prerequisite validation reported `153.0.8010.12`.
+- Replanning: retain ordinary existing planning authority; no new scope or
+  automatic native retry authority. No numeric slice budget supplied.
+- CI source: GitHub Actions `terryyin/open-dough`, verified `ci.yml` / `CI`,
+  observing the execution branch. Coordinator `jane-chan-306`; stream directory
+  `/tmp/dough-ci-501/watch-yPtpCV`, PID `57824`, exec cell `7`, session `58315`.
+  The pre-existing trunk claim remains unobserved by this branch observer.
+- Slice 1: proof accepted and independent refactor complete; its increment
+  proceeds through managed story-branch delivery. Slice 2 is next.
