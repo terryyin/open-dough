@@ -11,5 +11,5 @@ delivery_evidence_aggregate_observe() {
   git -C "${workspace}" diff > "${evidence_root}/final-product.diff"
   printf 'scenario: %s\n' "${scenario}"
   printf 'judgment: review-required\n'
-  printf 'harness-inspected: %s\n' "$(native_harness_inspected 'tests/support/delivery-evidence-aggregate-native|native harness source' "${transcript}" "${response}")"
+  printf 'harness-inspected: %s\n' "$(native_harness_inspected 'tests/support/delivery-evidence-.*-native|native harness source' "${transcript}" "${response}")"
 }

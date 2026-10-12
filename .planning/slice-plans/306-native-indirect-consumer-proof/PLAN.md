@@ -94,7 +94,7 @@ that conditional I/O or other hosts pass. One shape and one native proof loop.
 
 ### 2. Discover no-store callers after an I/O precondition changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: One fresh Claude Code journey observes both entry-point purposes without
 creating the resource whose absence exposes the changed precondition.
 
@@ -199,7 +199,7 @@ exit 0, supply proof. The support suite passed. No other native promise is impli
 ### G1. No-store discovery remains unproved
 Reported: slice 1 — "No-store discovery remains unproved."
 Story clause: "a read changes from conditional to unconditional"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: PROOF-NOSTORE.md, inspected Claude command/results and unchanged no-store setups
 
 ### G2. Remaining host and acceptance requirements
 Reported: slice 1 — "Incomplete-return behavior, unchanged-proof reuse, Codex and Cursor behavior remain unproved."
@@ -231,5 +231,11 @@ The established Taken claim is reused; no second start was issued.
   observing the execution branch. Coordinator `jane-chan-306`; stream directory
   `/tmp/dough-ci-501/watch-yPtpCV`, PID `57824`, exec cell `7`, session `58315`.
   The pre-existing trunk claim remains unobserved by this branch observer.
-- Slice 1: proof accepted and independent refactor complete; its increment
-  proceeds through managed story-branch delivery. Slice 2 is next.
+- Published slice 1 `ef69d8d588d972ed5321488632e60d5fae1c2784` and CI support
+  repair `ccd70eaecdf324b8fb5db71ca01d92ebeed089fe` to the execution branch;
+  the latter is the next increment's previously published base. CI repair stash
+  restored successfully before resuming slice 2.
+- Slice 2 proof accepted: [no-store evidence](PROOF-NOSTORE.md) shows both
+  absent-store purposes, safe lazy single-read implementation, seven passing
+  assertions and unchanged formatter proof reuse. Independent refactor/delivery
+  follow; slice 3 owns remaining hosts and incomplete-return acceptance.

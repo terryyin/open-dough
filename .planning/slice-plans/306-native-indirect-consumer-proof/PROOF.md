@@ -1,5 +1,7 @@
 # Native acceptance evidence
 
+Slice 2 evidence and its reviewed limits: [Claude no-store journey](PROOF-NOSTORE.md).
+
 ## Slice 1 CI support repair
 
 CI run `38212557255`, attempt 1, at published `ef69d8d588d972ed5321488632e60d5fae1c2784`

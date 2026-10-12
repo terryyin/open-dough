@@ -67,6 +67,7 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/selection
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/claims
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/consumers
+   or: tests/git-publication-native.sh --native HOST --case delivery-evidence/nostore
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/aggregate
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/gaps
    or: … --results-dir DIR  (with --native; retains inspectable observations)
@@ -146,6 +147,7 @@ if [[ ${native_flag} -eq 0 ]]; then
   run_delivery_evidence_claims_assessor_counterexamples
   run_delivery_evidence_consumers_assessor_counterexamples
   run_delivery_evidence_aggregate_checks
+  run_delivery_evidence_nostore_checks
   run_delivery_evidence_gaps_assessor_counterexamples
   run_delivery_evidence_gaps_observer_counterexamples
   run_delivery_evidence_observer_layout_counterexamples

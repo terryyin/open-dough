@@ -15,6 +15,7 @@ delivery_evidence_write_evidence_identity() {
     tests/git-publication-native.sh \
     tests/support/git-publication-native-host.sh \
     tests/support/delivery-evidence-native-run.sh \
+    tests/support/delivery-evidence-native-prompt.sh \
     tests/support/delivery-evidence-native-evidence.sh \
     tests/support/native-observation.sh \
     "${case_prefix}-assess.sh" \
@@ -25,18 +26,22 @@ delivery_evidence_write_evidence_identity() {
   native_result_input_hash_lines \
     src/skills/dough-execute-plan/references/wrap-up.md \
     src/skills/dough-execute-plan/references/delegation.md
+  if [[ ${case_name} == nostore ]]; then
+    native_result_input_hash_lines tests/support/delivery-evidence-aggregate-native-observe.sh
+  fi
   if [[ ${case_name} == selection ]]; then
     native_result_input_hash_lines \
       "${case_prefix}-repository-content.sh" \
       "${case_prefix}-proof-logger.sh"
   fi
-  if [[ ${case_name} == consumers || ${case_name} == aggregate ]]; then
+  if [[ ${case_name} == consumers || ${case_name} == aggregate || ${case_name} == nostore ]]; then
     native_result_input_hash_lines \
       src/skills/dough-story-refinement/references/executable-proof.md
   fi
 }
 
 delivery_evidence_retain_review_artifacts() {
+  native_result_copy_if_present "${delivery_evidence_workspace}/.planning/status-proof.md" status-proof.md
   native_result_copy_if_present "${delivery_evidence_root}/installed-inputs.sha256" installed-inputs.sha256
   native_result_copy_if_present "${delivery_evidence_root}/command-results.jsonl" command-results.jsonl
   native_result_copy_if_present "${delivery_evidence_root}/file-reads.jsonl" file-reads.jsonl

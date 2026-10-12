@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Shared native journey for the delivery-evidence cases (selection, claims,
-# consumers, gaps, aggregate): disposable fixture scaffolding, prompt, native command,
+# consumers, gaps, aggregate, nostore): disposable fixture scaffolding, prompt, native command,
 # assessment, retention, and evidence identity. Promise-status recognition
 # lives in delivery-evidence-promise-status.sh. Each case keeps its own
 # scenario content, observations, and assessor in
@@ -14,7 +14,9 @@ source "${delivery_evidence_support_dir}/delivery-evidence-promise-status.sh"
 source "${delivery_evidence_support_dir}/native-observation.sh"
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-native-evidence.sh"
-for delivery_evidence_case in selection claims consumers gaps aggregate; do
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-native-prompt.sh"
+for delivery_evidence_case in selection claims consumers gaps aggregate nostore; do
   for delivery_evidence_part in scenario-content observe assess; do
     # shellcheck disable=SC1090,SC1091
     source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
@@ -23,6 +25,8 @@ done
 unset delivery_evidence_case delivery_evidence_part
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-aggregate-native-checks.sh"
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/delivery-evidence-nostore-native-checks.sh"
 
 delivery_evidence_root=
 delivery_evidence_workspace=
@@ -47,6 +51,10 @@ delivery_evidence_case_profile() {
       ;;
     aggregate)
       delivery_evidence_scenarios='heading-reorder'
+      delivery_evidence_pass_basis='reviewed native command results'
+      ;;
+    nostore)
+      delivery_evidence_scenarios='single-read'
       delivery_evidence_pass_basis='reviewed native command results'
       ;;
     gaps)
@@ -107,15 +115,6 @@ delivery_evidence_cleanup() {
   fi
 }
 
-delivery_evidence_prompt_for() {
-  if [[ ${1:-} == aggregate ]]; then
-    printf '%s\n' "Use this project's installed Open Dough guidance to implement this request: show Running sessions before Recently done in the session sidebar. Preserve the page's other behavior. Obtain the proof needed for your change and apply the existing acceptance workflow to your implementation before delivery. Do not commit. Leave a short outcome in .planning/acceptance-outcome.md naming accepted or incomplete promises and the evidence inspected. Treat installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
-    return
-  fi
-  printf '%s\n' \
-    "Use this project's installed Open Dough guidance. An implementation agent returned uncommitted work and the proof report at .planning/implementation-return.md for the promises in .planning/slice-promises.md. Apply the existing acceptance workflow to that return. Do not commit. Leave a short acceptance outcome in .planning/acceptance-outcome.md naming each promise as accepted or incomplete with the evidence you inspected. Treat the installed guidance and project files as the task inputs; do not inspect parent processes or external test-harness source."
-}
-
 delivery_evidence_observe_scenario() {
   local case_name=$1 scenario=$2
   case ${case_name} in
@@ -137,7 +136,7 @@ delivery_evidence_run_scenario() {
   local prompt run_status=0 observations_file
   delivery_evidence_create_fixture \
     "${case_name}" "${source_dir}" "${host}" "${scenario}" "${parent}"
-  if [[ ${case_name} == aggregate ]]; then
+  if [[ ${case_name} == aggregate || ${case_name} == nostore ]]; then
     local installed_root='.agents/skills'
     [[ ${host} != claude ]] || installed_root='.claude/skills'
     (
@@ -188,9 +187,9 @@ delivery_evidence_run_scenario() {
     git_publication_assess_reason="${case_name} acceptance mismatch for ${scenario}"
   fi
   # shellcheck disable=SC2310,SC2311
-  if [[ ${case_name} == aggregate && ${native_run_stream_status:-missing} == complete && ${run_status} -eq 0 &&
+  if [[ (${case_name} == aggregate || ${case_name} == nostore) && ${native_run_stream_status:-missing} == complete && ${run_status} -eq 0 &&
     $(delivery_evidence_obs_get harness-inspected "${observations_file}") == false ]]; then
-    git_publication_assess_reason='aggregate observations retained; explicit review required'
+    git_publication_assess_reason="${case_name} observations retained; explicit review required"
   fi
   if [[ ${run_status} -ne 0 && ${git_publication_assess_status} == pass ]]; then
     git_publication_assess_status=fail
@@ -202,7 +201,7 @@ delivery_evidence_run_scenario() {
     git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
       "${observations_file}" "delivery-evidence-${case_name}"
-    if [[ ${case_name} == aggregate ]]; then
+    if [[ ${case_name} == aggregate || ${case_name} == nostore ]]; then
       delivery_evidence_retain_review_artifacts
     fi
     # Keep the agent-written outcome (and selection log) that observations
