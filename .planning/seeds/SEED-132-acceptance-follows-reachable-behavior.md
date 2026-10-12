@@ -23,86 +23,54 @@ not change the product direction or implement the client products' repairs.
 
 ## Stories
 
-<a id="prove-indirect-consumers-before-acceptance"></a>
+<a id="accept-indirect-consumer-proof-natively"></a>
 
-### 2. Prove affected indirect consumers before accepting a slice
+### 3. Accept indirect consumer discovery and proof judgment natively
 
-**Identity:** SEED-132#prove-indirect-consumers-before-acceptance
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/304-prove-indirect-consumers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"384f1c049bd548e8d588255c260ba7eb211b164459f3f65e8700789b705e63a5","plan":"e60019022b77a690dbe42153bba25e759a8eb2ee3a393c163e3f2ba9f38d469c"}}
-```
+**Identity:** SEED-132#accept-indirect-consumer-proof-natively
+**State:** Unrefined; queued for native acceptance, without execution or release authority.
+**Covered work:** [The consumer-proof story](https://github.com/terryyin/open-dough/blob/cfdca05274dc9845b7f9666e35a0ad68ce6ec73b/.planning/seeds/SEED-132-acceptance-follows-reachable-behavior.md#prove-indirect-consumers-before-acceptance)
+and [plan 304](https://github.com/terryyin/open-dough/blob/cfdca05274dc9845b7f9666e35a0ad68ce6ec73b/.planning/slice-plans/304-prove-indirect-consumers/PLAN.md), affecting
+`executable-proof.md`, implementation delegation and slice proof acceptance.
 
-**Goal:** A developer can accept a slice without preventable CI repairs or
-interrupting parallel work because proof missed an indirect consumer of the
-changed behavior.
+**For / why:** A developer releasing Open Dough needs observed evidence that
+indirect-consumer selection and acceptance work in native host sessions.
 
-**Scope:**
+**Outcome:** Native implementation and acceptance discover consumers from the
+changed effect and obtain their sufficient observations, or leave dependent
+work unaccepted, while reusing proof for unrelated boundaries.
 
-- Reconsider the consumer-selection response released in 0.3.57 using its two
-  verified later failures. Discover consumers from the effect of the change:
-  follow changed output into the enclosing surface that observes it, and
-  changed operation preconditions through the entry points and caller scenarios
-  that reach it. Changed filenames, selectors, helpers and a plan's named tests
-  are starting points, not sufficient evidence of the affected boundary.
-- Account for the resulting consumer proof before slice acceptance. Inspect
-  actual assertions and setup, including aggregate text and callers that omit
-  storage previously unnecessary on their path. Obtain missing relevant proof
-  or return the affected slice; an unrun affected consumer is not covered by a
-  passing helper check or by leaving it to CI.
-- Keep selection proportional. Reuse sufficient current evidence, distinguish
-  equivalent from incompatible consumer purposes, and preserve the existing
-  changed-surface-suite rule when that suite fits the focused-check time.
-  Exclude a consumer when the changed effect does not reach its boundary;
-  preserve the project's failure policy and human ownership of requirements.
-  Discovering a failing assertion does not authorize weakening its promise.
+**Tools and selection:** Codex, Cursor and Claude Code each need recorded
+evidence or justified reuse for affected requirements. Select fresh behavioral
+runs by unresolved risk; verified Claude Code recurrences require aggregate
+output and changed I/O preconditions. Reuse shared integration evidence only for
+matching unchanged mechanisms; it does not prove this behavior. No host-by-case
+matrix is required. Resolve native-run authority and selection before execution;
+paid runs remain explicitly invoked and outside default tests and CI.
 
-**Deferred promises and boundaries:** No repairs to the historical dashboard
-or Pygardon product, universal whole-repository test mandate, automatic
-consumer graph, new acceptance record schema, or sibling gap-disposition
-implementation. This delivery does not promise a release or a full native-host
-matrix. These are delivery limits, not new product rejection rules.
+**Representative cases:** In isolated projects and fresh native sessions,
+start from a heading reorder and from conditional-to-unconditional I/O. The
+invocation supplies the change and repository surface, without naming the
+missing consumer. Observe discovery of an enclosing aggregate-text assertion
+and entry-point scenarios with no store, inspection of their actual setup and
+purpose, and proof selection and acceptance accounting for the reached result.
+Retain an independent status formatter as the unchanged control. A return with
+green named proof and a discovered caller left for CI must obtain missing proof
+or leave dependent delivery unaccepted. Preserve the historical failure shapes
+and the project's failure policy; setup that supplies the missing resource or
+an assertion that removes the legitimate promise is not success.
 
-**Key examples:**
+**Reusable evidence and limits:** Plan 304's historical walkthrough records
+intended guidance decisions, not native use. The `delivery-evidence/consumers`
+fixture observes a changed factory contract, a stale stand-in exclusion and an
+unchanged badge; its deterministic results do not exercise aggregate text or
+conditional I/O. Neither source implies a native pass or universal integration recheck.
 
-1. **Whole-page text:** a sidebar heading moves below its session list.
-   Searches for selectors and helper imports miss a spec reading the entire
-   `body`, including hidden text. Selection follows the rendered text into that
-   aggregate assertion, observes the word-boundary failure, and accounts for
-   its legitimate contract before acceptance. Focused sidebar passes alone do
-   not establish coverage.
-2. **Newly unconditional storage:** a latest-update read moves from a
-   data-source-specific strategy branch to every exit-settings computation.
-   Selection follows the endpoint's caller scenarios, including profiles with
-   no data-source store, rather than stopping at the three named files. The
-   missing-store failure remains unaccepted until required behavior and proof
-   are aligned; supplying a store solely to hide it is not sufficient.
-3. **Unchanged consumer:** an independent status-label formatter consumes
-   neither that rendered surface nor that storage operation. Its matching
-   existing proof stays valid and it needs no additional run solely because
-   other consumers were missed. Conversely, a formerly excluded consumer newly
-   reached by the change must be reassessed.
-4. **Incomplete return:** an implementer reports green named tests but leaves a
-   discovered endpoint caller unrun or for CI. Acceptance obtains its missing
-   observation or returns the dependent work, retaining unrelated valid proof
-   and the project's existing handling of failures.
-
-**Evaluation:** [ODF-150](../../docs/maintainer/finding-names.md#odf-150)
-contains the two distinct verified 0.3.57 recurrences in Open Dough and
-Pygardon. Preserve their original change, selection, consumer assertion/setup,
-and observed failure when comparing the revised instructions with the prior
-response. Demonstrate discovery and acceptance decisions for both mechanisms
-and the unchanged control; record extra inspection, commands, elapsed proof
-cost where observed, and limits. A longer checklist, a passing wording test,
-or finding a known consumer by its supplied name does not prove improved
-selection. Distinguish recovered evidence and representative walkthroughs from
-fresh native-agent behavior.
-
-**Completion:** Update ODF-150 with the actual response, implementation commit,
-first containing release when available, evaluation, and remaining limits.
-Do not restart a successful watch merely because new guidance was written;
-verified relevant use and absence of supported recurrence are required.
-
-**Depends on:** None; no blocking story prerequisite.
-
-**Safe stopping point:** The changed operation's affected consumers are
-accounted for without depending on the separate gap-disposition response.
+**Completion:** Before affected release under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md), assess selected
+native runs or justified reusable evidence against every affected requirement
+on each tool. Require evidence of installed skill use, discovered boundary,
+observed result and acceptance decision; self-report, exit zero and consumer
+lists alone are insufficient. Record candidate, runtime, inputs, decisive
+evidence and judgment while active. Missing proof remains pending; delivery does
+not complete this acceptance story or restart ODF-150's failed watch.

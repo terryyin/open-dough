@@ -67,6 +67,14 @@ Former local code: DD-219. An absolute changed-file size check conflicts with an
   - Observed effect: one human decision, resumed refactor, 72 evidence-file extractions and additional preservation checks. Refactor reported about 15 active minutes across both passes; coordinator cost was not measured. Existing runtime proof was reused without reruns.
   - Inference: the numeric gate expanded this guidance change's record structure. The final reorganization was explicitly authorized and preserved information; this observation does not dispute that choice or change the rule.
 
+- Execution: SEED-132#prove-indirect-consumers-before-acceptance / plan 304; first implementation commit `d8184b02bbfd855ff3838de6ffa6a0ed5c2a868b`
+  - Timestamp: unknown (2026-10-12 session)
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed refactor-checks at established claim `d3058caf` matches the release blob; installed copies unchanged)
+  - Evidence: `refactor_consumer_proof` returned `REFACTOR JIDOKA STOP` for the 3,380-line finding catalog's four-line ODF-150 update after finding the runtime rule coherent; `cfdca05274dc9845b7f9666e35a0ad68ce6ec73b:.planning/slice-plans/304-prove-indirect-consumers/PLAN.md` retains the catalog exception after cleanup. The developer explicitly granted that exception and instructed execution to proceed; the agent then returned `REFACTOR COMPLETE` without another review or test run.
+  - Observed effect: delivery paused for human judgment and required a follow-up handoff. The new seed section was shortened from 253 to 250 lines; the canonical catalog stayed intact.
+  - Inference: the unconditional size gate reaches intentional evidence collections as well as product modules. No timing precision or broader file-size-policy conclusion is claimed.
+
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
 Former local code: DD-221. Asynchronous CI repair runs many-worker repetitions alongside a slice’s full suite on the same machine, producing load-only failures and slower proof. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-209).
@@ -98,6 +106,16 @@ Former local code: DD-251 (plans 264 and 271 only). A formatter piped through ta
 ## ODF-097 — Publishing after a failed check <a id="odf-097"></a>
 
 Former local code: DD-251 (plan 273 only). A failed formatter or verification result is visible but does not gate the next commit or publication step. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-097).
+
+### Occurrences
+
+- Execution: SEED-132#prove-indirect-consumers-before-acceptance / plan 304; first implementation commit `d8184b02bbfd855ff3838de6ffa6a0ed5c2a868b`
+  - Timestamp: unknown (2026-10-12 session)
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed workflow at `d3058caf`; source guidance changed separately)
+  - Evidence: the coordinator chained staged-stat, `git diff --cached --check` and agent commit in one shell invocation. The check reported `PROOF.md:90: new blank line at EOF`, but the invocation continued and committed unpublished `3509dd53827797bd3da658a15da002a3def8c193`. The coordinator removed the extra blank line, observed a separately gated passing staged check and amended to `d8184b02` before publication.
+  - Observed effect: one avoidable local amend; no failing whitespace candidate reached the remote.
+  - Inference: sequential orchestration must check each validation's exit status before committing. This is a local failed-check gate recurrence, not a remote publication defect.
 
 ## ODF-222 — Post-commit managed delivery stalls at an unknown stage <a id="odf-222"></a>
 

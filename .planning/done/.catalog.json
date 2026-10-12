@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-132_prove-indirect-consumers-before-acceptance.json",
+      "identity": "SEED-132#prove-indirect-consumers-before-acceptance",
+      "completedAt": "2026-10-12T03:17:03.245Z",
+      "blob": "6fbdabe37f974bd54d46e13b79734244774f040b"
+    },
+    {
       "fileName": "SEED-132_check-gap-dispositions-through-guided-paths.json",
       "identity": "SEED-132#check-gap-dispositions-through-guided-paths",
       "completedAt": "2026-10-12T02:23:32.792Z",
