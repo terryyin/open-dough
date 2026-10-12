@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "YeongSheng-chan",
-  "email": "yeongsheng-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-132#accept-indirect-consumer-proof-natively",
-  "host": "codex",
-  "model": "gpt-6-astra"
-}

@@ -28,17 +28,33 @@ not change the product direction or implement the client products' repairs.
 ### 3. Accept indirect consumer discovery and proof judgment natively
 
 **Identity:** SEED-132#accept-indirect-consumer-proof-natively
-**State:** Unrefined; queued for native acceptance, without execution or release authority.
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/306-native-indirect-consumer-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9b300e0102c2d9b3ffe921dd5d9ae62f5f60c6fdeac2f41bd57f0743c6048683","plan":"c54df633099f174e40a81d7c26ff93a7ff5d80771b0bad068dc21e51333325da"}}
+```
 **Covered work:** [The consumer-proof story](https://github.com/terryyin/open-dough/blob/cfdca05274dc9845b7f9666e35a0ad68ce6ec73b/.planning/seeds/SEED-132-acceptance-follows-reachable-behavior.md#prove-indirect-consumers-before-acceptance)
 and [plan 304](https://github.com/terryyin/open-dough/blob/cfdca05274dc9845b7f9666e35a0ad68ce6ec73b/.planning/slice-plans/304-prove-indirect-consumers/PLAN.md), affecting
 `executable-proof.md`, implementation delegation and slice proof acceptance.
 
-**For / why:** A developer releasing Open Dough needs observed evidence that
-indirect-consumer selection and acceptance work in native host sessions.
+**Goal:** A developer releasing Open Dough can judge indirect-consumer discovery
+and proof acceptance from observed native use, reducing preventable later CI
+repairs. Native implementation and acceptance discover consumers from the changed
+effect and obtain sufficient observations, or leave dependent work unaccepted,
+while reusing proof for unrelated boundaries.
 
-**Outcome:** Native implementation and acceptance discover consumers from the
-changed effect and obtain their sufficient observations, or leave dependent
-work unaccepted, while reusing proof for unrelated boundaries.
+**Scope:** Assess the implemented shared consumer-selection rule and its delegation
+and acceptance callers in isolated projects using candidate-installed guidance.
+Include representative fixture reconstruction, bounded native invocation, reliable
+observation and immediate judgment where needed for this acceptance. Existing
+runner, host adapters and retention mechanisms remain the starting point.
+
+Preserve aggregate-assertion purpose, no-store caller preconditions, proportional
+proof selection, equivalent-purpose reuse, the changed-surface-suite rule and the
+project's failure policy. A named green selection, self-report or later CI cannot
+justify accepting an affected unobserved boundary. No automatic consumer graph,
+universal full-suite mandate, new acceptance schema, historical application repair,
+release, or restart of ODF-150's failed watch is promised. Failures of the candidate
+remain pending and are diagnosed before a retry; acceptance work alone does not
+authorize changing the underlying guidance's product scope.
 
 **Tools and selection:** Codex, Cursor and Claude Code each need recorded
 evidence or justified reuse for affected requirements. Select fresh behavioral
@@ -48,17 +64,33 @@ matching unchanged mechanisms; it does not prove this behavior. No host-by-case
 matrix is required. Resolve native-run authority and selection before execution;
 paid runs remain explicitly invoked and outside default tests and CI.
 
-**Representative cases:** In isolated projects and fresh native sessions,
-start from a heading reorder and from conditional-to-unconditional I/O. The
-invocation supplies the change and repository surface, without naming the
-missing consumer. Observe discovery of an enclosing aggregate-text assertion
-and entry-point scenarios with no store, inspection of their actual setup and
-purpose, and proof selection and acceptance accounting for the reached result.
-Retain an independent status formatter as the unchanged control. A return with
-green named proof and a discovered caller left for CI must obtain missing proof
-or leave dependent delivery unaccepted. Preserve the historical failure shapes
-and the project's failure policy; setup that supplies the missing resource or
-an assertion that removes the legitimate promise is not success.
+**Key examples:**
+
+1. Given a heading and session list whose order changes, a fresh implementation
+   session receives the change and repository surface without a missing-test hint
+   → follows rendered text into enclosing observations → discovers and inspects
+   the aggregate membership assertion, obtains its result, and aligns the changed
+   behavior and legitimate assertion purpose before accepting dependent delivery.
+2. Given entry-point scenarios with no data-source store, including missing/blank
+   preset references and a named-genome holding that should return an error row,
+   a read changes from conditional to unconditional → the session follows the
+   entry point and its actual setup → observes the affected no-store results and
+   repairs within the promised behavior or leaves the delivery unaccepted. Adding
+   the missing store or dropping the error-row promise is not passing proof.
+3. Given an implementation return with green named proof and a discovered caller
+   left for CI → native acceptance obtains sufficient caller proof or marks the
+   dependent promise incomplete before delivery. Naming the caller alone does not
+   establish acceptance; independent valid evidence is retained.
+4. Given an independent status formatter reached by neither change and sufficient
+   unchanged-boundary evidence → selection and acceptance reuse that evidence
+   without demanding unrelated reruns. An obsolete exclusion of a now-reached
+   consumer is reassessed; equivalent purposes may share sufficient observation,
+   but the distinct no-store purposes still need covered results.
+5. Given complete or incomplete native output → the maintainer checks installed
+   skill use, discovered boundary, actual setup/assertion, observed execution and
+   acceptance decision → records pass, failure or pending per affected requirement
+   and host. A prose claim, exit zero, replay or fixture-only pass cannot become
+   native behavior proof.
 
 **Reusable evidence and limits:** Plan 304's historical walkthrough records
 intended guidance decisions, not native use. The `delivery-evidence/consumers`
