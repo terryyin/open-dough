@@ -14,16 +14,6 @@ run_delivery_evidence_aggregate_checks() {
   grep -q 'not ok .*membership makes no live or completion claim' "${root}/changed.txt"
   delivery_evidence_aggregate_write_correction "${root}/workspace"
   (cd "${root}/workspace" && node --test --test-reporter=tap tests/*.test.mjs e2e/*.test.mjs) > "${root}/corrected.txt" 2>&1
-  # No fabricated summary, removed assertion, or contamination becomes an
-  # automatic pass: the aggregate case requires inspected native evidence.
-  local claim
-  for claim in 'accepted: all' 'command: node --test e2e/membership.test.mjs' 'assertions: removed' 'harness-inspected: true' 'stream: incomplete'; do
-    printf '%s\n' "${claim}" > "${root}/observations.txt"
-    if delivery_evidence_aggregate_assess "${root}/observations.txt"; then
-      echo 'FAIL: aggregate requires explicit review' >&2
-      return 1
-    fi
-  done
   node --input-type=module - "${source_dir}/tests/support/native-host-stream.mjs" << 'JS'
 import assert from 'node:assert/strict';
 const { readHostStreamText } = await import(process.argv[2]);

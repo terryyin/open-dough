@@ -1,5 +1,18 @@
 # Native acceptance evidence
 
+## Slice 1 CI support repair
+
+CI run `38212557255`, attempt 1, at published `ef69d8d588d972ed5321488632e60d5fae1c2784`
+failed `native-stream-replay.sh` and `native-assessor-counterexample-guard.sh`.
+Both failures reproduced locally. The former required registering the new exact
+shape writer; the latter exposed the ignored-input rejection loop described below.
+No runtime, native fixture, prompt or acceptance behavior changed. Independent
+refactor review found the repair clean. Terminal exit 0 for
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/native-stream-replay.sh tests/native-assessor-counterexample-guard.sh tests/git-publication-native.sh`
+proves the repaired guards and fixture/runner checks. Include these two guard
+consumers in later support-change proof. Slice 2 was paused and saved through the
+installed CI-repair stash operation; restore it after accepted repair publication.
+
 ## Slice 1 — Claude aggregate implementation and acceptance
 
 Observed 2026-10-12. Candidate source revision
@@ -35,10 +48,12 @@ No forbidden word or adversarial assertion is removed.
 
 The same check uses the shared Claude stream decoder to distinguish prose
 claiming a test ran (no command result), a started command without a result
-(output null), and an actual tool result (failure output retained). Aggregate
-assessment never promotes extracted fields or prose into a behavioral verdict;
-accepted summaries, removed assertions, contamination and incomplete streams
-remain pending explicit review. These are support checks, not native proof.
+(output null), and an actual tool result (failure output retained). These are
+support checks, not native proof. The aggregate assessor intentionally has no
+automatic passing result; the native runner's retained explicit-review outcome
+below observes that boundary. The removed fabricated-input loop varied fields
+this assessor does not read, so it did not prove discrimination of accepted
+summaries, removed assertions, contamination or incomplete streams.
 
 Focused shared regression command (exit 0, silent success):
 
