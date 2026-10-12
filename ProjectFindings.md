@@ -8,47 +8,53 @@ allocation (DD-NNN) and removed-finding recovery references. An occurrence in
 this repository alone does not make a cause project-specific. Original finding
 codes and occurrence evidence are retained.
 
-Reviewed on 2026-10-09 against `36ac46f63786fe8b814627e81bba63851e71009d`;
-classification and current-source recheck against `2677ad0d`.
+Reviewed on 2026-10-12 against `11d48b956607e3485f5771c59509b111be3626b8`.
 Frequency counts distinct executions, not commands, retries, or repairs.
 Grouping related symptoms does not establish a shared cause or duplicate an
 execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-1. **Quiet passing checks obscure the selected proof — open, unqueued.**
-   DD-216 and the later DD-243 reports describe the same reporter behavior in
-   four executions (plans 217, 261, 263, 264). Extra runs cost seconds to
-   minutes, with no observed false acceptance. Retain one finding with both
-   codes; the repository deliberately requires silent passing runs, so a
-   response must preserve that contract.
-2. **Shell observations can invert a result on Linux — open, unqueued.**
-   DD-187 has one demonstrated SIGPIPE repair cycle. The reported observer
-   was fixed, but the same early-exit pipeline shape remains in two test
-   helpers. Those sites are a confirmed residual risk, not additional
-   observed failures.
-3. **Local native-run prerequisites and host permission handoff — low,
-   unqueued.** DD-162 and DD-161 each have one execution. The Bash failure
-   bypassed the documented runner; the paid-run refusal belongs to the host's
-   permission boundary. Neither justifies changing public Open Dough guidance
-   or adding a second high-priority story.
-4. **Dashboard specs can lose a mouse press to a reflow — open, unqueued.**
-   DD-278 has two CI failures in one execution on sound revisions, each
-   repaired for its own spec family. The shared journey helpers still let a
-   spec press before the page settles.
-5. **Dashboard shards run at their time ceiling — open, unqueued.** DD-279
-   has one deadline failure, repaired by refreshing `longest-first` from
-   measured durations. Nothing refreshes that list as specs are added.
-6. **A heavy dev-mode journey runs at its per-test ceiling — open,
-   unqueued.** DD-280 has one timeout on a slower runner, repaired by a
-   60-second budget for that case. Its preview case and other specs near the
-   30-second default have no margin check.
-7. **Node's compile cache fills the disk under the dashboard suite — open,
-   unqueued.** DD-287 has one verification run lost to a full disk. The
-   cache is regenerable and nothing bounds or clears it.
-8. **A story's native proof slice needs that story's own release — open,
-   unqueued.** DD-288 has one execution whose last slice could not run
-   inside it and was split into a follow-up story.
+1. **Local suite disk use — queued, not resolved.** [DD-287](#dd-287) has
+   one execution with a lost 15-minute run and a full shared disk. The 134 GB
+   cache affected the machine, but the share attributable to any one run is
+   unknown. This highest-impact unresolved problem ranks ahead of more frequent
+   minor friction. [Bound the dashboard suite's own compile-cache disk use](.planning/seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache)
+   is first in the backlog; its scope is this repository's test launch and
+   fixtures, with no deletion of another session's cache.
+2. **Proof-selection visibility — queued, not resolved.** [DD-216/DD-243](#dd-216)
+   repeats across five executions (plans 217, 261, 263, 264, 297), costing
+   extra listings or reruns. [Read a dashboard proof selection without rerunning it or weakening its verdict](.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection)
+   is second. Preserve silent passes and the configured reporter's failure
+   policy. The general acceptance mistake of overriding that policy remains
+   DD-262 in DearDough.md; it is not another project occurrence.
+3. **Browser journey stability — open, unqueued.** [DD-278](#dd-278)
+   records three CI failures across two executions. Both concrete spec families
+   were repaired; plan 293 ran a branch predating the repair, so it is not
+   recurrence after the fix. Shared interaction helpers still allow a click
+   before all page reads settle. Retain that qualified residual, not a claim
+   that the repaired specs still fail.
+4. **Suite timing and diagnosis — open, unqueued.** [DD-279](#dd-279)
+   records two shard deadlines in one execution; a refreshed duration list and
+   twelve shares repair those runs, while duration ordering still ages without
+   a refresh step. [DD-275](#dd-275) records one separate execution whose
+   within-run load was unobserved. These are related diagnostic/margin concerns,
+   not one demonstrated cause. The repaired individual timeout DD-280 and
+   shell budget breach DD-283 are removed below.
+5. **Shell observation reliability — open, unqueued.** [DD-187](#dd-187)
+   records one Linux SIGPIPE repair cycle. The named observer was fixed;
+   early-exit pipelines remain in two repository test helpers. Those are
+   residual risks, not additional observed failures.
+6. **Paid native-run permission handoff — low, unqueued.** [DD-161](#dd-161)
+   records one execution's two permission round trips. The boundary is the
+   host's; no change to released Open Dough behavior is justified by it.
+
+Both selected stories help parallel contributors obtain reliable local proof.
+Neither changes published skills, shared workflow rules, or the dashboard's
+runtime contract. No existing queued or Taken story owns either outcome.
+The existing native-observation queue item and Taken CI-monitoring story stay
+unchanged. Earlier suite repairs remain completed; new or residual causes
+above are not evidence that every earlier fix failed.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -98,29 +104,9 @@ that had asked for nothing.
   - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
   - Later evidence: the refreshed order's first run (38091885152, `main` at `3b2b446a`) ended share 6/9 at the deadline with all 147 tests passed; its 49 specs summed to 1,019 test-seconds against 719 in the reference run, about 1.4 times slower across unrelated specs, while other shares took 176 s to 285 s. Nine shares left no room for that runner variance, so the matrix now deals twelve (predicted 463 to 605 test-seconds a share).
 
-## A heavy dev-mode journey runs at its per-test ceiling (open, unqueued)
+## Quiet passing checks obscure the selected proof (queued, not resolved)
 
-<a id="dd-280"></a>
-
-### DD-280 — The dev-mode project overview journey timed out at 30 seconds on a slower CI runner with every step passing
-
-#### Occurrences
-
-- Execution: `SEED-088#review-uncommitted-changes` / plan 293, first related implementation commit `5f539d6a`
-  - Timestamp: 2026-10-10T22:40Z (run 38092275056, story branch at `2783ca92`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.58 installed in the execution checkout; provenance otherwise unknown
-  - Evidence: shard 7/9 failed `authenticated-project-overview.spec.ts:48` (dev launch mode) with “Test timeout of 30000ms exceeded”. The trace shows every step passed and the last step's assertions still running at 30.4 s. The dev server serves about 300 modules on each of the journey's six page loads; the case took 19.1 s to 27.9 s on four passing runs (38091885152, 38089179190, 38089450687, 38090467243), and this shard ran its 172 tests in 749 test-seconds against 540 on run 38091885152. A CPU-throttled local run failed at 30 s before the repair and passed with it. Repair: `cb4d46c9` gives the dev case 60 seconds.
-  - Observed effect: one failed CI run on a merge whose code was sound, costing a diagnosis and a repair commit.
-  - Inference: qualified. The case had run within 2 to 4 seconds of the default on trunk-lineage runs before this execution, so ordinary runner variance was enough. The preview case reached 19.1 s on the slow runner and keeps the default; `assertNoCredentialMarker` issues one assertion per response body, about 2 s of the dev case on CI. No check reports specs that run near their per-test timeout.
-
-## Quiet passing checks obscure the selected proof (open, unqueued)
-
-**Follow-up:** open, unqueued. The default quiet reporter still prints no
-passing selection/count. Do not change the silent-pass contract just to obtain
-a count; refine a repository-specific way to retain selection evidence if
-this cost warrants work.
+**Follow-up:** [Read a dashboard proof selection without rerunning it or weakening its verdict](.planning/seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — queued, not resolved. The current reporter preserves the strict silent-pass contract but retains no passing selection/count. The story changes this repository’s proof tooling only.
 
 <a id="dd-216"></a>
 
@@ -142,7 +128,7 @@ The plan's focused Playwright commands used the default reporter. Under the agen
 <a id="dd-243"></a>
 
 **Same finding, later reports: DD-243.** Retained under DD-216 rather than
-counted as a second cause. Plans 261, 263, and 264 are three additional
+counted as a second cause. Plans 261, 263, 264, and 297 are four additional
 executions; repeated agents within each execution count once.
 
 `npm run test:dashboard` prints nothing on a pass, so a delegated agent cannot see which or how many tests its filtered command selected, which proof acceptance asks it to report. Agents reran passing commands with `--reporter=line`, `--reporter=list`, or `--reporter=dot` to obtain the count.
@@ -210,59 +196,11 @@ Ubuntu runner did not.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
-## Layout thresholds fitted to macOS fonts (open, unqueued)
+## Paid native-run permission handoff (low priority, unqueued)
 
-**Follow-up:** open, unqueued. DD-227 (a one-line layout check fitted to
-macOS fonts) was repaired with `expectOnOneLineWhenRoom`; DD-259 is the same
-class in viewport sizing, not a recurrence of that repaired check.
-
-<a id="dd-259"></a>
-
-### DD-259 — A short test viewport was raised to the lowest height that passed on macOS and failed on CI's Linux fonts
-
-A header that grew about 20 px pushed an edge control out of two specs'
-864×480 views. The viewports were raised to 500 px because 494 was the lowest
-height that passed locally. On CI the control's long "Entry count incomplete"
-label wraps taller under Linux fonts, so `dashboard-columns-height.spec.ts`
-still failed at 500. In the same run, `agent-launch-ad-hoc-terminal.spec.ts`
-compared a kept scroll of 0 with 0 locally because its page could not scroll,
-and failed on CI once the Linux page could.
-
-#### Occurrences
-
-- Execution: `SEED-126#steady-dashboard-refresh` / plan 284, first related implementation commit `5accd572`
-  - Timestamp: unknown (CI run 38003440839 on `5accd572`, committed 2026-10-10T08:14:20+09:00; repaired by `e1058c67`, committed 2026-10-10T08:32:01+09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.57 (installed `dough-update/VERSION`)
-  - Evidence: CI `dashboard (3/9)`: `dashboard-columns-height.spec.ts:156` `toBeInViewport` ratio 0.9566 at 864×500; `dashboard (2/9)`: `agent-launch-ad-hoc-terminal.spec.ts:129` expected 18, received 0. Repair `e1058c67` uses 864×600 with the measured needs (≈495 px macOS, ≈515 px Linux) and a 1280×480 window plus `expect(scroll).toBeGreaterThan(0)`. The coordinator had asked for the viewport to be raised "minimally".
-  - Observed effect: one CI repair cycle (stash of slice 2's work, diagnosis agent, refactor pass, publication).
-  - Inference: Qualified. A threshold measured on one machine's fonts is not a margin; `published-facts-reading.spec.ts` stays at 500 with about 7 px to spare and would be next to fail if header fonts change.
-
-## Local native-run prerequisites and host permission handoff (low priority, unqueued)
-
-**Follow-up:** open, unqueued. Use the documented runner with Bash 5 first
-on PATH; paid native runs retain their manual authorization boundary.
-
-<a id="dd-162"></a>
-
-### DD-162 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
-
-`tests/README.md` requires Bash 5 first on `PATH` and running checks through
-`scripts/test.sh`, whose guard refuses Bash 3.2. A direct
-`/opt/homebrew/bin/bash tests/git-publication-native.sh` bypassed that guard;
-its substitute `claude` host (`#!/usr/bin/env bash`) resolved `/bin/bash` 3.2
-and aborted on an empty-array expansion under `set -u`.
-
-#### Occurrences
-
-- Execution: `SEED-008#same-machine-merge-queue` / plan 140, first related implementation commit `9597bf61`
-  - Timestamp: unknown (slice 1 return, before `9597bf61` at 2026-09-28T12:45:56+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: slice 1 return reported `substitute claude one-shot-result exited 1 … stream-status: missing`, identical at claim `5a5087c6`; `native-agent-one-shot.sh` line 35 `named[@]: unbound variable` under `/bin/bash`; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh` passed.
-  - Observed effect: one diagnosis agent (about 66k tokens) spent on a failure CI never had.
-  - Inference: Qualified. The coordinator's delegation prompt prescribed the direct absolute-Bash run; later prompts named `scripts/test.sh` with Homebrew Bash first on `PATH` and saw no recurrence.
+**Follow-up:** open, unqueued. This is the repository’s paid native harness
+meeting a host permission boundary; no public guidance defect or supported
+product repair is established. Keep the observation without claiming resolution.
 
 <a id="dd-161"></a>
 
@@ -284,7 +222,9 @@ had to request the run explicitly.
   - Observed effect: two extra developer round trips before paid runs started.
   - Inference: Qualified. The request for go-ahead could offer the exact command, or the permission rule, the developer can use, instead of assuming approval lets the coordinator launch it.
 
-## Node's compile cache fills the disk under the dashboard suite (open, unqueued)
+## Node's compile cache fills the disk under the dashboard suite (queued, not resolved)
+
+**Follow-up:** [Bound the dashboard suite's own compile-cache disk use](.planning/seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache) — queued, not resolved. Current repository launch/setup code supplies no cache isolation or lifecycle policy. Locked Vite and Rolldown launchers enable Node's compile cache; this supports investigating suite ownership, not attributing the full 134 GB to a single run.
 
 <a id="dd-287"></a>
 
@@ -301,59 +241,101 @@ had to request the run explicitly.
   - Observed effect: one 15-minute wide run was lost and rerun; the refactor pass could not report completion until the coordinator cleared the cache.
   - Inference: qualified. About 37 GB was written within three hours while this execution and other sessions ran dashboard suites, yet one measured wide run afterwards added about 1 GiB; which runs write the bulk is not established. Scratch fixture projects under new temp paths would give each run new cache keys.
 
-## A story's native proof slice needs that story's own release (open, unqueued)
+## Loaded-suite evidence lacks within-run load (open, unqueued)
 
-<a id="dd-288"></a>
+**Follow-up:** open, unqueued. `scripts/dashboard-repeat.sh` still samples
+`load_average` only before and after `run_in`; it cannot locate a failure
+against the actual load then. This is repository diagnostic tooling, not a
+request to change published proof-acceptance guidance.
 
-### DD-288 — A plan's last slice was a paid native observation that needs installed skills only a release after landing provides
+<a id="dd-275"></a>
 
-#### Occurrences
+### DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound
 
-- Execution: `SEED-066#unattached-session-options` / plan 298, first related implementation commit `0601f38b`
-  - Timestamp: unknown (2026-10-11, recognized at the slice 5 stop, about 15:45+09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: plan 298 at `2c14aa25`, slice 6 “Native hosts honor the unattached session on this machine”; the dashboard reads a project's installed skills, and the story's formatter, reference, and landing script are in `install.sh` `managed_files` but in no release; split at `8308056f` into `SEED-066#unattached-session-native-observation`.
-  - Observed effect: the execution could not complete as planned; the developer chose a split and the observation moved to a new story first in the backlog.
-  - Inference: the plan treated ADR 0005 proof as the story's final slice without checking that the starting state can exist before the story lands.
-
-## Tests could reach the developer's real request-owner state (repaired, guard added)
-
-**Follow-up:** repaired in `f9ef7368`. `scripts/test.sh` and the dashboard
-global teardown now fail a run in which any process asks GitHub without a
-request owner root of its own. A bare `node --test` run has no such guard.
-
-<a id="dd-291"></a>
-
-### DD-291 — A slice added per-user machine state and no rule that tests keep out of it
-
-Suites used the developer's real request-owner root until a directory listing
-showed it. Green suites hid the sharing.
+The story treats a failure "while the load was several times the core count"
+differently from a defect, and the repeat script prints the one-minute load
+before and after each run. A loaded run of 826 s failed one test 148 s in,
+with load 16 at the start and 65 at the end.
 
 #### Occurrences
-
-- Execution: `SEED-063#dashboard-owned-ci-monitoring` / plan 224 (spent plan recoverable at `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/slice-plans/224-dashboard-owned-ci-monitoring/PLAN.md`), first implementation `b5cb2f7b`
-  - Timestamp: 2026-10-11T17:57:18+09:00 (the listing of `/tmp/dough-github-requests-501`)
+- Execution: SEED-123#dashboard-suite-passes-loaded-acceptance (plan 289, first implementation commit 065bf393)
+  - Timestamp: 2026-10-10T21:39:08+09:00 (end of the failing loaded run)
   - Tool: Claude Code
   - Model: claude-opus-5-5
-  - Evidence: slice 4 (`c6c8f9d6`) introduced the request owner root; its brief required private roots per test but named no check. Nine directories appeared in the real root during suite runs; `dashboard/tests/support/publishedMainFixture.ts` and `tests/support/native-harness-observation.sh` asked through it.
-  - Observed effect: the same leak hung `tests/git-publication-native.sh` and `tests/git-publication-native-owned-context.sh` to CI's six-minute job limit on `deb540bb` (run 38126614188). The repair agent's first guarded `npm test` caught two leaking checks nobody had named.
-  - Inference: the coordinator had also accepted that slice on an install-subset shell run rather than full `npm test`; that acceptance lesson is not in `DearDough.md`, which was at its 1,000-line ceiling, and is recoverable as DD-285 at `ecd915a1df7fb53a5d94e56d9ee57d41ef5cd05e:DearDough.md`.
+  - Open Dough release: modified; revision `29b9c41c`; base 0.3.58
+  - Evidence: plan 289 slice 6 Learnings (second series); `scripts/dashboard-repeat.sh` `load_average` before and after only; the diagnosis estimated the load at the failure as 25 by interpolation and about 70 from the five- and fifteen-minute averages.
+  - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
+  - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
 
 ## Review and recovery
+
+Classification and resolution review, 2026-10-12. Full input evidence is
+recoverable at `11d48b956607e3485f5771c59509b111be3626b8:ProjectFindings.md`
+and `11d48b956607e3485f5771c59509b111be3626b8:DearDough.md`.
+Moved DD-275 from DearDough.md into the active project record. DD-283 and
+DD-290 also belong to repository tooling, but their concrete failures are
+already repaired, so they enter only the resolution notes below. Returned
+DD-288 to [DearDough.md](DearDough.md#dd-288):
+its missing release prerequisite is a general planning error. Its existing
+SEED-066 native-observation story stays queued; no duplicate is added.
+
+Confirmed repaired and removed from the active project findings:
+
+- **DD-162:** the retained occurrence records the correct guarded runner
+  passing and later delegations using it without recurrence. Current
+  `scripts/test-environment.bash` checks the Bash actually resolved on PATH
+  before `scripts/test.sh` starts a check; `tests/README.md` documents that
+  exact route. The unsupported direct invocation was the recorded failure.
+- **DD-259 (project viewport finding):** `e1058c67` repaired both named
+  Linux font/scroll assertions. Current `dashboard-columns-height.spec.ts`
+  keeps the 600 px viewport; `agent-launch-ad-hoc-terminal.spec.ts` uses
+  1280×480 and asserts positive scroll. The old 7 px margin conjecture about
+  another spec is not an observed unresolved defect. DearDough's different
+  DD-259 whole-text consumer finding is unchanged.
+- **DD-280:** `cb4d46c9` keeps 60 seconds for the dev-mode authenticated
+  overview, whose retained CPU-throttled reproduction failed at 30 seconds
+  before and passed after the repair. Current source retains that budget.
+  Other cases' possible timeout proximity is not another demonstrated failure.
+- **DD-283 (from DearDough):** `0ff0e242` recalibrated `tests/time-budget`
+  from the recorded slow runner and ten trunk runs: the 470.2 job-second
+  breach now fits 710; the largest 49.3-second job fits 74. Current values
+  preserve at least the reviewed 1.5× measured headroom. No later breach of
+  this replacement budget is supplied.
+- **DD-290 (from DearDough):** the plan-298 scratch landing tests started two
+  real-repository observers (PIDs 53113 and 54616), which the agent stopped.
+  `eabbe51c` replaced that fixture path with the shared publication API;
+  `dashboard/tests/support/startSessionLandingContext.ts` still calls it
+  from `land` and explicitly limits managed `deliver` to Codex. The accepted
+  landing specs exercise those paths. The failure was fixture isolation,
+  not evidence that the public delivery command should stop observing CI.
+- **DD-291:** `f9ef7368` gave the leaking native harness and published-main
+  fixture private request owners. `tests/test-runner-github-requests.sh`
+  permanently proves an ownerless check fails before asking fake GitHub and
+  an owned check passes. `scripts/test.sh` and dashboard global teardown
+  retain the guard; the retained first guarded suite caught two more leaks.
+  The documented runner is the supported route; a bare unguarded Node call
+  is not evidence that this repair failed.
+
+Current-source recheck also retains the quiet reporter's silent output and
+passing-directory removal, the two DD-187 pipeline helpers, the DD-278
+unsettled-click exposure, DD-279's static `longest-first` plus twelve-share
+matrix, and DD-275's endpoint-only load samples. No current post-repair failure
+is invented from those residuals. General premise, delegation, refactor,
+acceptance and CI-repair lessons (including DD-258, DD-262, DD-264, DD-266/267,
+DD-271, DD-274 and DD-276) remain in DearDough.md even when their example is a
+repository test. The two new backlog stories own only repository test behavior.
+
 
 Moved from DearDough.md on 2026-10-09: DD-243, DD-246, DD-247, DD-252.
 Recovery for both input files:
 `36ac46f63786fe8b814627e81bba63851e71009d:DearDough.md` and
 `36ac46f63786fe8b814627e81bba63851e71009d:ProjectFindings.md`.
-DD-243's unchanged occurrence evidence joins DD-216; DD-246 stays open.
+At that review DD-243's occurrence evidence joined DD-216 and DD-246 stayed open.
 The second classification pass moves ODF-209 / former DD-221’s plan-264
 collision occurrence into DD-246 without allocating a new identity. Recovery:
-`2677ad0d:DearDough.md`. The six-execution suite group remains first and
-already has a queued story. Its fix belongs to repository test tooling and
-documentation, rather than published skills or rules. No duplicate story or
-queue change is needed.
+`2677ad0d:DearDough.md`. At that review the six-execution suite group was first and already had a
+queued story. Those suite findings were subsequently removed as resolved below;
+that historical priority does not describe the current queue.
 
 Resolved and removed from the active findings on 2026-10-11 (recovery:
 `3a0086f3b73b542b276cc53a5076e461c6db0e91:ProjectFindings.md`):

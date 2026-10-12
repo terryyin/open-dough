@@ -1,6 +1,6 @@
 # DearDough Process Findings
 
-Retained material shared-process findings, reviewed 2026-10-09. Only an explicit
+Retained material shared-process findings, classification reviewed 2026-10-12. Only an explicit
 queued follow-up is planned work; other entries are open and unqueued. A retained
 released response is not proof of effectiveness. Unknown provenance stays unknown.
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
@@ -791,23 +791,6 @@ published-work read.
   - Observed effect: slice 1 was returned once for reloads and the fail-at-once example, grew from a planned helper change with 21 sites to 80 modified files, and needed three full dashboard runs and a mechanism fix before acceptance; about 31 minutes of implementation agent time against a planned "one proof loop".
   - Inference: the plan's site count came from a search for the open call followed by a plain expectation; a search for every navigation that restarts the page's reads, and one traced open, would have shown both the reloads and the project-list read during planning.
 
-## DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound
-
-The story treats a failure "while the load was several times the core count"
-differently from a defect, and the repeat script prints the one-minute load
-before and after each run. A loaded run of 826 s failed one test 148 s in,
-with load 16 at the start and 65 at the end.
-
-### Occurrences
-- Execution: SEED-123#dashboard-suite-passes-loaded-acceptance (plan 289, first implementation commit 065bf393)
-  - Timestamp: 2026-10-10T21:39:08+09:00 (end of the failing loaded run)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `29b9c41c`; base 0.3.58
-  - Evidence: plan 289 slice 6 Learnings (second series); `scripts/dashboard-repeat.sh` `load_average` before and after only; the diagnosis estimated the load at the failure as 25 by interpolation and about 70 from the five- and fifteen-minute averages.
-  - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
-  - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
-
 ## DD-276 — A slice's fresh-checkout proof could not include the slice's own uncommitted change
 
 Slices 3 and 4 named `scripts/dashboard-repeat.sh 1 --fresh` as proof of a
@@ -898,22 +881,6 @@ selection, so its behavior changed too, with no promise or proof in the plan.
   - Observed effect: one extra implementation round (about 6.5 minutes and 19k subagent tokens by the task notifications) added the Codex journey before delivery; slice 1 needed a similar round for several live observers beside one ended. The Codex `ended` gap keeps its stream wording and does not say the stream registered the closure without a verdict.
   - Inference: the plan's PFE note that "the selection already lives in one place" was correct and is why the change reached Codex; listing that place's callers when the plan was written would have put the Codex case in slice 2's proof. One sample.
 
-## DD-283 — A slower CI runner failed the time budget on a revision that changed none of the timed jobs
-
-The suite's total ceiling sits within the spread of ordinary runner speed, so
-a split job can breach it with no slow change behind it. The breach reads as
-a CI failure on whichever execution published the revision.
-
-### Occurrences
-- Execution: `SEED-088#review-trunk-mode-story-worktree` / plan 296 (spent plan recoverable at `0ff0e2421c6260ef25d584323d62b86c51758f3b:.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`), first implementation `f2e6e131`
-  - Timestamp: 2026-10-11T09:46:15+09:00 (the job's `OVER BUDGET` line)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.59 (checkout base `5c0c3b03`, the release commit)
-  - Evidence: run 38099358635 `test (2/3)`: “OVER BUDGET: all jobs took 470.2 job-seconds; the total ceiling is 470”; its `test-times-2` lists the same 109 jobs as base trunk run 38097405961, which totalled 292.7 (ratio 1.61, every large job slower); `f2e6e131` changes only `dashboard/` and `.planning/`; `bash scripts/ci-test-times.sh` reported share totals 271.8–412.7, 275.0–421.4 and 423.5–457.1 against 470, all `thin`.
-  - Observed effect: the coordinator spent about ten tool calls classifying the failure and made no repair, since `tests/time-budget` makes raising a ceiling a reviewed edit; the revision's CI stays failed.
-  - Inference: the ceiling was calibrated at 1.5 times a largest share of 312.1, and trunk's largest share is now 457.1, so the calibration rule no longer holds. One sample of a breach; the thin headroom is measured over ten trunk runs.
-
 ## DD-284 — A plan promised an earlier story's whole spec stays green while its new rule reverses one assertion in that spec
 
 A correction plan listed "everything the earlier plan proved" as preserved
@@ -978,21 +945,27 @@ The plan's architecture and slice 2 said an unattached launch's reporting contex
   - Observed effect: slice 2 was delivered without the promise, a developer decision was needed, and one slice (6, `eabbe51c`) was added; that slice then found the landed run has no surface to show it.
   - Inference: the story's architecture section asked planning to probe the start's receipt, and nothing asked for a probe of the capture path the same sentence relied on.
 
-## DD-290 — A delegated agent's test ran managed delivery with `--host claude` and started CI observers of the real repository
+<a id="dd-288"></a>
 
-`execution-increment-delivery.mjs deliver --host claude` takes its coordinator identity from the ambient `CLAUDE_CODE_SESSION_ID`, so a subagent's spec that ran it against a scratch origin established live observers of the repository named by `--repo`. One occurrence; delegation guidance does not warn of it.
+## DD-288 — A plan's last slice was a paid native observation that needs installed skills only a release after landing provides
+
+Observation follow-up: already queued as [Observe an unattached Start session on the native hosts](.planning/seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation). Returned from ProjectFindings.md on 2026-10-12: the cause is planning an unavailable prerequisite, not a repository test-tool defect. Its existing observation story is unchanged; it does not claim to resolve the general planning lesson, which remains open.
 
 ### Occurrences
-- Execution: SEED-066#unattached-session-options (plan 298, first implementation commit `0601f38b`)
-  - Timestamp: unknown (2026-10-11, slice 6 implementation, between `e5e26130` at 15:40:03+09:00 and `eabbe51c` at 16:30:32+09:00)
+
+- Execution: `SEED-066#unattached-session-options` / plan 298, first related implementation commit `0601f38b`
+  - Timestamp: unknown (2026-10-11, recognized at the slice 5 stop, about 15:45+09:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown
-  - Evidence: the slice 6 implementation return: two `ci-mailbox.mjs worker` processes observing `terryyin/open-dough` (PIDs 53113, 54616) under the tests' temp directories, killed by the agent; the specs were changed to the shared publication API and `--host codex`.
-  - Observed effect: read-only observers of the real repository ran outside the coordinator's observer until killed; no publication reached the real remote.
+  - Evidence: plan 298 at `2c14aa25`, slice 6 “Native hosts honor the unattached session on this machine”; the dashboard reads a project's installed skills, and the story's formatter, reference, and landing script are in `install.sh` `managed_files` but in no release; split at `8308056f` into `SEED-066#unattached-session-native-observation`.
+  - Observed effect: the execution could not complete as planned; the developer chose a split and the observation moved to a new story first in the backlog.
+  - Inference: the plan treated ADR 0005 proof as the story's final slice without checking that the starting state can exist before the story lands.
+
 ## Retention
 
 - Highest allocated local number: 291
 - Recovery: `3bd5e0ded7a431041d56bf5e6386f8a694fb85ee:DearDough.md`, `4befa38c3c9bdfa575436fa51dca1a82818d21a1:DearDough.md` and `7aa7d85b63aef00efe20a2332ddc6a7f9dc82e1a:DearDough.md`
+- Project-only DD-275 moved to [ProjectFindings.md](ProjectFindings.md#dd-275) on 2026-10-12; repaired DD-283 and DD-290 moved to its [review and recovery](ProjectFindings.md#review-and-recovery). Original evidence: `11d48b956607e3485f5771c59509b111be3626b8:DearDough.md`. DD-288 returned here because its cause is a planning prerequisite.
 - Occurrence history is partial
 - Retained new DD-259/ODF-218 evidence over DD-269's isolated, qualified authority inference and a repeated ODF-110 description; removed material is recoverable above.

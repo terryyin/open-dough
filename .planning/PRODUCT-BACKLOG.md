@@ -18,4 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Bound the dashboard suite's own compile-cache disk use](seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache) — SEED-131#bound-suite-compile-cache
+- [Read a dashboard proof selection without rerunning it or weakening its verdict](seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — SEED-131#retain-strict-proof-selection
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
