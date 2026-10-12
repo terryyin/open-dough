@@ -15,11 +15,11 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery) — SEED-063#background-ci-failure-delivery ([plan](slice-plans/299-background-ci-failure-delivery/PLAN.md))
+- [Bound the dashboard suite's own compile-cache disk use](seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache) — SEED-131#bound-suite-compile-cache ([plan](slice-plans/302-bound-suite-compile-cache/PLAN.md))
 
 ## Backlog list
 
 - [Check a reported gap against the paths the story guides before accepting it](seeds/SEED-132-acceptance-follows-reachable-behavior.md#check-gap-dispositions-through-guided-paths) — SEED-132#check-gap-dispositions-through-guided-paths
 - [Prove affected indirect consumers before accepting a slice](seeds/SEED-132-acceptance-follows-reachable-behavior.md#prove-indirect-consumers-before-acceptance) — SEED-132#prove-indirect-consumers-before-acceptance
-- [Bound the dashboard suite's own compile-cache disk use](seeds/SEED-131-repository-test-feedback.md#bound-suite-compile-cache) — SEED-131#bound-suite-compile-cache
 - [Read a dashboard proof selection without rerunning it or weakening its verdict](seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — SEED-131#retain-strict-proof-selection
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
