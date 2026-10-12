@@ -116,7 +116,8 @@ survive; report the acquisition file's time before and after.
 
 ## Current decisions
 
-- Whether the owner protocol belongs in the endpoint directory name stays with
-  SEED-063#background-ci-failure-delivery (its obligation G12).
+- Whether the owner protocol belongs in the endpoint directory name remains
+  deferred; it is outside this correction. Historical G12 is recoverable at
+  `4deb718fba8dd08030f28568ff3a9d4b8b69d716:.planning/slice-plans/299-background-ci-failure-delivery/PLAN.md`.
 - Whether the 250-line limit applies to `install.sh`'s declaration list and to
   guidance files is Terry's decision; this plan works within the limit.

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-063#background-ci-failure-delivery",
+  "title": "Monitor CI in the background and wake execution or wrap-up sessions only on failure",
+  "completedAt": "2026-10-12T23:55:32.494Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

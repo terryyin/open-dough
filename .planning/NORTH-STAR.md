@@ -225,32 +225,3 @@ Rules that keep later stories additive:
 
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
-
-## Background CI monitoring and session delivery
-
-For [SEED-063](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery),
-one installed background runtime owns monitoring subscriptions for dashboard
-and standalone execution/wrap-up. The source story owns the domain model;
-[plan 299](slice-plans/299-background-ci-failure-delivery/PLAN.md) maps it directly
-to existing publication, mailbox, session, request and retirement solutions.
-Dashboard launch is one enrollment origin, not a second observation policy or
-service. The runtime survives agent-turn, worktree and dashboard lifetime as
-required by retained obligations, with one fenced owner and shared GitHub
-admission. Reuse existing machine persistence and native session identity;
-do not fabricate a launch or duplicate a session registry for standalone use.
-
-A nonblocking completion boundary names acknowledged accepted publications
-and its generation. Earlier owned failures and missing evidence stay accountable.
-Failure delivery has durable intent, exact native recipient and accepted or
-uncertain evidence; only actionable failure wakes the agent. Host/form
-feasibility must precede dependent behavior. No final wait or fallback observer
-hides unavailable delivery. Execution completion alone retains resources;
-only a settled closure with retained authority invokes the installed retirement
-operation. Mark as done, stop and lost coverage remain distinct from success.
-
-Canonical CI lifecycle and repair guidance is written once for the executing
-agent and linked from both skills and native adapters. Install dependencies
-locally; no ordinary use fetches Open Dough support. Follow Accepted ADRs 0002,
-0004, 0005 and 0006; no Proposed ADR changes status. Transfer lasting feature
-rules to maintained runtime/dashboard documentation at wrap-up, then retire
-this topic when affected work no longer needs it.

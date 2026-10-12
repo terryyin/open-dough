@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-063_background-ci-failure-delivery.json",
+      "identity": "SEED-063#background-ci-failure-delivery",
+      "completedAt": "2026-10-12T23:55:32.494Z",
+      "blob": "16955965e73026dcce9304d2f25c719856207877"
+    },
+    {
       "fileName": "SEED-063_dashboard-owned-ci-monitoring.json",
       "identity": "SEED-063#dashboard-owned-ci-monitoring",
       "completedAt": "2026-10-11T13:11:10.459Z",
