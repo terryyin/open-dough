@@ -69,7 +69,10 @@ export async function readCodePartByTouch(
     await scrollByTouch(
       page,
       code,
-      Math.sign(remaining) * Math.min(300, Math.abs(remaining) + 24),
+      // The native helper already splits movement into feasible in-view
+      // strokes. Send the observed distance rather than imposing a second,
+      // shorter cap and sampling geometry after every 300 pixels.
+      Math.sign(remaining) * (Math.abs(remaining) + 24),
       axis,
     );
     // Observe the browser's completed movement before choosing another stroke.

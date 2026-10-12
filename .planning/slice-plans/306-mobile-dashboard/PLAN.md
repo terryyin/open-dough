@@ -579,6 +579,33 @@ consumer proof reused. Formatter/whitespace passed. Slice6 stays planned;
 unfinished settings baseline was preserved through installed pause/stash
 protocol pending repair publication/restoration.
 
+Owned review-proof CI repair during slice6 pause (run38323369971/attempt1,
+dashboard12/12): the tablet's complete review journey exceeded30s while Close
+finished. Full hosted trace/log shows all reading, rotation, selection, panel
+and focus assertions succeeding; no individual API call stalled (maximum496ms).
+The reader's duplicate300px cap caused35 feedback frames and390 native
+touchMove samples, consuming9.991s of the journey. The existing native helper
+already splits requested movement into feasible in-view strokes.
+
+Only `support/reviewTouchReading.ts` now sends the observed remaining distance
+plus the existing24px compensation to that helper. Ten movement samples,
+no-fling timestamps, actual Range clipping/text observations, bounded convergence
+and every integrated assertion remain unchanged. Inspected reader/helper and
+all original touch/mark observations; consumer search finds only the primary
+review touch spec. Unchanged Linux baseline passed2 tests; changed Linux full
+touch/mark proof passed4. Tablet journey15.814s→10.364s,350→230 touchMoves,
+34→9 CDP sessions and31→6 feedback frames; phone16.084s→11.846s,370→290
+touchMoves,35→9 sessions and32→6 frames. Linux used the cached same-Chromium
+ARM64 image; hosted x64 timing remains conditional on the next CI run.
+Final macOS full proof exited0 quietly:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- dashboard/tests/story-review-touch.spec.ts dashboard/tests/story-review-mark-touch.spec.ts --workers=2
+```
+Exact diagnostic container retired. Independent refactor found no edits needed;
+reader visibility/convergence and native stroke ownership are coherent.
+Formatter/whitespace passed. No timeout, product, fixture, shared native helper
+or assertion change. Slice6 remains planned with settings proof preserved.
+
 ### 6. Edit settings and recover by touch
 Type: Behavior
 Status: planned
