@@ -57,7 +57,9 @@ For planned execution, record every named gap, loss, limitation, or interim
 behavior as a structured [story obligation](story-obligations.md), including
 reported text, the story clause, and exactly one disposition. Read the selected
 story's goal, key examples, and exclusions before choosing that disposition;
-the script checks structure and quotes, not that judgment. Re-read every open
+the script checks structure and quotes, not that judgment. Apply
+[the relevant-path check](story-obligations.md#check-the-paths-before-closing-a-gap)
+before closing a gap as `no user cost` or `proved`. Re-read every open
 interim the current slice depends on; a newly wrong result becomes a return
 owned by this slice, preserving the original text and provenance. For quick
 execution, apply that reference's same-slice rule without creating a plan.
