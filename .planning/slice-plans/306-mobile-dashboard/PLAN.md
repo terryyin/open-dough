@@ -555,6 +555,30 @@ mechanically with unchanged observing values. Formatter/whitespace passed;
 all refactor-owned files stay at or below250 lines. No backend/native/model
 contract change or remaining slice5 gap.
 
+Owned CI repair during slice6 pause (run38322070878/attempt1, dashboard2/12):
+the existing `agent-launch-uncertain-continuation.spec.ts` froze a live attempt's
+whole warning timestamp. Full artifact/log had one final failure: `slowSince`
+changed48ms while duplicate/Continue refusals and other worker facts passed.
+`OwnedAttempts.observed` derives acceptance-time warning until the owning timer
+persists its own timestamp. Earlier worker-liveness commit25cdc5f6 established
+that rule and the same matcher in execution/preparation resume peers, leaving
+this assertion stale. Test/server code predates this UI execution; this is an
+existing observation defect, not an attributed mobile regression.
+
+Only the timestamp matcher now allows that documented transition. Whole-array
+equality retains one attempt, request/id/acceptedAt, complete worker record,
+ownership/running/publication; native-call/profile/automatic-settlement and
+cleanup assertions remain strict. Inspected actual diff, observer/settlement
+owners, peer assertions and CI trace. Complete seven-test proof exited0:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-launch-uncertain-continuation.spec.ts --workers=2
+```
+Independent refactor found no edits needed; duplicated expectation documents
+distinct recovery journeys without duplicating production rules. Unchanged
+consumer proof reused. Formatter/whitespace passed. Slice6 stays planned;
+unfinished settings baseline was preserved through installed pause/stash
+protocol pending repair publication/restoration.
+
 ### 6. Edit settings and recover by touch
 Type: Behavior
 Status: planned
