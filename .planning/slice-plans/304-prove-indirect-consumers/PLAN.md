@@ -133,11 +133,51 @@ or leave that example unproved; do not invent a result. Apply AGENTS.md's
 invocation-context, required-context and useful-outcome review to the final
 shared instruction and its callers. Distinguish this review from native use.
 
+## Slice 1 implementation observations (2026-10-12)
+
+[Recovered evidence and guidance walkthrough](PROOF.md) compare the actual
+0.3.57 rule with both historical failures, unchanged control and incomplete
+return. Source recovery, inspected setup/assertions, decisions, measured costs
+and limits are retained there. This is representative review, not native use;
+[outstanding native acceptance](../../seeds/SEED-132-acceptance-follows-reachable-behavior.md#accept-indirect-consumer-proof-natively)
+remains pending before affected release. ODF-150's failed watch stays failed.
+
+## Execution context
+
+- Established claim: `d3058cafca6744cc2fbdc414659ebd00ffe064d5` on
+  `origin/main`; publisher `dashboard-territory.local-open-dough`, agent
+  `ziqing-chan`, starting revision `0ccc1432577fb2d853b945789b307d3b8b79cf5c`.
+- Execution checkout (reused):
+  `/Users/terryyin/git/open-dough/.worktrees/prove-affected-indirect-consumers-before-accepti`;
+  branch `codex/prove-affected-indirect-consumers-before-accepti`, story-branch
+  mode. Ordinary increments target that branch on `origin`; trunk is `main`.
+  The default checkout is `/Users/terryyin/git/open-dough`; it is not a task base
+  or delivery source. Published branch base is the established claim above.
+- Checkout setup: Node `24.21.0`, locked npm and browser acquisition through
+  `node scripts/setup-native.mjs npm` and `browser`, prerequisite `check` and
+  `npm run --silent typecheck:dashboard` all passed in this checkout.
+- Replanning retains existing planning authority; no numeric slice budget or
+  hard limit was supplied. The slice remains one shared rule and proof loop.
+- CI: GitHub Actions `terryyin/open-dough`, verified selector `ci.yml`
+  (workflow `351271804`, display name `CI`), observing the execution branch.
+  Codex coordinator `ziqing-chan-132`, directory `/tmp/dough-ci-501/watch-N3dUjg`,
+  PID `55576`, stream session `78850`, yielded cell `2`. This observer is bound
+  to the execution checkout. The claim's trunk CI is `unobserved`.
+
 ## Ordered slices
+
+Independent refactor review found the guidance coherent and shortened only the
+new native-acceptance seed to 250 lines, preserving accepted proof. The developer
+explicitly authorized the existing finding catalog's file-size exception and
+instructed execution to proceed; the exception applies only to this ODF-150
+evaluation update. Refactor returned `REFACTOR COMPLETE`; effort was approximately
+ten uninstrumented minutes. `npm run format` and whitespace checks passed.
+Earlier observer `watch-H4Knm5` stopped with no unread events and confirmed PID
+exit. The replacement above was armed before delivery; no proof rerun was needed.
 
 ### 1. Select and accept proof from the changed effect's consumer boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: the mapped historical walkthroughs, unchanged control, incomplete-return
 case, and ODF-150 response evaluation.
 
@@ -168,6 +208,23 @@ Boundedness is one consumer-selection/acceptance rule and its proof loop;
 no numeric slice target or hard limit was supplied. Native integration does not
 change. Under ADR 0005, retain any unresolved native behavioral requirement in
 linked acceptance work before affected release, without claiming all-host proof.
+
+## Story obligations
+
+### G1. Native and historical runtime observations
+Reported: slice 1 — "No fresh native behavior or historical product runtime rerun is claimed."
+Story clause: "A developer can accept a slice without preventable CI repairs or interrupting parallel work because proof missed an indirect consumer of the changed behavior."
+Disposition: no user cost "A developer can accept a slice without preventable CI repairs or interrupting parallel work because proof missed an indirect consumer of the changed behavior.": The promised representative evaluation reaches retained observed failures and inspected source; installed guidance is unchanged. Native behavior remains owned by SEED-132#accept-indirect-consumer-proof-natively before affected release.
+
+### G2. Uninstrumented active effort
+Reported: slice 1 — "Approximate active effort was 20 minutes, not instrumented."
+Story clause: "record extra inspection, commands, elapsed proof cost where observed, and limits."
+Disposition: proved by slice 1: PROOF.md records measured source recovery and focused-check time, inspected locations, the failed retrieval and unmeasured reading-time limit; no numeric active-work budget was supplied.
+
+### G3. Failed guessed-filename retrieval
+Reported: slice 1 — "an earlier guessed-filename query exited 2 and supplied no setup proof."
+Story clause: "Inspect actual assertions and setup"
+Disposition: proved by slice 1: PROOF.md's operation-preconditions walkthrough inspects both actual a0f2b270b no-store setups and plane ownership after successful source recovery; coordinator independently inspected those files.
 
 ## Review and execution gates
 
