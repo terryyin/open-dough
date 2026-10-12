@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-131#retain-strict-proof-selection",
+  "title": "Read a dashboard proof selection without rerunning it or weakening its verdict",
+  "completedAt": "2026-10-12T12:34:18.135Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-131_retain-strict-proof-selection.json",
+      "identity": "SEED-131#retain-strict-proof-selection",
+      "completedAt": "2026-10-12T12:34:18.135Z",
+      "blob": "b43735f2a0e56e3041771fda4a416f324ee44443"
+    },
+    {
       "fileName": "SEED-132_accept-indirect-consumer-proof-natively.json",
       "identity": "SEED-132#accept-indirect-consumer-proof-natively",
       "completedAt": "2026-10-12T07:30:18.773Z",

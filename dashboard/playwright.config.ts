@@ -24,6 +24,13 @@ const runStamp = process.env[runStampVariable] ?? "";
 const suiteTime = remainingSuiteTime(
   process.env["OPEN_DOUGH_DASHBOARD_DEADLINE_MS"],
 );
+// Only this configuration grants the requested path to its own reporter.
+// Custom nested configurations do not acquire an outer run's evidence path.
+const proofRecord = process.env["OPEN_DOUGH_DASHBOARD_PROOF_RECORD"];
+const quietReporter: [string, { proofRecord: string | undefined }] = [
+  "./tests/support/quietReporter.ts",
+  { proofRecord },
+];
 
 export default defineConfig({
   testDir: "./tests",
@@ -53,10 +60,10 @@ export default defineConfig({
   // writes files only.
   reporter: process.env["CI"]
     ? [
-        ["./tests/support/quietReporter.ts"],
+        quietReporter,
         ["html", { open: "never", outputFolder: "playwright-report" }],
       ]
-    : [["./tests/support/quietReporter.ts"]],
+    : [quietReporter],
   use: {
     trace: "retain-on-failure",
   },
