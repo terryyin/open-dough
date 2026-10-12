@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-132#prove-indirect-consumers-before-acceptance",
+  "mode": "story-branch",
+  "branch": "codex/prove-affected-indirect-consumers-before-accepti",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
