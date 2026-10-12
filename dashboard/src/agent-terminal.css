@@ -12,6 +12,16 @@
   min-width: 0;
 }
 
+/* With touch and a reduced visible height, a long title must not consume
+   the terminal's input. Its existing identity scrolls independently, while
+   the sibling panel controls stay in view. */
+@media (any-pointer: coarse) {
+  .terminal-identity {
+    max-height: 30dvh;
+    overflow-y: auto;
+  }
+}
+
 .terminal-identity > .agent-portrait {
   --portrait-size: calc(
     min(var(--terminal-rows-height, 2.5rem), 44px) - 2 * var(--portrait-edge)

@@ -92,6 +92,18 @@ Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
+On touch screens, tap the terminal to focus its ordinary input, edit with the
+browser keyboard and submit with Enter. The terminal keeps its own scrollback;
+scroll within it to read earlier output. With reduced visible height, a long
+session title and identity scroll independently in the header, leaving the
+input and Maximize/Restore/Close controls reachable. Maximize gives the terminal
+the available window; restoring, changing orientation or reducing visible
+height fits that same attachment without launching or reconnecting it. Close
+and reopening follow the host lifecycles above. Local Chromium touch viewport
+proof covers phone/tablet portrait, landscape and a 240-pixel visible height,
+including Backspace, Enter and actual browser-to-WebSocket-to-PTY replies. It
+does not establish physical iOS keyboard or remote connectivity behavior.
+
 Mark as done uses one operation from card, final report panel or terminal. It saves local done intent,
 requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`

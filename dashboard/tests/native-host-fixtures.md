@@ -48,7 +48,8 @@ directory. The synthetic `cursor-agent` (`fixtures/fake-cursor`,
 `FAKE_CURSOR_ATTACH_DIR` wiring, as `env` on each launch and attach record
 (`calls`, `attaches`); `cursor-runner-environment.spec.ts` starts a Cursor
 runner with the start-up additions itself, as an earlier deployment did. The fake `claude stop <id>` lists that session stopped. Run as `claude attach` in the
-terminal boundary's pseudo-terminal, it echoes each line entered, clears the
+terminal boundary's pseudo-terminal, it echoes each line entered, edits with
+Backspace, clears the
 line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
 (`claudeAttaches`); `claudeAttachesSilent` makes it print nothing.
@@ -60,7 +61,9 @@ server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
 marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,
 and `agent-launch-done-refusal.spec.ts` for its refusals). The page
 journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
-at a time, Close), `agent-terminal-lifetime.spec.ts` (project switch, lost
+at a time, Close), `agent-terminal-touch.spec.ts` (coordinate touch focus,
+native Backspace/Enter input, reduced-height fitting, touch scrollback,
+rotation and Close/reopen identity), `agent-terminal-lifetime.spec.ts` (project switch, lost
 connection and Reconnect, ended terminal), `agent-terminal-done.spec.ts`
 (Mark as done from the panel: asking first, closing, status, refusal),
 `agent-terminal-done-question.spec.ts` (its question decided by the session as

@@ -136,8 +136,15 @@ implementation or scratch edit is retained in this preparation.
 - CI: GitHub Actions `ci.yml`, verified display name CI, repository
   `terryyin/open-dough`; target is the published execution branch above.
   Codex observer coordinator `mobile-dashboard-davidko`, directory
-  `/tmp/dough-ci-501/watch-b4sk3D`, PID 55625, stream session 79223,
-  yielded cell 11. The earlier claim on trunk is unobserved by this stream.
+  `/tmp/dough-ci-501/watch-LsfZJ7`, PID 51685, stream session 24057,
+  yielded cell 6. The earlier claim on trunk is unobserved by this stream.
+  On 2026-10-13 recovery, the prior stream at
+  `/tmp/dough-ci-501/watch-b4sk3D` had no live worker or terminal result;
+  exact stop recorded lost coverage with zero unread events. Its registered
+  repair `80affc7edb6033b723e32b11cbc1ddd68dd2d0e6` had success coverage
+  (run38262274324/attempt1). Verified checkout/remote identity and native setup
+  before rearming this coordinator's stream. Slice4 changes were preserved;
+  no live writer/test remained, and its unreturned proof must be obtained.
 - No numeric slice target/hard limit or overrun replanning override is supplied;
   preserve existing planning authority. Formatter: `npm run format`; commit hook
   owns staged lint/typecheck. No product generation trigger applies to this UI work.
@@ -333,7 +340,7 @@ CI stash protocol; its proof resumes after repair publication/restoration.
 
 ### 4. Continue a terminal session in the available space
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `agent-terminal.spec.ts` and `agent-terminal-maximize.spec.ts`
 through real browser input, WebSocket and fixture PTY output. Include the
 shared panel and terminal consumers listed below when their owners change.
@@ -356,6 +363,47 @@ usage documentation with actual supported interaction and proof limits.
 Safe stop: one interactive session cycle works at constrained sizes. If evidence
 requires a new native-host capability or changed lifecycle, stop that expansion
 and surface it instead of absorbing it into this UI slice.
+
+Accepted proof (2026-10-13): inspected `useAttachedTerminal.ts` and extracted
+`terminalTouchScroll.ts` registration/cleanup, public xterm `scrollLines` and
+partial-row accumulation. Existing xterm wheel input, work-focus touch handling
+and resize gestures do not own one-finger scrollback; Chromium touch gestures
+left output unchanged before the adapter. `agent-terminal.css` bounds the
+touch identity header independently, after a 390×240 long title consumed the
+input area. No custom key or focus rule was needed. Stale tablet tap coordinates
+hit the surrounding page before responsive fitting settled; the final proof
+waits for current panel/native/rendered geometry before measuring coordinates.
+
+`agent-terminal-touch.spec.ts` supplies disposable published work/native session
+only. `touchTerminalPage.ts` observes real WebSocket input and PTY resize/output,
+checks rendered room/row fitting, and uses native Chromium touch gestures.
+Assertions observe raw Backspace/Enter bytes and edited native line, earlier
+then latest scrollback without new input or attachment, full long identity,
+240-pixel visible height, portrait/landscape and Maximize/Restore, attachment
+counts, Close focus/detach and same-session reopening. Native fixture Backspace
+only models terminal editing; raw browser bytes and recorded native input are
+checked separately. Chromium153.0.8010.12 at390×844/844×390 and
+768×1024/1024×768, each reduced to240px while editing. Documentation retains
+the physical-keyboard/remote limits. G3 is proved; no slice4 gap remains.
+
+Complete terminal/shared-consumer proof exited0, and was rerun after independent
+gesture/observation extraction with unchanged assertions, again exit0:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch.spec.ts agent-terminal.spec.ts agent-terminal-maximize.spec.ts agent-terminal-keyboard.spec.ts agent-terminal-lifetime.spec.ts agent-terminal-theme.spec.ts agent-terminal-avatar.spec.ts agent-terminal-codex-page.spec.ts agent-terminal-cursor-page.spec.ts agent-terminal-cursor-launch-page.spec.ts agent-terminal-done-codex-page.spec.ts agent-terminal-done-question.spec.ts agent-terminal-done-reopen.spec.ts agent-terminal-done-report.spec.ts agent-terminal-done.spec.ts agent-terminal-delete.spec.ts agent-launch-ad-hoc-terminal.spec.ts system-settings.spec.ts side-panel-width.spec.ts side-panel-width-stacking.spec.ts side-panel-width-kept.spec.ts dashboard-columns-paging-side-panel.spec.ts story-panel-switching.spec.ts story-panel-replacement.spec.ts cursor-sidebar-resize-lasting.spec.ts cursor-sidebar-resize.spec.ts cursor-sidebar-panels.spec.ts agent-terminal-boundary.spec.ts agent-terminal-close.spec.ts agent-terminal-reopen.spec.ts --workers=2
+```
+Final fitting and mounted native-retirement consumers exited0:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch.spec.ts session-workspace-retirement-attach.spec.ts session-workspace-retirement-lifetime.spec.ts session-workspace-retirement-claude.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm test -- tests/support/dashboard-test-files.test.mjs
+```
+Independent refactor completed, moving only gesture lifecycle and browser
+observations into cohesive owners; unrelated accepted proof remains reusable.
+Its 30-file rerun started before the coordinator narrowed the invalidated
+selection; the excess unchanged-consumer rerun is a process deviation, not an
+additional acceptance gate. Formatter found an unused expected-array parameter;
+the equivalent twelve-index sequence repair changed no observation. Repaired
+formatter and `git diff --check` passed; all refactor-owned files stay below250
+lines. No transport, native-host or session lifecycle expansion occurred.
 
 ### 5. Review changes without losing the chosen file
 Type: Behavior
@@ -470,7 +518,7 @@ Disposition: excluded "Tailscale, remote connectivity, and the previously reques
 ### G3. Terminal fitting and input comfort
 Reported: slice 3 — "Terminal fitting/input comfort remains slice 4’s work"
 Story clause: "Input, output, and panel controls remain usable with constrained visible height;"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: agent-terminal-touch.spec.ts and touchTerminalPage.ts observe edited native input, actual touch scrollback, fitted rows at 240px, reachable controls and same attachment through viewport changes
 
 ### G4. Offscreen terminal observation in session management
 Reported: slice 3 — "the test waited for .xterm-rows before scrolling the stacked terminal into view"
