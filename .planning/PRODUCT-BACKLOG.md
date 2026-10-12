@@ -16,8 +16,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Monitor CI in the background and wake execution or wrap-up sessions only on failure](seeds/SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery) — SEED-063#background-ci-failure-delivery ([plan](slice-plans/299-background-ci-failure-delivery/PLAN.md))
 - [Read a dashboard proof selection without rerunning it or weakening its verdict](seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — SEED-131#retain-strict-proof-selection ([plan](slice-plans/305-retain-strict-proof-selection/PLAN.md))
+- [Use the dashboard from an iPad or iPhone browser without compromising desktop operation](seeds/SEED-133-mobile-dashboard.md#operate-dashboard-from-mobile-browser) — SEED-133#operate-dashboard-from-mobile-browser ([plan](slice-plans/306-mobile-dashboard/PLAN.md))
 
 ## Backlog list
 
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
-- [Use the dashboard from an iPad or iPhone browser without compromising desktop operation](seeds/SEED-133-mobile-dashboard.md#operate-dashboard-from-mobile-browser) — SEED-133#operate-dashboard-from-mobile-browser
