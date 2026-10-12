@@ -117,49 +117,100 @@ other sessions running, even if proof-selection visibility remains unchanged.
 
 **Identity:** SEED-131#retain-strict-proof-selection
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/305-retain-strict-proof-selection/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2a46c99c88da6eccff9a906d1b162f5bb718c32d7edba57986516694153a6887","plan":"467116c3a7d169ca75926baabbb4ed4d4583e76d2df1d3f22bb86987fbb69c10"}}
 ```
 
-**For / why:** A contributor can report which dashboard tests a focused run
-selected and how they finished without repeating a passing suite or replacing
-the reporter that enforces the project's output policy.
+**Goal:** A contributor can report the tests selected by one focused dashboard
+proof run, their count, and their actual outcomes from retained evidence of that
+same run, without executing the selection again or replacing the strict reporter.
 
-**Evidence:** [DD-216 and DD-243](../../ProjectFindings.md#dd-216) record the
-same cost in five executions. The configured quiet reporter intentionally
-prints nothing on success and removes passing-run output. Some later agents
-used a separate listing, reducing the cost but still requiring another command.
-DearDough's DD-262 is the separate general lesson about accepting a weaker
-reporter's verdict, not an additional occurrence for this story.
+**Evidence:** [DD-216/DD-243](../../ProjectFindings.md#dd-216) records this cost
+in five executions. Successful strict runs intentionally print no summary and
+remove their output directory. A separate listing can explain selection but
+cannot establish what the original run executed or how its strict verdict ended.
+DearDough's DD-262 remains a separate general proof-acceptance lesson.
 
-**Outcome / scope:** Provide inspectable selection and result evidence for the
-actual dashboard proof run through repository test tooling. Preserve quiet
-console success, failure on unexpected output, normal assertions, and the
-original exit status. Keep concurrent runs' evidence attributable to their own
-selection. No change to published delegation or proof-acceptance instructions.
+**Scope:** Offer an opt-in, inspectable record at a path the contributor supplies
+before running the normal dashboard test command. Record the actual selected
+tests and count, identifiable by project, file/location and title; distinguish
+selection from observed test results, and distinguish assertion results from the
+strict run verdict. Include enough run context to attribute the record to its
+checkout, invocation and run. Keep retries/repeated tests and skips from being
+misreported as additional selected tests or successful executed assertions.
 
-**Evaluation:** Run a focused selection once with the configured strict
-reporter. Its evidence identifies the selected tests/count and actual outcome
-without a second execution or a reporter override. Show that a test which
-passes assertions but writes unexpected output still fails, and that selection
-evidence is not confused with completed proof if a run fails or is interrupted.
-At completion, update DD-216/DD-243 with observed evidence and any remaining
-cost; do not mark them resolved just because a mechanism was added.
+Preserve quiet successful console output, normal assertions, failure on unexpected
+test or run output, existing failure diagnostics, output-directory cleanup, and
+the command's strict exit status. Opting out retains today's behavior. Completed
+successful evidence survives passing-run output cleanup. A failed, timed-out,
+interrupted, listing-only, or incompletely recorded run never masquerades as
+completed passing proof. A process killed before selection may leave no evidence;
+after selection is retained, lack of a completed verdict remains explicit.
 
-**Alternatives / refinement:** Compare an opt-in record from the same run with
-the existing separate `--list` workaround. Choose a bounded retention and
-discovery approach consistent with the repository's silent-pass contract;
-do not require permanent accumulation of passing-run directories.
+**Retention and discovery:** The requested path is the discovery mechanism: one
+compact record for one invocation, outside its disposable test-results directory,
+without automatically retaining traces or successful output directories. The
+caller owns retention and deletion. Separate invocations use separate paths;
+refuse to replace an existing record so a mistaken shared path cannot silently
+mix or erase evidence. Recording errors are explicit and make the requested
+record unavailable/incomplete; they do not replace the underlying strict test
+exit status with a new verdict. No automatic history, latest-run pointer, or
+cross-worktree cleanup is needed.
 
-**Value / learning:** Eliminate repeated counting work across contributors
-without losing the strict proof policy.
+**Constraints and deferred promises:** Strict output policy and evidence
+attribution are requirements of the selected story, so a weaker reporter or a
+shared overwrite-prone record is insufficient. Do not change published skills,
+delegation or proof-acceptance guidance, runtime/CI policy, dashboard UI, or the
+sibling compile-cache work. No permanent proof archive, trace retention on pass,
+postmortem reconstruction after an uncatchable kill, or shell/Node-suite reporting
+is promised. At completion, update DD-216/DD-243 with actual acceptance evidence
+and remaining cost; adding a mechanism alone does not resolve the finding.
 
-**Effort hypothesis:** S, medium confidence; reporting already sees the run,
-but evidence retention/discovery and interrupted runs need refinement.
+**Key examples:**
 
-**Depends on:** None; it can proceed independently of the cache story.
+1. A contributor chooses an unused record path and a focused test filter → runs
+   the ordinary strict command once → it succeeds silently, removes its normal
+   passing output, and leaves a readable record naming the selected tests/count,
+   their observed outcomes and completed strict success. Reading it runs no tests.
+2. A selected test passes assertions but writes unexpected output, or setup writes
+   output outside a test → the strict command fails as today → the record shows
+   the observed assertion result separately from the failed strict verdict.
+3. A run selects several tests and fails, times out, or is interrupted partway →
+   inspect the retained record → selection and completed attempts remain distinct
+   from uncompleted work; there is no completed passing proof. A forced kill may
+   leave a running snapshot, never a fabricated terminal result.
+4. Two focused runs overlap, with distinct record paths → each record identifies
+   only its own selection/results. A second run requests an existing path → it
+   reports that recording is unavailable without overwriting that file or changing
+   its own strict test verdict.
+5. A listing or a selection containing skipped/repeated tests is requested →
+   inspect its record → selected tests, attempts and skips remain distinguishable;
+   listing success alone does not mean execution passed.
+6. No record is requested → ordinary strict success/failure and retained failure
+   diagnostics behave as before. An unwritable destination when recording is
+   requested produces an explicit recording diagnostic, not apparent valid proof.
 
-**Safe stopping point:** One focused run supplies trustworthy selection evidence
-without changing suite behavior or waiting for other test-tool improvements.
+**Alternatives and decision:** Use an opt-in compact record owned by the existing
+strict reporter. Doing nothing retains the repeated work. A separate `--list`
+command needs another command and observes another selection, not this run's
+outcomes; preparation also observed the quiet reporter's listing ending with a
+passed runner status and no test attempts. A second standard reporter can record
+raw assertion success while the strict reporter rejects output. Keeping every
+passing output directory would add automatic accumulation and artifact cleanup.
+The caller-selected file provides bounded, directly discoverable evidence while
+preserving the existing verdict owner.
+
+**Value / learning:** Remove repeated counting work while keeping trustworthy
+proof; verify that retained evidence reflects the strict verdict, not only
+Playwright's assertion status.
+
+**Effort hypothesis:** S, medium confidence; one cohesive reporter/configuration
+change with subprocess regression proof. Storage errors, interruption and nested
+test runners belong to this same lifecycle, not separate reporting systems.
+
+**Depends on:** None; no blocking story prerequisite.
+
+**Safe stopping point:** One focused run supplies trustworthy evidence without
+changing suite behavior or waiting for other test-tool improvements.
 
 ## Ordering and Scope Reduction
 
