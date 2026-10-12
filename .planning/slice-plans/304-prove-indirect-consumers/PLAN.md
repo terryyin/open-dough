@@ -152,7 +152,7 @@ remains pending before affected release. ODF-150's failed watch stays failed.
   branch `codex/prove-affected-indirect-consumers-before-accepti`, story-branch
   mode. Ordinary increments target that branch on `origin`; trunk is `main`.
   The default checkout is `/Users/terryyin/git/open-dough`; it is not a task base
-  or delivery source. Published branch base is the established claim above.
+  or delivery source. Published implementation is `d8184b02bbfd855ff3838de6ffa6a0ed5c2a868b`; its suffix base is the established claim above.
 - Checkout setup: Node `24.21.0`, locked npm and browser acquisition through
   `node scripts/setup-native.mjs npm` and `browser`, prerequisite `check` and
   `npm run --silent typecheck:dashboard` all passed in this checkout.
@@ -231,10 +231,15 @@ Disposition: proved by slice 1: PROOF.md's operation-preconditions walkthrough i
 Slice-plan refinement was not needed: one common rule owns every example,
 selection and acceptance are one useful outcome, and all final promises map to
 observable proof in that slice. No remaining slice-specific concern was found.
-The preparation does not claim that the revised guidance has passed its future
-behavior review or native use.
+The completed representative behavior review is in PROOF.md; native use stays pending.
 
 Authorized execution retains independent post-change refactoring, proof,
 commit and delivery gates from the installed workflow. This plan grants no Take
 or implementation authority. Preparation changes only records; validate links,
 recorded readiness and whitespace before landing.
+
+## Execution complete
+
+Product advice: Refine and prioritize SEED-132#accept-indirect-consumer-proof-natively before releasing this guidance. No additional product correction is supported.
+
+Retrospective: reviewed the uncontaminated claim-to-`d8184b02` diff, original story/plan, shared rule and callers, retained historical observations, unchanged fixture support and current architecture. Outcome and test review found no correction; native evidence remains limited as recorded. Process review recorded this execution under ODF-152 and ODF-097 in DearDough.md (289 physical lines). CI remains pending on the accepted story-branch revision until the execution-owned completion receipt.
