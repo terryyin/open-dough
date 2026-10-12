@@ -1,139 +1,115 @@
 # Near-term watch list
 
-Reviewed 2026-10-09 against the current Open Dough, Pygardon and Doughnut logs,
+Reviewed 2026-10-12 against the current Open Dough, Pygardon and Doughnut logs,
 in Asia/Tokyo. Only verified relevant use starts a seven-day watch. Released
 responses and successful use are not guarantees against recurrence. Occurrences
 are counted once per project/execution. Failed and unexercised responses remain
 in [the active catalog](finding-names.md). Codes remain allocated in Git history.
 
-<a id="odf-150"></a>
+<a id="odf-139"></a>
 
-## ODF-150 — Implementation proof misses indirect consumers
-Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario.
+## ODF-139 — Reported defect dismissed without checking the story
 
-- **Follow-up:** released in 0.3.57: SEED-095#prove-slices-through-consumers (story and plan recoverable at `56ed987b:.planning/seeds/SEED-095-slice-proof-through-consumers.md` and `56ed987b:.planning/slice-plans/237-prove-slices-through-consumers/PLAN.md`). **Evidence:** [open-dough](https://github.com/terryyin/open-dough/blob/e904c1f589516a2595023ce1dfe7dd0e7193a3de/DearDough.md#odf-150--slice-proof-chosen-by-the-changed-components-missed-page-wide-invariant-specs), [open-dough](https://github.com/terryyin/open-dough/blob/e904c1f589516a2595023ce1dfe7dd0e7193a3de/DearDough.md#odf-150--shared-readiness-caller-analysis-missed-queued-escalation-continuation), [pygardon](https://github.com/terryyin/pygardon/blob/00fed21223e3558332d2db3a5c166972c25d373d/DearDough.md#odf-150--focused-slice-proof-missed-consumers-of-a-changed-shared-default-caught-only-by-coordinator-run-wider-suites), [doughnut](https://github.com/nerds-odd-e/doughnut/blob/b009b6cb5b048e02ee55927447857e50e233bddd/DearDough.md#odf-150--an-implementers-slice-proof-ran-only-the-specs-it-chose-missing-consumers-of-the-store-method-it-changed).
-- **Response / limit:** First released in 0.3.57: proof selection, delegation and acceptance now choose a slice's proof from every consumer of what it changes: retired literals and values found by search, callers relying on a changed default, every stand-in of a changed contract, page-wide specs, and the changed surface's suite when it fits the focused-check time; a plan's named proof is a minimum, and the coordinator neither accepts nor publishes while a known consumer, including one left for CI, is unrun. Before it: more than ten Open Dough, five Doughnut and one Pygardon executions, latest 0.3.54, about one failed CI run and repair per execution. Reports continue after f0f355c / 0.3.33 and fcc29fad / 0.3.48; a same-cause match with either is not established. Rows once filed under ODF-003 (plans 113, 140) and ODF-100 (plan 181) are this mechanism.
+A named gap contradicts the story goal, but acceptance judges it against the plan's narrower scope and delivers it.
 
-- **Additional report:** Open Dough plan 244 / 2d9347c1, 2026-10-04T21:09:46+08:00, Claude Code, execution release unknown (installed VERSION 0.3.56): focused card proof missed three page-wide consumers; slice 3 ran 1,036 specs and repaired them. The execution predates 0.3.57; it does not establish failure of the released consumer-selection response.
+- **Sources:** Doughnut / DD-132 (historical evidence at `9ab3ca6e:docs/maintainer/finding-names.md`); [Pygardon / DD-214](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-139--a-hand-back-gap-was-accepted-as-plan-scoped-without-checking-it-against-the-storys-scope).
+- **Follow-up:** released in 0.3.58; under observation, not resolved.
+- **Response:** `b7930baf`, first released in 0.3.48, adds the story-goal and named-gap check to `wrap-up.md` Accept proof. The same rule remains at `9de43de4`; no demonstrated intervening correction of agent follow-through warrants a new identity.
+- **Later response (2026-10-10):** `43ef3b9b304b2ffb7ac64238f8c7c6d46ca676a3` introduces structured obligations and story-section quote checks; `9ab257c12fc4abfe0f8586fdbf00e5d53d5a3aaa` carries ownership across slices; `ce0aaa3caed8325e839e40c13417dc30a2f9ed3b` wires delegation, acceptance, delivery and completion gates into the released payload declaration. Free CLI tests refuse the plan-only exclusion. Native proof recorded in `4ec755976033b4265f4a3e39c0c3f3aec7e94906` observes the 303 coordinator retaining a return, a refusing slice gate and a correction handoff. [Proof and limits](https://github.com/terryyin/open-dough/blob/5bd862746d2789e9c34d05276a507f908d141bc7/.planning/slice-plans/283-keep-reported-gaps-owned/PLAN.md#4-a-native-host-coordinator-keeps-the-three-replayed-gaps-owned-developer-run). First containing release verified on 2026-10-12: 0.3.58. See the current watch assessment below. Earlier failed-watch evidence stays retained.
+- **Post-fix evidence:** Pygardon SEED-078#story-auto-trading-same-basis, plan 303 / `74d86dc20` (Take `e6b1c08c4`, recoverable at `a4673f7b6`), 2026-10-03 date-only, Claude Code / claude-opus-5-5 / 0.3.56. Slice 4 reported that `HoldingsExitSettingsResults.tsx` omitted the source; the story said each signal and exit row names it. Acceptance filed this as outside the plan's ask; retrospective correction plan 311 was required. Qualified inference: acceptance used the plan instead of the story. This is a supported failure after the 0.3.48 response, so its prior watch does not pass.
+- **Provenance-limited report:** Pygardon SEED-085#story-ci-capacity-kept-free, plan 308 / `cc959dab8` (Take `b77d4e9ff`, recoverable at `33c3283d2`), 2026-10-03 date-only, Claude Code / claude-opus-5-5, guidance release unknown. Acceptance called missing build cache and container holders plan-scoped despite the story's Scope; correction plan 309 followed. This is the same false-scope mechanism; its unknown release cannot establish post-fix recurrence.
+- **Frequency:** Three distinct supported executions including the original Doughnut plan 006 on 0.3.41. The two Pygardon retrospectives do not count as extra executions. ODF-185 is separately active again after its failed learning-only acceptance watch.
 
-- **Release verification (2026-10-09):** Relevant response diff inspected; the first containing tag for cca9bff4 is `v0.3.57` (`b7962d57`, released 2026-10-07T07:31:16+09:00). All three projects adopted 0.3.57 on 2026-10-07 (Open Dough `69f22b57`, Pygardon `f536bb693`, Doughnut `4a4900df07`). Installation alone does not establish effectiveness or a watch start.
+- **Release verification (2026-10-12):** Relevant implementation/guidance diffs and first-containing tags checked for `43ef3b9b`, `9ab257c1`, `ce0aaa3c`: `v0.3.58` (`c879707a`, 2026-10-10T17:30:32+09:00). All three projects adopted it on 2026-10-10: Open Dough `af8ab03d`, Pygardon `0556f9d69`, Doughnut `e95c90d37a`. Adoption alone does not establish effectiveness.
+
+- **Watch start:** 2026-10-11 (date-only, Asia/Tokyo), release 0.3.58. Pygardon plan 327, first implementation `212333b6d`; the positive-use evidence below and `7cbf44c49:.planning/slice-plans/327-retry-ci/PLAN.md` obligation G4 show a named story gap returned and proved within the same slice.
+- **Review after:** 2026-10-18.
+- **Last assessed:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. This watches the plan-scope exclusion mechanism only; the distinct unsupported judgment in ODF-223 remains active. Native replay limits and the failed 0.3.48 response remain recorded. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
+
+### Retained source evidence — pygardon (2026-10-09)
+
+**Source:** [pygardon / ODF-139 — A hand-back gap was accepted as "plan-scoped" without checking it against the story's scope](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-139--a-hand-back-gap-was-accepted-as-plan-scoped-without-checking-it-against-the-storys-scope).
+
+Former local code: DD-214.
+
+The coordinator accepted an implementer's named gap on the implementer's own claim that the plan scoped it out. It did not read the gap against the story's Scope, which listed the omitted holders.
+
+### Occurrences
+- Execution: `SEED-085#story-ci-capacity-kept-free` (`.planning/slice-plans/308-ci-capacity-shortage-seen-before-start/PLAN.md`, removed at wrap-up, recoverable at `33c3283d2`; Take `b77d4e9ff`; first implementation commit `cc959dab8`)
+  - Timestamp: unknown (2026-10-03, slice 1 acceptance).
+  - Tool: Claude Code.
+  - Model: claude-opus-5-5.
+  - Open Dough release: unknown.
+  - Evidence: the slice 1 hand-back said "Holders cover images and volumes only … as the plan scoped". The story's Scope names "the engine's other build cache … and anything else". Plan 308 excluded only the release cache budget remedy. Proof acceptance asks for each named gap to be read against the story's goal and scope.
+  - Observed effect: the retrospective found the omitted build cache and containers and wrote correction plan 309.
+  - Inference: reading the seed's Scope at acceptance would have returned the gap within the same slice, at about one extra implementation round.
+
+- Execution: `SEED-078#story-auto-trading-same-basis` (`.planning/slice-plans/303-auto-trading-same-basis/PLAN.md`, removed at wrap-up, recoverable at `a4673f7b6`; Take `e6b1c08c4`; first implementation commit `74d86dc20`)
+  - Timestamp: unknown (2026-10-03, acceptance of slice 4 before commit `e3a7ea2fc`).
+  - Tool: Claude Code.
+  - Model: claude-opus-5-5.
+  - Open Dough release: 0.3.56.
+  - Evidence:
+    - Slice 4's return listed under Gaps: "The Holdings page panel (`HoldingsExitSettingsResults.tsx`) renders the same response but does not show the source. … The slice only asked for the Auto Trading Holdings section."
+    - The story goal says "Each signal and exit row names that source".
+    - The coordinator recorded the gap in the plan as out of the plan's ask.
+    - The retrospective then planned correction `311-holdings-exit-source-correction`.
+  - Observed effect: a one-slice correction story and plan instead of a one-file change inside slice 4.
+  - Inference:
+    - The plan narrowed "Holdings exit settings" to one component, and the coordinator checked the gap against the plan rather than the goal.
+    - `wrap-up.md#accept-proof` already says a gap contradicting the goal returns to implementation in the same slice.
+
+
+### Positive use retained from Pygardon (2026-10-12)
+
+- Execution: SEED-101#story-watcher-setup-error-no-verdict (plan 327, first related commit `212333b6d`) Timestamp: unknown Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.58 Evidence: 2026-10-11; slice 1 return "No test drives the real watcher end to end with a `setup_error` attempt", closed by the two cases added to `tests/pygardon-ci-path-coverage.test.mjs` in `212333b6d`; slice 3 return "an observation poll's `try_admit` can start an observed tip before the retry", closed by `offer_queued_retry` in `ci_session_admission.try_admit` and `test_observed_tip_arriving_while_idle_waits_behind_the_queued_retry` in `7cbf44c49` (plan 327 obligation G4) Observed effect: Both slices' named proof commands had passed; each return to the same agent took one further round and was delivered in the same slice commit. Inference: A practice worth keeping. The plan's proof for key examples 4 and 7 stopped at the session's happy path and the adapter, which is where the gaps sat.
+
+<a id="odf-156"></a>
+
+## ODF-156 — Lost acceptance obligations in delegation
+A required later-slice check recorded as a plan learning is omitted from that slice's delegation and acceptance.
+
+- **Follow-up:** released in 0.3.58; under observation, not resolved.
+- **Earlier limit:** No response before the later response below. Second project: Pygardon plan 296 (0.3.54) delivered a story promise incomplete and needed a correction plan.
+- **Later response (2026-10-10):** `43ef3b9b304b2ffb7ac64238f8c7c6d46ca676a3`, `9ab257c12fc4abfe0f8586fdbf00e5d53d5a3aaa` and `ce0aaa3caed8325e839e40c13417dc30a2f9ed3b` add structured ownership, receiving-slice listing/refusals and mandatory delegation/completion boundaries. Free CLI tests own the receiving-slice refusal. Native proof recorded in `4ec755976033b4265f4a3e39c0c3f3aec7e94906` observes retained slice-8 ownership, completion refusal and the full live-fault/next-daily handoff; no implementation agent or native slice-8 acceptance was observed. [Proof and fixture limits](https://github.com/terryyin/open-dough/blob/5bd862746d2789e9c34d05276a507f908d141bc7/.planning/slice-plans/283-keep-reported-gaps-owned/PLAN.md#4-a-native-host-coordinator-keeps-the-three-replayed-gaps-owned-developer-run). First containing release verified on 2026-10-12: 0.3.58. The replay alone does not resolve the finding; see the later ordinary-use assessment below.
+
+- **Release verification (2026-10-12):** Relevant implementation/guidance diffs and first-containing tags checked for `43ef3b9b`, `9ab257c1`, `ce0aaa3c`: `v0.3.58` (`c879707a`, 2026-10-10T17:30:32+09:00). All three projects adopted it on 2026-10-10: Open Dough `af8ab03d`, Pygardon `0556f9d69`, Doughnut `e95c90d37a`. Adoption alone does not establish effectiveness.
+
+- **Watch start:** 2026-10-11 (date-only, Asia/Tokyo), release 0.3.58. Pygardon plan 327: `3194119c1:.planning/slice-plans/327-retry-ci/PLAN.md` records G1–G3 as receiving slice 3; `7cbf44c49` carries them into slice 3 and records all three proved with named retry and storage-readiness regressions.
+- **Review after:** 2026-10-18.
+- **Last assessed:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. One real receiving-obligation exercise, not all hosts or arbitrary judgment. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
 
 ### Retained source evidence — open-dough (2026-10-09)
 
-**Source:** [open-dough / ODF-150 — Slice proof chosen by the changed components missed page-wide invariant specs](https://github.com/terryyin/open-dough/blob/e904c1f589516a2595023ce1dfe7dd0e7193a3de/DearDough.md#odf-150--slice-proof-chosen-by-the-changed-components-missed-page-wide-invariant-specs).
+**Source:** [open-dough / ODF-156 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-156--a-slice-acceptance-obligation-recorded-as-a-plan-learning-never-reached-the-next-delegation).
 
-Former local code: DD-177.
+Former local code: DD-126.
 
-Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario.
-
-
-
-- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002` - Timestamp: 2026-09-29T17:36:06+08:00 (CI run 36550218994 on `08f217af`) - Tool: Claude Code; Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd` - Evidence: slice 2 delegation's spec list; the failure at `accessible-overview-keyboard.spec.ts:72` (expected 5, received 6); repair `76e6dce3`. Slice 1's list had included that spec. - Evidence (recurrence in the same execution): slice 3's retention sentence put "done" in Recent sessions' always-shown intro; `published-work.spec.ts:151` forbids completion words anywhere on a page without sessions and failed only in CI run 36551022132 on `32e554d5`; the full dashboard suite (286 tests, 46 s) then passed locally with the repair. - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents. - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
-- Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7` - Timestamp: 2026-09-30T10:29:14+08:00 (slice 5, commit `5c09cc85`; CI run 36660072699) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: slice 5 added an always-rendered `role="status"` line in `StartSession.tsx`; its delegated proof ran only the ad hoc, terminal, sidebar and card specs; CI failed on `getByRole('status')` matching two elements in six page-wide specs (`accessible-overview-keyboard`, `auto-refresh`, `auto-refresh-recovery`, `published-work`, `read-failure`, `refresh`). `aria-live="polite"` also collided with `dashboardPage.ts`'s `notice` locator, so the repair `ed7e1aa1` uses `role="log"`. From slice 6 the whole suite (351 tests, about 1 min) ran before delivery. - Observed effect: one failed CI run, one repair commit, one repair agent, and a stash and restore of slice 6's unfinished work. - Inference: Qualified. The cause recurred in a new execution; slice 4's implementer had run the whole suite once, slice 5's delegation named a spec list instead.
-- Execution: `SEED-052#script-execution-preparation` / plan 178, first related implementation commit `821cd555` - Timestamp: 2026-09-30T15:12:54+08:00 (repair `f9927f40`; later `66cb5a25`, 2026-09-30T16:01:20+08:00) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: plan 178's outside-in proof said to run only the new focused specs locally ("the whole suite is CI's"). Slice 2 made every launch run a start first, so the launch became slower; `agent-launch-card-delete.spec.ts` (`f9927f40`) and, one slice later, `agent-launch-recent-delete.spec.ts` (`66cb5a25`) each changed session states while the last launch was still writing the fake listing (lost update). Further unreproduced load-sensitive local failures followed (`agent-launch-card-problems.spec.ts:82`, an ad hoc launch spec). - Observed effect: two repair commits, one found by CI and one later locally, for one root cause discovered one spec at a time. - Inference: Qualified. The changed operation (launch) has a whole family of `agent-launch-*` callers, and the earlier row here records the whole dashboard suite at about a minute; the plan's focused-files-only instruction repeated the changed-area proof selection.
-- Execution: `SEED-052#use-cursor-from-dashboard` / plan 210, first related implementation commit `71764841` - Timestamp: 2026-10-02T09:27:33+08:00 (CI run 36950863895 `updatedAt` 2026-10-02T01:27:33Z) - Tool: Cursor - Open Dough release: modified; revision `0ae15498`; base 0.3.52 - Evidence: slice 1's proof named `agent-launch-start-cursor.spec.ts`, `agent-launch-start.spec.ts`, and `agent-launch-start-codex.spec.ts`. Job `dashboard (3/9)` on `71764841` failed four tests that still expected HTTP 400 for `host: "cursor"` in `agent-launch-refusal.spec.ts` and `agent-launch-ad-hoc-boundary.spec.ts`. Repair `2f21a7be`. - Observed effect: one failed CI run and one repair commit before slice 2. - Inference: Qualified. Offering Cursor invalidated the old unoffered-host rows; the slice proof followed the new start specs and missed those consumers.
-- Execution: `SEED-041#deliberate-implementation-dependencies` / plan 216, first related implementation commit `8bb73be064a7778470389bd5a458fb70f5a96962`
-  - Timestamp: unknown (slice 2 publication and CI repair)
-  - Tool: Codex
-  - Open Dough release: 0.3.54 (installed execution guidance; product guidance edited separately)
-  - Evidence: run 36997893525/attempt 1 on `29bd2aa` failed keyboard/page-wide and cross-project launch fixtures; focused slice 2 proof omitted those callers. Repair `a049909` supplied the existing canonical Doughnut fixture and traversed enabled actions, retaining the production guard. Recovery `4dc3860a587ec3f95ee590134b88fb5d5d10a8a7:.planning/slice-plans/216-blocking-story-dependencies/CONTEXT.md` records six affected browser files and independent fixture consolidation proof.
-  - Observed effect: two owned CI repair cycles with independent refactors, including a pause/stash/restore of slice 3's draft. Completion also exposed direct keyboard focus before canonical availability in run 37003387678; the passing repair observes enabled execution and canceled-dialog removal without changing production guards.
-  - Inference: qualified recurrence of changed-operation caller selection; unavailable dependency facts now affect every new execution action, including legacy fixture callers. No full-suite timing or generalized cost measured.
-
-- Execution: `SEED-083#persistent-dashboard-project-configuration` / plan 215, first related implementation commit `62c03b0083f1e6a65f42a2151c800eaa8923bc9f`
-  - Timestamp: unknown (2026-10-02 CI failures)
-  - Tool: Codex
-  - Open Dough release: 0.3.54 (installed at published start `db6b0da`; unchanged throughout execution)
-  - Evidence: published slice 5 `9c5b4fd`, PLAN accepted 15-spec proof plus startup/restoration refactor proof. Runs 36997568980/1 and 36998319791/1 failed accessible-overview-keyboard (Remove missing from exact tab order), agent-launch-codex-options (two service starts expected, three observed), and agent-launch-codex-observation (expected no service preparation after records arrived). Full affected specs reproduced four failures locally; tests-only alignment and shared observation refactor passed the complete affected/startup/restoration selection and typecheck. Trunk integration 46b0431/run37001581515/1 additionally exposed production-watcher and production-watcher-updates development journeys without configured-project preconditions. Both original journeys reproduced red; four lines reuse configureDevelopmentProjects in isolated HOME. Complete watcher/configuration specs and typecheck passed, preserving real releases/HMR/records/boundaries/shutdown and genuine empty development; independent review needed no edits.
-  - Observed effect: three failed CI runs and two additional implementation/refactor pairs; completion receipts retained observation instead of permitting handoff.
-  - Inference: proof followed the new behavior and selected neighbors, but missed existing whole-page keyboard and native-lifecycle consumers. This matches ODF-150; no full-suite duration or universal test-selection rule is inferred.
-
-- Execution: `SEED-008#installed-story-branch-integration` / plan 220, first related implementation commit `d213f1efec373b098bddd4e83030db2c08693571`
-  - Timestamp: unknown (2026-10-02–03 execution; failed run 37021271369/attempt 1)
-  - Tool: Codex
-  - Open Dough release: 0.3.54 (installed guidance at established claim `418e5e52`; managed copies unchanged)
-  - Evidence: slices 2–4 changed shared launch reporting input, attempt evidence and completion guidance. Focused proof missed existing model/preparation/one-shot/acceptance and lifecycle consumers; CI on `4ef5e2e` failed seven dashboard jobs and test (2/3). Repair `41fee026` aligned those consumers with an independent input oracle, preserving native grammar/settings and chmod-fault assertions; the latter exposed reporting bootstrap outside launch-progress cleanup finally. Final literal red/green commands and 42-test consumer selection live in plan 220 at `41fee026`.
-  - Observed effect: one failed CI attempt and owned pause/repair/refactor cycle; the preserved fault scenario found and fixed a real stale launching-progress defect.
-  - Inference: qualified match to changed-operation caller-flow selection, rather than a file-type premise. Select proof from the shared contract's current consumers, including test-support callers; retain independent observations. No guidance change or full-suite mandate is authorized here.
-
-- Execution: `SEED-098#story-card-actions-read-at-a-glance` / plan 244, recoverable at `aa7a3eec7d5f48f3ac84d1c3afce18b0e0939ed3:.planning/slice-plans/244-story-card-actions-read-at-a-glance/PLAN.md`; first related implementation commit `2d9347c1b1fd90372afd9c6a51ac9af734fbbef5`
-  - Timestamp: 2026-10-04T21:09:46+08:00 (CI run 37204384263 `updatedAt` on `4ed30458`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown; installed guidance VERSION 0.3.56, last updated by `b0bc3a08`
-  - Evidence: plan 244's Current decisions set the local gate to "the focused Playwright specs named per slice". Slice 2 (`4ed30458`) ran 24 note- and tooltip-reading specs. CI failed `accessible-overview.spec.ts:190` (Inspect story under the sticky stage heading; `.card button` lacked `scroll-margin-top`), `agent-launch-attention.spec.ts:79` (snapshot before the credited human slice 1 added to the scan line loaded), and `agent-launch-ad-hoc-sessions.spec.ts:215` (shorter cards let Recent sessions into the 720px window). Slice 3's implementer ran the full dashboard suite (1036 passed, about 6 min) and repaired all three in `670e776f`.
-  - Observed effect: one failed CI run; no separate repair cycle, because the next slice found and fixed them before its own delivery.
-  - Inference: Qualified recurrence. Shorter cards and a new scan-line fact changed page-wide layout and loading, which the selected specs did not exercise. The planner wrote the focused-only gate while the ODF-150 follow-up was still unreleased.
-
-- Execution: `SEED-107#recently-done` / plan 253, recoverable at `1f929859491bc26285d64eface2d147f1ceee4a2:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`; first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
-  - Timestamp: 2026-10-05T22:37:47Z (CI run 37383488386 jobs test (2/3) and test (3/3) on `0f334e41`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`, last updated by `b0bc3a08`)
-  - Evidence: slice 1 made `product-backlog complete` write an untracked `.planning/done/<id>.json`. Its return listed the node script tests that run `complete` as consumers and updated three of them; the installed `executable-proof.md` already names stand-ins. The shell substitute `native_one_shot_close_story` (`tests/support/native-agent-one-shot.sh`) committed with `commit -qam`, so `tests/git-publication-native-one-shot-results.sh` and `-workspaces.sh` failed on a dirty workspace. Repair `0b669ed2`.
-  - Observed effect: one failed CI run and one pause/repair/refactor cycle; slice 2's uncommitted work was saved and restored around it.
-  - Inference: Qualified recurrence with the stand-in rule installed: the consumer search followed `.mjs` callers and missed shell stand-ins of the same contract.
-
-**Source:** [open-dough / ODF-150 — Shared readiness caller analysis missed queued escalation continuation](https://github.com/terryyin/open-dough/blob/e904c1f589516a2595023ce1dfe7dd0e7193a3de/DearDough.md#odf-150--shared-readiness-caller-analysis-missed-queued-escalation-continuation).
-
-Former local code: DD-212.
-
-Changing the shared readiness reader aligned its normal startup consumers but left a queued one-shot escalation test asserting refusal on historical digest mismatch. The implementation report excluded one-shot starts as lacking the assessment fact; that exclusion did not account for the normal continuation invoked after escalation. The focused proof selected startup publication cases, not this reached continuation caller, and the coordinator accepted the exclusion.
+A required later-slice check recorded as a plan learning is omitted from that slice's delegation and acceptance.
 
 
 
-### Occurrences
-
-- Execution: `SEED-080#readiness-change-indicator` / plan 209, first related implementation commit `dc1f5e0dd0ebeef5ceff0ee80de35a411f72036c`
-  - Timestamp: 2026-10-02T00:49:32Z (CI failure log)
-  - Tool: Codex
-  - Open Dough release: 0.3.52
-  - Evidence: original implementation return stated admission/one-shot starts lack the assessment fact. CI run `36947799549`, attempt 1, `test (3/3)` at integrated `e0f41806` failed `one-shot-escalation-queued.test.mjs:107`: expected `source-refused`, actual `existing` with `changedSinceReview: true`. The focused runner reproduced that exact failure; updated assertions passed with the queued and startup-refusal suites.
-  - Observed effect: trunk CI caught an affected consuming assertion omitted from accepted focused proof. Repair changed only the test; Ready continuation, ownership, genuine Not ready refusal and authorization safeguards stayed intact.
-  - Inference: a mode-level exemption hid a reached shared consumer. The green initial startup suites were valid evidence for their boundaries, not for this additional continuation path.
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737` - Timestamp: unknown; slice 3 delegated after `6f350f28` (2026-09-27T16:40:20+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42) - Evidence: plan 112 Learnings at `d0101737`; `dough-bug-fixing/SKILL.md:98` still forces `--no-replan` and its closure steps still route through wrap-up at `70f6cde1` - Observed effect: the retrospective found contradictory closure guidance and planned a correction - Inference: Qualified. Learnings are free text; nothing ties an acceptance obligation to the slice that must satisfy it
 
 
 
 ### Retained source evidence — pygardon (2026-10-09)
 
-**Source:** [pygardon / ODF-150 — Focused slice proof missed consumers of a changed shared default, caught only by coordinator-run wider suites](https://github.com/terryyin/pygardon/blob/00fed21223e3558332d2db3a5c166972c25d373d/DearDough.md#odf-150--focused-slice-proof-missed-consumers-of-a-changed-shared-default-caught-only-by-coordinator-run-wider-suites).
+**Source:** [pygardon / ODF-156 — A gap deferred to a later slice was not carried into that slice's delegation](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-156--a-gap-deferred-to-a-later-slice-was-not-carried-into-that-slices-delegation).
 
-Former local code: DD-209.
+Former local code: DD-205.
 
-
-
-When a slice changed a rule every caller shares (caps default on in `VerifyCommon`), the implementation agents' focused commands passed while E2E features and other modules were unrun, and several existing tests had silently become vacuous (passing on an empty universe).
+Slice 6 accepted that non-Sharadar action faults propagate and leave the run `running`, noting "slice 8"; slice 8's delegation covered restart interruption only, so the live-fault case was never implemented and the retrospective found it.
 
 ### Occurrences
-- Execution: `SEED-069#story-consistent-classification` (`.planning/slice-plans/299-sharadar-classification/PLAN.md`, removed at wrap-up, recoverable at `c7c3544ac`; Take `5dce13078`; first implementation commit `650f1623e`)
-  - Timestamp: unknown (2026-10-03, slices 4 and 5, about 13:00 to 13:15 +08:00).
+- Execution: `SEED-078#story-sharadar-daily-update` (`.planning/slice-plans/296-sharadar-daily-update/PLAN.md`, removed at wrap-up, recoverable at `f93f2014b`; Take `bc246ad45`; first implementation commit `fed1b745b`)
+  - Timestamp: unknown (slice 6 acceptance 2026-10-03 about 08:50 +08:00; retrospective about 11:00 +08:00).
   - Tool: Claude Code.
   - Model: claude-opus-5-5.
   - Open Dough release: 0.3.54.
-  - Evidence: slice 4's agent reported E2E "not run"; the coordinator ran eight affected features (47 scenarios). Slice 5's agent reported 102 focused tests passing; the coordinator's `pytest -n 2 tests/search_run tests/strategies tests/test_live_strateg*.py` found `test_every_calculation_read_goes_through_the_run_environment` at 0 trades; the follow-up instrumented sweep found `test_search_run_cli_workers_evals_a_generation_in_a_pool_with_single_worker_verify` and `test_tfdc_verify_enforce_industries_reads_from_db` passing on empty universes. The retrospective later found `label_every_daily_bar_symbol` also masked a product gap (labels never reach bars-only symbols).
-  - Observed effect: one broken test and two vacuous tests caught before delivery; one masked product gap reached the retrospective.
-  - Inference: useful practice — after a shared-default change, the coordinator's bounded wider run caught what focused proof could not; asking agents for a vacuity check (assert scanned counts) when a default narrows the universe would make it explicit. Generality to other stories is unassessed.
-
-
-
-### Retained source evidence — doughnut (2026-10-09)
-
-**Source:** [doughnut / ODF-150 — An implementer's slice proof ran only the specs it chose, missing consumers of the store method it changed](https://github.com/nerds-odd-e/doughnut/blob/b009b6cb5b048e02ee55927447857e50e233bddd/DearDough.md#odf-150--an-implementers-slice-proof-ran-only-the-specs-it-chose-missing-consumers-of-the-store-method-it-changed).
-
-Former local code: DD-136.
-
-Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario.
-
-
-
-- Execution: SEED-047#story-1 / `edfd7ba92a:.planning/slice-plans/014-continue-to-neighboring-note-after-deletion/PLAN.md` / a41b1e0507; Timestamp: unknown (before slice 1 commit 2026-09-27T10:59:16+08:00); Tool: Claude Code; Open Dough release: 0.3.42 (VERSION in the execution checkout). - Evidence: coordinator summary to the retrospective (subagent transcripts not supplied): coordinator consumer check found 2 failing tests in `NoteMoreOptionsForm.trashNote.spec.ts`; fixed by an empty listing mock in `tests/notes/noteMoreOptionsTrashTestSupport.ts` (in a41b1e0507), then `tests/notes tests/store tests/toolbars` 353/353. - Observed effect: one coordinator repair before commit; no defect shipped. - Inference: a `grep` for callers of the changed method across `tests/` when choosing slice proof would have included the spec.
-- Execution: SEED-059#story-16 / `dfec19ca03:.planning/slice-plans/058-current-block-same-in-pdf-and-epub/PLAN.md` / d3eec9db16; Timestamp: 2026-09-30T00:01:40Z (CI job log time of the failure); Tool: Claude Code; Model: claude-sonnet-5-5; Open Dough release: unknown. - Evidence: slice 2 removed the 40-point landing padding; its delegation named `book_browsing.feature` and `reading_record.feature`, and the report ran only those. CI run 36647846005 attempt 1 failed `phone_reading.feature` "Choosing a book block closes the book layout and moves the book there" (`expected ... to contain '2 /'`); the slice 3 agent ran `phone_reading` (7/7 locally at 390*844); the repair agent reproduced the failure only at 390*900 and repaired in 5206b08370. - Observed effect: one failed published E2E job, a paused slice 3 (stash, repair agent about 10 min, restore) and one test repair. - Inference: `phone_reading.feature` also chooses PDF blocks, so a search of `e2e_test/features/book_reading/` for scenarios that choose a block would have listed it. Same root cause as the entries above (proof chosen by edited area); the actor was the coordinator's delegation. The failure itself needed a taller-than-stock window, so local runs could not have shown it.
-- Earlier occurrence details: 2 additional recorded rows in `8830c682704aac3bbb34bf9b1204da8feba042ca:DearDough.md`; these are historical evidence, not new occurrences.
-- Execution: SEED-063#story-1 / slice-plans/007-track-property-values-separately / 8eaaf2b720; Timestamp: 2026-09-30T21:39:52+08:00 (slice 8 commit eead7350eb; failure reported after publication); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.50. - Evidence: slice 8 changed reduce from writing a suffixed `key 2` to appending a value; its delegation and plan named only backend tests (`RelationControllerReduce*`, `*Relation*`, ...). CI run 36723317159 attempt 1 failed `e2e_test/features/relationships/relationship_edit_and_remove.feature` "Reducing to source property uses a suffixed key when the property already exists" (expected the list content to include `a part of 2: '[[Mars]]'`); repaired in f07ff79425. - Observed effect: one failed published E2E job; slice 9 paused (repair stash, repair agent, refactor agent, restore). - Inference: a search of `e2e_test/features/` for the retired behavior (`suffixed`, `a part of 2`) when planning or delegating slice 8 would have listed the scenario; the plan's "Tests to extend" list covered unit and controller tests only.
-
-- **Watch start:** 2026-10-07 (date-only, Asia/Tokyo; the locator dates the use, not its exact observation time); Open Dough plan 267 / `ed9a306e`, Claude Code / 0.3.57: the coordinator ran five reached specs before the slice 1 publication, 15 passed. Later type-only refactor misclassification is separately active as ODF-217; the coordinator reran and rejected that change before publication. This establishes consumer-gate use, not correct refactor judgments.
-- **Review after:** 2026-10-14.
-- **Last assessed:** 2026-10-09, Asia/Tokyo; all three current logs and their retained execution locators checked. No supported recurrence of this exact fixed mechanism. Coverage is limited to the named real use; installation dates are not the start.
+  - Evidence: plan 296 slice 6 accepted-proof note "other exceptions propagate leaving `running` (slice 8)"; slice 8 delegation and proof addressed restart recovery and recording faults; retrospective finding F1 and correction plan `297-sharadar-daily-update-fault-recovery`.
+  - Observed effect: a story promise ("a failure … ends that run … the next daily occurrence can try normally") was delivered incomplete and needs a correction story.
+  - Inference: a deferral recorded in an accepted note should be copied into the receiving slice's text (as was done for slice 5's waiting gap into slice 7) before that slice is delegated.
 
 <a id="odf-200"></a>
 
@@ -294,7 +270,129 @@ Recurrence of former DD-172 (`99fa1b9835e3dff2473837ba2a1f8b11967d5938:DearDough
 
 - **Watch start:** 2026-10-07 (date-only, Asia/Tokyo; the locator dates the use, not its exact observation time); Open Dough plan 264 merge `fefab16d` installed 0.3.57 during execution; the next delivery refused missing `--mode` and the explicit Story Branch retry was accepted. Earlier lookup/refusal reports predate the fixed scripts. No later unreviewed trunk publication is evidenced.
 - **Review after:** 2026-10-14.
-- **Last assessed:** 2026-10-09, Asia/Tokyo; all three current logs and their retained execution locators checked. No supported recurrence of this exact fixed mechanism. Coverage is limited to the named real use; installation dates are not the start.
+
+
+- **Last assessed:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
+
+<a id="odf-201"></a>
+
+## ODF-201 — Codex stream leaves delivered failures unacknowledged
+The Codex stream binding notifies CI failures without advancing the durable delivery cursor, so completion retains shutdown for failures already repaired.
+
+- **Follow-up:** released in 0.3.57; under observation, not resolved.
+- **Response / limit:** First released in 0.3.57: the documented Codex binding acknowledges each notified batch through `ci-mailbox.mjs acknowledge`; a record never notified still retains shutdown. Native Codex evaluation (paid, manual) not yet run. Before it: nine Open Dough Codex executions, latest 0.3.54.
+
+- **Release verification (2026-10-09):** Relevant response diff inspected; the first containing tag for 8ac67735 is `v0.3.57` (`b7962d57`, released 2026-10-07T07:31:16+09:00). All three projects adopted 0.3.57 on 2026-10-07 (Open Dough `69f22b57`, Pygardon `f536bb693`, Doughnut `4a4900df07`). Installation alone does not establish effectiveness or a watch start.
+- **New report:** Open Dough / DD-242, plan 262, describes the same missing durable acknowledgment, but execution release and modified revision are unknown. Inspection of the released binding shows the acknowledgment added by `8ac67735`; the report describes the old no-ack binding. Retain the report without inferring post-0.3.57 failure.
+
+- **Watch start:** 2026-10-10 (date-only, Asia/Tokyo), release 0.3.57. Open Dough plan 281, first implementation `652036be`; `88fed85b:.planning/slice-plans/281-review-merged-one-shot-change/CI-REPAIR.md` records the matching Codex observer `watch-lAm58a` with `delivery.json` acknowledged through sequence 7, including owned failure records 1–6.
+- **Review after:** 2026-10-17.
+- **Last assessed:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. Durable acknowledgment evidenced; raw original notify history/timing unavailable; later terminal transport loss belongs to ODF-121. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
+
+### Retained source evidence — open-dough (2026-10-09)
+
+**Source:** [open-dough / ODF-201 — Codex stream notifications leave handled failures unread at completion](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-201--codex-stream-notifications-leave-handled-failures-unread-at-completion).
+
+Former local code: DD-200.
+
+Former branch-local code: DD-198; moved with this execution’s findings after the concurrent allocation collision.
+
+The Codex stream binding delivered failure notifications, but neither its consumer nor the stream worker advanced the mailbox's durable delivery cursor. After both failures were repaired, completion returned green CI while retaining shutdown for those same unread events. The worker was live and the stale events were actual repaired CI failures.
+
+
+
+### Occurrences
+
+- Execution: `SEED-052#start-codex-refinement-from-dashboard` / plan 189, first related implementation commit `05f3e4a9fa018eba5be122b729f5b78f0e4cce70`
+  - Timestamp: unknown (2026-10-01 execution completion)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-kA6yM3`, cell5. `complete-revision` for `cca873af2766128d3409db6c47c1a8beea39a7f6` returned exact success (run36793490950/attempt1) and shutdown retained/unread_actionable_failure for runs36750057215 and36790537801. Installed `readDeliveryProgress` returned deliveredThrough0; only sequences1/2 existed, matching those handled failures and published repairs a8c8d27/3fdae6f. `ci-notify-codex.md` consumer calls notify; `streamMailboxWorker` prints records; neither calls recordDeliveryProgress. Coordinator verified identity/event tuples and acknowledged exactly1/2 through the installed export.
+  - Observed effect: Completion could not confirm shutdown despite green CI and previously accepted repairs; another records/recovery boundary was needed.
+  - Inference: Durable delivery acknowledgment is missing in this adapter path. CI provider health and product behavior did not cause this retained shutdown.
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: unknown (2026-10-01 human-judgment stop and authorized resume)
+  - Tool: Codex
+  - Open Dough release: unknown; coordinator installed VERSION 0.3.51
+  - Evidence: observer watch-kaShmz, cell19/session4531/PID3443, stopped receipt recordedThrough2/deliveredThrough0/unread2. Sequence2 was own run36813260082/attempt1 on slice4 8020eb2, already corrected by slice5 ca12038b; trace tied the timeout to raw HTTP awaiting a WebSocket upgrade. Root inspected both events and used installed recordDeliveryProgress to acknowledge exactly2 after the clean CI-repair save/restore returned resumed. [Execution account](https://github.com/terryyin/open-dough/blob/6dc872978d0ca93fc17a52f9893a6f2a55850b1e/.planning/slice-plans/192-complete-codex-dashboard-sessions/NATIVE.md#resumed-observer).
+  - Observed effect: delivered historical failure still required durable acknowledgment after shutdown; no new repair was manufactured. The same binding was rearmed only after old PID exit.
+  - Inference: this second execution reproduces the adapter cursor gap. Notification arrival timing alone does not establish a separate provider defect.
+
+- Execution: `SEED-066#align-one-shot-callers-with-review-default` / plan 196, first related implementation commit `e4902583ce1e737a19f26ecd18bc437e3b68a751`
+  - Timestamp: unknown (2026-10-01 execution)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-JOgwzs`, cell14/session82933/PID52346 delivered sequences1/2: run36839722302/attempt1 on bfec4af and run36841489154/attempt1 on 76969a1c. Repairs 76969a1c/6726e8c were accepted. Installed readDeliveryProgress still returned deliveredThrough0; readMailbox/readMailboxEvents confirmed exact checkout/repo/branch and only those two event tuples. Coordinator used installed recordDeliveryProgress after verifying both handled events; acknowledgment returned sequences1/2 and deliveredThrough2.
+  - Observed effect: proactive recovery required an explicit durable acknowledgment before completion; no blocked completion or additional product repair is claimed in this occurrence.
+  - Inference: the notification adapter's same cursor gap recurred; message delivery alone did not persist acknowledgment.
+
+- Execution: `SEED-076#session-after-workspace-retirement` / plan 201, first related implementation commit `33eb0b69afbca8db3cc860f5d6ca2d9dd74aa17f`
+  - Timestamp: unknown (2026-10-01 execution, three CI repair boundaries)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-qG1qAV`, cell42/session72248/PID16942 delivered sequences1–4: run36861023410/attempt1 on34fd7257, run36862248330/attempt1 on130e8a6d, run36865996491/attempt1 on84b26724 and run36866430369/attempt1 on9b982761. Repairs130e8a6d/bc98c4ac were accepted; the last two attempts had the same verified startup-fixture framing cause. The installed Codex binding extracts record.event and calls notify, without retaining sequence or advancing delivery progress. Root used installed readMailboxEvents/readDeliveryProgress to match the handled event tuples and recordDeliveryProgress to acknowledge exactly1, then2, then3/4; final deliveredThrough4, remaining[]. [Execution proof](https://github.com/terryyin/open-dough/blob/74b5f149edc174ba641e721b2b21d061d07ba891/.planning/slice-plans/201-session-after-workspace-retirement/PLAN.md) retains the diagnosed repairs.
+  - Observed effect: each delivered, handled failure required explicit durable acknowledgment before completion. No blocked completion or additional product repair is claimed for this occurrence.
+  - Inference: the same adapter cursor gap recurred. Process proposal remains ODF-201's existing unqueued acknowledgment-contract follow-up; this review does not change guidance.
+
+- Execution: `SEED-077#ci-independent-of-package-mirror-stalls` / plan 207, first related implementation commit `e98441593f71e722b032ab08203c43b43a4c1d56` - Timestamp: unknown (2026-10-02 completion operation) - Tool: Codex - Open Dough release: unknown - Evidence: retained observer `/tmp/dough-ci-501/watch-Mcfmhh`, cell14/session97439/PID47835; exact-revision completion for `43226774216f8d4eb3de0ec516a898d86212749e` returned success (run36947886626/attempt1) but retained shutdown for unread sequence1, run36942598744/attempt1 on `e9844159`. That event's attention-journey synchronization failure was already repaired by `7ab0732b` with deterministic red/green proof and passing run36943286746. Installed readMailbox/readMailboxEvents/readDeliveryProgress confirmed exact checkout/repo/branch and only this handled tuple; coordinator used recordDeliveryProgress to acknowledge sequence1, deliveredThrough1. - Observed effect: one completion receipt retained shutdown and required explicit durable acknowledgment, then repetition of the completion operation. No new product repair was needed. - Inference: the installed yielded Codex adapter's documented binding notifies record.event without persisting the delivery cursor, reproducing ODF-201. Keep its existing unqueued contract proposal; this execution changes no guidance.
+
+- Execution: `SEED-081#codex-session-model-and-effort` / plan 211, first related delivery commit `bcaabd99c5f24bcffc9393f53c203c74589f2b7e`
+  - Timestamp: unknown (2026-10-02 execution/review handoff)
+  - Tool: Codex
+  - Open Dough release: 0.3.52 (installed at established start `20580ea2`)
+  - Evidence: yielded observer `/tmp/dough-ci-501/watch-x4nPTj`, cell19/session35356/PID69697 delivered sequence1, run36962208003/attempt1 on `9c0d6bb4`. After focused red/green repair and accepted `4a50e086`, installed readMailbox/readMailboxEvents verified checkout/repository/branch and that exact tuple; readDeliveryProgress still returned deliveredThrough0. Coordinator acknowledged only sequence1 through recordDeliveryProgress, then read back deliveredThrough1.
+  - Observed effect: one explicit durable acknowledgment was necessary after notification handling; retained shutdown was avoided before completion. No unseen evidence was cleared.
+  - Inference: the notification/cursor gap matches ODF-201. This occurrence does not claim a failed shutdown receipt; existing contract follow-up remains unqueued and guidance unchanged.
+
+- Execution: `SEED-082#dashboard-development-and-production` / plan 213, first related implementation commit `4e076e11ea761a98f8c401e69102228cb8f0b693`
+  - Timestamp: unknown (2026-10-02 CI repair and execution/review handoff)
+  - Tool: Codex
+  - Open Dough release: 0.3.54 (unchanged installed VERSION at established start `4fe8c7a4`)
+  - Evidence: yielded observer `/tmp/dough-ci-501/watch-HB2kLV`, cell105/session35081/PID79031 delivered sequence1, run36978829120/attempt1 on `e5fe8a7c`. A fresh agent reproduced the startup test's disposed-response race and repair `0e88f0162b06f151444dd3588345d08279df6c62` passed held red/green, both original tests and typecheck; managed delivery reused the observer. Installed readMailbox/readMailboxEvents verified exact checkout/repository/branch and event identity; readDeliveryProgress remained deliveredThrough0. Coordinator acknowledged exactly sequence1 through recordDeliveryProgress and read back deliveredThrough1, remaining[].
+  - Observed effect: one explicit durable acknowledgment was necessary after handling the delivered failure. No failed shutdown receipt is claimed. Execution completion for `96b67c5` returned exact CI success (run36980585327/attempt1) and confirmed shutdown; spent plan recovery: `96b67c5cd28230a3a2f822885bf2ba06a299953d:.planning/slice-plans/213-dashboard-development-and-production/PLAN.md`.
+  - Inference: matches ODF-201's notification/cursor gap. Keep the existing unqueued contract proposal; this review changes no guidance.
+- Execution: `SEED-041#deliberate-implementation-dependencies` / plan 216, first related implementation commit `8bb73be064a7778470389bd5a458fb70f5a96962`
+  - Timestamp: unknown (CI repair after slice 2)
+  - Tool: Codex
+  - Open Dough release: 0.3.54 (installed execution guidance)
+  - Evidence: `/tmp/dough-ci-501/watch-7PZYuD` delivered sequences 1–3 for run 36997893525/attempt 1 on `29bd2aa`; the Codex stream binding notified event payloads without advancing durable delivery. Coordinator inspected the exact SHA/run/attempt/job tuples and used installed `recordDeliveryProgress` to acknowledge only those handled notifications; repair `a049909` was published. Completion later retained sequence 1 in `watch-cWrqJu`, run 37003387678/attempt 1 on `ce8b9df`, job 110825968667; the coordinator inspected the responsive keyboard failure and acknowledged exactly that delivered sequence while its passing repair underwent independent review.
+  - Observed effect: explicit durable acknowledgment was needed beyond stream delivery. No unseen failure was discarded.
+  - Inference: same adapter acknowledgment gap; keep the existing unqueued proposal. Internal delegated reasoning is unavailable, so no broader process-cost claim is made.
+
+- Execution: `SEED-083#persistent-dashboard-project-configuration` / plan 215, first related implementation commit `62c03b0083f1e6a65f42a2151c800eaa8923bc9f`
+  - Timestamp: unknown (2026-10-02 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.54 (installed guidance at published start `db6b0da`; unchanged throughout this execution)
+  - Evidence: `9c5b4fd8bb26e7f9bda1739199260d8c47928204:.planning/slice-plans/215-persistent-dashboard-project-configuration/PLAN.md`, Slice 4. Native observer `/tmp/dough-ci-501/watch-EQYhvD` notified sequences 1–2 for runs 36989187526/1 and 36993027579/1; installed readDeliveryProgress still returned deliveredThrough0. Coordinator inspected both exact identities and acknowledged only that handled prefix through recordDeliveryProgress; unseen events remained unread. Later inspected events 3–6 covered the same diagnosed failures on 9c5/dc8; after focused red/green repair and independent review, the installed export advanced only through sequence6. Wrap-up trunk observer lRHJqz later notified sequences1/2 for run37001581515/1 on 46b0431; readDeliveryProgress still returned0. After inspecting both failed-job identities and accepting focused repair/independent review, the installed export acknowledged only that handled prefix through2.
+  - Observed effect: Delivered and handled failures still required separate durable acknowledgment before completion. No retained-shutdown failure is claimed for this occurrence.
+  - Inference: The same notification/acknowledgment gap recurred; the installed export provided bounded recovery without changing guidance.
+
+- Execution: `SEED-113#show-available-facts-promptly` / plan 260, first related implementation commit `cba2dedfe40de7bf9c7956e974b2021c279cd5fe`
+  - Timestamp: unknown (2026-10-06 execution/CI handoff)
+  - Tool: Codex
+  - Open Dough release: 0.3.56 (installed guidance unchanged since accepted Take `ead6c3a6`)
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-5B7G8A`, cell138/session91572/PID66922. Completion for `f62292cd5748681bd54514e0c3fed49ddfe29024` used successful basis `eaa279dc026764cdb96d5abe54d7d8533163af08`, but retained shutdown/unread_actionable_failure for sequences1/3, runs37418870176/1 and37421684885/1, jobs112123517311/112132216439. Installed readMailbox/readMailboxEvents verified exact checkout/repo/branch and deliveredThrough0; the documented binding notifies record.event without retaining its sequence or recording delivery progress. Fresh diagnosis, independent refactor and deterministic proof produced accepted repair `7da9f1533316187860cb318dcac81238a6a538b6`; the clean repair restore returned resumed. Coordinator acknowledged only handled sequence1 through installed recordDeliveryProgress; deliveredThrough1 leaves sequences2/3 unread. Sequence2, cancelled run37420000326/1 on9baca4db, has thirteen unexplained preceding failures without a retained shard trace; its disposition remains open. [Execution evidence](https://github.com/terryyin/open-dough/blob/dc41662d1cc60505be39889aad511122907eb364/.planning/slice-plans/260-available-dashboard-facts/PLAN.md#ci-repair-and-unresolved-verification).
+  - Observed effect: one successful-CI receipt retained shutdown and required diagnosis, repair and explicit durable acknowledgment. The first receipt did not establish that historical failures were already repaired. No final execution/CI completion is claimed.
+  - Inference: same adapter cursor gap as ODF-201. This does not establish notification-arrival timing, worker loss, or a common CI-provider cause; internal delegated reasoning remains unavailable. Existing delivered/unreleased follow-up and guidance are unchanged.
+
+**Source:** [open-dough / ODF-201 — The Codex observer binding has no durable failure acknowledgment step](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-201--the-codex-observer-binding-has-no-durable-failure-acknowledgment-step).
+
+Former local code: DD-242.
+
+The prescribed yielded-stream binding forwards events with `notify` but never updates the mailbox's delivery progress. Completion separately treats unacknowledged failure events as actionable, even after a coordinator has classified and repaired them.
+
+
+
+### Occurrences
+
+- Execution: `SEED-114#session-column-membership` / plan 262, first related implementation commit `1f06b04d256536d55aa99670b8033b4fa1c09613`
+  - Timestamp: unknown (after completion's failed receipt for `70b6f62a`, before its CI repair)
+  - Tool: Codex
+  - Open Dough release: unknown (execution-time installed guidance provenance not retained)
+  - Evidence: retained observer `/tmp/dough-ci-501/watch-XLyt1z` had seven CI_FAILURE events for attempts `37427204231/1`, `37431359551/1`, `37432066761/1` and no `delivery.json`. The installed `ci-notify-codex.md` binding calls `notify` without `recordDeliveryProgress`; `ci-mailbox-complete.mjs` gates shutdown on `unreadActionableFailures`. After bounded log classification of all attempts, the coordinator used the installed exported store API to acknowledge exactly those seven events, preserving later events and the live repair observer.
+  - Observed effect: one additional mailbox/source inspection and explicit acknowledgment outside the prescribed Codex binding. The first completion receipt itself correctly retained the observer for the failed revision.
+  - Inference: Qualified. Source inspection shows that a later green completion would still retain this mailbox for unread failures without acknowledgment. That later refusal was prevented, not observed; absence of progress does not by itself establish that a notification was delivered to the model.
 
 <a id="odf-202"></a>
 
@@ -486,4 +584,5 @@ The managed delivery CLI can declare the Codex bridge ready, while the documente
 
 - **Watch start:** 2026-10-08 (date-only, Asia/Tokyo; the locator dates the use, not its exact observation time); Open Dough plan 277 / `18a159ee`, Codex / 0.3.57: retained yielded cell 8, session 81005, `watch-XlowzV`; published increments reuse that exact observer (`9d4034ce^:.../277-review-selected-commits/PLAN.md` and CONTEXT.md). Matching route exercised; failure acknowledgment and replacement after loss are not established by this evidence.
 - **Review after:** 2026-10-15.
-- **Last assessed:** 2026-10-09, Asia/Tokyo; all three current logs and their retained execution locators checked. No supported recurrence of this exact fixed mechanism. Coverage is limited to the named real use; installation dates are not the start.
+
+- **Last assessed:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
