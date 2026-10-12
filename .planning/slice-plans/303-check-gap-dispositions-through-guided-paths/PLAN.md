@@ -3,196 +3,244 @@
 **Identity:** SEED-132#check-gap-dispositions-through-guided-paths
 **Source:** [selected story](../../seeds/SEED-132-acceptance-follows-reachable-behavior.md#check-gap-dispositions-through-guided-paths)
 
-## Goal and scope
+## Goal, scope and decisions
 
-A developer receives the promised story behavior when a return reports a
-limitation: acceptance checks the relevant paths before closing it as `no user
-cost` or `proved`. A reachable contradiction or missing observation stays with
-an explicit owner; a justified harmless limitation closes with proportional
-inspection. Preserve independently accepted proof and human ownership of scope.
+Before closing a reported gap as `no user cost` or `proved`, check the selected
+story's promise against the relevant producing and consuming entry, continuation,
+failure/recovery and handoff paths. Keep contradictions or missing observations
+owned; close demonstrated harmless limits proportionately. Preserve gap IDs,
+original text/provenance, valid receiving/interim owners, genuine exclusions,
+developer-authorized changed promises and independently accepted proof. Neither
+a narrower plan nor the return's stated cause defines the whole promise.
 
-Implement one common judgment rule for the entry, continuation, failure/recovery
-and handoff paths relevant to a reported state. Do not turn those categories
-into mandatory entries for every slice. Preserve obligation IDs, original
-reported text and provenance, existing dispositions, genuine exclusions and
-changed-promise authority. Update ODF-223 with the response and its evaluated
-limits during delivery; implementation does not itself resolve the finding.
+Implement one common judgment rule, without mandatory path inventories,
+per-path records, a new obligation schema or a second acceptance record. Update
+ODF-223's response and evaluated limits; delivery alone does not resolve it.
+Historical integration/worktree repairs, the sibling's indirect-consumer proof,
+general graph discovery, native integration machinery and a release are outside
+this delivery. No North Star topic, ADR decision or exception is needed.
 
-Historical integration/worktree repairs, indirect consumer-proof selection
-(the sibling story), general graph discovery, a new obligation schema, native
-host integration machinery, and a release are not delivery commitments.
-
-## Existing solutions and current decisions
-
-PFE places this responsibility in
-[story-obligations.md](../../../src/skills/dough-execute-plan/references/story-obligations.md),
-reached from [Accept proof](../../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof).
-That reference already owns gap identity, story clauses, dispositions and
-receiving/interim ownership. Strengthen its judgment before closure and link
-from acceptance where needed; keep one authoritative procedure. The selected
-story, not a narrowed plan or a return's stated cause, supplies the promise.
-
-The [record checker](../../../src/skills/dough-execute-plan/scripts/story-obligations.mjs)
-and [reader](../../../src/skills/dough-execute-plan/scripts/story-obligation-reader.mjs)
-validate grammar, quotes and ownership. They cannot infer arbitrary projects'
-reachable behavior. Reuse them unchanged unless implementation discovers a
-concrete compatibility need. No new mandatory field, per-path entry or second
-acceptance record is needed: use the existing disposition reason/proof location
-and ordinary acceptance evidence for the inspected path and result.
-
+PFE selects [story-obligations.md](../../../src/skills/dough-execute-plan/references/story-obligations.md),
+reached from [Accept proof](../../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof),
+as the authoritative judgment/ownership procedure. Use its existing disposition
+reason/proof location and ordinary acceptance evidence. Keep the
+[checker](../../../src/skills/dough-execute-plan/scripts/story-obligations.mjs) and
+[reader](../../../src/skills/dough-execute-plan/scripts/story-obligation-reader.mjs)
+unchanged unless a concrete compatibility need appears: they validate grammar,
+quotes and ownership, not arbitrary projects' reachable behavior.
 [Executable proof](../../../src/skills/dough-story-refinement/references/executable-proof.md)
-already owns sufficient observations and evidence reuse;
-[delegation](../../../src/skills/dough-execute-plan/references/delegation.md)
-passes open obligations; completion and replanning already check or transfer
-them. Use those boundaries rather than copying their rules. The older
-`tests/support/delivery-evidence-gaps-native-*` helpers assess readiness/requeue
-proof omissions, not these guided-path decisions; their passing results would
-not prove this story. Do not broaden that harness solely to manufacture a pass.
+owns evidence sufficiency/reuse; delegation, completion and replanning already
+carry obligations. The older `tests/support/delivery-evidence-gaps-native-*`
+readiness/requeue harness cannot prove these decisions; do not broaden it for a pass.
 
-Follow [AGENTS.md](../../../AGENTS.md)'s representative behavior review and
-source ownership. Author runtime changes only under `src/skills/`; installed
-managed copies remain untouched. Relevant Accepted decisions are
-[ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md),
-[ADR 0005 — Cross-tool validation through native acceptance stories](../../../docs/adrs/0005-cross-tool-validation-accepted.md),
-and [ADR 0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
-Use direct project-relative instructions and one shared behavior across hosts.
-The ADR index agrees with their in-file status. The existing
-[North Star](../../NORTH-STAR.md) adds no new gap-disposition responsibility;
-no architectural decision, exception or new topic is needed.
+Follow [AGENTS.md](../../../AGENTS.md): edit runtime guidance only in `src/skills/`,
+keep installed copies untouched, and review discovery, required project context
+and a useful outcome. Relevant Accepted decisions (index/in-file statuses agree):
+[ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md),
+[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md),
+[ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+Use one shared source and direct project-relative instructions across hosts.
 
-## Decisive premises and preparation observations
+## Preparation observations
 
-Observed on 2026-10-12 in
-`/Users/terryyin/git/open-dough/.worktrees/check-a-reported-gap-against-the-paths-the-story`,
-base `a54368f58f0f4cdd9f267db80a45f82e700132ac`, Node v24.21.0. Ran the documented
-`node scripts/setup-native.mjs npm`, `browser` and `check` stages successfully;
-the check launched and closed Chromium 153.0.8010.12. This is local test setup,
-not native Codex/Cursor/Claude behavior evidence.
+On 2026-10-12 in this execution checkout, base
+`a54368f58f0f4cdd9f267db80a45f82e700132ac`, Node v24.21.0, documented
+`node scripts/setup-native.mjs npm`, `browser`, `check` succeeded; the check
+launched/closed Chromium 153.0.8010.12. This is local setup, not native host proof.
 
-1. **The current structural check cannot settle the disposition.** An owned
-   temporary fixture held a selected story clause, one planned slice, and a G1
-   report that capture is absent when trunk already contains the tip. With the
-   same story/report, invoked the consuming CLI literally as
-   `node src/skills/dough-execute-plan/scripts/story-obligations.mjs check --plan <owned-temp>/PLAN.md --slice 1`.
-   Results:
+An owned temporary fixture used `[story](story.md#selected)`, story
+`The developer can review the story after accepted integration.`, its normalized
+clause without the period, one slice, and G1 report
+`Capture is absent when trunk already contains the tip.` Ran literally
+`node src/skills/dough-execute-plan/scripts/story-obligations.mjs check --plan <owned-temp>/PLAN.md --slice 1`:
 
-   | Disposition supplied | Observed result |
-   | --- | --- |
-   | `no user cost "The developer can review the story after accepted integration": only other means can produce this state` | Exit 0, `ok: true`, `entryCount: 1`, with no path evidence supplied |
-   | `proved by slice 1: missing-proof.mjs` | Exit 0, `ok: true`, despite the named file being absent |
-   | `return` | Exit 1, `open-obligation`, G1 owned by slice 1 |
-
-   The story text was `The developer can review the story after accepted
-   integration.`; its normalized clause omitted the final period. The source
-   was `[story](story.md#selected)`, with the selected anchor in that sibling
-   file. The report was `Capture is absent when trunk already contains the
-   tip.` These inputs reproduce the observation without any product edit.
-   The temporary fixture was deleted before this plan was written. This
-   observes the checker's intended boundary, not a checker defect or a fresh
-   reproduction of the historical product failures.
-2. **Existing format/boundary proof runs here.**
-   `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations.test.mjs`
-   exited 0 with empty output. Inspected setup/assertions in the guidance test
-   exercise reading, listing, rejection of open obligations, and closure via a
-   supplied proof location. They do not execute an agent's semantic judgment;
-   do not claim them as the behavioral proof for the new rule.
-3. **The reported failures have retained acceptance checkpoints.** Read the
-   original G5 in plan 292 at `1d2de5da4b38eb379caa25da45e9254c42949795`, G9 in
-   plan 296 at `0ff0e2421c6260ef25d584323d62b86c51758f3b`, and G3 in plan 295 at
-   `1417faf986a208084aa0a774ed3dd27f917bbb05` using
-   `git show <revision>:.planning/slice-plans/<plan-directory>/PLAN.md`.
-   [ODF-223](../../../docs/maintainer/finding-names.md#odf-223) retains the exact
-   paths, returns, post-acceptance observations and provenance. The decisions
-   respectively closed absent capture as costless, ruled out two authors from
-   start alone, and called the whole merge gap proved from the initial guard.
-   These are retained historical results, not newly run failures of today's
-   repaired products. The approach depends on improving their acceptance
-   judgment, not on those old product defects still existing.
-
-No native host, paid service or live destructive operation is required to
-settle the planned guidance location and local proof route. Native behavioral
-coverage is not inferred from the observations above.
-
-## Outside-in proof ownership
-
-All rows belong to slice 1. Use the selected story's four examples as the
-representative behavior review. Before evaluating a historical case, recover
-its original story clause, return, relevant guidance and accepted proof from
-the catalog's revisions. Preserve the checkpoint and any existing later owner;
-do not substitute a fresh slice with missing happy-path proof. Keep expected
-dispositions in the review criteria, not an agent-use prompt if a native run is
-chosen. Record whether evidence is recovered, a constructed control, a current
-walkthrough or a fresh native observation.
-
-| Promise | Observable acceptance result |
+| Disposition | Observed result |
 | --- | --- |
-| Hand-resolved integration is considered even when the return says “other means” | Follow the original conflict instruction through hand resolution and accepted push to capture/review. Name the contradictory promise and return it or retain its valid open owner; do not close it from happy-path proof. |
-| Handoff states are not limited to what one start creates | Follow requeue and another agent's Take while the prior worktree survives. Compare with the actual card-agent requirement, and keep the false ambiguity open. A fresh-start-only explanation fails this review. |
-| `proved` covers the guided continuation | Trace the foreign-merge refusal, guided commit and rerun to the preserved-work result. A passing first guard cannot close the later loss; return the contradiction or name the missing terminal observation and owner. |
-| Harmless gaps close proportionately | Use the story's constructed diagnostic-order control. Inspect the relevant paths to establish that order neither reaches the user nor chooses/mutates work; accept the concrete costless reason. Record the inspection and any new commands, and reject a blanket rerun or unrelated obligations as added cost. |
-| Identity, ownership and valid evidence survive | Each bad decision retains its G ID, original quote and provenance, with an appropriate existing disposition. A valid receiving/interim owner stays attached; genuine story exclusion/authorized change stays authoritative. Unknown evidence keeps only the dependent promise open. Sufficient current proof closes it without another approval. |
-| The response is evaluated honestly | Compare each reviewed decision with ODF-223's retained unsupported decisions. Record useful outcomes and additional work, implementation SHA, release only when known, and remaining behavioral/native evidence limits in ODF-223. Keep it unresolved unless later evidence supports resolution. |
+| `no user cost "The developer can review the story after accepted integration": only other means can produce this state` | Exit 0, `ok: true`, `entryCount: 1`, no path evidence |
+| `proved by slice 1: missing-proof.mjs` | Exit 0, `ok: true`, named file absent |
+| `return` | Exit 1, `open-obligation`, G1 owned by slice 1 |
 
-These observations evaluate what following the changed instruction requires.
-A wording assertion, checker success, entry count or self-reported understanding
-alone cannot pass the behavior review. If the trace depends on an uncertain
-runtime fact, use the smallest safe isolated observation or leave that example
-unproved; do not close it with new reasoning of the same unsupported kind.
+The fixture was deleted before planning. This establishes the checker's intended
+boundary, not a checker defect or a fresh historical product failure. The focused
+record/wiring command below also passed (exit 0, empty output) during preparation;
+its read/list/open-refusal/supplied-proof assertions do not observe semantic judgment.
+The historical checkpoints below were recovered with `git show <revision>:<path>`.
+No native host, paid service or destructive live action was needed for this proof route.
+
+## Proof ownership
+
+Slice 1 owns every row. Recover each original story, return, guidance, accepted
+proof and existing later owner; preserve the actual checkpoint rather than
+constructing a fresh slice missing happy-path proof. If choosing a native run,
+keep expected decisions in review criteria, outside its agent prompt. Label
+recovered evidence, constructed controls, current walkthroughs and fresh native
+observations accurately. Unknown runtime facts need the smallest safe observation
+or remain unproved; wording, entry counts, checker success and self-report cannot pass.
+
+| Promise | Required acceptance observation |
+| --- | --- |
+| Hand-resolved integration | Follow conflict guidance through resolution, accepted push and review; return missing capture or preserve its valid open owner |
+| Handoff beyond one start | Follow requeue/another Take while the old worktree survives; compare with the card-agent requirement and retain false ambiguity as open |
+| Guided continuation | Follow foreign-merge guard, commit and rerun; initial preservation alone cannot prove the terminal result |
+| Harmless closure | Inspect diagnostic order's producer/consumers; establish no user exposure, selection or mutation; close without unrelated obligations/reruns |
+| Identity and authority | Retain G IDs, quotes/provenance, valid receiving/interim owners, exclusions and authorized changes; missing evidence affects only its dependent promise |
+| Honest evaluation | Compare decisions with ODF-223, record extra work, implementation SHA, release when known and remaining limits; do not resolve it from delivery |
 
 ## Ordered slices
 
 ### 1. Acceptance closes a reported gap only when its relevant paths support closure
 Type: Behavior
-Status: planned
-Proof: the mapped representative walkthroughs, preserved record/boundary checks,
-and ODF-223's response evaluation.
+Status: done
+Proof: mapped representative walkthroughs, preserved record/boundary checks and ODF-223 evaluation.
 
-Behavior: given a return proposing `no user cost` or `proved`, acceptance checks
-the selected story promise against relevant producing and consuming paths.
-A reachable contradiction or unobserved promised result retains an explicit
-owner; a demonstrated harmless limit or sufficiently proved behavior closes
-without unrelated work or repetition of accepted observations.
+Strengthen the existing obligation judgment and acceptance link. Read relevant
+paths through their consuming result; reuse sufficient evidence and obtain only
+missing observations. Review all three historical mechanisms and the harmless
+control as boundaries of one rule. Align only affected links/examples and record
+response/evaluation with implementation SHA once known. Run focused commands below
+through the project runner; add deterministic checks only for changed executable
+contracts or meaningful maintained examples, never phrase-pinning tests.
 
-Change the existing obligation judgment in place and keep its acceptance
-entry link clear. Read the relevant paths far enough to see the result, using
-existing proof and a missing observation only when needed. Include the
-three historical failure mechanisms and benign control in the same review;
-these are boundaries of one rule, not case-specific handlers. Align only
-actually affected reference links and documented examples. Record the
-response/evaluation in the finding catalog with the delivery commit once known.
+Walk discovery → required context → useful acceptance outcome, then the remaining
+examples. This conventional guidance change adds no discovery/integration
+mechanism: infer no all-host success. Any unresolved required native acceptance
+must remain linked active work before release. Safe stop: shared rule, useful
+review and evaluation deliver together, without a weaker intermediate rule or
+cleanup slice. Boundedness is one outcome/proof/cleanup loop; no numeric budget,
+hard limit or exception was supplied. Refinement found no independent hidden
+outcome or remaining slice-specific concern; preparation claims no future run.
+Execution retains independent refactor, focused proof, formatting, hooks and
+delivery gates; planning alone grants no Take or implementation.
 
-Run the two observed checks above through `scripts/test.sh` to preserve the
-executable record example and acceptance wiring. Add or change a deterministic
-check only for a changed executable contract or meaningful maintained example;
-avoid new tests that merely pin instruction phrases. If runtime links change,
-run `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/payload-declaration-links.sh`.
-Ordinary commit hooks remain required. The repository's guidance, not the CI
-job list alone, supplies these local checks; no dashboard-wide test run is
-justified for this guidance change.
+## Execution context
 
-Walk one representative invocation from discovery through required project
-context to the useful acceptance decision under AGENTS.md, and then assess the
-remaining examples above. This conventional guidance change introduces no host
-discovery or integration mechanism. Apply ADR 0005 when judging native evidence:
-reuse only applicable observations and make no all-host success claim from this
-review. Any native requirement found unresolved must remain explicit in linked
-acceptance work before affected release; it is not silently marked passed.
+Established publisher `dashboard-territory.local-open-dough`, agent `bas-chan`;
+Story Branch Mode, reused owned checkout
+`/Users/terryyin/git/open-dough/.worktrees/check-a-reported-gap-against-the-paths-the-story`,
+branch `codex/check-a-reported-gap-against-the-paths-the-story`.
+Default/integration checkout: `/Users/terryyin/git/open-dough`; remote `origin`,
+trunk `main`; increments target the execution branch. Starting revision
+`7765c8bc4ae7394f65919b514835fd0339672370`; claim/candidate
+`f81dffb23753d7a382e087daa7487184ee8a4129`, confirmed on remote trunk and story
+branch. Trunk claim CI is unobserved. Ordinary in-scope planning authority remains;
+no overrun replanning option selected. Formatting: `npm run format`; pre-commit
+is check-only staged lint, plus dashboard typecheck only for staged scripts.
 
-Safe stop: one shared judgment rule, its useful behavior review and response
-evaluation land together. No intermediate weaker rule or deferred cleanup
-slice. Boundedness is one coherent acceptance outcome and proof loop, including
-verification and cleanup; no numeric slice target or hard limit was supplied.
+Retained setup failed because locked Playwright was unavailable. On 2026-10-12,
+ran `node scripts/setup-native.mjs npm`, `node scripts/setup-native.mjs browser`,
+`node scripts/setup-native.mjs check` to success here (Chromium 153.0.8010.12),
+without locked metadata changes; check passed again on resumption.
+CI: GitHub Actions `terryyin/open-dough`, verified active `ci.yml`, workflow
+351271804, name `CI`, execution-branch target; same-checkout installed runtime
+`.agents/skills/dough-execute-plan`. Coordinator `bas-chan-seed132`:
+old `/tmp/dough-ci-501/watch-dkE49C`, PID 53753/session 71016/cell 11 stopped
+(unread 0, ended coverage, CI unobserved), PID exit and terminal stream accounted
+for. New observer `/tmp/dough-ci-501/watch-m7EMbR`, PID 30048/session 38871/cell 34.
 
-## Review and execution gates
+Independent refactor found no conceptual candidates, but its 250-line gate
+stopped the catalog/plan. The human rejected a narrow exception and authorized
+conciseness without information loss. Resume preserves claim/workspace/proof;
+condense this plan and organize complete finding records behind stable catalog
+anchors. Independent refactor completed: all 72 records preserve token order,
+194 external destinations, seven equivalent relative destinations and 72 parsed
+CommonMark headings/anchors. Index 169 lines; largest record 245; all 76 files
+within 250. Disposable verification script exited 0, inspected by coordinator
+before cleanup; source proof unchanged. `npm run format` and slice-obligation
+check succeeded. Slice 1 is done; candidate awaits commit/publication.
 
-Slice-plan refinement was not needed: the examples exercise one common rule,
-all final promises have an owner and an observable review result, and no
-additional structure or independent outcome is hidden in the slice. No remaining
-slice-specific concern was identified. Future walkthrough results and native
-use are not claimed by this preparation.
+## Slice 1 proof review
 
-Authorized execution uses the installed workflow's independent post-change
-refactor, focused proof, commit and delivery gates. Planning does not Take the
-story, implement the guidance, alter the sibling, or resolve ODF-223. This
-preparation changes only records; verify links, the recorder result and
-whitespace before landing.
+Current 2026-10-12 guidance walkthrough, not native-host execution:
+planned-work discovery → `Execute the next slice` → `wrap-up.md#accept-proof`
+→ `story-obligations.md#check-the-paths-before-closing-a-gap`. Inputs: selected
+Source story, reported gap, relevant project guidance/implementation and accepted
+observations. Missing selected source stops that decision; missing observations
+leave only dependent promises open. Checker does not invent semantic judgment.
+G5 is the representative useful-outcome review; G9/G3/control extend it.
+Historical IDs, exact quotes/provenance, accepted proof and later corrections stay
+at their checkpoints. Their product gaps are not adopted as this story's repairs.
+All three original stories are in `.planning/seeds/SEED-088-dashboard-story-code-review.md`.
+
+### Recovered checkpoints and current decisions
+
+- **292/G5**, slice 3, `1d2de5da4b38eb379caa25da45e9254c42949795`,
+  `.planning/slice-plans/292-landed-story-branch-review/PLAN.md`, story
+  `#review-merged-story-branch-changes`: “by other means” → unretained pair,
+  `landing.state: "unacknowledged"`, missing `landing-current.json`.
+  Required: “once remote trunk accepts the integrated SHA the handoff records
+  the pair”; old uncaptured-landings rejection excludes no new guided integration.
+  At that revision under `src/skills/`, inspected wrap-up's `story-branch-integration.md`
+  hand resolution, backlog's `merge-conflicts.md` adapter `continue` and execution's
+  `publish-the-candidate.md` exact push/acceptance. `history-preserving-candidate.mjs:constructCandidate`
+  always detaches to fetched trunk; `history-preserving-publication.mjs` retains
+  only after construction. After hand resolution/accepted push, `already-accepted`
+  capture sees ancestor tip but no retained pair. `dashboard/src/storyReviewLandedRun.ts`
+  admits the retired-workspace run; `dashboard/server/storyReviewLanded.ts:landedStoryReview`
+  returns `landing-unavailable`, no files. `story-review-story-branch-unavailable.spec.ts`
+  observes feedback, no files/Mark reviewed. Recovered retrospective also observed
+  conflict again on hand-resolved rerun. Needed slice-3 `return`; retain correction
+  294. Normal-merge receipt/base/revision/preparations/pins, fast-forward and
+  lost-push-answer assertions in `dashboard/tests/story-branch-landing-capture.spec.ts`
+  remain accepted for those paths, not hand resolution.
+- **296/G9**, slice 2, `0ff0e2421c6260ef25d584323d62b86c51758f3b`,
+  `.planning/slice-plans/296-trunk-mode-worktree-review/PLAN.md`, story
+  `#review-trunk-mode-story-worktree`: different-agent ambiguity dismissed from
+  one start. Required: “per-worktree author config names the card's agent”.
+  `product-backlog.mjs:place`/`product-backlog-place.mjs:placeEntry` authorized
+  `--return` moves queue membership without retirement or committed-profile changes.
+  Another Take via `execution-start-operation.mjs`/`workspace-publication-claim.mjs:stageAgentProfile`
+  writes/configures the new owner; old HEAD/config survives. `dashboard/server/localWorkspaces.ts:localWorkspacesOf`
+  reads each HEAD profile; `dashboard/src/storyReviewWorkspace.ts:reviewWorkspaceOf`
+  filters only source/identity. `storyReviewWorkspaceAdmission.ts:resolvedWorkspace`
+  yields false ambiguity; `reviewedWorkspace` refuses file/mark access (409).
+  Needed slice-2 `return`; retain correction 297. Same-agent ambiguity and
+  single-worktree specs remain valid; neither proves handoff nor permits replacing
+  the card's agent with “a known agent”.
+- **295/G3**, slice 2, `1417faf986a208084aa0a774ed3dd27f917bbb05`,
+  `.planning/slice-plans/295-resolved-integration-survives-reruns/PLAN.md`, story
+  `#resolved-integration-survives-reruns`: foreign merge's “commit it, then run
+  the same command” detaches/rebuilds; return explicitly marks it untested.
+  Execution's `preserve-published-history.md` directs that for any `uncommitted-merge`
+  and promises failed-run retention. `history-preserving-candidate.mjs:candidateInWorkspace`
+  guards every MERGE_HEAD; after commit, `headMerges` accepts only expected two
+  parents, else `mergedCandidate` checks out fetched trunk. Recovered scratch
+  observation: `published` names another SHA, foreign commit on no ref.
+  Needed slice-2 `return` for guidance/behavior; no later owner established.
+  `closure-story-uncommitted-merge-cases.mjs:assertPreservedThenPublished` observes
+  unchanged HEAD/MERGE_HEAD/index/status/branch and then publishes expected commit;
+  fixture supplies `closureSha`. Keep initial preservation/expected-merge proof,
+  without inferring foreign terminal proof. Adapter `refused-before-commit`
+  terminal subcase remains an unobserved historical dependent claim.
+
+### Constructed harmless control and limits
+
+Disposable immutable two-worktree model: `review` filters by card story/agent,
+returns selected workspace/content, collects diagnostics without consuming or
+exposing them, and mutates nothing. Entry/Refresh share that boundary. Executed
+`node --input-type=module` heredoc with `node:assert/strict`; exact code is in the
+implementation handoff. Opposite diagnostic orders both yield `current-tree` /
+`saved work`; worktree JSON unchanged; `internalDiagnostics` absent. Exit 0,
+`{"kind":"constructed-control","entry":{"workspace":"current-tree","content":"saved work"},"continuation":{"workspace":"current-tree","content":"saved work"},"workPreserved":true,"diagnosticOrderExposed":false}`.
+Supports costless closure for this constructed report, not dashboard/native proof.
+A path exposing/consuming order invalidates the reason. No product fixture, extra
+obligation or unrelated rerun was added.
+
+## Accepted focused checks
+
+Both commands completed with exit 0 and empty output; `git diff --check` also passed:
+
+```sh
+PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations.test.mjs
+PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/payload-declaration-links.sh
+```
+
+Inspected maintained Markdown example/read/list/open-refusal/closure, acceptance
+wiring, quote/ownership grammar, genuine exclusions/authorized changes and payload
+links. Planned/quick acceptance links reach the common judgment; delegation,
+delivery, completion and replanning retain the unchanged record. No schema,
+reader/checker, host mechanism or installed copy changed. Historical product,
+dashboard-wide and older native harness suites were not rerun: no executable or
+rendered contract changed. Tests preserve boundaries, not semantic/native judgment.
+Extra work: three historical traces, small control and authorized record concision.
+Native follow-through/recurrence prevention remain unobserved; no release claim.
+ODF-223 stays unresolved; implementation SHA awaits delivery.
