@@ -130,14 +130,28 @@ implementation or scratch edit is retained in this preparation.
 - Slice 3 accepted on origin execution branch:
   `d465a827be2a7162ae0ea05b621496537a3d27ab`, suffix base
   `ef370423642958deb1f7aa151d17f5a4aefdde84`; observation reused.
+- Slice 4 accepted on origin execution branch:
+  `65a03c49056f81343e2b17d4c83fa9c9f496313f`, suffix base
+  `80affc7edb6033b723e32b11cbc1ddd68dd2d0e6`. Its initial receipt reported
+  lost observer coverage; managed resume confirmed acceptance without a push
+  and recovered observation on the current stream.
+- Owned gesture-proof CI repair accepted on origin execution branch:
+  `63ca444fe4b5d736a9e4ff3bcda2029556e7cb8b`, suffix base
+  `65a03c49056f81343e2b17d4c83fa9c9f496313f`; observation reused.
+- Owned header-reading CI repair accepted on origin execution branch:
+  `95419ae267a41dd625612b46a9cd734ddd0d3ef1`, suffix base
+  `63ca444fe4b5d736a9e4ff3bcda2029556e7cb8b`; observation reused.
 - Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
   in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
   Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
 - CI: GitHub Actions `ci.yml`, verified display name CI, repository
   `terryyin/open-dough`; target is the published execution branch above.
   Codex observer coordinator `mobile-dashboard-davidko`, directory
-  `/tmp/dough-ci-501/watch-LsfZJ7`, PID 51685, stream session 24057,
-  yielded cell 6. The earlier claim on trunk is unobserved by this stream.
+  `/tmp/dough-ci-501/watch-V2jZ70`, PID 82271, stream session 47438,
+  yielded cell 29. The earlier claim on trunk is unobserved by this stream.
+  Slice4 publication found the intermediate `watch-LsfZJ7` stream lost across
+  session continuation; exact stop confirmed worker exit, zero unread evidence
+  and lost coverage before rearming the same coordinator.
   On 2026-10-13 recovery, the prior stream at
   `/tmp/dough-ci-501/watch-b4sk3D` had no live worker or terminal result;
   exact stop recorded lost coverage with zero unread events. Its registered
@@ -473,7 +487,7 @@ proof was preserved through installed pause/stash protocol.
 
 ### 5. Review changes without losing the chosen file
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `story-review-panes.spec.ts`, `story-review.spec.ts` and
 `story-panel-switching.spec.ts` using real fixture comparisons/diffs.
 
@@ -490,6 +504,56 @@ independent-pane scrolling and panel switching; no page-wide sideways scroll.
 Reflect delivered behavior in review/navigation documentation.
 
 Safe stop: review is usable independently of the remaining settings adaptation.
+
+Accepted proof (2026-10-13): inspected the single coarse-input rule owner
+`story-review-touch.css` and its import after base styles in `StoryReviewPanel`.
+Shared44px targets cover context, comparison, file/folder, commit and checkbox
+labels. Context gets a bounded, scrollable share with scroll padding; expanded
+values scroll independently. Initial real reds measured25.89px targets and
+20.59px landscape diff. Desktop declarations and comparison/selection/mark
+semantics remain unchanged. All→Commits selects a new comparison; the journey
+chooses the actual desired file after it settles rather than altering that
+existing transition. LargeWorktree supplies63 real committed files, with the
+wide line after200 short lines, not the navigation outcome.
+
+`story-review-touch.spec.ts` and `support/reviewTouchReading.ts` now observe
+native vertical movement to the line's first11 characters, ending15 initially
+clipped then fully inside the code pane after horizontal movement, fixed
+header/context/heading/browser geometry and no page-wide overflow. A native
+return observes a fully visible short line before independent scrolling and
+rotation checks. Selected comparison/file/reading place survive both rotations,
+Maximize/Restore and Hide/Show; geometry reads no new snapshot. Next/Refresh,
+genuine nondefault Commits choice and Close focus are observed. Separate
+`story-review-mark-touch.spec.ts` observes checkbox7→4 displayed files, rotation
+choice and actual saved mark of the whole opened snapshot. G5 is proved.
+Chromium153.0.8010.12 at390×844/844×390 and768×1024/1024×768, reduced motion.
+
+Complete51-file consumer proof exited0 before the test-only G5 reading repair;
+its unchanged product/helper observations remain reusable:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- story-review-touch.spec.ts agent-terminal-touch.spec.ts story-review-panes.spec.ts story-review.spec.ts story-panel-switching.spec.ts story-panel-replacement.spec.ts side-panel-width.spec.ts side-panel-width-stacking.spec.ts side-panel-width-kept.spec.ts recently-done-one-shot-review.spec.ts story-review-action.spec.ts story-review-commit-admission.spec.ts story-review-commit-races.spec.ts story-review-commit-ranges.spec.ts story-review-commit-refresh.spec.ts story-review-commit-renames.spec.ts story-review-commit-trunk.spec.ts story-review-commit-worktree.spec.ts story-review-commits.spec.ts story-review-comparison-files.spec.ts story-review-comparison.spec.ts story-review-context-line.spec.ts story-review-diff.spec.ts story-review-file-moves.spec.ts story-review-folders.spec.ts story-review-landed.spec.ts story-review-line-counts.spec.ts story-review-mark.spec.ts story-review-nothing.spec.ts story-review-one-shot-admission.spec.ts story-review-one-shot-choice-races.spec.ts story-review-one-shot-choice-refresh.spec.ts story-review-one-shot-choice.spec.ts story-review-one-shot-unavailable.spec.ts story-review-one-shot.spec.ts story-review-refresh.spec.ts story-review-refusal.spec.ts story-review-since-trunk.spec.ts story-review-since.spec.ts story-review-story-branch-landed.spec.ts story-review-tree-collapse.spec.ts story-review-tree.spec.ts story-review-trunk-own-changes.spec.ts story-review-trunk-own-flagged.spec.ts story-review-trunk-own-older-git.spec.ts story-review-trunk-own-since.spec.ts story-review-trunk-worktree-ambiguity.spec.ts story-review-trunk-worktree.spec.ts story-review-uncommitted-check-refresh.spec.ts story-review-uncommitted-check.spec.ts story-review-workspace.spec.ts --workers=2
+```
+Final complete four-touch proof exited0, including actual G5 reading. A bounded
+same-Chromium Linux diagnostic for the known native-gesture boundary also
+passed unchanged, refuting the suspected undershoot on these exact paths:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- story-review-touch.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:32771/ PW_TEST_CONNECT_EXPOSE_NETWORK='<loopback>' npm run test:dashboard -- story-review-touch.spec.ts --workers=2
+```
+Exact diagnostic container retired. Independent refactor consolidated touch
+styles/native gestures, extracted reading observations and split marking proof.
+Terminal helper re-export retains its API/default vertical behavior. Mark/since
+contract moved verbatim to linked `STORY-REVIEW-MARKS.md`; links/content checked.
+Inspected new declarations, native dispatch and observation helpers. Focused
+replacement proof and new-spec partition check exited0:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- story-review-touch.spec.ts story-review-mark-touch.spec.ts story-review-panes.spec.ts story-review.spec.ts story-panel-switching.spec.ts story-panel-replacement.spec.ts agent-terminal-touch.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm test -- tests/support/dashboard-test-files.test.mjs
+```
+Formatter's non-null assertion/unnecessary-fallback findings were repaired
+mechanically with unchanged observing values. Formatter/whitespace passed;
+all refactor-owned files stay at or below250 lines. No backend/native/model
+contract change or remaining slice5 gap.
 
 ### 6. Edit settings and recover by touch
 Type: Behavior
@@ -590,6 +654,11 @@ Disposition: proved by slice 4: agent-terminal-touch.spec.ts and touchTerminalPa
 Reported: slice 3 — "the test waited for .xterm-rows before scrolling the stacked terminal into view"
 Story clause: "then open its terminal or available final report."
 Disposition: proved by slice 3: session-management-touch.spec.ts scroll-before-output with reduced motion, complete two-test command above
+
+### G5. Actual long-diff reading observation
+Reported: slice 5 — "wideLine is after200 short lines, but the current vertical -180px drag stays near the beginning; DOM toContainText includes offscreen content"
+Story clause: "choose a file, read its diff, and rotate."
+Disposition: proved by slice 5: story-review-touch.spec.ts and support/reviewTouchReading.ts observe visible beginning/end through actual native gestures, containment and a visible mid-file reading position before rotation
 
 ## Current decisions and sizing
 

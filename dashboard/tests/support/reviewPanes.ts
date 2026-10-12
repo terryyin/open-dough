@@ -14,6 +14,15 @@ import { largeWorktree, longA } from "./storyReviewWorktree.ts";
 export const scrollTopOf = (pane: Locator) =>
   pane.evaluate((element) => element.scrollTop);
 
+export const scrollLeftOf = (pane: Locator) =>
+  pane.evaluate((element) => element.scrollLeft);
+export const pageFits = (page: Page) =>
+  page.evaluate(
+    () =>
+      document.documentElement.scrollWidth <=
+      document.documentElement.clientWidth,
+  );
+
 // Scrolls a pane down to `to` px, or as far as it goes, and says where it is.
 export const scrollPane = (pane: Locator, to: number) =>
   pane.evaluate((element, top) => {

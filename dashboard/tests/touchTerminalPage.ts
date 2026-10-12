@@ -1,8 +1,9 @@
-// Browser terminal observations and real touch gestures, independent of a
+// Browser terminal observations, independent of a
 // session's native setup and input/output assertions.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { box, tapWhereShown } from "./pageLayout.ts";
+import { tapWhereShown } from "./pageLayout.ts";
+export { scrollByTouch } from "./touchGestures.ts";
 
 // Observe browser traffic without supplying input or native resize outcomes.
 export function noteTerminalTraffic(page: Page) {
@@ -75,54 +76,6 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
       return sizes.at(-1)?.split("x")[1] === String(fitted.rows) && fitted.fits;
     })
     .toBe(true);
-}
-
-// Send native finger movement explicitly: Linux Chromium's synthesized scroll
-// can deliver only touchstart/end. Split long drags into feasible in-view
-// strokes. No DOM scroll position is assigned to supply the result.
-export async function scrollByTouch(
-  page: Page,
-  area: Locator,
-  distance: number,
-) {
-  const bounds = await box(area);
-  const browser = await page.context().newCDPSession(page);
-  try {
-    const x = bounds.x + bounds.width / 2;
-    const edge = Math.min(8, bounds.height / 2);
-    const y = distance > 0 ? bounds.y + edge : bounds.y + bounds.height - edge;
-    const height = await page.evaluate(() => innerHeight);
-    const room = distance > 0 ? height - edge - y : y - edge;
-    expect(room, "room for an in-view finger stroke").toBeGreaterThan(0);
-    const strokes = Math.ceil(Math.abs(distance) / room);
-    const duration = Math.abs(distance) / strokes / 400;
-    // Model a stationary finger before lifting, preserving the synthesized
-    // gesture's preventFling behavior. These are input timestamps, not waits
-    // for the page result; keep the whole gesture in the past.
-    let timestamp = Date.now() / 1000 - strokes * (duration + 0.1);
-    for (let stroke = 0; stroke < strokes; stroke += 1) {
-      await browser.send("Input.dispatchTouchEvent", {
-        type: "touchStart",
-        touchPoints: [{ x, y }],
-        timestamp,
-      });
-      for (let step = 1; step <= 10; step += 1) {
-        await browser.send("Input.dispatchTouchEvent", {
-          type: "touchMove",
-          touchPoints: [{ x, y: y + (distance * step) / (strokes * 10) }],
-          timestamp: timestamp + (duration * step) / 10,
-        });
-      }
-      timestamp += duration + 0.1;
-      await browser.send("Input.dispatchTouchEvent", {
-        type: "touchEnd",
-        touchPoints: [],
-        timestamp,
-      });
-    }
-  } finally {
-    await browser.detach();
-  }
 }
 
 export async function focusByTouch(panel: Locator) {

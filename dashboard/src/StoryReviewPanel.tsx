@@ -20,6 +20,7 @@ import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
+import "./story-review-touch.css";
 
 export function StoryReviewPanel({
   request,
