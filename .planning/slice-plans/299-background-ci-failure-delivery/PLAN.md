@@ -30,8 +30,9 @@ remain evidence, not active slices. No new human fixture actions are requested.
 - Terry’s 2026-10-13 scope reduction authorizes the remaining bounded work.
   Reuse setup, execution identity and unchanged proof; no new Take or workspace.
   No numeric slice budget exception or no-replan instruction was supplied.
-- Latest accepted increment: `8ce0029b69bf7292d7c7cc6dfcdd0c829367f8df`,
-  suffix base `eea9a02ffd0b18e0c3f134d3fa94e6d9f67b45b0`; remote branch confirmed.
+- Latest accepted increment: `90c384547d5d898990107d23956585d3fe138793`,
+  suffix base `8ce0029b69bf7292d7c7cc6dfcdd0c829367f8df`; accepted by managed
+  publication with no replay; current yielded observer reused and SHA registered.
 - Prior CI observer (ended): repository `terryyin/open-dough`, selector `ci.yml` / `CI`,
   coordinator `joey-chan-seed063-20261012`,
   `/tmp/dough-ci-501/watch-ogRHQ3`, PID `90134`, command session `78375`,
@@ -111,6 +112,29 @@ Existing solution: reuse `ci-mailbox.mjs`, mailbox event/progress storage,
 native asyncRewake. No `ws` dependency, new poller or subscription registry.
 A scope or permission boundary not supplied by this cut returns for judgment;
 known excluded future behavior does not expand this slice.
+
+## Execution complete
+
+Product advice: Keep the authorized live-Claude cut. No product correction or
+new backlog work is needed for this result. Defer the broader native/lifecycle
+work until separately selected; retain its historical evidence and the existing
+request-diagnostic/unattached-observation queue order.
+
+Review: related delivered implementation commits are `8ce0029b` (G21 fenced
+request-owner recovery) and `90c38454` (bounded live-Claude handoff and scope
+reduction); the claim is provenance. Reviewed current implicated runtime,
+installer, guidance, retained native evidence and behavioral tests against the
+original source and Terry’s authorized reduction. No outcome/refactoring/ADR
+conflict or required correction remains. Meaningful process and installed native
+proof cover the reduced journey; untouched consumers retain accepted evidence.
+Pending CI alone is not treated as success.
+
+Process review was enabled. Available current conversation and retained native
+records support the scope decision and original no-model harness errors; older
+raw agent history is unavailable, limiting cost/causal claims. No additional
+distinct actionable process finding was identified; DearDough.md is unchanged.
+The completed plan and worktree remain for later story wrap-up; no integration,
+release or resource retirement is claimed here.
 
 ## Story obligations
 
