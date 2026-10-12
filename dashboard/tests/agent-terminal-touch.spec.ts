@@ -95,10 +95,16 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             ),
           ).toBe(true);
           expect(await titleWordsShown(heading, 0, 28)).toBe(true);
-          await scrollByTouch(page, identity, -160);
-          expect(
-            await titleWordsShown(heading, title.length - 20, title.length),
-          ).toBe(true);
+          const headerSwipe = -(await box(identity)).height;
+          await scrollByTouch(page, identity, headerSwipe);
+          await expect
+            .poll(() =>
+              titleWordsShown(heading, title.length - 20, title.length),
+            )
+            .toBe(true);
+          // Wrapped native identities can occupy another reading position
+          // than the title ending. Read both through the same header scroll.
+          await scrollByTouch(page, identity, headerSwipe);
           const session = panel.locator(".side-panel-names code");
           await expect(session).toBeInViewport({ ratio: 1 });
           expect(

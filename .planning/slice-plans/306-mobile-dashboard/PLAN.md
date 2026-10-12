@@ -405,6 +405,41 @@ the equivalent twelve-index sequence repair changed no observation. Repaired
 formatter and `git diff --check` passed; all refactor-owned files stay below250
 lines. No transport, native-host or session lifecycle expansion occurred.
 
+Owned CI repair (run38314860356/attempt1, dashboard12/12): full log/artifact
+accounted for two failures, phone title-ending visibility and tablet unchanged
+scrollback after `Input.synthesizeScrollGesture`. Matching Chromium153.0.8010.12
+in a disposable Linux Playwright1.63 browser reproduced both: trusted touchstart
+and touchend arrived, with zero touchmove events. `touchTerminalPage.ts` now
+dispatches native finger movement in feasible viewport-contained strokes;
+400px/s input timestamps and a stationary100ms lift preserve the previous
+gesture's preventFling contract without sleeps or assigning scroll outcomes.
+Linux font geometry showed title-ending plus wrapped ID span76.58px in a72px
+header; each is now observed at its own reading position through actual swipes.
+Both visibility assertions remain. Product/CSS/timeouts and raw input,
+attachment, fitting and Close/reopen assertions are unchanged.
+
+Linux browser setup used `mcr.microsoft.com/playwright:v1.63.0-noble`, ARM64
+digest `sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27`,
+read-only checkout dependencies and Playwright `<loopback>` forwarding to the
+unchanged local dashboard/WebSocket/PTY fixture. This bounded diagnostic adds
+no browser/device acceptance matrix. Setup check passed. Complete two-test
+Linux red with observation-only instrumentation retained both CI failures at
+`dashboard/test-results/2026-10-12T22-19-34.901Z`; event and font geometry
+observations are retained under `/tmp/mobile-dashboard-linux-*-gesture.json`
+and `/tmp/mobile-dashboard-linux-phone-geometry.json`. Final delivered-file
+proof removed all diagnostics and exited0 on both Linux and macOS:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:32768/ PW_TEST_CONNECT_EXPOSE_NETWORK='<loopback>' npm run test:dashboard -- agent-terminal-touch.spec.ts
+env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- agent-terminal-touch.spec.ts
+```
+Each selected both complete journeys. Inspected native gesture helper and
+successive header observations; all helper consumers occur in that full spec.
+Independent refactor found no edits needed; wider accepted proof reused.
+Formatter and whitespace passed. Disposable Linux container was stopped and
+removed; cached images/shared resources preserved. Slice5 paused with its real
+red touch-control proof and was preserved through installed CI stash protocol;
+resume only after repair publication and restoration.
+
 ### 5. Review changes without losing the chosen file
 Type: Behavior
 Status: planned
