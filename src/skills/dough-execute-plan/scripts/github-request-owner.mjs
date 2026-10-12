@@ -38,9 +38,9 @@ import {
 } from "./github-request-owner-endpoint.mjs";
 import {
   fixedRequest,
+  greeted,
   greetingLimitMs,
   protocol,
-  reachable,
   receive,
   scopeOf,
   send,
@@ -60,8 +60,11 @@ if (
   process.exit(1);
 
 const earlier = standingRecord(directory);
-if (earlier?.socket !== undefined && (await reachable(earlier.socket)))
-  process.exit(0);
+if (earlier?.socket !== undefined) {
+  const connection = await greeted(earlier, () => undefined);
+  connection?.destroy();
+  if (connection !== undefined) process.exit(0);
+}
 
 // The endpoint of the API host and login this process's own `gh` asks with
 // now; undefined while it cannot be established.

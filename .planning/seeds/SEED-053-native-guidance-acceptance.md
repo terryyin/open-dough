@@ -91,7 +91,7 @@ Record each required row's continuation route and result, without reproducing
 the scope table here. Another form's result, documented commands and synthetic
 adapters are not proof.
 
-**Feasibility before dependent implementation:** Plan slice 1 owns bounded
+**Feasibility before dependent implementation:** Plan native slice 2 (formerly slice 1) owns bounded
 fresh-session probes. Observe exact recipient identity, post-turn input
 acceptance and safe busy-session handling with retained native evidence;
 observe or explicitly retain uncertainty at the send/receipt crash boundary.
@@ -121,10 +121,48 @@ of affected behavior before acceptance under ADR 0005. Record requirement,
 runtime version, decisive evidence and judgment during active checks; preserve
 lasting facts in maintained product homes and clean spent proof at closure.
 
-**Current state (2026-10-11):** No native wakeup runs performed for this work.
-Existing completion-reporting evidence above does not prove idle wakeup or
-safe failure delivery. Paid runs require explicitly authorized native checks;
-add none to default tests, CI or this planning invocation.
+**Current state (2026-10-12):** Partial transport feasibility and exact native
+IDs, commands, contexts and private evidence are retained in plan 299 native slice 2 (formerly slice 1).
+Terry accepted the idle-only, unattached Claude stop/resume candidate and kept
+all required native forms in scope. The resumed bounded pass established
+policy-preserving continuation of a Claude session after native CLI exit,
+and of a controlled unattached background fixture after native stop. Automatic
+unattached safety and still-open foreground delivery remain unproved: public
+idle JSON exposed no distinction while the same fixture was attached.
+
+Codex App Server idle/busy steering and lost-response reconciliation reached
+the original thread. Genuine approval/input requests remained pending until
+the fixture actor answered. ID-only fresh-connection resume drifted to full
+access on those resolution turns; explicit atomic per-turn policy binding
+preserved the original restrictive fixture policy. A still-open restrictive
+CLI accepted failure under its own ID with its unsent draft and effective
+policy preserved. The earlier restrictive request-owner success claim was
+withdrawn after inspecting actual full-access context; the restrictive CLI's
+request-owner command timed out. Terry supplied the exact disposable desktop
+conversation; native origin, READY history, workspace and restrictive policy
+were verified read-only, and he confirmed the unsent draft setup. The managed
+daemon's resume then refused the desktop's existing active writer; direct
+`turn/start` refused the thread as not found. No notice or model turn was
+accepted. Saved history and a native ID establish the recipient but do not
+establish the desktop's live endpoint. Composer preservation under successful
+delivery remains unproved; no further manual setup is needed for this blocked
+route.
+
+Cursor's actual runner retained its original CLI conversation for idle,
+held-busy and lost-ack delivery, and held input while an unsent draft existed.
+Its unrestricted shell reached the private request owner. A private restrictive
+CLI held failure during a genuine permission request, but post-rejection idle
+and delivery were not established. A genuine native IDE fixture and its exact
+composer identity were verified; ACP refused the ID and CLI resume showed
+different empty history/model, so neither establishes IDE continuation.
+
+Claude automatic background/live-CLI routes, Codex desktop and connection-state
+policy safety, Cursor original IDE and restrictive/input-question delivery,
+and applicable coordinator/child isolation remain open native slice 2 obligations.
+No installed-runtime integration, pending/success filtering or skill-behavior
+wakeup acceptance is claimed. Existing completion-reporting evidence above
+cannot cover these gaps. Paid runs require explicitly authorized native checks;
+add none to default tests or CI.
 
 ## Shared premise-verification cases
 

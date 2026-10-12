@@ -25,17 +25,14 @@ watchers and coordinate GitHub demand with dashboard reads.
 
 **Identity:** SEED-063#background-ci-failure-delivery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/299-background-ci-failure-delivery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a0d907f684a663c634c8f12656e09c14530caacdf43597ce0d8e4f429c13282b","plan":"69926f7cac9fc62afb9b323103a4cebeaa053ec6b63c362a6d87516e8e3a1b98"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/299-background-ci-failure-delivery/PLAN.md","assessment":"not-ready","reasons":["Native slice 2 still lacks Claude live-CLI delivery and verified automatic unattached background stop safety.","Native slice 2 cannot deliver to the original Codex desktop writer or Cursor IDE conversation through the examined routes.","Native slice 2 still lacks restrictive Cursor post-wait delivery and applicable coordinator/child isolation proof."],"basis":{"document":"58b37571eeb59b789c1b81c5bc78130d515ad7074d2e68a7c1290cd3daf8714b","plan":"589cd1db8b3e25b79ac61451c67ff444b4ca4c6514847bb76ba6875ec5277205"}}
 ```
 **Slice plan:** [Background CI monitoring and failure delivery](../slice-plans/299-background-ci-failure-delivery/PLAN.md).
 
-**Split:** Terry's 2026-10-11 decision split the original story at its
-delivered boundary. Shared GitHub request admission was delivered first and
-is described in [GitHub requests](../../dashboard/GITHUB-REQUESTS.md); its
-closed story is recoverable at
+**Split:** Terry split at the delivered request-admission boundary on 2026-10-11
+([GitHub requests](../../dashboard/GITHUB-REQUESTS.md)). The closed story remains at
 `2d889140cd7bd390f5bbb6e775de1e690e65645b:.planning/seeds/SEED-063-dashboard-owned-ci-monitoring.md`.
-This story keeps the rest of the original outcome, refined again on
-2026-10-11 against that delivery with no change to its promises.
+The remaining original outcome was refined against that delivery on 2026-10-11.
 
 **Human direction:** Terry's 2026-10-03 decision established failure-only
 wakeup and visible gaps without fallback observation. His 2026-10-11 instruction
@@ -48,6 +45,14 @@ On 2026-10-11 Terry authorized the paid native feasibility probes and
 confirmed two delivered choices: the request owner's endpoint stands under
 `/tmp/dough-github-requests-<uid>`, and one request owner runs per API host
 and login.
+
+On 2026-10-12 Terry accepted idle-only Claude stop/resume as a candidate
+continuation route: only a verified idle, unattached background process with no
+pending approval or active work may be stopped. Continuation must preserve the
+original session ID, workspace, model and permission policy; automatic race
+handling still requires proof. He retained every required native form and
+authorized continuing bounded native feasibility work. This selects no
+unproved form as supported and defers none of the current scope.
 
 **Design choice:** One installed background runtime serves both origins and
 runs independently of the dashboard browser and server. Background closure
@@ -149,65 +154,20 @@ an installed skill in the owning session, without a dashboard launch.
 
 | Host | Required native form | Recipient and candidate route | Proof state |
 | --- | --- | --- | --- |
-| Claude Code | Dashboard background session; standalone interactive CLI session, including a session that exits after its turn | Original native session plus originating coordinator/child identity. Existing background resume/attach is a candidate; safe foreground continuation still needs proof. | Probed 2026-10-11 (plan 299 slice 1): a stopped background session and an exited standalone session continue under their own ID; a background session whose process is alive does not, and the exited session loses its permission mode. Capability decision with Terry. |
-| Codex | Dashboard App Server thread; standalone Codex CLI and desktop conversation | Actual native thread ID, coordinator identity and its verified continuation endpoint. Existing turn-start/history reconciliation is a candidate; arbitrary desktop/CLI binding is not established. | Unobserved; slice 1 gate. |
-| Cursor | Dashboard runner-backed CLI; standalone Cursor agent CLI and IDE conversation | Original conversation and originating coordinator/generation where relevant. Existing terminal transport is a candidate for CLI; idle IDE delivery remains unestablished. | Unobserved; slice 1 gate. |
+| Claude Code | Dashboard background session; standalone interactive CLI session, including a session that exits after its turn | Original native session plus originating coordinator/child identity. Existing background resume/attach is a candidate; safe foreground continuation still needs proof. | Partial feasibility, plan 299 native slice 2 (formerly slice 1) (2026-10-12): exited CLI with explicit retained mode and controlled unattached stop/resume preserved ID, context and policy. Automatic unattached/race safety and still-open CLI delivery remain open; no integration acceptance. |
+| Codex | Dashboard App Server thread; standalone Codex CLI and desktop conversation | Actual native thread ID, coordinator identity and its verified continuation endpoint. Existing turn-start/history reconciliation is a candidate; arbitrary desktop/CLI binding is not established. | Partial feasibility, plan 299 native slice 2 (formerly slice 1): original App Server and exited/still-open CLI delivery observed; pending requests stayed distinct and lost acknowledgment reconciled. Effective-policy drift on fresh resume requires explicit policy-safe binding. Genuine desktop fixture/readable history did not establish delivery: resume refused its active writer and direct start refused the thread. Desktop continuation and restrictive request-owner proof remain open. |
+| Cursor | Dashboard runner-backed CLI; standalone Cursor agent CLI and IDE conversation | Original conversation and originating coordinator/generation where relevant. Existing terminal transport is a candidate for CLI; idle IDE delivery remains unestablished. | Partial feasibility, plan 299 native slice 2 (formerly slice 1): original runner/CLI idle, held-busy and lost-ack delivery observed with unrestricted policy. Restrictive post-wait delivery and original IDE continuation remain open; verified IDE identity did not make ACP/CLI resume a valid route. |
 
 Other native forms are not acceptance commitments. A failed required-form
 probe stops dependent work and returns the capability/scope choice to Terry;
 it cannot silently remove that row, keep waiting, or claim a capability gap is
 a fulfilled wakeup promise.
 
-**Domain model:** These meanings are authoritative for this story. The plan
-maps them to runtime owners rather than introducing a parallel dashboard model.
-
-| Concept | Meaning and ownership |
-| --- | --- |
-| Session binding | Host-qualified native conversation, coordinator/child identity when relevant, verified continuation route, original workspace and delivery authorization generation. Before native launch, retained execution/start identity reserves the pending binding; only exact verified attachment enables delivery. Dashboard and standalone are origins of this same model. |
-| Monitoring subscription | One execution owner's obligations referring to its binding, project/common-Git identity, authorized targets, provider configuration and durable runtime ownership. Repository matching is not ownership. |
-| Accepted publication | Confirmed publication operation, exact repository/remote/target/full SHA and retained publication order. Recovery uses its receipt, not registration arrival order, sorted SHA filenames or today's target tip. |
-| CI evidence | Provider/run/attempt/job identities, effective revision or applicability basis, lifecycle and verdict. Observation availability remains separate. |
-| Failure delivery | One subscription's evidence, exact recipient, stable token, durable intent and native acceptance or explicit uncertainty/refusal. Acceptance does not prove handling. |
-| Failure disposition | Owned diagnosis, coordination/attention decision, or linked repair and proof under existing authority. Unrelated later success is not disposition. |
-| Completion boundary | Execution/review handoff or wrap-up closure naming acknowledged publications and its generation. Only the current boundary may settle; new owned repair work supersedes it. |
-| Retirement request | Explicit closure resource authority and retained management context, settled through existing containment/ownership checks. Session Done alone grants none. |
-| GitHub request admission | Delivered. One request owner per API host and login holds the allowance, concurrency, cooldown and recovery; the supervising runtime is its client. Acquisition sharing between subscriptions respects authorization context and request identity. |
-
-**Integrity constraints:**
-
-1. At most one fenced observation/delivery owner exists per subscription.
-   Legacy transfer preserves registrations/unread evidence and confirms old
-   ownership ended before replacement acquires it. Ambiguity retains a gap and
-   resources; it starts no second watcher.
-2. Registration acknowledgment follows durable storage. Lost responses retry
-   the same operation; accepted Git publication is never repeated as recovery.
-3. Completion evidence belongs to enrolled accepted publications and their
-   proved applicability bases. Unpublished/rebased candidates and another
-   writer's tip are excluded. Earlier accepted failures remain accountable.
-4. Completion uses its explicit boundary, not whichever SHA is newest when CI
-   responds. Stale reports cannot close repairs. No covered actionable failure,
-   missing coverage, incomplete evidence or uncertain delivery disappears behind
-   a green tip. Reserve a new generation before admitting repair work or
-   renewed publication, so success cannot retire resources under an active
-   writer. Existing documented failure dispositions remain applicable.
-5. Persist delivery intent before calling the native port. Confirmed acceptance
-   suppresses routine duplicates; possible acceptance followed by a crash needs
-   reconciliation. If native evidence cannot settle it, expose uncertainty and
-   do not blindly resend or promise exactly-once behavior.
-6. All in-scope Open Dough GitHub requests obey the same admission owner.
-   Cooldown refusal costs no upstream call. Restart cannot reset a hold or
-   create another owner or leave uncounted upstream children alive. Changed
-   authorization cannot reuse incompatible live acquisition answers; existing
-   user-owned private immutable-content retention is unchanged. CI classification
-   remains one implementation; `not_required` uses
-   its actual basis, and incomplete never means success.
-7. CI metadata is untrusted data and grants no extra repair, push, merge, stop
-   or cleanup authority. Use existing
-   [notification handling](../../src/skills/dough-execute-plan/references/ci-monitor.md#handle-a-notification).
-   Missing observation or delivery is visible, never success.
-8. Retirement requires a current settled closure and existing creation,
-   cleanliness, containment and ownership checks. Default and foreign checkouts
-   remain; partial retirement recovers without repeating publication.
+**Domain, integrity and architecture:** The authoritative
+[story contract](SEED-063-background-ci-contract.md) defines these meanings and
+constraints; the slice plan maps them to runtime responsibilities.
+Changed authorization cannot reuse incompatible live acquisition answers.
+Missing observation or delivery is visible, never success.
 
 **Key examples:**
 
@@ -244,26 +204,7 @@ maps them to runtime owners rather than introducing a parallel dashboard model.
    another owner's checkout remains a named gap or hold. No replacement session,
    waiting fallback or cleanup hides it.
 
-**Architecture:** Follow the revised
-[North Star](../NORTH-STAR.md#background-ci-monitoring-and-session-delivery).
-One installed runtime owns monitoring and request admission; dashboard and
-standalone paths are adapters. Reuse publication receipts, durable mailbox
-records, native session identity/continuation, machine-file persistence,
-request admission/coalescing and installed retirement. Canonical CI lifecycle
-instructions live once in the shared execution reference, linked by execution,
-wrap-up and host adapters. Author sources under `src/skills/`; update managed
-installed copies only from released payloads. Accepted ADRs
-[0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
-[0004](../../docs/adrs/0004-client-installation-and-update-accepted.md) and
-[0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-constrain cohesion, standalone dependencies and instruction ownership.
-
-**Deferred promises:** Deployment, general messaging, refinement/ad hoc CI,
-remote-machine supervision, controlling unrelated GitHub tools, and generic
-scheduling/queue infrastructure. Trunk Mode `finish` retires the worktree and
-branch only on a `success` receipt with confirmed shutdown, pinned by
-[its completion gate journey](../../src/skills/dough-story-wrap-up/scripts/trunk-closure-completion-gate.test.mjs):
-background closure settlement keeps that gate.
+Deferred boundaries remain in the [story contract](SEED-063-background-ci-contract.md).
 
 **Delivery and acceptance:** Deterministic proofs cover mixed enrollment,
 request accounting, faults at durable boundaries, owner transfer, restart,

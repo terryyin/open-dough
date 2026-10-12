@@ -4,18 +4,27 @@
 // only the one fixed read, asked under the owner's own login, is asked of
 // `gh`.
 import assert from "node:assert/strict";
-import { chmodSync, existsSync } from "node:fs";
-import { basename } from "node:path";
+import { chmodSync, existsSync, rmSync } from "node:fs";
+import { createServer } from "node:net";
+import { basename, join } from "node:path";
 import { test } from "node:test";
-import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
+import {
+  instrumentedGithubFixture,
+  startInstalledScript,
+} from "./ci-github-test-fixtures.mjs";
 import { enterEnvironment } from "./fixture-teardown-test-fixtures.mjs";
-import { privacyRefusal } from "./github-request-owner-endpoint.mjs";
+import { endpointOf } from "./github-request-login-test-fixtures.mjs";
+import {
+  claimedRecord,
+  newSocketName,
+  privacyRefusal,
+} from "./github-request-owner-endpoint.mjs";
 import {
   ownerlessRequestRoot,
   ownerRecords,
   saidToOwner,
 } from "./github-request-owner-test-fixtures.mjs";
-import { protocol } from "./github-request-owner-wire.mjs";
+import { protocol, receive, send } from "./github-request-owner-wire.mjs";
 import { GitHubRequests } from "./github-requests.mjs";
 
 const never = () => new AbortController().signal;
@@ -65,6 +74,60 @@ test("a directory is private only as this user's own directory closed to everyon
     privacyRefusal(entry({ isDirectory: () => false }), 501),
     "not a directory",
   );
+});
+
+test("startup refuses a responsive incompatible owner without claiming a replacement or asking gh", async (t) => {
+  const { github, root } = consumer(t);
+  const directory = await endpointOf(github.env);
+  const socket = newSocketName();
+  const token = "f".repeat(64);
+  const greetings = [];
+  const connections = new Set();
+  const server = createServer((connection) => {
+    connections.add(connection);
+    connection.once("close", () => connections.delete(connection));
+    receive(connection, (message) => {
+      greetings.push(message);
+      send(connection, { welcome: protocol + 1 });
+      connection.end();
+    });
+  });
+  await new Promise((resolve) =>
+    server.listen(join(directory, socket), resolve),
+  );
+  github.teardown.defer(async () => {
+    for (const connection of connections) connection.destroy();
+    await new Promise((resolve) => server.close(resolve));
+  });
+  assert.ok(
+    claimedRecord(directory, 1, {
+      pid: process.pid,
+      protocol: protocol + 1,
+      token,
+      socket,
+    }),
+  );
+  // This fixture's server is in the test process; remove its record before
+  // ordinary request-owner teardown, which waits for recorded processes to end.
+  github.teardown.defer(() =>
+    rmSync(join(directory, "owner.1.json"), { force: true }),
+  );
+
+  const starting = startInstalledScript(github, "github-request-owner.mjs", [
+    directory,
+    "60000",
+  ]);
+  assert.equal(await starting.exited, 1);
+  assert.match(
+    starting.stderr(),
+    /The GitHub request owner refused this caller/,
+  );
+  assert.deepEqual(greetings, [{ hello: protocol, token }]);
+  assert.deepEqual(
+    ownerRecords(root).map(({ file }) => basename(file)),
+    ["owner.1.json"],
+  );
+  assert.deepEqual(github.asked(), []);
 });
 
 test("the owner hears only a caller holding its token and speaking its protocol, and asks gh only the one fixed read", async (t) => {
