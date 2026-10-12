@@ -58,6 +58,10 @@ list entries are ignored. With the variable unset,
 in `tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
 and assignment without duplicates or omissions.
 
+Independent proof subprocesses choose their own selection. Their harness
+(`support/proofRecordRun.ts`) removes the inherited
+`OPEN_DOUGH_DASHBOARD_SPLIT` before launching them.
+
 CI also records `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`, the epoch 320 seconds after
 the shard job starts, and the config turns what remains of it into Playwright's
 `globalTimeout` (`support/suiteDeadline.mjs`). The build counts against it. A
