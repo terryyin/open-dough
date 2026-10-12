@@ -52,6 +52,14 @@
   background: var(--surface);
 }
 
+/* A coarse pointer needs a comfortable target; the same controls and state
+   keep the desktop's compact size when no touch pointer is available. */
+@media (any-pointer: coarse) {
+  :root {
+    --control-size: 2.75rem;
+  }
+}
+
 /* Long titles, identities, link targets, and revisions are read whole: they
    wrap inside their group, are never cut short, and never widen the page. */
 body {

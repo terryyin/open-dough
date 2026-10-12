@@ -7,16 +7,10 @@
 import { expect, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
-  largeBacklog,
+  publishLargeBacklog,
   queuedCount,
   queuedTitle,
-  revision,
 } from "./accessibleOverview.ts";
-import {
-  commitAnswer,
-  publishOrigin,
-  rawFileAnswer,
-} from "./publishedOrigin.ts";
 import {
   bottomOf,
   edgeControl,
@@ -34,10 +28,7 @@ test("a long Backlog read far down: shorter columns clamp the page to their bott
 }) => {
   await page.setViewportSize({ width: 54 * rem, height: 480 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(largeBacklog) },
-  });
+  await publishLargeBacklog(page);
   await page.goto("/");
   const { backlog } = parts(page);
   const lastCard = backlog.getByRole("article", {

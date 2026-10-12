@@ -117,6 +117,18 @@ Keep the actual story badges and their textual meanings visible on cards.
 Direction and help are transient UI state and cause no source read. Keep
 direction, evidence, and view controls outside any zooming surface.
 
+Touch browsing uses the same project choices, story details and whole-column
+paging. With a coarse pointer, frame controls, project choices, story Start
+and Inspect actions, and column edges provide at least 44px targets. When
+hover is unavailable, a Start's preparation/readiness note and its disabled
+reason are readable on the card. Inspect story reveals the full identity,
+assessment and pinned source details; dependency explanations open in place.
+Titles and source paths wrap instead of widening the page. Rotation preserves
+the selected story and open explanations, and Hide detail and Close return
+focus to their originating card or control. Local Chromium touch viewport
+checks cover phone/tablet sizes and rotation alongside desktop checks; they
+do not establish physical-device keyboard or remote-connectivity behavior.
+
 Use one navigable stage containing connected regions for work stages. Initially,
 show **Backlog → Taken**, with work cards placed inside their recorded region.
 The connector means “work can be taken from the backlog,” not a dependency

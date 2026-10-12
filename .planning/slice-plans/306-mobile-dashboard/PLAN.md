@@ -109,11 +109,35 @@ New mobile observations below are execution obligations. Existing tests are
 extension points, not claims that the new UI already passes. No product
 implementation or scratch edit is retained in this preparation.
 
+## Execution context
+
+- Identity: SEED-133#operate-dashboard-from-mobile-browser; publisher
+  `dashboard-territory.local-open-dough`; agent DavidKo-chan.
+- Mode: story-branch. Execution/originating checkout:
+  `/Users/terryyin/git/open-dough/.worktrees/use-the-dashboard-from-an-ipad-or-iphone-browser`,
+  branch `codex/use-the-dashboard-from-an-ipad-or-iphone-browser`.
+  Existing linked worktree reused; no new workspace or claim. Default integration
+  checkout: `/Users/terryyin/git/open-dough`; authorized remote trunk: origin/main.
+- Starting revision: `6b16a31681bda3f3dec0be8f9d9c1eb2f4f01fcf`.
+  Established claim/candidate and initial published base:
+  `db0dfb0773236c1ff56ad12851ebdac8f3ee73e8`.
+- Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
+  in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
+  Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
+- CI: GitHub Actions `ci.yml`, verified display name CI, repository
+  `terryyin/open-dough`; target is the published execution branch above.
+  Codex observer coordinator `mobile-dashboard-davidko`, directory
+  `/tmp/dough-ci-501/watch-b4sk3D`, PID 55625, stream session 79223,
+  yielded cell 11. The earlier claim on trunk is unobserved by this stream.
+- No numeric slice target/hard limit or overrun replanning override is supplied;
+  preserve existing planning authority. Formatter: `npm run format`; commit hook
+  owns staged lint/typecheck. No product generation trigger applies to this UI work.
+
 ## Ordered slices
 
 ### 1. Browse and inspect work by touch
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the overview, column and dependency journeys in
 `accessible-overview.spec.ts`, `dashboard-columns-paging.spec.ts`,
 `story-dependencies.spec.ts` and `preparation-legend.spec.ts`, with relevant
@@ -133,6 +157,39 @@ dashboard navigation/reading documentation with the delivered behavior.
 
 Safe stop: touch browsing is useful while later operational improvements remain
 planned. One reading/navigation proof loop; no separate control framework.
+
+Accepted proof (2026-10-12): shared control size, project selection, column edges
+and Start/Inspect targets now adapt to coarse input; Start limitations are
+visible without hover. Inspected `styles.css`, `project-select.css`,
+`dashboard-columns.css`, `story-detail.css`, `StartLaunch.tsx`, `CardLaunches.tsx`
+and `agent-launch.css`. Fixture setup supplies published work/session facts;
+`accessible-overview-touch.spec.ts` observes real coordinate taps, full long
+title/identity/source in view, stages/projects, rotation, focus return and no
+launch. `story-dependencies.spec.ts` observes dependency/readiness explanations
+and Cancel; `preparation-legend.spec.ts` observes reachable help/Close, preserved
+reading position/project and no source read. `tapWhereShown` checks 44px bounds,
+clipping and hit target before touchscreen input. Chromium 153.0.8010.12 at
+390×844, 844×390, 768×1024 and 1024×768; existing desktop conditions retained.
+
+The initial touch-only run failed on 32/28/40px targets and a hidden Start note
+before implementation. Final implementation proof exited 0, 101 tests across
+38 complete affected files (all frame-icon, column-view and reachability
+consumers found):
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- accessible-overview.spec.ts accessible-overview-keyboard.spec.ts dashboard-columns-paging.spec.ts story-dependencies.spec.ts preparation-legend.spec.ts frame-launch-look.spec.ts frame-overview-look.spec.ts frame-sessions-look.spec.ts dashboard-header.spec.ts system-settings-look.spec.ts system-settings.spec.ts project-selection.spec.ts project-configuration.spec.ts project-keyboard-navigation.spec.ts project-keyboard-navigation-focus.spec.ts project-keyboard-navigation-eligibility.spec.ts agent-launch-card.spec.ts agent-launch-card-noted-start.spec.ts agent-launch-card-open-session.spec.ts agent-launch-card-session-states.spec.ts agent-launch-card-problems.spec.ts agent-launch-card-sessions.spec.ts agent-launch-dialog-layout.spec.ts agent-launch-start-session-layout.spec.ts agent-terminal-keyboard.spec.ts agent-terminal-maximize.spec.ts story-panel-switching.spec.ts side-panel-width-stacking.spec.ts cursor-sidebar-panels.spec.ts cursor-sidebar-resize-lasting.spec.ts dashboard-columns-clamp.spec.ts dashboard-columns-height.spec.ts dashboard-columns-kept.spec.ts dashboard-columns-paging-side-panel.spec.ts dashboard-columns-paging-sessions-sidebar.spec.ts dashboard-columns-paging-launch-dialog.spec.ts published-facts-reading.spec.ts branch-progress-reading.spec.ts --workers=2
+```
+Independent refactoring moved the cohesive touch journeys into
+`accessible-overview-touch.spec.ts` and centralized only large-backlog fixture
+publication. Assertions/product declarations stayed unchanged. Replacement
+proof exited 0 (13 tests/four complete specs); untouched proof reused:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- accessible-overview.spec.ts accessible-overview-touch.spec.ts dashboard-columns-paging.spec.ts dashboard-columns-clamp.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm test -- tests/support/dashboard-test-files.test.mjs
+```
+New-spec discovery and `git diff --check` passed. Initial generalized helper
+assumed fixed edge width/desktop margins; corrected to measured available view.
+Per-axis clipping checks now respect visible overflow; existing reachability
+checks retain unscrollable-overflow proof. No slice-1 promise gap remains.
 
 ### 2. Finish a launch dialog with limited visible height
 Type: Behavior

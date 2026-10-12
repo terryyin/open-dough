@@ -4,8 +4,8 @@
 // comes from the workflow (`launchWorkflows`). A card the workflow notes
 // (execution: not marked Ready for execution; refinement: being prepared)
 // offers the same action, dashed and described by that note, which the card
-// shows only in the action's tooltip on hover and keyboard focus and the
-// dialog states; the session is asked anyway,
+// shows in the action's tooltip on hover and keyboard focus, beside the
+// action when hover is unavailable, and in the dialog; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
 // stays on the card with the action; while the story starts, its card says
 // so (`CardLaunches`) and protects the action (`WorkCard`). The dialog's

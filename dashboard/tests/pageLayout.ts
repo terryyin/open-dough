@@ -158,12 +158,37 @@ export async function pressWhereShown(control: Locator) {
   await control.page().mouse.click(x + width / 2, y + height / 2);
 }
 
+// Touch an already visible, comfortably sized control at its current location.
+// No locator activation may scroll a clipped target into view for this check.
+export async function tapWhereShown(control: Locator) {
+  const { x, y, width, height } = await box(control);
+  expect(width, "touch target width").toBeGreaterThanOrEqual(44);
+  expect(height, "touch target height").toBeGreaterThanOrEqual(44);
+  expect(
+    await control.evaluate(clippedEdges, false),
+    "touch target is not clipped",
+  ).toBe(0);
+  expect(
+    await control.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return element.contains(
+        document.elementFromPoint(
+          rect.x + rect.width / 2,
+          rect.y + rect.height / 2,
+        ),
+      );
+    }),
+    "touch reaches the intended control",
+  ).toBe(true);
+  await control.page().touchscreen.tap(x + width / 2, y + height / 2);
+}
+
 // Every control in an area, such as a dialog's scrolling body, can be scrolled
 // whole into the window and out from under every part that clips it, and
 // every part that clips it, but holds more than it shows, lets the reader
 // scroll it, so none is out of reach. Fractions of a pixel left by scrolling
 // do not count.
-function clippedEdges(element: Element) {
+function clippedEdges(element: Element, requireScrollableOverflow = true) {
   const box = element.getBoundingClientRect();
   const clips = [{ left: 0, top: 0, right: innerWidth, bottom: innerHeight }];
   let unscrollable = 0;
@@ -179,15 +204,25 @@ function clippedEdges(element: Element) {
     const style = getComputedStyle(at);
     if (style.overflowX === "visible" && style.overflowY === "visible")
       continue;
-    clips.push(at.getBoundingClientRect());
+    const rect = at.getBoundingClientRect();
+    clips.push({
+      left: style.overflowX === "visible" ? -Infinity : rect.left,
+      right: style.overflowX === "visible" ? Infinity : rect.right,
+      top: style.overflowY === "visible" ? -Infinity : rect.top,
+      bottom: style.overflowY === "visible" ? Infinity : rect.bottom,
+    });
     if (
-      (at.scrollHeight > at.clientHeight + 1 && !scrolls(style.overflowY)) ||
-      (at.scrollWidth > at.clientWidth + 1 && !scrolls(style.overflowX))
+      (style.overflowY !== "visible" &&
+        at.scrollHeight > at.clientHeight + 1 &&
+        !scrolls(style.overflowY)) ||
+      (style.overflowX !== "visible" &&
+        at.scrollWidth > at.clientWidth + 1 &&
+        !scrolls(style.overflowX))
     )
       unscrollable += 1;
   }
   return (
-    unscrollable +
+    (requireScrollableOverflow ? unscrollable : 0) +
     clips.filter(
       (clip) =>
         box.left < clip.left - 1 ||

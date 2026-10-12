@@ -1,8 +1,6 @@
-/* Launch actions and session entries on cards or in Taken/Recently done.
-   The dialog's layout is ./launch-dialog.css; Recently done's own is
-   ./recently-done.css. Text carries meaning: a noted Start keeps the accent
-   and dashed edge with its tooltip (./icon-control.css); quiet gray means a
-   disabled Start. */
+/* Launch actions and session entries; dialogs: ./launch-dialog.css,
+   Recently done: ./recently-done.css. A noted Start keeps its accent, dashed
+   edge and tooltip (./icon-control.css); quiet gray means disabled. */
 
 /* In the card's launch group (stages.css), a Start's answer takes a line of
    its own right below it, before the next Start. */
@@ -71,9 +69,7 @@
   margin-top: 0.45rem;
 }
 
-/* How many of a card's sessions need attention, and, in a line of its own,
-   how many hold unread reports: their words say so, quietly, without color
-   or motion. */
+/* Attention and unread-report counts each say their meaning in words. */
 .card-attention,
 .card-unread-reports {
   margin-top: 0.45rem;
@@ -145,9 +141,8 @@
   color: var(--accent);
 }
 
-/* A question asked in place (Delete record…, Mark as done) stays in the
-   entry, beside its own words; the two choices sit on one line and read as
-   the launch controls do. */
+/* In-place questions (Delete record…, Mark as done) keep both choices
+   beside their words, styled as launch controls. */
 .in-place-question-actions {
   display: flex;
   flex-wrap: wrap;
@@ -155,9 +150,8 @@
   margin-top: 0.35rem;
 }
 
-/* Startup disables the card's actions without changing layout and dashes its
-   edge, preserving selection marks. Words carry meaning; the indicator moves
-   only while startup is known to progress. */
+/* Startup disables actions and dashes the edge without moving the card or
+   its selection marks. The indicator moves only while startup progresses. */
 .card-frame {
   display: contents;
 }
@@ -192,4 +186,64 @@
 
 .card-startup-note {
   font-size: 0.9rem;
+}
+
+@media (any-pointer: coarse) {
+  .start-launch-button {
+    box-sizing: border-box;
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+  }
+}
+
+/* Without hover, read a Start's existing limitation beside its action. The
+   tooltip remains that action's single accessible description; no launch or
+   second disclosure is needed to discover the note. */
+@media (hover: none) {
+  .start-launch-action {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .start-launch-action .tooltip-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .start-launch-action .frame-tooltip {
+    display: block;
+    position: static;
+    width: auto;
+    height: auto;
+    contain: none;
+  }
+
+  .start-launch-action .frame-tooltip > span {
+    position: static;
+    display: block;
+    width: auto;
+    transform: none;
+    padding: 0;
+    white-space: normal;
+    font-size: var(--text-sm);
+    color: var(--quiet);
+    background: none;
+    box-shadow: none;
+  }
+
+  .visually-hidden.card-session-open-reason,
+  .visually-hidden.card-launch-evidence-reason {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-size: var(--text-sm);
+    color: var(--quiet);
+  }
 }

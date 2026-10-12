@@ -70,3 +70,9 @@
     padding: 2px;
   }
 }
+
+@media (any-pointer: coarse) {
+  .project-choice {
+    min-height: var(--control-size);
+  }
+}

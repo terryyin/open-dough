@@ -24,6 +24,14 @@
   cursor: default;
 }
 
+@media (any-pointer: coarse) {
+  .inspect-story {
+    box-sizing: border-box;
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+  }
+}
+
 .card-selected {
   border-color: var(--accent);
 }
