@@ -2127,7 +2127,7 @@ While slice 5's full suite and refactor tests ran in the execution checkout, a C
   - Inference: Qualified. The published guidance runs CI repair concurrently with slice work and says nothing about shared machine load; one sample.
 
 The plan-264 occurrence’s concrete shared `dashboard/test-results` collision
-is now retained with [project DD-246](../../ProjectFindings.md#dd-246). Its repository
+is retained in [project DD-246's review and recovery](../../ProjectFindings.md#review-and-recovery). Its repository
 test-output mechanism belongs there; the general question of coordinating
 concurrent CI repair and slice proof across a shared machine remains here.
 
