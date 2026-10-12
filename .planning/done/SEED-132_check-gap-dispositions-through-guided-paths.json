@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-132#check-gap-dispositions-through-guided-paths",
+  "title": "Check a reported gap against the paths the story guides before accepting it",
+  "completedAt": "2026-10-12T02:23:32.792Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

@@ -59,7 +59,7 @@ Former local code: DD-219. An absolute changed-file size check conflicts with an
 
 ### Occurrences
 
-- Execution: `SEED-132#check-gap-dispositions-through-guided-paths` / plan 303, first implementation `f91a8dbf729f0094a54fdceefbc4e86385063d82`.
+- Execution: `SEED-132#check-gap-dispositions-through-guided-paths` / plan 303, first implementation `f91a8dbf729f0094a54fdceefbc4e86385063d82`. Story/proof recoverable at `74f8d3b9e6b5dd81b65d6253f4fc524cc6cd99fe:.planning/slice-plans/303-check-gap-dispositions-through-guided-paths/PLAN.md`.
   - Timestamp: unknown (2026-10-12, initial refactor handoff before delivery).
   - Tool: Codex.
   - Open Dough release: 0.3.60 (installed `dough-update/VERSION` at established claim `f81dffb2`).
