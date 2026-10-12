@@ -21,5 +21,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Accept indirect consumer discovery and proof judgment natively](seeds/SEED-132-acceptance-follows-reachable-behavior.md#accept-indirect-consumer-proof-natively) — SEED-132#accept-indirect-consumer-proof-natively
 - [Read a dashboard proof selection without rerunning it or weakening its verdict](seeds/SEED-131-repository-test-feedback.md#retain-strict-proof-selection) — SEED-131#retain-strict-proof-selection
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation

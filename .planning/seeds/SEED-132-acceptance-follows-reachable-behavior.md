@@ -204,11 +204,13 @@ accounted for without depending on the separate gap-disposition response.
 ### 3. Accept indirect consumer discovery and proof judgment natively
 
 **Identity:** SEED-132#accept-indirect-consumer-proof-natively
-**State:** Unrefined and unqueued; this home retains outstanding acceptance,
-not execution or release authority.
+**State:** Unrefined; queued for native acceptance, without execution or release authority.
 **Covered work:** [The consumer-proof story](#prove-indirect-consumers-before-acceptance)
 and [plan 304](../slice-plans/304-prove-indirect-consumers/PLAN.md), affecting
 `executable-proof.md`, implementation delegation and slice proof acceptance.
+
+**For / why:** A developer releasing Open Dough needs observed evidence that
+indirect-consumer selection and acceptance work in native host sessions.
 
 **Outcome:** Native implementation and acceptance discover consumers from the
 changed effect and obtain their sufficient observations, or leave dependent
