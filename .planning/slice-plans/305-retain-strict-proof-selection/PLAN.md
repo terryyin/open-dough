@@ -239,3 +239,11 @@ corrected without weakening the story or reporter.
 Independent refactoring returned `## REFACTOR COMPLETE` with no edits; after
 mechanical removal of forbidden test non-null assertions, its focused follow-up
 confirmed the proof unchanged. `npm run --silent format` then exited 0.
+
+Published slice: `89e561b68dc295b74a67562a31ef785c796cbee0` on the remote story
+branch; suffix base unchanged. Retrospective found no correction, ADR 0000/0002
+conflict, or new process finding in available coordinator/handoff history.
+
+## Execution complete
+
+Product advice: No follow-up; manual opt-in/read/retention is accepted scope.
