@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jackson-chan",
-  "email": "jackson-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-133#operate-dashboard-from-mobile-browser",
-  "host": "codex",
-  "model": "gpt-6-astra"
-}
