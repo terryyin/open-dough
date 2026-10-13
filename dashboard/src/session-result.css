@@ -1,7 +1,14 @@
+/* The title, question, answers and report share the panel's available height.
+   Scroll the whole reading surface so a wrapped header cannot push answers
+   outside the panel. The resize edge stays on the frame outside this scroll. */
+.session-result-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
 .session-result-body {
   padding: 1rem;
-  overflow: auto;
-  min-height: 0;
   color: var(--ink);
 }
 .session-result-body code {

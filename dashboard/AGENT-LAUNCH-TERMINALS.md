@@ -180,6 +180,14 @@ of advertising a terminal in that directory. The panel reads the same recorded
 host-qualified conversation through its saved endpoint, shows its final report
 read-only and names the workspace limitation separately from review status.
 
+The report's header, unfinished-work question, answers and content share one
+scrolling surface within the panel's available height. With a wrapped title or
+identity and reduced phone height, scroll by touch to read the question and
+show each whole answer, or to return to the report and Close. Enlarging or
+rotating keeps the same report and pending question. Keep open leaves its read
+and done state untouched and returns focus to Mark as done; confirming still
+uses the explicit Done operation above.
+
 Close or Command+Shift+Escape returns focus to the invoking control. Selecting
 another session cancels the previous report read. **Retry report** retries that
 same identity after a read failure. Reading changes no native input or done mark;

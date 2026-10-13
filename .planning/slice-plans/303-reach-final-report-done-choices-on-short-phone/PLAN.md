@@ -124,12 +124,31 @@ with a final-report touch regression rather than DOM-only rendering mocks.
 
 ## Ordered slices
 
+Execution uses the established Story Branch start in
+`/Users/terryyin/git/open-dough/.worktrees/keep-final-report-done-confirmation-choices-reac`,
+branch `codex/keep-final-report-done-confirmation-choices-reac`, publisher
+`dashboard-territory.local-open-dough`, assigned agent `jacked-chan`.
+The published claim/base is `9321e0bcc56da35f58e71936919c38dfbe4263ce`;
+starting revision is `1de2986ca45ad47198f0d43154be4d28e9d0e62d`.
+Owned increments publish to `origin` on that execution branch; eventual trunk
+is `main`. No replanning override or numeric slice limit was supplied.
+Checkout setup: `node scripts/setup-native.mjs npm`,
+`node scripts/setup-native.mjs check`, and `npm run typecheck:dashboard` passed
+with Node 24.21.0 and Chromium 153.0.8010.12.
+
+CI source: GitHub Actions, verified active `ci.yml` (`CI`), repository
+`terryyin/open-dough`, target `codex/keep-final-report-done-confirmation-choices-reac`.
+Codex coordinator `seed135-jacked-chan` owns yielded stream cell `14`,
+session `55293`, directory `/tmp/dough-ci-501/watch-osI3GU`, PID `53100`,
+launched from the execution checkout's installed runtime. The earlier claim
+on trunk is outside this branch observer's coverage.
+
 ### 1. Read and answer the unfinished-report question by touch at short height
 Type: Behavior
-Status: planned
-Proof: a new `session-result-touch.spec.ts` implements the mapped browser
-observations, first failing on the current wrapped-title report, then passing
-with the presentation change; focused existing consumer suites stay green.
+Status: done
+Proof: `session-result-touch.spec.ts` failed on the wrapped-title baseline,
+then passed with the presentation change and focused existing consumer suites.
+The accepted commands and inspected observations are retained below.
 
 Behavior: a saved unfinished report with wrapped session identity and missing
 workspace is open on a short phone → the developer opens Done confirmation,
@@ -163,5 +182,59 @@ are consumers of the changed surface, not a routine whole-product test gate.
 Run `npm run typecheck:dashboard` for changed TS/TSX and `npm run lint` for
 changed authored files. Hosted CI runs its own suites after publication.
 Execution applies the normal independent post-change refactor and delivery
-gates when authorized. This plan authorizes no execution and records no
-execution-complete status.
+gates under the established execution instruction above.
+
+## Accepted slice proof
+
+The original layout failed both short-phone cases before answer taps with
+`node node_modules/playwright/cli.js test --config dashboard/playwright.config.ts dashboard/tests/session-result-touch.spec.ts --grep 'short phone' --reporter=list`.
+After finger movement, the confirming answer was outside the report: at
+390×320 its y268.09–312.09 bounds exceeded report y−42–182; at 390×240 its
+y178.09–222.09 bounds exceeded report y−132–36. The regression observes
+full report/viewport/ancestor containment, not merely presence.
+
+Accepted final command (exit 0; strict quiet reporter, no output):
+
+```sh
+env -u NO_COLOR node node_modules/playwright/cli.js test --config dashboard/playwright.config.ts dashboard/tests/session-result-touch.spec.ts dashboard/tests/session-result-touch-edge.spec.ts dashboard/tests/session-workspace-retirement.spec.ts dashboard/tests/session-workspace-retirement-done.spec.ts dashboard/tests/agent-launch-done-question.spec.ts dashboard/tests/agent-launch-done-refusal.spec.ts dashboard/tests/session-workspace-retirement-attach.spec.ts dashboard/tests/session-workspace-retirement-claude.spec.ts dashboard/tests/story-panel-replacement.spec.ts dashboard/tests/agent-completion-attention.spec.ts dashboard/tests/recently-done-progressive-navigation-report.spec.ts
+```
+
+Inspected setup: `support/reportTouchJourney.ts::openUnfinishedReport` reuses
+retained native history, a saved unfinished completion and missing workspace;
+it supplies no layout or action result. `reportTouchPage.ts::reportGeometry`
+and `readReportByTouch` observe full bounds, clipping and hits after real finger
+strokes. `session-result-touch.spec.ts` observes both short-height choices,
+resize/rotation identity and pending state, Keep open/read/done/native/focus
+preservation, reading and Close access, and explicit Done/native rename without
+workspace recreation. Its tablet/desktop cases observe reading and keyboard
+dismissal. `session-result-touch-edge.spec.ts` observes long-report touch reading
+with a stationary usable edge and mouse/keyboard resizing. Existing consumers
+above preserve report association, selection cancellation, retry/refusal,
+working-session stop, and report/review/Recently done navigation.
+
+`npm run typecheck:dashboard` passed. No shared panel/question styles or action
+logic changed, so unrelated terminal/review touch suites were not triggered.
+The strict reporter's earlier color-environment warnings were diagnosed and
+removed through `env -u NO_COLOR`; the final command is the accepted proof.
+
+The final report uses one inner available-height scrolling surface; its resize
+edge remains outside it. An earlier root-scroll experiment was rejected after
+it scrolled the edge out of view; the retained edge regression covers that loss.
+Independent post-change refactor returned `none — already clean` and
+`REFACTOR COMPLETE`, with no edits or proof invalidation.
+After mechanical hook lint repairs in the test helpers, current touch/edge proof
+passed again (exit 0):
+`env -u NO_COLOR node node_modules/playwright/cli.js test --config dashboard/playwright.config.ts dashboard/tests/session-result-touch.spec.ts dashboard/tests/session-result-touch-edge.spec.ts`.
+Existing consumer proof and production behavior were unchanged by those repairs.
+
+## Story obligations
+
+### G1. Browser and synthetic-host proof boundary
+Reported: slice 1 — "Proof is deterministic Chromium with synthetic native-host fixtures; physical iOS, Safari, remote connectivity, and real native-host acceptance remain outside this delivery."
+Story clause: "Physical iOS keyboards, Safari-specific acceptance, and remote connectivity keep the shared seed's boundary."
+Disposition: excluded "Physical iOS keyboards, Safari-specific acceptance, and remote connectivity keep the shared seed's boundary."
+
+### G2. Existing exterior resize-edge overlap
+Reported: slice 1 — "The landscape exterior-quarter point, x419.81 outside the frame boundary x422, hits the existing dashboard column-edge-right paging button."
+Story clause: "A developer reading a saved final report on a phone with constrained visible height can choose Mark as done or Keep open by touch without activating the dashboard beneath the report."
+Disposition: no user cost "A developer reading a saved final report on a phone with constrained visible height can choose Mark as done or Keep open by touch without activating the dashboard beneath the report.": existing overlap lies outside the answers; both choices hit their own controls, and the resize edge's available inner target and actual mouse/keyboard resize remain usable before and after report scrolling (`session-result-touch.spec.ts`, `session-result-touch-edge.spec.ts`).
