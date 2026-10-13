@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-066_cursor-trust-prompt-at-session-start.json",
+      "identity": "SEED-066#cursor-trust-prompt-at-session-start",
+      "completedAt": "2026-10-13T23:30:14.188Z",
+      "blob": "71897117fbd1ed523ca76fd224a042e83930c16e"
+    },
+    {
       "fileName": "SEED-135_read-direction-after-phone-session-start.json",
       "identity": "SEED-135#read-direction-after-phone-session-start",
       "completedAt": "2026-10-13T11:52:32.228Z",

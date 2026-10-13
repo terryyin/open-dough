@@ -130,8 +130,8 @@ before an answer. Terminal `a` delivered the retained input: confirmed record,
 entry “First input accepted”, native one-query prompt_history/pasted_text exactly
 matched the 2,485-character Established session block/reporting context/question.
 Native `pwd` returned that workspace; one chat/client, clean unchanged worktree.
-Trust discrepancy resolved by this fresh evidence. Plan 305 records judged
-proof and owned cleanup. This question-only journey does not re-prove execution,
+Trust discrepancy resolved by this fresh evidence. Judged proof and owned
+cleanup are recoverable at `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`. This question-only journey does not re-prove execution,
 landing, retirement, or Cursor's missing completion report; their ownership and
 this slice's unfinished status remain as above.
 

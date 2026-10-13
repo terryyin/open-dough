@@ -220,9 +220,10 @@ Terry accepted both corrections on 2026-10-13. They are queued first on trunk
 - Discrepancy 1: `SEED-066#retire-established-session-worktree`, plan
   `slice-plans/304-retire-established-session-worktree/PLAN.md`; slices 1 and
   3 here wait on its Claude Code and Cursor evidence.
-- Discrepancy 2: `SEED-066#cursor-trust-prompt-at-session-start`, plan
-  `slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`; slice 3 here
-  waits on its Cursor evidence.
+- Discrepancy 2 is resolved by the trust correction
+  `SEED-066#cursor-trust-prompt-at-session-start`; its completed plan is recoverable
+  at `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`.
+  [Fresh Cursor proof](AUTO-LAND-OBSERVATIONS.md#cursor-trust-correction-re-observation) remains here.
 
 On Terry's instruction the same day, the leftover Lizard worktrees
 `.worktrees/session` and `.worktrees/session-2` were retired with their

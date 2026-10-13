@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-066#cursor-trust-prompt-at-session-start",
+  "title": "See and answer Cursor's workspace trust prompt when a session starts",
+  "completedAt": "2026-10-13T23:30:14.188Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

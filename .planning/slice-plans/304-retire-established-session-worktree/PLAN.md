@@ -52,8 +52,8 @@ inferred from a clean directory, a claim or a preparation assignment.
 
 Excluded: recording a creation ref from the dashboard start, changing
 `execution-start.mjs` receipts, dashboard changes, and the Cursor trust
-prompt, which [plan 305](../305-cursor-trust-prompt-at-session-start/PLAN.md)
-owns.
+prompt, whose correction is complete and recoverable at
+`4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`.
 
 ## Current decisions
 
