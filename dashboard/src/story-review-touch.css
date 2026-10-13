@@ -1,0 +1,39 @@
+/* Review labels and rows use their complete activation surface on touch
+   input. The shared frame controls keep their own sizing; desktop density
+   stays in the review's base styles. */
+@media (any-pointer: coarse) {
+  /* Context and comparison explanations scroll without taking the reading
+     panes' remaining height in a short landscape view. */
+  .story-review-top {
+    max-height: 30%;
+    overflow-y: auto;
+    scroll-padding-block: 0.5rem;
+  }
+
+  .story-review-context-values,
+  .story-review-files button,
+  .story-review-comparison label,
+  .story-review-uncommitted label,
+  .story-review-commits button {
+    min-height: var(--control-size);
+  }
+
+  .story-review-context-values,
+  .story-review-files button,
+  .story-review-comparison label,
+  .story-review-uncommitted label {
+    min-width: var(--control-size);
+  }
+
+  .story-review-context-values[aria-expanded="true"] {
+    max-height: 18dvh;
+    overflow-y: auto;
+  }
+
+  .story-review-comparison label,
+  .story-review-uncommitted label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+}

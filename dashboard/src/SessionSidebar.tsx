@@ -1,11 +1,11 @@
 import { sessionKey } from "./sessionReference.ts";
 // The Sessions sidebar: the machine's sessions still open, from every
 // catalog project whichever is selected, those that need the developer
-// first, then the rest (`openSessionsOf`), each one line: its story's title
+// first, then the rest (`openSessionsOf`), each with its story's title
 // and how long ago it was launched, its session's own state marked by the
 // edge of the entry (`shownSession`), an unread report by its own mark, with
-// the details in its tooltip, and, while the server cannot raise its macOS
-// alerts (`alerts`), a quiet "Alerts unavailable" note with why, in the open
+// details in its tooltip and coarse-input disclosure. While the server cannot
+// raise macOS alerts (`alerts`), a quiet "Alerts unavailable" note says why, in the open
 // sidebar only. It sits beside the page, left of it, and the Sessions icon
 // button at the start of the banner opens and closes it, with a badge of how
 // many sessions need the developer (`attentionCount`), open or closed, which

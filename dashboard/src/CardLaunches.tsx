@@ -142,7 +142,7 @@ export function CardLaunches({
         </div>
       )}
       {unread !== undefined && (
-        <p id={unread} className="visually-hidden">
+        <p id={unread} className="visually-hidden card-launch-evidence-reason">
           Unavailable until this dashboard reads this machine&apos;s launch
           evidence.
         </p>

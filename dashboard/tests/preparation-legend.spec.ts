@@ -6,10 +6,14 @@ import {
   zoomedWindow,
 } from "./accessibleReading.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { parts, expectSettledPage } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  box,
+  expectNoSidewaysScrollAndWholeText,
+  tapWhereShown,
+} from "./pageLayout.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedReady,
@@ -17,6 +21,56 @@ import {
   unrefined,
 } from "./storyReadinessFixture.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+
+test.describe("touch preparation help", () => {
+  test.use({ hasTouch: true });
+  test("help and Close stay reachable while the phone rotates, preserving the project and reading position", async ({
+    page,
+    afterGitHubStops,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+    const origin = await publishCommittedOrigin(page, {
+      repoDir: repo.directory,
+      revision: repo.revision,
+      repository: "terryyin/open-dough",
+    });
+    await openUntilRead(page);
+    await expectSettledPage(page);
+    const launcher = parts(page).preparationHelp;
+    const reads = origin.requests.length;
+    const scroll = await page.evaluate(() => window.scrollY);
+    await tapWhereShown(launcher);
+    const dialog = page.getByRole("dialog", { name: "Preparation badges" });
+    const close = dialog.getByRole("button", { name: "Close", exact: true });
+    await expect(dialog).toBeVisible();
+    for (const size of [
+      { width: 844, height: 390 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(size);
+      const explanation = dialog.getByText(
+        "Text carries every color meaning.",
+        { exact: false },
+      );
+      await explanation.scrollIntoViewIfNeeded();
+      await expect(explanation).toBeInViewport({ ratio: 1 });
+      await expect(close).toBeInViewport({ ratio: 1 });
+      await expectNoSidewaysScrollAndWholeText(page);
+    }
+    await tapWhereShown(close);
+    await expect(dialog).not.toBeVisible();
+    await expect(launcher).toBeFocused();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scroll);
+    await expect(
+      parts(page).project.getByRole("radio", {
+        name: "Open Dough",
+        exact: true,
+      }),
+    ).toBeChecked();
+    expect(origin.requests.length).toBe(reads);
+  });
+});
 
 for (const viewport of [
   { name: "desktop", size: { width: 1280, height: 720 } },

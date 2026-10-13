@@ -14,7 +14,10 @@ ten, with older entries ten at a time on request and **Show latest 10** to
 return ([session history](AGENT-LAUNCH-HISTORY.md#recently-done-range)). Open sessions whose
 story is in Backlog or Taken appear only inside its card; all other open
 sessions appear in Taken after the published stories. The **Sessions**
-sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
+sidebar lists every project's open sessions, those needing attention first,
+with compact title/elapsed rows on desktop and a separate **Session details**
+disclosure for touch reading of the full title and session context. Its button
+is badged with how many need attention.
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** records Done intent, renames the native session where supported and
 stops native work. Quiet automatic completion uses the same Done operation while
@@ -82,6 +85,14 @@ development/production credentials and configured-versus-verified status.
 in `~/.open-dough/dashboard/terminal-theme.json`, which development and
 production share on this machine. A failed save keeps the saved theme and offers
 Retry; other open dashboard windows use a new choice after a reload.
+
+On phone and tablet touch views, **Back to dashboard** remains reachable while
+you scroll through the settings groups. Project dialogs keep their actions in
+view while fields scroll; changing orientation or reducing visible height
+preserves the form draft. Failed writes retain their existing explicit retry
+and saved-setting behavior. Local checkout paths, credentials and theme choices
+refer to the dashboard host machine. These local browser viewport checks do
+not claim physical iOS keyboard or remote-connectivity validation.
 
 [Published dashboard observation](PUBLISHED-OBSERVATION.md) describes local
 `gh` authentication, pinned revisions, independent fact arrivals, automatic

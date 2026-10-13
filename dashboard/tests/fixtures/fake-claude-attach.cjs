@@ -5,7 +5,7 @@
 // exists, then shows Claude Code’s bordered composer and visible cursor.
 // attach-prompt-delay-ms delays that prompt; keys before it are discarded.
 // Echoes typing and
-// `echo <line>`, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
+// `echo <line>`, edits with Backspace, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
 // on Ctrl+Z. Logs pid and recorded environment (./fake-claude) in
 // attaches.jsonl, lines in attach.<pid>.lines, and
 // ending signal or Ctrl+Z in attach.<pid>.ended. `/rename <name>` updates the
@@ -90,6 +90,11 @@ module.exports = function attach(dir, id, env, renameListed) {
       } else if (key === "\u0015") {
         line = "";
         process.stdout.write("\r\u001b[K");
+      } else if (key === "\u007f" || key === "\u0008") {
+        if (line.length > 0) {
+          line = line.slice(0, -1);
+          process.stdout.write("\b \b");
+        }
       } else {
         line += key;
         process.stdout.write(key);

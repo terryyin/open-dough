@@ -13,6 +13,7 @@ let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
   fixture = projectAddMachine();
 });
+
 test.afterEach(async () => fixture.close());
 const remove = async (page: import("@playwright/test").Page, label: string) => {
   await page

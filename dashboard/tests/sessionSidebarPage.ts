@@ -65,7 +65,8 @@ const seenTextOf = (entry: Locator) =>
       .filter(
         (child) =>
           !child.classList.contains("visually-hidden") &&
-          child.tagName !== "BUTTON",
+          child.tagName !== "BUTTON" &&
+          child.getBoundingClientRect().height > 0,
       )
       .map((child) => child.textContent)
       .join("|"),

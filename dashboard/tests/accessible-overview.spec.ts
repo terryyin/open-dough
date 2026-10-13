@@ -1,7 +1,7 @@
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  largeBacklog,
+  publishLargeBacklog,
   longAddress,
   longBacklog,
   longIdentity,
@@ -189,10 +189,7 @@ test("accessible overview keeps a read problem and the retained work reachable i
 test("accessible overview reads a backlog longer than one screen by scrolling the page", async ({
   page,
 }) => {
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(largeBacklog) },
-  });
+  await publishLargeBacklog(page);
   await page.goto("/");
   const { backlog } = parts(page);
   await expectMembership(page, {

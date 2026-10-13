@@ -27,3 +27,11 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
+@media (any-pointer: coarse) {
+  .startup-recovery-actions button {
+    min-height: var(--control-size);
+    min-width: var(--control-size);
+    padding: var(--space-1) var(--space-3);
+  }
+}

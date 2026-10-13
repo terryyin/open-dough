@@ -124,7 +124,10 @@ startTest.describe("a story start that crosses its warning threshold", () => {
         kind: "uncertain",
         explanation: expect.stringContaining("already running"),
       });
-      expect(await attempts(dashboard)).toEqual([slow]);
+      // The owning timer may replace a warning derived from acceptance time.
+      expect(await attempts(dashboard)).toEqual([
+        { ...slow, slowSince: expect.any(String) },
+      ]);
       expect(dashboard.claudeLaunchCalls()).toEqual([]);
       push.release();
       expect(await settledOutcome(dashboard, id)).toMatchObject({

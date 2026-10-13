@@ -4,6 +4,8 @@ How a story launch establishes its start before the native session, recovers
 it, and applies the dialog's Session choices. [Agent launch](AGENT-LAUNCH.md)
 owns the rest of the launch contract.
 
+[Launch editing by touch](LAUNCH-TOUCH.md) describes viewport changes and input.
+
 ## Mechanical start and recovery
 
 The selected installed skill establishes a start only when it ships both its

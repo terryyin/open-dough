@@ -35,6 +35,16 @@
   letter-spacing: -0.01em;
 }
 
+/* Reading a lower setting group must leave the touch view's way back in
+   reach. Ordinary settings content still uses the page's own scrolling. */
+@media (any-pointer: coarse) {
+  .settings-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+}
+
 .settings-section {
   box-sizing: border-box;
   display: flex;

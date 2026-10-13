@@ -16,6 +16,7 @@ import {
 import type { SessionOperation, SessionRequest } from "./pageSessions.ts";
 import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
 import { terminalThemes } from "./terminalThemes.ts";
+import { listenToTerminalTouchScroll } from "./terminalTouchScroll.ts";
 
 function terminalUrl(record: LaunchRecord): string {
   const query = new URLSearchParams({
@@ -73,6 +74,8 @@ export function useAttachedTerminal(
     const fit = new FitAddon();
     terminal.loadAddon(fit);
     terminal.open(screen);
+
+    const stopTouchScroll = listenToTerminalTouchScroll(screen, terminal);
 
     const socket = new WebSocket(url);
     socket.binaryType = "arraybuffer";
@@ -181,6 +184,7 @@ export function useAttachedTerminal(
 
     return () => {
       current = false;
+      stopTouchScroll();
       panelSize.disconnect();
       startedFrame.dispose();
       endedFrame.dispose();

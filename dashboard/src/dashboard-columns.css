@@ -110,6 +110,16 @@
   }
 }
 
+/* Keep explicit column navigation comfortable to tap, including when a
+   tablet has room for two columns. The existing column paging owns the view. */
+@media (any-pointer: coarse) {
+  @container page (width < 72rem) {
+    .dashboard-columns {
+      --column-edge: var(--control-size);
+    }
+  }
+}
+
 /* An edge control (./ColumnEdge.tsx): a slim, tall strip in its side's
    room, kept in sight below the banner while the page scrolls, naming the
    hidden column top to bottom beside an arrow toward it. */

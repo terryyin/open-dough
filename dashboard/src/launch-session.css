@@ -49,6 +49,12 @@
   white-space: nowrap;
 }
 
+@media (any-pointer: coarse) {
+  .launch-session-values label {
+    gap: var(--space-1);
+  }
+}
+
 .launch-session-hint {
   grid-column: 2;
   margin: 0;

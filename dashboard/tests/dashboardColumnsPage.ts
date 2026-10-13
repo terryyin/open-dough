@@ -92,7 +92,6 @@ export async function expectView(
   for (const control of await edgeControls(page).all()) {
     await expect(control).toBeInViewport({ ratio: 1 });
   }
-  const pageColumn = await box(page.locator(".page-column"));
   const view = await box(page.locator(".dashboard-columns-view"));
   await expect
     .poll(async () => {
@@ -120,11 +119,9 @@ export async function expectView(
   const first = boxes[0];
   const last = boxes.at(-1);
   if (first === undefined || last === undefined) throw new Error("none shown");
-  // The shown columns fill the page but the edge controls' room and share
-  // it equally.
-  expect(last.x + last.width - first.x).toBeGreaterThanOrEqual(
-    pageColumn.width - 2 * edgeRoom - 1,
-  );
+  // The shown columns fill their available view and share it equally,
+  // whether its sides reserve touch edges, mouse edges, or page margins.
+  expect(last.x + last.width - first.x).toBeGreaterThanOrEqual(view.width - 1);
   for (const at of boxes) {
     expect(Math.abs(at.width - first.width)).toBeLessThanOrEqual(1);
   }

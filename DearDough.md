@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 291. Removed numbers are never reused.
+- Highest allocated local number: 292. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -44,6 +44,15 @@ Former local code: DD-155. Concurrent unpublished plan allocation produces two q
 ## ODF-141 — Fixed refactor cost on small accepted slices <a id="odf-141"></a>
 
 Former local code: DD-192. Every small slice launches a fresh full refactor agent even when the accepted diff needs no further changes, creating substantial repeated cost. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-141).
+
+### Occurrences
+- Execution: `SEED-133#operate-dashboard-from-mobile-browser` / plan306, first implementation `1a843c3efbcd97a068c5c04fe94da007d6a1144e`
+  - Timestamp: unknown (2026-10-13, review-reader CI repair before `27fa55b5`).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed VERSION at established claim `db0dfb07`; installed guidance unchanged throughout execution).
+  - Evidence: `refactor_ci_review_reader` returned “none — already clean” and `REFACTOR COMPLETE` for the one-helper redundant-cap repair, reporting approximately five active minutes, no edits and no proof reruns; accepted repair `27fa55b5` retains its proof.
+  - Observed effect: one mandatory independent handoff produced no additional changes. Other slice refactors consolidated controls, native input and complete test journeys.
+  - Inference: reported handoff cost supports investigating proportionality for established small repairs; it does not establish that independent review lacked value. No token cost or savings is measured.
 
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
@@ -221,3 +230,14 @@ Former local code: DD-289. Planning promises landing context for an unattached l
 
 Former local code: DD-288. A story’s final paid native observation requires installed skills available only in a release after that story lands, so its starting state cannot exist within the planned execution. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-238).
 Observation follow-up remains [queued](.planning/seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation); it does not resolve the general planning lesson.
+
+## DD-292 — Refactor reruns unchanged consumer proof
+A refactor repeated the accepted thirty-spec terminal consumer command although only a subset of its observations moved. Existing guidance requires reusing proof whose boundaries remain unchanged.
+### Occurrences
+- Execution: `SEED-133#operate-dashboard-from-mobile-browser` / plan306, first implementation `1a843c3efbcd97a068c5c04fe94da007d6a1144e`
+  - Timestamp: unknown (2026-10-12–13, slice4 refactor before `65a03c49`).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed VERSION at `db0dfb07`; installed guidance unchanged).
+  - Evidence: `866f49cc:.planning/slice-plans/306-mobile-dashboard/PLAN.md`, slice4 independent-refactor paragraph and literal thirty-file command; the retained coordinator record states that the run started before the invalidated selection was narrowed.
+  - Observed effect: changed gesture/observation proof passed, but unaffected consumers also ran again. The excess run was recorded as a deviation, not a new acceptance gate.
+  - Inference: preserve the accepted command as evidence, and select invalidated consumers before starting verification. Avoidable elapsed time and token cost were not measured; one execution establishes no general rate.

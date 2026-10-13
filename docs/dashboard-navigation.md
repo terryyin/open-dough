@@ -16,7 +16,14 @@ as it does for the project arrows below. Toggling leaves the keyboard where it
 is, except that closing the sidebar while the keyboard is inside it returns
 the keyboard to the Sessions button. The sidebar stays open or closed as left
 across project switches, views, the terminal, and reloads; it is disposable
-per-browser state and starts closed when none is kept. Below the session list,
+per-browser state and starts closed when none is kept. A coarse-input browser
+offers **Session details** on each entry, separately from opening the session.
+It reveals the full title, story identity, project/workflow, state and note,
+requested model, launch time and unread-report label without hover. These are
+the same local session facts as the desktop tooltip; the disclosure and list
+scroll for reading, and orientation changes keep the disclosure open. Desktop
+retains its compact title/elapsed row and keyboard Open control.
+Below the session list,
 the sidebar's **Running Cursor sessions** section starts collapsed on each page
 load, its header alone below the list, which fills the rest of the sidebar.
 Expanding it with the mouse or keyboard gives the session list and the
@@ -103,6 +110,17 @@ mounted session sidebar and terminal context. Project arrows leave settings
 controls and forms alone. Facts and actions wrap in reading order at narrow
 widths and browser zoom.
 
+With touch input, **Back to dashboard** stays at the top while the settings
+groups scroll beneath it. Scroll ordinary facts, fields, samples and error
+messages to read them; project dialogs keep Add/Remove and Cancel below their
+scrolling body. Editing at reduced visible height or rotating preserves the
+current form draft and causes no write. A failed project or OpenAI save keeps
+the entered draft and the saved predecessor for an explicit retry; a failed
+theme choice returns to the saved theme and offers Retry. OpenAI's unsaved
+input clears when leaving settings, following its existing credential rules.
+Local paths and saved settings belong to the dashboard host machine, including
+when this view is opened from a phone or tablet.
+
 Below the banner, show **Near-future direction** as an initially collapsed
 disclosure. Activation reveals its full published text or the existing
 no-direction explanation across the full width of the direction's line,
@@ -116,6 +134,18 @@ control and Escape, contain focus inside, and return focus to the launcher.
 Keep the actual story badges and their textual meanings visible on cards.
 Direction and help are transient UI state and cause no source read. Keep
 direction, evidence, and view controls outside any zooming surface.
+
+Touch browsing uses the same project choices, story details and whole-column
+paging. With a coarse pointer, frame controls, project choices, story Start
+and Inspect actions, and column edges provide at least 44px targets. When
+hover is unavailable, a Start's preparation/readiness note and its disabled
+reason are readable on the card. Inspect story reveals the full identity,
+assessment and pinned source details; dependency explanations open in place.
+Titles and source paths wrap instead of widening the page. Rotation preserves
+the selected story and open explanations, and Hide detail and Close return
+focus to their originating card or control. Local Chromium touch viewport
+checks cover phone/tablet sizes and rotation alongside desktop checks; they
+do not establish physical-device keyboard or remote-connectivity behavior.
 
 Use one navigable stage containing connected regions for work stages. Initially,
 show **Backlog → Taken**, with work cards placed inside their recorded region.

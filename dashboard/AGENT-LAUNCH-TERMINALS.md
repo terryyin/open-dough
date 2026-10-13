@@ -92,6 +92,18 @@ Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
+On touch screens, tap the terminal to focus its ordinary input, edit with the
+browser keyboard and submit with Enter. The terminal keeps its own scrollback;
+scroll within it to read earlier output. With reduced visible height, a long
+session title and identity scroll independently in the header, leaving the
+input and Maximize/Restore/Close controls reachable. Maximize gives the terminal
+the available window; restoring, changing orientation or reducing visible
+height fits that same attachment without launching or reconnecting it. Close
+and reopening follow the host lifecycles above. Local Chromium touch viewport
+proof covers phone/tablet portrait, landscape and a 240-pixel visible height,
+including Backspace, Enter and actual browser-to-WebSocket-to-PTY replies. It
+does not establish physical iOS keyboard or remote connectivity behavior.
+
 Mark as done uses one operation from card, final report panel or terminal. It saves local done intent,
 requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
@@ -184,6 +196,15 @@ and leaves the session open.
 **Mark as done**, its own control beside it, closes a reported session as
 above, read or not; an unread report alone is not asked about. Cursor, which has no
 native stop operation, records local Done only, also after its workspace disappears.
+On coarse input, **Session details** in the sidebar exposes the full session
+title, story identity and the same project/state/model/time facts as its tooltip,
+including the unread-report label. Opening the session is a separate touch.
+Attention messages remain on the selected session's entry. Their disclosure,
+Mark as read, Mark as done, Delete record and confirmation answers have touch
+targets of at least 44 pixels; desktop retains its compact controls. Keep open
+on an incomplete session's Done question retains the session and attachment,
+as above. Portrait/landscape browser viewport proof covers these interactions
+locally; it does not establish physical iOS keyboard or remote access behavior.
 An observed native Working signal remains visible separately beside the attention
 or local Done label.
 An explicit attention message is read on the session's entry from machine-local

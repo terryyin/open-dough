@@ -1,6 +1,13 @@
 // What the accessible-overview journeys publish: work too long for any line,
-// and a backlog too long for one screen. Only raw backlog files are written
-// here; what the page shows is for each test to observe.
+// and a backlog too long for one screen. Publishing supplies only source
+// preconditions; what the page shows is for each test to observe.
+
+import type { Page } from "@playwright/test";
+import {
+  commitAnswer,
+  publishOrigin,
+  rawFileAnswer,
+} from "./publishedOrigin.ts";
 
 export const revision = "7c0ffee1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f607";
 
@@ -58,3 +65,10 @@ ${queuedPlaces
   )
   .join("\n")}
 `;
+
+export async function publishLargeBacklog(page: Page) {
+  await publishOrigin(page, {
+    ref: commitAnswer(revision),
+    backlog: { revision, answer: rawFileAnswer(largeBacklog) },
+  });
+}

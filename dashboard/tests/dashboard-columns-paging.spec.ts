@@ -15,17 +15,11 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
-  largeBacklog,
+  publishLargeBacklog,
   queuedCount,
   queuedTitle,
   queuedTitles,
-  revision,
 } from "./accessibleOverview.ts";
-import {
-  commitAnswer,
-  publishOrigin,
-  rawFileAnswer,
-} from "./publishedOrigin.ts";
 import { box } from "./pageLayout.ts";
 import {
   bottomOf,
@@ -46,10 +40,7 @@ import {
 import { openUntilRead } from "./pageRequestNotes.ts";
 // The dashboard, reading a Backlog longer than one screen and one Taken entry.
 async function openLargeBacklog(page: Page) {
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(largeBacklog) },
-  });
+  await publishLargeBacklog(page);
   await openUntilRead(page);
 }
 

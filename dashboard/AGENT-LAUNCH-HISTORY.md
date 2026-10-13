@@ -170,3 +170,9 @@ previous one, else the done card or story card that held it,
 else the containing column. Closing a terminal or report keeps its original
 return control while usable, otherwise returns to the same session in its
 current home. Membership movement alone never attaches or detaches its terminal.
+
+The same side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md).
+On phone and tablet touch views, its header keeps Close and Maximize/Restore
+reachable beside the story identity. Its file browser, diff and bounded
+context area scroll independently; rotation keeps the comparison, chosen file
+and reading context, and Close returns focus to the originating work.
