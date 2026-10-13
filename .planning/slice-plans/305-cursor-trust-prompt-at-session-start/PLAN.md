@@ -13,33 +13,16 @@ this correction the same day.
 
 ## Current findings
 
-Start session · Isolated workspace · Automatically land on Cursor (launch
-`2d5ab090-e36e-4f52-afd9-24363e66c8c7`, chat `2787e58b-228e-4e60-96e2-b7ccfcf51cee`):
-
-- The start created `.worktrees/session-2`, a path Cursor had not trusted.
-- The launch settled `uncertain`, `timed-out` after 38 seconds: “Cursor did
-  not show it took the instruction in time. Session … is kept.” Startup
-  recovery offered Recheck and Continue session start; the entry read “First
-  input acceptance uncertain”; the runner listed the client as “waiting for an
-  answer”. Nothing named workspace trust.
-- Opening the session's terminal delivered one frame,
-  `{"readiness":"observe"}`, and an empty screen, on two openings at different
-  sizes.
-- Opening the same chat in a private pty showed “Workspace Trust Required …
-  [a] Trust this workspace / [q] Quit”.
-- Pressing `a` in the dashboard terminal drew “Trusting workspace…”, then the
-  runner wrote the kept instruction, the record's first input became
-  `confirmed`, and the journey continued normally.
-
-Read from source at `52a4f6e9`: [launch.ts](../../../dashboard/server/hosts/cursor/launch.ts)
-answers every launch-wait abort with the shared timed-out wording;
-[recover.ts](../../../dashboard/server/hosts/cursor/recover.ts) already
-recognizes the trust screen (`trustPhrases`) for recovery; and
-[AGENT-LAUNCH-TERMINALS.md](../../../dashboard/AGENT-LAUNCH-TERMINALS.md) says a
-socket joining a kept client “sees a redrawn screen”.
-
-Slice 1 establishes why the held screen was absent on join and fixes that
-boundary; its native observation and accepted proof are recorded below.
+Original Lizard observation: dashboard `e40d6854c99b`, Cursor
+`2026.10.01-e373342`, launch `2d5ab090-e36e-4f52-afd9-24363e66c8c7`,
+chat `2787e58b-228e-4e60-96e2-b7ccfcf51cee`, new `.worktrees/session-2`.
+The uncertain/timed-out launch, Startup recovery and entry did not name trust;
+joining twice at different sizes delivered readiness only and a blank screen.
+A private pty showed “Workspace Trust Required … [a] Trust this workspace / [q]
+Quit”. Answering `a` in the dashboard terminal then delivered the instruction
+and confirmed first input. At `52a4f6e9`, launch used generic timeout wording,
+recovery already recognized trust, and the terminal contract relied on redraw.
+Slice 1 establishes the absent screen's cause and fixes that boundary below.
 
 ## Goal and scope
 
@@ -92,17 +75,15 @@ owns.
 - CI source: GitHub Actions, verified `ci.yml` / `CI`,
   `terryyin/open-dough`, execution branch above.
   Coordinator `seed066-cursor-trust`, installed runtime in this checkout,
-  observer `/tmp/dough-ci-501/watch-xpWDgm`, PID `55960`, stream session `71234`,
-  yielded cell `9`. Keep this identity for managed delivery and recovery.
-  Stopped for the slice 1 decision on 2026-10-14: matching stop receipt reports
-  `status: stopped`, no unread evidence, `pendingCi: unobserved`; PID exit
-  confirmed. No increment was committed or published. Resume preserves the
-  uncommitted baseline spec and this plan, and may rearm only after the native
-  investigation decision is resolved.
-  Terry authorized the bounded native investigation and continuation on
-  2026-10-14. The resumed observer is `/tmp/dough-ci-501/watch-j5qciV`,
+  first observer stopped for the slice 1 decision: matching receipt reported
+  stopped, no unread evidence, CI unobserved; PID exit confirmed, no increment.
+  Terry authorized the native investigation and continuation on 2026-10-14.
+  Resumed observer `/tmp/dough-ci-501/watch-j5qciV`,
   PID `56569`, stream session `57326`, yielded cell `5`, same coordinator,
   checkout, repository, workflow and execution target.
+- Slice 1 accepted on the remote execution branch:
+  `12feacafe168c84fe73faecbea31d0ca9c83f6e3`, suffix base the established claim;
+  managed delivery reused the exact observer above, maintenance not applicable.
 
 ## Outside-in proof ownership
 
@@ -172,7 +153,7 @@ Accepted investigation and implementation on 2026-10-14:
 
 ### 2. An unanswered trust prompt is named where the developer looks
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend the launch-wait and Startup recovery specs for Cursor with the
 substitute trust screen; then the whole dashboard suite and `npm test`.
 
@@ -182,6 +163,31 @@ waiting for workspace trust and that it is answered in the session's
 terminal. The developer answers there → the kept instruction is written and
 the first input reads confirmed. A wait that ends on any other screen keeps
 today's wording.
+
+Accepted slice 2 proof on 2026-10-14:
+
+- The existing held-session read now supplies an optional trust indicator from
+  the current screen. Launch names it for the same held session and updates
+  the uncertain first input through a locked record mutation. Shared recovery
+  recognition and trust stop are preserved; legacy reads retain generic wording.
+- `npm run test:dashboard -- dashboard/tests/agent-terminal-cursor-launch-wait.spec.ts dashboard/tests/cursor-startup-trust.spec.ts dashboard/tests/cursor-session-recovery-stops.spec.ts dashboard/tests/cursor-session-recovery-wait.spec.ts --reporter=list`
+  passed 9 tests after the trust-specific RED failures. Raw dev/preview tests
+  and the actual Start page observe the explanation, no input before `a`,
+  exact instruction delivery and confirmed state on the same client. Other
+  timeout wording and recovery's trust stop remain covered.
+- `env -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed066-slice2-dashboard-controlled-proof.json npm run test:dashboard -- --workers=4`
+  exited 0: strict receipt completed/passed, all 1,625 tests passed without
+  skips or retries (1,092.290s, run `1763d9f1-69b3-4b84-8f72-88d57452706e`).
+  All found receiving consumers ran, including shared records and all hosts.
+  Independent refactor: none — already clean; accepted proof unchanged.
+  `PATH=/opt/homebrew/bin:$PATH npm test` and dashboard typecheck passed.
+- Earlier proof attempts reached terminal results: Bash 3.2 refused startup;
+  conflicting inherited color flags failed stderr proof, then the owned run
+  was interrupted and exited before retry. The clean default-worker full run
+  had 1,624 passes and one unchanged Claude journey exhausting its 30s budget
+  under overlapping shell proof. With unchanged source/deadline, that journey
+  passed focused (10.1s) and inside the controlled full run (5.876s). The final
+  whole proof supplies acceptance; no test deadline or helper was changed.
 
 ### 3. Cursor's real trust prompt is seen and answered from the dashboard
 Type: Behavior
@@ -197,6 +203,26 @@ confirms the first input. Record the Cursor version, dashboard revision,
 launch and observed result in this plan, and in plan 301 where its slice 3
 waits on this evidence.
 
+Native observation preparation: one bounded initial Start session journey in
+Lizard (`/Users/terryyin/git/lizard`, `origin/master`),
+after slice 2's `npm run test:dashboard` and `npm test` pass for the candidate.
+Use a built preview from this execution checkout, with an isolated dashboard
+home/runner; native Cursor and gh retain the developer's existing home through
+temporary command shims. Do not restart the existing machine runner. Allocate
+preparation to candidate/setup verification, breadth to launch/recovery/entry
+and visible terminal, then depth to answering and confirmed input/native query;
+reserve cleanup/diagnosis time. One attempt, about five minutes of observation.
+The instruction asks for the working directory with no changes, rather than
+supplying an expected answer. Cleanup only this observation's runner, preview,
+clean session worktree/branch and temporary files; preserve unrelated sessions.
+Refreshed preflight: Lizard is clean at `34c50f0d`, installed `0.3.61`;
+Cursor is now `2026.10.12-d47ca18`. Unattached capability is true and the
+installed start/formatter/policy sources are unchanged between release tags.
+A fresh untrusted Lizard fixture, chat `d7a4cbf8-5118-4cc7-bf2c-3f196597b59d`,
+still showed the unframed trust prompt (1,889 bytes) and emitted zero bytes for
+the synchronous nudge. `q` quit, exit 0, with no instruction; clean fixture
+removed. This confirms the earlier cause applies to the current native version.
+
 ## Story obligations
 
 ### G1. Native empty-screen cause and current-screen repair remain unresolved
@@ -207,7 +233,7 @@ Disposition: proved by slice 1: dashboard/tests/agent-terminal-cursor-trust-join
 ### G2. Trust explanation and first-input confirmation await slice 2
 Reported: slice 1 — "Timeout trust wording and developer answer → first-input confirmation remain slice 2."
 Story clause: "When the launch wait ends while the kept Cursor client shows its workspace trust prompt, the launch answer, Startup recovery and the session entry say that Cursor is waiting for workspace trust and that it is answered in the session's terminal."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/tests/agent-terminal-cursor-launch-wait.spec.ts and cursor-startup-trust.spec.ts explanation, exact instruction and confirmed record assertions
 
 ### G3. Rendered dashboard and native Cursor proof await slice 3
 Reported: slice 1 — "This raw-socket substitute proof establishes neither native acceptance nor page rendering."

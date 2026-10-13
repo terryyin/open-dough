@@ -165,6 +165,10 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
       return;
     }
     if (dir) fs.appendFileSync(path.join(dir, `${pid}.input`), chunk);
+    if ((mode === "trust" || mode === "trust-unframed") && text === "a") {
+      mode = "composer";
+      paint();
+    }
   });
   recordAttach();
   const delay = Number(process.env.FAKE_CURSOR_PAINT_DELAY_MS || 0);

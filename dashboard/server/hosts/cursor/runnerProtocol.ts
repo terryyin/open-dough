@@ -64,6 +64,9 @@ export const cursorRunnerSessionsResult = z.object({
     z.object({
       session: hostSessionSchema,
       label: cursorHeldLabelSchema,
+      // Older accepting runners may omit this observation. Missing evidence
+      // keeps Start's existing timeout wording; the read starts nothing.
+      workspaceTrust: z.boolean().optional(),
     }),
   ),
 });

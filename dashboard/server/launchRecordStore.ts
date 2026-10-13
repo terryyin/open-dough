@@ -107,6 +107,20 @@ async function changeSessionRecord(
   return changed;
 }
 
+// Refines why pending input is still uncertain without replacing a later
+// native confirmation or any other lifecycle evidence in the kept record.
+export async function setRecordPendingInputExplanation(
+  sourceId: string,
+  session: SessionReference,
+  explanation: string,
+): Promise<LaunchRecord | undefined> {
+  return changeSessionRecord(sourceId, session, (record) =>
+    record.firstInput?.state === "uncertain"
+      ? { ...record, firstInput: { ...record.firstInput, explanation } }
+      : record,
+  );
+}
+
 // Sets one kept session's done time to `doneAt`, marking it done, or clears
 // it when `doneAt` is undefined, keeping the session like any unclosed one.
 // Answers the changed record, or undefined when no such record is kept any
