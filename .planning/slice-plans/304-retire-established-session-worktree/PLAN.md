@@ -13,16 +13,9 @@ correction the same day.
 
 ## Current findings
 
-Each journey was Start session · Isolated workspace · Automatically land,
-then one-shot execution of a queued story. All landed correctly; they differed
-only at retirement.
-
-| Host | Retirement call | Result |
-| --- | --- | --- |
-| Claude Code 2.1.296 (launch `68dc053f`) | `worktree-retirement.mjs retire … --identity <story>` | `ok: false`, “reused, host-owned, or unrecorded workspace, not created for this work”; worktree and branch kept |
-| Codex 0.162.1 (launch `3226e1cf`) | `… --identity <story> --created-for-work --contained <sha>` | worktree and branch removed |
-| Cursor 2026.10.01 (launch `2d5ab090`) | `… --identity <story> --contained <sha>` | kept; reported “preserved (`created: false` / host-owned established session workspace)” |
-| Claude Code, review then `/dough-land` (launch `9d835c6c`) | through Dough Land | worktree and branch removed |
+Claude Code and Cursor retained their worktrees from reused `created: false`
+starts; Codex supplied the creation flag and retired. Plan 301 retains exact
+original receipts, including successful Claude retirement through Dough Land.
 
 Cause, read from the released sources, unchanged on trunk at `52a4f6e9`:
 
@@ -98,9 +91,8 @@ owns.
   through `node scripts/setup-native.mjs npm` and `browser`, then `check`
   (Chromium `153.0.8010.12`). Applicable command passed:
   `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/established-session-guidance.test.mjs`.
-- Selective formatter: `npm run format`; `.githooks/pre-commit` is check-only
-  staged lint, plus dashboard typecheck when scripts are staged. No generator
-  applies to this guidance change; installed copies stay unchanged.
+- Formatter: `npm run format`; check-only staged hooks. No generator applies;
+  installed copies stay unchanged.
 - CI: GitHub Actions, verified `ci.yml` / `CI`, execution branch; coordinator
   `seed-066-ivan`. First observer ended with confirmed shutdown and CI unobserved.
 - On 2026-10-14 Terry authorized the release and native checks, then delegated
@@ -144,35 +136,17 @@ block states the worktree was created for this session's work, and passes
 `--created-for-work` with the landed revision as `--contained`. With
 `workspace role: default-checkout` it finds that nothing is retired.
 
-Accepted proof (2026-10-13): all commands below reached terminal exit 0 in
-this execution checkout. The new guidance assertions read the actual three
-references, observe the creation fact despite `created: false`, landing gates,
-both flags, default retention and both resolving links, and accept an independent
-paraphrase. Existing retirement tests construct real disposable repositories
-and remotes, then observe flag-based removal, containment refusal, dirty-work
-preservation and other-work creation-record refusal even with the flag. Source
-guidance changes no runtime gate.
-
-```sh
-PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/established-session-guidance.test.mjs
-PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-land/scripts/worktree-retirement.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs src/skills/dough-story-refinement/scripts/established-preparation-guidance.test.mjs src/skills/dough-execute-plan/scripts/established-session-start.test.mjs
-PATH="/opt/homebrew/bin:$PATH" npm test
-```
-
-The start consumer observes reused `created: false` and preserved default
-checkout state. The one-shot consumer retains review, no-change, default
-checkout and automatic-landing gates. The whole suite includes payload-link
-checks. Searches found no consumer assertion requiring the removed landing-only
-retirement sentence. Representative AGENTS review walked isolated auto-land,
-default-checkout, review, tracked work and an other-work creation record;
-the rule is in one home and the intended outcomes are preserved. An initial
-new prose assertion rejected a line wrap; accepting whitespace corrected the
-assertion before the passing proofs. No installed managed copy was edited.
-Independent post-change refactor returned `none — already clean` and
-`## REFACTOR COMPLETE`; no edits or additional tests were needed. The required
-formatter completed successfully; its only source change was test formatting,
-with accepted proof unchanged. Story-obligations check passed with native
-acceptance owned by slice 2. No readiness assessment was renewed.
+Accepted source proof (2026-10-13): focused established-session guidance,
+retirement/one-shot/preparation/start consumers and the full credential-free
+suite all reached terminal exit 0 in this checkout. Literal commands and
+assertion locations are recoverable in published `ba71df08` at this plan path.
+Guidance assertions read actual references plus an independent paraphrase;
+real disposable repositories prove containment, dirty/other-work refusal and
+flag-based retirement. The reused start/default and one-shot landing gates
+remain covered. Representative AGENTS review covered isolated, default,
+review, tracked and other-work cases; one authoritative rule, no runtime change.
+Fresh independent refactor found none. Format and hooks passed; no installed
+managed copy or readiness assessment was rewritten.
 
 ### 2. Claude Code and Cursor retire the session worktree natively
 Type: Behavior
@@ -232,6 +206,25 @@ Cursor `85ec6d94-13da-4cdb-ba5e-a5c8eae733f6`; paired recovery evidence is besid
 original proof. Current coverage is recovered; initial ordering is not proved.
 Fresh independent refactor: empty scope, no edits/tests; required format passed.
 
+## Execution complete
+
+Product advice: No further retirement ownership change is recommended. Parent
+plan 301 retains initial ordering/notification gaps and the stale-start candidate;
+plan 305 owns Cursor trust. No new backlog change or follow-up plan is proposed.
+
+## Execution retrospective
+
+Reviewed the original planned story/ready plan and attributable `ba71df08`
+(source/tests), `be06ef37` (fixture repair), `bdaef903` (native records), supporting
+`cc92c2de` integration and `1de2986c` release. Interleaved dashboard/phone work
+and the plan-305 claim are excluded. No further outcome, architecture, residue
+or suite-cleanup finding: one rule home (ADR 0006), immutable release (ADR 0003),
+real separate host proof (ADR 0005), unchanged destructive gates and proof seams.
+Process review enabled from actual history: setup omissions were recovered
+under existing verified-selector guidance; no new proposal/log change. Product
+review retains parent 301's gaps/candidate and plan 305's trust work; planning
+unchanged, no correction plan. Outer CI remains pending on the branch observer.
+
 ## Story obligations
 
 ### G1. Native retirement acceptance
@@ -248,3 +241,8 @@ Disposition: proved by slice 2: same-session exact-SHA CI success and confirmed 
 Reported: slice 2 — "The obsolete deleted Cursor startup required the authorized reversible cleanup before its fresh attempt."
 Story clause: "A developer who started an Isolated workspace session finds its worktree and branch retired once a one-shot workflow invoked there has landed its verified result, whichever host ran it."
 Disposition: proved by slice 2: archived exact startup-state repair, fresh launch 19786396, and independent retirement/absence proof in the evidence directory above; no permanent startup behavior change is claimed
+
+### G4. Claude recovery had no notification readiness context
+Reported: slice 2 — "No CI_MONITOR_READY hook context did arrive."
+Story clause: "A developer who started an Isolated workspace session finds its worktree and branch retired once a one-shot workflow invoked there has landed its verified result, whichever host ran it."
+Disposition: no user cost "A developer who started an Isolated workspace session finds its worktree and branch retired once a one-shot workflow invoked there has landed its verified result, whichever host ran it.": exact native completion commands supplied current green coverage and confirmed shutdown; notification readiness is not a retirement promise and remains a separate parent-observation limitation

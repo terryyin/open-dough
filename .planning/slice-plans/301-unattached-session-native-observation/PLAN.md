@@ -490,7 +490,9 @@ Claude `38478718455`/2 (one exact-run rerun), Cursor `38480094290`/1. Mailboxes
 are beside original proof. No publication or resource recreation. This recovers
 current coverage; initial retirement-before-observer-green ordering remains
 unproved. Slices 1 and 3 retain that ordering limitation, and Cursor trust stays
-unfinished. No broader all-expectations pass is claimed.
+unfinished. Claude recovery also received no `CI_MONITOR_READY` hook context;
+its green proof is the exact completion command, not notification readiness.
+No broader all-expectations pass is claimed.
 
 ## Review and execution gates
 
