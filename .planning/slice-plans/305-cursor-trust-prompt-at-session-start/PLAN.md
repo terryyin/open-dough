@@ -55,8 +55,8 @@ of other uncertain outcomes; Claude Code and Codex launches.
 
 Excluded: trusting workspaces in advance, changing where isolated sessions are
 created, the missing Cursor completion report seen in the same journey, and
-retirement, which [plan 304](../304-retire-established-session-worktree/PLAN.md)
-owns.
+retirement, whose completed correction proof is recoverable at
+`53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/slice-plans/304-retire-established-session-worktree/PLAN.md`.
 
 ## Current decisions
 

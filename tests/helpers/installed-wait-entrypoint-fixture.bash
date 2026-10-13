@@ -16,10 +16,10 @@ assert_installed_wait_entrypoints() {
   mkdir -p -- "${provider_bin}" "${storage}"
   : > "${gh_calls}"
   export INSTALLED_WAIT_GH_CALLS="${gh_calls}"
-  # The installed requests' owner stands at an endpoint of this journey's
-  # own and ends as its consumers leave.
+  # This journey checks installed entrypoints, not idle expiry. Use the
+  # ordinary owner allowance between consumers and explicitly retire it below.
   enter_private_request_owner
-  export DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS=100
+  unset DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS
   cat > "${provider_bin}/gh" << 'EOF'
 #!/usr/bin/env node
 // Answers as `gh api --include` does, and logs each call's arguments.
@@ -104,5 +104,5 @@ EOF
     }
   done
   leave_private_request_owner
-  unset INSTALLED_WAIT_GH_CALLS DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS
+  unset INSTALLED_WAIT_GH_CALLS
 }

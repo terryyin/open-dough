@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-066#retire-established-session-worktree",
+  "title": "Retire an established session's isolated worktree after its result lands",
+  "completedAt": "2026-10-13T23:13:35.408Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
