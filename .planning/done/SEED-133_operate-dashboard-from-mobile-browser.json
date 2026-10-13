@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-133#operate-dashboard-from-mobile-browser",
+  "title": "Use the dashboard from an iPad or iPhone browser without compromising desktop operation",
+  "completedAt": "2026-10-13T01:14:57.021Z",
+  "developer": "Terry Yin",
+  "agent": "DavidKo-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
