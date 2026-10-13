@@ -15,9 +15,10 @@ host, one isolated review execution followed by explicit landing on Claude
 Code, and one default-main warning/refinement/review journey on Claude Code.
 Run one initial attempt per journey; assess failure before agreeing a retry.
 Agent work is preparation and assessment of supplied evidence, not running the
-paid native sessions. The developer chooses the observation project, authorized
-remote, queued fixture stories, host models, and session time budget at execution
-setup; record actual paths, target, versions and revisions before observation.
+paid native sessions. The developer chooses the observation project from the
+verified projects below, with its remote, queued fixture stories, host models,
+and session time budget at execution setup; record actual paths, target,
+versions and revisions before observation.
 
 Excluded: creating a release, installing untagged source as managed skills,
 new test runners, a full host-by-scenario matrix, native Default main auto-land,
@@ -36,14 +37,13 @@ The release makes the required installed payload available; acceptance remains
 pending until this story's native evidence passes. The exception grants neither
 a release version nor execution authority to this preparation.
 
-**Before Take:** Terry selects the actual observation project and authorized
-publication target. A disposable test project is recommended, not yet selected.
-Verify its complete tagged installation for each host, then run the actual
-dashboard capability consumer against that path and record the result. The
-release prerequisite is resolved by v0.3.60 and the preparation checkout is
-capable, but it is not the selected observation project. This plan remains
-not-ready until target-project verification settles that prerequisite. Do not
-renew readiness from this checkout's result or a release number alone.
+**Observation project:** Terry names it and its publication target at Take,
+from the five dashboard-configured projects whose complete tagged installation
+and capability result are recorded below. Each already publishes to its own
+configured remote and trunk. A project outside that set, or one whose installed
+version record no longer reads `0.3.60`, repeats both checks against its actual
+path before slice 1; a failing check leaves that project's native journeys
+pending. The choice of project carries no unobserved premise.
 
 [ADR 0003 — Release lifecycle](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 requires tagged payload;
@@ -73,30 +73,36 @@ changes only when that commit lands. Judge these two locations separately.
 
 Preparation workspace:
 `/Users/terryyin/git/open-dough/.worktrees/observe-an-unattached-start-session-on-the-nativ`,
-revision `d1948bd95a6d3360aaa0c387b4cb3daf55c613e1`. This is a preparation
-checkout, not an assumed native test project. On 2026-10-12 the following fresh
-unpaid, read-only prefix reached the
-consumer that decides whether non-default Start choices can be offered:
+revision `f5f850fde321956822b0f6e36fe52f172a67c5dd`, whose dashboard source
+supplies the consumer. The observation projects are the five the dashboard is
+configured with (`~/.open-dough/dashboard/projects-production.json`), at their
+default checkouts under `~/git`: `open-dough`, `doughnut`, `pygardon`,
+`terry-talks` and `lizard`. On 2026-10-13 the following fresh unpaid, read-only
+prefix reached the consumer that decides whether non-default Start choices can
+be offered, once per project path:
 
 ```sh
 node --experimental-transform-types --input-type=module <<'JS'
+import os from 'node:os';
 import { establishesUnattached } from './dashboard/server/unattachedStart.ts';
-const project = { path: process.cwd(), shown: process.cwd() };
-for (const host of ['claude', 'codex', 'cursor']) console.log(JSON.stringify({host, available: await establishesUnattached(project, host)}));
+for (const name of ['open-dough', 'doughnut', 'pygardon', 'terry-talks', 'lizard']) {
+  const path = `${os.homedir()}/git/${name}`;
+  for (const host of ['claude', 'codex', 'cursor']) console.log(JSON.stringify({name, host, available: await establishesUnattached({ path, shown: path }, host)}));
+}
 JS
 ```
 
-Result: exit 0, `available: true` for all three hosts. The transform-types
-invocation reached the consumer successfully. No native process, workspace creation,
-assignment or publication was attempted. This proves the capability consumer
-enables non-default choices here, not native behavior or visible control rendering.
+Result: exit 0, `available: true` for all three hosts in each of the five
+projects. No native process, workspace creation, assignment or publication was
+attempted. This proves the capability consumer enables non-default choices for
+those projects, not native behavior or visible control rendering.
 
 `git ls-remote --tags origin 'v0.3.*'` identified `v0.3.60` as the highest
 numeric release, with peeled revision
-`f87b344806b899b1ef3d79bd8eaea013b63d3ad2`; `git rev-parse 'v0.3.60^{}'`
-matched that remote revision. Both installed version records read `0.3.60`.
-The following read-only comparison against the tagged declaration returned
-`compared: 242, mismatches: []` for each installed root:
+`f87b344806b899b1ef3d79bd8eaea013b63d3ad2`. Each project's default checkout was
+clean and both of its installed version records read `0.3.60`. The following
+read-only comparison against the tagged declaration returned `compared: 242,
+mismatches: []` for both installed roots of every project:
 
 ```sh
 python3 - <<'PYTHON'
@@ -106,15 +112,19 @@ data = subprocess.check_output(['git', 'archive', release])
 with tarfile.open(fileobj=io.BytesIO(data)) as tar:
     declaration = tar.extractfile('install.sh').read().decode().split('managed_files=(\n', 1)[1].split('\n)', 1)[0]
     files = [line.strip() for line in declaration.splitlines() if line.strip()]
-    for root in ['.agents/skills', '.claude/skills']:
-        mismatches = [f for f in files if not (pathlib.Path(root) / f).is_file() or (pathlib.Path(root) / f).read_bytes() != tar.extractfile('src/skills/' + f).read()]
-        print(json.dumps({'release': release, 'root': root, 'compared': len(files), 'mismatches': mismatches}))
+    for name in ['open-dough', 'doughnut', 'pygardon', 'terry-talks', 'lizard']:
+        for root in ['.agents/skills', '.claude/skills']:
+            base = pathlib.Path.home() / 'git' / name / root
+            mismatches = [f for f in files if not (base / f).is_file() or (base / f).read_bytes() != tar.extractfile('src/skills/' + f).read()]
+            print(json.dumps({'release': release, 'project': name, 'root': root, 'compared': len(files), 'mismatches': mismatches}))
 PYTHON
 ```
 
-This fresh observation replaces the earlier 0.3.59 missing-payload result.
-It verifies the complete tagged installation in the named preparation checkout;
-it neither proves native acceptance nor verifies an as-yet-unselected project.
+These observations verify the complete tagged installation in each named
+project; they do not prove native acceptance. Since the 2026-10-12 review,
+`unattachedStart.ts`, `launchStart.ts`, the host adapters and the Start session
+contract are unchanged apart from a link to launch editing by touch; later
+source changes to shared skills are unreleased and outside the observed payload.
 
 The inspected capability consumer checks three installed files: start, shared
 session policy and formatter. It does not evaluate the full payload, native
@@ -124,12 +134,8 @@ operator must also identify the complete installed tagged release carrying the
 story's required payload. The paid probe then settles native behavior. Do not
 turn this observation into a new capability validator.
 
-Before Take, verify the complete tagged installation and repeat the capability
-observation against the selected project through the matching dashboard revision
-(set `project.path` and
-`project.shown` to that project's actual absolute path; do not accidentally
-check this preparation checkout again), then the developer runs slice
-1 as the early paid probe. Native instruction consumption, actual CWD, workflow
+The developer runs slice 1 as the early paid probe in the project named at
+Take. Native instruction consumption, actual CWD, workflow
 reuse, publication and retirement remain unobserved. A failed probe stops
 its dependent journeys for assessment and correction; earlier native evidence
 is reused only with a justified unchanged requirement and environment boundary.
@@ -241,13 +247,9 @@ observation cleanup. Safe stop records the result and its location accurately.
 The sequence uses one established-session model and one proof loop per native
 journey. No implementation structure is prescribed. Slice-plan refinement is
 not needed: no fragmented outcome, duplicated implementation or unmapped promise
-was identified. Current blocking concern: the actual observation project and
-publication target remain unselected, so its installed payload and capability
-consumer have not been observed. The release is now available and the complete
-preparation-checkout installation passes; record `not-ready` until a fresh
-consuming-operation observation in the selected project clears the remaining
-prerequisite. This is an execution setup decision, not an unresolved story scope
-question; the completed preparation can land with this assessment.
+was identified. No blocking concern remains: the installed-payload premise is
+observed in every configured project, and naming one of them with its fixture
+stories is execution setup.
 Paid host behavior is bounded by slice 1's early probe; it is not claimed settled.
 
 Use the project's existing execution delivery/refactoring gates when execution

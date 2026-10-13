@@ -110,7 +110,7 @@ Do not prescribe components or slices merely from these conceptual boundaries.
 
 **Identity:** SEED-066#unattached-session-native-observation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"not-ready","reasons":["Before Take, Terry must select the observation project and authorized publication target, verify its complete tagged installation for each host, and record a fresh establishesUnattached result against that actual project. Release v0.3.60 is available and all 242 managed files in both preparation-checkout roots match it; the capability consumer returns true for all three hosts here. Those fresh results clear the old release blocker but do not verify an unselected observation project. Paid native behavior remains owned by the early probe and subsequent journeys."],"basis":{"document":"5fc6598b50c939ea2cdac7e2f35a2405e43e8779dc1c443ad87f8dea2496beb3","plan":"d0b4646b98c2f4eb4f48334fc6ee43cc69969470141836b41a91411fa4540438"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-unattached-session-native-observation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"020fdcf13cd921bdaf3b1a20a537103331807740c39a4239bea4fd46ae6dcf83","plan":"280ee0a80d4a12d9c00e3aa2c8f174f3c64c47b0a91646799e54ea653aedd50b"}}
 ```
 
 **Goal:** A developer who relies on Start session's Workspace and After checks
@@ -192,23 +192,26 @@ ADRs 0007–0009 add no binding constraint.
   for review followed by a later Dough Land, and Default main · Wait for review
   followed by one-shot refinement with its result retained for review.
 - The required payload is released in `v0.3.60` (tagged revision
-  `f87b344806b899b1ef3d79bd8eaea013b63d3ad2`), freshly confirmed on origin on
-  2026-10-12. Both installed roots in this preparation checkout match the
-  complete tagged payload. No further release is a prerequisite for this story.
-- Terry selects the actual observation project and authorized publication target
-  before Take. A disposable test project is recommended; no project selection
-  is inferred from this preparation's checkout. Verify that project's complete
-  installed release and capability result before the paid journeys.
+  `f87b344806b899b1ef3d79bd8eaea013b63d3ad2`), still the highest numeric
+  release on origin on 2026-10-13. No further release is a prerequisite for
+  this story.
+- Terry names the observation project and its publication target when the
+  story is taken, from the dashboard's configured projects verified below.
+  Another project, or one whose installation has changed since, repeats the
+  plan's installation and capability checks before the first paid journey.
 
-Current preparation evidence (2026-10-12, revision `d1948bd9`): the highest
-numeric remote release is `v0.3.60`. Both installed version records read
-`0.3.60`; all 242 files declared by that tag's `install.sh` match byte for byte
-in both `.agents/skills` and `.claude/skills`. A fresh call to the dashboard's
-`establishesUnattached` consumer returns `true` for Claude Code, Codex and
-Cursor in this preparation checkout. This supersedes the earlier 0.3.59
-unavailability evidence, but does not select this checkout as the observation
-project or prove native acceptance. The plan records the literal observations
-and their boundaries. No paid native journey has been run by this preparation.
+Current preparation evidence (2026-10-13, revision `f5f850fd`): every project
+the dashboard is configured with on this machine (Open Dough, Doughnut,
+Pygardon, Terry Talks, Lizard) has a clean default checkout whose installed
+version records read `0.3.60`, with all 242 files declared by that tag's
+`install.sh` matching byte for byte in both `.agents/skills` and
+`.claude/skills`. The dashboard's `establishesUnattached` consumer returns
+`true` for Claude Code, Codex and Cursor against each project's path. The
+dashboard, Start session contract and released payload this story observes are
+unchanged since the 2026-10-12 review. This settles the installed-payload
+prerequisite for those projects; it proves no native acceptance. The plan
+records the literal observations and their boundaries. No paid native journey
+has been run by this preparation.
 
 #### Observation
 
