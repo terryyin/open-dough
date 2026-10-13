@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 295. Removed numbers are never reused.
+- Highest allocated local number: 297. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 

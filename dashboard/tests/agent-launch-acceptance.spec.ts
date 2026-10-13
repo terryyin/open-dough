@@ -27,7 +27,10 @@ import {
   recordsOf,
   runningStarts,
 } from "./agentLaunchBoundary.ts";
-import { keptAttempts as keptOfMachine } from "./acceptedAttempts.ts";
+import {
+  keptAttempts as keptOfMachine,
+  ownedRunning,
+} from "./acceptedAttempts.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -120,9 +123,7 @@ test.describe("an accepted launch", () => {
     ]);
     await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
     expect(await origin.takenProfiles()).toEqual([]);
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true, running: true },
-    ]);
+    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
 
     // No workflow's launch of the story is accepted while it is unsettled.
     const refinement = { ...request, workflow: "refinement" };
@@ -143,9 +144,7 @@ test.describe("an accepted launch", () => {
       .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
       .toBe(1);
     const revision = (await origin.originGit("rev-parse", "main")).trim();
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true, running: true },
-    ]);
+    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
     expect(keptAttempts()[0]?.publication).toEqual({
       kind: "published",
       revision,

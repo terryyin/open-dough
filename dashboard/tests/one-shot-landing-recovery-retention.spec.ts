@@ -44,7 +44,6 @@ test("an original kept bound launch first captures and retries after its actual 
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,
-    port: Number(new URL(dashboard.origin).port),
     extraEnv: clock.env,
   });
   const env = { ...process.env, ...clock.env };

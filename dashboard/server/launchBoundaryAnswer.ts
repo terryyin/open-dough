@@ -161,7 +161,11 @@ export async function answer(
       case "changed":
         return {
           status: 200,
-          body: await launches.changed(request.attempt, changeWaitMs),
+          body: await launches.changed(
+            request.attempt,
+            changeWaitMs,
+            request.seen,
+          ),
         };
       case "accept":
         return {

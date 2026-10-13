@@ -155,7 +155,7 @@ for (const mode of ["dev", "preview"] as const) {
       });
     }
 
-    test("refuses a wait for an attempt from another site, or naming no attempt", async () => {
+    test("refuses a wait for an attempt from another site, naming no attempt, or counting changes malformed", async () => {
       const waitFor = (attempt: string, origin: string) =>
         rawRequest({
           url: `${server.baseURL}${agentChangedEndpoint}?attempt=${attempt}`,
@@ -164,6 +164,10 @@ for (const mode of ["dev", "preview"] as const) {
       const attempt = "00000000-0000-4000-8000-000000000000";
       expect((await waitFor(attempt, "http://evil.example")).status).toBe(403);
       expect((await waitFor("not-an-attempt", server.origin)).status).toBe(400);
+      for (const seen of ["-1", "1.5", "some"]) {
+        const counted = await waitFor(`${attempt}&seen=${seen}`, server.origin);
+        expect(counted.status).toBe(400);
+      }
       // An attempt no server runs is answered at once.
       const answered = await waitFor(attempt, server.origin);
       expect(answered.status).toBe(200);

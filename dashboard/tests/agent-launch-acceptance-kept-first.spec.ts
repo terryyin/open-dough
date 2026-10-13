@@ -10,7 +10,10 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
-import { keptAttempts as keptOfMachine } from "./acceptedAttempts.ts";
+import {
+  keptAttempts as keptOfMachine,
+  ownedRunning,
+} from "./acceptedAttempts.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -123,9 +126,7 @@ test.describe("an accepted launch whose change is being kept", () => {
       revision,
     });
     expect(keptAttempts()[0]?.reporting).toBeUndefined();
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true, running: true },
-    ]);
+    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
 
     rmSync(hold());
     await expect
@@ -134,18 +135,14 @@ test.describe("an accepted launch whose change is being kept", () => {
     await expect
       .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
       .toBe(1);
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true, running: true },
-    ]);
+    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
 
     // Launched; the write that keeps its outcome is held.
     writeFileSync(hold(), "outcome");
     server.releaseHeldClaude();
     await expect.poll(heldField, { timeout: 30_000 }).toBe("outcome");
     expect(keptAttempts()[0]?.outcome).toBeUndefined();
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: true, running: true },
-    ]);
+    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
 
     rmSync(hold());
     await expect

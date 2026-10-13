@@ -13,11 +13,13 @@ import type {
 } from "../src/agentLaunch.ts";
 
 // An attempt this server accepted: its request as asked, what is kept of it,
-// and the controller that ends its waits.
+// the controller that ends its waits, and how many changes of it this server
+// has told so far.
 export type OwnedAttempt = {
   readonly request: AgentLaunchRequest;
   readonly controller: AbortController;
   attempt: LaunchAttemptRecord;
+  changes: number;
 };
 
 export class OwnedAttempts {
@@ -110,6 +112,8 @@ export class OwnedAttempts {
       ...held,
       owned,
       running,
+      // Only an attempt this server runs has a next change to wait for.
+      ...(own !== undefined && owned ? { changes: own.changes } : {}),
       ...(running &&
       held.worker?.step === "start" &&
       held.slowSince === undefined &&
@@ -120,7 +124,12 @@ export class OwnedAttempts {
   }
 
   own(request: AgentLaunchRequest, attempt: LaunchAttemptRecord): OwnedAttempt {
-    const own = { request, controller: new AbortController(), attempt };
+    const own = {
+      request,
+      controller: new AbortController(),
+      attempt,
+      changes: 0,
+    };
     this.byId.set(attempt.id, own);
     return own;
   }
@@ -142,13 +151,16 @@ export class OwnedAttempts {
   }
 
   // Settles once the owned attempt `id` changes, or at once when it is not
-  // an unsettled attempt this open server runs.
-  nextChange(id: string): Promise<void> {
+  // an unsettled attempt this open server runs, or when it has changed since
+  // the observation counting `seen` changes: a change told while its caller
+  // was not waiting is never missed.
+  nextChange(id: string, seen?: number): Promise<void> {
     const own = this.byId.get(id);
     if (
       this.closedNow ||
       own === undefined ||
-      own.attempt.outcome !== undefined
+      own.attempt.outcome !== undefined ||
+      (seen !== undefined && seen !== own.changes)
     )
       return Promise.resolve();
     const waited = this.nextChanges.get(id);
@@ -163,6 +175,8 @@ export class OwnedAttempts {
 
   // Tells what waits for the attempt's next change that it changed.
   changed(id: string): void {
+    const own = this.byId.get(id);
+    if (own !== undefined) own.changes += 1;
     this.nextChanges.get(id)?.tell();
     this.nextChanges.delete(id);
   }

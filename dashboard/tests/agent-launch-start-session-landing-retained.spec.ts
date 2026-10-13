@@ -42,7 +42,6 @@ test("an unattached launch's kept record captures its landing after its startup 
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,
-    port: Number(new URL(dashboard.origin).port),
     extraEnv: clock.env,
   });
   try {

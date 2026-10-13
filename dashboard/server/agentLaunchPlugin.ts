@@ -10,7 +10,8 @@
 // `/__agent-launch/verify` settles a story attempt whose launch is uncertain
 // from its host's own session listing, or answers why it stays unresolved; a
 // same-origin GET of `/__agent-launch/changed?attempt=` answers once that accepted attempt
-// changed, or after a bounded wait. A same-origin GET of the session result
+// changed, at once if it has since the observation whose change count `seen=`
+// names, or after a bounded wait. A same-origin GET of the session result
 // endpoint reads one kept session's final report through its host, bounded
 // and abandoned when the caller leaves. A same-origin GET of the story review
 // endpoint takes a snapshot of one story's launch workspace

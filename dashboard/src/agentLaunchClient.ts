@@ -2,9 +2,10 @@
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
 // asks the launch owner to accept a launch, or to continue a kept attempt
 // that needs reconciliation, or to note that a settled attempt reconciled with
-// published state, or to verify an uncertain launch, a GET that waits for an
-// accepted attempt to change, and a GET of the machine's sessions; requests
-// about one recorded session are `./sessionRecordRequests.ts`. A launch request answers
+// published state, or to verify an uncertain launch, and a GET of the
+// machine's sessions; requests about one recorded session are
+// `./sessionRecordRequests.ts`, and the wait for an accepted attempt to change
+// is `./attemptChangeWaits.ts`. A launch request answers
 // once the owner accepted it, or with what was answered before anything was
 // accepted; a refusal answers an error the boundary explains. What it answers
 // crossed a process/HTTP boundary, so it is checked as external input. When
@@ -16,11 +17,9 @@ import {
   acceptanceSchema,
   agentAcceptEndpoint,
   agentLaunchEndpoint,
-  agentChangedEndpoint,
   agentContinueEndpoint,
   agentReconciledEndpoint,
   agentVerifyEndpoint,
-  changedAnswerSchema,
   launchRecordsSchema,
   type Acceptance,
   type AgentLaunchRequest,
@@ -192,25 +191,6 @@ export async function requestLaunchVerification(
       : unanswered("answered in a shape this dashboard does not understand");
   } catch {
     return unanswered("could not be reached");
-  }
-}
-
-// Waits for an accepted attempt to change: whether it changed, or undefined
-// when no trustworthy answer came.
-export async function awaitAttemptChange(
-  attempt: string,
-  signal: AbortSignal,
-): Promise<boolean | undefined> {
-  try {
-    const response = await fetch(
-      `${agentChangedEndpoint}?${new URLSearchParams({ attempt }).toString()}`,
-      { signal },
-    );
-    if (!response.ok) return undefined;
-    const answer = changedAnswerSchema.safeParse(await response.json());
-    return answer.success ? answer.data.changed : undefined;
-  } catch {
-    return undefined;
   }
 }
 

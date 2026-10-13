@@ -174,6 +174,10 @@ export type LaunchAttemptRecord = z.infer<typeof launchAttemptSchema>;
 export const attemptObservationSchema = launchAttemptSchema.extend({
   owned: z.boolean(),
   running: z.boolean(),
+  // For an attempt the answering server runs: how many changes of it that
+  // server had told when it answered this, which a wait for its next change
+  // names (`agentChangedEndpoint`).
+  changes: z.number().int().nonnegative().optional(),
 });
 
 export type AttemptObservation = z.infer<typeof attemptObservationSchema>;

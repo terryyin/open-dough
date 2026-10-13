@@ -90,6 +90,7 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
       publication: { kind: "none" },
       owned: true,
       running: true,
+      changes: expect.any(Number) as unknown,
       worker: {
         pid: dashboard.pid,
         serverPid: dashboard.pid,

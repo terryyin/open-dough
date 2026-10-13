@@ -153,9 +153,10 @@ export class AgentLaunches {
     return this.owner.attempts();
   }
 
-  // Waits for a change, then answers the attempt as this server knows it.
-  changed(id: string, waitMs: number): Promise<ChangedAnswer> {
-    return changedAttempt(this.owner, id, waitMs);
+  // Waits for a change after the observation counting `seen` changes, then
+  // answers the attempt as this server knows it.
+  changed(id: string, waitMs: number, seen?: number): Promise<ChangedAnswer> {
+    return changedAttempt(this.owner, id, waitMs, seen);
   }
 
   // Accepts a launch, answering once it is accepted; the launch goes on

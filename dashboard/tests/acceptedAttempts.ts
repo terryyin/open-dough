@@ -30,6 +30,14 @@ export function keptAttempts(server: DashboardServer): LaunchAttemptRecord[] {
   return Object.values(kept).flat();
 }
 
+// A kept attempt as the server running it observes it while unsettled.
+export const ownedRunning = (kept: LaunchAttemptRecord | undefined) => ({
+  ...kept,
+  owned: true,
+  running: true,
+  changes: expect.any(Number) as unknown,
+});
+
 // The outcome this machine keeps for an accepted attempt, once settled.
 function keptOutcome(
   server: DashboardServer,

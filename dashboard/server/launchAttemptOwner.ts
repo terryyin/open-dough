@@ -225,9 +225,11 @@ export class LaunchAttemptOwner {
     return { kind: "accepted", attempt: this.owned.observed(keptAttempt) };
   }
 
-  // Waits for an owned attempt's next change; other attempts answer immediately.
-  changed(id: string): Promise<void> {
-    return this.owned.nextChange(id);
+  // Waits for an owned attempt's next change, or none when it has changed
+  // since the observation counting `seen` changes; other attempts answer
+  // immediately.
+  changed(id: string, seen?: number): Promise<void> {
+    return this.owned.nextChange(id, seen);
   }
 
   // The attempt this server runs under `id`, as it knows it now.
