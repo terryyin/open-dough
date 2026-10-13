@@ -35,6 +35,11 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
     ].join("\r\n")}\r\n`,
     unrecognized: "Cursor Agent\r\n",
     trust: "Do you trust this workspace?\r\n",
+    "trust-unframed":
+      "\x1b[1;33mWorkspace Trust Required\x1b[0m\r\n" +
+      "Do you trust the contents of this directory?\r\n" +
+      "\x1b[1;32m[a] Trust this workspace\x1b[0m\r\n" +
+      "\x1b[2m[q] Quit\x1b[0m\r\n",
     composer: "→ Plan, search, build anything\r\n",
     exit: unclassifiedExit,
     "cannot-load": cannotLoadExit,
@@ -97,7 +102,7 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
   };
   const paint = () => {
     const body = screens[mode] ?? "→ Add a follow-up\r\n";
-    if (mode === "composer") {
+    if (mode === "composer" || mode === "trust-unframed") {
       emit(`\x1b[?25l\x1b[2J\x1b[H${body}`);
       return;
     }
@@ -117,7 +122,10 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
         })}\n`,
       );
     }
-    paint();
+    // Native Cursor's held trust screen produced no output for the
+    // dashboard's synchronous column nudge. Hold this substitute paint so
+    // a joined socket cannot rely on that nudge to see its existing screen.
+    if (mode !== "trust-unframed") paint();
   });
   process.stdin.on("error", () => {});
   process.stdout.on("error", () => {});
@@ -157,6 +165,10 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
       return;
     }
     if (dir) fs.appendFileSync(path.join(dir, `${pid}.input`), chunk);
+    if ((mode === "trust" || mode === "trust-unframed") && text === "a") {
+      mode = "composer";
+      paint();
+    }
   });
   recordAttach();
   const delay = Number(process.env.FAKE_CURSOR_PAINT_DELAY_MS || 0);

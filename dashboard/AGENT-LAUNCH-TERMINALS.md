@@ -29,7 +29,10 @@ session's read-only final report and explains the limitation. Failure before
 native readiness rechecks the directory; only that observation supplies a
 workspace limitation. Other startup failures keep their attachment error, as
 [session troubleshooting](../docs/dashboard-session-troubleshooting.md) explains.
-Text frames carry output; bounded input, resize and rendered readiness
+Text frames carry output. A joining socket's replay control names the held
+screen's dimensions; the next text frame restores that screen's ANSI
+rendition, cursor and terminal modes before the page fits it to the panel.
+Live output follows that replay. Bounded input, resize and rendered readiness
 messages share the existing transport.
 Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
 only, retaining native work, history, and daemon. Cursor's attach result
@@ -38,7 +41,8 @@ connection, leaves that client running. The follow-up prompt
 (`→ Add a follow-up` or `→ Plan, search, build anything`) keeps that process
 after the launch instruction has been entered. A working, waiting, or
 unrecognized screen keeps it as well. The next socket joins that running
-client, receives readiness at once, and sees a redrawn screen. Input from
+client, receives readiness at once, and sees its recorded current screen,
+including when the native client emits no output for a redraw request. Input from
 any joined socket reaches that same client, and a second open terminal shares
 it. Closing the
 server sends SIGHUP to Claude Code and Codex attachment clients. It does not

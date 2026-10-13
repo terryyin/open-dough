@@ -283,36 +283,6 @@ through bounded corrections before closure. Missing payload, unavailable
 hosts, failed runs, and inconclusive observations remain pending; recording
 them alone does not complete the story.
 
-<a id="cursor-trust-prompt-at-session-start"></a>
-
-### See and answer Cursor's workspace trust prompt when a session starts
-
-**Identity:** SEED-066#cursor-trust-prompt-at-session-start
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7aa7ff3d0cc89360da02924cd9c728878cffef2a67e209b6e791f9f73eea0724","plan":"57e96cef882a3047426a82e0a4fb8b51728892b077593272d9fefc09be6d5ddb"}}
-```
-
-**Goal:** A developer who starts a Cursor session in a workspace Cursor has
-not trusted learns from the dashboard that Cursor is waiting for workspace
-trust, sees that prompt in the session's terminal, and gets the first input
-delivered once they answer it. This is a bounded correction of a discrepancy
-the [native observation](#unattached-session-native-observation) found on
-2026-10-13.
-
-#### Scope
-
-- When the launch wait ends while the kept Cursor client shows its workspace
-  trust prompt, the launch answer, Startup recovery and the session entry say
-  that Cursor is waiting for workspace trust and that it is answered in the
-  session's terminal.
-- Opening that session's terminal shows the prompt the client currently holds.
-- Answering the prompt there delivers the kept first input and confirms it, as
-  it already does.
-- The dashboard still passes no trust flag and answers no prompt itself.
-- Other uncertain launch outcomes keep their current wording.
-
-Plan: [305-cursor-trust-prompt-at-session-start](../slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md).
-
 ## Current Implemented Baseline
 
 - [One-shot execution](../../src/skills/dough-execute-plan/references/one-shot.md)

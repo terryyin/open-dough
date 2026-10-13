@@ -13,7 +13,10 @@ its own missing-operation checks. Cursor's module launches with `create-chat`,
 then one kept terminal client, `cursor-agent --workspace` and `--resume` in
 the established workspace, and stores that id, workspace, and resume command,
 with no alias or endpoint. The launch does not pass `-w`, `--worktree`,
-`--trust`, `--force`, or `--yolo`. The instruction is written into that
+`--trust`, `--force`, or `--yolo`. Cursor can request workspace trust for a
+fresh isolated worktree. Opening its terminal shows the held prompt; the
+developer answers there before the first instruction can be delivered.
+The instruction is written into that
 client when its server-side screen shows the text
 `Add a follow-up` or `Plan, search, build anything`, even when the terminal
 cursor is hidden and no synchronized-update frame has arrived. A long or
@@ -27,10 +30,17 @@ has been judged, or when the shared launch wait
 (`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s) ends while keep is still open —
 including a screen that never becomes ready, and a paste chip whose Enter was
 submitted but never answered by a later paint or exit. That wait expiry
-answers `uncertain` with reason `timed-out`, says Cursor did not show it took
-the instruction in time, that the session remains kept, and how to continue
-from the recorded resume; it does not invent or revoke first-input state, and
-it does not kill the client. Acceptance of a later ready screen is still
+answers `uncertain` with reason `timed-out`. When the runner's current read of
+that same client shows its workspace trust prompt and the first input is
+still uncertain, the launch answer, Startup recovery, and session entry say
+Cursor is waiting for workspace trust and that the developer answers the
+prompt in this session's terminal to deliver the first input. The record
+retains that explanation until input is confirmed. The runner read starts
+nothing; an unavailable read or an older runner without trust evidence keeps
+the existing timeout wording. Other wait expiries say Cursor did not show it
+took the instruction in time, that the session remains kept, and how to
+continue from the recorded resume. The expiry does not invent or revoke
+first-input state, and it does not kill the client. Acceptance of a later ready screen is still
 recorded after Start returns. A Cursor that settles before the bound returns
 `launched` as before. Opening the terminal joins that client and shows its
 output. There is no launch-wait notice and no second `cursor-agent`. A blank

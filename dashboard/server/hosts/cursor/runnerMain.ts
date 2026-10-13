@@ -10,6 +10,7 @@ import { TerminalAttachments } from "../../terminalAttachments.ts";
 import { execCursor } from "./exec.ts";
 import { cursorSessionLabel } from "./idleScreen.ts";
 import { answerHangup, answerKeep } from "./runnerKeep.ts";
+import { showsCursorWorkspaceTrust } from "./workspaceTrust.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
@@ -95,6 +96,7 @@ async function answer(
               {
                 session: client.session,
                 label: cursorSessionLabel(client.screen),
+                workspaceTrust: showsCursorWorkspaceTrust(client.screen),
               },
             ]
           : [],

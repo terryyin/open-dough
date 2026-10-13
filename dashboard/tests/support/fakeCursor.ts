@@ -7,7 +7,9 @@
 // instruction. Composer mode paints `→ Plan, search, build anything` with
 // the cursor hidden and no synchronized-update frame. Unrecognized mode
 // paints neither the prompt nor a question.
-// Each redraws on SIGWINCH. `showReady()` repaints the ordinary prompt.
+// Trust-unframed models the native trust screen without a synchronized
+// frame or output from the join's resize nudge. Other modes redraw on
+// SIGWINCH. `showReady()` repaints the ordinary prompt.
 // `splitPaintMs` delivers each screen in two writes that far apart.
 // `models` prints the configured listing in the observed layout, or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -95,6 +97,7 @@ export type CursorScreen =
   | "waiting"
   | "unrecognized"
   | "trust"
+  | "trust-unframed"
   | "composer"
   | "exit"
   | "cannot-load";

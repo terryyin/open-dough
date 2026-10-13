@@ -13,6 +13,8 @@ import {
 import { processRunning } from "./support/processGroup.ts";
 import type { CursorSession } from "../src/launchRecord.ts";
 import type { RawResponse } from "./support/rawHttp.ts";
+import { openCursorTerminal } from "./support/cursorTerminal.ts";
+import { shows } from "./agentTerminalBoundary.ts";
 
 const instruction = "hold this launch";
 
@@ -94,6 +96,57 @@ for (const mode of ["dev", "preview"] as const) {
           const pid = cursor.attaches()[0]?.pid ?? 0;
           expect(processRunning(pid)).toBe(true);
           expect(cursor.attaches()).toHaveLength(1);
+        },
+        1_500,
+      );
+    });
+
+    test("a launch wait on workspace trust explains the kept prompt, and the developer's terminal answer confirms its instruction", async () => {
+      const cursor = installFakeCursor({ screen: "trust-unframed" });
+      await withInstructedCursor(
+        mode,
+        cursor,
+        instruction,
+        async (server, launched) => {
+          const recorded = keptCursor(server.home);
+          expect(JSON.parse(launched.body)).toEqual({
+            kind: "uncertain",
+            reason: "timed-out",
+            explanation:
+              "Cursor is waiting for workspace trust. Answer the workspace trust prompt in this session's terminal to deliver the first input.",
+          });
+          expect(recorded.firstInput).toMatchObject({
+            state: "uncertain",
+            instruction,
+            explanation:
+              "Cursor is waiting for workspace trust. Answer the workspace trust prompt in this session's terminal to deliver the first input.",
+          });
+          const pid = cursor.attaches()[0]?.pid ?? 0;
+          expect(cursor.input(pid)).toBe("");
+          const terminal = await openCursorTerminal(
+            server,
+            recorded.session.sessionId,
+          );
+          expect(await shows(terminal, "Workspace Trust Required")).toBe(true);
+          terminal.send({ input: "a" });
+          await expect
+            .poll(() => keptCursor(server.home).firstInput?.state)
+            .toBe("confirmed");
+          expect(cursor.input(pid)).toBe(`a${instruction}\r`);
+          expect(keptCursor(server.home).firstInput).toEqual({
+            state: "confirmed",
+            instruction,
+          });
+          expect(cursor.attaches()).toHaveLength(1);
+          expect(processRunning(pid)).toBe(true);
+          expect(cursor.attaches()[0]?.args).toEqual([
+            "--workspace",
+            recorded.session.host === "cursor"
+              ? recorded.session.continuation.workspace
+              : "",
+            "--resume",
+            recorded.session.sessionId,
+          ]);
         },
         1_500,
       );

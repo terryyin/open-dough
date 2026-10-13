@@ -24,9 +24,16 @@ import type { HostLaunch } from "../../hostLaunch.ts";
 import { cursorAgent } from "./exec.ts";
 import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
 import { cursorPrompt } from "./prompt.ts";
-import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
+import {
+  execOnRunner,
+  keepCursorClient,
+  readCursorRunnerSessions,
+} from "./runnerClient.ts";
 import { terminalHandoffRequested } from "../../terminalHandoff.ts";
 import { cursorTerminalSize } from "./terminal.ts";
+import { cursorWorkspaceTrustExplanation } from "./workspaceTrust.ts";
+import { sessionKey } from "../../../src/sessionReference.ts";
+import { setRecordPendingInputExplanation } from "../../launchRecordStore.ts";
 
 // Abort can arrive during an await. A direct `signal.aborted` check is
 // narrowed for the rest of the function, so read it through this call.
@@ -76,6 +83,35 @@ function timedOut(session: CursorSession | undefined): HostLaunch {
     reason: "timed-out",
     explanation: instructionDeliveryTimedOutExplanation(session),
   };
+}
+
+async function keptClientTimedOut(
+  sourceId: string,
+  session: CursorSession,
+): Promise<HostLaunch> {
+  const held = await readCursorRunnerSessions();
+  const trust =
+    held.kind === "running" &&
+    held.sessions.some(
+      (client) =>
+        sessionKey(client.session) === sessionKey(session) &&
+        client.workspaceTrust === true,
+    );
+  if (trust) {
+    const recorded = await setRecordPendingInputExplanation(
+      sourceId,
+      session,
+      cursorWorkspaceTrustExplanation,
+    );
+    if (recorded?.firstInput?.state === "uncertain") {
+      return {
+        kind: "uncertain",
+        reason: "timed-out",
+        explanation: cursorWorkspaceTrustExplanation,
+      };
+    }
+  }
+  return timedOut(session);
 }
 
 function untilAbort(signal: AbortSignal): Promise<void> {
@@ -185,7 +221,7 @@ export const launchCursor: LaunchHost["launch"] = async (
     untilAbort(signal).then(() => "aborted" as const),
   ]);
   if (outcome === "aborted") {
-    return timedOut(session);
+    return keptClientTimedOut(source.id, session);
   }
   if (outcome.kind !== "kept" && outcome.kind !== "already-held") {
     if (outcome.kind === "unreachable") {

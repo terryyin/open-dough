@@ -101,9 +101,27 @@ Former local code: DD-219. An absolute changed-file size check conflicts with an
   - Observed effect: delivery paused for human judgment and required a follow-up handoff. The new seed section was shortened from 253 to 250 lines; the canonical catalog stayed intact.
   - Inference: the unconditional size gate reaches intentional evidence collections as well as product modules. No timing precision or broader file-size-policy conclusion is claimed.
 
+- Execution: `SEED-066#cursor-trust-prompt-at-session-start` / plan 305, first implementation `12feacafe168c84fe73faecbea31d0ca9c83f6e3`
+  - Timestamp: unknown (2026-10-14, slice 3 records refactor before `22155428`).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed VERSION at claim `310f729d`; execution/refactor guidance unchanged).
+  - Evidence: `22155428:.planning/slice-plans/301-unattached-session-native-observation/PLAN.md` and its three linked evidence files; fresh `refactor3` returned `REFACTOR COMPLETE`, preserving historical observations verbatim and checking 29 relative links.
+  - Observed effect: recording one native correction in the already oversized plan required extracting preflight, auto-land and review history into three files; no product or proof changes. Refactor reported approximately eight active minutes.
+  - Inference: the unconditional changed-file cap reaches canonical evidence records. Review proportionality for these records; no broader cost or policy change is established.
+
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
 Former local code: DD-221. Asynchronous CI repair runs many-worker repetitions alongside a slice’s full suite on the same machine, producing load-only failures and slower proof. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-209).
+
+### Occurrences
+
+- Execution: `SEED-066#cursor-trust-prompt-at-session-start` / plan 305, first implementation `12feacafe168c84fe73faecbea31d0ca9c83f6e3`
+  - Timestamp: 2026-10-13T22:36:59.365Z (failed whole-dashboard proof terminal receipt).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed VERSION at claim `310f729d`; guidance unchanged).
+  - Evidence: `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`, slice 2; clean/controlled strict proof receipts and retained trace `dashboard/test-results/2026-10-13T22-20-12.969Z`; 1,624 passed and unchanged `agent-launch-card-sessions.spec.ts:59` exhausted its 30s body while shell proof overlapped. Host snapshot: 16 logical CPUs, load averages 31.48/42.20/26.84, about 0.2 GiB free memory. Unchanged focused body passed in 10.1s; the one controlled four-worker whole run passed all 1,625, same body 5.876s.
+  - Observed effect: a failed 1,006.404s whole run required diagnosis and a further 1,092.290s controlled whole proof; no deadline/helper changes or automatic retries until green.
+  - Inference: this occurrence uses concurrent local shell proof, not CI repair, but supports the same shared-host overload mechanism. Causality remains qualified; isolated success alone did not waive failed whole proof. Coordinate heavy verification before starting it.
 
 ## ODF-210 — Removal proof omits an existing user capability <a id="odf-210"></a>
 
@@ -120,6 +138,16 @@ Former local code: DD-239. Former local code: DD-248. A refactor misclassifies o
 ## ODF-218 — Formatting invalidates a pre-format size check <a id="odf-218"></a>
 
 Former local code: DD-241. The mandatory formatter expands a file after its independent size check, requiring a second refactor and formatter pass solely for layout. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-218).
+
+### Occurrences
+
+- Execution: `SEED-066#cursor-trust-prompt-at-session-start` / plan 305, first implementation `12feacafe168c84fe73faecbea31d0ca9c83f6e3`
+  - Timestamp: unknown (2026-10-14, slice 1 formatter/refactor follow-up before `12feacaf`).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (installed VERSION at claim `310f729d`; guidance unchanged).
+  - Evidence: coordinator's first `npm run format` normalized braced void callbacks after the independent size check; resumed `refactor1` extracted `LiveTerminalClientOptions` to `dashboard/server/liveTerminalClientOptions.ts` to restore the 250-line bound. The formatter also found an unused type import, which was removed; final format/typecheck passed.
+  - Observed effect: one resumed refactor handoff and a formatter repeat before publication; accepted behavior proof remained applicable.
+  - Inference: formatted size should be anticipated with headroom before the downstream formatter. The unused-import repair is a separate mechanical finding, not attributed to the size mismatch; no token cost is measured.
 
 ## ODF-219 — Background coordinator implements outside the local-slice condition <a id="odf-219"></a>
 

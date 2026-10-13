@@ -23,6 +23,7 @@ import {
   type CursorKeepResult,
 } from "./runnerClient.ts";
 import { cursorTerminalSize } from "./terminal.ts";
+import { showsCursorWorkspaceTrust } from "./workspaceTrust.ts";
 
 function untilLaunchWait(): Promise<"timed-out"> {
   return new Promise((resolve) => {
@@ -30,15 +31,6 @@ function untilLaunchWait(): Promise<"timed-out"> {
       resolve("timed-out");
     }, launchTimeoutMs());
   });
-}
-
-const trustPhrases = [
-  "Workspace Trust Required",
-  "Do you trust this workspace?",
-] as const;
-
-function showsTrust(screen: string): boolean {
-  return trustPhrases.some((phrase) => screen.includes(phrase));
 }
 
 function resumeArgs(record: LaunchRecord): {
@@ -106,7 +98,7 @@ async function afterKeep(
     };
   }
   const screen = kept.screen ?? "";
-  if (showsTrust(screen)) {
+  if (showsCursorWorkspaceTrust(screen)) {
     if (record.session.host === "cursor") {
       await hangupCursorClient(record.session);
     }

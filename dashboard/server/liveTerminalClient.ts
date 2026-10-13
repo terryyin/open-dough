@@ -8,38 +8,17 @@
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import type { HostSession } from "../src/hostSession.ts";
-import type {
-  DetachedIdle,
-  ScreenReadiness,
-  UnavailableWorkspace,
-} from "./launchHosts.ts";
+import type { ScreenReadiness } from "./launchHosts.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import {
   detachedIdleWatch,
   type DetachedIdleWatch,
 } from "./detachedIdleWatch.ts";
 import { JoinedSockets } from "./joinedSockets.ts";
-import {
-  LaunchInstruction,
-  type LaunchInstructionInput,
-} from "./launchInstruction.ts";
+import { LaunchInstruction } from "./launchInstruction.ts";
+import type { LiveTerminalClientOptions } from "./liveTerminalClientOptions.ts";
 
-// What a registry supplies for one client, beside its process and live set.
-export type LiveTerminalClientOptions = {
-  readonly key: string;
-  readonly hostName: string;
-  readonly keep: boolean;
-  readonly session: HostSession;
-  readonly admitted: boolean;
-  readonly size: { readonly cols: number; readonly rows: number };
-  readonly readiness: ScreenReadiness | undefined;
-  readonly startupFailure: (() => UnavailableWorkspace | undefined) | undefined;
-  readonly detachedIdle?: DetachedIdle;
-  // Records the screen of a client that does not declare keep.
-  readonly observeScreen?: true;
-  // Absent when this client was not started with a launch instruction.
-  readonly launchInput?: LaunchInstructionInput;
-};
+export type { LiveTerminalClientOptions } from "./liveTerminalClientOptions.ts";
 
 type LiveTerminalClientInput = LiveTerminalClientOptions & {
   readonly pty: IPty;
@@ -157,12 +136,17 @@ export class LiveTerminalClient {
 
   attach(ws: WebSocket, session: TerminalSession, joining: boolean): void {
     this.idle?.hold();
-    this.sockets.attach(ws, session, joining);
+    this.sockets.attach(
+      ws,
+      session,
+      joining,
+      joining ? this.idle?.replay() : undefined,
+    );
     // The socket is open, so releasing a launch handoff does not start idle.
     this.launch?.releaseHandoff();
     if (joining) {
-      // Output from before this socket is still on the client. The nudge
-      // makes it paint that screen again.
+      // Keep the native refresh request; the recorded replay also shows
+      // clients that emit no output for this synchronous nudge.
       this.redraw();
     }
   }

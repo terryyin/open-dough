@@ -6,6 +6,7 @@ import {
   terminalEndedCode,
   terminalMessageSchema,
   terminalWorkspaceUnavailableCode,
+  type TerminalControl,
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
 import type { UnavailableWorkspace } from "./launchHosts.ts";
@@ -71,10 +72,7 @@ export function closeClientSocket(
   );
 }
 
-export function sendControl(
-  ws: WebSocket,
-  message: { readonly readiness: "observe" | "attached" },
-): void {
+export function sendControl(ws: WebSocket, message: TerminalControl): void {
   if (ws.readyState === ws.OPEN) {
     ws.send(JSON.stringify(message), { binary: true });
   }

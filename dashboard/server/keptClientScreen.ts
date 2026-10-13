@@ -9,6 +9,7 @@ import type {
   ITerminalOptions,
   Terminal,
 } from "@xterm/headless";
+import type { SerializeAddon as TerminalSerializer } from "@xterm/addon-serialize";
 
 const require = createRequire(import.meta.url);
 const { Terminal: HeadlessTerminal } = require("@xterm/headless") as {
@@ -16,14 +17,24 @@ const { Terminal: HeadlessTerminal } = require("@xterm/headless") as {
     options?: ITerminalOptions & ITerminalInitOnlyOptions,
   ) => Terminal;
 };
+const { SerializeAddon } = require("@xterm/addon-serialize") as {
+  SerializeAddon: new () => TerminalSerializer;
+};
 
 export type FrameScreen = {
   readonly text: string;
   readonly cursorVisible: boolean;
 };
 
+export type ScreenReplay = {
+  readonly cols: number;
+  readonly rows: number;
+  readonly output: string;
+};
+
 export class KeptClientScreen {
   private readonly terminal: Terminal;
+  private readonly serializer = new SerializeAddon();
   private readonly csi: { dispose(): void }[];
   private pending: Promise<void> = Promise.resolve();
   // Starts hidden. `?25` from the stream shows or hides the cursor. The
@@ -32,6 +43,7 @@ export class KeptClientScreen {
   private framePending = false;
   // The screen as the last synchronized update finished, until taken.
   private frameEnd: FrameScreen | undefined;
+  private disposed = false;
 
   constructor(cols: number, rows: number) {
     // The buffer is proposed API on this build. The page reads the same
@@ -41,6 +53,7 @@ export class KeptClientScreen {
       rows,
       allowProposedApi: true,
     });
+    this.terminal.loadAddon(this.serializer);
     const mode = (enabled: boolean, params: number[]) => {
       if (params.includes(2026)) {
         this.framePending = enabled;
@@ -114,6 +127,28 @@ export class KeptClientScreen {
     return this.pending;
   }
 
+  // Serialize exactly the output queued at this call, before later writes.
+  // ANSI rendition, buffer and terminal modes survive a new page terminal.
+  // A paint still arriving stays open for the page's readiness judgment.
+  replay(): Promise<ScreenReplay | undefined> {
+    return this.pending.then(() => {
+      if (this.disposed) return undefined;
+      const cursor = this.terminal.buffer.active;
+      // The addon's relative restoration can land one column left after
+      // serializing a full row. Restore an explicitly positioned cursor;
+      // leave an overflow cursor alone so its pending wrap survives.
+      const position =
+        cursor.cursorX < this.terminal.cols
+          ? `\x1b[${cursor.cursorY + 1};${cursor.cursorX + 1}H`
+          : "";
+      return {
+        cols: this.terminal.cols,
+        rows: this.terminal.rows,
+        output: `\x1b[?2026h${this.serializer.serialize({ scrollback: 0 })}${position}\x1b[?25${this.cursorOn ? "h" : "l"}${this.framePending ? "" : "\x1b[?2026l"}`,
+      };
+    });
+  }
+
   // The visible rows, trimmed on the right, the same way the page reports a
   // screen for readiness.
   text(): string {
@@ -126,6 +161,7 @@ export class KeptClientScreen {
   }
 
   dispose(): void {
+    this.disposed = true;
     for (const handler of this.csi) handler.dispose();
     this.terminal.dispose();
   }

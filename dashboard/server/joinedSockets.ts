@@ -5,6 +5,7 @@ import type { WebSocket } from "ws";
 import type { ScreenReadiness, UnavailableWorkspace } from "./launchHosts.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
+import type { ScreenReplay } from "./keptClientScreen.ts";
 import {
   closeClientSocket,
   closeUnlessTerminalMessage,
@@ -60,7 +61,12 @@ export class JoinedSockets {
     for (const socket of [...this.sockets]) this.closeSocket(socket);
   }
 
-  attach(ws: WebSocket, session: TerminalSession, joining: boolean): void {
+  attach(
+    ws: WebSocket,
+    session: TerminalSession,
+    joining: boolean,
+    replay?: Promise<ScreenReplay | undefined>,
+  ): void {
     const socket: LiveSocket = {
       ws,
       reopen: () =>
@@ -75,6 +81,22 @@ export class JoinedSockets {
     if (this.admitted) {
       socket.ready = true;
       socket.reopened = joining ? Promise.resolve() : socket.reopen();
+    }
+    // Only this new socket receives the held screen. Live output waits for
+    // that replay, so no intervening update is overwritten or shown twice.
+    if (replay !== undefined) {
+      socket.reopened = Promise.all([socket.reopened, replay]).then(
+        ([, screen]) => {
+          if (
+            screen === undefined ||
+            !this.client.isTracked() ||
+            ws.readyState !== ws.OPEN
+          )
+            return;
+          sendControl(ws, { replay: { cols: screen.cols, rows: screen.rows } });
+          ws.send(screen.output);
+        },
+      );
     }
     this.sockets.push(socket);
     this.listen(socket);
@@ -118,7 +140,7 @@ export class JoinedSockets {
     for (const socket of [...this.sockets]) {
       if (socket.ready) continue;
       socket.ready = true;
-      socket.reopened = socket.reopen();
+      socket.reopened = socket.reopened.then(() => socket.reopen());
       void socket.reopened.then(() => {
         sendControl(socket.ws, { readiness: "attached" });
       });
