@@ -37,6 +37,15 @@ Former local code: DD-127. An identifier/permission-word sweep misses the same c
 
 Former local code: DD-128. Startup boundary instructions require broad references for a small execution whose managed commands already own most of those paths. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-158).
 
+### Occurrences
+- Execution: `SEED-135#reach-final-report-done-choices-on-short-phone` / plan 303, first implementation `08a5e1b1c377cc6bff62201f119cb1f674cd9f36`
+  - Timestamp: unknown (2026-10-14 JST, startup before implementation delegation).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (checkout-bound installed `dough-update/VERSION`; guidance unchanged).
+  - Evidence: coordinator startup tool outputs report 15,386 and 21,805 tokens with truncation; subsequent targeted reads recover delegation/decisions (6,035 tokens) and Codex runtime/publication (7,398 tokens). An established start already supplied claim/workspace identity; managed delivery later reused the observer and published without reconciliation.
+  - Observed effect: broad startup reference batches required additional retrieval before one report-presentation slice could be delegated.
+  - Inference: both the required reference surface and this coordinator's oversized batches contributed; existing targeted-retrieval guidance was not applied consistently. These output counts are not total token cost, and this occurrence does not prove the references or independent checks lack value.
+
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
 Former local code: DD-155. Concurrent unpublished plan allocation produces two quick plans with the same numeric selector, making a number-only execution request ambiguous. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-106).
@@ -53,6 +62,14 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Evidence: `refactor_ci_review_reader` returned “none — already clean” and `REFACTOR COMPLETE` for the one-helper redundant-cap repair, reporting approximately five active minutes, no edits and no proof reruns; accepted repair `27fa55b5` retains its proof.
   - Observed effect: one mandatory independent handoff produced no additional changes. Other slice refactors consolidated controls, native input and complete test journeys.
   - Inference: reported handoff cost supports investigating proportionality for established small repairs; it does not establish that independent review lacked value. No token cost or savings is measured.
+
+- Execution: `SEED-135#reach-final-report-done-choices-on-short-phone` / plan 303, first implementation `08a5e1b1c377cc6bff62201f119cb1f674cd9f36`
+  - Timestamp: unknown (2026-10-14 JST, between accepted slice proof and first implementation commit).
+  - Tool: Codex
+  - Open Dough release: 0.3.60 (checkout-bound installed `dough-update/VERSION`; guidance unchanged).
+  - Evidence: `report_refactor` returned “none — already clean” and `REFACTOR COMPLETE`, approximately six active minutes, no edits and no verification reruns. It reviewed the local report wrapper/CSS, documentation, browser journeys and supporting fixture/geometry modules; unchanged proof was reused.
+  - Observed effect: the required fresh independent handoff produced no further edits for this accepted presentation repair.
+  - Inference: the agent's elapsed estimate supports the existing proportionality question; neither measured token cost nor absence of review value is established. Coordinator acceptance had already caught and returned the root-scroll experiment's resize-edge regression.
 
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
