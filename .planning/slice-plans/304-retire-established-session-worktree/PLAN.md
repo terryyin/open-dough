@@ -107,8 +107,36 @@ owns.
   the execution branch. Codex coordinator `seed-066-ivan`, stream directory
   `/tmp/dough-ci-501/watch-dZB6xb`, PID `51578`, session `40781`, yielded cell
   `12`. The claim's earlier trunk publication is unobserved by this stream.
-- Slice 2 waits for a separately authorized release and the required native
-  journeys; execution of this plan authorizes no release.
+- On 2026-10-14 Terry authorized the release and native checks, then delegated
+  the version choice to research. Latest origin was `0.3.60`; `v0.3.61` now
+  identifies `1de2986ca45ad47198f0d43154be4d28e9d0e62d` on origin. The guidance
+  landing `cc92c2ded35bc100ae38dc67cec789224b81eada` has the original launch's
+  recorded landing receipt; later trunk publications take no landing context.
+- Lizard's ordinary latest update passed for both roots: 251 declared files
+  match the tagged bytes. Only updater-owned changes were published as
+  `6463d42928732a12d7a95bdb66dca5f73a240d48` on `origin/master`.
+- The first observer stopped with confirmed shutdown and pending CI unobserved.
+  Resumed Codex stream: coordinator `seed-066-ivan`, directory
+  `/tmp/dough-ci-501/watch-UhXGDV`, PID `87086`, session `22471`, cell `14`.
+
+### CI repair before the native slice
+
+Registered slice-1 revision `ba71df08887196d33d820765027da82e56c669b3` failed
+run `38408615864`, attempt 1, `test (1/3)` at the installed diagnostic boundary
+in `tests/helpers/installed-wait-entrypoint-fixture.bash`: the local request
+owner's connection failed. The fixture forced a 100 ms idle expiry despite
+testing installed entrypoints rather than expiry. A controlled 300 ms gap
+showed its owner exited before diagnostics; ordinary allowance passed. The
+repair removes that incidental expiry, preserving explicit teardown and the
+runtime-owned idle-expiry test. The exact CI shutdown ordering is unproved;
+no runtime counterexample or server-outage claim was established.
+
+Focused terminal pass: `PATH="/opt/homebrew/bin:$PATH" npm test -- /tmp/seed066-installed-owner-lifetime.sh tests/execution-payload-update.sh src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs`.
+The sole helper consumer exercised copied installed runtimes in both layouts,
+verdicts, diagnostics, routes and teardown. Independent refactor returned
+`none — already clean`; formatting passed, with proof unchanged. Slice statuses
+remain unchanged. All writers paused; stash save was `clean` with no entry,
+record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-pOwiJD/record.json`.
 
 ## Ordered slices
 
