@@ -235,3 +235,15 @@ Disposition: proved by slice 2: dashboard/tests/agent-terminal-cursor-launch-wai
 Reported: slice 1 — "This raw-socket substitute proof establishes neither native acceptance nor page rendering."
 Story clause: "A developer who starts a Cursor session in a workspace Cursor has not trusted learns from the dashboard that Cursor is waiting for workspace trust, sees that prompt in the session's terminal, and gets the first input delivered once they answer it."
 Disposition: proved by slice 3: native CUA trust screen and three explanations; native prompt_history/pasted_text exactly matches retained input, confirmed record and pwd in the same worktree
+
+## Execution complete
+
+Retrospective manifest: `310f729d` claim/provenance, `12feacaf` screen replay,
+`0c6e4066` trust explanation, `22155428` native evidence/records. Earlier
+`605e5b8b` and its unrelated reader/port correction are baseline, not this work.
+No runtime correction or new correction plan; architecture and retained tests
+match the approved outcome. Process occurrences: ODF-152, ODF-209 and ODF-218
+in DearDough.md (295 lines, no removals); applicable branch CI remains pending.
+Product advice: No new feature follow-up. Wrap-up should assimilate that Cursor
+can request trust for a fresh isolated worktree; plan 301's separate retirement
+and completion-report concerns stay with their existing owners.
