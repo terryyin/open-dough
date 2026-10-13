@@ -167,6 +167,13 @@ Learning: the same squeeze existed at 768×1024 with a problem answer (label
 49.75×469.69 on the former rules); the repaired columns keep the label on one
 line there too, recorded as G4.
 
+## Execution complete
+
+Product advice: no backlog change. The row reads whole on a phone and the
+story's examples are met; the review found no correction. The unrelated
+`limit-recovery-credit-history.spec.ts` flake seen under suite load is
+retained as DD-295 in `ProjectFindings.md`, open and unqueued.
+
 ## Story obligations
 
 ### G1. Progress answer opened, rotated, and at the other phone viewports

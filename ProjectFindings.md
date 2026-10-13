@@ -177,6 +177,14 @@ run establish no stable speedup or suite-wide timing penalty. Fresh fixture
 cache growth is prevented in these observations; the source of the historical
 134 GB remains unknown.
 
+## A limit-recovery spec counts one extra request under suite load (open, unqueued)
+
+<a id="dd-295"></a>
+
+### DD-295 — `limit-recovery-credit-history.spec.ts` saw an unrelated plan-history request after its recovery mark in one loaded whole-suite run
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-295).
+
 ## Loaded-suite evidence lacks within-run load (open, unqueued)
 
 <a id="dd-275"></a>
