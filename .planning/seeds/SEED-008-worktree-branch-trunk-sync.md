@@ -139,7 +139,7 @@ and ref-watching proposals; do not implement those historical mechanisms.
 
 **Identity:** SEED-008#reuse-ci-validation-at-integration
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/306-reuse-ci-validation-at-integration/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"60376ec9e429a7ba6d3f0db6541611155861c78f84ae300950ec8fbd85a4419d","plan":"122f98a27ada0a0391a2a640014b5e1ba2c742d611673f55d3a55763890be56b"}}
 ```
 
 **Goal:** Developers using Open Dough with their project's own CI avoid repeating
@@ -188,9 +188,10 @@ Trunk Mode solution.
 - This is reusable behavior across supported hosts and project CI providers.
   Keep shared policy/evidence semantics with the existing CI contract and the
   provider-specific ability to suppress duplicate work with the project's CI.
-  Whether the existing adapter is sufficient or requires an extension remains
-  to be established during refinement; no new configuration key or protocol
-  shape has been selected.
+  Use the existing target-attempt adapter contract: the provider creates a
+  real target decision for the accepted SHA. Its evidence page retains the
+  original validation identity and reuse decision; do not relabel a source
+  branch attempt or add a second observer-side equivalence policy.
 - Apply one shared CI-reuse policy and evidence contract to both modes:
   Story Branch integration and Trunk Mode increment, repair, and closure
   publication. Verify each mode's consuming path; changing only Story Branch
@@ -316,42 +317,126 @@ Evidence:
   and [completion/shutdown composition](../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs).
 - [Current completion requirements](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion).
 
-#### Candidate direction and remaining uncertainty
+#### Refined direction: CI owns reuse; Dough observes the target decision
 
-The smallest candidate direction is for the project's CI to own equivalence and
-execution reuse, while Dough recognizes truthful evidence for the accepted
-target SHA and keeps its publication/completion contract. Put that responsibility
-in the shared CI policy/evidence solution consumed by both modes, with only the
-necessary adaptation in their distinct publication paths. This is a direction
-for refinement, not a selected implementation or a readiness claim.
+The selected preparation direction keeps equivalence and scheduling together in
+the project's CI. A lightweight target run evaluates reusable validation, skips
+only the covered work on an eligible hit, performs any target-specific work,
+and publishes its real aggregate result. Dough observes that target run through
+its existing GitHub or command adapter and retains its existing accepted-SHA,
+failure, completion, and shutdown obligations. This is an implementation choice
+within the recorded goal, not a change to either execution mode.
 
-Resolve before executable planning:
+Deliver reusable installed guidance and a small callable CI reuse gate, with a
+GitHub Actions adoption example and a runnable custom-provider example using the
+same eligibility rule. An adopting project explicitly supplies its reusable
+validation boundary and context. Installation alone does not modify a project's
+CI or enable reuse. Keep the gate with the existing CI capability rather than
+introducing another service, scheduler, host-specific skill, or registry.
 
-- How a project declares reusable checks and equivalent context, including
-  branch-dependent behavior, external inputs, and validity of retained evidence.
-- Whether provider-owned target success through the existing adapter is enough,
-  or the shared contract needs explicit reuse eligibility/provenance and a
-  targeted exact-SHA lookup. Decide how native GitHub and custom CI express it.
-- How conflicting, newer, or rerun evidence affects eligibility, so an old green
-  result cannot silently override an applicable failed or incomplete check.
-- How reuse completion preserves the correct observer ownership and shutdown
-  gates in both Story Branch and Trunk Mode without requiring a nonexistent
-  duplicate target run.
-- A representative project's scheduling/reuse capability and real end-to-end
-  observation. No particular project's CI scheduler has been inspected, and no
-  suppression capability, native-host acceptance, test result, implementation,
-  or performance saving is claimed.
+**Project policy and evidence:**
 
-Evaluation should observe the key examples through the real publication,
-provider, and completion boundaries: exact eligible reuse avoids covered job
-execution; a new merge or rejected-push replacement gets validation; missing or
-ineligible evidence cannot complete successfully; main-specific obligations and
-resource preservation remain visible. Preserve inspectable source run/attempt
-identity. Further refinement selects proportionate proof and any affected
-cross-tool acceptance under this seed's architectural context. Observe both
-mode-specific publication/completion paths against the shared rule, including
-ordinary new Trunk Mode increments and a rebase that changes the accepted SHA;
-a passing Story Branch journey alone does not prove Trunk Mode coverage.
+- Opt in a named validation unit (a check group or workflow) and the trusted
+  source repository, workflow/check identity, source events/refs, and target.
+  Establish equivalent configuration and execution context for that unit:
+  dependency/toolchain inputs, environment, branch-dependent behavior and
+  external-input validity. A project may pin inputs or supply an explicit
+  context/version and validity bound; unknown equivalence means fresh work.
+- Bind a reusable success to the exact SHA and policy/context identity. Retain
+  source run and attempt identity, source branch, result URL, and context next
+  to the target decision, including why it reused or ran fresh. The target's
+  own run/attempt remains its identity in Dough's completion receipt. Its
+  evidence page must make the source inspectable; extra adapter JSON fields
+  currently discarded by normalization cannot serve as provenance.
+- Discover historical evidence for that exact SHA at the CI gate. Read current
+  attempts, not just cached successful summaries. A newer relevant pending,
+  incomplete, or failed attempt, ambiguous ordering, partial retrieval, expired
+  evidence, or an unreadable context prevents reuse. Do not scan only successes
+  and hide contradictory evidence. A later successful retry can qualify when
+  the provider establishes that it supersedes the earlier attempt; opaque
+  custom-provider attempt IDs are not sortable revision numbers.
+- Missing or invalid reuse information chooses ordinary execution of the
+  covered work. It never marks it successful. Failures of required fresh or
+  target-only work prevent the aggregate target success. A skipped job alone
+  is not validation evidence. A reuse decision cites direct validation, not
+  an unbounded chain of earlier reused results.
+- The eligibility decision is made when the target gate runs against the
+  currently readable evidence. It does not promise to predict later reruns,
+  reserve external inputs, or provide atomicity across two CI executions.
+  Changed inputs and explicit fresh-validation requests must invalidate reuse.
+
+#### Alternatives explored and borrowed mechanism
+
+| Candidate | Benefit against the goal | Consequence / disposition |
+| --- | --- | --- |
+| Keep current CI; shorten Dough's wait or cache dependencies | Smallest change; dependency caching can reduce setup cost | Does not prevent duplicate validation execution; insufficient for the selected goal |
+| CI-owned gate plus a lightweight target result | Suppresses actual covered work; keeps target-specific obligations and ordinary target observation together | Recommended and used for planning. Requires project CI adoption and inspectable source evidence; capability is checked before dependent implementation |
+| Dough discovers cross-branch success and certifies target coverage | Could finish without a target run | Observation alone cannot suppress already scheduled jobs. Adds scheduling coordination and duplicates the project's equivalence decision; not selected |
+| Change branching, validate a merge on a staging ref, then promote it | Can validate an integration candidate before publication | Changes publication mechanics and introduces more coordination; not needed for exact-commit reuse and outside this story |
+
+The borrowed mechanism is **memoization from build systems**: the validation unit
+is the computation, the exact commit plus declared configuration/context is the
+key, and its successful source attempt is the retained result. The target gate
+performs the lookup; a miss executes the unit; target-only checks are separate
+computations that still run. The consequential limit is that CI is not inherently
+a pure computation: secrets, environments, time, external services and side
+effects are not captured by a Git SHA. The project must establish that boundary;
+a digest alone cannot prove equivalence. This analogy motivates the candidate,
+but does not establish hosted scheduling behavior.
+
+#### Architecture
+
+Reuse policy belongs beside the provider's scheduling decision. The shared gate
+owns exact-SHA/context eligibility; provider code supplies facts, skips work and
+publishes evidence. Existing Dough acquisition and completion continue to own
+observation of the selected target check. No cross-branch success enters the
+ordinary observer as a target attempt. This avoids widening branch filters,
+reusing the observer's success-preferring attempt selector for eligibility, or
+turning its startup-history pruning into a cache lookup. The existing
+`not_required` path for ignored-only revisions remains a distinct applicability
+rule, not evidence of this story's exact-SHA validation reuse.
+
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+requires one coherent representation and proportionate investment;
+[ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+requires evidence at each affected boundary;
+[ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+keeps policy shared and instructions grounded in the executing project.
+[ADR 0003 — Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+and [maintainer guidance](../../AGENTS.md) place changes in the shared source and
+payload declarations, leaving installed copies to released updates. No release
+is included. The existing [North Star](../NORTH-STAR.md#remote-history-and-optional-local-refresh)
+already separates publication and CI coverage; no new product-wide boundary is
+needed. The ADR index and records agree on Accepted 0000–0006 and Proposed
+0007–0009. This design changes no integration timing or merge policy and adds no
+conflict with the relevant Accepted decisions; it does not resolve or accept the
+pre-existing lifecycle proposals.
+
+#### Evidence and remaining execution probe
+
+At preparation baseline `3a9f6bfbb476edf8a78145f404b343ea537df0bb`, in this story's
+owned workspace, the adapter/acquisition/completion checks passed (32 tests),
+and publication/reconciliation/Trunk completion checks passed (15 tests).
+A temporary exact-SHA corruption in custom adapter normalization caused its
+identity test to fail; restoring it passed. No scratch implementation remains.
+These observations establish existing consuming boundaries, not reuse behavior.
+
+A read-only GitHub query on 2026-10-14 returned actual workflow run IDs, attempts,
+SHAs, branches, status and URLs from this project's `ci.yml`. GitHub documents
+[conditional job execution](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)
+and [workflow run discovery](https://docs.github.com/en/rest/actions/workflow-runs).
+Those establish available primitives, not a tested reuse journey. The first plan
+slice therefore probes actual hosted suppression, target aggregation and source
+attribution on isolated authorized refs before dependent implementation.
+
+No hosted suppression, native-host acceptance, or compute saving is claimed
+from the local checks. Evaluate savings by observing covered job execution
+counts, not only shorter Dough waits. The probe must show both a hit that avoids
+execution and a miss that executes; failed target-only work must still fail.
+The custom-provider example and both publication modes receive their own
+consuming-path proof. Existing host launch/observation mechanisms stay unchanged;
+review the guidance under AGENTS.md and record justified reuse per host, without
+claiming new native sessions ran.
 
 ## Architectural Context
 
