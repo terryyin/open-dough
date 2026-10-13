@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-135#reach-final-report-done-choices-on-short-phone",
+  "title": "Keep final-report Done confirmation choices reachable at short phone height",
+  "completedAt": "2026-10-13T23:11:53.923Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

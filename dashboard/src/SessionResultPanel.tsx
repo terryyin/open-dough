@@ -96,76 +96,78 @@ export function SessionResultPanel({
       aria-label="Final report"
     >
       <SidePanelEdge />
-      <header className="side-panel-header">
-        <div className="side-panel-names">
-          <h2>{title}</h2>
+      <div className="session-result-scroll">
+        <header className="side-panel-header">
+          <div className="side-panel-names">
+            <h2>{title}</h2>
+            <p>
+              {name} session <code>{record.session.sessionId}</code>
+            </p>
+          </div>
+          <div className="side-panel-actions">
+            {marksRecordDone(hostOperations, record) &&
+              record.doneAt === undefined && (
+                <button
+                  ref={asking.control}
+                  type="button"
+                  className="frame-button"
+                  disabled={marking === "marking" || asking.shown}
+                  onClick={(event) => {
+                    asking.press(event.currentTarget);
+                  }}
+                >
+                  Mark as done
+                </button>
+              )}
+            <button
+              type="button"
+              className="frame-button"
+              onClick={onClose}
+              title={`Close (${closeShortcutLabel})`}
+            >
+              Close
+            </button>
+          </div>
+        </header>
+        {asking.shown && (
+          <InPlaceQuestion
+            asking={asking}
+            {...doneAnswers}
+            placed="side-panel-question"
+          />
+        )}
+        <div ref={report} className="session-result-body" tabIndex={-1}>
           <p>
-            {name} session <code>{record.session.sessionId}</code>
+            Read-only final report. Reading it does not continue or mark the
+            session done.
           </p>
-        </div>
-        <div className="side-panel-actions">
-          {marksRecordDone(hostOperations, record) &&
-            record.doneAt === undefined && (
-              <button
-                ref={asking.control}
-                type="button"
-                className="frame-button"
-                disabled={marking === "marking" || asking.shown}
-                onClick={(event) => {
-                  asking.press(event.currentTarget);
-                }}
-              >
-                Mark as done
-              </button>
+          <p>{workspaceLimitation(record)}</p>
+          <p>
+            Saved workspace <code>{recordedWorkspace(record)}</code>
+          </p>
+          <div role="status">
+            {marking === "marking" && <p>Marking as done…</p>}
+            {marking === "not-marked" && <p>{notMarkedDone}</p>}
+            {result === undefined && <p>Reading final report…</p>}
+            {result?.kind === "unavailable" && (
+              <>
+                <p>{result.explanation}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResult(undefined);
+                    setAttempt((previous) => previous + 1);
+                  }}
+                >
+                  Retry report
+                </button>
+              </>
             )}
-          <button
-            type="button"
-            className="frame-button"
-            onClick={onClose}
-            title={`Close (${closeShortcutLabel})`}
-          >
-            Close
-          </button>
-        </div>
-      </header>
-      {asking.shown && (
-        <InPlaceQuestion
-          asking={asking}
-          {...doneAnswers}
-          placed="side-panel-question"
-        />
-      )}
-      <div ref={report} className="session-result-body" tabIndex={-1}>
-        <p>
-          Read-only final report. Reading it does not continue or mark the
-          session done.
-        </p>
-        <p>{workspaceLimitation(record)}</p>
-        <p>
-          Saved workspace <code>{recordedWorkspace(record)}</code>
-        </p>
-        <div role="status">
-          {marking === "marking" && <p>Marking as done…</p>}
-          {marking === "not-marked" && <p>{notMarkedDone}</p>}
-          {result === undefined && <p>Reading final report…</p>}
-          {result?.kind === "unavailable" && (
-            <>
-              <p>{result.explanation}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setResult(undefined);
-                  setAttempt((previous) => previous + 1);
-                }}
-              >
-                Retry report
-              </button>
-            </>
+          </div>
+          {result?.kind === "available" && (
+            <pre className="session-final-report">{result.text}</pre>
           )}
         </div>
-        {result?.kind === "available" && (
-          <pre className="session-final-report">{result.text}</pre>
-        )}
       </div>
     </section>
   );
