@@ -35,7 +35,6 @@ import {
 import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
-import { z } from "zod";
 import {
   agentAcceptEndpoint,
   agentChangedEndpoint,
@@ -56,6 +55,10 @@ import { agentRecoverEndpoint } from "../src/sessionRecovery.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
+import {
+  changedRequest,
+  type AdmittedChanged,
+} from "./launchAttemptChanges.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
@@ -80,7 +83,7 @@ export type Admitted =
   | AdmittedReviewRange
   | AdmittedFileDiff
   | AdmittedReviewMark
-  | { readonly kind: "changed"; readonly attempt: string }
+  | AdmittedChanged
   | {
       // Answered once the launch is accepted.
       readonly kind: "accept";
@@ -177,7 +180,8 @@ const postRequests = new Map<
 ]);
 
 // The reads only a GET may make with exactly their parameters, by path.
-const exactReads = new Map<string, (url: URL) => Promise<Admitted>>([
+const exactReads = new Map<string, (url: URL) => Admitted | Promise<Admitted>>([
+  [agentChangedEndpoint, changedRequest],
   [sessionResultEndpoint, resultRequest],
   [storyReviewEndpoint, reviewRequest],
   [storyReviewFileEndpoint, fileDiffRequest],
@@ -191,7 +195,6 @@ export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   landingPrepareEndpoint,
   launchHostOptionsEndpoint,
   agentLaunchEndpoint,
-  agentChangedEndpoint,
   ...exactReads.keys(),
   cursorRunnerSessionsEndpoint,
   ...postRequests.keys(),
@@ -223,13 +226,6 @@ export async function admitted(
     return hostOptionsRequest(url);
   if (url.pathname === cursorRunnerSessionsEndpoint) {
     return { kind: "cursor-sessions" };
-  }
-  if (url.pathname === agentChangedEndpoint) {
-    const attempt = z.uuid().safeParse(url.searchParams.get("attempt"));
-    if (!attempt.success) {
-      throw new RefusedRequest(400, "The attempt request is malformed.");
-    }
-    return { kind: "changed", attempt: attempt.data };
   }
   return { kind: "sessions" };
 }

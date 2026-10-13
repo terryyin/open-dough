@@ -61,7 +61,12 @@ or high browser zoom.
 explanation) beneath the whole row, under Start session and the help, which
 stay in place; activate it again to collapse. A new read of the same project
 preserves this choice, including after a failed read; selecting another project
-starts collapsed. Opening or closing it makes no source request.
+starts collapsed. Opening or closing it makes no source request. What **Start
+session** answers (a started session, startup progress, or **Launch failed** or
+**Launch uncertain** with why) reads beside it on the row. Where the page shows
+one column, as on a phone in portrait, the answer reads whole beneath **Start
+session** and the help instead, above the opened direction, and the title keeps
+its whole words.
 
 The **?** control, named **Preparation badge legend**, opens the badge explanations
 in a modal dialog. Card badges remain visible in the overview. Close or Escape

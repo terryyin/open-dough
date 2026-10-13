@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation ([plan](slice-plans/301-unattached-session-native-observation/PLAN.md))
-- [Keep the direction disclosure readable after starting a session on a phone](seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#read-direction-after-phone-session-start) — SEED-135#read-direction-after-phone-session-start ([plan](slice-plans/302-keep-direction-readable-after-phone-session-start/PLAN.md))
 - [Retire an established session's isolated worktree after its result lands](seeds/SEED-066-composable-lightweight-session-options.md#retire-established-session-worktree) — SEED-066#retire-established-session-worktree ([plan](slice-plans/304-retire-established-session-worktree/PLAN.md))
 
 ## Backlog list

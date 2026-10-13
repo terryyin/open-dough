@@ -39,7 +39,6 @@ test("deletion after attempt expiry retains refusal and repository through a rea
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,
-    port: Number(new URL(dashboard.origin).port),
     extraEnv: clock.env,
   });
   const fault = landingGitFault(origin.machine);

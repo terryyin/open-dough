@@ -182,9 +182,7 @@ export function useLaunchAttempts({
   });
 
   useAttemptChangeWaits(
-    known
-      .filter((attempt) => attempt.running && attempt.outcome === undefined)
-      .map((attempt) => attempt.id),
+    known.filter((attempt) => attempt.running && attempt.outcome === undefined),
     reads,
     reread,
   );

@@ -177,6 +177,30 @@ run establish no stable speedup or suite-wide timing penalty. Fresh fixture
 cache growth is prevented in these observations; the source of the historical
 134 GB remains unknown.
 
+## A limit-recovery spec counts one extra request under suite load (open, unqueued)
+
+<a id="dd-295"></a>
+
+### DD-295 — `limit-recovery-credit-history.spec.ts` saw an unrelated plan-history request after its recovery mark in one loaded whole-suite run
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-295).
+
+## Specs restart a server on a just-closed port (partly repaired, open, unqueued)
+
+<a id="dd-296"></a>
+
+### DD-296 — A spec that restarted its server on the fixture's closed port failed CI with "Port … is already in use"
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-296).
+
+## Two checks fail only beside other work (open, unqueued)
+
+<a id="dd-297"></a>
+
+### DD-297 — A test writing into the source scripts directory and a five-second child-start poll each failed once in loaded whole-suite runs
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-297).
+
 ## Loaded-suite evidence lacks within-run load (open, unqueued)
 
 <a id="dd-275"></a>

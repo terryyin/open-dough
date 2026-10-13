@@ -80,7 +80,11 @@ test.describe("a kept preparation start", () => {
     });
     // The owning timer may replace a warning derived from acceptance time.
     expect(await attempts(preparation.server)).toEqual([
-      { ...slow, slowSince: expect.any(String) },
+      {
+        ...slow,
+        slowSince: expect.any(String),
+        changes: expect.any(Number) as unknown,
+      },
     ]);
     push.release();
     await preparation.expectResumed(() =>

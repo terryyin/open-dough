@@ -78,7 +78,13 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
     projectFolders: ["open-dough"],
   });
   try {
-    const interrupted = { ...running, owned: false, running: false };
+    // No server runs it now, so it has no next change to count.
+    const interrupted = {
+      ...running,
+      owned: false,
+      running: false,
+      changes: undefined,
+    };
     expect(await attempts(restarted)).toEqual([interrupted]);
     // No workflow's fresh start of the story is accepted.
     for (const workflow of ["refinement", "execution"]) {

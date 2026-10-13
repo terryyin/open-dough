@@ -51,6 +51,51 @@ that had asked for nothing.
   - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
   - Later evidence: the refreshed order's first run (38091885152, `main` at `3b2b446a`) ended share 6/9 at the deadline with all 147 tests passed; its 49 specs summed to 1,019 test-seconds against 719 in the reference run, about 1.4 times slower across unrelated specs, while other shares took 176 s to 285 s. Nine shares left no room for that runner variance, so the matrix now deals twelve (predicted 463 to 605 test-seconds a share).
 
+<a id="dd-295"></a>
+
+### DD-295 — `limit-recovery-credit-history.spec.ts` saw an unrelated plan-history request after its recovery mark in one loaded whole-suite run
+
+#### Occurrences
+
+- Execution: `SEED-135#read-direction-after-phone-session-start` / plan 302, first implementation `551947dd5cebd178803f8e414a83c959f0b95113`
+  - Timestamp: 2026-10-13T11:23Z (local whole dashboard suite on the slice's final state)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout VERSION 0.3.60)
+  - Evidence: `npm run test:dashboard -- --reporter=list` ended 1607 passed, 1 failed in 14.4 min. `askedSince` at `dashboard/tests/limit-recovery-credit-history.spec.ts:35` received `commit-list .planning/slice-plans/091-time-unread/PLAN.md@c3c3…` beside the three expected requests. The same spec passed in the whole-suite run an hour earlier (1607 passed) and 20 of 20 alone with `--repeat-each=20` (16.8 s).
+  - Observed effect: a whole-suite acceptance run failed on a spec that measures GitHub request traffic, in an execution that changed only a stylesheet, a README paragraph and a new spec.
+  - Inference: qualified. Either the unreadable plan time's history request was still in flight when `openedWithYumaWithheld` took its `asked` mark, or the page asked it again after recovery although the spec's comment says it stays terminal. The run did not distinguish them, and the trace was not kept. Not repaired in this execution.
+
+<a id="dd-296"></a>
+
+### DD-296 — A spec that restarted its server on the fixture's closed port failed CI with "Port … is already in use"
+
+#### Occurrences
+
+- Execution: `SEED-135#read-direction-after-phone-session-start`, first implementation `551947dd5cebd178803f8e414a83c959f0b95113`
+  - Timestamp: 2026-10-13T11:54Z (run 38393464333 attempt 1, story branch at `f3cce19e`, shard 8/12)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout VERSION 0.3.60)
+  - Evidence: `agent-launch-start-session-landing-retained.spec.ts` closed the fixture server and started its own on the same port; the start failed with "Port 46725 is already in use" through `dashboard/tests/support/viteAddress.ts` and `dashboard/server/chosenPort.mjs`, which never retries a named port. Holding that port after the close reproduced the same failure and stack locally.
+  - Observed effect: a records-only closure commit failed CI and held a story's integration.
+  - Inference: qualified. Which process took the port in CI is unknown. Three specs that never needed the same address now bind any free port. Seven callers still restart on a closed server's port because an open page or an embedded origin needs it (`responsiveRecovery.ts`, `support/launchPreview.ts` `restartPreview`, `agent-launch-start-session-recovery`, `agent-launch-ad-hoc-codex-recovery`, `agent-launch-second-server-orphan`, `agent-completion-recovery`, `agent-completion-superseded`); the same race is latent there and needs a way to hold the address across the restart.
+
+<a id="dd-297"></a>
+
+### DD-297 — A test writing into the source scripts directory and a five-second child-start poll each failed once in loaded whole-suite runs
+
+#### Occurrences
+
+- Execution: `SEED-135#read-direction-after-phone-session-start`, first implementation `551947dd5cebd178803f8e414a83c959f0b95113`
+  - Timestamp: 2026-10-13T14:08Z to 14:31Z (local whole-suite runs on the CI repair, load average 4 at the start and 22 at the end)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout VERSION 0.3.60)
+  - Evidence: `npm test` failed `ci-mailbox-removed-worktree.test.mjs` with `ENOENT … src/skills/dough-execute-plan/scripts/landing-<uuid>.json` inside `cpSync` of that directory (`ci-installed-checkouts-test-fixtures.mjs` `deployRuntime`); `dashboard-landing.test.mjs` writes and removes `landing-<delivery>.json` in the same source directory. `project-add-boundary.spec.ts:91` timed out its 5 s `expect.poll` for the `gh` child's pid. Alone, the first check passes and the second passed 60 of 60.
+  - Observed effect: two whole-suite acceptance runs each ended with one failure unrelated to the change under proof.
+  - Inference: qualified. The first is a race between two tests sharing the source directory, whatever the load; the second is a wait bound the loaded machine exceeded. Neither was repaired in this execution.
+
 ## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
 **Follow-up:** [Opt-in selection records](../../dashboard/tests/README.md)
