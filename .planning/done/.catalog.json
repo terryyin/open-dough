@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-066_retire-established-session-worktree.json",
+      "identity": "SEED-066#retire-established-session-worktree",
+      "completedAt": "2026-10-13T23:13:35.408Z",
+      "blob": "cab71567d6fa4beb7e5e299554f5917452a62244"
+    },
+    {
       "fileName": "SEED-135_read-direction-after-phone-session-start.json",
       "identity": "SEED-135#read-direction-after-phone-session-start",
       "completedAt": "2026-10-13T11:52:32.228Z",

@@ -283,37 +283,6 @@ through bounded corrections before closure. Missing payload, unavailable
 hosts, failed runs, and inconclusive observations remain pending; recording
 them alone does not complete the story.
 
-<a id="retire-established-session-worktree"></a>
-
-### Retire an established session's isolated worktree after its result lands
-
-**Identity:** SEED-066#retire-established-session-worktree
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/304-retire-established-session-worktree/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5223dc8c646d2691793f3feaa360234b4832c036cc67da316e154d3ca0e635c6","plan":"792665d5b28e31a53a26bb1fa62aa99336f246c923a290e4fb665c92e90161ee"}}
-```
-
-**Goal:** A developer who started an Isolated workspace session finds its
-worktree and branch retired once a one-shot workflow invoked there has landed
-its verified result, whichever host ran it. This is a bounded correction of a
-discrepancy the [native observation](#unattached-session-native-observation)
-found on 2026-10-13.
-
-#### Scope
-
-- The installed guidance says, in one place a retiring workflow reads, that an
-  Established session block with `workspace role: isolated` states that the
-  worktree was created for this session's work, and that the workflow retires
-  it on that statement after its landing gates pass.
-- A `default-checkout` session retires nothing, as today.
-- Review landing through Dough Land, tracked work in a session, and the
-  retirement command's containment and creation-record checks keep their
-  current behavior.
-- The correction is accepted when Claude Code and Cursor each retire the
-  session worktree after an auto-land one-shot execution from the released
-  payload.
-
-Plan: [304-retire-established-session-worktree](../slice-plans/304-retire-established-session-worktree/PLAN.md).
-
 <a id="cursor-trust-prompt-at-session-start"></a>
 
 ### See and answer Cursor's workspace trust prompt when a session starts

@@ -442,9 +442,11 @@ and 3, and the story, unfinished until the corrections below are re-observed.
 Terry accepted both corrections on 2026-10-13. They are queued first on trunk
 (`eec659c4`), each owning its native re-observation:
 
-- Discrepancy 1: `SEED-066#retire-established-session-worktree`, plan
-  `slice-plans/304-retire-established-session-worktree/PLAN.md`; slices 1 and
-  3 here wait on its Claude Code and Cursor evidence.
+- Discrepancy 1: retirement creation-fact correction accepted by the native
+  re-observation below. Completed source and plan are recoverable at
+  `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/seeds/SEED-066-composable-lightweight-session-options.md#retire-established-session-worktree`
+  and `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/slice-plans/304-retire-established-session-worktree/PLAN.md`.
+  This leaves the broader ordering/notification limitations below intact.
 - Discrepancy 2: `SEED-066#cursor-trust-prompt-at-session-start`, plan
   `slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`; slice 3 here
   waits on its Cursor evidence.
