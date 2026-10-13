@@ -13,7 +13,10 @@ its own missing-operation checks. Cursor's module launches with `create-chat`,
 then one kept terminal client, `cursor-agent --workspace` and `--resume` in
 the established workspace, and stores that id, workspace, and resume command,
 with no alias or endpoint. The launch does not pass `-w`, `--worktree`,
-`--trust`, `--force`, or `--yolo`. The instruction is written into that
+`--trust`, `--force`, or `--yolo`. Cursor can request workspace trust for a
+fresh isolated worktree. Opening its terminal shows the held prompt; the
+developer answers there before the first instruction can be delivered.
+The instruction is written into that
 client when its server-side screen shows the text
 `Add a follow-up` or `Plan, search, build anything`, even when the terminal
 cursor is hidden and no synchronized-update frame has arrived. A long or
