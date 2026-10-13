@@ -164,6 +164,40 @@ reuse; remove spent artifacts under ADR 0005 at closure.
 | Older installations cannot offer unsupported choices | Preflight of each affected host: disabled controls and explanation; count only this guard as covered, leave native journey pending |
 | Every discrepancy is resolved before closure | Owning failed slice stays unfinished; link bounded correction and its subsequent native result |
 
+## Execution setup
+
+Recorded 2026-10-13 at execution start (claim `8f3ba27c` on `main`, agent
+`yilv-chan`, Story Branch Mode in the preparation workspace above).
+
+- Observation project: Lizard, chosen by Terry at Take. Default checkout
+  `/Users/terryyin/git/lizard`, branch `master`, remote `origin`
+  (`git@github.com:terryyin/lizard.git`), target `master`.
+- Rechecked the same day with the two commands above: `available: true` for
+  all three hosts and `compared: 242, mismatches: []` for both installed roots
+  of every configured project; `v0.3.60` is still the highest release.
+- Dashboard: deployment `e40d6854c99b` serving `http://127.0.0.1:4173`;
+  `git diff e40d6854 HEAD -- dashboard src` is empty in this workspace.
+- Hosts: Claude Code 2.1.296, codex-cli 0.162.1, Cursor agent
+  2026.10.01-e373342. Record each journey's model with its evidence.
+- Fixture stories, drafted by the agent and published on Terry's instruction
+  as Lizard `0128281` (`.planning/seeds/SEED-001-readme-accuracy.md`), all
+  unassigned in its **Backlog list**:
+
+  | Slice | Host and journey | Fixture |
+  | --- | --- | --- |
+  | 1 | Claude Code, isolated auto-land | `SEED-001#exit-code-wording` |
+  | 2 | Codex, isolated auto-land | `SEED-001#python3-module-example` |
+  | 3 | Cursor, isolated auto-land | `SEED-001#dead-travis-badge` |
+  | 4 | Claude Code, isolated review then Dough Land | `SEED-001#research-section-wording` |
+  | 5 | Claude Code, default-main refinement | `SEED-001#verified-python-versions` (not refined) |
+
+- Baseline before slice 1: Lizard default checkout clean at `0128281`, equal
+  to `origin/master`; no `.worktrees/` directory; two unrelated prunable
+  worktrees under `/private/tmp`; no Lizard entry in the dashboard's
+  `agent-launches.json`.
+- After each journey the agent reads the Git, remote, launch-record and
+  native-transcript evidence itself; Terry operates the paid session only.
+
 ## Ordered slices
 
 ### 1. Claude Code consumes the isolated auto-land handoff
