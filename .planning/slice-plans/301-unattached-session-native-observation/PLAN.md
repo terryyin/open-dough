@@ -108,7 +108,7 @@ reuse; remove spent artifacts under ADR 0005 at closure.
 
 ### 1. Claude Code consumes the isolated auto-land handoff
 Type: Behavior
-Status: retirement and recovered CI pass; original gated-retirement ordering remains unproved
+Status: done
 Proof: developer observes the source story's per-host steps 1–3 on Claude Code.
 
 [Judged observation](AUTO-LAND-OBSERVATIONS.md#1-claude-code) retains the native
@@ -131,7 +131,7 @@ only. Safe stop preserves its judged evidence and leaves other hosts pending.
 
 ### 2. Codex consumes the same isolated auto-land intent
 Type: Behavior
-Status: observed, all expectations pass
+Status: done
 Proof: same complete journey as slice 1 in a fresh Codex session, using Codex's
 native skill invocation syntax and a different queued fixture story.
 
@@ -145,7 +145,7 @@ leaves Cursor and the review journeys pending.
 
 ### 3. Cursor consumes the same isolated auto-land intent
 Type: Behavior
-Status: trust, retirement and recovered CI pass; original gated-retirement ordering remains unproved
+Status: done
 Proof: same complete journey as slice 1 in a fresh Cursor session with a distinct
 fixture story, including visible instruction submission in its native terminal.
 
@@ -163,7 +163,7 @@ separate; this slice retains the gated-retirement ordering limitation.
 
 ### 4. An isolated review result waits and later lands
 Type: Behavior
-Status: observed, all expectations pass
+Status: done
 Proof: source story's Claude Code isolated review journey; compare the remote
 and owned workspace before review and after explicit Dough Land.
 
@@ -181,7 +181,7 @@ push is a discrepancy, not permission to revise the expected behavior.
 
 ### 5. Default-main refinement preserves changes and waits for review
 Type: Behavior
-Status: observed, all expectations pass; review result retained
+Status: done
 Proof: source story's Claude Code default-main warning plus refinement journey,
 with a harmless existing file and an unassigned queued refinement fixture.
 
@@ -203,27 +203,26 @@ observation cleanup. Safe stop records the result and its location accurately.
 
 ## Observation outcome
 
-Recorded 2026-10-13: slices 2, 4 and 5 passed; two discrepancies kept slices 1 and 3 unfinished. Both corrections now pass; broader ordering limits remain.
+Judged 2026-10-14: every promise in the proof table has passing native
+evidence on each affected host. Slices 2, 4 and 5 passed on 2026-10-13. Slices
+1 and 3 passed except for two discrepancies, both corrected and re-observed:
 
-1. **Retirement of an established isolated workspace is read two ways.** After
-   an auto-land one-shot execution, Claude Code and Cursor kept the worktree
-   (`created: false`, no creation record); Codex passed `--created-for-work`
-   and retired it; Claude Code retired it when landing through Dough Land.
-2. **Cursor's workspace trust prompt blocks an isolated Start unseen.** The
-   launch answers uncertain without naming trust and the embedded terminal
-   stays blank until a key is pressed.
+1. **Retirement after an auto-land one-shot execution was read two ways.**
+   Corrected by `SEED-066#retire-established-session-worktree` in release
+   `0.3.61`; Claude Code and Cursor then retired the session worktree
+   ([re-observation](RETIREMENT-OBSERVATIONS.md)). Completed plan:
+   `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/slice-plans/304-retire-established-session-worktree/PLAN.md`.
+2. **Cursor's workspace trust prompt blocked an isolated Start unseen.**
+   Corrected by `SEED-066#cursor-trust-prompt-at-session-start`
+   ([fresh Cursor proof](AUTO-LAND-OBSERVATIONS.md#cursor-trust-correction-re-observation)).
+   Completed plan:
+   `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`.
 
-Terry accepted both corrections on 2026-10-13 (`eec659c4`); completed evidence retains the whole-journey limits:
-
-- Discrepancy 1: retirement creation-fact correction accepted by the native
-  [re-observation](RETIREMENT-OBSERVATIONS.md). Completed source and plan are recoverable at
-  `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/seeds/SEED-066-composable-lightweight-session-options.md#retire-established-session-worktree`
-  and `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/slice-plans/304-retire-established-session-worktree/PLAN.md`.
-  This leaves the broader ordering/notification limitations in that evidence intact.
-- Discrepancy 2 is resolved by the trust correction
-  `SEED-066#cursor-trust-prompt-at-session-start`; its completed plan is recoverable
-  at `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`.
-  [Fresh Cursor proof](AUTO-LAND-OBSERVATIONS.md#cursor-trust-correction-re-observation) remains here.
+Accepted limitation, outside this story's promises: Lizard's workflow is
+`python-app.yml`, so the installed CI completion answered
+`observation_unavailable` and both re-observed sessions retired before an
+observer-confirmed green; exact-SHA CI was green afterwards. The retirement
+evidence keeps that ordering unproved.
 
 On Terry's instruction the same day, the leftover Lizard worktrees
 `.worktrees/session` and `.worktrees/session-2` were retired with their
