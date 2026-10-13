@@ -24,6 +24,60 @@ const landing = section(
   reference,
   "## Land under the session's landing intent",
 );
+const retirement = section(reference, "## Retire the isolated workspace");
+
+test("the isolated block supplies the creation fact after landing despite a reused start receipt", () => {
+  const paraphrase =
+    "The `workspace role: isolated` block is the caller's statement: the workspace was created for the session's work. A start's `created: false` records reuse and preserves the creation fact. After landing, satisfy its delivery and completion gates. Pass `--created-for-work` and the landed revision with `--contained`. Retirement requires containment and creation records, and refuses a workspace created for other work. A `default-checkout` is never retired.";
+  for (const text of [retirement, paraphrase])
+    for (const pattern of [
+      /`workspace role: isolated`[\s\S]+caller's\s+statement/,
+      /created for (?:this|the) session's work/,
+      /`created: false`[\s\S]+(?:reused|reuse)/,
+      /(?:does not negate|preserves|retains)[\s\S]+creation fact/,
+      /After landing[\s\S]+(?:own|its) delivery and completion gates/,
+      /`--created-for-work`[\s\S]+landed revision[\s\S]+`--contained`/,
+      /(?:checks|requires)[\s\S]+containment and creation records/,
+      /(?:refusal|refuses)[\s\S]+created for other work/,
+      /`default-checkout`[\s\S]+(?:retires\s+nothing|is\s+never\s+retired)/,
+    ])
+      assert.match(text, pattern);
+});
+
+test("both retirement entry points link the established creation fact and keep their gates", () => {
+  const paths = [
+    [
+      "dough-land/references/worktree-retirement.md",
+      "# Retire an owned worktree",
+      "--created-for-work",
+    ],
+    ["dough-execute-plan/references/one-shot.md", "## Retire the workspace"],
+  ];
+  for (const [path, heading, bullet] of paths) {
+    let text = section(read(path), heading);
+    if (bullet)
+      text = text
+        .split(/- (?:Pass|Supply|Use) `--created-for-work`/)[1]
+        .split("\n- ")[0];
+    const links = [
+      ...text.matchAll(/\]\(([^)#]+)#retire-the-isolated-workspace\)/g),
+    ];
+    assert.ok(links.length, `${heading} links the retirement rule`);
+    for (const [, link] of links)
+      assert.equal(
+        resolve(skills, dirname(path), link),
+        join(skills, referencePath),
+      );
+  }
+  const gate = read(paths[0][0]);
+  assert.match(gate, /created for other work[\s\S]+(?:Retain|Keep)/);
+  assert.match(
+    gate,
+    /(?:Do not|Never) infer[\s\S]+clean directory, a claim, or a preparation assignment/,
+  );
+  const oneShot = section(read(paths[1][0]), paths[1][1]);
+  assert.match(oneShot, /delivery and CI completion gates pass/);
+});
 
 test("the reference shows the block the formatter spells, and what it leaves to the invocation", () => {
   const block = formatEstablishedSession({
