@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-134#one-hour-mobile-dashboard-observation",
-  "mode": "story-branch",
-  "branch": "codex/mobile-dashboard-manual-testing",
-  "host": "codex"
-}

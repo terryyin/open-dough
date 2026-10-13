@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Observe the completed mobile dashboard story for one hour](seeds/SEED-134-mobile-dashboard-manual-testing.md#one-hour-mobile-dashboard-observation) — SEED-134#one-hour-mobile-dashboard-observation
-
 ## Backlog list
 
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation
