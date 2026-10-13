@@ -8,6 +8,7 @@ import {
   terminalEndedCode,
   terminalAttachFailedCode,
   terminalReadinessSchema,
+  terminalReplaySchema,
   terminalWorkspaceUnavailableSchema,
   terminalWorkspaceUnavailableCode,
   type TerminalWorkspaceUnavailable,
@@ -94,6 +95,7 @@ export function useAttachedTerminal(
     let framePending = false;
     let frameCompleted = false;
     let cursorVisible = false;
+    let replaying = false;
     const mode = (enabled: boolean, params: number[]) => {
       if (params.includes(2026)) {
         framePending = enabled;
@@ -129,6 +131,10 @@ export function useAttachedTerminal(
       if (typeof event.data === "string") {
         terminal.write(event.data, () => {
           if (!current) return;
+          if (replaying) {
+            replaying = false;
+            fit.fit();
+          }
           if (observeReadiness && frameCompleted && !framePending) {
             frameCompleted = false;
             const buffer = terminal.buffer.active;
@@ -152,6 +158,12 @@ export function useAttachedTerminal(
           observeReadiness = control.data.readiness === "observe";
           if (!observeReadiness) attached();
         } else {
+          const replay = terminalReplaySchema.safeParse(payload);
+          if (replay.success) {
+            replaying = true;
+            terminal.resize(replay.data.replay.cols, replay.data.replay.rows);
+            return;
+          }
           const refusal = terminalWorkspaceUnavailableSchema.safeParse(payload);
           if (refusal.success)
             onWorkspaceUnavailable(session, refusal.data.workspaceUnavailable);
@@ -173,10 +185,10 @@ export function useAttachedTerminal(
       send({ input });
     });
     const resized = terminal.onResize(() => {
-      send({ resize: size() });
+      if (!replaying) send({ resize: size() });
     });
     const panelSize = new ResizeObserver(() => {
-      fit.fit();
+      if (!replaying) fit.fit();
     });
     panelSize.observe(screen);
     fit.fit();

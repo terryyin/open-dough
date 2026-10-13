@@ -190,12 +190,13 @@ for (const mode of ["dev", "preview"] as const) {
               .poll(() => next.controls())
               .toEqual([{ readiness: "attached" }]);
             await expect.poll(() => next.output()).toContain("ctrl+c to stop");
+            // Both sockets share live output; the new socket also has replay.
             const added = () => joined.output().slice(before.length);
             await expect
               .poll(
                 () =>
                   added().includes("ctrl+c to stop") &&
-                  next.output() === added(),
+                  next.output().endsWith(added()),
               )
               .toBe(true);
             expect(cursor.attaches()).toHaveLength(1);

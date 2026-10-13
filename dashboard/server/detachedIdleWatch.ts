@@ -3,7 +3,11 @@
 // socket returning, or no idle rule leaves the client running. With no rule
 // the watch still records the screen.
 import type { DetachedIdle, ScreenReadiness } from "./launchHosts.ts";
-import { KeptClientScreen, type FrameScreen } from "./keptClientScreen.ts";
+import {
+  KeptClientScreen,
+  type FrameScreen,
+  type ScreenReplay,
+} from "./keptClientScreen.ts";
 
 export class DetachedIdleWatch {
   private screen: KeptClientScreen | undefined;
@@ -38,6 +42,10 @@ export class DetachedIdleWatch {
   // The visible screen, after the writes so far have settled.
   async text(): Promise<string> {
     return (await this.snapshot())?.text ?? "";
+  }
+
+  replay(): Promise<ScreenReplay | undefined> {
+    return this.screen?.replay() ?? Promise.resolve(undefined);
   }
 
   // The same recorded screen and cursor after queued output settles.

@@ -3,7 +3,7 @@
 // `/__agent-terminal?source=<project id>&host=<host>&session=<session id>`,
 // attached through the recorded session's host. An omitted host addresses
 // predecessor Claude Code records. The server sends the session's terminal
-// output as text frames and readiness controls as binary JSON frames.
+// output as text frames and readiness/replay controls as binary JSON frames.
 // Rendered screen evidence observes completed native synchronized updates.
 // The page sends only the messages below. The server
 // closes the socket with `terminalEndedCode` when the attach process exits on
@@ -41,6 +41,16 @@ export const terminalReadinessSchema = z.strictObject({
 
 // A terminal's size in character cells, bounded well past any real window.
 const cells = z.int().min(1).max(1_000);
+
+// The next text frame restores the held screen at its recorded dimensions.
+// The page fits it back to the panel after that frame has been parsed.
+export const terminalReplaySchema = z.strictObject({
+  replay: z.strictObject({ cols: cells, rows: cells }),
+});
+
+export type TerminalControl =
+  | z.infer<typeof terminalReadinessSchema>
+  | z.infer<typeof terminalReplaySchema>;
 
 export const terminalMessageSchema = z.union([
   z.strictObject({ input: z.string() }),
