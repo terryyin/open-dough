@@ -19,4 +19,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Retire an established session's isolated worktree after its result lands](seeds/SEED-066-composable-lightweight-session-options.md#retire-established-session-worktree) — SEED-066#retire-established-session-worktree
+- [See and answer Cursor's workspace trust prompt when a session starts](seeds/SEED-066-composable-lightweight-session-options.md#cursor-trust-prompt-at-session-start) — SEED-066#cursor-trust-prompt-at-session-start
 - [Keep final-report Done confirmation choices reachable at short phone height](seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#reach-final-report-done-choices-on-short-phone) — SEED-135#reach-final-report-done-choices-on-short-phone

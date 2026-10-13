@@ -283,6 +283,67 @@ through bounded corrections before closure. Missing payload, unavailable
 hosts, failed runs, and inconclusive observations remain pending; recording
 them alone does not complete the story.
 
+<a id="retire-established-session-worktree"></a>
+
+### Retire an established session's isolated worktree after its result lands
+
+**Identity:** SEED-066#retire-established-session-worktree
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/304-retire-established-session-worktree/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5223dc8c646d2691793f3feaa360234b4832c036cc67da316e154d3ca0e635c6","plan":"792665d5b28e31a53a26bb1fa62aa99336f246c923a290e4fb665c92e90161ee"}}
+```
+
+**Goal:** A developer who started an Isolated workspace session finds its
+worktree and branch retired once a one-shot workflow invoked there has landed
+its verified result, whichever host ran it. This is a bounded correction of a
+discrepancy the [native observation](#unattached-session-native-observation)
+found on 2026-10-13.
+
+#### Scope
+
+- The installed guidance says, in one place a retiring workflow reads, that an
+  Established session block with `workspace role: isolated` states that the
+  worktree was created for this session's work, and that the workflow retires
+  it on that statement after its landing gates pass.
+- A `default-checkout` session retires nothing, as today.
+- Review landing through Dough Land, tracked work in a session, and the
+  retirement command's containment and creation-record checks keep their
+  current behavior.
+- The correction is accepted when Claude Code and Cursor each retire the
+  session worktree after an auto-land one-shot execution from the released
+  payload.
+
+Plan: [304-retire-established-session-worktree](../slice-plans/304-retire-established-session-worktree/PLAN.md).
+
+<a id="cursor-trust-prompt-at-session-start"></a>
+
+### See and answer Cursor's workspace trust prompt when a session starts
+
+**Identity:** SEED-066#cursor-trust-prompt-at-session-start
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7aa7ff3d0cc89360da02924cd9c728878cffef2a67e209b6e791f9f73eea0724","plan":"57e96cef882a3047426a82e0a4fb8b51728892b077593272d9fefc09be6d5ddb"}}
+```
+
+**Goal:** A developer who starts a Cursor session in a workspace Cursor has
+not trusted learns from the dashboard that Cursor is waiting for workspace
+trust, sees that prompt in the session's terminal, and gets the first input
+delivered once they answer it. This is a bounded correction of a discrepancy
+the [native observation](#unattached-session-native-observation) found on
+2026-10-13.
+
+#### Scope
+
+- When the launch wait ends while the kept Cursor client shows its workspace
+  trust prompt, the launch answer, Startup recovery and the session entry say
+  that Cursor is waiting for workspace trust and that it is answered in the
+  session's terminal.
+- Opening that session's terminal shows the prompt the client currently holds.
+- Answering the prompt there delivers the kept first input and confirms it, as
+  it already does.
+- The dashboard still passes no trust flag and answers no prompt itself.
+- Other uncertain launch outcomes keep their current wording.
+
+Plan: [305-cursor-trust-prompt-at-session-start](../slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md).
+
 ## Current Implemented Baseline
 
 - [One-shot execution](../../src/skills/dough-execute-plan/references/one-shot.md)
