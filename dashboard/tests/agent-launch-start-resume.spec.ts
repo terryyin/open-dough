@@ -104,9 +104,13 @@ test.describe("a kept execution start", () => {
       kind: "uncertain",
       explanation: expect.stringContaining("already running"),
     });
-    // The owning timer may replace a warning derived from acceptance time.
+    // Recording the warning can change its timestamp and observation count.
     expect(await attempts(server)).toEqual([
-      { ...slow, slowSince: expect.any(String) },
+      {
+        ...slow,
+        slowSince: expect.any(String),
+        changes: expect.any(Number) as unknown,
+      },
     ]);
     push.release();
     const launched = await launching;

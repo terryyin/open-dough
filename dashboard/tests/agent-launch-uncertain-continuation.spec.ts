@@ -124,9 +124,13 @@ startTest.describe("a story start that crosses its warning threshold", () => {
         kind: "uncertain",
         explanation: expect.stringContaining("already running"),
       });
-      // The owning timer may replace a warning derived from acceptance time.
+      // Recording the warning can change its timestamp and observation count.
       expect(await attempts(dashboard)).toEqual([
-        { ...slow, slowSince: expect.any(String) },
+        {
+          ...slow,
+          slowSince: expect.any(String),
+          changes: expect.any(Number) as unknown,
+        },
       ]);
       expect(dashboard.claudeLaunchCalls()).toEqual([]);
       push.release();
