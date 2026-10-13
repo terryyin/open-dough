@@ -202,8 +202,51 @@ Recorded 2026-10-13 at execution start (claim `8f3ba27c` on `main`, agent
 
 ### 1. Claude Code consumes the isolated auto-land handoff
 Type: Behavior
-Status: planned
+Status: observed with one discrepancy; unfinished until its correction is re-observed
 Proof: developer observes the source story's per-host steps 1–3 on Claude Code.
+
+Observed 2026-10-13, one attempt, fresh evidence. Terry authorized the agent
+to operate the paid session; the agent drove the running dashboard with
+headless Chromium and typed into its embedded terminal. Claude Code 2.1.296,
+Opus 5.5 (dashboard default model), dashboard deployment `e40d6854c99b`,
+installed release `0.3.60`, Lizard at `0128281`, launch
+`68dc053f-1d37-4dc6-a018-e42c63a301dc`, native session
+`8ced2fa3-4c01-41d3-89e4-1fcbc4e3a824`, fixture `SEED-001#exit-code-wording`.
+
+| Expectation | Observed | Result |
+| --- | --- | --- |
+| Line beside Start names the push | “Isolated workspace · Automatically land — The session runs in a new workspace under .worktrees/; verified results land on origin without another review. Pressing Start authorizes that push.” | pass |
+| One worktree on the host branch, session opens there, sidebar names it | `git worktree list` gained only `.worktrees/session` on `claude/session` at `0128281`; transcript `cwd` and the Claude banner show that path; the session entry reads “Workspace ~/git/lizard/.worktrees/session” | pass |
+| First input is the block, then reporting context with `--landing-context` | `workspace role: isolated`, `landing: auto-land`, `startingRevision: 0128281…`, no `fetched`; reporting context names the launch's `landing-context.json` | pass |
+| No initial publication or claim | `origin/master` still `0128281`, no remote `claude/*` branch, backlog unchanged; the session answered that nothing was claimed, changed or landed | pass |
+| A question is answered only | “Which file holds the Python language reader?” → answer naming `lizard_languages/python.py`; worktree clean at `0128281`, remote unchanged | pass |
+| One-shot start reuses the workspace | Input `/dough-execute-plan SEED-001#exit-code-wording --one-shot`. The agent's start call added `--auto-land --push-authorized` from the block and answered `{"ok":true,"status":"prepared","startingRevision":"0128281…","created":false,"maintenance":{"result":"deferred","reason":"pending-edit"},"landing":"auto-land"}`; no second worktree | pass |
+| Verified result lands with no landing request; story closes in it | Full suite 1545 passed; `deliver … --tracking one-shot --one-shot-identity` accepted `8cf5eed` on `refs/heads/master`; that commit removes the backlog entry and seed section and adds the done record; GitHub run 38392706985 succeeded | pass |
+| Original launch captures the landing with no identity | Launch record `landing`: base `0128281`, revision `8cf5eed`, reference `68dc053f…`, no identity field | pass |
+| Worktree retires | `worktree-retirement.mjs retire … --identity 'SEED-001#exit-code-wording'` answered `ok: false`, “reused, host-owned, or unrecorded workspace, not created for this work”. `.worktrees/session` and `claude/session` remain at `8cf5eed` | **fail** |
+
+Discrepancy: the dashboard's identity-free start writes no creation record for
+the session worktree, the invoked start reports `created: false`, and the
+retirement reference allows `--created-for-work` only from a `created: true`
+record or a caller statement. Released `established-session.md` calls the
+isolated workspace “an owned worktree, retired once trunk contains its work”
+but does not connect that to the retirement command's ownership fact, so the
+agent followed the retirement reference and kept the worktree. The cause is in
+shared guidance and scripts, not Claude Code, so slices 2–4 would meet the same
+refusal; slice 5 retires nothing. A bounded correction and a release carrying
+it must precede re-observing retirement.
+
+Incidental observations outside this story's promises, recorded for triage:
+
+- Lizard does not ignore `.worktrees/`, so its default checkout shows
+  `?? .worktrees/` after an isolated Start; the start deferred default-checkout
+  refresh as `pending-edit`, leaving `master` one commit behind. In slice 5 a
+  one-shot `git add -A` in that checkout would stage the leftover worktree.
+- The agent's first start call used `--trunk master` and was refused with
+  `missing target`; it found `--target` in the usage text and retried.
+- The CI observer looked for `ci.yml`; Lizard's workflow is `python-app.yml`,
+  so the completion receipt was `observation_unavailable` and the agent read
+  the run with `gh` instead.
 
 Behavior: with the prerequisite installed and a clean observation project,
 Start session · Isolated workspace · Automatically land, no text → one session
