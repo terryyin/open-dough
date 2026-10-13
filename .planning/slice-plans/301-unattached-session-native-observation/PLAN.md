@@ -202,7 +202,7 @@ Recorded 2026-10-13 at execution start (claim `8f3ba27c` on `main`, agent
 
 ### 1. Claude Code consumes the isolated auto-land handoff
 Type: Behavior
-Status: observed with one discrepancy; unfinished until its correction is re-observed
+Status: retirement and recovered CI pass; original gated-retirement ordering remains unproved
 Proof: developer observes the source story's per-host steps 1–3 on Claude Code.
 
 Observed 2026-10-13, one attempt, fresh evidence. Terry authorized the agent
@@ -301,7 +301,7 @@ leaves Cursor and the review journeys pending.
 
 ### 3. Cursor consumes the same isolated auto-land intent
 Type: Behavior
-Status: observed with two discrepancies; unfinished until their corrections are re-observed
+Status: retirement and recovered CI pass; trust and original gated-retirement ordering remain unfinished
 Proof: same complete journey as slice 1 in a fresh Cursor session with a distinct
 fixture story, including visible instruction submission in its native terminal.
 
@@ -453,6 +453,44 @@ On Terry's instruction the same day, the leftover Lizard worktrees
 `.worktrees/session` and `.worktrees/session-2` were retired with their
 branches, and slice 5's retained `ea7fae3` was dropped; Lizard's default
 checkout equals `origin/master` at `9770c4b`.
+
+## Retirement correction re-observation
+
+Observed 2026-10-14 under plan 304: released `0.3.61` installed byte-for-byte in
+both Lizard roots (251 files each), installation `6463d42`, dashboard
+`1de2986ca45a-wypYFW`. Fresh blank isolated/auto-land sessions received only the
+one-shot fixture invocation, without an explicit `--auto-land` input.
+
+- Claude Code `2.1.296`, default `claude-opus-5-5`: launch
+  `c8f08604-1940-4be1-aa6f-1744a598232f`, native `122d6dd3-4fc6-4dcc-97fc-f1faca40e484`,
+  fixture `SEED-001#standalone-script-wording`, accepted `a4c4db393e0c7ff86ca73d8793029f2757325ed5`.
+- Cursor `2026.10.01-e373342`, default Auto: launch
+  `19786396-a8de-4a65-afbc-5ccb780386f6`, native `394bd615-a31f-4f0a-a34a-9fb2af6c405b`,
+  fixture `SEED-001#warning-limits-wording`, accepted `34c50f0d3140307cf4db96a893a9c138741dc448`.
+
+Both reused the established workspace (`prepared`, `created: false`,
+`landing: auto-land`), landed fixture and closure, then passed
+`--created-for-work --contained <accepted SHA>` to retirement. Both receipts
+reported worktree/branch `removed`; independent Git proved filesystem,
+registration, local and remote branches absent and trunk containment. This
+closes discrepancy 1 only. Codex's earlier flag path and runtime are unchanged.
+
+Both installed CI completion receipts remained `observation_unavailable`
+(`ci.yml`/404), with confirmed shutdown. Claude checked actual Python CI green
+(run `38478718455`) and pytest 1545 passed / 7 skipped. Cursor retired without
+native CI-green verification or a pytest result; the operator later found run
+`38480094290` green. Those initial receipts are not passing native completion receipts; Cursor trust remains owned by plan 305. A deleted Cursor
+attempt's stale startup state required reversible archival/clearing before the
+fresh launch; its future product disposition remains a separate candidate.
+Exact commands, paired results, archives and Git checks:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed066-cursor-prerequisite-wnhqomzj/summary.json`.
+Same-chat CI recovery then passed exact-SHA completion with confirmed shutdown:
+Claude `38478718455`/2 (one exact-run rerun), Cursor `38480094290`/1. Mailboxes
+`watch-zLUNxl` and `watch-KlvZLj`; paired `*-ci-recovery-evidence.json` records
+are beside original proof. No publication or resource recreation. This recovers
+current coverage; initial retirement-before-observer-green ordering remains
+unproved. Slices 1 and 3 retain that ordering limitation, and Cursor trust stays
+unfinished. No broader all-expectations pass is claimed.
 
 ## Review and execution gates
 

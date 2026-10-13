@@ -98,15 +98,11 @@ owns.
   through `node scripts/setup-native.mjs npm` and `browser`, then `check`
   (Chromium `153.0.8010.12`). Applicable command passed:
   `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/established-session-guidance.test.mjs`.
-- No numeric slice budget is supplied; use the bounded proof loop. No overrun
-  replanning instruction changes the existing planning authority.
 - Selective formatter: `npm run format`; `.githooks/pre-commit` is check-only
   staged lint, plus dashboard typecheck when scripts are staged. No generator
   applies to this guidance change; installed copies stay unchanged.
-- CI: GitHub Actions, verified selector `ci.yml`, display name `CI`, observing
-  the execution branch. Codex coordinator `seed-066-ivan`, stream directory
-  `/tmp/dough-ci-501/watch-dZB6xb`, PID `51578`, session `40781`, yielded cell
-  `12`. The claim's earlier trunk publication is unobserved by this stream.
+- CI: GitHub Actions, verified `ci.yml` / `CI`, execution branch; coordinator
+  `seed-066-ivan`. First observer ended with confirmed shutdown and CI unobserved.
 - On 2026-10-14 Terry authorized the release and native checks, then delegated
   the version choice to research. Latest origin was `0.3.60`; `v0.3.61` now
   identifies `1de2986ca45ad47198f0d43154be4d28e9d0e62d` on origin. The guidance
@@ -115,28 +111,22 @@ owns.
 - Lizard's ordinary latest update passed for both roots: 251 declared files
   match the tagged bytes. Only updater-owned changes were published as
   `6463d42928732a12d7a95bdb66dca5f73a240d48` on `origin/master`.
-- The first observer stopped with confirmed shutdown and pending CI unobserved.
-  Resumed Codex stream: coordinator `seed-066-ivan`, directory
+- Resumed Codex stream: coordinator `seed-066-ivan`, directory
   `/tmp/dough-ci-501/watch-UhXGDV`, PID `87086`, session `22471`, cell `14`.
 
 ### CI repair before the native slice
 
-Registered slice-1 revision `ba71df08887196d33d820765027da82e56c669b3` failed
-run `38408615864`, attempt 1, `test (1/3)` at the installed diagnostic boundary
-in `tests/helpers/installed-wait-entrypoint-fixture.bash`: the local request
-owner's connection failed. The fixture forced a 100 ms idle expiry despite
-testing installed entrypoints rather than expiry. A controlled 300 ms gap
-showed its owner exited before diagnostics; ordinary allowance passed. The
-repair removes that incidental expiry, preserving explicit teardown and the
-runtime-owned idle-expiry test. The exact CI shutdown ordering is unproved;
-no runtime counterexample or server-outage claim was established.
-
+Registered `ba71df08887196d33d820765027da82e56c669b3` failed CI run
+`38408615864`/1 in installed diagnostics: its fixture forced 100 ms idle expiry
+while testing installed entrypoints. A controlled 300 ms gap proved owner exit;
+ordinary allowance passed. Repair `be06ef3783f2776803a78602ea40611bfb0a6a3f`
+removes that incidental expiry, preserving explicit teardown and the dedicated
+runtime expiry test. Exact CI ordering is unproved; no runtime/outage claim.
 Focused terminal pass: `PATH="/opt/homebrew/bin:$PATH" npm test -- /tmp/seed066-installed-owner-lifetime.sh tests/execution-payload-update.sh src/skills/dough-execute-plan/scripts/github-request-owner.test.mjs`.
-The sole helper consumer exercised copied installed runtimes in both layouts,
-verdicts, diagnostics, routes and teardown. Independent refactor returned
-`none — already clean`; formatting passed, with proof unchanged. Slice statuses
-remain unchanged. All writers paused; stash save was `clean` with no entry,
-record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-pOwiJD/record.json`.
+Copied installed runtimes, verdicts, diagnostics, routes and teardown were
+exercised. Fresh independent refactor found none; formatting passed. All writers
+paused; stash was clean, no entry, then restored with `applied: false`.
+Record: `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-pOwiJD/record.json`.
 
 ## Ordered slices
 
@@ -186,10 +176,9 @@ acceptance owned by slice 2. No readiness assessment was renewed.
 
 ### 2. Claude Code and Cursor retire the session worktree natively
 Type: Behavior
-Status: planned
-Prerequisite: pending a separately authorized release containing slice 1 and
-the required native journeys. No native observation or release was performed
-during slice 1; plan 301's pending evidence remains unchanged.
+Status: done
+Prerequisite satisfied: Terry authorized release and native checks; both hosts
+used released `0.3.61` on 2026-10-14, dashboard `1de2986ca45a-wypYFW`.
 Proof: one paid native journey per host, manually triggered or explicitly
 authorized, in a project whose installed release carries slice 1: Start
 session · Isolated workspace · Automatically land, then one-shot execution of
@@ -202,9 +191,60 @@ plan, and in plan 301 where its slices 1 and 3 wait on this evidence. Codex's
 2026-10-13 pass is reused only if the released wording leaves its path
 unchanged; otherwise observe it again.
 
+Accepted retirement proof: one fresh paid journey per host in Lizard, blank
+Start session · Isolated workspace · Automatically land, followed only by
+`/dough-execute-plan SEED-001#standalone-script-wording --one-shot` (Claude)
+or `SEED-001#warning-limits-wording --one-shot` (Cursor). Both starts returned
+`prepared`, `created: false`, `landing: auto-land`, without a second worktree.
+
+| Host / native default | Launch / native session | Accepted trunk SHA |
+| --- | --- | --- |
+| Claude Code `2.1.296`, `claude-opus-5-5` | `c8f08604-1940-4be1-aa6f-1744a598232f` / `122d6dd3-4fc6-4dcc-97fc-f1faca40e484` | `a4c4db393e0c7ff86ca73d8793029f2757325ed5` |
+| Cursor `2026.10.01-e373342`, Auto | `19786396-a8de-4a65-afbc-5ccb780386f6` / `394bd615-a31f-4f0a-a34a-9fb2af6c405b` | `34c50f0d3140307cf4db96a893a9c138741dc448` |
+
+Each native command used `--created-for-work --contained <accepted SHA>`;
+both receipts were `ok: true`, `removed: true`, `partial: false`, worktree and
+branch `removed`. Independent Git checks proved registrations, directories,
+local and remote session branches absent, and trunk containment. Original
+launch landing captures and completed-with-attention reporting receipts are
+recorded. Evidence: `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed066-cursor-prerequisite-wnhqomzj/summary.json`
+and its paired Claude/SQLite Cursor commands and results. The obsolete deleted
+Cursor startup was archived there and only its stale kept-start state cleared;
+no other record changed. Its fresh trust prompt was answered once.
+
+Limits: both installed CI receipts were `observation_unavailable` (`ci.yml`,
+HTTP 404), shutdown confirmed. Claude separately observed Python run
+`38478718455` green and pytest 1545 passed / 7 skipped. Cursor retired without
+native CI-green evidence or a pytest result; later operator observation found
+its Python run `38480094290` green. Retirement acceptance does not establish
+those native completion gates. Plan 301 retains the broader gap and plan 305
+owns trust. Codex's earlier pass is reused: it already used these exact flags,
+and the retirement/start scripts and checks are unchanged from `0.3.60`.
+Same-attempt recovery from surviving installed roots then produced exact-SHA
+CI success with confirmed shutdown: Claude run `38478718455` attempt 2,
+mailbox `/tmp/dough-ci-501/watch-zLUNxl`; Cursor run `38480094290` attempt 1,
+mailbox `/tmp/dough-ci-501/watch-KlvZLj`. Claude used its original background
+process; Cursor used its retained client. One coordinator-authorized rerun of
+Claude's exact run supplied a fresh attempt because startup discovery excluded
+its older completed attempt. No Git publication, fixture, configuration or
+resource recreation. Same-launch recovery reports: Claude `bc965221-c6e1-4d5b-9fc8-37cb7d8d0d62`,
+Cursor `85ec6d94-13da-4cdb-ba5e-a5c8eae733f6`; paired recovery evidence is beside
+original proof. Current coverage is recovered; initial ordering is not proved.
+Fresh independent refactor: empty scope, no edits/tests; required format passed.
+
 ## Story obligations
 
 ### G1. Native retirement acceptance
 Reported: slice 1 — "Native slice 2 was not performed and remains pending."
 Story clause: "The correction is accepted when Claude Code and Cursor each retire the session worktree after an auto-land one-shot execution from the released payload."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: paired native retirement receipts and independent Git absence in the evidence directory above
+
+### G2. Native CI completion receipts were unavailable
+Reported: slice 2 — "Neither receipt establishes its prescribed green gate."
+Story clause: "that the workflow retires it on that statement after its landing gates pass."
+Disposition: proved by slice 2: same-session exact-SHA CI success and confirmed shutdown in claude-ci-recovery-evidence.json and cursor-ci-recovery-evidence.json beside the original proof; original ordering remains explicitly unproved in parent plan 301
+
+### G3. Obsolete Cursor startup blocked the fresh observation
+Reported: slice 2 — "The obsolete deleted Cursor startup required the authorized reversible cleanup before its fresh attempt."
+Story clause: "A developer who started an Isolated workspace session finds its worktree and branch retired once a one-shot workflow invoked there has landed its verified result, whichever host ran it."
+Disposition: proved by slice 2: archived exact startup-state repair, fresh launch 19786396, and independent retirement/absence proof in the evidence directory above; no permanent startup behavior change is claimed
