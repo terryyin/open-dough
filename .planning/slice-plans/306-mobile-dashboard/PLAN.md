@@ -150,6 +150,9 @@ implementation or scratch edit is retained in this preparation.
 - Owned review-reading CI repair accepted on origin execution branch:
   `27fa55b50bf2f75446dcbb2ce0acaacc1db0297d`, suffix base
   `6b793828659e70b76d78392895ba931569edc49f`; observation reused.
+- Slice 6 accepted on origin execution branch:
+  `866f49cca1ae5d0ef53f1d83a5ba22bf7bd5f81b`, suffix base
+  `27fa55b50bf2f75446dcbb2ce0acaacc1db0297d`; observation reused.
 - Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
   in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
   Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
@@ -689,6 +692,78 @@ fixture-array finding was repaired mechanically; no assertion/value changed.
 Formatter/whitespace passed and every owned product/test/doc file is≤250 lines.
 All five recorded obligations resolved; no remaining slice6 acceptance gap.
 Physical device/keyboard, additional engines and remote access stay excluded.
+
+## Execution complete
+
+Product advice: No additional product story is recommended from this execution.
+The six delivered journeys meet the selected local viewport/touch acceptance
+boundary while preserving desktop operation and native-host meanings. Continue
+the existing CI-observation, strict-proof reporting and unattached native-session
+work in their own queued/Taken stories. Terry's later connection arrangement
+remains outside this UI story.
+
+## Execution retrospective
+
+Reviewed the original execution-ready plan at established claim
+`db0dfb0773236c1ff56ad12851ebdac8f3ee73e8`, selected SEED-133 story, recorded
+proof/decisions and aggregate result at final implementation
+`866f49cca1ae5d0ef53f1d83a5ba22bf7bd5f81b`. Git confirms the story and both
+North Stars unchanged, the same six slice outcomes, and no interleaved unrelated
+commits in this branch range. Initial claim is planning/ownership provenance;
+the following accepted published revisions are the complete related set:
+
+| Accepted revision | Attribution |
+| --- | --- |
+| `1a843c3efbcd97a068c5c04fe94da007d6a1144e` | Slice1: touch browsing and visible Start reasons. |
+| `ef370423642958deb1f7aa151d17f5a4aefdde84` | Slice2: reduced-height launch editing/recovery. |
+| `d465a827be2a7162ae0ea05b621496537a3d27ab` | Slice3: session facts and explicit management. |
+| `80affc7edb6033b723e32b11cbc1ddd68dd2d0e6` | Owned CI repair: observe terminal after ordinary panel scrolling. |
+| `65a03c49056f81343e2b17d4c83fa9c9f496313f` | Slice4: terminal fitting, input and native scrollback. |
+| `63ca444fe4b5d736a9e4ff3bcda2029556e7cb8b` | Owned CI repair: complete native movement and successive identity reading. |
+| `95419ae267a41dd625612b46a9cd734ddd0d3ef1` | Owned CI repair: identity strokes converge on observed visibility. |
+| `5505a27563d8822a15f64410955e1e9bf8b073da` | Slice5: real diff reading, context, controls and marking. |
+| `6b793828659e70b76d78392895ba931569edc49f` | Owned CI repair: existing live warning timestamp observation. |
+| `27fa55b50bf2f75446dcbb2ce0acaacc1db0297d` | Owned CI repair: remove duplicate review gesture cap. |
+| `866f49cca1ae5d0ef53f1d83a5ba22bf7bd5f81b` | Slice6: settings readability, drafts, recovery and retained attachment. |
+
+Outcome findings: none requiring correction. Read the uncontaminated net diff,
+current shared controls/sidebar/dialog/panel/settings/terminal owners and their
+underlying state/operation contracts. One control-size rule and one session
+facts array serve their representations; native touch scrolling belongs to the
+existing attachment with cleanup. Review and settings adapt existing geometry.
+No browser-brand branch, mobile story/session model, duplicated host operation,
+speculative extension or abandoned workaround remains. Accepted ADR0000/0002
+and published-observation/connected-stage direction agree; Proposed ADR0008
+grants no connection change authority. Documentation follows existing owners.
+
+E2E observations drove the geometry/interaction changes with retained reds.
+Whole-suite assessment was read-only: meaningful desktop, touch and real
+browser/server/native integration journeys remain; external provider/native
+stand-ins supply starting facts rather than outcomes. Tests are parameterized
+by two viewport conditions, not a device/engine matrix. Focused affected
+consumers and exactly-once spec partitioning passed. No full-suite local rerun
+or unsupported detailed-test downgrade is needed. The observed review input
+overhead was repaired with measured unchanged-assertion evidence above.
+
+Process review enabled by `skipProcessRetrospective:false`. Available retained
+coordinator/tool history, agent handoffs, plan and Git support bounded findings;
+full raw histories and total execution cost were not reconstructed. Recorded
+one execution occurrence under ODF-141 for the no-edit small-repair independent
+handoff (reported five active minutes, not measured token savings), and new
+DD-292 for slice4's unnecessary unchanged-consumer rerun. `DearDough.md` grew
+223→243 physical lines with no pruning or threshold warning. Proposals are
+proportionate review for established small repairs and choosing invalidated
+proof before starting verification; no workflow/backlog guidance was changed.
+Observer loss recoveries and causal CI diagnoses retain their own evidence;
+this review assigns no invented general failure rate or unmeasured cost.
+
+Planning classification: unchanged; no correction story or plan created.
+Review complete; applicable CI on the execution branch remains pending at
+`866f49cca1ae5d0ef53f1d83a5ba22bf7bd5f81b` on retained observer
+`/tmp/dough-ci-501/watch-V2jZ70`. This record's publication and the invoking
+execution's single exact-revision completion receipt own the final CI verdict
+and local shutdown. Physical-keyboard, engine and remote-access exclusions
+remain evidence limits, not overlooked acceptance prerequisites.
 
 ## Proof ownership and execution checks
 
