@@ -110,6 +110,17 @@ mounted session sidebar and terminal context. Project arrows leave settings
 controls and forms alone. Facts and actions wrap in reading order at narrow
 widths and browser zoom.
 
+With touch input, **Back to dashboard** stays at the top while the settings
+groups scroll beneath it. Scroll ordinary facts, fields, samples and error
+messages to read them; project dialogs keep Add/Remove and Cancel below their
+scrolling body. Editing at reduced visible height or rotating preserves the
+current form draft and causes no write. A failed project or OpenAI save keeps
+the entered draft and the saved predecessor for an explicit retry; a failed
+theme choice returns to the saved theme and offers Retry. OpenAI's unsaved
+input clears when leaving settings, following its existing credential rules.
+Local paths and saved settings belong to the dashboard host machine, including
+when this view is opened from a phone or tablet.
+
 Below the banner, show **Near-future direction** as an initially collapsed
 disclosure. Activation reveals its full published text or the existing
 no-direction explanation across the full width of the direction's line,

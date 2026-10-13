@@ -141,6 +141,15 @@ implementation or scratch edit is retained in this preparation.
 - Owned header-reading CI repair accepted on origin execution branch:
   `95419ae267a41dd625612b46a9cd734ddd0d3ef1`, suffix base
   `63ca444fe4b5d736a9e4ff3bcda2029556e7cb8b`; observation reused.
+- Slice 5 accepted on origin execution branch:
+  `5505a27563d8822a15f64410955e1e9bf8b073da`, suffix base
+  `95419ae267a41dd625612b46a9cd734ddd0d3ef1`; observation reused.
+- Owned warning-observation CI repair accepted on origin execution branch:
+  `6b793828659e70b76d78392895ba931569edc49f`, suffix base
+  `5505a27563d8822a15f64410955e1e9bf8b073da`; observation reused.
+- Owned review-reading CI repair accepted on origin execution branch:
+  `27fa55b50bf2f75446dcbb2ce0acaacc1db0297d`, suffix base
+  `6b793828659e70b76d78392895ba931569edc49f`; observation reused.
 - Installed npm/browser setup and `node scripts/setup-native.mjs check` passed
   in this checkout against the current lockfile on 2026-10-12; Node 24.21.0,
   Playwright 1.63.0, Chromium 153.0.8010.12. Bash 5 uses `/opt/homebrew/bin`.
@@ -608,7 +617,7 @@ or assertion change. Slice6 remains planned with settings proof preserved.
 
 ### 6. Edit settings and recover by touch
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `system-settings-look.spec.ts`,
 `system-settings-project-management.spec.ts`,
 `system-settings-openai-recovery.spec.ts` and
@@ -627,6 +636,59 @@ documentation; do not add paid API validation or expose real credentials.
 
 Safe stop: every selected primary browser journey has its own mobile and desktop
 proof. This completes the UI story only when the obligations below are proved.
+
+Accepted proof (2026-10-13): inspected the ten coarse-input CSS lines keeping
+the existing settings bar sticky. The initial full look spec failed both new
+touch cases at clipped Back after reading the final group; desktop cases
+passed. Final look proof reads actual rendered project/path, OpenAI status and
+theme text within viewport/ancestor clipping, rotates, then taps current44px
+Back without action scrolling and restores project/roster/focus.
+
+Project touch proof edits at320px height, retains exact URL/typed tilde path
+through rotation, preserves predecessor bytes after Cancel and real Add/Remove
+permission failures, then observes explicit retry writes. OpenAI touch proof
+edits at the actually touched password caret, retains exact draft/file bytes
+through reduced height/rotation/failed Save, observes status Retry without a
+write, exact successful Save and failed Remove/retry, and unsaved input clearing
+on leaving settings. Theme touch proof reads the sample, saves Solarized Dark,
+observes failed save restoring saved selector/sample and predecessor bytes,
+then rotates and taps Retry to save Light. Real disposable storage assertions
+exclude unrelated setting writes, provider egress and native launches/stops.
+
+Settings terminal touch proof reaches real browser/server/WebSocket/PTY echo
+before and after entering/leaving settings. Session identity, attachment PID,
+running process, one attachment/launch, exact input lines, absence of ending or
+stops and project bytes persist through reduced height/rotation. Fixtures supply
+private starting configuration/native stand-ins; they do not supply outcomes.
+Chromium153.0.8010.12/Playwright1.63/Node24.21; phone390×844/844×390,
+tablet768×1024/1024×768, editing height320 and corresponding desktop cases.
+
+Inspected actual setup/assertions in `projectAddMachine`,
+`systemSettingsMachine`, all five changed specs and `settingsTouchPage`.
+Ordinary content scrolling corrects sticky-header occlusion, then checks every
+actual text Range exactly; a fractional paragraph line-box edge is not used as
+a glyph visibility proxy. Single-line URL scrolling, typed tilde path storage
+and existing credential/theme recovery contracts remain unchanged. No new
+operation, message, default, backend or native lifecycle. Consumer search finds
+one settings-bar owner; all seven settings specs ran completely,25 tests,
+including ten new phone/tablet cases, terminal exit0 quiet:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- system-settings-look.spec.ts system-settings-project-management.spec.ts system-settings-openai-recovery.spec.ts system-settings-terminal-theme.spec.ts system-settings.spec.ts system-settings-openai.spec.ts system-settings-openai-race.spec.ts --workers=2
+```
+Independent refactor extracted complete mobile project editing and attached
+terminal journeys into `system-settings-project-management-touch.spec.ts` and
+`system-settings-terminal-touch.spec.ts`, preserving statements/setup/assertions.
+Inspected their relocated observations; retained desktop specs and both new
+specs passed completely. Other five specs remain unchanged and reuse proof:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- system-settings-project-management.spec.ts system-settings-project-management-touch.spec.ts system-settings.spec.ts system-settings-terminal-touch.spec.ts --workers=2
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH npm test -- tests/support/dashboard-test-files.test.mjs
+```
+New-spec exactly-once partition proof exited0. Formatter's untyped parsed
+fixture-array finding was repaired mechanically; no assertion/value changed.
+Formatter/whitespace passed and every owned product/test/doc file is≤250 lines.
+All five recorded obligations resolved; no remaining slice6 acceptance gap.
+Physical device/keyboard, additional engines and remote access stay excluded.
 
 ## Proof ownership and execution checks
 

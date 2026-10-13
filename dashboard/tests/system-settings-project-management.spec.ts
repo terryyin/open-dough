@@ -8,6 +8,7 @@ let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
   fixture = projectAddMachine();
 });
+
 test.afterEach(async () => fixture.close());
 
 test("project settings errors retain the form draft and predecessor and allow explicit retry", async ({

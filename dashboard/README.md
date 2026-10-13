@@ -86,6 +86,14 @@ in `~/.open-dough/dashboard/terminal-theme.json`, which development and
 production share on this machine. A failed save keeps the saved theme and offers
 Retry; other open dashboard windows use a new choice after a reload.
 
+On phone and tablet touch views, **Back to dashboard** remains reachable while
+you scroll through the settings groups. Project dialogs keep their actions in
+view while fields scroll; changing orientation or reducing visible height
+preserves the form draft. Failed writes retain their existing explicit retry
+and saved-setting behavior. Local checkout paths, credentials and theme choices
+refer to the dashboard host machine. These local browser viewport checks do
+not claim physical iOS keyboard or remote-connectivity validation.
+
 [Published dashboard observation](PUBLISHED-OBSERVATION.md) describes local
 `gh` authentication, pinned revisions, independent fact arrivals, automatic
 refresh, bounded read gaps, recovery, and project switching. Only published
