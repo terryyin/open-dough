@@ -1,3 +1,15 @@
+## 0.3.61 - 2026-10-14
+
+- Treat an Established session's isolated-workspace block as the caller's creation fact when retiring a landed one-shot result, even when the workflow's later start reports `created: false`; link both retirement entry points to that rule while preserving containment and other-work ownership checks.
+- Add bounded background CI handoff for live Claude Code sessions, with managed hook registration and recoverable observation state.
+- Diagnose local GitHub request-owner failures at readers, recover owners that stop answering greetings, and preserve partial CI evidence and directed waits when acquiring failed-job logs.
+- Trace changed effects through indirect consumers before accepting proof, check reported gap closure against the paths the story guides, and keep verification evidence with its owner.
+- Keep the dashboard's direction disclosure readable after starting a session on a phone.
+
+Terry authorized release on 2026-10-14 and delegated the version choice. This release supplies the installed payload needed for the retirement correction's Claude Code and Cursor native re-observations; those checks remain pending at release and are not reported as passing. Earlier outstanding native acceptance requirements remain pending unless separately established by their owning work.
+
+The retirement correction's focused guidance and consumer checks, full credential-free deterministic suite, independent refactor review, formatting, commit-hook checks, and release self-installation check passed locally. Native observation and story closure follow this release.
+
 ## 0.3.60 - 2026-10-12
 
 - Give Start session an isolated workspace or a confirmed default checkout and a choice to retain results for review or land verified results automatically; carry that workspace and landing intent through later workflow invocations, and keep failed starts resumable in their original workspace.
