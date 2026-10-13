@@ -429,7 +429,7 @@ observation cleanup. Safe stop records the result and its location accurately.
 ## Observation outcome
 
 Recorded 2026-10-13. Slices 2, 4 and 5 pass. Two discrepancies keep slices 1
-and 3, and the story, unfinished; neither has a planned correction yet.
+and 3, and the story, unfinished until the corrections below are re-observed.
 
 1. **Retirement of an established isolated workspace is read two ways.** After
    an auto-land one-shot execution, Claude Code and Cursor kept the worktree
@@ -439,9 +439,20 @@ and 3, and the story, unfinished; neither has a planned correction yet.
    launch answers uncertain without naming trust and the embedded terminal
    stays blank until a key is pressed.
 
-Left in Lizard as evidence: `.worktrees/session` (`claude/session`, `8cf5eed`)
-and `.worktrees/session-2` (`cursor/session-2`, `3bb9105`), both contained in
-`origin/master`, and slice 5's retained `ea7fae3`.
+Terry accepted both corrections on 2026-10-13. They are queued first on trunk
+(`eec659c4`), each owning its native re-observation:
+
+- Discrepancy 1: `SEED-066#retire-established-session-worktree`, plan
+  `slice-plans/304-retire-established-session-worktree/PLAN.md`; slices 1 and
+  3 here wait on its Claude Code and Cursor evidence.
+- Discrepancy 2: `SEED-066#cursor-trust-prompt-at-session-start`, plan
+  `slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`; slice 3 here
+  waits on its Cursor evidence.
+
+On Terry's instruction the same day, the leftover Lizard worktrees
+`.worktrees/session` and `.worktrees/session-2` were retired with their
+branches, and slice 5's retained `ea7fae3` was dropped; Lizard's default
+checkout equals `origin/master` at `9770c4b`.
 
 ## Review and execution gates
 
