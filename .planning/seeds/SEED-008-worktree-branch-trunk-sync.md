@@ -133,6 +133,188 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
+<a id="reuse-ci-validation-at-integration"></a>
+
+### Avoid duplicate CI when main receives an already validated commit
+
+**Identity:** SEED-008#reuse-ci-validation-at-integration
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** Developers using Open Dough with their project's own CI avoid repeating
+equivalent validation when Story Branch wrap-up publishes the exact already
+validated commit to main, while still validating a new integration commit and
+confirming publication and safe resource cleanup. Reduce CI time, compute, and
+wrap-up waiting without weakening the evidence for the integrated result.
+
+**Origin and priority:** Terry's 2026-10-14 discussion of Story Branch wrap-up,
+followed by the explicit request to retain all known details and put this story
+first in the product backlog. Terry selected reusable Dough behavior for
+projects using their own CI, rather than a change only to Open Dough's GitHub
+workflow. The discussion authorized analysis only; this request authorizes
+recording and publishing the queued story, not implementation.
+
+#### Scope and intended behavior
+
+- Reuse successful CI evidence only when it applies to the **exact SHA accepted
+  on the authorized integration target** and equivalent checks and execution
+  context. A matching SHA is necessary but not sufficient: branch conditions,
+  environments, workflow/check configuration, and external inputs can affect
+  what the prior success proves.
+- A project explicitly determines which validation is reusable across branches.
+  Main-specific checks, including deployments or checks using a different
+  environment, retain their own obligations. Reusing common validation must not
+  silently waive those checks.
+- A new merge SHA requires validation under this story's exact-commit rule,
+  including a merge recomputed after main advances and rejects an earlier push.
+  Tree equality or successful validation of a parent does not establish an
+  exact-SHA match. Missing, pending, incomplete, failed, or ineligible evidence
+  falls back to the ordinary CI path.
+- Preserve confirmation that the authorized remote target accepted the actual
+  candidate, truthful completion evidence, failure handling, and applicable
+  observer shutdown/resource-retirement gates. An earlier story-branch result
+  alone does not prove publication to main.
+- Avoid duplicate **execution**, not just Dough's wait. The project's CI must
+  recognize reusable evidence and avoid executing the covered checks again;
+  merely letting Dough finish sooner while another full CI run continues does
+  not deliver the intended saving. A provider may still create a lightweight
+  target result or workflow record that refers to the earlier validation.
+- This is reusable behavior across supported hosts and project CI providers.
+  Keep shared policy/evidence semantics with the existing CI contract and the
+  provider-specific ability to suppress duplicate work with the project's CI.
+  Whether the existing adapter is sufficient or requires an extension remains
+  to be established during refinement; no new configuration key or protocol
+  shape has been selected.
+
+This story does not select a new merge strategy, repeat branch validation until
+main stops moving, build a general CI scheduler, change only this repository's
+workflow, or introduce a release. It does not take or interrupt existing work.
+
+#### Key examples
+
+| Precondition and trigger | Expected result |
+| --- | --- |
+| Story commit A has successful validation for the reusable checks; main fast-forwards to exactly A under equivalent conditions | Confirm main accepted A, retain the source validation evidence, and complete without executing the covered checks again |
+| Main has diverged; integration creates merge commit M | Validate M; successful validation of story commit A cannot satisfy M |
+| Main advances and rejects candidate M; integration recomputes candidate N | Make the reuse/validation decision for the actual accepted N, not the rejected or superseded M; a new merge SHA gets fresh validation |
+| The exact accepted SHA has no eligible successful evidence, or the evidence is pending, incomplete, failed, unreadable, or for a different context | Use the ordinary CI path; do not manufacture successful completion |
+| A is validated on the story branch, but main adds branch-specific checks or deployment obligations | Reuse only the equivalent validation and fulfill the additional target obligations |
+| CI reports an eligible reused success, but remote publication is unconfirmed or required observer shutdown is unconfirmed | Preserve the affected resources and report the unresolved obligation; reuse alone does not authorize cleanup |
+| The story tip is green, but wrap-up adds closure changes before integration | Decide from the final accepted SHA and its applicable evidence; do not reuse the earlier implementation SHA merely because its product code looks unchanged |
+
+#### Confirmed current behavior and corrected assumptions
+
+The read-only analysis covered the installed guidance and shared source. The
+relevant integration publication files matched when compared. Source links below
+were inspected during the discussion; the recording baseline is
+`acc3c6d203ce2a41db044c2154c8390c94899262`.
+
+1. Story Branch wrap-up completes observation for the published final-closure
+   tip, establishes observation for the authorized trunk target, fetches the
+   latest target, and integrates in the owned workspace. Integration
+   fast-forwards when possible, otherwise creates a history-preserving merge.
+   It pushes the candidate **directly to the target**. It does not first push
+   the integration merge back to the story branch and wait for branch CI.
+2. After remote confirmation, wrap-up registers the accepted integrated SHA on
+   the trunk observer and waits for its completion receipt. The current policy
+   explicitly says a green execution-branch receipt covers only that branch and
+   never releases later trunk observation. Successful completion with confirmed
+   shutdown gates retirement.
+3. A rejected integration push recomputes against the newly fetched target and
+   retries once. A second rejection stops as persistent contention. There is no
+   loop of branch CI followed by a check that main stayed unchanged.
+4. The same-commit fast-forward case can repeat already validated code checks.
+   When integration creates a new combined commit, target CI validates a result
+   that branch CI has not necessarily checked. Therefore main CI is not always
+   redundant.
+5. Open Dough's own `ci.yml` triggers on both branch and main pushes, with
+   planning/docs-only exclusions, as well as pull requests and manual dispatch.
+   A qualifying main push is a separate workflow event even when its tip SHA
+   was previously tested on another branch. This illustrates the scheduling
+   issue; changing only this workflow is not the selected reusable outcome.
+
+Evidence:
+
+- [Story Branch observation and target transition](../../src/skills/dough-execute-plan/references/wrap-up-closure-publication.md#observe-story-branch-integration).
+- [History-preserving integration and the bounded retry](../../src/skills/dough-execute-plan/references/preserve-published-history.md)
+  and [publication implementation](../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs).
+- [CI workflow triggers](../../.github/workflows/ci.yml) and
+  [GitHub's push-event documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#push).
+
+#### Gap analysis and existing extension points
+
+The merge/publication mechanism already identifies the exact accepted candidate
+and target. The main gaps are reuse policy, evidence discovery/provenance, and
+the external CI execution decision.
+
+| Area | Current evidence | Gap to resolve |
+| --- | --- | --- |
+| Wrap-up and completion policy | The shared guidance requires observation of the actual publication target and rejects a different target's green receipt | Define an explicit eligible reuse path without weakening target publication, failure, or cleanup guarantees |
+| GitHub discovery | `createGitHubActions.listRuns` queries the selected workflow with branch and push-event filters; `matchingCiRuns` also requires the target branch | Find eligible exact-SHA evidence across branches, without broadly admitting unrelated branch failures or assuming the same workflow name proves equivalent checks |
+| Custom CI contract | Discovery requests contain `check.repo` and `check.branch`; responses carry run/attempt IDs, exact SHA, outcome, and optional URL/time | State how the provider certifies applicability of reused validation to the requested target and how its source/context remain inspectable |
+| Evidence normalization and completion | The command adapter assigns the requested branch to normalized attempts; coverage records retain SHA and run/attempt IDs; completion exposes exact evidence or an ignored-only revision's basis | Distinguish source validation from destination publication and retain reuse provenance instead of relabeling a raw story result as a fresh main run |
+| Historical evidence discovery | Startup keeps unfinished attempts and only the newest completed attempt by time, dropping older completed attempts from ordinary polling | Establish how a relevant historical success is retrieved reliably without breaking startup suppression of stale failures |
+| CI scheduling | The custom adapter translates the service API and does not trigger, retry, or repair CI; Dough's observer does not suppress jobs | The project's CI must deduplicate covered work or provide a supported reuse decision; changing observer acceptance alone does not avoid the second execution |
+
+Existing solutions to assess before adding another mechanism:
+
+- A project CI service could already deduplicate execution and expose a valid
+  successful check applicable to main through the existing adapter. Dough could
+  consume that success today. This is an **inference from the adapter contract**,
+  not observed provider support or a verified end-to-end reuse journey. Current
+  guidance does not expressly describe reuse or retain its provenance; the
+  adapter must not simply pass off an unrelated branch result as main proof.
+- Exact registered-SHA coverage, run/attempt identities, accepted publication
+  receipts, effective-evidence completion, and confirmed shutdown already exist.
+  Reuse them where their meaning fits rather than adding a second CI subsystem.
+- The existing `not_required` path follows an ignored-only revision to a proved
+  ancestor basis. It demonstrates evidence indirection, but its path-filter
+  proof is not a cross-branch exact-commit reuse policy.
+
+Evidence:
+
+- [GitHub queries](../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs)
+  and [run filtering/startup history](../../src/skills/dough-execute-plan/scripts/ci-runs.mjs).
+- [Custom CI manual and protocol](../../src/skills/dough-execute-plan/manuals/custom-ci.md)
+  and [adapter normalization](../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs).
+- [Revision coverage](../../src/skills/dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs),
+  [run evidence classification](../../src/skills/dough-execute-plan/scripts/ci-revision-applicability-classification.mjs),
+  [effective-evidence wait](../../src/skills/dough-execute-plan/scripts/ci-mailbox-await.mjs),
+  and [completion/shutdown composition](../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs).
+- [Current completion requirements](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion).
+
+#### Candidate direction and remaining uncertainty
+
+The smallest candidate direction is for the project's CI to own equivalence and
+execution reuse, while Dough recognizes truthful evidence for the accepted
+target SHA and keeps its publication/completion contract. This is a direction
+for refinement, not a selected implementation or a readiness claim.
+
+Resolve before executable planning:
+
+- How a project declares reusable checks and equivalent context, including
+  branch-dependent behavior, external inputs, and validity of retained evidence.
+- Whether provider-owned target success through the existing adapter is enough,
+  or the shared contract needs explicit reuse eligibility/provenance and a
+  targeted exact-SHA lookup. Decide how native GitHub and custom CI express it.
+- How conflicting, newer, or rerun evidence affects eligibility, so an old green
+  result cannot silently override an applicable failed or incomplete check.
+- How reuse completion preserves the correct observer ownership and shutdown
+  gates without requiring a nonexistent duplicate target run.
+- A representative project's scheduling/reuse capability and real end-to-end
+  observation. No particular project's CI scheduler has been inspected, and no
+  suppression capability, native-host acceptance, test result, implementation,
+  or performance saving is claimed.
+
+Evaluation should observe the key examples through the real publication,
+provider, and completion boundaries: exact eligible reuse avoids covered job
+execution; a new merge or rejected-push replacement gets validation; missing or
+ineligible evidence cannot complete successfully; main-specific obligations and
+resource preservation remain visible. Preserve inspectable source run/attempt
+identity. Further refinement selects proportionate proof and any affected
+cross-tool acceptance under this seed's architectural context.
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
