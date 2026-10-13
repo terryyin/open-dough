@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-066#cursor-trust-prompt-at-session-start",
+  "mode": "story-branch",
+  "branch": "codex/see-and-answer-cursor-s-workspace-trust-prompt-w",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
