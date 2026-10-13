@@ -201,33 +201,33 @@ The operator retains the review result for a later explicit disposition; its
 absence from published preparation is expected. Do not delete or publish it as
 observation cleanup. Safe stop records the result and its location accurately.
 
+## Execution complete
+
+Product advice: no correction beyond the two already closed. Three candidates
+for the backlog owner, none queued: Lizard's CI workflow is `python-app.yml`,
+so installed completion cannot observe its CI; Cursor's one-shot execution sent
+no dashboard completion report on 2026-10-13; a deleted Cursor attempt left
+kept-start state that blocked a fresh launch (plan 304 evidence).
+
 ## Observation outcome
 
-Judged 2026-10-14: every promise in the proof table has passing native
-evidence on each affected host. Slices 2, 4 and 5 passed on 2026-10-13. Slices
-1 and 3 passed except for two discrepancies, both corrected and re-observed:
+Judged 2026-10-14: every promise in the proof table has passing native evidence on each affected host. Slices 2, 4 and 5 passed on 2026-10-13; slices 1 and 3 passed except for two discrepancies, both corrected and re-observed:
 
 1. **Retirement after an auto-land one-shot execution was read two ways.**
    Corrected by `SEED-066#retire-established-session-worktree` in release
    `0.3.61`; Claude Code and Cursor then retired the session worktree
-   ([re-observation](RETIREMENT-OBSERVATIONS.md)). Completed plan:
-   `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/slice-plans/304-retire-established-session-worktree/PLAN.md`.
+   ([re-observation](RETIREMENT-OBSERVATIONS.md)). Completed plan: `53e21c3cffe9193174c77c5e524b10c4920e49f3:.planning/slice-plans/304-retire-established-session-worktree/PLAN.md`.
 2. **Cursor's workspace trust prompt blocked an isolated Start unseen.**
    Corrected by `SEED-066#cursor-trust-prompt-at-session-start`
    ([fresh Cursor proof](AUTO-LAND-OBSERVATIONS.md#cursor-trust-correction-re-observation)).
-   Completed plan:
-   `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`.
+   Completed plan: `4bd36244a6eb0d9227500b488d19dd58aec202b6:.planning/slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md`.
 
-Accepted limitation, outside this story's promises: Lizard's workflow is
-`python-app.yml`, so the installed CI completion answered
-`observation_unavailable` and both re-observed sessions retired before an
-observer-confirmed green; exact-SHA CI was green afterwards. The retirement
-evidence keeps that ordering unproved.
+Accepted limitation, outside this story's promises: installed CI completion
+answered `observation_unavailable` in Lizard, so both re-observed sessions
+retired before an observer-confirmed green; that ordering stays unproved.
 
-On Terry's instruction the same day, the leftover Lizard worktrees
-`.worktrees/session` and `.worktrees/session-2` were retired with their
-branches, and slice 5's retained `ea7fae3` was dropped; Lizard's default
-checkout equals `origin/master` at `9770c4b`.
+On Terry's instruction (2026-10-13) the leftover Lizard worktrees were retired
+and slice 5's retained `ea7fae3` was dropped.
 
 ## Review and execution gates
 

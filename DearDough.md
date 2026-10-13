@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 297. Removed numbers are never reused.
+- Highest allocated local number: 300. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -310,3 +310,39 @@ The story's required behavior named three launch answer states; the plan's proof
   - Evidence: `dd2e25b59563d02bdbe4f484d98ccd4c113b6339:.planning/seeds/SEED-135-mobile-dashboard-observed-discrepancies.md` scope "This covers the success answer, the “Starting a session…” progress answer, and Launch failed or Launch uncertain answers"; the plan's proof table at that revision naming only `launched` and `refused`; story obligations G1 and G2 in that plan.
   - Observed effect: one extra implementation round (a resumed agent, one added test, no product change) before proof acceptance.
   - Inference: qualified. The story's own proof sentence asked only for "at least one problem answer", so the plan followed it; the scope sentence and the proof sentence of one story disagreed on coverage. Cost was small.
+
+## DD-298 — An open Story Branch execution has no guided path to queue a correction it discovers
+An execution whose story must stay open found discrepancies that needed bounded corrections queued on trunk before it could finish. Its own records reach trunk only at wrap-up, and the launch's landing context is bound to its own worktree, so the coordinator improvised a second worktree and a direct publication.
+### Occurrences
+- Execution: `SEED-066#unattached-session-native-observation` / plan 301, claim `8f3ba27c84b7e72939da377bbd84ad201a2cecbc` (no implementation commit; records only)
+  - Timestamp: unknown for the refused attempt (2026-10-13, between 12:55Z and 13:10Z); the accepted integration receipt is 2026-10-13T13:22:01Z.
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.60 (installed roots compared byte for byte with the tag that day).
+  - Evidence: `eec659c4` (corrections published from worktree `queue-start-session-corrections` through `publishExecutionIncrement`); refusal text "This is not the established launch's workspace candidate and commit comparison."; retained `landing-e6bf3faa-fdb7-453e-a7c3-5ca741c9124a.json` in launch `ecba5760` reporting folder; `8d952334` (story branch integrated with the landing context after the developer asked to try again).
+  - Observed effect: one refused publication before any push, one stray retained landing file, one extra developer round trip, and an unfinished story's branch merged to trunk to capture the landing.
+  - Inference: qualified. Trunk Mode would not meet this; Story Branch Mode guidance names the correction requirement but not where its story and plan are prepared and landed while the reviewed story stays Taken. Related to ODF-211, which covers the opposite dependency.
+
+## DD-299 — A story recorded ready still needs developer choices and fixtures before its first slice
+The plan left "the developer names the observation project, fixture stories, models and time budget at execution setup" and was assessed ready. No configured project held a usable fixture story, so execution's first turn ended in a question and five fixture stories were authored and published mid-execution.
+### Occurrences
+- Execution: `SEED-066#unattached-session-native-observation` / plan 301, claim `8f3ba27c84b7e72939da377bbd84ad201a2cecbc`
+  - Timestamp: unknown (2026-10-13, before the first unfinished report received 2026-10-13T10:44:15Z).
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.60
+  - Evidence: `15062e44:.planning/slice-plans/301-unattached-session-native-observation/PLAN.md`, "naming one of them with its fixture stories is execution setup"; backlog listings of the five projects showing no unassigned trivial story; Lizard `0128281` (fixtures published after the developer's choice).
+  - Observed effect: a blocking question before slice 1 and unplanned fixture authoring in another repository. No paid run was wasted.
+  - Inference: qualified. The readiness criteria accept premises "bounded by a permitted early probe slice"; a missing starting state that only the developer can choose is not such a premise. One execution.
+
+## DD-300 — The start command's guidance names the trunk branch but not its flag
+A native session following the one-shot start instructions passed `--trunk master`, was refused with `missing target`, searched the installed script for the option name, and retried with `--target`.
+### Occurrences
+- Execution: `SEED-066#unattached-session-native-observation` / plan 301, slice 1 native session `8ced2fa3-4c01-41d3-89e4-1fcbc4e3a824` in the Lizard project
+  - Timestamp: 2026-10-13T11:46:47Z
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.60
+  - Evidence: that session's transcript: first `execution-start.mjs start … --trunk master` answered `{"ok":false,"status":"invalid-request","error":"missing target"}`; two searches; second call with `--target master` answered `prepared`. The slice 4 session on the same release read the usage text first and did not repeat it.
+  - Observed effect: one refused call and two lookups, about eight seconds.
+  - Inference: qualified. The skill text says "actual remote and trunk branch" and "mode (`trunk` or `story-branch`)", which invites `--trunk`. Small cost, seen once in five native sessions.
