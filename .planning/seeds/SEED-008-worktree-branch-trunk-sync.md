@@ -143,10 +143,11 @@ and ref-watching proposals; do not implement those historical mechanisms.
 ```
 
 **Goal:** Developers using Open Dough with their project's own CI avoid repeating
-equivalent validation when Story Branch wrap-up publishes the exact already
-validated commit to main, while still validating a new integration commit and
-confirming publication and safe resource cleanup. Reduce CI time, compute, and
-wrap-up waiting without weakening the evidence for the integrated result.
+equivalent validation when either Story Branch Mode or Trunk Mode publishes the
+exact already validated commit to main, while still validating a new integration
+commit and confirming publication and safe resource cleanup. Reduce CI time,
+compute, and wrap-up waiting without weakening the evidence for the integrated
+result.
 
 **Origin and priority:** Terry's 2026-10-14 discussion of Story Branch wrap-up,
 followed by the explicit request to retain all known details and put this story
@@ -154,6 +155,9 @@ first in the product backlog. Terry selected reusable Dough behavior for
 projects using their own CI, rather than a change only to Open Dough's GitHub
 workflow. The discussion authorized analysis only; this request authorizes
 recording and publishing the queued story, not implementation.
+In the follow-up discussion, Terry required a cohesive solution covering both
+execution modes; this extends the same story rather than creating a separate
+Trunk Mode solution.
 
 #### Scope and intended behavior
 
@@ -168,9 +172,10 @@ recording and publishing the queued story, not implementation.
   silently waive those checks.
 - A new merge SHA requires validation under this story's exact-commit rule,
   including a merge recomputed after main advances and rejects an earlier push.
-  Tree equality or successful validation of a parent does not establish an
-  exact-SHA match. Missing, pending, incomplete, failed, or ineligible evidence
-  falls back to the ordinary CI path.
+  A new SHA produced by rebasing an unpublished Trunk Mode increment has the
+  same requirement. Tree equality or successful validation of a parent or the
+  pre-rebase SHA does not establish an exact-SHA match. Missing, pending,
+  incomplete, failed, or ineligible evidence falls back to the ordinary CI path.
 - Preserve confirmation that the authorized remote target accepted the actual
   candidate, truthful completion evidence, failure handling, and applicable
   observer shutdown/resource-retirement gates. An earlier story-branch result
@@ -186,6 +191,14 @@ recording and publishing the queued story, not implementation.
   Whether the existing adapter is sufficient or requires an extension remains
   to be established during refinement; no new configuration key or protocol
   shape has been selected.
+- Apply one shared CI-reuse policy and evidence contract to both modes:
+  Story Branch integration and Trunk Mode increment, repair, and closure
+  publication. Verify each mode's consuming path; changing only Story Branch
+  wrap-up orchestration does not establish Trunk Mode coverage. Keep their
+  distinct publication mechanics intact. Trunk Mode normally publishes new
+  commits directly to main without prior story-branch CI, so those commits
+  still require ordinary CI. Do not add a branch push or branch-validation
+  prerequisite just to make Trunk Mode fit the Story Branch journey.
 
 This story does not select a new merge strategy, repeat branch validation until
 main stops moving, build a general CI scheduler, change only this repository's
@@ -202,6 +215,9 @@ workflow, or introduce a release. It does not take or interrupt existing work.
 | A is validated on the story branch, but main adds branch-specific checks or deployment obligations | Reuse only the equivalent validation and fulfill the additional target obligations |
 | CI reports an eligible reused success, but remote publication is unconfirmed or required observer shutdown is unconfirmed | Preserve the affected resources and report the unresolved obligation; reuse alone does not authorize cleanup |
 | The story tip is green, but wrap-up adds closure changes before integration | Decide from the final accepted SHA and its applicable evidence; do not reuse the earlier implementation SHA merely because its product code looks unchanged |
+| Trunk Mode publishes increment A directly to main, and no eligible CI evidence exists for A | Run ordinary CI for A; local proof or CI for its predecessor does not establish reusable CI success for A |
+| A Trunk Mode publication has eligible success for its exact accepted SHA under equivalent conditions | Apply the same reuse rule as Story Branch integration, without repeating covered CI execution or weakening publication/completion gates |
+| Main advances before a Trunk Mode push and the unpublished increment is rebased from A to B | Validate accepted B unless eligible exact-B evidence exists; do not transfer A's CI success to the new SHA |
 
 #### Confirmed current behavior and corrected assumptions
 
@@ -233,6 +249,17 @@ were inspected during the discussion; the recording baseline is
    A qualifying main push is a separate workflow event even when its tip SHA
    was previously tested on another branch. This illustrates the scheduling
    issue; changing only this workflow is not the selected reusable outcome.
+6. Trunk Mode pushes increments and repairs directly to the authorized trunk;
+   it does not publish its local execution branch first. Its unpublished suffix
+   can be rebased onto newer trunk, producing a new candidate SHA. Wrap-up also
+   publishes its before-cleanup and final-closure commits through managed
+   delivery. `trunk-closure.mjs finish` uses the shared CI completion operation
+   for the final accepted SHA and requires success with confirmed shutdown
+   before retirement. Both modes consume shared CI evidence/completion, but
+   Story Branch history-preserving integration and Trunk Mode managed delivery
+   are distinct orchestration paths. The Trunk Mode comparison was inspected at
+   `32bc17acfb3fe917419232071c469bf743c0bb37`; automatic propagation of a change
+   confined to one path must not be assumed.
 
 Evidence:
 
@@ -241,6 +268,11 @@ Evidence:
   and [publication implementation](../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs).
 - [CI workflow triggers](../../.github/workflows/ci.yml) and
   [GitHub's push-event documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#push).
+- [Mode-specific publication targets](../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-an-execution-increment-or-repair),
+  [unpublished-suffix reconciliation](../../src/skills/dough-execute-plan/references/publish-the-candidate.md#publish-the-candidate),
+  and [Trunk Mode closure](../../src/skills/dough-execute-plan/references/wrap-up-closure-publication.md#finish-trunk-mode-closure).
+- [Managed delivery](../../src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs)
+  and [Trunk Mode closure implementation](../../src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs).
 
 #### Gap analysis and existing extension points
 
@@ -288,7 +320,9 @@ Evidence:
 
 The smallest candidate direction is for the project's CI to own equivalence and
 execution reuse, while Dough recognizes truthful evidence for the accepted
-target SHA and keeps its publication/completion contract. This is a direction
+target SHA and keeps its publication/completion contract. Put that responsibility
+in the shared CI policy/evidence solution consumed by both modes, with only the
+necessary adaptation in their distinct publication paths. This is a direction
 for refinement, not a selected implementation or a readiness claim.
 
 Resolve before executable planning:
@@ -301,7 +335,8 @@ Resolve before executable planning:
 - How conflicting, newer, or rerun evidence affects eligibility, so an old green
   result cannot silently override an applicable failed or incomplete check.
 - How reuse completion preserves the correct observer ownership and shutdown
-  gates without requiring a nonexistent duplicate target run.
+  gates in both Story Branch and Trunk Mode without requiring a nonexistent
+  duplicate target run.
 - A representative project's scheduling/reuse capability and real end-to-end
   observation. No particular project's CI scheduler has been inspected, and no
   suppression capability, native-host acceptance, test result, implementation,
@@ -313,7 +348,10 @@ execution; a new merge or rejected-push replacement gets validation; missing or
 ineligible evidence cannot complete successfully; main-specific obligations and
 resource preservation remain visible. Preserve inspectable source run/attempt
 identity. Further refinement selects proportionate proof and any affected
-cross-tool acceptance under this seed's architectural context.
+cross-tool acceptance under this seed's architectural context. Observe both
+mode-specific publication/completion paths against the shared rule, including
+ordinary new Trunk Mode increments and a rebase that changes the accepted SHA;
+a passing Story Branch journey alone does not prove Trunk Mode coverage.
 
 ## Architectural Context
 
