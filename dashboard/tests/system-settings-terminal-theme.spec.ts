@@ -48,7 +48,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         name: "Terminal theme",
         exact: true,
       });
-      await readSetting(theme.locator(".settings-note"));
+      await readSetting(theme.locator(".settings-note:not([role='status'])"));
       await themeChoice(page).scrollIntoViewIfNeeded();
       await expectShown(page, "Default");
       await tapWhereShown(themeChoice(page));

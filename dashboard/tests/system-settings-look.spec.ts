@@ -151,7 +151,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         exact: true,
       });
       await readSetting(theme.getByRole("heading", { level: 2 }));
-      await readSetting(theme.locator(".settings-note"));
+      await readSetting(theme.locator(".settings-note:not([role='status'])"));
       await readSetting(theme.getByRole("figure").locator("pre"));
       await expect(theme.getByRole("figure")).toContainText(
         "All checks passed.",

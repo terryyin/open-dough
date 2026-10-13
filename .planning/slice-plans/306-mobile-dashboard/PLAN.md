@@ -171,6 +171,15 @@ implementation or scratch edit is retained in this preparation.
   (run38262274324/attempt1). Verified checkout/remote identity and native setup
   before rearming this coordinator's stream. Slice4 changes were preserved;
   no live writer/test remained, and its unreturned proof must be obtained.
+  At completion-record delivery, this retained stream had ended with valid
+  terminal `finished`: event6 reports GitHub unreachable. Its last registered
+  implementation866f49cc failed run38325671506; event5 is handled below.
+  Delivered-through6 and exact request/owner/result identity were recovered.
+  Completion record2b88b055 was accepted on the branch, suffix866f49cc, with
+  unobserved registration. The installed Codex adapter says “never restart
+  terminal `finished` observers”; this terminal is not relabelled as loss.
+  Later delivery and the normal completion receipt must report the gap and
+  actual shutdown evidence without claiming CI success.
 - No numeric slice target/hard limit or overrun replanning override is supplied;
   preserve existing planning authority. Formatter: `npm run format`; commit hook
   owns staged lint/typecheck. No product generation trigger applies to this UI work.
@@ -693,6 +702,38 @@ Formatter/whitespace passed and every owned product/test/doc file is≤250 lines
 All five recorded obligations resolved; no remaining slice6 acceptance gap.
 Physical device/keyboard, additional engines and remote access stay excluded.
 
+Owned final CI repair (run38325671506/attempt1, dashboard1/12,
+job115063639529): the sole hosted failure was the phone's strict input hit-test
+after successful API-key removal. Root inspected the actual390×320 screenshot:
+the empty password field was behind the sticky header while Save remained
+visible; raw `scrollIntoViewIfNeeded` had completed. Existing `readSetting`
+now deliberately positions that empty field before the unchanged44px/clipping/
+hit-target coordinate tap. Populated inputs keep native horizontal scrolling.
+No product, helper, recovery assertion, timeout or fixture outcome changed.
+
+A broader nine-spec diagnostic exited1, exposing a second owned proof defect:
+the theme's static-note selector also matched transient “Reading the saved
+terminal theme…” status. Retained local trace shows the two matches. Both
+known consumers (theme and look) now select the non-status explanatory note;
+status remains rendered and no timing wait is manufactured. A pre-change
+Linux recovery run passed; that diagnostic does not erase the hosted failure.
+
+Final strict Linux Chromium153 complete three-spec proof exited0 quietly:
+```sh
+env -u NO_COLOR -u FORCE_COLOR PATH=/opt/homebrew/bin:$PATH PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:32773/ PW_TEST_CONNECT_EXPOSE_NETWORK='<loopback>' npm run test:dashboard -- dashboard/tests/system-settings-look.spec.ts dashboard/tests/system-settings-openai-recovery.spec.ts dashboard/tests/system-settings-terminal-theme.spec.ts --workers=2
+```
+Real local Node24.21/Playwright1.63 server, private fixture HOME/files and actual
+permission failures retain all draft, storage, retry, theme, no-egress/native
+and return-focus observations. Exact cached-image browser container retired.
+Inspected all three changed lines, helper/header/hit checks and the product's
+static/transient note owner. Remaining accepted settings consumers are unchanged.
+Independent refactor found no edits needed, reused valid proof and passed
+whitespace; formatter passed. All six slice statuses stay done; G6/G7 proved.
+The completion record already exists and is retained, not duplicated. Resumed
+only affected retrospective proof conclusions: these observation corrections
+leave product/architecture findings and product advice unchanged. Publication
+coverage stays unobserved on the ended stream; no final CI verdict is inferred.
+
 ## Execution complete
 
 Product advice: No additional product story is recommended from this execution.
@@ -764,6 +805,14 @@ Review complete; applicable CI on the execution branch remains pending at
 execution's single exact-revision completion receipt own the final CI verdict
 and local shutdown. Physical-keyboard, engine and remote-access exclusions
 remain evidence limits, not overlooked acceptance prerequisites.
+
+Continuation: initial review above predates served CI failure38325671506 and
+the stream's GitHub-unreachable terminal. Completion record
+`2b88b055d9ff1e29b4758a68f9bcc1896182650a` is attributable records-only
+provenance. Its bounded Settings proof repair is recorded under slice6 above;
+the relevant conclusion now uses that passing proof. Final accepted repair SHA,
+coverage limitation and shutdown are owned by the invoking delivery/completion
+receipts, rather than treating the historical pending state as current success.
 
 ## Proof ownership and execution checks
 
@@ -847,6 +896,16 @@ Disposition: proved by slice 3: session-management-touch.spec.ts scroll-before-o
 Reported: slice 5 — "wideLine is after200 short lines, but the current vertical -180px drag stays near the beginning; DOM toContainText includes offscreen content"
 Story clause: "choose a file, read its diff, and rotate."
 Disposition: proved by slice 5: story-review-touch.spec.ts and support/reviewTouchReading.ts observe visible beginning/end through actual native gestures, containment and a visible mid-file reading position before rotation
+
+### G6. Empty password field under the sticky header
+Reported: slice 6 — "At 390×320, the actual screenshot shows the password field behind the sticky header while Save remains visible."
+Story clause: "edit a field with constrained visible height."
+Disposition: proved by slice 6: system-settings-openai-recovery.spec.ts uses readSetting on the empty field and retains strict clipping/hit-target touch checks; final complete three-spec Linux command above exited0
+
+### G7. Static theme note while reading status is present
+Reported: slice 6 — "terminal-theme’s static-note locator also matched the temporary “Reading the saved terminal theme…” status."
+Story clause: "inspect Projects, OpenAI status, and Terminal theme"
+Disposition: proved by slice 6: system-settings-look.spec.ts and system-settings-terminal-theme.spec.ts uniquely observe explanatory text without suppressing transient status; final complete three-spec command above exited0
 
 ## Current decisions and sizing
 

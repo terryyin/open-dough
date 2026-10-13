@@ -105,7 +105,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await expect(status(page)).toHaveText("API key: Not configured");
       expect(existsSync(fixture.credentialFile)).toBe(false);
       // Leaving settings intentionally clears an unsaved key, as on desktop.
-      await apiKey(page).scrollIntoViewIfNeeded();
+      await readSetting(apiKey(page));
       await tapWhereShown(apiKey(page));
       await apiKey(page).pressSequentially("sk-synthetic-cancelled");
       await tapWhereShown(back(page));
