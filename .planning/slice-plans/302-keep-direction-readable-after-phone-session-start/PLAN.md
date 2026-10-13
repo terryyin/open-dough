@@ -111,7 +111,7 @@ examples; the decisions above bound it.
 
 ### 1. A phone reads the launch answer and the direction label as whole words
 Type: Behavior
-Status: planned
+Status: done
 Proof: one new touch spec beside `agent-launch-start-session-touch.spec.ts`
 runs the `launched` and `refused` scenarios at 390×844, 430×932, and 844×390,
 measuring the direction label, the answer, the help, and the Backlog heading,
@@ -129,6 +129,65 @@ heading moves down by no more than the answer's height; tapping the label opens
 the text beneath the row and the answer stays readable; rotating keeps all of
 it. Tablet and desktop rows are unchanged. Update the maintained documentation
 in the same slice.
+
+Accepted proof (slice 1, final state after refactoring): the row rules moved
+unchanged from `dashboard/src/styles.css` into
+`dashboard/src/project-actions.css`, imported after it in
+`dashboard/src/main.tsx`. The label's column is `auto` and the row end takes
+the rest; where the page shows one column (`@container page (width < 48rem)`,
+the threshold in `dashboard/src/dashboard-columns.css`) the answer reads
+beneath Start session and the help, as wide as the two. Landscape 844×390
+keeps the answer beside Start session.
+
+```sh
+npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start-session-answer-touch.spec.ts --reporter=list
+```
+
+7 passed: `launched` and `refused` at 390×844, 430×932, and 844×390 through
+`expectRowReadsWhole` and `expectDirectionOpensBeneath`, each rotated and
+back, and the `held` progress answer at 390×844. On the former row rules the
+same spec failed 6 of 6 (`label words` received `["Near", "future",
+"direction"]`; at 844×390 `refused` the label was 78.28 high against 44.5),
+and the `held` test failed the same way. The seven consumer specs named in
+the proof table pass with it (35 passed together), `npm run
+typecheck:dashboard` exits 0, and `npm test` passes on the final state. The
+whole dashboard suite on the final state: 1607 passed, 1 failed.
+
+Failed proof diagnosis: `dashboard/tests/limit-recovery-credit-history.spec.ts`
+failed once in that whole-suite run, receiving one extra GitHub request
+(`commit-list .planning/slice-plans/091-time-unread/PLAN.md`) after its
+recovery mark. It asserts request traffic and measures nothing on the project
+action row; it passed in the earlier whole-suite run on the same row rules
+(1607 passed) and 20 of 20 alone (`--repeat-each=20`). Disposition: a
+load-dependent request-timing race outside this slice's change, left
+unrepaired here and reported at completion; this slice's proof does not
+depend on it.
+
+Learning: the same squeeze existed at 768×1024 with a problem answer (label
+49.75×469.69 on the former rules); the repaired columns keep the label on one
+line there too, recorded as G4.
+
+## Story obligations
+
+### G1. Progress answer opened, rotated, and at the other phone viewports
+Reported: slice 1 — "With the progress answer showing: opening and closing the direction, and rotation. Those remain covered for `launched` and `refused` only."
+Story clause: "This covers the success answer, the “Starting a session…” progress answer, and Launch failed or Launch uncertain answers with their explanations."
+Disposition: proved by slice 1: `dashboard/tests/agent-launch-start-session-answer-touch.spec.ts` "390×844 touch, held" observes the progress paragraph through `expectRowReadsWhole`; it is laid out by the same `.project-actions-end > p` rule whose opening, closing, rotation, and other viewports the `launched` and `refused` tests observe.
+
+### G2. Launch uncertain has no phone case of its own
+Reported: slice 1 — "Launch uncertain has no case of its own, as agreed."
+Story clause: "This covers the success answer, the “Starting a session…” progress answer, and Launch failed or Launch uncertain answers with their explanations."
+Disposition: proved by slice 1: Launch uncertain renders through the same `dashboard/src/LaunchProblemAnswer.tsx` paragraph as Launch failed, which the `refused` tests in `dashboard/tests/agent-launch-start-session-answer-touch.spec.ts` observe at every phone viewport.
+
+### G3. Help measured and reachable, not tapped open, with an answer visible
+Reported: slice 1 — "The help is measured and checked reachable, not tapped open, with an answer visible."
+Story clause: "it does not move the badge legend help out of reach."
+Disposition: proved by slice 1: `expectRowReadsWhole` in `dashboard/tests/agent-launch-start-session-answer-touch.spec.ts` asserts the help is at least 44×44 and `expectEveryControlReachable(projectActions)` hit-tests it with each answer visible; opening it is `dashboard/tests/preparation-legend.spec.ts`.
+
+### G4. Tablet problem answer reads narrower beside Start session
+Reported: slice 1 — "the label stays on one line (216×40) and the answer reads beside Start session at 282px wide instead of 448px, on three lines. Arrangement is unchanged (answer beside Start session, direction and help opposite); only widths differ."
+Story clause: "Tablet and desktop keep their current row: the answer beside Start session, the direction and legend help opposite it, keyboard access, and surrounding work-stage reading."
+Disposition: no user cost "without compromising desktop operation": the arrangement the clause names is kept; the only difference is that a tablet problem answer no longer squeezes the label into letters, so it takes more lines beside Start session.
 
 ## Review and execution gates
 

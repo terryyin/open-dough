@@ -1,0 +1,96 @@
+/* The project actions row beneath the banner: the near-future direction's
+   disclosure (./NearFutureDirection.tsx) opposite Start session, its answer
+   (./StartSession.tsx), and the badge legend help. */
+
+/* While the agent roster is shown, the stories and their direction stay in
+   place behind it, keeping what was open. */
+.project-actions[hidden] {
+  display: none;
+}
+
+/* The direction's heading and Start session share the first row; the opened
+   direction reads across the whole row beneath both. The direction and its
+   disclosure lend their parts to this grid, the opened content included. The
+   heading keeps the width its words need; Start session's end has the rest. */
+.project-actions {
+  display: grid;
+  grid-template-columns: auto minmax(min-content, 1fr);
+  column-gap: var(--space-3);
+  align-items: start;
+}
+
+.direction,
+.direction details,
+.direction details[open]::details-content {
+  display: contents;
+}
+
+.direction summary {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+/* Start session and the help, at the end opposite the direction. */
+.project-actions-end {
+  grid-row: 1;
+  grid-column: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* A long answer takes more lines; Start session keeps its words on one. */
+.project-actions-end > .frame-button {
+  flex-shrink: 0;
+}
+
+/* A launch problem beside Start session reads on the row, not across it. */
+.project-actions-end .start-session-answer {
+  max-width: 28rem;
+  margin: 0;
+}
+
+/* Where the page shows one column (./dashboard-columns.css), as on a phone,
+   the row has no room for an answer beside Start session: it reads whole
+   beneath Start session and the help, as wide as the two, and takes none of
+   the heading's room. */
+@container page (width < 48rem) {
+  .project-actions-end {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    justify-content: end;
+    row-gap: 0;
+  }
+
+  .project-actions-end > p {
+    grid-column: 1 / -1;
+    order: 1;
+    width: 0;
+    min-width: 100%;
+  }
+
+  .project-actions-end > p:not(:empty) {
+    margin-top: var(--space-1);
+  }
+}
+
+.direction summary h2 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
+}
+
+/* The direction opens below the row as a quiet panel of its own. */
+.direction details > p {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  margin-top: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel);
+}
+
+.direction-text {
+  white-space: pre-line;
+}
