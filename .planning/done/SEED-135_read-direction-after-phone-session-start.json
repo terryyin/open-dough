@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-135#read-direction-after-phone-session-start",
+  "title": "Keep the direction disclosure readable after starting a session on a phone",
+  "completedAt": "2026-10-13T11:52:32.228Z",
+  "developer": "Terry Yin",
+  "agent": "ebacky-chan",
+  "host": "claude"
+}

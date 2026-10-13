@@ -250,7 +250,7 @@ An implementation agent ran the changed surface's whole suite before the indepen
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout VERSION 0.3.60; installed guidance provenance not checked).
-  - Evidence: plan 302 accepted-proof paragraph; implementation return "1607 passed, 0 failed, 13.6 min"; refactor return moving the row rules to `dashboard/src/project-actions.css` for the 250-line check and noting the suite result "predates the stylesheet move"; coordinator rerun 14.4 min.
+  - Evidence: `dd2e25b59563d02bdbe4f484d98ccd4c113b6339:.planning/slice-plans/302-keep-direction-readable-after-phone-session-start/PLAN.md`, accepted-proof paragraph; implementation return "1607 passed, 0 failed, 13.6 min"; refactor return moving the row rules to `dashboard/src/project-actions.css` for the 250-line check and noting the suite result "predates the stylesheet move"; coordinator rerun 14.4 min.
   - Observed effect: two whole dashboard suite runs, about 28 minutes, for one stylesheet slice. The delegation brief bounded the suite to "a few minutes" and the agent ran it anyway.
   - Inference: qualified. A file-size split is foreseeable from the changed file's length before delegation; running the whole suite once, after refactoring, would have covered both. One execution establishes no rate.
 
@@ -262,6 +262,6 @@ The story's required behavior named three launch answer states; the plan's proof
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout VERSION 0.3.60; installed guidance provenance not checked).
-  - Evidence: seed SEED-135 scope "This covers the success answer, the “Starting a session…” progress answer, and Launch failed or Launch uncertain answers"; plan 302 proof table naming only `launched` and `refused`; story obligations G1 and G2 in plan 302.
+  - Evidence: `dd2e25b59563d02bdbe4f484d98ccd4c113b6339:.planning/seeds/SEED-135-mobile-dashboard-observed-discrepancies.md` scope "This covers the success answer, the “Starting a session…” progress answer, and Launch failed or Launch uncertain answers"; the plan's proof table at that revision naming only `launched` and `refused`; story obligations G1 and G2 in that plan.
   - Observed effect: one extra implementation round (a resumed agent, one added test, no product change) before proof acceptance.
   - Inference: qualified. The story's own proof sentence asked only for "at least one problem answer", so the plan followed it; the scope sentence and the proof sentence of one story disagreed on coverage. Cost was small.

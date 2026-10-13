@@ -66,7 +66,8 @@ almost letter by letter and pushes the work stages down. At 768×1024 it measure
 ![Phone direction disclosure after launch](phone-ad-hoc-direction-collapse.jpg)
 
 [Captured DOM](phone-ad-hoc-direction-collapse-dom.txt).
-[Queued repair](../../../../.planning/seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#read-direction-after-phone-session-start).
+Repaired: on a phone the answer now reads beneath Start session and the help
+([Near-future direction](../../../README.md)).
 
 <a id="m2"></a>
 

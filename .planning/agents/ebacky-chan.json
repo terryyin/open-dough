@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ebacky-chan",
-  "email": "ebacky-chan@example.org",
-  "identity": "SEED-135#read-direction-after-phone-session-start",
-  "mode": "story-branch",
-  "branch": "claude/keep-the-direction-disclosure-readable-after-sta",
-  "host": "claude"
-}
