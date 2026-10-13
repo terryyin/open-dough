@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-135#reach-final-report-done-choices-on-short-phone",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
