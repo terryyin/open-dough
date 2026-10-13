@@ -3,8 +3,9 @@
 // scope its directory names. Wire encoding owns what is said over the socket.
 import { lstatSync } from "node:fs";
 import { connect } from "node:net";
-import { basename } from "node:path";
+import { basename, dirname } from "node:path";
 import { OwnerUnavailable } from "./github-request-owner-failure.mjs";
+import { shownProcessSync } from "./process-table.mjs";
 import { protocol, receive, send } from "./github-request-owner-wire.mjs";
 
 // How long a greeting may take, for the owner awaiting it and for the
@@ -15,25 +16,32 @@ export const greetingLimitMs = 5_000;
 /** @param {string} directory */
 export const scopeOf = (directory) => basename(directory);
 
-// Whether anything accepts a connection at `path`.
-/** @param {string} path */
-export const reachable = (path) =>
-  new Promise((resolve) => {
-    const socket = connect(path);
-    socket.once("connect", () => {
-      socket.destroy();
-      resolve(true);
-    });
-    socket.once("error", () => resolve(false));
-  });
+// A bare listening socket is not an installed owner. Only its recorded live
+// process may be recovered automatically after an unanswered greeting.
+function knownOwner(pid, socket) {
+  if (!Number.isSafeInteger(pid) || pid < 1) return false;
+  try {
+    return (
+      shownProcessSync(pid)?.command.includes(
+        `/github-request-owner.mjs ${dirname(socket)} `,
+      ) ?? false
+    );
+  } catch {
+    return false;
+  }
+}
 
 // The owner `record` names, greeted: its connection, or undefined when
 // nothing answers there. Throws when it is another user's or refuses this
-// caller. `onMessage` hears what it says after its welcome.
+// caller. `onMessage` hears what it says after its welcome. Startup alone treats
+// an unanswered greeting as absence for fenced replacement. Readers recover
+// only a verified installed owner; other endpoints retain the diagnostic
+// failure. An actual refusal always remains a refusal.
 export function greeted(
-  { socket: path, token },
+  { socket: path, token, pid },
   onMessage,
   inspect = lstatSync,
+  { unansweredIsAbsent = false } = {},
 ) {
   return new Promise((resolve, reject) => {
     try {
@@ -47,12 +55,14 @@ export function greeted(
     const socket = connect(path);
     const gone = () => {
       clearTimeout(limit);
-      reject(new OwnerUnavailable("connection-failed"));
+      if (unansweredIsAbsent || knownOwner(pid, path)) resolve(undefined);
+      else reject(new OwnerUnavailable("connection-failed"));
     };
     const limit = setTimeout(() => {
       socket.off("close", gone);
       socket.destroy();
-      reject(new OwnerUnavailable("unknown"));
+      if (unansweredIsAbsent || knownOwner(pid, path)) resolve(undefined);
+      else reject(new OwnerUnavailable("unknown"));
     }, greetingLimitMs);
     let welcomed = false;
     socket.on("error", (error) => {

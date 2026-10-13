@@ -1,9 +1,5 @@
 import assert from "node:assert/strict";
-import {
-  handlers,
-  readFragments,
-  readSettings,
-} from "./host-hook-settings.mjs";
+import { readFragments, readSettings } from "./host-hook-settings.mjs";
 
 function unrelated(target) {
   const codex = readSettings(target, "codex");
@@ -84,43 +80,29 @@ function managed(target, root) {
               ...(fragments.claudeGuard?.hooks ?? {}),
             };
     for (const [event, entries] of Object.entries(expectedHooks)) {
-      if (host === "codex") {
-        const expected = entries[0];
-        const matches = settings.hooks?.[event]?.filter((wrapper) =>
-          wrapper?.hooks?.some(
-            (entry) => entry.command === expected.hooks[0].command,
-          ),
+      assert.ok(
+        Array.isArray(settings.hooks?.[event]),
+        `${label} event ${event} missing`,
+      );
+      for (const expected of entries) {
+        const command =
+          host === "cursor" ? expected.command : expected.hooks[0].command;
+        const matches = settings.hooks[event].filter((entry) =>
+          host === "cursor"
+            ? entry.command === command
+            : entry.hooks?.some((hook) => hook.command === command),
         );
         assert.equal(
-          matches?.length,
+          matches.length,
           1,
-          `${label} event ${event} must contain exactly one managed command`,
+          `${label} event ${event} must contain exactly one handler for ${command}`,
         );
         assert.deepEqual(
           matches[0],
           expected,
           `${label} managed handler for ${event} differs`,
         );
-        continue;
       }
-      const expected = host === "cursor" ? entries[0] : entries[0].hooks[0];
-      assert.ok(
-        Array.isArray(settings.hooks?.[event]),
-        `${label} event ${event} missing`,
-      );
-      const matches = handlers(settings, host, event).filter(
-        (entry) => entry?.command === expected.command,
-      );
-      assert.equal(
-        matches.length,
-        1,
-        `${label} event ${event} must contain exactly one managed command`,
-      );
-      assert.deepEqual(
-        matches[0],
-        expected,
-        `${label} managed handler for ${event} differs`,
-      );
     }
   }
 }

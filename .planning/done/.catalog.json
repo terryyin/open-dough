@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-063_background-ci-failure-delivery.json",
+      "identity": "SEED-063#background-ci-failure-delivery",
+      "completedAt": "2026-10-12T23:55:32.494Z",
+      "blob": "16955965e73026dcce9304d2f25c719856207877"
+    },
+    {
       "fileName": "SEED-131_retain-strict-proof-selection.json",
       "identity": "SEED-131#retain-strict-proof-selection",
       "completedAt": "2026-10-12T12:34:18.135Z",

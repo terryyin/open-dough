@@ -90,8 +90,8 @@ completion with `--skip-retro` or another explicit review omission — publish t
 plan's [execution-complete record](finish-or-stop.md#record-execution-completion),
 then invoke exactly one completion action. Wrap-up uses that same action for its
 final accepted closure or integrated SHA after registration. Before any path,
-follow [completion command and receipt mechanics](ci-completion-wait.md). At
-each safe boundary, handle any failure the observer has already delivered.
+follow [completion mechanics](ci-completion-wait.md), including its explicit live-Claude
+Story Branch background handoff. Handle delivered failures at each safe boundary.
 
 A successful receipt with confirmed shutdown satisfies this observation and ends
 that observer. Failure retains the observer and returns to

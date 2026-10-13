@@ -119,6 +119,7 @@ managed_files=(
   dough-execute-plan/manuals/custom-ci.md
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
+  dough-execute-plan/references/ci-background-handoff.md
   dough-execute-plan/references/ci-completion-wait.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
@@ -143,6 +144,11 @@ managed_files=(
   dough-execute-plan/references/trunk-publication.md
   dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
+  dough-execute-plan/scripts/ci-background-handoff.mjs
+  dough-execute-plan/scripts/ci-background-hook.mjs
+  dough-execute-plan/scripts/ci-background-session.mjs
+  dough-execute-plan/scripts/ci-background-state.mjs
+  dough-execute-plan/scripts/ci-background-waiter.mjs
   dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/story-obligation-reader.mjs

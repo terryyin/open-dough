@@ -70,62 +70,6 @@ and actual quiet Land/Wrap Up skill behavior remain unproved on all three hosts;
 that separate acceptance before affected release. Selected plan execution and subsequent
 acceptance selection retain their own authority boundaries.
 
-<a id="background-ci-failure-wakeup"></a>
-
-### Accept background CI monitoring and failure-only wakeup
-
-**Identity:** SEED-053#background-ci-failure-wakeup
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
-```
-**Covered work:** [SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery)
-and [plan 299](../slice-plans/299-background-ci-failure-delivery/PLAN.md).
-**Outcome:** Execution and wrap-up can end their turns with CI pending and
-later receive actionable failure in the original native session, from a
-dashboard launch or standalone invocation. This home tracks required native
-proof separately; it adds no queue assignment or execution authority.
-
-**Required coverage:** Use the authoritative host/native-form table in
-[SEED-063](SEED-063-dashboard-owned-ci-monitoring.md#background-ci-failure-delivery).
-Record each required row's continuation route and result, without reproducing
-the scope table here. Another form's result, documented commands and synthetic
-adapters are not proof.
-
-**Feasibility before dependent implementation:** Plan slice 1 owns bounded
-fresh-session probes. Observe exact recipient identity, post-turn input
-acceptance and safe busy-session handling with retained native evidence;
-observe or explicitly retain uncertainty at the send/receipt crash boundary.
-An unavailable form blocks its promised path instead of silently preserving
-final waiting, starting another watcher, or creating a replacement conversation.
-
-**Integration acceptance after implementation:** Use the real installed
-runtime and a private controlled CI provider. Dashboard and standalone
-enrollment, pending handoff, failure-only delivery, authorized repair and
-publication reach the same original session. Standalone observation continues
-with no dashboard server. Success creates no agent turn. Cover native exit,
-busy/idle and waiting on approval/input representatively per distinct route;
-the shared intent/restart/request-control mechanics keep deterministic proof
-in plans 224 and 299 rather than being retested as a general agent-conformance matrix.
-
-**Skill behavior acceptance:** Fresh execution and wrap-up use the installed
-registration/completion path, end while CI is pending, handle late owned
-failures under existing authority, and report gaps without fallback waiting or
-polling. Distinguish actual skill behavior from session-transport acceptance.
-Select representative Story Branch and Trunk Mode closure/repair cases from
-the source examples; reuse evidence only for an unchanged verified mechanism.
-
-**Completion criteria:** Every promised host/form has matching integration
-evidence and representative execution/wrap-up behavior evidence or justified
-reuse. Missing native routes and unresolved acceptance remain active; no release
-of affected behavior before acceptance under ADR 0005. Record requirement,
-runtime version, decisive evidence and judgment during active checks; preserve
-lasting facts in maintained product homes and clean spent proof at closure.
-
-**Current state (2026-10-11):** No native wakeup runs performed for this work.
-Existing completion-reporting evidence above does not prove idle wakeup or
-safe failure delivery. Paid runs require explicitly authorized native checks;
-add none to default tests, CI or this planning invocation.
-
 ## Shared premise-verification cases
 
 These cases are the shared premise-verification setup. The guidance is delivered.
@@ -193,3 +137,4 @@ Unrelated entries keep their order.
 - Maintainer request on 2026-09-28: one existing acceptance story per host;
   preserve scope and approximately preserve priority.
 - [Product backlog](../PRODUCT-BACKLOG.md).
+- [Maintained CI background-delivery behavior and native acceptance](../../docs/maintainer/ci-background-delivery.md).

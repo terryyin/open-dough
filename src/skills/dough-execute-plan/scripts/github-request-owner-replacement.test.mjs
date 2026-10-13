@@ -5,47 +5,15 @@
 // is told of a wait that was not stored first. An owner still running once
 // another's record overtakes its own asks nothing more.
 import assert from "node:assert/strict";
-import { mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { basename, join } from "node:path";
 import { test } from "node:test";
 import { until } from "./ci-github-test-fixtures.mjs";
-import {
-  fixtureToken,
-  log,
-  loginMachine,
-} from "./github-request-login-test-fixtures.mjs";
+import { fixtureToken, log } from "./github-request-login-test-fixtures.mjs";
 import { claimedRecord } from "./github-request-owner-endpoint.mjs";
-import {
-  endCallsLeftRunning,
-  killStandingOwner,
-  processGone,
-} from "./github-request-owner-test-fixtures.mjs";
+import { replacementMachine } from "./github-request-owner-replacement-test-fixtures.mjs";
+import { processGone } from "./github-request-owner-test-fixtures.mjs";
 import { protocol } from "./github-request-owner-wire.mjs";
-
-// One login's consumers of a `gh` whose job logs wait for `releaseLogs`,
-// and how to kill the owner standing for them.
-function machine(t) {
-  const { github, owners, withToken } = loginMachine(t, { holdLogs: true });
-  endCallsLeftRunning(github);
-  const root = github.env.DOUGH_GITHUB_REQUEST_OWNER_ROOT;
-  const { consumer } = withToken("ann");
-  return {
-    github,
-    owners,
-    consumer,
-    killOwner: () => killStandingOwner(root),
-    logsAsked: () =>
-      github.asked().filter((call) => call.endsWith("/logs")).length,
-    // What the standing owner's endpoint directory holds, by file name.
-    kept(directory) {
-      return Object.fromEntries(
-        readdirSync(directory, { withFileTypes: true })
-          .filter((entry) => entry.isFile())
-          .map(({ name }) => [name, readFileSync(join(directory, name))]),
-      );
-    },
-  };
-}
 
 const heldBack = (answer) => {
   assert.equal(answer.status, undefined);
@@ -54,7 +22,8 @@ const heldBack = (answer) => {
 };
 
 test("an owner killed with eight calls at GitHub is replaced by one that ends those eight before it asks anything, and its waiters are told their calls failed", async (t) => {
-  const { github, owners, consumer, killOwner, logsAsked, kept } = machine(t);
+  const { github, owners, consumer, killOwner, logsAsked, kept } =
+    replacementMachine(t);
   github.recordEndings();
   const consumers = [consumer(), consumer()];
   const asking = (jobs, from) =>
@@ -118,7 +87,7 @@ test("an owner killed with eight calls at GitHub is replaced by one that ends th
 });
 
 test("a rate limit's wait is stored before it is answered and holds back each owner started after the one that met it was killed", async (t) => {
-  const { github, owners, consumer, killOwner, kept } = machine(t);
+  const { github, owners, consumer, killOwner, kept } = replacementMachine(t);
   github.limit(1, "jobs/1/", 600);
   const metAt = Date.now();
   const refused = await consumer().ask(log(1)).settled;
@@ -147,7 +116,8 @@ test("a rate limit's wait is stored before it is answered and holds back each ow
 });
 
 test("a wait that ended while no owner stood leaves one request to go first for the owner started next", async (t) => {
-  const { github, owners, consumer, killOwner, logsAsked, kept } = machine(t);
+  const { github, owners, consumer, killOwner, logsAsked, kept } =
+    replacementMachine(t);
   github.limit(1, "jobs/1/", 1);
   await consumer().ask(log(1)).settled;
   const [{ directory }] = owners();
@@ -176,7 +146,7 @@ test("a wait that ended while no owner stood leaves one request to go first for 
 });
 
 test("a wait that cannot be stored is told to nobody: the call that met the limit fails, nothing more is asked, and the wait is told once it is stored", async (t) => {
-  const { github, owners, consumer, killOwner, kept } = machine(t);
+  const { github, owners, consumer, killOwner, kept } = replacementMachine(t);
   github.limit(1, "jobs/1/", 600);
   const limited = consumer();
   await limited.reached();
@@ -205,7 +175,7 @@ test("a wait that cannot be stored is told to nobody: the call that met the limi
 });
 
 test("an owner whose record is overtaken while its calls are at GitHub asks nothing more and passes no answer on", async (t) => {
-  const { github, owners, consumer, logsAsked } = machine(t);
+  const { github, owners, consumer, logsAsked } = replacementMachine(t);
   const consumers = [consumer(), consumer()];
   const waits = consumers.flatMap((process, index) =>
     Array.from(Array(6).keys(), (job) => process.ask(log(index * 6 + job))),
