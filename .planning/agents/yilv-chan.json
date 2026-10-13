@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yilv-chan",
+  "email": "yilv-chan@example.org",
+  "identity": "SEED-066#unattached-session-native-observation",
+  "mode": "story-branch",
+  "branch": "claude/observe-an-unattached-start-session-on-the-nativ",
+  "host": "claude"
+}
