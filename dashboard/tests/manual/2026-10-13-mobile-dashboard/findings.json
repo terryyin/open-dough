@@ -1,0 +1,81 @@
+{
+  "productRevision": "5ba1e47cf39e4b93218923bc01413259c7dd860a",
+  "testingCheckoutRevision": "e28e94fa02193b28f3dcd6f9ae998aa19562a8d2",
+  "browser": "Google Chrome 155.0.8059.40",
+  "scope": "Local Chromium touch/viewport and desktop observation; disposable native Claude fixture. Physical iOS keyboard and remote connectivity were outside the accepted story boundary.",
+  "budget": {
+    "requestedSeconds": 3600,
+    "startedAt": "2026-10-13T01:42:36Z",
+    "excludedBrowserControlStallSeconds": 9463.7345,
+    "endedAt": "2026-10-13T05:20:20Z",
+    "elapsedSecondsExcludingStall": 3600.2655
+  },
+  "findings": [
+    {
+      "id": "M1",
+      "severity": "P2",
+      "title": "Ad hoc launch result makes the direction disclosure unreadable on phones",
+      "expected": "The Near-future direction disclosure remains readable and compact alongside reachable project actions.",
+      "actual": "After an isolated Start session succeeds and its Ad hoc session started result appears, the collapsed heading is 13.27 pixels wide and 469.69 pixels tall at 390x844 and 430x932. It wraps almost letter by letter. At 768x1024 it is 180.06x26.09 pixels.",
+      "steps": [
+        "Use a phone touch view at 390x844.",
+        "Start an isolated ad hoc Claude session with a typed instruction.",
+        "Close its automatically opened terminal.",
+        "Observe the project actions row while Ad hoc session started remains visible."
+      ],
+      "evidence": [
+        "phone-ad-hoc-direction-collapse.jpg",
+        "phone-ad-hoc-direction-collapse-dom.txt"
+      ]
+    },
+    {
+      "id": "M2",
+      "severity": "P2",
+      "title": "Final-report Done confirmation clips its required choices at short phone height",
+      "expected": "Mark as done and Keep open remain available by touch when confirming unfinished work in a reduced-height final-report panel.",
+      "actual": "At 390x320, Keep open extends to y233.66 while its panel ends at y224. At 390x240 both confirmation buttons are hidden. A touch scroll moves the panel away; the Keep open location hits the dashboard source disclosure beneath it. Restoring 390x844 exposes the choices. Desktop 1440x900 exposes both choices and keyboard dismissal works.",
+      "steps": [
+        "Start an isolated disposable session and submit an unfinished report.",
+        "Remove only its clean saved workspace and reload.",
+        "Open Read final report and reduce to 390x240.",
+        "Tap Mark as done, then attempt ordinary touch scrolling to reach Keep open."
+      ],
+      "evidence": [
+        "phone-final-report-confirmation-clipped.jpg",
+        "phone-final-report-confirmation-hidden.jpg"
+      ]
+    }
+  ],
+  "improvements": [
+    {
+      "title": "Qualify historical launch uncertainty after successful recovery",
+      "observed": "The original Launch uncertain text remains alongside a confirmed Working session after Continue succeeds. Documentation explicitly retains failed/uncertain launch answers, so this is recorded as a messaging improvement rather than a failed acceptance.",
+      "evidence": "recovered-launch-stale-warning.jpg"
+    }
+  ],
+  "recoveryRevision": "50064a7dd0459a32c177c1d79621029f449dc2d5",
+  "closureRevision": "b00452870ad8cd67ecb44958f0f610c1d05cbbdb",
+  "administrativeNotes": [
+    "Consumer discovery reported three unrelated legacy anchors without story headings. Those homes were preserved; a search found this new mission identity only in its own claim, profile and seed."
+  ],
+  "closure": {
+    "acceptedTrunkRevision": "b00452870ad8cd67ecb44958f0f610c1d05cbbdb",
+    "branchCi": {
+      "unresolvedReason": "timeout",
+      "shutdown": "confirmed"
+    },
+    "trunkCi": {
+      "verdict": "success",
+      "source": "not_required_basis",
+      "basis": "5ba1e47cf39e4b93218923bc01413259c7dd860a",
+      "shutdown": "confirmed"
+    },
+    "defaultCheckoutRefresh": "advanced",
+    "retirement": {
+      "worktree": "removed",
+      "localBranch": "removed",
+      "remoteBranch": "removed"
+    },
+    "defaultCheckout": "clean and synchronized with origin/main"
+  }
+}

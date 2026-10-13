@@ -16,4 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep the direction disclosure readable after starting a session on a phone](seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#read-direction-after-phone-session-start) — SEED-135#read-direction-after-phone-session-start
+- [Keep final-report Done confirmation choices reachable at short phone height](seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#reach-final-report-done-choices-on-short-phone) — SEED-135#reach-final-report-done-choices-on-short-phone
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation

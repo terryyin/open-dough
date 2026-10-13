@@ -1,0 +1,138 @@
+- banner:
+  - button "Sessions":
+  - img "2 sessions need attention": "2"
+  - radiogroup "Project":
+    - radio "Open Dough" [checked]
+    - generic: Open Dough
+    - radio "Doughnut"
+    - generic: Doughnut
+    - radio "Pygardon"
+    - generic: Pygardon
+    - radio "Terry Talks"
+    - generic: Terry Talks
+  - region "Published Git state":
+    - generic "Source evidence for Open Dough":
+      - heading "Open Dough" [level=1]
+  - button "System settings":
+- status:
+  - text: Published work read at revision 48c52c1, retrieved
+  - time: 10/13/2026, 1:57:16 PM
+  - text: .
+- paragraph
+- region "Near-future direction":
+  - generic "Near-future direction":
+    - heading "Near-future direction" [level=2]
+- button "Start session in Open Dough" [active]:
+  - text: Start session
+- log: Ad hoc session started
+- button "Preparation badge legend":
+- log "Startup announcements"
+- main:
+  - region "Work stages":
+    - region "Backlog":
+      - heading "Backlog" [level=2]
+      - paragraph: 2 entries
+      - list:
+        - article "Story A":
+          - heading "Story A" [level=3]
+          - paragraph: Priority 1
+          - paragraph:
+            - generic: Slice planned
+            - generic: Ready for execution
+          - paragraph: This story has an open session. Mark it done or delete its record to start another.
+          - group "Launch actions":
+            - paragraph:
+              - button "Start execution" [disabled]:
+                - text: Start execution
+            - paragraph:
+              - button "Start refinement" [disabled]:
+                - text: Start refinement
+          - list "Sessions":
+            - article "Execution session":
+              - paragraph: Working
+              - paragraph:
+                - text: Execution started in Claude Code
+                - time: 10/13/2026, 1:51:29 PM
+              - paragraph: Workspace ~/git/open-dough/.worktrees/story-a
+              - paragraph: "Local: launched from this dashboard on this machine."
+              - paragraph:
+                - text: Session
+                - code: 4eeb9b15-90ba-4192-a03b-3598ba4b7c22
+              - paragraph:
+                - button "Open terminal"
+              - paragraph:
+                - button "Mark as done"
+              - status
+          - group "Inspection actions":
+            - button "Inspect story":
+              - text: Inspect story
+            - button "Review changes":
+              - text: Review changes
+        - article "Story B":
+          - heading "Story B" [level=3]
+          - paragraph: Priority 2
+          - paragraph:
+            - generic: Slice planned
+            - generic: Ready for execution
+          - group "Launch actions":
+            - paragraph:
+              - button "Start execution":
+                - text: Start execution
+            - paragraph:
+              - button "Start refinement":
+                - text: Start refinement
+          - group "Inspection actions":
+            - button "Inspect story":
+              - text: Inspect story
+    - region "Taken":
+      - heading "Taken" [level=2]
+      - paragraph: 2 entries
+      - list:
+        - article "Ad hoc session for Read the disposable attention report. Ke…":
+          - heading "Read the disposable attention report. Ke…" [level=3]
+          - paragraph: Ready for review
+          - paragraph: "Unread report: Unfinished work"
+          - paragraph:
+            - button "Unfinished work" [disabled] [expanded]:
+              - text: Unfinished work
+          - region "Attention message": The disposable manual session reported unfinished work. Read this complete message before deciding whether to keep the same session open. No production work is involved.
+          - paragraph:
+            - button "Mark as read"
+          - paragraph:
+            - text: Ad hoc session started in Claude Code
+            - time: 10/13/2026, 1:57:46 PM
+          - paragraph: Workspace ~/git/open-dough/.worktrees/read-the-disposable-attention-report-keep-the-ex
+          - paragraph: "Local: launched from this dashboard on this machine."
+          - paragraph:
+            - text: Session
+            - code: 8aef62fc-24bd-43a4-88e6-b462184f7ea1
+          - paragraph:
+            - button "Open terminal"
+          - paragraph:
+            - button "Mark as done"
+          - status
+        - article "Execution session for Continue the intended session with a long title whose final words identify the exact work that remains attached":
+          - heading "Continue the intended session with a long title whose final words identify the exact work that remains attached" [level=3]
+          - paragraph: SEED-MANUAL#terminal
+          - paragraph:
+            - text: Needs input
+            - generic: ": Read this full attention message before continuing the intended session."
+          - paragraph:
+            - text: Execution started in Claude Code
+            - time: 10/13/2026, 1:51:29 PM
+          - paragraph: "Local: launched from this dashboard on this machine."
+          - paragraph:
+            - text: Session
+            - code: cb472899-cac9-451b-bf92-4ebce6d03331
+          - paragraph:
+            - button "Open terminal"
+          - paragraph:
+            - button "Mark as done"
+          - status
+  - region "Recently done":
+    - heading "Recently done" [level=2]
+    - paragraph: 0 entries
+    - paragraph: Recently done stories and sessions launched from this dashboard for this project, newest first. Sessions are kept on this machine.
+    - paragraph: No sessions are listed in Recently done.
+  - button "Taken 2 entries":
+    - generic: Taken 2 entries
