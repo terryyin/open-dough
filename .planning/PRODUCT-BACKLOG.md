@@ -17,7 +17,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation ([plan](slice-plans/301-unattached-session-native-observation/PLAN.md))
 - [Retire an established session's isolated worktree after its result lands](seeds/SEED-066-composable-lightweight-session-options.md#retire-established-session-worktree) — SEED-066#retire-established-session-worktree ([plan](slice-plans/304-retire-established-session-worktree/PLAN.md))
 - [See and answer Cursor's workspace trust prompt when a session starts](seeds/SEED-066-composable-lightweight-session-options.md#cursor-trust-prompt-at-session-start) — SEED-066#cursor-trust-prompt-at-session-start ([plan](slice-plans/305-cursor-trust-prompt-at-session-start/PLAN.md))
-- [Keep final-report Done confirmation choices reachable at short phone height](seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#reach-final-report-done-choices-on-short-phone) — SEED-135#reach-final-report-done-choices-on-short-phone ([plan](slice-plans/303-reach-final-report-done-choices-on-short-phone/PLAN.md))
 
 ## Backlog list
 

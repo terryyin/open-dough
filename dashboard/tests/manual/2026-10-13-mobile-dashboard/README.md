@@ -4,7 +4,7 @@ One hour of manual observation of the completed “Use the dashboard from an
 iPad or iPhone browser without compromising desktop operation” story
 (`SEED-133#operate-dashboard-from-mobile-browser`). Two discrepancies were
 confirmed and queued as separate stories in
-[SEED-135](../../../../.planning/seeds/SEED-135-mobile-dashboard-observed-discrepancies.md).
+[the historical SEED-135](https://github.com/terryyin/open-dough/blob/c0a1c212daa36457b5b82499363fb375fc9ee044/.planning/seeds/SEED-135-mobile-dashboard-observed-discrepancies.md).
 This report preserves that observation; it is not an automated regression test.
 
 ## Conditions and budget
@@ -91,7 +91,9 @@ choices. Desktop 1440×900 exposes both; keyboard dismissal works.
 
 ![Both confirmation choices hidden at 390×240](phone-final-report-confirmation-hidden.jpg)
 
-[Queued repair](../../../../.planning/seeds/SEED-135-mobile-dashboard-observed-discrepancies.md#reach-final-report-done-choices-on-short-phone).
+Repaired: the report's header, question, answers and content share a scrolling
+surface within its available height; each answer stays reachable by touch
+([Retained Codex results](../../../AGENT-LAUNCH-TERMINALS.md#retained-codex-results-without-their-workspace)).
 
 ## Separate improvement
 
