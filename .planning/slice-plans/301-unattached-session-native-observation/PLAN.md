@@ -265,9 +265,34 @@ only. Safe stop preserves its judged evidence and leaves other hosts pending.
 
 ### 2. Codex consumes the same isolated auto-land intent
 Type: Behavior
-Status: planned
+Status: observed, all expectations pass
 Proof: same complete journey as slice 1 in a fresh Codex session, using Codex's
 native skill invocation syntax and a different queued fixture story.
+
+Observed 2026-10-13, one attempt, fresh evidence, operated by the agent on Terry's authorization as in slice 1; same dashboard deployment and installed release. codex-cli
+0.162.1, `gpt-6.1-sol` (dashboard default), launch
+`3226e1cf-15aa-4d2d-ac30-0c039fd12bb8`, native session
+`01a13526-32e3-7f53-9f59-d542e165ec49`, fixture
+`SEED-001#python3-module-example`. Lizard trunk was `e9897f8` (Terry's
+`.worktrees/` ignore).
+
+- Workspace and block: `.worktrees/session` was still held by slice 1, so the
+  one new worktree was `.worktrees/session-2` on `codex/session-2`; rollout
+  `cwd` and the Codex status line show it; first input is the block
+  (`isolated`, `auto-land`, `startingRevision: e9897f8…`, no `fetched`) with the
+  reporting context. Origin unchanged. Pass.
+- Question: answered with `lizard_languages/python.py`; worktree clean, origin
+  unchanged. Pass.
+- `$dough-execute-plan SEED-001#python3-module-example --one-shot`: start
+  answered `prepared`, `created: false`, `maintenance: already current`,
+  `landing: auto-land`; `deliver` accepted `5298a22` on `refs/heads/master`
+  with the story closure in the same commit; launch record `landing` holds
+  base `e9897f8`, revision `5298a22`, no identity. Pass.
+- Retirement: Codex called `worktree-retirement.mjs retire … --identity …
+  --created-for-work --contained 5298a22…`; worktree and `codex/session-2`
+  are gone. Pass, by reading the block as the created-for-work fact, the
+  opposite of Claude Code's reading in slice 1.
+- Completion reported `completed` with an empty message.
 
 Behavior: after the prerequisite and probe, repeat start → question → one-shot
 execution → landing in Codex. Observe its own native CWD, instruction, start,
@@ -276,9 +301,44 @@ leaves Cursor and the review journeys pending.
 
 ### 3. Cursor consumes the same isolated auto-land intent
 Type: Behavior
-Status: planned
+Status: observed with two discrepancies; unfinished until their corrections are re-observed
 Proof: same complete journey as slice 1 in a fresh Cursor session with a distinct
 fixture story, including visible instruction submission in its native terminal.
+
+Observed 2026-10-13, one attempt, fresh evidence, operated by the agent on Terry's authorization as in slice 1; same dashboard deployment and installed release. Cursor agent
+2026.10.01-e373342, model Auto (dashboard default), launch
+`2d5ab090-e36e-4f52-afd9-24363e66c8c7`, chat
+`2787e58b-228e-4e60-96e2-b7ccfcf51cee`, fixture `SEED-001#dead-travis-badge`.
+
+- Workspace: one new worktree `.worktrees/session-2` on `cursor/session-2` at
+  `5298a22` (the name Codex had retired). Pass.
+- First input: **fail at launch.** The launch settled `uncertain`,
+  `timed-out`: “Cursor did not show it took the instruction in time”, with
+  Startup recovery offering Recheck and Continue session start and the entry
+  reading “First input acceptance uncertain”. The embedded terminal joined
+  with only a readiness frame and a blank screen. Opening the same chat in a
+  private pty showed Cursor's “Workspace Trust Required” prompt for the new
+  worktree path. After the agent pressed `a` in the dashboard terminal, the
+  runner wrote the block, the record's first input became `confirmed`, and the
+  transcript's first query is the block (`isolated`, `auto-land`,
+  `startingRevision: 5298a22…`, no `fetched`) with the reporting context.
+- Question: answered with `lizard_languages/python.py`; nothing changed. Pass.
+- `/dough-execute-plan SEED-001#dead-travis-badge --one-shot`: start called
+  with `--one-shot --auto-land --push-authorized` for the established
+  workspace; `deliver` accepted `3bb9105` on `refs/heads/master` with the
+  closure; launch record `landing` holds base `5298a22`, revision `3bb9105`,
+  no identity. Pass.
+- Retirement: **fail.** Called with `--identity` and `--contained` but without
+  `--created-for-work`; Cursor reported “Worktree: preserved (`created: false`
+  / host-owned established session workspace)”. `.worktrees/session-2` and
+  `cursor/session-2` remain at `3bb9105`.
+- Cursor sent no dashboard completion report; the launch record has no
+  `completion`.
+
+Discrepancies: the retirement one is slice 1's. The trust one is new: every
+isolated Start gives Cursor a directory it has not trusted, the dashboard
+passes no trust flag by design, and neither its answer nor its terminal showed
+the developer the prompt that blocked delivery.
 
 Behavior: start → question → one-shot execution → landing uses the established
 Cursor workspace, not a host-created second worktree. Judge Cursor's own
@@ -287,9 +347,29 @@ Safe stop retains three-host auto-land proof; review remains pending.
 
 ### 4. An isolated review result waits and later lands
 Type: Behavior
-Status: planned
+Status: observed, all expectations pass
 Proof: source story's Claude Code isolated review journey; compare the remote
 and owned workspace before review and after explicit Dough Land.
+
+Observed 2026-10-13, one attempt, fresh evidence, operated by the agent on Terry's authorization as in slice 1; same dashboard deployment and installed release. Claude Code
+2.1.296, Opus 5.5, launch `9d835c6c-66fd-4025-8d3e-7b0c415682ea`, native
+session `d1771efe-162c-481a-8f9e-5c9b07aa4d7f`, fixture
+`SEED-001#research-section-wording`.
+
+- Before review: line beside Start “Isolated workspace · Wait for review — …
+  nothing is published.”; one new worktree `.worktrees/session-3` on
+  `claude/session-3`; block with `landing: review`. Input
+  `/dough-execute-plan SEED-001#research-section-wording --one-shot`; start
+  called with `--one-shot` and no landing or push flag, answered `prepared`,
+  `created: false`. Result `9770c4b` committed locally with the backlog entry
+  and seed section removed and the done record added; `origin/master` stayed
+  `3bb9105` and still listed the story; no remote `claude/*` branch; worktree
+  kept. The session reported the result and how to land it. Pass.
+- After `/dough-land` in the same conversation: `deliver … --validated-candidate
+  9770c4b… --one-shot-identity … --landing-context <launch 9d835c6c>` accepted
+  exactly `9770c4b` on `refs/heads/master`; launch record `landing` holds base
+  `3bb9105`, revision `9770c4b`, no identity; retirement answered `removed`
+  for worktree and branch; default checkout fast-forwarded. Pass.
 
 Behavior: Start session · Isolated workspace · Wait for review → established
 `landing: review`; invoke one-shot execution without landing flags → verified
@@ -302,9 +382,36 @@ push is a discrepancy, not permission to revise the expected behavior.
 
 ### 5. Default-main refinement preserves changes and waits for review
 Type: Behavior
-Status: planned
+Status: observed, all expectations pass; review result retained
 Proof: source story's Claude Code default-main warning plus refinement journey,
 with a harmless existing file and an unassigned queued refinement fixture.
+
+Observed 2026-10-13, one attempt, fresh evidence, operated by the agent on Terry's authorization as in slice 1; same dashboard deployment and installed release. Claude Code
+2.1.296, Opus 5.5, launch `38bcddaa-42d4-488b-b242-12871b6f62de`, native
+session `0d0021eb-d69c-40b9-a4c4-cceb1c9701a7`, fixture
+`SEED-001#verified-python-versions`. The agent created the untracked
+`observation-scratch-note.txt` in `/Users/terryyin/git/lizard` and typed “I
+want to look at the Python version story next.”
+
+- Warning: Start answered `existing-changes` and showed “Existing changes in
+  default main … 1 changed path observation-scratch-note.txt … Wait for review
+  remains selected.” with Back and Continue with existing changes. Pass.
+- Back: the dialog returned with the text intact. Pass.
+- Continue: session opened in `~/git/lizard`; first input is the text and the
+  reporting context, with no Established session block and no landing context
+  claim of a session; the file was untouched and the checkout still at
+  `9770c4b`. The session answered the text with questions and wrote nothing.
+  Pass.
+- `/dough-story-refinement SEED-001#verified-python-versions --one-shot
+  --default-main`: start answered `prepared`, `role: default-checkout`,
+  `created: false`, `fetched: 9770c4b…`. Commit `ea7fae3` on local `master`
+  holds the refined seed and the scratch file together. `origin/master` stayed
+  `9770c4b`; no Preparing or Taken entry, no agent profile, no worktree, no
+  retirement. Pass.
+
+Retained for Terry's disposition: `ea7fae3` on Lizard's local `master`, one
+commit ahead of `origin/master`. The refinement recorded two decisions as open
+questions and assessed the story not-ready.
 
 Behavior: default Start choices with text and an existing uncommitted file →
 warning; Back preserves text; Continue opens the default checkout with that
@@ -318,6 +425,23 @@ block; the check proves the default path, not inherited block intent.
 The operator retains the review result for a later explicit disposition; its
 absence from published preparation is expected. Do not delete or publish it as
 observation cleanup. Safe stop records the result and its location accurately.
+
+## Observation outcome
+
+Recorded 2026-10-13. Slices 2, 4 and 5 pass. Two discrepancies keep slices 1
+and 3, and the story, unfinished; neither has a planned correction yet.
+
+1. **Retirement of an established isolated workspace is read two ways.** After
+   an auto-land one-shot execution, Claude Code and Cursor kept the worktree
+   (`created: false`, no creation record); Codex passed `--created-for-work`
+   and retired it; Claude Code retired it when landing through Dough Land.
+2. **Cursor's workspace trust prompt blocks an isolated Start unseen.** The
+   launch answers uncertain without naming trust and the embedded terminal
+   stays blank until a key is pressed.
+
+Left in Lizard as evidence: `.worktrees/session` (`claude/session`, `8cf5eed`)
+and `.worktrees/session-2` (`cursor/session-2`, `3bb9105`), both contained in
+`origin/master`, and slice 5's retained `ea7fae3`.
 
 ## Review and execution gates
 
