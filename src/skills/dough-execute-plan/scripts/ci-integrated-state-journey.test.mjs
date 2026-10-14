@@ -124,7 +124,9 @@ test("another writer's C with unknown ancestry stays unresolved until the coordi
   await journey.awaitCoverage(
     directory,
     b,
-    (revision) => revision.integrated?.state === "unresolved",
+    (revision) =>
+      revision.state === "incomplete" &&
+      revision.integrated?.state === "unresolved",
     "unknown ancestry",
   );
   assert.equal(journey.coverage(directory, b).state, "incomplete");
