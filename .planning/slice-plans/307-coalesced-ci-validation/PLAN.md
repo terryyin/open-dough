@@ -217,6 +217,8 @@ implementation obligations in slices 3–5, not capabilities claimed by preparat
 | Publication confirmation, execution/wrap-up in both modes, background completion, shutdown and safe retirement | 5 actual managed-delivery, Story integration, Trunk closure and installed background handoff/waiter fixtures, including failed publication, final closure, unread failure, unconfirmed shutdown and retry. 6/7 feed actual project provider evidence through those consuming paths. |
 | Complete candidate payload works through supported delivery paths without a new host lifecycle | 3/4 payload/update operations and AGENTS.md behavior review; 5 assesses Codex/Cursor/Claude integration reuse separately and assigns invalidated native proof under ADR 0005. 6/7 use the complete candidate in isolated project installations with its source identity. No normal rollout or native pass is inferred. |
 
+Rows that name slice 6 now belong to the follow-up story SEED-008#donut-coalesced-ci-adoption; see Current decisions.
+
 ## Ordered slices
 
 ### 1. Observe Donut queue replacement without starving feedback
@@ -565,35 +567,6 @@ Mutations, each restored afterwards:
 Launch, hook and worker seams are unchanged, so no native proof is invalidated
 (ADR 0005); no paid native run was done.
 
-### 6. Prove candidate adoption in Donut's actual validation workflow
-Type: Behavior
-Status: planned
-Proof: Authorized isolated Donut adoption uses its actual workflow and covered
-commands on owned proof refs: A/C run, waiting B does not, continued arrivals finish
-feedback, and actual provider evidence reaches Dough completion for accepted B.
-Inspect release-admission artifact/run identity while an exact artifact obligation
-is unsatisfied; no deployment is executed by the proof.
-
-Behavior: Donut gets reduced full-validation executions and truthful integrated
-completion while retaining workflow exclusions, every required job/shard,
-artifact provenance and deployment admission. Use workflow/ref concurrency with
-active work retained; do not group distinct targets or deployment obligations
-into one waiting slot. Preserve actual push-path admission: a C push excluded
-by docs/planning filters cannot silently cancel an admitted required B check.
-
-Execution establishes authority for proof-ref publication and installs the
-complete identified candidate payload through existing isolated delivery fixtures
-in an owned Donut proof checkout. Keep ordinary project installations and default
-checkouts unchanged; candidate proof is not normal rollout. Use current project
-guidance and ADRs. Extend existing workflow/script and release-admission tests; exercise
-the actual scheduler after the inert probe, count starts of covered commands and
-record run/attempt/context/ancestry provenance. Feed it through execution and
-wrap-up consumers in both modes, reusing shared mode proof only where boundaries
-match. Scheduler-only success does not finish this slice. Report counts for the
-observed burst, not a production percentage or latency improvement. Retain the
-reproducible workflow/policy changes with candidate identity and judged evidence
-for later rollout; remove only disposable probe resources after judging.
-
 ### 7. Prove candidate adoption in Pygardon's actual CI
 Type: Behavior
 Status: done
@@ -708,7 +681,7 @@ Disposition: proved by slice 5: src/skills/dough-execute-plan/scripts/ci-integra
 ### G4. Docs-only tip applicability not proved against real provider facts
 Reported: slice 3 — "the docs/planning applicability range (source B with a docs-only C) and real provider facts"
 Story clause: "Validation of a selected snapshot must include the unchecked changes incorporated since the relevant validated baseline."
-Disposition: receiving slice 6
+Disposition: owner changed "This story completes with the shared runtime, its GitHub-shaped and custom-CI proofs, and Pygardon's isolated adoption proof."
 
 ### G5. Listing-error withdrawal untested on the GitHub default
 Reported: slice 4 — "The listing-error withdrawal now also applies to the GitHub default; no GitHub test covers that path."
@@ -718,9 +691,15 @@ Disposition: proved by slice 5: closure-story-integrated-state-cases.mjs "a GitH
 ### G6. Observed remote inferred from checkout configuration
 Reported: slice 5 — "A checkout with several remotes, no branch.<target>.remote, and no remote URL ending in owner/repo gets no fetch and stays ancestry_unknown."
 Story clause: "C need not belong to the same writer, but B's publication and ownership remain that coordinator's."
-Disposition: interim until slices 6
+Disposition: owner changed "This story completes with the shared runtime, its GitHub-shaped and custom-CI proofs, and Pygardon's isolated adoption proof."
 
 ## Current decisions and boundedness review
+
+Slice 6 (Donut adoption) was removed. On 2026-10-15 Terry split this slice into
+[Prove coalesced CI validation in Donut's actual workflow](../../seeds/SEED-008-worktree-branch-trunk-sync.md#donut-coalesced-ci-adoption)
+(SEED-008#donut-coalesced-ci-adoption), queued first. This story no longer owns
+it. Slice 1's probe evidence and the shared runtime proof carry over to that
+story.
 
 Seven Behavior slices each own one observable proof loop. The two early provider
 probes isolate credentialed/owner-held uncertainty. Slices 3–4 make integrated

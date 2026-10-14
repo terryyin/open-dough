@@ -218,6 +218,11 @@ by this story's completion. Use the complete candidate payload in disposable
 proof installations through existing delivery fixtures, not hand-edited managed
 files or a candidate presented as a released version.
 
+On 2026-10-15 Terry split Donut's isolated adoption proof into the follow-up
+story [Prove coalesced CI validation in Donut's actual workflow](#donut-coalesced-ci-adoption),
+queued first. This story completes with the shared runtime, its GitHub-shaped
+and custom-CI proofs, and Pygardon's isolated adoption proof.
+
 Deferred promises: broader code-review reform, general affected-test selection,
 tree-equivalence caching, force-push policy, delayed integration, release-version
 work, normal installed rollout in Donut/Pygardon and automatic migration of other
@@ -354,6 +359,59 @@ This follows Accepted [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accept
 [AGENTS.md](../../AGENTS.md) when authoring guidance. ADR index and record statuses
 agree; ADRs 0007/0008/0009 remain Proposed. This design changes no integration
 mode or Accepted decision and needs no ADR proposal or exception.
+
+<a id="donut-coalesced-ci-adoption"></a>
+
+### Prove coalesced CI validation in Donut's actual workflow
+
+**Identity:** SEED-008#donut-coalesced-ci-adoption
+
+**For / why:** Donut's developers get fewer expensive full-validation runs during
+continuous publication, and their Open Dough completion reports truthfully which
+accepted revision was published and which snapshot was validated. Split from
+[Coalesce CI validation with truthful completion evidence](#coalesced-ci-validation)
+on 2026-10-15, after that story delivered the shared runtime and Pygardon's
+isolated adoption.
+
+**Goal:** Prove candidate adoption of integrated-state completion in Donut's
+actual GitHub Actions workflow in an authorized isolated proof. Do not claim a
+normal installed rollout.
+
+#### Scope
+
+- Add a workflow/ref concurrency group with active runs retained to Donut's
+  `ci.yml`, and declare `integratedStateCompletion` in Donut's
+  `.planning/open-dough.json`. Keep the change reproducible on an unpushed Donut
+  branch for the separately authorized release and rollout.
+- On disposable proof refs, run the actual workflow and its covered commands:
+  A and C run, waiting B does not, and later arrivals still let feedback finish.
+  Feed the actual provider evidence through Open Dough's installed completion,
+  execution and wrap-up consumers in both delivery modes. Count covered-command
+  starts for the observed burst. Do not report a production percentage.
+- Keep workflow exclusions, every required job and shard, artifact provenance
+  and deployment admission. A C push excluded by docs/planning filters cannot
+  silently cancel an admitted required B check. Do not group distinct targets or
+  deployment obligations into one waiting slot.
+- Inspect release-admission artifact and run identity while an exact artifact
+  obligation is unsatisfied. Run no deployment, push nothing to main and push no
+  tag.
+- Execution must obtain Terry's authority for the proof refs. Donut's full CI
+  uses repository secrets, including the OpenAI token, the Discord webhook and
+  DockerHub.
+
+Carried obligations from the split story:
+
+- Real provider facts for a docs-only tip must not lose B's unchecked source
+  (story clause: "Validation of a selected snapshot must include the unchecked
+  changes incorporated since the relevant validated baseline.").
+- In a real Donut checkout, the observer must identify the target's remote, so
+  that another writer's validated C can prove ancestry without a manual fetch.
+
+The split story's plan, `.planning/slice-plans/307-coalesced-ci-validation/PLAN.md`,
+records the Donut queue probe (GitHub kept the active run and replaced the
+single waiting run; B and D were cancelled with no jobs) and the shared
+runtime's accepted proof. After that story's wrap-up, the plan stays
+recoverable from Git. Reuse these results; do not repeat them.
 
 ## Architectural Context
 
