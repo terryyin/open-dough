@@ -20,7 +20,20 @@ if (failed === 'true') process.exit(1);
 console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: policy.unit, configuration: policy.configuration, context: policy.context })}}));
 `,
   );
+  const coveredCommand = (sha, failed = false) => [
+    process.execPath,
+    covered,
+    sha,
+    String(failed),
+  ];
+  const targetOnlyCommand = (sha, failed = false) => [
+    process.execPath,
+    "-e",
+    `require('node:fs').appendFileSync(${JSON.stringify(executions)}, ${JSON.stringify(`${JSON.stringify({ sha, kind: "target-only" })}\n`)});process.exit(${failed ? 1 : 0})`,
+  ];
   return {
+    coveredCommand,
+    targetOnlyCommand,
     count(sha, kind = "covered") {
       if (!existsSync(executions)) return 0;
       return readFileSync(executions, "utf8")
@@ -30,19 +43,15 @@ console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: p
         .filter((entry) => entry.sha === sha && entry.kind === kind).length;
     },
     async runCovered(sha, failed = false) {
-      const result = await exec(
-        process.execPath,
-        [covered, sha, String(failed)],
-        { cwd: fixture.execution },
-      ).catch((error) => error);
+      const [command, ...args] = coveredCommand(sha, failed);
+      const result = await exec(command, args, {
+        cwd: fixture.execution,
+      }).catch((error) => error);
       return { success: !(result instanceof Error), log: result.stdout };
     },
     async runTargetOnly(sha, failed = false) {
-      const entry = `${JSON.stringify({ sha, kind: "target-only" })}\n`;
-      const result = await exec(process.execPath, [
-        "-e",
-        `require('node:fs').appendFileSync(${JSON.stringify(executions)}, ${JSON.stringify(entry)});process.exit(${failed ? 1 : 0})`,
-      ]).catch((error) => error);
+      const [command, ...args] = targetOnlyCommand(sha, failed);
+      const result = await exec(command, args).catch((error) => error);
       return !(result instanceof Error);
     },
   };

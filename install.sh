@@ -116,8 +116,7 @@ managed_files=(
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
-  dough-execute-plan/manuals/custom-ci.md
-  dough-execute-plan/manuals/reuse-ci.md
+  dough-execute-plan/manuals/custom-ci.md dough-execute-plan/manuals/custom-reuse-ci.md dough-execute-plan/manuals/reuse-ci.md
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-background-handoff.md
@@ -159,6 +158,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-github-actions.mjs
   dough-execute-plan/scripts/ci-reuse-policy.mjs dough-execute-plan/scripts/ci-reuse-gate.mjs
   dough-execute-plan/scripts/ci-reuse-github.mjs dough-execute-plan/scripts/ci-reuse-github-command.mjs
+  dough-execute-plan/scripts/ci-reuse-custom-example.mjs
   dough-execute-plan/scripts/ci-github-diagnostic.mjs
   dough-execute-plan/scripts/ci-host-bridge.mjs dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs dough-execute-plan/scripts/ci-mailbox-change-watch.mjs

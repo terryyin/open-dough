@@ -136,6 +136,17 @@ decision job summary, alongside the target's own run/attempt/SHA. All other
 required jobs still affect the workflow conclusion. Protect the aggregate as
 required if appropriate; a skipped covered job alone is never success proof.
 
+## Custom provider adoption
+
+The [custom provider adoption manual](custom-reuse-ci.md)
+includes an installed runnable local provider that executes covered commands,
+records direct facts, calls this same gate and creates a distinct aggregate
+target attempt. Translate its journal read to the project's complete authenticated
+source query and its command scheduling to the provider's existing jobs. Keep
+the `ciAdapter` request/response contract unchanged; source provenance belongs
+on the target attempt's URL/report. A project without reuse policy continues
+ordinary CI and needs no additional observer configuration.
+
 ## Publication and completion
 
 Story Branch fast-forward to validated A and eligible exact-A Trunk publication

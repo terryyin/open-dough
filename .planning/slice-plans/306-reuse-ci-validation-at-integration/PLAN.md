@@ -176,7 +176,7 @@ provider translation is the remaining obligation owned by slice 3.
 
 ### 3. Adopt the same reuse contract with custom CI
 Type: Behavior
-Status: planned
+Status: done
 Proof: A runnable non-GitHub provider example executes a check command, records
 direct source validation, conditionally suppresses duplicate execution, emits a
 real target attempt and is consumed through the installed `ciAdapter` route in
@@ -231,4 +231,14 @@ Disposition: proved by slice 2: ci-reuse-policy.test.mjs, ci-reuse-github.test.m
 ### G2. Custom provider adoption after GitHub delivery
 Reported: slice 2 — "Custom-provider adoption remains slice 3."
 Story clause: "This is reusable behavior across supported hosts and project CI providers."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: custom provider/journey and installed-update assertions recorded in CUSTOM-CI-EVIDENCE.md
+
+### G3. Current target evidence after another same-SHA execution
+Reported: slice 3 — "Custom adapter returns older target successes alongside newer pending or failed same-SHA targets."
+Story clause: "Failures of required fresh or target-only work prevent the aggregate target success."
+Disposition: proved by slice 3: pending then failed fresh rerun journey observes current target identity, failure and retained resources; both installed roots observe failed current acquisition (CUSTOM-CI-EVIDENCE.md)
+
+### G4. Serialized example scheduling
+Reported: slice 3 — "The example explicitly supports serialized scheduling, without a concurrent provider framework."
+Story clause: "build a general CI scheduler"
+Disposition: excluded "build a general CI scheduler"

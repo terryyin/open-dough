@@ -4,6 +4,9 @@ Source: [plan 306](PLAN.md), `SEED-008#reuse-ci-validation-at-integration`.
 This companion retains the plan's judged observations and execution context;
 current scope, slice statuses, decisions and story obligations remain in the plan.
 
+[Custom-provider evidence](CUSTOM-CI-EVIDENCE.md) retains slice 3's commands,
+observations, representative guidance review and separate host evidence reuse.
+
 ## Preparation observations and decisive premises
 
 Preparation checkout:
@@ -134,7 +137,11 @@ claim established by successful baseline checks.
 Slice 1: accepted `59f010eb9a429bb05e535dd7df9a466835e9b2a8` on
 `origin/refs/heads/codex/avoid-duplicate-ci-when-main-receives-an-already`,
 suffix base `dc1a7991acd373f93a33824f24ce22da28153e29`; managed delivery reused
-the retained observer. This accepted SHA is the next increment's base.
+the retained observer.
+
+Slice 2: accepted `500802fba6aebf48015f8ee09fa9a10bf6077c92` on that same
+story target, suffix base `59f010eb9a429bb05e535dd7df9a466835e9b2a8`;
+managed delivery reused the same observer. This is the next increment's base.
 
 ## Accepted deterministic proof — slice 2
 

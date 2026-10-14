@@ -190,6 +190,12 @@ it through `node` as in the configuration example. A fixture for the example is:
 }
 ```
 
+## Runnable provider with optional reuse
+
+Follow [custom CI with validation reuse](custom-reuse-ci.md) when this project
+opts into provider-side reuse. Its runnable provider uses the shared gate and
+returns target aggregates through the adapter contract above.
+
 ## Outcomes, coverage, and failures
 
 Delivery registers each successfully pushed SHA independently of discovery.
