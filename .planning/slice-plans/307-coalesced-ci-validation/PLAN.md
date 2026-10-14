@@ -221,7 +221,7 @@ implementation obligations in slices 3–5, not capabilities claimed by preparat
 
 ### 1. Observe Donut queue replacement without starving feedback
 Type: Behavior
-Status: planned
+Status: done
 Proof: Bounded hosted workflow on disposable, explicitly authorized proof refs
 records A active, B pending then replaced by C, A/C completed and B's check never
 started; D/E arrivals while C runs still allow C to finish. Capture exact run,
@@ -242,6 +242,38 @@ by the existing 10-minute completion deadline; do not retry to manufacture green
 Remove only probe-owned refs/resources after judging. Failure to finish active
 feedback or establish replacement/provenance stops dependent slices 3, 5 and 6 and
 requires a revised approach in this plan.
+
+Accepted proof (2026-10-14, Terry authorized orphan probe refs only). An isolated
+`git init` checkout pushed non-force commits A→E to
+`nerds-odd-e/doughnut` `refs/heads/dough-probe/coalesce-20261014205557`. Each
+commit contained only `.github/workflows/dough-coalesce-probe.yml`
+(`push` on `dough-probe/coalesce-*`; `concurrency.group:
+${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: false`; one
+`ubuntu-latest` job echoing `COUNTED_COMMAND_START/FINISH sha=$GITHUB_SHA`
+around `sleep 90`) plus `snapshot.txt`. Donut's own workflows were absent, so
+none ran. The judged results come from `gh run list -b <ref>`, the
+`actions/runs/<id>/jobs` API, and full-SHA `COUNTED_COMMAND_*` lines counted from
+`gh run view <id> --log`:
+
+| Push (UTC) | SHA | Run, attempt | Observed | Counted starts/finishes |
+| --- | --- | --- | --- | --- |
+| A 11:56:15 | `4062c496` | 38560123751 a1 | in_progress 11:56:23 → success 11:57:56 | 1/1 |
+| B 11:56:25 | `9d8afa82` | 38560143963 a1 | pending, then cancelled 11:56:43 after C was pushed while A was still running; no jobs | 0/0 |
+| C 11:56:37 | `0f087008` | 38560167202 a1 | pending, started 11:57:58 after A; success 11:59:31 | 1/1 |
+| D 11:58:02 | `9841d657` | 38560331640 a1 | pending while C ran, then cancelled once E arrived; no jobs | 0/0 |
+| E 11:58:14 | `93dc4edd` | 38560354116 a1 | started 11:59:33 after C; success 12:01:06 | 1/1 |
+
+GitHub kept the active run and replaced the single waiting run. Arrivals during
+C's run (D, E) did not interrupt C. Replaced runs have no check runs or
+annotations, so the only cancellation explanation is the observed
+pending → cancelled timing at the next arrival. The run conclusion is just
+`cancelled`, which is indistinguishable from other cancellations; treat it as
+`CI_INCOMPLETE` supersession and never as success. Each run reports its own `headSha`, `headBranch`,
+`databaseId` and `attempt`, which is the provenance slices 3/6 need. The probe
+ref was deleted (`git ls-remote ... 'refs/heads/dough-probe/*'` returned none);
+the five completed runs remain in Donut's Actions history as inspectable
+evidence. Not observed: reruns, multi-job workflows, and `paths-ignore`
+admission (slice 6 owns those).
 
 ### 2. Observe Pygardon's selected snapshot and evidence provenance
 Type: Behavior
