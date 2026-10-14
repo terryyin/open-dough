@@ -14,6 +14,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Coalesce CI validation with truthful completion evidence](seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation) — SEED-008#coalesced-ci-validation ([plan](slice-plans/307-coalesced-ci-validation/PLAN.md))
+
 ## Backlog list
 
-- [Coalesce CI validation with truthful completion evidence](seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation) — SEED-008#coalesced-ci-validation
