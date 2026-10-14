@@ -6,8 +6,8 @@
 ## Source and provenance
 
 This is a bounded retrospective correction of the completed execution of
-[SEED-008#coalesced-ci-validation](../../seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation).
-Its plan is [307](../307-coalesced-ci-validation/PLAN.md), and its accepted
+SEED-008#coalesced-ci-validation (`165482a2:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation`).
+Its plan is 307 (`165482a2:.planning/slice-plans/307-coalesced-ci-validation/PLAN.md`), and its accepted
 proof is in slices 3, 4, 5 and 7. The reviewed published commits are
 `7bd4cfbd`, `4878acba`, `d1eda2ce`, `d4913f71`, `f1582623`, `d429430a`,
 `1ef1339e` and `c98d2d22`. This plan does not reopen that story's sections or

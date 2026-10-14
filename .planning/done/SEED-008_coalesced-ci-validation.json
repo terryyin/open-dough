@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-008#coalesced-ci-validation",
+  "title": "Coalesce CI validation with truthful completion evidence",
+  "completedAt": "2026-10-14T22:23:11.243Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "claude",
+  "model": "opus"
+}

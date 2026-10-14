@@ -133,233 +133,6 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
-<a id="coalesced-ci-validation"></a>
-
-### Coalesce CI validation with truthful completion evidence
-
-**Identity:** SEED-008#coalesced-ci-validation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/307-coalesced-ci-validation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3c393c63d1741bd705e90ac83c3c8d13541a917ccd52ef3a42985f68a62d2370","plan":"e04b031bfabf03b758f4c2eae53101f0f24d0bd90dce24f8c9161c7c352e635a"}}
-```
-
-**For / why:** Developers and agents using Open Dough in rapidly changing
-repositories get trustworthy integration feedback with fewer expensive CI
-executions and avoid waiting for intermediate revisions the provider will never
-check. Demonstrate the outcome with Donut's GitHub Actions and Pygardon's
-self-built CI.
-
-**Goal:** Preserve small, continuously published increments while coalescing
-expensive validation onto selected repository snapshots. Execution and wrap-up
-report which accepted revision was published, which snapshot was validated, and
-what that evidence proves, without inventing a passing result for an unchecked
-historical revision or weakening failure and resource-cleanup gates.
-
-**Origin and priority:** Terry's 2026-10-14 discussion of Anthropic's
-[source-control article](https://www.anthropic.com/engineering/redesigning-source-control)
-and the observed CI load in Donut and Pygardon, followed by the explicit request
-to queue this story next after exact-commit validation reuse
-(`SEED-008#reuse-ci-validation-at-integration`). That work completed on remote
-main while this story was being recorded; coalesced validation remains next in
-the queue. Queue order alone establishes no blocking implementation dependency.
-
-#### Scope
-
-Deliver one shared contract for provider-owned coalescing and truthful completion,
-with candidate adoption proved in authorized isolated copies of Donut and
-Pygardon, through execution and wrap-up in Story Branch Mode and Trunk Mode.
-Publication remains continuous. Preserve active validation; replace only waiting
-snapshots within the provider's existing
-admission and fairness rules. Continued arrivals must not postpone every verdict.
-
-Projects explicitly opt in to integrated-state completion for identified checks
-and contexts. Without that policy, exact-revision completion remains unchanged.
-For a coordinator's accepted and registered B, a successful selected descendant C
-can establish only that the integrated state at C was validated, with inspectable
-repository/target, accepted B, validated C, run/attempt, policy/check/context and
-ancestry evidence. C need not belong to the same writer, but B's publication and
-ownership remain that coordinator's. Do not manufacture an attempt or historical
-passing result for B, or infer coverage from a moving tip, timestamp or opaque ID.
-
-Completion requires current, usable evidence for every applicable obligation.
-Pending, failed, cancelled, unrelated, stale or context-incompatible descendant
-evidence supplies no success. Proven queue replacement explains why B has no run;
-it is not a passing verdict. Known failures and incomplete evidence stay
-actionable until an evidenced disposition resolves them; a later green result
-alone does not erase an earlier failure or transfer repair ownership.
-
-Current evidence is scoped to the selected snapshot and its check/context, not
-to the newest published tip. Once eligible C passes, newer D/E awaiting validation
-do not by themselves invalidate C's evidence for incorporated B. A newer pending
-or failed attempt of C's same check does invalidate its earlier green as current
-evidence. This distinction is necessary for completed feedback during continuous
-publication; it adds no guarantee that the latest branch tip has passed.
-
-Validation of a selected snapshot must include the unchecked changes incorporated
-since the relevant validated baseline. Preserve docs/planning exclusions and
-applicable-ancestor evidence. No affected-test selector is required: full-snapshot
-validation satisfies this obligation. If selection is used, C's last commit alone
-is insufficient when B contributed unchecked source changes.
-
-Release, deployment and other exact-revision or target-only obligations remain
-bound to their actual selected artifact and required validation. Integrated-state
-evidence cannot waive those obligations, publication acceptance, observer shutdown
-or safe retirement. Deliver runtime guidance and its necessary payload changes
-under existing shared owners; add neither a Dough scheduler nor another completion
-ledger. This preparation authorizes no implementation, project migration or live
-CI experiment; execution must establish the authority for each project's changes
-and disposable provider experiments.
-
-Terry confirmed on 2026-10-14 that adoption completes at isolated candidate
-proof using both projects' actual workflow, adapter and completion consumers.
-Retain reproducible project changes and the candidate runtime identity; a
-scheduler-only demonstration is insufficient. Normal installed rollout in Donut
-and Pygardon follows a separately authorized tagged release and is not claimed
-by this story's completion. Use the complete candidate payload in disposable
-proof installations through existing delivery fixtures, not hand-edited managed
-files or a candidate presented as a released version.
-
-On 2026-10-15 Terry split Donut's isolated adoption proof into the follow-up
-story [Prove coalesced CI validation in Donut's actual workflow](#donut-coalesced-ci-adoption),
-queued first. This story completes with the shared runtime, its GitHub-shaped
-and custom-CI proofs, and Pygardon's isolated adoption proof.
-
-Deferred promises: broader code-review reform, general affected-test selection,
-tree-equivalence caching, force-push policy, delayed integration, release-version
-work, normal installed rollout in Donut/Pygardon and automatic migration of other
-projects. These are not new rejection rules for naturally supported cases.
-
-#### Key examples
-
-1. **Waiting replacement with completed feedback.** A is actively validating;
-   eligible B then C enter the same target's waiting slot → the provider finishes
-   A and validates C, without executing B's expensive checks. D/E arriving during
-   C replace waiting work without cancelling C. Completed feedback continues;
-   other admitted branches retain the provider's established turns.
-2. **Truthful completion for incorporated work.** Writer 1 published and
-   registered B; writer 2 published descendant C on the same authorized target;
-   declared policy permits the same checks/context and C's current attempt passes
-   → writer 1's completion reports B published and integrated state C validated,
-   with ancestry and attempt evidence. It never reports that B itself passed.
-   With no policy, it still requires B's applicable exact-revision evidence.
-3. **Unresolved evidence stays unresolved.** B was replaced in the queue; C is
-   pending, cancelled, failed, on another target, context-incompatible, or has
-   unknown ancestry → completion stays pending or returns the existing bounded
-   unresolved/failure outcome. A prior green cannot hide a current pending/failed
-   rerun. An unread failure or unconfirmed shutdown prevents applicable cleanup.
-   Conversely, C's current attempt is green and newer D is merely waiting → B
-   can complete against C under the declared policy. D's pending state is not a
-   rerun of C. Any known failure still retains its existing disposition gate.
-4. **Unchecked source survives a docs-only tip.** A is the validated baseline;
-   B changes source; descendant C changes only docs → any C validation/selection
-   accounts for the source since A. If Donut's trigger ignores C's push, C is not
-   an eligible replacement; the admitted B check remains required. A genuinely
-   ignored-only chain retains its existing applicable-ancestor evidence.
-5. **Artifact obligations stay separate.** B's integrated-state checks are
-   evidenced at C, but a release selects B's artifact or a required target-only
-   check is missing/failed → the integrated-state receipt does not certify that
-   artifact, release or deployment. Required resources stay until the actual
-   obligation and shutdown gates are satisfied.
-
-#### Explored direction and borrowed mechanism
-
-| Candidate | Same-goal comparison |
-| --- | --- |
-| Keep exact-commit reuse alone | Simplest existing behavior; saves duplicate validation at the same SHA, but does not resolve a coalesced-away B or suppress distinct B/C snapshots. |
-| Cancel active work or debounce until publications stop | Can save work, but sustained arrivals can prevent a completed verdict; violates the active-finish and feedback examples. |
-| Provider waiting-slot replacement plus an explicit validation position | Recommended: native scheduling avoids redundant pending work; the existing observer interprets evidence without relabelling B or creating a scheduler. |
-| Add a central Dough scheduler and completion store | Duplicates provider and observer responsibilities and conflicts with this story's shared-owner boundary; do not pursue this path. |
-
-The third candidate borrows a materialized view's applied position: accepted
-commits correspond to durable inputs, the selected CI snapshot to the materialized
-state, and validated C to the view's observed position. Each consumer keeps its
-own accepted B and can ask whether a validated state incorporates it. Adapt the
-position to Git ancestry plus explicit target/check/context evidence, not a
-numeric high-water mark. The limit is consequential: Git is a graph, commits can
-revert earlier changes, and a descendant passing does not prove B's old tree
-passed or settle a known failure. The analogy motivates a candidate, not proof.
-
-#### Investigation and evaluation
-
-Observed on 2026-10-14 after exact-commit reuse landed:
-
-- Donut checkout `6b679854235f9fc6913e46f52bb675f2c2a815c5` still has
-  docs/planning exclusions and no CI concurrency group in
-  `.github/workflows/ci.yml`. Its deployment workflow downloads artifacts using
-  the admitted CI run ID. The
-  [GitHub concurrency contract](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency)
-  documents one running/one pending group by default, pending replacement, and
-  separate active cancellation. Queue order is not a promise of Git push order.
-- Pygardon checkout `6cc3d202b9f2d9402fc3ad03bd162eabc9cfb26a` has branch-keyed
-  `PendingRevisionQueue` replacement preserving insertion order and a `CiSession`
-  owner. Its real adapter `--check-target terryyin/pygardon main` passed. A local
-  HTTP probe through the actual adapter and Dough normalization observed an
-  attempt supplied for `feature/other` attributed to requested `main`: discovery
-  omits branch evidence. Adoption must expose/filter authoritative target facts;
-  current all-branch discovery cannot establish descendant target coverage.
-- The landed `ci-reuse-policy.mjs` authorizes only exact-SHA reuse at scheduling.
-  Existing Story/Trunk/custom publication-to-completion and shutdown cases pass.
-  A disposable local Git/coverage probe proved B is C's ancestor, supplied only
-  C's successful attempt, and observed B remain `undiscovered` and its bounded
-  applicable wait time out. A new integrated-state evidence path is necessary;
-  `not_required` still means ignored paths, not queue supersession.
-
-Unsettled premises are provider execution and complete provenance under real
-A/B/C arrivals, and savings through the actual consuming journeys. Cheap local
-observations establish neither. Bound the remaining hosted/owner-held
-observations as early executable probes; stop dependent work if the provider
-cannot retain required target, context, attempt or ancestry facts. No measured
-production savings or coalesced completion is claimed by this refinement.
-
-Evaluation follows both real providers from publication/admission through actual
-check invocation, observation, completion and applicable retirement. Count
-expensive executions and inspect skipped waiting work, completed feedback during
-continued arrivals, and accepted/validated SHAs with provenance. Extend actual
-mode-specific execution and wrap-up consumers; scheduler-only proof, shorter
-waits and synthetic successes cannot satisfy the story. Use bounded inert
-experiments first, and the selected projects' real consuming paths for adoption.
-
-Second-pass review retained the provider-owned direction and the materialized-view
-analogy. Two findings shape the revised plan: descendant evidence must remain
-available independently of completed-notification pruning, and the existing
-background handoff/waiter consumes `recordedVerdict` alongside synchronous
-completion. The plan records the observed consumer proof and gives those
-lifecycles explicit ownership. Newer waiting tips and newer attempts of selected
-C have different effects, as example 3 states. No additional scheduler, ledger,
-selector or host lifecycle is needed.
-
-#### Architecture
-
-Keep four meanings separate within their existing owners: accepted publication,
-provider selection, actual snapshot validation, and Dough completion. Extend
-existing coverage/completion evidence with the explicit integrated-state basis;
-do not change the meaning of an exact success or an ignored-only ancestor. Keep
-exact-commit reuse in its scheduling gate. Acquire provider provenance once and
-preserve it through adapters/normalization, rather than inferring it from the
-requested target. Ancestry proves incorporation into history, not ownership or
-historical test success. Missing evidence remains unknown.
-
-Keep candidate discovery distinct from the notification stream and carry one
-effective-evidence rule through synchronous waits, recorded verdicts and their
-background callers. Preserve existing exact-revision retention semantics; do not
-automatically give the new descendant evidence the same sticky terminal status.
-An inspectable historical observation and a claim of current usable evidence
-are different facts. Use the executing project's existing configuration home
-for the demonstrated opt-in, following Accepted
-[ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md);
-do not add a separate policy store or hand-edit installed managed content.
-
-This follows Accepted [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md)
-(aligned domain meaning), [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-(continuous integration and one representation),
-[ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-(source/payload lifecycle), [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-(proof at consuming boundaries), and
-[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-(one shared rule written for the executing project). Follow
-[AGENTS.md](../../AGENTS.md) when authoring guidance. ADR index and record statuses
-agree; ADRs 0007/0008/0009 remain Proposed. This design changes no integration
-mode or Accepted decision and needs no ADR proposal or exception.
-
 <a id="donut-coalesced-ci-adoption"></a>
 
 ### Prove coalesced CI validation in Donut's actual workflow
@@ -369,8 +142,8 @@ mode or Accepted decision and needs no ADR proposal or exception.
 **For / why:** Donut's developers get fewer expensive full-validation runs during
 continuous publication, and their Open Dough completion reports truthfully which
 accepted revision was published and which snapshot was validated. Split from
-[Coalesce CI validation with truthful completion evidence](#coalesced-ci-validation)
-on 2026-10-15, after that story delivered the shared runtime and Pygardon's
+Coalesce CI validation with truthful completion evidence
+(SEED-008#coalesced-ci-validation, recoverable at `165482a2:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation`) on 2026-10-15, after that story delivered the shared runtime and Pygardon's
 isolated adoption.
 
 **Goal:** Prove candidate adoption of integrated-state completion in Donut's
@@ -407,11 +180,10 @@ Carried obligations from the split story:
 - In a real Donut checkout, the observer must identify the target's remote, so
   that another writer's validated C can prove ancestry without a manual fetch.
 
-The split story's plan, `.planning/slice-plans/307-coalesced-ci-validation/PLAN.md`,
+The split story's plan, `165482a2:.planning/slice-plans/307-coalesced-ci-validation/PLAN.md`,
 records the Donut queue probe (GitHub kept the active run and replaced the
 single waiting run; B and D were cancelled with no jobs) and the shared
-runtime's accepted proof. After that story's wrap-up, the plan stays
-recoverable from Git. Reuse these results; do not repeat them.
+runtime's accepted proof. Reuse these results; do not repeat them.
 
 <a id="integrated-state-correction"></a>
 
@@ -420,8 +192,8 @@ recoverable from Git. Reuse these results; do not repeat them.
 **Identity:** SEED-008#integrated-state-correction
 
 **Goal:** Coordinators using declared integrated-state completion get the
-completion that [Coalesce CI validation with truthful completion evidence](#coalesced-ci-validation)
-already promises, including when GitHub replaced the run their ignored-only
+completion that Coalesce CI validation with truthful completion evidence
+(SEED-008#coalesced-ci-validation, recoverable at `165482a2:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation`) already promises, including when GitHub replaced the run their ignored-only
 revision depends on. Stopping an observer is not held up by a candidate fetch.
 Maintainers get proof of the rule at its domain contract, with fewer spawned
 observer journeys.

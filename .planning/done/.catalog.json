@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-008_coalesced-ci-validation.json",
+      "identity": "SEED-008#coalesced-ci-validation",
+      "completedAt": "2026-10-14T22:23:11.243Z",
+      "blob": "a9891af1f74d818fe2c341dfc74c7d3f7e4d0c04"
+    },
+    {
       "fileName": "SEED-008_reuse-ci-validation-at-integration.json",
       "identity": "SEED-008#reuse-ci-validation-at-integration",
       "completedAt": "2026-10-14T04:11:57.317Z",
