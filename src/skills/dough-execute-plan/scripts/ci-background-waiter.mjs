@@ -99,7 +99,14 @@ async function waitOnMailbox(directory, owner) {
         checkMailboxWorkerLiveness(readWorkerIdentity(directory), directory) !==
           "alive"
       ) {
-        settle("observation_unavailable", { ci: "unobserved" });
+        // A stop is recorded before the worker can end, so an ending that
+        // follows a stop is that stop, not lost observation.
+        settle(
+          backgroundCancellationRequested(directory)
+            ? "cancelled"
+            : "observation_unavailable",
+          { ci: "unobserved" },
+        );
         return;
       }
       // File changes deliver events promptly. The bounded fallback detects a
