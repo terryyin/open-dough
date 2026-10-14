@@ -419,7 +419,7 @@ evidence from C`; restoring it passed.
 
 ### 4. Consume the same evidence rule from custom CI
 Type: Behavior
-Status: planned
+Status: done
 Proof: Actual custom command adapter acquisition and normalization → coverage →
 installed complete-revision uses slice 3's rule. A counted provider command
 validates C; B gets no fabricated attempt. Cross-target, unavailable and
@@ -446,6 +446,36 @@ Extend custom-CI guidance, its runnable example where needed, and complete
 payload fixtures in this usable slice; run the affected full focused suites and
 installed payload/update checks. Slice 5 supplies the mode/closure and background
 consumer proof, and slice 7 supplies the actual Pygardon candidate adoption.
+
+Accepted proof (2026-10-14). Custom discover attempts may carry the optional
+strings `branch`, `check` and `context`, listed newest first. The behaviour is
+documented in `manuals/custom-ci.md` and `references/runtime-setup.md`.
+`ci-command-attempts.mjs` (`targetCommandAttempts`) drops other-branch attempts.
+A branchless attempt keeps the legacy exact behaviour, but its current facts carry
+no branch, so the rule refuses it as `different_target`. Time supersession is per
+(SHA, check, context). `currentCommandAttempt` treats an equal, later or missing
+competing time as `attempt_changed`. The command adapter's `readCurrentAttempt`
+reads only its own poll's discovery and feeds slice 3's `integratedStateJudge`
+unchanged. `jobs` gives `missing_check` for command adapters. A policy listing
+error now withdraws recorded integrated judgements to
+`candidate_lookup_unavailable` (`withdrawIntegratedState`), for any provider.
+`PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/ci-integrated-state-custom.test.mjs src/skills/dough-execute-plan/scripts/ci-command-attempts.test.mjs`
+passed. It runs real publications and the installed example adapter with
+counted commands through the installed `complete-revision`:
+- C green, E pending and C outside startup gives an `integrated_state` receipt
+  with `count(B) = 0` and `count(C) = 1`;
+- another branch's newer green gives `no_candidate`;
+- C's rerun, pending and then failed, contradicts;
+- unavailable discovery withdraws a retained green, leaving
+  `observation_unavailable` and no verdict;
+- a legacy adapter with no policy completes exactly on B's own green;
+- a policy over a legacy adapter gives `different_target`.
+
+Mutations: removing `readCurrentAttempt` failed the positive journey, and
+restoring relabelling let feature F certify B; both were restored. After the
+refactor, which extracted `ci-integrated-state-policy.mjs` and
+`ci-mailbox-revision-records.mjs` and declared both in `install.sh`, the 116
+ci/watch/increment/closure test files and the payload/install shell tests passed.
 
 ### 5. Carry integrated evidence through execution and closure lifecycles
 Type: Behavior
@@ -545,7 +575,7 @@ project's isolated adoption proof missing or claim normal rollout occurred.
 ### G1. Custom command adapters leave policy revisions unresolved
 Reported: slice 3 — "A configured command adapter does not yet supply the current-attempt facts this needs, so with one the declaration leaves such revisions unresolved."
 Story clause: "Demonstrate the outcome with Donut's GitHub Actions and Pygardon's self-built CI."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: src/skills/dough-execute-plan/scripts/ci-integrated-state-custom.test.mjs "declared policy: custom C green with E pending completes accepted B as validated C outside the startup stream"
 
 ### G2. Lifecycle consumers lack integrated-state cases
 Reported: slice 3 — "no integrated-state case runs through the background handoff/waiter, closure or managed-delivery lifecycles"
@@ -561,6 +591,11 @@ Disposition: receiving slice 5
 Reported: slice 3 — "the docs/planning applicability range (source B with a docs-only C) and real provider facts"
 Story clause: "Validation of a selected snapshot must include the unchecked changes incorporated since the relevant validated baseline."
 Disposition: receiving slice 6
+
+### G5. Listing-error withdrawal untested on the GitHub default
+Reported: slice 4 — "The listing-error withdrawal now also applies to the GitHub default; no GitHub test covers that path."
+Story clause: "Known failures and incomplete evidence stay actionable until an evidenced disposition resolves them"
+Disposition: receiving slice 5
 
 ## Current decisions and boundedness review
 

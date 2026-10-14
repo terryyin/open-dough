@@ -170,6 +170,19 @@ export function scheduleCustomAttempt(mode, statePath, job) {
   return { attempt, decision };
 }
 
+// Target `entries` as discovered attempts, newest first, each naming its own
+// target branch, check and context.
+export function discoveredAttempts(entries) {
+  return [...entries]
+    .sort((left, right) => right.fact.order - left.fact.order)
+    .map(({ attempt, branch, workflow, fact }) => ({
+      ...attempt,
+      branch,
+      check: workflow,
+      context: fact.event,
+    }));
+}
+
 export function customAdapterResponse(statePath, request) {
   const state = journal(statePath);
   if (!state.readable) throw Error("provider journal unreadable");
@@ -194,7 +207,7 @@ export function customAdapterResponse(statePath, request) {
       if (!previous || entry.fact.order > previous.fact.order)
         current.set(entry.attempt.sha, entry);
     }
-    return { attempts: [...current.values()].map((entry) => entry.attempt) };
+    return { attempts: discoveredAttempts(current.values()) };
   }
   if (request.operation !== "diagnose") throw Error("unsupported operation");
   const entry = entries.find(

@@ -39,7 +39,10 @@ To try it in this project:
 4. Set `ciAdapter` in `.planning/open-dough.json` as shown below, using the
    [existing command contract](custom-ci.md#request-and-response-contract).
    Discovery filters the
-   requested repository and branch and returns genuine aggregate target attempts.
+   requested repository and branch and returns genuine aggregate target attempts,
+   newest first, each naming its `branch`, its workflow as `check` and its event
+   as `context` (for example `{"check": "project-checks", "context": "push"}`
+   under `integratedStateCompletion`).
    Source-only records are excluded even when their ref is the requested target.
    It returns no source facts in extra protocol fields.
 

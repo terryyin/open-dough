@@ -4,14 +4,10 @@
 // descendant C (Git ancestry B → C) validates the integrated state at C; it is
 // recorded beside B's own exact state, never as a result of B. Every poll
 // judges it afresh: nothing here is retained once contradicted or unreadable.
+// The policy comes from ci-integrated-state-policy.mjs.
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { GitHubAcquisitionHeld } from "./ci-github-actions.mjs";
 import { isFullGitRevision } from "./ci-revisions.mjs";
-
-const configurationPath = ".planning/open-dough.json";
-const integratedStatePolicyKey = "integratedStateCompletion";
 
 // B's own exact states this evidence may complete: no attempt of B was
 // observed, or B's attempt was cancelled (for example, replaced while
@@ -22,30 +18,6 @@ const integratedEligibleStates = new Set(["undiscovered", "incomplete"]);
 const verificationBound = 3;
 const consideredBound = 5;
 const ancestryBasis = "git merge-base --is-ancestor";
-
-const nonemptyString = (value) => typeof value === "string" && value.length > 0;
-
-// The declared policy, or undefined when the project declares none (exact
-// completion). Read once when the observer starts.
-export function readIntegratedStatePolicy(root = process.cwd()) {
-  const path = join(root, configurationPath);
-  if (!existsSync(path)) return;
-  const policy = JSON.parse(readFileSync(path, "utf8"))[
-    integratedStatePolicyKey
-  ];
-  if (policy === undefined) return;
-  const { check, context, jobs } = policy ?? {};
-  if (
-    !nonemptyString(check) ||
-    !nonemptyString(context) ||
-    (jobs !== undefined &&
-      !(Array.isArray(jobs) && jobs.length && jobs.every(nonemptyString)))
-  )
-    throw new Error(
-      `${integratedStatePolicyKey} must be {"check": STRING, "context": STRING} with optional nonempty "jobs" string array`,
-    );
-  return { check, context, ...(jobs ? { jobs: [...jobs] } : {}) };
-}
 
 // "ancestor", "not_ancestor", or "unknown" when the local repository cannot
 // answer (for example, the descendant was never fetched).
@@ -112,12 +84,27 @@ function validatedFacts(sha, current, policy) {
   };
 }
 
+const failureDetail = (error) => String(error).slice(0, 300);
+
 // A directed wait, or the end of observation, is no evidence: it ends this
 // judgement without recording one.
 const lookupFailure = (error, signal) => {
   if (error instanceof GitHubAcquisitionHeld || signal?.aborted) throw error;
-  return String(error).slice(0, 300);
+  return failureDetail(error);
 };
+
+const unresolvedIntegratedState = (policy, reason, extra = {}) => ({
+  state: "unresolved",
+  policy,
+  reason,
+  ...extra,
+});
+
+// No candidate listing under `policy`: no current evidence either way.
+export const candidateLookupUnavailable = (policy, error) =>
+  unresolvedIntegratedState(policy, "candidate_lookup_unavailable", {
+    detail: failureDetail(error),
+  });
 
 // One poll's judge: a revision's record with `integrated` replaced, present
 // only under a declared `policy` for an eligible own state. `listCandidates()`
@@ -152,21 +139,15 @@ async function observeIntegratedState({
   reads,
   signal,
 }) {
-  const unresolved = (reason, extra = {}) => ({
-    state: "unresolved",
-    policy,
-    reason,
-    ...extra,
-  });
+  const unresolved = (reason, extra) =>
+    unresolvedIntegratedState(policy, reason, extra);
   if (!readCurrentAttempt || !repoDir)
     return unresolved("current_attempt_unavailable");
   let runs;
   try {
     runs = await listCandidates();
   } catch (error) {
-    return unresolved("candidate_lookup_unavailable", {
-      detail: lookupFailure(error, signal),
-    });
+    return candidateLookupUnavailable(policy, lookupFailure(error, signal));
   }
 
   const bySha = new Map();
@@ -174,6 +155,8 @@ async function observeIntegratedState({
     const sha = run.headSha?.toLowerCase();
     if (!isFullGitRevision(sha) || sha === acceptedSha) continue;
     if (run.headBranch !== branch) continue;
+    // A listing that names its check is a candidate only for the declared one.
+    if (run.check !== undefined && run.check !== policy.check) continue;
     const listed = bySha.get(sha) ?? [];
     const sameListing = (other) =>
       other.databaseId === run.databaseId &&

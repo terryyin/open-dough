@@ -2,7 +2,10 @@
 // an instrumented `gh`: runs listed newest first, each completed attempt with
 // its one `covered` job. Conclusions come only from actually executed covered
 // commands; they never carry a completion verdict.
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
+import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
 
 const runUrl = (id) => `https://github.test/owner/repo/actions/runs/${id}`;
 
@@ -96,5 +99,32 @@ export function integratedStateGithub(t) {
     // How many run listings the observer has asked GitHub for so far.
     listings: () =>
       github.asked().filter((call) => call.includes("/runs?")).length,
+  };
+}
+
+// The integrated-state journey provider (see createIntegratedStateJourney)
+// for the GitHub default: no command adapter, only the declared policy.
+export async function githubProvider(t, fixture, declared) {
+  writeFileSync(
+    join(fixture.execution, ".planning/open-dough.json"),
+    JSON.stringify(declared ? { integratedStateCompletion: declared } : {}),
+  );
+  const github = integratedStateGithub(t);
+  return {
+    env: workerPollingEnvironment({
+      ...github.env,
+      DOUGH_CI_MAILBOX_ROOT: fixture.storage,
+    }),
+    // Each poll lists runs twice: its own runs and the candidate lookup.
+    polls: () => github.listings() / 2,
+    holdRequests: github.holdRequests,
+    releaseRequests: github.releaseRequests,
+    members: {
+      github,
+      recordRun: github.recordRun,
+      observedRuns: github.observedRuns,
+      answer: github.answer,
+      listings: github.listings,
+    },
   };
 }

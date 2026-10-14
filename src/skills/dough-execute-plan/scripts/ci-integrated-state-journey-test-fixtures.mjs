@@ -1,7 +1,8 @@
 // Real publication of accepted B and its descendant C, observed through the
 // installed GitHub default against GitHub-shaped provider facts
-// (ci-integrated-state-github-test-fixtures.mjs) whose conclusions come from
-// actually executed, counted covered commands.
+// (ci-integrated-state-github-test-fixtures.mjs), or through a custom command
+// adapter (ci-integrated-state-custom-test-fixtures.mjs), whose conclusions
+// come from actually executed, counted covered commands.
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,8 +19,7 @@ import {
 } from "./publication-test-fixtures.mjs";
 import { ignoreInstalledSkills } from "./ci-reuse-journey-test-fixtures.mjs";
 import { createReuseCheckCommands } from "./ci-reuse-check-command-test-fixtures.mjs";
-import { integratedStateGithub } from "./ci-integrated-state-github-test-fixtures.mjs";
-import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
+import { githubProvider } from "./ci-integrated-state-github-test-fixtures.mjs";
 import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import {
@@ -30,23 +30,19 @@ import {
 const story = "exec/story";
 export const policy = { check: "ci.yml", context: "push", jobs: ["covered"] };
 
+// `provider(t, fixture, declared)` configures the project's CI source and
+// returns its observer `polls()` so far, any observer `env`, request hold/release around
+// registration, its `repo` when not "owner/repo", and provider-specific
+// journey `members`.
 export async function createIntegratedStateJourney(
   t,
-  { declared = policy } = {},
+  { declared = policy, provider = githubProvider } = {},
 ) {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
   await ignoreInstalledSkills(fixture);
-  // The GitHub default: no command adapter, only the declared policy.
-  writeFileSync(
-    join(fixture.execution, ".planning/open-dough.json"),
-    JSON.stringify(declared ? { integratedStateCompletion: declared } : {}),
-  );
-  const github = integratedStateGithub(t);
-  fixture.env = workerPollingEnvironment({
-    ...github.env,
-    DOUGH_CI_MAILBOX_ROOT: fixture.storage,
-  });
+  const source = await provider(t, fixture, declared);
+  if (source.env) fixture.env = source.env;
   const commands = createReuseCheckCommands(fixture, {
     unit: "covered",
     configuration: "checks-v1",
@@ -102,34 +98,30 @@ export async function createIntegratedStateJourney(
   const coverage = (directory, sha) =>
     readRevisionCoverage(directory).find((revision) => revision.sha === sha);
   const twoMorePolls = async (directory) => {
-    const listed = github.listings();
+    const listed = source.polls();
     await awaitWorkerState(
       directory,
-      () => github.listings() >= listed + 4,
+      () => source.polls() >= listed + 2,
       "two more observer polls",
     );
   };
 
   return {
+    ...source.members,
     fixture,
-    github,
     commands,
     publishIncrement,
     publishFromAnotherWriter,
-    recordRun: github.recordRun,
-    observedRuns: github.observedRuns,
-    answer: github.answer,
-    listings: github.listings,
     // The covered command really runs for `sha` and reports its result.
     runCovered: (sha, failed = false) => commands.runCovered(sha, failed),
     // Starts the installed observer on the authorized target and registers
     // the accepted `sha` before it first asks GitHub anything.
     async observe(sha) {
-      github.holdRequests();
+      source.holdRequests();
       const directory = await fixture.startExecutionMailbox(
         {
           mode: "execution",
-          repo: "owner/repo",
+          repo: source.repo ?? "owner/repo",
           branch: "main",
           root: fixture.execution,
           maxDurationMs: 60_000,
@@ -146,7 +138,7 @@ export async function createIntegratedStateJourney(
         ],
         { cwd: fixture.execution, env: fixture.env },
       );
-      github.releaseRequests();
+      source.releaseRequests();
       return directory;
     },
     coverage,

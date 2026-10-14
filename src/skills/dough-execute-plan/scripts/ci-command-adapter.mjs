@@ -1,7 +1,11 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { normalizeCommandAttempts } from "./ci-command-attempts.mjs";
+import {
+  currentCommandAttempt,
+  latestCommandAttempts,
+  targetCommandAttempts,
+} from "./ci-command-attempts.mjs";
 import { ciAttemptKey } from "./ci-failures.mjs";
 import { createStartupRunFilter } from "./ci-runs.mjs";
 
@@ -26,15 +30,21 @@ export function readCiAdapter(root = process.cwd()) {
   return command;
 }
 
-// Retained attempts remain evidence for registered revisions even when the
-// ordinary notification stream suppresses completed startup history.
+// Retained attempts remain evidence for registered revisions, and candidates
+// for applicable ancestors and integrated state, even when the ordinary
+// notification stream suppresses completed startup history. Integrated-state
+// facts come only from the poll's own discovery: none survive a failed one.
 export function createCommandAcquisition(options) {
   const discover = createCommandDiscovery(options);
   const currentRuns = createStartupRunFilter();
   let retained = [];
+  let polled;
   return {
     acquireRuns: async (signal) => {
-      retained = await discover(signal);
+      polled = undefined;
+      const attempts = await discover(signal);
+      retained = latestCommandAttempts(attempts);
+      polled = attempts;
       const current = currentRuns(retained);
       const registered = new Set(
         ((await options.registeredRevisions?.()) ?? []).map((sha) =>
@@ -50,6 +60,10 @@ export function createCommandAcquisition(options) {
     // Coverage owns workflow-path applicability; candidates retain their real
     // attempt state and never enter the ordinary failure stream by themselves.
     discoverAncestorCandidates: async () => retained,
+    readCurrentAttempt: async (run) => {
+      if (!polled) throw new Error("CI adapter discovery is unavailable");
+      return currentCommandAttempt(polled, run);
+    },
   };
 }
 
@@ -68,7 +82,7 @@ function createCommandDiscovery({
     );
     if (!response || !Array.isArray(response.attempts))
       throw new Error("CI adapter discovery must return an attempts array");
-    return normalizeCommandAttempts(response.attempts, branch);
+    return targetCommandAttempts(response.attempts, branch);
   };
 }
 

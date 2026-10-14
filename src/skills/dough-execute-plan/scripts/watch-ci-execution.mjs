@@ -6,7 +6,7 @@ import {
 import { ciAttemptKey } from "./ci-failures.mjs";
 import { ciWorkflowFile, GitHubAcquisitionHeld } from "./ci-github-actions.mjs";
 import { createGitHubAcquisition } from "./ci-runs.mjs";
-import { readIntegratedStatePolicy } from "./ci-integrated-state.mjs";
+import { readIntegratedStatePolicy } from "./ci-integrated-state-policy.mjs";
 
 export const executionBudgetMs = 8 * 60 * 60 * 1000;
 
@@ -23,6 +23,9 @@ export async function watchCiExecution({
   now = Date.now,
   root = process.cwd(),
   observeCoverage = () => [],
+  // Called with the reason when a poll cannot list runs under a declared
+  // integrated-state policy.
+  withdrawIntegratedState = () => undefined,
   registeredRevisions = async () => [],
   // Returns a signal that aborts once a revision is registered after this
   // call; a pending recheck pause then ends at once.
@@ -131,6 +134,7 @@ export async function watchCiExecution({
           await suspendAcquisition(error);
           continue;
         }
+        if (integratedPolicy) await withdrawIntegratedState(error);
         consecutiveErrors += 1;
         if (consecutiveErrors === 3) throw error;
         await sleep(pollMs, undefined, { signal: observationSignal });

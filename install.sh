@@ -159,13 +159,13 @@ managed_files=(
   dough-execute-plan/scripts/ci-github-actions.mjs dough-execute-plan/scripts/ci-integrated-state.mjs
   dough-execute-plan/scripts/ci-reuse-policy.mjs dough-execute-plan/scripts/ci-reuse-gate.mjs
   dough-execute-plan/scripts/ci-reuse-github.mjs dough-execute-plan/scripts/ci-reuse-github-command.mjs
-  dough-execute-plan/scripts/ci-reuse-custom-example.mjs
+  dough-execute-plan/scripts/ci-reuse-custom-example.mjs dough-execute-plan/scripts/ci-integrated-state-policy.mjs
   dough-execute-plan/scripts/ci-github-diagnostic.mjs
   dough-execute-plan/scripts/ci-host-bridge.mjs dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
   dough-execute-plan/scripts/ci-mailbox-complete.mjs dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs dough-execute-plan/scripts/ci-mailbox-match.mjs
-  dough-execute-plan/scripts/ci-observer-owner.mjs
+  dough-execute-plan/scripts/ci-observer-owner.mjs dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs dough-execute-plan/scripts/ci-mailbox-store.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs

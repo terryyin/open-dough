@@ -19,6 +19,7 @@ import {
   listRegisteredRevisions,
   observeRevisionCoverage,
   registerPushedRevision,
+  withdrawIntegratedState,
 } from "./ci-mailbox-revision-coverage.mjs";
 import { watchMailboxChanges } from "./ci-mailbox-change-watch.mjs";
 import {
@@ -83,6 +84,8 @@ export async function runMailboxWorker(
         signal: stopped,
         emit: recordEvent,
         observeCoverage,
+        withdrawIntegratedState: (detail) =>
+          withdrawIntegratedState(directory, detail),
         registeredRevisions: async () => listRegisteredRevisions(directory),
         armRegistrationWake: changes.armRegistrationWake,
       });

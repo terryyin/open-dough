@@ -62,10 +62,15 @@ change it incorporates:
 selector (the `DOUGH_CI_WORKFLOW` value, default `ci.yml`). `context` names the
 triggering event (`push`). Optional `jobs` lists jobs that must each appear
 once and succeed in that attempt. A malformed declaration ends observation
-with `CI_MONITOR_UNAVAILABLE`. A configured command adapter does not yet
-supply the current-attempt facts this needs, so with one the declaration leaves
-such revisions unresolved. The declaration never changes the provider's
-scheduling or exact-commit reuse.
+with `CI_MONITOR_UNAVAILABLE`. For a configured command, `check` and `context`
+must equal the optional `check` and `context` strings its discovered attempts
+name; `jobs` does not apply. Only an attempt naming the target in its own
+optional `branch` counts, and discovery lists attempts newest first. Another
+attempt of that snapshot's check with an equal or later `time`, or with a
+`time` the first listed lacks, leaves it unresolved. An attempt without `branch` keeps exact coverage but never
+completes another revision. A poll that cannot discover runs withdraws the
+evidence until a later poll judges it again. The declaration never changes the
+provider's scheduling or exact-commit reuse.
 
 This observer handles one selected CI check per execution. It does not support
 pull-request-only CI, aggregate multiple checks, or observe deployment. If this
