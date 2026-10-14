@@ -71,25 +71,9 @@ Proposed ADRs 0007/0009 do not authorize a new publication policy.
 
 ## Preparation observations and decisive premises
 
-Preparation checkout:
-`/Users/terryyin/git/open-dough/.worktrees/avoid-duplicate-ci-when-main-receives-an-already`,
-branch `codex/avoid-duplicate-ci-when-main-receives-an-already`, baseline
-`3a9f6bfbb476edf8a78145f404b343ea537df0bb`, observed 2026-10-14.
-Execution establishes its own workspace; these observations are baseline evidence,
-not evidence that a later implementation works.
-
-| Premise / consuming boundary | Literal observation | Result and limit |
-| --- | --- | --- |
-| Existing custom acquisition preserves target attempts, exact SHA, opaque identities and URL; completion consumes exact target evidence and confirms shutdown | `node --test src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-mailbox-complete.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs` | 32 passed. Real adapter subprocess and mailbox worker boundaries, controlled provider inputs. Does not prove suppression |
-| Exact-SHA adapter proof discriminates a wrong normalized SHA | Temporarily replace `headSha: attempt.sha` with a zero SHA, then `node --test --test-name-pattern='command acquisition retains opaque run and attempt identities across polls' src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs`; restore and repeat | Mutant exited 1 with SHA assertion mismatch; restored code passed 1 test. Scratch edit reverted before recording |
-| Publication owners return the accepted candidate after fast-forward, merge/race and unpublished-suffix reconciliation; Trunk closure retains resources on failed/unresolved completion | `node --test src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-completion-gate.test.mjs` | 15 passed. Actual local bare remotes and publication/closure consumers; completion inputs controlled. New gate-to-completion journeys remain owned below |
-| Hosted run metadata can identify source attempts | `gh api 'repos/terryyin/open-dough/actions/workflows/ci.yml/runs?per_page=3' --jq '.workflow_runs[] | {id,run_attempt,head_sha,head_branch,event,status,conclusion,html_url}'` | Read-only query returned actual push runs, including successful main run 38483668097 at acc3c6d203ce2a41db044c2154c8390c94899262. No suppression inferred |
-| A target push can suppress covered jobs, retain source evidence and publish a correctly aggregated target result | GitHub [job conditions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions) and [run API](https://docs.github.com/en/rest/actions/workflow-runs) reviewed; read-only API prefix above reached | Hosted execution remains unobserved. Slice 1 is the permitted early state-changing/credentialed probe; failure stops dependent slices |
-
-No inexpensive local observation can establish GitHub's actual scheduler
-outcome. Do not replace the early hosted probe with mocked Actions JSON or claim
-local tests prove it. Local proof for the new gate will execute its actual
-check command and count executions, rather than pre-seeding a reuse verdict.
+[Preparation evidence](EVIDENCE.md#preparation-observations-and-decisive-premises)
+retains the baseline commands, results and limits. Hosted feasibility is now
+covered by the accepted slice 1 proof; production eligibility remains slice 2.
 
 ## Outside-in proof ownership
 
@@ -103,11 +87,21 @@ check command and count executions, rather than pre-seeding a reuse verdict.
 | Unconfirmed publication or incomplete/failed completion and unconfirmed shutdown preserve resources | Slice 2: real publication/closure consumers retain workspace, branch and observer where required; failed push never obtains a publication receipt |
 | Same contract is usable outside GitHub and on all supported hosts | Slice 3: runnable custom-provider scheduler/adapter consumes the same gate, yields target attempt, and completes through both modes; payload install/update proof covers both physical roots; host integration evidence reuse explicitly assessed |
 
+## Execution context
+
+Established 2026-10-14: Story Branch Mode in the selected execution workspace,
+branch `codex/avoid-duplicate-ci-when-main-receives-an-already`, publisher
+`dashboard-territory.local-open-dough`, agent `dbs-chan`, remote `origin`, target `main`.
+Claim / first delivery base: `dc1a7991acd373f93a33824f24ce22da28153e29`;
+starting revision: `09247d6c0357de3cf432eb032873851a2c38404b`.
+[Execution evidence](EVIDENCE.md#execution-context) retains exact paths, setup,
+publication constraints, observer identity and bounded hosted-probe authority.
+
 ## Ordered slices
 
 ### 1. Establish hosted suppression and truthful target evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded hosted experiment observes covered-job execution counts,
 source attribution, and the actual target workflow conclusion for a hit, miss
 and failed target-only check.
@@ -240,3 +234,16 @@ source attempt into target discovery: normalization assigns the requested branch
 and discards unknown provenance fields. The chosen provider-owned target result
 avoids that route. Hosted suppression is deliberately still a probe, not a
 claim established by successful baseline checks.
+
+## Accepted hosted proof — slice 1
+
+[Accepted hosted evidence](EVIDENCE.md#accepted-hosted-proof--slice-1) retains the
+four terminal attempts, exact capture commands, counts, provenance and cleanup.
+It proves hosted suppression/aggregation feasibility; slice 2 owns production eligibility.
+
+## Story obligations
+
+### G1. Production eligibility and mode consumers after hosted feasibility
+Reported: slice 1 — "Production validity, supersession, incomplete-query, trust and override rules remain slice 2 obligations."
+Story clause: "Missing, pending, incomplete, failed, or ineligible evidence falls back to the ordinary CI path."
+Disposition: receiving slice 2
