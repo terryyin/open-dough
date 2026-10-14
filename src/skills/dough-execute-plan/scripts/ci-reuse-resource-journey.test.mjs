@@ -11,7 +11,12 @@ import {
   workspaceState,
 } from "./execution-increment-managed-delivery-transport-test-fixtures.mjs";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
+import {
+  customPolicy,
+  customProvider,
+} from "./ci-integrated-state-custom-test-fixtures.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
+import { recordedVerdict } from "./ci-mailbox-await.mjs";
 import { readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import {
@@ -122,6 +127,60 @@ test("real reused target success with unconfirmed shutdown keeps Trunk closure w
     "unknown",
   );
   assert.equal(provider.count(before.receipt.sha), 1);
+  const exited = once(child, "exit");
+  child.kill("SIGKILL");
+  await exited;
+});
+
+test("an integrated-state success with unconfirmed shutdown keeps the Trunk closure workspace, branch and uncertain observer", async (t) => {
+  const fixture = await createTrunkClosureFixture(t);
+  const provider = (await customProvider()(t, fixture, customPolicy)).members;
+  const before = await deliverBeforeCleanupThroughCli(fixture);
+  const b = before.receipt.sha;
+  const directory = before.observation.directory;
+  const c = await provider.validateFromAnotherWriter("c.txt");
+  // The observer itself fetches the other writer's snapshot to prove B to C.
+  await awaitWorkerState(
+    directory,
+    () => {
+      const integrated = readRevisionCoverage(directory)[0]?.integrated;
+      return (
+        integrated?.state === "success" && integrated.validated.sha === c.sha
+      );
+    },
+    "C's validated integrated state",
+  );
+  const child = await enterUnknownExitWindow(fixture, directory);
+  // Stopping observation withdraws no recorded evidence.
+  assert.equal(recordedVerdict(directory, b), "success");
+  const { result, code } = await finishThroughCli(fixture, {
+    beforeCleanup: b,
+    final: b,
+    extra: ["--created-for-work"],
+  });
+  assert.equal(code, 1);
+  assert.equal(result.step, "completion");
+  assert.equal(result.acceptedSha, b);
+  assert.equal(result.completion.verdict, "success");
+  assert.equal(result.completion.effectiveEvidence.source, "integrated_state");
+  assert.equal(result.completion.effectiveEvidence.accepted.sha, b);
+  assert.equal(result.completion.effectiveEvidence.validated.sha, c.sha);
+  assert.deepEqual(result.completion.shutdown, {
+    status: "unconfirmed",
+    limitation: "observer_liveness_unknown",
+    terminal: result.completion.shutdown.terminal,
+  });
+  assert.equal(result.cleanup, "not-performed");
+  assert.equal(existsSync(fixture.execution), true);
+  assert.equal(await branchSha(fixture), b);
+  assert.equal(
+    checkMailboxWorkerLiveness(readWorkerIdentity(directory), directory),
+    "unknown",
+  );
+  assert.deepEqual(
+    [b, c.sha].map((sha) => provider.provider.count(sha)),
+    [0, 1],
+  );
   const exited = once(child, "exit");
   child.kill("SIGKILL");
   await exited;

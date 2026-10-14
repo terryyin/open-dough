@@ -134,6 +134,8 @@ export async function watchCiExecution({
           await suspendAcquisition(error);
           continue;
         }
+        // Ending observation lists nothing: it withdraws no recorded evidence.
+        if (observationSignal.aborted) return;
         if (integratedPolicy) await withdrawIntegratedState(error);
         consecutiveErrors += 1;
         if (consecutiveErrors === 3) throw error;
@@ -193,9 +195,7 @@ export async function watchCiExecution({
       try {
         const { event, observationError, deferredFailureEvent } =
           await acquireFailure(actionableWithAncestors, observationSignal);
-        if (event) {
-          await emit(event);
-        }
+        if (event) await emit(event);
         knownFailureEvent = deferredFailureEvent;
         if (observationError) {
           consecutiveErrors += 1;

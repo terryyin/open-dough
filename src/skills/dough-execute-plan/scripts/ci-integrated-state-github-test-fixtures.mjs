@@ -62,16 +62,19 @@ export function integratedStateGithub(t) {
           `2026-10-14T12:${String(minute++).padStart(2, "0")}:00Z`,
       }),
     );
-    if (state === "completed")
-      attemptJobs[`${runId}/${attempt}`] = [
-        {
-          id: runId * 10 + attempt,
-          name: "covered",
-          status: "completed",
-          conclusion,
-          html_url: `${runUrl(runId)}/job/${runId * 10 + attempt}`,
-        },
-      ];
+    // A replaced run has no jobs; a running one has its job in progress.
+    attemptJobs[`${runId}/${attempt}`] =
+      state === "cancelled"
+        ? []
+        : [
+            {
+              id: runId * 10 + attempt,
+              name: "covered",
+              status: state,
+              conclusion,
+              html_url: `${runUrl(runId)}/job/${runId * 10 + attempt}`,
+            },
+          ];
     publishState();
     return runId;
   }

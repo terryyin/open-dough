@@ -133,6 +133,23 @@ export async function cloneAsAnotherWriter(origin, checkout) {
   await git(checkout, "config", "user.email", "another@example.test");
 }
 
+// Another writer clones `origin` into `checkout`, which the caller keeps,
+// commits `file` on `branch` and pushes it to `pushTo`. Returns that commit.
+export async function publishFileAsAnotherWriter(
+  origin,
+  checkout,
+  file,
+  { branch = "main", pushTo = "origin" } = {},
+) {
+  await cloneAsAnotherWriter(origin, checkout);
+  await git(checkout, "checkout", "-q", branch);
+  writeFileSync(join(checkout, file), `${file}\n`);
+  await git(checkout, "add", file);
+  await git(checkout, "commit", "-m", `another writer ${file}`);
+  await git(checkout, "push", "-q", pushTo, `HEAD:refs/heads/${branch}`);
+  return revParse(checkout, "HEAD");
+}
+
 // Another writer advances the authorized remote's branch (main by default)
 // with one disjoint commit from a separate clone. The clone is removed after
 // the push.

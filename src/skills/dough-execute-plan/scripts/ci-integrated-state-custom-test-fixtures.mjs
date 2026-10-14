@@ -7,11 +7,19 @@
 // context).
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { installCustomReuseProvider } from "./ci-reuse-custom-test-fixtures.mjs";
+import { publishFileAsAnotherWriter } from "./publication-test-fixtures.mjs";
 
 export const customPolicy = { check: "project-checks", context: "push" };
 
@@ -107,7 +115,11 @@ process.exit(result.status ?? 1);
       });
     }
 
-    const journal = () => JSON.parse(readFileSync(provider.state, "utf8"));
+    // Empty until the provider schedules its first attempt.
+    const journal = () =>
+      existsSync(provider.state)
+        ? JSON.parse(readFileSync(provider.state, "utf8"))
+        : { entries: [] };
     return {
       repo: provider.policy.repo,
       polls: () => operations().filter((name) => name === "discover").length,
@@ -147,6 +159,46 @@ process.exit(result.status ?? 1);
               releases[index]();
               return (await running).attempt;
             },
+          };
+        },
+        // Another writer publishes `file` on top of the remote `ref`, which
+        // the coordinator's checkout has not fetched. `validate({ failed })`
+        // then has the provider run the covered command for it in that
+        // writer's checkout.
+        async publishFromAnotherWriter(file, { ref = "main" } = {}) {
+          const checkout = mkdtempSync(join(tmpdir(), "custom-writer-"));
+          t.after(() => rmSync(checkout, { recursive: true, force: true }));
+          const clone = join(checkout, "clone");
+          const sha = await publishFileAsAnotherWriter(
+            fixture.origin,
+            clone,
+            file,
+            { branch: ref },
+          );
+          return {
+            sha,
+            async validate({ failed = false } = {}) {
+              const { attempt } = await provider.target(sha, {
+                ref,
+                noPolicy: true,
+                covered: [
+                  "/bin/sh",
+                  "-c",
+                  'cd "$1" && shift && exec "$@"',
+                  "sh",
+                  clone,
+                  ...provider.coveredCommand(sha, failed),
+                ],
+              });
+              return attempt;
+            },
+          };
+        },
+        async validateFromAnotherWriter(file, { ref, failed } = {}) {
+          const published = await this.publishFromAnotherWriter(file, { ref });
+          return {
+            sha: published.sha,
+            attempt: await published.validate({ failed }),
           };
         },
         // The provider's discovery as the configured adapter answers it.

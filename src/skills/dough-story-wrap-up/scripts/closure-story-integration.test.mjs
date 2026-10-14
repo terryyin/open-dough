@@ -39,6 +39,7 @@ import {
 
 import "./closure-story-conflict-cases.mjs";
 import "./closure-story-fast-forward-cases.mjs";
+import "./closure-story-integrated-state-cases.mjs";
 import "./closure-story-landing-retention-cases.mjs";
 import "./closure-story-uncommitted-merge-cases.mjs";
 

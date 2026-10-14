@@ -479,7 +479,7 @@ ci/watch/increment/closure test files and the payload/install shell tests passed
 
 ### 5. Carry integrated evidence through execution and closure lifecycles
 Type: Behavior
-Status: planned
+Status: done
 Proof: Accepted B and validated C flow through actual managed-delivery, Story
 integration, Trunk closure and installed background handoff/waiter consumers.
 Observe their final reports, accepted revisions, observer shutdown and actual
@@ -512,6 +512,58 @@ existing integration evidence only for unchanged launch/hook/worker seams; if a
 mechanism changes, assign its invalidated native requirements under ADR 0005.
 Deterministic installed fixtures do not claim native host acceptance. This slice
 finishes shared lifecycle proof; actual project adoption remains slices 6–7.
+
+Accepted proof (2026-10-14). `recordedCompletion` in `ci-mailbox-await.mjs`
+gives background and closure callers the same `{verdict, evidence}`. The
+background waiter settles success with that evidence and gains no stop or
+cleanup authority.
+
+Two defects were found and fixed:
+- A stop's aborted listing withdrew a recorded integrated success. The observer
+  no longer withdraws on abort.
+- Another writer's C stayed `ancestry_unknown` until someone fetched. Through
+  `ci-integrated-state-ancestry.mjs`, the observer now fetches only that
+  snapshot's objects from the target's remote, bounded and objects-only with
+  no ref written, and rechecks ancestry. `ancestry_unknown` remains only when
+  the remote cannot serve the snapshot.
+
+The reporting rule ("<accepted> published; integrated state validated at
+<validated>", never "passed") lives once in `references/ci-completion-wait.md`.
+
+`PATH="/opt/homebrew/bin:$PATH" npm test -- <134 ci/watch/increment/closure/trunk-closure/guidance files> tests/execution-payload-update.sh tests/payload-declaration-links.sh tests/install-public-payload.sh`
+exited 0 after the refactor. The consuming cases:
+- **Story closure** (`closure-story-integrated-state-cases.mjs`): only accepted
+  merge N is registered. An earlier green, the superseded M, C's rerun, and
+  another writer's failure never complete it, and that failure delivers no
+  `CI_FAILURE`. D green with E running completes N without an external fetch;
+  `for-each-ref` is unchanged and retirement removes the worktree. A GitHub
+  listing 502 withdraws to `candidate_lookup_unavailable` and the worktree is
+  preserved.
+- **Trunk `finish`** (`trunk-closure-integrated-state-cases.mjs`): another
+  writer's C completes rebased F′, not F, without an external fetch. An unread
+  failure retains shutdown and cleanup.
+- **Unconfirmed shutdown** (`ci-reuse-resource-journey.test.mjs`) keeps the
+  workspace.
+- **Rejected Trunk publication** (`ci-reuse-trunk-retention-cases.mjs`)
+  registers no candidate (`missing_registration`).
+- **Installed background waiter** (`ci-background-handoff.test.mjs`): settles B
+  from C with D pending and keeps resources. Its own failed descendant is
+  delivered once.
+- **Background lifecycle** (`ci-background-lifecycle.test.mjs`): a pending C
+  followed by lost observation settles `observation_unavailable`.
+- **Reads** (`ci-integrated-state-reads.test.mjs`): a mid-read rerun gives
+  `attempt_changed`, the bound gives `verification_bound`, and every run of one
+  C must be a current success.
+- **Unreachable remote** (`ci-integrated-state-journey.test.mjs`): a C the
+  remote cannot serve stays `ancestry_unknown` with refs unchanged.
+
+Mutations, each restored afterwards:
+- disabling the descendant projection failed five consuming cases;
+- removing `contradicted` gave a false success;
+- disabling the candidate fetch failed the four no-external-fetch cases.
+
+Launch, hook and worker seams are unchanged, so no native proof is invalidated
+(ADR 0005); no paid native run was done.
 
 ### 6. Prove candidate adoption in Donut's actual validation workflow
 Type: Behavior
@@ -580,12 +632,12 @@ Disposition: proved by slice 4: src/skills/dough-execute-plan/scripts/ci-integra
 ### G2. Lifecycle consumers lack integrated-state cases
 Reported: slice 3 — "no integrated-state case runs through the background handoff/waiter, closure or managed-delivery lifecycles"
 Story clause: "through execution and wrap-up in Story Branch Mode and Trunk Mode"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: src/skills/dough-story-wrap-up/scripts/closure-story-integrated-state-cases.mjs, trunk-closure-integrated-state-cases.mjs, ci-background-handoff.test.mjs "declared policy: the installed waiter settles accepted B from a later validated C with D pending"
 
 ### G3. Mid-read rerun, read bound and multi-run C paths untested
 Reported: slice 3 — "the mid-read rerun path (attempt_changed / contradicted), the 3-read bound (verification_bound), and multiple distinct runs for one C SHA"
 Story clause: "A prior green cannot hide a current pending/failed rerun."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: src/skills/dough-execute-plan/scripts/ci-integrated-state-reads.test.mjs
 
 ### G4. Docs-only tip applicability not proved against real provider facts
 Reported: slice 3 — "the docs/planning applicability range (source B with a docs-only C) and real provider facts"
@@ -595,7 +647,12 @@ Disposition: receiving slice 6
 ### G5. Listing-error withdrawal untested on the GitHub default
 Reported: slice 4 — "The listing-error withdrawal now also applies to the GitHub default; no GitHub test covers that path."
 Story clause: "Known failures and incomplete evidence stay actionable until an evidenced disposition resolves them"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: closure-story-integrated-state-cases.mjs "a GitHub run-listing error after N's recorded integrated success withdraws it, never completes N, and keeps the worktree and branch"
+
+### G6. Observed remote inferred from checkout configuration
+Reported: slice 5 — "A checkout with several remotes, no branch.<target>.remote, and no remote URL ending in owner/repo gets no fetch and stays ancestry_unknown."
+Story clause: "C need not belong to the same writer, but B's publication and ownership remain that coordinator's."
+Disposition: interim until slices 6, 7
 
 ## Current decisions and boundedness review
 

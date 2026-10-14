@@ -69,7 +69,8 @@ from a call that lacks it, with the `agent_id` its observer was claimed with; on
 Codex pass the observer note's coordinator and exact stream directory.
 `finish` registers on, completes, and stops only the observer that owner
 claimed. It prints one JSON line, exits 1 when `ok` is not true and 2 on a
-usage error:
+usage error. An `integrated_state` success gates retirement as any success
+does; report it as [completion mechanics](ci-completion-wait.md) describe.
 
 | Result                            | Act on it                                                                                                                                                                                                                                                                                                                             |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

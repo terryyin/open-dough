@@ -3,7 +3,11 @@
 // integrated-state policy the installed completion command completes B from
 // C's current evidence, naming both; otherwise B stays unresolved.
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
+import { isDeepStrictEqual } from "node:util";
 import { git } from "./publication-test-fixtures.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import { readWorkerIdentity } from "./ci-mailbox-store.mjs";
@@ -107,7 +111,7 @@ test("without a declared policy, the same C green leaves registered B unresolved
   );
 });
 
-test("another writer's C with unknown ancestry stays unresolved until the coordinator's checkout can prove B to C", async (t) => {
+test("another writer's C the target remote cannot serve stays ancestry_unknown, with no ref written, until the remote holds it", async (t) => {
   const journey = await createIntegratedStateJourney(t);
   const b = await journey.publishIncrement();
   // Observation starts before GitHub lists any run, so B's replaced run is
@@ -115,35 +119,49 @@ test("another writer's C with unknown ancestry stays unresolved until the coordi
   const directory = await journey.observe(b);
   await journey.afterTwoPolls(directory, b);
   journey.recordRun(b, { state: "cancelled" });
-  const other = await journey.publishFromAnotherWriter("other.txt");
+  const fork = mkdtempSync(join(tmpdir(), "integrated-fork-"));
+  t.after(() => rmSync(fork, { recursive: true, force: true }));
+  await git(fork, "init", "-q", "--bare");
+  await git(fork, "fetch", "-q", journey.fixture.origin, "main:main");
+  const other = await journey.publishFromAnotherWriter("other.txt", {
+    pushTo: fork,
+  });
   assert.equal(other.success, true);
+  const refs = async () =>
+    (await git(journey.fixture.integration, "for-each-ref")).stdout;
+  const before = await refs();
   const cRun = journey.recordRun(other.sha, {
     state: "completed",
     executed: other,
   });
+  const unknown = unresolved([{ sha: other.sha, reason: "ancestry_unknown" }]);
   await journey.awaitCoverage(
     directory,
     b,
     (revision) =>
       revision.state === "incomplete" &&
-      revision.integrated?.state === "unresolved",
+      isDeepStrictEqual(revision.integrated, unknown),
     "unknown ancestry",
   );
-  assert.equal(journey.coverage(directory, b).state, "incomplete");
-  await assertStillUnresolved(
-    journey,
-    directory,
-    b,
-    unresolved([{ sha: other.sha, reason: "ancestry_unknown" }]),
-  );
+  await assertStillUnresolved(journey, directory, b, unknown);
+  assert.equal(await refs(), before, "a failed fetch writes no ref");
 
-  await git(journey.fixture.execution, "fetch", "origin");
+  await git(
+    fork,
+    "push",
+    "-q",
+    journey.fixture.origin,
+    `${other.sha}:refs/heads/main`,
+  );
   await journey.awaitCoverage(
     directory,
     b,
-    (revision) => revision.integrated?.state === "success",
+    (revision) =>
+      revision.integrated?.state === "success" &&
+      revision.integrated.validated.sha === other.sha,
     "proved ancestry",
   );
+  assert.equal(await refs(), before, "the observer's fetch writes no ref");
   const completion = await completeThroughCli(journey.fixture, directory, b);
   assert.equal(completion.verdict, "success");
   assert.equal(completion.effectiveEvidence.accepted.state, "incomplete");

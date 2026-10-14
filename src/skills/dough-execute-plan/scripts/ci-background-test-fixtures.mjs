@@ -17,6 +17,10 @@ import {
   claudeHookInput,
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
+import {
+  customPolicy,
+  customProvider,
+} from "./ci-integrated-state-custom-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const hostSource = `
@@ -27,12 +31,15 @@ const hostSource = `
     { env, maxBuffer: 4194304 }, (error, stdout, stderr) =>
       process.send({ code: error?.code ?? 0, stdout, stderr })));
 `;
+// `provider(t, fixture)`, when supplied, configures the project's CI source
+// before delivery and returns its members as `provider`.
 export async function backgroundFixture(
   t,
-  { mode = "story-branch", title = "claude" } = {},
+  { mode = "story-branch", title = "claude", provider } = {},
 ) {
   const fixture = await createManagedFixture({ platforms: [".claude"] });
   t.after(fixture.cleanup);
+  const source = await provider?.(t, fixture);
   const fragment = JSON.parse(
     readFileSync(
       fileURLToPath(new URL("../assets/claude-hooks.json", import.meta.url)),
@@ -185,6 +192,7 @@ export async function backgroundFixture(
     );
   return {
     ...fixture,
+    provider: source,
     env,
     directory,
     sha,
@@ -198,6 +206,31 @@ export async function backgroundFixture(
       JSON.parse(readFileSync(join(directory, "background.json"), "utf8")),
   };
 }
+export const story = "exec/story";
+
+// The installed runnable custom provider, whose attempts come from actually
+// executed counted commands, under a declared integrated-state policy.
+export const integratedProvider = async (t, fixture) =>
+  (await customProvider()(t, fixture, customPolicy)).members;
+
+// The coordinator commits `file` on its execution branch and publishes it
+// through the installed managed `deliver` onto the same live observer.
+export async function deliverStoryIncrement(fixture, base, file) {
+  writeFileSync(join(fixture.execution, file), `${file}\n`);
+  await git(fixture.execution, "add", file);
+  await git(fixture.execution, "commit", "-m", `increment ${file}`);
+  const { delivered, code } = await deliverThroughCli(fixture, {
+    base,
+    mode: "story-branch",
+    targetRef: `refs/heads/${story}`,
+    env: fixture.env,
+  });
+  assert.equal(code, 0);
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.directory, fixture.directory);
+  return delivered.receipt.sha;
+}
+
 export async function waitUntil(predicate) {
   const deadline = Date.now() + 5000;
   while (!predicate()) {

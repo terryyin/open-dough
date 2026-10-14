@@ -11,10 +11,10 @@ import { pathToFileURL } from "node:url";
 import { publishHistoryPreservingCandidate } from "./history-preserving-publication.mjs";
 import { createManagedFixture } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import {
-  cloneAsAnotherWriter,
   exec,
   git,
   lsRemoteSha,
+  publishFileAsAnotherWriter,
   revParse,
 } from "./publication-test-fixtures.mjs";
 import { ignoreInstalledSkills } from "./ci-reuse-journey-test-fixtures.mjs";
@@ -74,18 +74,25 @@ export async function createIntegratedStateJourney(
 
   // Another writer publishes `file` on top of the remote target; the
   // coordinator's checkout has not fetched it. Its covered command runs in
-  // that writer's checkout.
-  async function publishFromAnotherWriter(file) {
+  // that writer's checkout, failing when `failed`, unless it is still
+  // `waiting` to run. `pushTo` names another repository to push to instead.
+  async function publishFromAnotherWriter(
+    file,
+    { failed = false, waiting = false, pushTo = "origin" } = {},
+  ) {
     const checkout = mkdtempSync(join(tmpdir(), "integrated-writer-"));
     try {
-      await cloneAsAnotherWriter(fixture.origin, join(checkout, "clone"));
       const clone = join(checkout, "clone");
-      writeFileSync(join(clone, file), `${file}\n`);
-      await git(clone, "add", file);
-      await git(clone, "commit", "-m", `another writer ${file}`);
-      await git(clone, "push", "origin", "main");
-      const sha = await revParse(clone, "HEAD");
-      const [command, ...args] = commands.coveredCommand(sha);
+      const sha = await publishFileAsAnotherWriter(
+        fixture.origin,
+        clone,
+        file,
+        {
+          pushTo,
+        },
+      );
+      if (waiting) return { sha };
+      const [command, ...args] = commands.coveredCommand(sha, failed);
       const result = await exec(command, args, { cwd: clone }).catch(
         (error) => error,
       );

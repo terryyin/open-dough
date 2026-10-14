@@ -3,11 +3,17 @@ import { readFileSync, existsSync } from "node:fs";
 import { once } from "node:events";
 import { join } from "node:path";
 import { test } from "node:test";
+import { isDeepStrictEqual } from "node:util";
 import {
   backgroundFixture,
+  deliverStoryIncrement,
+  integratedProvider,
+  story,
   waitUntil,
   attempted,
 } from "./ci-background-test-fixtures.mjs";
+import { readRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
+import { recordedVerdict } from "./ci-mailbox-await.mjs";
 
 test("closed original session ends the waiter quietly and status names the retained limitation", async (t) => {
   const fixture = await backgroundFixture(t);
@@ -63,6 +69,41 @@ test("bounded expiry is silent and an explicit delivery cancellation never rearm
     "cancelled",
   );
   assert.deepEqual(await waiter.finished, { code: 0, stdout: "", stderr: "" });
+});
+
+test("declared policy: a pending descendant then lost observation settle the waiter unobserved, and C's later green cannot make B succeed", async (t) => {
+  const fixture = await backgroundFixture(t, { provider: integratedProvider });
+  const b = fixture.sha;
+  assert.equal((await fixture.run("handoff")).code, 0);
+  const waiter = fixture.hook();
+  const c = await deliverStoryIncrement(fixture, b, "c.txt");
+  const pending = await fixture.provider.holdPending(c, { ref: story });
+  const integrated = () =>
+    readRevisionCoverage(fixture.directory).find(({ sha }) => sha === b)
+      ?.integrated;
+  const considered = [{ sha: c, reason: "not_current_success" }];
+  await waitUntil(() =>
+    isDeepStrictEqual(integrated()?.considered, considered),
+  );
+  assert.deepEqual(integrated().considered, considered);
+  fixture.provider.setUnavailable(true);
+
+  assert.deepEqual(await waiter.finished, { code: 0, stdout: "", stderr: "" });
+  assert.equal(fixture.state().state, "observation_unavailable");
+  assert.equal(fixture.state().ci, "unobserved");
+  assert.equal(fixture.state().evidence, undefined);
+  assert.equal(integrated().reason, "candidate_lookup_unavailable");
+  assert.equal(recordedVerdict(fixture.directory, b), undefined);
+  fixture.provider.setUnavailable(false);
+  assert.equal((await pending.release()).outcome, "success");
+  assert.equal(fixture.provider.provider.count(c), 1);
+  assert.equal(recordedVerdict(fixture.directory, b), undefined);
+  assert.equal(
+    fixture.receipt(await fixture.run("status")).state,
+    "observation_unavailable",
+  );
+  assert.equal(attempted(fixture), false);
+  assert.equal(existsSync(fixture.execution), true);
 });
 
 test("broken native feedback is retained as uncertain and never blindly retried", async (t) => {

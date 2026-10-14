@@ -15,7 +15,7 @@ import { readRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import { watchMailboxChanges } from "./ci-mailbox-change-watch.mjs";
 import { hostInputOwner, readOwnerClaim } from "./ci-observer-owner.mjs";
-import { recordedVerdict } from "./ci-mailbox-await.mjs";
+import { recordedCompletion } from "./ci-mailbox-await.mjs";
 import { currentProcessIdentity } from "./ci-background-session.mjs";
 import {
   readBackgroundHandoff,
@@ -87,8 +87,11 @@ async function waitOnMailbox(directory, owner) {
           message: `dough-execute-plan CI observer (diagnostic data):\n${JSON.stringify(failure.event)}\nHandle CI failures using dough-execute-plan/references/ci-monitor.md. Keep the existing repair authority and execution context.`,
         };
       }
-      if (recordedVerdict(directory, handoff.requestedSha) === "success") {
-        settle("success", { ci: "success" });
+      // The success keeps its effective evidence: under an integrated-state
+      // policy, the accepted revision and the later snapshot validated.
+      const recorded = recordedCompletion(directory, handoff.requestedSha);
+      if (recorded?.verdict === "success") {
+        settle("success", { ci: "success", evidence: recorded.evidence });
         return;
       }
       if (

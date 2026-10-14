@@ -22,6 +22,7 @@ import {
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
 import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
+import "./trunk-closure-integrated-state-cases.mjs";
 
 const main = "refs/heads/main";
 

@@ -40,8 +40,10 @@ distinct from shutdown facts:
   accepted revision had no successful run of its own (`accepted` keeps its own
   state), and a successful current attempt at a later same-target snapshot
   that contains it (`validated`: SHA, run, attempt, URL, check, context and
-  any required jobs; `ancestry`) validated the integrated state. Report both
-  revisions; do not describe the accepted revision as having passed by itself.
+  any required jobs; `ancestry`) validated the integrated state. Report
+  "<accepted SHA> published; integrated state validated at <validated SHA>",
+  never that the accepted revision passed, and keep the accepted SHA as the
+  publication receipt for any closure, rebase or merge.
 - `verdict: "failure"` with `shutdown.status: "retained"` ends the wait without
   waiving the failure and keeps the observer available for diagnosis and
   authorized repair. Return to failure handling; do not claim completion or run
@@ -49,8 +51,10 @@ distinct from shutdown facts:
 - `effectiveEvidence.integrated` on an unresolved receipt names why no later
   snapshot qualified yet (`reason`, and each considered SHA's reason). The
   observer judges candidates afresh on every poll from the provider's current
-  attempt and the local checkout's Git ancestry: `ancestry_unknown` clears
-  once this checkout has fetched that snapshot, while a pending, failed,
+  attempt and the local checkout's Git ancestry. It fetches only the objects
+  of a snapshot this checkout lacks, from the target's remote and without
+  changing any ref; `ancestry_unknown` remains only when that remote cannot
+  serve it or no remote for the target is identified. A pending, failed,
   cancelled, rerun, unreadable, other-target or context-incompatible attempt
   supplies no success.
 - `unresolvedReason` is one of `timeout`, `observation_unavailable`,

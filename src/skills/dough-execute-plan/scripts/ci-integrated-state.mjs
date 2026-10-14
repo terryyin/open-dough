@@ -5,8 +5,11 @@
 // recorded beside B's own exact state, never as a result of B. Every poll
 // judges it afresh: nothing here is retained once contradicted or unreadable.
 // The policy comes from ci-integrated-state-policy.mjs.
-import { execFileSync } from "node:child_process";
 import { GitHubAcquisitionHeld } from "./ci-github-actions.mjs";
+import {
+  ancestryBasis,
+  candidateAncestry,
+} from "./ci-integrated-state-ancestry.mjs";
 import { isFullGitRevision } from "./ci-revisions.mjs";
 
 // B's own exact states this evidence may complete: no attempt of B was
@@ -17,22 +20,6 @@ const integratedEligibleStates = new Set(["undiscovered", "incomplete"]);
 // Authoritative current-attempt reads per revision per poll.
 const verificationBound = 3;
 const consideredBound = 5;
-const ancestryBasis = "git merge-base --is-ancestor";
-
-// "ancestor", "not_ancestor", or "unknown" when the local repository cannot
-// answer (for example, the descendant was never fetched).
-function gitAncestry(repoDir, ancestor, descendant) {
-  try {
-    execFileSync(
-      "git",
-      ["-C", repoDir, "merge-base", "--is-ancestor", ancestor, descendant],
-      { stdio: "ignore" },
-    );
-    return "ancestor";
-  } catch (error) {
-    return error.status === 1 ? "not_ancestor" : "unknown";
-  }
-}
 
 const succeeded = ({ status, conclusion }) =>
   status === "completed" && conclusion === "success";
@@ -113,6 +100,7 @@ export const candidateLookupUnavailable = (policy, error) =>
 // `signal` is the observation's own.
 export function integratedStateJudge(policy, poll) {
   const reads = new Map();
+  const ancestryOf = candidateAncestry(poll);
   return async (revision) => {
     const judged = { ...revision };
     delete judged.integrated;
@@ -121,6 +109,7 @@ export function integratedStateJudge(policy, poll) {
         ...poll,
         policy,
         reads,
+        ancestryOf,
         acceptedSha: judged.sha,
       });
     return judged;
@@ -137,6 +126,7 @@ async function observeIntegratedState({
   listCandidates,
   readCurrentAttempt,
   reads,
+  ancestryOf,
   signal,
 }) {
   const unresolved = (reason, extra) =>
@@ -170,7 +160,7 @@ async function observeIntegratedState({
   const considered = [];
   let verifications = 0;
   for (const [sha, listed] of bySha) {
-    const ancestry = gitAncestry(repoDir, acceptedSha, sha);
+    const ancestry = await ancestryOf(acceptedSha, sha);
     if (ancestry === "not_ancestor") continue;
     const consider = (reason) => considered.push({ sha, reason });
     if (ancestry === "unknown") {

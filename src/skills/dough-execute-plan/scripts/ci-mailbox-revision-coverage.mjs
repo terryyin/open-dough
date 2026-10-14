@@ -128,6 +128,8 @@ export async function observeRevisionCoverage(
     return found;
   }
   const judgeIntegratedState = integratedStateJudge(integratedPolicy, {
+    repo: request.repo,
+    remote: request.remote,
     branch: request.branch,
     repoDir,
     listCandidates: async () => [

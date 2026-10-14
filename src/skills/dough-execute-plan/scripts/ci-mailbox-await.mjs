@@ -11,9 +11,7 @@ export const revisionWaitDeadlineMs = 10 * 60 * 1000;
 
 const terminalVerdicts = new Set(["success", "failure"]);
 
-function targetOf(request) {
-  return { repo: request.repo, branch: request.branch };
-}
+const targetOf = (request) => ({ repo: request.repo, branch: request.branch });
 
 function result(requestedSha, target, effectiveEvidence, outcome) {
   return { requestedSha, target, effectiveEvidence, ...outcome };
@@ -66,20 +64,30 @@ function effectiveCoverage(coverage) {
   return { evidence };
 }
 
-// The CI verdict `directory`'s own record already holds for `sha`, which
-// awaiting it there returns whether or not its observer still runs. Undefined
-// while the record holds none: nothing yet, or an attempt that was cancelled.
-export function recordedVerdict(directory, sha) {
-  let coverage;
+const recordedCoverage = (directory, requestedSha) =>
+  effectiveCoverage(
+    readRevisionCoverage(directory).find(
+      (revision) => revision.sha === requestedSha,
+    ),
+  );
+
+// The CI verdict `directory`'s own record already holds for `sha`, with the
+// effective evidence awaiting it there returns, whether or not its observer
+// still runs. Undefined while the record holds none: nothing yet, or an
+// attempt that was cancelled.
+export function recordedCompletion(directory, sha) {
+  let projection;
   try {
-    coverage = readRevisionCoverage(directory).find(
-      (revision) => revision.sha === sha.toLowerCase(),
-    );
+    projection = recordedCoverage(directory, sha.toLowerCase());
   } catch {
     return undefined;
   }
-  return coverage && effectiveCoverage(coverage).outcome?.verdict;
+  const { evidence, outcome } = projection;
+  return outcome?.verdict ? { verdict: outcome.verdict, evidence } : undefined;
 }
+
+export const recordedVerdict = (directory, sha) =>
+  recordedCompletion(directory, sha)?.verdict;
 
 function terminalObservation(directory) {
   const path = join(directory, "result.json");
@@ -92,10 +100,7 @@ function terminalObservation(directory) {
       terminal,
     };
   if (terminal.status === "stopped")
-    return {
-      unresolvedReason: "observation_cancelled",
-      terminal,
-    };
+    return { unresolvedReason: "observation_cancelled", terminal };
   return {
     unresolvedReason: "observation_unavailable",
     detail: "observation_ended",
@@ -151,11 +156,7 @@ export async function awaitRevision(
   while (true) {
     let projection;
     try {
-      projection = effectiveCoverage(
-        readRevisionCoverage(directory).find(
-          (revision) => revision.sha === requestedSha,
-        ),
-      );
+      projection = recordedCoverage(directory, requestedSha);
     } catch (error) {
       return result(
         requestedSha,
