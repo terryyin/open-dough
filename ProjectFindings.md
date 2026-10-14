@@ -209,6 +209,22 @@ cache growth is prevented in these observations; the source of the historical
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-275).
 
+## Observer journeys wait on a judgement that can predate the test's provider change (repaired, unqueued)
+
+<a id="dd-302"></a>
+
+### DD-302 — An integrated-state journey's wait accepted a stale judgement and failed only in CI
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-302).
+
+## Installer declarations sit at the line limit beside a single-entry anchor convention (open, unqueued)
+
+<a id="dd-303"></a>
+
+### DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-303).
+
 ## Review and recovery
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)

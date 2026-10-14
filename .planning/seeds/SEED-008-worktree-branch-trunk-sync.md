@@ -413,6 +413,39 @@ single waiting run; B and D were cancelled with no jobs) and the shared
 runtime's accepted proof. After that story's wrap-up, the plan stays
 recoverable from Git. Reuse these results; do not repeat them.
 
+<a id="integrated-state-correction"></a>
+
+### Correct integrated-state completion after coalesced CI validation
+
+**Identity:** SEED-008#integrated-state-correction
+
+**Goal:** Coordinators using declared integrated-state completion get the
+completion that [Coalesce CI validation with truthful completion evidence](#coalesced-ci-validation)
+already promises, including when GitHub replaced the run their ignored-only
+revision depends on. Stopping an observer is not held up by a candidate fetch.
+Maintainers get proof of the rule at its domain contract, with fewer spawned
+observer journeys.
+
+**Scope:** This is a bounded retrospective correction of that story's completed
+execution. It adds no feature promise. Its premise is that an ignored-only
+accepted B whose applicable ancestor was replaced in the queue is the case of
+that story's key example 2 and the converse in key example 3. The story also
+states: "Proven queue replacement explains why B has no run; it is not a
+passing verdict." Under a declared policy, such a B therefore completes against
+a successful descendant C. Without a policy, it stays unresolved as today.
+
+The correction also:
+
+- fetches a candidate only when the candidate can validate, and stops that
+  fetch with the observation;
+- replaces most of the ineligibility journeys with unit proof of the rule,
+  keeping one GitHub negative journey;
+- removes the revision-records module's dependency on the rule, and the
+  re-export of records through coverage.
+
+Findings, proof and slices are in the
+[correction plan](../slice-plans/308-integrated-state-correction/PLAN.md).
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)

@@ -289,3 +289,37 @@ with load 16 at the start and 65 at the end.
   - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
   - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
 
+## Observer journeys wait on a judgement that can predate the test's provider change (repaired, unqueued)
+
+<a id="dd-302"></a>
+
+### DD-302 — An integrated-state journey's wait accepted a stale judgement and failed only in CI
+
+#### Occurrences
+
+- Execution: `SEED-008#coalesced-ci-validation` / plan 307, first implementation `d1eda2ced0a71b56edb3e6086651ad7403ef45ba`
+  - Timestamp: unknown (2026-10-14; CI run 38567064129 on `d1eda2ce`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision b9a2c783; base 0.3.62
+  - Evidence: CI `test (3/3)`: `ci-integrated-state-journey.test.mjs:130` expected `incomplete`, got `undiscovered`. The wait predicate `revision.integrated?.state === "unresolved"` was already satisfied by a `no_candidate` judgement recorded before the test listed B's cancelled run. The repair at `d4913f71` reproduced it by re-arming the fixture's request hold, and tightened the wait to the asserted state. Later delegations had to state "wait predicates must require the exact state the test then asserts", and later refactors tightened five more waits.
+  - Observed effect: one failed CI run and one repair cycle with a stash/restore of unrelated in-progress work.
+  - Inference: qualified. Observer journeys poll a record that the observer rewrites asynchronously. A wait on any field the observer may already hold passes before the change under test is observed. No shared helper enforces waiting for the asserted state.
+
+## Installer declarations sit at the line limit beside a single-entry anchor convention (open, unqueued)
+
+<a id="dd-303"></a>
+
+### DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors
+
+#### Occurrences
+
+- Execution: `SEED-008#coalesced-ci-validation` / plan 307, slices 4–5 (`f1582623`, `d429430a`)
+  - Timestamp: unknown (2026-10-15)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision b9a2c783; base 0.3.62
+  - Evidence: each new runtime module needed a `managed_files` entry in `install.sh`, which sat at the 250-line limit, so entries were joined onto existing lines. In slice 5, the refactor's first join put a module on `ci-github-diagnostic.mjs`'s line. `ci-github-acquisition.test.mjs` "no installed file asks gh outside the one request source…" matches single-entry lines (`/^ {2}(dough-[\w./-]+)$/gm`) and failed until the entry moved. In slice 4, the refactor added two lines (252) and left the coordinator to rejoin them.
+  - Observed effect: two extra fix-and-rerun rounds around installer declarations.
+  - Inference: qualified. The file-length rule and a test's reliance on line shape conflict as the payload grows. The anchor convention is undocumented beside the list.
+

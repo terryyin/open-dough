@@ -748,3 +748,23 @@ or execution. The story stays queued after landing this preparation.
   existing fixture; their completion and failure behavior belongs in slice 5.
 - Isolated candidate adoption is the confirmed story boundary; normal installed
   rollout follows a separate tagged release and is not part of this completion.
+
+## Execution complete
+
+Product advice:
+
+- Take [Prove coalesced CI validation in Donut's actual workflow](../../seeds/SEED-008-worktree-branch-trunk-sync.md#donut-coalesced-ci-adoption)
+  next, as queued. It needs Terry's authority for full Donut CI proof runs that use
+  repository secrets.
+- The retrospective correction
+  [SEED-008#integrated-state-correction](../../seeds/SEED-008-worktree-branch-trunk-sync.md#integrated-state-correction)
+  ([plan 308](../308-integrated-state-correction/PLAN.md)) closes a story-promise
+  gap: a docs-only revision whose basis run was replaced never completes from a
+  later green snapshot. It also covers an uncancellable candidate fetch, test
+  cost and refactoring residue. It is not queued and its readiness is not
+  recorded. Queue it ahead of Donut adoption, because that proof runs docs-only
+  commits through this rule.
+- Normal Pygardon and Donut installations get the capability only through a
+  separately authorized tagged release. Pygardon's reproducible adapter and
+  policy changes wait on the unpushed local branch `dough/coalesced-ci-candidate`
+  (`a3f05b8c`).

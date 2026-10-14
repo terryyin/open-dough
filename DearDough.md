@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 300. Removed numbers are never reused.
+- Highest allocated local number: 303. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -346,3 +346,16 @@ A native session following the one-shot start instructions passed `--trunk maste
   - Evidence: that session's transcript: first `execution-start.mjs start … --trunk master` answered `{"ok":false,"status":"invalid-request","error":"missing target"}`; two searches; second call with `--target master` answered `prepared`. The slice 4 session on the same release read the usage text first and did not repeat it.
   - Observed effect: one refused call and two lookups, about eight seconds.
   - Inference: qualified. The skill text says "actual remote and trunk branch" and "mode (`trunk` or `story-branch`)", which invites `--trunk`. Small cost, seen once in five native sessions.
+
+## DD-301 — Accepted proof let a test setup step perform an action the story requires of the product
+A slice 3 journey made an unknown-ancestry case pass by running `git fetch origin` in the test before expecting completion. The coordinator accepted it as a covered case, although story key example 2 needs completion without anyone fetching another writer's snapshot. The limitation surfaced only when slice 5 listed it as a gap. That cost a returned slice and rewritten lifecycle cases.
+### Occurrences
+- Execution: `SEED-008#coalesced-ci-validation` / plan 307, first implementation `d1eda2ced0a71b56edb3e6086651ad7403ef45ba`
+  - Timestamp: unknown (2026-10-14, slice 3 acceptance; caught at slice 5 acceptance on 2026-10-15)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision b9a2c783; base 0.3.62
+  - Evidence: `d1eda2ce:src/skills/dough-execute-plan/scripts/ci-integrated-state-journey.test.mjs` "another writer's C with unknown ancestry stays unresolved until the coordinator's checkout can prove B to C" (test runs `git fetch origin`, then expects success). The slice 5 return listed "Unknown ancestry needs a fetch". The coordinator returned the slice, and `d429430a` adds the observer's objects-only fetch and no-external-fetch lifecycle cases.
+  - Observed effect: one extra implementation round in slice 5 (about 34 minutes of agent time) and replacement of three lifecycle cases.
+  - Inference: qualified. The proof-acceptance rule "setup supplies only the starting precondition" covers this, but the case's name framed the fetch as expected behaviour. Checking each setup action against the story's key examples would have caught it at slice 3. One execution.
+
