@@ -14,7 +14,5 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Avoid duplicate CI when main receives an already validated commit](seeds/SEED-008-worktree-branch-trunk-sync.md#reuse-ci-validation-at-integration) — SEED-008#reuse-ci-validation-at-integration ([plan](slice-plans/306-reuse-ci-validation-at-integration/PLAN.md))
-
 ## Backlog list
 

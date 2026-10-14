@@ -16,6 +16,7 @@ import {
   deliverThroughCli,
   claudeHookInput,
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
+import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const hostSource = `
@@ -51,21 +52,9 @@ export async function backgroundFixture(
       "origin",
       `${fixture.trunkSha}:refs/heads/exec/story`,
     );
-  const workerPoll = `data:text/javascript,${encodeURIComponent(`
-    import timers from 'node:timers/promises';
-    import { syncBuiltinESMExports } from 'node:module';
-    if (process.argv[2] === 'worker') {
-      const pause = timers.setTimeout;
-      timers.setTimeout = (ms, ...args) => pause(Math.min(ms, 50), ...args);
-      syncBuiltinESMExports();
-    }
-  `)}`;
   const env = {
-    ...fixture.env,
+    ...workerPollingEnvironment(fixture.env),
     CLAUDE_CODE_SESSION_ID: "background-owner",
-    NODE_OPTIONS: [fixture.env.NODE_OPTIONS, `--import=${workerPoll}`]
-      .filter(Boolean)
-      .join(" "),
   };
   const { delivered, code } = await deliverThroughCli(fixture, {
     base: fixture.trunkSha,

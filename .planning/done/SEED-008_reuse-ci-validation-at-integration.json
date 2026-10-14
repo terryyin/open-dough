@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-008#reuse-ci-validation-at-integration",
+  "title": "Avoid duplicate CI when main receives an already validated commit",
+  "completedAt": "2026-10-14T04:11:57.317Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

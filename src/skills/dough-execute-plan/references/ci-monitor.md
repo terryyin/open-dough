@@ -1,6 +1,10 @@
 # Asynchronous CI observation and repair
 Read [runtime setup](runtime-setup.md) to resolve this project's CI source,
 repository, branch, runtime, and host-bridge readiness before launching.
+Projects may opt in to [exact-commit CI reuse](../manuals/reuse-ci.md) in their
+provider's scheduling decision. Continue observing the real target attempt at
+the accepted SHA; its evidence page identifies the distinct source validation.
+Reuse preserves publication confirmation and completion/shutdown gates.
 ## Own one observer
 Managed ordinary increments and authorized repairs use
 [managed delivery](trunk-publication.md#publish-an-execution-increment-or-repair)
@@ -22,9 +26,8 @@ observer of that exact trunk target already covers it, with verified ownership
 and receipts. Do not start a second observer or register that claim on
 the story-branch observer; that observer still covers ordinary delivery once
 armed. Discovery continues after later publications without new setup.
-Publication success closes routine delivery without waiting for CI or
-deployment. The execution/review completion boundary below is the only routine CI wait; never
-wait after each slice or repair publication.
+Publication success closes routine delivery without waiting for CI or deployment.
+The execution/review completion boundary below is the only routine CI wait; never wait after each slice or repair publication.
 
 Bind the observer's runtime, pause, stash, repair, delivery, and restoration to
 the selected execution checkout. Observe the target branch from that checkout.
@@ -36,8 +39,7 @@ without AI polling or promised notifications.
 
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally; it never dispatches or retries a check, observes
-deployment, or changes the checkout. Assess coverage with runtime-setup bounds.
-Registering a revision checks it at once, so a finished run needs no poll wait.
+deployment, or changes the checkout. Assess coverage with runtime-setup bounds. Registering a revision checks it at once, so a finished run needs no poll wait.
 
 Within the startup snapshot, inspect the newest completed attempt and unfinished
 attempts. Preserve opaque run and attempt identities. Retain unfinished
@@ -56,8 +58,7 @@ Select the **non-model notification bridge for the current host**:
   arm this coordinator's yielded stream at execution start, before the first publication:
   managed delivery registers only on it; otherwise report the bridge unavailable as it says.
 
-Notifications arrive at the current host's next safe boundary. Act after a
-foreground agent or command returns; do not assume interruption.
+Notifications arrive at the next safe boundary: act after a foreground agent or command returns; do not assume interruption.
 
 At a stop requiring human judgment, cancellation, or coordinator replacement,
 use the host adapter to stop the exact observer and confirm local shutdown. At
@@ -68,9 +69,8 @@ Preserve unread evidence; missing terminal evidence means lost coverage. Handle
 delivered failures before claiming completion. Never kill by a broad process-name
 pattern. Retain installed hook registration; shutdown does not unregister or
 rewrite host settings. Story wrap-up may still need coverage after that
-shutdown; follow
-[wrap-up closure publication](wrap-up-closure-publication.md)
-rather than treating execution shutdown as the end of Trunk Mode observation.
+shutdown; follow [wrap-up closure publication](wrap-up-closure-publication.md)
+to continue Trunk Mode observation.
 ## Await the applicable revision at completion
 The coordinator owns one bounded completion operation whenever applicable CI
 evidence is required: execution/review handoff, wrap-up closure on the authorized
