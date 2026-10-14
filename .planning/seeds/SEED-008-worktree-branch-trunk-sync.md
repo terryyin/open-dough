@@ -139,7 +139,7 @@ and ref-watching proposals; do not implement those historical mechanisms.
 
 **Identity:** SEED-008#coalesced-ci-validation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/307-coalesced-ci-validation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b2be5abb40e9476f1f03f31083f82b876da7beb1c9efed2868bfd61f062859ca","plan":"c065fb2f0815ace36fb069306e44052ad26289492d9f9ab5bfee8e67c93f08c3"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/307-coalesced-ci-validation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3c393c63d1741bd705e90ac83c3c8d13541a917ccd52ef3a42985f68a62d2370","plan":"e04b031bfabf03b758f4c2eae53101f0f24d0bd90dce24f8c9161c7c352e635a"}}
 ```
 
 **For / why:** Developers and agents using Open Dough in rapidly changing
@@ -165,9 +165,10 @@ the queue. Queue order alone establishes no blocking implementation dependency.
 #### Scope
 
 Deliver one shared contract for provider-owned coalescing and truthful completion,
-with concrete Donut and Pygardon adoption and proof through execution and wrap-up
-in Story Branch Mode and Trunk Mode. Publication remains continuous. Preserve
-active validation; replace only waiting snapshots within the provider's existing
+with candidate adoption proved in authorized isolated copies of Donut and
+Pygardon, through execution and wrap-up in Story Branch Mode and Trunk Mode.
+Publication remains continuous. Preserve active validation; replace only waiting
+snapshots within the provider's existing
 admission and fairness rules. Continued arrivals must not postpone every verdict.
 
 Projects explicitly opt in to integrated-state completion for identified checks
@@ -186,6 +187,13 @@ it is not a passing verdict. Known failures and incomplete evidence stay
 actionable until an evidenced disposition resolves them; a later green result
 alone does not erase an earlier failure or transfer repair ownership.
 
+Current evidence is scoped to the selected snapshot and its check/context, not
+to the newest published tip. Once eligible C passes, newer D/E awaiting validation
+do not by themselves invalidate C's evidence for incorporated B. A newer pending
+or failed attempt of C's same check does invalidate its earlier green as current
+evidence. This distinction is necessary for completed feedback during continuous
+publication; it adds no guarantee that the latest branch tip has passed.
+
 Validation of a selected snapshot must include the unchecked changes incorporated
 since the relevant validated baseline. Preserve docs/planning exclusions and
 applicable-ancestor evidence. No affected-test selector is required: full-snapshot
@@ -201,10 +209,19 @@ ledger. This preparation authorizes no implementation, project migration or live
 CI experiment; execution must establish the authority for each project's changes
 and disposable provider experiments.
 
+Terry confirmed on 2026-10-14 that adoption completes at isolated candidate
+proof using both projects' actual workflow, adapter and completion consumers.
+Retain reproducible project changes and the candidate runtime identity; a
+scheduler-only demonstration is insufficient. Normal installed rollout in Donut
+and Pygardon follows a separately authorized tagged release and is not claimed
+by this story's completion. Use the complete candidate payload in disposable
+proof installations through existing delivery fixtures, not hand-edited managed
+files or a candidate presented as a released version.
+
 Deferred promises: broader code-review reform, general affected-test selection,
 tree-equivalence caching, force-push policy, delayed integration, release-version
-work and automatic migration of other projects. These are not new rejection rules
-for naturally supported cases.
+work, normal installed rollout in Donut/Pygardon and automatic migration of other
+projects. These are not new rejection rules for naturally supported cases.
 
 #### Key examples
 
@@ -224,6 +241,9 @@ for naturally supported cases.
    unknown ancestry → completion stays pending or returns the existing bounded
    unresolved/failure outcome. A prior green cannot hide a current pending/failed
    rerun. An unread failure or unconfirmed shutdown prevents applicable cleanup.
+   Conversely, C's current attempt is green and newer D is merely waiting → B
+   can complete against C under the declared policy. D's pending state is not a
+   rerun of C. Any known failure still retains its existing disposition gate.
 4. **Unchecked source survives a docs-only tip.** A is the validated baseline;
    B changes source; descendant C changes only docs → any C validation/selection
    accounts for the source since A. If Donut's trigger ignores C's push, C is not
@@ -293,6 +313,15 @@ mode-specific execution and wrap-up consumers; scheduler-only proof, shorter
 waits and synthetic successes cannot satisfy the story. Use bounded inert
 experiments first, and the selected projects' real consuming paths for adoption.
 
+Second-pass review retained the provider-owned direction and the materialized-view
+analogy. Two findings shape the revised plan: descendant evidence must remain
+available independently of completed-notification pruning, and the existing
+background handoff/waiter consumes `recordedVerdict` alongside synchronous
+completion. The plan records the observed consumer proof and gives those
+lifecycles explicit ownership. Newer waiting tips and newer attempts of selected
+C have different effects, as example 3 states. No additional scheduler, ledger,
+selector or host lifecycle is needed.
+
 #### Architecture
 
 Keep four meanings separate within their existing owners: accepted publication,
@@ -303,6 +332,16 @@ exact-commit reuse in its scheduling gate. Acquire provider provenance once and
 preserve it through adapters/normalization, rather than inferring it from the
 requested target. Ancestry proves incorporation into history, not ownership or
 historical test success. Missing evidence remains unknown.
+
+Keep candidate discovery distinct from the notification stream and carry one
+effective-evidence rule through synchronous waits, recorded verdicts and their
+background callers. Preserve existing exact-revision retention semantics; do not
+automatically give the new descendant evidence the same sticky terminal status.
+An inspectable historical observation and a claim of current usable evidence
+are different facts. Use the executing project's existing configuration home
+for the demonstrated opt-in, following Accepted
+[ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md);
+do not add a separate policy store or hand-edit installed managed content.
 
 This follows Accepted [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md)
 (aligned domain meaning), [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
