@@ -43,10 +43,6 @@ export async function watchCiExecution({
   const startedAt = now();
   const reportedIncomplete = new Set();
   const adapter = readCiAdapter(root);
-  // A custom adapter does not own GitHub workflow-path applicability, so it
-  // gets no ancestor candidate discovery; ci-mailbox-revision-coverage.mjs
-  // then has nothing to broaden with and an ignored-only revision simply
-  // stays undiscovered.
   const { acquireRuns, acquireFailure, discoverAncestorCandidates } = adapter
     ? createCommandAcquisition({
         command: adapter,
@@ -54,6 +50,7 @@ export async function watchCiExecution({
         branch,
         root,
         timeoutMs: adapterTimeoutMs,
+        registeredRevisions,
       })
     : createGitHubAcquisition({
         repo,

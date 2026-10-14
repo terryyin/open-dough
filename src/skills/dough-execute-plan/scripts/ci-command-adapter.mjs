@@ -26,22 +26,40 @@ export function readCiAdapter(root = process.cwd()) {
   return command;
 }
 
-// The project's CI command as the observer reads it: runs and failures.
+// Retained attempts remain evidence for registered revisions even when the
+// ordinary notification stream suppresses completed startup history.
 export function createCommandAcquisition(options) {
+  const discover = createCommandDiscovery(options);
+  const currentRuns = createStartupRunFilter();
+  let retained = [];
   return {
-    acquireRuns: createCommandRunAcquisition(options),
+    acquireRuns: async (signal) => {
+      retained = await discover(signal);
+      const current = currentRuns(retained);
+      const registered = new Set(
+        ((await options.registeredRevisions?.()) ?? []).map((sha) =>
+          sha.toLowerCase(),
+        ),
+      );
+      return retained.filter(
+        (run) =>
+          current.includes(run) || registered.has(run.headSha.toLowerCase()),
+      );
+    },
     acquireFailure: createCommandFailureAcquisition(options),
+    // Coverage owns workflow-path applicability; candidates retain their real
+    // attempt state and never enter the ordinary failure stream by themselves.
+    discoverAncestorCandidates: async () => retained,
   };
 }
 
-export function createCommandRunAcquisition({
+function createCommandDiscovery({
   command,
   repo,
   branch,
   root,
   timeoutMs = defaultAdapterTimeoutMs,
 }) {
-  const currentRuns = createStartupRunFilter();
   return async (signal) => {
     const response = await runAdapter(
       command,
@@ -50,8 +68,8 @@ export function createCommandRunAcquisition({
     );
     if (!response || !Array.isArray(response.attempts))
       throw new Error("CI adapter discovery must return an attempts array");
-    return currentRuns(
-      response.attempts.map((attempt) => normalizeAttempt(attempt, branch)),
+    return response.attempts.map((attempt) =>
+      normalizeAttempt(attempt, branch),
     );
   };
 }
