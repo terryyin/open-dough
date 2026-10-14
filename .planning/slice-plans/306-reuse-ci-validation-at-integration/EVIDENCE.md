@@ -141,7 +141,11 @@ the retained observer.
 
 Slice 2: accepted `500802fba6aebf48015f8ee09fa9a10bf6077c92` on that same
 story target, suffix base `59f010eb9a429bb05e535dd7df9a466835e9b2a8`;
-managed delivery reused the same observer. This is the next increment's base.
+managed delivery reused the same observer.
+
+Slice 3: accepted `e96692b0bbe2d2425c4ce58915deae2bd99f2fb6` on the same
+story target, suffix base `500802fba6aebf48015f8ee09fa9a10bf6077c92`;
+managed delivery reused the retained observer. Implementation is delivered.
 
 ## Accepted deterministic proof — slice 2
 

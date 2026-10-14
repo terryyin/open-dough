@@ -141,3 +141,30 @@ fixture. Replacing it with `Object.assign` preserves the same expiry value.
 `PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-reuse-custom-example.test.mjs`
 reached terminal exit 0; repeated `PATH=/opt/homebrew/bin:$PATH npm run format`
 then reached terminal exit 0. Formatted files remain at most 250 lines.
+
+## Aggregate execution retrospective
+
+Reviewed the original execution-ready plan at claim `dc1a7991` and attributable
+published revisions `59f010eb` (hosted proof), `500802fb` (shared/GitHub gate and
+both modes), and `e96692b0` (custom adoption). The uncontaminated claim-to-final
+diff contains those three increments; earlier `09247d6c` admits another mission
+and is excluded from implementation attribution. No promise was weakened.
+
+Outcome/architecture review found no remaining correction: one source eligibility
+rule, provider-owned scheduling/evidence, existing publication/observation owners,
+explicit project context, and actual installed use. Hosted feasibility and real
+mode journeys own integration proof; pure/controlled API tests own fact edges.
+Shared fixtures preserve actual exits, coverage and resource observations. The
+suite/time-budget assessment found no supported consolidation or cost correction.
+Accepted ADRs 0002/0003/0005/0006 and the current remote-history direction agree.
+
+Process review is enabled by this project's configuration. Available coordinator
+and agent history and retained observations show the polling-budget diagnostic
+and same-SHA false-success reproduction resolved in this execution. Earlier raw
+turns are partly compacted, limiting cost assessment; no supported unresolved
+process finding warrants a log change. Product advice is reasoned no-change:
+explicit adoption fulfills this story; no new scheduler, observer policy or
+automatic migration is justified. Backlog and direction remain unchanged.
+
+Review completed with story CI pending at `e96692b0` on the retained branch
+observer; its final verdict remains the execution coordinator's completion duty.
