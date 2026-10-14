@@ -1,8 +1,8 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { normalizeCommandAttempts } from "./ci-command-attempts.mjs";
 import { ciAttemptKey } from "./ci-failures.mjs";
-import { isFullGitRevision } from "./ci-revisions.mjs";
 import { createStartupRunFilter } from "./ci-runs.mjs";
 
 const configurationPath = ".planning/open-dough.json";
@@ -68,9 +68,7 @@ function createCommandDiscovery({
     );
     if (!response || !Array.isArray(response.attempts))
       throw new Error("CI adapter discovery must return an attempts array");
-    return response.attempts.map((attempt) =>
-      normalizeAttempt(attempt, branch),
-    );
+    return normalizeCommandAttempts(response.attempts, branch);
   };
 }
 
@@ -151,34 +149,6 @@ function runAdapter(command, request, { signal, cwd, timeoutMs }) {
     );
     child.stdin.end(`${JSON.stringify(request)}\n`);
   });
-}
-
-function normalizeAttempt(attempt, branch) {
-  if (
-    !attempt ||
-    !["string", "number"].includes(typeof attempt.runId) ||
-    !["string", "number"].includes(typeof attempt.attemptId) ||
-    !isFullGitRevision(attempt.sha) ||
-    !["pending", "success", "failure", "incomplete"].includes(attempt.outcome)
-  )
-    throw new Error("CI adapter returned an invalid attempt");
-
-  const completed = attempt.outcome !== "pending";
-  return {
-    databaseId: attempt.runId,
-    attempt: attempt.attemptId,
-    headSha: attempt.sha,
-    headBranch: branch,
-    status: completed ? "completed" : "in_progress",
-    conclusion:
-      attempt.outcome === "incomplete"
-        ? "cancelled"
-        : completed
-          ? attempt.outcome
-          : null,
-    ...(attempt.url === undefined ? {} : { url: attempt.url }),
-    ...(attempt.time === undefined ? {} : { createdAt: attempt.time }),
-  };
 }
 
 function commandFailureEvent(repo, run, response) {

@@ -52,6 +52,13 @@ process.stdout.write(request.operation === 'diagnose' ? JSON.stringify({ excerpt
     );
     const attempts = [
       {
+        runId: "obsolete",
+        attemptId: "opaque/success",
+        sha: ancestor,
+        outcome: "success",
+        time: "2026-09-14T10:00:00Z",
+      },
+      {
         runId: "history",
         attemptId: "first",
         sha: ancestor,
@@ -129,6 +136,31 @@ process.stdout.write(request.operation === 'diagnose' ? JSON.stringify({ excerpt
           ? [{ type: "CI_INCOMPLETE", runId: "history" }]
           : [],
     );
+    if (outcome === "success") {
+      for (const retryOutcome of ["failure", "pending"]) {
+        attempts.push({
+          runId: "history",
+          attemptId: `opaque/${retryOutcome}`,
+          sha: ancestor,
+          outcome: retryOutcome,
+          time:
+            retryOutcome === "failure"
+              ? "2026-09-18T10:00:00Z"
+              : "2026-09-19T10:00:00Z",
+        });
+        writeFileSync(state, JSON.stringify({ attempts }));
+        await poll.advance();
+        assert.equal(coverage(ancestor).state, retryOutcome);
+        assert.deepEqual(coverage(ancestor).checkedBy, {
+          runId: "history",
+          attemptId: `opaque/${retryOutcome}`,
+        });
+        assert.deepEqual(coverage(descendant).basis, {
+          sha: ancestor,
+          state: retryOutcome,
+        });
+      }
+    }
     attempts.push({
       runId: "exact",
       attemptId: "second",

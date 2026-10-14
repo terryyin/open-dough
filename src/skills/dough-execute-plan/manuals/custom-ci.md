@@ -70,9 +70,12 @@ failure proof, such as a cancelled check. `url` and `time` are optional.
 
 The first discovery after the observer starts is its startup snapshot. From it
 the observer keeps unfinished attempts and only the newest completed attempt by
-`time`; older completed attempts are history and are never reported, even when
-they reappear later. A new attempt, including a new `attemptId` for a known
-`runId`, is still observed. Without `time` on completed attempts, the observer
+`time`; older completed attempts stay outside ordinary notifications. They
+remain evidence for explicitly registered revisions and applicable ancestors.
+For attempts sharing a SHA, a later `time` supersedes an older one for both
+exact and ancestor coverage. Equal or missing timestamps preserve the existing
+selection behavior; opaque identities never imply an order. A new attempt,
+including a new `attemptId` for a known `runId`, is still observed. Without `time` on completed attempts, the observer
 cannot tell history from current results and treats every returned attempt as
 current, so supply `time` when the query returns retained older attempts.
 
@@ -195,8 +198,11 @@ it through `node` as in the configuration example. A fixture for the example is:
 Delivery registers each successfully pushed SHA independently of discovery.
 Only an attempt with that exact SHA can move a revision from undiscovered to
 pending, success, failure, or incomplete. A green result for another SHA does
-not cover it. A revision stays undiscovered until that attempt is found; there
-is no three-poll coverage-unavailable report. Pending and success remain quiet
+not cover it by itself. When the candidate checkout's workflow trigger filter
+proves that only ignored paths changed since an applicable ancestor, coverage
+records `not_required` with that ancestor's actual attempt state as its basis.
+Otherwise a revision stays undiscovered until its exact attempt is found;
+there is no three-poll coverage-unavailable report. Pending and success remain quiet
 coverage state; failure and incomplete can require attention. Shutdown lists
 unproved revisions as pending, undiscovered, or incomplete, not as verdicts.
 
