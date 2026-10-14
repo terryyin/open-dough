@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-008#registered-ci-history-coverage",
+  "title": "Recover retained CI coverage for registered revisions",
+  "completedAt": "2026-10-14T01:05:40.847Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "codex"
+}

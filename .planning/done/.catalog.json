@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-008_registered-ci-history-coverage.json",
+      "identity": "SEED-008#registered-ci-history-coverage",
+      "completedAt": "2026-10-14T01:05:40.847Z",
+      "blob": "0a1190e89933311221a7deca96df6bb908de6426"
+    },
+    {
       "fileName": "SEED-066_cursor-trust-prompt-at-session-start.json",
       "identity": "SEED-066#cursor-trust-prompt-at-session-start",
       "completedAt": "2026-10-13T23:30:14.188Z",
