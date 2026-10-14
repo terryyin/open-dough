@@ -4,7 +4,7 @@
 // delivered by its launch reference alone.
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -166,9 +166,11 @@ test("a context still needs its launch, its target, and a nonblank identity when
 
 test("the reporting command's landing operation takes a comparison with no identity", async (t) => {
   const { origin, requests } = await receiver(t);
-  let receipt;
-  try {
-    receipt = await reportLanding({
+  // Retained away from the scripts other tests copy while this one runs.
+  const retained = await mkdtemp(path.join(os.tmpdir(), "landing-retained-"));
+  t.after(() => rm(retained, { recursive: true, force: true }));
+  const receipt = await reportLanding(
+    {
       operation: "landing-prepare",
       origin,
       source: "open-dough",
@@ -178,15 +180,12 @@ test("the reporting command's landing operation takes a comparison with no ident
       target: "refs/heads/main",
       base,
       revision,
-    });
-  } finally {
-    // The operation retains its input beside the script.
-    const delivery = requests[0]?.report.delivery;
-    if (delivery !== undefined)
-      await rm(path.join(import.meta.dirname, `landing-${delivery}.json`), {
-        force: true,
-      });
-  }
+    },
+    retained,
+  );
+  assert.deepEqual(await readdir(retained), [
+    `landing-${requests[0].report.delivery}.json`,
+  ]);
   assert.equal(receipt.state, "prepared");
   assert.equal("identity" in requests[0].report, false);
 });
