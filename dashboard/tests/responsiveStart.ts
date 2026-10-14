@@ -77,7 +77,11 @@ export async function openStories(page: Page, origin: StartOrigin) {
   await openUntilRead(page);
   const { backlog, taken } = parts(page);
   const story = backlog.getByRole("article", { name: "Story A" });
-  const takenStory = taken.getByRole("article", { name: "Story A" });
+  // Exact: a creation entry in Taken is labelled "Story A unresolved creation".
+  const takenStory = taken.getByRole("article", {
+    name: "Story A",
+    exact: true,
+  });
   const other = backlog.getByRole("article", { name: "Story B" });
   await expect(story).toBeVisible();
   await expect(other).toBeVisible();
