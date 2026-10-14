@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-008_reuse-ci-validation-at-integration.json",
+      "identity": "SEED-008#reuse-ci-validation-at-integration",
+      "completedAt": "2026-10-14T04:11:57.317Z",
+      "blob": "c0adcd0646577387b90710e5fc08c7ac573aa958"
+    },
+    {
       "fileName": "SEED-066_cursor-trust-prompt-at-session-start.json",
       "identity": "SEED-066#cursor-trust-prompt-at-session-start",
       "completedAt": "2026-10-13T23:30:14.188Z",
