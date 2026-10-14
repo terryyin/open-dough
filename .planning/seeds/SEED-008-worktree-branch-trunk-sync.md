@@ -133,6 +133,93 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
+<a id="coalesced-ci-validation"></a>
+
+### Coalesce CI validation with truthful completion evidence
+
+**Identity:** SEED-008#coalesced-ci-validation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why:** Developers and agents using Open Dough in rapidly changing
+repositories get trustworthy integration feedback with fewer expensive CI
+executions and avoid waiting for intermediate revisions the provider will never
+check. Demonstrate the outcome with Donut's GitHub Actions and Pygardon's
+self-built CI.
+
+**Goal:** Preserve small, continuously published increments while coalescing
+expensive validation onto selected repository snapshots. Execution and wrap-up
+report which accepted revision was published, which snapshot was validated, and
+what that evidence proves, without inventing a passing result for an unchecked
+historical revision or weakening failure and resource-cleanup gates.
+
+**Origin and priority:** Terry's 2026-10-14 discussion of Anthropic's
+[source-control article](https://www.anthropic.com/engineering/redesigning-source-control)
+and the observed CI load in Donut and Pygardon, followed by the explicit request
+to queue this story next after exact-commit validation reuse
+(`SEED-008#reuse-ci-validation-at-integration`). That work completed on remote
+main while this story was being recorded; coalesced validation remains next in
+the queue. Queue order alone establishes no blocking implementation dependency.
+
+#### Scope and key examples
+
+- Provide one shared coalesced-validation and completion-evidence contract, with
+  provider-specific adoption for Donut and Pygardon. Reuse existing scheduling,
+  publication, observation, completion, and exact-commit reuse mechanisms where
+  their meanings fit. Cover both Story Branch Mode and Trunk Mode.
+- While snapshot A is running, B and then C arrive on the same target. Let A
+  finish and replace waiting B with C, avoiding B's expensive execution. Sustained
+  publications must still produce completed feedback; preserve the provider's
+  branch admission and fairness obligations.
+- When accepted B receives no run because validated C superseded it, completion
+  may use explicit evidence for the integrated state at C only under a declared
+  project policy with proven ancestry, the authorized target, applicable checks
+  and execution context. Report B as published and C as validated; do not claim
+  B's own historical snapshot passed. A newer tip alone supplies no coverage.
+- A pending, failed, cancelled, unrelated, or context-incompatible C cannot
+  establish successful completion for B. Keep known failures and incomplete
+  evidence actionable until an evidenced disposition resolves them. Multiple
+  agents publishing to one target retain attribution to their own accepted work.
+- Coalescing B away must not lose its code changes from validation. If later
+  job selection is used, it considers the complete change since the relevant
+  validated baseline, rather than only C's final commit. Preserve docs/planning
+  exclusions and their applicable-ancestor evidence.
+- Keep release and deployment obligations bound to the actual selected artifact
+  and its required validation. An integrated-state receipt cannot silently waive
+  exact-revision or target-specific checks, accepted-publication evidence,
+  observer shutdown, or safe branch/worktree retirement.
+- Deliver shared runtime guidance and necessary payload changes, plus concrete
+  adoption and consuming-path proof for both projects. Keep scheduling decisions
+  with each CI provider and evidence interpretation with its existing Dough
+  integration; avoid a second scheduler or parallel completion ledger.
+
+**Starting observations:** The 2026-10-14 read-only review found Donut's
+`.github/workflows/ci.yml` excludes `.planning/**` and `docs/**`, but otherwise
+runs its full workflow on every branch push without a CI concurrency rule.
+Pygardon's `PendingRevisionQueue` already keeps the newest waiting tip per branch
+while active work finishes. Open Dough's
+[completion policy](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)
+currently requires the coordinator's accepted revision and rejects a newer tip.
+These are starting evidence, not demonstrated coalesced completion or measured
+savings; refinement must reassess the boundaries against the landed exact-commit
+reuse implementation.
+
+**Evaluation:** On each provider, exercise rapid A/B/C publication through the
+actual scheduling and Dough completion boundaries. Observe expensive-command
+execution counts, the skipped intermediate work, completed feedback under
+continued arrivals, and inspectable accepted/validated SHAs, target, run/attempt
+identities, policy/context, and ancestry evidence. Prove consuming execution and
+wrap-up behavior in both modes, including failure, cancellation, unknown ancestry,
+incompatible context, and a deployment obligation that remains unsatisfied.
+Retain resources when required evidence or shutdown is incomplete. Shorter waits,
+synthetic success, or scheduler-only tests do not establish the outcome.
+
+**Boundaries:** This story adds no broader code-review reform, general affected-test
+selector, tree-equivalence cache, force-push policy, or delayed integration rule.
+Detailed adoption and proof design remain for refinement and slice planning;
+this backlog addition authorizes no implementation or project CI migration.
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
