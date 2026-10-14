@@ -131,7 +131,7 @@ hosted premise is bounded here under planning's permitted early-probe rule.
 
 ### 2. Reuse validation safely through both publication modes
 Type: Behavior
-Status: planned
+Status: done
 Proof: A reusable GitHub gate/recipe plus real local publication-to-completion
 journeys count actual covered-command executions and inspect source and target
 evidence. Hosted probe evidence covers scheduler semantics; local controlled
@@ -210,30 +210,10 @@ these deterministic tests.
 
 ## Current decisions and boundedness review
 
-All slices implement one rule, exact SHA plus explicitly equivalent current
-validation context, through provider-owned execution and ordinary target
-observation. The probe isolates hosted feasibility; slice 2 owns the cohesive
-GitHub outcome including both publication consumers, failure cases, instructions
-and delivery; slice 3 proves adaptation to the already-supported custom CI
-boundary without another policy. Their separation yields usable GitHub adoption
-before the custom example and avoids a test-only or layer-only slice.
-
-No numeric slice limit is supplied. The main risk is provider lookup/aggregation
-semantics, isolated by slice 1. Stop and replan if it disproves the boundary or
-if implementing slice 2 needs a second scheduler/protocol. Do not shrink either
-mode or the custom-provider promise to preserve an estimate. No S/M/L estimate
-is invented. Slice-plan refinement was not needed: the sequence has one shared
-rule, bounded proof owners, and an explicit early probe; review found no other
-slice-specific blocking concern.
-
-## Learnings
-
-The existing adapter is sufficient when CI produces a genuine target attempt
-and retains source attribution in its evidence. It is insufficient to copy a
-source attempt into target discovery: normalization assigns the requested branch
-and discards unknown provenance fields. The chosen provider-owned target result
-avoids that route. Hosted suppression is deliberately still a probe, not a
-claim established by successful baseline checks.
+The [retained rationale and learnings](EVIDENCE.md#plan-rationale-and-learnings)
+explain the shared rule and proof boundaries. No numeric slice limit is supplied.
+Stop and replan if the probe disproves the boundary or slice 2 needs a second
+scheduler/protocol. Preserve both modes and custom-provider adoption.
 
 ## Accepted hosted proof — slice 1
 
@@ -243,7 +223,12 @@ It proves hosted suppression/aggregation feasibility; slice 2 owns production el
 
 ## Story obligations
 
-### G1. Production eligibility and mode consumers after hosted feasibility
-Reported: slice 1 — "Production validity, supersession, incomplete-query, trust and override rules remain slice 2 obligations."
+### G1. Production eligibility and mode consumers (first reported in slice 1)
+Reported: slice 2 — "Production validity, supersession, incomplete-query, trust and override rules remain slice 2 obligations."
 Story clause: "Missing, pending, incomplete, failed, or ineligible evidence falls back to the ordinary CI path."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: ci-reuse-policy.test.mjs, ci-reuse-github.test.mjs and the Story/Trunk/resource journey assertions recorded in EVIDENCE.md
+
+### G2. Custom provider adoption after GitHub delivery
+Reported: slice 2 — "Custom-provider adoption remains slice 3."
+Story clause: "This is reusable behavior across supported hosts and project CI providers."
+Disposition: receiving slice 3

@@ -9,6 +9,7 @@ source "${source_dir}/tests/helpers/publication-update-proof.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
+source "${source_dir}/tests/helpers/installed-ci-reuse-fixture.bash"
 fixture="${temporary_dir}/source"
 older="${temporary_dir}/older"
 build_upgrade_releases "${fixture}" "${older}" before-execution with-execution \
@@ -50,6 +51,7 @@ assert_upgraded_execution_payload() {
     done
     # Exercise the installed runtime entrypoint in the platform layout.
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
+    assert_installed_ci_reuse "${canonical_root}"
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)
     [[ "${receipt}" == 'CI_OBSERVER '* ]]
     manual="${canonical_root}/manuals/custom-ci.md"

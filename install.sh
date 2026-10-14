@@ -117,6 +117,7 @@ managed_files=(
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
   dough-execute-plan/manuals/custom-ci.md
+  dough-execute-plan/manuals/reuse-ci.md
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-background-handoff.md
@@ -144,10 +145,8 @@ managed_files=(
   dough-execute-plan/references/trunk-publication.md
   dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
-  dough-execute-plan/scripts/ci-background-handoff.mjs
-  dough-execute-plan/scripts/ci-background-hook.mjs
-  dough-execute-plan/scripts/ci-background-session.mjs
-  dough-execute-plan/scripts/ci-background-state.mjs
+  dough-execute-plan/scripts/ci-background-handoff.mjs dough-execute-plan/scripts/ci-background-hook.mjs
+  dough-execute-plan/scripts/ci-background-session.mjs dough-execute-plan/scripts/ci-background-state.mjs
   dough-execute-plan/scripts/ci-background-waiter.mjs
   dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
@@ -158,28 +157,22 @@ managed_files=(
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
   dough-execute-plan/scripts/ci-github-actions.mjs
+  dough-execute-plan/scripts/ci-reuse-policy.mjs dough-execute-plan/scripts/ci-reuse-gate.mjs
+  dough-execute-plan/scripts/ci-reuse-github.mjs dough-execute-plan/scripts/ci-reuse-github-command.mjs
   dough-execute-plan/scripts/ci-github-diagnostic.mjs
-  dough-execute-plan/scripts/ci-host-bridge.mjs
-  dough-execute-plan/scripts/ci-host-hook.mjs
-  dough-execute-plan/scripts/ci-mailbox-await.mjs
-  dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
-  dough-execute-plan/scripts/ci-mailbox-complete.mjs
-  dough-execute-plan/scripts/ci-mailbox-json-file.mjs
-  dough-execute-plan/scripts/ci-mailbox-location.mjs
-  dough-execute-plan/scripts/ci-mailbox-match.mjs
+  dough-execute-plan/scripts/ci-host-bridge.mjs dough-execute-plan/scripts/ci-host-hook.mjs
+  dough-execute-plan/scripts/ci-mailbox-await.mjs dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
+  dough-execute-plan/scripts/ci-mailbox-complete.mjs dough-execute-plan/scripts/ci-mailbox-json-file.mjs
+  dough-execute-plan/scripts/ci-mailbox-location.mjs dough-execute-plan/scripts/ci-mailbox-match.mjs
   dough-execute-plan/scripts/ci-observer-owner.mjs
-  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
-  dough-execute-plan/scripts/ci-mailbox-store.mjs
-  dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
-  dough-execute-plan/scripts/ci-mailbox.mjs
+  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs dough-execute-plan/scripts/ci-mailbox-store.mjs
+  dough-execute-plan/scripts/ci-mailbox-worker-process.mjs dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
-  dough-execute-plan/scripts/ci-repair-stash-applied.mjs
-  dough-execute-plan/scripts/ci-repair-stash-git.mjs
+  dough-execute-plan/scripts/ci-repair-stash-applied.mjs dough-execute-plan/scripts/ci-repair-stash-git.mjs
   dough-execute-plan/scripts/ci-repair-stash.mjs
-  dough-execute-plan/scripts/ci-revisions.mjs
-  dough-execute-plan/scripts/ci-runs.mjs
+  dough-execute-plan/scripts/ci-revisions.mjs dough-execute-plan/scripts/ci-runs.mjs
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/github-request-admission.mjs
   dough-execute-plan/scripts/github-request-answer.mjs

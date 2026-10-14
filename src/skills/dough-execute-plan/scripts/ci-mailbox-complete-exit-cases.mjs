@@ -1,13 +1,12 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
   completeRevision,
   createMailbox,
-  recordWorkerIdentity,
   registerPushedRevision,
   workerLossReason,
 } from "./ci-mailbox.mjs";
@@ -22,11 +21,11 @@ import {
   terminateMailboxWorker,
 } from "./ci-mailbox-worker-process.mjs";
 import { shownProcessSync } from "./process-table.mjs";
+import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
-  deferChildExit,
-  fixtureTeardown,
-} from "./fixture-teardown-test-fixtures.mjs";
-import { awaitSignalWhileRunning } from "./process-lifetime-test-fixtures.mjs";
+  startStubWorker,
+  publishThenExitSource,
+} from "./ci-mailbox-stub-worker-test-fixtures.mjs";
 
 // A mailbox whose recorded worker is a stub started from `source`, with a
 // command line matching a mailbox worker's so stop treats it as one. It
@@ -45,58 +44,13 @@ async function mailboxWithStubWorker(t, source) {
     },
     { storage },
   );
-  const stub = join(storage, "ci-mailbox.mjs");
-  const ready = join(storage, "stub-ready");
-  writeFileSync(
-    stub,
-    `${source}
-import("node:fs").then(({ writeFileSync }) =>
-  writeFileSync(process.env.STUB_READY, ""),
-);
-`,
-  );
-  const child = spawn(process.execPath, [stub, "worker", directory], {
-    env: { ...process.env, STUB_READY: ready },
-    stdio: "ignore",
+  const child = await startStubWorker({
+    root: storage,
+    directory,
+    teardown,
+    source,
   });
-  deferChildExit(teardown, child, "SIGKILL");
-  await new Promise((resolve, reject) => {
-    child.once("spawn", resolve);
-    child.once("error", reject);
-  });
-  recordWorkerIdentity(directory, { pid: child.pid });
-  await awaitSignalWhileRunning(
-    () => existsSync(ready),
-    () => child.exitCode !== null || child.signalCode !== null,
-    () => `The stub worker exited before running: ${child.exitCode}`,
-  );
   return { storage, directory, child };
-}
-
-// A stub worker that publishes a stopped result on the stop request and exits
-// `exitDelayMs` later (300ms by default), first showing `exitingCommand`, when
-// given, as its command.
-function publishThenExitSource({ exitingCommand, exitDelayMs = 300 } = {}) {
-  const showExitingCommand =
-    exitingCommand === undefined
-      ? ""
-      : `  process.title = ${JSON.stringify(exitingCommand)};\n`;
-  return `import { existsSync, renameSync, watch, writeFileSync } from "node:fs";
-import { join } from "node:path";
-const directory = process.argv[3];
-let published = false;
-const check = () => {
-  if (published || !existsSync(join(directory, "stop"))) return;
-  published = true;
-${showExitingCommand}  const result = join(directory, "result.json");
-  writeFileSync(result + ".tmp", JSON.stringify({ status: "stopped" }));
-  renameSync(result + ".tmp", result);
-  setTimeout(() => process.exit(0), ${exitDelayMs});
-};
-watch(directory, check);
-check();
-setInterval(() => {}, 1000);
-`;
 }
 
 test("explicit stop returns only after the worker exits the post-terminal window", async (t) => {

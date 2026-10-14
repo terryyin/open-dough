@@ -15,8 +15,12 @@ read_managed_files_declaration() {
   if ! declared=$(awk '
     /^managed_files=\(/ { in_payload = 1; next }
     in_payload && /^\)/ { closed = 1; in_payload = 0 }
-    in_payload && $1 == "dough-update/SKILL.md" { core = 1 }
-    in_payload { print $1 }
+    in_payload {
+      for (i = 1; i <= NF; i++) {
+        if ($i == "dough-update/SKILL.md") core = 1
+        print $i
+      }
+    }
     END { exit !(closed && core) }
   ' "${install_script}"); then
     echo "Cannot read managed payload declaration: ${install_script}" >&2

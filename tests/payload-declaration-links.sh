@@ -64,6 +64,25 @@ check_declared_links "${source_dir}"
 # A copy whose installer would fail if run proves the check never runs it.
 copy=$(mktemp -d)
 trap 'rm -rf -- "${copy}"' EXIT
+# Compare the actual grouped source declaration with Bash's literal array,
+# then read an equivalent legacy one-entry-per-line historical declaration.
+literal=$(awk '
+  /^managed_files=\(/ { in_payload = 1 }
+  in_payload { print }
+  in_payload && /^\)/ { exit }
+' "${source_dir}/install.sh")
+native_paths=$(bash -c "${literal}"$'\n''printf "%s\n" "${managed_files[@]}"')
+declared_paths=$(read_managed_files_declaration "${source_dir}/install.sh")
+[[ "${declared_paths}" == "${native_paths}" ]]
+{
+  printf '%s\n' 'managed_files=('
+  while IFS= read -r managed_file; do
+    printf '  %s\n' "${managed_file}"
+  done <<< "${native_paths}"
+  printf '%s\n' ')'
+} > "${copy}/legacy-install.sh"
+legacy_paths=$(read_managed_files_declaration "${copy}/legacy-install.sh")
+[[ "${legacy_paths}" == "${native_paths}" ]]
 mkdir -p -- "${copy}/src"
 cp -R -- "${source_dir}/src/skills" "${copy}/src/skills"
 {
