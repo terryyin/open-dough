@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "pyo-chan",
+  "email": "pyo-chan@example.org",
+  "identity": "SEED-008#registered-ci-history-coverage",
+  "mode": "story-branch",
+  "branch": "codex/registered-ci-history",
+  "host": "codex"
+}
