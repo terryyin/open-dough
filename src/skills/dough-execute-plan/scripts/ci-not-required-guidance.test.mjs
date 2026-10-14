@@ -29,9 +29,9 @@ const reference = (name) =>
 test("ci-monitor.md guides a reader to treat not_required as an applicability fact, not a verdict", () => {
   const monitor = reference("ci-monitor.md");
 
-  // A reader must be told this is GitHub-default-only and distinct from an
-  // ordinary "quiet, still discovering" revision.
-  assert.match(monitor, /`not_required` \(GitHub default only\)/);
+  // A reader must distinguish proved applicability from an ordinary
+  // "quiet, still discovering" revision, for either acquisition source.
+  assert.match(monitor, /`not_required` is a different, already-proved case/);
 
   // No invented success: a `not_required` revision with a pending/incomplete
   // applicable ancestor (the shape ci-mailbox-store.mjs actually reports at

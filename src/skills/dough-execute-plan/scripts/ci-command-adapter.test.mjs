@@ -10,7 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { createCommandRunAcquisition } from "./ci-command-adapter.mjs";
+import { createCommandAcquisition } from "./ci-command-adapter.mjs";
 import {
   callsReached,
   checkedSha,
@@ -82,7 +82,7 @@ test("observer selects one configured command and stays quiet through pending th
 
 test("command acquisition retains opaque run and attempt identities across polls", async (t) => {
   const fixture = projectFixture(t, () => ({}));
-  const acquire = createCommandRunAcquisition({
+  const { acquireRuns } = createCommandAcquisition({
     command: [process.execPath, fixture.adapter],
     repo: "owner/project",
     branch: "feature/custom",
@@ -91,7 +91,7 @@ test("command acquisition retains opaque run and attempt identities across polls
   const signal = new AbortController().signal;
 
   const polls = [];
-  for (let poll = 0; poll < 4; poll += 1) polls.push(await acquire(signal));
+  for (let poll = 0; poll < 4; poll += 1) polls.push(await acquireRuns(signal));
   const [[pending], [success], [failure], [incomplete]] = polls;
 
   assert.deepEqual(

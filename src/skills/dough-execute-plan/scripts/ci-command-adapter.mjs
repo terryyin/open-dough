@@ -1,8 +1,8 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { normalizeCommandAttempts } from "./ci-command-attempts.mjs";
 import { ciAttemptKey } from "./ci-failures.mjs";
-import { isFullGitRevision } from "./ci-revisions.mjs";
 import { createStartupRunFilter } from "./ci-runs.mjs";
 
 const configurationPath = ".planning/open-dough.json";
@@ -26,22 +26,40 @@ export function readCiAdapter(root = process.cwd()) {
   return command;
 }
 
-// The project's CI command as the observer reads it: runs and failures.
+// Retained attempts remain evidence for registered revisions even when the
+// ordinary notification stream suppresses completed startup history.
 export function createCommandAcquisition(options) {
+  const discover = createCommandDiscovery(options);
+  const currentRuns = createStartupRunFilter();
+  let retained = [];
   return {
-    acquireRuns: createCommandRunAcquisition(options),
+    acquireRuns: async (signal) => {
+      retained = await discover(signal);
+      const current = currentRuns(retained);
+      const registered = new Set(
+        ((await options.registeredRevisions?.()) ?? []).map((sha) =>
+          sha.toLowerCase(),
+        ),
+      );
+      return retained.filter(
+        (run) =>
+          current.includes(run) || registered.has(run.headSha.toLowerCase()),
+      );
+    },
     acquireFailure: createCommandFailureAcquisition(options),
+    // Coverage owns workflow-path applicability; candidates retain their real
+    // attempt state and never enter the ordinary failure stream by themselves.
+    discoverAncestorCandidates: async () => retained,
   };
 }
 
-export function createCommandRunAcquisition({
+function createCommandDiscovery({
   command,
   repo,
   branch,
   root,
   timeoutMs = defaultAdapterTimeoutMs,
 }) {
-  const currentRuns = createStartupRunFilter();
   return async (signal) => {
     const response = await runAdapter(
       command,
@@ -50,9 +68,7 @@ export function createCommandRunAcquisition({
     );
     if (!response || !Array.isArray(response.attempts))
       throw new Error("CI adapter discovery must return an attempts array");
-    return currentRuns(
-      response.attempts.map((attempt) => normalizeAttempt(attempt, branch)),
-    );
+    return normalizeCommandAttempts(response.attempts, branch);
   };
 }
 
@@ -133,34 +149,6 @@ function runAdapter(command, request, { signal, cwd, timeoutMs }) {
     );
     child.stdin.end(`${JSON.stringify(request)}\n`);
   });
-}
-
-function normalizeAttempt(attempt, branch) {
-  if (
-    !attempt ||
-    !["string", "number"].includes(typeof attempt.runId) ||
-    !["string", "number"].includes(typeof attempt.attemptId) ||
-    !isFullGitRevision(attempt.sha) ||
-    !["pending", "success", "failure", "incomplete"].includes(attempt.outcome)
-  )
-    throw new Error("CI adapter returned an invalid attempt");
-
-  const completed = attempt.outcome !== "pending";
-  return {
-    databaseId: attempt.runId,
-    attempt: attempt.attemptId,
-    headSha: attempt.sha,
-    headBranch: branch,
-    status: completed ? "completed" : "in_progress",
-    conclusion:
-      attempt.outcome === "incomplete"
-        ? "cancelled"
-        : completed
-          ? attempt.outcome
-          : null,
-    ...(attempt.url === undefined ? {} : { url: attempt.url }),
-    ...(attempt.time === undefined ? {} : { createdAt: attempt.time }),
-  };
 }
 
 function commandFailureEvent(repo, run, response) {

@@ -30,8 +30,7 @@ Bind the observer's runtime, pause, stash, repair, delivery, and restoration to
 the selected execution checkout. Observe the target branch from that checkout.
 Verify binding against the retained execution identity. Recover from the
 `CI_OBSERVER` directory and coverage receipts before considering a replacement.
-A published SHA absent from those receipts is
-[missing CI registration](trunk-publication.md#resume-an-interrupted-publication).
+A published SHA absent from those receipts is [missing CI registration](trunk-publication.md#resume-an-interrupted-publication).
 An unavailable host bridge is missing coverage: report it once and continue
 without AI polling or promised notifications.
 
@@ -45,7 +44,8 @@ attempts. Preserve opaque run and attempt identities. Retain unfinished
 identities across later discovery requests. For the GitHub default, a run absent
 from that snapshot, or a later attempt, remains eligible even when GitHub's
 second-precision `createdAt` equals the startup second; failed-job names support
-classification after delivery.
+classification after delivery. Retained custom adapter history stays available for
+registered revisions and applicable ancestors; unrelated completed history stays quiet.
 
 Select the **non-model notification bridge for the current host**:
 
@@ -160,9 +160,9 @@ until that missing history is accounted for.
    A revision without a discovered run is quiet until its verdict arrives or
    observation ends; after a long discovery gap the observer may emit one
    informational `CI_DISCOVERY_DELAYED` advisory and keep observing.
-   A revision recorded `not_required` (GitHub default only) is a different,
+   A revision recorded `not_required` is a different,
    already-proved case: its own changed paths are all ignored by the
-   workflow's trigger filter, so GitHub created no run for it, and the
+   candidate checkout's workflow trigger filter, and the
    observer already proved a nearby applicable attempt (`basis.sha`) covers
    it instead. `not_required` is an applicability fact, not a verdict — never
    treat it as a skipped-and-therefore-fine success, and never report a

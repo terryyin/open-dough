@@ -27,38 +27,6 @@ outcome without changing ADR status or execution authority.
 
 ## Stories
 
-<a id="registered-ci-history-coverage"></a>
-
-### Recover retained CI coverage for registered revisions
-
-**Identity:** SEED-008#registered-ci-history-coverage
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
-```
-
-**Goal:** A coordinator completing an explicitly registered revision can use
-retained exact or applicable ancestor CI evidence even when the observer started
-after those attempts completed.
-
-**Scope:** Repair historical coverage acquisition for custom CI adapters through
-the existing revision applicability and bounded completion path. Preserve the
-startup suppression of unrelated historical failure notifications, actual
-attempt outcomes and provenance, newer exact-attempt precedence, and confirmed
-observer shutdown. Deliver the shared source through the supported release and
-client-update lifecycle. Do not introduce CI scheduling or validation-reuse
-policy, and do not change the broader integration reuse story.
-
-**Expected examples:** An old registered successful exact attempt completes;
-an ignored-only descendant can use an eligible retained successful ancestor;
-failed, pending, incomplete, unrelated or inapplicable history cannot fabricate
-success or unsolicited stale failure notifications. An absent retained attempt
-remains unproved.
-
-**Observed discrepancy:** Pygardon's adapter retains attempts, but the command
-acquisition startup filter hides old completed runs and has no historical
-coverage callback. Completion for c08c862311089671b6af5ba9207eca79804d2856
-timed out as undiscovered, preventing retirement of the completed TFDC study.
-
 <a id="accept-queued-start-native-behavior"></a>
 
 ### Queued-start native acceptance completed
