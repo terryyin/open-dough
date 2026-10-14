@@ -16,7 +16,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Observe an unattached Start session on the native hosts](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation) — SEED-066#unattached-session-native-observation ([plan](slice-plans/301-unattached-session-native-observation/PLAN.md))
 - [Recover retained CI coverage for registered revisions](seeds/SEED-008-worktree-branch-trunk-sync.md#registered-ci-history-coverage) — SEED-008#registered-ci-history-coverage
+- [Avoid duplicate CI when main receives an already validated commit](seeds/SEED-008-worktree-branch-trunk-sync.md#reuse-ci-validation-at-integration) — SEED-008#reuse-ci-validation-at-integration ([plan](slice-plans/306-reuse-ci-validation-at-integration/PLAN.md))
 
 ## Backlog list
 
-- [Avoid duplicate CI when main receives an already validated commit](seeds/SEED-008-worktree-branch-trunk-sync.md#reuse-ci-validation-at-integration) — SEED-008#reuse-ci-validation-at-integration
