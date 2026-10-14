@@ -596,7 +596,7 @@ for later rollout; remove only disposable probe resources after judging.
 
 ### 7. Prove candidate adoption in Pygardon's actual CI
 Type: Behavior
-Status: planned
+Status: done
 Proof: Authorized isolated Pygardon adoption follows real branch observation → admission →
 command → attempt storage → HTTP discovery → actual adapter → Dough mode/closure
 completion. A/C's real commands execute and B's does not; continued arrivals and
@@ -621,6 +621,72 @@ behavior. Retain reproducible project adapter/policy/guidance changes, candidate
 identity and judged proof for the separately authorized release/rollout. Finish
 any shared payload fixes in this story; do not declare completion with either
 project's isolated adoption proof missing or claim normal rollout occurred.
+
+Accepted proof (2026-10-15, isolated local only; nothing pushed).
+
+**Reproducible Pygardon changes.** These are on the local, unpushed branch
+`dough/coalesced-ci-candidate` at `a3f05b8c0dba4da55e74f6eb52ac1be8bf68481f`, in
+worktree `/Users/terryyin/git/pygardon/.worktrees/dough-coalesced-ci-candidate`,
+on origin/main `5e22feb42`. Discover now:
+- lists attempts newest first;
+- emits a `url` of `/api/ci/attempts/<id>`, check `pygardon-ci` and context
+  `push`;
+- emits `branch` only when the attempt's own branch is the requested branch
+  and `/api/ci` reports no error.
+
+Another branch's attempt omits `branch`, so it keeps its exact-SHA coverage
+but never attests the target. `.planning/open-dough.json` declares
+`{"check":"pygardon-ci","context":"push"}`. Tests:
+- `nix develop -c node --test 'tests/*.test.mjs'`: 73/73 pass. This includes
+  the released 0.3.62 watcher integration with the new adapter, which shows
+  legacy compatibility.
+- The guarded pytest over the CI session, path, retention, retry and release
+  reservation suites: 68 collected, 68 passed.
+
+**Candidate payload.** The candidate is Open Dough `d429430a`, plus the
+`manuals/custom-ci.md` clarification committed with this slice. It was
+installed with `install.sh --target <disposable> --source <checkout> --force`
+for claude and codex and labelled candidate proof. The VERSION it carries is
+not a release.
+
+**Proof environment.** The real service ran with `create_app` and
+`run_service` on an isolated profile. `GitHubRevisionSource` read a local
+REST stand-in over a bare remote. Each attempt ran the real `CiCommand` →
+`scripts/run-ci.sh`, which fetches and checks out the snapshot. Check tools
+were PATH stand-ins, as in `tests/run_ci_script_support.py`, with the pytest
+stand-in counted, holdable and failable.
+
+**Observed outcomes.**
+- **Coalescing.** A ran 1, B 0, C (docs) 1, D (docs) 0 as `path_excluded`,
+  E 1, and feature F 1, in order A0, A, C, F, E. C's snapshot contained B's
+  source files.
+- **Trunk delivery receipt.** Installed `deliver` → `complete-revision` gave
+  `integrated_state` with accepted B (`undiscovered`), validated C (main,
+  attempt, URL, `pygardon-ci`/`push`) and the ancestry basis. Shutdown was
+  confirmed while E was still running.
+- **Reruns.** A held rerun of the validating H made G
+  `not_current_success`. A failed retry stayed unresolved and delivered no
+  events to this coordinator. A passing retry validated at the newest attempt.
+- **Another branch.** Feature-branch X never certified main
+  (`different_target`, `wait_cancelled`, observer retained). Exact reuse still
+  completed X on main as `source: "exact"`.
+- **Retention.** Pruning C's attempt beyond 100 withdrew R's success, and R
+  never went green.
+- **Stale observation.** A stale `/api/ci` emitted no `branch`.
+- **Trunk `finish`.** It completed F′ at C4 (`integrated_state`), removing the
+  worktree and branch. Planning-only P1 resolved as `not_required` with basis
+  M2.
+- **Story closure.** Merge N completed at C5 (`integrated_state`), and
+  retirement ran only behind that gate.
+- **Exact gates and legacy behaviour.** Without the declaration, and on
+  released 0.3.62, B stayed exact (`wait_cancelled`, `undiscovered`). The tag
+  at B started no attempt, so its exact obligation stays unsatisfied. The
+  release reservation held M1/M2, and only M2 ran after the reservation was
+  released.
+
+Not exercised: the full test suite and the Docker executor, and background
+callers against Pygardon (slice 5 covers those). No native host acceptance or
+normal rollout is claimed.
 
 ## Story obligations
 
@@ -652,7 +718,7 @@ Disposition: proved by slice 5: closure-story-integrated-state-cases.mjs "a GitH
 ### G6. Observed remote inferred from checkout configuration
 Reported: slice 5 — "A checkout with several remotes, no branch.<target>.remote, and no remote URL ending in owner/repo gets no fetch and stays ancestry_unknown."
 Story clause: "C need not belong to the same writer, but B's publication and ownership remain that coordinator's."
-Disposition: interim until slices 6, 7
+Disposition: interim until slices 6
 
 ## Current decisions and boundedness review
 

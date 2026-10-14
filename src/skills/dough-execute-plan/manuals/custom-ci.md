@@ -73,8 +73,11 @@ exact checked commit. `outcome` is one of `pending`, `success`, `failure`, or
 failure proof, such as a cancelled check. `url` and `time` are optional.
 `branch`, `check` and `context` are optional nonempty strings: the branch the
 service validated for that attempt, the check's stable name, and its triggering
-context. The observer drops an attempt naming another branch. Without `branch`,
-an attempt keeps counting for its exact SHA but never attests the target.
+context. The observer drops an attempt naming another branch, including for its
+exact SHA. Without `branch`, an attempt keeps counting for its exact SHA but
+never attests the target. When the service checks a SHA once for every branch
+that carries it, omit `branch` on an attempt it admitted for another branch so
+that the attempt still covers its exact SHA on the requested target.
 
 The first discovery after the observer starts is its startup snapshot. From it
 the observer keeps unfinished attempts and only the newest completed attempt by
