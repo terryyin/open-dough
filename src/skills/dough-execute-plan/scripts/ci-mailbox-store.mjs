@@ -89,12 +89,15 @@ const unresolvedRevisionStates = ["undiscovered", "pending", "incomplete"];
 // applicable source (`basis`) so a reader can see why no run exists for this
 // revision and what its effective attempt's real state is.
 const provedApplicableAncestorStates = ["success", "failure"];
+// A revision completed by its declared integrated-state evidence (see
+// ci-integrated-state.mjs) is likewise proved and omitted.
 
 function unresolvedRevisions(directory) {
   return readRevisionCoverage(directory)
     .filter(
-      ({ state, basis }) =>
-        unresolvedRevisionStates.includes(state) ||
+      ({ state, basis, integrated }) =>
+        (unresolvedRevisionStates.includes(state) &&
+          integrated?.state !== "success") ||
         (state === "not_required" &&
           !provedApplicableAncestorStates.includes(basis?.state)),
     )

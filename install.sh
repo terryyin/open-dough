@@ -156,7 +156,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
-  dough-execute-plan/scripts/ci-github-actions.mjs
+  dough-execute-plan/scripts/ci-github-actions.mjs dough-execute-plan/scripts/ci-integrated-state.mjs
   dough-execute-plan/scripts/ci-reuse-policy.mjs dough-execute-plan/scripts/ci-reuse-gate.mjs
   dough-execute-plan/scripts/ci-reuse-github.mjs dough-execute-plan/scripts/ci-reuse-github-command.mjs
   dough-execute-plan/scripts/ci-reuse-custom-example.mjs

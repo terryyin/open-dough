@@ -346,7 +346,7 @@ this service were not exercised either.
 
 ### 3. Complete incorporated work truthfully through GitHub evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real local Git publication and GitHub-shaped acquisition → registration →
 coverage → installed complete-revision returns accepted B and validated C, plus
 actual shutdown outcome. Disable descendant eligibility in a scratch mutation:
@@ -384,6 +384,38 @@ for changed delivery dependencies and installed use. Review one B/C success and
 one incompatible/failed C under AGENTS.md. This increment proves installed
 completion; slice 4 adds custom acquisition and slice 5 owns complete execution,
 wrap-up and background consumer behavior. Do not report those later proofs done.
+
+Accepted proof (2026-10-14). Opt-in key `integratedStateCompletion`
+(`{check, context, jobs?}`) lives in `.planning/open-dough.json`, documented in
+`references/runtime-setup.md`. The receipt's `integrated_state` reading is in
+`references/ci-completion-wait.md`. The single rule is `ci-integrated-state.mjs`
+(`integratedStateJudge`). It applies only to B states `undiscovered`/`incomplete`
+and judges afresh every poll, in provider order. Every listed run of C must be a
+current success, and the authoritative `runs/<id>` and attempt jobs reads go
+through `ci-runs.readCurrentAttempt`. It requires same-branch, check/context, and
+tri-state `git merge-base --is-ancestor`. Reads are bounded to 3 per poll. Its
+`ci-mailbox-revision-coverage.mjs` caller adds the bounded 100-run history lookup,
+separate from startup pruning. `ci-mailbox-await.mjs` gives the one projection for
+`awaitRevision` and `recordedVerdict`. The store's terminal `unproved` agrees with
+the receipt.
+`PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/ci-integrated-state-journey.test.mjs src/skills/dough-execute-plan/scripts/ci-integrated-state-ineligible.test.mjs src/skills/dough-execute-plan/scripts/ci-revision-coverage-not-required.test.mjs`
+passed, along with every `dough-story-wrap-up/scripts/*closure*.test.mjs`. These
+tests publish B–E with `publishHistoryPreservingCandidate`. They count real
+covered commands and finish through the installed `complete-revision`. The cases
+observe:
+- a deepEqual receipt with `count(B) = 0` and `count(C) = 1`, with C pruned from
+  startup and E running;
+- no policy, so B stays unresolved;
+- C's pending, then failed, rerun;
+- `ancestry_unknown` until fetch;
+- `context_incompatible` and `missing_check`;
+- `current_attempt_unavailable` replacing a recorded success;
+- B's own failure retaining the observer;
+- `not_required` unchanged under the policy.
+
+The 123 affected consumer and payload/install files passed after refactoring. A
+scratch mutation emptying the eligible states failed `B must have integrated-state
+evidence from C`; restoring it passed.
 
 ### 4. Consume the same evidence rule from custom CI
 Type: Behavior
@@ -507,6 +539,28 @@ behavior. Retain reproducible project adapter/policy/guidance changes, candidate
 identity and judged proof for the separately authorized release/rollout. Finish
 any shared payload fixes in this story; do not declare completion with either
 project's isolated adoption proof missing or claim normal rollout occurred.
+
+## Story obligations
+
+### G1. Custom command adapters leave policy revisions unresolved
+Reported: slice 3 — "A configured command adapter does not yet supply the current-attempt facts this needs, so with one the declaration leaves such revisions unresolved."
+Story clause: "Demonstrate the outcome with Donut's GitHub Actions and Pygardon's self-built CI."
+Disposition: receiving slice 4
+
+### G2. Lifecycle consumers lack integrated-state cases
+Reported: slice 3 — "no integrated-state case runs through the background handoff/waiter, closure or managed-delivery lifecycles"
+Story clause: "through execution and wrap-up in Story Branch Mode and Trunk Mode"
+Disposition: receiving slice 5
+
+### G3. Mid-read rerun, read bound and multi-run C paths untested
+Reported: slice 3 — "the mid-read rerun path (attempt_changed / contradicted), the 3-read bound (verification_bound), and multiple distinct runs for one C SHA"
+Story clause: "A prior green cannot hide a current pending/failed rerun."
+Disposition: receiving slice 5
+
+### G4. Docs-only tip applicability not proved against real provider facts
+Reported: slice 3 — "the docs/planning applicability range (source B with a docs-only C) and real provider facts"
+Story clause: "Validation of a selected snapshot must include the unchecked changes incorporated since the relevant validated baseline."
+Disposition: receiving slice 6
 
 ## Current decisions and boundedness review
 

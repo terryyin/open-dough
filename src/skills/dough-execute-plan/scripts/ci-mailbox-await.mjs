@@ -26,10 +26,30 @@ function effectiveCoverage(coverage) {
       outcome: { unresolvedReason: "missing_registration" },
     };
   if (coverage.state !== "not_required") {
-    const evidence = { source: "exact", revision: coverage };
+    const { integrated, ...revision } = coverage;
+    // Under the declared policy, the integrated state validated at a
+    // descendant completes B while B keeps its own exact state.
+    if (integrated?.state === "success")
+      return {
+        evidence: {
+          source: "integrated_state",
+          accepted: revision,
+          validated: integrated.validated,
+          policy: integrated.policy,
+          ancestry: integrated.ancestry,
+        },
+        outcome: { verdict: "success" },
+      };
+    const evidence = {
+      source: "exact",
+      revision,
+      ...(integrated ? { integrated } : {}),
+    };
     if (terminalVerdicts.has(coverage.state))
       return { evidence, outcome: { verdict: coverage.state } };
-    if (coverage.state === "incomplete")
+    // A cancelled exact attempt ends the wait unless the policy still lets
+    // a descendant's current success complete it.
+    if (coverage.state === "incomplete" && !integrated)
       return { evidence, outcome: { unresolvedReason: "incomplete" } };
     return { evidence };
   }

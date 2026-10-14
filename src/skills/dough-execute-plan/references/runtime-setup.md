@@ -48,6 +48,25 @@ change it during the observer's lifetime.
   `gh` or GitHub workflow identity for this mode. Adapter authentication and
   endpoint access remain project-owned.
 
+Optional `integratedStateCompletion` declares that a successful validation of
+a later snapshot on the same target may complete an earlier accepted revision
+it contains. Without it, completion stays exact. Declare it only when the
+declared check validates the whole snapshot, so a later success covers every
+change it incorporates:
+
+```json
+{ "integratedStateCompletion": { "check": "ci.yml", "context": "push", "jobs": ["test"] } }
+```
+
+`check` names the observed check: for GitHub Actions, the selected workflow
+selector (the `DOUGH_CI_WORKFLOW` value, default `ci.yml`). `context` names the
+triggering event (`push`). Optional `jobs` lists jobs that must each appear
+once and succeed in that attempt. A malformed declaration ends observation
+with `CI_MONITOR_UNAVAILABLE`. A configured command adapter does not yet
+supply the current-attempt facts this needs, so with one the declaration leaves
+such revisions unresolved. The declaration never changes the provider's
+scheduling or exact-commit reuse.
+
 This observer handles one selected CI check per execution. It does not support
 pull-request-only CI, aggregate multiple checks, or observe deployment. If this
 project needs an unsupported mode, report missing monitoring coverage and

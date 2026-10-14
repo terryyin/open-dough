@@ -68,6 +68,8 @@ export async function runMailboxWorker(
   const request = readMailbox(directory, root, storage);
   const changes = watchMailboxChanges(directory);
   const stopped = changes.stopSignal;
+  const observeCoverage = (runs, observedAt, lookups) =>
+    observeRevisionCoverage(directory, runs, request, observedAt, lookups);
   const recordEvent = (event) => {
     const sequence = publishMailboxEvent(directory, event);
     onRecord?.({ sequence, event });
@@ -80,10 +82,7 @@ export async function runMailboxWorker(
         ...request,
         signal: stopped,
         emit: recordEvent,
-        observeCoverage: (runs, observedAt, discoverAncestorCandidates) =>
-          observeRevisionCoverage(directory, runs, request, observedAt, {
-            discoverAncestorCandidates,
-          }),
+        observeCoverage,
         registeredRevisions: async () => listRegisteredRevisions(directory),
         armRegistrationWake: changes.armRegistrationWake,
       });

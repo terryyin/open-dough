@@ -42,15 +42,23 @@ export function launchAwait(teardown, env, mailbox, revision = sha) {
   ]);
 }
 
-export function launchComplete(teardown, env, mailbox, revision = sha) {
-  return launchMailboxCommand(teardown, env, [
-    "complete-revision",
-    mailbox,
-    revision,
-  ]);
+// `installed` names another installed `ci-mailbox.mjs` to run instead.
+export function launchComplete(
+  teardown,
+  env,
+  mailbox,
+  revision = sha,
+  installed = launcher,
+) {
+  return launchMailboxCommand(
+    teardown,
+    env,
+    ["complete-revision", mailbox, revision],
+    installed,
+  );
 }
 
-function launchMailboxCommand(teardown, env, args) {
+function launchMailboxCommand(teardown, env, args, installed = launcher) {
   // Observe handler registration and each recheck pause without adding test
   // hooks to the CLI protocol.
   const readinessProbe = `data:text/javascript,${encodeURIComponent(`
@@ -63,7 +71,7 @@ function launchMailboxCommand(teardown, env, args) {
   `)}`;
   const child = spawn(
     process.execPath,
-    ["--import", readinessProbe, launcher, ...args],
+    ["--import", readinessProbe, installed, ...args],
     {
       env,
       stdio: ["ignore", "pipe", "pipe", "ipc"],

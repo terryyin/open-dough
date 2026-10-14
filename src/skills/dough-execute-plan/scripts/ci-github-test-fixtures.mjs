@@ -27,6 +27,8 @@ import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mj
 // login's token; each call records its user, a log names it, and a limit
 // naming a user refuses only that user. Once `on-end` stands, a call asked
 // to end records `told-to-end` and ends, or stays when the file says `stay`.
+// A listed run's own route answers that run; `attemptJobs["RUN/ATTEMPT"]`
+// names one attempt's jobs, else every attempt has `jobs`.
 const instrumentedGithub = `#!${process.execPath}
 const fs = require('node:fs');
 const path = require('node:path');
@@ -98,11 +100,15 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
     return json({ total_count: state.runs.length, workflow_runs: state.runs.slice(0, perPage) });
   if ((found = /^runs\\/(\\d+)\\/attempts\\/(\\d+)$/.exec(asked)) && state.attempts[found[1] + '/' + found[2]])
     return json(state.attempts[found[1] + '/' + found[2]]);
-  if (/^runs\\/\\d+\\/attempts\\/\\d+\\/jobs$/.test(asked))
+  if ((found = /^runs\\/(\\d+)$/.exec(asked)) && (state.runs ?? []).some((run) => String(run.id) === found[1]))
+    return json(state.runs.find((run) => String(run.id) === found[1]));
+  if ((found = /^runs\\/(\\d+)\\/attempts\\/(\\d+)\\/jobs$/.exec(asked))) {
+    const jobs = state.attemptJobs?.[found[1] + '/' + found[2]] ?? state.jobs;
     return json({
-      total_count: state.jobs.length,
-      jobs: state.jobs.slice((page - 1) * perPage, page * perPage),
+      total_count: jobs.length,
+      jobs: jobs.slice((page - 1) * perPage, page * perPage),
     });
+  }
   finish('HTTP/2.0 404 Not Found', '{}', 1, 'gh: Not Found (HTTP 404)');
 })();
 `;

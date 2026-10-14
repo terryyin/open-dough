@@ -35,10 +35,24 @@ distinct from shutdown facts:
 
 - `verdict: "success"` with `shutdown.status: "confirmed"` satisfies completion
   observation and ends local observation.
+- `effectiveEvidence.source: "integrated_state"` is that success under this
+  project's declared [integrated-state policy](runtime-setup.md#select-ci): the
+  accepted revision had no successful run of its own (`accepted` keeps its own
+  state), and a successful current attempt at a later same-target snapshot
+  that contains it (`validated`: SHA, run, attempt, URL, check, context and
+  any required jobs; `ancestry`) validated the integrated state. Report both
+  revisions; do not describe the accepted revision as having passed by itself.
 - `verdict: "failure"` with `shutdown.status: "retained"` ends the wait without
   waiving the failure and keeps the observer available for diagnosis and
   authorized repair. Return to failure handling; do not claim completion or run
   a separate stop.
+- `effectiveEvidence.integrated` on an unresolved receipt names why no later
+  snapshot qualified yet (`reason`, and each considered SHA's reason). The
+  observer judges candidates afresh on every poll from the provider's current
+  attempt and the local checkout's Git ancestry: `ancestry_unknown` clears
+  once this checkout has fetched that snapshot, while a pending, failed,
+  cancelled, rerun, unreadable, other-target or context-incompatible attempt
+  supplies no success.
 - `unresolvedReason` is one of `timeout`, `observation_unavailable`,
   `wait_cancelled`, `incomplete`, `evidence_unreadable`, or
   `missing_registration`. Except `wait_cancelled`, a bounded unresolved result

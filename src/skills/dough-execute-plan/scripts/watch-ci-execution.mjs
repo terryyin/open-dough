@@ -6,6 +6,7 @@ import {
 import { ciAttemptKey } from "./ci-failures.mjs";
 import { ciWorkflowFile, GitHubAcquisitionHeld } from "./ci-github-actions.mjs";
 import { createGitHubAcquisition } from "./ci-runs.mjs";
+import { readIntegratedStatePolicy } from "./ci-integrated-state.mjs";
 
 export const executionBudgetMs = 8 * 60 * 60 * 1000;
 
@@ -43,7 +44,9 @@ export async function watchCiExecution({
   const startedAt = now();
   const reportedIncomplete = new Set();
   const adapter = readCiAdapter(root);
-  const { acquireRuns, acquireFailure, discoverAncestorCandidates } = adapter
+  const integratedPolicy = readIntegratedStatePolicy(root);
+  // The acquisition's history and current-attempt reads, for coverage.
+  const { acquireRuns, acquireFailure, ...coverageLookups } = adapter
     ? createCommandAcquisition({
         command: adapter,
         repo,
@@ -153,11 +156,11 @@ export async function watchCiExecution({
       // still emitted after the failure event, preserving prior ordering.
       let coverageResult;
       try {
-        coverageResult = await observeCoverage(
-          matching,
-          now(),
-          discoverAncestorCandidates,
-        );
+        coverageResult = await observeCoverage(matching, now(), {
+          ...coverageLookups,
+          integratedPolicy,
+          signal: observationSignal,
+        });
       } catch (error) {
         if (!held(error)) throw error;
         await suspendAcquisition(error);

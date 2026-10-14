@@ -9,6 +9,7 @@ import {
   observedRevision,
   preferredAttempt,
 } from "./ci-revision-applicability-classification.mjs";
+import { integratedStateJudge } from "./ci-integrated-state.mjs";
 
 // States that, once recorded, are not reclassified on a later poll unless an
 // exact attempt for that revision's own SHA appears (checked first, always).
@@ -85,6 +86,12 @@ export function discoveryAdvisoryEmitted(directory) {
 // the run-shaped list itself so a `not_required` basis can be resolved to its
 // actual attempt for failure inspection below — the ancestor A is frequently
 // not registered in this mailbox at all (see resolveAncestorRun).
+//
+// Under a declared `integratedPolicy`, each eligible revision also records
+// `integrated`: its descendant-candidate judgement (ci-integrated-state.mjs)
+// from this poll's runs, the same bounded history lookup and
+// `readCurrentAttempt` under the observation's `signal`. It is replaced every
+// poll, never retained.
 export async function observeRevisionCoverage(
   directory,
   runs,
@@ -95,6 +102,9 @@ export async function observeRevisionCoverage(
     event = "push",
     workflowPath,
     discoverAncestorCandidates,
+    readCurrentAttempt,
+    integratedPolicy,
+    signal,
   } = {},
 ) {
   const events = [];
@@ -152,6 +162,16 @@ export async function observeRevisionCoverage(
     if (found) ancestorRunsBySha.set(sha, found);
     return found;
   }
+  const judgeIntegratedState = integratedStateJudge(integratedPolicy, {
+    branch: request.branch,
+    repoDir,
+    listCandidates: async () => [
+      ...runs,
+      ...((await getBroadenedCandidateRuns?.()) ?? []),
+    ],
+    readCurrentAttempt,
+    signal,
+  });
 
   for (const revision of readRevisionCoverage(directory)) {
     const matches = runs.filter(
@@ -202,6 +222,7 @@ export async function observeRevisionCoverage(
           basis: { sha: next.basis.sha, state: attemptState(ancestorRun) },
         };
     }
+    next = await judgeIntegratedState(next);
     publishJson(revisionDirectory(directory), `${revision.sha}.json`, next);
   }
 
