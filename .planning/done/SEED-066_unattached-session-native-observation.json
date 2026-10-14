@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-066#unattached-session-native-observation",
+  "title": "Observe an unattached Start session on the native hosts",
+  "completedAt": "2026-10-14T00:59:42.055Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "claude"
+}

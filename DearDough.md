@@ -274,7 +274,7 @@ Former local code: DD-289. Planning promises landing context for an unattached l
 ## ODF-238 — A planned native proof depends on a future release <a id="dd-288"></a>
 
 Former local code: DD-288. A story’s final paid native observation requires installed skills available only in a release after that story lands, so its starting state cannot exist within the planned execution. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-238).
-Observation follow-up remains [queued](.planning/seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-native-observation); it does not resolve the general planning lesson.
+The observation follow-up completed on 2026-10-14 (`9995c313ad57a9627a1f4bfde9a145adf387cca0:.planning/slice-plans/301-unattached-session-native-observation/PLAN.md`); it does not resolve the general planning lesson.
 
 ## DD-292 — Refactor reruns unchanged consumer proof
 A refactor repeated the accepted thirty-spec terminal consumer command although only a subset of its observations moved. Existing guidance requires reusing proof whose boundaries remain unchanged.
