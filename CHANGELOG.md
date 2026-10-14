@@ -1,3 +1,10 @@
+## 0.3.62 - 2026-10-14
+
+- Recover retained custom CI attempts for explicitly registered revisions and applicable ignored-only ancestors without surfacing unrelated historical failures.
+- Prefer a later timestamped attempt over an older result for the same revision, preserving real failure, pending and incomplete outcomes and opaque provider identities.
+
+Focused observer, completion, notification, publication, payload installation and update checks passed, along with independent review and the release self-installation check. Host notification mechanisms are unchanged; no new native-host acceptance is claimed, and earlier outstanding native requirements remain with their owning work.
+
 ## 0.3.61 - 2026-10-14
 
 - Treat an Established session's isolated-workspace block as the caller's creation fact when retiring a landed one-shot result, even when the workflow's later start reports `created: false`; link both retirement entry points to that rule while preserving containment and other-work ownership checks.
