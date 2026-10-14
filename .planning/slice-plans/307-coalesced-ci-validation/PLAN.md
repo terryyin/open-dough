@@ -277,7 +277,7 @@ admission (slice 6 owns those).
 
 ### 2. Observe Pygardon's selected snapshot and evidence provenance
 Type: Behavior
-Status: planned
+Status: done
 Proof: In an authorized isolated Pygardon checkout/service, the existing
 CiSession path records actual command invocations for active A, queued B replaced
 by C and another branch's turn. Its HTTP attempt/discovery path exposes usable
@@ -298,6 +298,51 @@ its guarded focused pytest route; confirm collected cases and actual outcomes.
 Observe source B/docs C against the validated baseline and current/older reruns.
 If required target/context/history cannot be obtained, stop dependent slices 4,
 5 and 7, keep the finding and revise the evidence route before implementation.
+
+Accepted proof (2026-10-14, Terry authorized isolated local use only). The probe
+used a scratch detached worktree of Pygardon origin/main `e40c6875`, prepared with
+`nix develop -c scripts/prepare-worktree.sh` (exit 0). The worktree was removed
+afterwards. Nothing was pushed, and the shared service was not touched.
+
+- `nix develop -c scripts/check-worktree.sh pytest tests/test_ci_pending_heads.py tests/test_ci_path_queue.py tests/test_ci_session_retry_queue.py tests/test_ci_session_branches.py -p no:randomly -o addopts='' -v`
+  collected and passed 15 cases. `test_newest_pending_tip_runs_after_active_without_superseded_attempt`
+  observes commands [A, C]. `test_waiting_replacement_uses_current_evidence[unchecked_source]`
+  and `test_excluded_preparation_releases_slot_to_other_branch` cover path admission and fairness.
+- A scratch probe test (removed afterwards) ran through the same guarded route,
+  1 collected, 1 passed. It drove real `create_app`, CiSession admission, path
+  evidence over a real Git repository, `CiAttemptStore` and held commands, with
+  GitHub mocked only at the transport. HTTP was reached through a localhost
+  forwarder read by the actual `scripts/pygardon-ci-adapter.mjs discover`/`--retry`.
+  History: base → A(src) → B(src) → C(docs, child of B) → D(docs), plus F(src) on
+  `feature`. Commands ran for exactly [A, C, F, C(rerun)]; B got zero. B was
+  replaced in place by C while A was active, and main kept its position. C ran
+  because it carries B's unchecked source. Feature F kept its turn. D after
+  validated C was `path_excluded`, with no command and no attempt. A retry of C
+  created a new attempt with the same SHA and kept the older `pass`.
+
+Evidence facts by layer:
+
+| Fact | Service `/api/ci` | Adapter `discover` | After `normalizeCommandAttempts(…, 'main')` |
+| --- | --- | --- | --- |
+| Target branch | `attempts[].branch` at admission/retry | dropped | relabelled: feature F becomes `main` |
+| SHA, attempt id | yes (uuid `id`) | `runId` = `attemptId` = id | `databaseId` = `attempt` = id |
+| Rerun / current attempt | new id, same SHA, newer `started_at` | newest first, `time` | `latestTimedAttempts` drops C's older green only when times differ; equal times keep both |
+| Check/context | none (one whole-repository CI command) | none | none |
+| Ancestry / exclusion basis | not exposed; `unstarted_reason.kind = path_excluded` for main's tip only | none | none |
+
+Decision: the scheduler premise holds without another queue. The target, attempt
+and rerun facts are obtainable from the service, so dependent slices continue.
+Slice 7 makes the adapter emit each attempt's own `branch` and an inspectable URL.
+Slice 4 makes Open Dough keep the provider branch, refuse attempts whose branch is
+missing or different, and choose the current attempt by provider order or time,
+never letting an equal or missing time resolve to an older green. Ancestry is
+computed locally with Git. Pygardon's policy names one fixed whole-repository
+check context. Not observed, owned by slice 7: the real CI command and GitHub
+traffic, `/api/ci?latest=N` bounds, and pruning of non-head attempts beyond
+`_RETAINED_ATTEMPT_LIMIT` (100). Also unobserved: a SHA shared by two branches
+records only its first branch, so a main receipt may lack main provenance and must
+stay unresolved. Retry under a release reservation and `--check-target` against
+this service were not exercised either.
 
 ### 3. Complete incorporated work truthfully through GitHub evidence
 Type: Behavior
