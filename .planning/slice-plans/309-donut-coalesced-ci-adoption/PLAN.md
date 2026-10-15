@@ -169,7 +169,7 @@ changes this plan under the seed's bounded-fix rule.
 
 ### 3. Close the Story Branch proof through the wrap-up gate
 Type: Behavior
-Status: planned
+Status: done
 Proof: With slice 2's story ref complete, the installed
 `history-preserving-publication.mjs integrate` publishes the branch tip onto
 the proof trunk; the accepted integrated SHA N is registered on a trunk
@@ -285,6 +285,18 @@ deployment, tag, or `main` push occurs in this slice or any other.
     with `git cat-file -e`) until the repeated B wait. It then held E, and
     there were still no `refs/remotes/origin/dough-proof/*` refs. No manual
     fetch was run.
+- Slice 3 (done): the story-ref observer had already closed at T2's
+  completion. A trunk observer (`ci-mailbox.mjs start` from the coordinator
+  worktree for `.../trunk`) was established before integration. Installed
+  `history-preserving-publication.mjs integrate --published-tip 7c90f37f72`
+  returned `published`; it fast-forwarded the proof trunk from `4a5c6fb6dc`,
+  so N = `7c90f37f72`. N was registered on the trunk observer, and its run
+  38823111554 (attempt 1) ended `success` 23:21:48→23:27:32Z. Its
+  `complete-revision` returned `source: exact`, `verdict: success`, shutdown
+  confirmed. Only then did the installed `worktree-retirement.mjs retire
+  --created-for-work --remote-branch .../story --contained 7c90f37f72` run,
+  and it returned worktree, branch and remoteBranch `removed`. The proof
+  trunk remains for slice 4.
 - Why B used the read-only wait: `complete-revision` composes that same wait
   with observer shutdown, so it gives one receipt per observer. B therefore
   used `await-revision`, and `complete-revision` went to the coordinator's
