@@ -190,6 +190,9 @@ runtime's accepted proof. Reuse these results; do not repeat them.
 ### Correct integrated-state completion after coalesced CI validation
 
 **Identity:** SEED-008#integrated-state-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/308-integrated-state-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e91126e4f6264a2f3a8e93b6dc79b56de0f7f95c6db24f77c9a8c23a33584210","plan":"daee5d656b16a885d1f7be477f7f82e2c605af9cbecf3e155fd6898da6948a92"}}
+```
 
 **Goal:** Coordinators using declared integrated-state completion get the
 completion that Coalesce CI validation with truthful completion evidence

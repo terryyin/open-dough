@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mike.li-chan",
-  "email": "mike.li-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#integrated-state-correction",
-  "host": "claude",
-  "model": "fable"
-}

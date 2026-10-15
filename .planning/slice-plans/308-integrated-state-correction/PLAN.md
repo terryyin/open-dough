@@ -132,19 +132,25 @@ on 2026-10-15. Paths are under `src/skills/dough-execute-plan/scripts/`.
 
 ## Preparation observations and decisive premises
 
-All observations were made on 2026-10-15 in this checkout at `c98d2d22`, with
-Node `v24.21.0` matching `.node-version`. Each probe ran in a disposable
-`mktemp` directory that was removed afterwards. No source file was edited, even
-temporarily; each slice's own mutation checks the discrimination of its proof.
+The retrospective made these observations on 2026-10-15 at `c98d2d22`. The
+preparation repeated all three probes on 2026-10-15 in this plan's workspace,
+`.worktrees/correct-integrated-state-completion-after-coales` at `dcdc60a9`,
+with Node `v24.21.0` matching `.node-version`, and every result below was
+reproduced (probe 3 settled after 3,018 ms). The only runtime change between
+those revisions is `4902912d`, which changes the cancellation reason in
+`ci-background-waiter.mjs` and touches no observed module. Each probe ran in a
+disposable `mktemp` directory that was removed afterwards. No source file was
+edited, even temporarily; each slice's own mutation checks the discrimination
+of its proof.
 
 | Premise | Consuming operation and observation | Result / consequence |
 | --- | --- | --- |
 | A docs-only B whose basis A was cancelled ends `incomplete`, with or without a policy | Probe 1: real Git (`acceptedWorkflow` with paths-ignore at A, docs-only B, source C), `observeRevisionCoverage` with runs [C success, A cancelled] → `awaitRevision(B)` | With a policy: `state: not_required`, `basis.state: incomplete`, no `integrated`, `unresolvedReason: incomplete`. Without one: the same. Settles finding 1; slice 2 owns the fix. |
 | Judging that B as `undiscovered` already yields the intended evidence | Probe 2: `integratedStateJudge(policy, …)` on `{state:'undiscovered'}` and on `{state:'not_required', basis:{state:'incomplete'}}` against a real local remote with C green | `undiscovered` → `integrated.state: success`; `not_required` → no `integrated`. The rule needs no new eligibility logic beyond the state gate and its projection. |
 | A pending tip unknown locally is fetched | Probe 2: a fresh checkout lacking C, listed C `in_progress` | `cat-file -e C` was false before and true after the judgement (reason `not_current_success`). Settles finding 2's ordering; slice 3 owns it. |
-| An abort during a slow candidate fetch is not honoured until the transport bound | Probe 2 (ssh remote, `GIT_SSH_COMMAND='sleep 30 #'`) and probe 3 (local path remote with `remote.origin.uploadpack` set to a script that sleeps 30 s and then runs `git-upload-pack`); `OPEN_DOUGH_GIT_TRANSPORT_BOUND_MS=3000`; abort at 200 ms | Both settled after about 3,030 ms and threw `stop`. Settles finding 2's abort premise. Probe 3 is also a usable, unpaid proof route: a slow local remote needs no ssh or network. |
+| An abort during a slow candidate fetch is not honoured until the transport bound | Probe 2 (ssh remote, `GIT_SSH_COMMAND='sleep 30 #'`) and probe 3 (local path remote with `remote.origin.uploadpack` set to a script that sleeps 30 s and then runs `git-upload-pack`); `OPEN_DOUGH_GIT_TRANSPORT_BOUND_MS=3000`; abort at 200 ms | Both settled after about 3,030 ms and threw `stop`. Settles finding 2's abort premise; slice 4 owns it. Probe 3 is also a usable, unpaid proof route: a slow local remote needs no ssh or network. |
 | The removed journeys are the only tests of the judge and the GitHub current-attempt reader | `grep -rln 'contradicted\|readCurrentAttempt\|createGitHubAcquisition' src --include='*.test.mjs'` lists only the `ci-integrated-state-{custom,reads,ineligible}` tests and `ci-command-attempts.test.mjs`; `integratedStateJudge` is imported only by `ci-mailbox-revision-coverage.mjs` | `readCurrentGitHubAttempt` (`ci-runs.mjs`) derives `check` from the workflow id and `context` from the event, reads the jobs, and marks a mid-read rerun `contradicted`. Only the journeys to be removed prove that derivation, so slice 1 must add focused provider-boundary proof for it before removing them. |
-| The records API is reached through coverage's re-export | `grep -rln 'ci-mailbox-revision-coverage.mjs' src` lists 21 importers, including `ci-mailbox.mjs`, `ci-mailbox-store.mjs`, `ci-mailbox-await.mjs`, the background handoff and waiter, and the wrap-up `trunk-closure-*` and `*integrated-state-cases` files | Slice 4 repoints them. It is a Structure change proved by unchanged behaviour. |
+| The records API is reached through coverage's re-export | `grep -rln 'ci-mailbox-revision-coverage.mjs' src` lists 21 importers, including `ci-mailbox.mjs`, `ci-mailbox-store.mjs`, `ci-mailbox-await.mjs`, the background handoff and waiter, and the wrap-up `trunk-closure-*` and `*integrated-state-cases` files | Slice 5 repoints them. It is a Structure change proved by unchanged behaviour. |
 
 Probe 1, literal:
 
@@ -216,8 +222,8 @@ The slow upload-pack script was
 | An ignored-only B with a replaced or pending basis completes against green C under the policy | 2: a GitHub journey (A cancelled, docs-only B with no run, C green) through the installed `complete-revision`. It returns an `integrated_state` receipt with `accepted` B (`not_required`, basis A `incomplete`), validated C, `count(B) = 0`, `count(C) = 1`, confirmed shutdown, and no B in `unproved`. A unit case covers the `pending` basis. |
 | Without a policy, the same B stays `incomplete`; a `success` or `failure` basis is unchanged | 2: a coverage-to-await case with real classification (probe 1's shape) gives `unresolvedReason: incomplete` and no verdict. The judge unit cases show no `integrated` for a `success` or `failure` basis. The existing `ci-revision-coverage-not-required.test.mjs` declared variant stays green. |
 | A pending or failed tip is never fetched; a green unknown tip still is, objects only | 3: judge unit cases against a real local remote (`cat-file -e` false for pending and failed, true for green). The existing no-external-fetch closure and trunk cases and their unchanged `for-each-ref` stay green. |
-| A stop during a slow candidate fetch confirms shutdown | 3: an installed observer journey whose target remote has a slow `uploadpack` (probe 3's route), with the default transport bound. The stop confirms within the store's terminal deadline, and no Git process from the fetch remains. Withholding the signal (mutation) leaves shutdown unconfirmed. |
-| Records do not depend on the judge; readers import records directly; behaviour is unchanged | 4: an import check (the records module imports no `ci-integrated-state*` module, and coverage has no records re-export). The listing-error withdrawal journeys (closure GitHub, custom) and the affected suites stay green. |
+| A stop during a slow candidate fetch confirms shutdown | 4: an installed observer journey whose target remote has a slow `uploadpack` (probe 3's route), with the default transport bound. The stop confirms within the store's terminal deadline, and no Git process from the fetch remains. Withholding the signal (mutation) leaves shutdown unconfirmed. |
+| Records do not depend on the judge; readers import records directly; behaviour is unchanged | 5: an import check (the records module imports no `ci-integrated-state*` module, and coverage has no records re-export). The listing-error withdrawal journeys (closure GitHub, custom) and the affected suites stay green. |
 | Suite cost goes down | 1: a paired local A/B of the changed jobs under the current load, and `bash scripts/ci-test-times.sh` as the baseline (`tests/time-budget.md`). 2 names the same command for its added journey. |
 
 ## Ordered slices
@@ -315,52 +321,62 @@ test, plus the `dough-story-wrap-up/scripts/*closure*.test.mjs` consumers. Run
 the payload tests if declarations change. Read the time baseline with
 `bash scripts/ci-test-times.sh` for the added journey.
 
-### 3. Fetch only validating candidates, and stop the fetch with the observation
+### 3. Fetch only candidates that can validate
 Type: Behavior
 Status: planned
 Proof: Judge unit cases show pending and failed tips stay unfetched while a
-green tip is fetched. An installed observer stopped during a slow candidate
-fetch confirms shutdown. Withholding the signal (mutation) leaves it
-unconfirmed.
+green unknown tip is fetched once, objects only. Moving the success check back
+after ancestry (mutation) fails the pending-tip case.
 
 Behavior: A candidate whose listed attempts are not all successful, or whose
 ancestry is already known locally, is never fetched. A green unknown C is
-fetched once, objects only, and then completes B. When the observation stops
-during that fetch, the fetch's process group is killed, the observer publishes
-its terminal result within the stop deadline, and shutdown is confirmed. The
-closure can then retire as its other gates allow.
+fetched once, objects only, and then completes B.
+
+Change the judge so that `listed.every(succeeded)` is checked before ancestry
+needs a fetch. A local ancestry answer for a pending tip still costs no fetch,
+and a known non-descendant is still skipped. A locally unknown tip that is not
+all-successful is reported as `not_current_success` without a fetch (see
+Current decisions). Check every consumer that asserts `considered` lists:
+`waitingTips`, the closure and trunk integrated-state cases, and the custom
+journeys. Add the fetch cases to the slice 1 unit tests.
+
+Update the fetch sentence in `references/ci-completion-wait.md`. Run every
+`ci-integrated-state*` test, the slice 2 consumer set, and the payload tests
+if declarations change.
+
+### 4. Stop the candidate fetch with the observation
+Type: Behavior
+Status: planned
+Proof: An installed observer stopped during a slow candidate fetch confirms
+shutdown within the store's terminal deadline, and no Git process from the
+fetch remains. Withholding the signal (mutation) leaves shutdown unconfirmed.
+`publication-transport-bound.test.mjs` gains an abort case and stays green.
+
+Behavior: When the observation stops during a candidate fetch, the fetch's
+process group is killed, the observer publishes its terminal result within the
+stop deadline, and shutdown is confirmed. The closure can then retire as its
+other gates allow. Callers of `git()` that pass no signal keep today's bounded
+transport.
 
 Change the code as follows:
-- Check `listed.every(succeeded)` before ancestry needs a fetch. A local ancestry
-  answer for a pending tip still costs no fetch, and a known non-descendant is
-  still skipped. A locally unknown tip that is not all-successful is reported
-  as `not_current_success` without a fetch (see Current decisions). Check
-  every consumer that asserts `considered` lists: `waitingTips`, the closure
-  and trunk integrated-state cases, and the custom journeys.
 - Let `git()` and `boundedTransport` accept an optional `signal`; on abort,
   terminate the group as the bound does.
 - Pass the observation signal from `fetchCandidate`.
 
 `publication-git.mjs` is at 250 lines. Compact it, or extract the transport
 into a module declared on a multi-entry line of `install.sh`, which is also at
-250. Callers that pass no signal keep today's behaviour; keep
-`publication-transport-bound.test.mjs` green and add its abort case there.
+250. Add the abort case to `publication-transport-bound.test.mjs`.
 
 In the observer journey, the observing checkout's target remote has the slow
 `uploadpack` from probe 3. That script writes a start marker, and the wait
 predicate requires the marker before the stop. C must be green and unknown
 locally.
 
-Mutations, each restored afterwards:
-- moving the success check after ancestry fails the pending-tip case;
-- withholding the signal fails the stop case.
+Run the slice 2 consumer set, the transport and managed-delivery transport
+tests, `ci-reuse-resource-journey.test.mjs`, and the payload tests if
+declarations change.
 
-Update the fetch sentence in `references/ci-completion-wait.md`. Run the
-slice 2 consumer set, the transport and managed-delivery transport tests,
-`ci-reuse-resource-journey.test.mjs`, and the payload tests if declarations
-change.
-
-### 4. Keep revision records independent of the integrated-state rule
+### 5. Keep revision records independent of the integrated-state rule
 Type: Structure
 Status: planned
 Proof: The import check passes, and the listing-error withdrawal journeys and
@@ -397,8 +413,11 @@ Run the payload tests if declarations change.
 - A locally unknown tip whose listed attempts are not all successful is
   reported as `not_current_success`, not `ancestry_unknown`. That reason
   disqualifies it whatever its ancestry, so no fetch is needed to explain it.
-- The order puts the unit harness first, so slices 2 and 3 add only unit cases
-  plus one journey each.
+- The order puts the unit harness first, so slices 2, 3 and 4 add only unit
+  cases or one journey each.
+- Fetch ordering (slice 3) and fetch abort (slice 4) are separate slices: each
+  has its own proof loop, and only the abort needs the transport change behind
+  the 250-line `publication-git.mjs` limit.
 
 ## Learnings
 
