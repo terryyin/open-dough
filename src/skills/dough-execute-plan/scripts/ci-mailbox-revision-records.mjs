@@ -53,6 +53,15 @@ export function readRevisionCoverage(directory) {
   );
 }
 
+// The verdicts a recorded state may prove.
+export const revisionVerdicts = new Set(["success", "failure"]);
+
+// The state that decides a record: its own exact state, or, for an
+// ignored-only (`not_required`) revision, whose own state is never pending or
+// incomplete, its applicable ancestor's resolved `basis.state`.
+export const effectiveRevisionState = ({ state, basis }) =>
+  state === "not_required" ? basis?.state : state;
+
 // Replaces `record`, keyed by its own normalized SHA.
 export function publishRevisionRecord(directory, record) {
   publishJson(revisionDirectory(directory), `${record.sha}.json`, record);

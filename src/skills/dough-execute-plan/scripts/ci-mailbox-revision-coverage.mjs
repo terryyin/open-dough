@@ -16,9 +16,11 @@ import {
 } from "./ci-mailbox-revision-records.mjs";
 
 export {
+  effectiveRevisionState,
   listRegisteredRevisions,
   readRevisionCoverage,
   registerPushedRevision,
+  revisionVerdicts,
   withdrawIntegratedState,
 } from "./ci-mailbox-revision-records.mjs";
 

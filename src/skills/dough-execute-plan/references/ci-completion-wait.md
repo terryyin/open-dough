@@ -38,7 +38,9 @@ distinct from shutdown facts:
 - `effectiveEvidence.source: "integrated_state"` is that success under this
   project's declared [integrated-state policy](runtime-setup.md#select-ci): the
   accepted revision had no successful run of its own (`accepted` keeps its own
-  state), and a successful current attempt at a later same-target snapshot
+  state; an ignored-only `not_required` revision also keeps its basis, whose
+  applicable attempt was replaced or is still pending), and a successful
+  current attempt at a later same-target snapshot
   that contains it (`validated`: SHA, run, attempt, URL, check, context and
   any required jobs; `ancestry`) validated the integrated state. Report
   "<accepted SHA> published; integrated state validated at <validated SHA>",

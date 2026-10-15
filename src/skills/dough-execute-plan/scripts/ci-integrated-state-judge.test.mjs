@@ -186,13 +186,29 @@ test("integrated evidence is judged only under a policy for an eligible own stat
   });
   assert.deepEqual(await noPolicy(recorded), accepted(b));
   const { judge, listings } = judgePoll({ repoDir: writer, runs: [run] });
-  for (const state of ["pending", "success", "failure", "not_required"])
+  for (const state of ["pending", "success", "failure"])
     assert.deepEqual(await judge({ ...recorded, state }), accepted(b, state));
+  // An ignored-only B is judged only while its applicable ancestor's attempt
+  // has no verdict; a proved or unresolved basis keeps its own rule.
+  const ignoredOnly = (basisState) => ({
+    ...accepted(b, "not_required"),
+    basis: { sha: "a".repeat(40), state: basisState },
+  });
+  for (const basisState of ["success", "failure", undefined])
+    assert.deepEqual(
+      await judge({ ...recorded, ...ignoredOnly(basisState) }),
+      ignoredOnly(basisState),
+    );
   assert.equal(listings(), 0);
   assert.deepEqual(
     (await judge({ ...recorded, state: "incomplete" })).integrated,
     validated(b, c, run),
   );
+  for (const basisState of ["incomplete", "pending"])
+    assert.deepEqual(await judge(ignoredOnly(basisState)), {
+      ...ignoredOnly(basisState),
+      integrated: validated(b, c, run),
+    });
   const unavailable = judgePoll({
     repoDir: writer,
     runs: [run],

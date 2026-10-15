@@ -78,8 +78,8 @@ function ignoredOnlyGithub({ repo, branch, shaA, databaseIdA }) {
 }
 
 // A declared integrated-state policy changes none of this: it never applies
-// to a `not_required` revision, and the mixed descendant has no descendant
-// candidate, so it stays undiscovered.
+// to a `not_required` revision whose basis is a proved `success`, and the
+// mixed descendant has no descendant candidate, so it stays undiscovered.
 for (const declared of [false, true])
   test(`an ignored-only descendant of a successful ancestor records not_required and stays quiet, a mixed descendant stays undiscovered, and a late exact attempt wins over reuse${declared ? " under a declared integrated-state policy" : ""}`, async (t) => {
     const repo = await initRepo();

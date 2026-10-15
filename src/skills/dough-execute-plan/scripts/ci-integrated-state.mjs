@@ -14,8 +14,15 @@ import { isFullGitRevision } from "./ci-revisions.mjs";
 
 // B's own exact states this evidence may complete: no attempt of B was
 // observed, or B's attempt was cancelled (for example, replaced while
-// waiting). Pending, success, failure and `not_required` keep their own rules.
+// waiting). An ignored-only (`not_required`) B qualifies only while its
+// applicable ancestor's attempt has no verdict (cancelled or still pending).
+// Pending, success, failure, and a `not_required` B with a proved or
+// unresolved basis keep their own rules.
 const integratedEligibleStates = new Set(["undiscovered", "incomplete"]);
+const integratedEligibleBasisStates = new Set(["incomplete", "pending"]);
+const integratedEligible = ({ state, basis }) =>
+  integratedEligibleStates.has(state) ||
+  (state === "not_required" && integratedEligibleBasisStates.has(basis?.state));
 
 // Authoritative current-attempt reads per revision per poll.
 const verificationBound = 3;
@@ -104,7 +111,7 @@ export function integratedStateJudge(policy, poll) {
   return async (revision) => {
     const judged = { ...revision };
     delete judged.integrated;
-    if (policy && integratedEligibleStates.has(judged.state))
+    if (policy && integratedEligible(judged))
       judged.integrated = await observeIntegratedState({
         ...poll,
         policy,

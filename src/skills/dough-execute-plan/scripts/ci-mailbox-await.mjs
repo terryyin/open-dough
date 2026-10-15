@@ -2,14 +2,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { readMailbox, receiptPrefix } from "./ci-mailbox-location.mjs";
-import { readRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
+import {
+  effectiveRevisionState,
+  readRevisionCoverage,
+  revisionVerdicts,
+} from "./ci-mailbox-revision-coverage.mjs";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import { isFullGitRevision } from "./ci-revisions.mjs";
 
 export const revisionWaitDeadlineMs = 10 * 60 * 1000;
-
-const terminalVerdicts = new Set(["success", "failure"]);
 
 const targetOf = (request) => ({ repo: request.repo, branch: request.branch });
 
@@ -23,43 +25,37 @@ function effectiveCoverage(coverage) {
       evidence: { source: "none" },
       outcome: { unresolvedReason: "missing_registration" },
     };
-  if (coverage.state !== "not_required") {
-    const { integrated, ...revision } = coverage;
-    // Under the declared policy, the integrated state validated at a
-    // descendant completes B while B keeps its own exact state.
-    if (integrated?.state === "success")
-      return {
-        evidence: {
-          source: "integrated_state",
-          accepted: revision,
-          validated: integrated.validated,
-          policy: integrated.policy,
-          ancestry: integrated.ancestry,
-        },
-        outcome: { verdict: "success" },
-      };
-    const evidence = {
-      source: "exact",
-      revision,
-      ...(integrated ? { integrated } : {}),
+  const { integrated, ...revision } = coverage;
+  // Under the declared policy, the integrated state validated at a
+  // descendant completes B while B keeps its own exact state, or its
+  // `not_required` state and basis.
+  if (integrated?.state === "success")
+    return {
+      evidence: {
+        source: "integrated_state",
+        accepted: revision,
+        validated: integrated.validated,
+        policy: integrated.policy,
+        ancestry: integrated.ancestry,
+      },
+      outcome: { verdict: "success" },
     };
-    if (terminalVerdicts.has(coverage.state))
-      return { evidence, outcome: { verdict: coverage.state } };
-    // A cancelled exact attempt ends the wait unless the policy still lets
-    // a descendant's current success complete it.
-    if (coverage.state === "incomplete" && !integrated)
-      return { evidence, outcome: { unresolvedReason: "incomplete" } };
-    return { evidence };
-  }
-
-  const evidence = {
-    source: "not_required_basis",
-    revision: { sha: coverage.sha, state: coverage.state },
-    ...(coverage.basis ? { basis: coverage.basis } : {}),
-  };
-  if (terminalVerdicts.has(coverage.basis?.state))
-    return { evidence, outcome: { verdict: coverage.basis.state } };
-  if (coverage.basis?.state === "incomplete")
+  const judged = integrated ? { integrated } : {};
+  const evidence =
+    coverage.state === "not_required"
+      ? {
+          source: "not_required_basis",
+          revision: { sha: coverage.sha, state: coverage.state },
+          ...(coverage.basis ? { basis: coverage.basis } : {}),
+          ...judged,
+        }
+      : { source: "exact", revision, ...judged };
+  const outcome = effectiveRevisionState(coverage);
+  if (revisionVerdicts.has(outcome))
+    return { evidence, outcome: { verdict: outcome } };
+  // A cancelled attempt, B's own or its applicable ancestor's, ends the wait
+  // unless the policy still lets a descendant's current success complete it.
+  if (outcome === "incomplete" && !integrated)
     return { evidence, outcome: { unresolvedReason: "incomplete" } };
   return { evidence };
 }

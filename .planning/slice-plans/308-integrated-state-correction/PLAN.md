@@ -301,7 +301,7 @@ Accepted proof (2026-10-15):
 
 ### 2. Complete an ignored-only revision whose applicable ancestor was replaced
 Type: Behavior
-Status: planned
+Status: done
 Proof: A GitHub journey through the installed `complete-revision` is red first
 (`unresolvedReason: incomplete`) and then green with the `integrated_state`
 receipt. The no-policy case stays `incomplete`. Mutations fail both.
@@ -346,6 +346,29 @@ Run every `ci-*`, `watch-*`, `execution-increment-*` and `ci-reuse-*journey`
 test, plus the `dough-story-wrap-up/scripts/*closure*.test.mjs` consumers. Run
 the payload tests if declarations change. Read the time baseline with
 `bash scripts/ci-test-times.sh` for the added journey.
+
+Accepted proof (2026-10-15):
+- `ci-integrated-state-replaced-basis.test.mjs` holds the GitHub journey
+  through the installed `complete-revision`. It was red first, with
+  `unresolvedReason: 'incomplete'` and `not_required_basis` evidence. It is
+  now green with a `deepEqual` `integrated_state` receipt, confirmed shutdown,
+  no `unproved` B, `count(B)=0` and `count(C)=1`. The same file has the
+  coverage-to-await case with real classification: without a policy the
+  result is `incomplete`; with one it is `success`.
+- The judge unit cases now cover `not_required` by basis: `incomplete` and
+  `pending` are judged; `success`, `failure` and an absent basis are not.
+- Mutations: removing the new eligibility failed the journey, the unit case
+  and the judge case. Ignoring the policy gate failed the no-policy case.
+- After refactoring, `PATH="/opt/homebrew/bin:$PATH" npm test --` passed
+  (exit 0) on every `ci-*`, `watch-*` and `execution-increment-*` test in
+  `dough-execute-plan/scripts`, and on
+  `dough-story-wrap-up/scripts/*closure*.test.mjs`: 120 files.
+- No payload declaration changed. `ci-test-times.sh` has no history yet for
+  the new journey; its first CI run settles it. It takes about 2.5 s locally.
+- The refactor moved the rule "a `not_required` revision's effective state is
+  its basis state" into `ci-mailbox-revision-records.mjs`
+  (`effectiveRevisionState`, `revisionVerdicts`). Await and store share it,
+  which removed `provedApplicableAncestorStates` and its dangling comment.
 
 ### 3. Fetch only candidates that can validate
 Type: Behavior
@@ -418,8 +441,9 @@ re-export hides the records owner.
 - Build the withdrawal record without the records module importing
   `ci-integrated-state.mjs`. For example, move `withdrawIntegratedState` to
   coverage, which owns judgement, as its own export.
-- Move the dangling comment in `ci-mailbox-store.mjs` onto the filter it
-  describes.
+- The dangling comment in `ci-mailbox-store.mjs` went away in slice 2's
+  refactor. Repoint the new `effectiveRevisionState` and `revisionVerdicts`
+  imports to the records module as well.
 
 Proof is behaviour unchanged: a focused import assertion, the listing-error
 withdrawal journeys (closure GitHub, custom), and the slice 2 consumer set.
@@ -452,3 +476,8 @@ Run the payload tests if declarations change.
   when the `DOUGH_GITHUB_*` environment changes, so tests in one file do
   not interfere. `judge-bounds` costs about 4 s locally because it builds
   real histories with sibling branches.
+- Slice 2: under a policy, a `not_required` B with an `incomplete` basis that
+  carries a non-success `integrated` judgement keeps waiting, as an exact
+  `incomplete` B already did. `not_required_basis` evidence now carries
+  `integrated` when it is present. Using the installed `complete-revision`
+  as the journey's wait needs no separate wait predicate.
