@@ -1,3 +1,14 @@
+## 0.3.63 - 2026-10-16
+
+- Add optional exact-commit CI validation reuse for GitHub Actions and custom providers, with shared eligibility rules, runnable adoption examples, and distinct source-validation and target-attempt evidence.
+- Add opt-in integrated-state completion: a successful current CI attempt for a later snapshot on the same target can complete an earlier published revision it contains. Preserve the accepted revision's own outcome and report which snapshot was validated.
+- Carry integrated-state evidence through execution, background handoff, landing, and wrap-up. Handle ignored-only revisions whose applicable CI attempt was replaced, fetch missing ancestry only for eligible successful candidates, and stop candidate fetches with observation.
+- Report cancelled background waits accurately and publish complete waiter claims atomically.
+
+The source revision passed the full CI workflow. Release finalization, declared payload, and installed execution update checks passed, together with the release self-installation check.
+
+Terry explicitly authorized skipping native acceptance for this patch release on 2026-10-16, an exception to ADR 0005's release gate. No fresh native acceptance is claimed; outstanding native requirements and the separate Donut coalesced-CI adoption story remain pending.
+
 ## 0.3.62 - 2026-10-14
 
 - Recover retained custom CI attempts for explicitly registered revisions and applicable ignored-only ancestors without surfacing unrelated historical failures.
