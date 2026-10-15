@@ -540,3 +540,15 @@ Run the payload tests if declarations change.
   creates `background-waiter.json` exclusively but empty, and only then
   writes it. A concurrent `status` or `cancel` can parse the empty file,
   exit 1 with empty stdout, and the test's receipt parse then fails.
+- Defect repair after slice 4: the waiter now publishes its claim with
+  `publishJsonExclusively` (`ci-mailbox-json-file.mjs`), which links a
+  written draft exclusively.
+  - The new `ci-background-lifecycle.test.mjs` case "cancel never reads the
+    waiter's identity claim before it is complete" uses a preload,
+    `ci-background-slow-claim-fixture.mjs`, that holds the claim write open.
+    It failed first with the flake's error. Restoring the `wx` write fails
+    it 3 out of 3 times.
+  - `ci-background-*` tests and the slice consumer set passed.
+  - Two exclusive `wx` writes with concurrent readers remain unchanged:
+    `background.json` in `ci-background-handoff.mjs`, written before any
+    reader runs, and `owner` in `ci-observer-owner.mjs`.

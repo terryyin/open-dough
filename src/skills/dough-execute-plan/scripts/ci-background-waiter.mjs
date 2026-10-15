@@ -17,6 +17,7 @@ import { watchMailboxChanges } from "./ci-mailbox-change-watch.mjs";
 import { hostInputOwner, readOwnerClaim } from "./ci-observer-owner.mjs";
 import { recordedCompletion } from "./ci-mailbox-await.mjs";
 import { currentProcessIdentity } from "./ci-background-session.mjs";
+import { publishJsonExclusively } from "./ci-mailbox-json-file.mjs";
 import {
   readBackgroundHandoff,
   saveBackgroundHandoff,
@@ -146,19 +147,15 @@ export async function waitForBackgroundFailure(
     const enrolled = readBackgroundHandoff(directory);
     if (!enrolled || enrolled.owner !== owner || enrolled.state !== "pending")
       continue;
-    try {
-      writeFileSync(
-        join(directory, "background-waiter.json"),
-        JSON.stringify(currentProcessIdentity()),
-        {
-          flag: "wx",
-          mode: 0o600,
-        },
-      );
-    } catch (error) {
-      if (error.code === "EEXIST") continue;
-      throw error;
-    }
+    // Status and cancel read the waiter claim concurrently.
+    if (
+      !publishJsonExclusively(
+        directory,
+        "background-waiter.json",
+        currentProcessIdentity(),
+      )
+    )
+      continue;
     const feedback = await waitOnMailbox(directory, owner);
     if (feedback) return feedback;
   }

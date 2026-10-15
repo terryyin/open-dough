@@ -64,10 +64,25 @@ test("bounded expiry is silent and an explicit delivery cancellation never rearm
   const cancelled = await backgroundFixture(t);
   assert.equal((await cancelled.run("handoff")).code, 0);
   const waiter = cancelled.hook();
-  assert.equal(
-    cancelled.receipt(await cancelled.run("cancel")).state,
-    "cancelled",
+  const cancel = await cancelled.run("cancel");
+  assert.deepEqual([cancel.code, cancel.stderr], [0, ""]);
+  assert.equal(cancelled.receipt(cancel).state, "cancelled");
+  assert.deepEqual(await waiter.finished, { code: 0, stdout: "", stderr: "" });
+});
+
+test("cancel never reads the waiter's identity claim before it is complete", async (t) => {
+  const fixture = await backgroundFixture(t);
+  assert.equal((await fixture.run("handoff")).code, 0);
+  const waiter = fixture.hook({
+    preload: new URL("./ci-background-slow-claim-fixture.mjs", import.meta.url)
+      .href,
+  });
+  await waitUntil(() =>
+    existsSync(join(fixture.directory, "background-waiter.json")),
   );
+  const cancel = await fixture.run("cancel");
+  assert.deepEqual([cancel.code, cancel.stderr], [0, ""]);
+  assert.equal(fixture.receipt(cancel).state, "cancelled");
   assert.deepEqual(await waiter.finished, { code: 0, stdout: "", stderr: "" });
 });
 
