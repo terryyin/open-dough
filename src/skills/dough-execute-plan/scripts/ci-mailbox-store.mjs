@@ -5,7 +5,7 @@ import {
   effectiveRevisionState,
   readRevisionCoverage,
   revisionVerdicts,
-} from "./ci-mailbox-revision-coverage.mjs";
+} from "./ci-mailbox-revision-records.mjs";
 
 const eventFilePattern = /^(\d{12})\.json$/;
 const defaultTerminalResultDeadlineMs = 5_000;

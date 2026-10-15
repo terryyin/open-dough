@@ -9,19 +9,13 @@ import {
   observedRevision,
   preferredAttempt,
 } from "./ci-revision-applicability-classification.mjs";
-import { integratedStateJudge } from "./ci-integrated-state.mjs";
+import {
+  candidateLookupUnavailable,
+  integratedStateJudge,
+} from "./ci-integrated-state.mjs";
 import {
   publishRevisionRecord,
   readRevisionCoverage,
-} from "./ci-mailbox-revision-records.mjs";
-
-export {
-  effectiveRevisionState,
-  listRegisteredRevisions,
-  readRevisionCoverage,
-  registerPushedRevision,
-  revisionVerdicts,
-  withdrawIntegratedState,
 } from "./ci-mailbox-revision-records.mjs";
 
 // States that, once recorded, are not reclassified on a later poll unless an
@@ -215,4 +209,18 @@ export async function observeRevisionCoverage(
     }
   }
   return { events, ancestorRuns: [...ancestorRunsBySha.values()] };
+}
+
+// A poll that could not list runs leaves no current integrated-state evidence:
+// each recorded judgement stays unresolved until a later poll judges afresh.
+export function withdrawIntegratedState(directory, error) {
+  for (const revision of readRevisionCoverage(directory))
+    if (revision.integrated)
+      publishRevisionRecord(directory, {
+        ...revision,
+        integrated: candidateLookupUnavailable(
+          revision.integrated.policy,
+          error,
+        ),
+      });
 }

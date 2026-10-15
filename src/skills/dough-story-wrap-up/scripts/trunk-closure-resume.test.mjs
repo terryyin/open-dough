@@ -12,7 +12,7 @@ import { test } from "node:test";
 import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { parseReceipt } from "../../dough-execute-plan/scripts/ci-mailbox-await-test-fixtures.mjs";
-import { readRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
+import { readRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import { deliverThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import {

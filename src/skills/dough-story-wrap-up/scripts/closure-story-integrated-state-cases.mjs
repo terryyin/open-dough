@@ -12,7 +12,7 @@ import { isDeepStrictEqual } from "node:util";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import { advanceOriginFromAnotherWriter } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { completeThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
-import { listRegisteredRevisions } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
+import { listRegisteredRevisions } from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import { readMailboxEvents } from "../../dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import { recordedVerdict } from "../../dough-execute-plan/scripts/ci-mailbox-await.mjs";
 import {

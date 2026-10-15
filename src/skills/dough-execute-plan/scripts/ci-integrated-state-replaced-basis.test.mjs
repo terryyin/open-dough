@@ -18,11 +18,11 @@ import {
   policy,
 } from "./ci-integrated-state-journey-test-fixtures.mjs";
 import { createMailbox } from "./ci-mailbox-location.mjs";
+import { observeRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
 import {
-  observeRevisionCoverage,
   readRevisionCoverage,
   registerPushedRevision,
-} from "./ci-mailbox-revision-coverage.mjs";
+} from "./ci-mailbox-revision-records.mjs";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
 import {
   acceptedWorkflow,

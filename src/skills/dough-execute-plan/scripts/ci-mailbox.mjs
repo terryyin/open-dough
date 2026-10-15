@@ -16,11 +16,14 @@ import {
   waitForTerminalResult,
 } from "./ci-mailbox-store.mjs";
 import {
-  listRegisteredRevisions,
   observeRevisionCoverage,
-  registerPushedRevision,
   withdrawIntegratedState,
 } from "./ci-mailbox-revision-coverage.mjs";
+import {
+  listRegisteredRevisions,
+  readRevisionCoverage,
+  registerPushedRevision,
+} from "./ci-mailbox-revision-records.mjs";
 import { watchMailboxChanges } from "./ci-mailbox-change-watch.mjs";
 import {
   mailboxWorkerPath,
@@ -51,10 +54,7 @@ export {
   recordWorkerIdentity,
   workerLossReason,
 } from "./ci-mailbox-store.mjs";
-export {
-  readRevisionCoverage,
-  registerPushedRevision,
-} from "./ci-mailbox-revision-coverage.mjs";
+export { readRevisionCoverage, registerPushedRevision };
 export { mailboxWorkerLoss } from "./ci-mailbox-worker-process.mjs";
 export {
   completeRevision,

@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { registerPushedRevision } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
+import { registerPushedRevision } from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import {
   advanceOriginFromAnotherWriter,

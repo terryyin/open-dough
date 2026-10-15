@@ -6,7 +6,7 @@ import {
   effectiveRevisionState,
   readRevisionCoverage,
   revisionVerdicts,
-} from "./ci-mailbox-revision-coverage.mjs";
+} from "./ci-mailbox-revision-records.mjs";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import { isFullGitRevision } from "./ci-revisions.mjs";

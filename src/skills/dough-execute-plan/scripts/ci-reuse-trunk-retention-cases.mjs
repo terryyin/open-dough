@@ -16,7 +16,7 @@ import { readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import {
   listRegisteredRevisions,
   readRevisionCoverage,
-} from "./ci-mailbox-revision-coverage.mjs";
+} from "./ci-mailbox-revision-records.mjs";
 import { recordedVerdict } from "./ci-mailbox-await.mjs";
 import { receiptPrefix } from "./ci-mailbox-location.mjs";
 import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";

@@ -12,7 +12,7 @@ import {
   waitUntil,
   attempted,
 } from "./ci-background-test-fixtures.mjs";
-import { readRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
+import { readRevisionCoverage } from "./ci-mailbox-revision-records.mjs";
 import { recordedVerdict } from "./ci-mailbox-await.mjs";
 
 test("closed original session ends the waiter quietly and status names the retained limitation", async (t) => {

@@ -16,7 +16,7 @@ import {
   awaitSignalWhileRunning,
   settledProbe,
 } from "../../dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs";
-import { readRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
+import { readRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import { readWorkerIdentity } from "../../dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import { waitForFailureEvent } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import { checkMailboxWorkerLiveness } from "../../dough-execute-plan/scripts/ci-mailbox-worker-process.mjs";

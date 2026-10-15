@@ -9,7 +9,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { recordedVerdict } from "../../dough-execute-plan/scripts/ci-mailbox-await.mjs";
-import { readRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
+import { readRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import {
   coverage,
   hosts,

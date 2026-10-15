@@ -4,11 +4,11 @@
 // the final closure, and the records those wrote through the observer's own
 // writer, `observeRevisionCoverage`.
 import assert from "node:assert/strict";
+import { observeRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
 import {
-  observeRevisionCoverage,
   readRevisionCoverage,
   registerPushedRevision,
-} from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
+} from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import { startReceipt } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import { closureObservers, observerAccess } from "./trunk-closure-observer.mjs";
 

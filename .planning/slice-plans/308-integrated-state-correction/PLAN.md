@@ -471,7 +471,7 @@ Accepted proof (2026-10-15):
 
 ### 5. Keep revision records independent of the integrated-state rule
 Type: Structure
-Status: planned
+Status: done
 Proof: The import check passes, and the listing-error withdrawal journeys and
 affected suites stay green.
 
@@ -492,6 +492,27 @@ re-export hides the records owner.
 Proof is behaviour unchanged: a focused import assertion, the listing-error
 withdrawal journeys (closure GitHub, custom), and the slice 2 consumer set.
 Run the payload tests if declarations change.
+
+Accepted proof (2026-10-16):
+- Module changes:
+  - `ci-mailbox-revision-records.mjs` no longer imports
+    `ci-integrated-state.mjs`.
+  - `withdrawIntegratedState` moved to `ci-mailbox-revision-coverage.mjs`,
+    which no longer re-exports the records API.
+  - The `ci-mailbox.mjs` facade imports records directly and keeps its
+    exported names.
+  - About fifteen importers in both skills were repointed to records.
+- `ci-mailbox-revision-records-boundary.test.mjs` was red first. Its import
+  check got `['./ci-integrated-state.mjs']`, and its export check found all
+  five records names on coverage. It is now green.
+- `npm test --` passed (exit 0) on the slice 2 consumer set plus
+  `symlinked-skill-entry`, `one-shot-queued*` and
+  `tests/support/git-publication-native-stream-fields.test.mjs`: 127 files,
+  including both listing-error withdrawal journeys. Lint and the dashboard
+  typecheck passed. No payload declaration changed.
+- Probe 1 above shows the module layout at `c98d2d22`. A rerun now imports
+  `registerPushedRevision` and `readRevisionCoverage` from
+  `ci-mailbox-revision-records.mjs`.
 
 ## Current decisions
 
