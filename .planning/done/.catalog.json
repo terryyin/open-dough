@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-008_integrated-state-correction.json",
+      "identity": "SEED-008#integrated-state-correction",
+      "completedAt": "2026-10-15T15:26:21.948Z",
+      "blob": "53c03ec92b24aea221be2c99671f9d1480118f87"
+    },
+    {
       "fileName": "SEED-008_coalesced-ci-validation.json",
       "identity": "SEED-008#coalesced-ci-validation",
       "completedAt": "2026-10-14T22:23:11.243Z",

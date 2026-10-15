@@ -185,42 +185,6 @@ records the Donut queue probe (GitHub kept the active run and replaced the
 single waiting run; B and D were cancelled with no jobs) and the shared
 runtime's accepted proof. Reuse these results; do not repeat them.
 
-<a id="integrated-state-correction"></a>
-
-### Correct integrated-state completion after coalesced CI validation
-
-**Identity:** SEED-008#integrated-state-correction
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/308-integrated-state-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e91126e4f6264a2f3a8e93b6dc79b56de0f7f95c6db24f77c9a8c23a33584210","plan":"daee5d656b16a885d1f7be477f7f82e2c605af9cbecf3e155fd6898da6948a92"}}
-```
-
-**Goal:** Coordinators using declared integrated-state completion get the
-completion that Coalesce CI validation with truthful completion evidence
-(SEED-008#coalesced-ci-validation, recoverable at `165482a2:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#coalesced-ci-validation`) already promises, including when GitHub replaced the run their ignored-only
-revision depends on. Stopping an observer is not held up by a candidate fetch.
-Maintainers get proof of the rule at its domain contract, with fewer spawned
-observer journeys.
-
-**Scope:** This is a bounded retrospective correction of that story's completed
-execution. It adds no feature promise. Its premise is that an ignored-only
-accepted B whose applicable ancestor was replaced in the queue is the case of
-that story's key example 2 and the converse in key example 3. The story also
-states: "Proven queue replacement explains why B has no run; it is not a
-passing verdict." Under a declared policy, such a B therefore completes against
-a successful descendant C. Without a policy, it stays unresolved as today.
-
-The correction also:
-
-- fetches a candidate only when the candidate can validate, and stops that
-  fetch with the observation;
-- replaces most of the ineligibility journeys with unit proof of the rule,
-  keeping one GitHub negative journey;
-- removes the revision-records module's dependency on the rule, and the
-  re-export of records through coverage.
-
-Findings, proof and slices are in the
-[correction plan](../slice-plans/308-integrated-state-correction/PLAN.md).
-
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
