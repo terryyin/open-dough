@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 303. Removed numbers are never reused.
+- Highest allocated local number: 304. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -358,4 +358,16 @@ A slice 3 journey made an unknown-ancestry case pass by running `git fetch origi
   - Evidence: `d1eda2ce:src/skills/dough-execute-plan/scripts/ci-integrated-state-journey.test.mjs` "another writer's C with unknown ancestry stays unresolved until the coordinator's checkout can prove B to C" (test runs `git fetch origin`, then expects success). The slice 5 return listed "Unknown ancestry needs a fetch". The coordinator returned the slice, and `d429430a` adds the observer's objects-only fetch and no-external-fetch lifecycle cases.
   - Observed effect: one extra implementation round in slice 5 (about 34 minutes of agent time) and replacement of three lifecycle cases.
   - Inference: qualified. The proof-acceptance rule "setup supplies only the starting precondition" covers this, but the case's name framed the fetch as expected behaviour. Checking each setup action against the story's key examples would have caught it at slice 3. One execution.
+
+## DD-304 — A slice's refactor widens a seam that a later slice of the same plan removes
+In slice 2, the refactor pass moved a shared rule into the records module and re-exported it through coverage, the module whose records re-export slice 5 was planned to drop. The refactor brief carried only the current slice, so the pass could not see that plan direction. Slice 5 then repointed the added names too, and the plan's slice 5 text had to be revised.
+### Occurrences
+- Execution: `SEED-008#integrated-state-correction` / plan 308, first implementation `f603752339df3dc9f4865d2cabc1472b19181ae2`
+  - Timestamp: unknown (2026-10-15, slice 2 refactor before the slice 2 commit at 2026-10-15T23:19:21+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout VERSION 0.3.62; installed guidance provenance not checked)
+  - Evidence: `1d9239c2` (`ci-mailbox-revision-coverage.mjs` re-exports `effectiveRevisionState` and `revisionVerdicts`); `1d9239c2:.planning/slice-plans/308-integrated-state-correction/PLAN.md` slice 5 bullet "Repoint the new `effectiveRevisionState` and `revisionVerdicts` imports"; `7740842a` (re-export removed).
+  - Observed effect: two extra names to repoint and one plan-text revision. No rework of behaviour and no failed proof.
+  - Inference: qualified. The cost was small here. A refactor delegation that names later slices touching the same module seam could place new names at their planned home directly. One execution.
 

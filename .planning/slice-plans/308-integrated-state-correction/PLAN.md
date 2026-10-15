@@ -514,6 +514,15 @@ Accepted proof (2026-10-16):
   `registerPushedRevision` and `readRevisionCoverage` from
   `ci-mailbox-revision-records.mjs`.
 
+## Execution complete
+
+Product advice: no backlog change. This correction closes the replaced-run
+gap that GitHub concurrency produces, so the queued
+SEED-008#donut-coalesced-ci-adoption inherits it. Keep that story next at
+its current priority. The remaining exclusive `owner` claim in
+`ci-observer-owner.mjs` holds a raw string, so it cannot cause the parse
+failure fixed here. It needs no story unless a flaky failure points at it.
+
 ## Current decisions
 
 - Without a policy, nothing changes. A `success` or `failure` basis keeps
