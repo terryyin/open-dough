@@ -14,7 +14,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Correct integrated-state completion after coalesced CI validation](seeds/SEED-008-worktree-branch-trunk-sync.md#integrated-state-correction) — SEED-008#integrated-state-correction ([plan](slice-plans/308-integrated-state-correction/PLAN.md))
+
 ## Backlog list
 
-- [Correct integrated-state completion after coalesced CI validation](seeds/SEED-008-worktree-branch-trunk-sync.md#integrated-state-correction) — SEED-008#integrated-state-correction
 - [Prove coalesced CI validation in Donut's actual workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#donut-coalesced-ci-adoption) — SEED-008#donut-coalesced-ci-adoption

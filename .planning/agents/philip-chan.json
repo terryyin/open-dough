@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "philip-chan",
+  "email": "philip-chan@example.org",
+  "identity": "SEED-008#integrated-state-correction",
+  "mode": "story-branch",
+  "branch": "claude/correct-integrated-state-completion-after-coales",
+  "host": "claude"
+}
