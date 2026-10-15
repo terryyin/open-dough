@@ -60,7 +60,8 @@ function observedRemote(repoDir, { remote, repo, branch }) {
 
 // Fetches only `sha`'s objects from the observed remote, within the bounded
 // transport: no ref, FETCH_HEAD, index or worktree changes. False when no
-// remote is identified or the fetch fails; the end of observation rethrows.
+// remote is identified or the fetch fails. The end of observation stops the
+// fetch's process group and rethrows.
 async function fetchCandidate(repoDir, sha, target, signal) {
   const remote = observedRemote(repoDir, target);
   if (!remote) return false;
@@ -74,6 +75,7 @@ async function fetchCandidate(repoDir, sha, target, signal) {
       "--quiet",
       remote,
       sha,
+      { signal },
     );
   } catch {
     fetched = false;

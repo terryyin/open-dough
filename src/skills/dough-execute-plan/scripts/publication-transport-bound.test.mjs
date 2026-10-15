@@ -109,6 +109,30 @@ test("a push stalled before or after acceptance ends with its hook", async (t) =
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), candidateSha);
 });
 
+test("an aborted fetch ends promptly with its process tree", async (t) => {
+  const boundMs = 30_000;
+  const { execution, stall } = await stallFixture(t, boundMs);
+  stall.stall({ service: "upload-pack" });
+  const controller = new AbortController();
+  const reason = new Error("stop");
+
+  const fetching = git(execution, "fetch", "origin", "main", {
+    signal: controller.signal,
+  });
+  const waitUntil = Date.now() + 10_000;
+  while (stall.calls().length === 0 && Date.now() < waitUntil) await pause(20);
+  assert.equal(stall.calls().length, 1, "the fetch never reached the remote");
+  const started = Date.now();
+  controller.abort(reason);
+  await assert.rejects(fetching, (error) => error === reason);
+  const elapsed = Date.now() - started;
+  assert.ok(elapsed < 3_000, `ended long after the abort: ${elapsed} ms`);
+
+  const [call] = stall.calls();
+  assert.equal(call.stalled, true);
+  await assertEnded(stall, call.pid);
+});
+
 test("a slow but responsive transport answers within the bound", async (t) => {
   const { execution, stall, candidateSha } = await stallFixture(t, 5_000);
   stall.pass({ delayMs: 400 });

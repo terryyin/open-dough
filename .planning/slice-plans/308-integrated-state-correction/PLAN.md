@@ -413,7 +413,7 @@ Accepted proof (2026-10-15):
 
 ### 4. Stop the candidate fetch with the observation
 Type: Behavior
-Status: planned
+Status: done
 Proof: An installed observer stopped during a slow candidate fetch confirms
 shutdown within the store's terminal deadline, and no Git process from the
 fetch remains. Withholding the signal (mutation) leaves shutdown unconfirmed.
@@ -442,6 +442,32 @@ locally.
 Run the slice 2 consumer set, the transport and managed-delivery transport
 tests, `ci-reuse-resource-journey.test.mjs`, and the payload tests if
 declarations change.
+
+Accepted proof (2026-10-15):
+- Changes:
+  - `git()` takes an optional trailing `{ signal }`.
+  - `boundedTransport` merges `AbortSignal.timeout` (created after spawn)
+    with that signal, then signals the process group: SIGTERM, then SIGKILL.
+    An expiry still rejects `transport-timeout`; an abort rejects with the
+    signal's reason.
+  - `fetchCandidate` passes the observation signal.
+  - `publication-git.mjs` stays at 250 lines because `managementContext`
+    was compacted. No payload declaration changed.
+- `publication-transport-bound.test.mjs`, "an aborted fetch ends promptly
+  with its process tree": red first (the option was taken as a refspec), now
+  green in about 0.3 s against a 30 s bound.
+- `ci-integrated-state-stop.test.mjs` is an installed observer journey. It
+  stalls the observing checkout's upload-pack with the shared
+  `publication-stall-test-fixtures.mjs`, and C is green and unknown locally.
+  The installed `ci-mailbox.mjs stop` gives `terminal.status: stopped` and
+  `coverage.state: ended` within `terminalResultDeadlineMs()` (about 2 s).
+  The worker is dead and the stalled stand-in has ended.
+- Red, and the mutation that withholds `{ signal }`: `coverage.state: lost`
+  ("terminal result was not published before its lifecycle deadline").
+  `git fetch`, the slow script and `sleep` stayed orphaned in one group.
+- `npm test --` passed (exit 0) on the slice 2 consumer set plus
+  `publication-*.test.mjs`, and on all 99 other `src/skills/*/scripts/*.test.mjs`
+  files (every other `git()` importer). Lint passed.
 
 ### 5. Keep revision records independent of the integrated-state rule
 Type: Structure
@@ -506,3 +532,11 @@ Run the payload tests if declarations change.
   rearms": the cancel receipt had empty stdout, at load about 13). Four
   standalone reruns and a full rerun passed. It is under diagnosis as a
   flaky-test defect outside the integrated-state path.
+- Slice 4: `AbortSignal.timeout` starts counting when it is created, so
+  creating the bound before spawn let it end early under load. `node:test`
+  runs `t.after` hooks in registration order, so process cleanup must not
+  depend on files under a fixture directory. The `ci-background-lifecycle`
+  flake recurred once. Its diagnosed cause is a product race: the waiter
+  creates `background-waiter.json` exclusively but empty, and only then
+  writes it. A concurrent `status` or `cancel` can parse the empty file,
+  exit 1 with empty stdout, and the test's receipt parse then fails.
