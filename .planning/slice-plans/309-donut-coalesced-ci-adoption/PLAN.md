@@ -129,7 +129,7 @@ commit SHA in this plan's Current decisions for slices 2–5 and the rollout.
 
 ### 2. Observe the coalesced burst with truthful Story Branch completion
 Type: Behavior
-Status: planned
+Status: done
 Proof: On disposable refs `dough-proof/coalesce-<UTC stamp>/story` (execution
 branch, observed target) and `dough-proof/coalesce-<UTC stamp>/trunk` (proof
 trunk) created from slice 1's commit: A, B, T, C are delivered in Story Branch
@@ -236,6 +236,66 @@ deployment, tag, or `main` push occurs in this slice or any other.
   push `pathsIgnore` `.planning/**`, `docs/**`; `readIntegratedStatePolicy`
   returns `{check: "ci.yml", context: "push"}`; Donut's `format:changed` and
   check-only `lint:changed` hook passed; `git ls-remote origin dough/coalesced-ci-candidate` empty.
+- Slice 2 (done, Terry authorized slices 2–4 on 2026-10-16): stamp
+  `20261015225856`. Both proof refs were opened at an empty
+  `[skip ci] Open coalesced-CI proof refs` commit `4a5c6fb6dc` on top of the
+  slice 1 commit, so creating them started no run. The coordinator worktree is
+  `.worktrees/dough-proof-20261015225856-story`. The other writer is a
+  `git clone --shared` at `.worktrees/dough-proof-20261015225856-writer`, not
+  a worktree, so its objects stay out of the coordinator's store. The
+  no-declaration checkout is `.worktrees/dough-proof-20261015225856-nodecl`
+  at `origin/main`.
+
+  | Push | SHA | By | Run | Conclusion | Jobs |
+  | --- | --- | --- | --- | --- | --- |
+  | A src | `a4985d05f2` | deliver | 38820860729 | success 23:00:25→23:07:04Z | 12 |
+  | B src | `b93ca4ec66` | deliver | 38820918222 | cancelled at 23:01:26Z (while A ran) | 0 |
+  | T docs | `35778b176f` | deliver | none | — | — |
+  | C src | `de736bf383` | writer clone | 38820973729 | failure; in progress after A ended at 23:07, done 23:12:25Z | 12 |
+  | D src | `f6f2e72b4b` | writer clone | 38821650774 | cancelled at 23:07:54Z (while C ran) | 0 |
+  | E src | `eeab81f7fa` | writer clone | 38821682878 | success; started after C ended, done 23:18:02Z | 12 |
+  | T2 docs | `7c90f37f72` | deliver (rebased onto E) | none | — | — |
+
+  All runs are attempt 1. C failed only in
+  `record_live_audio_with_real_open_ai_service.feature`, an E2E test against
+  the real OpenAI service: A passed the same suite, and C changed only
+  `dough-proof-snapshot.txt`. This was a Donut flake against an external
+  service, not owned here, and it was not rerun. Because C failed, E took C's
+  planned role as the validating snapshot. E was therefore kept, not
+  cancelled, and T2's basis is E, not C.
+
+  Receipts:
+  - B, read-only `await-revision` on the coordinator observer: the first wait
+    ended `timeout` at the ten-minute bound with `integrated.reason`
+    `no_eligible_candidate`, and C, D, E each `not_current_success`. The one
+    repeated wait after E completed returned `verdict: success` with
+    `effectiveEvidence.source: integrated_state`: accepted B `incomplete`
+    (run 38820918222/1), validated E (run 38821682878, attempt 1, `ci.yml`,
+    `push`, URL), ancestry `git merge-base --is-ancestor` B→E.
+  - T, `complete-revision`, the coordinator's last accepted revision before
+    T2: `integrated_state`, accepted T `not_required` with basis B
+    `incomplete`, validated E. Shutdown confirmed.
+  - T2, `complete-revision` on a new observer that T2's `deliver` established:
+    `not_required_basis` with basis E `success`. Shutdown confirmed.
+  - No declaration, `complete-revision` for B on an observer started in the
+    `origin/main` checkout: `source: exact`, B `incomplete` (run
+    38820918222/1), `unresolvedReason: incomplete`, no integrated evidence.
+    Shutdown confirmed.
+  - The observer's own fetch: the coordinator store lacked C and E (checked
+    with `git cat-file -e`) until the repeated B wait. It then held E, and
+    there were still no `refs/remotes/origin/dough-proof/*` refs. No manual
+    fetch was run.
+- Why B used the read-only wait: `complete-revision` composes that same wait
+  with observer shutdown, so it gives one receipt per observer. B therefore
+  used `await-revision`, and `complete-revision` went to the coordinator's
+  last accepted revision, as it does at a real handoff.
+- After a `needs-validation` reconciliation, rerun `deliver` with the
+  reconciled remote tip, which is the receipt's `suffixBase`, as
+  `--previously-published-base` and the reconciled candidate as
+  `--validated-candidate`. Passing the original base instead replayed the
+  other writer's commits, stopped with `conflict`, and left an interactive
+  rebase in the workspace. The rebase was aborted and the delivery rerun with
+  the correct base.
 - A fresh Donut worktree has no `.claude/skills/` (gitignored symlinks in the
   default checkout only); slices 2–5 run the installed copies from
   `.agents/skills/dough-execute-plan/scripts/` in the Donut worktree, which are
