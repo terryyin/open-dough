@@ -225,6 +225,16 @@ receipts, and the retained Donut branch and commit for the rollout. Remove
 only proof-owned refs and worktrees; keep slice 1's branch and worktree. No
 deployment, tag, or `main` push occurs in this slice or any other.
 
+## Execution complete
+
+Product advice: The Donut branch `dough/coalesced-ci-candidate` (`7e443633f0`)
+is ready for the separately authorized rollout to `main`. Donut's real-OpenAI
+E2E test (`record_live_audio_with_real_open_ai_service.feature`) failed C
+during the burst. Under coalescing, such a flake on the validating snapshot
+defers integrated validation to a later snapshot, so that test's stability is
+Donut's to address. No Open Dough product change is recommended. DD-305 and
+DD-306 are process findings for triage.
+
 ## Current decisions and boundedness review
 
 - Slice 1 (done): the Donut change is commit `7e443633f002a05ae1e2572dfa009e60ddabed78`

@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 304. Removed numbers are never reused.
+- Highest allocated local number: 307. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -371,3 +371,44 @@ In slice 2, the refactor pass moved a shared rule into the records module and re
   - Observed effect: two extra names to repoint and one plan-text revision. No rework of behaviour and no failed proof.
   - Inference: qualified. The cost was small here. A refactor delegation that names later slices touching the same module seam could place new names at their planned home directly. One execution.
 
+
+## DD-305 — Managed delivery accepts a `--repo` that does not match the workspace's remote
+The coordinator passed `--repo nerds-odd-e/open-dough` for a checkout whose `origin` is `terryyin/open-dough`. It had inferred the repository from the other project in the same task. `deliver` published to `origin` and attached an observer for the named repository. That observer then reported `CI_MONITOR_UNAVAILABLE` (HTTP 404 on `ci.yml`). Nothing compared the supplied repository with the remote the push used.
+### Occurrences
+- Execution: `SEED-008#donut-coalesced-ci-adoption` / plan 309, first related commit `341733adf0bcdf424699232a062c020b3686b122`
+  - Timestamp: unknown (2026-10-16 JST, first slice delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.63 (installed in this checkout at execution)
+  - Evidence: deliver receipt for `341733ad` with observer `watch-IEgYbN`, then `CI_MONITOR_UNAVAILABLE` naming `repos/nerds-odd-e/open-dough/actions/workflows/ci.yml` HTTP 404; `git remote get-url origin` = `git@github.com:terryyin/open-dough.git`.
+  - Observed effect: slice 1's publication was unobserved. The coordinator stopped that observer, and later deliveries with the right repo attached normally.
+  - Inference: qualified. The coordinator made the error. A remote/repo consistency check in `deliver` would turn it into an immediate refusal instead of lost coverage. Cost here was small, because the commit held plan records only.
+
+## DD-306 — A `needs-validation` rerun names no base, and the original base replays another writer's commits
+After another writer pushed C, D and E, `deliver` for the coordinator's T2 rebased onto E and returned `needs-validation`. That receipt carried `previouslyPublishedBase` (the original T) and `suffixBase` (E). The coordinator reran with the original base and `--validated-candidate`. The replay then picked the other writer's C, D and E, stopped with `conflict`, and left an interactive rebase in the workspace. Rerunning with `suffixBase` as the base published at once. Neither the receipt nor the guidance says which base the rerun takes. "Use the latest candidate SHA after a replay" covers only the candidate.
+### Occurrences
+- Execution: `SEED-008#donut-coalesced-ci-adoption` / plan 309, first related commit `341733adf0bcdf424699232a062c020b3686b122`
+  - Timestamp: 2026-10-15T23:19Z (approximately, after E's run ended at 23:18:02Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.63 (installed in nerds-odd-e/doughnut at `7178e92d04`)
+  - Evidence: plan 309 Current decisions, the "After a `needs-validation` reconciliation" bullet; T2 candidate `7c90f37f72` on `eeab81f7fa`.
+  - Observed effect: one conflicting replay and a manual `git rebase --abort` in a proof-owned worktree. No publication was lost.
+  - Inference: the same trap would hit any Story Branch execution whose branch receives another writer's commits. One execution.
+
+## DD-307 — A plan's proof mechanics rested on unchecked Git and runtime properties
+Plan 309's preparation observed the provider and the readers, but not the mechanics its own proof steps assumed. Execution disproved three of them:
+- A second Donut worktree would lack C's objects. Worktrees share one object store, so a `git clone --shared` replaced it.
+- Creating the proof refs from the slice 1 commit would start no run. Any new ref holding that commit starts one, so an empty `[skip ci]` commit opened them instead.
+- `complete-revision` could be invoked for B and then for T and T2. It shuts its observer down, so B used the read-only `await-revision`.
+
+Each was caught before a push, at no paid cost. Each still needed an in-execution design decision that a cheap preparation check (a `git worktree` object probe, the GitHub new-branch path rule, the `completeRevision` source) would have settled.
+### Occurrences
+- Execution: `SEED-008#donut-coalesced-ci-adoption` / plan 309, first related commit `341733adf0bcdf424699232a062c020b3686b122`
+  - Timestamp: unknown (2026-10-16 JST, slice 2 setup)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.63
+  - Evidence: plan 309 slice 2 text ("second isolated Donut worktree", "invoke `complete-revision` for B") against its Current decisions for slice 2.
+  - Observed effect: three mid-execution adaptations, recorded in the plan. None changed the story's promises.
+  - Inference: qualified. Planning for live probes would gain from checking each mechanical step's premise with one local observation, the way the plan already did for provider behavior.
