@@ -187,7 +187,7 @@ before integrating.
 
 ### 4. Complete a replaced revision in Trunk Mode
 Type: Behavior
-Status: planned
+Status: done
 Proof: On the proof trunk, `execution-increment-delivery.mjs deliver --mode trunk --target-ref refs/heads/<proof trunk> --repo nerds-odd-e/doughnut`
 publishes A′ then B′ then C′ while A′ runs; `gh` shows A′ and C′ `success`
 with jobs and B′ `cancelled` with no jobs; `complete-revision` for B′ returns
@@ -205,7 +205,7 @@ active and which waits.
 
 ### 5. Inspect release admission, count covered runs, and clear the proof refs
 Type: Behavior
-Status: planned
+Status: done
 Proof: `gh api repos/nerds-odd-e/doughnut/actions/runs/<B run>/artifacts`
 lists no artifacts and `<C run>/artifacts` lists `donut-0.0.1-SNAPSHOT.jar`,
 `frontend-dist` and `cli-dist` with `workflow_run.head_sha` equal to C. A
@@ -297,6 +297,53 @@ deployment, tag, or `main` push occurs in this slice or any other.
   --created-for-work --remote-branch .../story --contained 7c90f37f72` run,
   and it returned worktree, branch and remoteBranch `removed`. The proof
   trunk remains for slice 4.
+- Slice 4 (done): a local execution branch `.../trunk-exec` was created at
+  N in `.worktrees/dough-proof-20261015225856-trunkexec`.
+  `deliver --mode trunk --target-ref refs/heads/.../trunk` delivered A′
+  `43797250e3`, B′ `b0137f06a5` and C′ `29e2a80e2e` on one observer (later
+  deliveries `reused: true`).
+
+  | Push | Run | Conclusion | Jobs |
+  | --- | --- | --- | --- |
+  | A′ | 38823980024 | success, done 23:36:56Z | 12 |
+  | B′ | 38824030475 | cancelled while A′ ran | 0 |
+  | C′ | 38824051614 | success 23:31:04→23:43:00Z | 12 |
+  | F | 38825324866 | success 23:44:02→23:50:10Z | 12 |
+
+  B′'s `await-revision` returned `integrated_state`: accepted B′
+  `incomplete` (38824030475/1), validated C′ (38824051614, attempt 1,
+  `ci.yml`, `push`), ancestry B′→C′. Installed `trunk-closure.mjs finish
+  --before-cleanup C′ --final F` (`cb73969889`) returned `ok: true`,
+  `step: done`, `acceptedSha` F. Its completion was `source: exact`, F
+  `success`, shutdown confirmed. Cleanup removed the worktree and branch.
+- Slice 5 (done):
+  - Artifacts. The replaced runs 38820918222 (B) and 38824030475 (B′) list
+    no artifacts. The validating runs list `frontend-dist`, `cli-dist` and
+    `donut-0.0.1-SNAPSHOT.jar` with `workflow_run.head_sha` equal to their
+    own SHA: 38821682878 at E and 38824051614 at C′. Failed C
+    (38820973729) also lists its own artifacts at C, plus
+    `cypress-screenshots`.
+  - Release admission, a reconstructed comparison: the job-temp
+    `admission.mjs` imports Donut's unchanged
+    `scripts/ci/application-release-ci.mjs` and stubs `fetch` with B's and
+    B′'s real run JSON relabelled `head_branch: main`. `querySelectedCi`
+    threw `CI 38820918222 attempt 1 for b93ca4ec66… finished with cancelled`
+    (and the same for B′ 38824030475), each with `ci.state: failed`.
+  - Covered runs. Slice 2: among source pushes A, B, C, 2 of 3 started jobs
+    (A, C). Across A–E it was 3 of 5 (A, C, E), with B and D replaced at 0
+    jobs. E was not cancelled because it became the validating snapshot.
+    Slice 4: among A′, B′, C′, 2 of 3 (A′, C′), plus F's own run. Full runs
+    used: 7 (A, C, E, N, A′, C′, F), the number Terry authorized. This
+    states no production rate.
+  - Cleanup. The proof trunk was deleted, and
+    `git ls-remote origin 'refs/heads/dough-proof/*'` is empty. The writer
+    clone and the no-declaration worktree were removed. The 10 proof runs
+    remain listed in Actions.
+  - Nothing else moved. `deploy.yml`'s newest run is still 2026-10-14
+    (`v1.3.45`), no new `v*` tag exists, and remote `main` stays
+    `7178e92d04`. The kept rollout branch is `dough/coalesced-ci-candidate`
+    `7e443633f0` (unpushed) in
+    `.worktrees/dough-coalesced-ci-candidate`.
 - Why B used the read-only wait: `complete-revision` composes that same wait
   with observer shutdown, so it gives one receipt per observer. B therefore
   used `await-revision`, and `complete-revision` went to the coordinator's
