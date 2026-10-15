@@ -26,9 +26,14 @@ import {
   launchComplete,
   parseReceipt,
 } from "./ci-mailbox-await-test-fixtures.mjs";
+import { policy } from "./ci-integrated-state-judge-test-fixtures.mjs";
+
+export {
+  policy,
+  unresolved,
+} from "./ci-integrated-state-judge-test-fixtures.mjs";
 
 const story = "exec/story";
-export const policy = { check: "ci.yml", context: "push", jobs: ["covered"] };
 
 // `provider(t, fixture, declared)` configures the project's CI source and
 // returns its observer `polls()` so far, any observer `env`, request hold/release around
@@ -229,10 +234,3 @@ export const waitingTips = ({ d, e }) => [
   { sha: e, reason: "not_current_success" },
   { sha: d, reason: "not_current_success" },
 ];
-
-export const unresolved = (considered, declared = policy) => ({
-  state: "unresolved",
-  policy: declared,
-  reason: "no_eligible_candidate",
-  considered,
-});

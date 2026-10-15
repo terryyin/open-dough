@@ -230,7 +230,7 @@ The slow upload-pack script was
 
 ### 1. Prove the integrated-state rule at its domain contract
 Type: Structure
-Status: planned
+Status: done
 Proof: The new unit and provider-boundary tests pass and discriminate. The
 retained journeys and the affected suites stay green. The paired local timing
 of the changed jobs is lower.
@@ -272,6 +272,32 @@ Run every `ci-integrated-state*` test, `ci-command-attempts.test.mjs`,
 under Preserved promises. Compare the changed jobs' paired local times before
 and after under the current load, and read the baseline with
 `bash scripts/ci-test-times.sh`.
+
+Accepted proof (2026-10-15):
+- `ci-integrated-state-judge.test.mjs` and `ci-integrated-state-judge-bounds.test.mjs`
+  judge `integratedStateJudge` over a real local history
+  (`ci-integrated-state-judge-test-fixtures.mjs`: bare `origin`, `writer`,
+  and an `observer` clone that holds only base and B). They cover every
+  reason; "not_ancestor skip" and "fetch bound" are observed as
+  `no_candidate` and `ancestry_unknown`. `ci-github-current-attempt.test.mjs`
+  proves `readCurrentAttempt` through the instrumented `gh` fixture,
+  including a mid-read rerun that gives `contradicted`.
+- `ci-integrated-state-reads.test.mjs` is deleted, and
+  `ci-integrated-state-ineligible.test.mjs` keeps only the rerun
+  pending-then-failed journey. No fixture helper became unused.
+- Each of the five mutations failed a named new test.
+- `PATH="/opt/homebrew/bin:$PATH" npm test --` passed on the
+  `ci-integrated-state-*` tests, `ci-github-current-attempt`,
+  `ci-command-attempts` and `ci-github-acquisition(-owner)`. It also passed
+  on `ci-background-{handoff,lifecycle}`,
+  `ci-reuse-{resource,trunk,story,custom}-journey`,
+  `ci-revision-coverage-not-required`, and the wrap-up tests
+  `closure-story-integration`, `trunk-closure` and
+  `closure-story-branch-cleanup`.
+- Timing over paired local runs, A/B three times: the changed jobs fell from
+  about 27 to about 11 job-seconds. `bash scripts/ci-test-times.sh` (10
+  trunk runs) gave ineligible 15.8 s and reads 7.3 s. Share 1 is the
+  thinnest, projected from 540.1 against the 710 ceiling.
 
 ### 2. Complete an ignored-only revision whose applicable ancestor was replaced
 Type: Behavior
@@ -421,4 +447,8 @@ Run the payload tests if declarations change.
 
 ## Learnings
 
-None yet.
+- Slice 1: in-process GitHub reader tests can each `enter()` their own
+  `instrumentedGithubFixture()`. The request owner rebinds its endpoint
+  when the `DOUGH_GITHUB_*` environment changes, so tests in one file do
+  not interfere. `judge-bounds` costs about 4 s locally because it builds
+  real histories with sibling branches.
