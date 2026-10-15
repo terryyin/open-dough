@@ -14,6 +14,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Prove coalesced CI validation in Donut's actual workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#donut-coalesced-ci-adoption) — SEED-008#donut-coalesced-ci-adoption ([plan](slice-plans/309-donut-coalesced-ci-adoption/PLAN.md))
+
 ## Backlog list
 
-- [Prove coalesced CI validation in Donut's actual workflow](seeds/SEED-008-worktree-branch-trunk-sync.md#donut-coalesced-ci-adoption) — SEED-008#donut-coalesced-ci-adoption
