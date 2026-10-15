@@ -167,17 +167,19 @@ async function observeIntegratedState({
   const considered = [];
   let verifications = 0;
   for (const [sha, listed] of bySha) {
-    const ancestry = await ancestryOf(acceptedSha, sha);
+    // Every listed attempt of C must be a current success: a pending or
+    // failed rerun contradicts an older green of the same snapshot. Such a C
+    // cannot validate whatever its ancestry, so it is never fetched.
+    const current = listed.every(succeeded);
+    const ancestry = await ancestryOf(acceptedSha, sha, { fetch: current });
     if (ancestry === "not_ancestor") continue;
     const consider = (reason) => considered.push({ sha, reason });
-    if (ancestry === "unknown") {
-      consider("ancestry_unknown");
+    if (!current) {
+      consider("not_current_success");
       continue;
     }
-    // Every listed attempt of C must be a current success: a pending or
-    // failed rerun contradicts an older green of the same snapshot.
-    if (!listed.every(succeeded)) {
-      consider("not_current_success");
+    if (ancestry === "unknown") {
+      consider("ancestry_unknown");
       continue;
     }
     if (verifications >= verificationBound) {

@@ -35,6 +35,33 @@ test("a green C this checkout lacks is fetched, objects only, and validates B", 
   assert.equal(existsSync(join(observer, ".git/FETCH_HEAD")), false);
 });
 
+test("pending and failed candidates this checkout lacks are never fetched; a green one still is", async (t) => {
+  const history = judgeHistory(t, { siblings: 2 });
+  const { observer, b, c, descendants } = history;
+  const [failed, green] = descendants;
+  const { judge } = judgePoll({
+    repoDir: observer,
+    runs: [
+      listedRun(c, { status: "in_progress", conclusion: null }),
+      listedRun(failed, { conclusion: "failure" }),
+      listedRun(green),
+    ],
+    read: unreadable,
+  });
+  assert.deepEqual(
+    (await judge(accepted(b))).integrated,
+    unresolved([
+      { sha: c, reason: "not_current_success" },
+      { sha: failed, reason: "not_current_success" },
+      { sha: green, reason: "current_attempt_unavailable" },
+    ]),
+  );
+  assert.deepEqual(
+    [c, failed, green].map((sha) => history.holds(observer, sha)),
+    [false, false, true],
+  );
+});
+
 test("a candidate the remote cannot serve stays ancestry_unknown", async (t) => {
   const { observer, b } = judgeHistory(t);
   const unknown = "e".repeat(40);

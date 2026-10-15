@@ -82,14 +82,14 @@ async function fetchCandidate(repoDir, sha, target, signal) {
   return fetched;
 }
 
-// One poll's ancestry reader over `repoDir`. A candidate this checkout lacks
-// is fetched once per poll, within the bound; one the remote cannot serve
-// stays unknown.
+// One poll's ancestry reader over `repoDir`. With `fetch`, a candidate this
+// checkout lacks is fetched once per poll, within the bound; one the remote
+// cannot serve stays unknown.
 export function candidateAncestry({ repoDir, remote, repo, branch, signal }) {
   const fetches = new Map();
-  return async (acceptedSha, sha) => {
+  return async (acceptedSha, sha, { fetch }) => {
     const ancestry = gitAncestry(repoDir, acceptedSha, sha);
-    if (ancestry !== "unknown") return ancestry;
+    if (ancestry !== "unknown" || !fetch) return ancestry;
     if (!fetches.has(sha)) {
       if (fetches.size >= fetchBound) return ancestry;
       fetches.set(

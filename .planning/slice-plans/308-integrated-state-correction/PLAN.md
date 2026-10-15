@@ -372,7 +372,7 @@ Accepted proof (2026-10-15):
 
 ### 3. Fetch only candidates that can validate
 Type: Behavior
-Status: planned
+Status: done
 Proof: Judge unit cases show pending and failed tips stay unfetched while a
 green unknown tip is fetched once, objects only. Moving the success check back
 after ancestry (mutation) fails the pending-tip case.
@@ -392,6 +392,24 @@ journeys. Add the fetch cases to the slice 1 unit tests.
 Update the fetch sentence in `references/ci-completion-wait.md`. Run every
 `ci-integrated-state*` test, the slice 2 consumer set, and the payload tests
 if declarations change.
+
+Accepted proof (2026-10-15):
+- The judge computes `current = listed.every(succeeded)` before
+  `ancestryOf(..., { fetch: current })`. The per-poll ancestry reader
+  (`ci-integrated-state-ancestry.mjs`) fetches only when it is asked to.
+- `ci-integrated-state-judge-bounds.test.mjs`, "pending and failed
+  candidates this checkout lacks are never fetched; a green one still is",
+  was red first: `holds` was `[true, true, true]` against the expected
+  `[false, false, true]`. It is now green, and the reasons are
+  `not_current_success`, `not_current_success` and
+  `current_attempt_unavailable`.
+- The no-candidate case gained a failed run of a non-descendant, which is
+  still skipped.
+- Mutation: moving the success check back after ancestry failed only the
+  new case.
+- `node --test` passed 25/25 on the judge tests. The slice 2 consumer set
+  passed (exit 0) under `npm test`. No consumer expectation moved. No payload
+  declaration changed.
 
 ### 4. Stop the candidate fetch with the observation
 Type: Behavior
@@ -481,3 +499,10 @@ Run the payload tests if declarations change.
   `incomplete` B already did. `not_required_basis` evidence now carries
   `integrated` when it is present. Using the installed `complete-revision`
   as the journey's wait needs no separate wait predicate.
+- Slice 3: non-green tips no longer use up the three fetch slots, so a
+  green tip listed after them is still fetched within the bound. One run of
+  the slice 2 consumer set failed in `ci-background-lifecycle.test.mjs`
+  ("bounded expiry is silent and an explicit delivery cancellation never
+  rearms": the cancel receipt had empty stdout, at load about 13). Four
+  standalone reruns and a full rerun passed. It is under diagnosis as a
+  flaky-test defect outside the integrated-state path.

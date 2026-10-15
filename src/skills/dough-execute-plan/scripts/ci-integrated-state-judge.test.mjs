@@ -39,6 +39,7 @@ test("B itself, another branch, another named check and non-descendants are no c
     runs: [
       listedRun(b),
       listedRun(other),
+      listedRun(other, { conclusion: "failure" }),
       listedRun("a".repeat(40), { headBranch: "elsewhere" }),
       listedRun("b".repeat(40), { check: "release.yml" }),
     ],

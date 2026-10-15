@@ -53,12 +53,14 @@ distinct from shutdown facts:
 - `effectiveEvidence.integrated` on an unresolved receipt names why no later
   snapshot qualified yet (`reason`, and each considered SHA's reason). The
   observer judges candidates afresh on every poll from the provider's current
-  attempt and the local checkout's Git ancestry. It fetches only the objects
-  of a snapshot this checkout lacks, from the target's remote and without
-  changing any ref; `ancestry_unknown` remains only when that remote cannot
-  serve it or no remote for the target is identified. A pending, failed,
-  cancelled, rerun, unreadable, other-target or context-incompatible attempt
-  supplies no success.
+  attempt and the local checkout's Git ancestry. When this checkout lacks a
+  snapshot whose listed attempts all succeeded, it fetches only that
+  snapshot's objects, from the target's remote and without changing any ref;
+  `ancestry_unknown` remains only when that remote cannot serve it or no remote
+  for the target is identified. A snapshot with a pending or failed listed
+  attempt is never fetched and is reported as `not_current_success`. A
+  pending, failed, cancelled, rerun, unreadable, other-target or
+  context-incompatible attempt supplies no success.
 - `unresolvedReason` is one of `timeout`, `observation_unavailable`,
   `wait_cancelled`, `incomplete`, `evidence_unreadable`, or
   `missing_registration`. Except `wait_cancelled`, a bounded unresolved result
