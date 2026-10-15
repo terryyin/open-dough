@@ -108,7 +108,7 @@ guidance to 0.3.63") and not edited.
 
 ### 1. Reproducible Donut change on an unpushed branch
 Type: Behavior
-Status: planned
+Status: done
 Proof: In an isolated Donut worktree on branch `dough/coalesced-ci-candidate`
 from `origin/main`, `node --test scripts/ci/ci-workflow.test.mjs` passes with a
 new assertion that `ci.concurrency` equals `{group: "${{ github.workflow }}-${{ github.ref }}", "cancel-in-progress": false}`
@@ -227,6 +227,19 @@ deployment, tag, or `main` push occurs in this slice or any other.
 
 ## Current decisions and boundedness review
 
+- Slice 1 (done): the Donut change is commit `7e443633f002a05ae1e2572dfa009e60ddabed78`
+  on unpushed branch `dough/coalesced-ci-candidate` (no upstream) in
+  `/Users/terryyin/git/doughnut/.worktrees/dough-coalesced-ci-candidate`, from
+  `origin/main` `7178e92d04`. Accepted proof: `node --test scripts/ci/ci-workflow.test.mjs`
+  2 pass (the new concurrency test fails on `origin/main`'s `ci.yml` with
+  `actual: undefined`); installed `readCiPathIgnorePolicy` returns supported with
+  push `pathsIgnore` `.planning/**`, `docs/**`; `readIntegratedStatePolicy`
+  returns `{check: "ci.yml", context: "push"}`; Donut's `format:changed` and
+  check-only `lint:changed` hook passed; `git ls-remote origin dough/coalesced-ci-candidate` empty.
+- A fresh Donut worktree has no `.claude/skills/` (gitignored symlinks in the
+  default checkout only); slices 2–5 run the installed copies from
+  `.agents/skills/dough-execute-plan/scripts/` in the Donut worktree, which are
+  the same 0.3.63 files.
 - Proof refs live under `dough-proof/coalesce-<UTC stamp>/` and everything
   under that prefix is proof-owned; the prefix is deleted after slice 5, and
   the completed runs stay in Donut's Actions history.
