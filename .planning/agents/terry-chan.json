@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "identity": "SEED-008#donut-coalesced-ci-adoption",
-  "mode": "story-branch",
-  "branch": "claude/prove-coalesced-ci-validation-in-donut-s-actual",
-  "host": "claude"
-}

@@ -392,7 +392,7 @@ After another writer pushed C, D and E, `deliver` for the coordinator's T2 rebas
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.63 (installed in nerds-odd-e/doughnut at `7178e92d04`)
-  - Evidence: plan 309 Current decisions, the "After a `needs-validation` reconciliation" bullet; T2 candidate `7c90f37f72` on `eeab81f7fa`.
+  - Evidence: `f0f40bb0:.planning/slice-plans/309-donut-coalesced-ci-adoption/PLAN.md` Current decisions, the "After a `needs-validation` reconciliation" bullet; T2 candidate `7c90f37f72` on `eeab81f7fa`.
   - Observed effect: one conflicting replay and a manual `git rebase --abort` in a proof-owned worktree. No publication was lost.
   - Inference: the same trap would hit any Story Branch execution whose branch receives another writer's commits. One execution.
 
@@ -409,6 +409,6 @@ Each was caught before a push, at no paid cost. Each still needed an in-executio
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.63
-  - Evidence: plan 309 slice 2 text ("second isolated Donut worktree", "invoke `complete-revision` for B") against its Current decisions for slice 2.
-  - Observed effect: three mid-execution adaptations, recorded in the plan. None changed the story's promises.
+  - Evidence: `f0f40bb0:.planning/slice-plans/309-donut-coalesced-ci-adoption/PLAN.md` slice 2 text ("second isolated Donut worktree", "invoke `complete-revision` for B") against its Current decisions for slice 2.
+  - Observed effect: three mid-execution adaptations, recorded in that plan. None changed the story's promises.
   - Inference: qualified. Planning for live probes would gain from checking each mechanical step's premise with one local observation, the way the plan already did for provider behavior.
