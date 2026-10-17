@@ -102,6 +102,11 @@ needed; a bound is declared, never a retry or a longer `expect` bound.
 
 Observed 2026-10-18 in the execution checkout at `0bee7fd8` (read-only; the
 slice 9 record `final9/full8.json` under the job's temporary directory).
+Re-observed 2026-10-18 in this preparation workspace at `78ee26f8`
+(read-only): every row below holds unchanged. A regex that strips comments
+and strings misreads apostrophes inside template literals and reports a
+third file; the scan walks identifiers in the TypeScript syntax tree
+(`ts.createSourceFile`, identifiers `page`, `newPage`, `browser`).
 
 | Premise | Observation | Consequence |
 | --- | --- | --- |

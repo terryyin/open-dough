@@ -32,7 +32,7 @@ implement the campaign or create an executable plan.
 
 **Identity:** SEED-136#dashboard-test-bounds-and-placement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"783b64d3249def9689178a2825832bd6b526e8736b9ba1c75d66ae24f03dbad1","plan":"d76d5ab0b77729511f61a0c9aea7ae74da7321deb388664fdd08b64585588602"}}
 ```
 
 **Beneficiary:** Developers running the dashboard suite on a loaded machine
@@ -46,7 +46,7 @@ depends on, and every spec that opens no page lives in
 "Two tiers" and "Synchronization" state. The findings are older weaknesses
 the campaign's measurements surfaced plus one residue of the campaign. No
 feature promise: every assertion, title and test count stays. Plan:
-[311](../slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md).
+[313](../slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md).
 
 **Scope:**
 
