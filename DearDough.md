@@ -145,6 +145,14 @@ Former local code: DD-221. Asynchronous CI repair runs many-worker repetitions a
   - Observed effect: a failed 1,006.404s whole run required diagnosis and a further 1,092.290s controlled whole proof; no deadline/helper changes or automatic retries until green.
   - Inference: this occurrence uses concurrent local shell proof, not CI repair, but supports the same shared-host overload mechanism. Causality remains qualified; isolated success alone did not waive failed whole proof. Coordinate heavy verification before starting it.
 
+- Execution: `SEED-008#land-unfinished-stories-without-retirement` / plan 314, first implementation `100e12a4b44e7b43477b1f411d138813d2b4b32d`
+  - Timestamp: 2026-10-17T23:15:33.655Z (focused run start; supplemental run began 2026-10-17T23:24:44.074Z).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (installed VERSION at claim `50d0a603`; installed execution/refactor guidance unchanged).
+  - Evidence: `1317f9fc:.planning/slice-plans/314-land-unfinished-stories-without-retirement/PLAN.md`, accepted slice 2 evidence; one focused run overlapped a full-CPU 24-check batch (16 logical CPUs, load 41.87). A later five-spec run overlapped another worktree's `dashboard-repeat.sh 3 --load` and 16 CPU burners, at load 84–104.
+  - Observed effect: the focused branch-restoration assertion passed at 29.53s before restart exhausted 30s; eight later supplemental cases exhausted the same deadline during launch or subsequent setup. Cleanup produced socket/cwd/module errors. Traces were inspected, deadlines preserved and other processes left with their owner.
+  - Inference: qualified shared-host contention, rather than a failing publication assertion. The required baseline and retained-continuation runs had already passed; unchanged proof was preserved instead of retrying blindly.
+
 ## ODF-210 — Removal proof omits an existing user capability <a id="odf-210"></a>
 
 Former local code: DD-234. A removal traces what a path displays but misses what it lets the user do, delivering a capability loss caught only by retrospective. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-210).
@@ -320,6 +328,14 @@ A refactor repeated the accepted thirty-spec terminal consumer command although 
   - Observed effect: changed gesture/observation proof passed, but unaffected consumers also ran again. The excess run was recorded as a deviation, not a new acceptance gate.
   - Inference: preserve the accepted command as evidence, and select invalidated consumers before starting verification. Avoidable elapsed time and token cost were not measured; one execution establishes no general rate.
 
+- Execution: `SEED-008#land-unfinished-stories-without-retirement` / plan 314, first implementation `100e12a4b44e7b43477b1f411d138813d2b4b32d`
+  - Timestamp: 2026-10-17T23:24:44.074Z (supplemental dashboard run start).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (installed VERSION at claim `50d0a603`; installed execution/refactor guidance unchanged).
+  - Evidence: slice 2 refactor replaced a local ancestry helper with an identical existing function and compacted installer declarations; final `refactor2` handoff and `1317f9fc` plan evidence record a repeated five-spec dashboard command after focused history/CLI/installation proof passed.
+  - Observed effect: the supplemental run encountered eight timeouts under external CPU stress; original dashboard implementation, setup, fixtures and assertions were unchanged, so its earlier complete passing proof remained applicable. The repeat was a deviation, not a new acceptance gate.
+  - Inference: select genuinely invalidated observations before launching refactor verification. The extra run's elapsed/token cost was not measured independently; this does not waive required changed-boundary proof.
+
 ## DD-293 — Whole-suite proof runs before the refactor that invalidates it
 An implementation agent ran the changed surface's whole suite before the independent refactor pass, and the refactor then moved the measured code, so the suite had to run again on the final state.
 ### Occurrences
@@ -478,6 +494,14 @@ Slice delivery asks for the project's selective formatting command; this project
   - Evidence: `scripts/lint.mjs` file listing (`git ls-files --cached --others --exclude-standard` unless `--staged`); coordinator format runs exceeded 300 s (slices 1 and 3) and 600 s (slice 4, five Markdown files) at load averages near 100 to 120.
   - Observed effect: roughly 5 to 10 minutes of formatter time per slice, four times, with the coordinator idle.
   - Inference: qualified. Machine load inflated the cost; a changed-files mode, like the hook's `--staged` check, would bound it. Unloaded duration not measured.
+
+- Execution: `SEED-008#land-unfinished-stories-without-retirement` / plan 314, first implementation `100e12a4b44e7b43477b1f411d138813d2b4b32d`
+  - Timestamp: unknown (2026-10-18 JST, slice deliveries).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (installed VERSION at claim `50d0a603`; installed execution/refactor guidance unchanged).
+  - Evidence: `scripts/lint.mjs` lists all tracked/untracked files for `npm run format`; accepted slice 1/2 evidence at `1317f9fc` and coordinator tool receipts record two first-slice attempts (one mechanical unused-parameter repair) and one second-slice attempt.
+  - Observed effect: each delivery waited for repository-wide ESLint, Prettier and shell checks; logs enumerate unchanged installed skills and unrelated source/test files. The second delivery also encountered the overloaded shared host. No unrelated bytes changed.
+  - Inference: the available project command exceeds the workflow's selective-format intent; the full cost is repeated after a mechanical repair. Unloaded duration and token cost were not measured; no formatter change is authorized by this execution.
 
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.
