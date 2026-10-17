@@ -33,11 +33,13 @@ that server the Node entry alone, naming no Vite and serving no page.
 Put a check where it is cheapest to prove: a journey shows that the page does
 the thing once; the boundary tests own every variant of how the server
 answers. Both tiers are one suite, run and sharded together (below). Today
-`boundary/` holds the browserless `agent-completion-*` specs, every
-browserless `authenticated-*` read spec, and the browserless project,
-landing, proof-record, launch-record and pure-reading specs; the browserless
-`agent-launch-*`, `agent-terminal-*` and `cursor-*` specs run from this
-directory until they are relocated.
+`boundary/` holds every browserless spec: the `agent-completion-*`,
+`agent-launch-*`, `agent-terminal-*` and `cursor-*` specs that drive the
+launch boundary, its WebSocket terminal attachments and the Cursor runner
+over HTTP, every browserless `authenticated-*` read spec, and the browserless
+project, landing, proof-record, launch-record and pure-reading specs. One
+dev-server check stays in this directory: `agent-terminal-hmr.spec.ts`, which
+shows Vite's own HMR socket working beside the terminal upgrade guard.
 
 Test support takes the repository root from
 `support/repositoryRoot.ts`, not the working directory, so

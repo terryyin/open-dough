@@ -2,7 +2,7 @@
 // "Workspace ~/git/<project>/.worktrees/<slug>" on its story's card,
 // beneath the project folder and never the machine's home
 // directory, and one without a preparation says none. The kept record is
-// written as ./agent-launch-preparation-start.spec.ts shows the real start
+// written as ./boundary/agent-launch-preparation-start.spec.ts shows the real start
 // leaves it, on a committed origin the production commands published
 // (./launchJourney.ts).
 

@@ -9,7 +9,7 @@
 // workspace selection. A start lost with its server is resumed by running the
 // installed start again for the kept workspace and branch, which makes it or
 // takes it as it is. Default main, a refused start, and a conversation whose
-// first input is unconfirmed: ./agent-launch-start-session-kept.spec.ts.
+// first input is unconfirmed: ./boundary/agent-launch-start-session-kept.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";

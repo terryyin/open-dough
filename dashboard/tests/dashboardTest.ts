@@ -33,6 +33,19 @@ const githubServing = new WeakMap<BrowserContext, FakeGitHub>();
 type Removal = () => void | Promise<void>;
 const removalsAfterStop = new WeakMap<FakeGitHub, Removal[]>();
 
+// Which server the `dashboard` fixture starts: the built preview a page
+// journey opens, or the local boundaries alone for a boundary spec.
+export type FixtureServerMode = "preview" | "boundary";
+
+// The start of the fixture's server: a preview serves the run's build; the
+// boundary server needs none. A fixture extending this one (for example
+// ./support/preparationPage.ts) starts its server the same way.
+export function fixtureServerMode(serverMode: FixtureServerMode) {
+  return serverMode === "preview"
+    ? ({ mode: "preview", prebuilt: builtDashboardDir } as const)
+    : ({ mode: "boundary" } as const);
+}
+
 // Page time stands still at `at` until a journey lets it pass. The clock is
 // installed an hour earlier because it runs until paused, and Playwright
 // refuses to pause it in the past; no page is open yet, so that hour fires
@@ -69,9 +82,7 @@ export const test = base.extend<{
   startTimeoutMs: number | undefined;
   extraEnv: Readonly<Record<string, string>> | undefined;
   pathPrefix: readonly string[] | undefined;
-  // Which server `dashboard` starts: the built preview a page journey opens,
-  // or the local boundaries alone for a boundary spec.
-  serverMode: "preview" | "boundary";
+  serverMode: FixtureServerMode;
   afterGitHubStops: (removal: Removal) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
@@ -115,8 +126,7 @@ export const test = base.extend<{
     use,
   ) => {
     const server = await startDashboardServer({
-      mode: serverMode,
-      ...(serverMode === "preview" ? { prebuilt: builtDashboardDir } : {}),
+      ...fixtureServerMode(serverMode),
       github,
       readTimeoutMs,
       projectFolders,

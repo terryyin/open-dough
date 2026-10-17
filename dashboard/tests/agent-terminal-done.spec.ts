@@ -2,7 +2,7 @@
 // committed story-stages origin (./launchJourney.ts): while it marks, the panel
 // says so quietly; then the panel closes, the session leaves its card, and
 // Recently done shows the entry Done under its `done-` name, still openable.
-// How the boundary renames and stops the session is ./agent-launch-done.spec.ts, how
+// How the boundary renames and stops the session is ./boundary/agent-launch-done.spec.ts, how
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
 // entry's own Mark as done is ./agent-launch-card-done.spec.ts. A refused mark
 // keeps the panel open and says so, and a mark answered after another session

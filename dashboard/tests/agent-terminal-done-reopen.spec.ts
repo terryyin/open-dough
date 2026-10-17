@@ -4,7 +4,7 @@
 // opening its terminal there reopens it: once the terminal attaches, it is
 // back on its card and no longer Done, through a reload, until it is marked
 // done again from its card. How the boundary reopens it is
-// ./agent-terminal-reopen.spec.ts, and how the page marks a session done is
+// ./boundary/agent-terminal-reopen.spec.ts, and how the page marks a session done is
 // ./agent-terminal-done.spec.ts. The page's own dashboard server drives the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 

@@ -17,7 +17,10 @@ import {
   expectCodexHungUp,
   openCodexTerminal,
 } from "./codexTerminal.ts";
-import { startDashboardServer } from "./dashboardServer.ts";
+import {
+  developmentBoundary,
+  startDashboardServer,
+} from "./dashboardServer.ts";
 import { installFakeCursor } from "./fakeCursor.ts";
 import { stayedUp } from "./keptCursorTurn.ts";
 import { instruction } from "./cursorRunnerJourney.ts";
@@ -41,7 +44,7 @@ export async function serverCloseLeavesCursorAndHangsUpOtherHosts(): Promise<voi
     JSON.stringify({ mode: "ready" }),
   );
   const server = await startDashboardServer({
-    mode: "dev",
+    ...developmentBoundary,
     machine,
     projectFolders: ["open-dough"],
     codex: true,

@@ -9,7 +9,7 @@
 // project's execution dialog adds no sentence and its card reads "Starting
 // execution in Claude Code…", as a refinement's does. The
 // synthetic `claude` (./fixtures/fake-claude) stands in for the real one, and
-// the kept record with a start is written as ./agent-launch-start.spec.ts
+// the kept record with a start is written as ./boundary/agent-launch-start.spec.ts
 // shows the real start leaves it. The start itself is that spec's.
 
 import { mkdirSync, writeFileSync } from "node:fs";

@@ -1,5 +1,5 @@
 // What a raw-HTTP launch spec observes of accepted launch attempts
-// (./agentLaunchBoundary.ts, ./agent-launch-acceptance.spec.ts): the
+// (./agentLaunchBoundary.ts, ./boundary/agent-launch-acceptance.spec.ts): the
 // attempts this machine keeps, as its store file holds them, and what one
 // settled to, followed through the attempt's own change answers.
 

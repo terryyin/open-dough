@@ -160,7 +160,7 @@ dashboard suite (1,627 selected, all passed) are green on the final state.
 
 ### 3. Launch, terminal and Cursor boundary specs relocate
 Type: Behavior
-Status: planned
+Status: done
 Proof: The 58 browserless `agent-launch-*`, 10 `agent-terminal-*` and the
 browserless `cursor-*` files run in boundary mode, including the WebSocket
 terminal attachments and the Cursor runner lifecycle; the mode loops in these
@@ -169,6 +169,37 @@ files are reduced to one serving mode pending slice 4; suite green.
 Behavior: pre: launch and terminal boundary tests run twice under Vite →
 trigger: relocation → result: each runs once at the boundary with the
 synthetic hosts, terminal upgrades included.
+
+Accepted proof (2026-10-17, at the slice 3 commit): the 80 relocated files
+select 345 tests after against 457 before, the 111-test difference being the
+dropped dev iterations named in the proof map plus the one HMR test moved to
+`agent-terminal-hmr.spec.ts`; `boundary/` now selects 713 tests in 182 files;
+terminal WebSocket upgrades and the Cursor runner lifecycle at the boundary
+server are observed by `boundary/agent-terminal-boundary.spec.ts` ("attaches a
+same-origin socket to the recorded session and passes output, input, and
+size", the "closes the socket on ..." and "refuses an upgrade ..." tests),
+`boundary/agent-terminal-codex.spec.ts`, `boundary/agent-terminal-reopen.spec.ts`,
+`boundary/agent-terminal-close.spec.ts`, `boundary/agent-terminal-cursor-runner.spec.ts`
+(8 tests: runner started at install, outside the server's process group,
+shared by two development-environment servers, ended by `stopCursorRunner`)
+and `boundary/agent-terminal-cursor*.spec.ts` (37 tests passed together at
+four workers); a scratch change of the launch boundary's non-GET refusal
+status failed exactly `boundary/agent-launch-refusal.spec.ts` "refuses POST
+before starting claude" among 65 selected; typecheck and the discovery check
+are green. The whole dashboard suite could not be shown green on this machine
+during the slice: three runs at load averages of 45–257 from other work
+passed 1,390–1,435 of 1,516 with the rest page-visibility and test timeouts
+spread over untouched journeys; every file this slice changed passed in
+focused runs at load 10–30, and the hosted twelve-shard run of the published
+revision is the suite verdict. On the final formatted state the whole suite
+passed 1,485 of 1,516 at a load average of 40 (wall 2,673 s against the
+slice 2 state's 941 s); the 21 files that failed passed 45 of 54 at four
+workers and 18 of 19 at two workers, the preparation journeys that pass
+through the changed `support/preparationPage.ts` among the passes; the one
+left, `boundary/project-add-boundary.spec.ts` "Add validation ends gh on
+deadline", is untouched since slice 2's green run and passes one run in two
+alone at load 28 (its 500 ms read deadline expires before `gh` is spawned
+under load): a pre-existing load-sensitive check, recorded in Learnings.
 
 ### 4. Both serving modes mount the same boundaries, proved once
 Type: Behavior
@@ -269,6 +300,8 @@ developer reads one strategy and sees the measured, mapped reduction.
   and listed here as they are accepted.
 - Slice 1: `789b7ca9` accepted on `refs/heads/claude/unify-and-streamline-the-dashboard-e2e-test-stra`
   (suffix base `7d4c704d`); observer `/tmp/dough-ci-501/watch-d2776J`.
+- Slice 2: `0df843f7` accepted on the same target (suffix base `789b7ca9`),
+  observer reused; CI green for both.
 
 ## Story obligations
 
@@ -280,7 +313,7 @@ Disposition: interim until slices 2, 3, 4
 ### G2. Terminal WebSocket upgrades wired but not yet exercised at the boundary tier
 Reported: slice 1 — "WebSocket terminal upgrades are wired (real `http.Server` passed to `installAgentLaunchMiddleware`) but first exercised by a relocated terminal spec in slice 3, as planned."
 Story clause: "Every retained test still runs locally and in hosted CI through the existing commands and jobs"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/boundary/agent-terminal-boundary.spec.ts` "attaches a same-origin socket to the recorded session and passes output, input, and size" and its close/refusal tests, `boundary/agent-terminal-codex.spec.ts`, `boundary/agent-terminal-reopen.spec.ts` against the boundary server (37 terminal and Cursor tests passed at four workers, log in the execution record); the upgrade path reaches `installAgentLaunchMiddleware` through the real `http.Server` the boundary server hands it, with no change to `server/boundaryServer.ts`
 
 ### G3. Every run still builds production once, boundary-only selections included
 Reported: slice 1 — "globalSetup still builds once per run even for boundary-only filtered runs (~6 s of the 18 s wall); build placement remains the next story's."
@@ -369,6 +402,51 @@ proved now.
   `boundary/`; those that start a server start the boundary server
   (`session-alerts-unread-report` and `session-result-admission` in the
   production environment, `shared-request-owner` in development).
+- The 63 browserless `agent-launch-*`, 13 `agent-terminal-*` and 4
+  `cursor-*` files (80 files; 457 selected tests before, 345 after, the
+  difference named below): relocated to `boundary/` under `mode: "boundary"`,
+  `test.use({ serverMode: "boundary" })` on the fixture chains, or
+  `startBoundary` (`support/launchDashboard.ts`), in the production
+  environment unless named below; titles and assertions unchanged. The
+  modules `openStorySessionAcceptance.ts`, `ownRecordContinuation.ts`,
+  `settledAttempt.ts` and `codexEffortBoundaryCases.ts`, imported only by
+  them, moved with them. `support/preparationPage.ts` starts the
+  `serverMode` server, so its page journeys keep the built preview.
+- The dev iteration of the serving-mode loops in `agent-launch-ad-hoc-boundary`
+  (9 tests), `agent-launch-boundary` (8), `agent-launch-codex-startup` (1),
+  `agent-launch-environment` (1), `agent-launch-model-boundary` (17),
+  `agent-launch-options-boundary` (12), `agent-launch-options-groups` (4),
+  `agent-launch-refusal` (23), `agent-terminal-boundary` (16),
+  `agent-terminal-codex` (3), `agent-terminal-cursor-idle` (4),
+  `agent-terminal-cursor-launch-wait` (3), `agent-terminal-cursor-launch`
+  (7), `agent-terminal-cursor-trust-join` (2) and `agent-terminal-cursor` (1)
+  (111 tests): the remaining boundary test of the same title, without the
+  "(dev launch mode)" / "(dev)" suffix, proves the behavior; none of these
+  iterations observed the development project environment; serving-mode
+  equivalence is slice 4's one proof.
+- `agent-terminal-boundary` "leaves Vite's own HMR socket working" (the dev
+  iteration's 1 further test): kept as `agent-terminal-hmr.spec.ts` in the
+  journey directory on a real dev server, the only server with that socket;
+  slice 4 may fold it into the equivalence spec.
+- `agent-launch-cross-server-accept` and `agent-launch-records` (two servers
+  on one machine, one dev and one preview): the pair is now a
+  development-environment and a production-environment boundary server
+  (`serverOn("development" | "production")`); no test dropped.
+- `agent-terminal-cursor-runner` through `support/cursorRunnerHosts.ts`,
+  `cursorRunnerLifetime.ts` and `cursorRunnerRestart.ts`: every dev start is
+  `developmentBoundary` (`startCursorDashboard` takes a `CursorServer`,
+  `support/keptCursorTurn.ts`); same eight titles.
+- `agent-launch-acceptance-kept-first-cleanup` "after preview fails" reads
+  "after server fails": the inner Playwright run perturbs the relocated
+  kept-first spec's boundary server the same way.
+- `agent-launch-uncertain-continuation` takes its origin fixture from
+  `support/startOriginTest.ts` instead of `responsiveStart.ts` (the same
+  `origin`/`machine` fixtures without the page helpers).
+- `agent-launch-refusal` "refuses a launch request naming a foreign Host"
+  (1 test, kept): Vite's host check answered it first, as plain text; at the
+  boundary server the launch boundary's own guard (`server/localOrigin.ts`)
+  answers, so the test now also asserts that JSON `error`, as the other
+  refusals do.
 
 ## Learnings
 
@@ -435,3 +513,45 @@ proved now.
   in this story's change. Same disposition as above: load-sensitive timing in
   an unrelated check, reported for the retrospective. The secrecy check that
   failed after slice 1 passed this time.
+
+- Slice 3's code-level scan found 80 browserless files in the
+  `agent-launch-*`, `agent-terminal-*` and `cursor-*` families (eight more
+  than the `page`-token inventory); the 7 `agent-launch-*` files and
+  `cursor-sidebar-size-unkept` that the scan flagged all take the `page`
+  fixture and stay journeys. After this slice the only serving-mode loop left
+  beside a page test is `openai-configuration-boundary.spec.ts` (slice 4),
+  and the only dev-server start outside a page journey is
+  `agent-terminal-hmr.spec.ts` (one test). Slice 4's equivalence spec must
+  cover the launch request, a read request, and a terminal upgrade under both
+  real Vite servers, and may absorb the HMR check.
+- Two relocated tests, `agent-launch-preparation-resume` "an interrupted
+  precommit start recovers ..." (17 s alone) and `agent-launch-start-resume`
+  "a stop that carries recovery ..." (24 s alone), run several real git
+  starts inside Playwright's 30 s test timeout and exceeded it under a load
+  average of 40-57 from other work on this machine; the whole boundary tier
+  under that load timed out 44 tests across unchanged slice 1-2 files too.
+  Their work and timeout are unchanged by relocation (the boundary start is
+  the cheaper part); a longer per-test timeout for the git-heavy start specs
+  is a candidate for the coordinator, not a weaker assertion.
+- Slice 3's refactor pass made `CursorServer` the `{ mode: "boundary",
+  environment? }` shape (no page journey used `startCursorDashboard`), put
+  the fixture's server-mode rule in `dashboardTest.ts` (`fixtureServerMode`,
+  shared with `support/preparationPage.ts`), merged the duplicated
+  `test.use` calls the relocation left in 13 specs, and renamed the
+  `dev`/`preview` server variables of the two-environment specs. Fifteen
+  page journeys still spell `mode: "preview", prebuilt: builtDashboardDir`
+  for restarts; slice 4's loop removal is the moment to look.
+- Load-sensitive tests surfaced by the slice 3 runs (load averages 25–98
+  from other work on this machine): `boundary/project-add-boundary.spec.ts`
+  "Add validation ends gh on deadline" (500 ms read deadline can expire
+  before `gh` spawns), `agent-launch-preparation-codex-retry.spec.ts` (four
+  git-heavy starts near the 30 s test timeout), and the two start-resume
+  specs named above. None is changed by this story; a test whose bound a
+  loaded machine can exceed is a defect of the test (tests README), for the
+  retrospective or a correction, not a weaker assertion here.
+- Full `npm test` on the slice 3 final state failed in `tests/native-setup.sh`
+  (again) and `tests/test-runner-budget.sh` ("the ci-over budget report is not
+  exactly the two breaches") at a load average of 95–133; both passed together
+  on an immediate rerun, and neither is touched by this story. Same
+  disposition: load-sensitive timing in unrelated checks, for the
+  retrospective.

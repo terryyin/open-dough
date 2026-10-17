@@ -1,0 +1,153 @@
+// When Cursor's keep wait is still open at the shared launch bound, Start
+// answers uncertain/timed-out for unconfirmed instruction delivery and leaves
+// the client kept. Ordinary ready settlement is covered in
+// agent-terminal-cursor-launch.spec.ts.
+import { test, expect } from "../support/pageTest.ts";
+import { instructionDeliveryTimedOutExplanation } from "../../server/hosts/cursor/instructionDelivery.ts";
+import { installFakeCursor } from "../support/fakeCursor.ts";
+import {
+  enteredInstruction,
+  keptCursor,
+  withInstructedCursor,
+} from "../support/keptCursorTurn.ts";
+import { processRunning } from "../support/processGroup.ts";
+import type { CursorSession } from "../../src/launchRecord.ts";
+import type { RawResponse } from "../support/rawHttp.ts";
+import { openCursorTerminal } from "../support/cursorTerminal.ts";
+import { shows } from "../agentTerminalBoundary.ts";
+
+const instruction = "hold this launch";
+
+function instructionDeliveryTimedOut(session: CursorSession) {
+  return {
+    kind: "uncertain",
+    reason: "timed-out",
+    explanation: instructionDeliveryTimedOutExplanation(session),
+  };
+}
+
+function expectInstructionDeliveryTimedOut(
+  launched: RawResponse,
+  session: CursorSession,
+) {
+  expect(JSON.parse(launched.body)).toEqual(
+    instructionDeliveryTimedOut(session),
+  );
+}
+
+test.describe(`Cursor launch wait`, () => {
+  test.describe.configure({ timeout: 120_000 });
+
+  test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
+    const cursor = installFakeCursor({
+      screen: "working",
+      paintDelayMs: 3_000,
+    });
+    await withInstructedCursor(
+      { mode: "boundary" },
+      cursor,
+      instruction,
+      async (server, launched) => {
+        const recorded = keptCursor(server.home);
+        const session = recorded.session;
+        if (session.host !== "cursor") {
+          throw new Error("Missing recorded Cursor session.");
+        }
+        expectInstructionDeliveryTimedOut(launched, session);
+        const pid = cursor.attaches()[0]?.pid ?? 0;
+        expect(processRunning(pid)).toBe(true);
+        expect(recorded.firstInput?.state).toBe("uncertain");
+        expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
+        await expect
+          .poll(() => keptCursor(server.home).firstInput?.state, {
+            timeout: 10_000,
+          })
+          .toBe("confirmed");
+        expect(enteredInstruction(cursor, pid)).toContain(instruction);
+        expect(processRunning(pid)).toBe(true);
+        expect(cursor.attaches()).toHaveLength(1);
+      },
+      1_500,
+    );
+  });
+
+  test("a submitted paste chip left silent times out as uncertain while first input stays confirmed", async () => {
+    const cursor = installFakeCursor({
+      screen: "composer",
+      holdAfterPaste: true,
+    });
+    const story = `${instruction}\n${"line of the launch instruction. ".repeat(40)}`;
+    await withInstructedCursor(
+      { mode: "boundary" },
+      cursor,
+      story,
+      (server, launched) => {
+        const recorded = keptCursor(server.home);
+        const session = recorded.session;
+        if (session.host !== "cursor") {
+          throw new Error("Missing recorded Cursor session.");
+        }
+        expectInstructionDeliveryTimedOut(launched, session);
+        expect(recorded.firstInput).toMatchObject({
+          state: "confirmed",
+          instruction: story,
+        });
+        const pid = cursor.attaches()[0]?.pid ?? 0;
+        expect(processRunning(pid)).toBe(true);
+        expect(cursor.attaches()).toHaveLength(1);
+      },
+      1_500,
+    );
+  });
+
+  test("a launch wait on workspace trust explains the kept prompt, and the developer's terminal answer confirms its instruction", async () => {
+    const cursor = installFakeCursor({ screen: "trust-unframed" });
+    await withInstructedCursor(
+      { mode: "boundary" },
+      cursor,
+      instruction,
+      async (server, launched) => {
+        const recorded = keptCursor(server.home);
+        expect(JSON.parse(launched.body)).toEqual({
+          kind: "uncertain",
+          reason: "timed-out",
+          explanation:
+            "Cursor is waiting for workspace trust. Answer the workspace trust prompt in this session's terminal to deliver the first input.",
+        });
+        expect(recorded.firstInput).toMatchObject({
+          state: "uncertain",
+          instruction,
+          explanation:
+            "Cursor is waiting for workspace trust. Answer the workspace trust prompt in this session's terminal to deliver the first input.",
+        });
+        const pid = cursor.attaches()[0]?.pid ?? 0;
+        expect(cursor.input(pid)).toBe("");
+        const terminal = await openCursorTerminal(
+          server,
+          recorded.session.sessionId,
+        );
+        expect(await shows(terminal, "Workspace Trust Required")).toBe(true);
+        terminal.send({ input: "a" });
+        await expect
+          .poll(() => keptCursor(server.home).firstInput?.state)
+          .toBe("confirmed");
+        expect(cursor.input(pid)).toBe(`a${instruction}\r`);
+        expect(keptCursor(server.home).firstInput).toEqual({
+          state: "confirmed",
+          instruction,
+        });
+        expect(cursor.attaches()).toHaveLength(1);
+        expect(processRunning(pid)).toBe(true);
+        expect(cursor.attaches()[0]?.args).toEqual([
+          "--workspace",
+          recorded.session.host === "cursor"
+            ? recorded.session.continuation.workspace
+            : "",
+          "--resume",
+          recorded.session.sessionId,
+        ]);
+      },
+      1_500,
+    );
+  });
+});

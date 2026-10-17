@@ -11,7 +11,6 @@ import {
   launchRequest,
 } from "../agentLaunchBoundary.ts";
 import {
-  builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -41,8 +40,7 @@ export async function keptPreparation() {
 
   async function serve(startWaitMs: number): Promise<void> {
     server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
+      mode: "boundary",
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,

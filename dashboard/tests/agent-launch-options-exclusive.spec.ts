@@ -6,7 +6,7 @@
 // so in one quiet line and Start launches default refinement. A refused
 // launch's kept selection is ./agent-launch-options-kept.spec.ts. The
 // synthetic `claude` (./fixtures/fake-claude) stands in for the real one; the
-// boundary's own rules are ./agent-launch-options-boundary.spec.ts.
+// boundary's own rules are ./boundary/agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";

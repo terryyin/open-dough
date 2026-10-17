@@ -3,7 +3,7 @@
 // Model beside Host after its instruction field, on Default at each opening, and a chosen
 // model reaches the synthetic `claude` (./fixtures/fake-claude) as `--model`.
 // The real `claude` is never reached. How the launch boundary takes a model is
-// ./agent-launch-model-boundary.spec.ts.
+// ./boundary/agent-launch-model-boundary.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";

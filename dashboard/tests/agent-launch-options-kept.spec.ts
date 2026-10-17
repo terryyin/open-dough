@@ -4,7 +4,7 @@
 // opening, naming in one quiet line the kept flags the project no longer
 // offers, which are not sent; Cancel drops it. The synthetic `claude`
 // (./fixtures/fake-claude) stands in for the real one; the boundary's own
-// rules are ./agent-launch-options-boundary.spec.ts.
+// rules are ./boundary/agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
 import type { Locator, Page } from "@playwright/test";

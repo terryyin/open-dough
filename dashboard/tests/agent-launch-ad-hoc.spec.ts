@@ -1,7 +1,7 @@
 // Start session stays available through published-read gaps. Its optional text
 // goes to the selected project's folder; the session reads in Taken and the
 // sidebar without a story card. The real boundary launches synthetic Claude
-// (./fixtures/fake-claude); naming is in ./agent-launch-ad-hoc-boundary.spec.ts.
+// (./fixtures/fake-claude); naming is in ./boundary/agent-launch-ad-hoc-boundary.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";

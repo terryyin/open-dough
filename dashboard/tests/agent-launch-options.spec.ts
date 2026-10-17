@@ -7,7 +7,7 @@
 // session with those flags, and nothing selected is today's dialog and launch. No other dialog offers options. The
 // definition this repository ships is checked against the shared schema here.
 // The synthetic `claude` (./fixtures/fake-claude) stands in for the real one.
-// How the boundary honors a selection is ./agent-launch-options-boundary.spec.ts.
+// How the boundary honors a selection is ./boundary/agent-launch-options-boundary.spec.ts.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";

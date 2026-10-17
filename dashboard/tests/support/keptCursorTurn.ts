@@ -8,7 +8,6 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { shows } from "../agentTerminalBoundary.ts";
 import {
-  builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -18,6 +17,16 @@ import type { CursorTerminal } from "./cursorTerminal.ts";
 import type { RawResponse } from "./rawHttp.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
+import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
+
+// The boundary server a Cursor test starts around its fake `cursor-agent`:
+// `{ mode: "boundary" }` in the production environment, or
+// `developmentBoundary` (./dashboardServer.ts). No page journey starts its
+// server here.
+export type CursorServer = {
+  readonly mode: "boundary";
+  readonly environment?: ProjectEnvironment;
+};
 
 export function keptCursor(home: string): LaunchRecord {
   const kept = JSON.parse(
@@ -61,7 +70,7 @@ export function instructedCursorRequest(instruction: string) {
 // Starts one dashboard, launches that instructed session, and requires the
 // launch to be answered. The body observes the settled launch response.
 export async function withInstructedCursor(
-  mode: "dev" | "preview",
+  boundary: CursorServer,
   cursor: FakeCursor,
   instruction: string,
   observe: (
@@ -71,7 +80,7 @@ export async function withInstructedCursor(
   launchTimeoutMs?: number,
 ): Promise<void> {
   await withCursorLaunch(
-    mode,
+    boundary,
     cursor,
     async (server) => {
       const launched = await launch(
@@ -88,7 +97,7 @@ export async function withInstructedCursor(
 // Starts one dashboard around `cursor` and removes the machine directory
 // afterwards. The body sees the running server.
 export async function withCursorLaunch(
-  mode: "dev" | "preview",
+  boundary: CursorServer,
   cursor: FakeCursor,
   body: (server: DashboardServer) => Promise<void>,
   launchTimeoutMs?: number,
@@ -97,7 +106,7 @@ export async function withCursorLaunch(
   let server: DashboardServer | undefined;
   try {
     server = await startCursorDashboard(
-      mode,
+      boundary,
       cursor,
       machine,
       launchTimeoutMs === undefined ? undefined : { launchTimeoutMs },
@@ -112,14 +121,13 @@ export async function withCursorLaunch(
 }
 
 export async function startCursorDashboard(
-  mode: "dev" | "preview",
+  boundary: CursorServer,
   cursor: FakeCursor,
   machine: string,
   options?: { readonly launchTimeoutMs?: number },
 ): Promise<DashboardServer> {
   return startDashboardServer({
-    mode,
-    prebuilt: mode === "preview" ? builtDashboardDir : undefined,
+    ...boundary,
     machine,
     projectFolders: ["open-dough"],
     pathPrefix: [cursor.binDir],
