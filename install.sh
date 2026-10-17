@@ -100,11 +100,10 @@ managed_files=(
   dough-story-refinement/scripts/preparation-one-shot-recheck.mjs
   dough-story-refinement/scripts/preparation-one-shot-start.mjs
   dough-land/SKILL.md
-  dough-land/references/completion-attention.md
-  dough-land/references/dashboard-completion.md
+  dough-land/references/completion-attention.md dough-land/references/dashboard-completion.md
+  dough-land/references/publish-reviewed-checkout.md
   dough-land/references/worktree-retirement.md
-  dough-land/scripts/retirement-checks.mjs
-  dough-land/scripts/worktree-retirement.mjs
+  dough-land/scripts/retirement-checks.mjs dough-land/scripts/worktree-retirement.mjs
   dough-land/scripts/queued-closure-check.mjs
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md

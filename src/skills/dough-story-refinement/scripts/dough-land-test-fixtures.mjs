@@ -1,11 +1,7 @@
 // Git model of the Dough Land sequence for tests (not guidance-following).
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
-import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
 import {
   ongoingOperation,
   refreshDefaultCheckout,
@@ -17,67 +13,17 @@ import {
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { preserved } from "../../dough-land/scripts/retirement-checks.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import {
+  checkPlannedCompletion,
+  publishReviewedTip,
+  runClosureCheckCommand,
+  runRetirementCommand,
+} from "./dough-land-command-fixtures.mjs";
 
-const closureCommand = fileURLToPath(
-  new URL("../../dough-land/scripts/queued-closure-check.mjs", import.meta.url),
-);
-
-export async function runClosureCheckCommand({
-  checkout,
-  remote = "origin",
-  targetRef = "refs/heads/main",
-}) {
-  const args = [
-    closureCommand,
-    "check",
-    "--checkout",
-    checkout,
-    "--remote",
-    remote,
-    "--target-ref",
-    targetRef,
-  ];
-  try {
-    const { stdout } = await promisify(execFile)("node", args);
-    return { code: 0, result: JSON.parse(stdout) };
-  } catch (error) {
-    if (error.code !== 1) throw error;
-    return { code: 1, result: JSON.parse(error.stdout) };
-  }
-}
-
-const retirementCommand = fileURLToPath(
-  new URL("../../dough-land/scripts/worktree-retirement.mjs", import.meta.url),
-);
-
-// Dough Land's installed `retire` command, run as the agent runs it. Returns
-// its exit code and the JSON result it prints; a retained worktree exits 1.
-export async function runRetirementCommand({
-  repository,
-  worktree,
-  branch,
-  remote = "origin",
-  targetRef = "refs/heads/main",
-  identity,
-  createdForWork,
-  remoteBranch,
-  contained = [],
-}) {
-  const args = [retirementCommand, "retire", "--repository", repository];
-  args.push("--worktree", worktree, "--branch", branch, "--remote", remote);
-  args.push("--target-ref", targetRef);
-  if (identity) args.push("--identity", identity);
-  if (createdForWork) args.push("--created-for-work");
-  if (remoteBranch) args.push("--remote-branch", remoteBranch);
-  for (const sha of contained) args.push("--contained", sha);
-  try {
-    const { stdout } = await promisify(execFile)("node", args);
-    return { code: 0, result: JSON.parse(stdout) };
-  } catch (error) {
-    if (error.code !== 1) throw error;
-    return { code: 1, result: JSON.parse(error.stdout) };
-  }
-}
+export {
+  runClosureCheckCommand,
+  runRetirementCommand,
+} from "./dough-land-command-fixtures.mjs";
 
 // The reviewed worktree holds a committed seed draft plus uncommitted edits: a
 // changed tracked file and a new untracked plan.
@@ -150,7 +96,10 @@ async function topLevel(checkout) {
 // Git mechanics for the Dough Land sequence (not guidance-following): resolve
 // the worktree, its management context, and the target; commit everything in
 // the worktree; publish through the shared publisher; attempt the shared
-// optional default-checkout refresh; then retire. With no default checkout the
+// optional default-checkout refresh; then retire when the caller gate holds.
+// An ordinary executionPlan is checked before staging; explicit keep skips
+// completion and retirement. This model does not
+// discover execution identity or judge planless completion. With no default checkout the
 // refresh is not applicable. A rerun starts from real Git state: nothing to
 // commit creates no commit, and a tip the fetched target already contains is
 // not pushed again. Every stop keeps all resources and names the unfinished
@@ -167,6 +116,10 @@ export async function landWorktree({
   message = "Land reviewed worktree changes",
   beforePush,
   onFetchedTarget = undefined,
+  executionPlan = undefined,
+  retirementAuthorized = true,
+  keepWorktree = false,
+  publishedStoryTip = undefined,
 }) {
   const notDone = { refresh: "not-attempted", cleanup: "not-performed" };
   if (!worktree || !branch) {
@@ -190,6 +143,21 @@ export async function landWorktree({
     };
   }
 
+  // Execution identity and the selected plan are caller-resolved facts, not a
+  // Taken-membership classifier. Invoke the same read-only production checker
+  // the guidance calls before staging, including already-accepted reruns.
+  if (executionPlan && !keepWorktree) {
+    const completion = await checkPlannedCompletion(executionPlan);
+    if (!completion.ok) {
+      return {
+        stopped: "execution-completion",
+        completion,
+        commit: "none",
+        ...notDone,
+      };
+    }
+  }
+
   let commit = "nothing-to-commit";
   if ((await git(worktree, "status", "--porcelain")).stdout !== "") {
     await git(worktree, "add", "-A");
@@ -208,7 +176,8 @@ export async function landWorktree({
     const base = (
       await git(worktree, "merge-base", branch, remoteRef)
     ).stdout.trim();
-    publication = await publishExecutionIncrement({
+    publication = await publishReviewedTip({
+      publishedStoryTip,
       workspace: worktree,
       branch,
       previouslyPublishedBase: base,
@@ -242,15 +211,17 @@ export async function landWorktree({
     remote,
     integrationBranch: targetBranch,
   });
-  const cleanup = await closeOrRetainWorkspace({
-    preparation: worktree,
-    preparationBranch: branch,
-    confirmedDisposition: true,
-    identity,
-    createdForWork,
-    repository,
-    remote,
-    targetBranch,
-  });
+  const cleanup = keepWorktree
+    ? preserved("explicit --keep-worktree", worktree, branch)
+    : await closeOrRetainWorkspace({
+        preparation: worktree,
+        preparationBranch: branch,
+        confirmedDisposition: retirementAuthorized,
+        identity,
+        createdForWork,
+        repository,
+        remote,
+        targetBranch,
+      });
   return { stopped: null, commit, publication, refresh, cleanup, repository };
 }

@@ -18,7 +18,7 @@ const disposition = read(
 );
 
 test("preparation keep and workspace retirement link Dough Land instead of describing landing again", () => {
-  const land = read("dough-land/SKILL.md");
+  const land = `${read("dough-land/SKILL.md")}\n${read("dough-land/references/publish-reviewed-checkout.md")}`;
   const bug = read("dough-bug-fixing/SKILL.md");
 
   assert.match(land, /^---\nname: dough-land\n/);
@@ -143,4 +143,29 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
   );
   assert.doesNotMatch(disposition, /\*\*Commit the retained result\.\*\*/);
   assert.doesNotMatch(bug, /Workspace removal stays with the shared/);
+});
+
+test("Dough Land judges execution completion before commit and on accepted reruns", () => {
+  const land = read("dough-land/SKILL.md");
+  const choice = land.indexOf("## Establish completion before landing");
+  const commit = land.indexOf("## Commit everything in the checkout");
+  assert.ok(choice > 0 && choice < commit);
+  const judgment = land.slice(choice, commit);
+  assert.match(judgment, /Taken.*alone/s);
+  assert.match(judgment, /preparation.*assignment/s);
+  assert.match(judgment, /planless/s);
+  assert.match(judgment, /missing|ambiguous/);
+  assert.match(judgment, /before.*(?:commit|staging).*publication/s);
+  assert.match(judgment, /--keep-worktree/);
+  assert.match(judgment, /story-obligations\.mjs.*--planned-completion/s);
+  assert.match(
+    judgment,
+    /dough-story-wrap-up\/SKILL\.md#establish-execution-completion/,
+  );
+  assert.match(land, /rerun.*completion.*before.*commit/s);
+  const rerun = land.slice(land.indexOf("## Stop, rerun, and report"));
+  assert.match(rerun, /Tip already contained.*completion.*gates/);
+  assert.doesNotMatch(rerun, /Then refresh, and retire a worktree/);
+  const retirement = read("dough-land/references/worktree-retirement.md");
+  assert.match(retirement, /completion.*caller/s);
 });

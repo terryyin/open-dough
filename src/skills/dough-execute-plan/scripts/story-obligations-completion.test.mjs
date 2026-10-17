@@ -68,8 +68,71 @@ test("listing requires a positive slice and only check accepts completion", (t) 
     ["--slice", "0"],
     ["--slice", "no"],
     ["--slice", "1", "--completion"],
+    ["--slice", "1", "--planned-completion"],
   ]) {
     const result = list(plan, ...args);
+    assert.equal(result.ok, false);
+    assert.equal(result.problems[0].reason, "invalid-input");
+  }
+});
+
+test("planned completion refuses pending slices and missing or ambiguous slice evidence", (t) => {
+  const { plan, writePlan } = fixture(t);
+  for (const [source, reason] of [
+    [slicePlan("", { done: [1, 2, 3] }), "pending-slice"],
+    ["# Missing slices\n", "unreadable-slices"],
+    ["## Ordered slices\n", "missing-slices"],
+    [slicePlan("", { done: [1], indices: [1, 1] }), "ambiguous-slice"],
+    [
+      slicePlan("", { done: [1, 2, 3, 4] }).replace(
+        "Status: done",
+        "Status: uncertain",
+      ),
+      "unreadable-slices",
+    ],
+  ]) {
+    writePlan(source);
+    const result = check(plan, "--planned-completion");
+    assert.equal(result.ok, false);
+    assert.ok(
+      result.problems.some((problem) => problem.reason === reason),
+      JSON.stringify(result),
+    );
+    if (reason === "pending-slice") {
+      assert.deepEqual(result.problems, [
+        { reason: "pending-slice", slice: 4, name: "Work 4" },
+      ]);
+    }
+  }
+});
+
+test("planned completion checks open obligations even after all slices are done", (t) => {
+  const { plan, writePlan } = fixture(t);
+  const closed = `excluded "This story excludes the release cache budget remedy."`;
+  const matching = fixture(t, exclusion, closed, { done: [1, 2, 3, 4] });
+  matching.writePlan(slicePlan(obligation(exclusion), { done: [1, 2, 3, 4] }));
+  refuses(check(matching.plan, "--planned-completion"), "open-obligation");
+  matching.writePlan(
+    slicePlan(obligation(exclusion, closed), { done: [1, 2, 3, 4] }),
+  );
+  assert.deepEqual(check(matching.plan, "--planned-completion"), {
+    ok: true,
+    entryCount: 1,
+  });
+  writePlan(slicePlan("", { done: [1, 2, 3, 4] }));
+  assert.deepEqual(check(plan, "--planned-completion"), {
+    ok: true,
+    entryCount: 0,
+  });
+});
+
+test("planned completion names an unavailable selected plan and rejects incompatible options", (t) => {
+  const { plan } = fixture(t);
+  const missing = check(`${plan}.missing`, "--planned-completion");
+  assert.equal(missing.ok, false);
+  assert.match(missing.problems[0].message, /ENOENT/);
+  for (const flags of [["--slice", "1"], ["--completion"]]) {
+    const result = check(plan, "--planned-completion", ...flags);
     assert.equal(result.ok, false);
     assert.equal(result.problems[0].reason, "invalid-input");
   }
