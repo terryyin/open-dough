@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Unify and streamline the dashboard E2E test strategy](seeds/SEED-136-dashboard-test-efficiency.md#unify-and-streamline-dashboard-e2e) — SEED-136#unify-and-streamline-dashboard-e2e ([plan](slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md))
-- [Correct start-eligibility gaps found in review](seeds/SEED-138-computed-execution-readiness.md#correct-start-eligibility-gaps) — SEED-138#correct-start-eligibility-gaps ([plan](slice-plans/312-correct-start-eligibility-gaps/PLAN.md))
 
 ## Backlog list
 
