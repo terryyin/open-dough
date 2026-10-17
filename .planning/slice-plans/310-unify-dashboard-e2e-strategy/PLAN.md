@@ -291,7 +291,7 @@ of the run.
 
 ### 6. Production-watcher journeys share one build
 Type: Behavior
-Status: planned
+Status: done
 Proof: `production-watcher*.spec.ts` and `production-cursor-runner.spec.ts`
 start one watcher per file and step its states from its own output events;
 their summed test time in a proof record is below 172 s (a third of 516 s);
@@ -300,6 +300,25 @@ each failure scenario still fails on a scratch regression of the watcher.
 Behavior: pre: seven journeys each build production from scratch → trigger:
 shared watcher with delta assertions → result: the same exclusions, updates,
 failures and recovery are proved on one build chain.
+
+Accepted proof (2026-10-18, at the slice 6 commit): the eight production
+files became five; `production-watcher.spec.ts` (5 serial tests, lifecycle and
+Cursor runner), `production-watcher-updates.spec.ts` (4: updates, exclusions,
+qualification recovery, SIGTERM in a build) and
+`production-watcher-failures.spec.ts` (5) each start one fixture and one
+watcher in `beforeAll`, await the first activation there, step the watcher
+from its own output and stop everything in `afterAll`; real deployments fell
+from 26 to 17 and fixture copies from 7 to 4. Measured on one machine state
+at two workers (load 4–7): the former files 172.2 s summed, the consolidated
+files 107.7 s (135 s counting `beforeAll` spans); in the four-worker whole run
+130.2 s (166.5 s with hooks) against 293 s in the slice 5 run, both under the
+172 s target. Scratch regressions: `productionQualification.mjs` always
+qualifying failed exactly the updates file's exclusions test; a wrong
+restoration directory in `scripts/watch-dashboard.mjs` failed exactly the
+failures file's restoration test. Typecheck and discovery green; a whole run
+at four workers (load 3–7, wall 1,025 s, summed 3,456 s) passed 1,521 of
+1,522 with nothing of the run surviving, the one failure the intermittent
+`session-result-touch` journey recorded in Learnings for slice 8.
 
 ### 7. Origin-publishing journeys share setup and assert deltas
 Type: Behavior
@@ -605,6 +624,73 @@ proved now.
   reverse order read the same file through the same boundary, which
   `serving-modes.spec.ts` proves both servers mount.
 
+- `production-cursor-runner.spec.ts` "the production command starts one
+  Cursor runner and leaves that client up across replacement and a restart"
+  (1 test): merged into `production-watcher.spec.ts`, whose one fixture and
+  watcher it shares: "the production command starts one Cursor runner
+  outside the preview's process group, which a launched Cursor session uses"
+  (groups, one runner, the launch, one attach, `create-chat`), with the
+  runner's and client's survival asserted in "the next published main
+  replaces production at the same URL and leaves the runner and its client
+  in place" (terminal reattached), "stopping the watcher ends production and
+  its checkouts, leaves development and the runner, ..." and "a restart
+  serves current main as its baseline with the same runner, and SIGINT ends
+  it" (address pid, separate groups, input after the restart, one attach,
+  one call). The runner is read before the development server starts, so it
+  is the production command's own, which the development server then shares.
+- `production-watcher.spec.ts` "npm watcher serves published main beside
+  hot-reloaded uncommitted development, enforces local boundaries, owns
+  shutdown and restarts at current main" (1 test): the same assertions in
+  five serial tests of that file on one build chain; the restart's baseline
+  is the chain's documentation-only third commit, so the restarted page
+  shows the second commit's title and the pinned banner source, and the
+  "no rebuild of earlier commits" check names both earlier commits.
+- `production-watcher-updates.spec.ts` "npm watcher replaces production with
+  each newly published main commit at the same URL, ..." (1 test): the same
+  title keeps A, B and C (held builds, pinned build, shared record and
+  configuration, boundary reads, retirement after C); its ending is the
+  file's last test "SIGTERM while a commit is in its real build ends that
+  build, the served preview and every deployment checkout, and leaves shared
+  records and configuration untouched", at the end of the whole chain, with
+  the held build's ordinal taken from the recorded builds.
+- `production-watcher-exclusions.spec.ts` (1 test): now
+  `production-watcher-updates.spec.ts` "npm watcher skips excluded-only main
+  ranges, builds accumulated and mixed ranges once at the latest commit, and
+  follows the published CI policy over a different local workflow", stepping
+  from the chain's served C instead of its own A; the excluded-only skip,
+  the two-commit range built once (the intermediate commit absent from the
+  output, one more "Preparing"), the policy change, the skip under the new
+  policy and the documentation commit that now qualifies are unchanged; the
+  build list is the chain's cumulative list; the stop and the empty
+  deployments and inspections are the file's last test.
+- `production-watcher-qualification-recovery.spec.ts` (1 test): now
+  `production-watcher-updates.spec.ts` "npm watcher keeps its baseline
+  through an unsupported published policy and failed builds, then compares
+  from the next successful activation", stepping from the chain's served H;
+  P, Q, R, S and T and their assertions unchanged; the fault gate is
+  published with A for the whole chain.
+- `production-watcher-failures.spec.ts` "failed builds and real preview
+  activation keep or restore working production, retry the same commit,
+  survive origin failure and stop checks" (1 test): the same file's "a
+  failed build keeps working production and the same commit is retried
+  until it builds", "a failed preview start restores the working commit and
+  the same commit is retried until it serves" and "an unavailable origin
+  keeps production and checks resume when it returns; SIGHUP ends the
+  watcher without a failure", on one chain whose A publishes the fault gate.
+  Removed: the 1.1 s sleep and `expect(watcher.output()).toBe(endedOutput)`
+  after the hang-up: `watcher.exited` resolves on the command's close
+  event, after which no output can arrive, so that comparison could not
+  fail; the exit without a failure line, the dead preview, the refused URL
+  and the empty deployments remain asserted.
+- `production-watcher-failures.spec.ts` "failed restoration reports both
+  causes, exits and cleans up; an unexpectedly ended preview ends the watcher
+  with cleanup" (1 test): the same file's "a failed candidate whose
+  restoration also fails reports both causes, exits and cleans up" (the
+  restarted watcher serves C; D publishes the plain gate while both
+  `fault-preview` and `fault-preview-c` are armed, so D's start and C's
+  restoration both fail) and "an unexpectedly ended preview ends the watcher
+  with cleanup", assertions unchanged.
+
 ## Learnings
 
 - Slice 2 found 14 more browserless files than the `page`-token inventory
@@ -747,3 +833,45 @@ proved now.
   file leaves is ended and named by the run's teardown, failing the run. Five
   `dough-published-main-*` roots left in this machine's temp directory by
   earlier abandoned cleanups (2026-10-17, 17:06 and 21:0x) were not removed.
+- Slice 6 measured the production journeys three ways on one machine state
+  (load 4–7). The former eight files, run as scratch copies at two workers,
+  summed 172.2 s of `durationMs` (293 s in the slice 5 four-worker run, 516 s
+  in the story's eight-worker baseline: the number is mostly contention).
+  The consolidated files at two workers summed 107.7 s for the same scope
+  (-37 %), or 135 s counting each serial file's `beforeAll`, which a proof
+  record's `durationMs` leaves out: a serial file's hook time shows only as
+  the gap between its first test's `startedAt` and its second's. Slice 9's
+  measurement must add those spans (or read wall time) for serial files,
+  and the "third of 516 s" was a contention-inflated baseline: at equal
+  conditions the saving is the removed work itself.
+- Where the production journeys' time goes now: 17 real deployments
+  (fetch, `npm ci`, Vite build, preview start, about 4.5 s each when the
+  machine is quiet; 26 before) plus four fault-failed or held partial ones,
+  four full-source fixture copies (seven before), two development installs
+  and dev servers (three before), four settled skips (about 2.3 s each at
+  the 500 ms check interval) and the held-build and repeated-check polls.
+  Every remaining deployment is a scenario's own event (a replacement, a
+  qualifying range, a recovery, a watcher life after a death); none is a
+  repeated first activation. Two levers were left untouched as product or
+  policy decisions: the fixture HOME's cold npm cache costs each file's
+  first `npm ci` about 3.7 s more than a warm one and fetches from the
+  network with `--fetch-retries=0` (a shared `npm_config_cache` in
+  `fixture.env` would remove both, at the price of writing the developer's
+  `~/.npm`), and a stub `build:dashboard` in the fixture commits would save
+  about 2 s per deployment by no longer running Vite, which these journeys
+  exist to run.
+- Serial production files: a failing test skips the file's later tests
+  (reported as skipped, not failed), and a test that ends the watcher
+  (SIGHUP, a failed restoration, a killed preview) hands the next test a
+  restart at current main, which costs one deployment each; the fault gate
+  reads one cause file per commit variant, so a chain that mixes the plain
+  and `-c` gates must arm both causes to make a restoration fail.
+- The slice 6 whole run at four workers (load 3–7, wall 1,025 s, summed
+  3,456 s, 1,522 selected, nothing of the run surviving) failed one test
+  untouched by this slice: `session-result-touch.spec.ts` "short phone 240 ›
+  reads the question and touches each full choice, retaining identity
+  through resize and rotation" (`reportTouchPage.ts:102`, the report's
+  content reported `visible: false, hit: false` after an ordinary touch); the
+  file passed 4 of 4 alone afterwards. Like the `accessible-overview-touch`
+  failure after slice 5, a presentation journey under load, recorded for
+  slice 8; kept evidence in `dashboard/test-results/2026-10-17T16-45-12.898Z`.

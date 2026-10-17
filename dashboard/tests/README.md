@@ -216,7 +216,13 @@ spawned server is ended by `endGroup` (`support/processGroup.ts`), which
 kills the group 5 seconds after its signal. A test that builds the
 full-source fixture (`publishedMainFixture(true)`) declares its own
 `test.setTimeout`: the copy and `git add` take about 2 seconds alone and 13
-to 20 when eight workers build it at once.
+to 20 when eight workers build it at once. The production journeys
+(`production-watcher*.spec.ts`) build that fixture and start the real
+watcher once per file, in `beforeAll` of a serial file, and each test steps
+the shared watcher to its next state and asserts the delta it observes in
+the watcher's own output (`support/productionWatcher.ts`: an activation or
+replacement, a settled skip, a check after an activation, recorded builds), never a fixed
+wait; `afterAll` stops the watcher and cleans the fixture up.
 
 Every process a test starts that can run `gh` asks it through a GitHub
 request owner of that test's own: `startDashboardServer` and
