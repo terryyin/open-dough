@@ -224,13 +224,29 @@ Take; an already accepted execution can continue. Refinement and inspection
 remain available. Satisfying every dependency removes this block without
 changing preparation judgments or other execution requirements.
 
+The dependency agreement is the only record of a prerequisite; it is not a
+readiness reason, so a preparing agent records Ready for a story that waits only
+on its suppliers. Start eligibility is derived from the recorded readiness
+assessment and the dependency facts, never stored: a story is eligible when its
+assessment is Ready and no dependency is unsatisfied, and otherwise it is
+blocked by the assessment, each unsatisfied dependency, or unreadable facts.
+The dashboard and the start command answer from this one derivation and name
+the same blockers. Becoming eligible grants no execution permission. The
+readiness basis covers each agreement's supplier, implementation, rationale,
+and condition, but not its state, resolution evidence, or decision, so editing
+an agreement reports "Changed since readiness review" while a supplier's
+resolution does not.
+
 The supplying story's landing or wrap-up discovers current consumers and judges
 each condition against the completed, accepted outcome. It may reconcile bounded
 story or plan assumptions whose answer is settled by the consumer's existing
 intent. Unspecified choices remain decision-needed with the actual developer
 question; conditions requiring consumer implementation stay waiting for separate
 execution authority. Source disappearance, an increment, or queue removal never
-proves fulfillment. The [supplier resolution procedure](../src/skills/dough-product-backlog/references/supplier-dependencies.md)
+proves fulfillment. After satisfying a condition, the agent rereads the
+consumer's Not ready reasons and, by judgment, records a fresh assessment
+without any reason that only restated that condition, keeping every other
+reason. The [supplier resolution procedure](../src/skills/dough-product-backlog/references/supplier-dependencies.md)
 owns discovery, evidence, guarded writes, and publication.
 
 Only the dependent card exposes its dependencies; the

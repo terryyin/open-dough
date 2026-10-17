@@ -233,7 +233,7 @@ agreement subset is `dependencyAgreement` in
 
 ### 4. Guidance records dependencies once and reassesses duplicated reasons by judgment
 Type: Behavior
-Status: planned
+Status: done
 Proof: the behavior review under `AGENTS.md` walked for one representative use
 of each edited skill and recorded under Learnings: a preparing agent planning a
 consumer that waits on a supplier records `ready`; a wrap-up agent resolving a
@@ -254,6 +254,13 @@ text in code and never recording `ready` while another reason remains.
 `dough-product-backlog/SKILL.md` and
 `docs/project-visibility-requirements.md` describe the derived meaning and the
 basis boundary.
+
+Accepted proof: `npm run lint` green; the guidance tests under
+`src/skills/dough-story-refinement/scripts/*-guidance.test.mjs`,
+`execution-completion-record-guidance`, `one-shot-guidance`,
+`established-start-guidance`, and `tests/support/story-dependencies.test.mjs`
+(81 pass; none asserts a changed phrase); `git diff --stat` touched only
+`src/skills` and `docs`. Behavior review walks are under Learnings.
 
 ## Story obligations
 
@@ -302,3 +309,18 @@ Disposition: no user cost "whether a story may start is derived from that record
   still shows "Changed since readiness review", because the agreement is in
   the basis; slice 4's guidance keeps the order: record the dependency, then
   the assessment.
+- Slice 4 behavior review (AGENTS.md), walked by reading the edited guidance:
+  (a) a preparing agent planning consumer A that waits on supplier B records
+  B's agreement through `update-dependency`, then, with only that wait open,
+  `dough-slice-planning` and the `record-preparation.md` criteria lead it to
+  `read-state` and `record-state --assessment ready` with no reason; the card
+  shows "Blocked by 1 dependency" from the agreement alone (key example 5).
+  (b) B's wrap-up agent, after `resolve-dependency` records `satisfied`,
+  follows "Reassess a consumer's reasons after satisfaction" in
+  `supplier-dependencies.md`: A's sole reason "Waiting for B" is spent, so it
+  records `ready` with the `read-state` digests, which still match after the
+  resolution, and publishes it with A's resolution (key example 2). Had A also
+  carried "Acceptance examples for the retry path are unresolved", it records
+  `not-ready` with that reason alone; a stale-basis refusal sends it back to
+  re-read and rejudge. Invocation context, required context, and the stop on a
+  missing recorder or home are unchanged.
