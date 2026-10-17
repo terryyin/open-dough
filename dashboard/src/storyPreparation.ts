@@ -118,7 +118,7 @@ export function assessmentSummaryText(assessment: WorkAssessment): string {
     return "Absent";
   }
   if (assessment.status === "ready") {
-    return `Ready for execution${assessment.changedSinceReview ? "; Changed since readiness review" : ""}`;
+    return `Ready${assessment.changedSinceReview ? "; Changed since readiness review" : ""}`;
   }
   if (assessment.status === "not-ready") {
     return `Not ready (${assessment.reasons.join("; ")})${assessment.changedSinceReview ? "; Changed since readiness review" : ""}`;

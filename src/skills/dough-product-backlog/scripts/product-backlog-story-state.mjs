@@ -74,26 +74,19 @@ function currentBasisFor(home, approach, options = {}) {
   );
 }
 
-// The story-scoped basis a record from before agreement digests carries: the
-// dependency fence digested as written. It still matches while neither the
-// story nor its dependency record has changed.
-function asWrittenBasisFor(home, approach, options = {}) {
-  return computeBasis(
-    scopedSource(home),
-    separatePlanSource(approach, options),
-    {
-      dependencyFences: "as-written",
-    },
+// The bases a record from before agreement digests may carry over one
+// document: its dependency fence digested as written, or returned to the
+// unresolved bytes it was first written as. The waiting basis still matches
+// while the story, plan, and agreement are unchanged, so a supplier's
+// resolution or decision alone does not read as changed. The document is the
+// story-scoped source, or the whole seed for a record from before story
+// scoping.
+function legacyBasesFor(documentSource, approach, options = {}) {
+  return ["as-written", "waiting"].map((dependencyFences) =>
+    computeBasis(documentSource, separatePlanSource(approach, options), {
+      dependencyFences,
+    }),
   );
-}
-
-// The whole-document basis a record from before story scoping carries. It
-// still matches while the whole seed is unchanged. Such records also predate
-// agreement digests, so the document is digested as written.
-function formerBasisFor(source, approach, options = {}) {
-  return computeBasis(source, separatePlanSource(approach, options), {
-    dependencyFences: "as-written",
-  });
 }
 
 // Reads preparation facts and assessment view from already-loaded
@@ -137,8 +130,12 @@ export function readStoryState(source, href, options = {}) {
   }
   const recordedAssessment = assessmentFromPayload(payload);
   const basis = currentBasisFor(home, normalized.approach, options);
-  const asWritten = asWrittenBasisFor(home, normalized.approach, options);
-  const former = formerBasisFor(source, normalized.approach, options);
+  const scopedLegacy = legacyBasesFor(
+    scopedSource(home),
+    normalized.approach,
+    options,
+  );
+  const wholeSeedLegacy = legacyBasesFor(source, normalized.approach, options);
   return {
     ...normalized,
     identity: namedIdentity(home),
@@ -148,8 +145,8 @@ export function readStoryState(source, href, options = {}) {
     assessment: normalizeAssessmentView(
       recordedAssessment,
       basis,
-      asWritten,
-      former,
+      ...scopedLegacy,
+      ...wholeSeedLegacy,
     ),
   };
 }

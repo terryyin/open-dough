@@ -38,7 +38,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
   await expect(
     queued.getByText("Changed since readiness review", { exact: true }),
   ).toBeVisible();
-  await expect(queued).not.toContainText("Not marked Ready for execution");
+  await expect(queued).not.toContainText("Not assessed as ready");
   await expect(
     queued.getByRole("button", { name: "Start execution" }),
   ).not.toHaveClass(/start-launch-noted/);

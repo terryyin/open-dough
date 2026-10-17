@@ -1,16 +1,11 @@
 // Card-facing preparation and readiness: the scan view's badges and the
-// problems that leave them unknown, and the badge legend. On a Backlog card
+// problems that leave them unknown, and the badge legend. On every work card
 // the green badge is the derived start eligibility (`./startEligibility.ts`),
-// and unsatisfied dependencies take its place; a Taken card shows the
-// recorded assessment. What each badge
+// and unsatisfied dependencies take its place. What each badge
 // summarizes is explained in the story's inspected detail
 // (`./StoryDetail.tsx`), from the same already-loaded facts.
 
-import {
-  preparationBadge,
-  assessedReady,
-  type WorkPreparation,
-} from "./storyPreparation.ts";
+import { preparationBadge, type WorkPreparation } from "./storyPreparation.ts";
 import {
   dependencyBlockedLabel,
   type StartEligibility,
@@ -21,8 +16,7 @@ export function PreparationFacts({
   eligibility,
 }: {
   preparation: WorkPreparation | undefined;
-  // A Backlog card's start eligibility; absent on Taken cards.
-  eligibility: StartEligibility | undefined;
+  eligibility: StartEligibility;
 }) {
   if (preparation === undefined) {
     return null;
@@ -58,12 +52,8 @@ export function PreparationFacts({
   }
 
   const prep = preparationBadge(preparation);
-  const ready =
-    eligibility === undefined
-      ? assessedReady(preparation)
-      : eligibility.status === "eligible";
-  const blockedBy =
-    eligibility === undefined ? undefined : dependencyBlockedLabel(eligibility);
+  const ready = eligibility.status === "eligible";
+  const blockedBy = dependencyBlockedLabel(eligibility);
   const assessment = preparation.assessment;
 
   return (

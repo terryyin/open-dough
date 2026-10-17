@@ -55,9 +55,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect(cardAttentionOf(card(notRefinedStory))).toHaveText(
     "1 session needs attention",
   );
-  await expect(card(notRefinedStory)).toContainText(
-    "Not marked Ready for execution",
-  );
+  await expect(card(notRefinedStory)).toContainText("Not assessed as ready");
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
   await expectSidebarSessionShown(
@@ -106,9 +104,7 @@ test("retired Claude preparation opens retained report after refresh without wak
     .filter({ hasText: record.session.sessionId });
   await expect(recent).toContainText("Done");
   await expect(card(notRefinedStory)).toBeVisible();
-  await expect(card(notRefinedStory)).toContainText(
-    "Not marked Ready for execution",
-  );
+  await expect(card(notRefinedStory)).toContainText("Not assessed as ready");
   await expect(
     card(notRefinedStory).getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();

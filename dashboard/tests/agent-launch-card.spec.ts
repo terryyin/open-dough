@@ -28,7 +28,7 @@ import {
 
 test.use({ projectFolders: ["open-dough"] });
 
-const notReadyNote = "Not marked Ready for execution";
+const notReadyNote = "Not assessed as ready";
 
 // The one launch the synthetic `claude` records for a Start of Story C: the
 // session's name and its command with the instruction, in the Open Dough
@@ -45,7 +45,7 @@ const launched = (home: string, workflow: string, command: string) => [
   },
 ];
 
-test("every Backlog card offers Start execution, described as not ready unless Ready for execution, then Start refinement, and a Taken card offers neither", async ({
+test("every Backlog card offers Start execution, described as not assessed as ready unless its assessment is Ready, then Start refinement, and a Taken card offers neither", async ({
   page,
   launchJourney,
 }) => {
@@ -154,7 +154,7 @@ test("starting sends the instruction after the execution command in the Open Dou
   await expect(start(notRefinedStory)).toBeDisabled();
   await expect(refine(notRefinedStory)).toBeDisabled();
   await expect(start(notRefinedStory)).toHaveAccessibleDescription(
-    /Not marked Ready for execution/,
+    /Not assessed as ready/,
   );
   await expect(sessionStateOf(entry)).toHaveText("Working");
   await expect(entry).toContainText("Execution started in Claude Code");

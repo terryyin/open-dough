@@ -117,9 +117,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(parts(page).source).toContainText(both);
   await expect(summary).toHaveText("Dependencies · 0 blocking");
   await expect(execution).toBeEnabled();
-  await expect(execution).toHaveAccessibleDescription(
-    /Not marked Ready for execution/,
-  );
+  await expect(execution).toHaveAccessibleDescription(/Not assessed as ready/);
   await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
   await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
   await expect(card.locator(".badge-ready")).toHaveCount(0);

@@ -152,10 +152,11 @@ review unchanged. A recorded dependency is not a
 eligibility is derived from both records, never stored: a story is eligible
 when its recorded assessment is `ready` and no dependency is unsatisfied, and
 otherwise is blocked by the assessment, each unsatisfied dependency, or
-unreadable facts. The dashboard and the start command show the same blockers.
-Every unresolved relationship blocks new execution through the actual start
-command, including queued one-shot starts and canonical admission. Refinement
-and planning remain
+unreadable facts. `read-state` reports it as `startEligibility`, and the
+dashboard and the start command show the same blockers. Reporting eligibility
+grants no permission and launches nothing. Every unresolved relationship
+blocks new execution through the actual start command, including queued
+one-shot starts and canonical admission. Refinement and planning remain
 possible. A blocker found during an existing execution requires a developer
 decision; this gate does not interrupt that execution automatically.
 

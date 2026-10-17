@@ -47,7 +47,7 @@ import { tooltipOf } from "./frameIconControl.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-const notReadyNote = "Not marked Ready for execution";
+const notReadyNote = "Not assessed as ready";
 const beingPreparedNote = "Being prepared";
 // The glyph each Start leads with.
 const startGlyphs = {
@@ -191,10 +191,22 @@ test.describe("a Backlog card's Starts", () => {
     const notedRefine = action(readyStory, "Refinement");
     const notedExec = action(notRefinedStory, "Execution");
     const notes = [
-      [notedRefine, "Start refinement", beingPreparedNote, readyStory],
-      [notedExec, "Start execution", notReadyNote, notRefinedStory],
+      [
+        notedRefine,
+        "Start refinement",
+        beingPreparedNote,
+        readyStory,
+        "This story is being prepared.",
+      ],
+      [
+        notedExec,
+        "Start execution",
+        notReadyNote,
+        notRefinedStory,
+        "This story is not assessed as ready.",
+      ],
     ] as const;
-    for (const [noted, name, note, title] of notes) {
+    for (const [noted, name, note, title, sentence] of notes) {
       await expect(noted).toBeEnabled();
       await expect(launchGroup(card(title)).getByText(note)).toBeHidden();
       await expectNoteTooltip(noted, name, note);
@@ -204,9 +216,7 @@ test.describe("a Backlog card's Starts", () => {
       const dialog = page.getByRole("dialog", {
         name: `${name} in Claude Code`,
       });
-      await expect(dialog).toContainText(
-        `This story is ${note.charAt(0).toLowerCase()}${note.slice(1)}.`,
-      );
+      await expect(dialog).toContainText(sentence);
       await page.keyboard.press("Escape");
       await expect(dialog).toBeHidden();
     }

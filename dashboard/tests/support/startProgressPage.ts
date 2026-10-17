@@ -59,9 +59,7 @@ export async function expectStartProgress(
     await expect(
       backlogCard.getByText("Changed since readiness review", { exact: true }),
     ).toBeVisible();
-    await expect(backlogCard).not.toContainText(
-      "Not marked Ready for execution",
-    );
+    await expect(backlogCard).not.toContainText("Not assessed as ready");
     await expect(
       backlogCard.getByRole("button", { name: "Start execution" }),
     ).not.toHaveClass(/start-launch-noted/);
