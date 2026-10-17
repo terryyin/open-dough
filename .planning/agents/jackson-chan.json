@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-008#land-unfinished-stories-without-retirement",
+  "mode": "story-branch",
+  "branch": "codex/land-unfinished-story-changes-without-retiring-t",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
