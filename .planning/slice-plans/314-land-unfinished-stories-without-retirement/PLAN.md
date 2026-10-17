@@ -66,63 +66,30 @@ this preparation. No native-host integration mechanism changes are planned.
 
 ## Investigation and decisive premises
 
-Observed in this preparation checkout,
-`/Users/terryyin/git/open-dough/.worktrees/land-unfinished-story-changes-without-retiring-t`,
-starting at `34d60fa2c669efa63bf9d2a0a90a6371298ef755` on 2026-10-18.
-All Git observations use disposable local bare remotes; no Pygardon operations
-or native agent launches were performed. Product source scratch edits were
-reverted before recording this plan.
+Preparation observations used this same checkout at `34d60fa2c669efa63bf9d2a0a90a6371298ef755`,
+on 2026-10-18, disposable bare remotes, and synthetic hosts. No Pygardon operations or native launches ran;
+source scratch edits were restored. These are baselines, not proof of the new caller policy.
 
-1. **The retirement gap is reproducible.** A `node --input-type=module` local
-   observation imported `createCleanTrunkFixture` from
-   `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` and
-   `landWorktree` / `runRetirementCommand` from
-   `src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs`.
-   It wrote `.planning/PLAN.md` with a final `Status: planned` slice and a
-   Taken entry in `.planning/PRODUCT-BACKLOG.md`, committed them, and ran
-   `git push origin HEAD:refs/heads/exec/story`. Calling
-   `landWorktree({worktree: f.execution, branch: 'exec/story', createdForWork: true})`
-   accepted the candidate and removed the worktree/local branch. Calling
-   `runRetirementCommand({repository: f.integration, worktree: f.execution,
-   branch: 'exec/story', createdForWork: true, remoteBranch: 'exec/story'})`
-   then removed the remote branch. `git show origin/main:.planning/PLAN.md`
-   still contained `Status: planned`. The fixture was cleaned up. This is the
-   existing Git-model sequence plus the production retirement command, not
-   evidence that a native agent followed new guidance.
-2. **Reuse owners perform the needed Git operations.** Literal command:
-   `node --test src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-land/scripts/worktree-retirement.test.mjs`.
-   Result: 28 passed. Assertions reach real local remote refs, accepted/rerun
-   publication, preserved published merge history, branch restoration,
-   conflict recovery and retirement. These are baseline observations, not proof
-   of the new caller's completion guard or retained-landing policy.
-3. **All slices done does not settle open obligations.** Literal command:
-   `node --test src/skills/dough-execute-plan/scripts/story-obligations.test.mjs`.
-   Result: 7 passed, including an open obligation refused after all slices are
-   done. Use this existing interpretation; do not infer completion from counts.
-4. **Dashboard acceptance is independent of completion and continuation.**
-   Literal command:
-   `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-landing-capture.spec.ts dashboard/tests/boundary/story-branch-landing-later-publication.spec.ts dashboard/tests/agent-launch-done-question.spec.ts --workers=2`.
-   Result: passed (quiet reporter, exit 0). The first file drives the installed
-   integration and receiver, observes original branch restoration, merge parents,
-   no completion/Done, and a rerun with zero pushes. The second publishes a later
-   story commit without reusing the original launch's landing context. The page
-   spec observes the unfinished-report acknowledgment question. The initial run
-   lacked checkout-local Vite; `npm ci --ignore-scripts --no-audit --no-fund`
-   established local dependencies, and removing the conflicting NO_COLOR setting
-   allowed the quiet reporter's actual run. These tests use synthetic native
-   hosts, not fresh Codex/Cursor/Claude native acceptance.
-5. **The chosen branch-restoration proof discriminates.** Temporarily return at
-   the start of `returnToBranch` in `history-preserving-publication.mjs`, then run
-   `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-landing-capture.spec.ts --grep 'records the fetched trunk tip' --workers=1`.
-   Result: failed at line 87, expected the execution branch but got an empty
-   branch (detached HEAD). Restore the exact original source and rerun the same
-   command: passed (exit 0). The changed branch-restoration behavior is
-   therefore observed at its consuming installed integration boundary.
+1. **Retirement gap:** a `node --input-type=module` observation used `createCleanTrunkFixture`
+   (`src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs`) and `landWorktree` /
+   `runRetirementCommand` (`src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs`).
+   A committed Taken entry and `.planning/PLAN.md` final `Status: planned` were pushed with
+   `git push origin HEAD:refs/heads/exec/story`. `landWorktree({worktree: f.execution, branch: 'exec/story', createdForWork: true})`
+   removed the worktree/local branch after acceptance; `runRetirementCommand({repository: f.integration, worktree: f.execution, branch: 'exec/story', createdForWork: true, remoteBranch: 'exec/story'})`
+   removed the remote branch. `git show origin/main:.planning/PLAN.md` still showed the planned slice. Fixture cleaned up.
+2. **Existing Git owners:** `node --test src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-land/scripts/worktree-retirement.test.mjs`
+   passed 28 tests: real refs, reruns, preserved published merge history, branch restoration, conflict recovery and retirement.
+3. **Obligations:** `node --test src/skills/dough-execute-plan/scripts/story-obligations.test.mjs`
+   passed 7 tests, including an open obligation refused after all slices done. Counts alone are insufficient.
+4. **Dashboard:** `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-landing-capture.spec.ts dashboard/tests/boundary/story-branch-landing-later-publication.spec.ts dashboard/tests/agent-launch-done-question.spec.ts --workers=2`
+   passed (quiet, exit 0): installed integration/receiver, restored branch, merge parents, no completion/Done,
+   zero-push rerun, later publication without original context, and unfinished acknowledgment question.
+   Initial missing Vite was resolved with checkout-local `npm ci --ignore-scripts --no-audit --no-fund`; NO_COLOR was unset.
+5. **Discrimination:** temporarily returning at `returnToBranch` entry in `history-preserving-publication.mjs`, then
+   `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-landing-capture.spec.ts --grep 'records the fetched trunk tip' --workers=1`
+   failed at line 87 (detached branch); exact source restoration and the same command passed.
 
-No remaining factual premise requires a paid or owner-held probe. New behavior
-below still needs red/green implementation proof; baseline tests do not establish
-it. In particular no existing test is claimed to cover the complete ordinary
-refusal or retained-landing-to-dashboard-resume journey.
+No factual premise requires a paid probe. New ordinary refusal and retained-landing-to-resume behavior still require red/green proof.
 
 ## Outside-in proof ownership
 
@@ -142,7 +109,8 @@ refusal or retained-landing-to-dashboard-resume journey.
 
 ### 1. Refuse ordinary landing of unfinished execution before changing Git
 Type: Behavior
-Status: planned
+Status: done
+Accepted: Production planned-completion CLI and real disposable Git refusal/rerun observations passed; see accepted slice 1 evidence below.
 Proof: Review the skill's invocation with pending-slice, open-obligation,
 unknown-evidence and completed-work examples; exercise the existing landing
 boundary with before/after Git, plan and assignment observations. Preserve
@@ -247,3 +215,27 @@ remains unfinished. Dashboard publication capture already keeps completion
 separate; the new caller must preserve that rule. Keep deterministic evidence
 separate from native guidance-following claims. All implementation and new
 acceptance proof remain planned.
+
+## Story obligations
+
+### G1. Explicit retained publication awaits slice 2
+Reported: slice 1 — "Slice 2’s retained publication/dashboard continuation path is still unfinished; this slice only names its explicit --keep-worktree choice."
+Story clause: "The developer can publish reviewed story changes to trunk while keeping the unfinished story's workspace, branches, assignment and dashboard continuation usable."
+Disposition: receiving slice 2
+
+## Execution context
+
+- Identity `SEED-008#land-unfinished-stories-without-retirement`, publisher `dashboard-territory.local-open-dough`, agent `jackson-chan`; established Story Branch mode, existing owned linked worktree.
+- Originating/execution checkout `/Users/terryyin/git/open-dough/.worktrees/land-unfinished-story-changes-without-retiring-t`, branch `codex/land-unfinished-story-changes-without-retiring-t`; optional default `/Users/terryyin/git/open-dough`.
+- Claim accepted on `origin/main`: `50d0a60328a8bd562b1208a564092363095832a5`; starting revision `4696074d507276591fadcd2e9618a3acae3ef93f`. Initial candidate/first increment base is the claim. Increments target the remote execution branch.
+- Node `24.21.0`; checkout-local `npm ci --no-audit --no-fund`, `node scripts/setup-native.mjs browser` / `check`, and `npm run typecheck:dashboard` passed. Plain npm preceded discovery of the bounded wrapper and completed in 27 seconds.
+- CI GitHub Actions `terryyin/open-dough`, verified `ci.yml` / `CI`; Codex coordinator `jackson-chan-plan314`, directory `/tmp/dough-ci-501/watch-lGhjoP`, PID `25708`, session `34572`, cell `14`, bound to this checkout/remote execution branch. Prior trunk claim is `pendingCi: unobserved` by this observer.
+- No numeric slice limit/exception or replanning override supplied; existing planning authority retained. Scope aligned. Commit hook is check-only staged lint and dashboard typecheck. Ordinary tests use `PATH="/opt/homebrew/bin:$PATH" npm test -- <paths>` under `tests/README.md`, superseding direct baseline `node --test` examples.
+
+## Accepted slice 1 evidence
+
+- Red runner: `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-story-refinement/scripts/dough-land-completion.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs` reproduced ordinary pending/ambiguous/open-obligation/accepted-rerun retirement and unknown CLI option before implementation.
+- Green: `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-story-refinement/scripts/dough-land*.test.mjs src/skills/dough-land/scripts/*.test.mjs src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs tests/support/product-backlog-plan-reader*.test.mjs tests/support/product-backlog-plan-completion.test.mjs tests/payload-declaration-links.sh` passed.
+- `dough-land-completion.test.mjs` supplies committed pending plans and rendered claim/profile as preconditions; production checker runs before staging. `assertCheckoutUnchanged`, remote heads and byte comparisons observe untouched HEAD/index/edits, refs, plan, claim and profile. Completed Taken work passes recorded completion while caller retirement hold retains resources. CLI tests observe malformed/empty/duplicate plans and existing open obligations.
+- Independent refactor extracted JSON CLI test adapters, preserving public exports. Its rerun passed all landing/retirement suites, preparation assignment reuse/land/remote-base/retry/publication/handoff, one-shot refinement, closure cleanup, lightweight auto-land/default-checkout and bug retained-artifacts consumers; `npm run typecheck:dashboard` passed. Checker/readers and representative guidance proof stayed unchanged. `git diff --check` and `npm run format` passed after a mechanical unused-parameter repair.
+- AGENTS behavior walk covered ordinary pending/missing proof refusal, planless judgment, completed execution still Taken and completed preparation. Deterministic checker/Git proof is not native-host guidance evidence. G1 keeps slice 2’s retained publication/continuation unaccepted.
