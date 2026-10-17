@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Unify and streamline the dashboard E2E test strategy](seeds/SEED-136-dashboard-test-efficiency.md#unify-and-streamline-dashboard-e2e) — SEED-136#unify-and-streamline-dashboard-e2e ([plan](slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md))
-- [Show completed refinement rather than a waiting conversation](seeds/SEED-137-retired-refinement-session.md#completed-retired-refinement) — SEED-137#completed-retired-refinement
 
 ## Backlog list
 

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-137#completed-retired-refinement",
+  "title": "Show completed refinement rather than a waiting conversation",
+  "completedAt": "2026-10-17T02:55:09.023Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "codex"
+}

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "identity": "SEED-137#completed-retired-refinement",
-  "mode": "story-branch",
-  "branch": "codex/completed-retired-refinement",
-  "host": "codex"
-}
