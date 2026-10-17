@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-138#correct-start-eligibility-gaps",
+  "mode": "story-branch",
+  "branch": "claude/correct-start-eligibility-gaps-found-in-review",
+  "host": "claude"
+}
