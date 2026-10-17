@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-008#land-unfinished-stories-without-retirement",
+  "title": "Land unfinished story changes without retiring their execution workspace",
+  "completedAt": "2026-10-17T23:56:19.885Z",
+  "developer": "Terry Yin",
+  "agent": "jackson-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
