@@ -123,6 +123,10 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             .toBe(true);
           // Wrapped native identities can occupy another reading position
           // than the title ending. Read both through the same header scroll.
+          // A stroke may land with the wrapped session a fraction of a pixel
+          // under the header's edge; strokes continue until the whole code
+          // lies inside the scrolling header and the window, the condition
+          // the viewport assertion then checks.
           const session = panel.locator(".side-panel-names code");
           const sessionShown = () =>
             session.evaluate((element) => {
@@ -132,13 +136,12 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
               const shown = element.getBoundingClientRect();
               return (
                 identity !== undefined &&
-                shown.top >= identity.top &&
-                shown.bottom <= identity.bottom + 1
+                shown.top >= Math.max(identity.top, 0) &&
+                shown.bottom <= Math.min(identity.bottom, innerHeight)
               );
             });
           await scrollHeaderUntilShown(sessionShown);
           await expect(session).toBeInViewport({ ratio: 1 });
-          expect(await sessionShown()).toBe(true);
         }
         await assertIdentity();
         await tapWhereShown(control("Maximize"));
