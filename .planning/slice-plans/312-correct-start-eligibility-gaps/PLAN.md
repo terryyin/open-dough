@@ -149,7 +149,7 @@ and `git status --short -- src tests` is empty.
 
 ### 1. A legacy ready record stays accurate when only a resolution changed
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test tests/support/story-dependencies.test.mjs
 tests/support/story-state*.test.mjs tests/support/supplier-*.test.mjs
 tests/support/start-eligibility.test.mjs
@@ -167,6 +167,13 @@ legacy test's `true` assertion after `satisfied` inverts and gains the
 dependencies first, then Ready through `record-state` with current digests,
 and asserts `changedSinceReview: false` at the admitted start, keeping its
 story-state byte equality.
+
+Accepted proof: the focused command above, 60 pass, with
+`workspace-publication.test.mjs` (53 pass), the payload update check, and lint.
+With only the `as-written` legacy basis, the legacy test fails at its `false`
+assertion after `satisfied`. `legacyBasesFor` gives the story-scoped and
+whole-seed legacy shapes the same two bases. The startup case reads `false`
+because of the new ordering, not the reconstruction.
 
 ### 2. `read-state` reports start eligibility
 Type: Behavior

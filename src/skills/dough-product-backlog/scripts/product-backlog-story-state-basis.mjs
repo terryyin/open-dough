@@ -117,9 +117,9 @@ export function dependencyAgreement({
   return { supplier, implementation, rationale, condition };
 }
 
-// A dependency fence body reduced to its agreements. Anything not shaped as a
-// record of dependency objects is digested as written.
-function agreementBody(body) {
+// A dependency fence body with each dependency object rewritten. Anything not
+// shaped as a record of dependency objects is digested as written.
+function rewrittenBody(body, rewrite) {
   let payload;
   try {
     payload = JSON.parse(body);
@@ -137,11 +137,31 @@ function agreementBody(body) {
   ) {
     return body;
   }
-  const dependencies = payload.dependencies.map(dependencyAgreement);
+  const dependencies = payload.dependencies.map(rewrite);
   return JSON.stringify({ ...payload, dependencies });
 }
 
-function digestDependencyAgreements(lines) {
+// Each dependency reduced to its agreement, the current basis meaning.
+function agreementBody(body) {
+  return rewrittenBody(body, dependencyAgreement);
+}
+
+// Each dependency returned to the bytes its agreement was first written as,
+// before any resolution or decision, the meaning a legacy record reviewed
+// while every supplier was still waiting carries.
+function waitingBody(body) {
+  return rewrittenBody(body, (entry) => ({
+    ...dependencyAgreement(entry),
+    state: "waiting",
+  }));
+}
+
+const dependencyFenceBodies = {
+  agreement: agreementBody,
+  waiting: waitingBody,
+};
+
+function digestDependencyFences(lines, rewrite) {
   for (let open = 0; open < lines.length; open += 1) {
     if (lines[open].trim() !== `\`\`\`${storyDependenciesFence}`) {
       continue;
@@ -153,7 +173,7 @@ function digestDependencyAgreements(lines) {
       return;
     }
     const body = lines.slice(open + 1, close).join("\n");
-    lines.splice(open + 1, close - open - 1, agreementBody(body));
+    lines.splice(open + 1, close - open - 1, rewrite(body));
     open += 1;
   }
 }
@@ -161,7 +181,8 @@ function digestDependencyAgreements(lines) {
 // Bytes hashed for one Markdown document: line endings normalized, every
 // story-state fence removed, each dependency fence reduced to its agreement,
 // nothing else rewritten. `dependencyFences: "as-written"` keeps dependency
-// fences byte for byte, the meaning a record from before agreement digests
+// fences byte for byte, and `dependencyFences: "waiting"` returns each to its
+// unresolved bytes: the two meanings a record from before agreement digests
 // carries.
 export function digestSource(source, options = {}) {
   const normalized = normalizeLineEndings(source);
@@ -172,8 +193,9 @@ export function digestSource(source, options = {}) {
   for (const block of [...blocks].reverse()) {
     lines.splice(block.open, block.close - block.open + 1);
   }
-  if (options.dependencyFences !== "as-written") {
-    digestDependencyAgreements(lines);
+  const fences = options.dependencyFences ?? "agreement";
+  if (fences !== "as-written") {
+    digestDependencyFences(lines, dependencyFenceBodies[fences]);
   }
   const stripped = lines.join("\n");
   const forHash = endsWithNewline ? `${stripped}\n` : stripped;

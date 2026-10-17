@@ -263,6 +263,26 @@ test("a record reviewed over the dependency fence as written stays accurate", as
     dependency(second, { state: "satisfied", resolution }),
   );
   assert.equal(satisfied.code, 0, satisfied.stderr);
+  assert.equal(await changedSinceReview(project), false);
+
+  const decisionNeeded = await updateDependency(
+    project,
+    first,
+    dependency(second, {
+      state: "decision-needed",
+      decision: "Which endpoint behavior satisfies this consumer?",
+    }),
+  );
+  assert.equal(decisionNeeded.code, 0, decisionNeeded.stderr);
+  assert.equal(await changedSinceReview(project), false);
+
+  plantSeed(
+    project,
+    seedBytes(project).replace(
+      "Goal, scope, and examples for the first story.",
+      "Goal, scope, and examples for the first story, revised.",
+    ),
+  );
   assert.equal(await changedSinceReview(project), true);
 });
 

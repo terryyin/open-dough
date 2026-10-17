@@ -119,8 +119,8 @@ export function assessmentFromPayload(payload) {
 
 // Read-time view retains the recorded judgment and reviewed basis. Change
 // since review is independent evidence, derived without rewriting the record.
-// Bases older records carry (dependency fence as written, whole document)
-// stay interpretable under the same comparison.
+// Bases older records carry (dependency fence as written or unresolved,
+// whole document) stay interpretable under the same comparison.
 export function normalizeAssessmentView(
   recorded,
   currentBasis,

@@ -4,12 +4,17 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { run } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
   dependency,
   readDependencies,
   resolution,
   updateDependency,
 } from "../../../../tests/support/story-dependencies-fixture.mjs";
+import {
+  readState,
+  recordArgs,
+} from "../../../../tests/support/story-state-fixture.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
@@ -32,6 +37,27 @@ async function publishedStoryState(trunk, rev) {
   const seed = (await git(trunk.origin, "show", `${rev}:.planning/seeds/A.md`))
     .stdout;
   return seed.match(/```json dough-story-state\n[^]*?\n```/)[0];
+}
+
+// Records the consumer Ready over its current digests through the real
+// record-state command, after its dependencies, as record-preparation orders,
+// and publishes that assessment.
+async function publishReadyAssessment(trunk) {
+  const { basis } = await readState(projectOf(trunk), consumer);
+  const recorded = await run(
+    projectOf(trunk),
+    recordArgs(consumer, {
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/A/PLAN.md",
+      assessment: "ready",
+      expectDocument: basis.document,
+      expectPlan: basis.plan,
+    }),
+  );
+  assert.equal(recorded.code, 0, recorded.stderr);
+  await git(trunk.integration, "commit", "-am", "assess A ready");
+  await git(trunk.integration, "push", "origin", "main");
 }
 
 for (const oneShot of [false, true]) {
@@ -92,6 +118,7 @@ test("all dependencies must be satisfied before a ready story starts", async (t)
   );
   await publishDependency(trunk, dependency(supplier));
   await publishDependency(trunk, dependency(third));
+  await publishReadyAssessment(trunk);
   await publishDependency(
     trunk,
     dependency(supplier, { state: "satisfied", resolution }),
@@ -108,7 +135,7 @@ test("all dependencies must be satisfied before a ready story starts", async (t)
   const complete = await startCliResult(trunk, "story-branch");
   assert.equal(complete.code, 0, JSON.stringify(complete));
   assert.equal(complete.receipt.ok, true);
-  assert.equal(complete.receipt.changedSinceReview, true);
+  assert.equal(complete.receipt.changedSinceReview, false);
   assert.equal(existsSync(complete.workspace), true);
   // Resolution alone made the story eligible: no readiness write between.
   assert.equal(
