@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-138#compute-execution-readiness",
+  "mode": "story-branch",
+  "branch": "claude/compute-story-readiness-from-preparation-and-dep",
+  "host": "claude",
+  "model": "opus"
+}
