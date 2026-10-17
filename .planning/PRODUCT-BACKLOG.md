@@ -19,4 +19,5 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Correct start-eligibility gaps found in review](seeds/SEED-138-computed-execution-readiness.md#correct-start-eligibility-gaps) — SEED-138#correct-start-eligibility-gaps
 - [Restore GitHub Actions CI feedback to under three minutes](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes
