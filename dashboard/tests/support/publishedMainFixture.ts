@@ -15,6 +15,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
@@ -33,9 +34,12 @@ export async function publishedMainFixture(fullSource = false) {
   mkdirSync(home);
   const gh = installFakeGh(root);
   const env = { ...process.env, HOME: home, ...fakeGhEnv(gh) };
-  // Ends the request owner this fixture's commands asked `gh` through, then
-  // removes everything the fixture made.
+  // Stops the Cursor runner a production dashboard of this HOME detached
+  // (its own process group, so no command's stop reaches it), ends the
+  // request owner this fixture's commands asked `gh` through, then removes
+  // everything the fixture made.
   const cleanup = async () => {
+    await stopCursorRunner(home);
     await endFakeGh(gh);
     rmSync(root, { recursive: true, force: true });
   };

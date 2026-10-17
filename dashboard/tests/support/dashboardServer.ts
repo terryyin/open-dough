@@ -34,7 +34,7 @@ import { endFakeGh, fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { endAtExit } from "./processGroup.ts";
+import { endAtExit, signal } from "./processGroup.ts";
 import {
   serverLaunch,
   startOnOwnAddress,
@@ -191,12 +191,7 @@ export async function startDashboardServer(
   // SIGTERM hangs up the runner's clients and exits it.
   const withdrawRunnerStopAtExit = endAtExit(() => {
     const runner = readCursorRunnerAddress(home);
-    if (runner === undefined) return;
-    try {
-      process.kill(runner.pid, "SIGTERM");
-    } catch {
-      // Already gone.
-    }
+    if (runner !== undefined) signal(runner.pid, "SIGTERM");
   });
 
   const closeOwned = async () => {

@@ -132,10 +132,27 @@ run and is shown. Keep specs and their helpers silent. A failed run keeps what
 it showed, as `report.txt`, beside its traces and other retained files in
 `dashboard/test-results/<start time>/`, and its last line, `Kept: <directory>`,
 names that directory. A later run never removes an earlier run's directory;
-remove kept runs yourself once read. Every worker, when it exits, ends each
-process its tests started, passing, failing, or timed out
-(`support/processGroup.ts`), so a run does not leave servers or runners to
-load the next; only a worker killed outright runs no such cleanup.
+remove kept runs yourself once read.
+
+## No process outlives its run
+
+Nothing a run starts survives it: not the servers, synthetic hosts and
+request owners a test starts, nor the children the product starts for them,
+such as detached Cursor runners and the production watcher's deployments.
+Each worker ends what descends from it when it exits
+(`support/processGroup.ts`). Whoever owns a machine HOME stops its Cursor
+runner before removing it: `startDashboardServer` for a machine of its own,
+`publishedMainFixture`'s `cleanup` for the production journeys, and a test
+that passes its own `machine` calls `stopCursorRunner` itself. The run's own
+teardown is the backstop: global setup gives the run an identity,
+`OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
+once the workers have exited the teardown ends every process still carrying
+it and fails the run naming each (`support/globalSetup.ts`,
+`support/runProcesses.ts`). A named process is a leak to stop where it
+starts, never a reason to widen the sweep; processes of other runs, other
+checkouts and this machine's own dashboard carry no such identity and are
+left alone. `boundary/run-processes.spec.ts` proves each of the three, and
+after a local run `pgrep -lf "$PWD"` from this checkout finds nothing of it.
 
 To retain the selection and results of the same strict run as JSON, name
 `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; the [proof record guide](proof-record.md)

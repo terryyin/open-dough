@@ -5,7 +5,6 @@ import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { readCursorRunnerAddress } from "../server/hosts/cursor/runnerPaths.ts";
-import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { openCursorTerminal } from "./support/cursorTerminal.ts";
 import {
   instruction,
@@ -136,7 +135,6 @@ test("the production command starts one Cursor runner and leaves that client up 
   } finally {
     for (const socket of sockets) socket.close();
     await watcher?.stop();
-    await stopCursorRunner(fixture.home);
     cursor.cleanup();
     await fixture.cleanup();
     await github.close();

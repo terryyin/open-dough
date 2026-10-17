@@ -235,7 +235,7 @@ ended by hand: the leak slice 5 removes.
 
 ### 5. No test process outlives its run
 Type: Behavior
-Status: planned
+Status: done
 Proof: Every process a dashboard test run starts, directly or through the
 product it drives (Vite and boundary servers, synthetic hosts, detached Cursor
 runners, Codex and request-owner children, the production watcher's
@@ -263,6 +263,31 @@ the backstop, not the mechanism; a leftover the sweep had to end fails the
 run and names it, so the leak is fixed at its source. Added 2026-10-17 as
 Terry's acceptance criterion after five orphaned runners and clients from
 timed-out journeys were found on the development machine.
+
+Accepted proof (2026-10-18, at the slice 5 commit): `support/globalSetup.ts`
+gives the run `OPEN_DOUGH_DASHBOARD_RUN_ID` before any worker starts and its
+teardown ends and names every process still carrying it
+(`support/runProcesses.ts`: macOS `ps -E`, Linux `/proc/<pid>/environ`;
+settle, SIGTERM, SIGKILL), failing the run; `publishedMainFixture.cleanup`
+stops its HOME's Cursor runner; `boundary/run-processes.spec.ts` "a run's own
+teardown ends a process its workers could not reach and fails naming it" runs
+an inner Playwright under the suite's global setup whose test leaves a
+detached, already-orphaned child and holds its teardown past a 3 s timeout,
+and observes the inner run exit non-zero naming that pid, the pid dead and no
+process of the inner identity left; a scratch fixture cleanup that abandoned
+its root made `production-deployment.spec.ts` end with the sweep naming the
+detached runner (the exact leak class observed), and the restored fixture
+passed; `production-watcher-refusals` and `boundary/agent-terminal-cursor-runner`
+(9 tests) left only the machine's own dashboard runner; typecheck and the
+discovery check green; a whole run at four workers (load 4–11) passed 1,514
+of 1,515 with nothing of the run surviving (the one failure,
+`accessible-overview-touch.spec.ts` "an open session's disabled Start reason
+is readable without hover", a `toBeInViewport({ ratio: 1 })` on a
+visually-hidden paragraph that passed 3 of 3 alone, is untouched by this
+slice and recorded for slice 8). On the final formatted state a whole run at
+four workers passed 1,515 of 1,515 (wall 1,227 s, load 4–8, summed test time
+4,163 s against the baseline's 5,165 s at eight workers) and left no process
+of the run.
 
 ### 6. Production-watcher journeys share one build
 Type: Behavior
@@ -346,6 +371,23 @@ developer reads one strategy and sees the measured, mapped reduction.
   "preview unless the fact is development's" rule and records each in the
   proof map. `longest-first` carries one stale entry after slice 4's rename
   (`openai-configuration-boundary.spec.ts`), ignored by discovery.
+- Slice 5's whole run surfaced one intermittent viewport assertion:
+  `accessible-overview-touch.spec.ts` "an open session's disabled Start
+  reason is readable without hover" saw `toBeInViewport({ ratio: 1 })` at
+  ratio 0 on a `visually-hidden` reason paragraph after
+  `scrollIntoViewIfNeeded`, the same assertion family as the slice 3 CI
+  repair in `agent-terminal-touch.spec.ts`; slice 8 (presentation checks)
+  owns making it deterministic or replacing it with the cheapest layout
+  proof, never a lower ratio. Playwright 1.63 kills a worker outright only
+  after five minutes without a heartbeat; the leak class is a process whose
+  parent is already gone when a timed-out teardown abandons the cleanup that
+  would stop it.
+- `dashboard/tests/README.md` is 262 lines after slice 5's section (the
+  threshold is 250; plan 286 slice 2 accepted the same overrun, ODF-152).
+  Slice 9 finalizes the README and takes the cohesive split: the
+  journey-writing rules from "A check's bound starts..." onward are the
+  natural seam for a second guide beside `proof-record.md` and
+  `native-host-fixtures.md`.
 - Server modules are named by boundary, not by Vite plugin:
   `launchBoundary.ts`, `projectConfigurationBoundary.ts`,
   `openAIConfigurationBoundary.ts`, `terminalThemeBoundary.ts`,
@@ -684,3 +726,24 @@ proved now.
   rename (for example to the recovery it shows) is a slice 8 or 9 candidate.
   The fifteen `mode: "preview", prebuilt: builtDashboardDir` restarts noted
   after slice 3 were not reached by this loop removal and stay as they are.
+- Slice 5 found the leak's mechanism is abandoned cleanup, not killed
+  workers: Playwright 1.63 SIGKILLs a worker only after five minutes without
+  a heartbeat (`PWTEST_CHILD_PROCESS_TIMEOUT`); a timed-out test or teardown
+  otherwise ends the worker gracefully, so its `exit` cleanup
+  (`support/processGroup.ts`) runs and ends every descendant. What it cannot
+  reach is a process whose parent was already gone, such as the Cursor runner
+  a stopped preview or killed server had detached, when the cleanup that
+  would have stopped it (a production journey's `finally`, a machine-owning
+  helper's `close()`) was abandoned by the timeout. A runner exits by itself
+  within 500 ms of its `HOME/.open-dough/dashboard` directory being removed,
+  so a cleanup that ran leaks nothing; an abandoned one left its runner for
+  good. The run's identity is `OPEN_DOUGH_DASHBOARD_RUN_ID`, a fresh UUID
+  `globalSetup` sets (`support/runProcesses.ts`), not the config's
+  `OPEN_DOUGH_DASHBOARD_RUN_STAMP`: an inner Playwright run under the suite's
+  global setup takes its own identity and never sweeps the outer run's
+  processes, and two checkouts' runs in one second never share one. For
+  slice 6: a watcher shared per file keeps one `publishedMainFixture.cleanup`
+  in `afterAll`, which now stops the HOME's runner, and whatever a timed-out
+  file leaves is ended and named by the run's teardown, failing the run. Five
+  `dough-published-main-*` roots left in this machine's temp directory by
+  earlier abandoned cleanups (2026-10-17, 17:06 and 21:0x) were not removed.

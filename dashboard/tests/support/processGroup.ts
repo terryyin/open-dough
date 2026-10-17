@@ -51,19 +51,23 @@ function descendants(root: number): number[] {
   return found;
 }
 
+// Sends `name` to `pid`, or to every process of a group when `pid` is the
+// group's negative, tolerating one already gone.
+export function signal(pid: number, name: NodeJS.Signals): void {
+  try {
+    process.kill(pid, name);
+  } catch {
+    // Already gone.
+  }
+}
+
 export function endDescendantsAtExit(): void {
   if (endingAtExit) return;
   endingAtExit = true;
   process.on("exit", () => {
     const started = descendants(process.pid);
     for (const end of endsAtExit) end();
-    for (const pid of started) {
-      try {
-        process.kill(pid, "SIGKILL");
-      } catch {
-        // Already gone.
-      }
-    }
+    for (const pid of started) signal(pid, "SIGKILL");
   });
 }
 
@@ -77,12 +81,7 @@ export function endAtExit(end: () => void): () => void {
 }
 
 function killGroup(group: number): void {
-  try {
-    // A negative pid addresses every process in that group.
-    process.kill(-group, "SIGKILL");
-  } catch {
-    // Already gone.
-  }
+  signal(-group, "SIGKILL");
 }
 
 export function processAlive(pid: number | undefined): boolean {
