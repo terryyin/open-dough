@@ -118,7 +118,7 @@ scratch edit below was reverted, and `git diff --stat -- src` is empty.
 
 | Promise / example | Owning slice and observable proof |
 | --- | --- |
-| Ready assessment behind one waiting dependency shows no green badge, shows "Blocked by 1 dependency", Start unavailable naming the supplier; after `satisfied`, "Ready for execution" and Start available (key example 1, 3) | 1: `story-dependencies.spec.ts` journey through the real CLI publications; unit table in `tests/support/start-eligibility.test.mjs`. |
+| Ready assessment behind one waiting dependency shows no green badge, shows "Blocked by 1 dependency", Start unavailable naming the supplier; after `satisfied`, "Ready for execution" and Start available (key example 1, 3) | 1: `start-eligibility.spec.ts` journey through the real CLI publications; unit table in `tests/support/start-eligibility.test.mjs`. |
 | `decision-needed` blocks like `waiting`; nothing reads a supplier's closure as fulfillment (key example 4) | 1: unit table; existing spec assertion on "Decision needed" retained. |
 | Malformed or absent facts show a gap and no green badge; the start command refuses with that gap (key example 6) | 1: existing "malformed and unreadable dependency facts" journey plus a no-green assertion; 2: existing "a malformed published dependency cannot look like no blockers" case. |
 | Start command admits a story that is `ready` with every dependency satisfied, with no readiness write between (key example 1) | 2: existing "all dependencies must be satisfied before a ready story starts" case, extended to assert no story-state change between resolution and the published Take. |
@@ -132,8 +132,8 @@ scratch edit below was reverted, and `git diff --stat -- src` is empty.
 
 ### 1. Dashboard card shows derived start eligibility
 Type: Behavior
-Status: planned
-Proof: `dashboard/tests/story-dependencies.spec.ts` publishes, through the real
+Status: done
+Proof: `dashboard/tests/start-eligibility.spec.ts` publishes, through the real
 CLI, a consumer recorded `ready` behind one `waiting` supplier: the card shows
 "Blocked by 1 dependency", no "Ready for execution", Start disabled with the
 dependency reason, then after the real `update-dependency` to `satisfied` the
@@ -155,6 +155,21 @@ when the assessment blocks; the gap badges as today. The Start reason names the
 same blockers. The legend, `dashboard/STORY-PREPARATION.md`, and
 `dashboard/README.md` state the badge's derived meaning. Taken cards keep
 today's badges.
+
+Accepted proof: `node --test tests/support/start-eligibility.test.mjs
+tests/support/story-state.test.mjs tests/support/story-dependencies.test.mjs
+tests/support/dashboard-test-files.test.mjs` (30 pass); `npm run test:dashboard
+-- story-dependencies.spec.ts story-dependencies-touch.spec.ts
+start-eligibility.spec.ts preparation-legend.spec.ts --reporter=list` and the
+badge consumers `published-facts-arrival`, `published-facts-failures`,
+`transient-detail-recovery`, `published-facts-reading`,
+`dashboard-columns-height`, `agent-launch-start-dependencies` (pass; tests that
+hit the 30 s timeout at load average 70 to 110 passed alone with
+`--timeout 150000`); `npm run typecheck:dashboard`, `npm run lint`. The shared
+derivation is `deriveStartEligibility` in
+`src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs`;
+the dashboard projection is `startEligibilityOf` in
+`dashboard/src/startEligibility.ts`.
 
 ### 2. Start command refuses through the same derivation
 Type: Behavior
@@ -217,6 +232,18 @@ text in code and never recording `ready` while another reason remains.
 `docs/project-visibility-requirements.md` describe the derived meaning and the
 basis boundary.
 
+## Story obligations
+
+### G1. Detail assessment summary keeps "Ready for execution" while the card shows blocked
+Reported: slice 1 — "The detail's `assessmentSummaryText` still says "Ready for execution" for a ready assessment, even when the card shows "Blocked by N dependencies"."
+Story clause: "The recorded assessment, its reasons, and review-change indication remain visible on the card and in the detail with shared wording"
+Disposition: no user cost "The preparing agent's assessment stays the one record of preparation readiness": the detail line is labelled "Assessment:" and describes the recorded assessment the story keeps visible with shared wording; the card badge row and the Start reason (`WorkCard.tsx` via `startEligibilityOf`) carry the derived answer, observed in `start-eligibility.spec.ts` "a ready story waits on its dependency and becomes startable once it is satisfied".
+
+### G2. A satisfied dependency still shows "Changed since readiness review"
+Reported: slice 1 — "The new journey's card therefore also shows "Changed since readiness review" after the dependency write; I made no assertion on it, and slice 3 owns removing it."
+Story clause: "so a supplier's resolution leaves "Changed since readiness review" off"
+Disposition: receiving slice 3
+
 ## Current decisions
 
 - The derived value is named start eligibility, `eligible` or `blocked`;
@@ -235,4 +262,8 @@ basis boundary.
 
 ## Learnings
 
-None yet.
+- Slice 1: the refactor split `story-dependencies.spec.ts`; the ready-story
+  journey lives in `start-eligibility.spec.ts`, the touch test in
+  `story-dependencies-touch.spec.ts`, and the two-supplier journey that slice 3
+  inverts stays in `story-dependencies.spec.ts`. `WorkDependencies.blocking`
+  in the dashboard is now the reader's blocking array, not a count.

@@ -129,6 +129,8 @@
   border-color: var(--line);
 }
 
+/* Dependencies are ordinary waiting work, not an evidence problem. */
+.badge-blocked-by-dependencies,
 .badge-changed-since-review {
   color: var(--text);
   background: var(--panel);

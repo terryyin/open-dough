@@ -33,7 +33,7 @@ export function DependenciesCard({
     );
   return (
     <details className="story-dependencies">
-      <summary>Dependencies · {dependencies.blocking} blocking</summary>
+      <summary>Dependencies · {dependencies.blocking.length} blocking</summary>
       <ul aria-label="Story dependencies">
         {dependencies.entries.map((dependency) => (
           <li key={dependency.supplier.identity}>

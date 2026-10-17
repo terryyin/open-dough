@@ -99,16 +99,12 @@ export function preparationBadge(
   return { kind: "refined", label: "Refined" };
 }
 
-export function readyBadge(
-  preparation: WorkPreparation,
-): { readonly label: "Ready for execution" } | undefined {
-  if (
+// Whether the preparing agent's recorded readiness assessment is ready.
+export function assessedReady(preparation: WorkPreparation): boolean {
+  return (
     preparation.status === "recorded" &&
     preparation.assessment.status === "ready"
-  ) {
-    return { label: "Ready for execution" };
-  }
-  return undefined;
+  );
 }
 
 export type WorkAssessment = Extract<

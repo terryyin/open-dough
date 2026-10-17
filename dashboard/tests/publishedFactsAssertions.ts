@@ -13,9 +13,11 @@ export async function expectCanonicalFacts(queuedCard: Locator) {
   await expect(
     queuedCard.getByText("Slice planned", { exact: true }),
   ).toBeVisible();
+  // A Ready assessment behind its blocking dependency is not yet eligible.
   await expect(
-    queuedCard.getByText("Ready for execution", { exact: true }),
+    queuedCard.getByText("Blocked by 1 dependency", { exact: true }),
   ).toBeVisible();
+  await expect(queuedCard.locator(".badge-ready")).toHaveCount(0);
   const detail = await inspectedDetail(queuedCard);
   await expect(detail.locator(".story-purpose")).toHaveText(purpose);
   await expect(detail).toContainText("Assessment: Ready for execution");

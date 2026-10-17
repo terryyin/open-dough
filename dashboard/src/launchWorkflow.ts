@@ -14,7 +14,7 @@ import type {
 import type { EstablishedContext } from "./launchRecord.ts";
 import type { EstablishedSession } from "./unattachedSession.ts";
 import { sessionSummary } from "./sessionPolicyWords.ts";
-import { readyBadge } from "./storyPreparation.ts";
+import { assessedReady } from "./storyPreparation.ts";
 
 // What a launch starts, and the one place each workflow is spelled: its
 // display name, the verb its dialog uses, the skill it runs, what its card
@@ -59,10 +59,13 @@ export const launchWorkflows = {
       published:
         "This story's Take is already published on origin, so Start publishes no second Take.",
     },
-    // Nothing while readiness is still being read.
+    // The note names the recorded assessment alone, which leaves Start
+    // offered; dependency blockers gate Start through the card's start
+    // eligibility (`./startEligibility.ts`). Nothing while readiness is still
+    // being read.
     note: ({ preparation }) =>
       preparation?.status !== "loading" &&
-      (preparation === undefined || readyBadge(preparation) === undefined)
+      (preparation === undefined || !assessedReady(preparation))
         ? "Not marked Ready for execution"
         : undefined,
   },

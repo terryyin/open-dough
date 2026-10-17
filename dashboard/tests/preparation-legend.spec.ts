@@ -138,6 +138,7 @@ for (const viewport of [
       "Refined",
       "Slice planned",
       "Ready for execution",
+      "Blocked by dependencies",
       "Preparing",
     ]) {
       const badge = dialog.getByText(label, { exact: true });

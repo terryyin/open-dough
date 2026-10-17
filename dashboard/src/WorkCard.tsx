@@ -1,7 +1,8 @@
 // One work item's card in its stage (`./WorkStages.tsx`), read at two levels.
 // Its scan view leads with the title, then its priority in the Backlog, the
-// assigned or preparing developer, preparation and readiness badges,
-// dependencies, slice progress on Taken work with a brief source
+// assigned or preparing developer, preparation badges with a Backlog card's
+// start eligibility (`./startEligibility.ts`), dependencies, slice progress
+// on Taken work with a brief source
 // qualification, its launches (`./CardLaunches.tsx`), and its inspection
 // group: Inspect story, led by a chevron that turns while the detail is
 // open, which opens the secondary detail (`./StoryDetail.tsx`)
@@ -35,6 +36,10 @@ import {
 import { workCardMarks } from "./workFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
+import {
+  dependencyStartReason,
+  startEligibilityOf,
+} from "./startEligibility.ts";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { cardSessionsOf } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
@@ -77,6 +82,7 @@ export function WorkCard({
   const starting =
     launches.storyStartupOf(sourceId, entry.identity) !== undefined;
   const statusId = useId();
+  const eligibility = startEligibilityOf(entry);
   const reason = starting ? statusId : undefined;
   return (
     <article
@@ -106,7 +112,10 @@ export function WorkCard({
               onOpenRoster={onOpenRoster}
             />
           </div>
-          <PreparationFacts preparation={entry.preparation} />
+          <PreparationFacts
+            preparation={entry.preparation}
+            eligibility={offersStart ? eligibility : undefined}
+          />
           <DependenciesCard dependencies={entry.dependencies} />
           {showsSliceProgress && (
             <SliceProgress
@@ -120,6 +129,7 @@ export function WorkCard({
             entry={entry}
             launches={launches}
             offersStart={offersStart}
+            dependencyProblem={dependencyStartReason(eligibility)}
             statusId={statusId}
           />
           <div

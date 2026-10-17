@@ -1,4 +1,3 @@
-import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: Backlog cards offer Start per workflow, with each note
 // and answer; an open session makes every Start unavailable with its reason.
@@ -37,6 +36,7 @@ export function CardLaunches({
   entry,
   launches,
   offersStart,
+  dependencyProblem,
   statusId,
 }: {
   // The project whose work item the card shows.
@@ -45,6 +45,8 @@ export function CardLaunches({
   launches: MachineSessions;
   // Backlog offers every workflow; Taken offers only a kept execution.
   offersStart: boolean;
+  // Why dependencies make a new execution unavailable (`./startEligibility.ts`).
+  dependencyProblem: string | undefined;
   // The id of what says the story's startup, which the card is described by.
   statusId: string;
 }) {
@@ -88,7 +90,6 @@ export function CardLaunches({
       ? undefined
       : launches.attemptOf(sourceId, entry.identity, workflow);
   };
-  const dependencyProblem = dependencyStartProblem(entry.dependencies);
   // Dependencies gate a new execution, not continuation of a kept one-shot.
   const dependencyBlocksStart =
     keptOneShot === undefined && dependencyProblem !== undefined;

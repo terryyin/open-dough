@@ -37,7 +37,8 @@ export type WorkDependencies =
   | {
       readonly status: "recorded" | "not-recorded";
       readonly entries: readonly Dependency[];
-      readonly blocking: number;
+      // The unsatisfied entries, as the shared reader reports them.
+      readonly blocking: readonly Dependency[];
     };
 
 export function dependenciesFor(
@@ -63,24 +64,30 @@ export function dependenciesFor(
     const parsed = interpretedSchema.parse(
       readStoryDependencies(text, entry.canonical.recorded),
     );
+    const entries = parsed.dependencies.map((dependency) => ({
+      ...dependency,
+      supplierLink: resolveSourceLink(
+        dependency.supplier.href,
+        source,
+        revision,
+      ),
+      ...(dependency.resolution !== undefined && {
+        evidenceLink: resolveSourceLink(
+          `/${dependency.resolution.path}`,
+          source,
+          dependency.resolution.revision,
+        ),
+      }),
+    }));
+    const blocking = new Set(
+      parsed.blocking.map((dependency) => dependency.supplier.identity),
+    );
     return {
       status: parsed.status,
-      blocking: parsed.blocking.length,
-      entries: parsed.dependencies.map((dependency) => ({
-        ...dependency,
-        supplierLink: resolveSourceLink(
-          dependency.supplier.href,
-          source,
-          revision,
-        ),
-        ...(dependency.resolution !== undefined && {
-          evidenceLink: resolveSourceLink(
-            `/${dependency.resolution.path}`,
-            source,
-            dependency.resolution.revision,
-          ),
-        }),
-      })),
+      entries,
+      blocking: entries.filter((dependency) =>
+        blocking.has(dependency.supplier.identity),
+      ),
     };
   } catch (error) {
     return {
@@ -88,16 +95,4 @@ export function dependenciesFor(
       problem: error instanceof Error ? error.message : String(error),
     };
   }
-}
-
-export function dependencyStartProblem(
-  dependencies: WorkDependencies | undefined,
-): string | undefined {
-  if (dependencies === undefined)
-    return "Execution unavailable while dependency facts are being read.";
-  if (dependencies.status === "unavailable")
-    return `Execution unavailable: dependency facts could not be read. ${dependencies.problem}`;
-  if (dependencies.blocking > 0)
-    return `Execution unavailable: ${dependencies.blocking} blocking ${dependencies.blocking === 1 ? "dependency" : "dependencies"}. Expand Dependencies for the suppliers and completion conditions.`;
-  return undefined;
 }

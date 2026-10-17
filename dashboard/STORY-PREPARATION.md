@@ -42,7 +42,16 @@ the inspected commit and keeps an explicit anchor. Agreeing references produce
 one plan action; conflicting references are qualified as disputed evidence
 without choosing a plan. Navigation does not require readiness or successfully
 read plan contents. Readiness retains the last recorded Ready or Not ready
-judgment and its reasons. Cards and story details separately show "Changed since
+judgment and its reasons. On a Backlog card the green "Ready for execution"
+badge shows start eligibility, derived from that judgment and the dependency
+agreement by the shared derivation the start command uses and never stored: the
+judgment is Ready and no dependency is waiting or needs a decision. A Ready
+judgment behind unsatisfied dependencies shows "Blocked by N dependencies" in
+its place ("Blocked by 1 dependency" for one); a Not ready judgment shows "Not
+ready" with any dependency count beside it; unreadable dependency facts show
+their gap and no green badge. Satisfying the last dependency makes the story
+eligible with no further readiness write. A Taken card shows the recorded
+judgment. Cards and story details separately show "Changed since
 readiness review" when the existing reviewed story/plan basis differs; the
 detail places it beside the recorded judgment. Changed Ready keeps its normal
 Start presentation and can start under existing startup safeguards; the

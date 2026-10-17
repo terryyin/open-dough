@@ -1,18 +1,28 @@
 // Card-facing preparation and readiness: the scan view's badges and the
-// problems that leave them unknown, and the badge legend. What each badge
+// problems that leave them unknown, and the badge legend. On a Backlog card
+// the green badge is the derived start eligibility (`./startEligibility.ts`),
+// and unsatisfied dependencies take its place; a Taken card shows the
+// recorded assessment. What each badge
 // summarizes is explained in the story's inspected detail
 // (`./StoryDetail.tsx`), from the same already-loaded facts.
 
 import {
   preparationBadge,
-  readyBadge,
+  assessedReady,
   type WorkPreparation,
 } from "./storyPreparation.ts";
+import {
+  dependencyBlockedLabel,
+  type StartEligibility,
+} from "./startEligibility.ts";
 
 export function PreparationFacts({
   preparation,
+  eligibility,
 }: {
   preparation: WorkPreparation | undefined;
+  // A Backlog card's start eligibility; absent on Taken cards.
+  eligibility: StartEligibility | undefined;
 }) {
   if (preparation === undefined) {
     return null;
@@ -48,7 +58,12 @@ export function PreparationFacts({
   }
 
   const prep = preparationBadge(preparation);
-  const ready = readyBadge(preparation);
+  const ready =
+    eligibility === undefined
+      ? assessedReady(preparation)
+      : eligibility.status === "eligible";
+  const blockedBy =
+    eligibility === undefined ? undefined : dependencyBlockedLabel(eligibility);
   const assessment = preparation.assessment;
 
   return (
@@ -60,7 +75,14 @@ export function PreparationFacts({
         {preparation.approach.kind === "planless" && (
           <span className="badge badge-planless">Planless</span>
         )}
-        {ready && <span className="badge badge-ready">{ready.label}</span>}
+        {ready && (
+          <span className="badge badge-ready">Ready for execution</span>
+        )}
+        {blockedBy && (
+          <span className="badge badge-blocked-by-dependencies">
+            {blockedBy}
+          </span>
+        )}
         {assessment.status === "not-ready" && (
           <span className="badge badge-not-ready">Not ready</span>
         )}
@@ -105,7 +127,21 @@ export function BadgeLegend() {
         </li>
         <li>
           <span className="badge badge-ready">Ready for execution</span>
-          <span> — green; a separate readiness fact when supported.</span>
+          <span>
+            {" "}
+            — green; start eligibility: the readiness assessment is ready and no
+            dependency is unsatisfied.
+          </span>
+        </li>
+        <li>
+          <span className="badge badge-blocked-by-dependencies">
+            Blocked by dependencies
+          </span>
+          <span>
+            {" "}
+            — shown with its count in place of Ready for execution while a
+            dependency is waiting or needs a decision.
+          </span>
         </li>
         <li>
           <span className="badge badge-changed-since-review">

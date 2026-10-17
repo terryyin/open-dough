@@ -189,6 +189,11 @@ condition, and waiting, satisfied, or developer-decision state. Resolution links
 open recoverable historical evidence; an unresolved decision shows its actual
 question. Only the dependent card shows this relationship.
 
+On a Backlog card the green **Ready for execution** badge means start
+eligibility: the recorded readiness assessment is ready and no dependency is
+unsatisfied. While dependencies block, "Blocked by N dependencies" takes its
+place; a Not ready assessment stays visible beside it.
+
 **Start execution** stays unavailable while any dependency is unresolved or its
 canonical facts are loading or unreadable, with the reason beside the action.
 Inspection and refinement stay available. Clearing one dependency leaves the
