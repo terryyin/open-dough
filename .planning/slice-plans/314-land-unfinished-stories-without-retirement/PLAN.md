@@ -1,0 +1,249 @@
+# Land unfinished story changes without retiring their execution workspace
+
+**Identity:** SEED-008#land-unfinished-stories-without-retirement
+**Source:** [refined story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#land-unfinished-stories-without-retirement)
+
+## Goal and scope
+
+A developer can land an intermediate reviewed story result while retaining the
+same execution workspace, branches, assignment and dashboard continuation.
+Ordinary Dough Land refuses unfinished execution before commit or publication;
+explicit `--keep-worktree` lands through existing operations without implying
+completion. Missing or ambiguous completion evidence cannot permit retirement.
+Taken membership alone proves neither incomplete implementation nor completion.
+
+Include optional safe default-checkout refresh, truthful unfinished reporting,
+already-accepted reruns, publication failure recovery, and preservation of
+published Story Branch history. Completed execution keeps wrap-up's gates;
+ordinary work and completed preparation keep their existing landing behavior.
+
+Exclude a new skill, parallel publication or retention lifecycle, new execution
+mode or story state, automatic conversion between modes, automatic story closure,
+a redesigned dashboard acknowledgment mechanism, release creation, and recovery
+or closure of the reported Pygardon story. Execution has not been authorized by
+this preparation. No native-host integration mechanism changes are planned.
+
+## Current decisions and architecture
+
+- Follow the source story's Terry decisions of 2026-10-18. Source guidance is
+  authored in `src/skills/`, not this repository's installed managed copies;
+  see [AGENTS.md](../../../AGENTS.md) and
+  [ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+- [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  requires one domain-coherent representation. PFE found existing owners for
+  publication, optional refresh, completion interpretation and retirement. Reuse
+  them; expose a suitable shared part only if the integrated example needs it.
+- [ADR 0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+  requires one authoritative runtime rule, addressed to the agent's established
+  project. Put the completion/retention choice in Dough Land and link to existing
+  completion, publication, refresh and reporting contracts rather than copying
+  their workflows. Review discovery description, rerun table and references too.
+- Follow [North Star — Remote history and optional local refresh](../../NORTH-STAR.md#remote-history-and-optional-local-refresh).
+  Publication, ownership, completion and CI coverage are distinct. ADRs 0007,
+  0008 and 0009 remain Proposed. No new North Star topic or ADR change is needed.
+- PFE: `dough-execute-plan/scripts/execution-increment-publication.mjs` owns
+  unpublished-suffix publication. `history-preserving-publication.mjs` owns
+  integration of an already-published tip and returns to the execution branch.
+  `maintain-default-checkout.mjs` owns safe refresh. All are under `src/skills/`.
+  The retained landing uses these boundaries without importing execution's
+  whole managed-delivery workflow or changing its destination/observer policy.
+- `dough-land/scripts/worktree-retirement.mjs` owns deletion after caller gates;
+  ownership and containment alone are not completion evidence. The caller must
+  not enter retirement for a retained landing. Completion judgment reuses
+  wrap-up's execution-completion contract, the backlog plan reader and
+  `dough-execute-plan/scripts/story-obligations.mjs` where applicable. No new
+  persistent completion grammar is warranted. Planless completion is judged
+  from its instruction and results, not absence of a plan.
+- `dashboard/src/completionReport.ts` and the completion receiver already keep
+  landing capture separate from explicit completion and session acknowledgment.
+  Retained unfinished execution reports `unfinished` with a useful next action;
+  it does not send quiet `completed`, release the profile, remove Taken, or
+  remove the plan. Manual Done remains local session acknowledgment.
+- A preparation assignment is not an execution assignment. Completed queued
+  preparation must still release and retire under its existing journey. A
+  completed execution still Taken must be judged from its actual obligations;
+  this story gives no authority to perform wrap-up merely by landing.
+
+## Investigation and decisive premises
+
+Observed in this preparation checkout,
+`/Users/terryyin/git/open-dough/.worktrees/land-unfinished-story-changes-without-retiring-t`,
+starting at `34d60fa2c669efa63bf9d2a0a90a6371298ef755` on 2026-10-18.
+All Git observations use disposable local bare remotes; no Pygardon operations
+or native agent launches were performed. Product source scratch edits were
+reverted before recording this plan.
+
+1. **The retirement gap is reproducible.** A `node --input-type=module` local
+   observation imported `createCleanTrunkFixture` from
+   `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` and
+   `landWorktree` / `runRetirementCommand` from
+   `src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs`.
+   It wrote `.planning/PLAN.md` with a final `Status: planned` slice and a
+   Taken entry in `.planning/PRODUCT-BACKLOG.md`, committed them, and ran
+   `git push origin HEAD:refs/heads/exec/story`. Calling
+   `landWorktree({worktree: f.execution, branch: 'exec/story', createdForWork: true})`
+   accepted the candidate and removed the worktree/local branch. Calling
+   `runRetirementCommand({repository: f.integration, worktree: f.execution,
+   branch: 'exec/story', createdForWork: true, remoteBranch: 'exec/story'})`
+   then removed the remote branch. `git show origin/main:.planning/PLAN.md`
+   still contained `Status: planned`. The fixture was cleaned up. This is the
+   existing Git-model sequence plus the production retirement command, not
+   evidence that a native agent followed new guidance.
+2. **Reuse owners perform the needed Git operations.** Literal command:
+   `node --test src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-land/scripts/worktree-retirement.test.mjs`.
+   Result: 28 passed. Assertions reach real local remote refs, accepted/rerun
+   publication, preserved published merge history, branch restoration,
+   conflict recovery and retirement. These are baseline observations, not proof
+   of the new caller's completion guard or retained-landing policy.
+3. **All slices done does not settle open obligations.** Literal command:
+   `node --test src/skills/dough-execute-plan/scripts/story-obligations.test.mjs`.
+   Result: 7 passed, including an open obligation refused after all slices are
+   done. Use this existing interpretation; do not infer completion from counts.
+4. **Dashboard acceptance is independent of completion and continuation.**
+   Literal command:
+   `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-landing-capture.spec.ts dashboard/tests/boundary/story-branch-landing-later-publication.spec.ts dashboard/tests/agent-launch-done-question.spec.ts --workers=2`.
+   Result: passed (quiet reporter, exit 0). The first file drives the installed
+   integration and receiver, observes original branch restoration, merge parents,
+   no completion/Done, and a rerun with zero pushes. The second publishes a later
+   story commit without reusing the original launch's landing context. The page
+   spec observes the unfinished-report acknowledgment question. The initial run
+   lacked checkout-local Vite; `npm ci --ignore-scripts --no-audit --no-fund`
+   established local dependencies, and removing the conflicting NO_COLOR setting
+   allowed the quiet reporter's actual run. These tests use synthetic native
+   hosts, not fresh Codex/Cursor/Claude native acceptance.
+5. **The chosen branch-restoration proof discriminates.** Temporarily return at
+   the start of `returnToBranch` in `history-preserving-publication.mjs`, then run
+   `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-landing-capture.spec.ts --grep 'records the fetched trunk tip' --workers=1`.
+   Result: failed at line 87, expected the execution branch but got an empty
+   branch (detached HEAD). Restore the exact original source and rerun the same
+   command: passed (exit 0). The changed branch-restoration behavior is
+   therefore observed at its consuming installed integration boundary.
+
+No remaining factual premise requires a paid or owner-held probe. New behavior
+below still needs red/green implementation proof; baseline tests do not establish
+it. In particular no existing test is claimed to cover the complete ordinary
+refusal or retained-landing-to-dashboard-resume journey.
+
+## Outside-in proof ownership
+
+| Promise / example | Owner and observable proof |
+| --- | --- |
+| 13 of 14 slices done, ordinary land | Slice 1: refusal before commit, index change or push; unchanged HEAD/remote refs, resources and assignment; explanation names remaining work and explicit retention option |
+| Missing/ambiguous evidence; all slices done with an open obligation | Slice 1: no retirement and precise missing/completion evidence; Taken alone never decides |
+| Completed execution still Taken; ordinary work; completed preparation | Slice 1: correct distinction using actual obligations; no fabricated completion, and existing preparation release and ordinary landing remain valid |
+| Explicit retained landing | Slice 2: trunk contains reviewed content; same worktree/local branch, existing remote execution branch, Taken/profile/plan and session remain; same mode and continuation identity |
+| Published Story Branch history, trunk advance and optional refresh | Slice 2: original published SHAs remain ancestors; safe refresh or independent deferral; human default-checkout bytes untouched |
+| Rerun, lost response, conflict and rejected publication | Slice 2: no duplicate commit/push after acceptance; conflict/failure retains recoverable resources and exact unfinished step |
+| Dashboard continuation and acknowledgment | Slice 2: unfinished report with no automatic Done; same session can continue with the pending slice; manual Done changes no story/plan/assignment bytes |
+| Completed story closure after retained landing | Slice 2: existing wrap-up completion/CI/ownership gates still own eventual retirement; retention is not a new permanent lifecycle |
+| Shared behavior across supported hosts | Both slices: representative behavior review under AGENTS.md and ADR 0005; reused shared integration mechanism, no native success inferred from deterministic fixtures |
+
+## Ordered slices
+
+### 1. Refuse ordinary landing of unfinished execution before changing Git
+Type: Behavior
+Status: planned
+Proof: Review the skill's invocation with pending-slice, open-obligation,
+unknown-evidence and completed-work examples; exercise the existing landing
+boundary with before/after Git, plan and assignment observations. Preserve
+ordinary and preparation landing regression cases.
+
+Behavior: An execution workspace has remaining promised work or lacks completion
+evidence → ordinary Dough Land is invoked → before committing or publishing it
+identifies the unfinished work or missing evidence, retains resources, and names
+`--keep-worktree` as the explicit way to land an increment. Taken alone is not a
+refusal or completion signal. Completed execution remains subject to its owning
+completion gates; generic reviewed work and completed preparation retain their
+existing behavior.
+
+Work: Add the choice at Dough Land's pre-commit boundary and align discovery,
+retirement and rerun instructions. Reuse completion and obligation interpretation.
+Keep agent judgment about evidence in guidance; add runtime enforcement only at
+an existing boundary that can consume reliable inputs, without inventing a
+complete story classifier. Extend the current landing test support when needed,
+but do not count a helper's hard-coded refusal as native guidance proof. Walk the
+new skill behavior against AGENTS.md, including genuinely missing context.
+
+Verification: new refusal observations fail before the change and pass after it;
+assert no new commit/push and unchanged index/worktree/assignment. Run the relevant
+`src/skills/dough-story-refinement/scripts/dough-land*.test.mjs` and
+`src/skills/dough-land/scripts/*.test.mjs` consumers, plus obligation/plan-reader
+checks if their interpretation changes. Interim safe boundary: ordinary landing
+protects ongoing execution; the explicit retention path is delivered by slice 2.
+Do not report that path as implemented until its proof passes.
+
+### 2. Land an explicit increment and continue the same unfinished execution
+Type: Behavior
+Status: planned
+Proof: One integrated retained-landing journey with real disposable Git and the
+real dashboard boundary, followed by the next instruction in the same workspace;
+boundary variants prove history, recovery and acknowledgment details.
+
+Behavior: The developer invokes Dough Land with `--keep-worktree` for reviewed
+unfinished story changes → existing publication accepts them on the authorized
+trunk and optional refresh is attempted → resources and execution identity remain,
+the story stays Taken, and an unfinished dashboard report leaves its next slice
+usable. Repeating after acceptance pushes nothing. Later completion proceeds
+through ordinary wrap-up's gates.
+
+Work: Retain resources at the existing caller boundary. Reuse unpublished-suffix
+publication for an unpublished increment and history-preserving integration for
+an already-published story tip, including a local unpublished suffix above it;
+never rebase the published prefix. Preserve authorization, proof and observer
+obligations without importing managed execution or changing modes. Retain the
+original launch context for its first trunk landing and use the existing
+reporting-only retry after evidence failure. Do not add another landing for later
+publications. Ensure rerun and completion-attention wording obey the same rule.
+Do not release an execution assignment or call retirement on this path.
+
+Verification: Extend the real integration setup in
+`dashboard/tests/support/storyBranchIntegration.ts` and its boundary specs so the
+pending slice and claim are preconditions, while retained resources, unfinished
+report and usable continuation are outputs. Drive the dashboard continuation
+operation with the same identity/workspace and demonstrate a subsequent commit
+on the same execution branch; do not inject the post-landing resource result.
+Observe manual acknowledgment through the existing endpoint/page and compare
+repository plan/claim bytes before and after. Cover ordinary Trunk Mode retention
+through the current increment fixture and preserve Story Branch mode separately.
+Use one representative page journey only if the page effect needs new coverage;
+detailed failure/retry cases belong at the boundary under
+[dashboard test guidance](../../../dashboard/tests/README.md).
+
+Run the relevant complete landing/publication/history-integration suites and the
+selected dashboard continuation/reporting suites, including the literal baseline
+commands above. Prove retained rerun, trunk advance with published history, an
+unpublished suffix above a published tip, conflict/failed push, absent or dirty
+default checkout, and accepted-publication/reporting failure at their existing
+owners. Reuse sufficient unchanged baseline evidence; any changed consumer needs
+its affected proof. Existing wrap-up/retirement tests must still require their
+completion gates. Walk final guidance through ordinary refusal, explicit retained
+landing, completed preparation and completed-story closure.
+
+## Delivery and review
+
+Use dough-execute-plan when execution is authorized. Each slice includes outside-in
+proof, independent post-change refactoring, applicable tests, agent commit and the
+selected execution mode's publication/CI duties under the installed execution
+workflow. Hook-owned lint remains in the commit hook. AGENTS.md's representative
+behavior review is the local skill-authoring gate; hosted CI configuration alone
+does not require every suite locally. If a new installed runtime dependency is
+necessary, include it through the existing payload declaration and run the real
+delivery checks that dependency affects. Do not hand-sync installed copies.
+
+The cumulative rule is one completion/retention choice before landing, followed
+by existing publication/refresh owners and disposition. The two slices separate
+a safe ordinary refusal from an explicit usable increment; they do not create
+per-mode lifecycle implementations. No speculative Structure slice is needed.
+No numeric target or hard limit is supplied; each slice has one cohesive behavior
+and proof loop with existing reusable machinery. No slice-plan refinement is
+needed: no remaining boundary, proof-ownership or cumulative-design concern was
+identified. Execution must return new evidence that invalidates these premises
+for reassessment rather than extending a parallel solution.
+
+## Learnings
+
+The reproduced failure is loss of execution resources while story state correctly
+remains unfinished. Dashboard publication capture already keeps completion
+separate; the new caller must preserve that rule. Keep deterministic evidence
+separate from native guidance-following claims. All implementation and new
+acceptance proof remain planned.

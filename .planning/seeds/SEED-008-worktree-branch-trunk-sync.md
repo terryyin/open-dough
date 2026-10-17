@@ -33,17 +33,17 @@ outcome without changing ADR status or execution authority.
 
 **Identity:** SEED-008#land-unfinished-stories-without-retirement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/314-land-unfinished-stories-without-retirement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ef3d6023f8ed0fd46c9c7ef1f5e5fb994c32404f61667ee49277dba6e7fd128f","plan":"c3800480331aec1e993e3a3deedf620f361c3c5d7f57fbdc6aba2c8725eb35ab"}}
 ```
 
 **Beneficiary:** Developers who need to release an intermediate story result
 before completing its remaining execution or acceptance work.
 
-**Outcome:** The developer can publish reviewed story changes to trunk while
+**Goal:** The developer can publish reviewed story changes to trunk while
 keeping the unfinished story's workspace, branches, assignment and dashboard
 continuation usable. Landing an increment never implies story completion.
 
-**Agreed behavior (Terry, 2026-10-18):**
+**Scope — agreed behavior (Terry, 2026-10-18):**
 
 - Ordinary `/dough-land` refuses an unfinished story's worktree before committing
   or publishing, explaining the remaining work and the explicit retention
@@ -87,7 +87,7 @@ and the single authoritative behavior rule in
 [Accepted ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
 The feature requires no change to execution-mode defaults or ADR status.
 
-**Acceptance examples:**
+**Key examples:**
 
 | Situation | Required observation |
 | --- | --- |
@@ -108,9 +108,57 @@ report correctly said `unfinished`, but its execution workspace was gone.
 The implementation and plan remained on main. This is an intermediate-landing
 lifecycle gap, not evidence of false published story completion.
 
-**Effort hypothesis:** Unestimated until refinement checks the landing,
-retirement and dashboard continuation boundaries together. No implementation,
-release or Pygardon story closure is authorized by queueing this work.
+**Boundaries:** This extends the existing Dough Land invocation and keeps its
+reviewed-checkout, authorization, optional refresh, failure recovery, and caller
+CI obligations. No new skill, publication pipeline, execution mode, completion
+status, or dashboard acknowledgment mechanism is selected. Preparing a queued
+story is not unfinished execution: its completed preparation still lands and
+releases its Preparing assignment through the existing preparation journey.
+Completed execution uses wrap-up's existing closure gates; this change does not
+make a direct landing perform wrap-up. Release creation, the Pygardon incident's
+recovery or closure, and new native-host integration mechanisms are outside this
+delivery. These are deferred promises, not new runtime rejection rules.
+
+**Architecture:** Publication acceptance, execution completion, and resource
+retirement remain separate responsibilities. Reuse the publication and optional
+refresh owners named above, and keep retention at the caller's lifecycle boundary.
+Use existing plan and obligation interpretation for completion evidence; do not
+add a second story-state grammar. A published Story Branch tip is integrated
+without rewriting its history and returns to the same execution branch; landing
+must not silently change its execution mode or observer target. The dashboard
+already distinguishes landing evidence, explicit completion reports, and manual
+session acknowledgment. Preserve that distinction and report `unfinished` while
+story work remains, so publication alone cannot trigger quiet-completion Done.
+
+This follows [North Star — Remote history and optional local refresh](../NORTH-STAR.md#remote-history-and-optional-local-refresh),
+Accepted [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+Author source guidance under `src/skills/` under
+[ADR 0003 — Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+and the [maintainer guidance](../../AGENTS.md); installed copies change only
+through a release. [ADR 0005 — Cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+owns proof and justified reuse. ADRs 0007–0009 remain Proposed; no conflict,
+exception, or ADR status change is needed for this selected behavior.
+
+**Investigation (2026-10-18):** The incident above is supplied evidence, not a
+new inspection of Pygardon. In this preparation checkout at `34d60fa2`, a
+disposable bare-remote fixture containing a Taken story and a planned final
+slice was passed through the existing Git-model landing and production
+retirement command. Trunk retained the pending plan while the worktree, local
+branch, and remote execution branch were removed. This reproduces the lifecycle
+gap at the Git boundary, not native-agent skill behavior. The production
+retirement helper checks ownership and containment and accepts a caller hold;
+it does not establish story completion itself. Existing increment publication,
+history-preserving integration, and retirement checks passed 28 local tests;
+the existing obligation checker passed 7 tests, including refusal of an open
+obligation after all slices are marked done. These observations support reusing
+current owners and putting the missing decision before commit/publication.
+The plan carries the dashboard observations and the new end-to-end proof still
+to implement; no implementation is claimed by this investigation.
+
+**Effort hypothesis:** Two cohesive behavior slices: ordinary landing's
+completion guard, then explicit retained landing through publication and
+continuation. No project size bands or numeric time limit are supplied.
 
 <a id="accept-queued-start-native-behavior"></a>
 
