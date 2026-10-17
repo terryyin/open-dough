@@ -1,7 +1,8 @@
 // Launches one isolated dashboard server process -- a Vite dev or preview
 // server, or in boundary mode the local boundaries alone on a plain HTTP
-// server (../../server/boundaryServer.ts), without Vite or a build -- with the
-// synthetic `gh` (../fixtures/fake-gh, via ./fakeGh.ts) first on that
+// server (../../server/boundaryServer.ts), without Vite or a build, in the
+// project environment the test names (production unless it asks for
+// development) -- with the synthetic `gh` (../fixtures/fake-gh, via ./fakeGh.ts) first on that
 // process's PATH, answering from a fake GitHub (./fakeGitHub.ts), and the
 // synthetic `claude` (../fixtures/fake-claude, via ./fakeClaude.ts) before
 // it, in a temporary HOME holding only the project folders a test chooses.
@@ -35,16 +36,27 @@ import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { endAtExit } from "./processGroup.ts";
 import {
-  listenArgs,
-  spawnBoundaryServer,
-  spawnVite,
+  serverLaunch,
   startOnOwnAddress,
+  type DashboardServerMode,
 } from "./serverAddress.ts";
-import { configureDevelopmentProjects } from "./projectConfiguration.ts";
-import { buildDashboardTo } from "./dashboardBuild.ts";
+import {
+  configureDevelopmentProjects,
+  projectEnvironmentOf,
+} from "./projectConfiguration.ts";
+import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
-// Callers find the run's build where they find the server that serves it.
+// Callers find the run's build, and the modes, where they find the server.
 export { builtDashboardDir } from "./dashboardBuild.ts";
+export type { DashboardServerMode };
+
+// The boundary server in the dev server's environment: what a spec that
+// moved off a dev server starts, keeping the environment it observed there
+// (../README.md, "Two tiers").
+export const developmentBoundary = {
+  mode: "boundary",
+  environment: "development",
+} as const;
 
 export type DashboardServer = {
   readonly baseURL: string;
@@ -54,8 +66,7 @@ export type DashboardServer = {
   // The directory this preview-mode server serves, so a test can inspect the
   // actual static assets -- for example, to confirm no credential-like
   // marker was ever written into them. `undefined` in dev mode, which serves
-  // source on the fly and writes no build output at all, and in boundary
-  // mode, which serves no assets.
+  // source on the fly and writes no build, and in boundary mode, no assets.
   readonly outDir: string | undefined;
   readonly github: FakeGitHub;
   readonly codex: FakeCodex;
@@ -68,12 +79,17 @@ export type DashboardServer = {
 
 export async function startDashboardServer(
   options: FakeClaudeOptions & {
-    // `boundary` starts the local boundaries alone, on a plain HTTP server in
-    // the production project environment, for a spec that never opens a page
-    // (../boundary/); `dev` and `preview` start Vite.
-    readonly mode: "dev" | "preview" | "boundary";
-    // Existing dev journeys get their known projects; false observes a genuine
-    // empty first start. Existing files are always kept, including empty lists.
+    // `boundary` starts the local boundaries alone, on a plain HTTP server,
+    // for a spec that never opens a page (../boundary/); `dev` and `preview`
+    // start Vite.
+    readonly mode: DashboardServerMode;
+    // Boundary only: the project environment the server keeps its project
+    // list in (./projectConfiguration.ts); production when unset. Dev is
+    // always development and preview always production.
+    readonly environment?: ProjectEnvironment | undefined;
+    // A development-environment server gets its known projects, as existing
+    // dev journeys expect; false observes a genuine empty first start.
+    // Existing files are always kept, including empty lists.
     readonly configureDevelopmentProjects?: boolean;
     readonly codex?: boolean;
     readonly codexProtocol?: FakeCodex | undefined;
@@ -120,7 +136,11 @@ export async function startDashboardServer(
     { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
     options,
   );
-  if (options.mode === "dev" && options.configureDevelopmentProjects !== false)
+  const environment = projectEnvironmentOf(options.mode, options.environment);
+  if (
+    environment === "development" &&
+    options.configureDevelopmentProjects !== false
+  )
     configureDevelopmentProjects(claude.controls.home);
   const codex =
     options.codexProtocol ??
@@ -156,28 +176,16 @@ export async function startDashboardServer(
     env["DOUGH_RETAINED_ANSWERS_BYTES"] = String(options.retainedAnswersBytes);
   }
 
-  const viteArgs = [
-    "--config",
-    "dashboard/vite.config.mts",
-    ...listenArgs(options.port),
-  ];
-  let spawn: () => ReturnType<typeof spawnVite>;
-  let outDir: string | undefined;
-  if (options.mode === "boundary") {
-    // No page, so no build: the entry takes the listen args alone.
-    spawn = () => spawnBoundaryServer(listenArgs(options.port), env);
-  } else if (options.mode === "dev") {
-    // Dev mode compiles on the fly; it never reads or writes `dist`.
-    spawn = () => spawnVite(viteArgs, env);
-  } else {
-    outDir = options.prebuilt;
-    if (outDir === undefined) {
-      outDir = path.join(tempRoot, "dist");
-      buildDashboardTo(outDir);
-    }
-    const dist = outDir;
-    spawn = () => spawnVite(["preview", ...viteArgs, "--outDir", dist], env);
-  }
+  const { spawn, outDir } = serverLaunch(
+    {
+      mode: options.mode,
+      port: options.port,
+      environment,
+      prebuilt: options.prebuilt,
+      buildDir: path.join(tempRoot, "dist"),
+    },
+    env,
+  );
 
   const home = claude.controls.home;
   // SIGTERM hangs up the runner's clients and exits it.
@@ -219,7 +227,7 @@ export async function startDashboardServer(
     outDir,
     github,
     codex,
-    output: server.output,
+    output: () => server.output(),
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },

@@ -24,10 +24,15 @@ import {
 import { title } from "./agentLaunchBoundary.ts";
 import { settings } from "./support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
-import { customSavedProjects } from "./support/projectConfiguration.ts";
+import {
+  customSavedProjects,
+  projectConfigurationFile,
+  projectEnvironmentOf,
+} from "./support/projectConfiguration.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+const published = publishes({ revision: "ab".repeat(20), backlog });
 let machine: string;
 const servers: DashboardServer[] = [];
 
@@ -41,11 +46,8 @@ test.afterEach(async () => {
 });
 
 function configurationFile(mode: "dev" | "preview"): string {
-  return path.join(
-    machine,
-    "home/.open-dough/dashboard",
-    `projects-${mode === "dev" ? "development" : "production"}.json`,
-  );
+  const home = path.join(machine, "home");
+  return projectConfigurationFile(home, projectEnvironmentOf(mode));
 }
 
 function save(mode: "dev" | "preview", text: string): void {
@@ -61,10 +63,7 @@ async function start(mode: "dev" | "preview"): Promise<DashboardServer> {
     prebuilt: builtDashboardDir,
     configureDevelopmentProjects: false,
   });
-  server.github.serve(
-    everyRepository,
-    publishes({ revision: "ab".repeat(20), backlog }),
-  );
+  server.github.serve(everyRepository, published);
   servers.push(server);
   return server;
 }

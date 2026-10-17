@@ -3,9 +3,12 @@
 // `../tests/support/dashboardServer.ts` in boundary mode) in place of a dev
 // or built-preview server. It mounts this dashboard's local boundaries
 // (`./localBoundaries.ts`), the list `../vite.config.mts` mounts too, and
-// serves no page or asset: a request none of them answers is 404. The
-// project environment is `production`, as under the built-preview
-// server these tests replaced; dev and preview themselves stay Vite's.
+// serves no page or asset: a request none of them answers is 404. Its
+// project environment is the one named by `--environment development` or
+// `--environment production` (`./projectConfiguration.ts`): production, as
+// under the built-preview server, when unnamed; development for a test of
+// what the dev server's environment keeps. Dev and preview themselves stay
+// Vite's.
 //
 // Run with `node --experimental-transform-types`, which the server's own
 // TypeScript needs, as `--port 0` for any free port or `--port <n>
@@ -27,7 +30,10 @@ import {
   type BoundaryMiddlewares,
   type BoundaryReady,
 } from "./localBoundary.ts";
-import { initializeProjectConfiguration } from "./projectConfiguration.ts";
+import {
+  initializeProjectConfiguration,
+  type ProjectEnvironment,
+} from "./projectConfiguration.ts";
 
 const loopbackOnly = "127.0.0.1";
 
@@ -78,13 +84,26 @@ function listenPort(argv: readonly string[]): number {
   return port;
 }
 
+function projectEnvironment(argv: readonly string[]): ProjectEnvironment {
+  const at = argv.indexOf("--environment");
+  const named = at === -1 ? "production" : argv[at + 1];
+  if (named !== "development" && named !== "production") {
+    throw new Error(
+      `--environment must be development or production, not ${String(named)}`,
+    );
+  }
+  return named;
+}
+
 async function main(): Promise<void> {
-  const port = listenPort(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  const port = listenPort(argv);
+  const environment = projectEnvironment(argv);
   const chain = middlewareChain();
   const server = createServer((req, res) => {
     chain.handle(req, res);
   });
-  initializeProjectConfiguration("production");
+  initializeProjectConfiguration(environment);
   const mounted: BoundaryReady[] = localBoundaries.map(({ install }) =>
     installBoundary(install, chain, server),
   );

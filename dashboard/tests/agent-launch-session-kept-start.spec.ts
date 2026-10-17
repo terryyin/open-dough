@@ -10,7 +10,7 @@ import { expect, test } from "./support/pageTest.ts";
 import { keptStarts, launch, recordsOf } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { oneShot, originState } from "./support/oneShotLaunch.ts";
-import { requestFor, slug, startPreview } from "./support/launchPreview.ts";
+import { requestFor, slug, startPreview } from "./support/launchDashboard.ts";
 import {
   queuedIdentity,
   startOrigin,

@@ -13,6 +13,12 @@ import {
   type GroupLeader,
 } from "./processGroup.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
+import { buildDashboardTo } from "./dashboardBuild.ts";
+
+// Which server a test launches: Vite's dev server, Vite's preview of a
+// build, or the boundary server.
+export type DashboardServerMode = "dev" | "preview" | "boundary";
 
 const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
 const boundaryServerEntry = path.join(
@@ -85,6 +91,40 @@ type Launch = {
   output(): string;
   stop(): Promise<void>;
 };
+
+// What a server of `mode` launches as, and the directory a preview serves:
+// the boundary entry in its project environment, Vite's dev server, or
+// Vite's preview of `prebuilt`, else of a build of its own made now in
+// `buildDir`.
+export function serverLaunch(
+  options: {
+    readonly mode: DashboardServerMode;
+    readonly port: number | undefined;
+    readonly environment: ProjectEnvironment;
+    readonly prebuilt: string | undefined;
+    readonly buildDir: string;
+  },
+  env: NodeJS.ProcessEnv,
+): { readonly spawn: () => Launch; readonly outDir: string | undefined } {
+  const listen = listenArgs(options.port);
+  if (options.mode === "boundary") {
+    // No page, so no build: the entry takes the listen args and the
+    // environment alone.
+    const args = [...listen, "--environment", options.environment];
+    return { spawn: () => spawnBoundaryServer(args, env), outDir: undefined };
+  }
+  const viteArgs = ["--config", "dashboard/vite.config.mts", ...listen];
+  if (options.mode === "dev") {
+    // Dev mode compiles on the fly; it never reads or writes `dist`.
+    return { spawn: () => spawnVite(viteArgs, env), outDir: undefined };
+  }
+  const outDir = options.prebuilt ?? options.buildDir;
+  if (options.prebuilt === undefined) buildDashboardTo(outDir);
+  return {
+    spawn: () => spawnVite(["preview", ...viteArgs, "--outDir", outDir], env),
+    outDir,
+  };
+}
 
 // A launch on `port` with the address it reports. A launch that fails to
 // report one is stopped and the start fails with its output, after starting

@@ -5,7 +5,7 @@
 // the story not queued, an installed start command that gives no readable
 // result. The project whose origin is not the catalog repository is in
 // ./agent-launch-start.spec.ts; the table's mapping of the remaining stop
-// statuses is ./execution-start-result.spec.ts.
+// statuses is ./boundary/execution-start-result.spec.ts.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";

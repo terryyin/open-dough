@@ -38,7 +38,7 @@ type StoredHandler = (
 ) => void;
 
 test.describe("agent terminal boundary: closeServer hook wiring", () => {
-  // As ./authenticated-read-plugin-hooks.spec.ts does for `gh`: the plugin's
+  // As ./boundary/authenticated-read-plugin-hooks.spec.ts does for `gh`: the plugin's
   // hooks are called directly on a plain `http.Server` this test owns and
   // never closes, and the socket stays open, so `closeServer` alone is the
   // only possible cause of the attach process ending.

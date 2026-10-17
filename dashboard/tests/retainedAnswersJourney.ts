@@ -1,9 +1,9 @@
 // The journey of the retained-answers specs
-// (./authenticated-read-retained-answers*.spec.ts): one project published at a
-// revision with a recorded story branch, every read a page makes of it through
-// the local authenticated read boundary, and dev-mode servers started on a
-// machine directory each test owns, so answers retained by one process
-// (../server/retainedAnswers.ts) can be observed by the next.
+// (./boundary/authenticated-read-retained-answers*.spec.ts): one project
+// published at a revision with a recorded story branch, every read a page
+// makes of it through the local authenticated read boundary, and
+// `developmentBoundary` servers on a machine directory each test owns, so
+// answers one process retains (../server/retainedAnswers.ts) reach the next.
 
 import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -13,6 +13,7 @@ import { z } from "zod";
 import { parseDoneCatalog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { expect, test as base } from "./dashboardTest.ts";
 import {
+  developmentBoundary,
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
@@ -224,8 +225,7 @@ export async function asked<T>(github: FakeGitHub, run: () => Promise<T>) {
   return { result, calls: github.calls.slice(before).map(described) };
 }
 
-// A dev-mode server on `machine`'s home asking `github`, retaining at most
-// `retainedAnswersBytes` when given; closed after `use`.
+// A `developmentBoundary` server on `machine`'s home, closed after `use`.
 export async function onMachine<T>(
   machine: string,
   github: FakeGitHub,
@@ -233,7 +233,7 @@ export async function onMachine<T>(
   retainedAnswersBytes?: number,
 ): Promise<T> {
   const server = await startDashboardServer({
-    mode: "dev",
+    ...developmentBoundary,
     github,
     machine,
     retainedAnswersBytes,

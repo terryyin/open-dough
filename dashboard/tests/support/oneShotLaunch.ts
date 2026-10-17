@@ -10,7 +10,7 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expectReportingBlock } from "./reportingInputAssertions.ts";
 import { keptStarts, recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { slug, type Workflow } from "./launchPreview.ts";
+import { slug, type Workflow } from "./launchDashboard.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 
 const workflows: Record<Workflow, string> = {

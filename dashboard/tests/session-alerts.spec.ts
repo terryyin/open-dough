@@ -6,7 +6,7 @@
 // reading stays, after a page reload, or after a server restart that finds it
 // there; working and then blocked again alerts again, a changed reason alone
 // does not, and a session marked done never alerts (a report's arrival:
-// ./session-alerts-unread-report.spec.ts). The text travels as
+// ./boundary/session-alerts-unread-report.spec.ts). The text travels as
 // `osascript` arguments, so quotes and backslashes arrive unchanged. Closing
 // the server ends an `osascript` it started. The synthetic `claude`
 // (./fixtures/fake-claude) and `osascript` (./fixtures/fake-osascript) are all

@@ -22,15 +22,22 @@ boundary server, with `startDashboardServer({ mode: "boundary" })` or
 `test.use({ serverMode: "boundary" })` on the `dashboardTest.ts` fixtures:
 `node --experimental-transform-types ../server/boundaryServer.ts`, the local
 boundaries Vite mounts (`../server/localBoundaries.ts`) on a plain HTTP
-server in the production project environment, with no Vite and no build. A
-boundary spec never opens a page; `boundary/boundary-server.spec.ts` keeps
+server, with no Vite and no build. That server runs in the production
+project environment, as the built preview does, unless the spec starts
+`developmentBoundary` (`support/dashboardServer.ts`), the dev server's
+environment; a spec that moved off a dev server keeps its environment that
+way, and `boundary/boundary-server.spec.ts` shows each environment answering
+from its own project file (`support/projectConfiguration.ts` names it). A boundary spec never opens a page; the same spec keeps
 that server the Node entry alone, naming no Vite and serving no page.
 
 Put a check where it is cheapest to prove: a journey shows that the page does
 the thing once; the boundary tests own every variant of how the server
 answers. Both tiers are one suite, run and sharded together (below). Today
-`boundary/` holds the browserless `agent-completion-*` specs; the other
-browserless specs run from this directory until they are relocated.
+`boundary/` holds the browserless `agent-completion-*` specs, every
+browserless `authenticated-*` read spec, and the browserless project,
+landing, proof-record, launch-record and pure-reading specs; the browserless
+`agent-launch-*`, `agent-terminal-*` and `cursor-*` specs run from this
+directory until they are relocated.
 
 Test support takes the repository root from
 `support/repositoryRoot.ts`, not the working directory, so
@@ -50,11 +57,11 @@ server fetches credited humans' avatars (`avatarAnswers.ts`). Only GitHub's
 answers are replaced; the
 local read boundary, the `gh` invocation, reading, the shared backlog
 interpretation, and the page are the real ones, and a browser request to
-GitHub itself fails the test. The browserless read specs still in this
-directory (`authenticated-read-*.spec.ts`, `authenticated-avatar.spec.ts`)
-and `authenticated-project-overview.spec.ts` start their own dev and
-built-preview servers; the boundary tests in `boundary/` start the boundary
-server. Every server binds a port the operating system
+GitHub itself fails the test. The read boundary's own specs
+(`boundary/authenticated-read-*.spec.ts`, `boundary/authenticated-avatar.spec.ts`)
+start the boundary server; `authenticated-project-overview.spec.ts` and the
+other page journeys start their own built-preview servers. Every server
+binds a port the operating system
 chooses, so the suite can run beside another checkout's suite on the same
 machine, and a server that cannot start fails its test with its own output
 (`support/dashboardServer.ts`). Nothing here ever calls the real `gh` CLI or
@@ -69,7 +76,7 @@ an existing cache. They leave those entries intact and add no persistent
 compile cache to reclaim after failure or interruption. The calling Node/npm
 process can still cache its own startup before the configuration loads;
 ordinary dashboard commands outside the suite keep their existing policy.
-`compile-cache.spec.ts` makes real enable/import/flush attempts, preserves
+`boundary/compile-cache.spec.ts` makes real enable/import/flush attempts, preserves
 seeded cache hashes through repetition, overlap, failure and signals, and
 checks an outside-policy child really can write cache. Only that API probe is
 skipped on supported Node versions without the compile-cache API. Process and
@@ -218,7 +225,8 @@ commit time names was added once, by a commit of its own, so every journey's
 Taken and Preparing cards credit a human without a failed read; a fixture that
 wants a missing addition or an unpublished history says so. Which commit added
 a profile is walked at the boundary
-(`authenticated-read-profile-addition.spec.ts`); the credited human and avatar
+(`boundary/authenticated-read-profile-addition.spec.ts`, its refusals in
+`boundary/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
 on cards and the roster are `agent-roster-avatar.spec.ts`; how a slow or
 stalled addition read delays only its own profile's clock and human is
 `profile-addition-latency.spec.ts`; the roster itself is

@@ -1,5 +1,5 @@
-// Shared support for ../authenticated-read-resumption.spec.ts and
-// ../authenticated-read-wait-in-turn.spec.ts: a published revision whose
+// Shared support for ../boundary/authenticated-read-resumption.spec.ts and
+// ../boundary/authenticated-read-wait-in-turn.spec.ts: a published revision whose
 // backlog names ten seeds, so each seed is a different read, and the
 // boundary read a test sends for one of them.
 

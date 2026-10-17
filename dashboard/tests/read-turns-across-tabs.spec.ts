@@ -4,7 +4,7 @@
 // reads wait their turn; once the answers come, both tabs settle on their
 // projects' facts. The page, its local read boundary, and the `gh`
 // invocation are the production ones. The bound itself, turn by turn:
-// ./authenticated-read-turns.spec.ts.
+// ./boundary/authenticated-read-turns.spec.ts.
 
 import type { Page, Request } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";

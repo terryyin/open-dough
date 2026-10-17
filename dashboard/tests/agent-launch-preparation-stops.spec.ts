@@ -5,7 +5,7 @@
 // (./support/startOrigin.ts), with the synthetic `claude`: the story not
 // queued, every agent name held, a workspace that cannot be selected. Each
 // leaves no session and no progress phase. The table's mapping of the
-// remaining stop statuses is ./preparation-start-result.spec.ts.
+// remaining stop statuses is ./boundary/preparation-start-result.spec.ts.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFile } from "node:child_process";

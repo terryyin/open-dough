@@ -11,7 +11,7 @@ import { keptStarts, launch } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { oneShot, originState } from "./support/oneShotLaunch.ts";
-import { requestFor, startPreview } from "./support/launchPreview.ts";
+import { requestFor, startPreview } from "./support/launchDashboard.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 
 test.describe("a policy the installation or tracking cannot take", () => {

@@ -1,6 +1,6 @@
 // An unattached launch's kept record owns its landing capture after its
 // startup attempt expires, as a story launch's does
-// (./one-shot-landing-recovery-retention.spec.ts), with the server's clock
+// (./boundary/one-shot-landing-recovery-retention.spec.ts), with the server's clock
 // advanced past the attempt's retention on a real start origin: the record
 // holds the capture authority of the session's workspace with no identity,
 // the installed delivery command given the launch's context still prepares

@@ -133,7 +133,7 @@ final formatted state. Measurement, relative under load: summed test time
 
 ### 2. Read, project, proof-record and landing boundary specs relocate
 Type: Behavior
-Status: planned
+Status: done
 Proof: The 28 `authenticated-read-*` browserless files and the ~56 other
 browserless files outside `agent-launch-*`, `agent-terminal-*` and
 `cursor-*` run from `dashboard/tests/boundary/` in boundary mode; a scratch
@@ -142,6 +142,21 @@ test:dashboard` is green.
 
 Behavior: pre: these specs each boot Vite → trigger: relocation → result: the
 same boundary behavior is proved per request without a browser or Vite.
+
+Accepted proof (2026-10-17, at the slice 2 commit): `npm run --silent
+test:dashboard -- boundary/` passes 368 tests in 98 files (the 91 relocated
+files, the six `agent-completion-*` files and `boundary-server.spec.ts`),
+each in the project environment it had; a listing of the 77 inventoried files
+before relocation selected 264 tests and the same files select 258 after,
+the six dropped loop iterations named in the proof map; a scratch change of
+the read boundary's non-GET refusal status (405 to 406) failed exactly
+`boundary/authenticated-read-refusal.spec.ts` "refuses a non-GET method
+before launching gh" and `boundary/authenticated-read-diagnostics.spec.ts`
+"refuses unknown sources, disallowed origins, and non-GET before any GitHub
+call" among 376 selected; `boundary/boundary-server.spec.ts` "each project
+environment answers the project list from its own configuration file"
+observes the environment switch; typecheck, the discovery check and the whole
+dashboard suite (1,627 selected, all passed) are green on the final state.
 
 ### 3. Launch, terminal and Cursor boundary specs relocate
 Type: Behavior
@@ -252,6 +267,8 @@ developer reads one strategy and sees the measured, mapped reduction.
 - Published revisions: claim `7d4c704d` on `main` (starting revision
   `297ff978`); slice increments are published to the remote execution branch
   and listed here as they are accepted.
+- Slice 1: `789b7ca9` accepted on `refs/heads/claude/unify-and-streamline-the-dashboard-e2e-test-stra`
+  (suffix base `7d4c704d`); observer `/tmp/dough-ci-501/watch-d2776J`.
 
 ## Story obligations
 
@@ -282,8 +299,108 @@ proved now.
 - `dashboard/tests/boundary/boundary-server.spec.ts` (1 test, added): the
   boundary tier's server is the Node entry alone, naming no Vite and serving
   no page.
+- `boundary/boundary-server.spec.ts` (1 test, added in slice 2): each
+  project environment of the boundary server (`--environment development`
+  or `production`) answers the project list from its own configuration
+  file.
+- `authenticated-avatar`, `authenticated-branch-read-boundary` and the 37
+  browserless `authenticated-read-*` files (39 files, 199 tests): relocated
+  to `dashboard/tests/boundary/` under `mode: "boundary"`, each in the
+  project environment it had (`environment: "development"` where it started
+  a dev server, production where it started a preview); the describe suffix
+  "(dev launch mode)" reads "(development environment)"; assertions
+  unchanged. Their shared modules `revisionCheckBoundary.ts` and
+  `revisionReuseBoundary.ts` moved with them; `retainedAnswersJourney.ts`,
+  `directedWait.ts` and `sharedRequestOwner.ts` stay and start the
+  development-environment boundary server for them.
+- `authenticated-read-diagnostics.spec.ts`, "preview launch mode mounts the
+  same diagnostics route without asking GitHub" (1 test): kept as "the
+  production environment mounts the same diagnostics route without asking
+  GitHub" against the boundary server; its `outDir` assertion, which only
+  named the preview build, is proved by `boundary-server.spec.ts` (`outDir`
+  undefined, no build); the dev-against-preview mount equivalence it implied
+  is slice 4's one proof.
+- `project-add-boundary`, `project-add-validation`,
+  `project-configuration-boundary`, `project-input`,
+  `project-remove-boundary`, `openai-configuration-size`,
+  `session-instruction-voice-boundary` (7 files, 25 tests): relocated to
+  `boundary/` under `mode: "boundary"` in the production environment, with
+  the mode loops below reduced to that one iteration.
+- `project-add-boundary` "(dev)" iteration (1 test): the "(preview)"
+  iteration, now the one boundary test, proves the Add boundary; that
+  development keeps its own project file is proved by `project-add.spec.ts`
+  "Add in empty development leaves the production list on the same machine
+  unchanged".
+- `project-configuration-boundary` "(dev)" iteration (1 test): the remaining
+  boundary test plus `boundary-server.spec.ts` "each project environment
+  answers the project list from its own configuration file".
+- `project-remove-boundary` "(dev)" iteration (1 test): the remaining
+  boundary test; the development file's removal is proved by
+  `project-remove.spec.ts` on its dev server ("removing the last project
+  leaves a persistent focused empty state").
+- `openai-configuration-size` "(dev)" iteration (1 test): the remaining
+  boundary test; the credential file is not per environment, and the serving
+  modes' equivalence is slice 4's.
+- `session-instruction-voice-boundary` "dev audio boundary refuses ..." and
+  "dev disconnect and server shutdown abort held upstream work" (2 tests):
+  the remaining production-environment boundary tests of the same titles
+  without the mode prefix; serving-mode equivalence is slice 4's.
+- `one-shot-landing-capture-*` (4), `one-shot-landing-recovery-*` (3),
+  `story-branch-landing-*` (4) (11 files, 17 tests): relocated unchanged to
+  `boundary/`; the fixture-based specs set `test.use({ serverMode:
+  "boundary" })`, the others start `startBoundary`/`restartBoundary`
+  (`support/launchDashboard.ts`) or `mode: "boundary"` receivers, production
+  environment.
+- `proof-record*` (5), `chosen-port`, `compile-cache`, `run-processes`,
+  `production-publication-fixture`, `production-qualification` (10 files,
+  30 tests): relocated unchanged to `boundary/`; they start no dashboard
+  server.
+- `accepted-attempt-settlement`, `claude-prompt`, `done-question-rule`,
+  `execution-start-result`, `joined-sockets-replay`,
+  `kept-client-screen-replay`, `launch-attempt-*` (3),
+  `launch-observations`, `launch-record-session-rules`,
+  `launch-workspace`, `preparation-start-result`,
+  `session-alerts-unread-report`, `session-result-admission`,
+  `session-result-codex`, `session-unread-rule`,
+  `session-workspace-retirement-boundary`,
+  `session-workspace-retirement-startup`, `shared-request-owner`,
+  `start-store`, `story-review-diff`, `story-review-folders`,
+  `story-review-workspace` (24 files, 84 tests): relocated unchanged to
+  `boundary/`; those that start a server start the boundary server
+  (`session-alerts-unread-report` and `session-result-admission` in the
+  production environment, `shared-request-owner` in development).
 
 ## Learnings
+
+- Slice 2 found 14 more browserless files than the `page`-token inventory
+  (the token appeared only in comments or error strings):
+  `authenticated-avatar`, `authenticated-branch-read-boundary`,
+  `authenticated-read-boundary`, `-containment`, `-directed-wait`,
+  `-profile-addition`, `-refusal`, `-revision-check-failures`,
+  `-revision-reuse-history`, `-subprocess-lifecycle`,
+  `-transient-eligibility`, `done-question-rule`, `run-processes`,
+  `session-unread-rule`; all relocated. A code-level scan (comments and
+  string literals stripped) is the test for slice 3's `agent-launch-*`,
+  `agent-terminal-*` and `cursor-*` lists too, and it still needs a read of
+  each hit: `plan-execution-complete-detail` and
+  `openai-configuration-boundary` passed the scan but open a page.
+  `openai-configuration-boundary.spec.ts` keeps a dev/preview loop beside
+  its page test; slice 4 owns it.
+- The boundary server takes `--environment development|production`
+  (`startDashboardServer({ mode: "boundary", environment })`, production
+  when unset); a development-environment boundary server gets
+  `configureDevelopmentProjects` as a dev server does. Slice 3's
+  `cursorRunnerHosts.ts` dev-mode start maps the same way.
+- Slice 2's refactor pass named the dev server's environment at the boundary
+  `developmentBoundary` (`support/dashboardServer.ts`), put the environment
+  rules in `support/projectConfiguration.ts` (`projectEnvironmentOf`,
+  `projectConfigurationFile`), moved the mode-to-launch selection into
+  `support/serverAddress.ts` (`serverLaunch`), renamed
+  `support/launchPreview.ts` to `launchDashboard.ts`, and split
+  `authenticated-read-profile-addition-refusal.spec.ts` out of the
+  profile-addition spec (7 tests moved, none changed). A blanket
+  `./` to `../` comment rewrite breaks references between relocated
+  siblings; slice 3 runs a path-resolver scan after relocating.
 
 - Slice 1 measured the relocated `agent-completion-*` family at 97.8 s summed
   test time against the 116.6 s baseline (-16 %; wall 18 s against 24 s, the
@@ -310,3 +427,11 @@ proved now.
   nor anything under `src/` is touched by this story. Disposition: unrelated
   load-sensitive count in that check, reported for the retrospective; not a
   dashboard defect.
+- Full `npm test` on the slice 2 final state failed once in
+  `tests/native-setup.sh` (expected "npm source stalled: acquisition deadline
+  exceeded", got "acquisition deadline expired before launch") while the
+  machine's load average was 60–105 from other work; the check passed alone
+  5 s later at load 50, and nothing under `tests/`, `scripts/` or `src/` is
+  in this story's change. Same disposition as above: load-sensitive timing in
+  an unrelated check, reported for the retrospective. The secrecy check that
+  failed after slice 1 passed this time.

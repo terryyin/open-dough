@@ -20,7 +20,7 @@ import {
   oneShot,
   originState,
 } from "./support/oneShotLaunch.ts";
-import { requestFor, startPreview } from "./support/launchPreview.ts";
+import { requestFor, startPreview } from "./support/launchDashboard.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 
 for (const workflow of ["execution", "refinement"] as const) {
