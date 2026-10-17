@@ -230,12 +230,12 @@ on its suppliers. Start eligibility is derived from the recorded readiness
 assessment and the dependency facts, never stored: a story is eligible when its
 assessment is Ready and no dependency is unsatisfied, and otherwise it is
 blocked by the assessment, each unsatisfied dependency, or unreadable facts.
-The dashboard and the start command answer from this one derivation and name
-the same blockers. Becoming eligible grants no execution permission. The
-readiness basis covers each agreement's supplier, implementation, rationale,
-and condition, but not its state, resolution evidence, or decision, so editing
-an agreement reports "Changed since readiness review" while a supplier's
-resolution does not.
+The dashboard, `read-state`, and the start command answer from this one
+derivation and name the same blockers. Becoming eligible grants no execution
+permission. The readiness basis covers each agreement's supplier,
+implementation, rationale, and condition, but not its state, resolution
+evidence, or decision, so editing an agreement reports "Changed since readiness
+review" while a supplier's resolution does not.
 
 The supplying story's landing or wrap-up discovers current consumers and judges
 each condition against the completed, accepted outcome. It may reconcile bounded

@@ -140,9 +140,9 @@ and `git status --short -- src tests` is empty.
 
 | Promise | Owning slice and observable proof |
 | --- | --- |
-| A record assessed before agreement digests reads no "Changed since readiness review" when only a supplier's resolution or decision changed; a goal edit still reads changed (story key example 7) | 1: "a record reviewed over the dependency fence as written stays accurate" in `tests/support/story-dependencies.test.mjs` asserts `false` after `satisfied` and after `decision-needed`, and `true` after a goal-text edit; it fails with the reconstruction disabled. |
+| A record assessed before agreement digests reads no "Changed since readiness review" when only a supplier's resolution or decision changed; a goal edit still reads changed (story key example 7) | 1: "a record reviewed over the dependency fence as written stays accurate" in `tests/support/story-dependencies-review-and-eligibility.test.mjs` asserts `false` after `satisfied` and after `decision-needed`, and `true` after a goal-text edit; it fails with the reconstruction disabled. |
 | A story recorded Ready after its dependencies starts with `changedSinceReview: false` once they are satisfied, with no readiness write between (story key example 1) | 1: reordered "all dependencies must be satisfied before a ready story starts" in `workspace-publication-startup-dependencies-cases.mjs`. |
-| The installed CLI reports whether a story may start, naming the same blockers the dashboard and start command derive | 2: new cases in `tests/support/story-dependencies.test.mjs` through the real CLI: Ready behind `waiting` reads `blocked` with one dependency blocker naming the supplier; after `satisfied`, `eligible` with no blockers; `not-ready` reads an assessment blocker with its reasons; a malformed dependency fence reads a `dependencies` gap and exits 0; no story-state block reads a `preparation` gap. |
+| The installed CLI reports whether a story may start, naming the same blockers the dashboard and start command derive | 2: new cases in `tests/support/story-dependencies-review-and-eligibility.test.mjs` through the real CLI: Ready behind `waiting` reads `blocked` with one dependency blocker naming the supplier; after `satisfied`, `eligible` with no blockers; `not-ready` reads an assessment blocker with its reasons; a malformed dependency fence reads a `dependencies` gap and exits 0; no story-state block reads a `preparation` gap. |
 | "Ready for execution" names only start eligibility on a Backlog card; the detail and Start note name the recorded assessment with shared wording | 3: `publishedFactsAssertions.ts` asserts "Assessment: Ready" beside "Blocked by 1 dependency" and no "Ready for execution" in that detail; the noted-Start specs assert "Not assessed as ready" and the dialog's "This story is not assessed as ready."; no spec or document keeps the retired note. |
 
 ## Ordered slices
@@ -177,7 +177,7 @@ because of the new ordering, not the reconstruction.
 
 ### 2. `read-state` reports start eligibility
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new cases named under proof ownership in
 `tests/support/story-dependencies.test.mjs`, plus `node --test
 tests/support/story-state*.test.mjs tests/support/start-eligibility.test.mjs
@@ -196,6 +196,16 @@ eligibility paragraph in `src/skills/dough-product-backlog/SKILL.md` say
 `read-state` reports it and that it grants no permission;
 `docs/project-visibility-requirements.md` adds `read-state` beside the
 dashboard and the start command. Becoming eligible launches nothing.
+
+Accepted proof: "read-state reports start eligibility from the assessment and
+dependencies" and "a malformed dependency fence is reviewed as written and
+reads as a dependencies gap" (14 pass with the dependency CLI file), the
+consumer set above (38 pass), the payload update check, and lint. Every
+read-state JSON consumer reads named fields only. The refactor moved the
+review and eligibility tests, including slice 1's legacy case, into
+`tests/support/story-dependencies-review-and-eligibility.test.mjs`.
+`unavailableOnRefusal` in the story-state home mirrors `readFact` in
+`execution-source.mjs`; sharing it would cross subsystems and was left.
 
 ### 3. Assessment wording no longer says "Ready for execution"
 Type: Behavior
