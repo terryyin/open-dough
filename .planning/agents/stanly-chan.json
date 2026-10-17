@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-136#unify-and-streamline-dashboard-e2e",
-  "host": "claude",
-  "model": "fable"
-}
