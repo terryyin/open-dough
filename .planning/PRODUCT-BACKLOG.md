@@ -18,4 +18,5 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Compute story readiness from preparation and dependency facts](seeds/SEED-138-computed-execution-readiness.md#compute-execution-readiness) — SEED-138#compute-execution-readiness
 - [Restore GitHub Actions CI feedback to under three minutes](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes
