@@ -209,7 +209,7 @@ review and eligibility tests, including slice 1's legacy case, into
 
 ### 3. Assessment wording no longer says "Ready for execution"
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- story-readiness.spec.ts
 story-readiness-accessible.spec.ts story-readiness-gaps.spec.ts
 start-eligibility.spec.ts story-dependencies.spec.ts
@@ -237,6 +237,16 @@ refusal text are unchanged. `dashboard/AGENT-LAUNCH.md` and the
 `StartLaunch.tsx` and `launchWorkflow.ts` comments use the new wording; every spec listed under preparation observations asserts it
 (`storyReadinessAccessible.ts:151` asserts "Assessment: Ready" in the Taken
 detail).
+
+Accepted proof: typecheck, lint, and the empty retired-string grep. All 21
+listed specs passed: 35 tests in the first run at load 70–162, and the 14 that
+failed there on a rerun with `--workers 2 --timeout 150000` (16 pass, load
+47–104). None of the 14 failed on a changed assertion: 11 were timeouts, and
+three were unchanged steps that had not caught up under load (a dependency
+count, a Codex refusal, an enabled Start). Their traces were not inspected. `story-readiness.spec.ts` and
+`storyReadinessGaps.ts` also asserted the detail wording and now read
+"Assessment: Ready". The noted-Start spec asserts both dialog sentences
+literally instead of deriving them from the note.
 
 ## Current decisions
 

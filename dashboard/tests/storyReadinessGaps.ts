@@ -61,7 +61,7 @@ export async function expectChangedReviewAfterContentChange(
     blockedCard.getByText("Not ready", { exact: true }),
   ).toBeVisible();
   for (const [card, title, judgment] of [
-    [readyCard, plannedReady.title, "Ready for execution"],
+    [readyCard, plannedReady.title, "Assessment: Ready;"],
     [
       blockedCard,
       plannedBlocked.title,

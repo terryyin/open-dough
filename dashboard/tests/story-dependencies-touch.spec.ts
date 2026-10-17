@@ -31,7 +31,7 @@ test("touch inspection reads dependency, readiness and Start limitations without
   const execution = card.getByRole("button", { name: "Start execution" });
   await expect(execution).toBeDisabled();
   await expect(
-    card.getByText("Not marked Ready for execution", { exact: true }),
+    card.getByText("Not assessed as ready", { exact: true }),
   ).toBeVisible();
   await expect(card.locator(".dependency-start-reason")).toContainText(
     "2 blocking dependencies",

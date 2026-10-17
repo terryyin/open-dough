@@ -63,7 +63,7 @@ const test = base.extend<{ machine: string }>({
   },
 });
 
-const notReadyNote = "Not marked Ready for execution";
+const notReadyNote = "Not assessed as ready";
 
 test.describe("a card's sessions whatever Claude Code lists", () => {
   let stagesJourney: StoryStagesJourney;

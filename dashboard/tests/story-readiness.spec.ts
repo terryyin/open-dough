@@ -160,8 +160,8 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
       name: `Detail for ${plannedReady.title}`,
     });
     await expect(detail.getByText("Approach:")).toContainText("Slice planned");
-    await expect(detail.getByText("Assessment:")).toContainText(
-      "Ready for execution",
+    await expect(detail.getByText("Assessment:")).toHaveText(
+      "Assessment: Ready",
     );
     await expect(detail.locator(".card-identity")).toHaveText(
       plannedReady.identity,

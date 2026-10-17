@@ -20,7 +20,8 @@ export async function expectCanonicalFacts(queuedCard: Locator) {
   await expect(queuedCard.locator(".badge-ready")).toHaveCount(0);
   const detail = await inspectedDetail(queuedCard);
   await expect(detail.locator(".story-purpose")).toHaveText(purpose);
-  await expect(detail).toContainText("Assessment: Ready for execution");
+  await expect(detail).toContainText("Assessment: Ready");
+  await expect(detail).not.toContainText("Ready for execution");
   await expect(detail).toContainText("1 of 2 slices recorded complete");
   await expect(
     detail.getByRole("link", { name: /^Slice plan/ }),

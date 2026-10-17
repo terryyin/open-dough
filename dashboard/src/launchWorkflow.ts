@@ -66,7 +66,7 @@ export const launchWorkflows = {
     note: ({ preparation }) =>
       preparation?.status !== "loading" &&
       (preparation === undefined || !assessedReady(preparation))
-        ? "Not marked Ready for execution"
+        ? "Not assessed as ready"
         : undefined,
   },
   refinement: {

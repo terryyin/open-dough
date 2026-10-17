@@ -148,7 +148,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
     name: `Detail for ${plannedReady.title}`,
   });
   await expect(detail).toBeVisible();
-  await expect(detail.getByText("Ready for execution").first()).toBeVisible();
+  await expect(detail).toContainText("Assessment: Ready");
   await expect(detail).toContainText("Changed since readiness review");
   await expect(detail).toContainText("0 of 5 slices recorded complete");
   await expect(

@@ -2,7 +2,7 @@
 // the selected host to start a background session on this machine that runs the
 // workflow on the story, with an optional instruction of their own. Every word
 // comes from the workflow (`launchWorkflows`). A card the workflow notes
-// (execution: not marked Ready for execution; refinement: being prepared)
+// (execution: not assessed as ready; refinement: being prepared)
 // offers the same action, dashed and described by that note, which the card
 // shows in the action's tooltip on hover and keyboard focus, beside the
 // action when hover is unavailable, and in the dialog; the session is asked anyway,
