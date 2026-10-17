@@ -128,6 +128,12 @@ and updates the stored session id before instructing it.
 
 Working means active work. Typed native waits mean Needs input with a reason;
 a completed reply means Ready for review, including ordinary prose questions.
+An explicitly completed refinement whose recorded preparation workspace is
+confirmed missing instead reads Completed with attention when its report has a
+message, or Completed without one. Its card, sidebar, attention count and alerts
+share that reading even after Mark as read. Native Working still takes priority;
+unknown or existing workspace availability and other workflows retain their
+native reading. This completion describes the refinement session, not the story.
 Failure/interruption need attention. A blank has Awaiting first instruction.
 An unloaded Codex conversation with retained history remains resumable. Confirmed
 absence means Session unavailable; unreadable/unsupported data stays unknown.

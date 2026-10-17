@@ -14,6 +14,7 @@ import {
 } from "./sessionResult.ts";
 import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
+import { sessionDoneMeaning } from "./sessionShown.ts";
 import { closeShortcutLabel, usePanelCloseShortcut } from "./PanelControls.tsx";
 import {
   doneAnswers,
@@ -141,6 +142,7 @@ export function SessionResultPanel({
             Read-only final report. Reading it does not continue or mark the
             session done.
           </p>
+          <p>{sessionDoneMeaning}</p>
           <p>{workspaceLimitation(record)}</p>
           <p>
             Saved workspace <code>{recordedWorkspace(record)}</code>

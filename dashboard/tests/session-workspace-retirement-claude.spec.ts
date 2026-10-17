@@ -3,7 +3,16 @@ import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import {
+  cardAttentionOf,
+  cardSessions,
+  parts,
+  sessionStateOf,
+} from "./dashboardPage.ts";
+import {
+  expectSidebarSessionShown,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
 import {
   publishStoryStagesJourney,
   notRefinedStory,
@@ -31,16 +40,43 @@ test("retired Claude preparation opens retained report after refresh without wak
   dashboard,
 }) => {
   const { record, workspace } = await recorded(dashboard);
+  dashboard.claudeSessionBecomes(record.session.sessionId, "blocked");
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryStagesJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
   const entry = cardSessions(card(notRefinedStory));
+  await expect(sessionStateOf(entry)).toContainText("Completed with attention");
+  await expect(sessionStateOf(entry)).not.toContainText("Needs input");
+  await expect(entry).toContainText(
+    "Mark as done acknowledges this session; it does not complete the story.",
+  );
+  await expect(cardAttentionOf(card(notRefinedStory))).toHaveText(
+    "1 session needs attention",
+  );
+  await expect(card(notRefinedStory)).toContainText(
+    "Not marked Ready for execution",
+  );
+  const sidebar = sidebarParts(page);
+  await sidebar.button.click();
+  await expectSidebarSessionShown(
+    sidebar.entries,
+    "Completed with attention: Mark as done acknowledges this session; it does not complete the story.",
+    "ready",
+  );
+  await expect(sidebar.badge).toHaveAttribute(
+    "aria-label",
+    "1 session needs attention",
+  );
+  await sidebar.button.click();
   await expect(entry).toContainText("saved workspace is missing");
   await entry.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel).toContainText(
+    "Mark as done acknowledges this session; it does not complete the story.",
+  );
   await expect(panel).toContainText(workspace);
   expect(dashboard.claudeAttaches()).toEqual([]);
   expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
@@ -49,6 +85,15 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect
     .poll(() => stored(dashboard.home)[0]?.reportRead)
     .toBe(record.completion?.receipt);
+  await expect(sessionStateOf(entry)).toContainText("Completed with attention");
+  await expect(entry.locator(".session-unread-report")).toHaveCount(0);
+  await sidebar.button.click();
+  await expectSidebarSessionShown(
+    sidebar.entries,
+    "Completed with attention: Mark as done acknowledges this session; it does not complete the story.",
+    "ready",
+  );
+  await sidebar.button.click();
   await entry.getByRole("button", { name: "Read final report" }).click();
   await markDone(panel);
   await expect(panel).toHaveCount(0);
@@ -60,6 +105,14 @@ test("retired Claude preparation opens retained report after refresh without wak
     .recentlyDone.getByRole("article")
     .filter({ hasText: record.session.sessionId });
   await expect(recent).toContainText("Done");
+  await expect(card(notRefinedStory)).toBeVisible();
+  await expect(card(notRefinedStory)).toContainText(
+    "Not marked Ready for execution",
+  );
+  await expect(
+    card(notRefinedStory).getByRole("button", { name: "Start execution" }),
+  ).toBeEnabled();
+  await expect(cardSessions(card(notRefinedStory))).toHaveCount(0);
   await recent.getByRole("button", { name: "Read final report" }).click();
   await expect(panel.locator(".session-final-report")).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);

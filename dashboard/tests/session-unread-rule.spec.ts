@@ -6,7 +6,13 @@
 import { expect, test } from "./support/pageTest.ts";
 import { completionReport } from "./support/completionReport.ts";
 import type { LaunchWithState } from "../src/agentLaunch.ts";
-import { sessionShown, unreadReportSummary } from "../src/sessionShown.ts";
+import {
+  alertReading,
+  attentionCount,
+  sessionShown,
+  unfinishedIntention,
+  unreadReportSummary,
+} from "../src/sessionShown.ts";
 
 const report = () =>
   completionReport({ message: "Published. Reminder: check the migration." });
@@ -69,4 +75,73 @@ test("a reported session marked done has no unread report, whether or not it was
     expect(shown.unreadReport).toBeUndefined();
     expect(shown.label).toBe("Done");
   }
+});
+
+test("only explicitly completed refinements with missing preparation workspaces replace waiting", () => {
+  const completion = report();
+  const retired = {
+    request: {
+      source: "open-dough",
+      identity: "SEED-901#retired-refinement",
+      title: "Retired refinement",
+      workflow: "refinement",
+      host: "claude",
+    },
+    session: {
+      host: "claude",
+      sessionId: "refinement-session",
+      shortId: "refineme",
+      name: "refinement",
+    },
+    launchedAt: "2026-10-17T00:00:00Z",
+    preparation: {
+      identity: "SEED-901#retired-refinement",
+      workspace: "/retired",
+      branch: "claude/refine",
+      remote: "origin",
+      target: "main",
+    },
+    workspaceState: { kind: "missing" },
+    completion,
+    sessionState: {
+      kind: "available",
+      availability: "loaded",
+      activity: "waiting",
+    },
+  } satisfies LaunchWithState;
+  expect(sessionShown(retired)).toMatchObject({
+    label: "Completed with attention",
+    needsAttention: true,
+    tone: "ready",
+  });
+  expect(alertReading(retired)).toBe("Completed with attention");
+  expect(attentionCount([retired])).toBe(1);
+  expect(unfinishedIntention(retired)).toBeUndefined();
+  expect(
+    sessionShown({ ...retired, reportRead: completion.receipt }),
+  ).toMatchObject({ label: "Completed with attention", needsAttention: true });
+  expect(
+    sessionShown({ ...retired, completion: { ...completion, message: "" } }),
+  ).toMatchObject({ label: "Completed", needsAttention: false });
+
+  const ordinary: Parameters<typeof sessionShown>[0][] = [
+    { ...retired, completion: undefined },
+    { ...retired, completion: { ...completion, outcome: "unfinished" } },
+    { ...retired, preparation: undefined },
+    { ...retired, workspaceState: undefined },
+    { ...retired, workspaceState: { kind: "available" } },
+    { ...retired, workspaceState: { kind: "unknown" } },
+    { ...retired, request: { ...retired.request, workflow: "execution" } },
+  ];
+  for (const session of ordinary) {
+    expect(sessionShown(session).label).toBe("Needs input");
+    expect(unfinishedIntention(session)).toBe(
+      "This session is waiting for your input.",
+    );
+  }
+  const active = { ...retired, ...working };
+  expect(sessionShown(active).label).toBe("Working");
+  expect(unfinishedIntention(active)).toBe(
+    "This session is still working. Marking it done asks it to stop.",
+  );
 });

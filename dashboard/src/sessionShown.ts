@@ -8,7 +8,7 @@ import { completionLabel, reportUnread } from "./completionReport.ts";
 
 import type { LaunchWithState } from "./agentLaunch.ts";
 import { cursorHeldLabel } from "./cursorHeldLabel.ts";
-import { hostDescription } from "./hostDescription.ts";
+import { nativeSessionShown } from "./nativeSessionShown.ts";
 
 // What a session entry says of its session, and whether the developer is
 // needed there: the same semantic observation for every entry and card.
@@ -20,6 +20,8 @@ import { hostDescription } from "./hostDescription.ts";
 // Unreported Done retains native Working precedence. Availability and unknown
 // observations never infer activity. An unknown observation may carry its own
 // words, and those words are the reading.
+// A completed refinement with a confirmed missing preparation workspace uses
+// its completion label instead, even after Mark as read, unless still working.
 export type SessionShown = {
   readonly label: string;
   readonly note?: string;
@@ -29,7 +31,40 @@ export type SessionShown = {
 };
 
 type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
-  Partial<Pick<LaunchWithState, "session" | "completion" | "reportRead">>;
+  Partial<
+    Pick<
+      LaunchWithState,
+      | "session"
+      | "completion"
+      | "reportRead"
+      | "request"
+      | "preparation"
+      | "workspaceState"
+    >
+  >;
+
+export const sessionDoneMeaning =
+  "Mark as done acknowledges this session; it does not complete the story.";
+
+// A completed refinement can leave its native process waiting after retiring
+// its preparation workspace. Only these explicit facts establish completion;
+// actual working activity remains visible.
+function completedRetiredRefinement(session: ReadableSession): boolean {
+  return (
+    session.request?.workflow === "refinement" &&
+    session.preparation !== undefined &&
+    session.workspaceState?.kind === "missing" &&
+    session.completion?.outcome === "completed" &&
+    !(
+      session.sessionState.kind === "available" &&
+      session.sessionState.activity === "working"
+    ) &&
+    !(
+      session.sessionState.kind === "unknown" &&
+      session.sessionState.label === cursorHeldLabel.working
+    )
+  );
+}
 
 // Which of the reading's kinds a session is, for an entry that marks its
 // kind apart from the others: needing input, ready for review, failed or
@@ -38,21 +73,9 @@ type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
 export type SessionTone =
   "needs-input" | "ready" | "halted" | "working" | "done" | "unsettled";
 
-// The readings that need the developer, by the host's state: the words and
-// the kind each shows.
-const attentionReadings: ReadonlyMap<
-  string,
-  { readonly label: string; readonly tone: SessionTone }
-> = new Map([
-  ["waiting", { label: "Needs input", tone: "needs-input" }],
-  ["review", { label: "Ready for review", tone: "ready" }],
-  ["failed", { label: "Session failed", tone: "halted" }],
-  ["interrupted", { label: "Session stopped", tone: "halted" }],
-]);
-
 export function sessionShown(shown: ReadableSession): SessionShown {
   const { sessionState, doneAt, completion } = shown;
-  if (completion === undefined) return nativeShown(shown);
+  if (completion === undefined) return nativeSessionShown(shown);
   if (doneAt !== undefined) {
     return {
       label: "Done",
@@ -64,87 +87,24 @@ export function sessionShown(shown: ReadableSession): SessionShown {
         : {}),
     };
   }
-  if (!reportUnread(shown)) return nativeShown(shown);
-  return { ...nativeShown(shown), unreadReport: completionLabel(completion) };
-}
-
-// The session's own reading, as it is without any report.
-function nativeShown({
-  sessionState,
-  doneAt,
-  session,
-}: ReadableSession): SessionShown {
-  const markedDone = doneAt !== undefined;
-  switch (sessionState.kind) {
-    case "unknown": {
-      if (sessionState.label !== undefined) {
-        return {
-          label: sessionState.label,
-          needsAttention: false,
-          tone: "unsettled",
-        };
+  const reading: SessionShown = completedRetiredRefinement(shown)
+    ? {
+        label: completionLabel(completion),
+        note: sessionDoneMeaning,
+        needsAttention: completion.message !== "",
+        tone: completion.message === "" ? "done" : "ready",
       }
-      const wording =
-        session === undefined
-          ? undefined
-          : hostDescription(session.host).unknownObservation;
-      return {
-        label: wording?.label ?? "State unknown",
-        ...(wording === undefined ? {} : { note: wording.note }),
-        needsAttention: false,
-        tone: "unsettled",
-      };
-    }
-    case "unavailable":
-      return {
-        label: markedDone ? "Done" : "Session unavailable",
-        needsAttention: false,
-        tone: markedDone ? "done" : "unsettled",
-      };
-    case "available": {
-      const { activity, waitingFor, description } = sessionState;
-      if (activity === "working") {
-        return { label: "Working", needsAttention: false, tone: "working" };
-      }
-      if (markedDone) {
-        return { label: "Done", needsAttention: false, tone: "done" };
-      }
-      if (activity === "awaiting-instruction") {
-        return {
-          label: "Awaiting first instruction",
-          needsAttention: false,
-          tone: "unsettled",
-        };
-      }
-      const attention = attentionReadings.get(activity);
-      if (attention === undefined) {
-        return {
-          label:
-            description === undefined
-              ? "State unknown"
-              : "State not recognized",
-          ...(description === undefined ? {} : { note: description }),
-          needsAttention: false,
-          tone: "unsettled",
-        };
-      }
-      return {
-        label: attention.label,
-        ...(activity === "waiting" && waitingFor !== undefined
-          ? { note: waitingFor }
-          : {}),
-        needsAttention: true,
-        tone: attention.tone,
-      };
-    }
-  }
+    : nativeSessionShown(shown);
+  if (!reportUnread(shown)) return reading;
+  return { ...reading, unreadReport: completionLabel(completion) };
 }
 
 // What Mark as done says first about a session whose intended work is not
 // known to be complete, by the same reading and report its entry shows, or
 // nothing when it is complete: its latest report is `completed`, with or
 // without an attention message, and it reads neither working nor waiting for
-// input. Cursor's held-screen words for those two count as them. Otherwise
+// input, or its preparation workspace is confirmed missing and it is not
+// working. Cursor's held-screen words for those two count as them. Otherwise
 // one statement names the most pressing situation: still working, waiting for
 // input, reported unfinished, or not reported complete, with its reading.
 export function unfinishedIntention(
@@ -156,12 +116,13 @@ export function unfinishedIntention(
     sessionState.kind === "available" ? sessionState.activity : undefined;
   if (activity === "working" || held === cursorHeldLabel.working)
     return "This session is still working. Marking it done asks it to stop.";
+  if (completedRetiredRefinement(session)) return undefined;
   if (activity === "waiting" || held === cursorHeldLabel.waiting)
     return "This session is waiting for your input.";
   if (completion?.outcome === "unfinished")
     return "This session reported unfinished work.";
   if (completion?.outcome === "completed") return undefined;
-  return `This session has not reported its work complete. It reads ${nativeShown(session).label}.`;
+  return `This session has not reported its work complete. It reads ${nativeSessionShown(session).label}.`;
 }
 
 // The words an unread report shows by, wherever it shows or alerts.
