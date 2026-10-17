@@ -407,6 +407,19 @@ developer reads one strategy and sees the measured, mapped reduction.
   journey-writing rules from "A check's bound starts..." onward are the
   natural seam for a second guide beside `proof-record.md` and
   `native-host-fixtures.md`.
+- Correction between slices 6 and 7 (necessary defect fix, own commit):
+  `accessible-overview-touch` and `session-result-touch` failed in three
+  whole runs in a row at load 5–8 while passing alone. Causes from the kept
+  traces: the first scrolled the open-session reason into view after
+  `openUntilRead`, while five preparation reads were still growing the cards
+  above by 477 px (it now opens plainly and waits with `expectSettledPage`);
+  the second measured the report and placed its finger on the frame after a
+  viewport resize, before the page had rearranged the panel for the new
+  width (`sidePanelWidthPage.ts` `resizeUntilArranged` waits on the "Resize
+  panel" separator's presence for the new width; `agent-terminal-touch` now
+  uses it in place of its inline wait). No assertion weakened; no product
+  defect. The whole-suite runs after
+  slice 6 passed 1,524 of 1,526 with only these two failing.
 - Server modules are named by boundary, not by Vite plugin:
   `launchBoundary.ts`, `projectConfigurationBoundary.ts`,
   `openAIConfigurationBoundary.ts`, `terminalThemeBoundary.ts`,

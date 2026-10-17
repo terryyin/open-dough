@@ -18,6 +18,7 @@ import {
   reportGeometry,
 } from "./support/reportTouchPage.ts";
 import { tapWhereShown, pressWhereShown } from "./pageLayout.ts";
+import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryStagesJourney;
@@ -54,7 +55,7 @@ for (const height of [320, 240]) {
       await expect(panel.locator(".side-panel-names code")).toHaveText(
         sessionId,
       );
-      await page.setViewportSize({ width: 390, height });
+      await resizeUntilArranged(panel, { width: 390, height });
       const names = panel.locator(".side-panel-names");
       expect(
         await names
@@ -94,7 +95,7 @@ for (const height of [320, 240]) {
         { width: 844, height: 390 },
         { width: 390, height },
       ]) {
-        await page.setViewportSize(view);
+        await resizeUntilArranged(panel, view);
         await expect(question).toHaveCount(1);
         await expect(panel.getByRole("heading")).toHaveText(title);
         await expect(panel.locator(".side-panel-names code")).toHaveText(

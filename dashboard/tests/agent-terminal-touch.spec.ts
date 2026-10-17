@@ -10,6 +10,7 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
+import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 import { launchTouchViewports } from "./touchLaunchPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 import {
@@ -188,10 +189,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
 
       await test.step("landscape and portrait keep the same attachment and support more input", async () => {
         for (const view of [landscape, portrait]) {
-          await page.setViewportSize(view);
-          const resize = panel.getByRole("separator", { name: "Resize panel" });
-          if (view.width > 800) await expect(resize).toBeVisible();
-          else await expect(resize).toHaveCount(0);
+          await resizeUntilArranged(panel, view);
           await expectFittedInput(panel, sizes);
           await focusByTouch(panel);
           await page.keyboard.type(`follow up ${view.width}`);
