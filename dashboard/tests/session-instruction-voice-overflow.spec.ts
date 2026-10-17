@@ -1,4 +1,5 @@
 import { test, expect } from "./support/voiceTest.ts";
+import { voiceBrowserOptions } from "./support/voiceRecovery.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -11,16 +12,7 @@ import {
   recordClip,
   saveVoiceKey,
 } from "./support/voicePage.ts";
-test.use({
-  projectFolders: ["open-dough"],
-  permissions: ["microphone"],
-  launchOptions: {
-    args: [
-      "--use-fake-device-for-media-stream",
-      "--use-fake-ui-for-media-stream",
-    ],
-  },
-});
+test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });

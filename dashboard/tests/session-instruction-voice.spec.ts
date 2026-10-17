@@ -1,6 +1,7 @@
 import { readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/voiceTest.ts";
+import { voiceBrowserOptions } from "./support/voiceRecovery.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -20,16 +21,7 @@ import {
 } from "./support/voicePage.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
 import { back } from "./support/systemSettingsPage.ts";
-test.use({
-  projectFolders: ["open-dough"],
-  permissions: ["microphone"],
-  launchOptions: {
-    args: [
-      "--use-fake-device-for-media-stream",
-      "--use-fake-ui-for-media-stream",
-    ],
-  },
-});
+test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });

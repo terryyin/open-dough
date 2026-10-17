@@ -4,7 +4,7 @@
 // refined), then either an execution start that takes Story A, or the
 // story-stages journey below. The browser journey serves the origin's exact Git
 // bytes at each revision; nothing here writes display state. The launch
-// journey is read-only once published, so ../dashboardTest.ts publishes it
+// journey is read-only once published, so ./support/pageTest.ts publishes it
 // once per worker as the `launchJourney` fixture.
 
 import {

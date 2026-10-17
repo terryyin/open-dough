@@ -402,7 +402,7 @@ at four workers (load 3–7, wall 957 s, summed 3,433 s) passed 1,520 of 1,520
 
 ### 9. Strategy published with measured result and proof map
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/README.md` states the two tiers, placement rules,
 synchronization rule, and how to add a test to each; a local full run at 8
 workers finishes ≤ 380 s with every selected test passing; the hosted run of
@@ -413,7 +413,103 @@ the proof map below lists every removed or relocated case.
 Behavior: pre: baseline recorded → trigger: campaign complete → result: a
 developer reads one strategy and sees the measured, mapped reduction.
 
+Measured (2026-10-18, slice 9 state: c889e3e3 plus this slice's fixture
+move, before its refactor pass; working data under the execution's
+temporary directory, `slice9/`):
+
+- *Strategy.* `dashboard/tests/README.md` (249 lines) is the strategy and
+  index: the two tiers, where a check goes, synchronization, what is real
+  and what is replaced, adding a test to each tier, running, measuring, no
+  process outlives its run; the journey-writing rules from "A check's bound
+  starts after the answer it depends on" onward moved whole to
+  `dashboard/tests/writing-journeys.md` (120 lines), linked beside
+  `proof-record.md` and `native-host-fixtures.md`.
+- *Local whole run at the default 8 workers* (`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`
+  set, no `--workers`, no `--reporter`; record `slice9/local8.json`): 633 s
+  wall, 1,520 selected and all passed (801 browser-tier in 323 spec files,
+  719 boundary in 181), 4,251 s summed `durationMs` (browser 3,270 s,
+  boundary 981 s), median 1.75 s, load average 3.8 before and 10.7 after
+  (the run itself), the process sweep empty afterwards. Baseline at
+  88f6d3f8: 759 s wall, 1,631 selected, 5,165 s summed, median 1.7 s, load
+  3.5 at start. Wall −17 %, summed −18 %, selections −7 %. Target ≤ 380 s:
+  **not met** (633 s, 1.67 times the target); non-test time in the run is
+  633 − 4,251 / 8 ≈ 100 s (one build, worker starts and fixtures, gaps), so
+  even with none of it the run would take about 530 s.
+- *Hosted at twelve shards* (report artifacts; step "Run the dashboard
+  browser suite"; per-test seconds tiered by today's file placement):
+  baseline run 38838738715 (main, 2026-10-16): step sum 2,474 s, longest
+  step 240 s, per-test 8,171 s (6,138 journey / 1,811 boundary / 222 in
+  files since merged), floor at four workers 2,043 s, 19 extra workers;
+  run 39065583578 of c889e3e3: step sum 2,519 s, longest 284 s, per-test
+  8,178 s (6,576 / 1,602), floor 2,045 s, 67 extra workers; the fastest
+  branch run, 1aec32a1 (39062018327): 2,206 s, per-test 7,158 s (5,747 /
+  1,411), floor 1,790 s; same-day main without story code (e535dc46):
+  2,645 s, per-test 8,716 s. Target ≤ 1,244 s: **not met**; the published
+  revision's step sum is 102 % of the baseline's, run-to-run runner speed
+  moves the sum by ±10 %, and the floor of the retained work (per-test
+  seconds over four workers, zero non-test time) is 1,790–2,045 s, itself
+  above the target. The boundary tier's per-test seconds fell 12 %
+  (1,811 → 1,602 s); the journey tier's rose 7 % on a slower runner.
+- *Browser-tier selections:* 801 < 900: **met**.
+- *Counts* (hosted baseline inventory against the local record): before
+  506 files / 1,631 tests, by today's placement 319 files / 786 tests in
+  the browser tier and 179 / 834 in the boundary tier (the seed's
+  page-token inventory had counted 158 / 676 browserless) with 8 files / 11
+  tests since merged; after 504 spec files / 1,520 tests, 323 / 801 and
+  181 / 719. Fewer by cause: 125 serving-mode iterations, 4 presentation
+  cases, 11 tests of 8 merged files, 2 page tests moved to files of their
+  own, 28 location-only (tests the record locates in the Codex case modules
+  or the profile-addition refusal split); more: those 28, 5 `serving-modes`,
+  2 `boundary-server`, 1 `run-processes`, 14 in the three production files,
+  7 merged tests in their siblings' files, the 2 moved page tests
+  (1,631 − 170 + 59 = 1,520). Every file gone, relocated or with fewer
+  selections is named in the proof map (checked by basename against the
+  map's text).
+- *Worker restarts* (hosted lead from the measurement analysis): Playwright
+  groups tests by a worker hash over every worker-scoped fixture in a file's
+  pool, so the worker-scoped `launchJourney` declared only in
+  `dashboardTest.ts` split the specs into two worker populations and
+  restarted the four workers at every switch (48 of the 68 extra workers at
+  1aec32a1); it is now declared in `support/pageTest.ts`, the base every
+  spec shares, and the six voice files share one `launchOptions` object;
+  a local seven-file experiment started 8 workers instead of 13. The two
+  launch journeys that take 13–15 s hosted against 5 s on main run at 5 s
+  locally on both branch and main with unchanged imports; left as a lead
+  for the CI story.
+
+- *Final state, local whole run at the default 8 workers* (after the
+  fixture move and this slice's refactor pass; record `final9/full8.json`):
+  600 s wall, 1,520 selected and all passed (801 browser-tier, 719
+  boundary), 4,245 s summed `durationMs` (browser 3,289 s, boundary 956 s),
+  load average 2.3 before and 15.1 after, the process sweep empty. Against
+  the baseline's 759 s wall and 5,165 s summed: wall −21 %, summed −18 %.
+
+Accepted (2026-10-18): the strategy, the proof map and the measurement are
+delivered as this slice promised; the browser-tier count target is met; the
+two time targets are not, and no remaining slice can meet them without
+deleting coverage or adding workers, both rejected by the story. See
+"Decision for Terry" under Current decisions.
+
 ## Current decisions
+
+- **Decision for Terry (time targets).** The story's ≤ 380 s local and
+  ≤ 1,244 s hosted targets were set as half the baseline on the premise
+  that Vite boot and repeated setup dominated; slice 1 measured Vite boot as
+  a small share, and the hosted analysis puts the floor of the retained
+  work (per-test seconds over four runner workers, zero overhead) at
+  1,790–2,045 s hosted and about 530 s local at eight workers. The campaign
+  delivered 1,520 tests from 1,631, a local run 17 % shorter in wall time
+  and 18 % in summed test time on a comparable load, a boundary tier 12 %
+  cheaper per test hosted, no leaked processes, and one published strategy.
+  Recommended: accept the measured reduction as this story's result, record
+  the two numbers as unmet with the floor that explains them, and let the
+  next story (SEED-136#restore-ci-under-three-minutes) own hosted verdict
+  time, where shard layout, per-shard build and the worker-restart fix
+  (its hosted effect shows on the next published run) act on the actual
+  cost. Alternative: keep the numbers as the goal and queue a story that
+  attacks per-test work itself (shared fixtures across files, cheaper
+  synthetic hosts and git starts), which this story's constraints did not
+  allow.
 
 - Playwright is the runner for both tiers; boundary specs live in
   `dashboard/tests/boundary/` and keep the `.spec.ts` suffix so discovery and
@@ -646,6 +742,19 @@ proved now.
   boundary server the launch boundary's own guard (`server/localOrigin.ts`)
   answers, so the test now also asserts that JSON `error`, as the other
   refusals do.
+- `authenticated-read-profile-addition.spec.ts` (10 tests): its seven
+  refusal tests are `boundary/authenticated-read-profile-addition-refusal.spec.ts`
+  (slice 2's refactor pass), the other three stay in
+  `boundary/authenticated-read-profile-addition.spec.ts`; titles and
+  assertions unchanged.
+- `agent-launch-codex-model.spec.ts` (13 tests) and
+  `agent-launch-codex-model-boundary.spec.ts` (16): unchanged in count. Ten
+  and eleven of their tests are declared by the shared case modules
+  `codexModelCatalogCases.ts`, `codexEffortDialogCases.ts`,
+  `codexEffortWorkspaceCases.ts` and `boundary/codexEffortBoundaryCases.ts`
+  (from before this story), which a proof record locates by the declaring
+  module while a hosted report locates by the spec file; every one of the
+  29 titles is in the final record.
 
 - `dashboard/tests/serving-modes.spec.ts` (5 tests, added): the suite's one
   proof that the dev server and the built preview mount the same local
@@ -674,7 +783,10 @@ proved now.
   provider" "(dev)" and "(preview)" (2 tests): one test of that title in
   `boundary/openai-configuration-boundary.spec.ts` against the boundary
   server (`systemSettingsMachine().start("boundary")`), assertions
-  unchanged; the page test stays in the journey file.
+  unchanged; the page test "malformed and unreadable saved credentials
+  report configuration problems ..." is
+  `system-settings-openai-unusable-credential.spec.ts` (renamed in slice 8,
+  on the fixture's preview).
 - `project-configuration.spec.ts` "(dev)" iterations of "saved projects
   retain order and default selection across restart", "an existing empty
   list stays empty" and "a malformed saved file is explained and left
@@ -797,7 +909,8 @@ proved now.
   files of the 41, and `claudeVerification.ts`'s `useUncertainLaunch` for
   `agent-launch-claude-verification.spec.ts` and
   `agent-launch-claude-own-record-verification.spec.ts`): replaced by the
-  worker-scoped `launchJourney` fixture of `dashboardTest.ts`; titles and
+  worker-scoped `launchJourney` fixture of `dashboardTest.ts`, declared in
+  `support/pageTest.ts` since slice 9 (one worker population); titles and
   assertions unchanged.
 
 - `dashboard-header.spec.ts` "banner is one row at 1440 CSS pixels, ending
@@ -866,6 +979,68 @@ proved now.
   development starts in; production seeds four projects).
 
 ## Learnings
+
+- Worker restarts (slice 9, lead from the hosted analysis): Playwright 1.63
+  groups tests into workers by `_workerHash = <project>-<pool digest>-<repeat>`,
+  and `FixturePool.digest` is the sha1 of the registration ids of every
+  worker-scoped fixture in the file's pool (`node_modules/playwright/lib/common/index.js`,
+  `validate()`), whether or not a test uses it; a registration id is one per
+  fixture name, parent registration and value object. The dispatcher hands
+  a job only to a worker of the same hash and otherwise stops a worker and
+  starts a fresh one. Slice 7 declared the worker-scoped `launchJourney` in
+  `dashboardTest.ts` while every spec's common base is `support/pageTest.ts`,
+  so specs on the base alone and specs on `dashboardTest.ts` were two
+  populations: in every hosted shard the four workers were restarted at the
+  switch (48 of the 68 extra workers at 1aec32a1, 67 at c889e3e3, 19–21
+  before slice 7 and on main). The other population is the six
+  `session-instruction-voice*` files: `test.use({ launchOptions })` is a
+  worker-scoped option and three of them held their own literal object, so
+  four populations of one or two files each restarted a worker per test
+  (19 extra workers on main too). Fix: the fixture is declared in
+  `pageTest.ts` (every pool has it; only a worker whose test takes it
+  publishes the origin) and the six voice files take the one
+  `voiceBrowserOptions` object. Local experiment, seven files / 20 tests at
+  four workers with a scratch reporter printing `result.workerIndex`: 13
+  workers started before, 8 after (the four slots plus the one voice
+  population). Ending the voice population would mean the fake-media launch
+  arguments in the project's `launchOptions` for every browser, a change to
+  every journey's Chromium left for a decision. The hosted effect of the fix
+  shows at the next published run (the run of c889e3e3 predates it).
+- The two specs that took 13–15 s per test hosted against 5 s on main
+  (`agent-launch-publication-receipt-failure`, `agent-launch-preparation-phases`)
+  are not slower locally: at `--workers 1` on a quiet machine (load 2–3)
+  the branch state took 4.9 / 4.8 / 5.8 / 5.3 s and a scratch worktree of
+  `origin/main` (0cfd8281) 4.9 / 4.2 / 5.8 / 5.3 s, records `slice9/slowpair-*.json`.
+  Hosted they are 12–15 s on every branch run since cfc8af7f (slices 1–6),
+  5 s on the baseline and already 6–10 s on the no-story main run
+  (e535dc46), so main itself moves them; no file on their import path
+  changed on the branch except the shared server launcher and the run's
+  identity. A hosted-only cause, for the CI story's investigation with a
+  targeted trace (`--trace on` on one shard), not a defect of the specs.
+- Measuring: the proof record locates a test by the file that declares it,
+  so the 21 tests the Codex case modules declare count under
+  `codexModelCatalogCases.ts`, `codexEffortDialogCases.ts`,
+  `codexEffortWorkspaceCases.ts` and `boundary/codexEffortBoundaryCases.ts`,
+  while a hosted HTML report counts them under the spec file; an inventory
+  comparison across the two sources must match by title, not by file.
+  Attempt `durationMs` excludes hooks and worker fixtures: the 8-worker run's
+  wall (633 s) exceeds its summed time over eight workers (531 s) by about
+  100 s of build, worker starts, fixture publication and gaps.
+- Hosted step sums at twelve shards are a poor yardstick for this story's
+  change: the same main code ran 2,375–2,645 s on one day, the branch's runs
+  2,206–2,659 s, and the published revision's 2,519 s is 102 % of the
+  baseline's 2,474 s while its per-test boundary seconds fell 12 % and its
+  journey seconds rose 7 % on a slower runner. The floor of the retained
+  work (per-test seconds over four workers) is 1,790–2,045 s against the
+  ≤ 1,244 s target, and the local run's floor (4,251 s over eight workers,
+  531 s) against ≤ 380 s: both targets would need less retained work, not
+  less overhead; the decision on the numbers is Terry's.
+- The README split: `dashboard/tests/README.md` is 249 lines (strategy and
+  index) and `dashboard/tests/writing-journeys.md` 120 (the journey-writing
+  rules, moved whole with headings added: bound after the answer, time
+  stepped not waited out, commands, servers and shared preconditions, what
+  the fake GitHub answers by itself). The "what `boundary/` holds"
+  enumeration became a description (every spec that opens no page).
 
 - Hosted measurement (analysis of the Playwright report artifacts of the
   baseline run 38838738715, a same-day main run e535dc46 with no story code,
