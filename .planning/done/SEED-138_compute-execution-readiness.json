@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-138#compute-execution-readiness",
+  "title": "Compute story readiness from preparation and dependency facts",
+  "completedAt": "2026-10-17T13:02:28.320Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "claude",
+  "model": "opus"
+}

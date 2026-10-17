@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Unify and streamline the dashboard E2E test strategy](seeds/SEED-136-dashboard-test-efficiency.md#unify-and-streamline-dashboard-e2e) — SEED-136#unify-and-streamline-dashboard-e2e ([plan](slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md))
-- [Compute story readiness from preparation and dependency facts](seeds/SEED-138-computed-execution-readiness.md#compute-execution-readiness) — SEED-138#compute-execution-readiness ([plan](slice-plans/311-compute-execution-readiness/PLAN.md))
 
 ## Backlog list
 

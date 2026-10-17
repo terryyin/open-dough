@@ -6,11 +6,12 @@
 ## Source and provenance
 
 Bounded retrospective correction of the completed execution of
-[SEED-138#compute-execution-readiness](../../seeds/SEED-138-computed-execution-readiness.md#compute-execution-readiness),
-planned in [plan 311](../311-compute-execution-readiness/PLAN.md) (four slices
+[SEED-138#compute-execution-readiness](https://github.com/terryyin/open-dough/blob/d874104edfad1fb198f05d003d7ef0b0586c6554/.planning/seeds/SEED-138-computed-execution-readiness.md#compute-execution-readiness),
+planned in [plan 311](https://github.com/terryyin/open-dough/blob/d874104edfad1fb198f05d003d7ef0b0586c6554/.planning/slice-plans/311-compute-execution-readiness/PLAN.md) (four slices
 done). Reviewed commits `7aafbcb1`, `ca9ad3b6`, `2f13a3e0`, `2f56bd2a`
 (`13b57efb..2f56bd2a`). The findings below were verified against that
-revision; the historical story and plan 311 stay unchanged.
+revision. The story and plan 311 were retired at wrap-up; recover them
+from before-cleanup commit `d874104e`.
 
 ## Current findings
 
