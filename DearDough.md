@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 307. Removed numbers are never reused.
+- Highest allocated local number: 309. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -412,3 +412,27 @@ Each was caught before a push, at no paid cost. Each still needed an in-executio
   - Evidence: `f0f40bb0:.planning/slice-plans/309-donut-coalesced-ci-adoption/PLAN.md` slice 2 text ("second isolated Donut worktree", "invoke `complete-revision` for B") against its Current decisions for slice 2.
   - Observed effect: three mid-execution adaptations, recorded in that plan. None changed the story's promises.
   - Inference: qualified. Planning for live probes would gain from checking each mechanical step's premise with one local observation, the way the plan already did for provider behavior.
+
+## DD-308 — Slice acceptance follows a plan that narrows a story key example
+The plan's design said a record assessed before the change "whose dependency state changed since review keeps `true`", while the story's key example 7 says only a supplier's resolution leaves no "Changed since readiness review". The slice was implemented, tested and accepted against the plan's sentence; the retrospective's outcome review found the contradiction. The same execution closed gap G1 as "no user cost" by citing a plan decision, although the story's "shared wording" clause covers it.
+### Occurrences
+- Execution: `SEED-138#compute-execution-readiness` / plan 311, first related commit `7aafbcb14dbc82d7bf88fd68570aff381c556dd2`
+  - Timestamp: unknown (2026-10-17 JST, slice 3 acceptance before `2f13a3e0`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.63
+  - Evidence: `2f56bd2a:.planning/slice-plans/311-compute-execution-readiness/PLAN.md` Design "Readiness basis" bullet and slice 3 proof ("`true` once its dependency state changes"); the seed's key example 7; test "a record reviewed over the dependency fence as written stays accurate" in `tests/support/story-dependencies.test.mjs`; story obligation G1.
+  - Observed effect: a correction story and plan for legacy records and assessment wording after all four slices were delivered.
+  - Inference: qualified. Acceptance compared the return to the plan's proof; rereading each key example the slice owns against the accepted behavior would have caught it before delivery. One execution.
+
+## DD-309 — The per-slice formatter rewrites the whole repository
+Slice delivery asks for the project's selective formatting command; this project's `npm run format` (`scripts/lint.mjs --fix`) lists every tracked and untracked file and runs ESLint, Prettier and shell formatting over all of them, so a docs-only slice pays the full cost.
+### Occurrences
+- Execution: `SEED-138#compute-execution-readiness` / plan 311, first related commit `7aafbcb14dbc82d7bf88fd68570aff381c556dd2`
+  - Timestamp: unknown (2026-10-17 JST, each of the four slice deliveries)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.63
+  - Evidence: `scripts/lint.mjs` file listing (`git ls-files --cached --others --exclude-standard` unless `--staged`); coordinator format runs exceeded 300 s (slices 1 and 3) and 600 s (slice 4, five Markdown files) at load averages near 100 to 120.
+  - Observed effect: roughly 5 to 10 minutes of formatter time per slice, four times, with the coordinator idle.
+  - Inference: qualified. Machine load inflated the cost; a changed-files mode, like the hook's `--staged` check, would bound it. Unloaded duration not measured.

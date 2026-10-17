@@ -190,6 +190,33 @@ the consumer's eligibility consistently across display and startup, while
 genuine preparation concerns and unresolved conditions remain visible and
 enforceable.
 
+<a id="correct-start-eligibility-gaps"></a>
+
+### Correct start-eligibility gaps found in review
+
+**Identity:** SEED-138#correct-start-eligibility-gaps
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/312-correct-start-eligibility-gaps/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ea6f985ace190b2f0f05a7cb4a6d75c5913d869e41a221babc567f358783f6be","plan":"8606c3ef4fd6480999528bb1a239193324c7069c0400a8a6bc577f57455cba6d"}}
+```
+
+**Goal:** Developers and agents asking "can this story start?" get the answer
+[the selected story](#compute-execution-readiness) promised, without the gaps
+its execution review found: a record assessed before that story keeps an
+accurate review indication when only a supplier's resolution changed, the
+installed CLI reports start eligibility from the shared derivation, and for
+Backlog work "Ready for execution" names only start eligibility, so the card,
+the story detail, and the Start note never disagree.
+
+**Scope:** a compatible readiness comparison for records assessed before
+agreement digests; start eligibility in `read-state` output and its usage
+documentation; assessment-level dashboard wording that no longer says "Ready
+for execution"; the startup proof that records readiness before its
+dependencies. Findings, preserved decisions, proof, and slices live in the
+[correction plan](../slice-plans/312-correct-start-eligibility-gaps/PLAN.md).
+Excluded: one-shot and admission start gates, the duplicate dependency fence
+scanner, and the Taken card's green badge, which still shows the recorded
+assessment.
+
 ## Breadcrumbs
 
 - Terry's analysis request and instruction to queue this story first, 2026-10-17.

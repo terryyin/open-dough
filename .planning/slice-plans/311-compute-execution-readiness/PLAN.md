@@ -262,6 +262,19 @@ Accepted proof: `npm run lint` green; the guidance tests under
 (81 pass; none asserts a changed phrase); `git diff --stat` touched only
 `src/skills` and `docs`. Behavior review walks are under Learnings.
 
+## Execution complete
+
+Product advice:
+- Queue the review correction
+  [SEED-138#correct-start-eligibility-gaps](../../seeds/SEED-138-computed-execution-readiness.md#correct-start-eligibility-gaps)
+  ([plan 312](../312-correct-start-eligibility-gaps/PLAN.md)) first: it
+  completes this story's key example 7 for records assessed before this
+  change, exposes start eligibility through `read-state`, and stops "Ready for
+  execution" naming the recorded assessment anywhere on a Backlog card.
+- Developer decision: Taken cards still show the green "Ready for execution"
+  badge for the recorded assessment (kept deliberately by this plan); decide
+  whether it should change wording too.
+
 ## Story obligations
 
 ### G1. Detail assessment summary keeps "Ready for execution" while the card shows blocked
