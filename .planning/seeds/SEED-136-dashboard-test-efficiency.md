@@ -164,8 +164,9 @@ above. The chosen direction is the two tiers plus consolidation.
   kills its worker, and the watcher's detached Cursor runner idles under a
   deleted temp HOME for hours (five such orphans and sixteen idle runners
   were found on 2026-10-17). Trigger: the run ends. Result: the run's own
-  teardown has ended it; a check over the run's temp root finds no process;
-  the same holds for a page or boundary journey killed mid-test.
+  teardown has ended it and failed the run naming it; a check for processes
+  carrying the run's identity finds none; the same holds for a page or
+  boundary journey killed mid-test.
 - *Measured result.* Pre: the baseline above. Trigger: the campaign ends.
   Result: a hosted run at twelve shards and a local run at the same worker
   count meet the target; the proof map lists every removed or relocated case
@@ -202,6 +203,83 @@ weaker assertions, extra retries, or increased parallelism.
 **Safe stopping point:** A smaller, faster, consistently authored dashboard
 suite delivers value even before CI orchestration changes; each relocated or
 consolidated family leaves the suite green and the proof map current.
+
+<a id="dashboard-test-bounds-and-placement"></a>
+
+### Bound each dashboard test after its event and place page-less specs at the boundary
+
+**Identity:** SEED-136#dashboard-test-bounds-and-placement
+
+**Beneficiary:** Developers running the dashboard suite on a loaded machine
+or in CI, who need a failure to mean a defect.
+
+**Goal:** A bounded correction from the execution retrospective of
+SEED-136#unify-and-streamline-dashboard-e2e ([plan 310](../slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md),
+commits 789b7ca9..0bee7fd8): no dashboard test's bound precedes the event it
+depends on, and every spec that opens no page lives in
+`dashboard/tests/boundary/`, as [dashboard/tests/README.md](../../dashboard/tests/README.md)
+"Two tiers" and "Synchronization" state. The findings are older weaknesses
+the campaign's measurements surfaced plus one residue of the campaign. No
+feature promise: every assertion, title and test count stays. Plan:
+[311](../slice-plans/311-dashboard-test-bounds-and-placement/PLAN.md).
+
+**Scope:**
+
+Required:
+
+- `boundary/project-add-boundary.spec.ts` "Add validation ends gh on deadline
+  and leaves the saved list untouched": the spawned `gh` is observed before
+  the product's deadline can expire; the polls stay event-driven; no sleep.
+- `agent-launch-preparation-codex-retry.spec.ts`,
+  `boundary/agent-launch-preparation-resume.spec.ts` and
+  `boundary/agent-launch-start-resume.spec.ts` declare the bound their real
+  git starts need, as [writing-journeys.md](../../dashboard/tests/writing-journeys.md)
+  "Commands, servers and shared preconditions" prescribes for a test that
+  builds its fixture; the guide states that rule for any test whose own work
+  approaches the default bound.
+- `serving-modes.spec.ts` and `production-watcher-refusals.spec.ts` move to
+  `boundary/`, with their imports, the comments that cite them and the
+  README's references updated; the README names
+  `boundary/serving-modes.spec.ts` as the one boundary spec that starts the
+  Vite servers on the run's build.
+
+Preserved: every assertion and title; `retries: 0`; worker and shard counts;
+the run's no-leaked-process sweep.
+
+Excluded: `prebuilt: builtDashboardDir` consolidation and build placement
+(SEED-136#restore-ci-under-three-minutes); the tablet iterations of
+`launchTouchViewports`; file-size splits of the production files;
+`longest-first`.
+
+**Key examples:**
+
+- *Deadline observed in order.* Pre: the deadline case starts its server
+  with a 500 ms read deadline and then polls for the fake `gh`'s pid; under
+  load the server answers 503 before `gh` is spawned, and the poll fails at
+  its 5 s bound (plan 310: passes one run in two alone at load 28). Trigger:
+  the correction. Result: the spawn is observed first, then the 503, then
+  `gh`'s SIGTERM; the file passes three runs in a row with one burner per
+  core.
+- *Bound declared for real work.* Pre: the codex-retry journey's ten tests
+  take up to 9.4 s each on a quiet machine, and the two start-resume tests
+  17–24 s alone at load 40–57, all inside Playwright's default 30 s with no
+  declared bound. Trigger: the correction. Result: each file declares the
+  bound its work needs; a scratch regression still fails the test for its
+  own reason, not a timeout.
+- *Placement.* Pre: two specs that open no page sit in the journey
+  directory, one of them cited at that path by the README. Trigger: the
+  move. Result: a code-level scan of the top-level specs (comments and
+  strings stripped) finds none without a page; discovery and sharding
+  select both files once.
+
+**Evaluation:** `bash scripts/dashboard-repeat.sh 3 --load` over the four
+changed files exits 0; `npm test -- tests/support/dashboard-test-files.test.mjs`
+is green; the scan finds nothing; a scratch regression per changed test
+fails for the right reason; a whole run at four workers is green with
+nothing of the run surviving.
+
+**Safe stopping point:** Each slice leaves the suite green; the bounds alone
+remove the load-sensitive failures if the move is deferred.
 
 <a id="restore-ci-under-three-minutes"></a>
 

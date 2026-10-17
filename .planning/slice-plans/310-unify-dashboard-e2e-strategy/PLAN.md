@@ -253,8 +253,10 @@ and fake-host clients idle on for hours → trigger: a run-scoped temp root and
 the run's own teardown sweep → result: nothing the run started survives the
 run; the machine is as it was.
 
-Design: the configuration gives every worker a `TMPDIR` under the run's own
-directory (beside the run stamp), so every temp HOME and machine lives under
+Design (as planned; the delivered mechanism is the run identity below, not
+a temp root, because unix socket paths under the test HOMEs sit near the
+platform's length limit): the configuration gives every worker a `TMPDIR`
+under the run's own directory, so every temp HOME and machine lives under
 one root the run owns; `globalSetup`'s returned teardown ends every process
 whose command line or working directory is under that root (SIGTERM, then
 SIGKILL after a bound), then removes it. Fixtures that know a detached
@@ -302,8 +304,9 @@ shared watcher with delta assertions → result: the same exclusions, updates,
 failures and recovery are proved on one build chain.
 
 Accepted proof (2026-10-18, at the slice 6 commit): the eight production
-files became five; `production-watcher.spec.ts` (5 serial tests, lifecycle and
-Cursor runner), `production-watcher-updates.spec.ts` (4: updates, exclusions,
+files became five; `production-watcher.spec.ts` (6 serial tests after the refactor pass split
+"an occupied production port is refused rather than moved" out, lifecycle
+and Cursor runner), `production-watcher-updates.spec.ts` (4: updates, exclusions,
 qualification recovery, SIGTERM in a build) and
 `production-watcher-failures.spec.ts` (5) each start one fixture and one
 watcher in `beforeAll`, await the first activation there, step the watcher
@@ -385,7 +388,9 @@ runs one journey per CSS branch of `banner.css` (one row above 800 px at
 1280, two rows at 700, wrapped choices with the Verdana wrap at 320) with the
 former one-row width checks as a named step of the 1280 journey, 7 to 4
 tests; `side-panel-width-stacking` keeps the 420 px side of the 800 px query
-and `side-panel-width-kept` "reloaded in a narrow window" proves the query;
+and `side-panel-width-kept` "reloaded in less room the panel fits it, and
+neither that nor Maximize replaces the chosen width" (its step "reloaded in a
+narrow window the panel stacks with no edge") proves the query;
 the `responsive-session-*`, `dashboard-columns-*` and the rest of the
 side-panel checks are state-change journeys and stay; nine settings
 journeys with no development fact run on the preview, the ones with one keep
@@ -484,11 +489,39 @@ temporary directory, `slice9/`):
   load average 2.3 before and 15.1 after, the process sweep empty. Against
   the baseline's 759 s wall and 5,165 s summed: wall −21 %, summed −18 %.
 
+- *Hosted run of the final revision* (0bee7fd8, run 39068858234, the first
+  with the worker-restart fix): green at twelve shards, summed browser-suite
+  step time 2,207 s (baseline 2,474 s, −11 %), longest step 270 s; still
+  above the ≤ 1,244 s target, consistent with the floor above.
+
 Accepted (2026-10-18): the strategy, the proof map and the measurement are
 delivered as this slice promised; the browser-tier count target is met; the
 two time targets are not, and no remaining slice can meet them without
 deleting coverage or adding workers, both rejected by the story. See
 "Decision for Terry" under Current decisions.
+
+## Execution complete
+
+Product advice: the campaign delivered its behavioral promises (one published
+strategy, a boundary tier without Vite, one serving-mode proof, consolidated
+production and launch journeys, layout rules proved once, no leaked
+processes) with 1,520 tests from 1,631, a local run 21 % shorter and the
+boundary tier 12 % cheaper per test hosted; the two time targets are unmet
+because the retained work's floor sits above them (see "Decision for Terry"
+below), and the review found no regression. For the next story
+(SEED-136#restore-ci-under-three-minutes): measure per-test seconds and
+their floor over four runner workers rather than step sums, which move
+±10 % with runner speed; read the hosted run of 0bee7fd8 first for the
+worker-restart fix's effect; the levers in evidence are the production build
+every shard runs in global setup even for boundary-only selections,
+re-recording `longest-first` from a hosted run, defaulting `prebuilt` to the
+run's build before relocating the build (44 spellings today), and one
+`--trace on` shard for the two hosted-only slow launch journeys. Terry's
+decisions at wrap-up: the time-target numbers; whether the tablet
+iterations of `launchTouchViewports` (14 tests, about 64 s) stay as device
+breadth; the `engines` narrowing to Node 22.13+/24+. Retrospective
+correction planned, not queued: SEED-136#dashboard-test-bounds-and-placement
+(plan 311).
 
 ## Current decisions
 
