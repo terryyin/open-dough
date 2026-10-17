@@ -15,7 +15,7 @@ scope: bounded
 
 **Identity:** SEED-139#review-completed-stories
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/314-completed-story-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"27e9bbe482ee655cfcf23ece06fa2b6747360da76ee498b21366edbf382463a3","plan":"3dc042b3e13e262fb5aba3f07d2f3fec77f33c1403aa140339645aa6f00d8267"}}
 ```
 
 **Goal:** Let a developer review the changes of a completed story in Recently
