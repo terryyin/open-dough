@@ -236,3 +236,10 @@ Both slices and G1 are delivered; G2 bounds native claims. Last accepted impleme
 ## Execution complete
 
 Product advice: No new product follow-up recommended; preserve the established separate publication, completion and retirement gates. Existing dashboard performance work remains prioritized.
+
+## CI repair
+
+Hosted Ubuntu runs `39079455827/1` at `1317f9fc` and `39079587928/1` at `c1862d37` both failed dashboard 9/12: the retained-journey helper read display identity `Yui-chan` as `agents/Yui-chan.json`; the existing owner stores `agents/yui-chan.json`. macOS case-insensitivity masked this setup defect. Both failed jobs were inspected and coalesced to this cause.
+The reader now uses existing `agentNameOf` and `agentIdentity(...).path`, without duplicating filename grammar. Its unchanged retained-landing journey passed (`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/boundary/story-branch-retained-landing.spec.ts --workers=1`); `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/product-backlog-agent-profile.test.mjs` passed, explicitly asserting lowercase paths and rejecting uppercase filenames; `npm run typecheck:dashboard` passed.
+Independent refactor returned none/already clean without edits or unnecessary reruns. Affected review conclusions were resumed: the canonical identity/path owner now supplies the setup; original byte-preservation assertions and product behavior remain unchanged. No new correction plan or product follow-up is needed. `npm run format` and `git diff --check` passed.
+The old completion wait for `c1862d37` returned `wait_cancelled` with observer retained so the repaired accepted revision can own a new completion boundary. The CI stash receipt was clean, with no saved edits; its record is `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-2qBMqj/record.json`. Both slice statuses and the existing completion record stay intact, pending final hosted Linux proof.

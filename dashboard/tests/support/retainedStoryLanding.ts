@@ -3,6 +3,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import {
+  agentIdentity,
+  agentNameOf,
+} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { quote } from "./completionRecovery.ts";
 
@@ -59,6 +63,8 @@ export function executionRecordBytes(
   plan: string,
   agent: string,
 ) {
+  const name = agentNameOf(agent);
+  if (name === undefined) throw new Error(`${agent} is no known agent.`);
   return {
     backlog: readFileSync(
       path.join(workspace, ".planning/PRODUCT-BACKLOG.md"),
@@ -66,7 +72,7 @@ export function executionRecordBytes(
     ),
     plan: readFileSync(path.join(workspace, ".planning", plan), "utf8"),
     profile: readFileSync(
-      path.join(workspace, ".planning/agents", `${agent}.json`),
+      path.join(workspace, ".planning", agentIdentity(name).path),
       "utf8",
     ),
   };
