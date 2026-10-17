@@ -112,7 +112,7 @@ remove the load-sensitive failures if the move is deferred.
 
 **Identity:** SEED-136#restore-ci-under-three-minutes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"not-ready","reasons":["Slice 3 lacks an evidence-backed bounded fixture-cost remedy. The current 7,964.648 test seconds already exceed 180 seconds at eleven four-worker jobs before setup; slice 1 must identify and measure a removable operation, name its consumers and surviving proof, then rewrite slice 3 and reassess before implementation."],"basis":{"document":"388d17654bbba9131219291fb4791b60fdc1b968fa3fbd7837f0379e1eef324a","plan":"db0da77e418673d674382df7748f268eed928c3aff4bc9d62eced2331f1e28a7"}}
 ```
 
 **Beneficiary:** Developers waiting for a complete CI verdict before continuing
@@ -122,43 +122,166 @@ or integrating work, and maintainers paying for runner resources.
 representative hosted runs, with fewer dashboard jobs and lower aggregate
 runner consumption than the current twelve-shard approach.
 
-**Scope:** Measure and improve the workflow's critical path after the test
-campaign. Account for checkout, dependency and browser setup, builds, type
-checking, lint, tests, and reporting, including work repeated across jobs.
-Choose the job layout, caching, and parallelism from evidence rather than
-adding shards to compensate for redundant tests.
+**Scope:**
 
-**Inputs from the dashboard strategy campaign (measured 2026-10-18, at
-0bee7fd8):** the suite is 1,520 tests (801 browser journeys, 719 boundary
-tests on the Node boundary server); hosted browser-suite step sums move about
-±10 % with runner speed on identical code (main alone ran 2,375–2,645 s in one
-day), so compare per-test seconds and their floor over the runners' four
-workers (7,158–8,178 s per run, floor 1,790–2,045 s) rather than step sums;
-the strategy story's ≤ 1,244 s hosted and ≤ 380 s local targets were not met
-because that floor sits above them, and Terry decides whether they carry
-over. Levers in evidence: every shard runs the production build in global
-setup even for boundary-only selections; `dashboard/tests/longest-first` is a
-2026-10-10 record with 45 stale entries and 349 unlisted files, so sorted
-order governs most of the split; `prebuilt: builtDashboardDir` is spelled at
-44 preview starts and should default in `startDashboardServer` before the
-build moves; a worker-scoped fixture declared outside the shared base split
-the worker population (fixed at 0bee7fd8, whose hosted run summed 2,207 s
-against the 2,474 s baseline); `agent-launch-publication-receipt-failure` and
-`agent-launch-preparation-phases` take 13–15 s hosted against 5 s locally
-with unchanged specs and deserve one `--trace on` shard.
+Required:
 
-**Evaluation:** Record a comparable before/after baseline with commit, runner,
-job count, per-job timings, and aggregate runner time. Measure from workflow
-start until all required checks finish; report queue delay and cache conditions
-separately, so the claim cannot describe only the browser test step. Demonstrate
-the below-three-minute verdict on representative successful hosted runs, with
-fewer than twelve dashboard jobs and reduced runner consumption. Preserve
-required checks, meaningful coverage, failure diagnostics, and truthful failure
-results; do not omit checks or relax deadlines to obtain the target.
+- Measure and improve the complete workflow's critical path after the dashboard
+  test campaign: checkout, prerequisite acquisition, builds, type checking,
+  lint, both test tiers, teardown, and reporting. Include repeated work in
+  aggregate runner consumption.
+- Reduce test and fixture work as well as workflow overhead where measurements
+  justify it. Choose job layout, caching, and parallelism from evidence. Fewer
+  shards alone is not a sufficient solution, and reducing one phase while
+  moving its cost to another phase does not satisfy the goal.
+- Run the complete required checks on the candidate revision, with fewer than
+  twelve dashboard jobs and lower aggregate runner seconds for the whole
+  workflow than a comparable twelve-shard baseline. Count any new build or
+  setup jobs in consumption; report runner capacity as well as job count.
 
-**Questions for refinement:** What dominates the remaining critical path after
-the suite improvement, and what hosted-run sample and cache conditions make
-the performance claim representative?
+Preserved constraints, from this story's original evaluation and the
+[test contract](../../dashboard/tests/README.md): meaningful coverage,
+`retries: 0`, truthful nonzero failures, retained failure diagnostics, build
+freshness, test isolation, and the run's no-leaked-process sweep. Do not skip
+checks, hide failures, or relax deadlines to obtain a faster result. The
+[sibling correction](#dashboard-test-bounds-and-placement) owns its already
+selected timeout and placement changes; reconcile with that work without
+duplicating it or introducing a blocking story dependency.
+
+Deferred promises: a new CI service, paid/larger runner migration, a general
+benchmark dashboard, and changes to product behavior unrelated to the feedback
+goal. The completed campaign's ≤1,244 s hosted dashboard suite-step total and
+≤380 s local target are not acceptance requirements of this story, as Terry
+confirmed on 2026-10-18. Local runs still prove correctness and inform diagnosis.
+
+**Key examples:**
+
+1. *Complete ordinary verdict.* Given a candidate containing the full required
+   checks on the existing hosted runner class, a normal CI run completes every
+   check and its reporting in less than 180 seconds from workflow start, with
+   fewer than twelve dashboard jobs and reduced total runner seconds. A fast
+   dashboard step with another required job still running does not qualify.
+2. *Cache conditions are visible.* Given the same candidate with warm
+   prerequisites, or an ordinary prerequisite cache miss, CI obtains the pinned
+   dependencies and exercises the current revision. The evidence identifies
+   hits/misses and setup time separately; it never substitutes stale app assets
+   or labels only the fastest warm run representative. Acquisition failure
+   retains the existing infrastructure diagnosis rather than a success verdict.
+3. *Failure stays useful.* Given an assertion failure, failed production build,
+   or exhausted existing suite deadline, the affected check fails, preserves
+   applicable completed-test diagnostics, and performs its owned cleanup.
+   Redistributing checks cannot convert a failure into a skip or success.
+4. *Work distribution preserves selection.* Given the discovered browser and
+   boundary specs, including a new unlisted spec and stale ordering entries,
+   the selected job layout runs each required test once. Page-less checks that
+   actually exercise Vite/build behavior still receive those resources; a
+   directory name alone is not proof that a build is unnecessary.
+
+**Investigation (2026-10-18, preparation checkout at `3f69d38c`):**
+
+Observed facts:
+
+| Successful hosted run | Revision | Start to last job completion | Initial job wait | Whole-workflow runner seconds | Dashboard job seconds / suite-step seconds |
+| --- | --- | --- | --- | --- | --- |
+| [39077260135](https://github.com/terryyin/open-dough/actions/runs/39077260135) | `32999702` | 278 s | 2 s | 3,147 | 2,631 / 2,372 |
+| [39075338690](https://github.com/terryyin/open-dough/actions/runs/39075338690) | `83b3d27a` | 297 s | 2 s | 3,396 | 2,852 / 2,490 |
+| [39068858234](https://github.com/terryyin/open-dough/actions/runs/39068858234) | `0bee7fd8` | 293 s | 3 s | 2,985 | 2,451 / 2,207 |
+
+All three ran 16 jobs: lint, three shell/Node shares, twelve dashboard shares,
+on `ubuntu-24.04`. Times come from
+`gh api repos/terryyin/open-dough/actions/runs/<run>` and
+`gh api 'repos/terryyin/open-dough/actions/runs/<run>/jobs?per_page=100'`:
+elapsed is latest job `completed_at` minus run `run_started_at`; runner seconds
+sum each job's `completed_at - started_at`. Initial wait is first job start
+minus workflow start; it is disclosed, not subtracted from the target.
+These different revisions are context, not a controlled before/after experiment.
+
+The latest run's logs (`gh run view 39077260135 --log`) show twelve Chromium
+cache hits. Its dashboard suite steps range from 143 to 253 s, dashboard jobs
+from 159 to 276 s, lint is 80 s, and the slowest shell/Node job is 157 s.
+The preceding main run's logs show Chromium cache misses and 8–10 s browser
+installation steps. Setup caching is already effective on the latest run;
+it cannot alone recover the roughly 98 seconds needed there.
+
+The twelve `dashboard-playwright-report-*` artifacts of run 39077260135,
+downloaded with `gh run download`, contain 1,523 tests in 506 files, four actual
+workers per shard, and 7,964.648 summed test seconds. At unchanged per-test
+durations, an ideal eleven-shard/four-worker schedule already needs
+7,964.648 / 44 = 181.015 s before setup, fixture gaps, teardown, or reporting.
+This conditional lower bound rules out merely rebalancing the unchanged work;
+it is not a prediction of durations after an optimization. The longest shard
+does not have the greatest summed test duration, so worker/fixture gaps also
+need measurement. Actual `longest-first` currently has 45 stale entries and
+351 unlisted files; discovery, not that stale list, remains authoritative.
+
+A local scratch observation in this owned checkout made `buildDashboardTo`
+throw `SEED136_BOUNDARY_REQUIRES_BUILD`, then ran
+`npm run test:dashboard -- boundary/agent-launch-matching-rules.spec.ts --workers=1`.
+The command failed with that sentinel before running the three pure boundary
+tests, establishing that the current global setup builds even for this selection.
+The scratch edit was reverted. With the restored source,
+`env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<fresh-path> npm run test:dashboard -- boundary/agent-launch-matching-rules.spec.ts --workers=1`
+exited 0 with all three tests passed and a completed strict proof record.
+An intervening run failed only because the inherited color variables emitted a
+Node warning, which the strict reporter correctly refused. No local timing
+claim is made from this loaded shared machine. Setup used the selected Node
+24.21.0, locked npm installation, and a successful Chromium prerequisite check.
+
+Hypotheses and the observations that settle them:
+
+- Avoiding unnecessary builds, consolidating preview build selection, and
+  measuring fixture/worker gaps may reduce enough work. Inspect actual consumers,
+  compare a bounded local scratch case, then measure an authorized hosted
+  candidate; this investigation does not establish their achievable speedup.
+- A smaller job layout can meet all three targets after that reduction. A
+  hosted probe of the complete candidate on the same runner class, with its
+  coverage manifest and timings, must settle this before claiming the target.
+  Local elapsed time or a theoretical perfect schedule cannot settle it.
+- The earlier campaign reported hosted variance around ±10% and 1,520 tests at
+  `0bee7fd8`; current run counts and workload differ. Reacquire a matching baseline
+  at execution if intervening work changes the tested workload. Do not claim
+  savings from an unrelated revision or selectively report the best run.
+
+**Architecture:** Keep responsibilities in the existing owners: workflow
+orchestration in `.github/workflows/ci.yml`, selection in
+`dashboard/tests/support/testFiles.mjs`, run lifecycle and cleanup in
+`globalSetup.ts`, and preview/build choice in the existing server/build helpers.
+The browser and boundary tiers remain defined by what they exercise. Moving or
+sharing a production build must preserve revision freshness, explicit private
+build use, concurrent-run isolation, and cleanup; a shared mutable build or
+blanket build removal for `boundary/` is not justified. A new upstream build
+job also adds dependency latency and artifact transfer, so compare its full
+critical path before choosing it. These are feature-local design concerns,
+not a new product-wide ADR or a second test runner.
+
+Accepted [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+constrains the approach to whole-product reuse, one representation of each
+responsibility, empirical improvement, and the least complexity needed.
+Accepted [ADR 0005 — Cross-tool validation through native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+keeps deterministic checks in CI and native acceptance separate; faster CI
+does not replace required checks with static presence or claim native host proof.
+Accepted [ADR 0000 — Use Architectural Decision Records](../../docs/adrs/0000-use-adrs-accepted.md)
+keeps this feature design here. The index and in-file statuses agree: 0000–0006
+are Accepted, 0007–0009 Proposed. No conflicting Accepted decision, supersession,
+or metadata discrepancy was found. The current North Star adds no different CI
+execution architecture; its publication/CI-evidence distinction remains intact.
+
+**Evaluation:** Capture a comparable twelve-shard baseline before invalidating
+it, then record the candidate commit, runner image/capacity, complete test
+selection, job count, per-job/per-phase durations, aggregate job seconds,
+individual test durations, queue delay, and cache outcomes. For the performance
+claim use three consecutive ordinary successful hosted runs of the final
+candidate (or identical relevant code), including a warm prerequisite run and
+an ordinary cache-miss run; each complete verdict must be below 180 seconds.
+Keep failed attempts visible and diagnose them instead of retrying tests into
+a pass. Compare aggregate consumption under matching cache/workload conditions;
+report unmatched conditions rather than calling them savings. Preserve the
+existing deterministic selection/failure/deadline proof and add only the
+focused discrimination needed for changed build/setup responsibilities.
+
+**Scope decision (Terry, 2026-10-18):** Keep this story's full-verdict,
+job-count, and whole-workflow consumption targets without adding the two older
+campaign limits. No human-owned scope or architecture decision remains open.
 
 **Safe stopping point:** The complete required CI verdict meets the target
 without relying on excessive dashboard sharding.
