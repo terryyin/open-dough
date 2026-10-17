@@ -3,9 +3,10 @@
 // says Start also publishes the story's Take to the project's trunk on origin
 // and creates a workspace under `.worktrees/`, the card reads "Preparing
 // execution…" while the request is pending and shows nothing as Taken until
-// origin does, and a session whose start established a workspace says
-// "Workspace <folder>". Those words are the page's only for a project whose
-// installed skill establishes a start (./support/heldStart.ts); any other
+// origin does, and a session whose start, or whose refinement's
+// preparation, established a workspace says "Workspace <folder>". Those
+// words are the page's only for a project whose installed skill establishes
+// a start (./support/heldStart.ts); any other
 // project's execution dialog adds no sentence and its card reads "Starting
 // execution in Claude Code…", as a refinement's does. The
 // synthetic `claude` (./fixtures/fake-claude) stands in for the real one, and
@@ -18,20 +19,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { cardSessions, expectMembership, parts } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { installHeldStart } from "./support/heldStart.ts";
-import {
-  notRefinedStory,
-  publishLaunchJourney,
-  readyStory,
-  takenStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -42,11 +30,12 @@ const establishingSentence =
 test("the execution dialog of a project that establishes a start says Start also publishes the Take to the trunk on origin and creates a workspace under .worktrees/, and the refinement dialog does not", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   installHeldStart(projectOf(dashboard.home), 1_000);
   const { start, dialog, refine, refinementDialog } = await openTakenBacklog(
     page,
-    journey,
+    launchJourney,
   );
 
   await start(readyStory).click();
@@ -60,8 +49,9 @@ test("the execution dialog of a project that establishes a start says Start also
 
 test("the execution dialog of a project whose installed skill cannot continue from a start adds no sentence about a Take or a workspace", async ({
   page,
+  launchJourney,
 }) => {
-  const { start, dialog } = await openTakenBacklog(page, journey);
+  const { start, dialog } = await openTakenBacklog(page, launchJourney);
 
   await start(readyStory).click();
   await expect(dialog).toContainText(readyStory);
@@ -75,9 +65,10 @@ test.describe("while the launch request is pending", () => {
   test("an execution card of a project whose installed skill cannot continue from a start reads Starting execution in Claude Code…", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("hang");
-    const { card, start, dialog } = await openTakenBacklog(page, journey);
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
 
     await start(readyStory).click();
     await dialog.getByRole("button", { name: "Start" }).click();
@@ -90,9 +81,10 @@ test.describe("while the launch request is pending", () => {
   test("an execution card of a project that establishes a start reads Preparing execution… and stays in the Backlog, shown neither Taken nor assigned", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     installHeldStart(projectOf(dashboard.home), 2_000);
-    const { card, start, dialog } = await openTakenBacklog(page, journey);
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
 
     await start(readyStory).click();
     await dialog.getByRole("button", { name: "Start" }).click();
@@ -112,11 +104,12 @@ test.describe("while the launch request is pending", () => {
   test("a refinement card keeps Starting refinement in Claude Code…", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("hang");
     const { card, refine, refinementDialog } = await openTakenBacklog(
       page,
-      journey,
+      launchJourney,
     );
 
     await refine(readyStory).click();
@@ -128,9 +121,13 @@ test.describe("while the launch request is pending", () => {
   });
 });
 
-test("an execution session whose start established a workspace says Workspace <folder> beneath the project folder, and one without a start says none", async ({
+// The kept records are written as ./boundary/agent-launch-start.spec.ts and
+// ./boundary/agent-launch-preparation-start.spec.ts show the real starts
+// leave them.
+test("a session whose start or preparation established a workspace says Workspace <folder> beneath the project folder, never the home directory, one without says none, and none is listed in Recently done", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   const workspace = path.join(
     dashboard.home,
@@ -139,21 +136,25 @@ test("an execution session whose start established a workspace says Workspace <f
     ".worktrees",
     "story-b",
   );
-  const record = (sessionId: string, start: object | undefined) => ({
+  const record = (
+    sessionId: string,
+    workflow: "execution" | "refinement",
+    established: object,
+  ) => ({
     request: {
       source: "open-dough",
       identity: "SEED-B#b",
       title: readyStory,
-      workflow: "execution",
+      workflow,
       host: "claude",
     },
     session: {
       host: "claude",
       sessionId,
       shortId: sessionId.slice(0, 8),
-      name: `Open Dough · Execution · ${readyStory}`,
+      name: `Open Dough · ${workflow === "execution" ? "Execution" : "Refinement"} · ${readyStory}`,
     },
-    ...(start === undefined ? {} : { start }),
+    ...established,
     launchedAt: new Date(Date.now() - 60_000).toISOString(),
   });
   const store = path.join(
@@ -167,30 +168,47 @@ test("an execution session whose start established a workspace says Workspace <f
     store,
     JSON.stringify({
       "open-dough": [
-        record("11111111-aaaa-bbbb-cccc-000000000001", {
-          identity: "SEED-B#b",
-          publisherId: "dashboard-test-open-dough",
-          workspace,
-          branch: "claude/story-b",
-          mode: "story-branch",
-          remote: "origin",
-          target: "main",
-          publishedSha: "0123456789abcdef0123456789abcdef01234567",
+        record("11111111-aaaa-bbbb-cccc-000000000001", "execution", {
+          start: {
+            identity: "SEED-B#b",
+            publisherId: "dashboard-test-open-dough",
+            workspace,
+            branch: "claude/story-b",
+            mode: "story-branch",
+            remote: "origin",
+            target: "main",
+            publishedSha: "0123456789abcdef0123456789abcdef01234567",
+          },
         }),
-        record("22222222-aaaa-bbbb-cccc-000000000002", undefined),
+        record("22222222-aaaa-bbbb-cccc-000000000002", "execution", {}),
+        record("33333333-aaaa-bbbb-cccc-000000000003", "refinement", {
+          preparation: {
+            identity: "SEED-B#b",
+            workspace,
+            branch: "claude/story-b",
+            remote: "origin",
+            target: "main",
+          },
+        }),
+        record("44444444-aaaa-bbbb-cccc-000000000004", "refinement", {}),
       ],
     }),
   );
 
-  const { card } = await openTakenBacklog(page, journey);
+  const { card } = await openTakenBacklog(page, launchJourney);
   const entries = cardSessions(card(readyStory));
-  await expect(entries).toHaveCount(2);
-  const withStart = entries.filter({ hasText: "11111111" });
-  await expect(withStart).toContainText(
-    "Workspace ~/git/open-dough/.worktrees/story-b",
-  );
-  await expect(withStart).not.toContainText(dashboard.home);
-  await expect(entries.filter({ hasText: "22222222" })).not.toContainText(
-    "Workspace",
-  );
+  await expect(entries).toHaveCount(4);
+  for (const established of ["11111111", "33333333"]) {
+    const entry = entries.filter({ hasText: established });
+    await expect(entry).toContainText(
+      "Workspace ~/git/open-dough/.worktrees/story-b",
+    );
+    await expect(entry).not.toContainText(dashboard.home);
+  }
+  for (const plain of ["22222222", "44444444"]) {
+    await expect(entries.filter({ hasText: plain })).not.toContainText(
+      "Workspace",
+    );
+  }
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
 });

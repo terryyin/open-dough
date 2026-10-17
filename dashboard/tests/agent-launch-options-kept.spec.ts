@@ -20,19 +20,7 @@ import {
   openTakenBacklog,
   showOptions,
 } from "./launchCardPage.ts";
-import {
-  notRefinedIdentity,
-  notRefinedStory,
-  publishLaunchJourney,
-  type LaunchJourney,
-} from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -70,13 +58,14 @@ async function refuseAWithC(
 test("a launch the boundary refuses says Launch failed naming the option, and the next opening keeps the selection", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   const file = installRefinementSkill(dashboard.home);
   writeFileSync(file, JSON.stringify(groupedOptions));
   await pausePageClockAt(page, new Date());
   const { card, refine, refinementDialog } = await openTakenBacklog(
     page,
-    journey,
+    launchJourney,
   );
 
   await refine(notRefinedStory).click();
@@ -110,11 +99,15 @@ test("a launch the boundary refuses says Launch failed naming the option, and th
 test("a kept selection the project no longer offers at all is named, and Start launches default refinement", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   const file = installRefinementSkill(dashboard.home);
   writeFileSync(file, JSON.stringify(groupedOptions));
   await pausePageClockAt(page, new Date());
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
 
   await refine(notRefinedStory).click();
   await refuseAWithC(page, file, refinementDialog);
@@ -141,10 +134,14 @@ test("a kept selection the project no longer offers at all is named, and Start l
 test("after a refusal, Cancel drops the kept selection", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   const file = installRefinementSkill(dashboard.home);
   writeFileSync(file, JSON.stringify(groupedOptions));
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
 
   await refine(notRefinedStory).click();
   await refuseAWithC(page, file, refinementDialog);

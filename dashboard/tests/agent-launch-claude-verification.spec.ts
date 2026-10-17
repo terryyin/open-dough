@@ -97,13 +97,14 @@ async function holdReadsSinceLaunchUntilVerified(page: Page) {
 test("Recheck records the one session the uncertain launch started, and the card lists it with Starts held for the open session", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   test.setTimeout(90_000);
   dashboard.claudeScenario("launched-hang");
   // The read the uncertain settling asks is still under way when Recheck
   // answers, so the read asked after the launch settled must still follow.
   await holdReadsSinceLaunchUntilVerified(page);
-  const { card, start } = await uncertainLaunch(page, dashboard);
+  const { card, start } = await uncertainLaunch(page, dashboard, launchJourney);
   const [listed] = dashboard.claudeListing();
   await expect(card).toContainText("Startup needs reconciliation");
   expect(await answerKind(accept(dashboard, storyRequest))).toBe("failed");
@@ -130,12 +131,14 @@ test("Recheck records the one session the uncertain launch started, and the card
 test("Recheck finding no session this launch started, among others listed, settles it as not launched and lifts protection", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   test.setTimeout(90_000);
   dashboard.claudeScenario("hang");
   const { card, start, name, cwd, acceptedAt } = await uncertainLaunch(
     page,
     dashboard,
+    launchJourney,
   );
   const now = Date.now();
   // Each is this launch's but for one thing.
@@ -176,10 +179,15 @@ test("Recheck finding no session this launch started, among others listed, settl
 test("Recheck keeps the story protected, saying why, while the listing cannot be read or names two sessions it could have started", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   test.setTimeout(90_000);
   dashboard.claudeScenario("launched-hang");
-  const { card, name, cwd } = await uncertainLaunch(page, dashboard);
+  const { card, name, cwd } = await uncertainLaunch(
+    page,
+    dashboard,
+    launchJourney,
+  );
   const [before] = await attempts(dashboard);
   const recovery = recoveryOf(page);
   const recheck = recovery.getByRole("button", { name: `Recheck ${subject}` });

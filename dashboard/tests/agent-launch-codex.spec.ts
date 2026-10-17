@@ -9,12 +9,7 @@ import {
   installRefinementSkill,
   showOptions,
 } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  notRefinedStory,
-  notRefinedIdentity,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
@@ -38,25 +33,19 @@ test.use({
   projectFolders: ["open-dough"],
   extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
 });
-let journey: LaunchJourney | undefined;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => journey?.cleanup());
 
 test("shared host choice uses own installation/defaults, keeps equal IDs distinct and survives page/server restart", async ({
   page,
   dashboard,
   codexProtocol: protocol,
   machine,
+  launchJourney,
 }) => {
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  if (journey === undefined) throw new Error("Missing published journey.");
   const root = codexSkill(dashboard.home, "--before-switch");
   installRefinementSkill(dashboard.home);
-  const { refine, card } = await openTakenBacklog(page, journey);
+  const { refine, card } = await openTakenBacklog(page, launchJourney);
   dashboard.claudeScenario("launched");
   await refine(notRefinedStory).click();
   let dialog = page.getByRole("dialog");

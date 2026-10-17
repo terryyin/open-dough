@@ -222,7 +222,11 @@ watcher once per file, in `beforeAll` of a serial file, and each test steps
 the shared watcher to its next state and asserts the delta it observes in
 the watcher's own output (`support/productionWatcher.ts`: an activation or
 replacement, a settled skip, a check after an activation, recorded builds), never a fixed
-wait; `afterAll` stops the watcher and cleans the fixture up.
+wait; `afterAll` stops the watcher and cleans the fixture up. A precondition
+that every test only reads is shared wider: the launch journeys' published
+origin (`launchJourney.ts`) is the worker-scoped `launchJourney` fixture of
+`dashboardTest.ts`, published once per worker rather than in a `beforeAll`,
+which `fullyParallel` runs once per worker per file.
 
 Every process a test starts that can run `gh` asks it through a GitHub
 request owner of that test's own: `startDashboardServer` and

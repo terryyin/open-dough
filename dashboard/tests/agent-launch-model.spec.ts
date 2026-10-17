@@ -15,20 +15,9 @@ import {
 } from "./launchCardPage.ts";
 import {
   notRefinedStory,
-  publishLaunchJourney,
   readyStory,
   type LaunchJourney,
 } from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-// Publishing runs production backlog commands against a local origin; give
-// it its own budget so a busy machine cannot starve it.
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-// A setup that failed leaves nothing to clean up.
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -37,9 +26,9 @@ const choices = [defaultChoice, "Fable", "Opus", "Sonnet"];
 
 // The three launch actions, each opened from the page and answering its
 // dialog.
-async function actions(page: Page) {
+async function actions(page: Page, launchJourney: LaunchJourney) {
   const { card, start, refine, dialog, refinementDialog } =
-    await openTakenBacklog(page, journey);
+    await openTakenBacklog(page, launchJourney);
   return {
     card,
     execution: {
@@ -73,9 +62,10 @@ for (const [kind, model, alias, name] of [
   test(`the ${kind} dialog offers Model after the instruction on Default, and choosing ${model} starts the session with --model ${alias}`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
-    const { [kind]: action } = await actions(page);
+    const { [kind]: action } = await actions(page, launchJourney);
 
     await action.open();
     const select = modelOf(action.dialog);
@@ -105,9 +95,10 @@ for (const kind of ["refinement", "execution", "session"] as const) {
   test(`the ${kind} dialog left on Default starts the session without --model`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
-    const { [kind]: action } = await actions(page);
+    const { [kind]: action } = await actions(page, launchJourney);
 
     await action.open();
     await action.dialog.getByRole("button", { name: "Start" }).click();
@@ -122,8 +113,12 @@ for (const dismiss of ["Cancel", "Escape"] as const) {
   test(`Fable chosen then ${dismiss} starts nothing, and every dialog opens again on Default`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
-    const { execution, refinement, session } = await actions(page);
+    const { execution, refinement, session } = await actions(
+      page,
+      launchJourney,
+    );
     const all = [execution, refinement, session];
 
     for (const action of all) {
@@ -150,9 +145,10 @@ for (const dismiss of ["Cancel", "Escape"] as const) {
 test("Opus launched from a dialog, the same dialog opens again on Default", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { session } = await actions(page);
+  const { session } = await actions(page, launchJourney);
 
   await session.open();
   await modelOf(session.dialog).selectOption({ label: "Opus" });
@@ -172,8 +168,9 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
 test("the dialog opens in the instruction field, and Tab reaches Record, Host, Model, the session's tracking, Command details, Cancel, then Start", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  const { refinement } = await actions(page);
+  const { refinement } = await actions(page, launchJourney);
 
   await refinement.open();
   const { dialog } = refinement;
@@ -198,9 +195,10 @@ test("the dialog opens in the instruction field, and Tab reaches Record, Host, M
 test("a refused launch with Opus says Launch failed beside its action, closes the dialog, and lists no session", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("refused");
-  const { card, execution } = await actions(page);
+  const { card, execution } = await actions(page, launchJourney);
 
   await execution.open();
   await modelOf(execution.dialog).selectOption({ label: "Opus" });

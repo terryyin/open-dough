@@ -15,24 +15,13 @@ import {
   startSession,
   startSessionDialog,
 } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { readyStory } from "./launchJourney.ts";
 import {
   expectTooltipLine,
   sidebarParts,
   sidebarTooltipOf,
 } from "./sessionSidebarPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -67,9 +56,10 @@ for (const [model, words] of [
   } on its card and in the sidebar, through a reload`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, start } = await openTakenBacklog(page, journey);
+    const { card, start } = await openTakenBacklog(page, launchJourney);
     const { recentlyDone } = parts(page);
     const { button, sidebar } = sidebarParts(page);
 
@@ -112,9 +102,10 @@ for (const [model, words] of [
 test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, through a reload", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const { taken, recentlyDone } = parts(page);
   const { button, sidebar } = sidebarParts(page);
 

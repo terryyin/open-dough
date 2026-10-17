@@ -14,7 +14,6 @@ import {
 import { expectMembership, parts, sessionNamedBy } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishLaunchJourney,
   readyStory,
   takenStory,
   type LaunchJourney,
@@ -31,24 +30,16 @@ import {
   expectNoSessionEstablishment,
 } from "./support/unattachedLaunchAssertions.ts";
 
-let journey: LaunchJourney;
-// Publishing runs production backlog commands against a local origin; give
-// it its own budget so a busy machine cannot starve it.
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-// A setup that failed leaves nothing to clean up.
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
-
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
-const openJourney = (page: Page) => openTakenBacklog(page, journey);
+const openJourney = (page: Page, launchJourney: LaunchJourney) =>
+  openTakenBacklog(page, launchJourney);
 
 test("Start session sits at the end opposite Near-future direction beside the help, is named for the selected project, and is hidden with the roster", async ({
   page,
+  launchJourney,
 }) => {
-  await openJourney(page);
+  await openJourney(page, launchJourney);
   const { project, directionToggle, preparationHelp } = parts(page);
   const button = startSession(page, "Open Dough");
 
@@ -97,8 +88,9 @@ test("Start session is offered after the published read failed", async ({
 test("the dialog names the project and Claude Code, says the session has no story or skill, starts empty with focus in its field, and Escape or Cancel send nothing", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  await openJourney(page);
+  await openJourney(page, launchJourney);
   const button = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
 
@@ -126,9 +118,10 @@ test("the dialog names the project and Claude Code, says the session has no stor
 test("starting with text sends it in the Open Dough folder, and the session reads in Taken and the sidebar with no card listing it", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openJourney(page);
+  await openJourney(page, launchJourney);
   const text = "why is the CI slow on main?";
   const dialog = startSessionDialog(page, "Open Dough");
   const { recentlyDone } = parts(page);
@@ -190,9 +183,10 @@ for (const blank of ["", "   "]) {
   test(`starting with ${blank === "" ? "an empty field" : "only spaces"} sends no instruction`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
-    await openJourney(page);
+    await openJourney(page, launchJourney);
     const dialog = startSessionDialog(page, "Open Dough");
 
     await startSession(page, "Open Dough").click();
@@ -214,9 +208,10 @@ for (const blank of ["", "   "]) {
 test("starting on Pygardon uses Pygardon's folder and lists the session in the sidebar under Pygardon, not in Open Dough's Recently done", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openJourney(page);
+  await openJourney(page, launchJourney);
   const { project, recentlyDone } = parts(page);
   await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
   const dialog = startSessionDialog(page, "Pygardon");

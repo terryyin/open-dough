@@ -6,7 +6,9 @@
 // that did not start is ./agent-launch-card-problems.spec.ts; how a card's
 // sessions stay listed, two launches as two entries newest first, is
 // ./agent-launch-card-sessions.spec.ts. A noted Start's tooltip and look are
-// ./agent-launch-card-noted-start.spec.ts.
+// ./agent-launch-card-noted-start.spec.ts. On a phone, only an explicit
+// Start sends the draft, and the card tells accepted startup from a launched
+// session.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -16,35 +18,40 @@ import {
   cardSessions,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { instructionField, openTakenBacklog } from "./launchCardPage.ts";
+import { tapWhereShown } from "./pageLayout.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-  publishLaunchJourney,
   readyStory,
-  type LaunchJourney,
 } from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-// Publishing runs production backlog commands against a local origin; give
-// it its own budget so a busy machine cannot starve it.
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-// A setup that failed leaves nothing to clean up.
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
 const notReadyNote = "Not marked Ready for execution";
 
+// The one launch the synthetic `claude` records for a Start of Story C: the
+// session's name and its command with the instruction, in the Open Dough
+// folder.
+const launched = (home: string, workflow: string, command: string) => [
+  {
+    argv: [
+      "--bg",
+      "--name",
+      `Open Dough · ${workflow} · ${notRefinedStory}`,
+      command,
+    ],
+    cwd: realpathSync(path.join(home, "git", "open-dough")),
+  },
+];
+
 test("every Backlog card offers Start execution, described as not ready unless Ready for execution, then Start refinement, and a Taken card offers neither", async ({
   page,
+  launchJourney,
 }) => {
   const { card, takenCard, start, refine } = await openTakenBacklog(
     page,
-    journey,
+    launchJourney,
   );
 
   for (const title of [readyStory, notRefinedStory]) {
@@ -89,17 +96,16 @@ for (const launch of [
   test(`the ${launch.action} dialog names the story, Claude Code, and its command, takes focus to its instruction, and Escape or Cancel sends nothing`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
-    const { card } = await openTakenBacklog(page, journey);
+    const { card } = await openTakenBacklog(page, launchJourney);
     const action = card(launch.story).getByRole("button", {
       name: launch.action,
     });
     const dialog = page.getByRole("dialog", {
       name: `${launch.action} in Claude Code`,
     });
-    const instruction = dialog.getByRole("textbox", {
-      name: "Instruction (optional)",
-    });
+    const instruction = instructionField(dialog);
 
     await action.click();
     await expect(dialog).toBeVisible();
@@ -126,16 +132,18 @@ for (const launch of [
 test("starting sends the instruction after the execution command in the Open Dough folder, and the card lists the session, with the keyboard on it, beside Start execution", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { card, start, dialog, refine } = await openTakenBacklog(page, journey);
+  const { card, start, dialog, refine } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
   const own = "refine and plan it first, then execute";
 
   const before = Date.now();
   await start(notRefinedStory).click();
-  await dialog
-    .getByRole("textbox", { name: "Instruction (optional)" })
-    .fill(own);
+  await instructionField(dialog).fill(own);
   await dialog.getByRole("button", { name: "Start" }).click();
 
   const entry = cardSessions(card(notRefinedStory));
@@ -164,66 +172,98 @@ test("starting sends the instruction after the execution command in the Open Dou
     entry.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
 
-  const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
-  expect(dashboard.claudeLaunchCalls()).toEqual([
-    {
-      argv: [
-        "--bg",
-        "--name",
-        `Open Dough · Execution · ${notRefinedStory}`,
-        `/dough-execute-plan ${notRefinedIdentity}\n\n${own}`,
-      ],
-      cwd: folder,
-    },
-  ]);
-  // Only the launched card lists a session; its Starts stay unavailable.
+  expect(dashboard.claudeLaunchCalls()).toEqual(
+    launched(
+      dashboard.home,
+      "Execution",
+      `/dough-execute-plan ${notRefinedIdentity}\n\n${own}`,
+    ),
+  );
+  // Only the launched card lists a session; the other's Starts stay offered.
   await expect(cardSessions(card(readyStory))).toHaveCount(0);
   await expect(start(readyStory)).toBeEnabled();
-  await expect(refine(notRefinedStory)).toBeDisabled();
-  await expect(start(notRefinedStory)).toBeDisabled();
 });
 
 test("starting refinement sends its instruction in the Open Dough folder and lists its session beside both Start actions", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   const { card, start, refine, refinementDialog } = await openTakenBacklog(
     page,
-    journey,
+    launchJourney,
   );
   const own = "Focus on the empty-state wording";
 
   await refine(notRefinedStory).click();
-  await refinementDialog
-    .getByRole("textbox", { name: "Instruction (optional)" })
-    .fill(own);
+  await instructionField(refinementDialog).fill(own);
   await refinementDialog.getByRole("button", { name: "Start" }).click();
 
-  const sessions = cardSessions(card(notRefinedStory));
-  const refinementEntry = sessions.first();
-  await expect(sessions).toHaveCount(1);
-  await expect(refinementEntry).toHaveAccessibleName(
-    cardSessionName("Refinement"),
-  );
+  const entry = cardSessions(card(notRefinedStory));
+  await expect(entry).toHaveCount(1);
+  await expect(entry).toHaveAccessibleName(cardSessionName("Refinement"));
   await expect(refinementDialog).toBeHidden();
-  await expect(refinementEntry).toBeFocused();
-  await expect(refinementEntry).toContainText(
-    "Refinement started in Claude Code",
-  );
+  await expect(entry).toBeFocused();
+  await expect(entry).toContainText("Refinement started in Claude Code");
   await expect(refine(notRefinedStory)).toBeDisabled();
   await expect(start(notRefinedStory)).toBeDisabled();
 
-  const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
-  expect(dashboard.claudeLaunchCalls()).toEqual([
-    {
-      argv: [
-        "--bg",
-        "--name",
-        `Open Dough · Refinement · ${notRefinedStory}`,
-        `/dough-story-refinement ${notRefinedIdentity}\n\n${own}`,
-      ],
-      cwd: folder,
-    },
-  ]);
+  expect(dashboard.claudeLaunchCalls()).toEqual(
+    launched(
+      dashboard.home,
+      "Refinement",
+      `/dough-story-refinement ${notRefinedIdentity}\n\n${own}`,
+    ),
+  );
+});
+
+test.describe("phone touch submission", () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+  test("only explicit Start sends the exact multiline draft and the card distinguishes accepted startup from a launched session", async ({
+    page,
+    dashboard,
+    launchJourney,
+  }) => {
+    dashboard.claudeScenario("held");
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
+    const launcher = start(notRefinedStory);
+    await launcher.scrollIntoViewIfNeeded();
+    await tapWhereShown(launcher);
+    const field = instructionField(dialog);
+    const draft =
+      "Refine this story first.\n\nKeep the exact next steps 日本語.\nThen execute.";
+    await field.fill(draft);
+    for (const viewport of [
+      { width: 844, height: 390 },
+      { width: 390, height: 300 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await expect(field).toHaveValue(draft);
+      expect(dashboard.claudeLaunchCalls()).toEqual([]);
+    }
+    await tapWhereShown(
+      dialog.getByRole("button", { name: "Start", exact: true }),
+    );
+    await expect(dialog).toBeHidden();
+    await expect(card(notRefinedStory)).toContainText(
+      "Local startup in progress",
+    );
+    await expect(start(notRefinedStory)).toBeDisabled();
+    await expect(cardSessions(card(notRefinedStory))).toHaveCount(0);
+    await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+    expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(
+      `/dough-execute-plan ${notRefinedIdentity}\n\n${draft}`,
+    );
+    await page.setViewportSize({ width: 844, height: 390 });
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+    dashboard.releaseHeldClaude();
+    const session = cardSessions(card(notRefinedStory));
+    await expect(session).toHaveCount(1);
+    await expect(session).toContainText("Execution started in Claude Code");
+    await expect(sessionStateOf(session)).toHaveText("Working");
+    await expect(session).toBeFocused();
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+  });
 });

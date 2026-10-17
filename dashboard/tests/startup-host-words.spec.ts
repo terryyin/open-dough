@@ -7,22 +7,12 @@ import {
 } from "../src/agentLaunch.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { readyStory } from "./launchJourney.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,
+  launchJourney,
 }) => {
   // Supply only accepted, owned startup evidence and the installed capability.
   // No native launch is performed and no running start reports a phase.
@@ -68,7 +58,7 @@ test("without a reported phase, story startup keeps its host and the installed s
       },
     });
   });
-  const { card } = await openTakenBacklog(page, journey);
+  const { card } = await openTakenBacklog(page, launchJourney);
   const starting = card(readyStory);
   for (host of ["claude", "codex"] as const) {
     for (workflow of ["execution", "refinement"] as const) {
@@ -100,6 +90,7 @@ test("without a reported phase, story startup keeps its host and the installed s
 
 test("a recovery host without native-check advice keeps its controls without borrowed advice or a description reference", async ({
   page,
+  launchJourney,
 }) => {
   await page.route(`**${agentLaunchEndpoint}`, async (route) => {
     const response = await route.fetch({
@@ -130,7 +121,7 @@ test("a recovery host without native-check advice keeps its controls without bor
       },
     });
   });
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(
     "Ad hoc session · session start in Cursor",

@@ -14,19 +14,8 @@ import {
   openTakenBacklog,
   showOptions,
 } from "./launchCardPage.ts";
-import {
-  notRefinedStory,
-  publishLaunchJourney,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory } from "./launchJourney.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -42,12 +31,13 @@ for (const [what, options, model] of [
   test(`a refinement launched with ${what} reads as requested on its card without a Recently done duplicate, through a reload`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
     installRefinementSkill(dashboard.home);
     const { card, refine, refinementDialog } = await openTakenBacklog(
       page,
-      journey,
+      launchJourney,
     );
     const { recentlyDone } = parts(page);
 

@@ -8,19 +8,12 @@ import {
   agentLaunchEndpoint,
   launchRecordsSchema,
 } from "../src/agentLaunch.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { creationSchema } from "../src/launchCreation.ts";
 import { creationView } from "../server/launchCreation.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney | undefined;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => journey?.cleanup());
 
 test("unreadable evidence refuses Codex before native creation but admits Claude and preserves the file", async ({
   dashboard,
@@ -61,6 +54,7 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   dashboard,
   machine,
   page,
+  launchJourney,
 }) => {
   if (machine === undefined) throw new Error("Missing machine fixture.");
   const record = {
@@ -85,8 +79,7 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   expect(reply.status).toBe(200);
   const answer = launchRecordsSchema.parse(JSON.parse(reply.body));
   expect(answer.creations[0]?.recovery).toEqual({ hostName: "Claude Code" });
-  if (journey === undefined) throw new Error("Missing published journey.");
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const entry = page.getByRole("article", {
     name: "Unsupported recovery unresolved creation",
   });
@@ -105,8 +98,8 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
 test("the common page displays a stand-in host's supplied inspection arguments", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  if (journey === undefined) throw new Error("Missing published journey.");
   const args = ["/native space's tool", "history", "$(literal)", "a'b", ""];
   const record = creationSchema.parse({
     request: {
@@ -142,7 +135,7 @@ test("the common page displays a stand-in host's supplied inspection arguments",
       json: { ...answer, creations: [view] },
     });
   });
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const entry = page.getByRole("article", {
     name: "Stand-in inspection unresolved creation",
   });

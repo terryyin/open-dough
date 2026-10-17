@@ -1,5 +1,4 @@
 import { test, expect } from "./support/voiceTest.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import { observeMicrophone, recordClip } from "./support/voicePage.ts";
 import {
@@ -10,13 +9,6 @@ import {
   originalDraft,
 } from "./support/voiceRecovery.ts";
 import { instructionProblems } from "../src/instructionTranscription.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
@@ -27,8 +19,9 @@ for (const failure of ["permission", "device", "format"] as const) {
     page,
     dashboard,
     provider,
+    launchJourney,
   }) => {
-    const dialog = await openVoiceDraft(page, journey);
+    const dialog = await openVoiceDraft(page, launchJourney);
     await page.evaluate((kind) => {
       const get = navigator.mediaDevices.getUserMedia.bind(
         navigator.mediaDevices,

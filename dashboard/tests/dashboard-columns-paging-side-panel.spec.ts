@@ -12,11 +12,7 @@ import {
   startSession,
   startSessionDialog,
 } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { readyStory } from "./launchJourney.ts";
 import { box } from "./pageLayout.ts";
 import {
   columns,
@@ -31,13 +27,6 @@ import {
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 
 test.describe("beside the side panel", () => {
-  let journey: LaunchJourney;
-  test.beforeAll(async () => {
-    test.setTimeout(120_000);
-    journey = await publishLaunchJourney();
-  });
-  test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
-
   test.use({ projectFolders: ["open-dough"] });
 
   // A 108rem window, which the side panel leaves a 54rem page.
@@ -46,9 +35,10 @@ test.describe("beside the side panel", () => {
   test("a 54rem page shows two columns and pages between them; a wider page shows all three and gives the view back", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, start, dialog } = await openTakenBacklog(page, journey);
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
     const terminal = page.getByRole("region", { name: "Terminal" });
     const { taken } = parts(page);
     // The view, beside a terminal whose screen scrolls on its own.

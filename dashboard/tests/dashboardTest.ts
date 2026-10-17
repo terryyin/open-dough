@@ -18,6 +18,7 @@
 // repository gone.
 
 import type { BrowserContext, Page } from "@playwright/test";
+import type { LaunchJourney } from "./launchJourney.ts";
 import { test as base, expect } from "./support/pageTest.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
 import {
@@ -64,29 +65,51 @@ export function githubFor(page: Page): FakeGitHub {
   return github;
 }
 
-export const test = base.extend<{
-  // How long this page's dashboard waits on its `gh` before reporting a
-  // stalled read; the server's own bound when unset. A journey that waits
-  // the bound out sets a short one with `test.use`.
-  readTimeoutMs: number | undefined;
-  // Folders under this page's dashboard HOME's `git/`, as catalog projects'
-  // folders for its synthetic `claude`; none when unset. A journey that
-  // launches an agent names them with `test.use`, and may shorten the
-  // server's launch wait the same way.
-  projectFolders: readonly string[] | undefined;
-  machine: string | undefined;
-  codexProtocol: FakeCodex | undefined;
-  launchTimeoutMs: number | undefined;
-  // How long this page's dashboard waits on a workflow's start before its
-  // launch answers uncertain; the server's own bound when unset.
-  startTimeoutMs: number | undefined;
-  extraEnv: Readonly<Record<string, string>> | undefined;
-  pathPrefix: readonly string[] | undefined;
-  serverMode: FixtureServerMode;
-  afterGitHubStops: (removal: Removal) => void;
-  github: FakeGitHub;
-  dashboard: DashboardServer;
-}>({
+export const test = base.extend<
+  {
+    // How long this page's dashboard waits on its `gh` before reporting a
+    // stalled read; the server's own bound when unset. A journey that waits
+    // the bound out sets a short one with `test.use`.
+    readTimeoutMs: number | undefined;
+    // Folders under this page's dashboard HOME's `git/`, as catalog projects'
+    // folders for its synthetic `claude`; none when unset. A journey that
+    // launches an agent names them with `test.use`, and may shorten the
+    // server's launch wait the same way.
+    projectFolders: readonly string[] | undefined;
+    machine: string | undefined;
+    codexProtocol: FakeCodex | undefined;
+    launchTimeoutMs: number | undefined;
+    // How long this page's dashboard waits on a workflow's start before its
+    // launch answers uncertain; the server's own bound when unset.
+    startTimeoutMs: number | undefined;
+    extraEnv: Readonly<Record<string, string>> | undefined;
+    pathPrefix: readonly string[] | undefined;
+    serverMode: FixtureServerMode;
+    afterGitHubStops: (removal: Removal) => void;
+    github: FakeGitHub;
+    dashboard: DashboardServer;
+  },
+  {
+    launchJourney: LaunchJourney;
+  }
+>({
+  // The launch journey's origin (./launchJourney.ts): the queued preparation
+  // trunk with Story A taken, published once per worker through the
+  // production backlog commands and read, never written, by every journey
+  // the worker runs from it (./launchCardPage.ts serves it as GitHub would).
+  // Publishing runs real git and the backlog CLI; its own bound keeps a busy
+  // machine from starving it, and only a worker that takes the fixture loads
+  // the publishing code.
+  launchJourney: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { publishLaunchJourney } = await import("./launchJourney.ts");
+      const journey = await publishLaunchJourney();
+      await use(journey);
+      await journey.cleanup();
+    },
+    { scope: "worker", timeout: 120_000 },
+  ],
   readTimeoutMs: [undefined, { option: true }],
   projectFolders: [undefined, { option: true }],
   machine: [undefined, { option: true }],

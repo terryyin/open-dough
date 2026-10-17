@@ -9,23 +9,17 @@
 import { attempts, launch } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { expect, stored, test } from "./support/codexLaunch.ts";
 
 const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test("an unconfirmed blank ad hoc session is recovered under Startup recovery with no card, and continuing it submits no input", async ({
   page,
   dashboard,
   codexProtocol,
+  launchJourney,
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
@@ -41,7 +35,7 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     intent: "blank",
   });
 
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const { stages } = parts(page);
   const cards = stages.locator("[data-work]");
   const storyCards = await cards.count();

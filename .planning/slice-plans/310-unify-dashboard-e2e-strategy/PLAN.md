@@ -322,7 +322,7 @@ at four workers (load 3–7, wall 1,025 s, summed 3,456 s) passed 1,521 of
 
 ### 7. Origin-publishing journeys share setup and assert deltas
 Type: Behavior
-Status: planned
+Status: done
 Proof: The 41 files calling `publishLaunchJourney` in `beforeAll` share one
 origin and preview server per file through the existing fixtures, with the
 card's common shape asserted in one named test; single-test files of the same
@@ -334,6 +334,39 @@ summed test time falls measurably from 1,483 s minus its relocated share.
 Behavior: pre: siblings each publish an origin and re-assert common shape →
 trigger: consolidation → result: one setup, one common proof, delta
 assertions, same regression protection.
+
+Accepted proof (2026-10-18, at the slice 7 commit): `publishLaunchJourney` has
+one call site, the worker-scoped `launchJourney` fixture of `dashboardTest.ts`
+(the origin is read-only, so it is shared across files; a `beforeAll` under
+`fullyParallel` had published it once per worker per file, 41 files); five
+single-test or two-test siblings merged into their families
+(`agent-launch-card`, `-session-state-pace`, `-start-card`,
+`-codex-creation`, `-codex-observation`), the card's common shape asserted
+once in `agent-launch-card.spec.ts` "every Backlog card offers Start
+execution ... and a Taken card offers neither"; a scratch change of the
+"now known" wording in `dashboard/src/pageSessions.ts` failed exactly
+`agent-launch-card-delete-problems.spec.ts` "a click that finds the state
+known keeps the record and says so beside the state"; the 41 files became
+36 (129 to 128 tests, the two workspace tests merged), their wall time at
+four workers 136.7 s to 82.0 s with summed `durationMs` flat (a proof record
+never counted the hook); typecheck and discovery green; a whole run at four
+workers (load 4–7) passed 1,525 of 1,525 (810 browser-tier, 715 boundary)
+in 970 s with nothing of the run surviving. Preview server and fake GitHub
+stay per test by decision: the siblings vary test-scoped options and most
+launch or mark done.
+`agent-launch-card.spec.ts` (266 lines) and
+`agent-launch-session-state-pace.spec.ts` (302) stay over the 250-line
+threshold: their only remaining seam is the former file boundary this slice
+merged on purpose.
+On the final formatted state a whole run at four workers (load 6–8, wall
+972 s) passed 1,524 of 1,525; the one failure,
+`authenticated-read-owner-failures.spec.ts` "the browser and diagnostic history
+name observed owner incompatible with safe endpoint recovery", is untouched by
+this slice and passed twice alone: it opens with a plain `page.goto` and
+expects the refused-owner notice within the 5 s expect bound, before the
+page's read is answered (the README's "a check's bound starts after the
+answer it depends on"); slice 8 gives it `openUntilRead` with the other
+journey waits it reviews.
 
 ### 8. Presentation checks join their journeys
 Type: Behavior
@@ -703,6 +736,49 @@ proved now.
   `fault-preview` and `fault-preview-c` are armed, so D's start and C's
   restoration both fail) and "an unexpectedly ended preview ends the watcher
   with cleanup", assertions unchanged.
+- `agent-launch-card-touch.spec.ts` (1 test, "only explicit Start sends the
+  exact multiline draft and the card distinguishes accepted startup from a
+  launched session"): merged into `agent-launch-card.spec.ts` as its "phone
+  touch submission" describe, title and assertions unchanged; the card's
+  common shape stays asserted once there ("every Backlog card offers Start
+  execution ... and a Taken card offers neither").
+- `agent-launch-attention-clearing.spec.ts` (1 test, "a session's attention
+  stays through opening and closing its terminal, clears when it works again
+  or is marked done, and never returns once marked done"): merged unchanged
+  into `agent-launch-session-state-pace.spec.ts`, whose one test shares its
+  precondition (paused page clock, watched record reads, launched scenario,
+  the Taken backlog).
+- `agent-launch-preparation-workspace.spec.ts` (1 test, "a refinement session
+  with an established preparation says Workspace <folder> beneath the project
+  folder on the card without a Recently done duplicate, and one without says
+  none") and `agent-launch-start-card.spec.ts` "an execution session whose
+  start established a workspace says Workspace <folder> beneath the project
+  folder, and one without a start says none": one test in
+  `agent-launch-start-card.spec.ts`, "a session whose start or preparation
+  established a workspace says Workspace <folder> beneath the project folder,
+  never the home directory, one without says none, and none is listed in
+  Recently done" (four kept records on one card; every former assertion kept,
+  the Recently done count included).
+- `agent-launch-codex-confirmation.spec.ts` (1 test, "confirmation clears
+  pending evidence; legacy reload is truthful and connection loss retains
+  continuation context"): merged unchanged into
+  `agent-launch-codex-creation.spec.ts` (same Codex refinement request on
+  the same origin).
+- `agent-launch-codex-observation-boundary.spec.ts` (4 tests): its three
+  browserless tests ("endpoint/read failures preserve healthy hosts ...",
+  "deleting an unreadable saved record while another passive read is pending
+  never recreates it", "a silent native endpoint reaches its bound ...") run
+  unchanged in `boundary/agent-launch-codex-observation-status.spec.ts` on
+  the boundary server; its page test "predecessor without continuation gains
+  no command; missing workspace preserves passive final-report access" is
+  `agent-launch-codex-observation-workspace.spec.ts`; the former first test's
+  own origin publication and try/finally became the shared fixture.
+- Every other per-file `publishLaunchJourney` `beforeAll` (all 36 remaining
+  files of the 41, and `claudeVerification.ts`'s `useUncertainLaunch` for
+  `agent-launch-claude-verification.spec.ts` and
+  `agent-launch-claude-own-record-verification.spec.ts`): replaced by the
+  worker-scoped `launchJourney` fixture of `dashboardTest.ts`; titles and
+  assertions unchanged.
 
 ## Learnings
 
@@ -888,3 +964,22 @@ proved now.
   file passed 4 of 4 alone afterwards. Like the `accessible-overview-touch`
   failure after slice 5, a presentation journey under load, recorded for
   slice 8; kept evidence in `dashboard/test-results/2026-10-17T16-45-12.898Z`.
+- Slice 7 found the origin-publishing journeys' repeated setup was larger
+  than "once per file": under `fullyParallel`, a `beforeAll` runs once per
+  worker *per file*, so a file whose tests land on four workers published
+  its origin four times (eight in the story's eight-worker baseline). The
+  `launchJourney` worker fixture in `dashboardTest.ts` publishes exactly once
+  per worker for every file that takes it (the origin is read, never written:
+  `openTakenBacklog` serves it through the fake GitHub with `git show`), so
+  a worker fixture, not a serial file, is the seam for a shared read-only
+  precondition. A proof record's `durationMs` never included that hook time,
+  so the saving shows only in wall time: the 41-file set at four workers,
+  load 3–6, went from 136.7 s wall (287.0 s summed) to 82.0 s wall
+  (283.8 s summed) as 36 files; slice 9's measurement must read wall time
+  for this family too. The per-test preview server and fake GitHub stayed
+  per test: a worker-scoped server cannot take the test-scoped
+  `projectFolders`/`launchTimeoutMs`/viewport options the siblings vary per
+  describe, and a serial file with one page would bypass the fixture's
+  GitHub guard; the smallest remaining journey test (one server, one page,
+  one settled read) takes about 1.3 s, which bounds what server sharing could
+  still save per test.

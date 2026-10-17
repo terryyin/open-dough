@@ -8,12 +8,7 @@ import {
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  notRefinedStory,
-  notRefinedIdentity,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
@@ -27,12 +22,6 @@ import {
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney | undefined;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => journey?.cleanup());
 
 for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
   test(`lost acknowledgment resumes matching history (${resumedStatus}) without creating or resending`, async ({
@@ -40,11 +29,11 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
     dashboard,
     codexProtocol: protocol,
     machine,
+    launchJourney,
   }) => {
     const native = protocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    if (journey === undefined) throw new Error("Missing published journey.");
-    const { card } = await openTakenBacklog(page, journey);
+    const { card } = await openTakenBacklog(page, launchJourney);
     const pendingRequest = {
       ...refinementRequest,
       host: "codex",

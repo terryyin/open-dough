@@ -1,7 +1,6 @@
 import { chmodSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/voiceTest.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import {
   observeMicrophone,
@@ -23,13 +22,6 @@ import {
   openAISaveEndpoint,
   openAIRemoveEndpoint,
 } from "../src/openAIConfiguration.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 test.use({
   ...voiceBrowserOptions,
   extraEnv: async ({ provider }, use) => {
@@ -47,8 +39,9 @@ test("missing saved key never consumes an environment key and permits typed Star
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, journey, false);
+  const dialog = await openVoiceDraft(page, launchJourney, false);
   await dialog.getByRole("button", { name: "Record", exact: true }).click();
   await recovered(
     page,
@@ -70,8 +63,9 @@ test("the same running server consumes a replacement afresh, and removal during 
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, journey);
+  const dialog = await openVoiceDraft(page, launchJourney);
   await recordClip(page, dialog);
   await expect(startSessionField(dialog)).toHaveValue(
     `${originalDraft}\n\nDo not implement yet`,
@@ -128,8 +122,9 @@ test("unreadable saved key before or during capture preserves the draft and supp
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, journey);
+  const dialog = await openVoiceDraft(page, launchJourney);
   const file = path.join(
     dashboard.home,
     ".open-dough/dashboard/credentials/openai.json",

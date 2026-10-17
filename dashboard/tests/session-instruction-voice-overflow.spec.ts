@@ -5,24 +5,12 @@ import {
   startSessionDialog,
   startSessionField,
 } from "./launchCardPage.ts";
-import {
-  notRefinedStory,
-  notRefinedIdentity,
-  publishLaunchJourney,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
   saveVoiceKey,
 } from "./support/voicePage.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 test.use({
   projectFolders: ["open-dough"],
   permissions: ["microphone"],
@@ -43,8 +31,9 @@ test("exactly 4,000 combined characters, including the separator, append ordinar
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  const { start, dialog } = await openTakenBacklog(page, journey);
+  const { start, dialog } = await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   dashboard.claudeScenario("launched");
   await start(notRefinedStory).click();
@@ -71,8 +60,9 @@ test("one character over retains both drafts; keyboard shortening adds once and 
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   dashboard.claudeScenario("launched");
   await startSession(page, "Open Dough").click();
@@ -137,8 +127,9 @@ test("the complete transcript beyond 4,000 remains editable; keyboard discard an
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");

@@ -2,12 +2,7 @@
 // a direct verification request is refused without changing the attempt.
 import { agentVerifyEndpoint } from "../src/agentLaunch.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  notRefinedIdentity,
-  notRefinedStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 import { attempts, launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { test, expect } from "./support/codexLaunch.ts";
@@ -20,21 +15,15 @@ const request = {
 };
 const subject = `${notRefinedStory} (${notRefinedIdentity})`;
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney | undefined;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => journey?.cleanup());
 
 test("Recheck rereads evidence and published state without verifying a Codex start", async ({
   dashboard,
   page,
   codexProtocol,
+  launchJourney,
 }) => {
-  if (journey === undefined || codexProtocol === undefined)
-    throw new Error("Missing launch fixture.");
-  await openTakenBacklog(page, journey);
+  if (codexProtocol === undefined) throw new Error("Missing launch fixture.");
+  await openTakenBacklog(page, launchJourney);
   const native = codexProtocol;
   native.refuseInput = true;
   expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({

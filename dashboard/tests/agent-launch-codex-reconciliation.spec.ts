@@ -6,12 +6,7 @@ import {
   startDashboardServer,
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
-import {
-  publishLaunchJourney,
-  notRefinedIdentity,
-  notRefinedStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 import {
   accept,
   attempts,
@@ -30,22 +25,16 @@ const request = {
   instruction: "Preserve this exact intent.",
 };
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney | undefined;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => journey?.cleanup());
 
 test("explicit input refusal allows the saved input once in the resumed same conversation", async ({
   dashboard,
   page,
   codexProtocol: protocol,
+  launchJourney,
 }) => {
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  if (journey === undefined) throw new Error("Missing published journey.");
-  const { card } = await openTakenBacklog(page, journey);
+  const { card } = await openTakenBacklog(page, launchJourney);
   native.refuseInput = true;
   expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
     kind: "uncertain",

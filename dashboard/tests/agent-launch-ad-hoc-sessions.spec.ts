@@ -20,13 +20,7 @@ import {
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
-import {
-  notRefinedStory,
-  publishLaunchJourney,
-  readyStory,
-  takenStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
 import {
   expectRevealsSince,
   recordReveals,
@@ -39,13 +33,6 @@ import {
   sidebarParts,
 } from "./sessionSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -76,10 +63,11 @@ const localOf = (page: Page, text: string) =>
 test("its sidebar entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   await recordReveals(page);
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const text = "why is the CI slow on main?";
   const { project } = parts(page);
   const { button, entries, entry } = sidebarParts(page);
@@ -155,9 +143,10 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Taken e
 test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and the sidebar counts it", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const text = "what is blocking us?";
   const { button, entries, badge } = sidebarParts(page);
   const local = localOf(page, text);
@@ -184,9 +173,10 @@ test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and t
 test("with the listing unreadable, an ad hoc session's record can be deleted from Taken, leaving the sidebar and moving the keyboard to the next entry", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const { entries, button } = sidebarParts(page);
   const older = localOf(page, "the older question");
   const newer = localOf(page, "the newer question");
@@ -226,11 +216,12 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
 test("with Open Dough already shown, its sidebar entry brings its Taken entry into view", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   // Beside the open sidebar, the local Taken entry starts outside this viewport.
   await page.setViewportSize({ width: 700, height: 600 });
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const text = "where is this entry?";
   const { button, entry } = sidebarParts(page);
   const local = localOf(page, text);
