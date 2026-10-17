@@ -248,6 +248,14 @@ count, a Codex refusal, an enabled Start). Their traces were not inspected. `sto
 "Assessment: Ready". The noted-Start spec asserts both dialog sentences
 literally instead of deriving them from the note.
 
+## Execution complete
+
+Product advice: no change to backlog priority. At wrap-up, decide whether the
+Taken card's green "Ready for execution" badge, which still shows the recorded
+assessment, should also mean start eligibility; this correction excluded it as
+a developer decision, and it is now the only surface where that wording names
+the assessment.
+
 ## Current decisions
 
 - Legacy records compare against two reconstructions of their fence: as
