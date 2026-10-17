@@ -64,12 +64,36 @@ continuation usable. Landing an increment never implies story completion.
   keeps its existing landing behavior. Extend Dough Land; add no separate skill
   or duplicate publication path.
 
+**Reuse and cohesion (Terry, 2026-10-18):** Publishing an increment to trunk
+while retaining the ongoing story's execution branch, worktree and claim is
+already Trunk Mode's behavior. Reuse that solution at its existing boundaries;
+do not implement an independent landing-and-retention lifecycle or silently
+convert a Story Branch execution to Trunk Mode.
+
+The existing [candidate publication](../../src/skills/dough-execute-plan/references/publish-the-candidate.md)
+contract already serves both Dough Land and
+[Trunk Mode increment delivery](../../src/skills/dough-execute-plan/references/trunk-publication.md).
+Managed delivery calls `publishExecutionIncrement` in
+`execution-increment-publication.mjs`. Reuse the existing publication,
+default-checkout maintenance and execution-resource retention owners; expose a
+suitable shared part only when necessary. Preserve each caller's authorization,
+proof, CI-observation and reporting obligations instead of importing or
+duplicating the whole execution workflow. For an already-published story tip,
+reuse [history-preserving integration](../../src/skills/dough-execute-plan/references/preserve-published-history.md),
+rather than applying unpublished-suffix reconciliation to published commits.
+This follows the PFE/cohesion principle in
+[Accepted ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and the single authoritative behavior rule in
+[Accepted ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+The feature requires no change to execution-mode defaults or ADR status.
+
 **Acceptance examples:**
 
 | Situation | Required observation |
 | --- | --- |
 | Thirteen of fourteen slices are done; the last needs a release; ordinary Dough Land is requested | Refuse before commit or publication; preserve the worktree and branches and explain `--keep-worktree` |
 | The same story is landed with `--keep-worktree` | Trunk contains its changes; the worktree, both execution branches and assignment remain; the story stays Taken and its next slice is resumable |
+| Compare a Trunk Mode increment with an explicit retained landing | Both use existing publication and retention owners, keep the same story/session/workspace identity, and leave completion and retirement to their owning workflow; an already-published story's history remains intact |
 | An earlier retained landing is repeated after trunk already contains its changes | No duplicate commit or publication; preserve the same resources and continuation |
 | The story is Taken but its execution has completed | Judge the actual completion obligations; queue membership alone does not label it unfinished or authorize closure |
 | Completion evidence is missing, or publication fails | Retain recoverable resources and report the precise refusal or failure |
