@@ -131,7 +131,7 @@ const replacement = "sk-synthetic-replacement-084";
 test("failed save/removal preserve predecessor bytes and allow explicit retries with the entered draft", async ({
   page,
 }) => {
-  const server = await fixture.start("dev");
+  const server = await fixture.start("preview");
   await page.goto(`${server.baseURL}/?view=settings`);
   await apiKey(page).fill(original);
   await save(page).click();

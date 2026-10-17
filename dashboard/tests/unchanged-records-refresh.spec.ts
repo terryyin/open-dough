@@ -14,7 +14,10 @@ import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
-import { startDashboardServer } from "./support/dashboardServer.ts";
+import {
+  builtDashboardDir,
+  startDashboardServer,
+} from "./support/dashboardServer.ts";
 import {
   atA,
   atB,
@@ -95,7 +98,11 @@ test("a commit that changes no planning record is shown without reading the unch
   });
 
   await test.step("a restarted dashboard process holds nothing, so it reads B in full and compares nothing", async () => {
-    const restarted = await startDashboardServer({ mode: "dev", github });
+    const restarted = await startDashboardServer({
+      mode: "preview",
+      prebuilt: builtDashboardDir,
+      github,
+    });
     try {
       const before = origin.requests.length;
       await page.goto(restarted.baseURL);

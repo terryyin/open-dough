@@ -46,10 +46,12 @@ request from both, and compares the answers (status, headers, body), with
 Vite's own HMR socket, which only the dev server has, shown working beside
 the terminal upgrade guard. No other spec repeats its tests under both
 servers; a journey runs under the fixture's preview, and a journey about the
-development project environment starts a dev server for that fact alone. A
-dozen settings journeys still start a dev server without such a fact; they
-predate this rule and are brought under it when their family is
-consolidated.
+development project environment starts a dev server for that fact alone:
+`project-add`'s and `project-configuration`'s empty development first start,
+`project-remove`'s removal of development's last project, the machine file
+`system-settings-openai` and `system-settings-terminal-theme` share across
+both environments, and `frame-overview-look`'s frame with no project
+configured, a state only development starts in.
 
 Test support takes the repository root from
 `support/repositoryRoot.ts`, not the working directory, so

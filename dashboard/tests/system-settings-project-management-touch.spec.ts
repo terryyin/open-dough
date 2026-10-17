@@ -20,9 +20,9 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
     test("touch edits at reduced height, cancels without writes, and retries a real failed save with the exact draft", async ({
       page,
     }) => {
-      const server = await fixture.start("dev");
+      const server = await fixture.start("preview");
       await page.goto(`${server.baseURL}/?view=settings`);
-      const file = fixture.configurationFile("dev");
+      const file = fixture.configurationFile("preview");
       const predecessor = readFileSync(file, "utf8");
       const addProject = page.getByRole("button", {
         name: "Add project",
@@ -114,8 +114,10 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       const saved = JSON.parse(
         readFileSync(file, "utf8"),
       ) as readonly unknown[];
-      expect(saved).toHaveLength(1);
-      expect(saved[0]).toMatchObject({
+      expect(saved).toHaveLength(
+        (JSON.parse(predecessor) as unknown[]).length + 1,
+      );
+      expect(saved.at(-1)).toMatchObject({
         repository: "example/sample-app",
         localPath: checkout,
         ref: "release+stable",
@@ -157,7 +159,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       );
       await expect(removal).toBeHidden();
       expect(readFileSync(file, "utf8")).toBe(predecessor);
-      expect(existsSync(fixture.configurationFile("preview"))).toBe(false);
+      expect(existsSync(fixture.configurationFile("dev"))).toBe(false);
       expect(
         existsSync(
           path.join(

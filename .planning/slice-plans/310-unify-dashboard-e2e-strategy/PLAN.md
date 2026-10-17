@@ -370,7 +370,7 @@ journey waits it reviews.
 
 ### 8. Presentation checks join their journeys
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard-header.spec.ts`'s viewport and font matrix and the
 `responsive-session-*`, `dashboard-columns-*` and `side-panel-*` checks are
 each either one journey with a state change or a single cheapest layout proof;
@@ -379,6 +379,26 @@ the proof map names the replacement of every removed case; suite green.
 Behavior: pre: static layout is asserted repeatedly across widths and fonts →
 trigger: review under the strategy → result: the layout rule is proved once
 where it is cheapest and the user journey keeps its state change.
+
+Accepted proof (2026-10-18, at the slice 8 commit): `dashboard-header.spec.ts`
+runs one journey per CSS branch of `banner.css` (one row above 800 px at
+1280, two rows at 700, wrapped choices with the Verdana wrap at 320) with the
+former one-row width checks as a named step of the 1280 journey, 7 to 4
+tests; `side-panel-width-stacking` keeps the 420 px side of the 800 px query
+and `side-panel-width-kept` "reloaded in a narrow window" proves the query;
+the `responsive-session-*`, `dashboard-columns-*` and the rest of the
+side-panel checks are state-change journeys and stay; nine settings
+journeys with no development fact run on the preview, the ones with one keep
+their dev server (listed in the README); `terminal-theme-boundary`'s
+browserless test is in `boundary/` and its page test in
+`system-settings-terminal-theme-recovery.spec.ts`;
+`authenticated-read-owner-failures` opens with `openUntilRead`. Scratch
+regressions: the banner breakpoint failed exactly the 1280 journey, the
+side-panel query exactly the 760 px reload, an unknown-theme message exactly
+the recovery journey. The touched files went from 34 tests and 60.2 s summed
+to 29 and 41.7 s at four workers; typecheck and discovery green; a whole run
+at four workers (load 3–7, wall 957 s, summed 3,433 s) passed 1,520 of 1,520
+(801 browser-tier, 719 boundary) with nothing of the run surviving.
 
 ### 9. Strategy published with measured result and proof map
 Type: Behavior
@@ -780,7 +800,97 @@ proved now.
   worker-scoped `launchJourney` fixture of `dashboardTest.ts`; titles and
   assertions unchanged.
 
+- `dashboard-header.spec.ts` "banner is one row at 1440 CSS pixels, ending
+  with System settings" and "banner is one row at 1280 CSS pixels, ending
+  with System settings" (2 tests): one step of "selected project banner
+  remains reachable and evidence readable at 1280 CSS pixels", "the wide
+  column lays the banner out in one row, ending with System settings", with
+  the same assertions (Sessions, the name, the project choices and System
+  settings side by side in order with aligned middles, System settings the
+  last control, nothing to its right) on that journey's settled page; 1440
+  and 1280 px are both the banner's wide layout (`banner.css`, a page column
+  wider than 800 px), where more width adds no rule.
+- `dashboard-header.spec.ts` "selected project banner remains reachable and
+  evidence readable at 320 CSS pixels" (1 test, the default font): the "at
+  320 CSS pixels in Verdana" case of the same journey, which installs the
+  wider font on the banner alone; every banner assertion there is a fit rule
+  (one line per project choice, pinned and under half the window, text read
+  whole, no focused control under the banner) that the wider font makes
+  stricter, and the rest of the page is measured as before. The journey's
+  three remaining layouts are the banner's three container branches: wider
+  than 800 px, up to 800, up to 400.
+- `side-panel-width-stacking.spec.ts` "at a 200% zoomed window the panel
+  stacks above the page with no edge, and a wide window recovers the chosen
+  width" (1 test): the file's one remaining test, at the narrow window
+  (420 px), the same assertions with less room; 640 and 420 px lie on the
+  stacked side of the panel's `(max-width: 800px)` query
+  (`src/sidePanelWidth.ts`), whose split side is `side-panel-width.spec.ts`.
+  At 420 px the room rule (two 320 px minimums) stacks the panel even without
+  the query, so the narrow test proves the stacked presentation, reach and
+  width recovery, and the query itself is proved by
+  `side-panel-width-kept.spec.ts` "reloaded in a narrow window the panel
+  stacks with no edge" at 760 px: a scratch query of 300 px failed exactly
+  that test.
+- `project-add.spec.ts` "Cancel and Escape save nothing, return focus and
+  keep project arrows inside the modal (dev)" (1 test): the "(preview)"
+  iteration, now the one test of that title, its project-arrow check
+  unconditional (the development iteration had no project to check); that
+  development keeps its own file is "Add in empty development leaves the
+  production list on the same machine unchanged".
+- `terminal-theme-boundary.spec.ts` "terminal theme endpoint refuses
+  foreign, malformed and unknown requests without changing the saved theme"
+  (1 browserless test, on a dev server): `boundary/terminal-theme-boundary.spec.ts`,
+  the same test on the boundary server (`systemSettingsMachine().start("boundary")`);
+  the file's page test "an unreadable or unknown saved terminal theme is a
+  read problem shown in System settings with Retry" is
+  `system-settings-terminal-theme-recovery.spec.ts` on the fixture's preview.
+- Journeys moved from a dev server to the fixture's preview, titles and
+  assertions unchanged: `system-settings-openai-race` (3 tests),
+  `system-settings-openai-recovery` "failed save/removal preserve
+  predecessor bytes ..." (1), `system-settings-openai-unusable-credential`
+  (1), `system-settings-project-management` "project settings errors retain
+  the form draft ..." and "long configured facts reflow ..." (2; the
+  production list's four seeded projects are the predecessor, compared byte
+  for byte after the failed add and counted plus one after the add),
+  `system-settings-project-management-touch` (2; the same count, the added
+  project the list's last, and the development file the one asserted
+  absent), `authenticated-read-owner-failures` (5; opened with
+  `openUntilRead`, so the refused-owner notice is checked after the failed
+  read), and the restarted server of `unchanged-records-refresh` (the run's
+  build on a preview). Dev servers kept, each for a development fact:
+  `system-settings-openai` (one credential across both environments, each
+  project list untouched), `system-settings-terminal-theme` (one theme
+  file), `project-add`, `project-configuration` "development first start",
+  `project-remove` "removing the last project ..." (development's file
+  emptied), `frame-overview-look` "no projects configured" (a state only
+  development starts in; production seeds four projects).
+
 ## Learnings
+
+- Hosted measurement (analysis of the Playwright report artifacts of the
+  baseline run 38838738715, a same-day main run e535dc46 with no story code,
+  and the branch runs cfc8af7f and 1aec32a1; working data under the
+  execution's temporary directory): summed browser-suite step time is
+  dominated by run-to-run runner speed (main alone ranged 2,375–2,645 s on
+  2026-10-17; the branch's nine runs 2,206–2,659 s, σ ≈ 140 s). Per-test
+  seconds fell from 8,171 (baseline) to 7,158 at 1aec32a1, the boundary tier
+  from 1,802 s to 1,402 s and matched boundary tests by 3–16 %; the launch
+  journeys from 1,808 s to 1,554 s after slice 7; journey tests otherwise
+  drift with the runner (+10 % median on the "after" run, the same drift the
+  no-story main run shows). With zero non-test time the twelve shards'
+  step sum would be per-test seconds over four workers: 2,043 s at the
+  baseline, 1,790 s at 1aec32a1, so the story's ≤ 1,244 s hosted target is
+  below the floor of the retained work; the decision on that number is
+  Terry's at slice 9. Two leads for slice 9: `agent-launch-publication-receipt-failure`
+  and `agent-launch-preparation-phases` take 13–15 s on the branch against
+  5 s on main with unchanged specs (one targeted trace); worker restarts
+  rose from 21 to 68 at 1aec32a1 (the `session-instruction-*` files each
+  took a worker of their own after the worker-scoped `launchJourney`
+  fixture: 83 s of restart gaps and 134 s of slot imbalance across the
+  shards, the largest remaining non-test item).
+- The CI observer's eight-hour budget expired after slice 7's publication
+  (CI_MONITOR_UNAVAILABLE); every published revision through 1aec32a1 is
+  green; the next managed delivery establishes a new observer.
 
 - Slice 2 found 14 more browserless files than the `page`-token inventory
   (the token appeared only in comments or error strings):
@@ -983,3 +1093,55 @@ proved now.
   GitHub guard; the smallest remaining journey test (one server, one page,
   one settled read) takes about 1.3 s, which bounds what server sharing could
   still save per test.
+- Slice 8 read every file of the named families before deciding: only
+  `dashboard-header.spec.ts` (two width loops) and
+  `side-panel-width-stacking.spec.ts` (two windows) were presentation
+  matrices. The 12 `responsive-session-*` files (27 tests) are state-change
+  journeys (starts, recoveries, reconciliations) at the default viewport, so
+  nothing there repeats a width; the `dashboard-columns-*` (14) and remaining
+  `side-panel-width*` (5) journeys change the width as the state under test
+  (how many columns show, whether the panel splits); `accessible-overview*`
+  and `frame-overview-look` measure at 420 and 320 px, the two sides of the
+  banner's 400 px container rule, each with its own page state. The
+  whole run after this slice selects 1,520 tests, 801 outside `boundary/`
+  and 719 in it (slice 7's record, split the same way by file: 807 and 718;
+  the 810/715 written above counted differently): three header cases, one
+  stacking case and one `project-add` iteration dropped, one browserless
+  theme test moved to `boundary/`, its page test its own file. The touched
+  files, at four workers on a quiet machine (load 2.5-3.8 both times): 34
+  tests, 60.2 s summed, 17.5 s wall before; 29 tests, 41.7 s summed, 13.9 s
+  wall after. The whole run at four workers (load 3 rising to 7) passed
+  1,520 of 1,520 in 957 s (3,433 s summed) and left no process of the run.
+- The one presentation matrix left is `launchTouchViewports`
+  (`touchLaunchPage.ts`: phone 390×844 / 844×390 and tablet 768×1024 /
+  1024×768) across 13 files, about 15 tablet iterations of journeys that
+  also run as phone. The phone iteration crosses every width and height
+  rule the tablet one does (banner container 800 and 400 px, launch-session
+  480 px, launch-dialog 480 px height, project-configuration container
+  640 px, side panel 800 px query); only `agent-terminal-touch.spec.ts`
+  branches on the device, and that branch is the phone's. Dropping the
+  tablet iterations is a reduction of about 15 tests and 60 s summed, to be
+  judged file by file (each tablet iteration's own observations named) in
+  slice 9's measurement or a follow-up; this slice left them.
+- The dev-server review found one more serving-mode loop, `["preview",
+  "dev"]` in `project-add.spec.ts`, which slice 4's `grep` for `["dev",
+  "preview"]` missed; a scan for mode loops must match both orders. After
+  this slice `grep -rn 'start("dev")\|mode: "dev"' dashboard/tests` outside
+  `serving-modes.spec.ts` names only the development-fact journeys listed in
+  the README (and `support/`). The `systemSettingsMachine` and
+  `projectAddMachine` fixtures take `"boundary"` as a mode, so a browserless
+  test found beside a page test in a settings file moves to `boundary/` on
+  the same fixture, as `terminal-theme-boundary` did.
+- Measuring: `npx playwright test` from `dashboard/tests` finds no
+  configuration (Playwright does not search parent directories) and runs
+  with defaults, no build, no quiet reporter, no run identity, so every
+  page journey fails at the 5 s bound; run `npm run test:dashboard -- ...`
+  from the root. `--reporter=list` replaces the configured quiet reporter,
+  and with it no proof record is written; a measured run omits
+  `--reporter` and reads the record, a diagnostic run passes
+  `--reporter=list`.
+- README placement rule for slice 9: the sentence on dev servers now lists
+  the development-fact journeys by name; the two-tier section should also
+  say where a layout rule goes (one journey per CSS branch of the rule, at
+  the width where its state change is observed, and a font-metric case only
+  where a font reproduces a wrap) so the next matrix is not written.

@@ -25,7 +25,7 @@ test("malformed and unreadable saved credentials report configuration problems w
   mkdirSync(fixture.credentialDirectory, { recursive: true, mode: 0o700 });
   const malformed = `{"apiKey":"${key}"`;
   writeFileSync(fixture.credentialFile, malformed, { mode: 0o600 });
-  const server = await fixture.start("dev");
+  const server = await fixture.start("preview");
   const options = {
     url: `${server.baseURL}/__openai-configuration`,
     headers: { Origin: server.origin },
