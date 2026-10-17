@@ -123,9 +123,10 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
   await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
   await expect(card.locator(".badge-ready")).toHaveCount(0);
+  // A supplier's resolution leaves the reviewed agreement unchanged.
   await expect(
     card.getByText("Changed since readiness review", { exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   // The readiness reason is secondary detail, read without another source
   // read; the Not ready badge stays in the scan view.
   await expect(card).not.toContainText(

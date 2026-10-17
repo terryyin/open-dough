@@ -63,18 +63,37 @@ function separatePlanSource(approach, options) {
 // section, the seed's shared context, and a distinct plan. Other stories'
 // sections are left out, so preparing, editing, or closing a sibling keeps
 // this story's readiness.
+function scopedSource(home) {
+  return joinSource({ ...home.document, lines: storyContextLines(home) });
+}
+
 function currentBasisFor(home, approach, options = {}) {
-  const scoped = joinSource({
-    ...home.document,
-    lines: storyContextLines(home),
-  });
-  return computeBasis(scoped, separatePlanSource(approach, options));
+  return computeBasis(
+    scopedSource(home),
+    separatePlanSource(approach, options),
+  );
+}
+
+// The story-scoped basis a record from before agreement digests carries: the
+// dependency fence digested as written. It still matches while neither the
+// story nor its dependency record has changed.
+function asWrittenBasisFor(home, approach, options = {}) {
+  return computeBasis(
+    scopedSource(home),
+    separatePlanSource(approach, options),
+    {
+      dependencyFences: "as-written",
+    },
+  );
 }
 
 // The whole-document basis a record from before story scoping carries. It
-// still matches while the whole seed is unchanged.
+// still matches while the whole seed is unchanged. Such records also predate
+// agreement digests, so the document is digested as written.
 function formerBasisFor(source, approach, options = {}) {
-  return computeBasis(source, separatePlanSource(approach, options));
+  return computeBasis(source, separatePlanSource(approach, options), {
+    dependencyFences: "as-written",
+  });
 }
 
 // Reads preparation facts and assessment view from already-loaded
@@ -118,6 +137,7 @@ export function readStoryState(source, href, options = {}) {
   }
   const recordedAssessment = assessmentFromPayload(payload);
   const basis = currentBasisFor(home, normalized.approach, options);
+  const asWritten = asWrittenBasisFor(home, normalized.approach, options);
   const former = formerBasisFor(source, normalized.approach, options);
   return {
     ...normalized,
@@ -125,7 +145,12 @@ export function readStoryState(source, href, options = {}) {
     href: home.href,
     key: home.key,
     basis,
-    assessment: normalizeAssessmentView(recordedAssessment, basis, former),
+    assessment: normalizeAssessmentView(
+      recordedAssessment,
+      basis,
+      asWritten,
+      former,
+    ),
   };
 }
 

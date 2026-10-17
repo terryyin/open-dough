@@ -203,7 +203,7 @@ derives once; `blockedByDependencies` in
 
 ### 3. A satisfied dependency leaves the readiness review unchanged
 Type: Behavior
-Status: planned
+Status: done
 Proof: new cases in `tests/support/story-dependencies.test.mjs` through the
 real CLI: after `record-state --assessment ready`, `update-dependency` to
 `satisfied` with resolution reads `changedSinceReview: false`; editing the
@@ -219,6 +219,17 @@ Behavior: a consumer's readiness is recorded → a supplier's resolution writes
 `state`, `resolution`, or `decision` in the dependency fence → the recorded
 judgment reads with `changedSinceReview: false`; a change to the story text,
 the plan, or the agreement itself still reads `true`.
+
+Accepted proof: `node --test tests/support/story-state*.test.mjs
+tests/support/story-dependencies.test.mjs tests/support/supplier-*.test.mjs
+tests/support/start-eligibility.test.mjs` with the startup, admission,
+recovery, one-shot queued escalation and established-start tests in
+`src/skills/dough-execute-plan/scripts` (129 pass), including the three new
+basis cases, which fail with agreement digests or the as-written comparison
+disabled; `tests/product-backlog-payload-update.sh`; `story-dependencies.spec.ts`
+and `start-eligibility.spec.ts` (inverted and new absence assertions). The
+agreement subset is `dependencyAgreement` in
+`product-backlog-story-state-basis.mjs`, shared with the stale-agreement check.
 
 ### 4. Guidance records dependencies once and reassesses duplicated reasons by judgment
 Type: Behavior
@@ -254,7 +265,7 @@ Disposition: no user cost "The preparing agent's assessment stays the one record
 ### G2. A satisfied dependency still shows "Changed since readiness review"
 Reported: slice 1 — "The new journey's card therefore also shows "Changed since readiness review" after the dependency write; I made no assertion on it, and slice 3 owns removing it."
 Story clause: "so a supplier's resolution leaves "Changed since readiness review" off"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/tests/start-eligibility.spec.ts` "a ready story waits on its dependency and becomes startable once it is satisfied, with no readiness write" asserts "Changed since readiness review" absent after satisfaction, and `tests/support/story-dependencies.test.mjs` "a supplier's resolution leaves the readiness review unchanged while an agreement edit flags it" reads `changedSinceReview: false`; both fail with agreement digests disabled.
 
 ### G3. One-shot and admission starts keep their own gates
 Reported: slice 2 — "So a one-shot start of a not-ready story behind a waiting supplier names only the dependency. The admission paths in `execution-admission-source.mjs` also still use only `requireResolvedStoryDependencies`."
@@ -287,3 +298,7 @@ Disposition: no user cost "whether a story may start is derived from that record
 - Slice 2: a new shared module imported by a payload script needs its entry in
   `install.sh` (and `tests/product-backlog-payload-update.sh`); only the
   installed-CLI startup case catches a missing entry.
+- Slice 3: a ready assessment recorded before a dependency agreement is added
+  still shows "Changed since readiness review", because the agreement is in
+  the basis; slice 4's guidance keeps the order: record the dependency, then
+  the assessment.

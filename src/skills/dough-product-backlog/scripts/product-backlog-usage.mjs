@@ -141,7 +141,9 @@ and does not independently block authorized startup.
 
 read-dependencies prints the consumer's separate, versioned dependency record,
 blocking entries, and dependency agreement basis. Absence means no blockers;
-a malformed present record is refused. Dependencies stay in the review basis.
+a malformed present record is refused. The review basis keeps each
+dependency's agreement (supplier, implementation, rationale, condition); a
+supplier's state, resolution, or decision leaves it unchanged.
 
 update-dependency upserts one supplier agreement from --dependency-file, using
 the basis returned by read-dependencies. The JSON object names supplier

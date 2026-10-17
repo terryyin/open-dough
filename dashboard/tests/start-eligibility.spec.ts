@@ -12,6 +12,7 @@ import {
   recordDependency,
   publishDependencies,
 } from "./storyDependencyFixture.ts";
+import { recordAssessed } from "./storyReadinessCli.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 // The story-state record of the consumer's canonical home, as published.
@@ -28,6 +29,13 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   dashboard,
 }) => {
   recordDependency(origin, 0, "waiting");
+  // The preparing agent reviews the story with its dependency agreement.
+  recordAssessed(origin.project, consumer, {
+    refinement: "refined",
+    approach: "planned",
+    plan: "../slice-plans/A/PLAN.md",
+    assessment: "ready",
+  });
   const revision = await publishDependencies(origin);
   const readiness = storyStateRecord(origin.project);
   const published = await publishCommittedOrigin(page, {
@@ -61,7 +69,10 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
   await expect(execution).toBeEnabled();
   await expect(card.locator(".dependency-start-reason")).toHaveCount(0);
-  // Only the dependency agreement changed; readiness was not rerecorded.
+  await expect(
+    card.getByText("Changed since readiness review", { exact: true }),
+  ).toHaveCount(0);
+  // Only the dependency state changed; readiness was not rerecorded.
   expect(storyStateRecord(origin.project)).toBe(readiness);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(published.requests.length).toBeGreaterThan(0);

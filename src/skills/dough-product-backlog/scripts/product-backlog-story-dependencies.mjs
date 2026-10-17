@@ -4,9 +4,11 @@ import { namedIdentity, readHome } from "./product-backlog-home-reader.mjs";
 import { splitHref } from "./product-backlog-identity.mjs";
 import { BacklogError } from "./product-backlog-refusal.mjs";
 import { joinSource } from "./product-backlog-source.mjs";
-import { digestSource } from "./product-backlog-story-state-basis.mjs";
+import {
+  digestSource,
+  storyDependenciesFence,
+} from "./product-backlog-story-state-basis.mjs";
 
-export const storyDependenciesFence = "json dough-story-dependencies";
 export const storyDependenciesSchemaVersion = 1;
 
 function refuse(message) {
