@@ -27,6 +27,67 @@ outcome without changing ADR status or execution authority.
 
 ## Stories
 
+<a id="land-unfinished-stories-without-retirement"></a>
+
+### Land unfinished story changes without retiring their execution workspace
+
+**Identity:** SEED-008#land-unfinished-stories-without-retirement
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** Developers who need to release an intermediate story result
+before completing its remaining execution or acceptance work.
+
+**Outcome:** The developer can publish reviewed story changes to trunk while
+keeping the unfinished story's workspace, branches, assignment and dashboard
+continuation usable. Landing an increment never implies story completion.
+
+**Agreed behavior (Terry, 2026-10-18):**
+
+- Ordinary `/dough-land` refuses an unfinished story's worktree before committing
+  or publishing, explaining the remaining work and the explicit retention
+  option. Taken membership alone is insufficient to establish incompleteness:
+  inspect remaining slices and completion obligations. Missing or ambiguous
+  completion evidence must not permit retirement.
+- `/dough-land --keep-worktree` publishes through the existing landing operation
+  and applies the existing optional default-checkout refresh, while preserving
+  the execution worktree, local branch, remote execution branch, story
+  assignment and the context needed to resume from the dashboard.
+- Report the distinct outcomes accurately: changes landed, story unfinished,
+  resources retained. Keep the story Taken and retain an unfinished dashboard
+  report while work remains; do not automatically acknowledge that session as
+  Done merely because publication succeeded. Manual session acknowledgment
+  continues to leave the story and remaining slices unchanged.
+- Completed stories continue through ordinary story wrap-up and its completion
+  and retirement gates. Ordinary reviewed work without an unfinished story
+  keeps its existing landing behavior. Extend Dough Land; add no separate skill
+  or duplicate publication path.
+
+**Acceptance examples:**
+
+| Situation | Required observation |
+| --- | --- |
+| Thirteen of fourteen slices are done; the last needs a release; ordinary Dough Land is requested | Refuse before commit or publication; preserve the worktree and branches and explain `--keep-worktree` |
+| The same story is landed with `--keep-worktree` | Trunk contains its changes; the worktree, both execution branches and assignment remain; the story stays Taken and its next slice is resumable |
+| An earlier retained landing is repeated after trunk already contains its changes | No duplicate commit or publication; preserve the same resources and continuation |
+| The story is Taken but its execution has completed | Judge the actual completion obligations; queue membership alone does not label it unfinished or authorize closure |
+| Completion evidence is missing, or publication fails | Retain recoverable resources and report the precise refusal or failure |
+
+**Evidence:** Pygardon story
+`SEED-133#story-sharadar-update-in-ten-minutes` had slice 14 pending when Terry
+invoked `/dough-land` to make a release possible. On 2026-10-18 at about
+07:23 JST, landing published `490876aafa7ccfc7f34297faad50afcbdb506c74` and
+retirement returned `worktree: removed`, `branch: removed`, and
+`remoteBranch: removed`. The story correctly remained Taken and the dashboard
+report correctly said `unfinished`, but its execution workspace was gone.
+The implementation and plan remained on main. This is an intermediate-landing
+lifecycle gap, not evidence of false published story completion.
+
+**Effort hypothesis:** Unestimated until refinement checks the landing,
+retirement and dashboard continuation boundaries together. No implementation,
+release or Pygardon story closure is authorized by queueing this work.
+
 <a id="accept-queued-start-native-behavior"></a>
 
 ### Queued-start native acceptance completed

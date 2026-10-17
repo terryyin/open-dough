@@ -18,5 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Land unfinished story changes without retiring their execution workspace](seeds/SEED-008-worktree-branch-trunk-sync.md#land-unfinished-stories-without-retirement) — SEED-008#land-unfinished-stories-without-retirement
 - [Bound each dashboard test after its event and place page-less specs at the boundary](seeds/SEED-136-dashboard-test-efficiency.md#dashboard-test-bounds-and-placement) — SEED-136#dashboard-test-bounds-and-placement
 - [Restore GitHub Actions CI feedback to under three minutes](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes
