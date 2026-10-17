@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "identity": "SEED-139#review-completed-stories",
+  "mode": "story-branch",
+  "branch": "codex/completed-story-review",
+  "host": "codex"
+}

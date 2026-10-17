@@ -16,6 +16,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Correct start-eligibility gaps found in review](seeds/SEED-138-computed-execution-readiness.md#correct-start-eligibility-gaps) — SEED-138#correct-start-eligibility-gaps ([plan](slice-plans/312-correct-start-eligibility-gaps/PLAN.md))
 - [Land unfinished story changes without retiring their execution workspace](seeds/SEED-008-worktree-branch-trunk-sync.md#land-unfinished-stories-without-retirement) — SEED-008#land-unfinished-stories-without-retirement ([plan](slice-plans/314-land-unfinished-stories-without-retirement/PLAN.md))
+- [Review every completed story](seeds/SEED-139-completed-story-review.md#review-completed-stories) — SEED-139#review-completed-stories
 
 ## Backlog list
 
