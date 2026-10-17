@@ -13,6 +13,7 @@ import {
   startCursorDashboard,
   stayedUp,
 } from "./keptCursorTurn.ts";
+import { developmentBoundary } from "./dashboardServer.ts";
 import {
   instruction,
   liveRunner,
@@ -31,7 +32,7 @@ export async function restartedDashboardTypesSameClient(): Promise<void> {
     `dough-cursor-runner-${process.pid.toString(36)}`,
   );
   mkdirSync(machine);
-  let server = await startCursorDashboard("dev", cursor, machine);
+  let server = await startCursorDashboard(developmentBoundary, cursor, machine);
   try {
     const runner = await liveRunner(server.home);
     const runnerPid = runner.pid;
@@ -57,7 +58,7 @@ export async function restartedDashboardTypesSameClient(): Promise<void> {
     await stayedUp(cursor, pid, 400);
     expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
 
-    server = await startCursorDashboard("dev", cursor, machine);
+    server = await startCursorDashboard(developmentBoundary, cursor, machine);
     expect(readCursorRunnerAddress(server.home)?.pid).toBe(runnerPid);
     expect(runnersFor(server.home)).toBe(1);
     const terminal = await openCursorTerminal(server, sessionId);
@@ -83,7 +84,7 @@ export async function waitingAnswerSurvivesRestart(): Promise<void> {
     `dough-cursor-wait-${process.pid.toString(36)}`,
   );
   mkdirSync(machine);
-  let server = await startCursorDashboard("dev", cursor, machine);
+  let server = await startCursorDashboard(developmentBoundary, cursor, machine);
   try {
     expect(
       (
@@ -100,7 +101,7 @@ export async function waitingAnswerSurvivesRestart(): Promise<void> {
     expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
     await server.close();
     await stayedUp(cursor, pid, 500);
-    server = await startCursorDashboard("dev", cursor, machine);
+    server = await startCursorDashboard(developmentBoundary, cursor, machine);
     const terminal = await openCursorTerminal(server, sessionId);
     expect(await shows(terminal, "Clarifying Questions")).toBe(true);
     terminal.send({ input: "Red" });
@@ -124,7 +125,7 @@ export async function trustScreenSurvivesRestart(): Promise<void> {
     `dough-cursor-trust-${process.pid.toString(36)}`,
   );
   mkdirSync(machine);
-  let server = await startCursorDashboard("dev", cursor, machine);
+  let server = await startCursorDashboard(developmentBoundary, cursor, machine);
   try {
     expect(
       (
@@ -146,7 +147,7 @@ export async function trustScreenSurvivesRestart(): Promise<void> {
     );
     expect(cursor.input(pid)).not.toContain(instruction);
     await stayedUp(cursor, pid, 400);
-    server = await startCursorDashboard("dev", cursor, machine);
+    server = await startCursorDashboard(developmentBoundary, cursor, machine);
     expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
     expect(cursor.input(pid)).not.toContain(instruction);
     const terminal = await openCursorTerminal(server, sessionId);

@@ -1,6 +1,6 @@
-// Shared by the local launch boundary specs (./agent-launch-boundary.spec.ts,
-// ./agent-launch-refusal.spec.ts, ./agent-launch-records.spec.ts,
-// ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
+// Shared by the local launch boundary specs (./boundary/agent-launch-boundary.spec.ts,
+// ./boundary/agent-launch-refusal.spec.ts, ./boundary/agent-launch-records.spec.ts,
+// ./boundary/agent-launch-session-listing.spec.ts, and ./boundary/agent-launch-done.spec.ts):
 // one execution launch request for this repository's own story, and its
 // refinement counterpart, sent over raw HTTP to be answered once accepted,
 // or followed to what it settled to (./acceptedAttempts.ts), a continuation, a

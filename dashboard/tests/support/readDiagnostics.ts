@@ -1,8 +1,9 @@
 // Shared helpers for local authenticated-read diagnostics inspection
-// (`../authenticated-read-diagnostics.spec.ts` and
-// `../authenticated-read-diagnostics-bounds.spec.ts`).
+// (`../boundary/authenticated-read-diagnostics.spec.ts` and
+// `../boundary/authenticated-read-diagnostics-bounds.spec.ts`).
 
 import {
+  developmentBoundary,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -61,4 +62,4 @@ export async function inspect(
   };
 }
 
-export { startDashboardServer, type DashboardServer };
+export { developmentBoundary, startDashboardServer, type DashboardServer };

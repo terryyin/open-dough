@@ -17,21 +17,7 @@ import {
   startSession,
   startSessionDialog,
 } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-// Publishing runs production backlog commands against a local origin; give
-// it its own budget so a busy machine cannot starve it.
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-// A setup that failed leaves nothing to clean up.
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+import { readyStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -67,9 +53,10 @@ for (const { scenario, words } of failures) {
   test(`${scenario}: the row says Launch failed and why beside Start session, which stays enabled with the keyboard on it, and a later start launches and clears it`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario(scenario);
-    const { card } = await openTakenBacklog(page, journey);
+    const { card } = await openTakenBacklog(page, launchJourney);
     const button = startSession(page, "Open Dough");
     const row = parts(page).projectActions;
 
@@ -105,9 +92,10 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
   test("hang: Start session is disabled while in flight, and the row then says Launch uncertain with the claude agents advice beside an enabled button", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("hang");
-    const { card } = await openTakenBacklog(page, journey);
+    const { card } = await openTakenBacklog(page, launchJourney);
     const button = startSession(page, "Open Dough");
     const dialog = startSessionDialog(page, "Open Dough");
 

@@ -18,7 +18,7 @@ for (const operation of ["save", "remove", "save after read error"] as const) {
       mkdirSync(fixture.credentialDirectory, { recursive: true, mode: 0o700 });
       writeFileSync(fixture.credentialFile, "{malformed", { mode: 0o600 });
     }
-    const server = await fixture.start("dev");
+    const server = await fixture.start("preview");
     if (operation === "remove") {
       await page.goto(`${server.baseURL}/?view=settings`);
       await expect(status(page)).toHaveText("API key: Not configured");

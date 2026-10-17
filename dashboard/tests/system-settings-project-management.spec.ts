@@ -14,7 +14,11 @@ test.afterEach(async () => fixture.close());
 test("project settings errors retain the form draft and predecessor and allow explicit retry", async ({
   page,
 }) => {
-  const server = await fixture.start("dev");
+  const server = await fixture.start("preview");
+  // Production's seeded project list is the predecessor every failed add
+  // must leave byte for byte.
+  const file = fixture.configurationFile("preview");
+  const predecessor = readFileSync(file, "utf8");
   await page.goto(`${server.baseURL}/?view=settings`);
   await page.getByRole("button", { name: "Add project", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Add project", exact: true });
@@ -26,15 +30,11 @@ test("project settings errors retain the form draft and predecessor and allow ex
   await dialog.getByRole("button", { name: "Add", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
   await expect(url).toHaveValue("not a repository");
-  expect(
-    JSON.parse(readFileSync(fixture.configurationFile("dev"), "utf8")),
-  ).toEqual([]);
+  expect(readFileSync(file, "utf8")).toBe(predecessor);
   await url.fill("https://github.com/example/sample-app");
   await dialog
     .getByRole("textbox", { name: "Local path" })
     .fill("~/work/private-checkout");
-  const file = fixture.configurationFile("dev");
-  const predecessor = readFileSync(file, "utf8");
   chmodSync(path.dirname(file), 0o500);
   try {
     await dialog.getByRole("button", { name: "Add", exact: true }).click();
@@ -52,9 +52,9 @@ test("project settings errors retain the form draft and predecessor and allow ex
   await expect(
     page.getByRole("heading", { name: "Sample App", exact: true }),
   ).toBeVisible();
-  expect(
-    JSON.parse(readFileSync(fixture.configurationFile("dev"), "utf8")),
-  ).toHaveLength(1);
+  expect(JSON.parse(readFileSync(file, "utf8"))).toHaveLength(
+    (JSON.parse(predecessor) as unknown[]).length + 1,
+  );
 });
 
 test("failed row removal keeps configuration, confirmation feedback and retry", async ({
@@ -93,7 +93,7 @@ test("failed row removal keeps configuration, confirmation feedback and retry", 
 test("long configured facts reflow at narrow width and 200 percent zoom with keyboard return", async ({
   page,
 }, testInfo) => {
-  const file = fixture.configurationFile("dev");
+  const file = fixture.configurationFile("preview");
   mkdirSync(path.dirname(file), { recursive: true });
   const repository = `example/${"long-repository-name-".repeat(8)}project`;
   const localPath = `/Users/developer/${"long-checkout-directory/".repeat(10)}project`;
@@ -110,7 +110,7 @@ test("long configured facts reflow at narrow width and 200 percent zoom with key
       },
     ]),
   );
-  const server = await fixture.start("dev");
+  const server = await fixture.start("preview");
   await page.goto(server.baseURL);
   await settings(page).focus();
   await page.keyboard.press("Enter");

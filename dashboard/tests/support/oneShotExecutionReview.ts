@@ -10,7 +10,7 @@ import { queuedIdentity } from "./startOrigin.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { stored } from "./codexStart.ts";
 import { oneShot } from "./oneShotLaunch.ts";
-import { requestFor } from "./launchPreview.ts";
+import { requestFor } from "./launchDashboard.ts";
 import { git, scripts } from "./launchLanding.ts";
 import { context } from "./oneShotLanding.ts";
 import { captureReviewRun, retireReviewRun } from "./oneShotReview.ts";

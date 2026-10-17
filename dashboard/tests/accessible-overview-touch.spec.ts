@@ -9,7 +9,7 @@ import {
   queuedTitles,
   revision,
 } from "./accessibleOverview.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
 import { edgeControl, expectView, wheelTo } from "./dashboardColumnsPage.ts";
 import {
   commitAnswer,
@@ -152,7 +152,11 @@ test.describe("touch reading", () => {
       ref: commitAnswer(revision),
       backlog: { revision, answer: rawFileAnswer(longBacklog) },
     });
-    await openUntilRead(page);
+    // The reason is brought into view where the page lays it out once every
+    // card's preparation is read: until then the cards above it, and its own
+    // dependency facts, are still growing by what those reads answer.
+    await page.goto("/");
+    await expectSettledPage(page);
     const card = parts(page).backlog.getByRole("article", { name: title });
     const reason = card.getByText(openSessionStartReason, { exact: true });
     await reason.scrollIntoViewIfNeeded();

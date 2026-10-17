@@ -1,6 +1,6 @@
-// Shared support for ../authenticated-read-done-catalog.spec.ts,
-// ../authenticated-read-done-catalog-gaps.spec.ts, and
-// ../authenticated-read-done-catalog-refusal.spec.ts: done records as
+// Shared support for ../boundary/authenticated-read-done-catalog.spec.ts,
+// ../boundary/authenticated-read-done-catalog-gaps.spec.ts, and
+// ../boundary/authenticated-read-done-catalog-refusal.spec.ts: done records as
 // completion renders them, the catalog the shared module reads from them
 // (../doneCatalogAnswers.ts), and how a test sends done catalog and record
 // reads to the boundary and observes the questions that reached GitHub.

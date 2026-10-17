@@ -171,8 +171,10 @@ Text meets 4.5:1 contrast, and controls, icons, and focus outlines meet 3:1.
 ## Tests
 
 `tests/` holds one Playwright suite that replaces only GitHub's answers to
-`gh`; [its README](tests/README.md) describes the harness, its silence rule,
-and how journeys step page time.
+`gh`; [its README](tests/README.md) is the suite's strategy and index: its
+two tiers, where a check goes, what is real and what is replaced, its
+silence rule, and the guides beside it on writing a journey, the synthetic
+hosts and a run's proof record.
 
 ## GitHub requests
 

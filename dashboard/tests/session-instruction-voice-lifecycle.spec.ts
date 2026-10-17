@@ -1,34 +1,18 @@
 import { test, expect } from "./support/voiceTest.ts";
+import { voiceBrowserOptions } from "./support/voiceRecovery.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
 } from "./launchCardPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
   saveVoiceKey,
   stoppedTracks,
 } from "./support/voicePage.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
-test.use({
-  projectFolders: ["open-dough"],
-  permissions: ["microphone"],
-  launchOptions: {
-    args: [
-      "--use-fake-device-for-media-stream",
-      "--use-fake-ui-for-media-stream",
-    ],
-  },
-});
+test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
@@ -37,8 +21,9 @@ test("held provider result is aborted on Cancel; reopening stays empty and micro
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   provider.hold();
   const action = startSession(page, "Open Dough");
@@ -69,8 +54,9 @@ test("Escape stops active capture; a late permission grant after dismissal canno
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
@@ -117,8 +103,9 @@ test("unexpected real microphone track end preserves typed text and makes no tra
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
@@ -147,8 +134,9 @@ test("a completed real response delivered after Cancel cannot populate the next 
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   await page.evaluate(() => {
     (

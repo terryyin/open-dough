@@ -7,7 +7,6 @@ import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { showColumn } from "./dashboardColumnsPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -22,12 +21,6 @@ import { markDoneAnyway } from "./support/markDone.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
   test(`Codex Start session ${JSON.stringify(text)} retains identity through reload/restart, navigation and done/reopen`, async ({
@@ -36,6 +29,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     codexProtocol,
     machine,
     github,
+    launchJourney,
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
@@ -53,7 +47,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
           intent: "blank",
         });
     };
-    await openTakenBacklog(page, journey);
+    await openTakenBacklog(page, launchJourney);
     const start = page.getByRole("button", {
       name: "Start session in Open Dough",
     });

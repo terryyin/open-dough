@@ -16,21 +16,7 @@ import {
   tapWhereShown,
 } from "./pageLayout.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-// Publishing runs production backlog commands against a local origin; give
-// it its own budget so a busy machine cannot starve it.
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-// A setup that failed leaves nothing to clean up.
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+import { readyStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -43,10 +29,11 @@ test.describe("without the project's folder", () => {
   test("the card explains the folder was not found and keeps Start execution", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     const { card, start, refine, dialog } = await openTakenBacklog(
       page,
-      journey,
+      launchJourney,
     );
 
     await start(readyStory).click();
@@ -70,10 +57,11 @@ test.describe("without the project's folder", () => {
   test("the failure shows beside Start refinement, which it describes, and leaves Start execution without an answer", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     const { card, start, refine, refinementDialog } = await openTakenBacklog(
       page,
-      journey,
+      launchJourney,
     );
 
     await refine(readyStory).click();
@@ -112,10 +100,14 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     test("a constrained-height Start reports uncertainty and only the explicit recovery choice starts its kept instruction again", async ({
       page,
       dashboard,
+      launchJourney,
     }) => {
       test.setTimeout(120_000);
       dashboard.claudeScenario("hang");
-      const { card, start, dialog } = await openTakenBacklog(page, journey);
+      const { card, start, dialog } = await openTakenBacklog(
+        page,
+        launchJourney,
+      );
       const launcher = start(readyStory);
       await launcher.scrollIntoViewIfNeeded();
       await tapWhereShown(launcher);
@@ -176,9 +168,10 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
   test("Start is disabled while in flight, and the uncertain answer needs reconciliation under Startup recovery while the card stays protected", async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("hang");
-    const { card, start, dialog } = await openTakenBacklog(page, journey);
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
 
     await start(readyStory).click();
     await dialog.getByRole("button", { name: "Start" }).click();

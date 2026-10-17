@@ -1,6 +1,7 @@
 import { readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/voiceTest.ts";
+import { voiceBrowserOptions } from "./support/voiceRecovery.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -11,12 +12,7 @@ import {
   startSessionDialog,
   startSessionField,
 } from "./launchCardPage.ts";
-import {
-  notRefinedStory,
-  notRefinedIdentity,
-  publishLaunchJourney,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
@@ -25,23 +21,7 @@ import {
 } from "./support/voicePage.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
 import { back } from "./support/systemSettingsPage.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
-test.use({
-  projectFolders: ["open-dough"],
-  permissions: ["microphone"],
-  launchOptions: {
-    args: [
-      "--use-fake-device-for-media-stream",
-      "--use-fake-ui-for-media-stream",
-    ],
-  },
-});
+test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
@@ -50,8 +30,9 @@ test("saved settings survive restart; two real clips append once and the reviewe
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   await saveVoiceKey(page);
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
@@ -66,7 +47,7 @@ test("saved settings survive restart; two real clips append once and the reviewe
   });
   try {
     restarted.claudeScenario("launched");
-    const { start, dialog } = await openTakenBacklog(page, journey);
+    const { start, dialog } = await openTakenBacklog(page, launchJourney);
     await start(notRefinedStory).click();
     const field = dialog.getByRole("textbox", {
       name: "Instruction (optional)",
@@ -128,8 +109,9 @@ test("missing-key settings trip retains the launch draft and retry feeds the fin
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   dashboard.claudeScenario("launched");
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");

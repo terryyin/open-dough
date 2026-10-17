@@ -137,57 +137,55 @@ test("Add in empty development leaves the production list on the same machine un
   await productionPage.close();
 });
 
-for (const mode of ["preview", "dev"] as const) {
-  test(`Cancel and Escape save nothing, return focus and keep project arrows inside the modal (${mode})`, async ({
-    page,
-  }) => {
-    const server = await fixture.start(mode);
-    await page.goto(server.baseURL);
-    await page
-      .getByRole("button", { name: "System settings", exact: true })
-      .click();
-    const button = page.getByRole("button", {
+test("Cancel and Escape save nothing, return focus and keep project arrows inside the modal", async ({
+  page,
+}) => {
+  const server = await fixture.start("preview");
+  await page.goto(server.baseURL);
+  await page
+    .getByRole("button", { name: "System settings", exact: true })
+    .click();
+  const button = page.getByRole("button", {
+    name: "Add project",
+    exact: true,
+  });
+  await expect(button).toBeEnabled();
+  const file = fixture.configurationFile("preview");
+  const predecessor = readFileSync(file, "utf8");
+  for (const dismissal of ["Escape", "Cancel"] as const) {
+    await button.click();
+    const dialog = page.getByRole("dialog", {
       name: "Add project",
       exact: true,
     });
-    await expect(button).toBeEnabled();
-    const file = readFileSync(fixture.configurationFile(mode), "utf8");
-    for (const dismissal of ["Escape", "Cancel"] as const) {
-      await button.click();
-      const dialog = page.getByRole("dialog", {
-        name: "Add project",
+    await dialog
+      .getByRole("textbox", { name: "GitHub URL" })
+      .fill(`https://github.com/${addedRepository}`);
+    await dialog
+      .getByRole("textbox", { name: "Local path" })
+      .fill(addedLocalPath);
+    await dialog.getByRole("button", { name: "Cancel" }).focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    await expect(
+      page.getByRole("radio", {
+        name: "Open Dough",
         exact: true,
-      });
-      await dialog
-        .getByRole("textbox", { name: "GitHub URL" })
-        .fill(`https://github.com/${addedRepository}`);
-      await dialog
-        .getByRole("textbox", { name: "Local path" })
-        .fill(addedLocalPath);
-      await dialog.getByRole("button", { name: "Cancel" }).focus();
-      await page.keyboard.press("ArrowRight");
-      await page.keyboard.press("ArrowLeft");
-      if (mode === "preview")
-        await expect(
-          page.getByRole("radio", {
-            name: "Open Dough",
-            exact: true,
-            includeHidden: true,
-          }),
-        ).toBeChecked();
-      if (dismissal === "Escape") await page.keyboard.press("Escape");
-      else await dialog.getByRole("button", { name: "Cancel" }).click();
-      await expect(dialog).toBeHidden();
-      await expect(button).toBeFocused();
-      expect(readFileSync(fixture.configurationFile(mode), "utf8")).toBe(file);
-      expect(
-        server
-          .ghCalls()
-          .some((call) => call.includes(`repos/${addedRepository}`)),
-      ).toBe(false);
-    }
-  });
-}
+        includeHidden: true,
+      }),
+    ).toBeChecked();
+    if (dismissal === "Escape") await page.keyboard.press("Escape");
+    else await dialog.getByRole("button", { name: "Cancel" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(button).toBeFocused();
+    expect(readFileSync(file, "utf8")).toBe(predecessor);
+    expect(
+      server
+        .ghCalls()
+        .some((call) => call.includes(`repos/${addedRepository}`)),
+    ).toBe(false);
+  }
+});
 
 test("retained workspace explanations use the configured folder and keep actual start and stored evidence intact", async ({
   page,

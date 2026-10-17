@@ -1,5 +1,5 @@
-// Shared support for ../authenticated-read-turns.spec.ts and
-// ../authenticated-read-turns-timing.spec.ts: a published revision whose
+// Shared support for ../boundary/authenticated-read-turns.spec.ts and
+// ../boundary/authenticated-read-turns-timing.spec.ts: a published revision whose
 // backlog names twelve seeds, each a different pinned read, GitHub holding
 // every seed read until released one at a time (./heldGitHubAnswer.ts), and
 // how a test sends reads that reach GitHub in order and sees how many have.

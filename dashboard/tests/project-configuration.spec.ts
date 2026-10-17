@@ -24,10 +24,15 @@ import {
 import { title } from "./agentLaunchBoundary.ts";
 import { settings } from "./support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
-import { customSavedProjects } from "./support/projectConfiguration.ts";
+import {
+  customSavedProjects,
+  projectConfigurationFile,
+  projectEnvironmentOf,
+} from "./support/projectConfiguration.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+const published = publishes({ revision: "ab".repeat(20), backlog });
 let machine: string;
 const servers: DashboardServer[] = [];
 
@@ -41,15 +46,13 @@ test.afterEach(async () => {
 });
 
 function configurationFile(mode: "dev" | "preview"): string {
-  return path.join(
-    machine,
-    "home/.open-dough/dashboard",
-    `projects-${mode === "dev" ? "development" : "production"}.json`,
-  );
+  const home = path.join(machine, "home");
+  return projectConfigurationFile(home, projectEnvironmentOf(mode));
 }
 
-function save(mode: "dev" | "preview", text: string): void {
-  const file = configurationFile(mode);
+// Only the preview's production list is saved before a start.
+function save(text: string): void {
+  const file = configurationFile("preview");
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, text);
 }
@@ -61,10 +64,7 @@ async function start(mode: "dev" | "preview"): Promise<DashboardServer> {
     prebuilt: builtDashboardDir,
     configureDevelopmentProjects: false,
   });
-  server.github.serve(
-    everyRepository,
-    publishes({ revision: "ab".repeat(20), backlog }),
-  );
+  server.github.serve(everyRepository, published);
   servers.push(server);
   return server;
 }
@@ -129,71 +129,69 @@ test("production seeds its four projects and shows a previously saved session", 
   expect(readFileSync(storeFile(machine))).toEqual(records);
 });
 
-for (const mode of ["dev", "preview"] as const) {
-  test(`saved projects retain order and default selection across restart (${mode})`, async ({
-    page,
-  }) => {
-    const saved = JSON.stringify(customSavedProjects);
-    save(mode, saved);
-    for (let run = 0; run < 2; run += 1) {
-      const server = await start(mode);
-      await openUntilRead(page, `${server.baseURL}/?project=unknown`);
-      const group = page.getByRole("radiogroup", { name: "Project" });
-      await expect(group.getByRole("radio")).toHaveCount(2);
-      await expect(group.locator("label")).toHaveText(["Zebra", "Apple"]);
-      await expect(
-        group.getByRole("radio", { name: "Zebra", exact: true }),
-      ).toBeChecked();
-      await expect(page).toHaveURL(`${server.baseURL}/`);
-      await expect(
-        page.getByRole("region", { name: "Recently done" }),
-      ).toBeVisible();
-      expect(server.ghCalls()).toContainEqual([
-        "api",
-        "--include",
-        "repos/example/zebra/commits/trunk",
-        "--jq",
-        ".sha",
-      ]);
-      expect(readFileSync(configurationFile(mode), "utf8")).toBe(saved);
-      await server.close();
-      servers.pop();
-    }
-  });
-
-  test(`an existing empty list stays empty (${mode})`, async ({ page }) => {
-    save(mode, "[]\n");
-    const server = await start(mode);
-    await openUntilRead(page, server.baseURL);
+// Both servers read the saved file through the same boundary
+// (./serving-modes.spec.ts), so these run once, on the preview.
+test("saved projects retain order and default selection across restart", async ({
+  page,
+}) => {
+  const saved = JSON.stringify(customSavedProjects);
+  save(saved);
+  for (let run = 0; run < 2; run += 1) {
+    const server = await start("preview");
+    await openUntilRead(page, `${server.baseURL}/?project=unknown`);
+    const group = page.getByRole("radiogroup", { name: "Project" });
+    await expect(group.getByRole("radio")).toHaveCount(2);
+    await expect(group.locator("label")).toHaveText(["Zebra", "Apple"]);
     await expect(
-      page.getByRole("heading", { name: "No projects configured" }),
+      group.getByRole("radio", { name: "Zebra", exact: true }),
+    ).toBeChecked();
+    await expect(page).toHaveURL(`${server.baseURL}/`);
+    await expect(
+      page.getByRole("region", { name: "Recently done" }),
     ).toBeVisible();
-    await settings(page).click();
-    await expect(
-      page.getByRole("button", { name: "Add project" }),
-    ).toBeEnabled();
-    expect(readFileSync(configurationFile(mode), "utf8")).toBe("[]\n");
-    expect(server.ghCalls()).toEqual([]);
-  });
+    expect(server.ghCalls()).toContainEqual([
+      "api",
+      "--include",
+      "repos/example/zebra/commits/trunk",
+      "--jq",
+      ".sha",
+    ]);
+    expect(readFileSync(configurationFile("preview"), "utf8")).toBe(saved);
+    await server.close();
+    servers.pop();
+  }
+});
 
-  test(`a malformed saved file is explained and left byte-identical (${mode})`, async ({
-    page,
-  }) => {
-    const malformed = "{ not a project list\n";
-    save(mode, malformed);
-    const server = await start(mode);
-    await openUntilRead(page, server.baseURL);
-    await expect(page.getByRole("status")).toContainText(
-      "project configuration could not be read",
-    );
-    await expect(page.getByRole("status")).toContainText(
-      configurationFile(mode),
-    );
-    await expect(page.getByRole("radio")).toHaveCount(0);
-    expect(readFileSync(configurationFile(mode), "utf8")).toBe(malformed);
-    expect(server.ghCalls()).toEqual([]);
-  });
-}
+test("an existing empty list stays empty", async ({ page }) => {
+  save("[]\n");
+  const server = await start("preview");
+  await openUntilRead(page, server.baseURL);
+  await expect(
+    page.getByRole("heading", { name: "No projects configured" }),
+  ).toBeVisible();
+  await settings(page).click();
+  await expect(page.getByRole("button", { name: "Add project" })).toBeEnabled();
+  expect(readFileSync(configurationFile("preview"), "utf8")).toBe("[]\n");
+  expect(server.ghCalls()).toEqual([]);
+});
+
+test("a malformed saved file is explained and left byte-identical", async ({
+  page,
+}) => {
+  const malformed = "{ not a project list\n";
+  save(malformed);
+  const server = await start("preview");
+  await openUntilRead(page, server.baseURL);
+  await expect(page.getByRole("status")).toContainText(
+    "project configuration could not be read",
+  );
+  await expect(page.getByRole("status")).toContainText(
+    configurationFile("preview"),
+  );
+  await expect(page.getByRole("radio")).toHaveCount(0);
+  expect(readFileSync(configurationFile("preview"), "utf8")).toBe(malformed);
+  expect(server.ghCalls()).toEqual([]);
+});
 
 test("development first start is empty and refuses the formerly fixed project", async ({
   page,
@@ -226,7 +224,7 @@ test("a saved document with the wrong shape is reported without replacement", as
   page,
 }) => {
   const wrongShape = '[{"id":"broken"}]\n';
-  save("preview", wrongShape);
+  save(wrongShape);
   const server = await start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("status")).toContainText(

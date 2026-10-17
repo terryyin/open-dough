@@ -10,7 +10,7 @@
 // record keeps. Default-main handoff belongs to the automatic-landing page
 // journey; shared capture variations belong to the one-shot landing suite. Which
 // launches a landing is captured for, and the installed delivery command,
-// are in ./agent-launch-start-session-landing-admission.spec.ts.
+// are in ./boundary/agent-launch-start-session-landing-admission.spec.ts.
 
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";

@@ -6,9 +6,14 @@ import {
   builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
+  type DashboardServerMode,
 } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
+import {
+  projectConfigurationFile,
+  projectEnvironmentOf,
+} from "./projectConfiguration.ts";
 
 export const addedRepository = "example/sample-app";
 export const addedRevision = "b7".repeat(20);
@@ -36,18 +41,18 @@ export function projectAddMachine() {
     `git@github.com:${addedRepository}.git`,
   ]);
   const servers: DashboardServer[] = [];
-  const configurationFile = (mode: "dev" | "preview") =>
-    path.join(
-      machine,
-      "home/.open-dough/dashboard",
-      `projects-${mode === "dev" ? "development" : "production"}.json`,
+  // The file a server of that mode keeps its projects in.
+  const configurationFile = (mode: DashboardServerMode) =>
+    projectConfigurationFile(
+      path.join(machine, "home"),
+      projectEnvironmentOf(mode),
     );
   return {
     machine,
     checkout,
     configurationFile,
     async start(
-      mode: "dev" | "preview",
+      mode: DashboardServerMode,
       readTimeoutMs?: number,
       codexProtocol?: FakeCodex,
     ): Promise<DashboardServer> {

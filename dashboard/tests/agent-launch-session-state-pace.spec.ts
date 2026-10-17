@@ -10,9 +10,14 @@
 // state staying on its card. The page reads the records again at the steady
 // pace while it is visible, so a change appears within one pace without a
 // reload, and Open terminal is offered only where `attachOpens` says it opens
-// the session. Origin alone still places every story. How attention clears on
-// resumed work or Mark as done is ./agent-launch-attention-clearing.spec.ts,
-// and how a card counts its sessions that need attention is
+// the session. Origin alone still places every story. Attention stays while
+// Claude Code's state asks for the developer: opening a blocked session's
+// terminal, answering, and closing it leave its Needs input until the next
+// listing reports it working again (the synthetic `claude` only echoes what
+// is typed; a later listing, not the answer, supplies the resumed state); a
+// successful Mark as done clears it at once, and a session marked done never
+// needs attention again, reading Working while Claude Code says so and Done
+// otherwise. How a card counts its sessions that need attention is
 // ./agent-launch-attention.spec.ts. The page's own dashboard server launches
 // the synthetic `claude` (./fixtures/fake-claude), whose controls change,
 // forget, or fail to list a session; the real one is never reached. The page
@@ -25,15 +30,10 @@ import {
   expectMembership,
   parts,
   sessionNamedBy,
+  standaloneSessionName,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  notRefinedStory,
-  publishLaunchJourney,
-  readyStory,
-  takenStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
 import {
   expectNotReloaded,
   expectSessionShown,
@@ -41,18 +41,17 @@ import {
   watchRecordReads,
 } from "./sessionStatePace.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 const unknownShown =
   "State unknown: Claude Code's session list could not be read";
+// Session state never moves a story: origin alone places each one.
+const membership = {
+  taken: [takenStory],
+  backlog: [readyStory, notRefinedStory],
+};
 
 // A host change, with what a blocked session waits for, if it says, and what
 // the entry shows then.
@@ -66,18 +65,15 @@ type Change = {
 test("each active card entry shows why its session needs attention, or that it does not, within one pace without a reload", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog, refine, refinementDialog } =
-    await openTakenBacklog(page, journey);
+    await openTakenBacklog(page, launchJourney);
   const { recentlyDone: recent } = parts(page);
   const entries = parts(page).stages.locator(".session-entry");
-  const membership = {
-    taken: [takenStory],
-    backlog: [readyStory, notRefinedStory],
-  };
 
   // Newest first once launched, each with the two changes its session
   // undergoes in turn. One open session per story.
@@ -199,7 +195,104 @@ test("each active card entry shows why its session needs attention, or that it d
 
   await expectNotReloaded(page);
   await expect(recent.locator(".session-entry")).toHaveCount(0);
-  // Session state never moves a story: origin alone places each one.
   await expectMembership(page, membership);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(launches.length);
+});
+
+const needsInput = "Needs input: input needed";
+
+test("a session's attention stays through opening and closing its terminal, clears when it works again or is marked done, and never returns once marked done", async ({
+  page,
+  dashboard,
+  launchJourney,
+}) => {
+  await pausePageClockAt(page, new Date());
+  const { passOnePace } = await watchRecordReads(page);
+  dashboard.claudeScenario("launched");
+  const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
+  const { recentlyDone: recent } = parts(page);
+  const panel = page.getByRole("region", { name: "Terminal" });
+  const onCard = cardSessionOf(card(readyStory), "Execution");
+  const inRecent = recent.getByRole("article", {
+    name: standaloneSessionName("Execution", readyStory),
+  });
+  const expectOpen = async (words: string, needsAttention: boolean) => {
+    await expectSessionShown(onCard, words, needsAttention);
+    await expect(inRecent).toHaveCount(0);
+  };
+
+  await start(readyStory).click();
+  await dialog.getByRole("button", { name: "Start" }).click();
+  await expectOpen("Working", false);
+  // The published read that reconciles the start lands before page time
+  // passes, so its wait bound never ends it.
+  await expect(
+    card(readyStory).getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
+  const session = await sessionNamedBy(onCard);
+  await markNotReloaded(page);
+
+  await test.step("a blocked session needs input, and still does after its terminal is opened, answered, and closed", async () => {
+    dashboard.claudeSessionBecomes(session, "blocked", "input needed");
+    await passOnePace();
+    await expectOpen(needsInput, true);
+
+    await onCard.getByRole("button", { name: "Open terminal" }).click();
+    // The stopped page clock holds the terminal's drawing, so the attach
+    // and the answer are read from the synthetic `claude` itself.
+    const attach = () => dashboard.claudeAttaches()[0];
+    await expect.poll(() => attach()?.id).toBe(session.slice(0, 8));
+    await page.keyboard.type("red");
+    await page.keyboard.press("Enter");
+    await expect.poll(() => attach()?.lines).toEqual(["red"]);
+    await expectOpen(needsInput, true);
+    await panel.getByRole("button", { name: "Close" }).click();
+    await expect(panel).toHaveCount(0);
+    await expect.poll(() => attach()?.endedBy).toBeDefined();
+
+    await passOnePace();
+    await expectOpen(needsInput, true);
+  });
+
+  await test.step("the next listing of resumed work clears it within one pace, and a finished turn asks for review", async () => {
+    dashboard.claudeSessionBecomes(session, "working");
+    await passOnePace();
+    await expectOpen("Working", false);
+
+    dashboard.claudeSessionBecomes(session, "done-live");
+    await passOnePace();
+    await expectOpen("Ready for review", true);
+  });
+
+  await test.step("a successful Mark as done clears it at once, and no later host state brings it back", async () => {
+    await markDoneAnyway(onCard);
+    await expect(onCard).toHaveCount(0);
+    await expectSessionShown(inRecent, "Done", false);
+
+    // Opening it again wakes it.
+    dashboard.claudeSessionBecomes(session, "working");
+    await passOnePace();
+    await expectSessionShown(inRecent, "Working", false);
+
+    for (const change of ["done-live", "blocked", "failed"] as const) {
+      dashboard.claudeSessionBecomes(session, change);
+      await passOnePace();
+      await expectSessionShown(inRecent, "Done", false);
+    }
+
+    dashboard.claudeListingFails(true);
+    await passOnePace();
+    await expectSessionShown(inRecent, unknownShown, false);
+    dashboard.claudeListingFails(false);
+    dashboard.claudeSessionBecomes(session, "forgotten");
+    await passOnePace();
+    await expectSessionShown(inRecent, "Done", false);
+    await expect(
+      inRecent.getByRole("button", { name: "Open terminal" }),
+    ).toHaveCount(0);
+    await expect(onCard).toHaveCount(0);
+  });
+
+  await expectNotReloaded(page);
+  await expectMembership(page, membership);
 });

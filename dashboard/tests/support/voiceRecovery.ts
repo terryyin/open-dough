@@ -14,6 +14,9 @@ import {
 import { saveVoiceKey, stoppedTracks, voiceKey } from "./voicePage.ts";
 
 export const originalDraft = "Keep this work local";
+// Every voice journey takes this one object: `launchOptions` is a
+// worker-scoped option, so six literal copies would be six worker
+// populations that never share a worker (./pageTest.ts says why).
 export const voiceBrowserOptions = {
   projectFolders: ["open-dough"],
   permissions: ["microphone"],

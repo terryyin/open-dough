@@ -1,7 +1,7 @@
 // The launch boundary honors an unattached request's isolated workspace,
 // with a real bare origin (./support/startOrigin.ts), the installed start
 // recorded as it runs (./support/startSessionLanding.ts): slug variations
-// and collisions belong to ./launch-workspace.spec.ts. A host
+// and collisions belong to ./boundary/launch-workspace.spec.ts. A host
 // whose installation cannot establish a session offers only the default
 // choices in the dialog, and Codex starts with the worktree as its working
 // directory. The dialog's journeys are in

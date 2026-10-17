@@ -27,10 +27,15 @@ for (const count of [1, 2]) {
   test(`Recheck trusts the latest own record among ${String(count)} unlisted sessions without reading the listing or keeping another record`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     test.setTimeout(90_000);
     dashboard.claudeScenario("hang");
-    const { card, start, acceptedAt } = await uncertainLaunch(page, dashboard);
+    const { card, start, acceptedAt } = await uncertainLaunch(
+      page,
+      dashboard,
+      launchJourney,
+    );
     // An older writer left worker facts on a settled uncertain attempt.
     // They cannot make it running, and Recheck must clear them with its outcome.
     const attemptFile = path.join(

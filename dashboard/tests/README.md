@@ -1,242 +1,248 @@
-# Dashboard browser tests
+# Dashboard tests
 
 This directory holds the dashboard's one Playwright suite, run with
-`npm run test:dashboard`. Test support takes the repository root from
-`support/repositoryRoot.ts`, not the working directory, so
-`npx playwright test` from `dashboard/`, or with `--config
-<repository>/dashboard/playwright.config.ts` from anywhere, gives the same
-result; lint refuses a `process.cwd()` call in test code. Every run builds the
-app once, into its own temporary directory that it removes at the end, so two
-runs from one checkout never rebuild each other's assets and the production
-build in `dashboard/dist` is left alone; each page journey
-(`dashboardTest.ts`) then serves that build from its own preview server with
-a synthetic `gh` on its PATH (`fixtures/fake-gh`)
-that answers from the test's own fake GitHub (`support/fakeGitHub.ts`,
-published through `publishedOrigin.ts` or
-`committedOrigin.ts`), which can also fail, hold, or rate-limit an
-answer. The same fake stands in for GitHub's avatar host, from which the
-server fetches credited humans' avatars (`avatarAnswers.ts`). Only GitHub's
-answers are replaced; the
-local read boundary, the `gh` invocation, reading, the shared backlog
-interpretation, and the page are the real ones, and a browser request to
-GitHub itself fails the test. The boundary specs
-(`authenticated-read-*.spec.ts`, `authenticated-avatar.spec.ts`) and
-`authenticated-project-overview.spec.ts` also start their own dev and
-built-preview servers. Every server binds a port the operating system
-chooses, so the suite can run beside another checkout's suite on the same
-machine, and a server that cannot start fails its test with its own output
-(`support/dashboardServer.ts`). Nothing here ever calls the real `gh` CLI or
-contacts GitHub. Select one journey with, for example,
-`npm run test:dashboard -- --grep 'published overview'` or
-`npm run test:dashboard -- --grep 'authenticated project overview'`.
+`npm run test:dashboard` from the repository root, in two tiers and nothing
+in between. This page is the strategy and the index; the guides beside it
+hold the detail: [writing a journey](writing-journeys.md) (waits, clocks,
+commands, the fake GitHub's own answers), the [native-host
+fixtures](native-host-fixtures.md) (the synthetic `claude`, `codex` and
+`cursor`), and the [proof record](proof-record.md) of a run.
 
-The shared Playwright configuration sets `NODE_DISABLE_COMPILE_CACHE=1`
-before global setup and workers start. Builds, dev/preview servers and fresh
-deployment descendants inherit it, including when `NODE_COMPILE_CACHE` names
-an existing cache. They leave those entries intact and add no persistent
-compile cache to reclaim after failure or interruption. The calling Node/npm
-process can still cache its own startup before the configuration loads;
-ordinary dashboard commands outside the suite keep their existing policy.
-`compile-cache.spec.ts` makes real enable/import/flush attempts, preserves
-seeded cache hashes through repetition, overlap, failure and signals, and
-checks an outside-policy child really can write cache. Only that API probe is
-skipped on supported Node versions without the compile-cache API. Process and
-other fixture cleanup retains its existing contract, including the hard-kill
-limitation described below.
+## Two tiers: browser journeys and boundary tests
 
-The [native-host fixture guide](native-host-fixtures.md) describes the synthetic
-Claude, Codex and Cursor hosts, their environment observations, and the launch,
-listing and terminal journeys that consume them.
+A **browser journey** proves one representative, integrated user journey in
+the real page: an observable precondition, the user's trigger, and the state
+change it causes. Journeys live directly in this directory and run under
+`dashboardTest.ts` or a fixture module built on it, each against its own
+built-preview server, which the `page` fixture opens.
+
+A **boundary test** proves the detailed variants, failure cases and contract
+details of one behavior at a stable public boundary of the dashboard server
+-- its HTTP endpoints, WebSocket upgrades, the files it keeps under HOME, the
+commands it installs -- or of a module read in-process, without a browser.
+Its collaborators are the real ones; only the external boundaries are
+replaced: GitHub through the synthetic `gh`, the agent hosts through the
+synthetic `claude`, `codex` and `cursor`, and GitHub's avatar host. Boundary
+tests live in `boundary/` and start the boundary server, with
+`startDashboardServer({ mode: "boundary" })` or `test.use({ serverMode:
+"boundary" })` on the `dashboardTest.ts` fixtures: `node
+--experimental-transform-types ../server/boundaryServer.ts` mounts the local
+boundaries Vite mounts (`../server/localBoundaries.ts`) on a plain HTTP
+server, with no Vite and no build, in the production project environment as
+the built preview does, or in the dev server's when the spec starts
+`developmentBoundary` (`support/dashboardServer.ts`).
+`boundary/boundary-server.spec.ts` shows each environment answering from its
+own project file (`support/projectConfiguration.ts` names it) and keeps that
+server the Node entry alone, naming no Vite and serving no page.
+
+`boundary/` holds every spec that opens no page, whatever it drives; a spec
+that opens a page is a journey, however small, and a journey never repeats a
+variant the boundary tier can answer. Both tiers are one suite, run and
+sharded together (below).
+
+## Where a check goes
+
+Put a check where it is cheapest to prove, and prove it once:
+
+- **A variant of how the server answers** -- a refusal, a failure case, a
+  contract detail, a file the server keeps -- is a boundary test. A journey
+  shows that the page does the thing once; the boundary tests own every
+  variant.
+- **A journey runs under the fixture's built preview.** The dev server and
+  the preview mount the same local boundaries, and `serving-modes.spec.ts`
+  is the one spec that proves it: it starts a real server of each, sends
+  each boundary the same request from both, and compares the answers
+  (status, headers, body), with Vite's own HMR socket, which only the dev
+  server has, shown working beside the terminal upgrade guard. No other spec
+  repeats its tests under both servers. A journey starts a dev server only
+  for a fact of the development project environment: `project-add`'s and
+  `project-configuration`'s empty development first start,
+  `project-remove`'s removal of development's last project, the machine file
+  `system-settings-openai` and `system-settings-terminal-theme` share across
+  both environments, and `frame-overview-look`'s frame with no project
+  configured, a state only development starts in.
+- **A layout rule is proved once per CSS branch**, in the journey whose
+  state change is observed at that width (`dashboard-header.spec.ts` runs
+  one journey per container branch of `banner.css`; `side-panel-width*.spec.ts`
+  prove the panel's query from each side once), and a font case only where
+  a font reproduces a wrap. A presentation-only check, one with no state
+  change of its own, joins the journey whose state change shows it or moves
+  down a tier to the cheapest proof of the rule; a matrix of widths or fonts
+  over one static layout is not written.
+- **Siblings share what they only read and assert their deltas.** A
+  precondition every test reads and none writes is published once per
+  worker as a worker-scoped fixture (the launch journeys' origin,
+  `launchJourney`); one the tests step through is one fixture per serial
+  file (each production journey file's watcher, `production-watcher*.spec.ts`);
+  [writing a journey](writing-journeys.md) says how each is shared. The
+  common shape is asserted in one named test (`agent-launch-card.spec.ts`,
+  "every Backlog card offers Start execution ..."), each sibling asserts
+  only its difference, and a regression in one behavior fails one named
+  test. The server and fake GitHub stay per test: siblings vary the server's
+  options per test (`projectFolders`, `launchTimeoutMs`, the viewport) and
+  most launch or mark done.
+
+## Synchronization
+
+A wait ends on an observed event: a shown fact, a recorded state, an
+answered request, a held request reaching its handler, a watcher's own
+output line. No test sleeps, waits out a deadline, or retries in the hope
+that the event has happened by then; only a check that something does not
+happen waits out a window, because no event marks an absence. A check's
+bound starts after the answer it depends on: an `expect` waits 5 seconds,
+and under load a `gh` start or a server's own work can take longer, so a
+journey first waits in the page for the request to be answered or to fail
+(`openUntilRead`, `expectSettledPage`, `markDone`) and only then checks what
+the page shows. Time the product intentionally waits -- the 15-second
+refresh pace, a rate limit's directed wait, a session's state pace -- is
+stepped under a paused page clock or proved at the boundary. The action that
+starts asynchronous work owns the wait for its answer. A dashboard failure
+on unchanged code, including under load, is a defect of the test or the
+product to find and fix, never a reason to rerun until green; the suite
+keeps `retries: 0`. [Writing a journey](writing-journeys.md) names the
+helpers and the event each one waits for.
+
+## What is real and what is replaced
+
+Every run builds the app once, into its own temporary directory that it
+removes at the end, so two runs from one checkout never rebuild each other's
+assets and the production build in `dashboard/dist` is left alone; each page
+journey (`dashboardTest.ts`) then serves that build from its own preview
+server with a synthetic `gh` on its PATH (`fixtures/fake-gh`) that answers
+from the test's own fake GitHub (`support/fakeGitHub.ts`, published through
+`publishedOrigin.ts` or `committedOrigin.ts`), which can also fail, hold, or
+rate-limit an answer. The same fake stands in for GitHub's avatar host, from
+which the server fetches credited humans' avatars (`avatarAnswers.ts`). Only
+GitHub's answers are replaced; the local read boundary, the `gh` invocation,
+reading, the shared backlog interpretation, and the page are the real ones,
+and a browser request to GitHub itself fails the test that made it. Nothing
+here ever calls the real `gh` CLI or contacts GitHub: every process a test
+starts that can run `gh` asks it through a GitHub request owner of that
+test's own, and a run in which a process asked without one fails at its end
+naming that. Every server binds a port the operating system chooses, so the
+suite can run beside another checkout's suite on the same machine, and a
+server that cannot start fails its test with its own output
+(`support/dashboardServer.ts`). Test support takes the repository root from
+`support/repositoryRoot.ts`, never the working directory (lint refuses
+`process.cwd()` in test code), so `--config <repository>/dashboard/playwright.config.ts`
+gives the same result from anywhere.
+
+The configuration sets `NODE_DISABLE_COMPILE_CACHE=1` before global setup and
+workers start; builds, servers and deployment descendants inherit it, even
+when `NODE_COMPILE_CACHE` names an existing cache, leave that cache's entries
+intact and add no persistent compile cache to reclaim after a failure. The
+calling Node/npm process can still cache its own startup before the
+configuration loads, and dashboard commands outside the suite keep their own
+policy. `boundary/compile-cache.spec.ts` makes real enable/import/flush
+attempts, preserves seeded cache hashes through repetition, overlap, failure
+and signals, and checks an outside-policy child really can write cache; only
+that API probe is skipped on supported Node versions without the API.
+
+## Adding a test
+
+A **boundary test** goes in `boundary/<behavior>.spec.ts`. It imports `test`
+from `../dashboardTest.ts` with `test.use({ serverMode: "boundary" })`, or
+from `../support/pageTest.ts` and starts `startDashboardServer({ mode:
+"boundary" })` (or `developmentBoundary`) itself; it sends its requests with
+`support/rawHttp.ts` or the terminal clients and asserts the answer, the
+file or the command. It opens no page and needs no build; a spec that
+starts no dashboard server at all still takes `test` from `pageTest.ts`,
+which the lint configuration requires of every spec.
+
+A **browser journey** goes in this directory as `<journey>.spec.ts`. It
+imports `test` from `./dashboardTest.ts` or the fixture module of its
+family (`responsiveStart.ts`, `support/preparationPage.ts`,
+`support/voiceTest.ts`, `support/codexLaunch.ts`), takes `page`, `dashboard`
+and `github` (and `launchJourney` for the Taken backlog), opens with
+`openUntilRead(page)`, acts as the user, and asserts the state change; a
+sibling of an existing journey joins that file and asserts its delta. A
+worker-scoped fixture, or a `launchOptions` value, is declared once, in
+`support/pageTest.ts`, whose header says why a second home splits the
+workers.
+
+Discovery and sharding follow the file: `support/testFiles.mjs` finds every
+`*.spec.ts` under `tests/` recursively and CI's split (below) deals whole
+files, so a new file needs no registration; unlisted in `longest-first`, it
+follows the listed files in sorted order until that list is next recorded
+from a hosted run. `tests/support/dashboard-test-files.test.mjs` protects
+discovery of new specs and assignment without duplicates or omissions.
+
+## Running the suite
+
+Run from the repository root; `npm run test:dashboard -- boundary/` or
+`-- --grep 'published overview'` selects files or tests, and `npx playwright
+test` from `tests/` finds no configuration, so it would run without the
+build, the quiet reporter and the run's identity. Local runs use Playwright's
+default worker count, CI runs every core.
 
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select share `i` of `n` whole
 spec files. `longest-first` orders known files by recorded hosted duration;
 unlisted specs follow sorted, and that order is dealt round-robin across
-shares. CI currently uses twelve shares and runs the dashboard type-check once
-in the last share, whose recorded browser load is smallest. Stale and repeated
-list entries are ignored. With the variable unset,
-`npm run test:dashboard` keeps running the whole suite. The partition check
-in `tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
-and assignment without duplicates or omissions.
+shares. CI currently uses twelve shares and runs the dashboard type-check
+once in the last share, whose recorded browser load is smallest. Stale and
+repeated list entries are ignored. With the variable unset,
+`npm run test:dashboard` keeps running the whole suite. Independent proof
+subprocesses choose their own selection; their harness
+(`support/proofRecordRun.ts`) removes the inherited split before launching
+them.
 
-Independent proof subprocesses choose their own selection. Their harness
-(`support/proofRecordRun.ts`) removes the inherited
-`OPEN_DOUGH_DASHBOARD_SPLIT` before launching them.
-
-CI also records `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`, the epoch 320 seconds after
-the shard job starts, and the config turns what remains of it into Playwright's
-`globalTimeout` (`support/suiteDeadline.mjs`). The build counts against it. A
-shard that cannot finish by then fails naming the deadline (`Timed out
-waiting`), still within the job's 6 minutes, and its kept report holds the
-completed failures' traces and error context and lists unfinished tests as
-skipped. Local runs without the variable are unbounded. Like the shell
-suite's `tests/time-budget`, the 320 seconds and the job's `timeout-minutes`
-are a reviewed ceiling: a shard that reaches the deadline is made faster or
-rebalanced, not given more time.
+CI also records `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`, the epoch 320 seconds
+after the shard job starts, and the config turns what remains of it into
+Playwright's `globalTimeout` (`support/suiteDeadline.mjs`); the build counts
+against it, and local runs without the variable are unbounded. A shard that
+cannot finish by then fails naming the deadline (`Timed out waiting`), still
+within the job's 6 minutes, and its kept report holds the completed
+failures' traces and error context and lists unfinished tests as skipped.
+Like the shell suite's `tests/time-budget`, the 320 seconds and the job's
+`timeout-minutes` are a reviewed ceiling: a shard that reaches the deadline
+is made faster or rebalanced, not given more time.
 
 A passing run prints nothing (`support/quietReporter.ts`) and leaves no
-output directory. A failing
-spec is shown with its error, output, and retained trace; a passing spec that
-writes output, or output from the run itself such as global setup, fails the
-run and is shown. Keep specs and their helpers silent. A failed run keeps what
-it showed, as `report.txt`, beside its traces and other retained files in
-`dashboard/test-results/<start time>/`, and its last line, `Kept: <directory>`,
-names that directory. A later run never removes an earlier run's directory;
-remove kept runs yourself once read. Every worker, when it exits, ends each
-process its tests started, passing, failing, or timed out
-(`support/processGroup.ts`), so a run does not leave servers or runners to
-load the next; only a worker killed outright runs no such cleanup.
+output directory. A failing spec is shown with its error, output, and
+retained trace; a passing spec that writes output, or output from the run
+itself such as global setup, fails the run and is shown. Keep specs and
+their helpers silent. A failed run keeps what it showed, as `report.txt`,
+beside its traces and other retained files in `dashboard/test-results/<start time>/`,
+named by its last line, `Kept: <directory>`. A later run never removes an
+earlier run's directory; remove kept runs yourself once read.
+`bash scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]`
+runs the suite, or the named specs, that many times one after another at the
+local worker count (`--load` runs one busy burner per online core during each
+run; `--fresh` runs the first repetition in a new worktree of `HEAD` after
+its own `npm ci`), prints each run's exit status, seconds, load average
+before and after, failing locations and kept directory, and exits 0 only
+when every run passed.
 
-To retain the selection and results of the same strict run, choose an unused
-absolute file path outside `dashboard/test-results/` before invoking it. Its
-parent directory must already exist. No record is created unless requested:
+## Measuring a run
 
-```sh
-proof_dir=$(mktemp -d)
-OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$proof_dir/proof.json" \
-  npm run --silent test:dashboard -- quiet-reporter.spec.ts --workers=2
-proof_exit=$?
-node --input-type=module - "$proof_dir/proof.json" <<'JS'
-import { readFileSync } from 'node:fs';
-const record = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-console.log(JSON.stringify(record, null, 2));
-JS
-printf 'Strict command exit: %s\n' "$proof_exit"
-```
+To retain the selection and results of a strict run as JSON, name
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; the [proof record guide](proof-record.md)
+says what the record holds and how to assess it with the command exit, and
+`--list` records the selection alone. Each attempt's `durationMs` is the
+test's own time: a worker fixture's publication, a serial file's `beforeAll`
+and `afterAll`, and the time between tests are not in it, so a change to
+shared setup shows in wall time and in the gaps between one test's end and
+the next's start on the same worker, not in the summed durations. A measured
+run omits `--reporter`: `--reporter=list` replaces the quiet reporter and
+no record is written. Record the load average before and after, and compare
+runs taken under different loads relatively.
 
-Reading this file executes no tests. Successful reporter output stays silent,
-and the normal passing output directory is removed. The compact JSON has
-`schemaVersion: 1`, a unique `run.id`, runner PID, start time, working directory,
-config path, runner arguments and output directories. `selectedCount` counts
-distinct project/location/title selections. Each selection's `executions`
-identifies Playwright test IDs, repetition indexes and expected statuses (with
-observed outcomes when available); `attempts` identifies
-each observed repetition/retry, its start time, and its status/duration when
-finished. Repetitions and retries do not inflate the selected count. A skipped
-attempt is `skipped`, and a started attempt without a status has no observed
-completion. The record contains neither traces nor captured output.
+## No process outlives its run
 
-Assess the command exit and the file together: executed passing proof requires
-exit 0, valid JSON with the expected schema/run/selection, `phase: "completed"`
-and `terminal.strictStatus: "passed"`, plus the observed attempts relevant to
-the claim. `terminal.runnerStatus` is Playwright's assertion verdict before
-the strict reporter rejects unexpected output; a passed attempt or raw runner
-verdict can coexist with strict failure. `--list` records `phase: "listed"`
-and no attempts, so its passed verdict establishes selection only. Deadline
-or graceful interruption keeps completed attempts separately from unfinished
-work and records strict failure. A forced kill after selection may leave a
-`running` snapshot without `terminal`; before selection it may leave no file.
-Missing, malformed, listed or running evidence never establishes executed pass.
-
-An existing destination is refused without changing its bytes. An invalid,
-unwritable or disposable destination, or a failed snapshot update, prints
-`Proof record unavailable at ...` separately from test diagnostics and preserves
-the underlying strict command exit. Such a run has unavailable or incomplete
-evidence even if the command passes. Atomic replacement makes each readable
-snapshot complete JSON; it does not reconstruct an uncatchably killed run.
-The reporter option belongs to this config's invocation, so nested custom
-Playwright configs cannot overwrite their outer run's requested record.
-Use a different path for every concurrent or later invocation. Keep the file
-as long as needed and remove its caller-owned directory after reading it:
-`rm -r "$proof_dir"`. There is no automatic archive or pruning policy.
-
-A dashboard failure on unchanged code is a defect to find and fix, never a
-reason to rerun until green; the suite keeps `retries: 0`. Repeat the run and
-read the kept evidence:
-
-```sh
-bash scripts/dashboard-repeat.sh 3 --load agent-terminal
-```
-
-`scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]` runs
-the suite (or the named specs) that many times, one after another, at the
-local worker count. `--load` runs one busy burner per online core during each
-run; `--fresh` runs the first repetition in a new worktree of `HEAD` after its
-own `npm ci`. For each run it prints the exit status, seconds, load average
-before and after, each failing location, and the kept directory, and it exits
-0 only when every run passed. A run under other load can still fail where an
-idle one passes; such a failure is a defect of the same kind.
-
-A check's bound starts after the answer it depends on. An `expect` waits 5
-seconds, and under load GitHub's answer, a `gh` start, or a server's own work
-can take longer, so a journey first waits in the page for the request to be
-answered or to fail, and only then checks what the page shows; the test
-timeout stays the only bound on the answer itself. Every page a test's
-context opens notes its own requests from before its scripts run
-(`pageRequestNoting.ts`, installed by `support/pageTest.ts`), and the waits
-in `pageRequestNotes.ts` end on those notes:
-
-- After `page.goto` or `page.reload()`, open with `openUntilRead(page)` or
-  `reloadUntilRead(page)` when the next step checks something the page
-  read. They wait until the project list and the published-work read are
-  answered (`untilPublishedWorkRead`). `expectMembership`,
-  `expectSettledPage`, `expectProblemAndNoSnapshot` (`dashboardPage.ts`) and
-  `expectNoSidewaysScrollAndWholeText` (`pageLayout.ts`) wait the same way
-  themselves, so a journey whose first check is one of them opens plainly.
-  A journey that holds the published-work read on purpose also opens
-  plainly and waits on what it holds.
-- `expectSettledPage` checks "Reading preparation…" is gone only after every
-  read the page sent is answered (`untilPageReadsAnswered`); a spec checking
-  another reading label does so after it. A label still shown then is a
-  rendering fact to investigate, never a reason for a longer bound.
-- When the page says a read failed for good ("Reload the page to read
-  again."), `expectMembership` and `expectSettledPage` compare once and fail
-  at once, naming what they expected.
-- Mark as done is pressed through `markDone` or `markDoneAnyway`
-  (`support/markDone.ts`), which wait for the mark's answer
-  (`untilDoneMarkAnswered`); a journey holding that answer presses with
-  `sendDoneMarkAnyway`. Give another page action the same kind of wait when
-  a check on its result proves to outrun its answer.
-- A page a spec makes with `browser.newPage()` or its own context notes
-  nothing unless the spec installs the noting (`noteRequestsInEveryPage`);
-  the waits return at once on such a page.
-
-A command started with `dashboardCommand` (`support/dashboardCommand.ts`) is
-stopped by signalling its group and waiting for its own exit, so the
-production watcher finishes removing its deployment checkouts; a directly
-spawned server is ended by `endGroup` (`support/processGroup.ts`), which
-kills the group 5 seconds after its signal. A test that builds the
-full-source fixture (`publishedMainFixture(true)`) declares its own
-`test.setTimeout`: the copy and `git add` take about 2 seconds alone and 13
-to 20 when eight workers build it at once.
-
-Every process a test starts that can run `gh` asks it through a GitHub
-request owner of that test's own: `startDashboardServer` and
-`publishedMainFixture` give one, and a test wiring `gh` itself takes
-`installFakeGh`, `fakeGhEnv` and `endFakeGh` (`support/fakeGh.ts`). The run's
-global setup gives every process a request owner root that admits no owner,
-so a process given none of those is answered by no owner — another test's or
-this machine's real one included — and the run then fails at its end with
-`A test asked GitHub without a request owner of its own`.
-
-Every answer of the local read boundary carries a `Server-Timing` header
-(`../server/readTiming.ts`): `admission` (waiting for a turn at GitHub), `gh`
-(spawn to answer, with the number of calls), `rest`, and `total`, in whole
-milliseconds. A failing run's kept `trace.zip` holds it in the `*.network`
-records of each `/__authenticated-read` answer, which shows where a slow
-read spent its time; the browser's time beyond `total` was spent outside the
-handler. To record traces of a passing run, add `--trace on --reporter=dot`.
-The run's global setup (`support/globalSetup.ts`) runs the synthetic `gh`,
-`claude`, and `osascript` once before any worker starts, because macOS
-assesses a new executable on its first run and a fresh checkout's first
-reads would otherwise wait on it.
-
-The automatic-freshness journeys (`auto-refresh*.spec.ts`) pause the
-page's clock and step it with the helpers in `autoRefreshJourney.ts`, so
-the 15-second pace, the 30-second target, hidden-page pauses, and a rate
-limit's directed wait are observed in page time; they read the fake GitHub's
-`gh` call log to prove what was and was not asked. Assert that no `gh` call
-was made only after real network turns (`checksAskedWhilePassing`, or
-`expect.poll`), and give each scenario its own revisions: the boundary answers
-a repeated pinned revision from memory without calling `gh`.
-
-A path's published history (`pathHistoryAnswers.ts`) lists as many commits as
-a commit list asks for (`per_page`). A published agent profile no history or
-commit time names was added once, by a commit of its own, so every journey's
-Taken and Preparing cards credit a human without a failed read; a fixture that
-wants a missing addition or an unpublished history says so. Which commit added
-a profile is walked at the boundary
-(`authenticated-read-profile-addition.spec.ts`); the credited human and avatar
-on cards and the roster are `agent-roster-avatar.spec.ts`; how a slow or
-stalled addition read delays only its own profile's clock and human is
-`profile-addition-latency.spec.ts`; the roster itself is
-`agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
+Nothing a run starts survives it: not the servers, synthetic hosts and
+request owners a test starts, nor the children the product starts for them,
+such as detached Cursor runners and the production watcher's deployments.
+Each worker ends what descends from it when it exits
+(`support/processGroup.ts`). Whoever owns a machine HOME stops its Cursor
+runner before removing it: `startDashboardServer` for a machine of its own,
+`publishedMainFixture`'s `cleanup` for the production journeys, and a test
+that passes its own `machine` calls `stopCursorRunner` itself. The run's own
+teardown is the backstop: global setup gives the run an identity,
+`OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
+once the workers have exited the teardown ends every process still carrying
+it and fails the run naming each (`support/globalSetup.ts`,
+`support/runProcesses.ts`). A named process is a leak to stop where it
+starts, never a reason to widen the sweep; processes of other runs, other
+checkouts and this machine's own dashboard carry no such identity and are
+left alone. `boundary/run-processes.spec.ts` proves each of the three, and
+after a local run `pgrep -lf "$PWD"` from this checkout finds nothing of it.

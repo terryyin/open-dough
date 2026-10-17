@@ -10,16 +10,9 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
+import type { LaunchJourney } from "./launchJourney.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -57,9 +50,9 @@ async function withholdLaunchOutcomes(page: Page) {
 
 // Starts an ad hoc session with launch outcomes withheld, and opens its
 // listed entry's terminal while Start session still says it is starting.
-async function openWhileStarting(page: Page) {
+async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
   const release = await withholdLaunchOutcomes(page);
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });
@@ -84,9 +77,10 @@ for (const text of ["why is the CI slow on main?", ""]) {
   test(`starting ${text === "" ? "with an empty field" : "with text"} opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
-    await openTakenBacklog(page, journey);
+    await openTakenBacklog(page, launchJourney);
     const button = page.getByRole("button", {
       name: "Start session in Open Dough",
     });
@@ -156,10 +150,13 @@ for (const text of ["why is the CI slow on main?", ""]) {
 test("a terminal the developer closed while its session started stays closed once it starts, and Open terminal still opens it", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { release, panel, sessionId, openTerminal } =
-    await openWhileStarting(page);
+  const { release, panel, sessionId, openTerminal } = await openWhileStarting(
+    page,
+    launchJourney,
+  );
   const rows = panel.locator(".xterm-rows");
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toHaveCount(0);
@@ -186,10 +183,13 @@ test("a terminal the developer closed while its session started stays closed onc
 test("a terminal the developer reopened while its session started stays open, attached as it was, once it starts", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { release, panel, sessionId, openTerminal } =
-    await openWhileStarting(page);
+  const { release, panel, sessionId, openTerminal } = await openWhileStarting(
+    page,
+    launchJourney,
+  );
   const rows = panel.locator(".xterm-rows");
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toHaveCount(0);

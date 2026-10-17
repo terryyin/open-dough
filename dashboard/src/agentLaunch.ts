@@ -1,5 +1,5 @@
 // An agent launch: the developer asks the local launch boundary
-// (`../server/agentLaunchPlugin.ts`) to start an agent host on one published
+// (`../server/launchBoundary.ts`) to start an agent host on one published
 // work item, for one workflow. It requests an agent assignment -- the
 // published fact Taken and Preparing already derive from -- and origin still
 // decides every story fact; a launch record is only this machine's evidence

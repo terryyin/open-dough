@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ownerRecords } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import {
+  developmentBoundary,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -60,7 +61,7 @@ export async function dashboardsOnOneOwner() {
   const gh = installFakeGh(machine);
   const start = () =>
     startDashboardServer({
-      mode: "dev",
+      ...developmentBoundary,
       github,
       machine,
       pathPrefix: [gh.binDir],

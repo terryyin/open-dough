@@ -1,5 +1,5 @@
 // Delete record for a recorded launch (`./agentLaunch.ts`): the developer asks
-// the local launch boundary (`../server/agentLaunchPlugin.ts`) to forget one
+// the local launch boundary (`../server/launchBoundary.ts`) to forget one
 // recorded session whose state is still unknown. The endpoint, request, and
 // answer are spelled once here, with no Node import, so the browser and the
 // server read the same shapes. Only the dashboard's own record goes; the

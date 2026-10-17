@@ -13,6 +13,7 @@ import {
   startCursorDashboard,
   stayedUp,
 } from "./keptCursorTurn.ts";
+import { developmentBoundary } from "./dashboardServer.ts";
 import {
   instruction,
   liveRunner,
@@ -35,7 +36,11 @@ export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
     `dough-cursor-idle-${process.pid.toString(36)}`,
   );
   mkdirSync(machine);
-  const server = await startCursorDashboard("dev", cursor, machine);
+  const server = await startCursorDashboard(
+    developmentBoundary,
+    cursor,
+    machine,
+  );
   try {
     expect(
       (
@@ -70,8 +75,8 @@ export async function twoServersLeaveOneRunner(): Promise<void> {
   );
   mkdirSync(machine);
   const [first, second] = await Promise.all([
-    startCursorDashboard("dev", cursor, machine),
-    startCursorDashboard("dev", cursor, machine),
+    startCursorDashboard(developmentBoundary, cursor, machine),
+    startCursorDashboard(developmentBoundary, cursor, machine),
   ]);
   try {
     const runner = await liveRunner(first.home);
@@ -108,7 +113,7 @@ export async function unreachableRunnerRefusesStart(): Promise<void> {
   const release = await occupyRunner(home);
   let server: Awaited<ReturnType<typeof startCursorDashboard>> | undefined;
   try {
-    server = await startCursorDashboard("dev", cursor, machine);
+    server = await startCursorDashboard(developmentBoundary, cursor, machine);
     const launched = await launch(server, {
       source: "open-dough",
       workflow: "ad-hoc",
@@ -139,7 +144,11 @@ export async function stoppingRunnerResumesOnNextOpen(): Promise<void> {
     `dough-cursor-stop-${process.pid.toString(36)}`,
   );
   mkdirSync(machine);
-  const server = await startCursorDashboard("dev", cursor, machine);
+  const server = await startCursorDashboard(
+    developmentBoundary,
+    cursor,
+    machine,
+  );
   try {
     expect(
       (

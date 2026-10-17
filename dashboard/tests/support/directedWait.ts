@@ -4,6 +4,7 @@
 // long one.
 
 import {
+  developmentBoundary,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -22,10 +23,13 @@ export async function untilReported(
 }
 
 // Runs `use` on a server of its own, closed after: a case that meets a
-// directed wait keeps it from every case sharing that server.
+// directed wait keeps it from every case sharing that server. A boundary
+// server in the development environment unless the case asks otherwise.
 export async function onServerOfItsOwn<T>(
   use: (server: DashboardServer) => Promise<T>,
-  options: Parameters<typeof startDashboardServer>[0] = { mode: "dev" },
+  options: Parameters<typeof startDashboardServer>[0] = {
+    ...developmentBoundary,
+  },
 ): Promise<T> {
   const server = await startDashboardServer(options);
   try {

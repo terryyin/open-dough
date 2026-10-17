@@ -1,8 +1,10 @@
 # Native-host fixtures and journeys
 
-The [dashboard tests guide](README.md) owns the shared suite setup and proof
-contract. These fixtures drive native-host launch, listing and terminal boundaries
-without calling the real hosts.
+The [README](README.md) owns the strategy: which tier a check belongs to,
+what is real and what is replaced, and how the suite runs; [writing a
+journey](writing-journeys.md) holds the rules a journey's code follows. These
+fixtures drive native-host launch, listing and terminal boundaries without
+calling the real hosts.
 
 The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-refusal.spec.ts`, `agent-launch-records.spec.ts`, and
@@ -11,7 +13,6 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-session-state-pace.spec.ts`,
-`agent-launch-attention-clearing.spec.ts`,
 `agent-launch-attention.spec.ts`, `session-sidebar.spec.ts`,
 `session-sidebar-reading.spec.ts`, `session-sidebar-row.spec.ts`, `session-sidebar-stays-as-left.spec.ts`,
 `session-sidebar-keyboard.spec.ts`, `session-sidebar-navigation.spec.ts`,

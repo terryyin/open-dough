@@ -6,7 +6,7 @@
 // so in one quiet line and Start launches default refinement. A refused
 // launch's kept selection is ./agent-launch-options-kept.spec.ts. The
 // synthetic `claude` (./fixtures/fake-claude) stands in for the real one; the
-// boundary's own rules are ./agent-launch-options-boundary.spec.ts.
+// boundary's own rules are ./boundary/agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -17,19 +17,7 @@ import {
   openTakenBacklog,
   showOptions,
 } from "./launchCardPage.ts";
-import {
-  notRefinedIdentity,
-  notRefinedStory,
-  publishLaunchJourney,
-  type LaunchJourney,
-} from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -39,13 +27,17 @@ const sent = `/${skill} ${notRefinedIdentity}`;
 test("a group is radios with a No choice and other options stay checkboxes, choosing a member replaces another, and the command line and launch follow in definition order", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   writeFileSync(
     installRefinementSkill(dashboard.home),
     JSON.stringify(groupedOptions),
   );
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
 
   await refine(notRefinedStory).click();
   await showOptions(refinementDialog);
@@ -83,12 +75,16 @@ test("a group is radios with a No choice and other options stay checkboxes, choo
 test("choosing No Approach clears the group's choice and leaves the others", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   writeFileSync(
     installRefinementSkill(dashboard.home),
     JSON.stringify(groupedOptions),
   );
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
 
   await refine(notRefinedStory).click();
   await showOptions(refinementDialog);
@@ -141,10 +137,14 @@ for (const { name, change, line } of unavailable) {
   test(`${name}: the dialog says why in one quiet line with no options, and Start launches default refinement`, async ({
     page,
     dashboard,
+    launchJourney,
   }) => {
     dashboard.claudeScenario("launched");
     change(installRefinementSkill(dashboard.home));
-    const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+    const { refine, refinementDialog } = await openTakenBacklog(
+      page,
+      launchJourney,
+    );
 
     await refine(notRefinedStory).click();
     await expect(
@@ -167,6 +167,7 @@ for (const { name, change, line } of unavailable) {
 test("until the sessions read answers, refinement is not offered; while the options are read again, the dialog says so and Start launches default refinement", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   installRefinementSkill(dashboard.home);
@@ -186,7 +187,10 @@ test("until the sessions read answers, refinement is not offered; while the opti
     if (route.request().method() === "GET" && held !== undefined) await held;
     await route.continue();
   });
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
 
   // No Start is offered before this machine's launch evidence is read.
   await expect(refine(notRefinedStory)).toBeDisabled();

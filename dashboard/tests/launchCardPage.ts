@@ -134,6 +134,10 @@ export const startSessionField = (dialog: Locator) =>
     name: "What would you like to talk about? (optional)",
   });
 
+// A story launch dialog's instruction field.
+export const instructionField = (dialog: Locator) =>
+  dialog.getByRole("textbox", { name: "Instruction (optional)" });
+
 // The session a Start session dialog started, as local Taken lists it
 // once the start answered. A read during the start may already list the
 // session, still without the start's outcome, so this waits for the answer's

@@ -1,3 +1,14 @@
+// The pinned banner in each of its page-column layouts (../src/banner.css,
+// ../src/project-select.css): one row on a column wider than 800 CSS pixels,
+// ending with System settings; two rows up to 800, Sessions starting the
+// second before the project choices; and, up to 400, the choices wrapped onto
+// their own line, with the wider Verdana installed on the banner to reproduce
+// the Linux first-row wrap. One journey per layout opens the source evidence
+// and walks the keyboard back up a long page: the banner stays pinned and
+// short, each choice reads on one line, nothing is cut short, and no focused
+// control is hidden under it. A project switch in the banner is the last
+// test.
+
 import { expect, test } from "./dashboardTest.ts";
 import {
   largeBacklog,
@@ -18,12 +29,13 @@ import { sidebarParts } from "./sessionSidebarPage.ts";
 import { settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
-for (const viewport of [
-  { width: 1280, height: 800 },
-  { width: 700, height: 720 },
-  zoomedWindow,
-  { ...zoomedWindow, fontFamily: "Verdana" },
-]) {
+const layouts = [
+  { width: 1280, height: 800, rows: 1 },
+  { width: 700, height: 720, rows: 2 },
+  { ...zoomedWindow, rows: 2, fontFamily: "Verdana" },
+] as const;
+
+for (const viewport of layouts) {
   const fontFamily = "fontFamily" in viewport ? viewport.fontFamily : undefined;
   test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels${fontFamily ? ` in ${fontFamily}` : ""}`, async ({
     page,
@@ -85,6 +97,34 @@ for (const viewport of [
     await expectFrameIconControl(settings(page), "System settings");
     await expectNoSidewaysScrollAndWholeText(page);
 
+    if (viewport.rows === 1) {
+      await test.step("the wide column lays the banner out in one row, ending with System settings", async () => {
+        const gear = settings(page);
+        const inOrder = [
+          sidebarParts(page).button,
+          sourceEvidence,
+          project,
+          gear,
+        ];
+        await expectSideBySideInOrder(inOrder);
+        const middles = (await Promise.all(inOrder.map(box))).map(
+          ({ y, height }) => y + height / 2,
+        );
+        for (const middle of middles)
+          expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
+        const controls = banner.locator(
+          "button, input, select, textarea, summary, a[href], [tabindex]",
+        );
+        await expect(controls.last()).toHaveAccessibleName("System settings");
+        const gearBox = await box(gear);
+        for (const right of await controls.evaluateAll((all) =>
+          all.map((element) => element.getBoundingClientRect().right),
+        )) {
+          expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
+        }
+      });
+    }
+
     await sourceEvidence.click();
     await expect(source).toContainText("terryyin/open-dough");
     await expect(source.getByText(revision, { exact: true })).toBeVisible();
@@ -109,37 +149,6 @@ for (const viewport of [
         box(focused),
       ]);
       expect(focusBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
-    }
-  });
-}
-
-for (const width of [1440, 1280]) {
-  test(`banner is one row at ${String(width)} CSS pixels, ending with System settings`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width, height: 800 });
-    const origin = await publishMovingOrigin(page);
-    origin.push(revision, largeBacklog);
-    await openUntilRead(page);
-    const { banner, project, sourceEvidence } = parts(page);
-    await expect(sourceEvidence).toContainText("Open Dough");
-    const gear = settings(page);
-    const inOrder = [sidebarParts(page).button, sourceEvidence, project, gear];
-    await expectSideBySideInOrder(inOrder);
-    const middles = (await Promise.all(inOrder.map(box))).map(
-      ({ y, height }) => y + height / 2,
-    );
-    for (const middle of middles)
-      expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
-    const controls = banner.locator(
-      "button, input, select, textarea, summary, a[href], [tabindex]",
-    );
-    await expect(controls.last()).toHaveAccessibleName("System settings");
-    const gearBox = await box(gear);
-    for (const right of await controls.evaluateAll((all) =>
-      all.map((element) => element.getBoundingClientRect().right),
-    )) {
-      expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
     }
   });
 }

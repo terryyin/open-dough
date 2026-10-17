@@ -13,20 +13,12 @@ import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { back, settings } from "./support/systemSettingsPage.ts";
 import {
   computedPalettes,
   themeChoice,
   type ComputedPalette,
 } from "./support/terminalThemeSettingsPage.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -58,9 +50,10 @@ async function chooseInSettings(page: Page, label: ComputedPalette) {
 test("the page's terminal shows the theme chosen in System settings, live without re-attaching, on the next attachment and after a reload", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const panel = page.getByRole("region", { name: "Terminal", exact: true });
   const rows = panel.locator(".xterm-rows");
   const entry = parts(page).taken.locator(".session-entry");

@@ -9,6 +9,7 @@ import {
 } from "../server/productionDeployment.mjs";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { deploymentCheckout } from "./support/productionWatcher.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
@@ -88,9 +89,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
       deploymentsRoot: fixture.deploymentsRoot,
       env: fixture.env,
     });
-    expect(path.basename(staged.directory)).toMatch(
-      new RegExp(`^${commit.slice(0, 12)}-`),
-    );
+    expect(path.basename(staged.directory)).toEqual(deploymentCheckout(commit));
     expect(path.relative(fixture.development, staged.directory)).toMatch(
       /^\.\./,
     );

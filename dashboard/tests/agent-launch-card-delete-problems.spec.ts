@@ -24,23 +24,12 @@ import {
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { readyStory, type LaunchJourney } from "./launchJourney.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { Page } from "@playwright/test";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { givePageItsTurns } from "./pageRequestNotes.ts";
 import { holdSessionAnswers, watchRecordReads } from "./sessionStatePace.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -49,11 +38,15 @@ const unknownWords =
 const question =
   "Delete this session's dashboard record? The conversation stays in Claude Code; a running session keeps running.";
 
-async function unknownSession(page: Page, dashboard: DashboardServer) {
+async function unknownSession(
+  page: Page,
+  dashboard: DashboardServer,
+  launchJourney: LaunchJourney,
+) {
   await pausePageClockAt(page, new Date());
   const pace = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
-  const { card, start, dialog } = await openTakenBacklog(page, journey);
+  const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
   await start(readyStory).click();
   await dialog.getByRole("button", { name: "Start" }).click();
   const entry = cardSessionOf(card(readyStory), "Execution");
@@ -93,8 +86,9 @@ async function unknownSession(page: Page, dashboard: DashboardServer) {
 test("the question and Delete record… go when a later read lists the session as known, deleting nothing", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  const s = await unknownSession(page, dashboard);
+  const s = await unknownSession(page, dashboard, launchJourney);
   await s.deleteButton.click();
   await expect(s.entry.getByText(question)).toBeVisible();
 
@@ -111,8 +105,9 @@ test("the question and Delete record… go when a later read lists the session a
 test("a click that finds the state known keeps the record and says so beside the state", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  const s = await unknownSession(page, dashboard);
+  const s = await unknownSession(page, dashboard, launchJourney);
   dashboard.claudeListingFails(false);
   await s.deleteButton.click();
   await expect(s.entry.getByText(question)).toBeVisible();
@@ -131,8 +126,9 @@ test("a click that finds the state known keeps the record and says so beside the
 test("an unwritable record file reports its first failure in the persistent card entry status, retains buttons and focus, and retries without success speech", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  const s = await unknownSession(page, dashboard);
+  const s = await unknownSession(page, dashboard, launchJourney);
   const entry = s.entry;
   const status = entry.getByRole("status");
   const confirm = entry.getByRole("button", {
@@ -194,8 +190,9 @@ test("an unwritable record file reports its first failure in the persistent card
 test("a read asked before the deletion and answered after it does not bring the entry back", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
-  const s = await unknownSession(page, dashboard);
+  const s = await unknownSession(page, dashboard, launchJourney);
   const held = await holdSessionAnswers(page);
   await page.clock.runFor(checkIntervalMs);
   await held.reachedServer;

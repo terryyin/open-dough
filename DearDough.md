@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 309. Removed numbers are never reused.
+- Highest allocated local number: 314. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -25,6 +25,17 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 
 Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked. Open after verified later recurrence; not resolved. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-074).
 
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17 (slice 1 measurement) to 2026-10-18T05:11+09:00 (slice 9 record)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: the story's measured targets (half the baseline: ≤ 380 s local, ≤ 1,244 s hosted) and the plan premise row "Relocation shortens the browserless families: Hypothesis"; slice 1 measured the relocated family at −16 % and the plan's own threshold was 30 %; the hosted report-artifact analysis (plan Learnings, slice 9 Measured) puts the per-test floor over four workers at 1,790–2,045 s and the local floor near 530 s.
+  - Observed effect: both time targets unmet at completion (600 s local, 2,519 s hosted on the published revision) while the count target and every behavioral promise were met; the number decision is with the developer.
+  - Inference: the targets were set from the baseline before anyone measured where the time went; a one-run profile by family (which the proof record already supports) would have set reachable numbers or a different story shape.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop. Open after verified later recurrence; not resolved. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-110).
@@ -32,6 +43,17 @@ Former local code: DD-124. Former local code: DD-213. Former local code: DD-228.
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
 
 Former local code: DD-127. An identifier/permission-word sweep misses the same concept expressed in prose, allowing a removal's contradictory guidance to survive. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-157).
+
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17 (slices 2 and 3)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: plan 310 Learnings: the preparation inventory of browserless specs used a `page` token search (158 files); slice 2 found 14 more by a code-level scan and slice 3 eight more, while two scan hits were page journeys and stayed.
+  - Observed effect: two in-execution inventory corrections; no coverage lost; the relocation counts in the plan changed twice.
+  - Inference: a token search for a concept (opens a page) under-counts when the token lives only in comments or strings; the scan that strips comments and strings plus a read of each hit was needed and is now the recorded method.
 
 ## ODF-158 — Disproportionate required reference reads <a id="odf-158"></a>
 
@@ -225,6 +247,17 @@ Former local code: DD-263. A coordinator explicitly requests a temporary reprodu
 
 Former local code: DD-264. A long repeated full-suite probe starts and continues on an overloaded shared host without checking load or swap, consuming hours without completing its planned evidence. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-228).
 
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17T15:16+09:00 to 2026-10-17T19:36+09:00 (four whole-suite attempts)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: plan 310, slices 3 and 4 accepted-proof paragraphs and the Learnings entry on load-sensitive tests: whole dashboard runs at eight workers under load averages of 25–257 from other work (1,390–1,485 of 1,516 passed, the rest timeouts in untouched journeys), two by the implementation agent and two by the coordinator, before the coordinator moved local proof to four workers with failed-subset reruns and CI as the suite verdict (plan Current decisions).
+  - Observed effect: about four hours of whole-suite time without a green local run; targeted evidence and the twelve-shard CI run carried the acceptance; sixteen idle Cursor runners from the killed runs were found later.
+  - Inference: qualified. Neither the execution guidance nor the delegation briefs stated a local-proof policy for a shared host; the coordinator set one only after the loss. A load check before a long proof and a reduced-worker default on shared machines would have saved most of it.
+
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. An interrupted Cursor implementation Task leaves edits but no agent return; the coordinator must reconstruct proof and acceptance from the checkout. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-229).
@@ -298,6 +331,15 @@ An implementation agent ran the changed surface's whole suite before the indepen
   - Evidence: `dd2e25b59563d02bdbe4f484d98ccd4c113b6339:.planning/slice-plans/302-keep-direction-readable-after-phone-session-start/PLAN.md`, accepted-proof paragraph; implementation return "1607 passed, 0 failed, 13.6 min"; refactor return moving the row rules to `dashboard/src/project-actions.css` for the 250-line check and noting the suite result "predates the stylesheet move"; coordinator rerun 14.4 min.
   - Observed effect: two whole dashboard suite runs, about 28 minutes, for one stylesheet slice. The delegation brief bounded the suite to "a few minutes" and the agent ran it anyway.
   - Inference: qualified. A file-size split is foreseeable from the changed file's length before delegation; running the whole suite once, after refactoring, would have covered both. One execution establishes no rate.
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17 (slices 1–4) and 2026-10-18 (slices 5–7)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: delegation briefs for slices 1–8 asked the implementation agent for the whole dashboard suite before the refactor pass; the coordinator then ran it again on the formatted final state after each pass (plan accepted-proof paragraphs name both runs for slices 1, 2, 5, 6 and 7; slices 3 and 4 add coordinator runs before and after the refactor).
+  - Observed effect: at least eight whole-suite runs of 15–25 minutes beyond the one per slice the final state needs, on a machine the developer reported as short of memory.
+  - Inference: qualified. Under the load conditions some repeats were needed to get any green, but the brief's pre-refactor whole-suite requirement doubled the quiet-machine cases; one whole run after the refactor, with the implementer's proof targeted, would have sufficed.
 
 ## DD-294 — A plan's proof table omits an answer state its story scopes in
 The story's required behavior named three launch answer states; the plan's proof table and slice proof named two, so the implementation return listed the third untested and the coordinator returned the slice for it.
@@ -436,3 +478,73 @@ Slice delivery asks for the project's selective formatting command; this project
   - Evidence: `scripts/lint.mjs` file listing (`git ls-files --cached --others --exclude-standard` unless `--staged`); coordinator format runs exceeded 300 s (slices 1 and 3) and 600 s (slice 4, five Markdown files) at load averages near 100 to 120.
   - Observed effect: roughly 5 to 10 minutes of formatter time per slice, four times, with the coordinator idle.
   - Inference: qualified. Machine load inflated the cost; a changed-files mode, like the hook's `--staged` check, would bound it. Unloaded duration not measured.
+
+## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
+Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.
+
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17T22:24+09:00 (developer report; leftovers from runs since about 14:28+09:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: the developer's message naming PIDs 225, 1381, 5054, 5666 and 22237 with deleted working directories and 46 of 48 GB in use; the coordinator's earlier removal of sixteen `runnerMain.ts` processes under the worktree; plan 310 slice 5 (added that day as the story's acceptance criterion) and its proof: `support/runProcesses.ts`, the global-teardown sweep that fails a run naming survivors, `publishedMainFixture.cleanup` stopping its runner, `boundary/run-processes.spec.ts`.
+  - Observed effect: a sluggish shared machine for hours; one unplanned slice; after it, every whole run ended with nothing of the run surviving (plan slices 5–9).
+  - Inference: qualified. Execution guidance has a process-group cleanup contract for the suite but no post-run leftover check in delegation or acceptance; the project now enforces it inside the suite, and the coordinator added a `pgrep` check to every later brief. A general practice: after any long proof on a shared host, list the processes the run owned.
+
+## DD-311 — A re-plan decision flagged by the first slice reached the developer only with the last
+Slice 1's own threshold said a saving under 30 % means re-planning the measured target with the developer; the coordinator recorded it as a decision for the next checkpoint and delivered eight more slices before presenting it.
+
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17T11:5x+09:00 (slice 1 return) to 2026-10-18T05:3x+09:00 (slice 9 record)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: plan 310 Learnings, first entry (−16 % against the 30 % threshold, "Decision for Terry at the next checkpoint, not blocking slices 2–7") and Current decisions "Decision for Terry (time targets)" written with slice 9; the developer was present mid-execution (the process-leak messages at 22:24+09:00) and was not asked.
+  - Observed effect: the developer learns at completion that both time targets were unreachable by the retained work, when slices 6–8 could have been shaped against revised numbers or the story split.
+  - Inference: qualified. "Stop only the affected path" and "deliver safe work first" are right, but a one-line checkpoint message at the first developer contact costs nothing; the coordinator chose to accumulate evidence instead. The hosted floor was only measured at slice 8, so an earlier question would have been partly speculative.
+
+## DD-312 — A worker-scoped fixture declared in a subset of specs split the hosted worker population, invisible to local proof
+Adding a worker-scoped fixture to one fixture module while other specs extend only the base made Playwright hash the two populations apart and restart the four workers at every switch on every shard; the slice's local proof and whole runs were green and faster, and the cost showed only in hosted report artifacts.
+
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-18T0x:xx+09:00 (slice 7 published 1aec32a1 at about 04:1x+09:00; found by the hosted analysis about 04:3x+09:00; fixed in slice 9)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: plan 310 slice 9 "Worker restarts" and the Learnings entry on hosted measurement: 68 worker starts per hosted run against 21 before (83 s of restart gaps, 134 s of slot imbalance across twelve shards); the fix moved the fixture to `support/pageTest.ts` and gave the voice files one `launchOptions` object (local experiment 13 → 8 workers).
+  - Observed effect: one hosted run's overhead rose while its per-test seconds fell; found only because the coordinator commissioned a per-test comparison of report artifacts.
+  - Inference: qualified. A slice that changes test infrastructure has a hosted cost its local proof cannot see; reading the published run's report artifact (worker count, gaps) as part of the next slice's acceptance would catch it in one revision. Playwright's rule is now in the fixture's comment.
+
+## DD-313 — The CI observer's budget expires inside a long execution
+The execution observer ends after its eight-hour budget; an execution running longer loses coverage between the expiry and the next managed delivery, which starts a new observer.
+
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-18T04:3x+09:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: hook context `CI_MONITOR_UNAVAILABLE ... Execution observation budget expired after 28800000 ms` for observer `/tmp/dough-ci-501/watch-07Crdw` (armed 2026-10-17T20:33+09:00 at the CI-repair delivery); the slice 7 run finished green unobserved; the slice 8 delivery attached `watch-XvhGrj`.
+  - Observed effect: about one hour without observation, no failure in it; the coordinator read the run result with `gh` by hand.
+  - Inference: qualified. For an execution longer than the budget, the delivery path could renew the observer before expiry, or the expiry notice could name the renew command; low cost here, a real gap if a failure lands in it.
+
+## DD-314 — A nine-slice story ran about twenty hours without a split
+The plan started with eight slices and gained a ninth; execution took about twenty hours of wall time with the developer asleep for most of it, and the plan grew past 1,100 lines, while the resplit guidance triggers only above fifteen slices.
+
+### Occurrences
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17T11:00+09:00 (Take 7d4c704d) to 2026-10-18T06:0x+09:00 (slice 9 published 0bee7fd8)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: plan 310 (nine slices, two corrections, one CI repair, 1,150 lines at completion); the developer's recorded preference for small stories and mid-execution splits; the natural seam after slice 4 (boundary tier complete and green, serving-mode proof in place) or after slice 5.
+  - Observed effect: one long unattended run; the target decision (DD-311) and the process-leak discovery (DD-310) both surfaced late inside it.
+  - Inference: qualified. A split at the boundary-tier seam would have landed a reviewable half a day earlier; the readiness procedure measures slice count, not expected wall time or seams between families of work.

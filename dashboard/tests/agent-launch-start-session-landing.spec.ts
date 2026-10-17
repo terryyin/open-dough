@@ -11,7 +11,7 @@
 // ./agent-launch-start-session-existing-changes.spec.ts; default no-start
 // belongs to ./agent-launch-ad-hoc.spec.ts. The launch record keeps the
 // policy and what the start established, never the confirmation. Raw requests are
-// in ./agent-launch-start-session-landing-boundary.spec.ts.
+// in ./boundary/agent-launch-start-session-landing-boundary.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";

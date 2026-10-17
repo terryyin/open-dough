@@ -1,5 +1,5 @@
 // The browser's requests about one session this machine recorded, to the
-// local launch boundary (`../server/agentLaunchPlugin.ts`): a POST that marks
+// local launch boundary (`../server/launchBoundary.ts`): a POST that marks
 // it done, one that marks its report read, and one that deletes its record.
 // What each answers crossed a process/HTTP boundary, so it is checked as
 // external input.

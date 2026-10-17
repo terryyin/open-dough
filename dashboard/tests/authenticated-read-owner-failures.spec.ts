@@ -8,6 +8,8 @@ import {
   refusingOwner,
 } from "../../src/skills/dough-execute-plan/scripts/github-request-owner-refusal-test-fixtures.mjs";
 import { ownerlessRequestRoot } from "../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { openUntilRead } from "./pageRequestNotes.ts";
+import { builtDashboardDir } from "./support/dashboardServer.ts";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "./support/fakeGh.ts";
 import { expect, test } from "./support/pageTest.ts";
 import {
@@ -45,7 +47,8 @@ for (const [fault, ownerCause, message] of [
         { refused: fault === "unknown" ? ownerSecret : fault },
       );
     const server = await startDashboardServer({
-      mode: "dev",
+      mode: "preview",
+      prebuilt: builtDashboardDir,
       requestOwnerRoot,
       extraEnv: { GH_TOKEN: ownerSecret },
     });
@@ -66,7 +69,9 @@ for (const [fault, ownerCause, message] of [
         source: knownSourceId,
       });
       expect(before.failures[0]?.status).toBeUndefined();
-      await page.goto(server.baseURL);
+      // The notice is what the failed read leaves on the page: its check is
+      // bounded by the page's rendering once that read has failed.
+      await openUntilRead(page, server.baseURL);
       const notice = page.getByText(new RegExp(message)).first();
       await expect(notice).toBeVisible();
       await expect(notice).toContainText(

@@ -1,4 +1,4 @@
-// Fixtures for ./agent-launch-start-resume.spec.ts: the queued story's execution
+// Fixtures for ./boundary/agent-launch-start-resume.spec.ts: the queued story's execution
 // launch request against a real bare origin (./support/startOrigin.ts), its
 // workspace, the origin's `pre-receive` hook that makes a push slow or
 // refuses it, what this machine keeps of the start, the launch answers as read,

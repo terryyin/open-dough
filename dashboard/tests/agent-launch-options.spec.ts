@@ -7,7 +7,7 @@
 // session with those flags, and nothing selected is today's dialog and launch. No other dialog offers options. The
 // definition this repository ships is checked against the shared schema here.
 // The synthetic `claude` (./fixtures/fake-claude) stands in for the real one.
-// How the boundary honors a selection is ./agent-launch-options-boundary.spec.ts.
+// How the boundary honors a selection is ./boundary/agent-launch-options-boundary.spec.ts.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -25,17 +25,8 @@ import {
 import {
   notRefinedIdentity,
   notRefinedStory,
-  publishLaunchJourney,
   readyStory,
-  type LaunchJourney,
 } from "./launchJourney.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -63,9 +54,13 @@ test("the shipped definition is valid and gives every option and focus a summary
 test("the refinement dialog offers the installed definition's entries with label, summary and flag, and a changed definition shows with no code change", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   const file = installRefinementSkill(dashboard.home);
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
   const real = shippedRefinementDefinition();
   const shipped = [...real.options, ...real.focuses];
 
@@ -110,10 +105,14 @@ test("the refinement dialog offers the installed definition's entries with label
 test("selecting Explore and Borrow shows them in the command line and starts the session with those flags", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   installRefinementSkill(dashboard.home);
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
   const sent = `/${skill} ${notRefinedIdentity}`;
 
   await refine(notRefinedStory).click();
@@ -137,10 +136,14 @@ test("selecting Explore and Borrow shows them in the command line and starts the
 test("a dialog with nothing selected starts as before, and opens again with nothing selected", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   installRefinementSkill(dashboard.home);
-  const { refine, refinementDialog } = await openTakenBacklog(page, journey);
+  const { refine, refinementDialog } = await openTakenBacklog(
+    page,
+    launchJourney,
+  );
   const sent = `/${skill} ${notRefinedIdentity}`;
 
   await refine(notRefinedStory).click();
@@ -162,9 +165,10 @@ test("a dialog with nothing selected starts as before, and opens again with noth
 test("the execution and session dialogs offer no options", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   installRefinementSkill(dashboard.home);
-  const { start, dialog } = await openTakenBacklog(page, journey);
+  const { start, dialog } = await openTakenBacklog(page, launchJourney);
 
   await start(readyStory).click();
   await expect(dialog).toContainText(readyStory);

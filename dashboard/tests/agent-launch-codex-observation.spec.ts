@@ -1,15 +1,14 @@
 // Active cards and sidebar consume one recorded native observation; Recently
 // done retains the saved Done entry without duplicating open card sessions.
+// What a session without continuation or workspace offers is
+// ./agent-launch-codex-observation-workspace.spec.ts; the states endpoint's
+// own failures are ./boundary/agent-launch-codex-observation-status.spec.ts.
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pausePageClockAt } from "./dashboardTest.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
-import {
-  publishLaunchJourney,
-  notRefinedStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+import { notRefinedStory } from "./launchJourney.ts";
 import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import {
   expectSidebarSessionShown,
@@ -26,17 +25,12 @@ import {
 } from "./support/codexObservation.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => journey.cleanup());
 
 test("saved Codex states appear on active cards and sidebar while Recently done retains only the closed session, through reload with their attention counts", async ({
   page,
   dashboard,
   codexProtocol,
+  launchJourney,
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
@@ -141,7 +135,7 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
   const before = readFileSync(recordFile, "utf8");
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
-  const { card } = await openTakenBacklog(page, journey);
+  const { card } = await openTakenBacklog(page, launchJourney);
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
   const recent = parts(page).recentlyDone;

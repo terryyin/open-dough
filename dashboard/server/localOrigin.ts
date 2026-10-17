@@ -4,7 +4,7 @@
 // else -- reachable only because this machine also runs a browser -- gets no
 // answer and triggers no `gh` or agent host call. Guards both the
 // authenticated read boundary (`./authenticatedRead.ts`) and the launch
-// boundary (`./agentLaunchPlugin.ts`); this module only ever inspects the
+// boundary (`./launchBoundary.ts`); this module only ever inspects the
 // incoming request, never spawns a process or reads a catalog source.
 
 import type { IncomingMessage } from "node:http";

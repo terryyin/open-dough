@@ -1,7 +1,7 @@
 // The existing kept-start page journey shares the real installed script,
 // bare origin and protocol-only vendor fixture for both hosts.
-import { test as base } from "../dashboardTest.ts";
-import { builtDashboardDir, startDashboardServer } from "./dashboardServer.ts";
+import { fixtureServerMode, test as base } from "../dashboardTest.ts";
+import { startDashboardServer } from "./dashboardServer.ts";
 import { installFakeCodex } from "./fakeCodex.ts";
 import { launchWaitMs } from "./launchWait.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
@@ -33,12 +33,11 @@ export const test = base.extend<{
     await native?.close();
   },
   dashboard: async (
-    { github, origin, codexProtocol, pathPrefix, startTimeoutMs },
+    { github, origin, codexProtocol, pathPrefix, startTimeoutMs, serverMode },
     use,
   ) => {
     const server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
+      ...fixtureServerMode(serverMode),
       github,
       machine: origin.machine,
       projectFolders: ["open-dough"],

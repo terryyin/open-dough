@@ -34,8 +34,23 @@ export const scrollsOnItsOwn = [
   ".story-review-code",
 ];
 
-export const resizeEdge = (page: Page) =>
-  page.getByRole("separator", { name: "Resize panel" });
+export const resizeEdge = (within: Page | Locator) =>
+  within.getByRole("separator", { name: "Resize panel" });
+
+// Resizes the window and waits for the page to arrange the panel for it:
+// stacked above the page in a window up to 800px wide (side-panel.css),
+// beside the page with its resize edge otherwise. The page arranges on the
+// frame after the resize, so a measurement taken, or a finger placed, before
+// that frame would take the previous arrangement's places in the new window.
+export async function resizeUntilArranged(
+  panel: Locator,
+  view: { readonly width: number; readonly height: number },
+) {
+  await panel.page().setViewportSize(view);
+  const edge = resizeEdge(panel);
+  if (view.width > 800) await expect(edge).toBeVisible();
+  else await expect(edge).toHaveCount(0);
+}
 
 // The page column and the panel, side by side, as shown.
 export async function split(page: Page, panel: Locator) {

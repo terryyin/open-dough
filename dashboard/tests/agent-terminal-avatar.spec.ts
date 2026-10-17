@@ -16,19 +16,11 @@ import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { expectServed } from "./agentPortrait.ts";
 import { avatarPng } from "./avatarAnswers.ts";
 import { expectTerminalPreviewFits } from "./terminalPortraitPreview.ts";
 import { box } from "./pageLayout.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -58,6 +50,7 @@ function establish(home: string, established: Kept) {
 test("the header shows the recorded agent's portrait left of its two rows, proportionate to both, named by the agent, and none without an agent or a portrait", async ({
   page,
   dashboard,
+  launchJourney,
 }) => {
   const where = {
     workspace: path.join(dashboard.home, "agent-workspace"),
@@ -75,7 +68,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     /\/agent-avatars\/odd-e-nerds\/cartoon\/ruuf\.webp$/,
     (route) => route.fulfill({ status: 404 }),
   );
-  await openTakenBacklog(page, journey);
+  await openTakenBacklog(page, launchJourney);
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
   const names = panel.locator(".side-panel-names");

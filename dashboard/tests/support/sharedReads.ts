@@ -1,6 +1,6 @@
-// Shared support for ../authenticated-read-shared.spec.ts,
-// ../authenticated-read-shared-waiters.spec.ts, and
-// ../authenticated-read-shared-failures.spec.ts: a published
+// Shared support for ../boundary/authenticated-read-shared.spec.ts,
+// ../boundary/authenticated-read-shared-waiters.spec.ts, and
+// ../boundary/authenticated-read-shared-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.

@@ -1,6 +1,6 @@
 // What GitHub publishes for the specs of the local authenticated read
 // boundary's reuse at a revision its configured ref names next
-// (./revisionReuseBoundary.ts): every record a project shows at one revision,
+// (./boundary/revisionReuseBoundary.ts): every record a project shows at one revision,
 // the commits a move of the ref is made by, and one answerer for the
 // revisions, the comparisons, and the commits between (./originAnswers.ts,
 // ./pathHistoryAnswers.ts).

@@ -1,6 +1,6 @@
 // Shared by the specs that drive the terminal boundary without a page
-// (./agent-terminal-boundary.spec.ts, ./agent-terminal-close.spec.ts,
-// ./agent-terminal-reopen.spec.ts, and ./agent-launch-done.spec.ts): a
+// (./boundary/agent-terminal-boundary.spec.ts, ./boundary/agent-terminal-close.spec.ts,
+// ./boundary/agent-terminal-reopen.spec.ts, and ./boundary/agent-launch-done.spec.ts): a
 // session launched through the real launch boundary, in any project and for
 // any story and workflow (as ./session-sidebar.spec.ts launches outside the
 // shown project), and a raw WebSocket to
@@ -10,7 +10,8 @@
 import WebSocket from "ws";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { launch, launchRequest } from "./agentLaunchBoundary.ts";
-import { waitUntil, type DashboardServer } from "./support/dashboardServer.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 export type LaunchedSession = {

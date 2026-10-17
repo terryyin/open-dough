@@ -7,7 +7,7 @@ import {
   spawnGroupLeader,
   type GroupLeader,
 } from "./processGroup.ts";
-import { startOnOwnAddress } from "./viteAddress.ts";
+import { startOnOwnAddress } from "./serverAddress.ts";
 
 export function dashboardCommand(
   directory: string,

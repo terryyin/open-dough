@@ -9,17 +9,10 @@ import {
 } from "./support/dashboardServer.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
 test.use({ projectFolders: ["open-dough"] });
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 for (const blank of [true, false]) {
   test(`lost ${blank ? "materialization" : "input"} acknowledgment/restart retains original ${blank ? "blank intent" : "predecessor uncertain input"} without resubmission`, async ({
@@ -28,10 +21,11 @@ for (const blank of [true, false]) {
     codexProtocol,
     machine,
     github,
+    launchJourney,
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    await openTakenBacklog(page, journey);
+    await openTakenBacklog(page, launchJourney);
     const own = blank
       ? request
       : { ...request, instruction: "Keep this exact question." };

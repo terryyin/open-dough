@@ -1,5 +1,4 @@
 import { test, expect } from "./support/voiceTest.ts";
-import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import { observeMicrophone, recordClip } from "./support/voicePage.ts";
 import {
@@ -13,13 +12,6 @@ import {
   instructionProblems,
   instructionTranscriptionFailed,
 } from "../src/instructionTranscription.ts";
-
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
@@ -67,8 +59,9 @@ for (const failure of [
     page,
     dashboard,
     provider,
+    launchJourney,
   }) => {
-    const dialog = await openVoiceDraft(page, journey);
+    const dialog = await openVoiceDraft(page, launchJourney);
     if (failure.status === 0) provider.failNetwork();
     else provider.reply(failure.status, failure.body);
     await recordClip(page, dialog);
@@ -83,8 +76,9 @@ test("explicit retry after refusal appends once without failed text, then editab
   page,
   dashboard,
   provider,
+  launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, journey);
+  const dialog = await openVoiceDraft(page, launchJourney);
   provider.reply(
     403,
     JSON.stringify({
@@ -119,8 +113,9 @@ test.describe("deadline", () => {
     page,
     dashboard,
     provider,
+    launchJourney,
   }) => {
-    const dialog = await openVoiceDraft(page, journey);
+    const dialog = await openVoiceDraft(page, launchJourney);
     provider.hold();
     await recordClip(page, dialog);
     await recovered(
