@@ -1,26 +1,23 @@
 // Hold settlement before its lock acquisition, after real native binding.
-import { test, expect } from "./support/pageTest.ts";
+import { test, expect } from "../support/pageTest.ts";
 import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import { completionReceiptSchema } from "../src/completionReport.ts";
-import { acceptanceSchema } from "../src/launchOutcome.ts";
-import { accept } from "./agentLaunchBoundary.ts";
-import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
+import { completionReceiptSchema } from "../../src/completionReport.ts";
+import { acceptanceSchema } from "../../src/launchOutcome.ts";
+import { accept } from "../agentLaunchBoundary.ts";
+import { keptAttempts, settledOutcome } from "../acceptedAttempts.ts";
 import {
   startOrigin,
   queuedIdentity,
   queuedTitle,
-} from "./support/startOrigin.ts";
-import {
-  startDashboardServer,
-  builtDashboardDir,
-} from "./support/dashboardServer.ts";
+} from "../support/startOrigin.ts";
+import { startDashboardServer } from "../support/dashboardServer.ts";
 import {
   reportingChild,
   recordOperation,
-} from "./support/completionRecovery.ts";
-import { fsPromisesHook } from "./support/serverFsHook.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
+} from "../support/completionRecovery.ts";
+import { fsPromisesHook } from "../support/serverFsHook.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
   test.setTimeout(120000);
@@ -43,8 +40,7 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
 }`,
   );
   const server = await startDashboardServer({
-    mode: "preview",
-    prebuilt: builtDashboardDir,
+    mode: "boundary",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30000,

@@ -1,4 +1,4 @@
-// Delete record at the local launch boundary (../server/agentLaunchPlugin.ts),
+// Delete record at the local launch boundary (../server/launchBoundary.ts),
 // over raw HTTP: a same-origin POST for a session this dashboard recorded
 // removes only that session's record from this machine's launch records while
 // Claude Code's listing still leaves its state unknown, or no longer lists it

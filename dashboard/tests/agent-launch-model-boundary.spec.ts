@@ -1,4 +1,4 @@
-// The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
+// The local launch boundary (../server/launchBoundary.ts) over raw HTTP,
 // in dev and preview, for a launch that asks for a model: a story's or an ad
 // hoc session's `--model <alias>` goes before its instruction, a request
 // without a model starts exactly as before, the record keeps the alias, and a

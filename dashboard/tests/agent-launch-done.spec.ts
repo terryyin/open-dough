@@ -1,4 +1,4 @@
-// Mark as done at the local launch boundary (../server/agentLaunchPlugin.ts,
+// Mark as done at the local launch boundary (../server/launchBoundary.ts,
 // ../server/doneMarks.ts), over raw HTTP and a raw terminal socket: a
 // same-origin POST for a session this dashboard recorded, idle between
 // steps, types Claude Code's own `/rename done-<name>` into its open terminal,

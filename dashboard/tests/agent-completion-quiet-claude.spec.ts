@@ -7,7 +7,7 @@
 // closed during the wait leaves the pending mark and hangs up its
 // attachment. Real start, launch, installed reporting command, store and
 // page; only Claude and GitHub are fakes. Early reports bound later are
-// ./agent-completion-binding.spec.ts; Codex's is
+// ./boundary/agent-completion-binding.spec.ts; Codex's is
 // ./agent-completion-quiet.spec.ts.
 
 import { markDone, recordsOf } from "./agentLaunchBoundary.ts";

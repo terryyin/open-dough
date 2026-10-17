@@ -1,4 +1,4 @@
-// The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
+// The local launch boundary (../server/launchBoundary.ts) over raw HTTP,
 // in dev and preview, for an ad hoc session: a project's folder and no story.
 // The server derives the label, names the session `<project> · Ad hoc ·
 // <label>`, starts it with the developer's text as typed or with no prompt at

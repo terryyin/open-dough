@@ -1,11 +1,13 @@
 // Remove/corrupt accepted attempt evidence after native creation, before binding.
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { launchResultSchema } from "../src/launchOutcome.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { CreationRecord } from "../src/launchCreation.ts";
-import { test, expect } from "./support/codexStart.ts";
-import { launch } from "./agentLaunchBoundary.ts";
+import { launchResultSchema } from "../../src/launchOutcome.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import type { CreationRecord } from "../../src/launchCreation.ts";
+import { test, expect } from "../support/codexStart.ts";
+import { launch } from "../agentLaunchBoundary.ts";
+
+test.use({ serverMode: "boundary" });
 
 for (const fault of ["missing", "unreadable"] as const) {
   test(`mid-launch ${fault} attempt refuses a false binding, retains native recovery identity and submits no first input`, async ({

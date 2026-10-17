@@ -9,9 +9,9 @@
 import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
-  waitUntil,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import {
   everyRepository,
   publishes,

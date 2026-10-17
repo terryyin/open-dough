@@ -10,7 +10,8 @@
 import WebSocket from "ws";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { launch, launchRequest } from "./agentLaunchBoundary.ts";
-import { waitUntil, type DashboardServer } from "./support/dashboardServer.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 export type LaunchedSession = {

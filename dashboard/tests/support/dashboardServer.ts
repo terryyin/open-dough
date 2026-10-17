@@ -1,4 +1,6 @@
-// Launches one isolated Vite dev or preview server process with the
+// Launches one isolated dashboard server process -- a Vite dev or preview
+// server, or in boundary mode the local boundaries alone on a plain HTTP
+// server (../../server/boundaryServer.ts), without Vite or a build -- with the
 // synthetic `gh` (../fixtures/fake-gh, via ./fakeGh.ts) first on that
 // process's PATH, answering from a fake GitHub (./fakeGitHub.ts), and the
 // synthetic `claude` (../fixtures/fake-claude, via ./fakeClaude.ts) before
@@ -14,8 +16,8 @@
 // teardown past its timeout never reached close, is stopped then, as is the
 // server's own group (./processGroup.ts). A closed server leaves no such stop.
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
-// boundary specs start their own, so PATH/env mutation and each fake
-// GitHub's answers never leak between tests.
+// boundary specs (../boundary/) start their own, so PATH/env mutation and each
+// fake GitHub's answers never leak between tests.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -32,7 +34,12 @@ import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { endAtExit } from "./processGroup.ts";
-import { listenArgs, spawnVite, startOnOwnAddress } from "./viteAddress.ts";
+import {
+  listenArgs,
+  spawnBoundaryServer,
+  spawnVite,
+  startOnOwnAddress,
+} from "./serverAddress.ts";
 import { configureDevelopmentProjects } from "./projectConfiguration.ts";
 import { buildDashboardTo } from "./dashboardBuild.ts";
 
@@ -42,12 +49,13 @@ export { builtDashboardDir } from "./dashboardBuild.ts";
 export type DashboardServer = {
   readonly baseURL: string;
   readonly origin: string;
-  // The Vite process. Its process group is the one `close` ends.
+  // The server process. Its process group is the one `close` ends.
   readonly pid: number;
   // The directory this preview-mode server serves, so a test can inspect the
   // actual static assets -- for example, to confirm no credential-like
   // marker was ever written into them. `undefined` in dev mode, which serves
-  // source on the fly and writes no build output at all.
+  // source on the fly and writes no build output at all, and in boundary
+  // mode, which serves no assets.
   readonly outDir: string | undefined;
   readonly github: FakeGitHub;
   readonly codex: FakeCodex;
@@ -60,7 +68,10 @@ export type DashboardServer = {
 
 export async function startDashboardServer(
   options: FakeClaudeOptions & {
-    readonly mode: "dev" | "preview";
+    // `boundary` starts the local boundaries alone, on a plain HTTP server in
+    // the production project environment, for a spec that never opens a page
+    // (../boundary/); `dev` and `preview` start Vite.
+    readonly mode: "dev" | "preview" | "boundary";
     // Existing dev journeys get their known projects; false observes a genuine
     // empty first start. Existing files are always kept, including empty lists.
     readonly configureDevelopmentProjects?: boolean;
@@ -84,7 +95,7 @@ export async function startDashboardServer(
     // Preview only: serve this already-built directory instead of building a
     // private copy.
     readonly prebuilt?: string | undefined;
-    // Extra environment for the spawned Vite process only, merged over the
+    // Extra environment for the spawned server process only, merged over the
     // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
     // credential-shaped value somewhere the production code's own subprocess
     // invocation (`../../server/ghRead.ts`, which forwards its whole
@@ -145,23 +156,27 @@ export async function startDashboardServer(
     env["DOUGH_RETAINED_ANSWERS_BYTES"] = String(options.retainedAnswersBytes);
   }
 
-  const serverArgs = [
+  const viteArgs = [
     "--config",
     "dashboard/vite.config.mts",
     ...listenArgs(options.port),
   ];
-  let args: string[];
+  let spawn: () => ReturnType<typeof spawnVite>;
   let outDir: string | undefined;
-  if (options.mode === "dev") {
+  if (options.mode === "boundary") {
+    // No page, so no build: the entry takes the listen args alone.
+    spawn = () => spawnBoundaryServer(listenArgs(options.port), env);
+  } else if (options.mode === "dev") {
     // Dev mode compiles on the fly; it never reads or writes `dist`.
-    args = serverArgs;
+    spawn = () => spawnVite(viteArgs, env);
   } else {
     outDir = options.prebuilt;
     if (outDir === undefined) {
       outDir = path.join(tempRoot, "dist");
       buildDashboardTo(outDir);
     }
-    args = ["preview", ...serverArgs, "--outDir", outDir];
+    const dist = outDir;
+    spawn = () => spawnVite(["preview", ...viteArgs, "--outDir", dist], env);
   }
 
   const home = claude.controls.home;
@@ -188,9 +203,9 @@ export async function startDashboardServer(
     rmSync(tempRoot, { recursive: true, force: true });
   };
 
-  const { launched: vite, url: baseURL } = await startOnOwnAddress(
+  const { launched: server, url: baseURL } = await startOnOwnAddress(
     options.port,
-    () => spawnVite(args, env),
+    spawn,
     `The ${options.mode} server this test started could not start`,
   ).catch(async (error: unknown) => {
     await closeOwned();
@@ -200,11 +215,11 @@ export async function startDashboardServer(
   return {
     baseURL,
     origin: baseURL,
-    pid: vite.child.pid ?? 0,
+    pid: server.child.pid ?? 0,
     outDir,
     github,
     codex,
-    output: vite.output,
+    output: server.output,
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },
@@ -220,22 +235,8 @@ export async function startDashboardServer(
     },
     ...claude.controls,
     async close() {
-      await vite.stop();
+      await server.stop();
       await closeOwned();
     },
   };
-}
-
-export async function waitUntil(
-  condition: () => boolean,
-  { timeoutMs, intervalMs = 50 }: { timeoutMs: number; intervalMs?: number },
-): Promise<boolean> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    if (condition()) {
-      return true;
-    }
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
-  }
-  return condition();
 }

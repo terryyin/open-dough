@@ -1,5 +1,4 @@
 import type { IncomingMessage } from "node:http";
-import type { Plugin } from "vite";
 import {
   openAIConfigurationEndpoint,
   openAIRemoveEndpoint,
@@ -7,7 +6,7 @@ import {
 } from "../src/openAIConfiguration.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { localJsonEndpointsPlugin } from "./localJsonEndpoints.ts";
+import { localJsonEndpoints } from "./localJsonEndpoints.ts";
 import {
   OpenAICredentialProblem,
   readOpenAIAPIKey,
@@ -58,19 +57,16 @@ async function answer(
   return { configured: true };
 }
 
-export function openAIConfigurationPlugin(): Plugin {
-  return localJsonEndpointsPlugin(
-    "dough-openai-configuration",
-    [openAIConfigurationEndpoint, openAISaveEndpoint, openAIRemoveEndpoint],
-    answer,
-    (error) => ({
-      status: 503,
-      body: {
-        error:
-          error instanceof OpenAICredentialProblem
-            ? error.message
-            : "OpenAI configuration could not be updated. Retry the operation.",
-      },
-    }),
-  );
-}
+export const installOpenAIConfigurationMiddleware = localJsonEndpoints(
+  [openAIConfigurationEndpoint, openAISaveEndpoint, openAIRemoveEndpoint],
+  answer,
+  (error) => ({
+    status: 503,
+    body: {
+      error:
+        error instanceof OpenAICredentialProblem
+          ? error.message
+          : "OpenAI configuration could not be updated. Retry the operation.",
+    },
+  }),
+);

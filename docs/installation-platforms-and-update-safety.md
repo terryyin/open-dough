@@ -118,7 +118,7 @@ run automatically without workflow changes. When adding another test framework,
 include it in `npm test` so the same command remains the complete suite locally
 and in CI.
 
-For development checks, use Node.js 20.19+, 22.13+, or 24+ and install the locked
+For development checks, use Node.js 22.13+ or 24+ and install the locked
 npm dependencies with `npm ci`. Install ShellCheck 0.11+ and shfmt 3.14+ on your
 PATH as well (`brew install shellcheck shfmt` on macOS).
 

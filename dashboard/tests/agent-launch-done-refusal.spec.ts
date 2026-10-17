@@ -1,4 +1,4 @@
-// Which done requests the local launch boundary (../server/agentLaunchPlugin.ts)
+// Which done requests the local launch boundary (../server/launchBoundary.ts)
 // refuses before it runs any `claude`, over raw HTTP: a session this dashboard
 // did not record, another project's session, another site, an unknown
 // project, and a malformed request. Each refusal leaves the session unmarked

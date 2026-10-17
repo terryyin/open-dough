@@ -10,9 +10,9 @@
 import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
-  waitUntil,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { everyRepository, hangs } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { processAlive, processRunning } from "./support/processGroup.ts";

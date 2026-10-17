@@ -1,4 +1,4 @@
-// How long and where the local launch boundary (../server/agentLaunchPlugin.ts)
+// How long and where the local launch boundary (../server/launchBoundary.ts)
 // keeps a project's launch records, over raw HTTP: this machine keeps them
 // outside every repository until 30 days after its session is marked done,
 // however old an unclosed one is, across server restarts and shared

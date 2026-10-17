@@ -12,7 +12,8 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
-import { agentLaunchPlugin } from "../server/agentLaunchPlugin.ts";
+import { installAgentLaunchMiddleware } from "../server/launchBoundary.ts";
+import { localBoundaryPlugin } from "../server/localBoundaryPlugin.ts";
 import {
   ensureCursorRunner,
   stopCursorRunner,
@@ -63,7 +64,10 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
         res.end();
       });
     });
-    const plugin = agentLaunchPlugin();
+    const plugin = localBoundaryPlugin({
+      name: "dough-agent-launch",
+      install: installAgentLaunchMiddleware,
+    });
     const configureServer = plugin.configureServer as unknown as (server: {
       middlewares: typeof middlewares;
       httpServer: http.Server;

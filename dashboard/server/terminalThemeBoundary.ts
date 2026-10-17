@@ -1,5 +1,4 @@
 import type { IncomingMessage } from "node:http";
-import type { Plugin } from "vite";
 import {
   terminalThemeEndpoint,
   terminalThemeSaveEndpoint,
@@ -8,7 +7,7 @@ import {
 import { isTerminalThemeId } from "../src/terminalThemes.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { localJsonEndpointsPlugin } from "./localJsonEndpoints.ts";
+import { localJsonEndpoints } from "./localJsonEndpoints.ts";
 import {
   readTerminalTheme,
   saveTerminalTheme,
@@ -46,19 +45,16 @@ async function answer(
   return { theme: input.theme };
 }
 
-export function terminalThemePlugin(): Plugin {
-  return localJsonEndpointsPlugin(
-    "dough-terminal-theme",
-    [terminalThemeEndpoint, terminalThemeSaveEndpoint],
-    answer,
-    (error) => ({
-      status: 503,
-      body: {
-        error:
-          error instanceof TerminalThemeProblem
-            ? error.message
-            : "The terminal theme could not be updated. Retry the operation.",
-      },
-    }),
-  );
-}
+export const installTerminalThemeMiddleware = localJsonEndpoints(
+  [terminalThemeEndpoint, terminalThemeSaveEndpoint],
+  answer,
+  (error) => ({
+    status: 503,
+    body: {
+      error:
+        error instanceof TerminalThemeProblem
+          ? error.message
+          : "The terminal theme could not be updated. Retry the operation.",
+    },
+  }),
+);

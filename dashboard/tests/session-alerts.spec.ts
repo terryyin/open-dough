@@ -20,8 +20,8 @@ import { distinctStoryRequest } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
-  waitUntil,
 } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { processRunning } from "./support/processGroup.ts";
 import {
   afterFurtherListings,

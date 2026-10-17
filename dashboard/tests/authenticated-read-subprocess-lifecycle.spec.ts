@@ -31,9 +31,9 @@ import {
 } from "./support/authenticatedReadUrl.ts";
 import {
   startDashboardServer,
-  waitUntil,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { abandonedRequest, rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });

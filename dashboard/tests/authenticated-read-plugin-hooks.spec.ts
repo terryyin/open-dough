@@ -1,6 +1,7 @@
-// The Vite plugin hooks through which the local authenticated read boundary
-// (../server/authenticatedReadPlugin.ts) ends its owned `gh` subprocesses on
-// shutdown, called directly rather than through a Vite server, so that the
+// The Vite plugin hooks (../server/localBoundaryPlugin.ts) through which the
+// local authenticated read boundary (../server/authenticatedRead.ts) ends its
+// owned `gh` subprocesses on shutdown, called directly rather than through a
+// Vite server, so that the
 // hook is the only possible cause. End-to-end subprocess lifecycle is covered
 // in ./authenticated-read-subprocess-lifecycle.spec.ts.
 
@@ -10,7 +11,8 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { authenticatedReadPlugin } from "../server/authenticatedReadPlugin.ts";
+import { installAuthenticatedReadMiddleware } from "../server/authenticatedRead.ts";
+import { localBoundaryPlugin } from "../server/localBoundaryPlugin.ts";
 import {
   endFakeGh,
   fakeGhEnv,
@@ -23,15 +25,15 @@ import {
   hangs,
   startFakeGitHub,
 } from "./support/fakeGitHub.ts";
-import { waitUntil } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { abandonedRequest } from "./support/rawHttp.ts";
 import { withRestoredEnv } from "./support/testEnv.ts";
 import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 
 const knownSourceId = "open-dough";
 
-// A minimal stand-in for `Connect.Server`: `authenticatedReadPlugin()`'s
-// `configureServer` hook only ever calls `.use(handler)` on what it is
+// A minimal stand-in for `Connect.Server`: the plugin's `configureServer`
+// hook only ever calls `.use(handler)` on what it is
 // given, so that is all this needs to provide.
 type StoredHandler = (
   req: http.IncomingMessage,
@@ -44,7 +46,7 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
   // installed Vite (8.3.0) does not treat `configureServer`'s/
   // `configurePreviewServer`'s return value as a close hook (that return
   // value is a startup "post hook", called once at startup, never at
-  // close). `authenticatedReadPlugin()` must instead register its cleanup via the
+  // close). The plugin must instead register its cleanup via the
   // dedicated `closeServer`/`closePreviewServer` plugin hooks. The tests
   // above cannot isolate that fact on their own, because Vite's own graceful
   // `server.close()` also destroys any still-open request socket, which
@@ -75,11 +77,14 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
       },
     };
 
-    const plugin = authenticatedReadPlugin();
+    const plugin = localBoundaryPlugin({
+      name: "dough-authenticated-read",
+      install: installAuthenticatedReadMiddleware,
+    });
     // Cast through the plugin's own actual runtime shape: both hooks are
     // written as plain functions (object-method shorthand), never Rollup's
     // alternate `{ handler, order }` object form, so this reflects what
-    // `authenticatedReadPlugin()` really returns, not its looser declared type.
+    // the plugin really is, not its looser declared type.
     const configureServer = plugin.configureServer as unknown as (server: {
       middlewares: typeof connectStub;
     }) => void;

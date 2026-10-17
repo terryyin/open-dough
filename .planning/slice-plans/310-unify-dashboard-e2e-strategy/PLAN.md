@@ -106,7 +106,7 @@ workspace was left unchanged.
 
 ### 1. Boundary tier proves one family without Vite
 Type: Behavior
-Status: planned
+Status: done
 Proof: The six browserless `agent-completion-*` specs, moved to
 `dashboard/tests/boundary/`, pass with `startDashboardServer({ mode:
 "boundary" })`, whose child is `node --experimental-transform-types
@@ -118,6 +118,18 @@ the README gains the two-tier strategy section.
 Behavior: a developer runs the relocated family → it starts the local
 boundaries on a plain HTTP server per test → the same requests get the same
 answers faster, with no production build or Vite boot required by those tests.
+
+Accepted proof (2026-10-17, at the slice 1 commit): the six relocated specs plus
+`boundary/boundary-server.spec.ts` pass in boundary mode (`npm run --silent
+test:dashboard -- boundary/`, 12 tests); `boundary-server.spec.ts` observes
+the child's command line is the Node entry, its output names no Vite, `outDir`
+is undefined and `GET /` is 404; a scratch change to one refusal message in
+`server/hosts/codex/launch.ts` failed exactly `agent-completion-attempt-loss`'s
+two tests; `npm run typecheck:dashboard`, `npm test -- tests/support/dashboard-test-files.test.mjs`
+and the whole dashboard suite (1,632 selected, all passed) are green on the
+final formatted state. Measurement, relative under load: summed test time
+116.6 s before (load 14–26) against 97.8 s after (load 6–9), wall 24 s against
+18 s, both including the run's one production build.
 
 ### 2. Read, project, proof-record and landing boundary specs relocate
 Type: Behavior
@@ -218,7 +230,83 @@ developer reads one strategy and sees the measured, mapped reduction.
   `longest-first` edit in this story.
 - The proof map is recorded in this plan under `## Proof map`, one line per
   removed or relocated case with its replacement proof, as slices complete.
+- The boundary server (`dashboard/server/boundaryServer.ts`) mounts the one
+  list `dashboard/server/localBoundaries.ts`, which `vite.config.mts` also maps
+  to its plugins, in the production project environment. A relocated spec
+  that needs the development environment (the dev-mode `authenticated-read-*`
+  files) needs an explicit environment switch on that entry, decided in
+  slice 2.
+- Server modules are named by boundary, not by Vite plugin:
+  `launchBoundary.ts`, `projectConfigurationBoundary.ts`,
+  `openAIConfigurationBoundary.ts`, `terminalThemeBoundary.ts`,
+  `instructionTranscriptionBoundary.ts`; the test launcher is
+  `tests/support/serverAddress.ts`. The preparation observations above cite
+  the names they had when observed.
+
+## Execution context
+
+- Mode: Story Branch; workspace
+  `.worktrees/unify-and-streamline-the-dashboard-e2e-test-stra`, branch
+  `claude/unify-and-streamline-the-dashboard-e2e-test-stra`, remote `origin`,
+  trunk `main`; agent `bas-chan`.
+- Published revisions: claim `7d4c704d` on `main` (starting revision
+  `297ff978`); slice increments are published to the remote execution branch
+  and listed here as they are accepted.
+
+## Story obligations
+
+### G1. Boundary server runs only the production project environment
+Reported: slice 1 — "The entry supports only the production environment; dev-only browserless specs (and slice 4's dev/preview equivalence) need an environment switch or stay on Vite."
+Story clause: "the browserless specs leave the browser suite and keep their behavior at the boundary tier, without a browser or a Vite boot per test"
+Disposition: interim until slices 2, 3, 4
+
+### G2. Terminal WebSocket upgrades wired but not yet exercised at the boundary tier
+Reported: slice 1 — "WebSocket terminal upgrades are wired (real `http.Server` passed to `installAgentLaunchMiddleware`) but first exercised by a relocated terminal spec in slice 3, as planned."
+Story clause: "Every retained test still runs locally and in hosted CI through the existing commands and jobs"
+Disposition: receiving slice 3
+
+### G3. Every run still builds production once, boundary-only selections included
+Reported: slice 1 — "globalSetup still builds once per run even for boundary-only filtered runs (~6 s of the 18 s wall); build placement remains the next story's."
+Story clause: "Choosing the CI job layout, caching, and parallelism belongs to the next story."
+Disposition: excluded "Choosing the CI job layout, caching, and parallelism belongs to the next story."
+
+## Proof map
+
+One line per removed or relocated case: where it was, where its behavior is
+proved now.
+
+- `agent-completion-attempt-loss.spec.ts`, `-binding`, `-early-recovery`,
+  `-identity`, `-input`, `-superseded` (11 tests): relocated unchanged to
+  `dashboard/tests/boundary/` under `mode: "boundary"`; same titles and
+  assertions against the launch boundary's HTTP surface.
+- `dashboard/tests/boundary/boundary-server.spec.ts` (1 test, added): the
+  boundary tier's server is the Node entry alone, naming no Vite and serving
+  no page.
 
 ## Learnings
 
-None yet.
+- Slice 1 measured the relocated `agent-completion-*` family at 97.8 s summed
+  test time against the 116.6 s baseline (-16 %; wall 18 s against 24 s, the
+  run's one production build included in both), on a less loaded machine
+  (load 6-9 against 14-26). Vite boot was a small share of these tests; their
+  time is their own real git, start and host work. Under the premise row
+  "Relocation shortens the browserless families", relocation is kept for
+  build independence and the measured target (local run <= 380 s) needs
+  re-planning with Terry before slice 8 relies on relocation alone; slices
+  5 and 6 carry the larger savings.
+  Decision for Terry at the next checkpoint, not blocking slices 2–7: keep
+  the ≤ 380 s local target and judge it after slices 5–6 (recommended: the
+  watcher and origin-publishing families hold most of the summed time, and
+  the measurement so far is a small, load-skewed sample), or revise the
+  number now.
+- The refactor pass gave the local boundaries one list
+  (`server/localBoundaries.ts`) feeding both Vite and the boundary server,
+  removed the per-boundary `*Plugin()` factories, and moved the proof-record
+  guide out of the tests README into `dashboard/tests/proof-record.md`.
+- Full `npm test` on the slice 1 final state failed once in
+  `src/skills/dough-execute-plan/scripts/github-request-login-secrecy.test.mjs`
+  (`machine.asked("alice").length` 3 instead of 4) under the whole suite's load
+  (load average 16–24); the check passed three times alone, and neither it
+  nor anything under `src/` is touched by this story. Disposition: unrelated
+  load-sensitive count in that check, reported for the retrospective; not a
+  dashboard defect.

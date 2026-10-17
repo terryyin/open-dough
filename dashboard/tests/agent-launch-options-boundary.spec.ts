@@ -1,4 +1,4 @@
-// The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
+// The local launch boundary (../server/launchBoundary.ts) over raw HTTP,
 // in dev and preview, for a refinement launch that selects options: the flags
 // go after the work item's identity in the installed definition's order, then
 // the developer's text, and the record keeps them; no options starts as

@@ -3,7 +3,10 @@
 // synthetic `gh` answers from it (./support/dashboardServer.ts); `page`
 // opens that server at `/`. So a journey decides only what GitHub would
 // answer the local `gh`, and the page, its local authenticated read
-// boundary, and the `gh` invocation are the production ones.
+// boundary, and the `gh` invocation are the production ones. A boundary spec
+// (./boundary/) built on the same fixtures sets `serverMode` to `boundary`
+// and gets the local boundaries alone, without Vite or the build; it opens
+// no page.
 //
 // No request from the page may leave the loopback server. A request to
 // GitHub's API from the browser itself would mean the page bypassed the
@@ -66,6 +69,9 @@ export const test = base.extend<{
   startTimeoutMs: number | undefined;
   extraEnv: Readonly<Record<string, string>> | undefined;
   pathPrefix: readonly string[] | undefined;
+  // Which server `dashboard` starts: the built preview a page journey opens,
+  // or the local boundaries alone for a boundary spec.
+  serverMode: "preview" | "boundary";
   afterGitHubStops: (removal: Removal) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
@@ -78,6 +84,7 @@ export const test = base.extend<{
   startTimeoutMs: [undefined, { option: true }],
   extraEnv: [undefined, { option: true }],
   pathPrefix: [undefined, { option: true }],
+  serverMode: ["preview", { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
@@ -103,12 +110,13 @@ export const test = base.extend<{
       codexProtocol,
       extraEnv,
       pathPrefix,
+      serverMode,
     },
     use,
   ) => {
     const server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
+      mode: serverMode,
+      ...(serverMode === "preview" ? { prebuilt: builtDashboardDir } : {}),
       github,
       readTimeoutMs,
       projectFolders,

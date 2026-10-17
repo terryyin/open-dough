@@ -1,5 +1,5 @@
 // Mark as done when Claude Code's session listing decides stop or removal, at the
-// local launch boundary (../server/agentLaunchPlugin.ts, ../server/doneMarks.ts),
+// local launch boundary (../server/launchBoundary.ts, ../server/doneMarks.ts),
 // over raw HTTP and a raw terminal socket: a session Claude Code no longer
 // lists is only marked, never stopped; one whose listing cannot be read is
 // still stopped; one listed as exited has its job removed with `claude rm`,

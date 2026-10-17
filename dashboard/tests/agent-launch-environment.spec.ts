@@ -1,5 +1,5 @@
 // The environment a launch runs in, at the local launch boundary
-// (../server/agentLaunchPlugin.ts) over raw HTTP, in dev and preview: a server
+// (../server/launchBoundary.ts) over raw HTTP, in dev and preview: a server
 // started as a deployment's is (./support/launchEnvironment.ts) launches
 // Claude Code in the developer's shell environment. What a launch starts and
 // keeps is ./agent-launch-boundary.spec.ts. The synthetic `claude`

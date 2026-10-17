@@ -1,20 +1,19 @@
 // A later failed delivery remains open; an older retry cannot finish it.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { completionReceiptSchema } from "../src/completionReport.ts";
-import { test, expect, stored } from "./support/codexStart.ts";
-import { launch } from "./agentLaunchBoundary.ts";
-import {
-  startDashboardServer,
-  builtDashboardDir,
-} from "./support/dashboardServer.ts";
-import { keptAttempts } from "./acceptedAttempts.ts";
+import { completionReceiptSchema } from "../../src/completionReport.ts";
+import { test, expect, stored } from "../support/codexStart.ts";
+import { launch } from "../agentLaunchBoundary.ts";
+import { startDashboardServer } from "../support/dashboardServer.ts";
+import { keptAttempts } from "../acceptedAttempts.ts";
 import {
   reportingChild,
   completionWriteFault,
   retainedSubmission,
   quote,
-} from "./support/completionRecovery.ts";
+} from "../support/completionRecovery.ts";
+
+test.use({ serverMode: "boundary" });
 
 test("older quiet retry cannot close a newer attention submission whose record write failed", async ({
   dashboard,
@@ -37,8 +36,7 @@ test("older quiet retry cannot close a newer attention submission whose record w
   await dashboard.close();
   const fault = completionWriteFault(origin.machine);
   const receiver = await startDashboardServer({
-    mode: "preview",
-    prebuilt: builtDashboardDir,
+    mode: "boundary",
     machine: origin.machine,
     github: dashboard.github,
     codexProtocol: native,

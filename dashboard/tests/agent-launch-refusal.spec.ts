@@ -1,4 +1,4 @@
-// Which requests the local launch boundary (../server/agentLaunchPlugin.ts)
+// Which requests the local launch boundary (../server/launchBoundary.ts)
 // refuses before it starts any session, over raw HTTP in dev and preview:
 // another site or Host, an unknown project, a workflow it does not launch
 // (including an activity named as one),

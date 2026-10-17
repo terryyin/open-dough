@@ -1,12 +1,8 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import { projectConfigurationPlugin } from "./server/projectConfigurationPlugin.ts";
-import { openAIConfigurationPlugin } from "./server/openAIConfigurationPlugin.ts";
-import { terminalThemePlugin } from "./server/terminalThemePlugin.ts";
-import { instructionTranscriptionPlugin } from "./server/instructionTranscriptionPlugin.ts";
-import { agentLaunchPlugin } from "./server/agentLaunchPlugin.ts";
-import { authenticatedReadPlugin } from "./server/authenticatedReadPlugin.ts";
+import { localBoundaries } from "./server/localBoundaries.ts";
+import { localBoundaryPlugin } from "./server/localBoundaryPlugin.ts";
 
 const dashboardRoot = fileURLToPath(new URL(".", import.meta.url));
 // The product sources the dashboard shares: the backlog reader that owns
@@ -31,7 +27,7 @@ const sharedGitHubRequestRules = fileURLToPath(
 
 // The local authenticated read boundary (`./server/authenticatedRead.ts`) answers
 // with whatever existing local `gh` credentials can already read, and the
-// local launch boundary (`./server/agentLaunchPlugin.ts`) starts agent
+// local launch boundary (`./server/launchBoundary.ts`) starts agent
 // sessions on this machine; both must only ever be reachable on loopback,
 // never on a network interface a shared machine exposes.
 const loopbackOnly = "127.0.0.1";
@@ -46,15 +42,8 @@ export default defineConfig(({ command }) => {
   }
   return {
     root: dashboardRoot,
-    plugins: [
-      react(),
-      projectConfigurationPlugin(),
-      openAIConfigurationPlugin(),
-      terminalThemePlugin(),
-      instructionTranscriptionPlugin(),
-      authenticatedReadPlugin(),
-      agentLaunchPlugin(),
-    ],
+    // The local boundaries (`./server/localBoundaries.ts`), each as its plugin.
+    plugins: [react(), ...localBoundaries.map(localBoundaryPlugin)],
     server: {
       host: loopbackOnly,
       port: 43127,

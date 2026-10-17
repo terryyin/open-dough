@@ -1,5 +1,6 @@
-// The local launch boundary, mounted by Vite in dev and preview
-// (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
+// The local launch boundary, one of this dashboard's local boundaries
+// (`./localBoundaries.ts`), mounted beside the authenticated read boundary
+// by Vite in dev and preview and by the boundary server. A same-origin
 // POST to `/__agent-launch/accept` asks to launch an agent on one work item
 // (`./agentLaunches.ts`) and answers once the launch's owner accepted it,
 // the launch going on whatever happens to the caller; a same-origin POST to
@@ -42,7 +43,7 @@
 // is refused before any host process starts, and a session its host confirms
 // unavailable is refused before native terminal attachment.
 
-import type { Connect, HttpServer, Plugin } from "vite";
+import type { HttpServer } from "vite";
 import { admittedAttach, launchBoundaryPaths } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
@@ -53,11 +54,11 @@ import {
   releaseCursorHandoffs,
 } from "./hosts/cursor/runnerClient.ts";
 import { answer } from "./launchBoundaryAnswer.ts";
-import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
+import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 
-function installAgentLaunchMiddleware(
-  middlewares: Connect.Server,
+export function installAgentLaunchMiddleware(
+  middlewares: BoundaryMiddlewares,
   httpServer: HttpServer | null,
 ): { close: () => Promise<void>; ready: Promise<boolean> } {
   // Admission reads the launches only once an upgrade arrives.
@@ -90,11 +91,4 @@ function installAgentLaunchMiddleware(
       return doneSettled;
     },
   };
-}
-
-export function agentLaunchPlugin(): Plugin {
-  return localBoundaryPlugin(
-    "dough-agent-launch",
-    installAgentLaunchMiddleware,
-  );
 }

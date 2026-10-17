@@ -10,7 +10,8 @@ import path from "node:path";
 import { test as base, expect } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { refusedStatus, terminalUrl } from "./agentTerminalBoundary.ts";
-import { waitUntil, type DashboardServer } from "./support/dashboardServer.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import {
   openCursorTerminal,

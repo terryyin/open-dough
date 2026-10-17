@@ -1,6 +1,8 @@
-// The Vite server a test launches, directly (./dashboardServer.ts) or through
-// the public npm command (./dashboardCommand.ts): the port it is told to bind,
-// and the address it reports having bound.
+// The server a test launches -- Vite, directly (./dashboardServer.ts) or
+// through the public npm command (./dashboardCommand.ts), or the boundary
+// server (../../server/boundaryServer.ts), which reports its address the way
+// Vite does: the port it is told to bind, and the address it reports having
+// bound.
 
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
@@ -13,6 +15,23 @@ import {
 import { repoRoot } from "./repositoryRoot.ts";
 
 const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
+const boundaryServerEntry = path.join(
+  repoRoot,
+  "dashboard",
+  "server",
+  "boundaryServer.ts",
+);
+// The server's own TypeScript needs transforming, not stripping (a parameter
+// property in doneMarks.ts); the flag's warning would otherwise be the
+// child's first output.
+export const boundaryServerCommand = {
+  command: process.execPath,
+  args: [
+    "--experimental-transform-types",
+    "--disable-warning=ExperimentalWarning",
+    boundaryServerEntry,
+  ],
+} as const;
 
 // Any free port, chosen by Vite itself (`--port 0`), which probes one and then
 // binds it, failing with "Port N is already in use" if another listener took
@@ -27,7 +46,27 @@ export function listenArgs(port: number | undefined): string[] {
 // Vite in its own process group, so stopping it can wait for every `gh` it
 // launched.
 export function spawnVite(args: readonly string[], env: NodeJS.ProcessEnv) {
-  const child = spawnGroupLeader(viteBin, args, { cwd: repoRoot, env });
+  return spawnServer(viteBin, args, env);
+}
+
+// The boundary server the same way, with the listen args Vite takes.
+export function spawnBoundaryServer(
+  args: readonly string[],
+  env: NodeJS.ProcessEnv,
+) {
+  return spawnServer(
+    boundaryServerCommand.command,
+    [...boundaryServerCommand.args, ...args],
+    env,
+  );
+}
+
+function spawnServer(
+  command: string,
+  args: readonly string[],
+  env: NodeJS.ProcessEnv,
+) {
+  const child = spawnGroupLeader(command, args, { cwd: repoRoot, env });
   const output: Buffer[] = [];
   const collect = (chunk: Buffer) => {
     output.push(chunk);
@@ -69,7 +108,8 @@ export async function startOnOwnAddress<L extends Launch>(
   });
 }
 
-// Vite reports the address it bound on stdout. Only this server's own report
+// The server reports the address it bound on stdout, as Vite's `Local:`
+// line, which the boundary server prints too. Only this server's own report
 // counts: if the process exits or stays silent, the start fails with its
 // output rather than letting a test run against whatever else answers.
 async function ownAddress(
@@ -99,7 +139,7 @@ async function ownAddress(
       settle(() => {
         reject(
           new Error(
-            `Vite exited (${signal ?? `code ${String(code)}`}) before reporting its address`,
+            `The server exited (${signal ?? `code ${String(code)}`}) before reporting its address`,
           ),
         );
       });
@@ -108,7 +148,7 @@ async function ownAddress(
       settle(() => {
         reject(
           new Error(
-            `Vite did not report its address within ${String(deadlineMs)}ms`,
+            `The server did not report its address within ${String(deadlineMs)}ms`,
           ),
         );
       });

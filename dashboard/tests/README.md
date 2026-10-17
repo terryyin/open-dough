@@ -1,7 +1,38 @@
-# Dashboard browser tests
+# Dashboard tests
 
 This directory holds the dashboard's one Playwright suite, run with
-`npm run test:dashboard`. Test support takes the repository root from
+`npm run test:dashboard`, in two tiers.
+
+## Two tiers: browser journeys and boundary tests
+
+A **browser journey** proves one representative, integrated user journey in
+the real page: an observable precondition, the user's trigger, and the state
+change it causes. Journeys live directly in this directory and run under
+`dashboardTest.ts` or a fixture module built on it, each against its own
+built-preview server.
+
+A **boundary test** proves the detailed variants, failure cases and contract
+details of one behavior at a stable public boundary of the dashboard server
+-- its HTTP endpoints, WebSocket upgrades, the files it keeps under HOME, the
+commands it installs -- without a browser. Its collaborators are the real
+ones; only the external boundaries are replaced: GitHub through the synthetic
+`gh`, the agent hosts through the synthetic `claude`, `codex` and `cursor`,
+and GitHub's avatar host. Boundary tests live in `boundary/` and start the
+boundary server, with `startDashboardServer({ mode: "boundary" })` or
+`test.use({ serverMode: "boundary" })` on the `dashboardTest.ts` fixtures:
+`node --experimental-transform-types ../server/boundaryServer.ts`, the local
+boundaries Vite mounts (`../server/localBoundaries.ts`) on a plain HTTP
+server in the production project environment, with no Vite and no build. A
+boundary spec never opens a page; `boundary/boundary-server.spec.ts` keeps
+that server the Node entry alone, naming no Vite and serving no page.
+
+Put a check where it is cheapest to prove: a journey shows that the page does
+the thing once; the boundary tests own every variant of how the server
+answers. Both tiers are one suite, run and sharded together (below). Today
+`boundary/` holds the browserless `agent-completion-*` specs; the other
+browserless specs run from this directory until they are relocated.
+
+Test support takes the repository root from
 `support/repositoryRoot.ts`, not the working directory, so
 `npx playwright test` from `dashboard/`, or with `--config
 <repository>/dashboard/playwright.config.ts` from anywhere, gives the same
@@ -19,10 +50,11 @@ server fetches credited humans' avatars (`avatarAnswers.ts`). Only GitHub's
 answers are replaced; the
 local read boundary, the `gh` invocation, reading, the shared backlog
 interpretation, and the page are the real ones, and a browser request to
-GitHub itself fails the test. The boundary specs
-(`authenticated-read-*.spec.ts`, `authenticated-avatar.spec.ts`) and
-`authenticated-project-overview.spec.ts` also start their own dev and
-built-preview servers. Every server binds a port the operating system
+GitHub itself fails the test. The browserless read specs still in this
+directory (`authenticated-read-*.spec.ts`, `authenticated-avatar.spec.ts`)
+and `authenticated-project-overview.spec.ts` start their own dev and
+built-preview servers; the boundary tests in `boundary/` start the boundary
+server. Every server binds a port the operating system
 chooses, so the suite can run beside another checkout's suite on the same
 machine, and a server that cannot start fails its test with its own output
 (`support/dashboardServer.ts`). Nothing here ever calls the real `gh` CLI or
@@ -86,58 +118,9 @@ process its tests started, passing, failing, or timed out
 (`support/processGroup.ts`), so a run does not leave servers or runners to
 load the next; only a worker killed outright runs no such cleanup.
 
-To retain the selection and results of the same strict run, choose an unused
-absolute file path outside `dashboard/test-results/` before invoking it. Its
-parent directory must already exist. No record is created unless requested:
-
-```sh
-proof_dir=$(mktemp -d)
-OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$proof_dir/proof.json" \
-  npm run --silent test:dashboard -- quiet-reporter.spec.ts --workers=2
-proof_exit=$?
-node --input-type=module - "$proof_dir/proof.json" <<'JS'
-import { readFileSync } from 'node:fs';
-const record = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-console.log(JSON.stringify(record, null, 2));
-JS
-printf 'Strict command exit: %s\n' "$proof_exit"
-```
-
-Reading this file executes no tests. Successful reporter output stays silent,
-and the normal passing output directory is removed. The compact JSON has
-`schemaVersion: 1`, a unique `run.id`, runner PID, start time, working directory,
-config path, runner arguments and output directories. `selectedCount` counts
-distinct project/location/title selections. Each selection's `executions`
-identifies Playwright test IDs, repetition indexes and expected statuses (with
-observed outcomes when available); `attempts` identifies
-each observed repetition/retry, its start time, and its status/duration when
-finished. Repetitions and retries do not inflate the selected count. A skipped
-attempt is `skipped`, and a started attempt without a status has no observed
-completion. The record contains neither traces nor captured output.
-
-Assess the command exit and the file together: executed passing proof requires
-exit 0, valid JSON with the expected schema/run/selection, `phase: "completed"`
-and `terminal.strictStatus: "passed"`, plus the observed attempts relevant to
-the claim. `terminal.runnerStatus` is Playwright's assertion verdict before
-the strict reporter rejects unexpected output; a passed attempt or raw runner
-verdict can coexist with strict failure. `--list` records `phase: "listed"`
-and no attempts, so its passed verdict establishes selection only. Deadline
-or graceful interruption keeps completed attempts separately from unfinished
-work and records strict failure. A forced kill after selection may leave a
-`running` snapshot without `terminal`; before selection it may leave no file.
-Missing, malformed, listed or running evidence never establishes executed pass.
-
-An existing destination is refused without changing its bytes. An invalid,
-unwritable or disposable destination, or a failed snapshot update, prints
-`Proof record unavailable at ...` separately from test diagnostics and preserves
-the underlying strict command exit. Such a run has unavailable or incomplete
-evidence even if the command passes. Atomic replacement makes each readable
-snapshot complete JSON; it does not reconstruct an uncatchably killed run.
-The reporter option belongs to this config's invocation, so nested custom
-Playwright configs cannot overwrite their outer run's requested record.
-Use a different path for every concurrent or later invocation. Keep the file
-as long as needed and remove its caller-owned directory after reading it:
-`rm -r "$proof_dir"`. There is no automatic archive or pruning policy.
+To retain the selection and results of the same strict run as JSON, name
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; the [proof record guide](proof-record.md)
+says what the record holds and how to assess it with the command exit.
 
 A dashboard failure on unchanged code is a defect to find and fix, never a
 reason to rerun until green; the suite keeps `retries: 0`. Repeat the run and

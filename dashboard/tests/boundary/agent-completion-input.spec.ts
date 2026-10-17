@@ -1,16 +1,13 @@
-import { launchResultSchema } from "../src/launchOutcome.ts";
-import { test, expect } from "./support/pageTest.ts";
-import { launch, recordsOf } from "./agentLaunchBoundary.ts";
-import { startOrigin } from "./support/startOrigin.ts";
-import {
-  startDashboardServer,
-  builtDashboardDir,
-} from "./support/dashboardServer.ts";
-import { codexInput } from "../server/hosts/codex/input.ts";
-import { cursorPrompt } from "../server/hosts/cursor/prompt.ts";
-import { reportingInstruction } from "../server/reportingInstruction.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { RecordedLaunchRequest } from "../src/launchRequest.ts";
+import { launchResultSchema } from "../../src/launchOutcome.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { launch, recordsOf } from "../agentLaunchBoundary.ts";
+import { startOrigin } from "../support/startOrigin.ts";
+import { startDashboardServer } from "../support/dashboardServer.ts";
+import { codexInput } from "../../server/hosts/codex/input.ts";
+import { cursorPrompt } from "../../server/hosts/cursor/prompt.ts";
+import { reportingInstruction } from "../../server/reportingInstruction.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
 
 test("shared reporting instruction preserves host input grammar and truly blank intent", () => {
   const reporting = {
@@ -50,8 +47,7 @@ test("shared reporting instruction preserves host input grammar and truly blank 
 test("Claude native blank launch gains no reporting instruction despite an installed channel", async () => {
   const origin = await startOrigin();
   const server = await startDashboardServer({
-    mode: "preview",
-    prebuilt: builtDashboardDir,
+    mode: "boundary",
     machine: origin.machine,
     projectFolders: ["open-dough"],
   });

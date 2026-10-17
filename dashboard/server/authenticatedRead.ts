@@ -32,6 +32,7 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
+import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
 import { RetainedAnswers } from "./retainedAnswers.ts";
@@ -168,7 +169,7 @@ function respond(
 // endpoints' exact paths are passed on untouched; only a request that names
 // one is ever inspected, let alone answered.
 export function installAuthenticatedReadMiddleware(
-  middlewares: Connect.Server,
+  middlewares: BoundaryMiddlewares,
 ): () => void {
   const boundary: Boundary = {
     tracked: new Set<AbortController>(),

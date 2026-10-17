@@ -1,4 +1,4 @@
-// The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
+// The local launch boundary (../server/launchBoundary.ts) over raw HTTP,
 // in dev and preview, for a definition that declares an exclusive group: a
 // selection with at most one of the group's flags launches (the flags in the
 // definition's order), one naming two of them is refused naming the group and

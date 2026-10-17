@@ -1,5 +1,4 @@
 import type { IncomingMessage } from "node:http";
-import type { Plugin } from "vite";
 import {
   projectAddEndpoint,
   projectListEndpoint,
@@ -8,7 +7,7 @@ import {
 } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { localJsonEndpointsPlugin } from "./localJsonEndpoints.ts";
+import { localJsonEndpoints } from "./localJsonEndpoints.ts";
 import {
   configuredProject,
   projectSettings,
@@ -65,24 +64,21 @@ async function answer(
   );
 }
 
-export function projectConfigurationPlugin(): Plugin {
-  return localJsonEndpointsPlugin(
-    "dough-project-configuration",
-    [
-      projectListEndpoint,
-      projectSettingsEndpoint,
-      projectAddEndpoint,
-      projectRemoveEndpoint,
-    ],
-    answer,
-    (error) =>
-      error instanceof ProjectInputProblem
-        ? { status: 400, body: { error: error.message, field: error.field } }
-        : {
-            status: 503,
-            body: {
-              error: error instanceof Error ? error.message : String(error),
-            },
+export const installProjectConfigurationMiddleware = localJsonEndpoints(
+  [
+    projectListEndpoint,
+    projectSettingsEndpoint,
+    projectAddEndpoint,
+    projectRemoveEndpoint,
+  ],
+  answer,
+  (error) =>
+    error instanceof ProjectInputProblem
+      ? { status: 400, body: { error: error.message, field: error.field } }
+      : {
+          status: 503,
+          body: {
+            error: error instanceof Error ? error.message : String(error),
           },
-  );
-}
+        },
+);

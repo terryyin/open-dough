@@ -1,5 +1,5 @@
 // The browser's requests to the local launch boundary
-// (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
+// (`../server/launchBoundary.ts`): an ordinary same-origin JSON POST that
 // asks the launch owner to accept a launch, or to continue a kept attempt
 // that needs reconciliation, or to note that a settled attempt reconciled with
 // published state, or to verify an uncertain launch, and a GET of the

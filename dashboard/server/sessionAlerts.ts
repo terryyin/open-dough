@@ -1,6 +1,6 @@
 import { sessionKey } from "../src/sessionReference.ts";
 // The macOS notification for a session that needs the developer, for the
-// local launch boundary (`./agentLaunchPlugin.ts`), which starts it with the
+// local launch boundary (`./launchBoundary.ts`), which starts it with the
 // boundary and stops it with the same cleanup. One loop, never overlapping,
 // reads the machine's sessions (`./agentLaunches.ts`) every few seconds and
 // remembers each session's last native reading and unread report

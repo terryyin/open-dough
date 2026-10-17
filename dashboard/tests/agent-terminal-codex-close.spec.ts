@@ -5,7 +5,8 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
-import { agentLaunchPlugin } from "../server/agentLaunchPlugin.ts";
+import { installAgentLaunchMiddleware } from "../server/launchBoundary.ts";
+import { localBoundaryPlugin } from "../server/localBoundaryPlugin.ts";
 import {
   ensureCursorRunner,
   stopCursorRunner,
@@ -56,7 +57,10 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
       res.end();
     }),
   );
-  const plugin = agentLaunchPlugin();
+  const plugin = localBoundaryPlugin({
+    name: "dough-agent-launch",
+    install: installAgentLaunchMiddleware,
+  });
   const configure = plugin.configureServer as unknown as (value: {
     middlewares: typeof middlewares;
     httpServer: http.Server;

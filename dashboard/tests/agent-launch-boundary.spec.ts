@@ -1,4 +1,4 @@
-// The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
+// The local launch boundary (../server/launchBoundary.ts) over raw HTTP,
 // in dev and preview: a same-origin launch request starts one Claude Code
 // background session in the project's folder, on the requested workflow's
 // skill and named for its workflow, and answers with the record it keeps;
@@ -24,9 +24,9 @@ import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
-  waitUntil,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { waitUntil } from "./support/waitUntil.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 const launchWaitMs = 4_000;

@@ -1,5 +1,5 @@
 // The machine's sessions as the local launch boundary
-// (../server/agentLaunchPlugin.ts) answers them over raw HTTP: every catalog
+// (../server/launchBoundary.ts) answers them over raw HTTP: every catalog
 // project's kept launch records, each naming its project, joined by session id
 // with normalized native activity from one Claude Code listing, `claude agents --json --all` in the machine's
 // home folder. A listed session answers available with loaded/retained

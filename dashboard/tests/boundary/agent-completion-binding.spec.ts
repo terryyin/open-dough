@@ -1,28 +1,25 @@
 import {
   acceptanceSchema,
   verifiedAnswerSchema,
-} from "../src/launchOutcome.ts";
-import { markDoneAnswerSchema } from "../src/doneMark.ts";
-import type { submitCompletion } from "../server/completionReporting.ts";
-import { test, expect } from "./support/pageTest.ts";
+} from "../../src/launchOutcome.ts";
+import { markDoneAnswerSchema } from "../../src/doneMark.ts";
+import type { submitCompletion } from "../../server/completionReporting.ts";
+import { test, expect } from "../support/pageTest.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { accept, recordsOf, markDone } from "./agentLaunchBoundary.ts";
-import { settledOutcome, keptAttempts } from "./acceptedAttempts.ts";
+import { accept, recordsOf, markDone } from "../agentLaunchBoundary.ts";
+import { settledOutcome, keptAttempts } from "../acceptedAttempts.ts";
 import {
   startOrigin,
   queuedIdentity,
   queuedTitle,
-} from "./support/startOrigin.ts";
-import {
-  startDashboardServer,
-  builtDashboardDir,
-} from "./support/dashboardServer.ts";
-import { rawRequest } from "./support/rawHttp.ts";
-import { recordOperation } from "./support/completionRecovery.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
+} from "../support/startOrigin.ts";
+import { startDashboardServer } from "../support/dashboardServer.ts";
+import { rawRequest } from "../support/rawHttp.ts";
+import { recordOperation } from "../support/completionRecovery.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 const exec = promisify(execFile);
 
@@ -32,8 +29,7 @@ for (const quiet of [false, true])
       test.setTimeout(120000);
       const origin = await startOrigin();
       const server = await startDashboardServer({
-        mode: "preview",
-        prebuilt: builtDashboardDir,
+        mode: "boundary",
         machine: origin.machine,
         projectFolders: ["open-dough"],
         launchTimeoutMs: 30000,

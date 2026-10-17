@@ -3,11 +3,11 @@
 // are taken, every request must come from this dashboard's own page, the
 // answer is JSON that is never cached, and closing the server aborts what is
 // still pending. A `RefusedRequest` answers its own status and message; any
-// other failure is answered as `failure` describes it.
+// other failure is answered as `failure` describes it. The result is a
+// boundary install (`./localBoundary.ts`) for whichever server mounts it.
 import type { IncomingMessage } from "node:http";
-import type { Plugin } from "vite";
 import { readTimeoutMs } from "./ghRead.ts";
-import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
+import type { BoundaryInstall } from "./localBoundary.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 
@@ -16,8 +16,7 @@ export type EndpointFailure = {
   readonly body: Readonly<Record<string, unknown>>;
 };
 
-export function localJsonEndpointsPlugin(
-  name: string,
+export function localJsonEndpoints(
   endpoints: readonly string[],
   answer: (
     req: IncomingMessage,
@@ -25,8 +24,8 @@ export function localJsonEndpointsPlugin(
     signal: AbortSignal,
   ) => Promise<unknown>,
   failure: (error: unknown) => EndpointFailure,
-): Plugin {
-  return localBoundaryPlugin(name, (middlewares) => {
+): BoundaryInstall {
+  return (middlewares) => {
     const pending = new Set<AbortController>();
     middlewares.use((req, res, next) => {
       const pathname = new URL(req.url ?? "", "http://placeholder").pathname;
@@ -76,5 +75,5 @@ export function localJsonEndpointsPlugin(
       for (const controller of pending) controller.abort();
       pending.clear();
     };
-  });
+  };
 }

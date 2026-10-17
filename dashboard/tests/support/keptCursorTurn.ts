@@ -10,9 +10,9 @@ import { shows } from "../agentTerminalBoundary.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
-  waitUntil,
   type DashboardServer,
 } from "./dashboardServer.ts";
+import { waitUntil } from "./waitUntil.ts";
 import type { FakeCursor } from "./fakeCursor.ts";
 import type { CursorTerminal } from "./cursorTerminal.ts";
 import type { RawResponse } from "./rawHttp.ts";

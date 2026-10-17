@@ -8,17 +8,19 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { rawRequest } from "./support/rawHttp.ts";
-import { test, expect, stored } from "./support/codexStart.ts";
-import { keptAttempts } from "./acceptedAttempts.ts";
-import { completionReceiptSchema } from "../src/completionReport.ts";
-import type { CompletionSubmission } from "../server/completionAdmission.ts";
-import { launch, markDone } from "./agentLaunchBoundary.ts";
+import { rawRequest } from "../support/rawHttp.ts";
+import { test, expect, stored } from "../support/codexStart.ts";
+import { keptAttempts } from "../acceptedAttempts.ts";
+import { completionReceiptSchema } from "../../src/completionReport.ts";
+import type { CompletionSubmission } from "../../server/completionAdmission.ts";
+import { launch, markDone } from "../agentLaunchBoundary.ts";
 import {
   reportingChild,
   quote,
   recordOperation,
-} from "./support/completionRecovery.ts";
+} from "../support/completionRecovery.ts";
+
+test.use({ serverMode: "boundary" });
 
 test("older launch delivery cannot close another session and durable duplicates need no store rewrite", async ({
   dashboard,
