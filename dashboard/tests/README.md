@@ -37,9 +37,19 @@ answers. Both tiers are one suite, run and sharded together (below). Today
 `agent-launch-*`, `agent-terminal-*` and `cursor-*` specs that drive the
 launch boundary, its WebSocket terminal attachments and the Cursor runner
 over HTTP, every browserless `authenticated-*` read spec, and the browserless
-project, landing, proof-record, launch-record and pure-reading specs. One
-dev-server check stays in this directory: `agent-terminal-hmr.spec.ts`, which
-shows Vite's own HMR socket working beside the terminal upgrade guard.
+project, landing, proof-record, launch-record and pure-reading specs.
+
+Common behavior is proved once. The dev server and the built preview mount
+the same local boundaries, and `serving-modes.spec.ts` is the one spec that
+proves it: it starts a real server of each, sends each boundary the same
+request from both, and compares the answers (status, headers, body), with
+Vite's own HMR socket, which only the dev server has, shown working beside
+the terminal upgrade guard. No other spec repeats its tests under both
+servers; a journey runs under the fixture's preview, and a journey about the
+development project environment starts a dev server for that fact alone. A
+dozen settings journeys still start a dev server without such a fact; they
+predate this rule and are brought under it when their family is
+consolidated.
 
 Test support takes the repository root from
 `support/repositoryRoot.ts`, not the working directory, so

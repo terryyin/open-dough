@@ -103,6 +103,13 @@ Required:
   existing commands and jobs; the boundary tier joins `npm test` or the
   dashboard job in the simplest way that keeps the verdict truthful. Choosing
   the CI job layout, caching, and parallelism belongs to the next story.
+- **No leaked processes** (added 2026-10-17 at Terry's request, as an
+  acceptance criterion): every process a dashboard test run starts, directly
+  or through the product it drives (servers, synthetic hosts, detached Cursor
+  runners, Codex and request-owner children, the production watcher's
+  deployments), ends with the run, including when Playwright force-kills a
+  worker after a timed-out teardown; a run leaves nothing behind on a
+  developer machine or in CI.
 - **Measured target**: at the same twelve shards and runner class, the summed
   hosted browser-suite step time falls to at most half of the baseline
   (≤ 1,244 s), and a local full run at 8 workers takes at most half its
@@ -153,6 +160,12 @@ above. The chosen direction is the two tiers plus consolidation.
   stepped with a controlled clock or proved at the watcher's boundary; a
   consolidated journey owns its wait in the action that starts the
   asynchronous work; the rule is recorded in the strategy.
+- *Leaked runner.* Pre: a production-watcher journey times out, Playwright
+  kills its worker, and the watcher's detached Cursor runner idles under a
+  deleted temp HOME for hours (five such orphans and sixteen idle runners
+  were found on 2026-10-17). Trigger: the run ends. Result: the run's own
+  teardown has ended it; a check over the run's temp root finds no process;
+  the same holds for a page or boundary journey killed mid-test.
 - *Measured result.* Pre: the baseline above. Trigger: the campaign ends.
   Result: a hosted run at twelve shards and a local run at the same worker
   count meet the target; the proof map lists every removed or relocated case

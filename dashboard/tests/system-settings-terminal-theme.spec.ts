@@ -100,68 +100,67 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
 const savedTheme = () =>
   JSON.parse(readFileSync(terminalThemeFile(fixture.home), "utf8")) as unknown;
 
-for (const [mode, other] of [
-  ["dev", "preview"],
-  ["preview", "dev"],
-] as const) {
-  test(`terminal theme is chosen in System settings, saved on choosing, kept across reload, restart and ${other}, and a failed save returns to the saved theme (${mode})`, async ({
-    page,
-    context,
-  }) => {
-    const server = await fixture.start(mode);
-    await page.goto(`${server.baseURL}/?view=settings`);
-    await expect(
-      page.getByRole("heading", { name: "Terminal theme", exact: true }),
-    ).toBeVisible();
-    await expectShown(page, "Default");
-    await expect(sampleColor(page, "bright white")).toBeVisible();
-    expect(existsSync(terminalThemeFile(fixture.home))).toBe(false);
+// The theme file is one per machine, shared by the dev and preview servers'
+// environments, so the theme chosen on one shows on the other. One order
+// shows that sharing; the reverse order would read the same file through the
+// same boundary (./serving-modes.spec.ts proves both servers mount it).
+test("terminal theme is chosen in System settings, saved on choosing, kept across reload, restart and the dev server, and a failed save returns to the saved theme", async ({
+  page,
+  context,
+}) => {
+  const server = await fixture.start("preview");
+  await page.goto(`${server.baseURL}/?view=settings`);
+  await expect(
+    page.getByRole("heading", { name: "Terminal theme", exact: true }),
+  ).toBeVisible();
+  await expectShown(page, "Default");
+  await expect(sampleColor(page, "bright white")).toBeVisible();
+  expect(existsSync(terminalThemeFile(fixture.home))).toBe(false);
 
-    await themeChoice(page).focus();
-    await themeChoice(page).selectOption({ label: "Solarized Dark" });
+  await themeChoice(page).focus();
+  await themeChoice(page).selectOption({ label: "Solarized Dark" });
+  await expectShown(page, "Solarized Dark");
+  await expect(themeChoice(page)).toBeEnabled();
+  expect(savedTheme()).toEqual({ theme: "solarized-dark" });
+
+  await page.reload();
+  await expectShown(page, "Solarized Dark");
+  const port = Number(new URL(server.baseURL).port);
+  await fixture.stop(server);
+  const restarted = await fixture.start("preview", port);
+  await page.reload();
+  await expectShown(page, "Solarized Dark");
+  const second = await fixture.start("dev");
+  const otherPage = await context.newPage();
+  await otherPage.goto(`${second.baseURL}/?view=settings`);
+  await expectShown(otherPage, "Solarized Dark");
+
+  const folder = path.dirname(terminalThemeFile(fixture.home));
+  chmodSync(folder, 0o500);
+  try {
+    await themeChoice(page).selectOption({ label: "Light" });
+    await expect(page.getByRole("alert")).toContainText("could not be saved");
     await expectShown(page, "Solarized Dark");
-    await expect(themeChoice(page)).toBeEnabled();
     expect(savedTheme()).toEqual({ theme: "solarized-dark" });
+  } finally {
+    chmodSync(folder, 0o700);
+  }
+  await page
+    .getByRole("alert")
+    .getByRole("button", { name: "Retry", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expectShown(page, "Light");
+  // The choice shows while it is being saved; enabled means the save settled.
+  await expect(themeChoice(page)).toBeEnabled();
+  expect(savedTheme()).toEqual({ theme: "light" });
 
-    await page.reload();
-    await expectShown(page, "Solarized Dark");
-    const port = Number(new URL(server.baseURL).port);
-    await fixture.stop(server);
-    const restarted = await fixture.start(mode, port);
-    await page.reload();
-    await expectShown(page, "Solarized Dark");
-    const second = await fixture.start(other);
-    const otherPage = await context.newPage();
-    await otherPage.goto(`${second.baseURL}/?view=settings`);
-    await expectShown(otherPage, "Solarized Dark");
-
-    const folder = path.dirname(terminalThemeFile(fixture.home));
-    chmodSync(folder, 0o500);
-    try {
-      await themeChoice(page).selectOption({ label: "Light" });
-      await expect(page.getByRole("alert")).toContainText("could not be saved");
-      await expectShown(page, "Solarized Dark");
-      expect(savedTheme()).toEqual({ theme: "solarized-dark" });
-    } finally {
-      chmodSync(folder, 0o700);
-    }
-    await page
-      .getByRole("alert")
-      .getByRole("button", { name: "Retry", exact: true })
-      .click();
-    await expect(page.getByRole("alert")).toHaveCount(0);
-    await expectShown(page, "Light");
-    // The choice shows while it is being saved; enabled means the save settled.
-    await expect(themeChoice(page)).toBeEnabled();
-    expect(savedTheme()).toEqual({ theme: "light" });
-
-    await themeChoice(page).selectOption({ label: "Default" });
-    await expectShown(page, "Default");
-    await expect(themeChoice(page)).toBeEnabled();
-    expect(savedTheme()).toEqual({ theme: "default" });
-    await otherPage.reload();
-    await expectShown(otherPage, "Default");
-    for (const local of [restarted, second])
-      expect(local.claudeCalls()).toEqual([]);
-  });
-}
+  await themeChoice(page).selectOption({ label: "Default" });
+  await expectShown(page, "Default");
+  await expect(themeChoice(page)).toBeEnabled();
+  expect(savedTheme()).toEqual({ theme: "default" });
+  await otherPage.reload();
+  await expectShown(otherPage, "Default");
+  for (const local of [restarted, second])
+    expect(local.claudeCalls()).toEqual([]);
+});

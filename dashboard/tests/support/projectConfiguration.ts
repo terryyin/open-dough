@@ -21,6 +21,14 @@ export function projectEnvironmentOf(
   return asked ?? "production";
 }
 
+// The project environment the other server keeps its list in: there are two,
+// each the other's.
+export function otherProjectEnvironment(
+  environment: ProjectEnvironment,
+): ProjectEnvironment {
+  return environment === "development" ? "production" : "development";
+}
+
 // Where a server in `environment` keeps its project list under `home`.
 export function projectConfigurationFile(
   home: string,

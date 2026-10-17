@@ -5,7 +5,7 @@
 // done marks: agent-terminal-reopen.spec.ts). Refusals never attach.
 // A foreign Host on an upgrade reaches localOrigin.ts, which no Vite host check
 // precedes here; the dev server's own HMR socket beside this guard is
-// ../agent-terminal-hmr.spec.ts.
+// ../serving-modes.spec.ts.
 // Other origin variations: agent-launch-refusal.spec.ts and
 // authenticated-read-refusal.spec.ts; this suite proves their shared upgrade guard.
 

@@ -5,7 +5,10 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/pageTest.ts";
 import { startDashboardServer } from "../support/dashboardServer.ts";
-import { projectConfigurationFile } from "../support/projectConfiguration.ts";
+import {
+  otherProjectEnvironment,
+  projectConfigurationFile,
+} from "../support/projectConfiguration.ts";
 import { boundaryServerCommand } from "../support/serverAddress.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 
@@ -56,9 +59,9 @@ test("each project environment answers the project list from its own configurati
       expect(response.status).toBe(200);
       const file = (named: "development" | "production") =>
         projectConfigurationFile(server.home, named);
-      const other =
-        environment === "development" ? "production" : "development";
-      expect(existsSync(file(other))).toBe(false);
+      expect(existsSync(file(otherProjectEnvironment(environment)))).toBe(
+        false,
+      );
       const kept = JSON.parse(readFileSync(file(environment), "utf8")) as {
         id: string;
       }[];

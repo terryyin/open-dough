@@ -85,8 +85,8 @@ workspace was left unchanged.
 | Browserless specs do not need the production build | Preview-mode browserless specs pass `prebuilt: builtDashboardDir`; the boundary entry serves no assets. `globalSetup` still builds once per run for the journeys. | Build time stays a browser-tier cost; its placement is the next story's. |
 | Shard discovery follows moved files | `testFiles.mjs` reads `tests/` with `recursive: true`; `tests/support/dashboard-test-files.test.mjs` protects discovery; stale `longest-first` entries are ignored. | Relocated files move to `dashboard/tests/boundary/` and stay sharded; `longest-first` is not edited here. |
 | The launch boundary starts a Cursor runner at install | `installAgentLaunchMiddleware` returns `ready: ensureCursorRunner()`; tests control it through `HOME` and `PATH` fakes (`cursorRunnerHosts.ts`). | The boundary entry keeps the per-test child process and environment; no in-process mount. |
-| Production-watcher journeys build real production | `production-watcher*.spec.ts` set `test.setTimeout(360_000)`; `support/productionWatcher.ts` polls builds for up to 180 s; 7 tests took 516 s locally, 74 s each. | Slice 5 shares one watcher and its builds per file and asserts deltas. |
-| Hosted and local baselines | Run 38838738715: twelve shards, suite steps 162–240 s, 2,488 s summed, 4 min 28 s wall. Local: 759 s wall at 8 workers, 1,631 passed, 5,165 s summed, median 1.7 s. | Targets in the story; slice 7 compares at the same shard count and worker count. |
+| Production-watcher journeys build real production | `production-watcher*.spec.ts` set `test.setTimeout(360_000)`; `support/productionWatcher.ts` polls builds for up to 180 s; 7 tests took 516 s locally, 74 s each. | Slice 6 shares one watcher and its builds per file and asserts deltas. |
+| Hosted and local baselines | Run 38838738715: twelve shards, suite steps 162–240 s, 2,488 s summed, 4 min 28 s wall. Local: 759 s wall at 8 workers, 1,631 passed, 5,165 s summed, median 1.7 s. | Targets in the story; slice 9 compares at the same shard count and worker count. |
 
 ## Outside-in proof ownership
 
@@ -95,11 +95,12 @@ workspace was left unchanged.
 | Boundary tests run without a browser or Vite boot per test | 1: relocated `agent-completion-*` boundary specs pass with `mode: "boundary"`; no Vite process appears in their server output; proof record shows their summed time before and after. |
 | Relocated boundary variants (key example 1) | 2, 3: every browserless file runs from `dashboard/tests/boundary/`; a scratch change to one refusal message fails exactly its boundary tests. |
 | Dev and preview mount the same boundary | 4: one spec answers the same launch request under real dev and preview servers; the 23 mode loops are gone. |
-| Synchronization and real time (key example 4) | 5: production-watcher journeys wait on the watcher's own output events for one shared build; their summed time falls below a third of 516 s. |
-| Consolidated siblings (key example 2) | 6: `agent-launch-card-*` and the other origin-publishing journeys share one origin and server per file; `publishLaunchJourney` calls per run fall from 41; a scratch regression in one card behavior fails one named test. |
-| Presentation-only check (key example 3) | 7: `dashboard-header` viewport and font checks become one journey plus the cheapest layout proof; nothing deleted without a named replacement proof. |
-| Published strategy; every retained test still runs | 1 drafts, 8 finalizes `dashboard/tests/README.md`; `npm run test:dashboard` and the twelve CI shards run both tiers green. |
-| Measured result and proof map (key example 5) | 8: local run at 8 workers ≤ 380 s; hosted run's summed suite steps ≤ 1,244 s; fewer than 900 selected browser-tier tests; the map of removed or relocated cases recorded below. |
+| No leaked processes (key example "Leaked runner") | 5: an inner Playwright run whose worker is killed mid-test leaves no process under its temp root; the production journeys stop their runners; the whole run's teardown sweep is the backstop. |
+| Synchronization and real time (key example 4) | 6: production-watcher journeys wait on the watcher's own output events for one shared build; their summed time falls below a third of 516 s. |
+| Consolidated siblings (key example 2) | 7: `agent-launch-card-*` and the other origin-publishing journeys share one origin and server per file; `publishLaunchJourney` calls per run fall from 41; a scratch regression in one card behavior fails one named test. |
+| Presentation-only check (key example 3) | 8: `dashboard-header` viewport and font checks become one journey plus the cheapest layout proof; nothing deleted without a named replacement proof. |
+| Published strategy; every retained test still runs | 1 drafts, 9 finalizes `dashboard/tests/README.md`; `npm run test:dashboard` and the twelve CI shards run both tiers green. |
+| Measured result and proof map (key example 5) | 9: local run at 8 workers ≤ 380 s; hosted run's summed suite steps ≤ 1,244 s; fewer than 900 selected browser-tier tests; the map of removed or relocated cases recorded below. |
 | Rejection constraints: no weaker assertions, no retries, no more workers | Every slice: `retries: 0` and worker settings unchanged in the config diff; removed assertions named in the proof map with their replacement. |
 
 ## Ordered slices
@@ -203,7 +204,7 @@ under load): a pre-existing load-sensitive check, recorded in Learnings.
 
 ### 4. Both serving modes mount the same boundaries, proved once
 Type: Behavior
-Status: planned
+Status: done
 Proof: One spec starts a real dev server and a real preview server, sends the
 same launch and read requests to each, and gets the same answers; no other
 spec loops over serving modes (`grep` for the mode loop finds only this spec);
@@ -212,7 +213,58 @@ the test count attributable to mode repetition is gone from the proof record.
 Behavior: pre: dev and preview equivalence is re-proved in 23 files → trigger:
 the strategy's "prove common behavior once" → result: one proof owns it.
 
-### 5. Production-watcher journeys share one build
+Accepted proof (2026-10-17, at the slice 4 commit): `dashboard/tests/serving-modes.spec.ts`
+starts a real dev server and a real preview server and compares status,
+caching header and body of the same request at the launch boundary (refusal
+and listing), the authenticated read boundary (published read and
+foreign-Origin refusal), the project configuration boundary (each from its
+own environment's file) and the terminal upgrade guard, plus the dev-only HMR
+socket; a scratch change making `configurePreviewServer` skip one boundary
+failed exactly the project-configuration test; `grep -rn '\["dev",
+"preview"\]' dashboard/tests` finds only that spec; the four page journeys
+that looped and their replacements select 18 tests against 20 before, the
+difference named in the proof map; the 18 passed together at four workers;
+typecheck and the discovery check are green. The whole suite ran under load
+averages of 6–133 (1,409 of 1,514 passed, the rest timeouts in untouched
+journeys); on the final formatted state at four workers the whole suite passed
+1,488 of 1,514 (wall 3,742 s, load 10 rising to 80), the 26 failures all
+timeouts in `story-review-*` and preparation journeys, none of their 16 files
+in this slice's change; the hosted twelve-shard run of the published revision
+is the suite verdict. One Cursor runner was still alive after that run and
+ended by hand: the leak slice 5 removes.
+
+### 5. No test process outlives its run
+Type: Behavior
+Status: planned
+Proof: Every process a dashboard test run starts, directly or through the
+product it drives (Vite and boundary servers, synthetic hosts, detached Cursor
+runners, Codex and request-owner children, the production watcher's
+deployments), is ended when the run ends, including after Playwright
+force-kills a worker: a spec runs an inner Playwright (`support/innerPlaywright.ts`)
+whose test leaves a detached runner and a teardown that hangs past its
+timeout, then asserts that no process rooted in the inner run's temp root
+survives the inner run's end; `production-watcher*.spec.ts` and
+`production-cursor-runner.spec.ts` stop their fixture HOME's runner in their
+own cleanup; after a whole local run, a check over the run's temp root finds
+no process; the README's strategy states the rule and where the sweep lives.
+
+Behavior: pre: a timed-out journey's worker is killed and its detached runners
+and fake-host clients idle on for hours → trigger: a run-scoped temp root and
+the run's own teardown sweep → result: nothing the run started survives the
+run; the machine is as it was.
+
+Design: the configuration gives every worker a `TMPDIR` under the run's own
+directory (beside the run stamp), so every temp HOME and machine lives under
+one root the run owns; `globalSetup`'s returned teardown ends every process
+whose command line or working directory is under that root (SIGTERM, then
+SIGKILL after a bound), then removes it. Fixtures that know a detached
+runner's HOME stop it themselves first (`stopCursorRunner`), so the sweep is
+the backstop, not the mechanism; a leftover the sweep had to end fails the
+run and names it, so the leak is fixed at its source. Added 2026-10-17 as
+Terry's acceptance criterion after five orphaned runners and clients from
+timed-out journeys were found on the development machine.
+
+### 6. Production-watcher journeys share one build
 Type: Behavior
 Status: planned
 Proof: `production-watcher*.spec.ts` and `production-cursor-runner.spec.ts`
@@ -224,7 +276,7 @@ Behavior: pre: seven journeys each build production from scratch → trigger:
 shared watcher with delta assertions → result: the same exclusions, updates,
 failures and recovery are proved on one build chain.
 
-### 6. Origin-publishing journeys share setup and assert deltas
+### 7. Origin-publishing journeys share setup and assert deltas
 Type: Behavior
 Status: planned
 Proof: The 41 files calling `publishLaunchJourney` in `beforeAll` share one
@@ -239,7 +291,7 @@ Behavior: pre: siblings each publish an origin and re-assert common shape →
 trigger: consolidation → result: one setup, one common proof, delta
 assertions, same regression protection.
 
-### 7. Presentation checks join their journeys
+### 8. Presentation checks join their journeys
 Type: Behavior
 Status: planned
 Proof: `dashboard-header.spec.ts`'s viewport and font matrix and the
@@ -251,7 +303,7 @@ Behavior: pre: static layout is asserted repeatedly across widths and fonts →
 trigger: review under the strategy → result: the layout rule is proved once
 where it is cheapest and the user journey keeps its state change.
 
-### 8. Strategy published with measured result and proof map
+### 9. Strategy published with measured result and proof map
 Type: Behavior
 Status: planned
 Proof: `dashboard/tests/README.md` states the two tiers, placement rules,
@@ -282,6 +334,18 @@ developer reads one strategy and sees the measured, mapped reduction.
   that needs the development environment (the dev-mode `authenticated-read-*`
   files) needs an explicit environment switch on that entry, decided in
   slice 2.
+- While Terry's machine is shared with other work, local whole-suite proof
+  runs use `--workers 4` (half the local default) to spare memory; the
+  configuration's worker counts are unchanged, and the slice 9 measurement
+  runs at the default 8 workers when the machine is quiet.
+- About a dozen settings journeys (`system-settings-openai*`,
+  `system-settings-project-management*`, `terminal-theme-boundary`,
+  `project-remove`, `system-settings-openai-unusable-credential`) still start
+  a Vite dev server with no development-environment fact to show; slice 8
+  (presentation and settings review) or slice 9 brings them under the
+  "preview unless the fact is development's" rule and records each in the
+  proof map. `longest-first` carries one stale entry after slice 4's rename
+  (`openai-configuration-boundary.spec.ts`), ignored by discovery.
 - Server modules are named by boundary, not by Vite plugin:
   `launchBoundary.ts`, `projectConfigurationBoundary.ts`,
   `openAIConfigurationBoundary.ts`, `terminalThemeBoundary.ts`,
@@ -302,13 +366,21 @@ developer reads one strategy and sees the measured, mapped reduction.
   (suffix base `7d4c704d`); observer `/tmp/dough-ci-501/watch-d2776J`.
 - Slice 2: `0df843f7` accepted on the same target (suffix base `789b7ca9`),
   observer reused; CI green for both.
+- Slice 3: `6a77028e` accepted (suffix base `0df843f7`); CI run 39027197944
+  failed in dashboard shard 2/12 on `agent-terminal-touch.spec.ts` (phone case,
+  `toBeInViewport({ ratio: 1 })` at ratio 0.97). Repair `76a57055` accepted
+  (suffix base `6a77028e`) after the slice 4 writer was paused and its work
+  stashed and restored (`ci-repair-stash.mjs`, entry `1a837b08`); the repair
+  makes the header-scroll predicate require the session id fully inside the
+  scrolling header and the window, the condition the assertion checks. CI green
+  for the repair; observer `/tmp/dough-ci-501/watch-07Crdw` from then on.
 
 ## Story obligations
 
 ### G1. Boundary server runs only the production project environment
 Reported: slice 1 — "The entry supports only the production environment; dev-only browserless specs (and slice 4's dev/preview equivalence) need an environment switch or stay on Vite."
 Story clause: "the browserless specs leave the browser suite and keep their behavior at the boundary tier, without a browser or a Vite boot per test"
-Disposition: interim until slices 2, 3, 4
+Disposition: proved by slice 4: `dashboard/tests/serving-modes.spec.ts` ("the launch boundary refuses the same request and lists the same sessions in both", "the authenticated read boundary answers the same published read and the same refusal in both", "the project configuration boundary answers the same list in both, each from its own environment's file", "the terminal upgrade guard refuses the same upgrade in both", "the upgrade guard leaves Vite's own HMR socket working, which only the dev server has"), with slice 2's `--environment` switch observed by `boundary/boundary-server.spec.ts` and every former dev start on the development-environment boundary server (slices 2–3)
 
 ### G2. Terminal WebSocket upgrades wired but not yet exercised at the boundary tier
 Reported: slice 1 — "WebSocket terminal upgrades are wired (real `http.Server` passed to `installAgentLaunchMiddleware`) but first exercised by a relocated terminal spec in slice 3, as planned."
@@ -448,6 +520,49 @@ proved now.
   answers, so the test now also asserts that JSON `error`, as the other
   refusals do.
 
+- `dashboard/tests/serving-modes.spec.ts` (5 tests, added): the suite's one
+  proof that the dev server and the built preview mount the same local
+  boundaries. It starts a real server of each and sends both the same
+  request, comparing status, `cache-control` and parsed body: the launch
+  boundary's refusal of an unknown project and its machine-sessions listing,
+  the authenticated read boundary's published read (same `gh` ref
+  resolution first) and its foreign-Origin refusal, the project
+  configuration list (each answered from its own environment's file, the
+  other file absent), and the terminal upgrade guard's refusal; plus the
+  dev-only HMR socket check below.
+- `agent-terminal-hmr.spec.ts` "leaves Vite's own HMR socket working" (1
+  test; file removed): `serving-modes.spec.ts` "the upgrade guard leaves
+  Vite's own HMR socket working, which only the dev server has", the same
+  assertion against that spec's dev server.
+- `authenticated-project-overview.spec.ts` "(dev launch mode)" iteration (1
+  test): the remaining journey, without the suffix, now on the `dashboard`
+  fixture's preview server (`test.use({ extraEnv })` carries the credential
+  marker) with its built-assets check unconditional; that the dev server
+  answers the same read is `serving-modes.spec.ts` "the authenticated read
+  boundary answers the same published read and the same refusal in both".
+  `catalogProjectRecords.ts` `expectPinnedGhCalls` lost its `mode` parameter
+  and the dev-StrictMode tolerance of a repeated ref resolution with it.
+- `openai-configuration-boundary.spec.ts` "OpenAI configuration refuses
+  foreign/malformed requests without changing private files or contacting a
+  provider" "(dev)" and "(preview)" (2 tests): one test of that title in
+  `boundary/openai-configuration-boundary.spec.ts` against the boundary
+  server (`systemSettingsMachine().start("boundary")`), assertions
+  unchanged; the page test stays in the journey file.
+- `project-configuration.spec.ts` "(dev)" iterations of "saved projects
+  retain order and default selection across restart", "an existing empty
+  list stays empty" and "a malformed saved file is explained and left
+  byte-identical" (3 tests): the former "(preview)" iterations, now without
+  the suffix; "development first start is empty and refuses the formerly
+  fixed project" keeps the development environment's own fact, and
+  `serving-modes.spec.ts` "the project configuration boundary answers the
+  same list in both, each from its own environment's file" the mount.
+- `system-settings-terminal-theme.spec.ts` "terminal theme is chosen ...
+  kept across reload, restart and preview ... (dev)" (1 test): the
+  "(preview)" order remains as "... restart and the dev server ...": the
+  theme file is one per machine, so one order shows the sharing, and the
+  reverse order read the same file through the same boundary, which
+  `serving-modes.spec.ts` proves both servers mount.
+
 ## Learnings
 
 - Slice 2 found 14 more browserless files than the `page`-token inventory
@@ -487,8 +602,8 @@ proved now.
   time is their own real git, start and host work. Under the premise row
   "Relocation shortens the browserless families", relocation is kept for
   build independence and the measured target (local run <= 380 s) needs
-  re-planning with Terry before slice 8 relies on relocation alone; slices
-  5 and 6 carry the larger savings.
+  re-planning with Terry before slice 9 relies on relocation alone; slices
+  6 and 7 carry the larger savings.
   Decision for Terry at the next checkpoint, not blocking slices 2–7: keep
   the ≤ 380 s local target and judge it after slices 5–6 (recommended: the
   watcher and origin-publishing families hold most of the summed time, and
@@ -555,3 +670,17 @@ proved now.
   on an immediate rerun, and neither is touched by this story. Same
   disposition: load-sensitive timing in unrelated checks, for the
   retrospective.
+- Slice 4's equivalence spec (`serving-modes.spec.ts`) runs both real Vite
+  servers in one `beforeAll` and answers five tests in under 2 s after the
+  starts; after it, `grep -rn '\["dev", "preview"\]' dashboard/tests` finds
+  only that spec's `modes` constant. Page journeys that still start a dev
+  server do so for the development project environment's own facts
+  (`project-add`, `project-remove`, `system-settings-project-management*`,
+  `system-settings-openai*`, `terminal-theme-boundary`, `project-configuration`
+  "development first start", `frame-overview-look`, `unchanged-records-refresh`,
+  `authenticated-read-owner-failures`), one start each, no loop; slice 8's
+  README placement rule should say so. The journey file
+  `openai-configuration-boundary.spec.ts` now holds only its page test; a
+  rename (for example to the recovery it shows) is a slice 8 or 9 candidate.
+  The fifteen `mode: "preview", prebuilt: builtDashboardDir` restarts noted
+  after slice 3 were not reached by this loop removal and stay as they are.
