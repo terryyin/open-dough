@@ -3,7 +3,7 @@
 **Identity:** SEED-136#dashboard-test-bounds-and-placement
 **Source:** [bounded correction](../../seeds/SEED-136-dashboard-test-efficiency.md#dashboard-test-bounds-and-placement)
 from the execution retrospective of SEED-136#unify-and-streamline-dashboard-e2e
-([plan 310](../310-unify-dashboard-e2e-strategy/PLAN.md), commits
+(plan 310, recoverable at `0c96a546:.planning/slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md`, commits
 789b7ca9..0bee7fd8, slices 3 and 4 and the Learnings).
 
 ## Goal and scope

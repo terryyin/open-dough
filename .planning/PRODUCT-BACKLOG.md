@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Unify and streamline the dashboard E2E test strategy](seeds/SEED-136-dashboard-test-efficiency.md#unify-and-streamline-dashboard-e2e) — SEED-136#unify-and-streamline-dashboard-e2e ([plan](slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md))
-
 ## Backlog list
 
 - [Bound each dashboard test after its event and place page-less specs at the boundary](seeds/SEED-136-dashboard-test-efficiency.md#dashboard-test-bounds-and-placement) — SEED-136#dashboard-test-bounds-and-placement
