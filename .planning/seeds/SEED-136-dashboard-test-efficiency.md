@@ -209,6 +209,9 @@ consolidated family leaves the suite green and the proof map current.
 ### Bound each dashboard test after its event and place page-less specs at the boundary
 
 **Identity:** SEED-136#dashboard-test-bounds-and-placement
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/311-dashboard-test-bounds-and-placement/PLAN.md"}
+```
 
 **Beneficiary:** Developers running the dashboard suite on a loaded machine
 or in CI, who need a failure to mean a defect.
@@ -302,6 +305,25 @@ campaign. Account for checkout, dependency and browser setup, builds, type
 checking, lint, tests, and reporting, including work repeated across jobs.
 Choose the job layout, caching, and parallelism from evidence rather than
 adding shards to compensate for redundant tests.
+
+**Inputs from the dashboard strategy campaign (measured 2026-10-18, at
+0bee7fd8):** the suite is 1,520 tests (801 browser journeys, 719 boundary
+tests on the Node boundary server); hosted browser-suite step sums move about
+±10 % with runner speed on identical code (main alone ran 2,375–2,645 s in one
+day), so compare per-test seconds and their floor over the runners' four
+workers (7,158–8,178 s per run, floor 1,790–2,045 s) rather than step sums;
+the strategy story's ≤ 1,244 s hosted and ≤ 380 s local targets were not met
+because that floor sits above them, and Terry decides whether they carry
+over. Levers in evidence: every shard runs the production build in global
+setup even for boundary-only selections; `dashboard/tests/longest-first` is a
+2026-10-10 record with 45 stale entries and 349 unlisted files, so sorted
+order governs most of the split; `prebuilt: builtDashboardDir` is spelled at
+44 preview starts and should default in `startDashboardServer` before the
+build moves; a worker-scoped fixture declared outside the shared base split
+the worker population (fixed at 0bee7fd8, whose hosted run summed 2,207 s
+against the 2,474 s baseline); `agent-launch-publication-receipt-failure` and
+`agent-launch-preparation-phases` take 13–15 s hosted against 5 s locally
+with unchanged specs and deserve one `--trace on` shard.
 
 **Evaluation:** Record a comparable before/after baseline with commit, runner,
 job count, per-job timings, and aggregate runner time. Measure from workflow
