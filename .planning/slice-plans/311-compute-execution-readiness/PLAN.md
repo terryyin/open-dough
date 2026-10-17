@@ -173,7 +173,7 @@ the dashboard projection is `startEligibilityOf` in
 
 ### 2. Start command refuses through the same derivation
 Type: Behavior
-Status: planned
+Status: done
 Proof: in `workspace-publication-startup-dependencies-cases.mjs`, a new case
 publishes a consumer recorded `not-ready` behind a `waiting` supplier and
 asserts one `source-refused` receipt whose error matches both
@@ -188,6 +188,18 @@ Behavior: a queued or retained start reads the fetched canonical home → the
 command derives start eligibility once through the shared module → `eligible`
 continues to the plan checks and Take as today; `blocked` refuses naming every
 blocker; an owned Taken continuation keeps bypassing the dependency gate.
+
+Accepted proof: `node --test` over `workspace-publication.test.mjs`, the
+`workspace-publication-admission*`, startup admission-recovery and recovery,
+`one-shot*` tests in `src/skills/dough-execute-plan/scripts`, and
+`tests/support/{supplier-dependency-refusal,story-dependencies,start-eligibility,story-state}.test.mjs`
+(134 pass), including "one start refusal names a waiting dependency and a
+not-ready assessment" and the extended byte-equality case;
+`agent-launch-start-dependencies.spec.ts`, `story-dependencies.spec.ts`,
+`execution-start-result.spec.ts`; `tests/product-backlog-payload-update.sh`;
+`npm run lint`. `readPublishedExecutionSource` in `execution-source.mjs`
+derives once; `blockedByDependencies` in
+`product-backlog-story-dependencies.mjs` is the one dependency refusal text.
 
 ### 3. A satisfied dependency leaves the readiness review unchanged
 Type: Behavior
@@ -244,6 +256,11 @@ Reported: slice 1 — "The new journey's card therefore also shows "Changed sinc
 Story clause: "so a supplier's resolution leaves "Changed since readiness review" off"
 Disposition: receiving slice 3
 
+### G3. One-shot and admission starts keep their own gates
+Reported: slice 2 — "So a one-shot start of a not-ready story behind a waiting supplier names only the dependency. The admission paths in `execution-admission-source.mjs` also still use only `requireResolvedStoryDependencies`."
+Story clause: "The start command and the dashboard consume this one meaning instead of combining the facts separately"
+Disposition: no user cost "whether a story may start is derived from that record and the dependency agreement, never stored again": `requireOneShotStart` (`one-shot-ownership.mjs`) is a different contract that admits unrecorded preparation and refuses only a recorded not-ready reason, and it still refuses a dependency-blocked story through the same dependency reader, so its yes/no answer for a blocked story matches; admission accepts work no backlog list holds, which has no queued preparation to derive from. The queued and retained start, the path the dashboard's Start execution uses, derives once in `readPublishedExecutionSource`, observed by "one start refusal names a waiting dependency and a not-ready assessment".
+
 ## Current decisions
 
 - The derived value is named start eligibility, `eligible` or `blocked`;
@@ -267,3 +284,6 @@ Disposition: receiving slice 3
   `story-dependencies-touch.spec.ts`, and the two-supplier journey that slice 3
   inverts stays in `story-dependencies.spec.ts`. `WorkDependencies.blocking`
   in the dashboard is now the reader's blocking array, not a count.
+- Slice 2: a new shared module imported by a payload script needs its entry in
+  `install.sh` (and `tests/product-backlog-payload-update.sh`); only the
+  installed-CLI startup case catches a missing entry.

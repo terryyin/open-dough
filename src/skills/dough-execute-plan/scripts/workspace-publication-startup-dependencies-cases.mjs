@@ -27,6 +27,13 @@ import {
 } from "./workspace-publication-dependency-fixtures.mjs";
 import "./workspace-publication-startup-dependency-recovery-cases.mjs";
 
+// The consumer's recorded story-state block as published at `rev`.
+async function publishedStoryState(trunk, rev) {
+  const seed = (await git(trunk.origin, "show", `${rev}:.planning/seeds/A.md`))
+    .stdout;
+  return seed.match(/```json dough-story-state\n[^]*?\n```/)[0];
+}
+
 for (const oneShot of [false, true]) {
   test(`published blocker refuses ${oneShot ? "queued one-shot" : "ordinary"} start beside a stale ready local copy`, async (t) => {
     const trunk = await createQueuedTrunk();
@@ -94,7 +101,7 @@ test("all dependencies must be satisfied before a ready story starts", async (t)
   assert.match(partial.receipt.error, /SUPPLIER-3/);
   assert.doesNotMatch(partial.receipt.error, /SEED-B#b/);
   assert.equal(existsSync(partial.workspace), false);
-  await publishDependency(
+  const resolved = await publishDependency(
     trunk,
     dependency(third, { state: "satisfied", resolution }),
   );
@@ -103,6 +110,56 @@ test("all dependencies must be satisfied before a ready story starts", async (t)
   assert.equal(complete.receipt.ok, true);
   assert.equal(complete.receipt.changedSinceReview, true);
   assert.equal(existsSync(complete.workspace), true);
+  // Resolution alone made the story eligible: no readiness write between.
+  assert.equal(
+    takenIdentities(
+      (
+        await git(
+          trunk.origin,
+          "show",
+          `${complete.receipt.publishedSha}:.planning/PRODUCT-BACKLOG.md`,
+        )
+      ).stdout,
+    ).includes(consumer.identity),
+    true,
+  );
+  assert.equal(
+    await publishedStoryState(trunk, complete.receipt.publishedSha),
+    await publishedStoryState(trunk, resolved),
+  );
+});
+
+test("one start refusal names a waiting dependency and a not-ready assessment", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const path = join(trunk.integration, ".planning/seeds/A.md");
+  writeFileSync(
+    path,
+    readFileSync(path, "utf8").replace(
+      '"assessment":"ready","reasons":[]',
+      '"assessment":"not-ready","reasons":["Scope unresolved"]',
+    ),
+  );
+  await git(trunk.integration, "commit", "-am", "assess A not-ready");
+  const tip = await publishDependency(trunk, dependency(supplier));
+  const result = await startCliResult(trunk, "story-branch");
+  assert.equal(result.code, 1, JSON.stringify(result));
+  assert.equal(result.receipt.status, "source-refused");
+  assert.match(result.receipt.error, /execution is blocked by SEED-B#b/);
+  assert.match(result.receipt.error, /published preparation is not-ready/);
+  assert.equal(existsSync(result.workspace), false);
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
+  assert.deepEqual(
+    takenIdentities(
+      (await git(trunk.origin, "show", "main:.planning/PRODUCT-BACKLOG.md"))
+        .stdout,
+    ),
+    [],
+  );
+  assert.equal(
+    await lsRemoteSha(trunk.origin, `refs/heads/${result.branch}`),
+    "",
+  );
 });
 
 test("a canonical story admitted with a drafted dependency refuses before Take", async (t) => {

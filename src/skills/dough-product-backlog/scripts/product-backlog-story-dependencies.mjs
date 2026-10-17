@@ -196,12 +196,14 @@ export function updateStoryDependency(source, request) {
   return { source: next, state: readStoryDependencies(next, request.href) };
 }
 
+// The refusal naming every unsatisfied dependency in a reader's `blocking`.
+export function blockedByDependencies(blocking) {
+  return `execution is blocked by ${blocking.map((entry) => `${entry.supplier.identity} (${entry.supplier.href}): ${entry.rationale}; completion condition: ${entry.condition}${entry.decision ? `; decision: ${entry.decision}` : ""}`).join("; ")}`;
+}
+
 export function requireResolvedStoryDependencies(source, href) {
   const state = readStoryDependencies(source, href);
-  if (state.blocking.length > 0)
-    refuse(
-      `execution is blocked by ${state.blocking.map((entry) => `${entry.supplier.identity} (${entry.supplier.href}): ${entry.rationale}; completion condition: ${entry.condition}${entry.decision ? `; decision: ${entry.decision}` : ""}`).join("; ")}`,
-    );
+  if (state.blocking.length > 0) refuse(blockedByDependencies(state.blocking));
   return state;
 }
 
