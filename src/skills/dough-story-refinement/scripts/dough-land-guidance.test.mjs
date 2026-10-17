@@ -18,7 +18,7 @@ const disposition = read(
 );
 
 test("preparation keep and workspace retirement link Dough Land instead of describing landing again", () => {
-  const land = read("dough-land/SKILL.md");
+  const land = `${read("dough-land/SKILL.md")}\n${read("dough-land/references/publish-reviewed-checkout.md")}`;
   const bug = read("dough-bug-fixing/SKILL.md");
 
   assert.match(land, /^---\nname: dough-land\n/);

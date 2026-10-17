@@ -2,7 +2,6 @@
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
 import {
   ongoingOperation,
   refreshDefaultCheckout,
@@ -16,6 +15,7 @@ import { preserved } from "../../dough-land/scripts/retirement-checks.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   checkPlannedCompletion,
+  publishReviewedTip,
   runClosureCheckCommand,
   runRetirementCommand,
 } from "./dough-land-command-fixtures.mjs";
@@ -97,7 +97,8 @@ async function topLevel(checkout) {
 // the worktree, its management context, and the target; commit everything in
 // the worktree; publish through the shared publisher; attempt the shared
 // optional default-checkout refresh; then retire when the caller gate holds.
-// A resolved executionPlan is checked before staging; this model does not
+// An ordinary executionPlan is checked before staging; explicit keep skips
+// completion and retirement. This model does not
 // discover execution identity or judge planless completion. With no default checkout the
 // refresh is not applicable. A rerun starts from real Git state: nothing to
 // commit creates no commit, and a tip the fetched target already contains is
@@ -117,6 +118,8 @@ export async function landWorktree({
   onFetchedTarget = undefined,
   executionPlan = undefined,
   retirementAuthorized = true,
+  keepWorktree = false,
+  publishedStoryTip = undefined,
 }) {
   const notDone = { refresh: "not-attempted", cleanup: "not-performed" };
   if (!worktree || !branch) {
@@ -143,7 +146,7 @@ export async function landWorktree({
   // Execution identity and the selected plan are caller-resolved facts, not a
   // Taken-membership classifier. Invoke the same read-only production checker
   // the guidance calls before staging, including already-accepted reruns.
-  if (executionPlan) {
+  if (executionPlan && !keepWorktree) {
     const completion = await checkPlannedCompletion(executionPlan);
     if (!completion.ok) {
       return {
@@ -173,7 +176,8 @@ export async function landWorktree({
     const base = (
       await git(worktree, "merge-base", branch, remoteRef)
     ).stdout.trim();
-    publication = await publishExecutionIncrement({
+    publication = await publishReviewedTip({
+      publishedStoryTip,
       workspace: worktree,
       branch,
       previouslyPublishedBase: base,
@@ -207,15 +211,17 @@ export async function landWorktree({
     remote,
     integrationBranch: targetBranch,
   });
-  const cleanup = await closeOrRetainWorkspace({
-    preparation: worktree,
-    preparationBranch: branch,
-    confirmedDisposition: retirementAuthorized,
-    identity,
-    createdForWork,
-    repository,
-    remote,
-    targetBranch,
-  });
+  const cleanup = keepWorktree
+    ? preserved("explicit --keep-worktree", worktree, branch)
+    : await closeOrRetainWorkspace({
+        preparation: worktree,
+        preparationBranch: branch,
+        confirmedDisposition: retirementAuthorized,
+        identity,
+        createdForWork,
+        repository,
+        remote,
+        targetBranch,
+      });
   return { stopped: null, commit, publication, refresh, cleanup, repository };
 }

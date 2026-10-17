@@ -183,6 +183,36 @@ test("a Take racing the first push stops the retry without rewriting or pushing 
   assert.deepEqual(result.publication.ownership, { identity, list: "Taken" });
 });
 
+test("a Take racing a published-story landing stops before recomputing its merge", async (t) => {
+  const fixture = await retainedResult(t);
+  await git(
+    fixture.preparation,
+    "push",
+    "origin",
+    `HEAD:refs/heads/${fixture.preparationBranch}`,
+  );
+  let remoteSha;
+  const attempts = [];
+  const result = await land(fixture, {
+    keepWorktree: true,
+    publishedStoryTip: fixture.resultSha,
+    beforePush: async ({ attempt }) => {
+      attempts.push(attempt);
+      if (attempt === 0) remoteSha = await rival(fixture, "take");
+    },
+  });
+  assert.equal(result.stopped, "publish", JSON.stringify(result));
+  assert.equal(result.publication.reason, "ownership-changed");
+  assert.deepEqual(result.publication.ownership, { identity, list: "Taken" });
+  assert.deepEqual(attempts, [0]);
+  assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), remoteSha);
+  assert.equal(
+    await revParse(fixture.preparation, fixture.preparationBranch),
+    fixture.resultSha,
+  );
+  assert.equal(existsSync(fixture.preparation), true);
+});
+
 test("an unlisted kept result has no closure check to stop and lands as before", async (t) => {
   const fixture = await retainedResult(t, { listed: false });
   assert.deepEqual(

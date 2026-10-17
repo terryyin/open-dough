@@ -168,7 +168,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
   });
 
   test("an accepted integration whose landing record fails keeps Git acceptance and names the reporting-only retry", async () => {
-    const { landingContext, trunkTip, storyTip, workspace, integrate } =
+    const { landingContext, trunkTip, storyTip, workspace, branch, integrate } =
       await claimedLaunchWithStoryCommit(origin, server);
     // The push is accepted while its answer is lost, so nothing is recorded.
     const fault = landingGitFault(origin.machine);
@@ -197,6 +197,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
       landing: { state: "unacknowledged" },
     });
     expect(fault.pushes()).toBe(1);
+    expect(git(workspace, "branch", "--show-current")).toBe(branch);
     const retry = /^Retry reporting only: (.+)$/m.exec(
       unacknowledged.landing.error,
     )?.[1];

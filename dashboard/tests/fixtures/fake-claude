@@ -128,6 +128,7 @@ if (args[0] === "attach") {
     changeListed(args[1], (session) => {
       session.name = name;
     }),
+    listed().find((session) => session.id === args[1])?.cwd,
   );
   return;
 }

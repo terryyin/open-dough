@@ -1,8 +1,35 @@
-// Invoke Dough Land's production CLI boundaries as an agent would. These
-// adapters preserve exit status and JSON output without modelling their rules.
+// Invoke production publication and CLI boundaries. The CLI adapters preserve
+// exit status and JSON output without modelling their rules.
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
+import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
+import {
+  git,
+  revParse,
+} from "../../dough-execute-plan/scripts/publication-git.mjs";
+
+// The caller supplies known publication history. A published prefix makes the
+// complete reviewed HEAD a history-preserving integration, including its local
+// suffix; using the old prefix alone would omit that suffix.
+export async function publishReviewedTip({ publishedStoryTip, ...options }) {
+  if (!publishedStoryTip) return publishExecutionIncrement(options);
+  const { workspace, branch, targetRef, remote, beforePush, onFetchedTarget } =
+    options;
+  const tip = await revParse(workspace, "HEAD");
+  await git(workspace, "merge-base", "--is-ancestor", publishedStoryTip, tip);
+  const result = await publishHistoryPreservingCandidate({
+    ownedWorkspace: workspace,
+    publishedTip: tip,
+    branch,
+    targetRef,
+    remote,
+    beforePush,
+    onFetchedTarget,
+  });
+  return { ...result, ok: result.classification !== "preserved" };
+}
 
 async function runJsonCommand(command, args) {
   const path = fileURLToPath(new URL(command, import.meta.url));

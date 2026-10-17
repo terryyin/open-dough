@@ -15,7 +15,7 @@
 const fs = require("fs");
 const path = require("path");
 
-module.exports = function attach(dir, id, env, renameListed) {
+module.exports = function attach(dir, id, env, renameListed, workspace) {
   const size = () => `${process.stdout.columns}x${process.stdout.rows}`;
   fs.appendFileSync(
     path.join(dir, "attaches.jsonl"),
@@ -69,6 +69,23 @@ module.exports = function attach(dir, id, env, renameListed) {
         );
         const renamed = /^\/rename (.+)$/.exec(line)?.[1];
         if (renamed === undefined) {
+          // A test may give this external host one response to a follow-up.
+          // Work runs in the conversation's native retained workspace, never
+          // a workspace supplied by terminal input or a product-state stub.
+          const actionFile = path.join(dir, "attach-action.json");
+          if (fs.existsSync(actionFile)) {
+            const action = JSON.parse(fs.readFileSync(actionFile, "utf8"));
+            if (action.input === line) {
+              require("node:child_process").execFileSync(
+                action.command,
+                action.args,
+                {
+                  cwd: workspace,
+                  stdio: "pipe",
+                },
+              );
+            }
+          }
           process.stdout.write(`\r\necho ${line}\r\n`);
         } else {
           // A `renames-ignored` file leaves the listed name as it was.

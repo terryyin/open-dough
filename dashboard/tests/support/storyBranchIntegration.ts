@@ -12,6 +12,7 @@ import { commit, git } from "./launchLanding.ts";
 import { requestFor } from "./launchDashboard.ts";
 import { expect } from "./pageTest.ts";
 import type { StartOrigin } from "./startOrigin.ts";
+import { checkedIntegrationCommand } from "./retainedStoryLanding.ts";
 
 export async function claimedRecord(
   server: DashboardServer,
@@ -96,6 +97,8 @@ export async function claimedLaunchWithStoryCommit(
     readonly host?: Host;
     readonly storyWork?: (workspace: string) => void;
     readonly trunkWork?: (writer: string) => void;
+    readonly localWork?: (workspace: string) => void;
+    readonly checkQueuedClosures?: boolean;
   } = {},
 ) {
   const host = journey.host ?? "claude";
@@ -106,37 +109,51 @@ export async function claimedLaunchWithStoryCommit(
   journey.storyWork?.(workspace);
   const storyTip = git(workspace, "rev-parse", "HEAD");
   git(workspace, "push", "origin", `HEAD:refs/heads/${branch}`);
+  journey.localWork?.(workspace);
+  const reviewedTip = git(workspace, "rev-parse", "HEAD");
   const trunkTip = trunkAdvanced
     ? trunkCommitFromAnotherWriter(origin, "trunk-only.txt", journey.trunkWork)
     : (await origin.originGit("rev-parse", "main")).trim();
   const command = (publishedTip: string, context: readonly string[]) =>
-    [
-      process.execPath,
-      path.join(
-        installedSkillPath(
+    journey.checkQueuedClosures
+      ? checkedIntegrationCommand({
           host,
-          { path: workspace, shown: workspace },
-          "dough-execute-plan",
-          "scripts",
-        ),
-        "history-preserving-publication.mjs",
-      ),
-      "integrate",
-      "--workspace",
-      workspace,
-      "--published-tip",
-      publishedTip,
-      "--branch",
-      branch,
-      "--target-ref",
-      "refs/heads/main",
-      ...context,
-    ]
-      .map(quote)
-      .join(" ");
+          workspace,
+          branch,
+          tip: publishedTip,
+          context,
+        })
+      : [
+          process.execPath,
+          path.join(
+            installedSkillPath(
+              host,
+              { path: workspace, shown: workspace },
+              "dough-execute-plan",
+              "scripts",
+            ),
+            "history-preserving-publication.mjs",
+          ),
+          "integrate",
+          "--workspace",
+          workspace,
+          "--published-tip",
+          publishedTip,
+          "--branch",
+          branch,
+          "--target-ref",
+          "refs/heads/main",
+          ...context,
+        ]
+          .map(quote)
+          .join(" ");
   const landingContextFlag = ["--landing-context", landingContext];
   const integrate = (env = process.env) =>
-    reportingChild(command(storyTip, landingContextFlag), origin.machine, env);
+    reportingChild(
+      command(reviewedTip, landingContextFlag),
+      origin.machine,
+      env,
+    );
   return {
     record,
     start,
@@ -146,6 +163,7 @@ export async function claimedLaunchWithStoryCommit(
     branch,
     identity,
     storyTip,
+    reviewedTip,
     trunkTip,
     integrate,
     // A later commit made in the workspace and pushed to the story branch, and
