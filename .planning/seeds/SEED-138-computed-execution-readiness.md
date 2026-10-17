@@ -72,8 +72,8 @@ nothing the preparing agent reviewed.
 [the completed story](https://github.com/terryyin/open-dough/blob/d874104edfad1fb198f05d003d7ef0b0586c6554/.planning/seeds/SEED-138-computed-execution-readiness.md#compute-execution-readiness) promised, without the gaps
 its execution review found: a record assessed before that story keeps an
 accurate review indication when only a supplier's resolution changed, the
-installed CLI reports start eligibility from the shared derivation, and for
-Backlog work "Ready for execution" names only start eligibility, so the card,
+installed CLI reports start eligibility from the shared derivation, and on
+Backlog and Taken cards "Ready for execution" names only start eligibility, so the card,
 the story detail, and the Start note never disagree.
 
 **Scope:** a compatible readiness comparison for records assessed before
@@ -82,9 +82,9 @@ documentation; assessment-level dashboard wording that no longer says "Ready
 for execution"; the startup proof that records readiness before its
 dependencies. Findings, preserved decisions, proof, and slices live in the
 [correction plan](../slice-plans/312-correct-start-eligibility-gaps/PLAN.md).
-Excluded: one-shot and admission start gates, the duplicate dependency fence
-scanner, and the Taken card's green badge, which still shows the recorded
-assessment.
+The Taken card's green badge follows the same start eligibility (Terry,
+2026-10-18). Excluded: one-shot and admission start gates and the duplicate
+dependency fence scanner.
 
 ## Breadcrumbs
 

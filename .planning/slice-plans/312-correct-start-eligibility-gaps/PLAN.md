@@ -70,9 +70,6 @@ Excluded:
   G3).
 - The duplicate fence scanner in `digestDependencyAgreements` beside
   `blocksOf` (minor; no wrong result).
-- The Taken card's green "Ready for execution" badge, which shows the recorded
-  assessment for continuation work (plan 311: "Taken cards keep today's
-  badges"). Changing it is a developer decision outside this correction.
 - A legacy record whose dependency was already `satisfied` or
   `decision-needed` when it was reviewed: reconstruction returns it to
   `waiting`, so it reads changed (conservative; a re-review clears it).
@@ -80,7 +77,8 @@ Excluded:
 ## Preserved promises and constraints
 
 - The green badge text stays "Ready for execution" and means start
-  eligibility (plan 311 decision); this correction removes the other meaning.
+  eligibility (plan 311 decision), on Backlog and Taken cards alike; this
+  correction removes the other meaning.
 - The dashboard keeps offering Start, with its note, when only the assessment
   blocks; the start command refuses.
 - Start refusal keeps the substrings `execution is blocked by` and
@@ -248,13 +246,37 @@ count, a Codex refusal, an enabled Start). Their traces were not inspected. `sto
 "Assessment: Ready". The noted-Start spec asserts both dialog sentences
 literally instead of deriving them from the note.
 
+### 4. A Taken card's green badge also means start eligibility
+Type: Behavior
+Status: done
+Proof: a new case in `dashboard/tests/start-eligibility.spec.ts` plus the
+specs that assert a Taken card's badge (`story-readiness.spec.ts`,
+`story-readiness-accessible.spec.ts`, `story-readiness-gaps.spec.ts`,
+`taken-admitted-investigation.spec.ts`, `backlog-preparing.spec.ts`,
+`preparation-legend.spec.ts`); `npm run typecheck:dashboard`; `npm run lint`.
+
+Behavior: Terry decided at the end of execution (2026-10-18) that the Taken
+card's badge follows the same meaning, replacing plan 311's "Taken cards keep
+today's badges". A Taken story whose assessment is Ready but which a waiting
+dependency blocks → its card shows "Blocked by 1 dependency" and no "Ready for
+execution"; once the dependency is satisfied → "Ready for execution". Every
+work card derives eligibility the same way; Start availability stays a Backlog
+concern. `dashboard/STORY-PREPARATION.md` and the `PreparationCard.tsx`
+comments describe one meaning for both columns.
+
+Accepted proof: "a Taken card's green badge waits on its dependency like a
+Backlog card's" in `start-eligibility.spec.ts` passes. It fails at "Blocked by
+1 dependency" when Taken cards are forced eligible. The 11 badge and
+dependency specs (21 tests), typecheck, and lint pass at load 4. The whole
+dashboard suite passed 1633 tests at load 30–40. The one failure,
+`session-result-touch.spec.ts` "short phone 240", also fails alone, at one
+worker, and with this story's dashboard source reverted to `e535dc46`. Trunk's
+`cfc8af7f` fixed that test (geometry measured before the scroll settled), and
+it reaches this branch at integration.
+
 ## Execution complete
 
-Product advice: no change to backlog priority. At wrap-up, decide whether the
-Taken card's green "Ready for execution" badge, which still shows the recorded
-assessment, should also mean start eligibility; this correction excluded it as
-a developer decision, and it is now the only surface where that wording names
-the assessment.
+Product advice: no change to backlog priority.
 
 ## Current decisions
 

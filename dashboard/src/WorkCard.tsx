@@ -1,6 +1,6 @@
 // One work item's card in its stage (`./WorkStages.tsx`), read at two levels.
 // Its scan view leads with the title, then its priority in the Backlog, the
-// assigned or preparing developer, preparation badges with a Backlog card's
+// assigned or preparing developer, preparation badges with the story's
 // start eligibility (`./startEligibility.ts`), dependencies, slice progress
 // on Taken work with a brief source
 // qualification, its launches (`./CardLaunches.tsx`), and its inspection
@@ -114,7 +114,7 @@ export function WorkCard({
           </div>
           <PreparationFacts
             preparation={entry.preparation}
-            eligibility={offersStart ? eligibility : undefined}
+            eligibility={eligibility}
           />
           <DependenciesCard dependencies={entry.dependencies} />
           {showsSliceProgress && (

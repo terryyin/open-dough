@@ -86,6 +86,17 @@ export function recordDependency(
     current.basis,
   );
 }
+// Takes the consumer from the Backlog list into Taken with its plan.
+export function takeConsumer(origin: StartOrigin) {
+  call(
+    origin,
+    "take",
+    "--identity",
+    consumer.identity,
+    "--plan",
+    "slice-plans/A/PLAN.md",
+  );
+}
 export async function publishDependencies(origin: StartOrigin) {
   execFileSync("git", ["add", ".planning"], {
     cwd: origin.project,

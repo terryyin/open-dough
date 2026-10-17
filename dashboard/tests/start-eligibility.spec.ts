@@ -1,5 +1,5 @@
-// A Backlog card's start eligibility: a Ready assessment waits on its
-// dependency and becomes startable without any readiness write.
+// A card's start eligibility: a Ready assessment waits on its dependency and
+// becomes startable without any readiness write, in Backlog and in Taken.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
@@ -11,6 +11,7 @@ import {
   test,
   recordDependency,
   publishDependencies,
+  takeConsumer,
 } from "./storyDependencyFixture.ts";
 import { recordAssessed } from "./storyReadinessCli.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -76,4 +77,44 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   expect(storyStateRecord(origin.project)).toBe(readiness);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(published.requests.length).toBeGreaterThan(0);
+});
+
+test("a Taken card's green badge waits on its dependency like a Backlog card's", async ({
+  page,
+  origin,
+}) => {
+  recordDependency(origin, 0, "waiting");
+  recordAssessed(origin.project, consumer, {
+    refinement: "refined",
+    approach: "planned",
+    plan: "../slice-plans/A/PLAN.md",
+    assessment: "ready",
+  });
+  takeConsumer(origin);
+  const revision = await publishDependencies(origin);
+  await publishCommittedOrigin(page, {
+    repoDir: origin.project,
+    revision,
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  await pausePageClock(page);
+  await openUntilRead(page);
+  const card = parts(page).taken.getByRole("article", {
+    name: consumer.title,
+    exact: true,
+  });
+  await expect(
+    card.getByText("Blocked by 1 dependency", { exact: true }),
+  ).toBeVisible();
+  await expect(card.locator(".badge-ready")).toHaveCount(0);
+
+  recordDependency(origin, 0, "satisfied", revision);
+  const satisfied = await publishDependencies(origin);
+  await passTimeUntilChecked(page);
+  await expect(parts(page).source).toContainText(satisfied);
+  await expect(
+    card.getByText("Ready for execution", { exact: true }),
+  ).toBeVisible();
+  await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
 });
