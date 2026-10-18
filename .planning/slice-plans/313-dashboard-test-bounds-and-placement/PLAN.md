@@ -109,6 +109,12 @@ file, and discovery selects each once. Required whole proof also exposed event
 prerequisite G13, own-work/fixture bounds G14–G18 and attachment teardown G19;
 preserve original assertions and the run's process sweep.
 
+## Execution complete
+
+Product advice: Keep SEED-136#restore-ci-under-three-minutes next; use the current
+1,523-test evidence to refine its build/setup and hosted CI measurements. No new
+product story or correction plan is needed. Retrospective found no new finding.
+
 ## Current decisions
 
 - PFE: reuse `reportGeometry` and native `scrollByTouch`; change the existing
