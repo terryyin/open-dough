@@ -11,8 +11,9 @@
 // first, each the entry Recently done shows (`./SessionEntry.tsx`); a machine
 // that keeps none shows none. The card holds the keyboard when the last of
 // them is deleted (`deletedEntryHome`).
-// Review changes uses the full retained launch read, independently of these
-// nested Done sessions and whether the done details or native state are readable.
+// Review changes is always offered, independently of nested sessions, launch
+// records and whether done details or native state are readable. Published Git
+// history supplies the fallback when no usable local comparison remains.
 
 import { useId } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
@@ -108,6 +109,7 @@ export function DoneStoryCard({
         onCard={false}
       />
       <StoryReviewAction
+        completed
         sourceId={sourceId}
         records={launchRecords}
         work={{ identity, title }}

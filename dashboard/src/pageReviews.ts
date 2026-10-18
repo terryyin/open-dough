@@ -14,6 +14,7 @@ export type StoryReviewRequest = {
   readonly identity: string;
   readonly title: string;
   readonly control: HTMLElement;
+  readonly completed?: boolean;
 };
 
 export type OpenStoryReview = (request: StoryReviewRequest) => void;

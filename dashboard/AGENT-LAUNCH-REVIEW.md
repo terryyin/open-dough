@@ -3,6 +3,38 @@
 The [agent launch contract](AGENT-LAUNCH.md#story-review) links here for a
 story's read-only review of its workspace or a landed run's change in the side panel.
 
+Every completed-story card in Recently done offers **Review changes**, including
+stories completed in a terminal or on another machine with no local launch.
+When no readable workspace or usable captured landing exists, **Published
+completion** shows a fixed comparison reconstructed from the configured
+project's published Git history. The done record's path history identifies the
+completion revision; its recorded agent and all discoverable historical owning
+agents' execution profiles attribute the story commits. The existing published
+commit rule removes those commits from that fixed revision, leaving other
+stories' interleaved changes out. This works after the story branch and
+workspace are deleted and remains fixed as trunk advances. It uses the same
+file browser and literal file diffs, without launch or marking semantics.
+
+A completion with missing agent or claim history, unreadable Git objects, or
+unresolvable merge attribution explains that evidence gap instead of guessing
+or showing an empty successful comparison. Clean merges are checked against
+Git's automatic merge tree; additional merge resolutions need attribution
+that the historical profiles do not supply. Files whose story changes are
+inseparable from another writer's changes retain the existing explicit
+“includes trunk's changes” explanation and their own declared comparison base.
+Other stories' merge resolutions leave the comparison available when their
+resolution paths do not affect this story. The executing agent's own merges,
+the completion integration, and resolutions affecting attributed story paths
+must have enough evidence to separate their changes.
+Historical file requests must match the configured project, exact story,
+completion revision, comparison objects, and a literal listed file. Opening
+and Refresh fetch published history; selecting a historical file validates
+against that already fetched history and performs no network fetch.
+The configured folder must still be its own Git checkout; a parent checkout's
+history is refused before reading or fetching a comparison.
+When retained landed runs are also listed, the Comparison control can switch
+between them and Published completion.
+
 A story with a kept launch record naming a workspace or landed run
 offers **Review changes** on its active card beside **Inspect story**, or on
 its Recently done card. An active story without a launch workspace offers it

@@ -12,6 +12,7 @@ import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 
 interface AdmittedWorkspaceReview {
   readonly kind: "review";
@@ -22,10 +23,20 @@ interface AdmittedWorkspaceReview {
   readonly shown: string;
   readonly fallback?: ReviewLandedRun;
   readonly runs: readonly ReviewLandedRun[];
+  readonly publishedFallback?: {
+    readonly source: PublishedSource;
+    readonly identity: string;
+  };
 }
 
 export type AdmittedReview =
   | AdmittedWorkspaceReview
+  | {
+      readonly kind: "review";
+      readonly published: PublishedSource;
+      readonly identity: string;
+      readonly runs: readonly ReviewLandedRun[];
+    }
   // Several worktrees hold the story's claim: the review reads none and says
   // why.
   | {
@@ -37,6 +48,10 @@ export type AdmittedReview =
       readonly kind: "review";
       readonly run: ReviewLandedRun;
       readonly runs: readonly ReviewLandedRun[];
+      readonly publishedFallback?: {
+        readonly source: PublishedSource;
+        readonly identity: string;
+      };
     };
 
 export async function reviewRequest(url: URL): Promise<AdmittedReview> {
@@ -47,9 +62,13 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
       "identity",
       ...(url.searchParams.has("reference") ? ["reference"] : []),
       ...(url.searchParams.has("run") ? ["run"] : []),
+      ...(url.searchParams.has("completed") ? ["completed"] : []),
     ],
     "review",
   );
+  const completed = url.searchParams.get("completed");
+  if (completed !== null && completed !== "true")
+    throw new RefusedRequest(400, "The completed review request is malformed.");
   const found = await queriedRun(url);
   if (url.searchParams.has("reference") && url.searchParams.has("run"))
     throw new RefusedRequest(400, "The review names two run identities.");
@@ -65,7 +84,19 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
     resolved?.kind === "workspace" &&
     directoryState(resolved.established.workspace).kind === "available";
   if (!readable && fallback !== undefined)
-    return { kind: "review", run: fallback, runs: found.runs };
+    return {
+      kind: "review",
+      run: fallback,
+      runs: found.runs,
+      ...(completed === "true"
+        ? { publishedFallback: { source, identity } }
+        : {}),
+    };
+  if (
+    completed === "true" &&
+    (resolved === undefined || resolved.kind === "ambiguous")
+  )
+    return { kind: "review", published: source, identity, runs: found.runs };
   if (resolved === undefined)
     throw new RefusedRequest(
       404,
@@ -87,6 +118,9 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
       resolved.established.workspace,
     ),
     runs: found.runs,
+    ...(completed === "true"
+      ? { publishedFallback: { source, identity } }
+      : {}),
     ...(fallback === undefined ? {} : { fallback }),
   };
 }

@@ -1,8 +1,10 @@
-// Story review shows a launch workspace snapshot or a landed run's
-// fixed delivered comparison. The local launch boundary resolves the project,
+// Story review shows a launch workspace snapshot, a landed run's captured
+// comparison, or a completed story's published historical comparison.
+// The local launch boundary resolves the project,
 // work identity and optional launch reference, never a repository path.
 // `./storyReviewWorkspace.ts` owns the workspace selection on both sides; the
-// historical comparison comes from the run's captured landing facts.
+// historical comparison comes from captured landing facts or published Git
+// completion and execution evidence, never a fabricated launch.
 // Only a workspace snapshot can be marked reviewed: the story's one mark on
 // this machine. Its changes since the mark exclude trunk's changes when the
 // repository can still read and restate the marked snapshot.
@@ -114,6 +116,17 @@ export type ReviewRange = z.infer<typeof reviewRangeSchema>;
 
 export const storyReviewSchema = z
   .discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("published"),
+      completion: objectIdSchema,
+      completedAt: z.iso.datetime(),
+      agent: z.string().min(1),
+      remote: z.string().min(1),
+      target: z.string().min(1),
+      baseline: objectIdSchema,
+      tree: objectIdSchema,
+      files: z.array(reviewedFileSchema),
+    }),
     z.object({
       kind: z.literal("landed"),
       landing: landedReviewContextSchema,

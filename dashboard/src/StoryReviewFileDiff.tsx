@@ -24,6 +24,7 @@ export type ReviewedStory = {
   readonly sourceId: string;
   readonly identity: string;
   readonly reference?: string;
+  readonly completion?: string;
 };
 
 const lineMarkers: Record<DiffLine["kind"], string> = {
@@ -119,6 +120,9 @@ export function FileDiff({
       ...(reviewed.reference === undefined
         ? {}
         : { reference: reviewed.reference }),
+      ...(reviewed.completion === undefined
+        ? {}
+        : { completion: reviewed.completion }),
       baseline: from,
       tree,
       path: file.path,

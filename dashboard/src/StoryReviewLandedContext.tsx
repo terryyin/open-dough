@@ -1,6 +1,9 @@
 // Historical context names the fixed accepted pair, without workspace or marking semantics.
 import type { LandedReviewContext } from "./storyReviewLandedRun.ts";
-import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
+import {
+  FileBrowserToggle,
+  type FileBrowserPlace,
+} from "./StoryReviewBrowserToggle.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
 import { reviewTargetName } from "./storyReview.ts";
 export function LandedContext({
@@ -25,19 +28,7 @@ export function LandedContext({
       <p>
         From <code>{landing.base}</code> to <code>{landing.revision}</code>.
       </p>
-      {browser !== undefined && (
-        <button
-          type="button"
-          className="start-launch-button"
-          aria-controls={browser.id}
-          aria-expanded={browser.shown}
-          onClick={() => {
-            onShowBrowser(!browser.shown);
-          }}
-        >
-          {browser.shown ? "Hide files" : "Show files"}
-        </button>
-      )}
+      <FileBrowserToggle browser={browser} onShowBrowser={onShowBrowser} />
     </div>
   );
 }

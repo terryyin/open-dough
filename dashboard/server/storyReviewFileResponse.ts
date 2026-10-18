@@ -10,14 +10,7 @@ const reviewWaitMs = 60_000;
 // The admitted file's diff within its snapshot, bounded and abandoned like
 // the snapshot itself.
 export async function storyReviewFileResponse(
-  {
-    established,
-    repository,
-    baseline,
-    tree,
-    path: file,
-    oldPath,
-  }: AdmittedFileDiff,
+  { repository, baseline, tree, path: file, oldPath }: AdmittedFileDiff,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
   return {
@@ -41,7 +34,7 @@ export async function storyReviewFileResponse(
               file,
             ],
             {
-              cwd: repository ?? established.workspace,
+              cwd: repository,
               signal,
               maxBuffer: outputLimit,
             },

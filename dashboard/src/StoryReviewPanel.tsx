@@ -1,4 +1,4 @@
-// One side panel selects a live workspace comparison or a landed run.
+// One side panel selects a workspace, captured run or published completion.
 // Refresh preserves selection; the common body and frame keep navigation and focus.
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
@@ -6,8 +6,7 @@ import { IconButton } from "./Icon.tsx";
 import { PanelControls } from "./PanelControls.tsx";
 import { type MarkReviewedAnswer, type StoryReview } from "./storyReview.ts";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
-import { LandedContext } from "./StoryReviewLandedContext.tsx";
-import { ContextLine } from "./StoryReviewContextLine.tsx";
+import { ReviewContext, reviewDescription } from "./StoryReviewContext.tsx";
 import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
@@ -51,10 +50,11 @@ export function StoryReviewPanel({
     runs,
     selectedRun,
     snapshot: workspace,
+    published: availablePublished,
     chosen,
     onWorkspace,
     onRun,
-  } = useStoryReviewSelection(source, identity, round);
+  } = useStoryReviewSelection(source, identity, round, request.completed);
   // A snapshot without uncommitted changes offers no check; the next that
   // holds some offers it on.
   if (!includeUncommitted && workspace !== undefined && !workspace.committed)
@@ -68,7 +68,7 @@ export function StoryReviewPanel({
   const [marking, setMarking] = useState(false);
   const madeHere =
     made !== undefined && made.of === review ? made.answer : undefined;
-  const landed = review?.kind === "landed" ? review : undefined;
+  const published = review?.kind === "published" ? review : undefined;
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const {
     items,
@@ -135,18 +135,23 @@ export function StoryReviewPanel({
         </div>
       </header>
       <p id={descriptionId} hidden>
-        {review?.kind !== "landed" && review?.kind !== "landing-unavailable"
-          ? "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed."
-          : "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."}
+        {reviewDescription(review)}
       </p>
       <div className="story-review-top">
         {(runs.length > 0 ||
           workspace?.since !== undefined ||
           items.length > 0) && (
           <ComparisonSwitch
-            shown={selectedRun === undefined ? shown : "landed"}
+            shown={
+              selectedRun === undefined
+                ? published === undefined
+                  ? shown
+                  : "published"
+                : "landed"
+            }
             onSwitch={(choice) => {
-              if (choice !== "landed") onWorkspace(choice);
+              if (choice === "published") onWorkspace("all");
+              else if (choice !== "landed") onWorkspace(choice);
               else {
                 const newest = preferredReviewRun(
                   runs,
@@ -159,28 +164,19 @@ export function StoryReviewPanel({
             since={workspace?.since !== undefined}
             commits={workspace !== undefined && items.length > 0}
             landed={runs.length > 0}
+            published={availablePublished !== undefined}
           />
         )}
         {selectedRun !== undefined && (
           <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
         )}
 
-        {landed !== undefined && (
-          <LandedContext
-            landing={landed.landing}
-            {...(landed.files.length === 0 ? {} : { browser })}
-            onShowBrowser={setBrowserShown}
-          />
-        )}
-        {snapshot !== undefined && (
-          <ContextLine
-            snapshot={snapshot}
-            {...(comparison === undefined || comparison.files.length === 0
-              ? {}
-              : { browser })}
-            onShowBrowser={setBrowserShown}
-          />
-        )}
+        <ReviewContext
+          review={review}
+          comparison={comparison}
+          browser={browser}
+          onShowBrowser={setBrowserShown}
+        />
         <ReviewFeedback
           review={review}
           reading={reading}
@@ -227,8 +223,7 @@ export function StoryReviewPanel({
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
         <ReviewBody
-          landed={landed}
-          snapshot={snapshot}
+          review={review}
           shown={shown}
           items={items}
           selectedItems={selectedItems}

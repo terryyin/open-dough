@@ -1,18 +1,16 @@
-// The selected workspace or landed comparison shares one browser and diff.
+// Workspace snapshots and fixed historical comparisons share one browser and diff.
 import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
 import type {
   ReviewComparison,
   ReviewItem,
   StoryReview,
-  TakenStoryReview,
 } from "./storyReview.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { CommitList } from "./StoryReviewCommits.tsx";
 
 export function ReviewBody({
-  landed,
-  snapshot,
+  review,
   shown,
   items,
   selectedItems,
@@ -26,8 +24,7 @@ export function ReviewBody({
   since,
   committedOnly,
 }: {
-  readonly landed: Extract<StoryReview, { kind: "landed" }> | undefined;
-  readonly snapshot: TakenStoryReview | undefined;
+  readonly review: StoryReview | undefined;
   readonly shown: ShownComparison;
   readonly items: readonly ReviewItem[];
   readonly selectedItems: readonly ReviewItem[];
@@ -42,18 +39,29 @@ export function ReviewBody({
   // Whether all changes leave the snapshot's uncommitted changes out.
   readonly committedOnly: boolean;
 }) {
+  const snapshot = review?.kind === "snapshot" ? review : undefined;
+  const fixed =
+    review?.kind === "published" || review?.kind === "landed"
+      ? review
+      : undefined;
   return (
     <>
-      {landed !== undefined && (
+      {fixed !== undefined && (
         <SnapshotView
-          key={landed.landing.reference}
+          key={
+            fixed.kind === "published"
+              ? fixed.completion
+              : fixed.landing.reference
+          }
           reviewed={{
             sourceId: source,
             identity,
-            reference: landed.landing.reference,
+            ...(fixed.kind === "published"
+              ? { completion: fixed.completion }
+              : { reference: fixed.landing.reference }),
           }}
-          comparison={{ from: landed.baseline, files: landed.files }}
-          tree={landed.tree}
+          comparison={{ from: fixed.baseline, files: fixed.files }}
+          tree={fixed.tree}
           sinceReview={false}
           headingId={headingId}
           browser={browser}

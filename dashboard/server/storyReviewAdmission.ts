@@ -28,11 +28,13 @@ import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
 import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
+import { queriedRun } from "./storyReviewRunAdmission.ts";
+import { publishedStoryReview } from "./storyReviewPublished.ts";
+import { projectFolder } from "./projectFolders.ts";
 
 export interface AdmittedFileDiff {
   readonly kind: "review-file";
-  readonly established: ReviewedWorkspace;
-  readonly repository?: string;
+  readonly repository: string;
   // The tree the file diff compares from.
   readonly baseline: string;
   readonly tree: string;
@@ -117,6 +119,7 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       "tree",
       "path",
       ...(url.searchParams.has("reference") ? ["reference"] : []),
+      ...(url.searchParams.has("completion") ? ["completion"] : []),
       ...(url.searchParams.has("oldPath") ? ["oldPath"] : []),
     ],
     "file diff",
@@ -130,22 +133,59 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       "The file diff names a malformed object or path.",
     );
   const { baseline, tree, path, oldPath } = query.data;
-  let established: ReviewedWorkspace;
-  let repository: string | undefined;
-  if (url.searchParams.has("reference")) {
-    ({ established, repository } = await reviewedRunFile(url, {
+  let repository: string;
+  if (url.searchParams.has("completion")) {
+    const named = objectIdSchema.safeParse(url.searchParams.get("completion"));
+    if (!named.success || url.searchParams.has("reference"))
+      throw new RefusedRequest(
+        400,
+        "The published comparison identity is malformed.",
+      );
+    const { source, identity } = await queriedRun(url);
+    const review = await publishedStoryReview(
+      source,
+      identity,
+      AbortSignal.timeout(30_000),
+      named.data,
+    );
+    if (review?.kind !== "published")
+      throw new RefusedRequest(
+        409,
+        review?.kind === "unavailable"
+          ? review.explanation
+          : "Published comparison unavailable.",
+      );
+    if (
+      named.data !== review.completion ||
+      tree !== review.tree ||
+      !review.files.some(
+        (file) =>
+          file.path === path &&
+          (file.includesTrunkFrom ?? review.baseline) === baseline &&
+          (file.kind === "renamed"
+            ? file.oldPath === oldPath
+            : oldPath === undefined),
+      )
+    )
+      throw new RefusedRequest(
+        409,
+        "The file or comparison does not belong to this published completion.",
+      );
+    repository = projectFolder(source).path;
+  } else if (url.searchParams.has("reference")) {
+    const run = await reviewedRunFile(url, {
       baseline,
       tree,
       path,
       ...(oldPath === undefined ? {} : { oldPath }),
-    }));
+    });
+    repository = run.repository ?? run.established.workspace;
   } else {
-    ({ established } = await queriedWorkspace(url));
+    repository = (await queriedWorkspace(url)).established.workspace;
   }
   return {
     kind: "review-file",
-    established,
-    ...(repository === undefined ? {} : { repository }),
+    repository,
     baseline,
     tree,
     path,

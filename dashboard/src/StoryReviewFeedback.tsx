@@ -43,11 +43,16 @@ export function ReviewFeedback({
   return (
     <div role="status">
       {shown === "commits" && <RangeFeedback range={range} />}
-      {reading && review?.kind !== "snapshot" && review?.kind !== "landed" && (
-        <p>Reading the story&apos;s changes…</p>
-      )}
       {reading &&
-        (review?.kind === "snapshot" || review?.kind === "landed") && (
+        review?.kind !== "snapshot" &&
+        review?.kind !== "landed" &&
+        review?.kind !== "published" && (
+          <p>Reading the story&apos;s changes…</p>
+        )}
+      {reading &&
+        (review?.kind === "snapshot" ||
+          review?.kind === "landed" ||
+          review?.kind === "published") && (
           <p>
             Refreshing the review… What is shown is still the snapshot taken
             earlier.
@@ -80,6 +85,12 @@ export function ReviewFeedback({
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the captured
           landed comparison.
+        </p>
+      )}
+      {!reading && round > 0 && review?.kind === "published" && (
+        <p>
+          Review refreshed: {changedFiles(review.files.length)} in the fixed
+          published completion.
         </p>
       )}
       {kept !== undefined && (
