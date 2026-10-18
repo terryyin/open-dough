@@ -31,13 +31,14 @@ planning is complete; see Current decisions.
 
 Preparation used the established owned checkout
 `/Users/terryyin/git/open-dough/.worktrees/restore-github-actions-ci-feedback-to-under-thre`
-on `codex/restore-github-actions-ci-feedback-to-under-thre`, based on
-`3f69d38cd48af5c94a25247af2703b173c2ce6b6`. Execution must establish its own
+on `codex/restore-github-actions-ci-feedback-to-under-thre`: the original
+observations used `3f69d38cd48af5c94a25247af2703b173c2ce6b6`; this refresh uses
+`d1fe046cf90cd11309f389d2247a96f2c99803b6`. Execution must establish its own
 checkout through the ordinary authorized start, then revalidate changed premises.
 
 The source seed records run IDs, revisions, commands, timings and calculation
 boundaries. Run [39077260135](https://github.com/terryyin/open-dough/actions/runs/39077260135)
-at `32999702` is the latest measured main baseline: 278 seconds, 16 jobs,
+at `32999702` is the earlier measured main baseline: 278 seconds, 16 jobs,
 3,147 aggregate runner seconds, 1,523 tests, 506 files, twelve dashboard shards
 and four actual workers per shard, with warm Chromium caches. Its 7,964.648
 summed test seconds alone imply 181.015 seconds at eleven perfectly balanced
@@ -51,6 +52,47 @@ not additive savings. The twelve embedded HTML report ZIPs expose `report.json`
 and each file's detail JSON; aggregate each result's top-level hooks and their
 direct fixture children separately. The reports prove setup is a substantial
 cost, not that a particular setup operation is removable.
+
+The refreshed matching baseline is
+[39092243540](https://github.com/terryyin/open-dough/actions/runs/39092243540)
+at `b235fb88`: 291 seconds including 2 seconds initial wait, 16 jobs, 2,894
+whole-workflow runner seconds, 2,403 dashboard job seconds and 2,150 dashboard
+suite-step seconds. The preparation's `d1fe046c` adds only its assignment to
+that revision. All twelve Chromium caches hit; all shards used four workers
+on Ubuntu 24.04. The reports contain 1,537 distinct passing tests across 511
+files with no skipped, flaky or retried tests. Reuse the seed's API/download
+commands and calculate from embedded report ZIPs as above.
+
+The refreshed test-duration sum is 7,221.486 s, Before Hooks 2,793.776 s,
+After Hooks 349.154 s, dashboard fixture setup 1,579.829 s and origin setup
+287.156 s; the attribution views overlap. At eleven four-worker jobs the
+test-only bound is 164.125 s, leaving less than 15.875 s for everything else
+even under ideal balance. The old 181.015 s bound is not transferable to this
+workload. This is no measured saving: product code and test selection changed
+between runs, and hosted duration varies.
+
+Shard 3/12 is slowest (289 s job, 268 s suite step, 266.616 s report) despite
+709.949 summed test seconds versus shard 2's 821.009. Its seven-test serial
+`production-watcher-updates.spec.ts` starts at report offset 121.117 s and
+consumes 113.862 test seconds on worker 0. It already appears near the front
+of `longest-first`. Inspection confirms `partitionTestFiles` uses that order
+for shard assignment and returns matching regular expressions; it establishes
+no worker start order. Trace the observed schedule before selecting a remedy.
+Neither dividing test seconds by workers nor summing nested hooks accounts
+for that tail. The unchanged workflow still misses the target by 111 s.
+
+Fresh cheap observations in `d1fe046c`, after locked npm/browser setup and
+the Node 24.21.0 / Chromium 153.0.8010.12 prerequisite check:
+
+- `node --test tests/support/dashboard-test-files.test.mjs`: all six checks
+  passed, including the current twelve-share exactly-once union and deadline
+  refusal. This validates the existing selector, not faster scheduling.
+- `env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<fresh-path> npm run test:dashboard -- accessible-overview.spec.ts boundary/agent-launch-matching-rules.spec.ts --workers=1`:
+  exit 0; seven selected tests passed, no retry, completed strict proof record
+  with `runnerStatus: passed` and `strictStatus: passed`. This reaches a real
+  preview/page and pure boundary cases in the named checkout; it establishes
+  neither a changed-build contract nor hosted performance. No scratch code
+  change was needed or retained in this refresh.
 
 | Decisive premise | Consuming observation in the preparation checkout | Result / limit |
 | --- | --- | --- |
@@ -137,13 +179,20 @@ cache, phase and fixture evidence needed to choose the optimization.
 - Refresh the seed's baseline only when relevant code/selection changed. Retain
   runner image, worker count, per-job start/end, summed job seconds, report
   selection and setup attribution. Reuse sufficient existing evidence.
-- Inspect the actual dashboard fixture setup on a representative slow hosted
-  shard; use one trace/profile of that shard, not tracing the whole suite.
-  Identify a specific repeated operation and its consumers. Use at most two
+- Inspect shard 3/12 first with the existing selection
+  `OPEN_DOUGH_DASHBOARD_SPLIT=3/12 npm run test:dashboard` on the same runner
+  class. Read test start/end times and worker indices, the serial watcher
+  chain, worker restarts, global build and per-test server/origin setup. Use
+  at most one traced/profiled run of that shard for attribution; tracing
+  overhead is not comparable performance evidence. Identify a specific
+  repeated operation and its consumers, and separate it from scheduling gaps.
+  Use at most two
   controlled candidate experiments before reassessing this plan; each compares
   the same assertions, workers, selection and prerequisite conditions.
-- First examine per-test dashboard startup and immutable setup copying; their
-  reports identify material costs. Do not adopt native config loading from its
+- First distinguish the serial tail and scheduling gaps from per-test dashboard
+  startup and immutable setup copying; the reports show both matter. The
+  refreshed bound supersedes the old arithmetic, so do not assume fixture
+  reduction is the only source of the required wall-time gain. Do not adopt native config loading from its
   mere availability: the local comparison demonstrated no gain. Do not assume
   moving a build to an upstream job saves wall time; include transfer and job
   dependency latency in any candidate comparison.
@@ -152,7 +201,9 @@ cache, phase and fixture evidence needed to choose the optimization.
   hosted queries and local disposable observations.
 - Before dependent implementation, record one selected mechanism, exact affected
   family, expected saving with measured support, and surviving proof in slice 3.
-  If no mechanism offers a credible route below the budget with fewer jobs,
+  Include an observed scheduling remedy in slice 4 when justified; a static
+  partition projection or a reordered list alone does not settle start order.
+  If no combination offers a credible route below the budget with fewer jobs,
   stop and replan; do not silently weaken the target, buy capacity or add shards.
 
 Safe stop: the current workflow remains usable; a negative probe is useful
@@ -278,8 +329,10 @@ projections or a single fast run.
   the unresolved concern is an unobserved removable cost and missing remedy,
   not fragmentation of a known implementation. No separate refinement pass ran.
 - Record **not-ready**: slice 3 has no evidence-backed bounded fixture reduction,
-  while the measured unchanged workload already exceeds the available time at
-  fewer shards. Slice 1 is the specific observation that can settle it. A positive
+  and no observed fixture/scheduling combination budgets the whole verdict
+  below 180 s with fewer jobs. The refreshed 164.125 s test-only bound leaves
+  little room for setup and worker gaps but is not an impossibility proof.
+  Slice 1 is the specific observation that can settle it. A positive
   result must update slice 3 and the workload estimate, then trigger ordinary
   plan refinement/readiness reassessment; a negative result must revise the
   approach within the agreed scope or expose a real scope conflict.
@@ -293,6 +346,10 @@ The native-loader hypothesis produced no measured local benefit and is not
 selected. Default preview rebuilds are observable and centralizable, but the
 existing explicit run-build callers already reuse that build. Consequently
 centralizing that default cannot be counted as a saving across every test.
-Most remaining elapsed work is inside tests and fixtures, not prerequisite
-acquisition. The investigation must identify an actual removable cost rather
-than treating repeated setup attribution as guaranteed savings.
+Most remaining elapsed work is inside the suite, not prerequisite acquisition.
+The new report also exposes a late-starting serial watcher sequence; the
+partitioner's timing order cannot be treated as execution order. The
+investigation must distinguish removable fixture operations from scheduling
+gaps, not count attribution totals as guaranteed savings. The existing PFE
+owners and Accepted ADRs remain applicable; no new design responsibility or
+North Star topic is justified by this measurement refresh.

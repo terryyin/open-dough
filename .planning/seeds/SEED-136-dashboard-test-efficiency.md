@@ -112,7 +112,7 @@ remove the load-sensitive failures if the move is deferred.
 
 **Identity:** SEED-136#restore-ci-under-three-minutes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"not-ready","reasons":["Slice 3 lacks an evidence-backed bounded fixture-cost remedy. The current 7,964.648 test seconds already exceed 180 seconds at eleven four-worker jobs before setup; slice 1 must identify and measure a removable operation, name its consumers and surviving proof, then rewrite slice 3 and reassess before implementation."],"basis":{"document":"388d17654bbba9131219291fb4791b60fdc1b968fa3fbd7837f0379e1eef324a","plan":"db0da77e418673d674382df7748f268eed928c3aff4bc9d62eced2331f1e28a7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"not-ready","reasons":["Slice 3 still lacks a measured, bounded fixture-cost remedy, and slice 4 lacks an observed fixture/scheduling combination that fits the complete verdict below 180 seconds with fewer jobs. Run 39092243540 yields a 164.125-second eleven-shard test-only bound, not the older impossibility claim; slice 1 must measure the shard-3 serial tail and removable setup operations, update the dependent mechanisms and proof, then reassess."],"basis":{"document":"4644cbfb9a73d950455de778fdf450d4751b7992d1073db3eb338a3775912a5c","plan":"77fd43eac32a03358bf03ce58d219aa6bde52a88c552b42643028a6867ae185a"}}
 ```
 
 **Beneficiary:** Developers waiting for a complete CI verdict before continuing
@@ -196,7 +196,7 @@ sum each job's `completed_at - started_at`. Initial wait is first job start
 minus workflow start; it is disclosed, not subtracted from the target.
 These different revisions are context, not a controlled before/after experiment.
 
-The latest run's logs (`gh run view 39077260135 --log`) show twelve Chromium
+Run 39077260135's logs (`gh run view 39077260135 --log`) show twelve Chromium
 cache hits. Its dashboard suite steps range from 143 to 253 s, dashboard jobs
 from 159 to 276 s, lint is 80 s, and the slowest shell/Node job is 157 s.
 The preceding main run's logs show Chromium cache misses and 8–10 s browser
@@ -208,7 +208,7 @@ downloaded with `gh run download`, contain 1,523 tests in 506 files, four actual
 workers per shard, and 7,964.648 summed test seconds. At unchanged per-test
 durations, an ideal eleven-shard/four-worker schedule already needs
 7,964.648 / 44 = 181.015 s before setup, fixture gaps, teardown, or reporting.
-This conditional lower bound rules out merely rebalancing the unchanged work;
+For that run's durations, this conditional lower bound rules out merely rebalancing the unchanged work;
 it is not a prediction of durations after an optimization. The longest shard
 does not have the greatest summed test duration, so worker/fixture gaps also
 need measurement. Actual `longest-first` currently has 45 stale entries and
@@ -241,6 +241,39 @@ Hypotheses and the observations that settle them:
   `0bee7fd8`; current run counts and workload differ. Reacquire a matching baseline
   at execution if intervening work changes the tested workload. Do not claim
   savings from an unrelated revision or selectively report the best run.
+
+**Preparation refresh (2026-10-18, checkout `d1fe046c`):**
+
+The scope and key examples above remain the selected outcome. The successful
+[run 39092243540](https://github.com/terryyin/open-dough/actions/runs/39092243540)
+at `b235fb88` is the newer matching workload: this preparation's starting commit
+adds only its assignment to that revision. Using the same API calculations,
+it took 291 s including 2 s initial wait, with 16 jobs and 2,894 whole-workflow
+runner seconds; dashboard jobs consumed 2,403 s and their suite steps 2,150 s.
+All twelve Chromium caches hit. Dashboard jobs ranged from 138 to 289 s,
+suite steps from 121 to 268 s; lint took 104 s and the slowest shell/Node job
+140 s. The runner remains Ubuntu 24.04 with four actual workers per shard.
+
+Its twelve reports contain 1,537 distinct passing tests in 511 files, no skips,
+flaky results or retries, and 7,221.486 summed test seconds. The conditional
+eleven-shard bound is now 164.125 s before setup and scheduling gaps, not the
+older 181.015 s. Different workload and run conditions prevent attributing that
+change to an optimization. The previous arithmetic is historical evidence,
+not a current impossibility claim; neither bound proves achievable latency.
+
+The slowest shard, 3/12, has only 709.949 summed test seconds, versus 821.009
+on shard 2/12. Its serial `production-watcher-updates.spec.ts` starts 121.117 s
+after report start and consumes 113.862 test seconds on one worker. It is
+already near the front of `longest-first`; that list assigns files to shards,
+not their actual start order. Plan 315 therefore makes worker scheduling and
+serial-tail observation explicit in its bounded probe alongside fixture cost.
+No schedule change or fixture remedy has yet demonstrated the required gain.
+
+Read-only acquisition used `gh api repos/terryyin/open-dough/actions/runs/39092243540`,
+its `/jobs?per_page=100` endpoint, `gh run view 39092243540 --log`, and
+`gh run download 39092243540 --pattern 'dashboard-playwright-report-*' --dir <scratch>`.
+The plan records fresh local proof-route checks. No product edits or hosted
+experiments were retained or dispatched during this refresh.
 
 **Architecture:** Keep responsibilities in the existing owners: workflow
 orchestration in `.github/workflows/ci.yml`, selection in
