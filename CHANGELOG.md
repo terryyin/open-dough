@@ -1,3 +1,17 @@
+## 0.3.64 - 2026-10-19
+
+- Derive dashboard start eligibility from the recorded assessment and current dependencies, show the same blockers on Backlog and Taken cards, and refuse execution starts with all applicable reasons. Keep dependency resolutions out of the readiness basis and reassess reasons spent when a supplier completes.
+- Refuse ordinary landing of unfinished execution before committing; offer an explicit retained increment that preserves its workspace, branches, assignment, plan, and session. Preserve already-published history, recheck ownership on each fetched target, and keep publication separate from completion and retirement.
+- Review completed stories from published history after local workspaces are retired or ambiguous, and show completed retired refinements as completed sessions.
+- Move dashboard service boundaries into a dedicated test tier, share production watchers and launch fixtures, stop run-owned processes, await launch prerequisites, and bound asynchronous test work. The separate once-per-run server-bundle CI improvement remains in progress.
+- Clarify optional integrated-state CI job declarations. Add an internal maintainer workflow for publishing a release and updating production-dashboard projects; it is outside the installed payload.
+
+The changed skills received representative behavior reviews in their owning stories. Existing Codex, Cursor, and Claude Code integration mechanisms are unchanged; their shared integration evidence is reused under ADR 0005. No fresh native-host acceptance or new exception is claimed. Earlier outstanding native requirements remain pending with their owning work.
+
+The exact source revision passed the full hosted CI workflow, including all dashboard browser shards. Local lint, formatting, dashboard typecheck, and the release self-installation check passed.
+
+The full local deterministic suite reported two existing CI-observer test races: reading the fixture's in-flight JSON-lines journal, and starting observation before revision registration so an unrelated failure correctly retains the observer. Both test files passed in a focused run, and a controlled diagnostic confirmed the retention behavior. These test limitations remain unresolved; the full local run is not reported as passing.
+
 ## 0.3.63 - 2026-10-16
 
 - Add optional exact-commit CI validation reuse for GitHub Actions and custom providers, with shared eligibility rules, runnable adoption examples, and distinct source-validation and target-attempt evidence.
