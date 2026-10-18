@@ -151,6 +151,12 @@ against the 2,474 s baseline); `agent-launch-publication-receipt-failure` and
 `agent-launch-preparation-phases` take 13–15 s hosted against 5 s locally
 with unchanged specs and deserve one `--trace on` shard.
 
+Current suite input at `f251a069` (2026-10-18): 1,523 tests, comprising 797 browser
+journeys and 726 boundary cases. A local four-worker run on the shared machine
+passed all tests in 50 min 35.6 s, with zero retries or surviving run processes.
+Use this as current suite evidence when refining measurements; it is not a
+comparable hosted CI timing or evidence of a runtime improvement.
+
 **Evaluation:** Record a comparable before/after baseline with commit, runner,
 job count, per-job timings, and aggregate runner time. Measure from workflow
 start until all required checks finish; report queue delay and cache conditions
