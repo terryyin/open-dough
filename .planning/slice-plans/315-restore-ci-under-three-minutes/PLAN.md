@@ -104,6 +104,32 @@ the Node 24.21.0 / Chromium 153.0.8010.12 prerequisite check:
 | A native Vite config loader is a proven speedup | Scratch `spawnVite` uses the selected Node with transform-types, warning suppression and `--configLoader native`; compare `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- serving-modes.spec.ts accessible-overview.spec.ts --workers=1` with current bundling | Both exit 0; 13.34 s bundled, 13.36 s native on the shared machine. No demonstrated benefit; scratch reverted and this mechanism is not selected |
 | Enough removable fixture work exists for a smaller hosted layout | Actual hosted setup attribution, targeted trace/profile, controlled candidate and complete-workflow measurement | Unsettled. Reading helper code or local elapsed time cannot establish hosted savings. Slice 1 owns this probe; slice 3 has no selected remedy yet |
 
+### Slice 1 hosted probe (2026-10-18, Terry authorized)
+
+Disposable branch `probe/seed136-ci-budget` at `94b65843` (the preparation's
+`37b3c3e1` plus env-gated probe code, deleted after this record) ran
+[Probe 39106658930](https://github.com/terryyin/open-dough/actions/runs/39106658930)
+and the unchanged [CI 39106658874](https://github.com/terryyin/open-dough/actions/runs/39106658874)
+concurrently on `ubuntu-24.04` (4 vCPU, four workers per shard, Chromium cache
+hits). Both runs passed every test. The earlier probe run 39106239531 is
+discarded: replacing `ci.yml` broke the watcher/qualification tests that read
+it, in baseline and candidate jobs alike.
+
+| Measurement | Unchanged | Candidate | Limit |
+| --- | --- | --- | --- |
+| Hosted start-to-`Local:` median, 4 concurrent, idle runner (`startup` job of 39106239531) | preview 1,035 ms; boundary 1,235 ms | Once-per-run bundles of `vite.config.mts` (with original `import.meta` locations) and `boundaryServer.ts`: preview 404 ms; boundary 241 ms | Microbenchmark only; the bundle took 199 ms |
+| Twelve-shard suite-step seconds / summed test seconds | 2,496 / 8,368 (CI 39106658874) | Bundles: 2,230 / 7,464 | −11%; shard-level variance is ±20% (shard 3: 271, 221 and 241 s across three jobs of identical code) |
+| In-suite server start (`listenMs`, bundle run) | preview ≈2.05 s, boundary ≈1.9 s (shard 3 baseline) | preview 1.74 s (1,003 starts), boundary 0.99 s (421 starts) | Contention, not module loading, dominates in-suite preview starts. All starts prepared in ≈2 ms: no suite test builds privately |
+| Shard 3 serial watcher chain | Starts 97.6 s; busy 94.8 s; shard ends 217.5 s | Serial-first project: starts 5.2 s; busy 189.7 s; shard ends 231.7 s | The chain is CPU-bound; moving it into the saturated phase doubles its time. Scheduling gives no gain |
+
+The best observed whole-suite cost, 2,230 suite-step seconds, exceeds the
+available budget: about 155 s per dashboard suite step after 2 s queue, 13–21 s
+job setup and upload leaves 1,705 s for eleven jobs and 1,550 s for ten. A
+further 25–30% CPU reduction is needed. The remaining measured cost is
+per-test server processes under contention and real page/boundary work. No
+removable operation of that size was found within the per-test server
+isolation the test contract requires.
+
 Raw downloaded reports and scratch logs stay outside Git. Re-fetch hosted
 artifacts while retained, or acquire a fresh baseline before changing the code
 that produced it. A different revision is context until its workload and setup
@@ -167,7 +193,8 @@ North Star topic is warranted while the optimization mechanism is unselected.
 
 ### 1. Establish a viable hosted workload budget
 Type: Behavior
-Status: planned
+Status: probed in preparation (2026-10-18); negative for the target, see
+"Slice 1 hosted probe"
 Proof: A reproducible measurement record identifies one bounded removable cost
 and the projected plus observed effect on the whole workflow, or explicitly
 refutes the proposed optimization direction.
@@ -328,17 +355,19 @@ projections or a single fast run.
 - Slice-plan refinement is not needed to rename or repartition these boundaries:
   the unresolved concern is an unobserved removable cost and missing remedy,
   not fragmentation of a known implementation. No separate refinement pass ran.
-- Record **not-ready**: slice 3 has no evidence-backed bounded fixture reduction,
-  and no observed fixture/scheduling combination budgets the whole verdict
-  below 180 s with fewer jobs. The refreshed 164.125 s test-only bound leaves
-  little room for setup and worker gaps but is not an impossibility proof.
-  Slice 1 is the specific observation that can settle it. A positive
-  result must update slice 3 and the workload estimate, then trigger ordinary
-  plan refinement/readiness reassessment; a negative result must revise the
-  approach within the agreed scope or expose a real scope conflict.
-- There is no remaining human-owned scope decision, ADR exception or proposed
-  story split. The complete preparation, including this assessment, can land;
-  it does not Take or complete the story.
+- Record **not-ready**: the slice 1 hosted probe found no combination that
+  budgets the whole verdict below 180 s with fewer than twelve jobs. Bundled
+  server entries are a measured but small (−11% suite-step seconds) bounded
+  remedy that slice 3 could adopt. Serial-first scheduling is refuted, and
+  slice 2 has no measured hosted saving because no suite test builds
+  privately. Another 25–30% reduction would be needed, and no measured
+  mechanism inside per-test server isolation supplies it.
+- This is a real scope conflict, so the plan is not revised within the agreed
+  scope. Terry decides among: changing the dashboard test isolation contract
+  (for example, one server per worker with per-test state), relaxing the
+  job-count or latency target, or the deferred larger-runner promise. The plan
+  is replanned from that decision; until then it neither lands as complete
+  preparation nor Takes the story.
 
 ## Learnings
 
@@ -348,7 +377,9 @@ existing explicit run-build callers already reuse that build. Consequently
 centralizing that default cannot be counted as a saving across every test.
 Most remaining elapsed work is inside the suite, not prerequisite acquisition.
 The new report also exposes a late-starting serial watcher sequence; the
-partitioner's timing order cannot be treated as execution order. The
+hosted probe shows that it is CPU-bound, and starting it earlier on a
+saturated four-worker runner doubles its duration rather than shortening the
+shard. The
 investigation must distinguish removable fixture operations from scheduling
 gaps, not count attribution totals as guaranteed savings. The existing PFE
 owners and Accepted ADRs remain applicable; no new design responsibility or

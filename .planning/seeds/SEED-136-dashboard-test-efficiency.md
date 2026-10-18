@@ -32,7 +32,7 @@ implement the campaign or create an executable plan.
 
 **Identity:** SEED-136#restore-ci-under-three-minutes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"not-ready","reasons":["Slice 3 still lacks a measured, bounded fixture-cost remedy, and slice 4 lacks an observed fixture/scheduling combination that fits the complete verdict below 180 seconds with fewer jobs. Run 39092243540 yields a 164.125-second eleven-shard test-only bound, not the older impossibility claim; slice 1 must measure the shard-3 serial tail and removable setup operations, update the dependent mechanisms and proof, then reassess."],"basis":{"document":"4644cbfb9a73d950455de778fdf450d4751b7992d1073db3eb338a3775912a5c","plan":"77fd43eac32a03358bf03ce58d219aa6bde52a88c552b42643028a6867ae185a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"not-ready","reasons":["The slice 1 hosted probe (runs 39106658930 and 39106658874) found no mechanism that fits the complete verdict below 180 seconds with fewer than twelve jobs. Once-per-run server bundles save 11% of suite-step seconds; serial-first scheduling and build avoidance save nothing. Roughly 25-30% more must come from somewhere, which needs Terry's scope decision on test isolation, the targets, or larger runners before replanning."],"basis":{"document":"a1c7ead134f068ecd58a12d22cd76f520c8320b39e9772344280d4767fea7479","plan":"03602400dcfb8335a46173c42fb72ca0de03a4aec57ca4227761d15baf218695"}}
 ```
 
 **Beneficiary:** Developers waiting for a complete CI verdict before continuing
@@ -240,7 +240,20 @@ focused discrimination needed for changed build/setup responsibilities.
 
 **Scope decision (Terry, 2026-10-18):** Keep this story's full-verdict,
 job-count, and whole-workflow consumption targets without adding the two older
-campaign limits. No human-owned scope or architecture decision remains open.
+campaign limits.
+
+**Hosted probe result (2026-10-18):** Terry authorized plan 315's slice 1
+probe. [Probe 39106658930](https://github.com/terryyin/open-dough/actions/runs/39106658930)
+ran alongside unchanged [CI 39106658874](https://github.com/terryyin/open-dough/actions/runs/39106658874)
+on the same commit, and every test passed in both. Bundling the preview config
+and boundary server once per run cut twelve-shard suite-step seconds from 2,496
+to 2,230 (−11%). Starting the serial watcher chain first doubled its CPU-bound
+duration and saved nothing. No test builds privately. An under-180-second
+verdict with fewer than twelve jobs needs roughly 1,550–1,705 suite-step
+seconds, and no measured mechanism within per-test server isolation closes
+that gap. The plan records the measurements. This reopens a scope decision for
+Terry: change the test isolation contract, relax the job-count or latency
+target, or take up the deferred larger-runner promise.
 
 **Safe stopping point:** The complete required CI verdict meets the target
 without relying on excessive dashboard sharding.
