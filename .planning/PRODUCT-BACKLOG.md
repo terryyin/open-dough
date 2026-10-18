@@ -16,4 +16,4 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
-- [Restore GitHub Actions CI feedback to under three minutes](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes
+- [Cut dashboard CI time with once-per-run server bundles](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes
