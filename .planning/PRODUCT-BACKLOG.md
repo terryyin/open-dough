@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Review every completed story](seeds/SEED-139-completed-story-review.md#review-completed-stories) — SEED-139#review-completed-stories ([plan](slice-plans/314-completed-story-review/PLAN.md))
 - [Bound each dashboard test after its event and place page-less specs at the boundary](seeds/SEED-136-dashboard-test-efficiency.md#dashboard-test-bounds-and-placement) — SEED-136#dashboard-test-bounds-and-placement ([plan](slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md))
 
 ## Backlog list

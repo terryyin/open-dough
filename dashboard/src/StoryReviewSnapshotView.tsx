@@ -68,15 +68,21 @@ function NoChanges({
   sinceReview,
   commitsReview,
   committedOnly,
+  published,
 }: {
   readonly snapshot?: TakenStoryReview;
   readonly sinceReview: boolean;
   readonly commitsReview: boolean;
   readonly committedOnly: boolean;
+  readonly published: boolean;
 }) {
   if (snapshot === undefined)
     return (
-      <p>No changes: this landed run has an empty delivered comparison.</p>
+      <p>
+        {published
+          ? "No changes: this completed story has an empty published comparison."
+          : "No changes: this landed run has an empty delivered comparison."}
+      </p>
     );
   if (commitsReview) return <p>The chosen commits changed nothing.</p>;
   if (committedOnly)
@@ -172,6 +178,7 @@ export function SnapshotView({
       sinceReview={sinceReview}
       commitsReview={commitsReview}
       committedOnly={committedOnly}
+      published={reviewed.completion !== undefined}
     />
   ) : (
     <div className="story-review-workarea">

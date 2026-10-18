@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 314. Removed numbers are never reused.
+- Highest allocated local number: 315. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -67,6 +67,14 @@ Former local code: DD-128. Startup boundary instructions require broad reference
   - Evidence: coordinator startup tool outputs report 15,386 and 21,805 tokens with truncation; subsequent targeted reads recover delegation/decisions (6,035 tokens) and Codex runtime/publication (7,398 tokens). An established start already supplied claim/workspace identity; managed delivery later reused the observer and published without reconciliation.
   - Observed effect: broad startup reference batches required additional retrieval before one report-presentation slice could be delegated.
   - Inference: both the required reference surface and this coordinator's oversized batches contributed; existing targeted-retrieval guidance was not applied consistently. These output counts are not total token cost, and this occurrence does not prove the references or independent checks lack value.
+
+- Execution: `SEED-139#review-completed-stories` / plan 314, first implementation `ce227bd4026c320bd3b54cac1702923ca368be86`
+  - Timestamp: unknown (2026-10-18, startup before implementation delegation).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim 2a601e3e; installed guidance unchanged).
+  - Evidence: coordinator startup outputs report 23,033 and 22,776 tokens with truncation, followed by targeted retrieval before delegation. The accepted plan's execution identity and proof remain recoverable at the first implementation commit.
+  - Observed effect: broad required-reference batches needed further retrieval before implementation could be delegated.
+  - Inference: the reference surface and the coordinator's oversized batching both contributed. These output counts are not total token cost and do not establish that the references or independent checks lack value.
 
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
@@ -572,3 +580,17 @@ The plan started with eight slices and gained a ninth; execution took about twen
   - Evidence: plan 310 (nine slices, two corrections, one CI repair, 1,150 lines at completion); the developer's recorded preference for small stories and mid-execution splits; the natural seam after slice 4 (boundary tier complete and green, serving-mode proof in place) or after slice 5.
   - Observed effect: one long unattended run; the target decision (DD-311) and the process-leak discovery (DD-310) both surfaced late inside it.
   - Inference: qualified. A split at the boundary-tier seam would have landed a reviewable half a day earlier; the readiness procedure measures slice count, not expected wall time or seams between families of work.
+
+## DD-315 — Focused test filter matches the execution checkout path
+
+A Playwright file regex intended to select review specs also matched the execution worktree's directory name. A successful-looking invocation therefore started a much broader suite before the collected selection was checked.
+
+### Occurrences
+
+- Execution: `SEED-139#review-completed-stories` / plan 314, first implementation `ce227bd4026c320bd3b54cac1702923ca368be86`
+  - Timestamp: 2026-10-18T00:13:16.986Z
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim 2a601e3e; installed guidance unchanged).
+  - Evidence: the plan's Learnings at ce227bd4 retains the bare story-review regex, 1,533 selected tests in 512 files, owned interruption and terminal exit 1. Collector /tmp/dough-completed-review-accidental-selection-20261018.json and dashboard/test-results/2026-10-18T00-13-16.986Z retain the run details; the anchored replacement collected and passed 122 tests in 48 unique files.
+  - Observed effect: about nine minutes of an unintended broad run before interruption; that run was rejected as proof. The coordinator independently verified the replacement selection before acceptance.
+  - Inference: checking the collector before execution, with an anchored repository-relative spec pattern, would have exposed this collision. The observed selection failure does not measure general test overhead or justify omitting relevant checks.

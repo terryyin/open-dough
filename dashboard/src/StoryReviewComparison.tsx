@@ -21,13 +21,15 @@ export function ComparisonSwitch({
   since,
   commits,
   landed = false,
+  published = false,
   workspace = true,
 }: {
-  readonly shown: ShownComparison | "landed";
-  readonly onSwitch: (shown: ShownComparison | "landed") => void;
+  readonly shown: ShownComparison | "landed" | "published";
+  readonly onSwitch: (shown: ShownComparison | "landed" | "published") => void;
   readonly since: boolean;
   readonly commits: boolean;
   readonly landed?: boolean;
+  readonly published?: boolean;
   readonly workspace?: boolean;
 }) {
   const name = useId();
@@ -41,6 +43,7 @@ export function ComparisonSwitch({
         ...(workspace && since ? ["since" as const] : []),
         ...(workspace ? ["all" as const] : []),
         ...(commits ? ["commits" as const] : []),
+        ...(published ? ["published" as const] : []),
         ...(landed ? ["landed" as const] : []),
       ].map((option) => (
         <label key={option}>
@@ -53,7 +56,11 @@ export function ComparisonSwitch({
               onSwitch(option);
             }}
           />{" "}
-          {option === "landed" ? "Landed runs" : comparisonWords[option]}
+          {option === "landed"
+            ? "Landed runs"
+            : option === "published"
+              ? "Published completion"
+              : comparisonWords[option]}
         </label>
       ))}
     </div>

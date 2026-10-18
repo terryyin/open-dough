@@ -4,7 +4,9 @@
 // landed run's captured result, or from the worktrees local Git found holding
 // the story's claim, by the boundary's same selection rule: one is reviewed,
 // and several open a review that names them. Closing the review returns the
-// keyboard to this action. It leads with a review glyph and ends with an
+// keyboard to this action. Every completed card offers the same action and
+// permits the boundary to recover its published historical comparison.
+// It leads with a review glyph and ends with an
 // arrow toward the panel, both decorative.
 
 import type { LaunchRecord } from "./launchRecord.ts";
@@ -21,6 +23,7 @@ export function StoryReviewAction({
   workspaces,
   sourceId,
   work,
+  completed = false,
 }: {
   // This machine's kept launch records.
   readonly records: readonly LaunchRecord[] | undefined;
@@ -29,11 +32,13 @@ export function StoryReviewAction({
   readonly workspaces?: readonly LocalWorkspace[];
   readonly sourceId: string;
   readonly work: Pick<WorkEntry, "identity" | "title">;
+  readonly completed?: boolean;
 }) {
   const openReview = useOpenStoryReview();
   if (
+    !completed &&
     reviewWorkspaceOf(records, workspaces, sourceId, work.identity) ===
-    undefined
+      undefined
   )
     return null;
   return (
@@ -47,6 +52,7 @@ export function StoryReviewAction({
             identity: work.identity,
             title: work.title,
             control: event.currentTarget,
+            ...(completed ? { completed } : {}),
           });
         }}
       >

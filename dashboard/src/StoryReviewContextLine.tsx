@@ -12,12 +12,11 @@ import {
   type TakenStoryReview,
 } from "./storyReview.ts";
 
-// The file browser as the review places it: its element's id, and whether
-// the developer shows it.
-export type FileBrowserPlace = {
-  readonly id: string;
-  readonly shown: boolean;
-};
+import {
+  FileBrowserToggle,
+  type FileBrowserPlace,
+} from "./StoryReviewBrowserToggle.tsx";
+export type { FileBrowserPlace } from "./StoryReviewBrowserToggle.tsx";
 
 // The review's context in one line that never wraps: branch, short baseline
 // with the `<remote>/<target>` it meets, worktree, and, while the comparison
@@ -99,19 +98,7 @@ export function ContextLine({
           <code>{workspace}</code>
         </span>
       </button>
-      {browser !== undefined && (
-        <button
-          type="button"
-          className="start-launch-button"
-          aria-expanded={browser.shown}
-          aria-controls={browser.id}
-          onClick={() => {
-            onShowBrowser(!browser.shown);
-          }}
-        >
-          {browser.shown ? "Hide files" : "Show files"}
-        </button>
-      )}
+      <FileBrowserToggle browser={browser} onShowBrowser={onShowBrowser} />
     </div>
   );
 }

@@ -14,10 +14,11 @@ export function useStoryReviewSelection(
   source: string,
   identity: string,
   round: number,
+  completed = false,
 ) {
   const workspaceRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
-    { source, identity },
+    { source, identity, ...(completed ? { completed: "true" } : {}) },
     storyReviewSchema,
     round,
   );
@@ -75,6 +76,7 @@ export function useStoryReviewSelection(
     runs,
     selectedRun,
     snapshot: answer?.kind === "snapshot" ? answer : undefined,
+    published: answer?.kind === "published" ? answer : undefined,
     chosen: selection.workspace,
     reading: workspaceRead.reading || historical.reading,
     problem:
