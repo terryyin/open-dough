@@ -20,6 +20,8 @@ import {
 import { markDoneAnyway } from "./support/markDone.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
+test.setTimeout(120_000);
+
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {

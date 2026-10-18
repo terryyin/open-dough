@@ -14,6 +14,8 @@ import type { LaunchJourney } from "./launchJourney.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 
+test.setTimeout(120_000);
+
 test.use({ projectFolders: ["open-dough"] });
 
 // While withheld, the page reads every launch attempt of this machine as still

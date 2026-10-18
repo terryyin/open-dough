@@ -1,8 +1,8 @@
 // The public watcher refuses unusable options and origins before preparing or
 // serving any production dashboard.
-import { expect, test } from "./support/pageTest.ts";
-import { dashboardCommand } from "./support/dashboardCommand.ts";
-import { publishedMainFixture } from "./support/publishedMainFixture.ts";
+import { expect, test } from "../support/pageTest.ts";
+import { dashboardCommand } from "../support/dashboardCommand.ts";
+import { publishedMainFixture } from "../support/publishedMainFixture.ts";
 
 // The fixture commits this repository's whole source (about 2s alone, about
 // 20s while other workers commit theirs, most of it in `git add`), and the

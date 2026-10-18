@@ -1,6 +1,6 @@
 // The complete production read path for every catalog project: a real
 // browser page, served by the fixture's built-preview server (the dev server
-// mounts the same boundaries: ./serving-modes.spec.ts), requesting
+// mounts the same boundaries: ./boundary/serving-modes.spec.ts), requesting
 // the local authenticated read boundary (`../server/authenticatedRead.ts`),
 // which launches a synthetic `gh` on this test's own isolated PATH
 // (./support/dashboardServer.ts) answering from this test's fake GitHub

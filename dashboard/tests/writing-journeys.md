@@ -78,9 +78,10 @@ spawned server is ended by `endGroup` (`support/processGroup.ts`), which
 kills the group 5 seconds after its signal. A test whose own work can
 approach the default bound declares its own `test.setTimeout`, whether it
 builds the full-source fixture (`publishedMainFixture(true)`) or makes
-several real git starts. A file-level bound covers its tests; a slow
-`beforeAll` also declares its hook-local bound, because neither declaration
-covers the other scope. The fixture's copy and `git add` take about 2 seconds
+several real git starts. A file-level test bound covers each test and its
+per-test fixture setup; a declaration inside the callback runs after that
+setup. A slow `beforeAll` also declares its hook-local bound, because neither
+declaration covers the other scope. The fixture's copy and `git add` take about 2 seconds
 alone and 13 to 20 when eight workers build it at once. The production journeys
 (`production-watcher*.spec.ts`) build that fixture and start the real
 watcher once per file, in `beforeAll` of a serial file, and each test steps

@@ -90,7 +90,7 @@ assertions pass under load, and a failure in these files names a defect.
 
 ### 2. Page-less specs live in `boundary/`
 Type: Behavior
-Status: planned
+Status: done
 Proof: `git mv` of `serving-modes.spec.ts` and
 `production-watcher-refusals.spec.ts` into `dashboard/tests/boundary/` with
 imports resolved; the five citing comments and the README (line 52 and
@@ -105,7 +105,9 @@ nothing of the run surviving.
 
 Behavior: pre: two specs that open no page sit among the journeys →
 trigger: relocation → result: the README's placement rule holds for every
-file, and discovery selects each once.
+file, and discovery selects each once. Required whole proof also exposed event
+prerequisite G13, own-work/fixture bounds G14–G18 and attachment teardown G19;
+preserve original assertions and the run's process sweep.
 
 ## Current decisions
 
@@ -131,23 +133,8 @@ and final visibility/hit assertions. Failed runs stay diagnostics in the handoff
 
 ## Execution context
 
-- Story Branch Mode; identity above, publisher `dashboard-territory.local-open-dough`, agent `mrsn-chan`.
-- Originating/execution checkout (reused owned worktree):
-  `/Users/terryyin/git/open-dough/.worktrees/bound-each-dashboard-test-after-its-event-and-pl`.
-- Branch `codex/bound-each-dashboard-test-after-its-event-and-pl`;
-  `/Users/terryyin/git/open-dough` stays the default checkout, not an edit location.
-- Remote `origin` (`terryyin/open-dough`), trunk `main`; increments target the execution branch.
-- Starting revision `32999702c1907aaa8e6b7092bbc9cb38f5eb01b6`;
-  accepted Take / initial candidate `59fc28c8b19e03e0513775cf59dad5c367731164`.
-- Locked npm/browser/check and typecheck passed: Node 24.21.0, Chromium
-  153.0.8010.12, Homebrew Bash 5.3.20. No numeric budget; same correction authority.
-- `npm run format`; check-only staged lint/script typecheck; no generation trigger
-  or execution-time readiness renewal.
-- GitHub Actions `ci.yml` verified (351271804, CI); branch observer coordinator
-  `mrsn-chan-execution`, `/tmp/dough-ci-501/watch-OILrFx`, PID 11731,
-  session 27570, cell 77, this checkout's `.agents/skills/dough-execute-plan` runtime.
-  Prior stream `watch-lQaVLI` stopped with unread 0 and PID exit confirmed.
-  The Take's trunk CI is unobserved; managed delivery registers execution increments here.
+Story Branch Mode; `origin`/`main`, agent `mrsn-chan`, publisher
+`dashboard-territory.local-open-dough`. [Retained workspace, start and observer](PROOF.md#execution-context).
 
 ## Story obligations
 
@@ -211,9 +198,44 @@ Reported: slice 1 — "one enabled-button assertion outran plan reads"
 Story clause: "no dashboard test's bound precedes the event it depends on"
 Disposition: proved by slice 1: Initial dependency checks follow expectSettledPage before publishing the blocker; the stale-card race and final refusal assertions pass in all three loaded runs. See PROOF.md.
 
+### G13. Frame tooltip checks precede session-navigation reads
+Reported: slice 2 — "does not await its project’s published reads"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 2: The existing settled() follows project navigation before preserved tooltip checks; three loaded passes, the directed tooltip regression and final whole proof verify the boundary. See PROOF.md.
+
+### G14. Codex ad hoc journey exhausts its own-work bound
+Reported: slice 2 — "own multi-step work exhausts default30s"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 2: A measured file-level bound covers the unchanged journey; three loaded family passes, its wrong-label control and final whole proof pass. See PROOF.md.
+
+### G15. Cursor callback bound follows fixture setup
+Reported: slice 2 — "in-body120s declaration was never reached"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 2: The existing 120 s callback bounds move to file scope before fixtures; unchanged assertions reject the label regression and pass three loaded runs plus whole proof. See PROOF.md.
+
+### G16. Codex recovery budget expires before native work finishes
+Reported: slice 2 — "native.history poll gets only950ms before the test30s timer cuts it off"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 2: The file bound permits native recovery and its existing expectations to finish; three loaded passes, final-status regression control and whole proof pass. See PROOF.md.
+
+### G17. Ad hoc session workflows exhaust their test budgets
+Reported: slice 2 — "parent30s budget expiry during ongoing own work"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 2: The file bound covers measured fixture and session work; all unchanged cases pass three loaded runs and whole proof, while the titled-entry regression fails its original assertion. See PROOF.md.
+
+### G18. Terminal work leaves less than an existing expectation's bound
+Reported: slice 2 — "leaving<20s for its existing20s entry expectation"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 2: The file bound leaves the existing held-terminal expectations their full window; three loaded runs and whole proof pass, and the announcement regression fails its original assertion. See PROOF.md.
+
+### G19. A Claude attachment survives the test run
+Reported: slice 2 — "one real survivor"
+Story clause: "a whole run at four workers is green with nothing of the run surviving."
+Disposition: proved by slice 2: Owned recorded attachments exit before fixture removal; two-server hold/release and omitted-wait controls verify lifetime and ownership. Cursor retention and final whole strict proof pass without survivors. Original orphan cause remains unproved; see PROOF.md.
+
 ## Accepted focused proof and continuation
 
 [Proof and diagnostics](PROOF.md) retain the literal commands and observations.
-The 1,523-test whole run passed; replacement focused proof after event/refactor
-changes passes 3 × 29 under load. Independent refactor, typecheck, assertion/title
-preservation and formatting pass. Slice 2 remains; retain Taken and this workspace.
+Both slices' whole runs passed all 1,523 tests; final slice-2 proof has zero
+retries, strict success and no survivors. Loaded, regression-control, discovery,
+typecheck, independent refactor and formatting proof pass. Retain Taken/workspace.

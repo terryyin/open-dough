@@ -29,6 +29,8 @@ import { runnerEnvironment } from "./support/cursorRunnerJourney.ts";
 import { fakeCursorHost } from "./support/fakeCursor.ts";
 import { expectDeveloperShellEnvironment } from "./support/launchEnvironment.ts";
 
+test.setTimeout(120_000);
+
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
 function recordsIn(stored: string | null): LaunchRecord[] {
@@ -44,7 +46,6 @@ for (const text of ["", "why is the CI slow?"]) {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const blank = text.trim() === "";
     const original = (await origin.originGit("rev-parse", "main")).trim();
     const commitsBefore = Number(
@@ -207,7 +208,6 @@ test("a blank Cursor Start session with a chosen model is refused before create-
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),

@@ -73,6 +73,7 @@ test.describe("the Sessions sidebar and terminal panel in the frame's look", () 
 
     await test.step("the terminal header's words and icon controls read clearly and keep their names", async () => {
       await entry(work.title).click();
+      await settled();
       await expect(panel.locator(".xterm-rows")).toContainText(
         `attached ${sessionId.slice(0, 8)}`,
       );

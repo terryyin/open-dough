@@ -92,6 +92,43 @@ function readState(file: string): string | undefined {
   }
 }
 
+type RecordedAttach = {
+  readonly pid: number;
+  readonly id: string;
+  readonly env: ClaudeEnvironment;
+};
+
+function recordedAttaches(stateDir: string): RecordedAttach[] {
+  return appendedRecords<RecordedAttach>(
+    readState(path.join(stateDir, "attaches.jsonl")) ?? "",
+  );
+}
+
+function observedAttach(
+  stateDir: string,
+  { pid, id }: RecordedAttach,
+): ClaudeAttach {
+  return {
+    pid,
+    id,
+    lines: appendedRecords<string>(
+      readState(path.join(stateDir, `attach.${String(pid)}.lines`)) ?? "",
+    ),
+    endedBy: readState(path.join(stateDir, `attach.${String(pid)}.ended`)),
+  };
+}
+
+// A machine can hold several servers' records. Lifecycle ownership follows the
+// unique executable directory this server put on its attachments' PATH.
+export function serverClaudeAttaches(stateDir: string, binDir: string) {
+  return (): ClaudeAttach[] =>
+    recordedAttaches(stateDir)
+      .filter((attach) =>
+        attach.env["PATH"]?.split(path.delimiter).includes(binDir),
+      )
+      .map((attach) => observedAttach(stateDir, attach));
+}
+
 export function fakeClaudeControls(
   stateDir: string,
   home: string,
@@ -154,17 +191,11 @@ export function fakeClaudeControls(
     heldClaudeEndedBy() {
       return readState(state("pid.exited"));
     },
-    claudeAttaches() {
-      return jsonLines<{ pid: number; id: string }>("attaches.jsonl").map(
-        ({ pid, id }) => ({
-          pid,
-          id,
-          lines: jsonLines<string>(`attach.${String(pid)}.lines`),
-          endedBy: readState(state(`attach.${String(pid)}.ended`)),
-        }),
-      );
-    },
+    claudeAttaches: () =>
+      recordedAttaches(stateDir).map((attach) =>
+        observedAttach(stateDir, attach),
+      ),
     claudeAttachEnvironments: () =>
-      jsonLines<Recorded>("attaches.jsonl").map((attach) => attach.env),
+      recordedAttaches(stateDir).map((attach) => attach.env),
   };
 }
