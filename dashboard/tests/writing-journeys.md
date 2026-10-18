@@ -75,10 +75,13 @@ A command started with `dashboardCommand` (`support/dashboardCommand.ts`) is
 stopped by signalling its group and waiting for its own exit, so the
 production watcher finishes removing its deployment checkouts; a directly
 spawned server is ended by `endGroup` (`support/processGroup.ts`), which
-kills the group 5 seconds after its signal. A test that builds the
-full-source fixture (`publishedMainFixture(true)`) declares its own
-`test.setTimeout`: the copy and `git add` take about 2 seconds alone and 13
-to 20 when eight workers build it at once. The production journeys
+kills the group 5 seconds after its signal. A test whose own work can
+approach the default bound declares its own `test.setTimeout`, whether it
+builds the full-source fixture (`publishedMainFixture(true)`) or makes
+several real git starts. A file-level bound covers its tests; a slow
+`beforeAll` also declares its hook-local bound, because neither declaration
+covers the other scope. The fixture's copy and `git add` take about 2 seconds
+alone and 13 to 20 when eight workers build it at once. The production journeys
 (`production-watcher*.spec.ts`) build that fixture and start the real
 watcher once per file, in `beforeAll` of a serial file, and each test steps
 the shared watcher to its next state and asserts the delta it observes in

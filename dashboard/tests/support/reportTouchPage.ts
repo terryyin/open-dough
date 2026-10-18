@@ -35,11 +35,16 @@ export function reportGeometry(target: Locator, words?: string) {
           bottom: style.overflowY === "visible" ? Infinity : rect.bottom,
         });
       }
+      const top = Math.min(...bounds.map((bound) => bound.top));
+      const bottom = Math.max(...bounds.map((bound) => bound.bottom));
       return {
-        top: Math.min(...bounds.map((bound) => bound.top)),
-        bottom: Math.max(...bounds.map((bound) => bound.bottom)),
+        top,
+        bottom,
         reportTop: report.top,
         reportBottom: report.bottom,
+        verticalOverflow:
+          Math.max(0, Math.max(...clips.map((clip) => clip.top)) - top) +
+          Math.max(0, bottom - Math.min(...clips.map((clip) => clip.bottom))),
         hit:
           bounds.length > 0 &&
           bounds.every((bound) =>
@@ -75,12 +80,13 @@ export async function readReportByTouch(
   words?: string,
 ) {
   let shown = await reportGeometry(target, words);
-  for (let stroke = 0; stroke < 12 && !shown.visible; stroke += 1) {
+  while (!shown.visible) {
     const room = await box(panel);
     // An overflow that moves the entire panel out of reach is the regression,
     // not an invitation for a locator to scroll the page back for the test.
     if (room.y < -1 || room.y + room.height < 44) break;
     const direction = shown.top < Math.max(shown.reportTop, 0) ? 1 : -1;
+    const before = shown.verticalOverflow;
     await scrollByTouch(
       panel.page(),
       panel,
@@ -95,6 +101,9 @@ export async function readReportByTouch(
         }),
     );
     shown = await reportGeometry(target, words);
+    // Movement must bring the whole target closer to fitting, including when
+    // an oversized target could otherwise oscillate between clipped ends.
+    if (shown.verticalOverflow >= before) break;
   }
   expect(
     shown,

@@ -12,6 +12,8 @@ import { sidebarParts } from "./sessionSidebarPage.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
+test.setTimeout(120_000);
+
 test.use({ viewport: { width: 1100, height: 900 } });
 
 test("opening and leaving Start execution on a shown Taken card keeps the view on Taken and Recently done", async ({

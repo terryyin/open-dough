@@ -20,6 +20,8 @@ import {
 } from "./support/dashboardServer.ts";
 import { parts } from "./dashboardPage.ts";
 
+test.setTimeout(120_000);
+
 test("a retired one-shot's common file browser reads only its captured pair after trunk advances, reverts the result, and the dashboard restarts", async ({
   page,
   dashboard,

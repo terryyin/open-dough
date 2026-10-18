@@ -1,13 +1,12 @@
-import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
-// Candidate installed .agents scripts own publication/workspaces. The page
-// chooses Codex; the native substitute supplies only RPC outcomes and IDs.
+import { expectPreparationInput } from "./support/codexPreparationAssertions.ts";
+// Installed scripts own publication/workspaces; native Codex supplies RPC outcomes.
 import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
@@ -19,7 +18,14 @@ import {
 } from "./support/dashboardServer.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import type { EstablishedPreparation } from "../src/agentLaunch.ts";
-import { reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+
+test.setTimeout(120_000);
 
 test.use({ preparationHost: "codex" });
 
@@ -52,7 +58,11 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await showOptions(dialog);
   await dialog.getByRole("checkbox", { name: /Explore/ }).check();
   native.refuseCreation = true;
+  const acceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   await expect(card.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation",
     { timeout: launchWaitMs },
@@ -106,12 +116,12 @@ test("Codex refusal retains its published preparation; the page resumes the same
   );
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
 
-  // New machine reads must override the component's original Claude choice,
-  // including an already-mounted card after reload and a new server process.
+  // Machine reads override the original Claude choice after reload and restart.
   await card.getByRole("button", { name: "Start refinement" }).click();
   await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
   await page.keyboard.press("Escape");
   await reloadUntilRead(page);
+  await expectSettledPage(page);
   await expectStartNote(
     card,
     "Start refinement",
@@ -139,6 +149,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
   });
   try {
     await reloadUntilRead(page);
+    await expectSettledPage(page);
     await expectStartNote(
       card,
       "Start refinement",
@@ -178,7 +189,14 @@ test("Codex refusal retains its published preparation; the page resumes the same
         firstInput: { state: "uncertain" },
       });
     };
+    const creating = new Promise<void>((resolve) => {
+      native.afterCreation = resolve;
+    });
+    const retryAcceptance = nextAcceptedAttemptId(page);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    const retryAttemptId = await retryAcceptance;
+    await creating;
+    delete native.afterCreation;
     const observer = await expectCodexRetryProgress(
       page,
       card,
@@ -188,6 +206,8 @@ test("Codex refusal retains its published preparation; the page resumes the same
     native.holdCreation = false;
     native.release();
     await observer.close();
+    await settledOutcome(restarted, retryAttemptId);
+    await untilPageRequestsAnswered(page);
     await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
       "Refinement started in Codex",
       { timeout: launchWaitMs },
@@ -206,40 +226,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
         .filter(({ method }) => method === "thread/start")
         .map(({ params }) => params),
     ).toEqual([{ cwd: workspace }, { cwd: workspace }]);
-    const inputs = native.calls.filter(({ method }) => method === "turn/start");
-    expect(inputs).toHaveLength(1);
-    const input = inputs[0]?.params["input"] as Array<{
-      type: string;
-      text?: string;
-      path?: string;
-    }>;
-    const text = input[0]?.text ?? "";
-    const [command, block, reporting, instruction, ...extra] =
-      text.split("\n\n");
-    expect(extra).toEqual([]);
-    expectReportingBlock(
-      reporting,
-      stored(restarted.home)[0]?.request,
-      restarted,
-    );
-    expect(command).toBe(`$dough-story-refinement ${queuedIdentity} --explore`);
-    expect(instruction).toBe("Focus on the examples.");
-    expect(text.match(/Established preparation:/g)).toHaveLength(1);
-    for (const line of [
-      `- workspace: ${workspace}`,
-      "- branch: codex/story-a",
-      `- agent: ${String(preparation.agent)}`,
-      `- publishedSha: ${publishedSha}`,
-      `- integration checkout: ${origin.project}`,
-    ])
-      expect(block).toContain(line);
-    expect(input[1]).toMatchObject({
-      type: "skill",
-      path: path.join(
-        workspace,
-        ".agents/skills/dough-story-refinement/SKILL.md",
-      ),
-    });
+    expectPreparationInput(native, preparation, restarted, origin);
     expect(allocation()).toBe(publishedSha);
     expect(await origin.takenProfiles()).toEqual(profiles);
     expect((await origin.originGit("rev-parse", "main")).trim()).toBe(

@@ -17,6 +17,8 @@ import {
   claimedRecord,
 } from "../support/storyBranchIntegration.ts";
 
+test.setTimeout(120_000);
+
 let origin: StartOrigin;
 let server: DashboardServer;
 

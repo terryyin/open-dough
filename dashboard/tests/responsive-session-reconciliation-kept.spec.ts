@@ -7,7 +7,7 @@
 // page once GitHub confirms the shown revision contains it.
 
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { cardSessions, expectSettledPage, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   recoveryOf,
@@ -23,6 +23,7 @@ test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 // The page shows the revision read, with Story A gone, Story B's actions
 // available once this machine's attempts are read, and no Startup recovery.
 async function expectRemovedSettled(page: Page, revision: string) {
+  await expectSettledPage(page);
   const { stages, backlog, taken, recentlyDone } = parts(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${revision.slice(0, 7)}`,

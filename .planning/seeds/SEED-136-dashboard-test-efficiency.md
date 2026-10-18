@@ -67,6 +67,10 @@ Required:
   README's references updated; the README names
   `boundary/serving-modes.spec.ts` as the one boundary spec that starts the
   Vite servers on the run's build.
+- Approved expansion (2026-10-18): replace `support/reportTouchPage.ts`'s
+  fixed twelve-gesture cap with observed progress toward visibility. Continue
+  productive real touches, stop when the target is visible or progress stops,
+  and preserve reachability, clipping, hit-target and real-touch assertions.
 
 Preserved: every assertion and title; `retries: 0`; worker and shard counts;
 the run's no-leaked-process sweep.

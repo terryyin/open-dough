@@ -9,9 +9,12 @@
 // answer kept on it.
 
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { cardSessions, expectSettledPage, parts } from "./dashboardPage.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer } from "./originAnswers.ts";
 import { removeQueuedStory } from "./responsiveRecovery.ts";
@@ -62,6 +65,7 @@ test("a start refused because another agent took the story meanwhile publishes n
   await expect(takenStory.locator(".launch-problem")).toContainText(
     "Launch failed: Taken by",
   );
+  await expectSettledPage(page);
   await expect(takenStory).not.toContainText(waiting);
   await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
     0,
@@ -93,6 +97,7 @@ test("a start refused because another writer removed the story publishes nothing
   await expect(
     parts(page).stages.getByRole("article", { name: "Story A" }),
   ).toHaveCount(0, { timeout: 30_000 });
+  await expectSettledPage(page);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   await expect(
     other.getByRole("button", { name: "Start execution" }),
@@ -134,6 +139,7 @@ test("a one-shot refinement publishes nothing: once its session settles, a fresh
   await expectProtected(story);
 
   releaseRef();
+  await expectSettledPage(page);
   await expect(story).not.toContainText(waiting);
   const startRefinement = story.getByRole("button", {
     name: "Start refinement",
@@ -164,16 +170,21 @@ test("a Take whose session is refused reconciles with that Take: its Taken card 
   dashboard.claudeScenario("refused");
   const { story, takenStory } = await openStories(page, origin);
 
+  const acceptance = nextAcceptedAttemptId(page);
   await story.getByRole("button", { name: "Start execution" }).click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
 
   await expect(takenStory).toBeVisible({ timeout: 30_000 });
   await expect(takenStory.locator(".launch-problem")).toContainText(
     "Launch failed: Claude Code refused",
   );
+  await expectSettledPage(page);
   await expectStartNote(
     takenStory,
     "Start execution",

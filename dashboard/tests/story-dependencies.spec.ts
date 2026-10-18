@@ -13,7 +13,15 @@ import {
   publishDependencies,
   publishMalformedDependencies,
 } from "./storyDependencyFixture.ts";
-import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+
+test.setTimeout(120_000);
 
 // The accessible disclosure check taps the dependencies summary.
 test.use({ hasTouch: true });
@@ -138,11 +146,15 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   expect(published.requests.length).toBe(readsBeforeDetail);
   // Removing the dependency gate restores the existing noted action. The
   // independent readiness judgment still refuses at the real startup command.
+  const acceptance = nextAcceptedAttemptId(page);
   await execution.click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   await expect(card).toContainText("published preparation is not-ready");
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(await origin.takenProfiles()).toEqual([]);

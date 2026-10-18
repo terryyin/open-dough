@@ -7,7 +7,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { passTimeUntilCheckedAfterSettled } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { notFoundAnswer } from "./originAnswers.ts";
 import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
 import {
@@ -35,6 +35,7 @@ export async function expectChangedReviewAfterContentChange(
   origin.requests.splice(0, origin.requests.length);
 
   await passTimeUntilCheckedAfterSettled(page);
+  await expectSettledPage(page);
   await expect(source).toContainText(nextRevision);
   await expect(source).not.toContainText(priorRevision);
 
@@ -105,6 +106,7 @@ export async function expectPlanAssociationConflict(
   origin.requests.splice(0, origin.requests.length);
 
   await passTimeUntilCheckedAfterSettled(page);
+  await expectSettledPage(page);
   await expect(source).toContainText(nextRevision);
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
@@ -174,6 +176,7 @@ export async function expectFailedPlanKeepsSupportedFacts(
   origin.requests.splice(0, origin.requests.length);
 
   await passTimeUntilCheckedAfterSettled(page);
+  await expectSettledPage(page);
   await expect(source).toContainText(next);
 
   const blockedCard = backlog.getByRole("article", {

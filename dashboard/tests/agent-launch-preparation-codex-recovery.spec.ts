@@ -18,6 +18,9 @@ import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
+
+test.setTimeout(120_000);
+
 test.use({ preparationHost: "codex" });
 test("accepted input with lost acknowledgment resumes its prepared conversation without another announcement or input", async ({
   page,

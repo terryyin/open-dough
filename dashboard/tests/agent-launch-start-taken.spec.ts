@@ -18,7 +18,15 @@ import {
   test,
   workspaceShown,
 } from "./keptStartJourney.ts";
-import { reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+import { expectSettledPage } from "./dashboardPage.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+
+test.setTimeout(120_000);
 
 test("a Taken card offers Start with the words while this machine keeps a start with no session, and Start opens the session in the same workspace", async ({
   page,
@@ -30,6 +38,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
     dashboard,
     origin,
   );
+  await expectSettledPage(page);
   await expectStartNote(
     takenCard,
     "Start execution",
@@ -50,7 +59,11 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   );
   await expect(dialog).toContainText(`in workspace ${workspaceShown}`);
   await expect(dialog).not.toContainText("Start also publishes");
+  const acceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start" }).click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   await expect(takenCard.getByRole("list", { name: "Sessions" })).toContainText(
     `Workspace ${workspaceShown}`,
     { timeout: launchWaitMs },
@@ -91,6 +104,7 @@ test("a Taken card offers Start with the words while this machine keeps a start 
 
   // Still gone after another reload.
   await reloadUntilRead(page);
+  await expectSettledPage(page);
   await expect(takenCard).toBeVisible();
   await expect(startAction(takenCard)).toHaveCount(0);
 });

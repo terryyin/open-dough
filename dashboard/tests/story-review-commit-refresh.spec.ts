@@ -20,6 +20,8 @@ import { treeRows } from "./support/reviewTreeRows.ts";
 import { holdNextReviewResponse } from "./support/holdReviewResponse.ts";
 import { storyReviewFileEndpoint } from "../src/storyReview.ts";
 
+test.setTimeout(120_000);
+
 test("the first Commits default uses the current snapshot, then new commits and switching keep its anchored ends", async ({
   page,
   dashboard,

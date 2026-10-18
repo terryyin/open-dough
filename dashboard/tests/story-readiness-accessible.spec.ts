@@ -28,6 +28,8 @@ import {
   publishRestoreUnrefined,
 } from "./storyReadinessPublications.ts";
 
+test.setTimeout(120_000);
+
 const openDoughRepository = "terryyin/open-dough";
 
 test("story readiness reads preparation and progress accessibly", async ({

@@ -2,119 +2,58 @@
 
 **Identity:** SEED-136#dashboard-test-bounds-and-placement
 **Source:** [bounded correction](../../seeds/SEED-136-dashboard-test-efficiency.md#dashboard-test-bounds-and-placement)
-from the execution retrospective of SEED-136#unify-and-streamline-dashboard-e2e
-(plan 310, recoverable at `0c96a546:.planning/slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md`, commits
-789b7ca9..0bee7fd8, slices 3 and 4 and the Learnings).
+Retrospective source: SEED-136#unify-and-streamline-dashboard-e2e, commits
+789b7ca9..0bee7fd8, plan 310 slices 3–4 and Learnings, recoverable at
+`0c96a546:.planning/slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md`.
 
 ## Goal and scope
 
-No dashboard test's bound precedes the event it depends on, and every spec
-that opens no page lives in `dashboard/tests/boundary/`, as
-`dashboard/tests/README.md` "Two tiers" (line 38) and "Synchronization"
-(lines 91–96) state. Three findings, the first two older than the campaign
-and surfaced by its loaded whole runs, the third a residue of its slice 4:
+No dashboard test's bound precedes its required event; every spec that opens
+no page lives in `dashboard/tests/boundary/` (README "Two tiers" and
+"Synchronization"). The original correction's three findings were:
 
-1. `dashboard/tests/boundary/project-add-boundary.spec.ts:71–98`: the
-   deadline case starts its server with a 500 ms read deadline (line 75) and
-   then polls for `server.ghPid() > 0` (line 91). The product's bound runs
-   from the request's arrival over the whole handler
-   (`dashboard/server/localJsonEndpoints.ts:46–56` through
-   `dashboard/server/responseSignal.ts:13`), and the fake `gh` writes its
-   pid file only once it runs (`dashboard/tests/fixtures/fake-gh:28–29`,
-   read by `dashboard/tests/support/dashboardServer.ts:229–231`), so under
-   load the 503 is answered before `gh` is spawned and the test's
-   precondition is never observed; its poll fails at 5 s (plan 310, slice 3:
-   one run in two alone at load 28).
-2. Three git-heavy specs declare no `test.setTimeout` and run under
-   Playwright's default 30 s (`dashboard/playwright.config.ts` sets no
-   `timeout`): `dashboard/tests/agent-launch-preparation-codex-retry.spec.ts`
-   (10 tests, 81.0 s summed and up to 9.4 s per test in the slice 9
-   eight-worker record, the largest file by summed time),
-   `dashboard/tests/boundary/agent-launch-preparation-resume.spec.ts` (5
-   tests, 22.3 s) and `dashboard/tests/boundary/agent-launch-start-resume.spec.ts`
-   (5 tests, 30.0 s); the latter two's long tests took 17–24 s alone at load
-   40–57 (plan 310, Learnings). `dashboard/tests/writing-journeys.md:78–80`
-   prescribes a declared bound for a test that builds the full-source
-   fixture; 156 spec files declare one (120 s in 153 tests). The sibling
-   `agent-launch-preparation-cursor.spec.ts` declares one; these three do
-   not.
-3. `dashboard/tests/serving-modes.spec.ts` (added in slice 4, commit
-   740e141b: two real Vite servers over HTTP and WebSocket, imports
-   `support/pageTest.ts`, opens no page) and
-   `dashboard/tests/production-watcher-refusals.spec.ts` (older: builds the
-   full-source fixture and runs the watcher command, no server, no page)
-   live in the journey directory; the README cites `serving-modes.spec.ts`
-   at the top-level path (line 52), and five specs cite it in comments. A
-   code-level scan of the top-level specs (comments and string literals
-   stripped, then `page`, `newPage`, `browser`) names exactly these two.
+1. `boundary/project-add-boundary.spec.ts`: its 500 ms handler deadline can
+   expire before gh writes its pid; retain event polls and choose a measured deadline.
+2. Declare own-work bounds in `agent-launch-preparation-codex-retry.spec.ts`,
+   `boundary/agent-launch-preparation-resume.spec.ts`, and
+   `boundary/agent-launch-start-resume.spec.ts`; generalize the guide's rule.
+3. Move page-less `serving-modes.spec.ts` and `production-watcher-refusals.spec.ts`
+   into `boundary/`, fix imports, five comments and README references; name
+   serving-modes as the boundary spec using real Vite servers on the run's build.
 
-Included: the deadline case's order of observation; declared bounds in the
-three files and the guide sentence that states the rule generally; the two
-moves with imports, citing comments and README references, and the README
-qualification that `boundary/serving-modes.spec.ts` alone starts Vite
-servers on the run's build.
+Required proof exposed own-work siblings and checks before settlement, native
+creation or refreshed reads: reuse signals before unchanged assertions and
+declare measured bounds. User-approved touch progress replaces the twelve-stroke
+cap; verify both consumer specs and every assertion (evidence in Learnings).
 
-Preserved: every assertion and title; `retries: 0`; worker and shard counts;
-the run's process sweep.
-
-Excluded: `prebuilt: builtDashboardDir` consolidation and build placement
-(SEED-136#restore-ci-under-three-minutes); the tablet iterations of
-`launchTouchViewports`; file-size splits of the production files;
-`longest-first`.
-
-Assumptions: the repeat script's `--load` (one `yes` burner per online core,
-`scripts/dashboard-repeat.sh:109–116`) reproduces the load the failures
-needed; a bound is declared, never a retry or a longer `expect` bound.
+Preserve every assertion, title and test count; retries, workers, shards and
+process sweep. Exclude prebuilt-default/build placement (the CI story), tablet
+iterations of `launchTouchViewports`, production-file size splits, longest-first.
+`--load` burns each core; use test bounds, never longer expect bounds, sleeps or
+retries. Original premises/measurements: `59fc28c8`.
 
 ## Design and existing solutions
 
-- **The deadline case cannot move the product's clock** (fact). The bound
-  starts when the request reaches the middleware, before body parsing,
-  validation and the `gh` spawn, so the test observes the spawn first only
-  if the deadline exceeds the spawn-to-pid-file latency under load. The
-  product's default is 30 s (`dashboard/src/authenticatedReadRules.ts:58`),
-  far too long for the test. Chosen direction: a deadline of a few seconds,
-  measured with the repeat script under burners, documented in the test
-  beside the number; the test's own time grows by about that much (it took
-  up to 1.1 s quiet) for one test. The `expect.poll` calls stay the
-  synchronization; no sleep. The disconnect case (30 s deadline, line 75)
-  and the unfinished-body case (100 ms, line 125, which asserts that `gh`
-  was never called) are already in order.
-- **Declared bounds follow the suite's own convention** (reuse). 156 files
-  declare `test.setTimeout`; 60–180 s are the values in use. Each of the
-  three files declares one bound at file level or per test as its siblings
-  do (`agent-launch-preparation-cursor.spec.ts`), sized from the record
-  (9.4 s quiet, 24 s at load 50) with the same headroom the fixture-building
-  tests have. The guide sentence at `writing-journeys.md:78–80` becomes the
-  general rule: a test whose own work (a fixture build, several real git
-  starts) can approach the default bound declares one.
-- **Placement** (apply the README's rule). `boundary/` holds every spec
-  that opens no page, "whatever it drives" (line 38). `serving-modes` is the
-  one spec in that tier that needs the run's build, which "Adding a test"
-  (line 148, "needs no build") must say; `production-watcher-refusals` fits
-  the rule as written (the commands the server installs). Discovery and
-  sharding follow the file (`support/testFiles.mjs`, recursive), protected
-  by `tests/support/dashboard-test-files.test.mjs`; `longest-first` lists
-  neither file. [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-  applies (fast feedback, one representation); no conflict, no new decision.
+- Middleware starts the deadline before body parsing/`gh` spawn: allow measured
+  seconds for spawn before expiry. Keep both polls and disconnect/unfinished-body events.
+- Reuse file-level `test.setTimeout(120_000)` (suite 60–180 s) where measured work
+  approaches 30 s, including full-proof siblings. Retain separate hook/test bounds
+  and unchanged expect bounds.
+- Reuse `settledOutcome` after accepted launches and `expectSettledPage`
+  before final read-dependent assertions; preserve intermediate/held helpers.
+- `support/testFiles.mjs` discovers recursively, proved by
+  `tests/support/dashboard-test-files.test.mjs`; neither move is in `longest-first`.
+  Only serving-modes requires the build.
+- [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  applies (fast feedback, one representation); no conflict or new decision.
 
 ## Preparation observations and decisive premises
 
-Observed 2026-10-18 in the execution checkout at `0bee7fd8` (read-only; the
-slice 9 record `final9/full8.json` under the job's temporary directory).
-Re-observed 2026-10-18 in this preparation workspace at `78ee26f8`
-(read-only): every row below holds unchanged. A regex that strips comments
-and strings misreads apostrophes inside template literals and reports a
-third file; the scan walks identifiers in the TypeScript syntax tree
-(`ts.createSourceFile`, identifiers `page`, `newPage`, `browser`).
-
-| Premise | Observation | Consequence |
-| --- | --- | --- |
-| The deadline bounds the handler from arrival, not from the spawn | `localJsonEndpoints.ts:46–56` wraps `answer(...)` in `withResponseSignal(res, ..., readTimeoutMs())`; `responseSignal.ts:13` arms the timer at call. | Slice 1 raises the test's deadline; it cannot re-anchor it. |
-| The three files declare no bound | `grep test.setTimeout` over the three files: none; their only timeouts are `expect.poll` 20 s options. | Slice 1 adds the declaration; no helper change. |
-| Exactly two top-level specs open no page | Code-level scan over `dashboard/tests/*.spec.ts`: `production-watcher-refusals.spec.ts`, `serving-modes.spec.ts`. | Slice 2 moves both; the proof repeats the scan. |
-| Nothing but comments and the README reference the two files | `grep -rn` over `*.ts`, `*.md`, `*.mjs`, `longest-first`: README line 52 and comments in `authenticated-project-overview`, `project-configuration`, `system-settings-terminal-theme`, `boundary/agent-terminal-boundary`, `boundary/authenticated-read-boundary`; `longest-first` names neither. | Slice 2 touches more than the two files and README, so the move is its own slice. |
-| The repeat script takes the specs after its flags and burns every core under `--load` | `scripts/dashboard-repeat.sh:33–45, 109–116, 156`. | The proof command below is well-formed. |
+At `0bee7fd8`, unchanged at `78ee26f8` on 2026-10-18: timing starts before gh;
+the three files lack bounds; identifier scanning (`page`, `newPage`, `browser`)
+finds only `serving-modes` and `production-watcher-refusals` page-less at top level.
+Only README/five comments cite them, neither is in `longest-first`; repeat
+accepts specs after flags and burns each core. Full evidence: plan at `59fc28c8`.
 
 ## Outside-in proof ownership
 
@@ -124,13 +63,13 @@ third file; the scan walks identifiers in the TypeScript syntax tree
 | Bound declared for real work (key example 2) | 1: the three files pass 3 of 3 under `--load` with their declared bounds; a scratch regression in one behavior each proves fails that test with its own assertion. |
 | The guide states the rule | 1: `writing-journeys.md` "Commands, servers and shared preconditions" names the general case. |
 | Placement (key example 3) | 2: both files run from `boundary/`; the scan of top-level specs finds none; `npm test -- tests/support/dashboard-test-files.test.mjs` green; README references point at the new paths and qualify the build. |
-| Preserved: assertions, titles, `retries: 0`, workers, shards, sweep | Both slices: the diff adds bounds and moves files only; the config is untouched; a whole run at four workers passes with nothing of the run surviving. |
+| Preserved: assertions, titles, `retries: 0`, workers, shards, sweep | Both slices: assertions, titles and counts stay; configuration is untouched; a whole run at four workers passes with nothing of the run surviving. |
 
 ## Ordered slices
 
 ### 1. Bounds follow their events
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/dashboard-repeat.sh 3 --load boundary/project-add-boundary.spec.ts agent-launch-preparation-codex-retry.spec.ts boundary/agent-launch-preparation-resume.spec.ts boundary/agent-launch-start-resume.spec.ts`
 exits 0 (three runs, every test passed, load average reported); the
 deadline case's chosen deadline and its reason are stated in the test; a
@@ -145,7 +84,8 @@ of the run surviving.
 Behavior: pre: on a loaded machine the deadline test's precondition is
 never observed and the git-heavy tests hit the default 30 s → trigger: the
 deadline is long enough for the spawn to be observed first, and each
-git-heavy file declares the bound its work needs → result: the same
+git-heavy file declares the bound its work needs, and the Codex retry
+waits for its accepted attempt to settle before checking its result → result: the same
 assertions pass under load, and a failure in these files names a defect.
 
 ### 2. Page-less specs live in `boundary/`
@@ -169,19 +109,111 @@ file, and discovery selects each once.
 
 ## Current decisions
 
-- The deadline case keeps its event-driven polls and takes a longer
-  deadline chosen by measurement under `--load`; a sleep, a longer `expect`
-  bound or a retry is not a correction.
-- Bounds are declared per file in the suite's existing form
-  (`test.setTimeout` or `test.describe.configure({ timeout })`), sized from
-  the record with the headroom the fixture-building tests use; no retry, no
-  change to `retries: 0`, workers or shards.
-- Both page-less specs move; the README's "needs no build" sentence is
-  qualified for `serving-modes` rather than keeping the file at the top
-  level. `prebuilt: builtDashboardDir` stays as it is (next story).
-- The whole-run proof uses `--workers 4` while the machine is shared, as
-  plan 310 did; the configuration is unchanged.
+- PFE: reuse `reportGeometry` and native `scrollByTouch`; change the existing
+  report-reading owner. Settings permits DOM scrolling, and review-code reading
+  owns different geometry/axes, so neither supplies this report contract.
+- Whole proof uses four workers while the machine is shared, as plan 310 did.
+  `prebuilt: builtDashboardDir` stays as it is (next story).
 
 ## Learnings
 
-None yet.
+Codex acceptance returned `running:true` before a 5 s refusal assertion expired:
+follow with `settledOutcome`. Reads finished after reconciliation checks (kept
+plan +406 ms, refused-start +79 ms); readiness exhausted 30 s before its final
+poll. Final result/publication checks need `expectSettledPage`, readiness 120 s.
+Focused load exposed earlier accepted-start/sibling reads: inspect final groups
+together; preserve submit-only/revision-check intermediate and held-read semantics.
+
+Short-phone touch: all 12 gestures progressed but left scrollTop 38 and Close
+clipped, without an observed product scroll defect. User approval (2026-10-18):
+continue real touches toward visibility, stop without progress, retain reachability
+and final visibility/hit assertions. Failed runs stay diagnostics in the handoff.
+
+## Execution context
+
+- Story Branch Mode; identity above, publisher `dashboard-territory.local-open-dough`, agent `mrsn-chan`.
+- Originating/execution checkout (reused owned worktree):
+  `/Users/terryyin/git/open-dough/.worktrees/bound-each-dashboard-test-after-its-event-and-pl`.
+- Branch `codex/bound-each-dashboard-test-after-its-event-and-pl`;
+  `/Users/terryyin/git/open-dough` stays the default checkout, not an edit location.
+- Remote `origin` (`terryyin/open-dough`), trunk `main`; increments target the execution branch.
+- Starting revision `32999702c1907aaa8e6b7092bbc9cb38f5eb01b6`;
+  accepted Take / initial candidate `59fc28c8b19e03e0513775cf59dad5c367731164`.
+- Locked npm/browser/check and typecheck passed: Node 24.21.0, Chromium
+  153.0.8010.12, Homebrew Bash 5.3.20. No numeric budget; same correction authority.
+- `npm run format`; check-only staged lint/script typecheck; no generation trigger
+  or execution-time readiness renewal.
+- GitHub Actions `ci.yml` verified (351271804, CI); branch observer coordinator
+  `mrsn-chan-execution`, `/tmp/dough-ci-501/watch-OILrFx`, PID 11731,
+  session 27570, cell 77, this checkout's `.agents/skills/dough-execute-plan` runtime.
+  Prior stream `watch-lQaVLI` stopped with unread 0 and PID exit confirmed.
+  The Take's trunk CI is unobserved; managed delivery registers execution increments here.
+
+## Story obligations
+
+### G1. Codex retry assertion starts before settlement
+Reported: slice 1 — "file timeout doesn't cover its missing event"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Accepted focused proof below; inspected existing settlement/read observers and preserved assertions at the named test boundaries.
+
+### G2. Reconciliation check precedes preparation reads
+Reported: slice 1 — "pending preparation/dependency reads"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Accepted focused proof below; inspected existing settlement/read observers and preserved assertions at the named test boundaries.
+
+### G3. Refused-session check precedes refreshed reads
+Reported: slice 1 — "before published state is fully read/reconciled"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Accepted focused proof below; inspected existing settlement/read observers and preserved assertions at the named test boundaries.
+
+### G4. Touch helper exhausts its gesture budget
+Reported: slice 1 — "all12 strokes made progress yet left scrollTop38"
+Story clause: "a whole run at four workers is green with nothing of the run surviving."
+Disposition: proved by slice 1: six report-touch consumers pass; reachable/no-progress and unreachable-panel scratch controls fail preserved assertions without a test timeout. See touch handoff below.
+
+### G5. Readiness journey exhausts its test bound
+Reported: slice 1 — "three later phases never begin"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Accepted focused proof below; inspected existing settlement/read observers and preserved assertions at the named test boundaries.
+
+### G6. Earlier event waits in the newly reached specs
+Reported: slice 1 — "No product wrong-result evidence"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Accepted focused proof below; inspected existing settlement/read observers and preserved assertions at the named test boundaries.
+
+### G7. Corrected whole-suite proof is missing
+Reported: slice 1 — "Required corrected whole suite at --workers 4 is not run"
+Story clause: "a whole run at four workers is green with nothing of the run surviving."
+Disposition: proved by slice 1: full-bounded.json records all 1,523 passed at four workers, terminal exit 0 and strict passed, 2,120.079 s; no output violations or run survivors.
+
+### G8. More own-work journeys have no effective test bound
+Reported: slice 1 — "finalprogresspoll got0.504s beforetesttimeout"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Expanded focused proof below; 23 measured files pass 3 x 36 under load, and each scratch control fails its unchanged assertion without a test timeout.
+
+### G9. More final launch checks precede settlement and reads
+Reported: slice 1 — "final5srefusalassertionbegins atacceptance"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Expanded focused proof below; accepted attempts settle before final checks, both reachKeptStart consumers run, and unchanged final assertions reject real product regressions.
+
+### G10. Held retry checks precede native creation
+Reported: slice 1 — "actual phase=preparing vs launching"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Expanded focused proof below; native afterCreation follows launching phase entry, precedes unchanged held-progress assertions, and settlement follows release in both Codex counterparts.
+
+### G11. Retained-refusal UI checks precede browser result reads
+Reported: slice 1 — "Three retry assertions outran browser result processing"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: All 13 final launch groups follow server settlement with the existing browser request/body/message-turn observer; three loaded 29-test passes cover all ten consumers. See PROOF.md.
+
+### G12. Initial enabled-button check precedes plan reads
+Reported: slice 1 — "one enabled-button assertion outran plan reads"
+Story clause: "no dashboard test's bound precedes the event it depends on"
+Disposition: proved by slice 1: Initial dependency checks follow expectSettledPage before publishing the blocker; the stale-card race and final refusal assertions pass in all three loaded runs. See PROOF.md.
+
+## Accepted focused proof and continuation
+
+[Proof and diagnostics](PROOF.md) retain the literal commands and observations.
+The 1,523-test whole run passed; replacement focused proof after event/refactor
+changes passes 3 × 29 under load. Independent refactor, typecheck, assertion/title
+preservation and formatting pass. Slice 2 remains; retain Taken and this workspace.

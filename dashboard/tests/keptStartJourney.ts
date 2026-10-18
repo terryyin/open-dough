@@ -25,7 +25,13 @@ import {
   startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
-import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
 
 export const test = base.extend<{ origin: StartOrigin }>({
   // eslint-disable-next-line no-empty-pattern
@@ -78,11 +84,15 @@ export async function reachKeptStart(
 
   // The first launch: the start publishes the Take, `claude` refuses.
   dashboard.claudeScenario("refused");
+  const acceptance = nextAcceptedAttemptId(page);
   await startAction(backlogCard).click();
   await page
     .getByRole("dialog", { name: "Start execution in Claude Code" })
     .getByRole("button", { name: "Start" })
     .click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   await expect(backlogCard.locator(".launch-problem")).toContainText(
     `Launch failed: Claude Code refused to start a session in ${workspaceShown}.`,
     { timeout: launchWaitMs },

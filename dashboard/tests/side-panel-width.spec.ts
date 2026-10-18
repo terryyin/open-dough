@@ -33,6 +33,8 @@ import {
 } from "./sidePanelWidthPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 
+test.setTimeout(120_000);
+
 test("mouse and keyboard choose one bounded width that the terminal and a review share", async ({
   page,
   dashboard,
