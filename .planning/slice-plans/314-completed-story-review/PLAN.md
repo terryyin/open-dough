@@ -199,8 +199,36 @@ preserved across admission/project, attribution and evidence-gap specs.
   exit 0. The coordinator applied selective Prettier formatting to owned
   TypeScript files. Unchanged admission/schema/diff proof is reused.
 
-Slice obligations passed before the done transition. Delivery and CI remain
-pending; the done slice records accepted implementation and refactoring proof.
+Slice obligations passed before the done transition. Feature commit
+`ce227bd4026c320bd3b54cac1702923ca368be86` passed staged lint, formatting and
+typecheck and was accepted on `origin/codex/completed-story-review` with the
+existing observer. The first hook attempt required an `unknown` annotation
+for the parsed agent; this type-only repair changed no runtime behavior.
+
+## Execution retrospective
+
+Outcome findings: none. The original examples are observed through real CLI/Git
+completion and the browser/file HTTP boundaries. The action's red journey drove
+implementation; root refusal and local ambiguity have observed red/green
+counterexamples. Historical profiles reuse live attribution, fixed comparisons
+reuse the browser/diff, and request validation still owns exact project/story
+and literal files. Accepted ADR 0001/0002 remain satisfied. Existing workspace,
+captured-run, marks and commit-range responsibilities retain their proof; no
+duplicated or obsolete product branch was found. The suite keeps one page
+journey for the new outcome and HTTP scenarios for history and admission.
+
+Process: recorded the observed filter collision as DD-315 and one recurrence
+of ODF-158 for oversized startup reference batches. DearDough.md grew from 550
+to 572 physical lines without deleting content; its 500-line warning applies.
+No guidance or backlog change was made. CI is pending on the execution branch.
+Planning: unchanged, no correction plan required.
+
+## Execution complete
+
+Product advice: no new backlog work. This closes the dashboard's machine-local
+review gap using the published Git facts already central to the near-future
+direction. The remaining queued CI feedback work keeps its existing priority;
+the explicit missing-history outcome needs no separate feature promise.
 
 ## Story obligations
 
