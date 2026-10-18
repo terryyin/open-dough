@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Land unfinished story changes without retiring their execution workspace](seeds/SEED-008-worktree-branch-trunk-sync.md#land-unfinished-stories-without-retirement) — SEED-008#land-unfinished-stories-without-retirement ([plan](slice-plans/314-land-unfinished-stories-without-retirement/PLAN.md))
 - [Review every completed story](seeds/SEED-139-completed-story-review.md#review-completed-stories) — SEED-139#review-completed-stories
-- [Bound each dashboard test after its event and place page-less specs at the boundary](seeds/SEED-136-dashboard-test-efficiency.md#dashboard-test-bounds-and-placement) — SEED-136#dashboard-test-bounds-and-placement ([plan](slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md))
 
 ## Backlog list
 

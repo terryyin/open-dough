@@ -15,8 +15,8 @@ Developers and maintainers need quick, trustworthy feedback as the dashboard
 grows. Terry reports GitHub Actions CI approaching five minutes despite the
 product's modest feature set, and considers the dashboard's twelve parallel
 jobs excessive. The current workflow confirms twelve dashboard shards; the
-latest successful `main` run on 2026-10-16 took 4 min 28 s, and the first
-story's section records the measured baseline.
+latest successful `main` run on 2026-10-16 took 4 min 28 s; the prior strategy
+baseline remains recoverable through the Breadcrumbs below.
 
 Terry selected two stories in this order: first unify and improve the dashboard
 E2E tests using Donut's testing principles, then restore overall CI feedback to
@@ -25,90 +25,6 @@ seeking more parallel capacity. This capture queues the work; it does not
 implement the campaign or create an executable plan.
 
 ## Selected Stories
-
-<a id="dashboard-test-bounds-and-placement"></a>
-
-### Bound each dashboard test after its event and place page-less specs at the boundary
-
-**Identity:** SEED-136#dashboard-test-bounds-and-placement
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"783b64d3249def9689178a2825832bd6b526e8736b9ba1c75d66ae24f03dbad1","plan":"d76d5ab0b77729511f61a0c9aea7ae74da7321deb388664fdd08b64585588602"}}
-```
-
-**Beneficiary:** Developers running the dashboard suite on a loaded machine
-or in CI, who need a failure to mean a defect.
-
-**Goal:** A bounded correction from the execution retrospective of
-SEED-136#unify-and-streamline-dashboard-e2e (plan 310, recoverable at `0c96a546:.planning/slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md`,
-commits 789b7ca9..0bee7fd8): no dashboard test's bound precedes the event it
-depends on, and every spec that opens no page lives in
-`dashboard/tests/boundary/`, as [dashboard/tests/README.md](../../dashboard/tests/README.md)
-"Two tiers" and "Synchronization" state. The findings are older weaknesses
-the campaign's measurements surfaced plus one residue of the campaign. No
-feature promise: every assertion, title and test count stays. Plan:
-[313](../slice-plans/313-dashboard-test-bounds-and-placement/PLAN.md).
-
-**Scope:**
-
-Required:
-
-- `boundary/project-add-boundary.spec.ts` "Add validation ends gh on deadline
-  and leaves the saved list untouched": the spawned `gh` is observed before
-  the product's deadline can expire; the polls stay event-driven; no sleep.
-- `agent-launch-preparation-codex-retry.spec.ts`,
-  `boundary/agent-launch-preparation-resume.spec.ts` and
-  `boundary/agent-launch-start-resume.spec.ts` declare the bound their real
-  git starts need, as [writing-journeys.md](../../dashboard/tests/writing-journeys.md)
-  "Commands, servers and shared preconditions" prescribes for a test that
-  builds its fixture; the guide states that rule for any test whose own work
-  approaches the default bound.
-- `serving-modes.spec.ts` and `production-watcher-refusals.spec.ts` move to
-  `boundary/`, with their imports, the comments that cite them and the
-  README's references updated; the README names
-  `boundary/serving-modes.spec.ts` as the one boundary spec that starts the
-  Vite servers on the run's build.
-- Approved expansion (2026-10-18): replace `support/reportTouchPage.ts`'s
-  fixed twelve-gesture cap with observed progress toward visibility. Continue
-  productive real touches, stop when the target is visible or progress stops,
-  and preserve reachability, clipping, hit-target and real-touch assertions.
-
-Preserved: every assertion and title; `retries: 0`; worker and shard counts;
-the run's no-leaked-process sweep.
-
-Excluded: `prebuilt: builtDashboardDir` consolidation and build placement
-(SEED-136#restore-ci-under-three-minutes); the tablet iterations of
-`launchTouchViewports`; file-size splits of the production files;
-`longest-first`.
-
-**Key examples:**
-
-- *Deadline observed in order.* Pre: the deadline case starts its server
-  with a 500 ms read deadline and then polls for the fake `gh`'s pid; under
-  load the server answers 503 before `gh` is spawned, and the poll fails at
-  its 5 s bound (plan 310: passes one run in two alone at load 28). Trigger:
-  the correction. Result: the spawn is observed first, then the 503, then
-  `gh`'s SIGTERM; the file passes three runs in a row with one burner per
-  core.
-- *Bound declared for real work.* Pre: the codex-retry journey's ten tests
-  take up to 9.4 s each on a quiet machine, and the two start-resume tests
-  17–24 s alone at load 40–57, all inside Playwright's default 30 s with no
-  declared bound. Trigger: the correction. Result: each file declares the
-  bound its work needs; a scratch regression still fails the test for its
-  own reason, not a timeout.
-- *Placement.* Pre: two specs that open no page sit in the journey
-  directory, one of them cited at that path by the README. Trigger: the
-  move. Result: a code-level scan of the top-level specs (comments and
-  strings stripped) finds none without a page; discovery and sharding
-  select both files once.
-
-**Evaluation:** `bash scripts/dashboard-repeat.sh 3 --load` over the four
-changed files exits 0; `npm test -- tests/support/dashboard-test-files.test.mjs`
-is green; the scan finds nothing; a scratch regression per changed test
-fails for the right reason; a whole run at four workers is green with
-nothing of the run surviving.
-
-**Safe stopping point:** Each slice leaves the suite green; the bounds alone
-remove the load-sensitive failures if the move is deferred.
 
 <a id="restore-ci-under-three-minutes"></a>
 
@@ -178,10 +94,9 @@ without relying on excessive dashboard sharding.
 The E2E strategy and suite improvement story is complete (landed 2026-10-18;
 its section is recoverable at
 `0c96a546:.planning/seeds/SEED-136-dashboard-test-efficiency.md#unify-and-streamline-dashboard-e2e`).
-Its retrospective correction is queued first and the CI runtime story second,
-as Terry requested; the CI story carries the campaign's measured inputs. This priority does not assert a technical blocking dependency or
-authorize execution of either story. Preserve the existing near-future
-direction.
+The CI runtime story is the remaining selected work and carries the campaign's
+measured inputs. Queue priority does not authorize execution or create a
+technical blocking dependency. Preserve the existing near-future direction.
 
 ## Breadcrumbs
 
