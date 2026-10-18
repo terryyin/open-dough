@@ -14,6 +14,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Cut dashboard CI time with once-per-run server bundles](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes ([plan](slice-plans/315-restore-ci-under-three-minutes/PLAN.md))
+
 ## Backlog list
 
-- [Cut dashboard CI time with once-per-run server bundles](seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes) — SEED-136#restore-ci-under-three-minutes
