@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-137#preserve-starts-during-dashboard-updates",
+  "mode": "story-branch",
+  "branch": "codex/dashboard-start-update-safety",
+  "host": "codex"
+}
