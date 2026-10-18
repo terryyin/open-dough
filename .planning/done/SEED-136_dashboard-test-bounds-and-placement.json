@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-136#dashboard-test-bounds-and-placement",
+  "title": "Bound each dashboard test after its event and place page-less specs at the boundary",
+  "completedAt": "2026-10-18T05:47:09.965Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

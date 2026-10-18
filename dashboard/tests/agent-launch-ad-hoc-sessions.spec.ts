@@ -34,6 +34,8 @@ import {
 } from "./sessionSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
+test.setTimeout(120_000);
+
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 const openDoughStories = {

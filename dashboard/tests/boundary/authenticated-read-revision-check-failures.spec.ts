@@ -25,6 +25,8 @@ import {
   revisionCheckBoundary,
 } from "./revisionCheckBoundary.ts";
 
+test.setTimeout(120_000);
+
 test.describe.configure({ mode: "serial" });
 
 // The argv that asks which commit a repository's `main` names, and nothing

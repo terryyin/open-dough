@@ -37,6 +37,8 @@ import {
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
 
+test.setTimeout(120_000);
+
 test("story readiness keeps evidence gaps and refreshes truthful", async ({
   page,
   afterGitHubStops,
@@ -90,6 +92,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     const next = publishFreshAssessment(openDough);
     openDoughOrigin.advanceTo(next);
     await passTimeUntilCheckedAfterSettled(page);
+    await expectSettledPage(page);
     await expect(source).toContainText(next);
     for (const [list, title, judgment] of [
       [taken, plannedReady.title, "Ready for execution"],

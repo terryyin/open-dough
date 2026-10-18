@@ -36,6 +36,8 @@ import {
   visibleShortCodeLine,
 } from "./support/reviewTouchReading.ts";
 
+test.setTimeout(120_000);
+
 const control = (review: Locator, name: string) =>
   review.getByRole("button", { name, exact: true });
 
@@ -141,8 +143,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       expect(await boxes(fixed)).toEqual(before);
       expect(await pageFits(page)).toBe(true);
 
-      // Leave the scroll maximum before exact position checks: a larger pane
-      // can legitimately clamp a reading position at the bottom of the file.
+      // Avoid maximum scroll: a larger pane can clamp the reading position.
       await readCodePartByTouch(page, code, wide, 0, 11, "horizontal");
       expect((await codePartGeometry(wide, 0, 11)).visible).toBe(true);
       await scrollByTouch(page, code, 1000);
@@ -218,8 +219,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await expect(
         browser.getByRole("button", { name: `Added ${longB}` }),
       ).toHaveAttribute("aria-pressed", "true");
-      // Commits is a non-default comparison. With files hidden for more room,
-      // that explicit choice and its reading place survive short landscape.
+      // Hidden files: explicit Commits and its reading place survive rotation.
       await tapWhereShown(commits);
       await expect(
         comparison.getByRole("radio", { name: "Commits", exact: true }),

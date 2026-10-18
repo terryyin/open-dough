@@ -7,12 +7,20 @@ import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { expectExecutionInput } from "./support/codexStartAssertions.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
-import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+
+test.setTimeout(120_000);
 
 test("Codex card start publishes one claim and retries its retained workspace before creating one conversation", async ({
   page,
@@ -56,7 +64,11 @@ test("Codex card start publishes one claim and retries its retained workspace be
     .getByRole("textbox", { name: "Instruction (optional)" })
     .fill("Implement the selected slice.");
   native.refuseCreation = true;
+  const acceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   // The answer follows the Take's real publication and Codex's refusal.
   await expect(queued.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation.",
@@ -112,6 +124,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
 
   published.advanceTo(revision);
   await reloadUntilRead(page);
+  await expectSettledPage(page);
   await expect(source).toContainText(revision);
   await expectStartNote(
     claimed,
@@ -136,7 +149,14 @@ test("Codex card start publishes one claim and retries its retained workspace be
       session: { sessionId: native.threadId, continuation: { workspace } },
     });
   };
+  const creating = new Promise<void>((resolve) => {
+    native.afterCreation = resolve;
+  });
+  const retryAcceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  const retryAttemptId = await retryAcceptance;
+  await creating;
+  delete native.afterCreation;
   const observer = await expectCodexRetryProgress(
     page,
     claimed,
@@ -146,6 +166,8 @@ test("Codex card start publishes one claim and retries its retained workspace be
   native.holdCreation = false;
   native.release();
   await observer.close();
+  await settledOutcome(dashboard, retryAttemptId);
+  await untilPageRequestsAnswered(page);
   const sessions = claimed.getByRole("list", { name: "Sessions" });
   await expect(sessions).toContainText("Execution started in Codex", {
     timeout: launchWaitMs,
@@ -181,6 +203,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     claimed.getByRole("button", { name: "Start execution" }),
   ).toHaveCount(0);
   await reloadUntilRead(page);
+  await expectSettledPage(page);
   await expect(sessions).toContainText("Execution started in Codex");
   await expect(
     claimed.getByRole("button", { name: "Start execution" }),

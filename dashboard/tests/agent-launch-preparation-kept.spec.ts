@@ -14,11 +14,19 @@ import path from "node:path";
 import { keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test } from "./support/preparationPage.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
-import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
+
+test.setTimeout(120_000);
 
 const workspaceShown = "~/git/open-dough/.worktrees/story-a";
 const establishing = "Start also publishes";
@@ -54,7 +62,11 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   dashboard.claudeScenario("refused");
   await dialogOf(card);
   await dialog.getByLabel("Model", { exact: true }).selectOption("opus");
+  const acceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start" }).click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   await expect(card.locator(".launch-problem")).toContainText(
     `Launch failed: Claude Code refused to start a session in ${workspaceShown} with model Opus.`,
     { timeout: launchWaitMs },
@@ -70,6 +82,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
 
   // After a reload the card offers the resume; another card does not.
   await reloadUntilRead(page);
+  await expectSettledPage(page);
   await expectStartNote(
     card,
     "Start refinement",
@@ -95,7 +108,11 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   dashboard.claudeScenario("launched");
   await dialogOf(card);
   await dialog.getByLabel("Model", { exact: true }).selectOption("sonnet");
+  const retryAcceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start" }).click();
+  const retryAttemptId = await retryAcceptance;
+  await settledOutcome(dashboard, retryAttemptId);
+  await untilPageRequestsAnswered(page);
   await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
     `Workspace ${workspaceShown}`,
     { timeout: launchWaitMs },

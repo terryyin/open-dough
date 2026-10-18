@@ -26,6 +26,8 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import { git, storyWorktree } from "./support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 
+test.setTimeout(120_000);
+
 test("a story's review stays fixed while its worktree changes until Refresh", async ({
   page,
   dashboard,

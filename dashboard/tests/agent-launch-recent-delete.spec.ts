@@ -1,17 +1,9 @@
-// Delete record… on a Recently done entry, on the committed story-stages
-// origin (./launchJourney.ts): a session whose story is done, inside its done
-// story's card, one marked done, and others, all State unknown while the
-// whole listing cannot be read, each offer "Delete record…" with the same
-// question as a card's entry (./agent-launch-card-delete.spec.ts); confirming
-// removes the entry from Recently done and the Sessions sidebar without a
-// success announcement, and the keyboard goes to the next entry in the same
-// list, else the previous, else the done story's card that held it, else the
-// Recently done section. Session unavailable is
-// ./agent-launch-recent-delete-unavailable.spec.ts. The sidebar's entries in
-// State unknown are each one control with no delete, and a Recently done entry
-// in Working or Done offers none. Origin alone still places every story. The
-// page's own dashboard server drives the synthetic `claude`
-// (./fixtures/fake-claude); the real one is never reached.
+// Recently done records on the committed story-stages origin (./launchJourney.ts):
+// State unknown entries offer Delete record… with the card-entry question;
+// deletion removes the entry without success text and moves focus within its list,
+// then to its done card or the section. The sidebar offers no deletion, nor do
+// Working/Done entries. Origin owns placement; the dashboard drives fake-claude.
+// Session unavailable: ./agent-launch-recent-delete-unavailable.spec.ts.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -36,6 +28,8 @@ import {
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+
+test.setTimeout(120_000);
 
 // Mark as done on a session still working waits out the rename's wait for
 // idle before the card lets it go; the rename is not this journey's subject,

@@ -9,9 +9,12 @@ import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { queuedIdentity, otherQueuedIdentity } from "./support/startOrigin.ts";
-import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import type { StartRecord } from "../server/startStore.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
 
+test.setTimeout(120_000);
 test.use({ preparationHost: "codex" });
 
 for (const damage of [
@@ -191,13 +194,11 @@ for (const damage of [
     const dialog = page.getByRole("dialog", {
       name: "Start refinement in Codex",
     });
-    const response = page.waitForResponse(
-      (response) =>
-        response.url().endsWith(agentAcceptEndpoint) &&
-        response.request().method() === "POST",
-    );
+    const acceptance = nextAcceptedAttemptId(page);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
-    await (await response).finished();
+    const attemptId = await acceptance;
+    await settledOutcome(dashboard, attemptId);
+    await untilPageRequestsAnswered(page);
     expect(await origin.takenProfiles()).toEqual(profiles);
     await expect(card.locator(".launch-problem")).toContainText("reconcile");
     if (damage !== "uncertain-result")

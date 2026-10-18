@@ -15,6 +15,8 @@ import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import type { FakeHostWiring } from "./launchEnvironment.ts";
 import {
   fakeClaudeControls,
+  serverClaudeAttaches,
+  type ClaudeAttach,
   type FakeClaudeControls,
 } from "./fakeClaudeControls.ts";
 export type {
@@ -77,6 +79,7 @@ export function installFakeClaude(
 ): {
   readonly env: Record<string, string>;
   readonly controls: FakeClaudeControls;
+  readonly ownedAttaches: () => ClaudeAttach[];
 } {
   const binDir = path.join(tempRoot, fakeClaudeHost.binDir);
   const osascriptBinDir = path.join(tempRoot, "osascript-bin");
@@ -130,5 +133,9 @@ export function installFakeClaude(
   if (options.osascript === "failing" || options.osascript === "hang") {
     writeFileSync(state("osascript-mode"), options.osascript);
   }
-  return { env, controls: fakeClaudeControls(stateDir, home) };
+  return {
+    env,
+    controls: fakeClaudeControls(stateDir, home),
+    ownedAttaches: serverClaudeAttaches(stateDir, binDir),
+  };
 }

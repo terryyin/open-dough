@@ -24,6 +24,9 @@ import {
   preparationSlug as slug,
   type KeptPreparation,
 } from "../support/keptPreparation.ts";
+
+test.setTimeout(120_000);
+
 test.describe("a kept preparation start", () => {
   let preparation: KeptPreparation;
   test.beforeEach(async () => {
@@ -160,23 +163,8 @@ test.describe("a kept preparation start", () => {
     const before = (await preparation.origin.takenProfiles()).find(
       (profile) => profile["agent"] === occupied,
     );
-    const occupiedAllocation = await preparation.origin.originGit(
-      "log",
-      "-1",
-      "--diff-filter=A",
-      "--format=%H",
-      "main",
-      "--",
-      ".planning/agents/yui-chan.json",
-    );
-    await preparation.expectResumed(preparation.ask);
-    expect(
-      (await preparation.origin.takenProfiles()).find(
-        (profile) => profile["agent"] === occupied,
-      ),
-    ).toEqual(before);
-    expect(
-      await preparation.origin.originGit(
+    const allocation = () =>
+      preparation.origin.originGit(
         "log",
         "-1",
         "--diff-filter=A",
@@ -184,8 +172,15 @@ test.describe("a kept preparation start", () => {
         "main",
         "--",
         ".planning/agents/yui-chan.json",
+      );
+    const occupiedAllocation = await allocation();
+    await preparation.expectResumed(preparation.ask);
+    expect(
+      (await preparation.origin.takenProfiles()).find(
+        (profile) => profile["agent"] === occupied,
       ),
-    ).toBe(occupiedAllocation);
+    ).toEqual(before);
+    expect(await allocation()).toBe(occupiedAllocation);
     expect((await preparation.preparing())[0]?.["agent"]).toBe("Akiho-chan");
   });
   test("a claude refusal after the announcement keeps the start and Start again resumes with one assignment", async () => {

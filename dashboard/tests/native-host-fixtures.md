@@ -55,8 +55,16 @@ line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
 (`claudeAttaches`); `claudeAttachesSilent` makes it print nothing.
 `claudeAttachPromptDelay(ms)` delays the bordered composer after the banner;
-keys before the prompt are discarded. The
-terminal boundary specs drive it over a raw socket
+keys before the prompt are discarded.
+
+Fixture close ends its server process group, then observes this server's recorded
+Claude attachments no longer running before removing temporary fixture files.
+The bounded exit check reports remaining PIDs on failure while other owned
+services still close. Public attachment observations remain machine-wide; the
+exit check selects only that server's attachments. Retained Cursor clients belong
+to their runner, which is stopped by the owner of the machine directory.
+
+The terminal boundary specs drive it over a raw socket
 (`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
 server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
 marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,

@@ -23,7 +23,7 @@ commands it installs -- or of a module read in-process, without a browser.
 Its collaborators are the real ones; only the external boundaries are
 replaced: GitHub through the synthetic `gh`, the agent hosts through the
 synthetic `claude`, `codex` and `cursor`, and GitHub's avatar host. Boundary
-tests live in `boundary/` and start the boundary server, with
+tests live in `boundary/` and normally start the boundary server, with
 `startDashboardServer({ mode: "boundary" })` or `test.use({ serverMode:
 "boundary" })` on the `dashboardTest.ts` fixtures: `node
 --experimental-transform-types ../server/boundaryServer.ts` mounts the local
@@ -32,8 +32,10 @@ server, with no Vite and no build, in the production project environment as
 the built preview does, or in the dev server's when the spec starts
 `developmentBoundary` (`support/dashboardServer.ts`).
 `boundary/boundary-server.spec.ts` shows each environment answering from its
-own project file (`support/projectConfiguration.ts` names it) and keeps that
-server the Node entry alone, naming no Vite and serving no page.
+own project file (`support/projectConfiguration.ts`), without Vite or a page.
+The exception is `boundary/serving-modes.spec.ts`, which starts real Vite
+dev and preview servers on the run's build to prove both mount the same
+boundaries.
 
 `boundary/` holds every spec that opens no page, whatever it drives; a spec
 that opens a page is a journey, however small, and a journey never repeats a
@@ -49,7 +51,7 @@ Put a check where it is cheapest to prove, and prove it once:
   shows that the page does the thing once; the boundary tests own every
   variant.
 - **A journey runs under the fixture's built preview.** The dev server and
-  the preview mount the same local boundaries, and `serving-modes.spec.ts`
+  the preview mount the same local boundaries, and `boundary/serving-modes.spec.ts`
   is the one spec that proves it: it starts a real server of each, sends
   each boundary the same request from both, and compares the answers
   (status, headers, body), with Vite's own HMR socket, which only the dev
@@ -145,9 +147,8 @@ from `../dashboardTest.ts` with `test.use({ serverMode: "boundary" })`, or
 from `../support/pageTest.ts` and starts `startDashboardServer({ mode:
 "boundary" })` (or `developmentBoundary`) itself; it sends its requests with
 `support/rawHttp.ts` or the terminal clients and asserts the answer, the
-file or the command. It opens no page and needs no build; a spec that
-starts no dashboard server at all still takes `test` from `pageTest.ts`,
-which the lint configuration requires of every spec.
+file or command. Only `boundary/serving-modes.spec.ts` needs a build.
+A spec starting no server still takes `test` from `pageTest.ts`, as lint requires.
 
 A **browser journey** goes in this directory as `<journey>.spec.ts`. It
 imports `test` from `./dashboardTest.ts` or the fixture module of its

@@ -10,6 +10,9 @@ import { openTakenBacklog } from "./launchCardPage.ts";
 import { readyStory } from "./launchJourney.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
+
+test.setTimeout(120_000);
+
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,
   launchJourney,

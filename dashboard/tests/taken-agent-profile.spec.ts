@@ -22,6 +22,8 @@ import {
   trunkStory,
 } from "./takenAgentProfileRecords.ts";
 
+test.setTimeout(120_000);
+
 test("each Taken card shows its published agent profile, or says plainly that none is recorded or readable", async ({
   page,
 }) => {

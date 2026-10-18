@@ -34,6 +34,8 @@ import {
   type StartOrigin,
 } from "../support/startOrigin.ts";
 
+test.setTimeout(120_000);
+
 test.describe("a kept execution start", () => {
   let origin: StartOrigin;
   let server: DashboardServer;

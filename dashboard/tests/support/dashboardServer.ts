@@ -21,7 +21,7 @@
 // fake GitHub's answers never leak between tests.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
@@ -30,11 +30,9 @@ import {
   type FakeClaudeOptions,
 } from "./fakeClaude.ts";
 import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
-import { endFakeGh, fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
+import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
-import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { endAtExit, signal } from "./processGroup.ts";
+import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
 import {
   serverLaunch,
   startOnOwnAddress,
@@ -187,24 +185,15 @@ export async function startDashboardServer(
     env,
   );
 
-  const home = claude.controls.home;
-  // SIGTERM hangs up the runner's clients and exits it.
-  const withdrawRunnerStopAtExit = endAtExit(() => {
-    const runner = readCursorRunnerAddress(home);
-    if (runner !== undefined) signal(runner.pid, "SIGTERM");
+  const closeOwned = dashboardFixtureLifetime({
+    tempRoot,
+    home: claude.controls.home,
+    ownsMachine,
+    ownedAttaches: claude.ownedAttaches,
+    codex: options.codexProtocol === undefined ? codex : undefined,
+    gh,
+    github: ownsGitHub ? github : undefined,
   });
-
-  const closeOwned = async () => {
-    if (ownsMachine) await stopCursorRunner(home);
-    withdrawRunnerStopAtExit();
-    if (options.codexProtocol === undefined) await codex.close();
-    // Its owner's `gh` calls write into `tempRoot` and ask `github`.
-    await endFakeGh(gh);
-    if (ownsGitHub) {
-      await github.close();
-    }
-    rmSync(tempRoot, { recursive: true, force: true });
-  };
 
   const { launched: server, url: baseURL } = await startOnOwnAddress(
     options.port,

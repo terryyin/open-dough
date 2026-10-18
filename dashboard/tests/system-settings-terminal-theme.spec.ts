@@ -103,7 +103,7 @@ const savedTheme = () =>
 // The theme file is one per machine, shared by the dev and preview servers'
 // environments, so the theme chosen on one shows on the other. One order
 // shows that sharing; the reverse order would read the same file through the
-// same boundary (./serving-modes.spec.ts proves both servers mount it).
+// same boundary (./boundary/serving-modes.spec.ts proves both servers mount it).
 test("terminal theme is chosen in System settings, saved on choosing, kept across reload, restart and the dev server, and a failed save returns to the saved theme", async ({
   page,
   context,

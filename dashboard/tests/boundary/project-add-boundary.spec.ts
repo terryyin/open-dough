@@ -70,9 +70,11 @@ test("Add admits only same-origin POST and returns published facts without check
 
 for (const abandonment of ["disconnect", "deadline"] as const) {
   test(`Add validation ends gh on ${abandonment} and leaves the saved list untouched`, async () => {
+    // Under one burner per core, 3 s leaves time to observe gh's spawn before
+    // the handler's deadline; 500 ms could expire before gh wrote its pid.
     const server = await fixture.start(
       "boundary",
-      abandonment === "deadline" ? 500 : 30_000,
+      abandonment === "deadline" ? 3_000 : 30_000,
     );
     server.github.serve(addedRepository, hangs);
     const before = readFileSync(fixture.configurationFile("boundary"), "utf8");

@@ -28,6 +28,8 @@ import {
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
+test.setTimeout(120_000);
+
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("deleting an unavailable session's record from its current home", () => {

@@ -1,34 +1,34 @@
 // The dashboard's two Vite servers, the dev server and the preview of the
-// build, mount the same local boundaries (../server/localBoundaries.ts, each
-// through ../server/localBoundaryPlugin.ts's dev and preview hooks), so the
+// build, mount the same local boundaries (../../server/localBoundaries.ts, each
+// through ../../server/localBoundaryPlugin.ts's dev and preview hooks), so the
 // same request gets the same answer from either. This is the suite's one
 // proof of that: every other journey runs under the built preview, and every
-// variant of how a boundary answers is a boundary test (./boundary/,
-// README "Two tiers") against the boundary server, which mounts the same
-// list by construction (./boundary/boundary-server.spec.ts). Both real
+// variant of how a boundary answers is a boundary test (this directory;
+// ../README.md "Two tiers") against the boundary server, which mounts the same
+// list by construction (./boundary-server.spec.ts). Both real
 // servers run here on their own machines; one request per boundary is sent
 // to each, and the status, headers and body (not timing) are compared. Only
 // the dev server has Vite's own HMR socket, so its check runs there alone.
 
 import WebSocket from "ws";
 import { existsSync, readFileSync } from "node:fs";
-import { expect, test } from "./support/pageTest.ts";
+import { expect, test } from "../support/pageTest.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
   type DashboardServerMode,
-} from "./support/dashboardServer.ts";
-import { accept, launchRequest } from "./agentLaunchBoundary.ts";
-import { refusedResponse, terminalUrl } from "./agentTerminalBoundary.ts";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
-import { everyRepository, publishes } from "./support/fakeGitHub.ts";
+} from "../support/dashboardServer.ts";
+import { accept, launchRequest } from "../agentLaunchBoundary.ts";
+import { refusedResponse, terminalUrl } from "../agentTerminalBoundary.ts";
+import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
+import { everyRepository, publishes } from "../support/fakeGitHub.ts";
 import {
   otherProjectEnvironment,
   projectConfigurationFile,
   projectEnvironmentOf,
-} from "./support/projectConfiguration.ts";
-import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
+} from "../support/projectConfiguration.ts";
+import { rawRequest, type RawResponse } from "../support/rawHttp.ts";
 
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
 const modes = ["dev", "preview"] as const;

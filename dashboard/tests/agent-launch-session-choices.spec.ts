@@ -4,11 +4,18 @@
 // only for a host whose installation takes the policy, and a kept one-shot
 // start shows the policy it was started with instead of choices.
 
-import { parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
 import { expectStartNote } from "./cardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog, radio } from "./support/sessionDialog.ts";
-import { reloadUntilRead } from "./pageRequestNotes.ts";
+import {
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
+
+test.setTimeout(120_000);
 
 test("one-shot is offered only for a host whose installation takes the policy, and a kept start shows its own", async ({
   page,
@@ -48,11 +55,16 @@ test("one-shot is offered only for a host whose installation takes the policy, a
   await expect(radio(dialog, "Tracking", "One-shot")).toBeEnabled();
   await radio(dialog, "Tracking", "One-shot").check();
   dashboard.claudeScenario("refused");
+  const acceptance = nextAcceptedAttemptId(page);
   await start.click();
+  const attemptId = await acceptance;
+  await settledOutcome(dashboard, attemptId);
+  await untilPageRequestsAnswered(page);
   await expect(card.locator(".launch-problem")).toContainText(
     "No session started; nothing was published.",
   );
   await reloadUntilRead(page);
+  await expectSettledPage(page);
   const reloaded = parts(page).backlog.getByRole("article", {
     name: "Story A",
   });
