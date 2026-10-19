@@ -10,6 +10,7 @@ export type DashboardView = "stories" | "roster";
 export type DashboardRoute = {
   readonly source: PublishedSource;
   readonly view: DashboardView;
+  readonly story?: { readonly project: string; readonly identity: string };
 };
 
 export function buildRouteUrl(
@@ -40,6 +41,22 @@ export function parseRoute(
   const params = new URLSearchParams(location.search);
   const projectParam = params.get("project");
   const requestedView = params.get("view");
+  const story = params.get("story");
+  // A story URL always names its project and stories view. Retain an unknown
+  // project verbatim so the page can explain that destination, never silently
+  // turn a notification into a different project's work.
+  if (story !== null && story !== "") {
+    const project = projectParam ?? "";
+    return {
+      route: {
+        source:
+          projects.find((source) => source.id === project) ?? defaultSource,
+        view: "stories",
+        story: { project, identity: story },
+      },
+      normalizedUrl: undefined,
+    };
+  }
   const viewParam =
     requestedView === "settings" ? params.get("returnView") : requestedView;
 
@@ -102,7 +119,7 @@ export function useDashboardRoute({
   const settingsSelection = useRef<PublishedSource | undefined>(undefined);
 
   const selectProject = (next: PublishedSource) => {
-    if (next.id === sourceId) {
+    if (next.id === sourceId && route.story === undefined) {
       return;
     }
     const nextUrl = buildRouteUrl(next.id, route.view, projects);
@@ -111,6 +128,7 @@ export function useDashboardRoute({
       settingsSelection.current = next;
       const params = new URLSearchParams(window.location.search);
       params.set("project", next.id);
+      params.delete("story");
       window.history.replaceState(window.history.state, "", `/?${params}`);
     }
     setRoute({ source: next, view: route.view });
@@ -127,7 +145,11 @@ export function useDashboardRoute({
   // selected, as one history entry, as the roster's Back does and a sidebar
   // entry does; nothing when they are already shown.
   const showStories = (next: PublishedSource) => {
-    if (next.id === sourceId && route.view === "stories") {
+    if (
+      next.id === sourceId &&
+      route.view === "stories" &&
+      route.story === undefined
+    ) {
       return;
     }
     window.history.pushState(
@@ -169,10 +191,9 @@ export function useDashboardRoute({
       } else if (targetView === "roster" && route.view === "stories") {
         onForwardToRoster(targetSource.id);
       }
-      setRoute(nextRoute);
-    } else if (nextRoute.source.id !== route.source.id) {
-      setRoute(nextRoute);
     }
+    // The same project's history may carry a new story, or leave targeting.
+    setRoute(nextRoute);
 
     if (targetSource.id !== sourceId) {
       selectSource(targetSource);

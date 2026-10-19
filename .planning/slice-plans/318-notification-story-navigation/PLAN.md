@@ -105,7 +105,7 @@ Established start, 2026-10-19, for the identity above: publisher `dashboard-terr
 
 Checkout setup passed `node scripts/setup-native.mjs npm`, `node scripts/setup-native.mjs browser`, `node scripts/setup-native.mjs check` (Chromium 153.0.8010.12), and `npm run typecheck:dashboard`, using Node 24.21.0/current lockfile. Resumption repeated only the prerequisite check, passing. The hook checks staged lint and script-triggered dashboard types; selective formatting is `npm run format`.
 
-CI observer: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (`CI`), target the execution branch above, coordinator `seed140-navigation`, execution checkout as above; current yielded cell `31`, session `70451`, directory `/tmp/dough-ci-501/watch-RQPw1R`, PID `99558`. Previous cell `12` / `/tmp/dough-ci-501/watch-gzYIGr` stopped with zero unread records and confirmed exit. The trunk claim is outside this observer's coverage; no increment has yet been published.
+CI observer: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (`CI`), target the execution branch above, coordinator `seed140-navigation`, execution checkout as above; current yielded cell `31`, session `70451`, directory `/tmp/dough-ci-501/watch-RQPw1R`, PID `99558`. Previous cell `12` / `/tmp/dough-ci-501/watch-gzYIGr` stopped with zero unread records and confirmed exit. The trunk claim is outside this observer's coverage; accepted slice-1 increment `4392e0d6356357622be0e4843823fbb8ad9276f7` is registered on this observer and is the next publication's previously published base.
 
 Accepted [slice 1 native observations](NATIVE-EVIDENCE.md): helper 3.1.0 opens the default browser after sender exit, receipt/dismissal do not navigate, refusal recovers through ordinary settings, and a stopped destination fails visibly. Use uniform one-leading-backslash encoding for textual option values and ordinary HTTP URL arguments. Final story-card acceptance remains in slice 3.
 
@@ -151,9 +151,9 @@ observed feasibility and setup requirements.
 ### 2. Resolve a story URL into a visible, focused card or an explicit unavailable target
 
 Type: Behavior
-Status: planned
-Proof: New `dashboard/tests/notification-story-navigation.spec.ts` browser
-journeys, plus affected project, roster, history and session-reveal regressions.
+Status: done
+Proof: [Accepted URL journeys and affected consumers](URL-EVIDENCE.md), including
+`dashboard/tests/notification-story-navigation.spec.ts` and focused regressions.
 
 Behavior: Opening or reloading a target URL selects its named project's stories,
 waits for that project's successful read, and reveals/focuses only the requested
