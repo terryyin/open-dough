@@ -105,7 +105,10 @@ test("a controlled snapshot write failure leaves incomplete evidence and the ori
   expect(record.tests[0]?.attempts[0]?.status).toBeUndefined();
   expect(existsSync(run.outputDir)).toBe(false);
   const obstructing = `${recordPath}.${record.run.id}.tmp`;
-  expect(readFileSync(obstructing, "utf8")).toBe("reserved by the fixture");
+  expect(readdirSync(obstructing)).toEqual(["fixture-marker"]);
+  expect(readFileSync(path.join(obstructing, "fixture-marker"), "utf8")).toBe(
+    "reserved by the fixture",
+  );
 });
 
 test("ordinary repeated runs add no proof store or passing output directories", async () => {
