@@ -154,8 +154,13 @@ when visible again. Attention counts share each entry's reading. The server
 also watches independently every 15 seconds, notifying macOS with Glass when an
 unmarked session enters an alerting native reading, and once, as “Unread report:
 <completion label>”, when its report arrives, whatever the native reading; its
-first read establishes baseline, changed reason alone never repeats, and
-returning through working allows a new alert. Unknown never alerts;
+first read quietly baselines existing waits. Each host-qualified session's
+input alert stays handled across unknown, unreadable, incomplete, unrecognized,
+unavailable and omitted observations, including changed summaries. Only observed
+available working allows its next input alert, even with identical wording.
+An answer/work/new-question cycle missed entirely between successful reads may
+stay quiet. Alert history is local to the server run and never replaces the
+current observation shown on the page. Unknown never alerts;
 unavailable/unrecognized may. `osascript` receives argument text, never
 interpolated script; absence/refusal is reported in the open sidebar, and the
 watcher continues. Each server has its own alert baseline.

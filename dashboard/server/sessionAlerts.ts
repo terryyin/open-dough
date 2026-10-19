@@ -4,11 +4,12 @@ import { sessionKey } from "../src/sessionReference.ts";
 // boundary and stops it with the same cleanup. One loop, never overlapping,
 // reads the machine's sessions (`./agentLaunches.ts`) every few seconds and
 // remembers each session's last native reading and unread report
-// (`../src/sessionShown.ts`), per server run: the first read only sets that
-// baseline, a session first seen later counts as having been working with no
-// report, and a session is notified once when it enters a reading that needs
-// the developer, again only after a reading that does not, and once, in the
-// report's own words, when a report arrives unread. The notification is
+// (`../src/sessionShown.ts`), per server run. The first read quietly baselines
+// existing waits; later sessions alert when they first need input. A handled
+// input request stays quiet across observation gaps, omissions and changed
+// summaries. Only available working rearms it, so work and a new question
+// missed entirely between polls may stay quiet. Other readings alert on entry,
+// and reports alert once in their own words when they arrive unread. The notification is
 // `osascript` with the text passed as arguments, never spliced into script
 // text; where it cannot run, or refuses, the loop goes on. Availability is the latest `osascript` outcome,
 // a probe at start and then each notification, with one of two fixed
@@ -22,7 +23,11 @@ import {
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
-import { alertReading, alertUnreadReport } from "../src/sessionShown.ts";
+import {
+  alertReading,
+  alertUnreadReport,
+  sessionShown,
+} from "../src/sessionShown.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 
 const defaultCheckMs = 15_000;
@@ -98,6 +103,9 @@ export class SessionAlerts {
   // Each session's last alerting reading and unread report; unset until the
   // first read of this run.
   private lastAlerting: ReadonlyMap<string, Alerting> | undefined;
+  // Input requests already notified or quietly baselined in this run. Unlike
+  // the latest reading, this survives unknown observations and omitted records.
+  private readonly handledInput = new Set<string>();
   // Why the latest `osascript` did not work, or nothing while it did or none
   // has run.
   private unavailable: string | undefined;
@@ -148,18 +156,26 @@ export class SessionAlerts {
     const now = sessions.map((session) => ({
       session,
       id: sessionKey(session.session),
+      needsInput: sessionShown(session).tone === "needs-input",
       alerting: {
         reading: alertReading(session),
         report: alertUnreadReport(session),
       },
     }));
     this.lastAlerting = new Map(now.map(({ id, alerting }) => [id, alerting]));
-    if (before === undefined) return;
-    for (const { session, id, alerting } of now) {
+    for (const { session, id, needsInput, alerting } of now) {
+      if (
+        session.sessionState.kind === "available" &&
+        session.sessionState.activity === "working"
+      )
+        this.handledInput.delete(id);
+      const repeatInput = needsInput && this.handledInput.has(id);
+      if (needsInput) this.handledInput.add(id);
+      if (before === undefined) continue;
       const { reading, report } = alerting;
       const last = before.get(id);
       const messages = [
-        ...(reading === undefined || reading === last?.reading
+        ...(repeatInput || reading === undefined || reading === last?.reading
           ? []
           : [readingMessage(reading, session)]),
         ...(report === undefined || report === last?.report ? [] : [report]),

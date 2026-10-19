@@ -63,6 +63,8 @@ export type ClaudeListingControls = {
   }): string;
   // Every session the fake lists, as `claude agents --json --all` would.
   claudeListing(): Record<string, unknown>[];
+  // Replaces the native listing, including omitted or restored sessions.
+  claudeListingBecomes(sessions: readonly object[]): void;
 };
 
 export function fakeClaudeListing(
@@ -85,6 +87,7 @@ export function fakeClaudeListing(
   };
   return {
     claudeListing,
+    claudeListingBecomes: relist,
     claudeSessionBecomes(sessionId, change, waitingFor) {
       if (waitingFor !== undefined && change !== "blocked") {
         throw new Error(`A ${change} session waits for nothing.`);

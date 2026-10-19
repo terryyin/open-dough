@@ -112,7 +112,7 @@ helper and treat it as proof that the server's loop uses the rule.
 ### 1. An input request stays notified until observed work resumes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The complete promise mapping above, through real server polling, native
 fixture answers, the notification-command log and the affected availability UI.
 
@@ -167,5 +167,61 @@ no implementation, Take or story completion.
 
 ## Learnings
 
-No execution learnings yet. Preparation findings and Terry's accepted limitation
-are recorded above.
+The shared semantic input tone and existing host-qualified `sessionKey` support
+one run-local handled-input set without changing native observation, report
+comparison or non-input transition rules. The first poll populates input history
+quietly, and only available working clears it.
+
+The refactor verification exposed a 30-second timeout late in the long recovery
+journey. Its trace showed 25 completed-read barriers accumulating the assertion
+poller's escalating 100/250/500/1000 ms intervals. Sharing the per-session barrier
+and observing it every 50 ms preserved the same three-read threshold and every
+assertion. The final full selection passed all 15 tests with zero retries; the
+continuity journey took 24,384 ms. No timeout or outcome assertion was relaxed.
+
+## Accepted slice proof
+
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed140-refactor-proof-joey-chan.json env -u NO_COLOR npm run test:dashboard -- dashboard/tests/session-alerts.spec.ts dashboard/tests/boundary/agent-launch-codex-observation-alerts.spec.ts dashboard/tests/boundary/session-alerts-unread-report.spec.ts dashboard/tests/session-alerts-unavailable.spec.ts dashboard/tests/boundary/session-alerts-input-continuity.spec.ts`
+
+Result: exit 0, 15 selected tests passed, zero retries, strict run 47,347 ms.
+Coordinator inspected `SessionAlerts.poll`, the native-fact fixture controls,
+and the notification/endpoint assertions. The new continuity journeys observe
+quiet baseline recovery, independent identical waits and host-ID collisions,
+repeated inconclusive readings, native and actual machine-record omission,
+truthful unknown/omitted endpoint answers, and identical-wording input only after
+observed working. Existing complete suites retain title/text/Glass, restart,
+acknowledgement, non-input alerts, unread reports, availability UI and shutdown.
+`afterFurtherReads` observes real per-session reads; fixtures never decide alerts.
+Independent refactor complete; final selective formatting changed whitespace only.
+All changed files remain below 250 lines. `git diff --check` passed.
+
+## Execution context
+
+- Established execution: `SEED-140#avoid-repeating-input-notifications-after-reconnection`,
+  publisher `dashboard-territory.local-open-dough`, agent `joey-chan`.
+- Mode: story-branch. Originating and execution checkout:
+  `/Users/terryyin/git/open-dough/.worktrees/avoid-repeating-input-notifications-after-sessio`;
+  owned branch `codex/avoid-repeating-input-notifications-after-sessio`.
+  Integration checkout: `/Users/terryyin/git/open-dough`; authorized integration
+  target `origin/main`. Increment target:
+  `origin/refs/heads/codex/avoid-repeating-input-notifications-after-sessio`.
+- Established claim and first increment's previously published base:
+  `66e107fa488a238c9ca8b90de4d9ec145684928d`;
+  starting revision `1289a1cdb43bbd7851e4879948dd78578d105870`.
+- Checkout setup: Node 24.21.0; `setup-native.mjs` npm, browser and check stages
+  passed against this checkout's lockfile; dashboard typecheck passed.
+- CI: GitHub Actions, verified selector `ci.yml`, display name `CI`, repository
+  `terryyin/open-dough`, target execution branch above. Codex coordinator
+  `joey-chan-seed140`; yielded cell `17`, session `52218`, PID `2623`, directory
+  `/tmp/dough-ci-501/watch-6BsmMW`, runtime in this checkout's
+  `.agents/skills/dough-execute-plan`. The trunk claim predates this branch
+  observer and its trunk CI is unobserved by this execution.
+- Replanning permission: retain existing planning authority; no numeric slice
+  target or hard limit. Story-obligations listing for slice 1 has zero entries.
+
+## Story obligations
+
+### G1. Work entirely missed between observations
+Reported: slice 1 — "without observed working, an entirely unseen answer/work/new-question cycle may stay quiet."
+Story clause: "A complete answer/work/new-question cycle between successful observations may remain quiet; Terry accepted this limit on 2026-10-19."
+Disposition: excluded "A complete answer/work/new-question cycle between successful observations may remain quiet; Terry accepted this limit on 2026-10-19."

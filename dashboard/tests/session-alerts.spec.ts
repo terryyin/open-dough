@@ -4,8 +4,9 @@
 // reading other than Working raises one notification naming its project, its
 // title, and what it waits for, with a sound. It does not repeat while the
 // reading stays, after a page reload, or after a server restart that finds it
-// there; working and then blocked again alerts again, a changed reason alone
-// does not, and a session marked done never alerts (a report's arrival:
+// there, even through observation gaps. Only observed working rearms input;
+// missed work and changed reasons stay quiet (full recovery journeys:
+// ./boundary/session-alerts-input-continuity.spec.ts). A session marked done never alerts (a report's arrival:
 // ./boundary/session-alerts-unread-report.spec.ts). The text travels as
 // `osascript` arguments, so quotes and backslashes arrive unchanged. Closing
 // the server ends an `osascript` it started. The synthetic `claude`
@@ -159,6 +160,11 @@ test.describe("a session that starts needing the developer raises one macOS noti
       alertCheckMs,
     });
     try {
+      await afterFurtherListings(second);
+      expect(second.osascriptCalls()).toEqual([]);
+      second.claudeListingFails(true);
+      await afterFurtherListings(second);
+      second.claudeListingFails(false);
       await afterFurtherListings(second);
       expect(second.osascriptCalls()).toEqual([]);
       await becomes(second, session, "working");
