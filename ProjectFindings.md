@@ -15,6 +15,8 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
+**Maintenance assessment (2026-10-20):** DD-309 is the leading uncovered local response: seven distinct executions repeat whole-tree formatting despite the selective-format contract. Queue its bounded repository-tooling correction first; it reduces the measured feedback-process cost without changing shared guidance. Existing repaired responses remain historical; incomplete exposure does not establish retirement of other local findings. DD-312 moves here as a repaired fixture-specific observation, not a shared defect.
+
 1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
    extra listings or reruns. [Opt-in selection records](dashboard/tests/README.md)
@@ -224,6 +226,18 @@ cache growth is prevented in these observations; the source of the historical
 ### DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-303).
+
+## Selective formatting during delivery (queued, not resolved)
+
+<a id="dd-309"></a>
+
+[DD-309 evidence and queued response](docs/maintainer/project-test-findings.md#dd-309) retain seven distinct executions, their provenance and qualified cost.
+
+## Hosted worker population regression (repaired)
+
+<a id="dd-312"></a>
+
+[DD-312 evidence and same-execution repair](docs/maintainer/project-test-findings.md#dd-312) retain the hosted and local observations. No new implementation story is selected.
 
 ## Review and recovery
 

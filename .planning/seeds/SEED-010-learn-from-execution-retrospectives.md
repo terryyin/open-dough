@@ -528,6 +528,19 @@ response can be used; autonomous triage is not a hard prerequisite.
 **Safe stopping point:** One bounded autonomous correction works without generic
 self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
+<a id="format-owned-changes"></a>
+
+### 12. Format only the owned change during delivery
+
+**Identity:** SEED-010#format-owned-changes
+**Status:** Queued, not refined.
+**Beneficiary:** Open Dough contributors delivering a bounded change.
+**Outcome:** Format the change's eligible files without repeatedly scanning and rewriting unrelated repository paths.
+**Evidence:** [Project-owned DD-309](../../docs/maintainer/project-test-findings.md#dd-309) records seven executions; one reports about 5–10 minutes per slice under heavy load, while later executions establish repeated scope cost without an unloaded timing estimate.
+**Scope:** Supply a documented selective formatting entry for this repository's delivery workflow, covering owned tracked and new eligible files, filenames containing spaces, deletions and existing ignore rules. Preserve the full-tree formatting/lint entry and the commit hook's check-only behavior. Do not change released guidance, shared installations or unrelated files.
+**Key examples:** A Markdown-only change triggers no unrelated script or shell formatting; one changed script and one new eligible file are formatted while unrelated dirty files remain byte-identical; the normal staged check still rejects an unformatted staged eligible file.
+**Evaluation:** Compare selected paths and affected bytes with the pre-change command on bounded representative changes; preserve lint/format confidence and report actual cost without extrapolating a speedup. On completion update DD-309 with the actual response, relevant repository revision, any containing release and the outcome evidence; queueing alone resolves nothing.
+
 ## Ordering and Scope Reduction
 
 Queue the next five outcomes in this order: Story 4 (response effectiveness),

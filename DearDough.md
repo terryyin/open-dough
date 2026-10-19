@@ -7,7 +7,7 @@ in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
 - Highest allocated local number: 317. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
-- Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
+- Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 
@@ -556,66 +556,6 @@ The plan's design said a record assessed before the change "whose dependency sta
   - Observed effect: a correction story and plan for legacy records and assessment wording after all four slices were delivered.
   - Inference: qualified. Acceptance compared the return to the plan's proof; rereading each key example the slice owns against the accepted behavior would have caught it before delivery. One execution.
 
-## DD-309 — The per-slice formatter rewrites the whole repository
-Slice delivery asks for the project's selective formatting command; this project's `npm run format` (`scripts/lint.mjs --fix`) lists every tracked and untracked file and runs ESLint, Prettier and shell formatting over all of them, so a docs-only slice pays the full cost.
-### Occurrences
-- Execution: `SEED-138#compute-execution-readiness` / plan 311, first related commit `7aafbcb14dbc82d7bf88fd68570aff381c556dd2`
-  - Timestamp: unknown (2026-10-17 JST, each of the four slice deliveries)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.63
-  - Evidence: `scripts/lint.mjs` file listing (`git ls-files --cached --others --exclude-standard` unless `--staged`); coordinator format runs exceeded 300 s (slices 1 and 3) and 600 s (slice 4, five Markdown files) at load averages near 100 to 120.
-  - Observed effect: roughly 5 to 10 minutes of formatter time per slice, four times, with the coordinator idle.
-  - Inference: qualified. Machine load inflated the cost; a changed-files mode, like the hook's `--staged` check, would bound it. Unloaded duration not measured.
-
-- Execution: `SEED-008#land-unfinished-stories-without-retirement` / plan 314, first implementation `100e12a4b44e7b43477b1f411d138813d2b4b32d`
-  - Timestamp: unknown (2026-10-18 JST, slice deliveries).
-  - Tool: Codex
-  - Open Dough release: 0.3.63 (installed VERSION at claim `50d0a603`; installed execution/refactor guidance unchanged).
-  - Evidence: `scripts/lint.mjs` lists all tracked/untracked files for `npm run format`; accepted slice 1/2 evidence at `1317f9fc` and coordinator tool receipts record two first-slice attempts (one mechanical unused-parameter repair) and one second-slice attempt.
-  - Observed effect: each delivery waited for repository-wide ESLint, Prettier and shell checks; logs enumerate unchanged installed skills and unrelated source/test files. The second delivery also encountered the overloaded shared host. No unrelated bytes changed.
-  - Inference: the available project command exceeds the workflow's selective-format intent; the full cost is repeated after a mechanical repair. Unloaded duration and token cost were not measured; no formatter change is authorized by this execution.
-
-- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
-  - Timestamp: unknown (2026-10-19 JST; events described below).
-  - Tool: Codex
-  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
-  - Evidence: coordinator `npm run format` logs `/tmp/seed136-format-slice1.log`, `/tmp/seed136-format-slice2.log` and `/tmp/seed136-format-slice3.log`; scripts/lint.mjs lists every tracked/untracked path without --staged. The run enumerated unchanged installed skills, unrelated sources and tests for the owned bundle/fixture changes. All three slice deliveries completed the same required command.
-  - Observed effect: delivery waited through repository-wide ESLint, Prettier and shell formatting; no unrelated bytes changed.
-  - Inference: the available project command exceeds selective-format intent. This occurrence does not quantify unloaded duration or token cost and does not authorize changing formatting in this story.
-
-- Execution: `SEED-010#triage-project-owned-retrospective-findings` / plan 316, first implementation `95c0af23d9272659a8d79dacb228a542f26d89e8`
-  - Timestamp: unknown (2026-10-19 JST, slices 1–3 delivery).
-  - Tool: Codex
-  - Open Dough release: 0.3.64 (checkout-bound installed VERSION at claim `ed38588d`; installed execution/refactor guidance unchanged).
-  - Evidence: `95c0af23:.planning/slice-plans/316-triage-project-findings/EXECUTION.md` delivery preparation, `4636b764` same path slice-2 preparation, and `6c7f316d:.planning/slice-plans/316-triage-project-findings/DELIVERY.md` acceptance/preparation record each passed `npm run format` without additional edits. `scripts/lint.mjs` at `6c7f316d` selects every tracked/untracked script and JSON file plus shell scripts; Markdown is outside those formatter selections.
-  - Observed effect: three repository-wide formatter runs, including the two Markdown-only implementation increments; delivery waited for unchanged unrelated script checks and no formatter edit resulted.
-  - Inference: the available command exceeds the workflow's selective-format intent. No elapsed-time or token-cost estimate is asserted; changing formatting is outside this story.
-
-- Execution: `SEED-010#exchange-retrospective-findings-with-another-project` / plan 317, first implementation `6222747bc602a10c1ed833bc0d128e61ec2b005f`
-  - Timestamp: unknown (2026-10-19 JST, three slice deliveries).
-  - Tool: Codex
-  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `ae9e5d4f`; installed execution/refactor guidance unchanged; internal candidate guidance modified).
-  - Evidence: coordinator format receipts and `/tmp/open-dough-317-format-slice1.log`, `format-slice2.log` and `format-slice3.log` (same prefix) record four whole-command attempts: first slice twice after mechanical ShellCheck repair, then once per later slice. `scripts/lint.mjs` selects all tracked/untracked scripts and JSON plus shell paths; logs enumerate unchanged installed skills, unrelated sources and tests. Proof notes at `f492e533:.planning/slice-plans/317-collect-client-feedback/proof/` retain preparation outcomes.
-  - Observed effect: each delivery waited through repository-wide ESLint, Prettier and shell checks, including the four-line Markdown policy correction; no unrelated bytes changed.
-  - Inference: the available command exceeds the workflow's selective-format intent. No unloaded elapsed time or token cost is asserted, and this story does not authorize changing the formatter.
-
-- Execution: `SEED-010#run-combined-project-and-shared-feedback-cycle` / plan 321, first implementation `f3f2f8aae37dfe83f5778bc6b6f88906c3c4bfcd`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `7a7d82ca`; execution/refactor guidance unchanged; new internal wrapper unreleased).
-  - Evidence: coordinator terminal receipts record three slice-1 `npm run format` attempts (two ShellCheck annotation failures, then success), and one successful slice-2 attempt. Final passing logs are `/tmp/dough321-format-slice1.log` and `/tmp/dough321-format-slice2.log`; earlier failures are in the coordinator conversation. `scripts/lint.mjs` lists the whole tracked/untracked tree; output enumerated unchanged installed skills and unrelated scripts/JSON.
-  - Observed effect: delivery waited for four whole-tree runs; no unrelated bytes changed. The source annotations repaired only the disposable native proof runner.
-  - Inference: the project command exceeds selective-format intent, and a mechanical repair repeats that cost. No unloaded duration or total token estimate is asserted; changing the formatter is outside this story.
-
-- Execution: `SEED-141#open-referenced-story-in-dashboard` / plan 320, first implementation `fb09c6340722761096fa539c28e2a905d869e92a`
-  - Timestamp: unknown (2026-10-19 JST, first two slice deliveries).
-  - Tool: Codex
-  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `cdd71a2d`; installed guidance unchanged).
-  - Evidence: scripts/lint.mjs lists every tracked/untracked script and JSON plus shell paths for npm run format. Coordinator receipts record four whole-command attempts across the first two deliveries, each repeated after mechanical lint repair; retained logs include `/tmp/seed141-slice1-format.log`, `/tmp/seed141-slice2-format.log` and `/tmp/seed141-slice2-format-repaired.log`. `1975b9868a76ff6e4df8e961b27815fce1cd8d45:.planning/slice-plans/320-dashboard-story-references/proof/observations.md` records accepted preparation.
-  - Observed effect: both deliveries waited through repository-wide ESLint, Prettier and shell formatting, enumerating unchanged installed skills and unrelated source/tests; no unrelated bytes changed.
-  - Inference: the available command exceeds selective-format intent and repeats its broad cost after mechanical repair. Unloaded elapsed time and token cost were not measured; this story does not authorize formatter changes.
-
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.
 
@@ -643,20 +583,6 @@ Slice 1's own threshold said a saving under 30 % means re-planning the measured 
   - Evidence: plan 310 Learnings, first entry (−16 % against the 30 % threshold, "Decision for Terry at the next checkpoint, not blocking slices 2–7") and Current decisions "Decision for Terry (time targets)" written with slice 9; the developer was present mid-execution (the process-leak messages at 22:24+09:00) and was not asked.
   - Observed effect: the developer learns at completion that both time targets were unreachable by the retained work, when slices 6–8 could have been shaped against revised numbers or the story split.
   - Inference: qualified. "Stop only the affected path" and "deliver safe work first" are right, but a one-line checkpoint message at the first developer contact costs nothing; the coordinator chose to accumulate evidence instead. The hosted floor was only measured at slice 8, so an earlier question would have been partly speculative.
-
-## DD-312 — A worker-scoped fixture declared in a subset of specs split the hosted worker population, invisible to local proof
-Adding a worker-scoped fixture to one fixture module while other specs extend only the base made Playwright hash the two populations apart and restart the four workers at every switch on every shard; the slice's local proof and whole runs were green and faster, and the cost showed only in hosted report artifacts.
-
-### Occurrences
-
-- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
-  - Timestamp: 2026-10-18T0x:xx+09:00 (slice 7 published 1aec32a1 at about 04:1x+09:00; found by the hosted analysis about 04:3x+09:00; fixed in slice 9)
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
-  - Evidence: plan 310 slice 9 "Worker restarts" and the Learnings entry on hosted measurement: 68 worker starts per hosted run against 21 before (83 s of restart gaps, 134 s of slot imbalance across twelve shards); the fix moved the fixture to `support/pageTest.ts` and gave the voice files one `launchOptions` object (local experiment 13 → 8 workers).
-  - Observed effect: one hosted run's overhead rose while its per-test seconds fell; found only because the coordinator commissioned a per-test comparison of report artifacts.
-  - Inference: qualified. A slice that changes test infrastructure has a hosted cost its local proof cannot see; reading the published run's report artifact (worker count, gaps) as part of the next slice's acceptance would catch it in one revision. Playwright's rule is now in the fixture's comment.
 
 ## DD-313 — The CI observer's budget expires inside a long execution
 The execution observer ends after its eight-hour budget; an execution running longer loses coverage between the expiry and the next managed delivery, which starts a new observer.

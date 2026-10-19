@@ -20,6 +20,7 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Format only the owned change during delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) — SEED-010#format-owned-changes
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
