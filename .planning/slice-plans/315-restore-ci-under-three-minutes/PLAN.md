@@ -64,7 +64,7 @@ fetchable from GitHub for a while, but the plan does not depend on it.
 
 ### 1. Start dashboard servers from a once-per-run bundle
 Type: Behavior
-Status: planned
+Status: done
 Proof: The focused specs and scratch checks in the proof table pass, followed
 by the full local dashboard suite under `env -u NO_COLOR -u FORCE_COLOR` with a
 fresh `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`.
@@ -85,6 +85,24 @@ removes the bundle.
   start in the suite.
 
 Safe stop: the suite passes locally with every server on the bundle.
+
+Accepted proof (2026-10-19): checkout-bound npm/browser/check setup and
+dashboard typecheck passed. Focused boundary command, serving-mode equivalence
+and keyboard preview journeys passed all ten tests
+(`/tmp/seed136-slice1-focused.json`). The scratch harness
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed136-bundle-proof-ql9rz1rz/run.mjs`
+passed real CLI/HTTP assertions for all three source-relative `import.meta`
+forms, next-run source freshness, passing/failing cleanup, overlapping unique
+bundles, SIGINT preserving the other run, no leaked run processes, and an
+invalid entry failing setup before tests with its source named and no bundle.
+Its `scratch.spec.ts`, logs and `observations.json` retain the observations;
+all injected source edits were restored.
+
+The final full local proof below passed all 1,537 tests, with no skips,
+retries, failures or leaked-process reports. The independent refactor changed
+only test-contract prose (250 lines), preserving every accepted boundary.
+`npm run format` passed; only owned code formatting changed. The existing
+five-case reporter-storage proof also passed after the fixture repair below.
 
 ### 2. Prove the hosted saving and record it
 Type: Behavior
@@ -120,7 +138,57 @@ Safe stop: the measured saving is recorded in the seed.
 - The superseded under-three-minute plan is recoverable at
   `7d08bc72:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`.
 
+## Execution context
+
+- Established start: publisher `dashboard-territory.local-open-dough`, agent
+  `ebacky-chan`; story-branch mode in
+  `/Users/terryyin/git/open-dough/.worktrees/cut-dashboard-ci-time-with-once-per-run-server-b`
+  on `codex/cut-dashboard-ci-time-with-once-per-run-server-b`. This owned execution
+  checkout is also the originating checkout; no integration checkout is supplied.
+- Starting revision: `dca322fb8b7cd91d06f19cb2276391b8a6fc2b14`.
+  Published claim/candidate: `c0fa9c15d00587d9251f1f7fa1a7f799b9ec8f40`
+  on `origin/main`. Increments publish to the origin execution branch.
+- Node 24.21.0; checkout-bound npm/browser setup, prerequisite check and
+  `npm run typecheck:dashboard` passed on 2026-10-19. Hook is check-only
+  staged lint plus typecheck; selective formatting is `npm run format`.
+- No numeric slice budget is supplied; use one bounded behavior/proof loop.
+  Existing planning authority is retained; no explicit replan override.
+- CI: GitHub Actions `ci.yml` (verified workflow 351271804, name `CI`),
+  target `codex/cut-dashboard-ci-time-with-once-per-run-server-b`.
+  Codex coordinator `seed136-ebacky`, yielded cell `8`, PTY session `88432`,
+  directory `/tmp/dough-ci-501/watch-lxenZg`, PID `35734`.
+  The earlier trunk claim is unobserved by this branch observer.
+
 ## Learnings
+
+The first full local run (`/tmp/seed136-slice1-full-20261019.json`) selected
+1,537 tests: 1,531 passed, two failed, four serial successors skipped, exit 1
+after 920.52 s. The storage-failure fixture raced the reporter's begin-snapshot
+write; it now waits for that snapshot and uses a directory obstruction that
+the reporter's nonrecursive cleanup cannot remove. All five storage cases
+passed (`/tmp/seed136-slice1-storage-deterministic.json`). The repair will be
+committed before the bundle so the hosted candidate's parent contains it.
+
+The other failure was the unchanged production watcher's 90-second retry
+scenario. Its real production checkout never imports the test bundle. In the
+broad run four production files overlapped: source copying took about 22 s
+versus 4 s isolated, and first deployment about 39 s versus 8 s isolated.
+One instrumented focused observation passed in 24.24 s: npm ci took 4.97 s
+cold, then 1.39/1.31 s in the same HOME, and successful builds 1.82/1.63 s.
+Observed 5/15-minute load was 27.53/25.13 on a 16-core host. This supports
+host contention, not a cache or bundle defect. The next full local proof uses
+`--workers=4`, ordinary npm and a fresh proof record, with all tests,
+assertions and deadlines retained. No hosted workflow or production script
+changes are justified; an unexplained recurrence stops diagnosis.
+
+Final complete local verification (PTY `59564`, terminal exit 0):
+`env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed136-slice1-full-repaired-workers4-20261019.json npm run test:dashboard -- --workers=4`.
+All 1,537 selected tests passed in 1,066.15 s; strict and runner verdicts
+passed. The previously timed-out retry took 9.11 s and all five watcher
+failure cases passed with unchanged assertions and deadlines.
+The instrumented production observation is retained in
+`/tmp/seed136-slice1-production-diagnostic.json` and
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed136-npm-diagnostic-4aobk5x4/`.
 
 The dashboard shards are CPU-bound on four-vCPU runners. Reordering work only
 moves contention, so time comes back only by removing CPU work. Per-test server

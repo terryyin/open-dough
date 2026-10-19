@@ -15,28 +15,33 @@ import {
 import { repoRoot } from "./repositoryRoot.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { buildDashboardTo } from "./dashboardBuild.ts";
+import { serverBundleVariable } from "./serverBundle.ts";
 
 // Which server a test launches: Vite's dev server, Vite's preview of a
 // build, or the boundary server.
 export type DashboardServerMode = "dev" | "preview" | "boundary";
 
 const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
+const bundle = process.env[serverBundleVariable];
 const boundaryServerEntry = path.join(
   repoRoot,
   "dashboard",
   "server",
   "boundaryServer.ts",
 );
-// The server's own TypeScript needs transforming, not stripping (a parameter
-// property in doneMarks.ts); the flag's warning would otherwise be the
-// child's first output.
+// Suite workers use the run's bundle. A nested configuration without global
+// setup can still start source, whose TypeScript needs transforming rather
+// than stripping (a parameter property in doneMarks.ts).
 export const boundaryServerCommand = {
   command: process.execPath,
-  args: [
-    "--experimental-transform-types",
-    "--disable-warning=ExperimentalWarning",
-    boundaryServerEntry,
-  ],
+  args:
+    bundle === undefined
+      ? [
+          "--experimental-transform-types",
+          "--disable-warning=ExperimentalWarning",
+          boundaryServerEntry,
+        ]
+      : [path.join(bundle, "boundaryServer.mjs")],
 } as const;
 
 // Any free port, chosen by Vite itself (`--port 0`), which probes one and then
@@ -113,11 +118,24 @@ export function serverLaunch(
     const args = [...listen, "--environment", options.environment];
     return { spawn: () => spawnBoundaryServer(args, env), outDir: undefined };
   }
-  const viteArgs = ["--config", "dashboard/vite.config.mts", ...listen];
   if (options.mode === "dev") {
     // Dev mode compiles on the fly; it never reads or writes `dist`.
-    return { spawn: () => spawnVite(viteArgs, env), outDir: undefined };
+    return {
+      spawn: () =>
+        spawnVite(["--config", "dashboard/vite.config.mts", ...listen], env),
+      outDir: undefined,
+    };
   }
+  const viteArgs =
+    bundle === undefined
+      ? ["--config", "dashboard/vite.config.mts", ...listen]
+      : [
+          "--configLoader",
+          "native",
+          "--config",
+          path.join(bundle, "vite.config.mjs"),
+          ...listen,
+        ];
   const outDir = options.prebuilt ?? options.buildDir;
   if (options.prebuilt === undefined) buildDashboardTo(outDir);
   return {
