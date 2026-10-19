@@ -24,6 +24,13 @@ resolve the original target. These outcomes name the requested identity and
 offer project choices and **Show project stories** without focusing unrelated
 work. URLs without a story target retain ordinary project/view routing.
 
+Story references and direct URLs share a configured project and story identity
+as their target, and share card reveal. Active membership comes from that
+project's published work; Done references use the existing catalog and range.
+A reveal follows native scrolling until the card first reaches a usable reading
+place, then lets later navigation bring its next control into view. Layout
+changes can retain that reading place until the developer moves.
+
 Keep one story overview with an always-visible banner pinned to the viewport top.
 Start the banner with a **Sessions** button that opens and closes the Sessions
 sidebar, which lists the open agent sessions of every project beside the page

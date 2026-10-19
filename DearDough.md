@@ -327,7 +327,7 @@ Former local code: DD-266. Planning settles proof through a temporary mutable de
   - Timestamp: unknown (2026-10-19 JST, reconciliation baseline investigation).
   - Tool: Codex
   - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `cdd71a2d`; installed guidance unchanged).
-  - Evidence: reconciliation agent reported a temporary baseline dependency symlink despite checkout-owned setup guidance. The coordinator rejected that result; the agent unlinked only its owned link, completed npm ci in the baseline, reproduced the original viewport failure, preserved `dashboard/test-results/baseline-b05b421/2026-10-19T13-45-34.834Z/` and removed the owned worktree. Plan 320 proof/observations.md retains this sequence.
+  - Evidence: reconciliation agent reported a temporary baseline dependency symlink despite checkout-owned setup guidance. The coordinator rejected that result; the agent unlinked only its owned link, completed npm ci in the baseline, reproduced the original viewport failure, preserved `dashboard/test-results/baseline-b05b421/2026-10-19T13-45-34.834Z/` and removed the owned worktree. `1975b9868a76ff6e4df8e961b27815fce1cd8d45:.planning/slice-plans/320-dashboard-story-references/proof/observations.md` retains this sequence.
   - Observed effect: the first baseline result was discarded and locked setup plus the observation had to be repeated; no accepted proof depends on the linked installation.
   - Inference: this execution-stage baseline repeats the same forbidden mutable-installation shortcut as the planning finding; it does not justify relaxing checkout ownership. Sub-agent evidence is bounded to its handoff and the coordinator's observed correction.
 
@@ -596,7 +596,7 @@ Slice delivery asks for the project's selective formatting command; this project
   - Timestamp: unknown (2026-10-19 JST, first two slice deliveries).
   - Tool: Codex
   - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `cdd71a2d`; installed guidance unchanged).
-  - Evidence: scripts/lint.mjs lists every tracked/untracked script and JSON plus shell paths for npm run format. Coordinator receipts record four whole-command attempts across the first two deliveries, each repeated after mechanical lint repair; retained logs include `/tmp/seed141-slice1-format.log`, `/tmp/seed141-slice2-format.log` and `/tmp/seed141-slice2-format-repaired.log`. Plan 320 proof/observations.md records accepted preparation.
+  - Evidence: scripts/lint.mjs lists every tracked/untracked script and JSON plus shell paths for npm run format. Coordinator receipts record four whole-command attempts across the first two deliveries, each repeated after mechanical lint repair; retained logs include `/tmp/seed141-slice1-format.log`, `/tmp/seed141-slice2-format.log` and `/tmp/seed141-slice2-format-repaired.log`. `1975b9868a76ff6e4df8e961b27815fce1cd8d45:.planning/slice-plans/320-dashboard-story-references/proof/observations.md` records accepted preparation.
   - Observed effect: both deliveries waited through repository-wide ESLint, Prettier and shell formatting, enumerating unchanged installed skills and unrelated source/tests; no unrelated bytes changed.
   - Inference: the available command exceeds selective-format intent and repeats its broad cost after mechanical repair. Unloaded elapsed time and token cost were not measured; this story does not authorize formatter changes.
 
