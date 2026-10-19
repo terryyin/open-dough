@@ -41,7 +41,13 @@ temporary checkout under `~/.open-dough/dashboard/inspections/`. When any
 changed path lies outside those exclusions, or the workflow lists no push
 exclusions, that commit is pinned for its build and startup, even if `main`
 moves on meanwhile, and then replaces production at the same URL as the new
-baseline; a later check picks up any newer commit. When every change is
+baseline; a later check picks up any newer commit. Before replacement, the
+running server closes start admission and waits for accepted starts to finish
+publishing their assignments, receive their native launch outcome, and keep that
+outcome durably. New starts and continuations answer that the dashboard is
+updating. If the running server cannot confirm this handshake, including an old
+server without the protocol, the watcher keeps it running and reports why.
+When every change is
 excluded, the log reports the skipped commit and the running server stays in
 place, as it does for an unchanged `main`; later changes are still compared
 with the running commit. The log names each selected and running commit. A

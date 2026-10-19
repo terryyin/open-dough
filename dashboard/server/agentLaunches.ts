@@ -18,6 +18,7 @@ import {
 } from "../src/agentLaunch.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { LaunchAdmission } from "./launchAdmission.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
@@ -25,15 +26,16 @@ import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import { changedAttempt } from "./launchAttemptChanges.ts";
-import { startStillRunning } from "./launchAttemptConflicts.ts";
-import { runsSessionStart } from "./unattachedStartScript.ts";
 import {
   keptCreations,
   keptSession,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
 import { creationView } from "./launchCreation.ts";
-import { preAcceptanceAnswer } from "./launchPreAcceptance.ts";
+import {
+  preAcceptanceAnswer,
+  preContinuationAnswer,
+} from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
@@ -69,6 +71,12 @@ const verifyWaitMs = 10_000;
 
 export class AgentLaunches {
   private readonly owner = new LaunchAttemptOwner();
+  private readonly admission = new LaunchAdmission();
+
+  async drain(): Promise<void> {
+    await this.admission.drain();
+    await this.owner.drain();
+  }
   private readonly progress = new StartProgress();
   private readonly savedSessionServices = new SavedSessionServices();
 
@@ -161,46 +169,49 @@ export class AgentLaunches {
 
   // Accepts a launch, answering once it is accepted; the launch goes on
   // whatever happens to the caller.
-  async accept(
+  accept(
     source: PublishedSource,
     request: AgentLaunchRequest,
     reportingOrigin?: string,
   ): Promise<Acceptance> {
-    // A matching live launch is answered before its evidence can be mistaken
-    // for a retry. Settled recoverable session starts reuse locked continuation.
-    const submitted = this.owner.submitted(request);
-    if (submitted !== undefined) return submitted;
-    if (request.workflow === "ad-hoc") {
-      const { attempts } = await this.owner.attempts();
-      const retained = attempts
-        .filter((attempt) => sameLaunch(attempt.request, request))
-        .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
-      if (retained !== undefined && needsReconciliation(retained))
-        return this.continueAttempt(source, retained.id);
-    }
-    const answer = await preAcceptanceAnswer(source, request);
-    if (answer !== undefined) return answer;
-    return this.owner.accept(request, this.runAttempt(source), reportingOrigin);
+    return this.admission.run(async () => {
+      // A matching live launch is answered before its evidence can be mistaken
+      // for a retry. Settled recoverable session starts reuse locked continuation.
+      const submitted = this.owner.submitted(request);
+      if (submitted !== undefined) return submitted;
+      if (request.workflow === "ad-hoc") {
+        const { attempts } = await this.owner.attempts();
+        const retained = attempts
+          .filter((attempt) => sameLaunch(attempt.request, request))
+          .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
+        if (retained !== undefined && needsReconciliation(retained))
+          return this.continueRequest(source, retained.id);
+      }
+      const answer = await preAcceptanceAnswer(source, request);
+      if (answer !== undefined) return answer;
+      return this.owner.accept(
+        request,
+        this.runAttempt(source),
+        reportingOrigin,
+      );
+    });
   }
 
   // Continues the kept attempt through the same pre-launch checks and run.
   // Its kept start, creation, or unconfirmed input is recovered by existing
   // rules; an earlier start still running here must finish first.
   continueAttempt(source: PublishedSource, id: string): Promise<Acceptance> {
+    return this.admission.run(() => this.continueRequest(source, id));
+  }
+
+  private continueRequest(
+    source: PublishedSource,
+    id: string,
+  ): Promise<Acceptance> {
     return this.owner.continueAttempt(
       source.id,
       id,
-      async (request) => {
-        const session = request.workflow === "ad-hoc";
-        const running = session
-          ? runsSessionStart(id)
-          : this.progress
-              .for(request.workflow)
-              .running(source.id, request.identity);
-        return running
-          ? startStillRunning(session ? "session" : "story")
-          : preAcceptanceAnswer(source, request);
-      },
+      (request) => preContinuationAnswer(source, id, request, this.progress),
       this.runAttempt(source),
     );
   }

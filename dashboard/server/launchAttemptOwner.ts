@@ -29,7 +29,7 @@ import {
   verifyAttempt,
   type LaunchVerifier,
 } from "./launchAttemptVerification.ts";
-import { settleAttempt, type AttemptRun } from "./launchAttemptSettlement.ts";
+import type { AttemptRun } from "./launchAttemptSettlement.ts";
 import { keepAttemptIf, keptAttempts } from "./launchAttemptStore.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { OwnedAttempts } from "./ownedAttempts.ts";
@@ -41,6 +41,10 @@ import { attemptWorker } from "./launchAttemptWorker.ts";
 
 export class LaunchAttemptOwner {
   private readonly owned = new OwnedAttempts();
+  // Includes the final durable outcome write, after native confirmation.
+  drain(): Promise<void> {
+    return this.owned.drain();
+  }
   private readonly verifying = new Set<string>();
 
   // The attempts this machine keeps and those this server owns, oldest
@@ -221,7 +225,7 @@ export class LaunchAttemptOwner {
       };
     const own = this.owned.own(request, keptAttempt);
     rememberTerminalHandoff(attempt.id, attachTerminal);
-    void settleAttempt(this.owned, own, run);
+    this.owned.settle(own, run);
     return { kind: "accepted", attempt: this.owned.observed(keptAttempt) };
   }
 

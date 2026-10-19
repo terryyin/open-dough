@@ -5,6 +5,7 @@
 
 import { startTimeoutMs } from "./launchStart.ts";
 import { attemptWorkerRunning } from "./launchAttemptWorker.ts";
+import { settleAttempt, type AttemptRun } from "./launchAttemptSettlement.ts";
 
 import type {
   AgentLaunchRequest,
@@ -24,6 +25,22 @@ export type OwnedAttempt = {
 
 export class OwnedAttempts {
   private readonly byId = new Map<string, OwnedAttempt>();
+  private readonly settlements = new Set<Promise<void>>();
+
+  // Ownership includes the final durable outcome write, after native confirmation.
+  drain(): Promise<void> {
+    return Promise.all(this.settlements).then(() => undefined);
+  }
+
+  settle(own: OwnedAttempt, run: AttemptRun): void {
+    const settlement = settleAttempt(this, own, run);
+    this.settlements.add(settlement);
+    void settlement.then(
+      () => this.settlements.delete(settlement),
+      () => this.settlements.delete(settlement),
+    );
+  }
+
   // Each owned attempt's next change while something waits for it, by id.
   private readonly nextChanges = new Map<
     string,

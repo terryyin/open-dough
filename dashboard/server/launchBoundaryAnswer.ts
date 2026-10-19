@@ -103,6 +103,9 @@ export async function answer(
       return { status: 200, body: await submitCompletion(req, doneMarks) };
     const request = await admitted(req, url, launches);
     switch (request.kind) {
+      case "drain":
+        await launches.drain();
+        return { status: 200, body: { drained: true } };
       case "host-options": {
         return await withResponseSignal(res, async (signal) => {
           try {

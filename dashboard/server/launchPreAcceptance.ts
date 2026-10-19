@@ -6,7 +6,12 @@
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { recordedRequest } from "./hostLaunch.ts";
-import type { Unaccepted } from "./launchAttemptConflicts.ts";
+import {
+  startStillRunning,
+  type Unaccepted,
+} from "./launchAttemptConflicts.ts";
+import { runsSessionStart } from "./unattachedStartScript.ts";
+import type { StartProgress } from "./startProgress.ts";
 import { creationProblem } from "./launchCreation.ts";
 import { launchHost } from "./launchHosts.ts";
 import { creationOf, pendingInputOf } from "./launchRecordStore.ts";
@@ -41,4 +46,20 @@ export async function preAcceptanceAnswer(
   return (await pendingInputOf(source.id, request)) === undefined
     ? unconfirmedStart(source, request, folder)
     : undefined;
+}
+
+// A continuation first protects the retained start still running on this server.
+export function preContinuationAnswer(
+  source: PublishedSource,
+  id: string,
+  request: AgentLaunchRequest,
+  progress: StartProgress,
+): Promise<Unaccepted | undefined> {
+  const session = request.workflow === "ad-hoc";
+  const running = session
+    ? runsSessionStart(id)
+    : progress.for(request.workflow).running(source.id, request.identity);
+  return running
+    ? Promise.resolve(startStillRunning(session ? "session" : "story"))
+    : preAcceptanceAnswer(source, request);
 }

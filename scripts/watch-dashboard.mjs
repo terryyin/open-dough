@@ -119,6 +119,9 @@ try {
         published: selected,
         signal: cancellation.signal,
       });
+      console.log("Waiting for accepted dashboard starts before updating.");
+      await preview.drain(cancellation.signal);
+      cancellation.signal.throwIfAborted();
       await preview.stop();
       preview = undefined;
       try {

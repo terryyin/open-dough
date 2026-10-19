@@ -8,6 +8,8 @@
 // reconciliation, answered the same way; a same-origin POST to
 // `/__agent-launch/reconciled` notes that a settled attempt reconciled with
 // published state, or answers why not; a same-origin POST to
+// `/__agent-launch/drain` closes start admission and waits for accepted starts
+// through their durable outcome before a production replacement; a POST to
 // `/__agent-launch/verify` settles a story attempt whose launch is uncertain
 // from its host's own session listing, or answers why it stays unresolved; a
 // same-origin GET of `/__agent-launch/changed?attempt=` answers once that accepted attempt

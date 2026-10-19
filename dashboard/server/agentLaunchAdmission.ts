@@ -76,6 +76,7 @@ import {
 
 export type Admitted =
   | { readonly kind: "sessions" }
+  | { readonly kind: "drain" }
   | { readonly kind: "cursor-sessions" }
   | AdmittedHostOptions
   | AdmittedResult
@@ -168,6 +169,7 @@ const postRequests = new Map<
   string,
   (req: IncomingMessage, launches: AgentLaunches) => Promise<Admitted>
 >([
+  ["/__agent-launch/drain", () => Promise.resolve({ kind: "drain" })],
   [agentDoneEndpoint, doneRequest],
   [agentReadEndpoint, readRequest],
   [agentDeleteEndpoint, deleteRequest],
