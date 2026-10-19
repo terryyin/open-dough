@@ -117,11 +117,14 @@ test("before a usable listening address, attention cannot emit a made-up click U
   const alerts = helper.start(() => listening.origin);
   await helper.further();
   await expect.poll(() => helper.native.notifierProbes().length).toBe(2);
-  expect(alerts.availability()).toEqual({
-    available: false,
-    reason:
-      "The dashboard has no listening loopback HTTP address for notification clicks.",
-  });
+  // A recorded diagnostic has started; its answer establishes availability.
+  await expect
+    .poll(() => alerts.availability())
+    .toEqual({
+      available: false,
+      reason:
+        "The dashboard has no listening loopback HTTP address for notification clicks.",
+    });
   helper.state("waiting");
   await helper.further();
   expect(helper.native.notifierCalls()).toEqual([]);
