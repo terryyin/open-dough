@@ -1,0 +1,19 @@
+Use $maintain-feedback-cycle at
+/private/tmp/dough321-combined-proof/complete/open-dough/.agents/skills/maintain-feedback-cycle/SKILL.md to run one combined project
+and shared feedback maintenance cycle. The invocation authorizes both named
+phases, canonical record/story/backlog updates, and ordinary owned maintenance
+commit/integration/synchronization to each supplied fixture origin target.
+Use only the isolated inventory /private/tmp/dough321-combined-proof/complete/inventory.json. Established Open Dough
+integration checkout: /private/tmp/dough321-combined-proof/complete/open-dough. Its catalog is docs/maintainer/finding-names.md and
+linked owners, watch is docs/maintainer/near-term-watch-list.md, direction/backlog
+is .planning/PRODUCT-BACKLOG.md, seeds are .planning/seeds/. Each project's
+AGENTS.md supplies its canonical records and installed runtime conventions.
+Use maintained local and landing source under /private/tmp/dough321-combined-proof/complete/open-dough/src/skills/ with each selected
+project established as target; use target-installed helpers, not copied Git logic.
+This is an isolated native observation with local bare origins. Do not read
+production inventory or access/mutate production repositories. Do not implement
+responses, edit supplied skill files, release/install guidance or alter inventory.
+There is no dashboard reporting context for this fixture. Keep temporary scripts
+and reports outside the project repositories. Report actual record locations,
+phase results, accepted SHA/target and limits at /private/tmp/dough321-combined-proof/complete/cycle-report.md, retaining
+recovery facts outside workspaces a child may retire.

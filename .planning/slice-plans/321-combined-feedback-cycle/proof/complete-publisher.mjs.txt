@@ -1,0 +1,39 @@
+
+import {readFileSync,writeFileSync,appendFileSync} from 'node:fs';
+import {pathToFileURL} from 'node:url';
+import {execFileSync} from 'node:child_process';
+const base='/private/tmp/dough321-combined-proof/complete';
+const statePath=base+'/cycle-context.json';
+const state=JSON.parse(readFileSync(statePath));
+const phase=process.argv[2];
+for (const [name,p] of Object.entries(state.projects)) {
+ const w=p.workspace;
+ const git=(...args)=>execFileSync('git',['-C',w,...args],{encoding:'utf8'}).trim();
+ git('diff','--check');
+ const paths=git('status','--porcelain');
+ if(paths) {git('add','-A');git('commit','-m',phase==='local'?'Maintain project-owned status finding and queue response':'Retain shared feedback and supported response priorities');}
+ const candidate=git('rev-parse','HEAD');
+ const installed=w+'/.agents/skills/';
+ const {publishExecutionIncrement}=await import(pathToFileURL(installed+'dough-execute-plan/scripts/execution-increment-publication.mjs'));
+ const {checkQueuedClosures}=await import(pathToFileURL(installed+'dough-land/scripts/queued-closure-check.mjs'));
+ const previous=p.lastAccepted||p.base;
+ const result=await publishExecutionIncrement({
+ workspace:w,branch:p.branch,previouslyPublishedBase:previous,targetRef:'refs/heads/'+p.ref,
+ defaultCheckout:p.localPath,validatedCandidate:candidate,
+ validate:async()=>{git('diff','--check');return true;},
+ onFetchedTarget:async()=>{const c=await checkQueuedClosures({checkout:w,remote:'origin',targetRef:'refs/heads/'+p.ref});return c.status==='clear'?undefined:{status:c.status,fields:{ownership:c.ownership,error:c.error}};},
+ beforePush:async facts=>{appendFileSync(base+'/cycle-publication.jsonl',JSON.stringify({project:name,phase,target:p.origin+' refs/heads/'+p.ref,...facts})+'\n');},
+ register:async()=>{}
+ });
+ p[phase+'Publication']=result;
+ writeFileSync(statePath,JSON.stringify(state,null,2)+'\n');
+ console.log(name,phase,JSON.stringify(result));
+ if(!result.ok) process.exit(1);
+ const accepted=result.receipt?.sha||result.candidate||candidate;
+ git('fetch','origin',p.ref);git('merge-base','--is-ancestor',accepted,'origin/'+p.ref);
+ p.lastAccepted=accepted;
+ const {refreshDefaultCheckout}=await import(pathToFileURL(installed+'dough-execute-plan/scripts/maintain-default-checkout.mjs'));
+ p[phase+'Refresh']=await refreshDefaultCheckout({checkout:p.localPath,integrationBranch:p.ref,remote:'origin'});
+ writeFileSync(statePath,JSON.stringify(state,null,2)+'\n');
+ console.log(name,'refresh',JSON.stringify(p[phase+'Refresh']));
+}
