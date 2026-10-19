@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-141#open-referenced-story-in-dashboard",
+  "title": "Open referenced stories in their dashboard blocks",
+  "completedAt": "2026-10-19T21:23:15.517Z",
+  "developer": "Terry Yin",
+  "agent": "philip-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
