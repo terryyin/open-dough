@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-140_open-notified-story-from-macos-notification.json",
+      "identity": "SEED-140#open-notified-story-from-macos-notification",
+      "completedAt": "2026-10-19T13:05:32.298Z",
+      "blob": "8aceff0b3022f7a6942ec16b9019bbf33b6c4888"
+    },
+    {
       "fileName": "SEED-136_restore-ci-under-three-minutes.json",
       "identity": "SEED-136#restore-ci-under-three-minutes",
       "completedAt": "2026-10-19T03:03:42.665Z",

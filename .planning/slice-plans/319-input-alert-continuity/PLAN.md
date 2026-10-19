@@ -55,11 +55,10 @@ retry changes and detecting unseen work are deferred.
   keeps host-specific observation with each host and shared alerting in the
   existing local boundary. This plan changes shared alert policy, not native
   observation or interactive ownership; it adds no session registry.
-- The sibling [notification-navigation plan](../318-notification-story-navigation/PLAN.md)
-  owns changing the sender. Keep continuity in the shared alert decision. If
-  that sender change lands before execution, use its current notification
-  boundary and affected tests rather than restoring the older sender. Shared
-  files alone do not create a blocking story dependency.
+- Use the current [notification boundary](../../../dashboard/AGENT-LAUNCH-HISTORY.md)
+  and its affected tests; keep continuity in the shared alert decision rather
+  than restoring the older sender. Shared files alone do not create a blocking
+  story dependency.
 - The [dashboard North Star](../../../docs/dashboard-ux-ui-north-star.md),
   “Evidence, freshness, and uncertainty,” continues to govern the page: remembered
   alert history must not turn unknown observation into a displayed current wait.
