@@ -76,7 +76,7 @@ Former local code: DD-128. Startup boundary instructions require broad reference
   - Observed effect: broad required-reference batches needed further retrieval before implementation could be delegated.
   - Inference: the reference surface and the coordinator's oversized batching both contributed. These output counts are not total token cost and do not establish that the references or independent checks lack value.
 
-- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315, first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
   - Timestamp: unknown (2026-10-19 JST; events described below).
   - Tool: Codex
   - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
@@ -282,7 +282,7 @@ Former local code: DD-264. A long repeated full-suite probe starts and continues
   - Observed effect: about four hours of whole-suite time without a green local run; targeted evidence and the twelve-shard CI run carried the acceptance; sixteen idle Cursor runners from the killed runs were found later.
   - Inference: qualified. Neither the execution guidance nor the delegation briefs stated a local-proof policy for a shared host; the coordinator set one only after the loss. A load check before a long proof and a reduced-worker default on shared machines would have saved most of it.
 
-- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315, first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
   - Timestamp: unknown (2026-10-19 JST; events described below).
   - Tool: Codex
   - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
@@ -495,7 +495,7 @@ Each was caught before a push, at no paid cost. Each still needed an in-executio
   - Observed effect: three mid-execution adaptations, recorded in that plan. None changed the story's promises.
   - Inference: qualified. Planning for live probes would gain from checking each mechanical step's premise with one local observation, the way the plan already did for provider behavior.
 
-- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315, first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
   - Timestamp: unknown (2026-10-19 JST; events described below).
   - Tool: Codex
   - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
@@ -535,7 +535,7 @@ Slice delivery asks for the project's selective formatting command; this project
   - Observed effect: each delivery waited for repository-wide ESLint, Prettier and shell checks; logs enumerate unchanged installed skills and unrelated source/test files. The second delivery also encountered the overloaded shared host. No unrelated bytes changed.
   - Inference: the available project command exceeds the workflow's selective-format intent; the full cost is repeated after a mechanical repair. Unloaded duration and token cost were not measured; no formatter change is authorized by this execution.
 
-- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315, first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
   - Timestamp: unknown (2026-10-19 JST; events described below).
   - Tool: Codex
   - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
