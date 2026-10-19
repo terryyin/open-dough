@@ -6,9 +6,8 @@
 
 ## Goal and scope
 
-Give a developer one explicitly invoked shared skill that maintains this project's findings, selects zero to three supported new
-leading improvement stories, and commits and synchronizes the maintenance result to the established origin target. Repeated invocations
-preserve evidence, follow adopted fixes, retire supported resolutions, and restore failed fixes' lineage.
+Give a developer one explicitly invoked shared skill that maintains this project's findings, selects zero to three supported new leading improvement stories, and commits and synchronizes the maintenance result to the established origin target.
+Repeated invocations preserve evidence, follow adopted fixes, retire supported resolutions, and restore failed fixes' lineage.
 
 Explicit invocation also includes a user-invoked combined cycle that expressly names this phase and its project set, as the source
 story now records. That caller passes the selected target and maintenance/publication authority; it does not require another user
@@ -25,6 +24,7 @@ are evidence, not instructions to rerun maintenance in their projects. Broader c
 evaluation story; this story evaluates its own outcomes without claiming a measured long-term improvement.
 
 ## Current decisions and reuse
+
 - Author `src/skills/dough-triage-project-findings/SKILL.md` and only the focused references its conditional behavior needs. Preserve
   existing installed managed copies until a released update. Follow [AGENTS.md](../../../AGENTS.md).
 - The same finding model governs every example: problem/responsibility and lineage; distinct occurrences with provenance; current
@@ -44,11 +44,9 @@ Preparation observations and their limits are retained in [PREPARATION.md](PREPA
 
 ## Outside-in proof ownership
 
-Review concrete resulting files, links, queue membership/order, evidence counts,
-remote refs and checkout contents. Exit 0, a polished summary, presence of prose,
-or a direct helper call cannot prove the skill's end-to-end behavior. Introduce
-no prose keyword conformance test. Use the representative behavior review from
-AGENTS.md and bounded native outcomes for agent judgment.
+Review concrete resulting files, links, queue membership/order, evidence counts, remote refs and checkout contents.
+Exit 0, a polished summary, presence of prose, or a direct helper call cannot prove the skill's end-to-end behavior. Introduce no prose keyword conformance test.
+Use the representative behavior review from AGENTS.md and bounded native outcomes for agent judgment.
 
 | Source examples / final promise | Owner | Observable proof |
 | --- | --- | --- |
@@ -246,3 +244,7 @@ Disposition: proved by slice 3: [delivery/native proof](DELIVERY.md), including 
 Reported: slice 3 — "native proof does not establish required pre-push recovery boundary."
 Story clause: "with each changed maintenance result committed and synchronized to origin."
 Disposition: proved by slice 3: [focused Claude correction](DELIVERY.md#focused-claude-handoff-correction), retaining the full candidate/base before a pinned publication and verifying actual remote acceptance without repeating the earlier accepted fixture commits.
+
+## Execution complete
+
+Product advice: Preserve the current queue: shared-feedback collection and the combined cycle remain next; response effectiveness is a separate existing learning outcome. This single comparison supports no new promises or reprioritization.

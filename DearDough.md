@@ -543,6 +543,14 @@ Slice delivery asks for the project's selective formatting command; this project
   - Observed effect: delivery waited through repository-wide ESLint, Prettier and shell formatting; no unrelated bytes changed.
   - Inference: the available project command exceeds selective-format intent. This occurrence does not quantify unloaded duration or token cost and does not authorize changing formatting in this story.
 
+- Execution: `SEED-010#triage-project-owned-retrospective-findings` / plan 316, first implementation `95c0af23d9272659a8d79dacb228a542f26d89e8`
+  - Timestamp: unknown (2026-10-19 JST, slices 1–3 delivery).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed VERSION at claim `ed38588d`; installed execution/refactor guidance unchanged).
+  - Evidence: `95c0af23:.planning/slice-plans/316-triage-project-findings/EXECUTION.md` delivery preparation, `4636b764` same path slice-2 preparation, and `6c7f316d:.planning/slice-plans/316-triage-project-findings/DELIVERY.md` acceptance/preparation record each passed `npm run format` without additional edits. `scripts/lint.mjs` at `6c7f316d` selects every tracked/untracked script and JSON file plus shell scripts; Markdown is outside those formatter selections.
+  - Observed effect: three repository-wide formatter runs, including the two Markdown-only implementation increments; delivery waited for unchanged unrelated script checks and no formatter edit resulted.
+  - Inference: the available command exceeds the workflow's selective-format intent. No elapsed-time or token-cost estimate is asserted; changing formatting is outside this story.
+
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.
 
