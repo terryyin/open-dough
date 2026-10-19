@@ -1,0 +1,8 @@
+.story-reference-notice {
+  overflow-wrap: anywhere;
+}
+.story-reference-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

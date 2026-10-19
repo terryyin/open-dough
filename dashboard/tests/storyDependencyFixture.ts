@@ -50,6 +50,9 @@ export function recordDependency(
   index: number,
   state: "waiting" | "satisfied" | "decision-needed",
   revision?: string,
+  supplier:
+    | { readonly identity: string; readonly href: string }
+    | undefined = suppliers[index],
 ) {
   const current = JSON.parse(
     call(origin, "read-dependencies", "--link", consumer.link),
@@ -58,7 +61,7 @@ export function recordDependency(
   writeFileSync(
     input,
     JSON.stringify({
-      supplier: suppliers[index],
+      supplier,
       implementation: "Shared endpoint contract",
       rationale: reason,
       condition,
@@ -95,6 +98,17 @@ export function takeConsumer(origin: StartOrigin) {
     consumer.identity,
     "--plan",
     "slice-plans/A/PLAN.md",
+  );
+}
+
+export function takeSupplier(origin: StartOrigin) {
+  call(
+    origin,
+    "take",
+    "--identity",
+    "SEED-B#b",
+    "--plan",
+    "slice-plans/B/PLAN.md",
   );
 }
 export async function publishDependencies(origin: StartOrigin) {

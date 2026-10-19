@@ -166,6 +166,16 @@ card while a published preparation assignment names that story. The card keeps
 its region, priority, and badges; Preparing is not a stage every story passes
 through or evidence that an agent is running. The badge legend explains it.
 
+Following a supplier story reference in a dependency explanation stays in the
+dashboard, opens the referenced active story's existing inspection, and brings
+its card into view with the keyboard there. Following it again keeps inspection
+open and reveals the same card again. Navigation uses the recorded story
+identity, so sibling stories in one seed remain distinct. It starts no agent
+work and opens no terminal. A reference whose block is unavailable says so in
+the dashboard, with ordinary navigation and retry still available. Source links
+in a story's inspection, associated plans, and dependency revision evidence
+continue to open their recorded GitHub sources at their pinned revisions.
+
 The initial layout hypothesis is a left-to-right flow with a visible connector,
 clear region boundaries, and story cards that stay attached to their stage as
 the user navigates. Reflow to a vertical connection on narrow screens if useful.

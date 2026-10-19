@@ -6,9 +6,7 @@ import { DashboardColumns } from "./DashboardColumns.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { PageFrame } from "./PageFrame.tsx";
-import { PreparationLegend } from "./PreparationLegend.tsx";
-import { NearFutureDirection } from "./NearFutureDirection.tsx";
-import { StartSession } from "./StartSession.tsx";
+import { ProjectActions } from "./ProjectActions.tsx";
 import { StartupRecovery } from "./StartupRecovery.tsx";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
@@ -20,6 +18,10 @@ import {
 } from "./dashboardRoute.ts";
 import { useProjectKeyboardNavigation } from "./projectKeyboardNavigation.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import {
+  StoryNavigationOnPage,
+  useStoryReferenceJourney,
+} from "./storyNavigation.tsx";
 import {
   focusStages,
   returnFocusTo,
@@ -164,84 +166,80 @@ export function ConfiguredDashboard({
   }, [route.view, source.id, work]);
 
   const showsRoster = route.view === "roster";
-  const showsPreparation =
-    work &&
-    [...work.taken, ...work.backlog].some(
-      (entry) => entry.preparation !== undefined,
-    );
+  const storyJourney = useStoryReferenceJourney({
+    projects,
+    selected: source.id,
+    work,
+    reading,
+    failure: readFailure,
+    show: showStories,
+    retry: readAfresh,
+    suspended: settingsOpen || showsRoster,
+  });
   return (
-    <PageFrame
-      sessions={launches}
-      stories={{
-        selected: source.id,
-        shown: showsRoster ? undefined : work?.source.id,
-        show: showStories,
-      }}
-    >
-      <DashboardBanner
-        source={source}
-        work={work}
-        onOpenSettings={onOpenSettings}
-        onSelect={selectProject}
-      />
-      <div className="page-header">
-        <PublishedReadStatus
-          attempt={attempt}
-          reading={reading}
+    <StoryNavigationOnPage value={storyJourney.navigation}>
+      <PageFrame
+        sessions={launches}
+        stories={{
+          selected: source.id,
+          shown: showsRoster ? undefined : work?.source.id,
+          show: showStories,
+        }}
+      >
+        <DashboardBanner
+          source={source}
           work={work}
-          withheld={withheld}
-          recoversAt={recoversAt}
-          notice={notice}
+          onOpenSettings={onOpenSettings}
+          onSelect={selectProject}
         />
-        <div className="project-actions" hidden={showsRoster}>
-          {work && (
-            <NearFutureDirection key={source.id} direction={work.direction} />
-          )}
-          <div className="project-actions-end">
-            <StartSession
-              sourceId={source.id}
-              project={source.label}
-              attempt={launches.adHocAttemptOf(source.id)}
-              sessionPolicy={(host) =>
-                launches.sessionPolicyOffer(source.id, "ad-hoc", host)
-              }
-              onHostChanged={launches.rereadOffers}
-              onStart={(choices, onLaunched) =>
-                launches.startAdHoc(source.id, choices, onLaunched)
-              }
-            />
-            {showsPreparation && <PreparationLegend />}
-          </div>
-        </div>
-        {!showsRoster && (
-          <StartupRecovery sourceId={source.id} recoveries={launches} />
-        )}
-        <StartupAnnouncer
-          sourceId={source.id}
-          startups={launches.storyStartupsOf(source.id)}
-        />
-      </div>
-      {work && (
-        <main hidden={showsRoster}>
-          <DashboardColumns
-            sourceId={source.id}
+        <div className="page-header">
+          <PublishedReadStatus
+            attempt={attempt}
+            reading={reading}
             work={work}
-            launches={launches}
-            onOpenRoster={openRoster}
+            withheld={withheld}
+            recoversAt={recoversAt}
+            notice={notice}
           />
-        </main>
-      )}
-      {showsRoster && (
-        <main>
-          <AgentRoster
+          {storyJourney.notice}
+          <ProjectActions
             source={source}
             work={work}
-            problem={readFailure}
-            agent={opening?.sourceId === source.id ? opening.agent : undefined}
-            onBack={onBack}
+            launches={launches}
+            hidden={showsRoster}
           />
-        </main>
-      )}
-    </PageFrame>
+          {!showsRoster && (
+            <StartupRecovery sourceId={source.id} recoveries={launches} />
+          )}
+          <StartupAnnouncer
+            sourceId={source.id}
+            startups={launches.storyStartupsOf(source.id)}
+          />
+        </div>
+        {work && (
+          <main hidden={showsRoster}>
+            <DashboardColumns
+              sourceId={source.id}
+              work={work}
+              launches={launches}
+              onOpenRoster={openRoster}
+            />
+          </main>
+        )}
+        {showsRoster && (
+          <main>
+            <AgentRoster
+              source={source}
+              work={work}
+              problem={readFailure}
+              agent={
+                opening?.sourceId === source.id ? opening.agent : undefined
+              }
+              onBack={onBack}
+            />
+          </main>
+        )}
+      </PageFrame>
+    </StoryNavigationOnPage>
   );
 }

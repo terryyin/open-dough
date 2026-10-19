@@ -29,12 +29,16 @@ Navigation neither starts agent work nor attaches a terminal.
 ## Current decisions and reuse
 
 - One navigation target is a configured project plus a recorded story identity.
-  Dependency records already carry supplier identity separately from `href`.
-  Prefer that identity. For URL-only references, match repository, canonical
-  path and anchor against the project's known story records; a Git revision
-  identifies source evidence, not a different story. Do not derive stable
-  identity from a title or filename: canonical homes can move without changing
-  identity. An ambiguous/unresolvable reference gets the unavailable outcome.
+  Dependency records already carry supplier identity separately from `href`;
+  use that identity plus the rendered project ID. Execution confirmed that the
+  shared dependency writer requires backlog-relative supplier homes in the same
+  project (`supplierOf` in `product-backlog-story-dependencies.mjs`). Pinned
+  GitHub URLs are the dashboard's rendered output, not cross-project dependency
+  input. Every current semantic reference carries identity; no URL-only surface
+  exists. Preserve that contract, with no unused URL recognizer or new
+  cross-project dependency meaning. A Git revision identifies source evidence,
+  not another story. Do not infer identity from title, path or filename. An
+  unresolvable reference gets the unavailable outcome.
 - `sourceLink.ts` owns safe source URLs and relative-path resolution;
   `product-backlog-identity.mjs` owns the shared identity/link grammar. Extend
   suitable owners instead of introducing a parallel parser. Preserve original
@@ -106,19 +110,27 @@ execution; none is claimed already implemented or passing.
 | Final promise | Owner | Observable proof |
 | --- | --- | --- |
 | Dependency and other story references open/reveal the correct active block | 1 | New browser journey clicks and keyboard-activates references, asserts target detail, card focus and viewport, unchanged dashboard origin and no host launch/attach calls. Repeat activation keeps detail open. |
-| Exact anchor and pinned URL resolve to the intended story | 1 | Two stories in one seed; relative and revision-pinned forms, including the supplied Pygardon URL shape; configured projects with matching identities cannot select the wrong project. Assert identity and visible block, not only href. |
+| Exact anchor and pinned URL resolve to the intended story | 1 | Two stories in one seed; relative recorded homes and their revision-pinned rendered links, including the supplied Pygardon URL shape; configured projects with matching identities cannot select the wrong project. Assert identity and visible block, not only href. |
 | Own-source and non-story/revision-evidence links retain their destination | 1 and regression in 2 | Inspect the target and activate its own source link into a locally intercepted GitHub page; assert original pinned URL. Preserve evidence-link tests and unrelated web-link behavior. |
-| Loading/failure/absence give honest feedback and recover | 1, extended in 2 | Hold destination data, fail then recover it, and test a missing target. Assert no wrong-card reveal, accessible target-specific feedback, usable navigation and retry/re-activation. Leaving while pending prevents a later jump. |
+| Loading/failure/absence give honest feedback and recover | 1, extended in 2 | Hold/read-fail data on reachable project observation paths, recover it, and test a missing target. Assert no wrong-card reveal, accessible target-specific feedback, usable navigation and retry/re-activation. Leaving while pending prevents a later jump. |
 | Existing Done stories, including beyond the shown prefix, are revealed | 2 | Published Done catalog with target beyond first ten, no associated session; click its reference and assert actual card, range, bounded reads, focus and viewport. No fixture may pre-expand the range. |
 | Detail read gaps preserve the identified destination and absence does not load history | 2 | Failed Done detail still reveals its identified card with the existing gap. Missing/expired/unlisted target shows unavailable, without a fabricated block or history requests. |
 | Keyboard, narrow-screen and reduced-motion navigation remain usable | 1 and 2 | Activate by keyboard and touch at a narrow viewport, assert useful focus/visible target; reduced motion uses the same destination without animation. Hidden columns are revealed through the existing owner. |
+
+## Execution context
+
+Established Story Branch execution on 2026-10-19 in this linked preparation workspace and branch; publisher `dashboard-territory.local-open-dough`, agent `philip-chan`. Starting revision `6066ed70201516589d1fd7a6907c6dd1af44fe77`; claim accepted on `origin/main` and first increment base `cdd71a2d67a41556575032fc18727715aee61216`. Increment target `origin/refs/heads/codex/open-referenced-stories-in-their-dashboard-block`. Optional integration/default checkout `/Users/terryyin/git/open-dough`; its changes are unowned. Ordinary in-scope replanning remains authorized; no numeric slice target/limit/exception is configured.
+
+Setup reuse initially relied on exact preparation workspace, unchanged dependency metadata and passing typecheck. Browser startup then failed with Vite ENOENT, invalidating reuse: `npm ci --no-audit --no-fund` restored this checkout (terminal success), followed by passing typecheck and real browser command. Tracked pre-commit hook is check-only (staged lint and dashboard typecheck for scripts); formatter is `npm run format`, whose tools select applicable components.
+
+CI source GitHub Actions, verified selector `ci.yml`, name `CI`. Startup claim's trunk CI is unobserved; increments observe their execution branch. Observer coordinator `story141-root`, directory `/tmp/dough-ci-501/watch-CbnTAT`, PID `47210`, yielded cell `8`, PTY session `77064`, runtime this checkout's `.agents/skills/dough-execute-plan`.
 
 ## Ordered slices
 
 ### 1. Follow story references to active dashboard blocks
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add `dashboard/tests/story-reference-navigation.spec.ts` through the
 existing isolated published-origin/page fixture; extend dependency accessibility
 proof and run the affected source-link, inspection and navigation consumers.
@@ -130,9 +142,9 @@ explained in place; no unrelated work or GitHub page is selected. The block's
 own source link and revision evidence continue to open their pinned sources.
 
 Begin with a failing browser journey based on the reproduced dependency click.
-Carry explicit supplier identity through rendering, distinguish semantic story
-references from source evidence, and support matching pinned URL references
-without a second identity grammar. Compose the page's selection, inspection,
+Carry explicit supplier identity and project ID through rendering, distinguish
+semantic story references from source evidence, and navigate the rendered pinned
+URL reference without a second identity grammar. Compose the page's selection, inspection,
 and reveal owners. Cover same-seed anchors, the supplied URL shape, project
 qualification, loading/recovery, repeated activation and cancellation by user
 navigation. Preserve source evidence under startup protection. Update maintained
@@ -198,3 +210,38 @@ extend one story-target rule, active and Done destinations have distinct proof
 loops, and every final promise has an owner. Separate slice-plan refinement is
 not needed. No human question or blocking story dependency remains. This plan
 grants no execution authority and records no execution completion.
+
+
+## Accepted proof and learning
+
+Slice 1 implementation accepted after inspecting `DependenciesCard` → `storyNavigation` → `WorkStages` → `workFocus` and concrete setups/assertions in `story-reference-navigation.spec.ts`. Real pre-change red observed departure to locally intercepted GitHub and absent B inspection. Final eight journeys prove inspection/focus/viewport/repeat, actual pinned canonical popup, later choice surviving a new revision, protected startup/no extra host action, same-seed identities/keyboard/touch/reduced motion/hidden Taken column, two project tellings/Pygardon URL shape, missing/read/failure/retry/newly published C, project and inspection cancellation, and unreadable B detail. The mounted status test marks the existing node before text appears.
+
+Terminal passes before refactor:
+
+- `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts accessible-overview-keyboard.spec.ts story-dependencies.spec.ts --workers=2` — 10 cases then.
+- `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts source-navigation.spec.ts accessible-overview.spec.ts project-read-isolation.spec.ts responsive-session-reconciliation.spec.ts --workers=2` — 19 cases then.
+- `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts --workers=2` — final 8 cases.
+- `npm run typecheck:dashboard` and `git diff --check` — passed.
+
+Earlier eight-spec run passed dependency-touch, authenticated overview, project keyboard focus/selection and session-sidebar navigation. Its one failure exposed global status ambiguity; `dashboardParts.status` now targets its actual read-status purpose. Complete accessibility/read-isolation/responsive suites above prove affected consumers; existing first-status consumers retain published-status ordering. Source-navigation activates canonical, plan and unrelated web links; dependency suites retain revision-evidence expectations. No assertions weaken those purposes. Unreadable-detail setup now uses a reachable failed detail: a held canonical batch cannot expose its dependency disclosure. Missing-target retry owns held/read-failure/recovery proof instead.
+
+Independent slice 1 refactor extracted `ProjectActions` and split the eight reference journeys into navigation/identity/recovery specs, preserving assertions. `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts story-reference-identity.spec.ts story-reference-recovery.spec.ts agent-launch-ad-hoc.spec.ts preparation-legend.spec.ts direction-disclosure.spec.ts --workers=2`, typecheck and whitespace checks passed. Other accepted consumer proof remains unchanged. Formatter surfaced redundant narrowed conditionals and intentionally captured native-method lint; mechanical correction preserves runtime behavior and accepted proof.
+
+Landing handoff for later wrap-up: first trunk publication must use `/Users/terryyin/.open-dough/dashboard/reporting/02341b83-76fd-409d-8b5b-ec7767b97d00/landing-context.json`. Reporting launch `02341b83-76fd-409d-8b5b-ec7767b97d00` retains the user-supplied completion command; execution branch publication does not consume that trunk handoff.
+
+## Story obligations
+
+### G1. Done destinations await the second slice
+Reported: slice 1 — "Done references currently show unavailable; slice 2 owns revealing them."
+Story clause: "Reveal existing Done blocks as well as active work; a block outside the currently shown range is still an existing destination."
+Disposition: interim until slices 2
+
+### G2. Existing semantic references carry identity
+Reported: slice 1 — "No existing semantic caller supplies URL-only or cross-project dependency input."
+Story clause: "Apply the rule to dependency links and inspect other dashboard locations that offer story links so they behave consistently."
+Disposition: no user cost "Apply the rule to dependency links and inspect other dashboard locations that offer story links so they behave consistently.": inspected JSX link inventory reaches only supplier references carrying project ID and supplier identity. RecordedLink and revision evidence remain source links. Shared supplierOf rejects absolute/schemed homes. Navigating every existing rendered reference needs no new input contract or unused URL parser.
+
+### G3. Loading proof uses a reachable read path
+Reported: slice 1 — "Dependency disclosures are published after the canonical preparation batch completes."
+Story clause: "Loading must not be reported as absence."
+Disposition: proved by slice 1: story-reference-navigation.spec.ts missing/reading/failed destination journey clicks a real supplier, holds the actual retry backlog read, observes Reading without a target card, then failure without unavailable, and retry reveals newly published C; unreadable-detail journey independently reveals B with its existing gap.

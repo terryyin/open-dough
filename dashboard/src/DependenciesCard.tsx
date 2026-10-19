@@ -1,6 +1,7 @@
 import type { WorkDependencies } from "./storyDependencies.ts";
 import type { SourceLink } from "./sourceLink.ts";
 import "./story-dependencies.css";
+import { useStoryNavigation } from "./storyNavigation.tsx";
 
 function DependencyLink({
   link,
@@ -18,10 +19,35 @@ function DependencyLink({
   );
 }
 
+function StoryReference({
+  sourceId,
+  identity,
+  link,
+}: {
+  sourceId: string;
+  identity: string;
+  link: SourceLink;
+}) {
+  const { follow } = useStoryNavigation();
+  return (
+    <a
+      href={link.kind === "unusable" ? "#" : link.url}
+      onClick={(event) => {
+        event.preventDefault();
+        follow({ sourceId, identity });
+      }}
+    >
+      {identity}
+    </a>
+  );
+}
+
 export function DependenciesCard({
   dependencies,
+  sourceId,
 }: {
   dependencies: WorkDependencies | undefined;
+  sourceId: string;
 }) {
   if (dependencies === undefined || dependencies.status === "not-recorded")
     return null;
@@ -38,9 +64,11 @@ export function DependenciesCard({
         {dependencies.entries.map((dependency) => (
           <li key={dependency.supplier.identity}>
             <p>
-              <DependencyLink link={dependency.supplierLink}>
-                {dependency.supplier.identity}
-              </DependencyLink>
+              <StoryReference
+                sourceId={sourceId}
+                identity={dependency.supplier.identity}
+                link={dependency.supplierLink}
+              />
             </p>
             <p>
               <strong>State:</strong>{" "}

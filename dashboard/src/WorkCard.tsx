@@ -116,7 +116,10 @@ export function WorkCard({
             preparation={entry.preparation}
             eligibility={eligibility}
           />
-          <DependenciesCard dependencies={entry.dependencies} />
+          <DependenciesCard
+            sourceId={sourceId}
+            dependencies={entry.dependencies}
+          />
           {showsSliceProgress && (
             <SliceProgress
               planSlices={entry.planSlices}
