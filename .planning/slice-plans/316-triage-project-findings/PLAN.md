@@ -6,93 +6,46 @@
 
 ## Goal and scope
 
-Give a developer one explicitly invoked shared skill that maintains this
-project's findings, selects zero to three supported new leading improvement
-stories, and commits and synchronizes the maintenance result to the established
-origin target. Repeated invocations preserve evidence, follow adopted fixes,
-retire supported resolutions, and restore failed fixes' lineage.
+Give a developer one explicitly invoked shared skill that maintains this project's findings, selects zero to three supported new
+leading improvement stories, and commits and synchronizes the maintenance result to the established origin target. Repeated invocations
+preserve evidence, follow adopted fixes, retire supported resolutions, and restore failed fixes' lineage.
 
-Explicit invocation also includes a user-invoked combined cycle that expressly
-names this phase and its project set, as the source story now records. That
-caller passes the selected target and maintenance/publication authority; it
-does not require another user prompt in the child. Story 13 owns multi-project
-orchestration, while each use of this skill owns its one established project.
+Explicit invocation also includes a user-invoked combined cycle that expressly names this phase and its project set, as the source
+story now records. That caller passes the selected target and maintenance/publication authority; it does not require another user
+prompt in the child. Story 13 owns multi-project orchestration, while each use of this skill owns its one established project.
 
-The story owns classification of local/shared/mixed/uncertain responsibility,
-evidence-preserving compaction, observation and retirement, bounded priority
-selection, reciprocal links, and truthful publication/refresh reporting. Existing
-queued and Taken responses stay where they are. Source observations and current
-assessments are distinct; metadata delivery never implements the queued work.
+The story owns classification of local/shared/mixed/uncertain responsibility, evidence-preserving compaction, observation and
+retirement, bounded priority selection, reciprocal links, and truthful publication/refresh reporting. Existing queued and Taken
+responses stay where they are. Source observations and current assessments are distinct; metadata delivery never implements the queued
+work.
 
-No automatic invocation, scheduled collection, cross-project writes, ODF catalog
-dependency, universal watch period, new storage service, or unrelated CI repair.
-No release tag or production rollout is authorized by implementation of this
-plan. Historical sessions are evidence, not instructions to rerun maintenance in
-their projects. Broader causal effectiveness belongs to the sibling response
-evaluation story; this story evaluates its own outcomes without claiming a
-measured long-term improvement.
+No automatic invocation, scheduled collection, cross-project writes, ODF catalog dependency, universal watch period, new storage
+service, or unrelated CI repair. No release tag or production rollout is authorized by implementation of this plan. Historical sessions
+are evidence, not instructions to rerun maintenance in their projects. Broader causal effectiveness belongs to the sibling response
+evaluation story; this story evaluates its own outcomes without claiming a measured long-term improvement.
 
 ## Current decisions and reuse
 
-- Author `src/skills/dough-triage-project-findings/SKILL.md` and only the focused
-  references its conditional behavior needs. Preserve existing installed managed
-  copies until a released update. Follow [AGENTS.md](../../../AGENTS.md).
-- The same finding model governs every example: problem/responsibility and
-  lineage; distinct occurrences with provenance; current assessment; response and
-  actual adoption; observation criterion and relevant exposure; disposition and
-  recovery. These are meanings in existing project records, not a mandatory JSON
-  schema, filename, state registry, or new archive.
-- Reuse the retrospective's evidence discipline, public backlog identity and
-  writer, and existing owned-workspace and landing procedures. New guidance owns
-  the explicit maintenance invocation and its bounded selection authority. It
-  validates a maintenance-only result and carries that authority into Dough Land;
-  adapt the shared handoff's caller list if needed instead of copying its Git
+- Author `src/skills/dough-triage-project-findings/SKILL.md` and only the focused references its conditional behavior needs. Preserve
+  existing installed managed copies until a released update. Follow [AGENTS.md](../../../AGENTS.md).
+
+- The same finding model governs every example: problem/responsibility and lineage; distinct occurrences with provenance; current
+  assessment; response and actual adoption; observation criterion and relevant exposure; disposition and recovery. These are meanings
+  in existing project records, not a mandatory JSON schema, filename, state registry, or new archive.
+
+- Reuse the retrospective's evidence discipline, public backlog identity and writer, and existing owned-workspace and landing
+  procedures. New guidance owns the explicit maintenance invocation and its bounded selection authority. It validates a maintenance-only result and carries that authority into Dough Land; adapt the shared handoff's caller list if needed instead of copying its Git
   algorithm. A whole-checkout landing must never absorb unrelated work.
-- Keep `dough-maintain-findings`' approved-name-adoption purpose and internal
-  reconciliation/triage's maintainer purpose. Do not export their ODF catalog,
-  fixed project list, or one-week policy. Reuse conceptual rules where appropriate
-  without merging those different authority contracts.
-- [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-  governs cohesion and proportionate effort;
-  [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) and
-  [ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
-  govern source, promotion, release and standalone dependencies;
-  [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) separates
-  behavior, deterministic delivery, and native evidence;
-  [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-  governs runtime audience and single ownership. No conflict or exception was
-  found. The existing [North Star](../../NORTH-STAR.md) requires no new topic:
-  dashboard registries and launch ownership are outside this change.
 
-## Preparation observations and limits
+- Keep `dough-maintain-findings`' approved-name-adoption purpose and internal reconciliation/triage's maintainer purpose. Do not export
+  their ODF catalog, fixed project list, or one-week policy. Reuse conceptual rules where appropriate without merging those different
+  authority contracts.
 
-Observed in the established preparation checkout at `e0c1a8dc` on 2026-10-19,
-Node 24.21.0, with Homebrew Bash first on PATH. These settle current reusable
-mechanisms, not future guidance-following behavior.
+- [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md) governs cohesion and proportionate effort;
+  [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) and [ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md) govern source, promotion, release and standalone dependencies; [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) separates behavior, deterministic delivery, and native evidence; [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md) governs runtime audience and single ownership. No conflict or exception was found. The
+  existing [North Star](../../NORTH-STAR.md) requires no new topic: dashboard registries and launch ownership are outside this change.
 
-| Premise and consuming operation | Observation and result |
-| --- | --- |
-| Publication can accept a maintenance candidate without consuming unrelated default-checkout work | `PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/publication.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-unavailable.test.mjs tests/update-adds-new-payload-skill.sh tests/payload-declaration-links.sh` exited 0. Inspected publication fixtures create local bare origins, publish real SHAs, read remote contents, and compare dirty/unpublished checkout contents. Refresh cases exercise actual fast-forward, repeat, preservation, and missing/unavailable checkout outcomes. |
-| A new declared skill can arrive through the existing updater without a new platform mechanism | The same run's `update-adds-new-payload-skill.sh` creates older/newer local release fixtures, invokes the real apply command, compares installed payload bytes in shared Codex/Cursor and Claude roots, verifies VERSION, and preserves sentinels. `payload-declaration-links.sh` also passed its undeclared-dependency counterexamples. This is delivery proof only. |
-| Prior local/shared mistakes and stale fix prose are real inputs, not invented edge cases | Reused the [17-session review](../../../docs/maintainer/empirical-process-control-research.md#project-findings-workflow-follow-up). `git -C /Users/terryyin/git/doughnut show --stat --oneline 2381cf9e60` confirmed the correction returned shared findings and removed local stories. `git -C /Users/terryyin/git/pygardon show --stat --oneline 5911d5e76` confirmed story closure. Reading `scripts/pygardon-ci-discovery.mjs` and `ProjectFindings.md` there found five-second discovery with at most three reads alongside the stale one-second assessment. No claim about current endpoint performance or repair effectiveness follows. |
-
-The last row is historical/design evidence from the named projects, not a claim
-that their consuming CI operations were rerun. Implementation proof uses isolated
-representative snapshots with actual classification and Git outcomes. No production
-project is needed for the first implementation. Existing all-host installation
-mechanisms can be reused, but the new entry point's native behavior is unproved.
-Only a paid native observation can settle that latter premise; slice 1 bounds
-the first such observation, and slice 3 owns the remaining affected-host proof.
-No native sessions or paid observations ran during preparation.
-
-During landing, trunk `0715a4a5` added Story 13 and clarified this delegated
-explicit-invocation case. The content conflict was two additions at the end of
-Story 12. Preserve both sections and the new queue order; include the caller's
-propagated authority in first-use proof. This does not add a wrapper, project
-discovery service, or cross-project write to this plan.
-
-The canonical plan directory was empty after earlier wrap-ups. Git's allocated
-plan paths end at 315; this plan uses 316 rather than reusing an earlier number.
+Preparation observations and their limits are retained in [PREPARATION.md](PREPARATION.md).
 
 ## Outside-in proof ownership
 
@@ -115,7 +68,7 @@ AGENTS.md and bounded native outcomes for agent judgment.
 ### 1. One explicit invocation delivers supported local priorities
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 1–3 and 7–8 through representative review and a bounded native
 first-use journey, with actual result files and local-origin acceptance.
 
@@ -248,25 +201,43 @@ under ADR 0005; keep only active resume information and useful compact findings.
 
 ## Execution gates and cumulative design
 
-The three slices develop one explicit maintenance workflow. First use owns
-classification, queue selection, and delivery together because a retained draft
-would miss the supplied outcome. Repeated use adds the same finding's response
-lifecycle. Delivery then exposes the complete behavior through existing installs.
-No preparatory Structure slice, parallel state store, new dashboard workflow, or
-framework is justified. The two interim limitations end at their named slices.
+First use owns classification, selection and delivery together; repeated use adds the
+same finding's lifecycle; delivery exposes the complete workflow through existing installs.
+No preparatory Structure slice, parallel store, dashboard workflow or framework is justified.
+The two interim limitations end at their named slices.
 
-No numeric slice timing limit is supplied. Boundedness rests on one outside-in
-proof loop per slice, including implementation, focused checks, and cleanup.
-The credible uncertainty is native agent judgment and the authority handoff;
-slice 1's bounded probe resolves it before repeated-use and promotion work.
-Do not answer a failed probe by adding more special cases or widening authority.
+No numeric timing limit is supplied. Each slice owns one outside-in proof loop through
+implementation, focused checks and cleanup. Slice 1's bounded native probe resolves agent
+judgment and authority handoff before later work. A failed probe requires diagnosis and
+stops dependent slices; it does not justify more special cases or broader authority.
 
-Execution must use the project's ordinary refactoring, agent-commit, delivery,
-and CI ownership gates. The required local runner comes from
-[tests/README.md](../../../tests/README.md); skill behavior review comes from
-[AGENTS.md](../../../AGENTS.md). Hosted CI alone does not make every application
-test a local gate. This plan authorizes no implementation or paid native launch.
+Use ordinary refactoring, agent-commit, delivery and CI ownership gates. Local checks
+run through [tests/README.md](../../../tests/README.md); guidance behavior follows
+[AGENTS.md](../../../AGENTS.md). Hosted CI does not make every application test a local
+gate. This plan itself authorizes no execution or paid launch; current user instructions do.
 
-## Learnings
+## Execution context and learnings
 
-None from execution yet. Preparation findings and their limits are recorded above.
+Story Branch Mode, origin/main; increments publish the established execution branch.
+[EXECUTION.md](EXECUTION.md) is this plan's retained execution identity, exact checkout/branch,
+base/candidate, setup, observer, literal commands and accepted proof appendix.
+
+User approved bounded paid native checks. Slice 1 first use, exact repeat and
+rejected-publication recovery passed on Codex; production guidance is byte-stable.
+Explicit maintenance owns supported compaction rather than retrospective append-only
+recording, and triage's requested report continues after Land operations before final
+reporting. Slice 2 lifecycle and slice 3 remaining-host/delivery proof remain open.
+
+## Story obligations
+
+### G1. First-use native outcomes remain unobserved
+
+Reported: slice 1 — "Native proof remains pending: actual classifications and record/link/count outcomes, queue selection/order, combined-caller publication without another prompt, origin acceptance, unchanged-repeat behavior, unrelated-checkout preservation, and stopped-publication recovery."
+Story clause: "In representative actual project contexts, the developer can review the ownership reasons, retained and removed evidence, selected stories and their positions, and confirmed origin result from one explicit invocation."
+Disposition: proved by slice 1: [first-use](EXECUTION.md#accepted-first-use-native-proof) and [repeat/recovery](EXECUTION.md#accepted-repeat-and-publication-recovery-proof) evidence; actual files, remote refs, queue, links, occurrence counts, rejected/retained/accepted candidate and exact checkout preservation were inspected.
+
+### G2. Finding lifecycle is explicitly interim in the first-use draft
+
+Reported: slice 1 — "The interim lifecycle limitation remains explicit."
+Story clause: "Repeated invocations follow prior fixes, retire supported resolutions, and resurface recurrences, with each changed maintenance result committed and synchronized to origin."
+Disposition: interim until slices 2, 3
