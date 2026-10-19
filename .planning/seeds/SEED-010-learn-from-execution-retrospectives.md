@@ -296,7 +296,7 @@ inconclusive result remains useful without automation or another project.
 
 **Identity:** SEED-010#exchange-retrospective-findings-with-another-project
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/317-collect-client-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0b82bb2299edd5f8940fa0c8aeece54a1abb6a282b07e6fa80c025b0c29fb767","plan":"fa26846639121e42debd1a65ddfbb8575f56d3618572fe3c549d18d410679d9e"}}
 ```
 
 **Goal:** The maintainer explicitly invokes one internal Open Dough skill to
@@ -368,6 +368,130 @@ start prerequisite for this independently useful internal cycle.
 
 **Safe stopping point:** One explicit cycle is useful without the combined skill,
 unattended triggers, or autonomous implementation.
+
+#### Key examples
+
+1. **One complete invocation.** The production dashboard lists projects using
+   `main` and `master`, including Open Dough. The maintainer invokes the internal
+   feedback skill → it resolves the current repositories and their delivery
+   conventions, retains shared evidence in the linked Open Dough finding files,
+   applies verified names and former-code aliases to source logs, selects up to
+   two supported Open Dough priorities, and confirms the maintenance commits on
+   every changed project's intended origin target. It reports a missing source
+   log as a coverage gap, not an empty successful review; independent projects
+   continue. Reading or authoring the skill alone starts no maintenance.
+2. **Repeat without invented recurrence.** Two reports describe the same
+   project/execution under old and adopted names; another execution reports the
+   same mechanism → retain both distinct executions once, compact redundant
+   narrative, and preserve their provenance. Repeating the same invocation adds
+   no occurrence, story, or empty commit. The same `DD-NNN` in another project
+   is independently identified. Similar symptoms with uncertain causes remain
+   explicitly distinct; a local-only problem stays with its owning project.
+3. **Rank the response still needed.** A frequent, evidenced costly problem
+   competes with an easy cosmetic repair and a vivid but unobserved risk → rank
+   demonstrated impact, distinct executions, relevance, confidence, and effort,
+   and explain the choice. Reuse a covering queued story; show a covering Taken
+   story as ongoing and select the next supported problem. An implemented fix
+   needing adoption or proof does not become another implementation story. Zero
+   or one actionable problem yields zero or one selection. Preserve direction,
+   Taken work, other queue order, and reciprocal finding/story links.
+4. **A watch needs exposure.** A response is verified in a tagged release and
+   adopted guidance, with relevant execution evidence and seven calendar days
+   since the supported watch start → after checking the maintained source set
+   and resolving consequential contrary reports, retire the eligible finding
+   from active/watch/source records with Git recovery. A released but unused
+   fix, unknown execution version, missing source review, or unresolved report
+   cannot satisfy that watch. A supported same-mechanism failure resurfaces the
+   response and evidence; a later corrective release needs its own watch start.
+5. **Pruning is a disposition, not a fix.** A redundant administrative finding
+   has negligible observed harm and no worthwhile response → remove it with a
+   concise recoverable reason after retaining needed evidence. A severe one-off,
+   uncertain consequential case, or live queued/Taken relationship survives
+   unless its actual resolution is established. Preserve meaningful differences
+   between occurrences when compacting text; no permanent noise archive is added.
+6. **Partial publication is resumable.** Open Dough has retained the evidence,
+   one client's maintenance commit is accepted, and another client's target
+   races or is unavailable → retain completed results and the unfinished
+   candidate, report each repository's exact boundary, and continue independent
+   safe work. Resume from observed Git state without repeating an accepted push,
+   duplicating stories, or consuming unrelated edits. If clients publish but
+   Open Dough does not, the overall cycle remains incomplete. Remote acceptance
+   and any deferred local-checkout refresh are separate facts.
+
+#### Alternatives and selected direction
+
+The existing runbook is the simpler baseline: it already handles reconciliation,
+watching, and top-two triage, but still requires copied instructions and excludes
+commit/push. Merely renaming it leaves the selected outcome incomplete. A single
+self-contained skill could absorb all procedures, but would take over identity,
+adoption, and backlog behavior from their current owners. A composing internal
+skill can instead pass explicit context and invocation authority to those owners,
+while owning collection, cleanup/watch policy, ordering, and complete delivery.
+Use that direction within the already selected scope; turn the runbook into a
+pointer so it cannot retain a competing workflow. A machine-driven synchronizer
+would add execution/state machinery while still needing evidence judgments;
+there is no observed need for that infrastructure in this finite cycle.
+
+Borrow the acknowledged handoff from registered delivery: the source log is the
+sender, the authoritative finding record is the recipient, the qualified
+project/execution is the item identity, and a retained evidence locator plus
+per-repository accepted commit is the receipt. Preserve recoverable evidence
+before shortening a source and resume only unfinished deliveries. Adapt this
+without a new receipt database; use existing records, Git, and the run's report.
+The analogy cannot establish common cause, a correct ranking, or effectiveness;
+those still require the finding and watch evidence. Nor does it make several
+repositories one atomic transaction.
+
+#### Investigation and Architecture
+
+Observed during refinement on 2026-10-19:
+
+- The [runbook histories](../../docs/maintainer/empirical-process-control-research.md#runbook-automation-follow-up)
+  document corrected rankings, duplicate implementation proposals, and omitted
+  Open Dough publication. These are historical reports, not fresh effectiveness
+  tests. The current runbook explicitly excludes commit/push.
+- The [catalog](../../docs/maintainer/finding-names.md) now delegates authoritative
+  content to linked finding files. Collection must follow those links; a fixed
+  five-document rewrite would miss the current evidence owners.
+- Reading the production configuration through its established location and
+  inspecting each configured checkout found five repositories: Open Dough,
+  Doughnut, Pygardon, Terry Talks, and Lizard. The last two use `master` and had no
+  `DearDough.md`; Terry Talks also had unrelated edits. Origins matched configured
+  identities. This is a dated observation, not a fixed future project list or
+  authority to run maintenance during preparation.
+- Existing publication/resume/refresh checks passed against isolated local Git
+  origins in this preparation checkout. Disabling candidate publication made the
+  targeted acceptance case fail; restoring it restores the mechanism. The plan
+  retains the commands and limits. No client record or production target was
+  changed by these observations.
+
+The consequential responsibility is orchestration across separate owners and
+repositories. Keep reconciliation, name adoption, triage, and backlog writes in
+their maintained skills; adapt any stale catalog navigation there when necessary,
+preserving their standalone authority boundaries. The new internal skill supplies
+the explicit collection/cleanup/selection/publication authority. It neither
+imports local-only improvements into Open Dough nor depends on Story 12 finishing.
+Publication belongs to each project's safe delivery path; a whole-checkout landing
+requires a result containing only this cycle's work. Do not impose Open Dough's
+internal catalog or watch interval on the shared local-maintenance skill.
+
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+supports reuse, one owner per concept, and proportionate machinery;
+[ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) keeps this
+maintainer skill outside the released payload and distinguishes release from
+adoption; [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+requires useful behavior evidence without a routine discovery matrix;
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+requires one behavioral source and explicit target roles. No Accepted ADR
+conflict or exception was found. The dashboard North Star's machine-local
+configuration remains discovery input, not a new authority for repository state.
+
+Whether an agent reliably composes these instructions through complete delivery
+remains unobserved. A bounded native first-use probe in isolated repositories is
+the cheapest conclusive observation and belongs to execution with its existing
+paid-run authority. Later response effectiveness remains uncertain until relevant
+use; this story promises a traceable maintenance result, not proven long-term
+improvement. No new goal, scope, or architectural decision is required here.
 
 <a id="learn-from-preparation-history"></a>
 
