@@ -25,22 +25,17 @@ are evidence, not instructions to rerun maintenance in their projects. Broader c
 evaluation story; this story evaluates its own outcomes without claiming a measured long-term improvement.
 
 ## Current decisions and reuse
-
 - Author `src/skills/dough-triage-project-findings/SKILL.md` and only the focused references its conditional behavior needs. Preserve
   existing installed managed copies until a released update. Follow [AGENTS.md](../../../AGENTS.md).
-
 - The same finding model governs every example: problem/responsibility and lineage; distinct occurrences with provenance; current
   assessment; response and actual adoption; observation criterion and relevant exposure; disposition and recovery. These are meanings
   in existing project records, not a mandatory JSON schema, filename, state registry, or new archive.
-
 - Reuse the retrospective's evidence discipline, public backlog identity and writer, and existing owned-workspace and landing
   procedures. New guidance owns the explicit maintenance invocation and its bounded selection authority. It validates a maintenance-only result and carries that authority into Dough Land; adapt the shared handoff's caller list if needed instead of copying its Git
   algorithm. A whole-checkout landing must never absorb unrelated work.
-
 - Keep `dough-maintain-findings`' approved-name-adoption purpose and internal reconciliation/triage's maintainer purpose. Do not export
   their ODF catalog, fixed project list, or one-week policy. Reuse conceptual rules where appropriate without merging those different
   authority contracts.
-
 - [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md) governs cohesion and proportionate effort;
   [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) and [ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md) govern source, promotion, release and standalone dependencies; [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) separates behavior, deterministic delivery, and native evidence; [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md) governs runtime audience and single ownership. No conflict or exception was found. The
   existing [North Star](../../NORTH-STAR.md) requires no new topic: dashboard registries and launch ownership are outside this change.
@@ -122,7 +117,7 @@ do not promote the incomplete skill or retire observations on this interim path.
 ### 2. Repeated maintenance follows fixes without losing evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 2 and 4–6 in one bounded repeated-invocation scenario, including
 both sides of retirement and recurrence decisions.
 
@@ -226,7 +221,7 @@ User approved bounded paid native checks. Slice 1 first use, exact repeat and
 rejected-publication recovery passed on Codex; production guidance is byte-stable.
 Explicit maintenance owns supported compaction rather than retrospective append-only
 recording, and triage's requested report continues after Land operations before final
-reporting. Slice 2 lifecycle and slice 3 remaining-host/delivery proof remain open.
+reporting. Slice 2 lifecycle passed on Codex; slice 3 remaining-host/delivery proof remains open.
 
 ## Story obligations
 
@@ -240,4 +235,10 @@ Disposition: proved by slice 1: [first-use](EXECUTION.md#accepted-first-use-nati
 
 Reported: slice 1 — "The interim lifecycle limitation remains explicit."
 Story clause: "Repeated invocations follow prior fixes, retire supported resolutions, and resurface recurrences, with each changed maintenance result committed and synchronized to origin."
-Disposition: interim until slices 2, 3
+Disposition: proved by slice 2: [accepted lifecycle proof](EXECUTION.md#slice-2-accepted-lifecycle-proof), including both exposure decisions, unchanged repeat, recovered lineage, source-provenance distinctions and preserved completion history.
+
+### G3. Complete installation and remaining-host acceptance
+
+Reported: slice 2 — "other-host acceptance remains separate."
+Story clause: "Apply the shared behavior and affected native-acceptance boundaries above."
+Disposition: receiving slice 3

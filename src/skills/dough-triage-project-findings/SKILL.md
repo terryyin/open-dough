@@ -2,8 +2,9 @@
 name: dough-triage-project-findings
 description: >-
   Maintains this project's retrospective findings, separates project and shared
-  responsibility, and queues zero to three supported new leading improvement
-  stories, then commits and synchronizes the maintenance result. Use only on
+  responsibility, follows adopted fixes through observation and recurrence, and
+  queues zero to three supported new leading improvement stories, then commits
+  and synchronizes the maintenance result. Use only on
   explicit invocation or as an expressly named phase of a user-invoked combined
   cycle for its selected project set. Reading findings or completing a
   retrospective does not invoke it. Does not implement the improvements.
@@ -26,12 +27,6 @@ projects, change published guidance, implement the selected improvements, or
 repair unrelated CI. Approved finding-code adoption has its own
 [dough-maintain-findings](../dough-maintain-findings/SKILL.md) contract; this skill
 does not allocate Open Dough catalog codes.
-
-**Interim limit:** This draft supports first-use triage and exact-repeat
-maintenance. Preserve existing response, adoption, observation and retirement
-information. Do not retire watched findings or classify a later failure as an
-adopted-fix recurrence through this draft; report that pending lifecycle
-assessment. Existing active responses remain in place.
 
 ## Resolve the project and records
 
@@ -138,6 +133,21 @@ Reconcile any concurrent record changes before saving instead of overwriting
 them. Keep historical observations distinct from the current explanation and
 preserve unrelated human notes and completed-response history.
 
+## Follow responses through observation and recurrence
+
+When a finding has a claimed repair, prior response, observation or retirement,
+read [follow fixes without losing evidence](references/finding-lifecycle.md)
+before deciding its current disposition. Use the same finding identity and
+evidence model above. Correct stale current assessments from attributable
+source/adoption evidence while preserving the original observations.
+
+Retire only with supported repair/outcome evidence or a satisfied proportionate
+observation criterion with relevant use and no recurrence. Preserve recovery and
+working links before removing active content. Insufficient exposure or uncertain
+adoption remains open. A matching failure under the adopted repair restores its
+lineage and eligibility for selection; an old branch, unapplied repair or similar
+symptom alone cannot establish a failed fix.
+
 ## Select zero to three new leading stories
 
 Read active responses and their canonical homes before ranking uncovered work.
@@ -157,6 +167,11 @@ For each supported project-owned problem:
   project's conventions. Link each story to its finding and each finding to
   the story, explicitly queued rather than resolved. Do not create a plan or
   take the story as part of this maintenance.
+- For a supported recurrence or uncovered remainder after a completed response,
+  a new bounded follow-up may be justified. Link its new evidence, prior response
+  and finding lineage; preserve the original completion and apply the same
+  selection ceiling and priority criteria. Do not reopen the completed story or
+  create another response when active work already covers it.
 - Use the installed product-backlog writer to add only those new canonical
   stories first, in justified priority order. Preserve existing Taken entries,
   unrelated queue order and direction text. Follow its identity and genuine
@@ -174,6 +189,9 @@ claim reciprocal linking only after all affected records have been verified.
 Review resulting records against the source evidence: responsibility and remedy,
 preserved distinct executions and links, exact new story count/order, unchanged
 existing queue/Taken membership and relative order, and unchanged direction.
+For lifecycle changes, verify actual adoption/exposure, the retirement decision
+and recovery path, or restored lineage and prior-response links. Preserve the
+historical observations and completed responses when the current assessment changes.
 Run project-required checks appropriate to these metadata changes. Do not treat
 polished prose or a local commit as proof of a completed maintenance invocation.
 

@@ -71,55 +71,22 @@ Preparation findings and their limits are recorded in [PREPARATION.md](PREPARATI
 
 ## First native observation
 
-Paid native approval is now established. Slice 1 cannot pass and slices 2–3
-cannot start until its required bounded observation runs and is judged.
-Retain the uncommitted draft and claim through that acceptance boundary.
-
-Disposable fixture prepared and staged without running an agent:
-
-- Script `/tmp/open-dough-triage-316-8ateTu/triage-probe.sh`, prompt
-  `/tmp/open-dough-triage-316-8ateTu/prompt.txt`, receipt
-  `/tmp/open-dough-triage-316-8ateTu/staging-receipt.json`.
-- Workspace
-  `/private/tmp/open-dough-triage-316-8ateTu/git-pub-native.5HczYl/maintenance`,
-  branch `triage/maintenance`; default checkout is sibling `integration`, local
-  origin is sibling `remote.git`. Fixture origin accepted base
-  `f084ee23d53771eebdf62c4ea9fa5db5f3e80066`.
-- Source candidate HEAD is the claim, with uncommitted draft SHA256s:
-  new `SKILL.md` `165ba635767de105056f287346db00b9d08fdce00b54bb8005de8de406f164a7`;
-  `references/maintenance-delivery.md`
-  `77ce704f219d434130c307d6d7a704b275ab1cfff23d0f59ff0f34b09f3d6b28`;
-  Land `SKILL.md` `27799e852210bd808b81dfca1094816e940ea94f1323657188a0a57b00b1d70f`.
-  Receipt matches source and installed hashes, including supporting dependencies.
-- Fixture has alternate `docs/ImprovementNotes.md`, local/shared/mixed/duplicate
-  and uncertain evidence with inspectable source snapshots, five uncovered
-  supported candidates including a severe one-off, one Taken and two queued
-  responses. Prompt supplies the named combined-cycle phase's user authority,
-  established project/target, and maintenance-only publication scope, without
-  expected classifications. Workspace is clean and host-owned, retained after
-  publication; default checkout contains staged/unstaged/untracked human edits.
-- Verified before launch: clean maintenance workspace, exact origin/base
-  agreement, byte-identical human snapshot and staged/unstaged binary diffs,
-  absent `launched` marker. Candidate fixture restaging initially encountered
-  same-version managed-byte mismatch; recovered only its disposable preparation
-  worktree and reinstalled there with explicit fixture-only `--force`. This is
-  fixture preparation, not product native success or a production update.
-
-After explicit paid approval, and after confirming source/fixture correspondence,
-run exactly:
+The approved first probe ran on the staged installed draft using:
 
 ```sh
 DOUGH_TRIAGE_NATIVE_PAID_AUTHORIZED=yes PATH=/opt/homebrew/bin:$PATH bash /tmp/open-dough-triage-316-8ateTu/triage-probe.sh launch codex
 ```
 
-The existing native publication supervisor bounds that one attempt to 900 seconds
-plus 15 seconds grace. All three CLIs are present; authentication is untested.
-Judge actual records, links, distinct execution counts, queue order, accepted
-origin SHA, unchanged human edits, caller authority handoff and result/report.
-Then observe unchanged-repeat and stopped-publication recovery before slice 1
-acceptance. Do not treat fixture staging, passed helper tests or review prose as
-those observations. If the first probe fails, diagnose within slice 1 and stop
-slices 2–3 as the ordered plan requires.
+Fixture origin base `f084ee23d53771eebdf62c4ea9fa5db5f3e80066`; source guidance
+matches the delivered slice-1 commit `95c0af23d9272659a8d79dacb228a542f26d89e8`.
+`/tmp/open-dough-triage-316-8ateTu/staging-receipt.json` matched source/installed
+hashes, clean fixture, base and unchanged dirty-default sentinels before launch.
+Setup supplied alternate findings, mixed/duplicate/uncertain evidence, five local
+candidates, existing queued/Taken work and raw source snapshots, not triage results.
+The prompt carried the combined-cycle phase/project/publication authority.
+The first fixture-only managed-byte preflight refusal was recovered in its clean
+preparation worktree with `--force`; it was not product native success or a
+production update. The bounded native supervisor uses 900 seconds plus 15 grace.
 
 ## Accepted first-use native proof
 
@@ -208,3 +175,67 @@ all accepted native hashes and proof boundaries remain unchanged. The plan was
 split into cohesive linked appendices to satisfy the 250-line refactor limit.
 `PATH=/opt/homebrew/bin:$PATH npm run format` completed with exit 0 and made no
 additional changes. Obligation check for slice 1 passed before its done transition.
+
+## Slice 1 accepted delivery
+
+Agent commit and check-only hook succeeded: `95c0af23d9272659a8d79dacb228a542f26d89e8`.
+Managed Story Branch delivery accepted that SHA at
+`refs/heads/codex/turn-project-owned-retrospective-findings-into-p` with suffix base
+`ed38588d71e4e7c717ec0795298eae617e5d2e8c`; observation reused live
+`/tmp/dough-ci-501/watch-b7Nojr`. That accepted SHA is the next increment's base.
+No main publication or dashboard landing-context capture has happened yet.
+
+## Slice 2 accepted lifecycle proof
+
+Source draft adds the focused lifecycle reference and removes the interim source
+limit. Creator validation, whitespace and `PATH=/opt/homebrew/bin:$PATH npm test -- tests/payload-declaration-links.sh`
+passed; independent AGENTS review found no gaps. Existing classification and
+publication owners are unchanged. Literal approved native command:
+
+```sh
+DOUGH_TRIAGE_NATIVE_PAID_AUTHORIZED=yes PATH=/opt/homebrew/bin:$PATH bash /tmp/open-dough-triage-316-lifecycle-8oNwAP/lifecycle-probe.sh launch
+```
+
+Codex CLI 0.163.0, terminal exit 0, complete stream; 21 actual command calls.
+Candidate/dependency hashes in `staging-receipt.json` match the source exactly.
+Setup supplied raw facts, actual historical/adopted Git source and a project-owned
+seven-day/two-relevant-use criterion, with three batch and zero preview/discovery
+uses; original metadata was not a maintenance outcome. The controller only
+snapshots real acceptance or publishes three later raw events plus their pointer.
+Fixture root `/private/tmp/open-dough-triage-316-lifecycle-8oNwAP/git-pub-native.CqkUoI`;
+initial `45c97f4734e32182de5e354d485429a7ff831b72`, adoption
+`baf4009425edd4ba827bcebb52fa8fd7d6a51d37` with actual Oct-10 author/committer dates.
+
+- Phase 1 accepted `d7994919bba4116c00ab4e672e05ebab5952b94a`: four metadata files,
+  supported batch retirement, original PF-101/PF-199 anchors and exact verified
+  Git recovery, concise decision rather than evidence archive. Preview stays open
+  with zero use; discovery current assessment is 5000 ms/three reads while original
+  E-121 remains 1000 ms/one read, with no success or new remedy inferred.
+- Phase 2 is the identical SHA, zero changed paths or commits, no restarted window.
+- Separate raw-evidence commit `b64e328d088aaeabe55d42b6e8418affef3cb78b` changes
+  only three raw JSON events and their pointer, not findings or backlog.
+- Phase 3 accepted `366e5ec30caba65c3453fb8df994f6e96b9b7c76`: restores verified
+  PF-101/PF-199 lineage after E-201 physically overwrites a report under adopted
+  source with colliding normalized IDs. E-202 old-source failure is historical,
+  not an adopted-fix failure; E-203 preserves local files but expires upload URLs,
+  a distinct PF-200. Two bounded reciprocal follow-ups lead the queue, preserving
+  earlier completion and the originally successful exposure/retirement basis.
+- Root and independent reviewer inspected actual Git objects at each boundary,
+  controller receipts, source contracts, anchors and shared native-reader calls.
+  All 14 original product/evidence/done-record/catalog blobs remain byte-identical;
+  completed response changes were navigation-only and final PRODUCT-DONE equals
+  baseline. All relative links resolve (27/31/31/51 across observed states).
+  Direction, Taken and existing queue order remain; default index/working binary
+  diffs, sentinels and HEAD match baseline exactly. Maintenance is clean/retained.
+- Actual native calls read installed entrypoint/references/backlog/Land, validate
+  scope, use the writer and closure guard, then exact-SHA nonforce push, fetch and
+  ancestry acceptance before snapshots. No extra authority, product work or CI
+  repair occurred. This is Codex lifecycle proof, not other-host/installation or
+  long-term effectiveness proof; slice 3 owns the remaining acceptance.
+
+## Slice 2 delivery preparation
+
+Independent refactor returned `REFACTOR COMPLETE`, no edits or invalidated proof.
+`PATH=/opt/homebrew/bin:$PATH npm run format` exited 0 without additional changes;
+full output is `/tmp/open-dough-triage-316-format-slice2.log`. Obligation check passed
+before the done transition; G3 remains explicitly owned by slice 3.
