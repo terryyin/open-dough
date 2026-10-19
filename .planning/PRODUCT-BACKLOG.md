@@ -20,6 +20,8 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Accept slices against the original story promises](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-original-story-promises) — SEED-010#accept-original-story-promises
+- [Avoid repeating whole-suite proof around refactoring](seeds/SEED-010-learn-from-execution-retrospectives.md#schedule-proof-after-refactoring) — SEED-010#schedule-proof-after-refactoring
 - [Format only the owned change during delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) — SEED-010#format-owned-changes
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history

@@ -1,11 +1,11 @@
 # Finding names and current follow-up
 
-Reviewed 2026-10-12 under the retrospective-findings runbook. Retention is a
+Reviewed 2026-10-20 under the combined feedback-maintenance invocation. Open Dough, Doughnut and Pygardon post-local records were reviewed; Terry Talks and Lizard have no findings records, so maintained-set source coverage is incomplete and no watch was retired. Retention is a
 priority decision, not a claim that discarded problems were fixed or cannot recur.
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-247. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-302. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -167,3 +167,115 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-246 — [Observation-to-fix slices contradict scratch retention](findings/ODF-246.md) <a id="odf-246"></a>
 
 ## ODF-247 — [Plan proof omits promised session endings](findings/ODF-247.md) <a id="odf-247"></a>
+
+## ODF-139 — [Reported defect dismissed without checking the story](findings/ODF-139.md) <a id="odf-139"></a>
+
+## ODF-248 — [Refactor reruns unchanged consumer proof](findings/ODF-248.md) <a id="odf-248"></a>
+
+## ODF-249 — [Whole-suite proof runs before the refactor that invalidates it](findings/ODF-249.md) <a id="odf-249"></a>
+
+## ODF-250 — [A plan's proof table omits an answer state its story scopes in](findings/ODF-250.md) <a id="odf-250"></a>
+
+## ODF-251 — [An open Story Branch execution has no guided path to queue a correction it discovers](findings/ODF-251.md) <a id="odf-251"></a>
+
+## ODF-252 — [A story recorded ready still needs developer choices and fixtures before its first slice](findings/ODF-252.md) <a id="odf-252"></a>
+
+## ODF-253 — [The start command's guidance names the trunk branch but not its flag](findings/ODF-253.md) <a id="odf-253"></a>
+
+## ODF-254 — [Accepted proof let a test setup step perform an action the story requires of the product](findings/ODF-254.md) <a id="odf-254"></a>
+
+## ODF-255 — [A slice's refactor widens a seam that a later slice of the same plan removes](findings/ODF-255.md) <a id="odf-255"></a>
+
+## ODF-256 — [Managed delivery accepts a `--repo` that does not match the workspace's remote](findings/ODF-256.md) <a id="odf-256"></a>
+
+## ODF-257 — [Test runs leave detached product children after timed-out teardowns, and the developer found them first](findings/ODF-257.md) <a id="odf-257"></a>
+
+## ODF-258 — [A re-plan decision flagged by the first slice reached the developer only with the last](findings/ODF-258.md) <a id="odf-258"></a>
+
+## ODF-259 — [The CI observer's budget expires inside a long execution](findings/ODF-259.md) <a id="odf-259"></a>
+
+## ODF-260 — [A nine-slice story ran about twenty hours without a split](findings/ODF-260.md) <a id="odf-260"></a>
+
+## ODF-261 — [Focused test filter matches the execution checkout path](findings/ODF-261.md) <a id="odf-261"></a>
+
+## ODF-262 — [Permission-only probes split a human click journey](findings/ODF-262.md) <a id="odf-262"></a>
+
+## ODF-263 — [Phase artifact capture overwrites newer recovery evidence](findings/ODF-263.md) <a id="odf-263"></a>
+
+## ODF-264 — [Broad startup reads lose required context to truncation](findings/ODF-264.md) <a id="odf-264"></a>
+
+## ODF-265 — [Empty measurement captures are reported as matching](findings/ODF-265.md) <a id="odf-265"></a>
+
+## ODF-266 — [An earlier slice invalidates a later slice baseline](findings/ODF-266.md) <a id="odf-266"></a>
+
+## ODF-267 — [Obligations cannot represent an unchanged earlier defect](findings/ODF-267.md) <a id="odf-267"></a>
+
+## ODF-268 — [A coordinator repairs behavior after the independent refactor](findings/ODF-268.md) <a id="odf-268"></a>
+
+## ODF-269 — [An ADR rebuild claim substitutes for stored-history evidence](findings/ODF-269.md) <a id="odf-269"></a>
+
+## ODF-270 — [Obligations cannot retain a pending owner decision truthfully](findings/ODF-270.md) <a id="odf-270"></a>
+
+## ODF-271 — [A reasoned repeat claim hides interaction between exclusions](findings/ODF-271.md) <a id="odf-271"></a>
+
+## ODF-272 — [A new accessible name collides with unselected E2E consumers](findings/ODF-272.md) <a id="odf-272"></a>
+
+## ODF-273 — [Full verification begins before the intended edits settle](findings/ODF-273.md) <a id="odf-273"></a>
+
+## ODF-274 — [Delivery advances before terminal results are observed](findings/ODF-274.md) <a id="odf-274"></a>
+
+## ODF-275 — [Published-revision proof creates a circular slice delivery gate](findings/ODF-275.md) <a id="odf-275"></a>
+
+## ODF-276 — [Fresh-agent refactor pass skipped for records-only slices](findings/ODF-276.md) <a id="odf-276"></a>
+
+## ODF-277 — [Repeated large-fixture hashes consume bounded research proof](findings/ODF-277.md) <a id="odf-277"></a>
+
+## ODF-278 — [Inference allowance reused as a validation deadline](findings/ODF-278.md) <a id="odf-278"></a>
+
+## ODF-279 — [Research bootstrap starts outside its required supervisor](findings/ODF-279.md) <a id="odf-279"></a>
+
+## ODF-280 — [Frozen research handoff omits the recoverable input pair](findings/ODF-280.md) <a id="odf-280"></a>
+
+## ODF-281 — [Five-minute slice sizing held for no slice of a lifecycle story](findings/ODF-281.md) <a id="odf-281"></a>
+
+## ODF-282 — [A mid-execution refinement added a slice its cited direction did not support](findings/ODF-282.md) <a id="odf-282"></a>
+
+## ODF-283 — [A truthfulness slice dropped an owner alert by rewriting pinned tests](findings/ODF-283.md) <a id="odf-283"></a>
+
+## ODF-284 — [The plan-status check rejects a status this project's plans use](findings/ODF-284.md) <a id="odf-284"></a>
+
+## ODF-285 — [Implementation agents format their own files although formatting is reserved to the coordinator](findings/ODF-285.md) <a id="odf-285"></a>
+
+## ODF-286 — [A refactor pass replayed the real study to prove artifact identity that a later slice owned](findings/ODF-286.md) <a id="odf-286"></a>
+
+## ODF-287 — [Test fakes shared the implementation's assumptions, so real-boundary defects surfaced only in paid or live runs](findings/ODF-287.md) <a id="odf-287"></a>
+
+## ODF-288 — [Expensive qualification depends on session-temporary state](findings/ODF-288.md) <a id="odf-288"></a>
+
+## ODF-289 — [Cancelled CI attempt investigated through server code before its diagnostic](findings/ODF-289.md) <a id="odf-289"></a>
+
+## ODF-290 — [Resource-model choices contradicting the plan were accepted and later forced owner decisions](findings/ODF-290.md) <a id="odf-290"></a>
+
+## ODF-291 — [A later slice's planned fixture contradicted an earlier slice's planned entry point](findings/ODF-291.md) <a id="odf-291"></a>
+
+## ODF-292 — [A plan's placeholder text under Story obligations failed the obligations check](findings/ODF-292.md) <a id="odf-292"></a>
+
+## ODF-293 — [A delegation discarded an expensive measurement fixture the plan said the next slice reuses](findings/ODF-293.md) <a id="odf-293"></a>
+
+## ODF-294 — [An observability slice's proof never crossed the delivery path its purpose named](findings/ODF-294.md) <a id="odf-294"></a>
+
+## ODF-295 — [Parent process names hide active operational work](findings/ODF-295.md) <a id="odf-295"></a>
+
+## ODF-296 — [Repair milestones reset the release latency clock](findings/ODF-296.md) <a id="odf-296"></a>
+
+## ODF-297 — [A completed supplier cannot have its consumer agreement corrected](findings/ODF-297.md) <a id="odf-297"></a>
+
+## ODF-298 — [Finished observation leaves later closure without a clear continuation](findings/ODF-298.md) <a id="odf-298"></a>
+
+## ODF-299 — [A test lease expands cleanup authority before the probe starts](findings/ODF-299.md) <a id="odf-299"></a>
+
+## ODF-300 — [Accepted result mistaken for cancellation of completion](findings/ODF-300.md) <a id="odf-300"></a>
+
+## ODF-301 — [Shared transaction extraction omitted a post-commit failure consumer](findings/ODF-301.md) <a id="odf-301"></a>
+
+## ODF-302 — [Consuming proof selected the live engine before checking its role](findings/ODF-302.md) <a id="odf-302"></a>

@@ -1,68 +1,11 @@
 # Near-term watch list
 
-Reviewed 2026-10-12 against the current Open Dough, Pygardon and Doughnut logs,
-in Asia/Tokyo. Only verified relevant use starts a seven-day watch. Released
+Reviewed 2026-10-20 (Asia/Tokyo): Open Dough, Pygardon and Doughnut post-local logs reviewed; Terry Talks and Lizard have no supplied or configured findings records. Coverage is incomplete; no watch is retired. ODF-139 returned to its [active owner](findings/ODF-139.md) after supported later counterevidence. Original watch starts remain unchanged.
+
+Earlier assessment: 2026-10-12 against Open Dough, Pygardon and Doughnut. Only verified relevant use starts a seven-day watch. Released
 responses and successful use are not guarantees against recurrence. Occurrences
 are counted once per project/execution. Failed and unexercised responses remain
 in [the active catalog](finding-names.md). Codes remain allocated in Git history.
-
-<a id="odf-139"></a>
-
-## ODF-139 — Reported defect dismissed without checking the story
-
-A named gap contradicts the story goal, but acceptance judges it against the plan's narrower scope and delivers it.
-
-- **Sources:** Doughnut / DD-132 (historical evidence at `9ab3ca6e:docs/maintainer/finding-names.md`); [Pygardon / DD-214](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-139--a-hand-back-gap-was-accepted-as-plan-scoped-without-checking-it-against-the-storys-scope).
-- **Follow-up:** released in 0.3.58; under observation, not resolved.
-- **Response:** `b7930baf`, first released in 0.3.48, adds the story-goal and named-gap check to `wrap-up.md` Accept proof. The same rule remains at `9de43de4`; no demonstrated intervening correction of agent follow-through warrants a new identity.
-- **Later response (2026-10-10):** `43ef3b9b304b2ffb7ac64238f8c7c6d46ca676a3` introduces structured obligations and story-section quote checks; `9ab257c12fc4abfe0f8586fdbf00e5d53d5a3aaa` carries ownership across slices; `ce0aaa3caed8325e839e40c13417dc30a2f9ed3b` wires delegation, acceptance, delivery and completion gates into the released payload declaration. Free CLI tests refuse the plan-only exclusion. Native proof recorded in `4ec755976033b4265f4a3e39c0c3f3aec7e94906` observes the 303 coordinator retaining a return, a refusing slice gate and a correction handoff. [Proof and limits](https://github.com/terryyin/open-dough/blob/5bd862746d2789e9c34d05276a507f908d141bc7/.planning/slice-plans/283-keep-reported-gaps-owned/PLAN.md#4-a-native-host-coordinator-keeps-the-three-replayed-gaps-owned-developer-run). First containing release verified on 2026-10-12: 0.3.58. See the current watch assessment below. Earlier failed-watch evidence stays retained.
-- **Post-fix evidence:** Pygardon SEED-078#story-auto-trading-same-basis, plan 303 / `74d86dc20` (Take `e6b1c08c4`, recoverable at `a4673f7b6`), 2026-10-03 date-only, Claude Code / claude-opus-5-5 / 0.3.56. Slice 4 reported that `HoldingsExitSettingsResults.tsx` omitted the source; the story said each signal and exit row names it. Acceptance filed this as outside the plan's ask; retrospective correction plan 311 was required. Qualified inference: acceptance used the plan instead of the story. This is a supported failure after the 0.3.48 response, so its prior watch does not pass.
-- **Provenance-limited report:** Pygardon SEED-085#story-ci-capacity-kept-free, plan 308 / `cc959dab8` (Take `b77d4e9ff`, recoverable at `33c3283d2`), 2026-10-03 date-only, Claude Code / claude-opus-5-5, guidance release unknown. Acceptance called missing build cache and container holders plan-scoped despite the story's Scope; correction plan 309 followed. This is the same false-scope mechanism; its unknown release cannot establish post-fix recurrence.
-- **Frequency:** Three distinct supported executions including the original Doughnut plan 006 on 0.3.41. The two Pygardon retrospectives do not count as extra executions. ODF-185 is separately active again after its failed learning-only acceptance watch.
-
-- **Release verification (2026-10-12):** Relevant implementation/guidance diffs and first-containing tags checked for `43ef3b9b`, `9ab257c1`, `ce0aaa3c`: `v0.3.58` (`c879707a`, 2026-10-10T17:30:32+09:00). All three projects adopted it on 2026-10-10: Open Dough `af8ab03d`, Pygardon `0556f9d69`, Doughnut `e95c90d37a`. Adoption alone does not establish effectiveness.
-
-- **Watch start:** 2026-10-11 (date-only, Asia/Tokyo), release 0.3.58. Pygardon plan 327, first implementation `212333b6d`; the positive-use evidence below and `7cbf44c49:.planning/slice-plans/327-retry-ci/PLAN.md` obligation G4 show a named story gap returned and proved within the same slice.
-- **Review after:** 2026-10-18.
-- **Last assessed:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. This watches the plan-scope exclusion mechanism only; the distinct unsupported judgment in ODF-223 remains active. Native replay limits and the failed 0.3.48 response remain recorded. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
-
-### Retained source evidence — pygardon (2026-10-09)
-
-**Source:** [pygardon / ODF-139 — A hand-back gap was accepted as "plan-scoped" without checking it against the story's scope](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-139--a-hand-back-gap-was-accepted-as-plan-scoped-without-checking-it-against-the-storys-scope).
-
-Former local code: DD-214.
-
-The coordinator accepted an implementer's named gap on the implementer's own claim that the plan scoped it out. It did not read the gap against the story's Scope, which listed the omitted holders.
-
-### Occurrences
-- Execution: `SEED-085#story-ci-capacity-kept-free` (`.planning/slice-plans/308-ci-capacity-shortage-seen-before-start/PLAN.md`, removed at wrap-up, recoverable at `33c3283d2`; Take `b77d4e9ff`; first implementation commit `cc959dab8`)
-  - Timestamp: unknown (2026-10-03, slice 1 acceptance).
-  - Tool: Claude Code.
-  - Model: claude-opus-5-5.
-  - Open Dough release: unknown.
-  - Evidence: the slice 1 hand-back said "Holders cover images and volumes only … as the plan scoped". The story's Scope names "the engine's other build cache … and anything else". Plan 308 excluded only the release cache budget remedy. Proof acceptance asks for each named gap to be read against the story's goal and scope.
-  - Observed effect: the retrospective found the omitted build cache and containers and wrote correction plan 309.
-  - Inference: reading the seed's Scope at acceptance would have returned the gap within the same slice, at about one extra implementation round.
-
-- Execution: `SEED-078#story-auto-trading-same-basis` (`.planning/slice-plans/303-auto-trading-same-basis/PLAN.md`, removed at wrap-up, recoverable at `a4673f7b6`; Take `e6b1c08c4`; first implementation commit `74d86dc20`)
-  - Timestamp: unknown (2026-10-03, acceptance of slice 4 before commit `e3a7ea2fc`).
-  - Tool: Claude Code.
-  - Model: claude-opus-5-5.
-  - Open Dough release: 0.3.56.
-  - Evidence:
-    - Slice 4's return listed under Gaps: "The Holdings page panel (`HoldingsExitSettingsResults.tsx`) renders the same response but does not show the source. … The slice only asked for the Auto Trading Holdings section."
-    - The story goal says "Each signal and exit row names that source".
-    - The coordinator recorded the gap in the plan as out of the plan's ask.
-    - The retrospective then planned correction `311-holdings-exit-source-correction`.
-  - Observed effect: a one-slice correction story and plan instead of a one-file change inside slice 4.
-  - Inference:
-    - The plan narrowed "Holdings exit settings" to one component, and the coordinator checked the gap against the plan rather than the goal.
-    - `wrap-up.md#accept-proof` already says a gap contradicting the goal returns to implementation in the same slice.
-
-
-### Positive use retained from Pygardon (2026-10-12)
-
-- Execution: SEED-101#story-watcher-setup-error-no-verdict (plan 327, first related commit `212333b6d`) Timestamp: unknown Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.58 Evidence: 2026-10-11; slice 1 return "No test drives the real watcher end to end with a `setup_error` attempt", closed by the two cases added to `tests/pygardon-ci-path-coverage.test.mjs` in `212333b6d`; slice 3 return "an observation poll's `try_admit` can start an observed tip before the retry", closed by `offer_queued_retry` in `ci_session_admission.try_admit` and `test_observed_tip_arriving_while_idle_waits_behind_the_queued_retry` in `7cbf44c49` (plan 327 obligation G4) Observed effect: Both slices' named proof commands had passed; each return to the same agent took one further round and was delivered in the same slice commit. Inference: A practice worth keeping. The plan's proof for key examples 4 and 7 stopped at the session's happy path and the adapter, which is where the gaps sat.
 
 <a id="odf-156"></a>
 
@@ -586,3 +529,6 @@ The managed delivery CLI can declare the Codex bridge ready, while the documente
 - **Review after:** 2026-10-15.
 
 - **Last assessed:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
+
+
+**Current whole-set assessment (2026-10-20):** Production inventory rechecked: five repositories, three readable shared logs and two explicit missing-record gaps. ODF-156/200/201/202 remain under observation; their elapsed dates and adoption do not satisfy complete-source coverage. No watch clock is restarted and no unobserved source is counted as success.

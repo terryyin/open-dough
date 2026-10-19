@@ -541,6 +541,32 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 **Key examples:** A Markdown-only change triggers no unrelated script or shell formatting; one changed script and one new eligible file are formatted while unrelated dirty files remain byte-identical; the normal staged check still rejects an unformatted staged eligible file.
 **Evaluation:** Compare selected paths and affected bytes with the pre-change command on bounded representative changes; preserve lint/format confidence and report actual cost without extrapolating a speedup. On completion update DD-309 with the actual response, relevant repository revision, any containing release and the outcome evidence; queueing alone resolves nothing.
 
+<a id="accept-original-story-promises"></a>
+
+### 13. Accept slices against the original story promises
+
+**Identity:** SEED-010#accept-original-story-promises
+**Status:** Queued, not refined.
+**Beneficiary:** The developer receiving the story's promised behavior.
+**Outcome:** Acceptance identifies the current slice's applicable original-story promises even when both its plan and return omit or narrow them.
+**Evidence:** [ODF-139](../../docs/maintainer/findings/ODF-139.md) retains three later 0.3.63 executions: Open Dough readiness semantics, Pygardon terminal capacity and release progress. Each shipped an unmet original promise and needed correction. The earlier structured-obligation response and useful positive use remain evidence; they do not erase the later omissions.
+**Scope:** Derive the applicable original goal, Scope, key examples and exclusions independently before comparing the plan, return and observed product proof. Preserve legitimate slice boundaries, human decisions and sufficient existing proof. Address the return-driven omission seam; do not add a second obligation registry, demand unrelated whole-story behavior in an early slice, or merely repeat the existing plan-cannot-narrow-story rule.
+**Key examples:** The historical dependency-review sentence cannot override key example 7; a release result omitting two promised fields stays incomplete despite matching the plan; a genuinely excluded or later-owned promise is not invented as current-slice work.
+**Evaluation:** Demonstrate discrimination on the three retained cases and useful unchanged controls, including representative native agent follow-through. Report unresolved generality rather than converting script structure or a quote into outcome proof. Completion records the actual response and first containing release at ODF-139, with relevant adoption/use or an explicit remaining proof gap.
+
+<a id="schedule-proof-after-refactoring"></a>
+
+### 14. Avoid repeating whole-suite proof around refactoring
+
+**Identity:** SEED-010#schedule-proof-after-refactoring
+**Status:** Queued, not refined.
+**Beneficiary:** Contributors and developers sharing the execution machine.
+**Outcome:** A slice obtains its required complete proof on the final changed state without scheduling an unnecessary whole-suite run immediately before refactoring invalidates it.
+**Evidence:** [ODF-249](../../docs/maintainer/findings/ODF-249.md), formerly Open Dough DD-293, retains two executions: a 13.6-minute suite followed by a 14.4-minute rerun, and at least eight extra 15–25-minute whole-suite runs. Loaded retries remain qualified; reports from one execution count once.
+**Scope:** Coordinate implementation proof, independent refactoring, formatting and final proof selection. Keep sufficient targeted implementation checks, required observations before consequential live actions, the independent refactor judgment and every affected consumer's final proof. Reuse accepted evidence when boundaries remain unchanged. Do not waive a promised comparison, required suite, failure policy or regression test, and do not turn a no-edit refactor into a reason to rerun unchanged proof.
+**Key examples:** A foreseeable file-size extraction precedes the required final suite; a no-edit review reuses still-valid proof; a refactor changing another consumer obtains its affected proof; a genuine before/after experiment retains both necessary measurements.
+**Evaluation:** Use the retained historical scheduling cases and representative controls to compare actual selected commands, final-state coverage, elapsed/resource cost and any missed defect. Completion records the actual response and first containing release at ODF-249 plus outcome evidence or a remaining adoption/proof gap; queueing is not resolution.
+
 ## Ordering and Scope Reduction
 
 Queue the next five outcomes in this order: Story 4 (response effectiveness),
