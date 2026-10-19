@@ -50,11 +50,9 @@ The shared [project-findings maintenance contract](../../src/skills/dough-triage
 provides explicitly invoked local maintenance, repair observation, priority selection,
 and commit/sync. The remaining stories compose or evaluate that capability.
 
-Terry then selected two following outcomes: convert the recurring shared-feedback
-runbook into an internal skill with client cleanup and publication included, then
-compose the local and shared feedback cycles into one internal skill. Reuse
-Story 5 for the second item and add Story 13 for the third. This request authorizes
-landing these planning changes, not executing the proposed maintenance skills.
+Terry selected composing the local and shared feedback cycles into one internal
+skill, retained as Story 13. This planning selection does not authorize executing
+the proposed maintenance cycle.
 
 The ordering and cuts below preserve the remaining shared-feedback and combined-cycle selections.
 They extend the initial retrospective-focused delivery scope. The following
@@ -277,209 +275,6 @@ blocking prerequisite.
 **Safe stopping point:** One justified response decision or an explicit
 inconclusive result remains useful without automation or another project.
 
-<a id="exchange-retrospective-findings-with-another-project"></a>
-
-### 5. Collect client feedback and prioritize Open Dough improvements
-
-**Identity:** SEED-010#exchange-retrospective-findings-with-another-project
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/317-collect-client-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0b82bb2299edd5f8940fa0c8aeece54a1abb6a282b07e6fa80c025b0c29fb767","plan":"fa26846639121e42debd1a65ddfbb8575f56d3618572fe3c549d18d410679d9e"}}
-```
-
-**Goal:** The maintainer explicitly invokes one internal Open Dough skill to
-collect shared-guidance feedback, return concise and correctly identified client
-logs, and publish the highest-value Open Dough backlog responses without adding
-separate cleanup or commit/sync instructions.
-
-**Scope:** Convert the existing [runbook](../../docs/maintainer/retrospective-findings-runbook.md)
-into an internal skill, reusing its reconciliation, maintenance, watch, triage,
-and backlog operations with one authoritative workflow. Include the bounded
-improvements supported by the [runbook histories](../../docs/maintainer/empirical-process-control-research.md#runbook-automation-follow-up).
-Resolve the maintained client set and each project's actual repository and
-origin target, including Open Dough; do not assume a permanently fixed list of
-three paths. This is a finite user-invoked cycle, not scheduled operation or
-implementation of the resulting stories.
-
-Collect shared findings, preserve missing evidence in the authoritative Open
-Dough finding records, reconcile identities, and apply verified ODF mappings
-and former-code traceability back to client `DearDough.md` files. Follow the
-current catalog index and linked finding files rather than a literal fixed
-number of documents. Consolidate redundant records of the same problem and
-compact repeated narrative without losing distinct occurrences or provenance.
-Local-only findings remain with the owning project; uncertain attribution stays
-explicit. Reuse existing evidence and procedures instead of a new data platform.
-
-Remove confirmed fixes according to the current release/adoption and relevant-use
-watch rules, and resurface supported failures. Unreleased, unused, and
-unknown-version cases cannot pass that watch. Remove extremely low-value findings
-with no worthwhile intended response under the invocation's cleanup authority;
-record a concise reason recoverably, not a false resolution or permanent noise
-list. Severe one-offs and unresolved consequential cases remain. Preserve live
-story relationships and do not silently cancel queued or Taken work.
-
-Challenge the ranking before changing the queue: compare demonstrated impact,
-distinct execution frequency, current relevance, confidence, and response effort.
-Do not favor an easy fix, a vivid hypothetical consequence, or an already
-implemented correction merely because its evidence is convenient. Retain the
-runbook's top-two selection, allowing fewer when justified. Reuse and place
-covering queued stories first; show Taken responses as ongoing and select the
-next supported unqueued problem. Link stories and findings reciprocally and
-preserve direction and other queue order. New stories are queued, not resolved.
-
-The invocation includes committing, integrating through each project's ordinary
-safe delivery path, and synchronizing changed client records and Open Dough's
-own records/backlog with their intended origin targets. Preserve unrelated and
-concurrent work. Retain evidence before shortening its source; verify accepted
-publication separately for each repository. A partial run keeps completed work
-and names unfinished writes or syncs; resume without duplicate collection,
-stories, or commits. No new product fixes or releases are authorized by cleanup.
-
-**Evaluation:** One invocation produces traceable, compact client logs, justified
-leading Open Dough responses, and confirmed publication in each changed project.
-A repeat adds no duplicate occurrence or story. Exercise the historical failure
-cases: misleading priority, an implemented fix needing only adoption/proof,
-uncertain recurrence, unjustified noise, and client-only publication that leaves
-Open Dough unpublished. These are bounded workflow corrections; broader empirical
-control design remains in later stories.
-
-**Value / learning:** Replace the repeated runbook-plus-extra-instructions ritual
-with a complete useful maintenance cycle. Keep response, release, adoption, and
-later outcome distinguishable without claiming queued work already helped.
-
-**Effort uncertainty:** Correct source compaction and cross-repository delivery
-under concurrent activity. Reuse current operations and client discovery.
-
-**Prerequisites:** Accessible selected project records and their ordinary delivery
-conventions. Manual local classification already suffices; the shared project-findings
-maintenance skill is not a hard start prerequisite for this independently useful cycle.
-
-**Safe stopping point:** One explicit cycle is useful without the combined skill,
-unattended triggers, or autonomous implementation.
-
-#### Key examples
-
-1. **One complete invocation.** The production dashboard lists projects using
-   `main` and `master`, including Open Dough. The maintainer invokes the internal
-   feedback skill → it resolves the current repositories and their delivery
-   conventions, retains shared evidence in the linked Open Dough finding files,
-   applies verified names and former-code aliases to source logs, selects up to
-   two supported Open Dough priorities, and confirms the maintenance commits on
-   every changed project's intended origin target. It reports a missing source
-   log as a coverage gap, not an empty successful review; independent projects
-   continue. Reading or authoring the skill alone starts no maintenance.
-2. **Repeat without invented recurrence.** Two reports describe the same
-   project/execution under old and adopted names; another execution reports the
-   same mechanism → retain both distinct executions once, compact redundant
-   narrative, and preserve their provenance. Repeating the same invocation adds
-   no occurrence, story, or empty commit. The same `DD-NNN` in another project
-   is independently identified. Similar symptoms with uncertain causes remain
-   explicitly distinct; a local-only problem stays with its owning project.
-3. **Rank the response still needed.** A frequent, evidenced costly problem
-   competes with an easy cosmetic repair and a vivid but unobserved risk → rank
-   demonstrated impact, distinct executions, relevance, confidence, and effort,
-   and explain the choice. Reuse a covering queued story; show a covering Taken
-   story as ongoing and select the next supported problem. An implemented fix
-   needing adoption or proof does not become another implementation story. Zero
-   or one actionable problem yields zero or one selection. Preserve direction,
-   Taken work, other queue order, and reciprocal finding/story links.
-4. **A watch needs exposure.** A response is verified in a tagged release and
-   adopted guidance, with relevant execution evidence and seven calendar days
-   since the supported watch start → after checking the maintained source set
-   and resolving consequential contrary reports, retire the eligible finding
-   from active/watch/source records with Git recovery. A released but unused
-   fix, unknown execution version, missing source review, or unresolved report
-   cannot satisfy that watch. A supported same-mechanism failure resurfaces the
-   response and evidence; a later corrective release needs its own watch start.
-5. **Pruning is a disposition, not a fix.** A redundant administrative finding
-   has negligible observed harm and no worthwhile response → remove it with a
-   concise recoverable reason after retaining needed evidence. A severe one-off,
-   uncertain consequential case, or live queued/Taken relationship survives
-   unless its actual resolution is established. Preserve meaningful differences
-   between occurrences when compacting text; no permanent noise archive is added.
-6. **Partial publication is resumable.** Open Dough has retained the evidence,
-   one client's maintenance commit is accepted, and another client's target
-   races or is unavailable → retain completed results and the unfinished
-   candidate, report each repository's exact boundary, and continue independent
-   safe work. Resume from observed Git state without repeating an accepted push,
-   duplicating stories, or consuming unrelated edits. If clients publish but
-   Open Dough does not, the overall cycle remains incomplete. Remote acceptance
-   and any deferred local-checkout refresh are separate facts.
-
-#### Alternatives and selected direction
-
-The existing runbook is the simpler baseline: it already handles reconciliation,
-watching, and top-two triage, but still requires copied instructions and excludes
-commit/push. Merely renaming it leaves the selected outcome incomplete. A single
-self-contained skill could absorb all procedures, but would take over identity,
-adoption, and backlog behavior from their current owners. A composing internal
-skill can instead pass explicit context and invocation authority to those owners,
-while owning collection, cleanup/watch policy, ordering, and complete delivery.
-Use that direction within the already selected scope; turn the runbook into a
-pointer so it cannot retain a competing workflow. A machine-driven synchronizer
-would add execution/state machinery while still needing evidence judgments;
-there is no observed need for that infrastructure in this finite cycle.
-
-Borrow the acknowledged handoff from registered delivery: the source log is the
-sender, the authoritative finding record is the recipient, the qualified
-project/execution is the item identity, and a retained evidence locator plus
-per-repository accepted commit is the receipt. Preserve recoverable evidence
-before shortening a source and resume only unfinished deliveries. Adapt this
-without a new receipt database; use existing records, Git, and the run's report.
-The analogy cannot establish common cause, a correct ranking, or effectiveness;
-those still require the finding and watch evidence. Nor does it make several
-repositories one atomic transaction.
-
-#### Investigation and Architecture
-
-Observed during refinement on 2026-10-19:
-
-- The [runbook histories](../../docs/maintainer/empirical-process-control-research.md#runbook-automation-follow-up)
-  document corrected rankings, duplicate implementation proposals, and omitted
-  Open Dough publication. These are historical reports, not fresh effectiveness
-  tests. The current runbook explicitly excludes commit/push.
-- The [catalog](../../docs/maintainer/finding-names.md) now delegates authoritative
-  content to linked finding files. Collection must follow those links; a fixed
-  five-document rewrite would miss the current evidence owners.
-- Reading the production configuration through its established location and
-  inspecting each configured checkout found five repositories: Open Dough,
-  Doughnut, Pygardon, Terry Talks, and Lizard. The last two use `master` and had no
-  `DearDough.md`; Terry Talks also had unrelated edits. Origins matched configured
-  identities. This is a dated observation, not a fixed future project list or
-  authority to run maintenance during preparation.
-- Existing publication/resume/refresh checks passed against isolated local Git
-  origins in this preparation checkout. Disabling candidate publication made the
-  targeted acceptance case fail; restoring it restores the mechanism. The plan
-  retains the commands and limits. No client record or production target was
-  changed by these observations.
-
-The consequential responsibility is orchestration across separate owners and
-repositories. Keep reconciliation, name adoption, triage, and backlog writes in
-their maintained skills; adapt any stale catalog navigation there when necessary,
-preserving their standalone authority boundaries. The new internal skill supplies
-the explicit collection/cleanup/selection/publication authority. It neither
-imports local-only improvements into Open Dough nor depends on Story 12 finishing.
-Publication belongs to each project's safe delivery path; a whole-checkout landing
-requires a result containing only this cycle's work. Do not impose Open Dough's
-internal catalog or watch interval on the shared local-maintenance skill.
-
-[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-supports reuse, one owner per concept, and proportionate machinery;
-[ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) keeps this
-maintainer skill outside the released payload and distinguishes release from
-adoption; [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-requires useful behavior evidence without a routine discovery matrix;
-[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-requires one behavioral source and explicit target roles. No Accepted ADR
-conflict or exception was found. The dashboard North Star's machine-local
-configuration remains discovery input, not a new authority for repository state.
-
-Whether an agent reliably composes these instructions through complete delivery
-remains unobserved. A bounded native first-use probe in isolated repositories is
-the cheapest conclusive observation and belongs to execution with its existing
-paid-run authority. Later response effectiveness remains uncertain until relevant
-use; this story promises a traceable maintenance result, not proven long-term
-improvement. No new goal, scope, or architectural decision is required here.
-
 <a id="learn-from-preparation-history"></a>
 
 ### 6. Learn directly from preparation history
@@ -688,8 +483,9 @@ a hard prerequisite.
 implementation, release, or client updates. Retain as a later candidate until
 the evidence and authority for a trial are supplied.
 
-Stories 5 and 13 already own explicit maintenance-cycle selection. Reassess this
-candidate against their delivered behavior: only a remaining need for recurring
+The maintained [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md)
+and Story 13 own explicit maintenance-cycle selection. Reassess this candidate
+against those behaviors: only a remaining need for recurring
 selection under a standing policy, with evaluated decision quality and human
 intervention, warrants further work. Do not build another ranking engine or
 duplicate their supported dispositions.
@@ -749,7 +545,8 @@ each project's own retrospective findings, then collects shared feedback and
 publishes Open Dough priorities, without manually connecting the two workflows.
 
 **Scope:** Compose the shared [project-findings maintenance](../../src/skills/dough-triage-project-findings/SKILL.md)
-contract with Story 5. Resolve the current
+contract with the internal [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md).
+Resolve the current
 client inventory, including Open Dough itself, using the established production
 dashboard discovery convention rather than a remembered repository list. The
 explicit invocation authorizes both named maintenance phases and their ordinary
@@ -757,7 +554,7 @@ commit/integration/sync outcomes for that project set; children do not require
 the user to repeat that authorization.
 
 First run that maintained skill's local classification, cleanup, repair follow-up, and local
-backlog selection across the projects. Then run Story 5's shared-feedback cycle
+backlog selection across the projects. Then run the shared-feedback skill
 against the resulting records. Reuse those behaviors as their authoritative
 owners, without a second copy of their rules. Preserve local stories when the
 shared cycle subsequently places Open Dough's top shared responses first.
@@ -796,16 +593,15 @@ scheduled operation and autonomous correction remain deferred.
 
 ## Ordering and Scope Reduction
 
-Queue the next seven outcomes in this order: Story 5 (internal shared-feedback
-cycle), Story 13 (combined cycle),
+Queue the next six outcomes in this order: Story 13 (combined cycle),
 Story 4 (response effectiveness),
 Story 6 (preparation evidence), Story 7 (unreviewed execution/completion paths),
 Story 8 (later product consequences), and Story 9
 (automatic due maintenance). Story numbers and recorded identities remain stable;
 the product backlog is the authority for current queue order and membership.
 
-The next two replace the repeatedly invoked internal runbook and connect its
-shared-feedback cycle with the maintained local maintenance contract. Further
+The combined cycle connects the maintained shared-feedback skill with the local
+maintenance contract. Further
 stories evaluate broader response effectiveness and tradeoffs. The two
 observation stories address direct evidence gaps without requiring a new
 telemetry system. Product consequences prevent cost reduction from becoming the sole
@@ -881,5 +677,5 @@ explicitly delegated and independently evaluated.
   [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
   — release identity, native proof/retention, and runtime audience boundaries.
 - Original 9 September decomposition selected local recording before manual
-  consumption and cross-project exchange. Existing Stories 4 and 5 retain their
-  anchors and identity; the 19 October request selects and extends their next use.
+  consumption and cross-project exchange. Story 4 retains its anchor and identity;
+  the 19 October request selects and extends its next use.

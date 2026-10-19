@@ -167,7 +167,7 @@ The [test-optimization skill](../../src/skills/dough-test-optimization/SKILL.md#
 
 The maintainer runbook is more complete than a one-way feedback inbox. It deduplicates by project and execution identity, verifies which release contained a response, distinguishes old-release reports from post-fix recurrence, and starts its one-week watch from verified use. A week without relevant use is explicitly unexercised. Its retirement decision is explicitly operational, not proof that recurrence is impossible. These are useful foundations to preserve.
 
-There are also existing candidate stories for [observing whether a response helped](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) and [exchanging findings with another project](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project). Both are marked candidate, not queued. They provide homes for relevant future work rather than requiring duplicate stories.
+The internal [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md) provides finite collection, cleanup, prioritization, and publication across projects. The existing story for [observing whether a response helped](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) provides a home for broader response-effectiveness work.
 
 ## A useful definition of improvement
 
@@ -302,7 +302,7 @@ The order below aims to produce early learning while keeping the mechanism small
 | 4 | Automate the existing collection and watch workflow for selected projects | Correct deduplication, provenance, ownership, restart behavior, and demonstrably lower human burden |
 | 5 | Delegate selected response decisions and interventions | An explicit authority policy, validated evaluation and stop behavior, bounded rollout, and continued outcome checks |
 
-Order 1 has an existing home in SEED-010's response-effectiveness candidate. Cross-project exchange also has an existing candidate, so new work should refine those boundaries if selected. At the initial research snapshot, the backlog contained dashboard test-efficiency work and a CI feedback target; their measured results can inform the approach without creating duplicate test-speed stories. [Backlog snapshot](https://github.com/terryyin/open-dough/blob/13b57efb4f65f5af1b0bf06568f6c2cd2fce01a2/.planning/PRODUCT-BACKLOG.md), [historical test-efficiency seed](https://github.com/terryyin/open-dough/blob/13b57efb4f65f5af1b0bf06568f6c2cd2fce01a2/.planning/seeds/SEED-136-dashboard-test-efficiency.md).
+Order 1 has an existing home in SEED-010's response-effectiveness candidate. Cross-project exchange uses the maintained [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md); further work should preserve that owner. At the initial research snapshot, the backlog contained dashboard test-efficiency work and a CI feedback target; their measured results can inform the approach without creating duplicate test-speed stories. [Backlog snapshot](https://github.com/terryyin/open-dough/blob/13b57efb4f65f5af1b0bf06568f6c2cd2fce01a2/.planning/PRODUCT-BACKLOG.md), [historical test-efficiency seed](https://github.com/terryyin/open-dough/blob/13b57efb4f65f5af1b0bf06568f6c2cd2fce01a2/.planning/seeds/SEED-136-dashboard-test-efficiency.md).
 
 ### A concrete first pilot using an existing response
 
