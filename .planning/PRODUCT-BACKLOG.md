@@ -20,10 +20,10 @@ cost of the feedback process itself.
 
 - [Turn project-owned retrospective findings into prioritized improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#triage-project-owned-retrospective-findings) — SEED-010#triage-project-owned-retrospective-findings ([plan](slice-plans/316-triage-project-findings/PLAN.md))
 - [Open the relevant dashboard story from a macOS notification](seeds/SEED-140-dashboard-session-notifications.md#open-notified-story-from-macos-notification) — SEED-140#open-notified-story-from-macos-notification ([plan](slice-plans/318-notification-story-navigation/PLAN.md))
+- [Avoid repeating input notifications after session reconnection](seeds/SEED-140-dashboard-session-notifications.md#avoid-repeating-input-notifications-after-reconnection) — SEED-140#avoid-repeating-input-notifications-after-reconnection ([plan](slice-plans/319-input-alert-continuity/PLAN.md))
 
 ## Backlog list
 
-- [Avoid repeating input notifications after session reconnection](seeds/SEED-140-dashboard-session-notifications.md#avoid-repeating-input-notifications-after-reconnection) — SEED-140#avoid-repeating-input-notifications-after-reconnection
 - [Collect client feedback and prioritize Open Dough improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
 - [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
