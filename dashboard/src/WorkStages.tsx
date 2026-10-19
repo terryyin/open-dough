@@ -8,7 +8,8 @@ import {
   type OpenRoster,
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
-import { keepInView, stagesMarks, workCard } from "./workFocus.ts";
+import { stagesMarks } from "./workFocus.ts";
+import { revealStory } from "./pageEntries.ts";
 import { useStoryNavigation } from "./storyNavigation.tsx";
 import { dashboardColumnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
@@ -141,15 +142,14 @@ export function WorkStages({
   );
   const { opening } = useStoryNavigation();
   useLayoutEffect(() => {
-    if (opening?.sourceId !== work.source.id) return;
-    const card = workCard(opening.identity);
-    if (card === undefined) return;
+    if (opening?.project !== work.source.id) return;
+    const stop = revealStory(opening.identity);
+    if (stop === undefined) return;
     // Startup protection still owns whether inspection is available. Revealing
     // its card must not invoke its disabled inspection or any launch action.
     if (launches.storyStartupOf(work.source.id, opening.identity) === undefined)
       setSelectedIdentity(opening.identity);
-    card.focus({ preventScroll: true });
-    return keepInView(card);
+    return stop;
   }, [opening, work.source.id]);
   const select = (identity: string) => {
     setSelectedIdentity((current) =>

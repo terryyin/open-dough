@@ -1,6 +1,5 @@
-import { showColumnHolding } from "./columnPaging.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { prefersReducedMotion } from "./reducedMotion.ts";
+export { keepInView, untilOwnMove } from "./pageMovement.ts";
 
 // Keyboard focus across a replaced snapshot. A card is rebuilt when its work
 // changes group or order, which would drop focus to the page; focus follows
@@ -92,70 +91,6 @@ export function workCard(identity: string): HTMLElement | undefined {
   return [...document.querySelectorAll<HTMLElement>(`[${workAttribute}]`)].find(
     (shown) => shown.getAttribute(workAttribute) === identity,
   );
-}
-
-// What tells that the developer moved around the page themselves.
-const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
-
-// Scrolls a part of the page, such as a work's card, into view, smoothly or,
-// when the developer asks for reduced motion, at once, leaving the keyboard
-// where it is; a dashboard column that hides it shows first. It keeps the
-// part in view while the page changes size around it, as when facts read
-// after the stories lengthen the cards above it, until the developer
-// scrolls, points, or types, or the returned stop is called.
-export function keepInView(element: Element): () => void {
-  const show = () => {
-    showColumnHolding(element);
-    element.scrollIntoView({
-      block: "center",
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-    });
-  };
-  // The page's size as the part was brought into view; only a change from it
-  // moves the page again, including one already made when observing first
-  // reports it, as when a hidden column shows.
-  const sizeOf = () => {
-    const { width, height } = document.body.getBoundingClientRect();
-    return `${String(width)} ${String(height)}`;
-  };
-  let size = sizeOf();
-  show();
-  const resized = new ResizeObserver(() => {
-    const now = sizeOf();
-    if (now === size) return;
-    size = now;
-    show();
-  });
-  resized.observe(document.body);
-  const stop = untilOwnMove(() => {
-    resized.disconnect();
-  });
-  return () => {
-    resized.disconnect();
-    stop();
-  };
-}
-
-// Calls `moved` once the developer scrolls, points, or types, unless the
-// returned stop is called first.
-export function untilOwnMove(
-  moved: (event: Event) => void,
-  except?: (event: Event) => boolean,
-): () => void {
-  const stop = () => {
-    for (const move of ownMoves) {
-      window.removeEventListener(move, heard, true);
-    }
-  };
-  const heard = (event: Event) => {
-    if (except?.(event) === true) return;
-    stop();
-    moved(event);
-  };
-  for (const move of ownMoves) {
-    window.addEventListener(move, heard, true);
-  }
-  return stop;
 }
 
 // Said once when a new snapshot no longer lists the work that held focus.

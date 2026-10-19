@@ -34,7 +34,7 @@ function StoryReference({
       href={link.kind === "unusable" ? "#" : link.url}
       onClick={(event) => {
         event.preventDefault();
-        follow({ sourceId, identity });
+        follow({ project: sourceId, identity });
       }}
     >
       {identity}

@@ -83,27 +83,7 @@ Navigation neither starts agent work nor attaches a terminal.
 
 ## Preparation observations
 
-Observed on 2026-10-19 in
-`/Users/terryyin/git/open-dough/.worktrees/open-referenced-stories-in-their-dashboard-block`
-at `e93d3292c918cb44ac65820e787298f8a29790fd`, branch
-`codex/open-referenced-stories-in-their-dashboard-block`. Publication target:
-`origin/main`; optional integration checkout: `/Users/terryyin/git/open-dough`.
-These identify preparation, not an execution claim. Plan 320 follows the
-highest allocation 319 found in existing paths and Git history.
-
-| Premise / consuming operation | Observation and limit |
-| --- | --- |
-| A real dependency click currently leaves the dashboard | A disposable `story-reference-observation.spec.ts` used `twoDependencies`, `publishCommittedOrigin`, and `openUntilRead`, opened A's dependency disclosure and clicked supplier B. The exact pinned GitHub blob route was fulfilled with a local sentinel page; assertions observed that URL and sentinel heading. No real GitHub page or credentials were needed. This reproduced the wrong destination, not the new behavior. |
-| The existing proof route exercises published dependencies, own-source inspection, Done cards and reveal | `env -u NO_COLOR npm run test:dashboard -- story-reference-observation.spec.ts story-dependencies.spec.ts story-dependencies-touch.spec.ts session-sidebar-navigation.spec.ts recently-done-stories.spec.ts --workers=2` passed. Existing dependency accessibility proof explicitly expects the GitHub supplier href and needs alignment; its revision-evidence and own-source expectations remain valid. |
-| Existing reveal proof detects loss of viewport movement | Temporarily removed only `element.scrollIntoView(...)` from `keepInView` and ran `env -u NO_COLOR npm run test:dashboard -- session-sidebar-navigation.spec.ts --workers=1`. It failed at line 109 with destination viewport ratio 0. Restored the exact source bytes and removed the disposable reproduction spec. |
-| Current session journeys can extend Done's range and preserve focus through delayed reads | After restoration, `env -u NO_COLOR npm run test:dashboard -- session-sidebar-navigation.spec.ts recently-done-progressive-navigation.spec.ts --workers=2` passed. The progressive scenarios reach entry 27, hold preceding detail, and observe the requested reads, focus and viewport. This proves the existing session-shaped mechanism; direct story destinations remain new behavior owned by slice 2. |
-
-The first test attempt stopped before tests because this workspace had no local
-`node_modules` directory for the test bundle. `npm ci --no-audit --no-fund`
-installed the locked dependencies, after which the commands above passed.
-No scratch product/test change remains. New reference handling, URL matching,
-and story-shaped Done destinations require discriminating new proof during
-execution; none is claimed already implemented or passing.
+[Preparation provenance and observations](proof/observations.md#preparation-observations) retain the pre-execution workspace, red observation, viewport mutation check and locked setup evidence.
 
 ## Outside-in proof ownership
 
@@ -176,7 +156,7 @@ range and cancellation on the developer's own move. Reuse the same reference
 resolution and reveal rule from slice 1. Do not add a separate Done loader,
 historical seed reader, retention policy, or second navigation implementation.
 Finish the source inventory and maintained navigation description for the
-complete rule. Cover an already shown Done card and one beyond the initial
+complete rule. The delivered Done behavior remains accepted; the integration below completes the plan's existing reconciliation condition. Cover an already shown Done card and one beyond the initial
 prefix, no sessions, delayed/failed details, and a user move while waiting.
 
 Run `recently-done-stories.spec.ts` and the affected
@@ -185,6 +165,13 @@ failed reads, reset and keyboard return from session/report/terminal paths.
 Their session destinations remain their original purpose; story-link tests must
 establish the new destination without manufacturing session records. Run the
 slice 1 reference journey too because both destinations now share resolution.
+
+
+Reconciliation (2026-10-19): `origin/main` at `5fe7d8a7844cda5aaf77e8d7d7e974057b433c14` includes plan 318's notification navigation, so the earlier no-other-implementation assumption no longer holds. The merge adapter accepted sibling closures, retained this Taken claim, and combined both published histories in integration merge `b05b42177fe70042b64f2beb1f9ec45e3102e96c`. Reconciliation publication retains previously accepted base `7de4a4d0ccbc665dd2fb461b8d4c9b6a93183eef`.
+
+PFE reassessment: `dashboardDestination.ts` already owns the published project+identity target; `StoryDestination.tsx` independently resolves membership/reveals cards, overlapping this story's target/reveal knowledge. Share those meanings and the reveal responsibility. Preserve URL routing/notification feedback and transient-reference inspection/Done-range policies in their appropriate callers; neither workflow gains new promised behavior. No new architecture, input grammar or story scope is authorized. Reconcile the existing `ProjectActions` extraction once. This remains one navigation outcome/proof loop, with no numeric limit or sizing escalation.
+
+Required combined proof: all six story-reference specs, `notification-story-navigation.spec.ts` and affected routing, project/keyboard, status, source, session/Done consumers discovered by the effect trace; `npm run typecheck:dashboard`. Preserve notification URL unknown/failed/absent feedback, browser history, focus and no launch/attach. Reuse already-accepted unaffected Done range/detail and session proof. Resume at shared target/reveal reconciliation, not by repeating delivered behavior.
 
 ## Verification and review
 
@@ -202,24 +189,7 @@ Preparation review found distinct proof loops and owners, no remaining concern o
 
 ## Accepted proof and learning
 
-Slice 1 implementation accepted after inspecting `DependenciesCard` → `storyNavigation` → `WorkStages` → `workFocus` and concrete setups/assertions in `story-reference-navigation.spec.ts`. Real pre-change red observed departure to locally intercepted GitHub and absent B inspection. Final eight journeys prove inspection/focus/viewport/repeat, actual pinned canonical popup, later choice surviving a new revision, protected startup/no extra host action, same-seed identities/keyboard/touch/reduced motion/hidden Taken column, two project tellings/Pygardon URL shape, missing/read/failure/retry/newly published C, project and inspection cancellation, and unreadable B detail. The mounted status test marks the existing node before text appears.
-
-Terminal passes before refactor:
-
-- `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts accessible-overview-keyboard.spec.ts story-dependencies.spec.ts --workers=2` — 10 cases then.
-- `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts source-navigation.spec.ts accessible-overview.spec.ts project-read-isolation.spec.ts responsive-session-reconciliation.spec.ts --workers=2` — 19 cases then.
-- `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts --workers=2` — final 8 cases.
-- `npm run typecheck:dashboard` and `git diff --check` — passed.
-
-Earlier eight-spec run passed dependency-touch, authenticated overview, project keyboard focus/selection and session-sidebar navigation. Its one failure exposed global status ambiguity; `dashboardParts.status` now targets its actual read-status purpose. Complete accessibility/read-isolation/responsive suites above prove affected consumers; existing first-status consumers retain published-status ordering. Source-navigation activates canonical, plan and unrelated web links; dependency suites retain revision-evidence expectations. No assertions weaken those purposes. Unreadable-detail setup now uses a reachable failed detail: a held canonical batch cannot expose its dependency disclosure. Missing-target retry owns held/read-failure/recovery proof instead.
-
-Independent slice 1 refactor extracted `ProjectActions` and split the eight reference journeys into navigation/identity/recovery specs, preserving assertions. `env -u NO_COLOR npm run test:dashboard -- story-reference-navigation.spec.ts story-reference-identity.spec.ts story-reference-recovery.spec.ts agent-launch-ad-hoc.spec.ts preparation-legend.spec.ts direction-disclosure.spec.ts --workers=2`, typecheck and whitespace checks passed. Other accepted consumer proof remains unchanged. Formatter surfaced redundant narrowed conditionals and intentionally captured native-method lint; mechanical correction preserves runtime behavior and accepted proof.
-
-Landing handoff for later wrap-up: first trunk publication must use `/Users/terryyin/.open-dough/dashboard/reporting/02341b83-76fd-409d-8b5b-ec7767b97d00/landing-context.json`. Reporting launch `02341b83-76fd-409d-8b5b-ec7767b97d00` retains the user-supplied completion command; execution branch publication does not consume that trunk handoff.
-
-Slice 2 implementation proof accepted after inspecting its shared range/list/reveal paths and new Done fixture/assertions. `env -u NO_COLOR npm run test:dashboard -- story-reference-done.spec.ts story-reference-navigation.spec.ts story-reference-identity.spec.ts story-reference-recovery.spec.ts --workers=2` passed 17 cases; final targeted `--grep 'without sessions reveals exactly'` and `--grep 'Tab away from'` each selected/passed one case after their test/source strengthening. Final typecheck/whitespace passed. `env -u NO_COLOR npm run test:dashboard -- recently-done-stories.spec.ts recently-done-progressive-loading.spec.ts recently-done-progressive-navigation.spec.ts recently-done-progressive-navigation-report.spec.ts recently-done-progressive-navigation-cursor.spec.ts recently-done-progressive-refresh.spec.ts recently-done-progressive-failed-read-refresh.spec.ts recently-done-progressive-reset.spec.ts recently-done-progressive-state.spec.ts recently-done-progressive-after-sessions.spec.ts session-sidebar-navigation.spec.ts source-navigation.spec.ts story-dependencies.spec.ts story-dependencies-touch.spec.ts --workers=2` passed 28 cases; subsequent story-action exceptions leave their default own-move path unchanged. A redundant 45-case run was interrupted at its exact Playwright PID with observed terminal teardown and is unaccepted proof. Red-first far27 exposed absent destination; pointer geometry and Tab cases separately failed before correction.
-
-Independent slice 2 refactor extracted `StoryReferenceNotice` (same DOM/action exception) and split Done reveal/recovery/cancellation journeys without changing assertions or starting facts. `env -u NO_COLOR npm run test:dashboard -- story-reference-done.spec.ts story-reference-done-recovery.spec.ts story-reference-done-cancellation.spec.ts story-reference-navigation.spec.ts story-reference-identity.spec.ts story-reference-recovery.spec.ts --workers=2` passed all 18 journeys; typecheck/whitespace passed. The 28-case default Done/session consumer proof remains unchanged. Formatting passed after mechanical narrowed-check and fixture-access lint corrections; the same constant fixtures, assertions and runtime boundaries preserve accepted proof.
+[Accepted slice observations](proof/observations.md) retain the inspected boundaries, literal commands, red/green observations and independent refactors for both delivered increments. Reuse only unchanged boundaries after integration.
 
 ## Story obligations
 
@@ -247,3 +217,13 @@ Disposition: proved by slice 2: story-reference-done-cancellation.spec.ts actual
 Reported: slice 2 — "old absent Done demand remaining settled when catalogue later heals"
 Story clause: "Existing refresh/retry remains available"
 Disposition: proved by slice 2: story-reference-done-recovery.spec.ts catalog-held loading, read failure and Retry follow the existing announced recovery time; after the catalog heals, the same range re-evaluates absence and far27 receives focus/viewport. Parameterized later-choice tests preserve that choice instead.
+
+### G6. Reconcile the now-published notification navigation
+Reported: slice 2 — "the parallel notification-navigation story has landed on main and added another story-target path"
+Story clause: "Apply the rule to dependency links and inspect other dashboard locations that offer story links so they behave consistently."
+Disposition: proved by slice 2: proof/observations.md final reconciliation acceptance traces supplier and URL callers through shared StoryDestination/activeStoryAt/pageEntries.revealStory; all 27 reference/notification journeys pass, preserving source links, URL history/status and reference inspection/Done-range policies.
+
+### G7. Reveals must survive input and observation timing
+Reported: slice 2 — "repeated far27 activation failed viewport"
+Story clause: "brought into view"
+Disposition: proved by slice 2: story-reference-scroll-completion.spec.ts observes native movement while far27 remains focused/offscreen, then actual late completion at source; red against spent sync/RAF, green with pending-only native completion tracking. Final27 retains repeatfar, paused catalog recovery and later same-seed touch; independent module-move proof rechecks reference, URL and session callers. Exact commands and separate unchanged-consumer timing disposition are in proof/observations.md.

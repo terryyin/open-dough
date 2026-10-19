@@ -11,30 +11,29 @@ import {
 } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { keepInView, untilOwnMove } from "./workFocus.ts";
+import {
+  activeStoryAt,
+  type StoryDestination,
+} from "./dashboardDestination.ts";
+import { untilOwnMove } from "./workFocus.ts";
 import { usePageRange } from "./recentlyDoneRange.ts";
-import { heldEntryShown } from "./pageEntries.ts";
+import { revealStory } from "./pageEntries.ts";
 import {
   isStoryReferenceAction,
   StoryReferenceNotice,
 } from "./StoryReferenceNotice.tsx";
 import "./story-navigation.css";
 
-type Reference = {
-  readonly sourceId: string;
-  readonly identity: string;
-};
 type Journey = {
-  readonly reference: Reference;
+  readonly reference: StoryDestination;
   readonly project: PublishedSource | undefined;
   readonly demand?: number;
   readonly catalog?: PublishedWork["done"];
   readonly cancelled?: { readonly problem: string; readonly pending: boolean };
 };
-export type StoryOpening = Reference;
 type Navigation = {
-  readonly follow: (reference: Reference) => void;
-  readonly opening: StoryOpening | undefined;
+  readonly follow: (reference: StoryDestination) => void;
+  readonly opening: StoryDestination | undefined;
 };
 export const StoryNavigationOnPage = createContext<Navigation | undefined>(
   undefined,
@@ -74,20 +73,13 @@ export function useStoryReferenceJourney({
     follows && !journey.cancelled && work?.source.id === selected
       ? work
       : undefined;
-  const identity =
-    current !== undefined &&
-    journey !== undefined &&
-    [...current.backlog, ...current.taken].some(
-      (entry) => entry.identity === journey.reference.identity,
-    )
-      ? journey.reference.identity
-      : undefined;
+  const identity = activeStoryAt(journey?.reference, current)?.identity;
   const sourceId = current?.source.id;
   const opening = useMemo(
     () =>
       identity === undefined || sourceId === undefined
         ? undefined
-        : { sourceId, identity },
+        : { project: sourceId, identity },
     [journey, identity, sourceId],
   );
   const answer =
@@ -142,11 +134,10 @@ export function useStoryReferenceJourney({
       return;
     }
     if (answer !== "reached" || revealed.current === journey) return;
-    const card = heldEntryShown({ story: journey.reference.identity });
-    if (card === null) return;
     revealed.current = journey;
-    card.focus({ preventScroll: true });
-    return keepInView(card);
+    const stop = revealStory(journey.reference.identity);
+    if (stop === undefined) revealed.current = undefined;
+    return stop;
   }, [journey, sourceId, current?.done, opening, reading, answer]);
   useLayoutEffect(() => {
     if (journey === undefined) return;
@@ -196,9 +187,9 @@ export function useStoryReferenceJourney({
   return {
     navigation: {
       opening,
-      follow: (reference: Reference) => {
+      follow: (reference: StoryDestination) => {
         const project = projects.find(
-          (project) => project.id === reference.sourceId,
+          (project) => project.id === reference.project,
         );
         if (project !== undefined) show(project);
         setJourney({ reference, project });
