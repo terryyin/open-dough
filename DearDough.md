@@ -92,6 +92,14 @@ Former local code: DD-128. Startup boundary instructions require broad reference
   - Observed effect: oversized reference/source batches required additional retrieval before the first implementation handoff.
   - Inference: the broad reference surface and this coordinator's oversized batching both contributed; targeted retrieval was applied late. Output counts are not total token cost and do not establish that the underlying checks lack value.
 
+- Execution: `SEED-141#open-referenced-story-in-dashboard` / plan 320, first implementation `fb09c6340722761096fa539c28e2a905d869e92a`
+  - Timestamp: unknown (2026-10-19 JST, coordinator startup before implementation delegation).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `cdd71a2d`; installed guidance unchanged).
+  - Evidence: coordinator startup outputs report 16,103 and 16,361 tokens with truncation, followed by targeted retrieval of execution/delegation/runtime/publication references. The supplied established start already named claim, workspace, branch and plan; both delivered increments reused the retained observer without reconciliation.
+  - Observed effect: broad required-reference batches needed additional retrieval before implementation delegation.
+  - Inference: the required reference surface and this coordinator's oversized batching both contributed; targeted retrieval was applied late. These output counts are not total token cost and do not show that the underlying checks lack value.
+
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
 Former local code: DD-155. Concurrent unpublished plan allocation produces two quick plans with the same numeric selector, making a number-only execution request ambiguous. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-106).
@@ -313,6 +321,15 @@ Former local code: DD-265. An interrupted Cursor implementation Task leaves edit
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 
 Former local code: DD-266. Planning settles proof through a temporary mutable dependency link even though execution setup forbids linking another checkout’s installation. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-230).
+
+### Occurrences
+- Execution: `SEED-141#open-referenced-story-in-dashboard` / plan 320, first implementation `fb09c6340722761096fa539c28e2a905d869e92a`
+  - Timestamp: unknown (2026-10-19 JST, reconciliation baseline investigation).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `cdd71a2d`; installed guidance unchanged).
+  - Evidence: reconciliation agent reported a temporary baseline dependency symlink despite checkout-owned setup guidance. The coordinator rejected that result; the agent unlinked only its owned link, completed npm ci in the baseline, reproduced the original viewport failure, preserved `dashboard/test-results/baseline-b05b421/2026-10-19T13-45-34.834Z/` and removed the owned worktree. Plan 320 proof/observations.md retains this sequence.
+  - Observed effect: the first baseline result was discarded and locked setup plus the observation had to be repeated; no accepted proof depends on the linked installation.
+  - Inference: this execution-stage baseline repeats the same forbidden mutable-installation shortcut as the planning finding; it does not justify relaxing checkout ownership. Sub-agent evidence is bounded to its handoff and the coordinator's observed correction.
 
 ## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>
 
@@ -574,6 +591,14 @@ Slice delivery asks for the project's selective formatting command; this project
   - Evidence: coordinator format receipts and `/tmp/open-dough-317-format-slice1.log`, `format-slice2.log` and `format-slice3.log` (same prefix) record four whole-command attempts: first slice twice after mechanical ShellCheck repair, then once per later slice. `scripts/lint.mjs` selects all tracked/untracked scripts and JSON plus shell paths; logs enumerate unchanged installed skills, unrelated sources and tests. Proof notes at `f492e533:.planning/slice-plans/317-collect-client-feedback/proof/` retain preparation outcomes.
   - Observed effect: each delivery waited through repository-wide ESLint, Prettier and shell checks, including the four-line Markdown policy correction; no unrelated bytes changed.
   - Inference: the available command exceeds the workflow's selective-format intent. No unloaded elapsed time or token cost is asserted, and this story does not authorize changing the formatter.
+
+- Execution: `SEED-141#open-referenced-story-in-dashboard` / plan 320, first implementation `fb09c6340722761096fa539c28e2a905d869e92a`
+  - Timestamp: unknown (2026-10-19 JST, first two slice deliveries).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `cdd71a2d`; installed guidance unchanged).
+  - Evidence: scripts/lint.mjs lists every tracked/untracked script and JSON plus shell paths for npm run format. Coordinator receipts record four whole-command attempts across the first two deliveries, each repeated after mechanical lint repair; retained logs include `/tmp/seed141-slice1-format.log`, `/tmp/seed141-slice2-format.log` and `/tmp/seed141-slice2-format-repaired.log`. Plan 320 proof/observations.md records accepted preparation.
+  - Observed effect: both deliveries waited through repository-wide ESLint, Prettier and shell formatting, enumerating unchanged installed skills and unrelated source/tests; no unrelated bytes changed.
+  - Inference: the available command exceeds selective-format intent and repeats its broad cost after mechanical repair. Unloaded elapsed time and token cost were not measured; this story does not authorize formatter changes.
 
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.

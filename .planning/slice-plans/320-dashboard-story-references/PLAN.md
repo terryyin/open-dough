@@ -173,6 +173,10 @@ PFE reassessment: `dashboardDestination.ts` already owns the published project+i
 
 Required combined proof: all six story-reference specs, `notification-story-navigation.spec.ts` and affected routing, project/keyboard, status, source, session/Done consumers discovered by the effect trace; `npm run typecheck:dashboard`. Preserve notification URL unknown/failed/absent feedback, browser history, focus and no launch/attach. Reuse already-accepted unaffected Done range/detail and session proof. Resume at shared target/reveal reconciliation, not by repeating delivered behavior.
 
+## Execution complete
+
+Product advice: keep the current backlog order. The selected navigation outcome is delivered; review found no bounded product correction or supported new feature hypothesis. Existing empirical-feedback response loops remain the near-future priority. [Retrospective evidence](proof/observations.md#execution-retrospective) records attribution, judged proof, process findings and the separate consumer timing limitation.
+
 ## Verification and review
 
 Each slice owns its navigation outcome, focused proof and cleanup; owner changes stay with that behavior. No numeric slice limit is supplied; ordinary refactor and commit gates apply.
