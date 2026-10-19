@@ -21,9 +21,10 @@ cost of the feedback process itself.
 ## Backlog list
 
 - [Turn project-owned retrospective findings into prioritized improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#triage-project-owned-retrospective-findings) — SEED-010#triage-project-owned-retrospective-findings
+- [Collect client feedback and prioritize Open Dough improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
+- [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
 - [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences
-- [Exchange retrospective findings with another project](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
 - [Receive due feedback assessments without manual triggering](seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance) — SEED-010#run-due-feedback-maintenance

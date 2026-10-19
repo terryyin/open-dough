@@ -302,7 +302,7 @@ The order below aims to produce early learning while keeping the mechanism small
 | 4 | Automate the existing collection and watch workflow for selected projects | Correct deduplication, provenance, ownership, restart behavior, and demonstrably lower human burden |
 | 5 | Delegate selected response decisions and interventions | An explicit authority policy, validated evaluation and stop behavior, bounded rollout, and continued outcome checks |
 
-Order 1 has an existing home in SEED-010's response-effectiveness candidate. Cross-project exchange also has an existing candidate, so new work should refine those boundaries if selected. The current backlog already contains dashboard test-efficiency work and a CI feedback target; their measured results can inform the approach without creating duplicate test-speed stories. [Current backlog](../../.planning/PRODUCT-BACKLOG.md), [test-efficiency seed](../../.planning/seeds/SEED-136-dashboard-test-efficiency.md).
+Order 1 has an existing home in SEED-010's response-effectiveness candidate. Cross-project exchange also has an existing candidate, so new work should refine those boundaries if selected. At the initial research snapshot, the backlog contained dashboard test-efficiency work and a CI feedback target; their measured results can inform the approach without creating duplicate test-speed stories. [Backlog snapshot](https://github.com/terryyin/open-dough/blob/13b57efb4f65f5af1b0bf06568f6c2cd2fce01a2/.planning/PRODUCT-BACKLOG.md), [historical test-efficiency seed](https://github.com/terryyin/open-dough/blob/13b57efb4f65f5af1b0bf06568f6c2cd2fce01a2/.planning/seeds/SEED-136-dashboard-test-efficiency.md).
 
 ### A concrete first pilot using an existing response
 
@@ -553,3 +553,64 @@ the skill does not need a permanent resolved archive or an unattended monitor.
 This is the minimum follow-up needed for sound cleanup. The broader response
 effectiveness story still owns evaluation of benefit, cost, quality, and delayed
 tradeoffs beyond that bounded retirement decision.
+
+<a id="runbook-automation-follow-up"></a>
+
+## Follow-up: automate the existing internal maintenance cycle
+
+**19 October 2026.** After the first draft landed, Terry selected conversion of
+the recurring runbook into an internal skill as the second backlog item, followed
+by one internal skill that runs project-local maintenance across clients first
+and shared-feedback collection second. These are automation stories, not a new
+measurement or decision-policy programme.
+
+The history review covered these Open Dough chats (dates in Asia/Tokyo):
+
+| Date | Exact chat title | Chat ID |
+| --- | --- | --- |
+| Sep 21 | Run retrospective findings runbook | `01a0c1f2-8daf-7721-b160-3d7d79727384` |
+| Sep 23 | Run retrospective findings runbook | `01a0cce6-e7a7-78d1-b875-55556203d2e7` |
+| Sep 25 | Review retrospective findings runook | `01a0d735-15d6-7ee0-a516-3847a237b558` |
+| Sep 26 | Run findings retrospective | `01a0dcaa-d6f1-7ff1-bed3-a3c2644f8bd1` |
+| Sep 27 | Run retrospective findings runbook | `01a0e20c-0a14-7aa0-bdab-62e86b0c593a` |
+| Sep 30 | Run retrospective findings runbook | `01a0f017-324e-73f3-bd60-e1baf43ff390` |
+| Oct 6 and 9 | Clean up solved client findings | `01a10e6b-dfa2-78e2-bf6f-f839810013dc` |
+| Oct 12 | Run retrospective findings cleanup | `01a12da1-8e99-7c60-8f71-5cf047605fad` |
+
+The originating September 17 instruction in “Reconcile three project findings”
+(`01a09e84-c399-7422-9d35-e903e7f444c0`) and “Run retrospective findings”
+(`01a0ad4c-3a65-7592-a4e3-6d655a129185`) also supplied context. The October 6
+segment was recovered from the local session history because the chat reader
+returned only its later resumed segment. These are historical reports and user
+corrections, not fresh verification of their old test or publication outcomes.
+
+The repeated lessons are concrete:
+
+- **Challenge the ranking.** Reviews on September 21, 26, 27, and 30 changed
+  priorities that overvalued easy/clear repairs, hypothetical severity, or a
+  theme over demonstrated harm. Compare distinct-execution frequency, actual
+  impact, confidence, current relevance, and effort before changing the queue.
+- **Do not queue implementation twice.** An implemented correction may need
+  release, adoption, or outcome verification. Unknown execution versions cannot
+  establish that the fixed guidance failed; unexercised fixes cannot pass a watch.
+- **Make cleanup reduce the active records.** Remove confirmed resolutions and
+  justified no-action noise, and consolidate redundant evidence. Pruning something
+  not worth pursuing is a different decision from declaring it fixed. Preserve
+  severe one-offs, uncertainty, live work, and recoverable evidence.
+- **Include publication once, for the complete repository set.** Earlier runs
+  synced clients but left Open Dough's own records uncommitted. On October 12,
+  Terry explicitly added “Also sync Open Dough.” The new invocation must cover
+  client records and the maintainer's records/backlog, with per-project results.
+- **Separate local ownership before shared collection.** This prevents a local
+  defect from becoming a misplaced Open Dough story. Partial or failed local
+  reviews remain explicit gaps; the later phase must not assume those logs are
+  fully classified.
+
+The [current runbook](retrospective-findings-runbook.md) already authorizes
+mapping, cleanup, watch assessment, and top-two selection, but explicitly excludes
+committing and pushing. Its literal record layout is also dated: the
+[catalog](finding-names.md) now links authoritative finding files. Conversion
+should reuse the maintained procedures and current layout, add reliable
+compaction and delivery, and leave broader empirical-control improvements to
+later stories. The combined skill supplies the two phases' explicit invocation
+authority and ordering; unattended initiation remains separate work.
