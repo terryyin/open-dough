@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-143#stable-review-alerts-and-bounded-codex-status-reads",
+  "mode": "story-branch",
+  "branch": "codex/session-alert-read-stability",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
