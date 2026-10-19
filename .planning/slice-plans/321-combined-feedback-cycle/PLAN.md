@@ -174,6 +174,8 @@ close G1–G4 through the planned native/source boundaries. Refactoring preserve
 all captured values and native contracts; formatter passed. No further wrapper
 change was needed. G6 explicitly bounds the overwritten artifact without losing
 the independent Git, report, trace and publication proof.
+Automatic retrospective found no product correction; existing backlog order stands.
+Process review updated ODF-158/DD-309 and added DD-317; DearDough.md is 704 lines (500-line warning).
 
 ## Execution context
 
@@ -190,6 +192,8 @@ the independent Git, report, trace and publication proof.
   `7a7d82ca3e4353b7b1c28ea8cd03b4c031453161`. Claim CI on trunk is unobserved.
 - Slice 1 accepted on the execution branch at `f3f2f8aae37dfe83f5778bc6b6f88906c3c4bfcd`,
   suffix base `7a7d82ca3e4353b7b1c28ea8cd03b4c031453161`; next delivery uses that accepted SHA.
+- Slice 2 accepted at `2b912e42e60bd8be40e0f1d5e920982f05d8f604`, suffix base
+  `f3f2f8aae37dfe83f5778bc6b6f88906c3c4bfcd`; completion delivery uses the slice-2 SHA.
 - Checkout preparation: `PATH=/opt/homebrew/bin:$PATH npm ci` exited 0;
   `PATH=/opt/homebrew/bin:$PATH npm test -- tests/test-runner-selection.sh`
   exited 0 against the current lockfile on 2026-10-20. Contributor setup was
@@ -238,3 +242,7 @@ Disposition: no user cost "Add the internal `maintain-feedback-cycle` skill.": T
 Reported: slice 2 — "The exact native-complete recovery JSON was accidentally overwritten during artifact capture."
 Story clause: "Existing Git facts and a concise run report supply recovery context; no permanent cycle ledger or second finding store is required."
 Disposition: proved by slice 2: proof/resume-capture-limit.md retains the loss explicitly; actual origin snapshots, complete native report, trace, publication pairs and terminal output independently establish recovery. The unchanged native trace reconciles the stale supplied JSON through that report and fetched ancestry without mutation. The original JSON is unavailable and is not claimed as retained evidence.
+
+## Execution complete
+
+Product advice: Keep the existing backlog order; the combined cycle meets its bounded goal and no new product correction or follow-up is supported.

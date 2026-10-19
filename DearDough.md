@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 316. Removed numbers are never reused.
+- Highest allocated local number: 317. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -91,6 +91,14 @@ Former local code: DD-128. Startup boundary instructions require broad reference
   - Evidence: launch `79f4fa14-9ba8-4cae-856e-bb4149ca47ca` coordinator startup outputs report 19,835 and 27,572 tokens with truncation, followed by targeted retrieval. The established start already supplied claim/workspace identity; all three managed increments reused the retained observer without reconciliation. `f492e533:.planning/slice-plans/317-collect-client-feedback/PLAN.md` retains source and delivery context.
   - Observed effect: oversized reference/source batches required additional retrieval before the first implementation handoff.
   - Inference: the broad reference surface and this coordinator's oversized batching both contributed; targeted retrieval was applied late. Output counts are not total token cost and do not establish that the underlying checks lack value.
+
+- Execution: `SEED-010#run-combined-project-and-shared-feedback-cycle` / plan 321, first implementation `f3f2f8aae37dfe83f5778bc6b6f88906c3c4bfcd`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `7a7d82ca`; execution/refactor guidance unchanged; new internal wrapper unreleased).
+  - Evidence: 2026-10-20 coordinator startup outputs reported 23,540 and 12,087 tokens with truncation across execution references and authoring/ADR context; focused retrieval then recovered omitted passages before delegation. The established start already supplied identity/location; both managed increments reused the same observer without reconciliation.
+  - Observed effect: oversized batches needed additional retrieval before implementation; the plan and proof are retained at `2b912e42:.planning/slice-plans/321-combined-feedback-cycle/`.
+  - Inference: the required reference surface and this coordinator's batching both contributed; targeted-retrieval guidance was applied inconsistently. These output counts are not total token cost and do not show that the underlying checks lack value.
 
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
@@ -575,6 +583,14 @@ Slice delivery asks for the project's selective formatting command; this project
   - Observed effect: each delivery waited through repository-wide ESLint, Prettier and shell checks, including the four-line Markdown policy correction; no unrelated bytes changed.
   - Inference: the available command exceeds the workflow's selective-format intent. No unloaded elapsed time or token cost is asserted, and this story does not authorize changing the formatter.
 
+- Execution: `SEED-010#run-combined-project-and-shared-feedback-cycle` / plan 321, first implementation `f3f2f8aae37dfe83f5778bc6b6f88906c3c4bfcd`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `7a7d82ca`; execution/refactor guidance unchanged; new internal wrapper unreleased).
+  - Evidence: coordinator terminal receipts record three slice-1 `npm run format` attempts (two ShellCheck annotation failures, then success), and one successful slice-2 attempt. Final passing logs are `/tmp/dough321-format-slice1.log` and `/tmp/dough321-format-slice2.log`; earlier failures are in the coordinator conversation. `scripts/lint.mjs` lists the whole tracked/untracked tree; output enumerated unchanged installed skills and unrelated scripts/JSON.
+  - Observed effect: delivery waited for four whole-tree runs; no unrelated bytes changed. The source annotations repaired only the disposable native proof runner.
+  - Inference: the project command exceeds selective-format intent, and a mechanical repair repeats that cost. No unloaded duration or total token estimate is asserted; changing the formatter is outside this story.
+
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.
 
@@ -672,3 +688,17 @@ Two read-only permission probes each required a human notification click before 
   - Evidence: `2ddae371e4b8ef96900332c08825228eca03220c:.planning/slice-plans/318-notification-story-navigation/TAB-REUSE-EVIDENCE.md`, Prepared permission probe, Safari/Chrome permission observations and Safari/Chrome callback results. The Safari permission notification was posted 2026-10-19T10:59:32Z; this does not timestamp the complete sequence. The permission callbacks deliberately performed no navigation, followed by consuming callbacks `Hk8pTb` and `9Bkx9y`.
   - Observed effect: two permission-only click/response rounds preceded two consuming callback rounds, one pair per browser. Later production-composition checks and the developer's changed tab-reuse requirement are separate work.
   - Inference: qualified. A combined consent and minimal consuming operation could plausibly have avoided the first two rounds. No time or token saving was measured; retain a separate permission probe when it resolves an independent risk.
+
+## DD-317 — Phase artifact capture overwrites newer recovery evidence
+
+A native-proof artifact copy retained the older partial context over the completed recovery context. This is a general evidence-retention lesson; no defect in the combined maintenance wrapper or shared publication helper is established.
+
+### Occurrences
+
+- Execution: `SEED-010#run-combined-project-and-shared-feedback-cycle` / plan 321, first implementation `f3f2f8aae37dfe83f5778bc6b6f88906c3c4bfcd`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `7a7d82ca`; execution/refactor guidance unchanged; new internal wrapper unreleased).
+  - Evidence: implementation agent's returned report and `2b912e42:.planning/slice-plans/321-combined-feedback-cycle/proof/resume-capture-limit.md` disclose the copy mistake. The original native-complete JSON is unavailable; `unchanged-supplied-stale-context.json` is explicitly old. Actual native traces, complete report, origin snapshots and candidate/base publication pairs remain intact.
+  - Observed effect: the exact context artifact was lost. The unchanged native invocation detected stale facts and reconciled the later report with fetched ancestry without a commit/push; independent captures remained identical. No native mutation or recovery script was rerun to hide the loss.
+  - Inference: qualify artifact source/phase before copying or replacing evidence; validate the retained artifact against its completed phase. This observation does not establish a need for a new capture framework. Unlike ODF-224, the native acceptance checkpoint was not rebuilt for a different replay.
