@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#triage-project-owned-retrospective-findings",
+  "title": "Turn project-owned retrospective findings into prioritized improvements",
+  "completedAt": "2026-10-19T09:25:07.294Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Turn project-owned retrospective findings into prioritized improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#triage-project-owned-retrospective-findings) — SEED-010#triage-project-owned-retrospective-findings ([plan](slice-plans/316-triage-project-findings/PLAN.md))
-
 ## Backlog list
 
 - [Collect client feedback and prioritize Open Dough improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
