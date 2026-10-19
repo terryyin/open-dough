@@ -167,8 +167,8 @@ affected path when a consequential decision remains unresolved.
 
 Effort bands remain unassigned because this repository supplies no S/M/L
 calibration. Each story records its main effort uncertainty without inventing
-numeric estimates. These are unrefined stories with no selected execution
-approach, not slice plans or readiness assessments.
+numeric estimates. Each story's preparation block records its own refinement,
+selected approach, and assessment; the decomposition alone establishes none.
 
 ## Shared Boundaries
 
@@ -630,7 +630,7 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 **Identity:** SEED-010#triage-project-owned-retrospective-findings
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/316-triage-project-findings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86aa4a595910516465c6e4721981f702c395aca96ed7ca8c8b4dcec6b734d0e1","plan":"cb799343b4314418e22b639e0e4cac395a8a422706c05bd9afdd99fc2f74e527"}}
 ```
 
 **Goal:** A developer in the current project, including Open Dough itself, can
@@ -794,6 +794,139 @@ Apply the shared behavior and affected native-acceptance boundaries above.
 uncertainties and outstanding fix observations remain concise and recoverable,
 even if every later automation story is deferred.
 
+#### Key examples
+
+These examples refine the supplied outcome; fictional identifiers and observation
+windows below are illustrative, not global defaults.
+
+1. **Ownership precedes the queue.** A project's finding blames its CI observer,
+   but the relevant observer is unchanged from the reported Open Dough release
+   and the failed responsibility belongs to shared guidance. Explicit triage
+   retains or returns that facet to `DearDough.md`, explains the responsibility,
+   and creates no local workaround story. A documented local adapter violating
+   a sound shared contract instead belongs in the project's existing findings
+   file and is eligible for a local story. The Doughnut reversal and Pygardon
+   adapter distinction in the reviewed sessions supply both sides.
+2. **Mixed ownership and duplicate reports.** One execution contains a local
+   test-results collision and a general coordination failure; the collision
+   was copied into two records. Triage preserves the two supported facets and
+   their relationship, moves the local evidence once, and counts that execution
+   once for each supported conclusion, never twice in a combined priority's
+   frequency. A similar timeout with a different or unknown cause stays distinct.
+3. **Choose useful work without moving existing work.** Three actionable local
+   problems include one already Taken, one already queued, and one uncovered
+   severe one-off. Triage reports both active responses where they stand, adds
+   only the uncovered evaluable story at the front with reciprocal links, and
+   preserves other relative order and direction. A run containing only covered,
+   resolved, shared, or unsupported problems creates zero stories. A lower-impact
+   repeated problem need not outrank the severe one-off.
+4. **Correct stale assessment without inventing success.** A finding still says
+   discovery has a one-second timeout, but the adopted source now gives discovery
+   five seconds and bounded retries; a completed response is linked. Triage
+   corrects the current assessment and preserves the original occurrences. It
+   does not queue that same remedy again or infer general effectiveness without
+   relevant later observations. Diagnostic operations with a different timeout
+   are not evidence that discovery remains unchanged.
+5. **Watch exposure, then retire.** A project's established criterion requires
+   seven days and relevant runs of its adopted repair. A later invocation finds
+   eight days and attributable relevant use with no recurrence: it removes the
+   active finding, preserving the decision and recovery locator in the project's
+   existing convention or Git history. Eight days with no use, unknown adoption,
+   missing history, or unresolved contrary evidence leaves the finding open.
+   Reinvoking with the same evidence neither restarts the window nor adds an
+   occurrence. A confirmed repair with sufficient direct outcome evidence may
+   already justify removal without inventing a new watch.
+6. **A failed fix stays recoverable.** A matching failure under the adopted repair
+   occurs during observation or after retirement. Triage restores the prior
+   lineage, links the failed response and new occurrence, and reevaluates priority.
+   It reuses an active response or creates a bounded follow-up after completed
+   work, as appropriate. An old branch without the repair is historical exposure,
+   not a failed fix; a different cause with the same symptom keeps its own identity.
+7. **Finish the maintenance invocation.** With an established project, record
+   conventions, and origin target, one explicit invocation commits and publishes
+   only its maintenance result through the existing delivery workflow. Verify
+   remote containment separately from the intended checkout's refresh. Dirty
+   unrelated work survives; a conflict or failed refresh reports the exact
+   unfinished part and retained result. Repetition with unchanged evidence makes
+   no empty commit. Reading the findings during another task triggers none of it.
+   A user-invoked combined cycle that expressly names this phase and its project
+   set supplies the same authority; its child needs no repeated publication
+   permission. This skill still maintains only its established target project.
+8. **Missing context stops the dependent action.** If responsibility or a required
+   record location cannot be established, name the evidence or project decision
+   needed, preserve the affected record, and continue supported independent work.
+   A missing publication target prevents sync, not an invented default or a claim
+   of successful publication. Existing alternate filenames remain authoritative.
+
+#### Alternatives and selected direction
+
+| Candidate | Fit with the supplied outcome | Consequence |
+| --- | --- | --- |
+| Keep the copied prompt and existing project records | Smallest existing solution; demonstrated useful results | Leaves initiation, ownership checks, repeat cleanup, and publication dependent on repeated instruction; does not deliver the selected shared skill |
+| Expand `dough-maintain-findings` or publish internal ODF triage | Reuses a familiar entry point | Their meanings differ: approved code adoption versus maintainer catalog triage. Widening either would confuse existing invocation authority and impose unnecessary catalog inputs |
+| Add `dough-triage-project-findings`, composed with existing backlog and delivery procedures | One explicit current-project maintenance journey, with existing records as its evidence | Selected design; adds only the missing orchestration and local finding lifecycle, with no new collector or status service |
+
+The borrowed mechanism is a repair case followed through observation: finding
+lineage identifies the problem, the response names the intervention, adoption
+marks when exposure can begin, and a defined observation criterion supports
+closure or reopening. Adapt it to compact Markdown and existing Git recovery,
+not a new case-management database. Its consequential limit is that unlike a
+controlled repair trial, agent work has uneven exposure and changing conditions;
+an elapsed watch or lack of reports cannot prove causation or universal success.
+This mechanism supports the selected skill; the analogy itself is no evidence
+of improvement.
+
+#### Investigation and architectural direction
+
+Preparation on 2026-10-19 reused the report's review of 17 accessible sessions
+and their source identities; it did not rerun those sessions. Targeted read-only
+checks corroborated Doughnut's ownership reversal at `2381cf9e60` and Pygardon's
+completed response at `5911d5e76`. Pygardon's current discovery source has a
+5,000 ms deadline with up to three reads, while its findings still include the
+older one-second assessment. These observations establish a stale assessment,
+not repair effectiveness. No other project's records were changed.
+
+PFE found reusable responsibilities in the public retrospective's evidence
+format, `dough-product-backlog`'s canonical stories/queue, the owned-workspace
+lifecycle, and Dough Land's publication/refresh/retirement. Internal ODF
+reconciliation and the three-project maintainer runbook remain internal: their
+identity namespace, fixed project list, one-week policy, and permission model
+are not prerequisites of this skill. The existing project findings and recovery
+history demonstrate local lineage and facet-level separation without a new store.
+
+The consequential architectural choice is where responsibility lives. Author
+the shared entry point under `src/skills/dough-triage-project-findings/`; keep
+classification, compaction, response observation, and selection together as the
+current-project maintenance responsibility. Link to existing owners for story
+identity, backlog edits, and delivery rather than cloning their algorithms.
+Resolve and validate the maintenance-only workspace before invoking landing,
+because Dough Land publishes the whole reviewed checkout. Carry explicit
+invocation authority to that handoff; do not introduce a second routine keep
+question or silently include unrelated work. No classifier service, scheduler,
+configuration schema, permanent evidence archive, or new ADR is needed.
+
+This follows [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+(one coherent responsibility and proportionate process),
+[ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) and
+[ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+(source/payload/release distinctions, local standalone runtime),
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+(behavior review, affected native evidence, and bounded retention), and
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+(executing-project perspective and one behavioral source). The current index
+and these records agree; no conflict or exception was found. Existing North Star
+topics concern dashboard ownership, not a new finding registry to extend.
+
+The design hypothesis is that this composed skill reduces classification
+reversals, unnecessary stories, repeated reading, and publication prompts. The
+cheapest future evaluation is matched representative invocations against the
+copied-prompt baseline, judging actual record and Git outcomes and effort. The
+preparation's local publication/update observations settle reuse of those
+mechanisms only; they do not establish that an agent follows the new skill or
+that repeated real use improves outcomes. Broader causal evaluation remains
+Story 4's distinct outcome. Release/tag creation and rollout remain separate
+instructions; implementation must retain any outstanding native proof explicitly.
+
 <a id="run-combined-project-and-shared-feedback-cycle"></a>
 
 ### 13. Run project and Open Dough feedback maintenance in one invocation
@@ -893,11 +1026,9 @@ was preserved in the first landing; this direction does not requeue completed wo
 These are refinement inputs, not reasons to invent implementation or delay the
 requested queue update:
 
-- Refine the shared skill's name and representative ownership/delivery cases.
-  Include project-appropriate fix-observation and retirement examples without
-  prescribing a universal time window. Explicit invocation, exact-duplicate
-  compaction, repair follow-up, one-to-three supported priorities, and commit/sync are
-  supplied requirements, not open permission questions for this decomposition.
+- Story 12 now records its selected entry point, ownership/delivery cases, and
+  project-appropriate observation examples. Its remaining implementation and
+  proof belong to its associated plan; no universal watch window is prescribed.
 - Select the first current response, comparable observations, worthwhile benefit,
   cost guardrails, and relevant later-exposure window. ODF-139 is a candidate,
   not a new resolution or an instruction to harvest another project's history.
