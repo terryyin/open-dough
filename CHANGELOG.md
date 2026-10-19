@@ -1,3 +1,16 @@
+## 0.3.65 - 2026-10-20
+
+- Add `dough-triage-project-findings` to the released payload: separate project and shared responsibility, preserve finding lineage through adoption, observation, retirement and recurrence, select up to three supported improvements, and publish the owned maintenance result through Dough Land.
+- Keep prerequisite conditions limited to delivered supplier outcomes, and trace removed or changed references through consumers before accepting implementation or refactoring proof.
+- Open dashboard story references in their project and stage, reveal older completed stories when needed, and preserve focus, cancellation and recovery through interrupted navigation.
+- Open macOS story notifications in an existing browser tab, preserve input-alert continuity across observation gaps, keep review alerts stable, and bound concurrent Codex status reads.
+- Retain execution terminals until published story closure, drain accepted starts before dashboard replacement, and bundle dashboard test servers and the Cursor runner once per suite run.
+- Add internal shared-feedback collection and combined project/shared maintenance workflows with partial-delivery recovery and unchanged-rerun checks. These maintainer skills are outside the installed payload.
+
+The changed guidance received representative behavior review. The new project-findings skill has accepted native Codex, Cursor and Claude Code evidence; notification navigation has accepted Safari and Chrome observations. Other conventional guidance changes reuse unchanged integration mechanisms under ADR 0005. These are recovered owning-story judgments, not fresh native acceptance in this release run. Earlier outstanding native requirements remain pending; no new exception is claimed.
+
+The exact source revision `0129681bb66b3bbe9deaf0b675add07fb205b5d0` passed the full hosted CI workflow, including all twelve dashboard browser shards. The full local credential-free deterministic suite, lint, dashboard typecheck, and release self-installation check passed.
+
 ## 0.3.64 - 2026-10-19
 
 - Derive dashboard start eligibility from the recorded assessment and current dependencies, show the same blockers on Backlog and Taken cards, and refuse execution starts with all applicable reasons. Keep dependency resolutions out of the readiness basis and reassess reasons spent when a supplier completes.
