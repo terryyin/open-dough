@@ -5,9 +5,10 @@ description: >-
   adopts finding names, compacts source logs, selects up to two supported leading
   responses, and commits and synchronizes the maintenance result in every changed
   repository including Open Dough. Use on explicit invocation to collect client
-  feedback or run shared retrospective-findings maintenance; reading or authoring
-  the skill does not run it. Does not select project-local improvements or execute
-  the queued responses.
+  feedback or run shared retrospective-findings maintenance, including an explicit
+  composing invocation's supplied shared-phase handoff; reading or authoring the
+  skill does not run it. Does not select project-local improvements or execute the
+  queued responses.
 ---
 
 # Collect shared Open Dough feedback
@@ -24,6 +25,12 @@ including Open Dough. Carry narrower current instructions through the cycle.
 Reading, discussing or editing this skill is not an invocation. Do not implement
 responses, release or install guidance, change direction, schedule future work,
 or choose the owning projects' local improvements.
+
+An explicitly invoked composing workflow may pass this shared phase its selected
+inventory, Open Dough destinations, retained progress and the same finite
+maintenance/publication authority. Carry that instruction without another approval
+question; a bare mention or an unspecified caller grants no authority. This skill
+does not perform the caller's local-maintenance phase or invent its orchestration.
 
 ## Resolve the maintained set and destinations
 
@@ -51,6 +58,15 @@ hooks. Record initial branch, HEAD, status/index and relevant file checksums;
 inspect existing edits and local-only commits. A missing or unreadable log is a
 coverage gap, never an empty successful review; continue independent supported
 projects. Do not manufacture a log or claim a missing project passed a watch.
+Check a cited evidence locator at its resolved project/document path before
+reporting absence; an incomplete search or listing does not establish a missing file.
+
+Before a decision needing complete source coverage and again before the final
+report, reread the supplied inventory or configuration and account for additions,
+removals and changed paths/targets against the initial set. Resolve newly found
+projects through the same checks. A missing discovery input, unresolved inventory
+change or target, or unreviewed source keeps coverage incomplete; do not silently substitute
+the old list, omit unfinished delivery to a removed project, or pass its watch.
 
 ## Collect, reconcile and adopt
 
@@ -161,7 +177,7 @@ reads retained evidence and real Git/remote facts, reuses existing occurrences,
 stories and accepted commits, and resumes the first unfinished boundary; unchanged
 inputs create no edits, duplicate stories, empty commits or repeated publication.
 
-Report coverage/missing inputs, qualified mappings, compaction/pruning reasons,
+Report initial/final coverage and changes or missing inputs, qualified mappings, compaction/pruning reasons,
 watch and response gaps, selected priorities and rationale, ongoing Taken work,
 and per-repository changed paths, accepted SHA/target or unfinished boundary.
 Client-only publication with Open Dough unpublished is an incomplete cycle.
