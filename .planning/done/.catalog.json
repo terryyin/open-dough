@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-140_avoid-repeating-input-notifications-after-reconnection.json",
+      "identity": "SEED-140#avoid-repeating-input-notifications-after-reconnection",
+      "completedAt": "2026-10-19T10:24:27.955Z",
+      "blob": "e8175a915e5d8d44615f91367003748df40f8c77"
+    },
+    {
       "fileName": "SEED-136_restore-ci-under-three-minutes.json",
       "identity": "SEED-136#restore-ci-under-three-minutes",
       "completedAt": "2026-10-19T03:03:42.665Z",
