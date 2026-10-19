@@ -1,7 +1,7 @@
 import { SessionEntry } from "./SessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 import type { LaunchWithState } from "./agentLaunch.ts";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
 import {
   UnreadableProfiles,
@@ -9,6 +9,8 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks } from "./workFocus.ts";
+import { revealStory } from "./pageEntries.ts";
+import { useStoryNavigation } from "./storyNavigation.tsx";
 import { dashboardColumnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { WorkCard } from "./WorkCard.tsx";
@@ -138,6 +140,17 @@ export function WorkStages({
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
     undefined,
   );
+  const { opening } = useStoryNavigation();
+  useLayoutEffect(() => {
+    if (opening?.project !== work.source.id) return;
+    const stop = revealStory(opening.identity);
+    if (stop === undefined) return;
+    // Startup protection still owns whether inspection is available. Revealing
+    // its card must not invoke its disabled inspection or any launch action.
+    if (launches.storyStartupOf(work.source.id, opening.identity) === undefined)
+      setSelectedIdentity(opening.identity);
+    return stop;
+  }, [opening, work.source.id]);
   const select = (identity: string) => {
     setSelectedIdentity((current) =>
       current === identity ? undefined : identity,

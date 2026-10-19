@@ -37,6 +37,17 @@ export async function expectDependencyAccessibly(
     "href",
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#b`,
   );
+  const supplierReference = list.getByRole("link", {
+    name: suppliers[0].identity,
+  });
+  await supplierReference.focus();
+  await page.keyboard.press("Enter");
+  const supplier = page.getByRole("article", { name: "Story B", exact: true });
+  await expect(supplier).toBeFocused();
+  await expect(
+    supplier.getByRole("region", { name: "Detail for Story B" }),
+  ).toBeVisible();
+  await summary.focus();
   expect((await summary.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   await expectReadableContrast(summary);
   await page.setViewportSize(zoomedWindow);

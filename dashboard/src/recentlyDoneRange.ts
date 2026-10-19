@@ -11,7 +11,7 @@
 // keyboard there now stands (`HeldEntry`), until the keyboard leaves it.
 //
 // The page keeps one range (`./PageFrame.tsx`), so the journeys that end on
-// a session's entry -- the side panel's keyboard return
+// a story or session's entry -- story references, the side panel's keyboard return
 // (`./pageSidePanel.ts`) and a sidebar choice's reveal
 // (`./sessionNavigation.ts`) -- ask it for their destination before they look
 // for the entry (`sessionEntry`). The list answers each destination: it
@@ -29,12 +29,12 @@ import { untilOwnMove } from "./workFocus.ts";
 // How many entries the list starts with, and each reveal adds.
 export const doneBatch = 10;
 
-// A journey's destination: the session whose entry it lands on, in its
+// A journey's destination: the story or session whose entry it lands on, in its
 // project, and what the list answered about it.
 type Destination = {
   readonly id: number;
   readonly sourceId: string;
-  readonly session: string;
+  readonly entry: HeldEntry;
   readonly answer?: "reached" | "absent";
 };
 
@@ -75,6 +75,12 @@ export function useRecentlyDoneRange(shownSource: string | undefined) {
     setRange(latestOf(shownSource));
   }
   const { destination } = range;
+  const demandEntry = (sourceId: string, entry: HeldEntry): number => {
+    demands += 1;
+    const id = demands;
+    setRange((last) => ({ ...last, destination: { id, sourceId, entry } }));
+    return id;
+  };
   // Answers the destination `id` with `answer`, or extends the range through
   // `through` entries while it is still read.
   const settle = (
@@ -132,28 +138,29 @@ export function useRecentlyDoneRange(shownSource: string | undefined) {
     // Asks the list for the entry of `record`'s session in its project;
     // answers the demand, by which its answer is found (`answerOf`).
     demand: (record: LaunchRecord): number => {
-      demands += 1;
-      const id = demands;
-      const sourceId = record.request.source;
-      const session = sessionKey(record.session);
-      setRange((last) => ({
-        ...last,
-        destination: { id, sourceId, session },
-      }));
-      return id;
+      return demandEntry(record.request.source, {
+        session: sessionKey(record.session),
+      });
     },
+    // A semantic story reference asks for the same list's story entry.
+    demandStory: (sourceId: string, identity: string): number =>
+      demandEntry(sourceId, { story: identity }),
     // While the destination `id` is still to be answered, the developer's
     // own move gives it up, keeping the entries already shown, and calls
     // `gaveUp`; the returned stop ends the wait first.
-    givenUpOnOwnMove: (id: number, gaveUp: () => void) =>
-      untilOwnMove(() => {
+    givenUpOnOwnMove: (
+      id: number,
+      gaveUp: (event: Event) => void,
+      except?: (event: Event) => boolean,
+    ) =>
+      untilOwnMove((event) => {
         setRange((last) =>
           last.destination?.id === id && last.destination.answer === undefined
             ? { ...last, destination: undefined }
             : last,
         );
-        gaveUp();
-      }),
+        gaveUp(event);
+      }, except),
     answerOf: (id: number): DestinationAnswer => {
       if (destination?.id !== id) return "superseded";
       if (destination.sourceId !== range.sourceId) return "absent";

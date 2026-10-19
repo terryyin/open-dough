@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-141_open-referenced-story-in-dashboard.json",
+      "identity": "SEED-141#open-referenced-story-in-dashboard",
+      "completedAt": "2026-10-19T21:23:15.517Z",
+      "blob": "891dae4dc3548d5d31801bbde2af603d70815693"
+    },
+    {
       "fileName": "SEED-142_keep-execution-terminal-until-wrap-up.json",
       "identity": "SEED-142#keep-execution-terminal-until-wrap-up",
       "completedAt": "2026-10-19T13:08:03.922Z",

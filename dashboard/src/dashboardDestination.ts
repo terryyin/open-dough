@@ -1,9 +1,23 @@
-// The URL contract shared by native notification delivery and page routing.
-// It carries identity as data; neither titles nor browser state participate.
+import type { PublishedWork } from "./publishedWork.ts";
+
+// A story destination shared by references, page routing and notification
+// delivery. It carries identity as data, independently of source evidence.
 export type StoryDestination = {
   readonly project: string;
   readonly identity: string;
 };
+
+// Active membership comes from the named project's published observation.
+// Done destinations use the existing Recently done catalog and range instead.
+export function activeStoryAt(
+  target: StoryDestination | undefined,
+  work: PublishedWork | undefined,
+) {
+  if (target === undefined || work?.source.id !== target.project) return;
+  return [...work.taken, ...work.backlog].find(
+    (entry) => entry.identity === target.identity,
+  );
+}
 
 export function dashboardDestinationPath(
   project: string,
