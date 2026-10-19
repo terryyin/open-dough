@@ -18,10 +18,7 @@ import {
 } from "./dashboardRoute.ts";
 import { useProjectKeyboardNavigation } from "./projectKeyboardNavigation.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import {
-  StoryNavigationOnPage,
-  useStoryReferenceJourney,
-} from "./storyNavigation.tsx";
+import { StoryReferenceNavigation } from "./storyNavigation.tsx";
 import {
   focusStages,
   returnFocusTo,
@@ -166,80 +163,83 @@ export function ConfiguredDashboard({
   }, [route.view, source.id, work]);
 
   const showsRoster = route.view === "roster";
-  const storyJourney = useStoryReferenceJourney({
-    projects,
-    selected: source.id,
-    work,
-    reading,
-    failure: readFailure,
-    show: showStories,
-    retry: readAfresh,
-    suspended: settingsOpen || showsRoster,
-  });
   return (
-    <StoryNavigationOnPage value={storyJourney.navigation}>
-      <PageFrame
-        sessions={launches}
-        stories={{
-          selected: source.id,
-          shown: showsRoster ? undefined : work?.source.id,
-          show: showStories,
-        }}
+    <PageFrame
+      sessions={launches}
+      stories={{
+        selected: source.id,
+        shown: showsRoster ? undefined : work?.source.id,
+        show: showStories,
+      }}
+    >
+      <StoryReferenceNavigation
+        projects={projects}
+        selected={source.id}
+        work={work}
+        reading={reading}
+        failure={readFailure}
+        show={showStories}
+        retry={readAfresh}
+        suspended={settingsOpen || showsRoster}
       >
-        <DashboardBanner
-          source={source}
-          work={work}
-          onOpenSettings={onOpenSettings}
-          onSelect={selectProject}
-        />
-        <div className="page-header">
-          <PublishedReadStatus
-            attempt={attempt}
-            reading={reading}
-            work={work}
-            withheld={withheld}
-            recoversAt={recoversAt}
-            notice={notice}
-          />
-          {storyJourney.notice}
-          <ProjectActions
-            source={source}
-            work={work}
-            launches={launches}
-            hidden={showsRoster}
-          />
-          {!showsRoster && (
-            <StartupRecovery sourceId={source.id} recoveries={launches} />
-          )}
-          <StartupAnnouncer
-            sourceId={source.id}
-            startups={launches.storyStartupsOf(source.id)}
-          />
-        </div>
-        {work && (
-          <main hidden={showsRoster}>
-            <DashboardColumns
-              sourceId={source.id}
-              work={work}
-              launches={launches}
-              onOpenRoster={openRoster}
-            />
-          </main>
-        )}
-        {showsRoster && (
-          <main>
-            <AgentRoster
+        {(storyNotice) => (
+          <>
+            <DashboardBanner
               source={source}
               work={work}
-              problem={readFailure}
-              agent={
-                opening?.sourceId === source.id ? opening.agent : undefined
-              }
-              onBack={onBack}
+              onOpenSettings={onOpenSettings}
+              onSelect={selectProject}
             />
-          </main>
+            <div className="page-header">
+              <PublishedReadStatus
+                attempt={attempt}
+                reading={reading}
+                work={work}
+                withheld={withheld}
+                recoversAt={recoversAt}
+                notice={notice}
+              />
+              {storyNotice}
+              <ProjectActions
+                source={source}
+                work={work}
+                launches={launches}
+                hidden={showsRoster}
+              />
+              {!showsRoster && (
+                <StartupRecovery sourceId={source.id} recoveries={launches} />
+              )}
+              <StartupAnnouncer
+                sourceId={source.id}
+                startups={launches.storyStartupsOf(source.id)}
+              />
+            </div>
+            {work && (
+              <main hidden={showsRoster}>
+                <DashboardColumns
+                  sourceId={source.id}
+                  work={work}
+                  launches={launches}
+                  onOpenRoster={openRoster}
+                />
+              </main>
+            )}
+            {showsRoster && (
+              <main>
+                <AgentRoster
+                  source={source}
+                  work={work}
+                  problem={readFailure}
+                  agent={
+                    opening?.sourceId === source.id ? opening.agent : undefined
+                  }
+                  onBack={onBack}
+                />
+              </main>
+            )}
+          </>
         )}
-      </PageFrame>
-    </StoryNavigationOnPage>
+      </StoryReferenceNavigation>
+    </PageFrame>
   );
 }

@@ -138,15 +138,19 @@ export function keepInView(element: Element): () => void {
 
 // Calls `moved` once the developer scrolls, points, or types, unless the
 // returned stop is called first.
-export function untilOwnMove(moved: () => void): () => void {
+export function untilOwnMove(
+  moved: (event: Event) => void,
+  except?: (event: Event) => boolean,
+): () => void {
   const stop = () => {
     for (const move of ownMoves) {
       window.removeEventListener(move, heard, true);
     }
   };
-  const heard = () => {
+  const heard = (event: Event) => {
+    if (except?.(event) === true) return;
     stop();
-    moved();
+    moved(event);
   };
   for (const move of ownMoves) {
     window.addEventListener(move, heard, true);

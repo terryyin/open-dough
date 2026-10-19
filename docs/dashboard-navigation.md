@@ -169,12 +169,21 @@ through or evidence that an agent is running. The badge legend explains it.
 Following a supplier story reference in a dependency explanation stays in the
 dashboard, opens the referenced active story's existing inspection, and brings
 its card into view with the keyboard there. Following it again keeps inspection
-open and reveals the same card again. Navigation uses the recorded story
+open and reveals the same card again. A reference to a published story in
+Recently done reveals its existing card, extending the shown range exactly
+through it when needed, without requiring or opening a session. The same list
+keeps its ordering, retained longer range, and ordinary detail reads; an
+identified card with unreadable detail keeps its read-gap explanation and
+existing retry. Navigation uses the recorded story
 identity, so sibling stories in one seed remain distinct. It starts no agent
-work and opens no terminal. A reference whose block is unavailable says so in
-the dashboard, with ordinary navigation and retry still available. Source links
+work and opens no terminal. A pending reference says which project and story it
+is reading; a failed read stays distinct from an unavailable block. A later
+choice or move cancels a pending jump, including returning Recently done to its
+latest ten. A reference whose block is unavailable, expired or unlisted says so
+in the dashboard, with ordinary navigation and retry still available; it
+neither creates a historical card nor reads Git history. Source links
 in a story's inspection, associated plans, and dependency revision evidence
-continue to open their recorded GitHub sources at their pinned revisions.
+keep ordinary source navigation; repository files retain their pinned revisions.
 
 The initial layout hypothesis is a left-to-right flow with a visible connector,
 clear region boundaries, and story cards that stay attached to their stage as

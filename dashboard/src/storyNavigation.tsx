@@ -5,11 +5,19 @@ import {
   useContext,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
+  type ReactNode,
 } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { untilOwnMove } from "./workFocus.ts";
+import { keepInView, untilOwnMove } from "./workFocus.ts";
+import { usePageRange } from "./recentlyDoneRange.ts";
+import { heldEntryShown } from "./pageEntries.ts";
+import {
+  isStoryReferenceAction,
+  StoryReferenceNotice,
+} from "./StoryReferenceNotice.tsx";
 import "./story-navigation.css";
 
 type Reference = {
@@ -19,6 +27,9 @@ type Reference = {
 type Journey = {
   readonly reference: Reference;
   readonly project: PublishedSource | undefined;
+  readonly demand?: number;
+  readonly catalog?: PublishedWork["done"];
+  readonly cancelled?: { readonly problem: string; readonly pending: boolean };
 };
 export type StoryOpening = Reference;
 type Navigation = {
@@ -55,9 +66,14 @@ export function useStoryReferenceJourney({
   readonly retry: () => void;
   readonly suspended: boolean;
 }) {
+  const range = usePageRange();
   const [journey, setJourney] = useState<Journey>();
+  const revealed = useRef<Journey | undefined>(undefined);
   const follows = journey?.project?.id === selected && !suspended;
-  const current = follows && work?.source.id === selected ? work : undefined;
+  const current =
+    follows && !journey.cancelled && work?.source.id === selected
+      ? work
+      : undefined;
   const identity =
     current !== undefined &&
     journey !== undefined &&
@@ -74,29 +90,109 @@ export function useStoryReferenceJourney({
         : { sourceId, identity },
     [journey, identity, sourceId],
   );
+  const answer =
+    journey?.demand === undefined ? undefined : range.answerOf(journey.demand);
+  const reached =
+    !journey?.cancelled && (opening !== undefined || answer === "reached");
   const pending =
-    journey !== undefined && follows && opening === undefined && reading;
+    journey !== undefined &&
+    follows &&
+    !reached &&
+    (journey.cancelled?.pending ??
+      (reading ||
+        (current !== undefined &&
+          (answer === undefined || answer === "pending"))));
+  const name = journey?.reference.identity;
+  const readProblem =
+    failure ??
+    (current?.done?.status === "unavailable"
+      ? current.done.problem
+      : undefined);
+  const problem =
+    journey?.cancelled?.problem ??
+    (journey === undefined || reached
+      ? undefined
+      : pending
+        ? `Reading ${journey.project.label} to find ${name}…`
+        : follows && readProblem !== undefined
+          ? `Could not read ${journey.project.label} to find ${name}. ${readProblem}`
+          : `${name} is unavailable in ${journey.project?.label ?? "the configured projects"}'s dashboard.`);
+  useLayoutEffect(() => {
+    if (journey === undefined || current === undefined || opening !== undefined)
+      return;
+    if (
+      journey.demand === undefined ||
+      (answer === "absent" && journey.catalog !== current.done)
+    ) {
+      // An explicit retry must place the destination against the observation
+      // it asked for, rather than settling absence from the carried catalog.
+      if (reading) return;
+      setJourney({
+        ...journey,
+        catalog: current.done,
+        demand: range.demandStory(
+          current.source.id,
+          journey.reference.identity,
+        ),
+      });
+      return;
+    }
+    if (answer === "superseded") {
+      setJourney(undefined);
+      return;
+    }
+    if (answer !== "reached" || revealed.current === journey) return;
+    const card = heldEntryShown({ story: journey.reference.identity });
+    if (card === null) return;
+    revealed.current = journey;
+    card.focus({ preventScroll: true });
+    return keepInView(card);
+  }, [journey, sourceId, current?.done, opening, reading, answer]);
   useLayoutEffect(() => {
     if (journey === undefined) return;
     if (journey.project !== undefined && !follows) {
       setJourney(undefined);
       return;
     }
-    if (pending)
-      return untilOwnMove(() => {
-        setJourney(undefined);
-      });
+    if (!reached && !journey.cancelled) {
+      const giveUp = (event: Event) => {
+        if (event.type !== "pointerdown") {
+          setJourney(undefined);
+          return;
+        }
+        // Stop the journey now, but let the pointer's chosen action complete
+        // before removing its notice: collapsing that space between down and
+        // click would move the action out from under the pointer.
+        const cancelled = {
+          ...journey,
+          cancelled: { problem: problem ?? "", pending },
+        };
+        setJourney(cancelled);
+        const clear = () => {
+          window.removeEventListener("click", clear);
+          window.removeEventListener("pointerup", released);
+          window.removeEventListener("pointercancel", clear);
+          setJourney((current) =>
+            current === cancelled ? undefined : current,
+          );
+        };
+        const released = () => {
+          setTimeout(clear);
+        };
+        window.addEventListener("click", clear, { once: true });
+        window.addEventListener("pointerup", released, { once: true });
+        window.addEventListener("pointercancel", clear, { once: true });
+      };
+      return journey.demand === undefined
+        ? untilOwnMove(giveUp, isStoryReferenceAction)
+        : range.givenUpOnOwnMove(
+            journey.demand,
+            giveUp,
+            isStoryReferenceAction,
+          );
+    }
     return;
-  }, [journey, follows, pending]);
-  const name = journey?.reference.identity;
-  const problem =
-    journey === undefined || opening !== undefined
-      ? undefined
-      : pending
-        ? `Reading ${journey.project.label} to find ${name}…`
-        : follows && failure !== undefined
-          ? `Could not read ${journey.project.label} to find ${name}. ${failure}`
-          : `${name} is unavailable in ${journey.project?.label ?? "the configured projects"}'s dashboard.`;
+  }, [journey, follows, pending, reached, problem]);
   return {
     navigation: {
       opening,
@@ -109,40 +205,40 @@ export function useStoryReferenceJourney({
       },
     },
     notice: (
-      <div
-        className="announcement story-reference-notice"
-        role="status"
-        aria-label="Story reference navigation"
-      >
-        {problem !== undefined && (
-          <>
-            <p>{problem}</p>
-            <div className="story-reference-actions">
-              {!pending && journey?.project !== undefined && (
-                <button
-                  type="button"
-                  className="frame-button"
-                  onClick={() => {
-                    retry();
-                    setJourney({ ...journey });
-                  }}
-                >
-                  Retry story reference
-                </button>
-              )}
-              <button
-                type="button"
-                className="frame-button"
-                onClick={() => {
-                  setJourney(undefined);
-                }}
-              >
-                Dismiss story reference
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      <StoryReferenceNotice
+        problem={problem}
+        pending={pending}
+        retry={
+          journey?.project === undefined
+            ? undefined
+            : () => {
+                retry();
+                setJourney({
+                  reference: journey.reference,
+                  project: journey.project,
+                });
+              }
+        }
+        dismiss={() => {
+          setJourney(undefined);
+        }}
+      />
     ),
   };
+}
+
+// Runs inside PageFrame so semantic references and session journeys share its
+// one Recently done range. The caller places the persistent notice by read status.
+export function StoryReferenceNavigation({
+  children,
+  ...props
+}: Parameters<typeof useStoryReferenceJourney>[0] & {
+  readonly children: (notice: ReactNode) => ReactNode;
+}) {
+  const journey = useStoryReferenceJourney(props);
+  return (
+    <StoryNavigationOnPage value={journey.navigation}>
+      {children(journey.notice)}
+    </StoryNavigationOnPage>
+  );
 }

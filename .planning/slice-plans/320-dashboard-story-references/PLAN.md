@@ -123,7 +123,7 @@ Established Story Branch execution on 2026-10-19 in this linked preparation work
 
 Setup reuse initially relied on exact preparation workspace, unchanged dependency metadata and passing typecheck. Browser startup then failed with Vite ENOENT, invalidating reuse: `npm ci --no-audit --no-fund` restored this checkout (terminal success), followed by passing typecheck and real browser command. Tracked pre-commit hook is check-only (staged lint and dashboard typecheck for scripts); formatter is `npm run format`, whose tools select applicable components.
 
-CI source GitHub Actions, verified selector `ci.yml`, name `CI`. Startup claim's trunk CI is unobserved; increments observe their execution branch. Observer coordinator `story141-root`, directory `/tmp/dough-ci-501/watch-CbnTAT`, PID `47210`, yielded cell `8`, PTY session `77064`, runtime this checkout's `.agents/skills/dough-execute-plan`.
+Slice 1 accepted `fb09c6340722761096fa539c28e2a905d869e92a` on the increment target; this is slice 2's published base. CI source GitHub Actions, verified selector `ci.yml`, name `CI`. Startup claim's trunk CI is unobserved; increments observe their execution branch. Observer coordinator `story141-root`, directory `/tmp/dough-ci-501/watch-CbnTAT`, PID `47210`, yielded cell `8`, PTY session `77064`, runtime this checkout's `.agents/skills/dough-execute-plan`.
 
 ## Ordered slices
 
@@ -131,9 +131,7 @@ CI source GitHub Actions, verified selector `ci.yml`, name `CI`. Startup claim's
 
 Type: Behavior
 Status: done
-Proof: Add `dashboard/tests/story-reference-navigation.spec.ts` through the
-existing isolated published-origin/page fixture; extend dependency accessibility
-proof and run the affected source-link, inspection and navigation consumers.
+Proof: Add `dashboard/tests/story-reference-navigation.spec.ts` through the existing isolated published-origin/page fixture; extend dependency accessibility proof and run affected source-link, inspection and navigation consumers.
 
 Behavior: Given a reference to a known active story, activating it reveals and
 opens that story's block in the correct project's dashboard, with useful focus.
@@ -158,16 +156,13 @@ Existing tests needing review include `storyDependencyAccessible.ts`,
 card text, roles, focus and existing source links; do not weaken unrelated proof.
 Keep implementation, focused tests and cleanup in this one behavior slice.
 
-Safe stopping point: active destinations work; Done destinations still receive
-the unavailable explanation. This is interim behavior replaced by slice 2,
-not completion of the story's Done promise.
+Slice 1 safe stop leaves Done unavailable; G1 tracks its replacement by slice 2.
 
 ### 2. Reveal referenced Done blocks through the existing list
 
 Type: Behavior
-Status: planned
-Proof: Extend the story-reference browser journey with published Done records
-and the real progressive list; run affected Done-range and session-return suites.
+Status: done
+Proof: Extend the story-reference browser journey with published Done records and the real progressive list; run affected Done-range and session-return suites.
 
 Behavior: Given a reference to an eligible published Done story, activating it
 reveals the existing Done block, extending the shown range through that story
@@ -193,10 +188,7 @@ slice 1 reference journey too because both destinations now share resolution.
 
 ## Verification and review
 
-Each slice owns one externally observable navigation outcome, its focused proof
-and cleanup. No separate preparatory Structure slice is needed: changes to
-existing owners belong with the behavior they enable. No numeric slice limit
-is supplied. Execution uses its ordinary post-change refactor and commit gates.
+Each slice owns its navigation outcome, focused proof and cleanup; owner changes stay with that behavior. No numeric slice limit is supplied; ordinary refactor and commit gates apply.
 
 Run `npm run typecheck:dashboard` for typed source changes and focused
 Playwright suites selected from the effect trace above. Establish each new
@@ -205,11 +197,7 @@ checks only where shared consumers require them; a full repository suite is
 not a blanket local requirement. Source/plan preparation itself is checked by
 the recorder, Markdown/link review and `git diff --check`.
 
-Construction review found no remaining slice-specific concern: both slices
-extend one story-target rule, active and Done destinations have distinct proof
-loops, and every final promise has an owner. Separate slice-plan refinement is
-not needed. No human question or blocking story dependency remains. This plan
-grants no execution authority and records no execution completion.
+Preparation review found distinct proof loops and owners, no remaining concern or blocking dependency, and no need for separate refinement. Execution authority comes from the current instruction.
 
 
 ## Accepted proof and learning
@@ -229,12 +217,16 @@ Independent slice 1 refactor extracted `ProjectActions` and split the eight refe
 
 Landing handoff for later wrap-up: first trunk publication must use `/Users/terryyin/.open-dough/dashboard/reporting/02341b83-76fd-409d-8b5b-ec7767b97d00/landing-context.json`. Reporting launch `02341b83-76fd-409d-8b5b-ec7767b97d00` retains the user-supplied completion command; execution branch publication does not consume that trunk handoff.
 
+Slice 2 implementation proof accepted after inspecting its shared range/list/reveal paths and new Done fixture/assertions. `env -u NO_COLOR npm run test:dashboard -- story-reference-done.spec.ts story-reference-navigation.spec.ts story-reference-identity.spec.ts story-reference-recovery.spec.ts --workers=2` passed 17 cases; final targeted `--grep 'without sessions reveals exactly'` and `--grep 'Tab away from'` each selected/passed one case after their test/source strengthening. Final typecheck/whitespace passed. `env -u NO_COLOR npm run test:dashboard -- recently-done-stories.spec.ts recently-done-progressive-loading.spec.ts recently-done-progressive-navigation.spec.ts recently-done-progressive-navigation-report.spec.ts recently-done-progressive-navigation-cursor.spec.ts recently-done-progressive-refresh.spec.ts recently-done-progressive-failed-read-refresh.spec.ts recently-done-progressive-reset.spec.ts recently-done-progressive-state.spec.ts recently-done-progressive-after-sessions.spec.ts session-sidebar-navigation.spec.ts source-navigation.spec.ts story-dependencies.spec.ts story-dependencies-touch.spec.ts --workers=2` passed 28 cases; subsequent story-action exceptions leave their default own-move path unchanged. A redundant 45-case run was interrupted at its exact Playwright PID with observed terminal teardown and is unaccepted proof. Red-first far27 exposed absent destination; pointer geometry and Tab cases separately failed before correction.
+
+Independent slice 2 refactor extracted `StoryReferenceNotice` (same DOM/action exception) and split Done reveal/recovery/cancellation journeys without changing assertions or starting facts. `env -u NO_COLOR npm run test:dashboard -- story-reference-done.spec.ts story-reference-done-recovery.spec.ts story-reference-done-cancellation.spec.ts story-reference-navigation.spec.ts story-reference-identity.spec.ts story-reference-recovery.spec.ts --workers=2` passed all 18 journeys; typecheck/whitespace passed. The 28-case default Done/session consumer proof remains unchanged. Formatting passed after mechanical narrowed-check and fixture-access lint corrections; the same constant fixtures, assertions and runtime boundaries preserve accepted proof.
+
 ## Story obligations
 
 ### G1. Done destinations await the second slice
 Reported: slice 1 — "Done references currently show unavailable; slice 2 owns revealing them."
 Story clause: "Reveal existing Done blocks as well as active work; a block outside the currently shown range is still an existing destination."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: story-reference-done.spec.ts real published 35-story/no-session setup starts at ten; near3 and far27 reveal, exact prefix reads, focus/viewport, repeated activation/retained27, held/failed detail cards; story-reference-done-recovery.spec.ts proves catalog recovery and expired/unlisted absence with no fabricated cards or additional GitHub calls.
 
 ### G2. Existing semantic references carry identity
 Reported: slice 1 — "No existing semantic caller supplies URL-only or cross-project dependency input."
@@ -245,3 +237,13 @@ Disposition: no user cost "Apply the rule to dependency links and inspect other 
 Reported: slice 1 — "Dependency disclosures are published after the canonical preparation batch completes."
 Story clause: "Loading must not be reported as absence."
 Disposition: proved by slice 1: story-reference-navigation.spec.ts missing/reading/failed destination journey clicks a real supplier, holds the actual retry backlog read, observes Reading without a target card, then failure without unavailable, and retry reveals newly published C; unreadable-detail journey independently reveals B with its existing gap.
+
+### G4. Cancellation must preserve the reader's chosen action
+Reported: slice 2 — "button gets focus but click misses, so latest stays27."
+Story clause: "keeps navigation usable"
+Disposition: proved by slice 2: story-reference-done-cancellation.spec.ts actual Show latest 10 and inspection actions run through pending cancellation; mouse down then data arrival cannot jump before mouse up opens the chosen inspection; native Tab leaves Dismiss for a non-body surviving control and retains its focus after held data arrives; unavailable/failed catalog healing also preserves later choices.
+
+### G5. Catalog healing must re-evaluate absence
+Reported: slice 2 — "old absent Done demand remaining settled when catalogue later heals"
+Story clause: "Existing refresh/retry remains available"
+Disposition: proved by slice 2: story-reference-done-recovery.spec.ts catalog-held loading, read failure and Retry follow the existing announced recovery time; after the catalog heals, the same range re-evaluates absence and far27 receives focus/viewport. Parameterized later-choice tests preserve that choice instead.
