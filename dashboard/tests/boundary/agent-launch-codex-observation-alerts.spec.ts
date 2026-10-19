@@ -6,6 +6,7 @@ import {
   observationRecord as record,
   saveObservations as save,
   observed,
+  afterFurtherReads,
   passive,
 } from "../support/codexObservation.ts";
 // No page: the local boundaries alone answer these requests.
@@ -29,12 +30,7 @@ test("native transition alerts unrecognized states once and stays quiet for inco
     codexProtocol: native,
     alertCheckMs: 50,
   });
-  const reads = () =>
-    native.calls.filter((c) => c.method === "thread/read").length;
-  const further = async () => {
-    const before = reads();
-    await expect.poll(reads).toBeGreaterThanOrEqual(before + 3);
-  };
+  const further = () => afterFurtherReads(native, "alert");
   try {
     await further();
     expect(server.osascriptCalls()).toEqual([]);

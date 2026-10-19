@@ -67,6 +67,25 @@ export function observed(
     turns: turn === undefined ? [] : [{ id: `${id}-turn`, status: turn }],
   });
 }
+
+// Waits through further polls of this session, regardless of how many other
+// sessions the server reads. Three starts establish completed intervening polls.
+export async function afterFurtherReads(
+  native: FakeCodex,
+  sessionId: string,
+): Promise<void> {
+  const reads = () =>
+    native.calls.filter(
+      (call) =>
+        call.method === "thread/read" && call.params["threadId"] === sessionId,
+    ).length;
+  const before = reads();
+  // These alert journeys poll every 50 ms; avoid backoff after a read finishes.
+  await expect
+    .poll(reads, { intervals: [50] })
+    .toBeGreaterThanOrEqual(before + 3);
+}
+
 export function passive(calls: FakeCodex["calls"]) {
   expect(
     calls.every(({ method }) =>

@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Open the relevant dashboard story from a macOS notification](seeds/SEED-140-dashboard-session-notifications.md#open-notified-story-from-macos-notification) — SEED-140#open-notified-story-from-macos-notification ([plan](slice-plans/318-notification-story-navigation/PLAN.md))
-- [Avoid repeating input notifications after session reconnection](seeds/SEED-140-dashboard-session-notifications.md#avoid-repeating-input-notifications-after-reconnection) — SEED-140#avoid-repeating-input-notifications-after-reconnection ([plan](slice-plans/319-input-alert-continuity/PLAN.md))
 
 ## Backlog list
 

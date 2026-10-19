@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-140#avoid-repeating-input-notifications-after-reconnection",
+  "title": "Avoid repeating input notifications after session reconnection",
+  "completedAt": "2026-10-19T10:24:27.955Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

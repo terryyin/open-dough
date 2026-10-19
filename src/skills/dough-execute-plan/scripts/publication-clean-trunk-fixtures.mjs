@@ -3,6 +3,7 @@
 import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
 import { exec, git, revParse } from "./publication-git.mjs";
 
 // Builds a clean-trunk publication fixture: a disposable repository
@@ -15,7 +16,7 @@ export async function createCleanTrunkFixture() {
   const integration = join(fixture, "integration");
   const execution = join(fixture, "execution");
 
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
+  await createBareFixtureRemote(origin);
 
   await exec("git", ["init", "-b", "main", integration]);
   await git(integration, "config", "user.name", "Integration Checkout");
@@ -54,7 +55,7 @@ export async function createCleanTrunkFixture() {
 export async function authorizedRemote(fixture, remote, branch) {
   if (remote === "origin") return fixture.origin;
   const url = join(fixture.fixture, `${remote}.git`);
-  await git(fixture.fixture, "init", "-q", "--bare", "-b", branch, url);
+  await createBareFixtureRemote(url, branch);
   await git(fixture.integration, "remote", "add", remote, url);
   return url;
 }
