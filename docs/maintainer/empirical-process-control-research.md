@@ -524,7 +524,7 @@ does not own this complete project-triage journey. Internal reconciliation and
 triage skills likewise do not supply a reusable local workflow.
 
 The first story is therefore
-[Turn project-owned retrospective findings into prioritized improvements](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#triage-project-owned-retrospective-findings).
+[Turn project-owned retrospective findings into prioritized improvements](https://github.com/terryyin/open-dough/blob/d72b02a1f4b3203608a025d3d7de4d284610a391/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#triage-project-owned-retrospective-findings).
 It replaces the repeated prompt with an explicitly invoked shared skill, resolves
 the current project's own record/backlog locations, and delivers up to three
 supported local priorities with commit/sync. Its checks distinguish local,

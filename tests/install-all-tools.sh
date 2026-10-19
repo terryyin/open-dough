@@ -20,15 +20,7 @@ assert_all_roots() {
     if [[ -n "${marker}" ]]; then
       assert_payload "${dest}" "${version}" "${marker}"
     else
-      cmp "${source_dir}/src/skills/dough-update/SKILL.md" "${dest}/SKILL.md"
-      cmp "${source_dir}/src/skills/dough-adr-awareness/SKILL.md" \
-        "$(dirname -- "${dest}")/dough-adr-awareness/SKILL.md"
-      cmp "${source_dir}/src/skills/dough-product-backlog/SKILL.md" \
-        "$(dirname -- "${dest}")/dough-product-backlog/SKILL.md"
-      cmp "${source_dir}/src/skills/dough-execution-retrospective/SKILL.md" \
-        "$(dirname -- "${dest}")/dough-execution-retrospective/SKILL.md"
-      cmp "${source_dir}/src/skills/dough-story-wrap-up/SKILL.md" \
-        "$(dirname -- "${dest}")/dough-story-wrap-up/SKILL.md"
+      assert_payload_bytes_match "${source_dir}/src/skills" "$(dirname -- "${dest}")"
       [[ $(cat "${dest}/VERSION") == "${version}" ]]
     fi
     for script in dashboard-completion.mjs dashboard-landing.mjs ci-direct-entry.mjs publication-comparison.mjs execution-increment-reconciliation.mjs; do
