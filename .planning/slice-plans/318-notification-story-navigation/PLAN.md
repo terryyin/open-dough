@@ -230,3 +230,8 @@ unfinished. Preserve/restore machine settings and remove probe-only artifacts.
 
 [Preparation and verification criteria](PREPARATION-EVIDENCE.md#verification-and-review)
 retain the focused checks, proof ownership and bounded native acceptance.
+
+## Execution complete
+
+Product advice: No new product follow-up is recommended. Keep the existing
+notification-deduplication sibling separate and preserve backlog priorities.
