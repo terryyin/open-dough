@@ -23,19 +23,17 @@ commands it installs -- or of a module read in-process, without a browser.
 Its collaborators are the real ones; only the external boundaries are
 replaced: GitHub through the synthetic `gh`, the agent hosts through the
 synthetic `claude`, `codex` and `cursor`, and GitHub's avatar host. Boundary
-tests live in `boundary/` and normally start the boundary server, with
-`startDashboardServer({ mode: "boundary" })` or `test.use({ serverMode:
-"boundary" })` on the `dashboardTest.ts` fixtures: `node
---experimental-transform-types ../server/boundaryServer.ts` mounts the local
-boundaries Vite mounts (`../server/localBoundaries.ts`) on a plain HTTP
-server, with no Vite and no build, in the production project environment as
-the built preview does, or in the dev server's when the spec starts
+tests live in `boundary/` and normally use `startDashboardServer({ mode:
+"boundary" })` or `test.use({ serverMode: "boundary" })` on `dashboardTest.ts`.
+`node <run-bundle>/boundaryServer.mjs` mounts Vite's local boundaries
+(`../server/localBoundaries.ts`) on plain HTTP without Vite or a build. It uses
+the preview's production project environment, or the dev server's through
 `developmentBoundary` (`support/dashboardServer.ts`).
-`boundary/boundary-server.spec.ts` shows each environment answering from its
-own project file (`support/projectConfiguration.ts`), without Vite or a page.
-The exception is `boundary/serving-modes.spec.ts`, which starts real Vite
-dev and preview servers on the run's build to prove both mount the same
-boundaries.
+`boundary/boundary-server.spec.ts` shows each environment's own project file
+(`support/projectConfiguration.ts`) without Vite or a page.
+Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
+production keep source. `boundary/serving-modes.spec.ts` proves both real Vite
+servers mount the same boundaries and use those entries.
 
 `boundary/` holds every spec that opens no page, whatever it drives; a spec
 that opens a page is a journey, however small, and a journey never repeats a
@@ -106,12 +104,15 @@ helpers and the event each one waits for.
 
 ## What is real and what is replaced
 
-Every run builds the app once, into its own temporary directory that it
-removes at the end, so two runs from one checkout never rebuild each other's
-assets and the production build in `dashboard/dist` is left alone; each page
-journey (`dashboardTest.ts`) then serves that build from its own preview
-server with a synthetic `gh` on its PATH (`fixtures/fake-gh`) that answers
-from the test's own fake GitHub (`support/fakeGitHub.ts`, published through
+Each run bundles its Vite configuration, boundary server and Cursor runner
+into its own directory under `node_modules`, preserving source-relative
+`import.meta` paths. Preview and boundary servers load it; dev serves source.
+It also builds the app once in a temporary directory. Success, failure or
+graceful interruption removes both directories; concurrent runs never
+rebuild or remove each other's files, and `dashboard/dist` stays untouched.
+Each journey (`dashboardTest.ts`) serves that build from its own preview
+server with a synthetic `gh` on PATH (`fixtures/fake-gh`), answering from
+the test's own fake GitHub (`support/fakeGitHub.ts`, published through
 `publishedOrigin.ts` or `committedOrigin.ts`), which can also fail, hold, or
 rate-limit an answer. The same fake stands in for GitHub's avatar host, from
 which the server fetches credited humans' avatars (`avatarAnswers.ts`). Only

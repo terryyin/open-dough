@@ -76,6 +76,14 @@ Former local code: DD-128. Startup boundary instructions require broad reference
   - Observed effect: broad required-reference batches needed further retrieval before implementation could be delegated.
   - Inference: the reference surface and the coordinator's oversized batching both contributed. These output counts are not total token cost and do not establish that the references or independent checks lack value.
 
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+  - Timestamp: unknown (2026-10-19 JST; events described below).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
+  - Evidence: coordinator startup outputs reported 22,462 and 14,569 tokens with truncation, then targeted retrieval; resumed execution again produced a 12,445-token reference batch with truncation. The established start already supplied execution identity; the retained observer/publication paths were reused.
+  - Observed effect: oversized required-reference batches needed additional retrieval before delegation, including after recovery.
+  - Inference: the reference surface and this coordinator's batching both contributed; targeted-retrieval guidance was not applied consistently. These output counts are not total cost and do not show that the underlying checks lack value.
+
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
 Former local code: DD-155. Concurrent unpublished plan allocation produces two quick plans with the same numeric selector, making a number-only execution request ambiguous. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-106).
@@ -273,6 +281,14 @@ Former local code: DD-264. A long repeated full-suite probe starts and continues
   - Evidence: plan 310, slices 3 and 4 accepted-proof paragraphs and the Learnings entry on load-sensitive tests: whole dashboard runs at eight workers under load averages of 25–257 from other work (1,390–1,485 of 1,516 passed, the rest timeouts in untouched journeys), two by the implementation agent and two by the coordinator, before the coordinator moved local proof to four workers with failed-subset reruns and CI as the suite verdict (plan Current decisions).
   - Observed effect: about four hours of whole-suite time without a green local run; targeted evidence and the twelve-shard CI run carried the acceptance; sixteen idle Cursor runners from the killed runs were found later.
   - Inference: qualified. Neither the execution guidance nor the delegation briefs stated a local-proof policy for a shared host; the coordinator set one only after the loss. A load check before a long proof and a reduced-worker default on shared machines would have saved most of it.
+
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+  - Timestamp: unknown (2026-10-19 JST; events described below).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
+  - Evidence: plan 315 Learnings and `/tmp/seed136-slice1-full-20261019.json`: initial eight-worker full run selected 1,537 tests and ended after 920.52 s with a reporter-fixture race and the unchanged production watcher's 90-second retry timeout. Subsequent load was 27.53/25.13 on 16 cores; an isolated instrumented watcher passed in 24.24 s. After the independent fixture repair, four-worker proof passed all 1,537 in 1,066.15 s. The next broad run explicitly checked headroom (3.88/5.93/5.06) before launch.
+  - Observed effect: initial broad proof needed diagnosis and another full run; local worker count was bounded only after contention evidence, then retained on continuation.
+  - Inference: the initial delegation lacked a shared-host headroom policy. Load was measured after failure, and the independent fixture defect also required a rerun; the whole initial run or rerun cost cannot be attributed to contention.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -479,6 +495,14 @@ Each was caught before a push, at no paid cost. Each still needed an in-executio
   - Observed effect: three mid-execution adaptations, recorded in that plan. None changed the story's promises.
   - Inference: qualified. Planning for live probes would gain from checking each mechanical step's premise with one local observation, the way the plan already did for provider behavior.
 
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+  - Timestamp: unknown (2026-10-19 JST; events described below).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
+  - Evidence: plan 315 original slice 2 and `/tmp/seed136-hosted-measurement-20261019/`: creating a temporary candidate ref at already-published `0133c0bf` produced only CreateEvent and zero workflow runs. The unpaired parent dispatch 39180107803 was cancelled; one ordinary fast-forward from original control `f4466c10` to candidate produced genuine push run 39180260655, paired with dispatch 39180257177 three seconds apart. Failed-launch metadata and the cancelled attempt were retained.
+  - Observed effect: one unpaired baseline run and an in-execution launch-mechanics repair; no measured result was discarded or repeated.
+  - Inference: observing the actual push/event path before dispatch would avoid that loss. This occurrence does not establish a universal new-ref rule; the historical statement above that any new ref holding a commit starts CI did not hold for this observed path.
+
 ## DD-308 — Slice acceptance follows a plan that narrows a story key example
 The plan's design said a record assessed before the change "whose dependency state changed since review keeps `true`", while the story's key example 7 says only a supplier's resolution leaves no "Changed since readiness review". The slice was implemented, tested and accepted against the plan's sentence; the retrospective's outcome review found the contradiction. The same execution closed gap G1 as "no user cost" by citing a plan decision, although the story's "shared wording" clause covers it.
 ### Occurrences
@@ -510,6 +534,14 @@ Slice delivery asks for the project's selective formatting command; this project
   - Evidence: `scripts/lint.mjs` lists all tracked/untracked files for `npm run format`; accepted slice 1/2 evidence at `1317f9fc` and coordinator tool receipts record two first-slice attempts (one mechanical unused-parameter repair) and one second-slice attempt.
   - Observed effect: each delivery waited for repository-wide ESLint, Prettier and shell checks; logs enumerate unchanged installed skills and unrelated source/test files. The second delivery also encountered the overloaded shared host. No unrelated bytes changed.
   - Inference: the available project command exceeds the workflow's selective-format intent; the full cost is repeated after a mechanical repair. Unloaded duration and token cost were not measured; no formatter change is authorized by this execution.
+
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+  - Timestamp: unknown (2026-10-19 JST; events described below).
+  - Tool: Codex
+  - Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
+  - Evidence: coordinator `npm run format` logs `/tmp/seed136-format-slice1.log`, `/tmp/seed136-format-slice2.log` and `/tmp/seed136-format-slice3.log`; scripts/lint.mjs lists every tracked/untracked path without --staged. The run enumerated unchanged installed skills, unrelated sources and tests for the owned bundle/fixture changes. All three slice deliveries completed the same required command.
+  - Observed effect: delivery waited through repository-wide ESLint, Prettier and shell formatting; no unrelated bytes changed.
+  - Inference: the available project command exceeds selective-format intent. This occurrence does not quantify unloaded duration or token cost and does not authorize changing formatting in this story.
 
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.

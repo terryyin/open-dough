@@ -12,6 +12,7 @@
 
 import WebSocket from "ws";
 import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import {
   builtDashboardDir,
@@ -29,6 +30,9 @@ import {
   projectEnvironmentOf,
 } from "../support/projectConfiguration.ts";
 import { rawRequest, type RawResponse } from "../support/rawHttp.ts";
+import { liveRunner, runnerCommand } from "../support/cursorRunnerJourney.ts";
+import { repoRoot } from "../support/repositoryRoot.ts";
+import { serverBundleVariable } from "../support/serverBundle.ts";
 
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
 const modes = ["dev", "preview"] as const;
@@ -124,6 +128,22 @@ test.describe("serving modes mount the same boundaries", () => {
     expect(listed.preview).toEqual(listed.dev);
     expect(modes.map((mode) => servers[mode].claudeCalls().length)).toEqual(
       hostCallsBefore,
+    );
+    const devRunner = await liveRunner(servers.dev.home);
+    expect(runnerCommand(devRunner.pid)).toBe(
+      [
+        process.execPath,
+        "--experimental-transform-types",
+        "--no-warnings",
+        path.join(repoRoot, "dashboard/server/hosts/cursor/runnerMain.ts"),
+      ].join(" "),
+    );
+    const previewRunner = await liveRunner(servers.preview.home);
+    expect(runnerCommand(previewRunner.pid)).toBe(
+      [
+        process.execPath,
+        path.join(process.env[serverBundleVariable] ?? "", "runnerMain.mjs"),
+      ].join(" "),
     );
   });
 

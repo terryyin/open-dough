@@ -1,11 +1,11 @@
-// Builds the production dashboard once per suite run into the run's own
-// temporary directory, which every page journey's own preview server then
+// Bundles the server entries and builds the production dashboard once per
+// suite run into run-owned directories, which each test's own server then
 // serves read-only (./dashboardServer.ts), so no run exercises stale assets
 // and two runs from one checkout never rebuild each other's. Workers inherit
 // the runner's environment, so the directory reaches them in
-// `builtDashboardVariable`. The returned function is the run's global
-// teardown: it removes the directory after every run whose setup succeeded,
-// passing or failing; a failed build removes it here.
+// `builtDashboardVariable` and `serverBundleVariable`. The returned function
+// is the run's global teardown: it removes the directories after a passing
+// or failing run; failed setup and interruption remove them too.
 //
 // Before building, it runs the committed fixture executables once
 // (./fixtureExecutable.ts), so a fresh checkout's first run of each happens
@@ -28,28 +28,41 @@ import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scr
 import { buildDashboardTo, builtDashboardVariable } from "./dashboardBuild.ts";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
 import {
+  bundleServerEntries,
+  createServerBundleDirectory,
+  serverBundleVariable,
+} from "./serverBundle.ts";
+import {
   describeRunProcesses,
   endRunProcesses,
   identifyRun,
 } from "./runProcesses.ts";
 
-export default function globalSetup(): () => Promise<void> {
+export default async function globalSetup(): Promise<() => Promise<void>> {
   const runId = identifyRun();
   runFixtureExecutablesOnce();
   const outDir = mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-"));
   const requests = mkdtempSync(path.join(tmpdir(), "dough-dashboard-gh-"));
   const ownerless = ownerlessRequestRoot(requests);
+  const bundle = createServerBundleDirectory();
   const remove = (): void => {
+    process.off("exit", remove);
+    rmSync(bundle, { recursive: true, force: true });
     rmSync(outDir, { recursive: true, force: true });
     rmSync(requests, { recursive: true, force: true });
   };
+  // Playwright runs the returned teardown after a graceful interruption.
+  // Exit also covers interruption while asynchronous setup is still pending.
+  process.once("exit", remove);
   try {
+    await bundleServerEntries(bundle);
     buildDashboardTo(outDir);
   } catch (error) {
     remove();
     throw error;
   }
   process.env[builtDashboardVariable] = outDir;
+  process.env[serverBundleVariable] = bundle;
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
   return async () => {
     const survived = await endRunProcesses(runId);

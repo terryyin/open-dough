@@ -1,8 +1,10 @@
 // What every boundary spec here starts: the local boundaries alone, run by
-// Node from ../../server/boundaryServer.ts, without Vite or a build, in the
+// Node from the run's bundle of ../../server/boundaryServer.ts, without Vite
+// or an app build, in the
 // project environment the spec names.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { test, expect } from "../support/pageTest.ts";
 import { startDashboardServer } from "../support/dashboardServer.ts";
 import {
@@ -10,9 +12,16 @@ import {
   projectConfigurationFile,
 } from "../support/projectConfiguration.ts";
 import { boundaryServerCommand } from "../support/serverAddress.ts";
+import { serverBundleVariable } from "../support/serverBundle.ts";
 import { rawRequest } from "../support/rawHttp.ts";
+import { liveRunner, runnerCommand } from "../support/cursorRunnerJourney.ts";
 
 test("a boundary-mode server is the Node entry alone, naming no Vite and serving no page", async () => {
+  const bundle = process.env[serverBundleVariable];
+  expect(bundle).toBeDefined();
+  expect(boundaryServerCommand.args).toEqual([
+    path.join(bundle ?? "", "boundaryServer.mjs"),
+  ]);
   const server = await startDashboardServer({ mode: "boundary" });
   try {
     const command = execFileSync(
@@ -33,6 +42,10 @@ test("a boundary-mode server is the Node entry alone, naming no Vite and serving
       ].join(" "),
     );
     expect(server.output()).not.toMatch(/vite/i);
+    const runner = await liveRunner(server.home);
+    expect(runnerCommand(runner.pid)).toBe(
+      [process.execPath, path.join(bundle ?? "", "runnerMain.mjs")].join(" "),
+    );
     expect(server.outDir).toBeUndefined();
     expect(
       (await rawRequest({ url: `${server.baseURL}/`, method: "GET" })).status,
