@@ -216,6 +216,8 @@ reason for sequencing, completion condition, and waiting, satisfied, or
 decision-needed state. Resolution evidence names a recoverable supplier revision
 and canonical path, the accepted integration revision, and the verification or
 remaining question. Shared code alone does not justify a blocking wait.
+The condition names the supplier outcome needed before the consumer can start;
+the consumer's own implementation belongs to its scope and acceptance examples.
 
 An unresolved dependency prevents new execution from starting. Loading,
 unreadable, or malformed dependency facts also prevent a new start. The actual
@@ -241,8 +243,11 @@ The supplying story's landing or wrap-up discovers current consumers and judges
 each condition against the completed, accepted outcome. It may reconcile bounded
 story or plan assumptions whose answer is settled by the consumer's existing
 intent. Unspecified choices remain decision-needed with the actual developer
-question; conditions requiring consumer implementation stay waiting for separate
-execution authority. Source disappearance, an increment, or queue removal never
+question. An agreement that includes the consumer's own implementation is
+corrected within its established intent or explicit developer direction before
+judging the supplier prerequisite; that correction grants no consumer execution
+authority and claims no consumer implementation. Unfulfilled supplier conditions
+stay waiting. Source disappearance, an increment, or queue removal never
 proves fulfillment. After satisfying a condition, the agent rereads the
 consumer's Not ready reasons and, by judgment, records a fresh assessment
 without any reason that only restated that condition, keeping every other

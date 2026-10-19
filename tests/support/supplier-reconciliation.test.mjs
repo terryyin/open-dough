@@ -20,9 +20,9 @@ import {
   boundedIntent,
   unrelatedReason,
   decision,
-  implementation,
+  missingCapability,
   question,
-  waitingCondition,
+  supplierCondition,
   textAt,
   writeAt,
   outcome,
@@ -39,7 +39,7 @@ test("supplier visit reconciles settled assumptions independently and retains ev
       consumer.identity,
       f.sibling.identity,
       decision.identity,
-      implementation.identity,
+      missingCapability.identity,
     ].sort(),
   );
   assert.equal(existsSync(`${f.integration}/.planning/seeds/B.md`), false);
@@ -75,22 +75,22 @@ test("supplier visit reconciles settled assumptions independently and retains ev
     ],
     [
       f.sibling,
-      `Verified ${f.late.planPath} seconds assumption against the completed endpoint proof and unchanged consumer seconds goal; no implementation was required by this condition.`,
+      `Verified ${f.late.planPath} seconds assumption against the completed endpoint proof and unchanged consumer seconds goal; no consumer implementation was required by this condition.`,
     ],
     [
       decision,
       ".planning/seeds/decision.md leaves compatibility unspecified; the supplier rejects legacy requests. Supporting legacy requests or refusing them remains a developer choice. Next action: developer settles that promise.",
     ],
     [
-      implementation,
-      ".planning/seeds/implementation.md requires implemented retry UI. No consumer implementation is authorized or present. Next action: obtain separate consumer execution authorization; failed fulfillment verification leaves the condition waiting.",
+      missingCapability,
+      ".planning/seeds/missing-capability.md needs fractional-second intervals, but the integrated supplier rejects them. Next action: deliver and verify that supplier capability; the supplier condition remains unfulfilled.",
     ],
   ]);
   for (const [story, summary] of summaries) {
     const state =
       story === decision
         ? "decision-needed"
-        : story === implementation
+        : story === missingCapability
           ? "waiting"
           : "satisfied";
     const result = await resolveConsumer(
@@ -132,16 +132,16 @@ test("supplier visit reconciles settled assumptions independently and retains ev
     choice.blocking[0].resolution.summary,
     /Condition satisfied:/,
   );
-  const required = await readDependencies(f.project, implementation);
+  const required = await readDependencies(f.project, missingCapability);
   assert.equal(required.blocking[0].state, "waiting");
-  assert.equal(required.blocking[0].condition, waitingCondition);
+  assert.equal(required.blocking[0].condition, supplierCondition);
   assert.match(
     required.blocking[0].resolution.summary,
-    /separate consumer execution authorization/,
+    /supplier condition remains unfulfilled/,
   );
 
   const beforeRetry = new Map(
-    [decision, implementation, f.sibling].map((story) => [
+    [decision, missingCapability, f.sibling].map((story) => [
       story,
       textAt(f, `.planning/${story.link.split("#")[0]}`),
     ]),
@@ -161,7 +161,7 @@ test("supplier visit reconciles settled assumptions independently and retains ev
     assert.equal(textAt(f, `.planning/${story.link.split("#")[0]}`), bytes);
   await publish(f, "publish independent consumer outcomes");
   const remoteBefore = await revParse(f.origin, "refs/heads/main");
-  for (const story of [decision, implementation, f.sibling]) {
+  for (const story of [decision, missingCapability, f.sibling]) {
     const started = await startCliResult(
       f,
       "story-branch",
@@ -180,7 +180,7 @@ test("supplier visit reconciles settled assumptions independently and retains ev
       assert.match(started.receipt.error, /execution is blocked/);
       assert.ok(
         started.receipt.error.includes(
-          story === decision ? question : waitingCondition,
+          story === decision ? question : supplierCondition,
         ),
       );
     }

@@ -23,13 +23,13 @@ export const decision = {
   link: "seeds/decision.md",
   goal: "Show retry intervals; compatibility behavior is unspecified.",
 };
-export const implementation = {
-  identity: "RECON-IMPLEMENTATION",
-  link: "seeds/implementation.md",
-  goal: "Show retry intervals in the implemented consumer UI.",
+export const missingCapability = {
+  identity: "RECON-MISSING-CAPABILITY",
+  link: "seeds/missing-capability.md",
+  goal: "Show fractional-second retry intervals in the consumer UI.",
 };
-export const waitingCondition =
-  "The supplier endpoint is integrated and this consumer retry UI is implemented and verified.";
+export const supplierCondition =
+  "The integrated supplier endpoint supports fractional-second retry intervals.";
 export const boundedAssumption = "Retry intervals use milliseconds.";
 export const verifiedAssumption = "Retry intervals use seconds.";
 export const boundedIntent =
@@ -55,7 +55,7 @@ export async function reconciliationFixture(t) {
       .replace("**Goal:** Deliver late work.", `**Goal:** ${boundedIntent}`),
   );
   writeAt(f, f.late.planPath, `# Retry plan\n\n${boundedAssumption}\n`);
-  for (const story of [decision, implementation]) {
+  for (const story of [decision, missingCapability]) {
     writeAt(
       f,
       `.planning/${story.link}`,
@@ -65,7 +65,7 @@ export async function reconciliationFixture(t) {
       f.project,
       story,
       dependency(supplier, {
-        ...(story === implementation && { condition: waitingCondition }),
+        ...(story === missingCapability && { condition: supplierCondition }),
       }),
     );
     assert.equal(result.code, 0, result.stderr);
@@ -99,7 +99,7 @@ export async function reconciliationFixture(t) {
   writeAt(
     f,
     supplierPlan,
-    `${plan("done")}\nContract proof: retry interval is in seconds; legacy requests are rejected.\n`,
+    `${plan("done")}\nContract proof: retry interval is in seconds; legacy requests are rejected; fractional-second intervals are rejected.\n`,
   );
   const evidence = await publish(
     f,
