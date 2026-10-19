@@ -13,14 +13,25 @@ The installed command accepts `--outcome completed` with a reminder or
 `--outcome unfinished` with the exact issue and next action, plus
 `--message-file <path>` containing the agent's exact attention response. Land and
 Wrap Up append `--outcome completed` without a message file only after their
-operations and final wording settle. This final operation stores completion evidence
-and local Done together before acknowledging the recorded session. Neither a marker,
+operations and final wording settle. This final operation stores completion evidence and, when the closure rule
+below permits it, local Done before acknowledging the recorded session. Neither a marker,
 silence, native turn completion nor process exit can set Done. Unfinished work requires
 a useful nonempty message and stays open. Claude can report before its native ID is known:
 that receipt says `pending-native-session`, names only the accepted launch, and
 binds to its native session, with local Done for a quiet completion, when that launch
 is confirmed. It never selects the
 newest session for a story. Optional `--session` must match the confirmed native ID.
+
+For a tracked execution, a quiet completion report retains the open session
+and its terminal while the story awaits wrap-up. Automatic Done additionally
+requires a retained landing and readable local evidence of published closure:
+the launch repository's current remote tracking target contains that landing
+and its configured backlog no longer lists the story. The first landing alone
+can be a retained increment; later wrap-up is read from the newer target.
+Missing or unreadable evidence leaves the session open. Explicit **Mark as done**
+remains authoritative. One-shot execution and other workflows retain their ordinary
+quiet-completion behavior. The same rule applies to an early report when its native
+session binds. A quiet retained report has no unread-message badge or alert.
 
 Every shared session entry, on a story card and in Recently done, shows its
 message as text in a message part headed by the report's completion label; the
@@ -71,8 +82,8 @@ reflects that message, and Mark as done acknowledges the completed session
 without a waiting-for-input warning. Missing workspace alone, an unknown
 workspace, unfinished reports and other workflows do not establish completion.
 
-Quiet reporting uses the same Done operation as Mark as done, including native
-naming. The receipt acknowledges durable completion and Done intent at once,
+When eligible for automatic Done, quiet reporting uses the same Done operation as Mark as done, including native
+naming. The receipt acknowledges durable completion and eligible Done intent at once,
 with the local mark reading `Native done mark is pending.` as ordinary text, not
 a problem; the native rename starts once the receipt is sent, since the sender's
 turn goes on until then. Codex uses its native out-of-band name operation.

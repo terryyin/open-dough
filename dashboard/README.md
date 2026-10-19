@@ -20,7 +20,8 @@ disclosure for touch reading of the full title and session context. Its button
 is badged with how many need attention.
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** records Done intent, renames the native session where supported and
-stops native work. Quiet automatic completion uses the same Done operation while
+stops native work. Quiet automatic completion follows the [published closure rule](AGENT-LAUNCH-COMPLETION.md)
+for tracked execution, then uses the same Done operation while
 preserving its reporting sender for acknowledgment ([Agent launch](AGENT-LAUNCH.md)).
 **Start session** on the project actions row starts an ad hoc session in the
 selected project's folder, with no story, listed in Taken and the Sessions

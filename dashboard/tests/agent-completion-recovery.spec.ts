@@ -169,5 +169,6 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
       }
     },
     git.env,
+    context.landingContext,
   );
 });

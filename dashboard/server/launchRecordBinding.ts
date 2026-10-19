@@ -1,9 +1,7 @@
 // Binding takes the attempt lock before the record lock, like completion delivery.
+import { completionClosesSession } from "./completionClosure.ts";
 import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
-import {
-  completedWithoutAttention,
-  type CompletionReport,
-} from "../src/completionReport.ts";
+import { type CompletionReport } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey } from "../src/sessionReference.ts";
@@ -46,7 +44,13 @@ export async function bindRecord(
         "The reporting session was deleted; a late native binding was not saved.",
       );
     }
-    const completion = attempt?.completion;
+    const completion = attempt?.completion ?? record.completion;
+    const closesSession =
+      completion !== undefined &&
+      (await completionClosesSession(
+        { ...record, landing: attempt?.landing ?? record.landing },
+        completion,
+      ));
     await replaceRecords((kept) => {
       const existing = (kept[sourceId] ?? []).find(
         (entry): entry is LaunchRecord =>
@@ -63,11 +67,12 @@ export async function bindRecord(
       // belong to the sender's record commit; a late native writer cannot apply them.
       const reported =
         existing === undefined
-          ? (completion ?? record.completion)
+          ? completion
           : (existing.completion ?? record.completion);
+      const landing = existing?.landing ?? attempt?.landing ?? record.landing;
       const bound =
         existing === undefined
-          ? reported !== undefined && completedWithoutAttention(reported)
+          ? reported !== undefined && closesSession
             ? doneSessionRecord(record, reported.receivedAt)
             : record
           : {
@@ -86,7 +91,7 @@ export async function bindRecord(
           {
             ...bound,
             completion: reported,
-            landing: existing?.landing ?? attempt?.landing ?? record.landing,
+            landing,
             landingReporting: boundLandingReporting(attempt, existing),
             dispositionChangedAt:
               existing?.dispositionChangedAt ?? record.dispositionChangedAt,

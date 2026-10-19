@@ -20,16 +20,18 @@ export function completionLabel(report: CompletionReport): string {
       : "Unfinished work";
 }
 
-// Whether a record's report is unread: it has one, the session is not marked
+// Whether a record's report is unread: it has a message, the session is not marked
 // done, and the developer has not marked this report read. A newer report
 // comes with a new receipt, so it is unread again.
 export function reportUnread(record: {
-  readonly completion?: Pick<CompletionReport, "receipt"> | undefined;
+  readonly completion?:
+    Pick<CompletionReport, "receipt" | "message"> | undefined;
   readonly doneAt?: string | undefined;
   readonly reportRead?: string | undefined;
 }): boolean {
   return (
     record.completion !== undefined &&
+    record.completion.message !== "" &&
     record.doneAt === undefined &&
     record.reportRead !== record.completion.receipt
   );
