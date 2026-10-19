@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-142#keep-execution-terminal-until-wrap-up",
+  "title": "Keep the execution terminal available while awaiting wrap-up",
+  "completedAt": "2026-10-19T13:08:03.922Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "codex"
+}
